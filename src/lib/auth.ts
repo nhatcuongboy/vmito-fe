@@ -42,7 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: user.role as UserRole,
           image: user.image,
         };
       },
@@ -118,7 +118,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub!;
-        session.user.role = token.role as string;
+        session.user.role = token.role as UserRole;
         // Add player-specific fields
         if (token.role === UserRole.PLAYER || token.role === UserRole.GUEST) {
           (session.user as any).playerId = (token as any).playerId;
