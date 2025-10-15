@@ -23,6 +23,7 @@ interface BulkPlayerData {
   levelDescription?: string;
   phone?: string;
   requireConfirmInfo?: boolean;
+  userId?: string; // Optional userId to link with existing user
 }
 
 // POST /api/sessions/[id]/players/bulk - Create multiple players in bulk
@@ -192,6 +193,7 @@ export async function POST(
       return prisma.player.create({
         data: {
           sessionId,
+          userId: playerData.userId || null, // Link to user if userId provided
           playerNumber: playerData.playerNumber,
           name: playerData.name || null,
           gender: playerData.gender || null,
@@ -203,6 +205,8 @@ export async function POST(
           confirmedByPlayer: false, // Player has not confirmed
           requireConfirmInfo: playerData.requireConfirmInfo || false,
           status: 'WAITING',
+          isJoined: playerData.userId ? true : false, // If userId provided, mark as joined
+          isGuest: playerData.userId ? false : true, // If userId provided, not a guest
         },
       });
     });

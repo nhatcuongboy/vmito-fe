@@ -157,6 +157,7 @@ export interface BulkPlayerData {
   levelDescription?: string;
   phone?: string;
   requireConfirmInfo?: boolean;
+  userId?: string; // Optional userId to link with existing user
 }
 
 export interface BulkPlayersResponse {

@@ -1,30 +1,28 @@
 'use client';
 
+import { Card, CardBody } from '@/components/ui/chakra-compat';
+import { SessionService } from '@/lib/api/session.service';
 import {
   Box,
   Button,
   Flex,
+  Grid,
+  Heading,
+  HStack,
   Input,
   Text,
-  VStack,
-  Heading,
   Textarea,
-  Grid,
-  Badge,
-  HStack,
+  VStack
 } from '@chakra-ui/react';
 import {
-  Settings,
-  MapPin,
-  Users,
-  FileText,
   Clock,
+  FileText,
+  MapPin,
   UserCheck,
   UserPlus,
+  Users
 } from 'lucide-react';
-import { Card, CardBody } from '@/components/ui/chakra-compat';
 import { useState } from 'react';
-import { SessionService } from '@/lib/api/session.service';
 import toast from 'react-hot-toast';
 
 interface GeneralSettingsProps {

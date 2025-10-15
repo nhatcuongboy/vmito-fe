@@ -1,3 +1,5 @@
+'use client';
+
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import {
   Button,
@@ -9,6 +11,7 @@ import {
   useToast,
 } from '@/components/ui/chakra-compat';
 import { PlayerService } from '@/lib/api/player.service';
+import { UserService, UserOption } from '@/lib/api/user.service';
 import { Level } from '@/lib/api/types';
 import { getLevelLabel } from '@/utils/level-mapping';
 import {
@@ -36,6 +39,7 @@ import {
   Venus,
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Player {
   id: string;
@@ -96,6 +100,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   session,
   onDataRefresh,
 }) => {
+  const t = useTranslations('pages.playerManagement');
+  const tCommon = useTranslations('common');
+  
   // Internal state management
   const [newPlayers, setNewPlayers] = useState<
     Array<{
@@ -105,6 +112,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       level: Level;
       levelDescription?: string;
       requireConfirmInfo?: boolean;
+      userId?: string; // Added to track selected user
     }>
   >([]);
   const [editingPlayers, setEditingPlayers] = useState<{
@@ -115,8 +123,31 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     useState<boolean>(false);
   const [showQRModal, setShowQRModal] = useState<boolean>(false);
   const [selectedPlayerForQR, setSelectedPlayerForQR] = useState<any>(null);
+  const [availableUsers, setAvailableUsers] = useState<UserOption[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
 
   const toast = useToast();
+
+  // Load available users on mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setIsLoadingUsers(true);
+        const users = await UserService.getAllUsers();
+        setAvailableUsers(users);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        toast.toast({
+          title: t('failedToLoadUsers'),
+          status: 'error',
+          duration: 3000,
+        });
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+    loadUsers();
+  }, []);
 
   // Player management functions
   const addNewPlayerRow = () => {
@@ -153,6 +184,66 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
   const clearAllNewPlayers = () => {
     setNewPlayers([]);
+  };
+
+  // Handle user selection from dropdown
+  const handleUserSelection = (index: number, userId: string) => {
+    if (!userId) {
+      // Clear selection
+      updateNewPlayer(index, 'userId', '');
+      updateNewPlayer(index, 'name', `Player ${newPlayers[index].playerNumber}`);
+      updateNewPlayer(index, 'gender', 'MALE');
+      updateNewPlayer(index, 'level', Level.TB_MINUS);
+      updateNewPlayer(index, 'levelDescription', '');
+      return;
+    }
+
+    // Check if user is already selected in other new players
+    const isUserAlreadySelected = newPlayers.some(
+      (p, idx) => idx !== index && p.userId === userId
+    );
+
+    if (isUserAlreadySelected) {
+      toast.toast({
+        title: t('userAlreadySelected'),
+        description: t('userAlreadySelectedDescription'),
+        status: 'error',
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Check if user is already in existing players
+    const isUserInExistingPlayers = session.players.some(
+      (p: any) => p.userId === userId
+    );
+
+    if (isUserInExistingPlayers) {
+      toast.toast({
+        title: t('userAlreadyExists'),
+        description: t('userAlreadyExistsDescription'),
+        status: 'error',
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Find the selected user
+    const selectedUser = availableUsers.find((u) => u.id === userId);
+    if (selectedUser) {
+      // Auto-fill player information from user data
+      updateNewPlayer(index, 'userId', selectedUser.id);
+      updateNewPlayer(index, 'name', selectedUser.name);
+      if (selectedUser.gender) {
+        updateNewPlayer(index, 'gender', selectedUser.gender);
+      }
+      if (selectedUser.level) {
+        updateNewPlayer(index, 'level', selectedUser.level as Level);
+      }
+      if (selectedUser.levelDescription) {
+        updateNewPlayer(index, 'levelDescription', selectedUser.levelDescription);
+      }
+    }
   };
 
   const updateNewPlayer = (
@@ -231,14 +322,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       }
 
       toast.toast({
-        title: 'Player changes saved successfully',
+        title: t('playerChangesSavedSuccess'),
         status: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error saving player changes:', error);
       toast.toast({
-        title: 'Failed to save player changes',
+        title: t('failedToSavePlayerChanges'),
         status: 'error',
         duration: 3000,
       });
@@ -275,14 +366,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       }
 
       toast.toast({
-        title: 'Player updated successfully',
+        title: t('playerUpdatedSuccess'),
         status: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error updating player:', error);
       toast.toast({
-        title: 'Failed to update player',
+        title: t('failedToUpdatePlayer'),
         description: error instanceof Error ? error.message : 'Unknown error',
         status: 'error',
         duration: 3000,
@@ -299,7 +390,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
     // Show confirmation dialog
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${playerName}"?\n\nThis action cannot be undone.`
+      t('deleteConfirmation', { name: playerName })
     );
 
     if (!confirmed) {
@@ -312,14 +403,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onDataRefresh();
       }
       toast.toast({
-        title: `Player "${playerName}" deleted successfully`,
+        title: t('playerDeletedSuccess', { name: playerName }),
         status: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error deleting player:', error);
       toast.toast({
-        title: 'Failed to delete player',
+        title: t('failedToDeletePlayer'),
         status: 'error',
         duration: 3000,
       });
@@ -411,7 +502,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     const errors: { [index: number]: string } = {};
     newPlayers.forEach((player: any, idx: any) => {
       if (!player.name || player.name.trim() === '') {
-        errors[idx] = 'Player name is required';
+        errors[idx] = t('playerNameRequired');
       }
     });
     setNewPlayerErrors(errors);
@@ -467,6 +558,21 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     });
   };
 
+  // Helper function to check if a user is already selected
+  const isUserAlreadyUsed = (userId: string, currentIndex?: number): boolean => {
+    // Check in new players (excluding current index if provided)
+    const inNewPlayers = newPlayers.some(
+      (p, idx) => p.userId === userId && (currentIndex === undefined || idx !== currentIndex)
+    );
+    
+    // Check in existing players
+    const inExistingPlayers = session.players.some(
+      (p: any) => p.userId === userId
+    );
+    
+    return inNewPlayers || inExistingPlayers;
+  };
+
   return (
     <VStack spacing={8} align="stretch" p={{ base: 2, md: 4 }}>
       {/* Header section with stats */}
@@ -475,7 +581,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
           <HStack spacing={3}>
             <Box as={Users} boxSize={5} color="blue.600" />
             <Heading size="md" color="gray.800">
-              Player Management
+              {t('playerManagementTitle')}
             </Heading>
           </HStack>
           <Badge
@@ -487,7 +593,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             fontSize="sm"
             fontWeight="semibold"
           >
-            {currentPlayerCount}/{maxPlayers} players
+            {t('playerCount', { current: currentPlayerCount, max: maxPlayers })}
           </Badge>
         </Flex>
 
@@ -495,15 +601,15 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         <HStack spacing={6} fontSize="sm" color="gray.600">
           <HStack spacing={1}>
             <Text fontWeight="medium">{session.players.length}</Text>
-            <Text>existing</Text>
+            <Text>{t('existing')}</Text>
           </HStack>
           <HStack spacing={1}>
             <Text fontWeight="medium">{newPlayers.length}</Text>
-            <Text>new</Text>
+            <Text>{t('new')}</Text>
           </HStack>
           <HStack spacing={1}>
             <Text fontWeight="medium">{session.numberOfCourts}</Text>
-            <Text>courts</Text>
+            <Text>{t('courts')}</Text>
           </HStack>
         </HStack>
       </Box>
@@ -529,7 +635,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             width={{ base: 'auto', md: 'auto' }}
             title="Add new player"
           >
-            Add Player
+            {t('addPlayer')}
           </Button>
         </HStack>
       )}
@@ -542,13 +648,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
               <Box as={AlertCircle} boxSize={5} color="orange.500" />
               <VStack align="start" spacing={1}>
                 <Text fontSize="sm" fontWeight="semibold" color="orange.700">
-                  Recommended player limit reached
+                  {t('limitWarning')}
                 </Text>
                 <Text fontSize="sm" color="orange.600">
-                  You have {currentPlayerCount} players for{' '}
-                  {session.numberOfCourts} courts ({session.maxPlayersPerCourt}{' '}
-                  players per court). Adding more players may increase waiting
-                  times.
+                  {t('limitWarningDescription', {
+                    currentPlayerCount,
+                    numberOfCourts: session.numberOfCourts,
+                    maxPlayersPerCourt: session.maxPlayersPerCourt,
+                  })}
                 </Text>
               </VStack>
             </HStack>
@@ -565,7 +672,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
               <HStack spacing={3}>
                 <Box as={UserCheck} boxSize={5} color="green.600" />
                 <Heading size="sm" color="green.700">
-                  New Players ({newPlayers.length})
+                  {t('newPlayersTitle', { count: newPlayers.length })}
                 </Heading>
               </HStack>
 
@@ -597,7 +704,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                               color="gray.600"
                               fontWeight="medium"
                             >
-                              New Player
+                              {t('newPlayer')}
                             </Text>
                           </HStack>
                           <IconButton
@@ -618,10 +725,53 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                             color="gray.600"
                             fontWeight="medium"
                           >
-                            Player Name:
+                            {t('selectExistingPlayer')}
+                          </Text>
+                          <select
+                            value={player.userId || ''}
+                            onChange={(e) => handleUserSelection(index, e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '12px',
+                              borderRadius: '6px',
+                              border: '1px solid #E2E8F0',
+                              backgroundColor: 'white',
+                              fontSize: '14px',
+                              marginBottom: '12px',
+                            }}
+                            disabled={isLoadingUsers}
+                          >
+                            <option value="">{t('createNewPlayer')}</option>
+                            {availableUsers.map((user) => {
+                              const isUsed = isUserAlreadyUsed(user.id, index);
+                              return (
+                                <option 
+                                  key={user.id} 
+                                  value={user.id}
+                                  disabled={isUsed}
+                                  style={{
+                                    color: isUsed ? '#A0AEC0' : 'inherit',
+                                    fontStyle: isUsed ? 'italic' : 'normal',
+                                  }}
+                                >
+                                  {user.name} ({user.email}){isUsed ? ` - ${t('alreadySelected')}` : ''}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </Box>
+
+                        <Box>
+                          <Text
+                            fontSize="sm"
+                            mb={2}
+                            color="gray.600"
+                            fontWeight="medium"
+                          >
+                            {t('playerName')}
                           </Text>
                           <Input
-                            placeholder="Enter player name"
+                            placeholder={t('enterPlayerName')}
                             value={player.name}
                             onChange={(
                               e: React.ChangeEvent<HTMLInputElement>
@@ -652,6 +802,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 ? '0 0 0 1px #F56565'
                                 : '0 0 0 1px #3182ce',
                             }}
+                            disabled={!!player.userId}
+                            opacity={player.userId ? 0.6 : 1}
+                            cursor={player.userId ? 'not-allowed' : 'text'}
                           />
                           {newPlayerErrors[index] && (
                             <Text fontSize="xs" color="red.500" mt={1}>
@@ -672,7 +825,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                               color="gray.600"
                               fontWeight="medium"
                             >
-                              Gender:
+                              {t('gender')}
                             </Text>
                             <select
                               value={player.gender}
@@ -684,15 +837,18 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 padding: '12px',
                                 borderRadius: '6px',
                                 border: '1px solid #E2E8F0',
-                                backgroundColor: 'white',
+                                backgroundColor: player.userId ? '#F7FAFC' : 'white',
                                 fontSize: '14px',
+                                opacity: player.userId ? 0.6 : 1,
+                                cursor: player.userId ? 'not-allowed' : 'pointer',
                               }}
+                              disabled={!!player.userId}
                             >
-                              <option value="MALE">Male</option>
-                              <option value="FEMALE">Female</option>
-                              <option value="OTHER">Other</option>
+                              <option value="MALE">{t('male')}</option>
+                              <option value="FEMALE">{t('female')}</option>
+                              <option value="OTHER">{t('other')}</option>
                               <option value="PREFER_NOT_TO_SAY">
-                                Prefer not to say
+                                {t('preferNotToSay')}
                               </option>
                             </select>
                           </Box>
@@ -703,7 +859,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                               color="gray.600"
                               fontWeight="medium"
                             >
-                              Level:
+                              {t('level')}
                             </Text>
                             <select
                               value={player.level}
@@ -715,11 +871,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 padding: '12px',
                                 borderRadius: '6px',
                                 border: '1px solid #E2E8F0',
-                                backgroundColor: 'white',
+                                backgroundColor: player.userId ? '#F7FAFC' : 'white',
                                 fontSize: '14px',
+                                opacity: player.userId ? 0.6 : 1,
+                                cursor: player.userId ? 'not-allowed' : 'pointer',
                               }}
+                              disabled={!!player.userId}
                             >
-                              <option value="">Select Level</option>
+                              <option value="">{t('selectLevel')}</option>
                               <option value={Level.Y_MINUS}>Y-</option>
                               <option value={Level.Y}>Y</option>
                               <option value={Level.Y_PLUS}>Y+</option>
@@ -740,10 +899,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                             color="gray.600"
                             fontWeight="medium"
                           >
-                            Level Description:
+                            {t('levelDescription')}
                           </Text>
                           <Textarea
-                            placeholder="Optional level description or notes"
+                            placeholder={t('levelDescriptionPlaceholder')}
                             size="md"
                             value={player.levelDescription || ''}
                             onChange={(
@@ -756,6 +915,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                               )
                             }
                             rows={3}
+                            disabled={!!player.userId}
+                            opacity={player.userId ? 0.6 : 1}
+                            cursor={player.userId ? 'not-allowed' : 'text'}
+                            bg={player.userId ? 'gray.50' : 'white'}
                           />
                         </Box>
 
@@ -787,7 +950,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 lineHeight: '1.4',
                               }}
                             >
-                              Require player to confirm information
+                              {t('requirePlayerConfirmInfo')}
                             </label>
                           </Flex>
                         </Box>
@@ -814,7 +977,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                   variant="outline"
                   title="Add another player"
                 >
-                  Add Another
+                  {t('addAnother')}
                 </Button>
 
                 <HStack spacing={2}>
@@ -826,7 +989,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                     loading={isSaving}
                     disabled={Object.keys(newPlayerErrors).length > 0}
                   >
-                    Save All ({newPlayers.length})
+                    {t('saveAll', { count: newPlayers.length })}
                   </Button>
                   <Button
                     size="sm"
@@ -835,7 +998,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                     variant="outline"
                     onClick={cancelAddPlayers}
                   >
-                    Cancel
+                    {tCommon('cancel')}
                   </Button>
                 </HStack>
               </Flex>
@@ -854,10 +1017,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                 <Box as={Users} boxSize={5} color="blue.600" />
                 <VStack align="start" spacing={1}>
                   <Heading size="sm" color="gray.800">
-                    Existing Players ({session.players.length})
+                    {t('existingPlayers', { count: session.players.length })}
                   </Heading>
                   <Text fontSize="xs" color="gray.500">
-                    Click Edit to modify player information
+                    {t('clickEditToModify')}
                   </Text>
                 </VStack>
               </HStack>
@@ -871,11 +1034,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                     <Box fontSize="4xl">👥</Box>
                     <VStack spacing={2}>
                       <Text fontSize="lg" fontWeight="medium" color="gray.600">
-                        No players in this session yet
+                        {t('noPlayersYet')}
                       </Text>
                       <Text fontSize="sm" color="gray.500" textAlign="center">
-                        Add some players using the "Add Player" button above to
-                        get started!
+                        {t('noPlayersYetDescription')}
                       </Text>
                     </VStack>
                     <Button
@@ -884,7 +1046,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                       onClick={handleAddNewPlayer}
                       colorScheme="green"
                     >
-                      Add Your First Player
+                      {t('addFirstPlayer')}
                     </Button>
                   </VStack>
                 </CardBody>
@@ -926,7 +1088,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     color="blue.600"
                                     fontWeight="medium"
                                   >
-                                    Editing Player
+                                    {t('editingPlayer')}
                                   </Text>
                                 </HStack>
                                 <HStack>
@@ -961,7 +1123,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                   color="gray.600"
                                   fontWeight="medium"
                                 >
-                                  Player Name:
+                                  {t('playerName')}
                                 </Text>
                                 <Input
                                   value={isEditing.name}
@@ -975,7 +1137,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     )
                                   }
                                   size="md"
-                                  placeholder="Enter player name"
+                                  placeholder={t('enterPlayerName')}
                                 />
                               </Box>
 
@@ -991,7 +1153,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     color="gray.600"
                                     fontWeight="medium"
                                   >
-                                    Gender:
+                                    {t('gender')}
                                   </Text>
                                   <select
                                     value={isEditing.gender}
@@ -1011,11 +1173,11 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                       fontSize: '14px',
                                     }}
                                   >
-                                    <option value="MALE">Male</option>
-                                    <option value="FEMALE">Female</option>
-                                    <option value="OTHER">Other</option>
+                                    <option value="MALE">{t('male')}</option>
+                                    <option value="FEMALE">{t('female')}</option>
+                                    <option value="OTHER">{t('other')}</option>
                                     <option value="PREFER_NOT_TO_SAY">
-                                      Prefer not to say
+                                      {t('preferNotToSay')}
                                     </option>
                                   </select>
                                 </Box>
@@ -1026,7 +1188,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     color="gray.600"
                                     fontWeight="medium"
                                   >
-                                    Level:
+                                    {t('level')}
                                   </Text>
                                   <select
                                     value={isEditing.level}
@@ -1046,7 +1208,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                       fontSize: '14px',
                                     }}
                                   >
-                                    <option value="">Select Level</option>
+                                    <option value="">{t('selectLevel')}</option>
                                     <option value={Level.Y_MINUS}>Y-</option>
                                     <option value={Level.Y}>Y</option>
                                     <option value={Level.Y_PLUS}>Y+</option>
@@ -1067,10 +1229,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                   color="gray.600"
                                   fontWeight="medium"
                                 >
-                                  Level Description:
+                                  {t('levelDescription')}
                                 </Text>
                                 <Textarea
-                                  placeholder="Optional level description or notes"
+                                  placeholder={t('levelDescriptionPlaceholder')}
                                   size="md"
                                   value={isEditing.levelDescription || ''}
                                   onChange={(
@@ -1116,7 +1278,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                       lineHeight: '1.4',
                                     }}
                                   >
-                                    Require player to confirm information
+                                    {t('requirePlayerConfirmInfo')}
                                   </label>
                                 </Flex>
                                 <Flex align="center" gap={3}>
@@ -1147,7 +1309,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                       lineHeight: '1.4',
                                     }}
                                   >
-                                    Confirmed by player
+                                    {t('confirmedByPlayer')}
                                   </label>
                                 </Flex>
                               </Box>
@@ -1399,7 +1561,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                             color="green.600"
                                             fontWeight="medium"
                                           >
-                                            Confirmed by player
+                                            {t('confirmedByPlayer')}
                                           </Text>
                                         </HStack>
                                       )}
@@ -1448,7 +1610,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
               <HStack spacing={3}>
                 <Box as={AlertCircle} boxSize={6} color="orange.500" />
                 <Heading size="md" color="orange.600">
-                  Player Limit Warning
+                  {t('limitWarningModal.title')}
                 </Heading>
               </HStack>
 
@@ -1457,40 +1619,42 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                 _dark={{ color: 'gray.300' }}
                 lineHeight="1.6"
               >
-                You currently have <strong>{currentPlayerCount} players</strong>{' '}
-                for <strong>{session.numberOfCourts} courts</strong> (
-                {session.maxPlayersPerCourt} players per court).
+                {t('limitWarningModal.description', {
+                  currentPlayerCount,
+                  numberOfCourts: session.numberOfCourts,
+                  maxPlayersPerCourt: session.maxPlayersPerCourt,
+                })}
                 <br />
                 <br />
-                Adding more players may result in:
+                {t('limitWarningModal.addingMoreMayResultIn')}
               </Text>
 
               <VStack align="start" spacing={2} pl={4}>
                 <Text fontSize="sm" color="gray.600">
-                  • Longer waiting times for players
+                  • {t('limitWarningModal.longerWaitingTimes')}
                 </Text>
                 <Text fontSize="sm" color="gray.600">
-                  • More complex match scheduling
+                  • {t('limitWarningModal.complexScheduling')}
                 </Text>
                 <Text fontSize="sm" color="gray.600">
-                  • Potential player dissatisfaction
+                  • {t('limitWarningModal.potentialDissatisfaction')}
                 </Text>
               </VStack>
 
               <Text fontSize="sm" color="gray.600" fontStyle="italic">
-                Are you sure you want to continue adding more players?
+                {t('limitWarningModal.confirmQuestion')}
               </Text>
 
               <Flex gap={3} justifyContent="flex-end" pt={2}>
                 <Button variant="outline" onClick={cancelAddPlayer} size="sm">
-                  Cancel
+                  {tCommon('cancel')}
                 </Button>
                 <Button
                   colorScheme="orange"
                   onClick={confirmAddPlayerDespiteWarning}
                   size="sm"
                 >
-                  Add Anyway
+                  {t('limitWarningModal.addAnyway')}
                 </Button>
               </Flex>
             </VStack>
@@ -1525,7 +1689,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             <VStack gap={4}>
               <HStack justify="space-between" w="full">
                 <Text fontSize="lg" fontWeight="bold">
-                  Player #{selectedPlayerForQR.playerNumber} QR Code
+                  {t('qrCodeModal.title', { number: selectedPlayerForQR.playerNumber })}
                 </Text>
                 <Button size="sm" variant="ghost" onClick={closeQRModal}>
                   ✕
@@ -1546,12 +1710,12 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
               {!selectedPlayerForQR.joinCode && (
                 <Text color="red.500" textAlign="center">
-                  Join code not available for this player
+                  {t('qrCodeModal.joinCodeNotAvailable')}
                 </Text>
               )}
 
               <Text fontSize="sm" color="gray.500" textAlign="center">
-                Share this QR code with the player to join quickly
+                {t('qrCodeModal.shareInstructions')}
               </Text>
             </VStack>
           </Box>

@@ -8,7 +8,7 @@
 - Use English for all names.
 - Always use internationalization for all texts.
 - Always comment by English.
-- Always write document by English.
+- Always write documents by English.
 - Always return messages by English to APIs
 - Don't start app to check issues unless otherwise specified.
 
