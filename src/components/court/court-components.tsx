@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 // import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,10 +8,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Court, Player } from "@/lib/api/types";
-import { Button } from "@chakra-ui/react";
-import { Clock, Play, Square, User } from "lucide-react";
+} from '@/components/ui/card';
+import { Court, Player } from '@/lib/api/types';
+import { Button } from '@chakra-ui/react';
+import { Clock, Play, Square, User } from 'lucide-react';
 
 export function CourtCard({
   court,
@@ -33,17 +33,17 @@ export function CourtCard({
           <span>Court {court.courtNumber}</span>
           <span
             className={`text-xs px-2 py-1 rounded-full ${
-              court.status === "IN_USE"
-                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+              court.status === 'IN_USE'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
             }`}
           >
-            {court.status === "IN_USE" ? "In Use" : "Empty"}
+            {court.status === 'IN_USE' ? 'In Use' : 'Empty'}
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {court.status === "IN_USE" && court.currentMatch ? (
+        {court.status === 'IN_USE' && court.currentMatch ? (
           <div className="space-y-4">
             <div className="bg-muted p-3 rounded-md">
               <h4 className="text-sm font-medium mb-2">Current Match</h4>
@@ -52,7 +52,7 @@ export function CourtCard({
                 <div>
                   {new Date(court.currentMatch.startTime).toLocaleTimeString(
                     [],
-                    { hour: "2-digit", minute: "2-digit" }
+                    { hour: '2-digit', minute: '2-digit' }
                   )}
                 </div>
 
@@ -62,7 +62,7 @@ export function CourtCard({
                     (new Date().getTime() -
                       new Date(court.currentMatch.startTime).getTime()) /
                       60000
-                  )}{" "}
+                  )}{' '}
                   min
                 </div>
               </div>
@@ -77,7 +77,7 @@ export function CourtCard({
                       key={player.id}
                       className="bg-background border rounded-md p-2 text-sm"
                     >
-                      #{player.playerNumber} - {player.name || "Player"}
+                      #{player.playerNumber} - {player.name || 'Player'}
                     </div>
                   ))}
                 </div>
@@ -96,7 +96,7 @@ export function CourtCard({
         )}
       </CardContent>
       <CardFooter>
-        {court.status === "EMPTY" ? (
+        {court.status === 'EMPTY' ? (
           <Button
             className="w-full"
             onClick={() => onSelectPlayers && onSelectPlayers(court.id)}
@@ -105,7 +105,7 @@ export function CourtCard({
             Select Players
           </Button>
         ) : court.currentMatch &&
-          court.currentMatch.status === "IN_PROGRESS" ? (
+          court.currentMatch.status === 'IN_PROGRESS' ? (
           <Button
             variant="outline"
             className="w-full"
@@ -212,8 +212,8 @@ export function SelectPlayersModal({
                   key={player.id}
                   className={`p-3 rounded-md border cursor-pointer transition-colors ${
                     selectedPlayers.includes(player.id)
-                      ? "bg-primary/10 border-primary"
-                      : "hover:bg-muted"
+                      ? 'bg-primary/10 border-primary'
+                      : 'hover:bg-muted'
                   }`}
                   onClick={() => togglePlayer(player.id)}
                 >
@@ -221,12 +221,12 @@ export function SelectPlayersModal({
                     <div className="flex items-center">
                       <User className="h-4 w-4 mr-2 text-muted-foreground" />
                       <span>
-                        #{player.playerNumber} -{" "}
-                        {player.name || "Unnamed Player"}
+                        #{player.playerNumber} -{' '}
+                        {player.name || 'Unnamed Player'}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {player.level?.replace("_", "")} • Wait:{" "}
+                      {player.level?.replace('_', '')} • Wait:{' '}
                       {player.currentWaitTime}m
                     </div>
                   </div>

@@ -1,29 +1,29 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
+import { NextRequest } from 'next/server';
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
 
 // GET /api/player-status?token=guest_token - Get player status by guest token
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const guestToken = searchParams.get("token");
+    const guestToken = searchParams.get('token');
 
     if (!guestToken) {
-      return errorResponse("Guest token is required", 400);
+      return errorResponse('Guest token is required', 400);
     }
 
     // Find player by guest token (stored in localStorage from join)
     // We'll use a different approach - extract sessionId and playerNumber from token
-    const tokenParts = guestToken.split("_");
-    if (tokenParts.length < 4 || tokenParts[0] !== "guest") {
-      return errorResponse("Invalid guest token format", 400);
+    const tokenParts = guestToken.split('_');
+    if (tokenParts.length < 4 || tokenParts[0] !== 'guest') {
+      return errorResponse('Invalid guest token format', 400);
     }
 
     const sessionId = tokenParts[1];
     const playerNumber = parseInt(tokenParts[2]);
 
     if (!sessionId || isNaN(playerNumber)) {
-      return errorResponse("Invalid guest token", 400);
+      return errorResponse('Invalid guest token', 400);
     }
 
     // Get player status
@@ -53,11 +53,11 @@ export async function GET(request: NextRequest) {
     });
 
     if (!player) {
-      return errorResponse("Player not found", 404);
+      return errorResponse('Player not found', 404);
     }
 
     if (!player.isJoined) {
-      return errorResponse("Player slot not filled yet", 400);
+      return errorResponse('Player slot not filled yet', 400);
     }
 
     // Format response
@@ -77,10 +77,10 @@ export async function GET(request: NextRequest) {
 
     return successResponse(
       playerStatus,
-      "Player status retrieved successfully"
+      'Player status retrieved successfully'
     );
   } catch (error) {
-    console.error("Error getting player status:", error);
-    return errorResponse("Failed to get player status", 500);
+    console.error('Error getting player status:', error);
+    return errorResponse('Failed to get player status', 500);
   }
 }

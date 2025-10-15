@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import jwt from "jsonwebtoken";
+import { NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import jwt from 'jsonwebtoken';
 
 // GET /api/auth/token - Get JWT token for authenticated user
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user) {
-      return errorResponse("Unauthorized", 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     // Create custom JWT token
@@ -22,12 +22,12 @@ export async function GET(request: NextRequest) {
     };
 
     const token = jwt.sign(tokenPayload, process.env.NEXTAUTH_SECRET!, {
-      algorithm: "HS256",
+      algorithm: 'HS256',
     });
 
     return successResponse({
       accessToken: token,
-      tokenType: "Bearer",
+      tokenType: 'Bearer',
       expiresIn: 86400, // 24 hours in seconds
       user: {
         id: session.user.id,
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Token generation error:", error);
-    return errorResponse("Failed to generate token", 500);
+    console.error('Token generation error:', error);
+    return errorResponse('Failed to generate token', 500);
   }
 }

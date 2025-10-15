@@ -1,17 +1,17 @@
-import { SimpleGrid } from "@/components/ui/chakra-compat";
-import { CourtDirection } from "@/lib/api/types";
-import { Court, Match, Player } from "@/types/session";
-import { Box, Flex, Heading, HStack } from "@chakra-ui/react";
-import { useTranslations } from "next-intl";
-import React from "react";
-import { createCourtElapsedTimeFormatter } from "@/utils/time-helpers";
-import ManualSelectPlayersModal from "./ManualSelectPlayersModal";
-import MatchPreviewModal from "./MatchPreviewModal";
-import MatchResultModal from "./MatchResultModal";
-import CourtCard from "./CourtCard";
-import WaitingPlayers from "./WaitingPlayers";
-import { useCourtsTabModals } from "@/hooks/useCourtsTabModals";
-import { useCourtsTabActions } from "@/hooks/useCourtsTabActions";
+import { SimpleGrid } from '@/components/ui/chakra-compat';
+import { CourtDirection } from '@/lib/api/types';
+import { Court, Match, Player } from '@/types/session';
+import { Box, Flex, Heading, HStack } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
+import React from 'react';
+import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
+import ManualSelectPlayersModal from './ManualSelectPlayersModal';
+import MatchPreviewModal from './MatchPreviewModal';
+import MatchResultModal from './MatchResultModal';
+import CourtCard from './CourtCard';
+import WaitingPlayers from './WaitingPlayers';
+import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
+import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 
 interface CourtsTabProps {
   session: any;
@@ -21,7 +21,7 @@ interface CourtsTabProps {
     courtName: string | undefined,
     courtNumber: number
   ) => string;
-  mode?: "manage" | "view"; // New prop: "manage" (default) allows actions, "view" is read-only
+  mode?: 'manage' | 'view'; // New prop: "manage" (default) allows actions, "view" is read-only
   startManualMatchCreation?: (courtId: string) => void;
   onDataRefresh?: () => void;
   isRefreshing?: boolean;
@@ -35,13 +35,13 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
   selectedPlayers,
   getCurrentMatch,
   getCourtDisplayName,
-  mode = "manage",
+  mode = 'manage',
   startManualMatchCreation,
   onDataRefresh,
   isRefreshing = false,
   formatWaitTime,
 }) => {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
 
   // Create formatter function if not provided via props
   const elapsedTimeFormatter = createCourtElapsedTimeFormatter(t);
@@ -142,10 +142,10 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         <Box paddingY="3" width="100%">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack gap={2} alignItems="center">
-              <Heading size="md">{t("courtsTab.activeCourts")}</Heading>
+              <Heading size="md">{t('courtsTab.activeCourts')}</Heading>
             </HStack>
             <HStack gap={2}>
-              {session.status === "IN_PROGRESS" && <HStack gap={2}></HStack>}
+              {session.status === 'IN_PROGRESS' && <HStack gap={2}></HStack>}
             </HStack>
           </Flex>
         </Box>
@@ -196,12 +196,12 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         isLoadingConfirm={modals.loadingConfirmAutoAssign}
         title={
           modals.selectedAutoAssignCourt
-            ? t("courtsTab.autoAssignMatchTitle", {
+            ? t('courtsTab.autoAssignMatchTitle', {
                 courtNumber: modals.selectedAutoAssignCourt.courtNumber,
               })
             : undefined
         }
-        description={t("courtsTab.autoAssignMatchDescription")}
+        description={t('courtsTab.autoAssignMatchDescription')}
       />
 
       {/* Manual Selection Modal */}
@@ -243,7 +243,7 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         isLoading={modals.confirmingPreSelect}
         title={
           modals.selectedPreSelectCourt
-            ? t("courtsTab.preSelectTitle", {
+            ? t('courtsTab.preSelectTitle', {
                 courtNumber: modals.selectedPreSelectCourt.courtNumber,
               })
             : undefined

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/chakra-compat";
-import TopBar from "@/components/ui/TopBar";
-import ProtectedRouteGuard from "@/components/guards/ProtectedRouteGuard";
-import { useRouter } from "@/i18n/config";
-import { PlayerService } from "@/lib/api/player.service";
-import { Level, type Player } from "@/lib/api/types";
+import { Button } from '@/components/ui/chakra-compat';
+import TopBar from '@/components/ui/TopBar';
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import { useRouter } from '@/i18n/config';
+import { PlayerService } from '@/lib/api/player.service';
+import { Level, type Player } from '@/lib/api/types';
 import {
   Box,
   Container,
@@ -15,38 +15,38 @@ import {
   Spinner,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import { Check, User } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+} from '@chakra-ui/react';
+import { Check, User } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 function ConfirmPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const playerId = searchParams.get("playerId");
-  const t = useTranslations("pages.join");
-  const tCommon = useTranslations("common");
+  const playerId = searchParams.get('playerId');
+  const t = useTranslations('pages.join');
+  const tCommon = useTranslations('common');
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [player, setPlayer] = useState<Player | null>(null);
   const [formData, setFormData] = useState({
-    name: "",
-    gender: "" as "" | "MALE" | "FEMALE",
-    level: "" as "" | Level,
-    levelDescription: "",
-    phone: "",
-    desire: "",
+    name: '',
+    gender: '' as '' | 'MALE' | 'FEMALE',
+    level: '' as '' | Level,
+    levelDescription: '',
+    phone: '',
+    desire: '',
   });
 
   useEffect(() => {
     async function loadPlayer() {
       try {
         if (!playerId) {
-          toast.error(t("confirm.errors.missingInfo"));
-          router.push("/join");
+          toast.error(t('confirm.errors.missingInfo'));
+          router.push('/join');
           return;
         }
 
@@ -56,16 +56,16 @@ function ConfirmPageContent() {
 
         // Pre-populate form with existing data
         setFormData({
-          name: playerData.name || "",
-          gender: playerData.gender || "",
-          level: playerData.level || "",
-          levelDescription: playerData.levelDescription || "",
-          phone: playerData.phone || "",
-          desire: playerData.desire || "",
+          name: playerData.name || '',
+          gender: playerData.gender || '',
+          level: playerData.level || '',
+          levelDescription: playerData.levelDescription || '',
+          phone: playerData.phone || '',
+          desire: playerData.desire || '',
         });
       } catch (error) {
-        console.error("Error loading player:", error);
-        toast.error(t("confirm.errors.loadFailed"));
+        console.error('Error loading player:', error);
+        toast.error(t('confirm.errors.loadFailed'));
       } finally {
         setIsLoading(false);
       }
@@ -88,13 +88,13 @@ function ConfirmPageContent() {
     e.preventDefault();
 
     if (!player) {
-      toast.error(t("confirm.errors.playerNotFound"));
+      toast.error(t('confirm.errors.playerNotFound'));
       return;
     }
 
     // Validate form data
     if (!formData.name || !formData.gender || !formData.level) {
-      toast.error(t("confirm.errors.requiredFields"));
+      toast.error(t('confirm.errors.requiredFields'));
       return;
     }
 
@@ -104,7 +104,7 @@ function ConfirmPageContent() {
       // Prepare data with proper types
       const playerData: Partial<Player> = {
         name: formData.name,
-        gender: formData.gender as "MALE" | "FEMALE",
+        gender: formData.gender as 'MALE' | 'FEMALE',
         level: formData.level as Level,
         levelDescription: formData.levelDescription || undefined,
         desire: formData.desire || undefined,
@@ -118,8 +118,8 @@ function ConfirmPageContent() {
       // Redirect to status page with player ID
       router.push(`/my-session`);
     } catch (error) {
-      console.error("Error confirming player:", error);
-      toast.error(t("confirm.errors.confirmFailed"));
+      console.error('Error confirming player:', error);
+      toast.error(t('confirm.errors.confirmFailed'));
       setIsSubmitting(false);
     }
   };
@@ -127,7 +127,7 @@ function ConfirmPageContent() {
   if (isLoading) {
     return (
       <Box minH="100vh">
-        <TopBar title={t("confirm.title")} />
+        <TopBar title={t('confirm.title')} />
         <Container maxW="md" py={12} pt={24}>
           <Flex
             justify="center"
@@ -136,7 +136,7 @@ function ConfirmPageContent() {
             direction="column"
           >
             <Spinner size="xl" color="blue.500" mb={4} />
-            <Text>{tCommon("loading")}</Text>
+            <Text>{tCommon('loading')}</Text>
           </Flex>
         </Container>
       </Box>
@@ -146,7 +146,7 @@ function ConfirmPageContent() {
   return (
     <Box minH="100vh">
       {/* Top Bar */}
-      <TopBar title={t("confirm.title")} />
+      <TopBar title={t('confirm.title')} />
 
       <Container maxW="md" py={12} pt={24}>
         <Box
@@ -155,22 +155,22 @@ function ConfirmPageContent() {
           boxShadow="lg"
           borderWidth="1px"
           bg="white"
-          _dark={{ bg: "gray.800" }}
+          _dark={{ bg: 'gray.800' }}
         >
           {/* Card Header */}
           <Box
             bg="blue.50"
-            _dark={{ bg: "blue.900" }}
+            _dark={{ bg: 'blue.900' }}
             borderBottomWidth="1px"
             px={6}
             py={5}
           >
             <Flex align="center" mb={2}>
               <Box as={User} boxSize={5} color="blue.500" mr={2} />
-              <Heading size="md">{t("confirm.subtitle")}</Heading>
+              <Heading size="md">{t('confirm.subtitle')}</Heading>
             </Flex>
             <Text color="gray.500" fontSize="sm">
-              {t("confirm.description", { sessionName: "" })}
+              {t('confirm.description', { sessionName: '' })}
             </Text>
           </Box>
 
@@ -180,14 +180,14 @@ function ConfirmPageContent() {
               <Stack gap={4}>
                 <Box>
                   <Text fontWeight="medium" mb={2}>
-                    {t("confirm.playerNumber", {
+                    {t('confirm.playerNumber', {
                       number: player?.playerNumber || 0,
                     })}
                   </Text>
 
                   <Box mb={4}>
                     <Text fontWeight="medium" mb={1} fontSize="sm">
-                      {t("confirm.form.fullName")}{" "}
+                      {t('confirm.form.fullName')}{' '}
                       <Box as="span" color="red.500">
                         *
                       </Box>
@@ -196,7 +196,7 @@ function ConfirmPageContent() {
                       value={formData.name}
                       onChange={handleInputChange}
                       name="name"
-                      placeholder={t("confirm.form.namePlaceholder")}
+                      placeholder={t('confirm.form.namePlaceholder')}
                       size="lg"
                       required
                     />
@@ -205,7 +205,7 @@ function ConfirmPageContent() {
                   <Flex gap={4} mb={4}>
                     <Box flex={1}>
                       <Text fontWeight="medium" mb={1} fontSize="sm">
-                        {t("confirm.form.gender")}{" "}
+                        {t('confirm.form.gender')}{' '}
                         <Box as="span" color="red.500">
                           *
                         </Box>
@@ -216,27 +216,27 @@ function ConfirmPageContent() {
                         name="gender"
                         required
                         style={{
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "8px",
-                          borderWidth: "1px",
-                          borderColor: "#CBD5E0",
-                          height: "48px",
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          borderWidth: '1px',
+                          borderColor: '#CBD5E0',
+                          height: '48px',
                         }}
                       >
                         <option value="">
-                          {t("confirm.form.selectGender")}
+                          {t('confirm.form.selectGender')}
                         </option>
-                        <option value="MALE">{t("confirm.form.male")}</option>
+                        <option value="MALE">{t('confirm.form.male')}</option>
                         <option value="FEMALE">
-                          {t("confirm.form.female")}
+                          {t('confirm.form.female')}
                         </option>
                       </select>
                     </Box>
 
                     <Box flex={1}>
                       <Text fontWeight="medium" mb={1} fontSize="sm">
-                        {t("confirm.form.skillLevel")}{" "}
+                        {t('confirm.form.skillLevel')}{' '}
                         <Box as="span" color="red.500">
                           *
                         </Box>
@@ -247,40 +247,40 @@ function ConfirmPageContent() {
                         name="level"
                         required
                         style={{
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "8px",
-                          borderWidth: "1px",
-                          borderColor: "#CBD5E0",
-                          height: "48px",
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          borderWidth: '1px',
+                          borderColor: '#CBD5E0',
+                          height: '48px',
                         }}
                       >
                         <option value="">
-                          {t("confirm.form.selectLevel")}
+                          {t('confirm.form.selectLevel')}
                         </option>
                         <option value={Level.Y_MINUS}>
-                          {t("confirm.form.levels.beginner")}
+                          {t('confirm.form.levels.beginner')}
                         </option>
                         <option value={Level.Y}>
-                          {t("confirm.form.levels.weak")}
+                          {t('confirm.form.levels.weak')}
                         </option>
                         <option value={Level.Y_PLUS}>
-                          {t("confirm.form.levels.weakPlus")}
+                          {t('confirm.form.levels.weakPlus')}
                         </option>
                         <option value={Level.TBY}>
-                          {t("confirm.form.levels.mediumWeak")}
+                          {t('confirm.form.levels.mediumWeak')}
                         </option>
                         <option value={Level.TB_MINUS}>
-                          {t("confirm.form.levels.mediumMinus")}
+                          {t('confirm.form.levels.mediumMinus')}
                         </option>
                         <option value={Level.TB}>
-                          {t("confirm.form.levels.medium")}
+                          {t('confirm.form.levels.medium')}
                         </option>
                         <option value={Level.TB_PLUS}>
-                          {t("confirm.form.levels.mediumPlus")}
+                          {t('confirm.form.levels.mediumPlus')}
                         </option>
                         <option value={Level.K}>
-                          {t("confirm.form.levels.advanced")}
+                          {t('confirm.form.levels.advanced')}
                         </option>
                       </select>
                     </Box>
@@ -288,14 +288,14 @@ function ConfirmPageContent() {
 
                   <Box mb={4}>
                     <Text fontWeight="medium" mb={1} fontSize="sm">
-                      {t("confirm.form.levelDescription")}
+                      {t('confirm.form.levelDescription')}
                     </Text>
                     <Input
                       value={formData.levelDescription}
                       onChange={handleInputChange}
                       name="levelDescription"
                       placeholder={t(
-                        "confirm.form.levelDescriptionPlaceholder"
+                        'confirm.form.levelDescriptionPlaceholder'
                       )}
                       size="lg"
                     />
@@ -303,26 +303,26 @@ function ConfirmPageContent() {
 
                   <Box mb={4}>
                     <Text fontWeight="medium" mb={1} fontSize="sm">
-                      {t("confirm.form.desire")}
+                      {t('confirm.form.desire')}
                     </Text>
                     <Input
-                      value={formData.desire || ""}
+                      value={formData.desire || ''}
                       onChange={handleInputChange}
                       name="desire"
-                      placeholder={t("confirm.form.desirePlaceholder")}
+                      placeholder={t('confirm.form.desirePlaceholder')}
                       size="lg"
                     />
                   </Box>
 
                   <Box>
                     <Text fontWeight="medium" mb={1} fontSize="sm">
-                      {t("confirm.form.phoneNumber")}
+                      {t('confirm.form.phoneNumber')}
                     </Text>
                     <Input
                       value={formData.phone}
                       onChange={handleInputChange}
                       name="phone"
-                      placeholder={t("confirm.form.phonePlaceholder")}
+                      placeholder={t('confirm.form.phonePlaceholder')}
                       size="lg"
                     />
                   </Box>
@@ -339,8 +339,8 @@ function ConfirmPageContent() {
                 >
                   <Flex align="center" justify="center" width="100%">
                     {isSubmitting
-                      ? t("confirm.form.processing")
-                      : t("confirm.form.confirmButton")}
+                      ? t('confirm.form.processing')
+                      : t('confirm.form.confirmButton')}
                     {!isSubmitting && <Box as={Check} ml={2} boxSize={5} />}
                   </Flex>
                 </Button>
@@ -351,13 +351,13 @@ function ConfirmPageContent() {
           {/* Card Footer */}
           <Box
             bg="gray.50"
-            _dark={{ bg: "gray.700" }}
+            _dark={{ bg: 'gray.700' }}
             borderTopWidth="1px"
             p={4}
             textAlign="center"
           >
             <Text fontSize="sm" color="gray.500">
-              {t("confirm.footer")}
+              {t('confirm.footer')}
             </Text>
           </Box>
         </Box>
@@ -368,7 +368,7 @@ function ConfirmPageContent() {
 
 export default function ConfirmPage() {
   return (
-    <ProtectedRouteGuard requiredRole={["PLAYER"]}>
+    <ProtectedRouteGuard requiredRole={['PLAYER']}>
       <Suspense fallback={<Spinner />}>
         <ConfirmPageContent />
       </Suspense>

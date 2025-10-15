@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Box,
@@ -9,12 +9,12 @@ import {
   HStack,
   Button,
   Image,
-} from "@chakra-ui/react";
-import { Level } from "@/lib/api/types";
-import { getLevelLabel } from "@/utils/level-mapping";
-import { Mars, Venus, Users, User, X, Copy, QrCode } from "lucide-react";
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+} from '@chakra-ui/react';
+import { Level } from '@/lib/api/types';
+import { getLevelLabel } from '@/utils/level-mapping';
+import { Mars, Venus, Users, User, X, Copy, QrCode } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 interface Player {
   id: string;
@@ -46,8 +46,8 @@ export const PlayerDetailModal = ({
   sessionId,
   formatWaitTime,
 }: IPlayerDetailModalProps) => {
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [joinCode, setJoinCode] = useState<string>("");
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [joinCode, setJoinCode] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && sessionId) {
@@ -66,13 +66,13 @@ export const PlayerDetailModal = ({
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(joinCode);
-    toast.success("Join code copied to clipboard!");
+    toast.success('Join code copied to clipboard!');
   };
 
   const handleCopyUrl = () => {
     const joinUrl = `${window.location.origin}/join/${sessionId}?player=${player.playerNumber}`;
     navigator.clipboard.writeText(joinUrl);
-    toast.success("Join URL copied to clipboard!");
+    toast.success('Join URL copied to clipboard!');
   };
 
   if (!isOpen) return null;
@@ -133,13 +133,13 @@ export const PlayerDetailModal = ({
               </Text>
               <Badge
                 colorPalette={
-                  player.status === "PLAYING"
-                    ? "green"
-                    : player.status === "WAITING"
-                    ? "orange"
-                    : player.status === "READY"
-                    ? "blue"
-                    : "gray"
+                  player.status === 'PLAYING'
+                    ? 'green'
+                    : player.status === 'WAITING'
+                      ? 'orange'
+                      : player.status === 'READY'
+                        ? 'blue'
+                        : 'gray'
                 }
                 variant="solid"
               >
@@ -163,28 +163,28 @@ export const PlayerDetailModal = ({
               <Badge
                 variant="solid"
                 colorPalette={
-                  player.gender === "MALE"
-                    ? "blue"
-                    : player.gender === "FEMALE"
-                    ? "pink"
-                    : player.gender === "OTHER"
-                    ? "purple"
-                    : "gray"
+                  player.gender === 'MALE'
+                    ? 'blue'
+                    : player.gender === 'FEMALE'
+                      ? 'pink'
+                      : player.gender === 'OTHER'
+                        ? 'purple'
+                        : 'gray'
                 }
                 display="flex"
                 alignItems="center"
                 gap={1}
               >
-                {player.gender === "MALE" ? (
+                {player.gender === 'MALE' ? (
                   <Mars size={12} />
-                ) : player.gender === "FEMALE" ? (
+                ) : player.gender === 'FEMALE' ? (
                   <Venus size={12} />
-                ) : player.gender === "OTHER" ? (
+                ) : player.gender === 'OTHER' ? (
                   <Users size={12} />
                 ) : (
                   <User size={12} />
                 )}
-                {player.gender || "Unknown"}
+                {player.gender || 'Unknown'}
               </Badge>
             </HStack>
 
@@ -195,7 +195,7 @@ export const PlayerDetailModal = ({
               <Text fontWeight="semibold">{player.matchesPlayed}</Text>
             </HStack>
 
-            {(player.status === "WAITING" || player.status === "READY") && (
+            {(player.status === 'WAITING' || player.status === 'READY') && (
               <HStack justifyContent="space-between">
                 <Text fontWeight="medium" color="gray.600">
                   Wait Time:
@@ -203,10 +203,10 @@ export const PlayerDetailModal = ({
                 <Badge
                   colorPalette={
                     player.currentWaitTime > 15
-                      ? "red"
+                      ? 'red'
                       : player.currentWaitTime > 10
-                      ? "yellow"
-                      : "gray"
+                        ? 'yellow'
+                        : 'gray'
                   }
                   variant="solid"
                 >

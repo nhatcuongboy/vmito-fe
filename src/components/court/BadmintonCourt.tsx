@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { CourtDirection } from "@/lib/api/types";
-import { Box, Spinner } from "@chakra-ui/react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-import CourtPlayer, { BadmintonCourtPlayer } from "./CourtPlayer";
+import { CourtDirection } from '@/lib/api/types';
+import { Box, Spinner } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
 
 interface BadmintonCourtProps {
   players: BadmintonCourtPlayer[];
@@ -15,8 +15,8 @@ interface BadmintonCourtProps {
   width?: string;
   showTimeInCenter?: boolean;
   isLoading?: boolean;
-  status?: "IN_USE" | "READY" | "EMPTY";
-  mode?: "manage" | "view" | "selection";
+  status?: 'IN_USE' | 'READY' | 'EMPTY';
+  mode?: 'manage' | 'view' | 'selection';
   courtColor?: string;
   // Selection mode props
   onPlayerSelect?: (player: BadmintonCourtPlayer, position: number) => void;
@@ -37,12 +37,12 @@ export default function BadmintonCourt({
   elapsedTime,
   courtName,
   courtNumber,
-  width = "100%",
+  width = '100%',
   showTimeInCenter = true,
   isLoading = false,
   status,
-  mode = "manage",
-  courtColor = "#179a3b",
+  mode = 'manage',
+  courtColor = '#179a3b',
   onPlayerSelect,
   onPlayerRemove,
   currentPlayerPosition = 0,
@@ -50,13 +50,13 @@ export default function BadmintonCourt({
   direction = CourtDirection.HORIZONTAL,
   preSelectedPlayers = [],
 }: BadmintonCourtProps) {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
   const [clickedPlayer, setClickedPlayer] = useState<string | null>(null);
   const aspectRatio = 13.4 / 6.1;
 
   // Create placeholder players for selection mode
   const getDisplayPlayers = () => {
-    if (mode !== "selection") {
+    if (mode !== 'selection') {
       // For manage/view modes, sort players by their courtPosition if available
       const sortedPlayers = [...players].sort((a, b) => {
         const posA = a.courtPosition ?? 0;
@@ -139,7 +139,7 @@ export default function BadmintonCourt({
 
   // Handle player removal in selection mode
   const handlePlayerRemove = (position: number) => {
-    if (mode === "selection" && onPlayerRemove) {
+    if (mode === 'selection' && onPlayerRemove) {
       onPlayerRemove(position);
     }
   };
@@ -150,11 +150,11 @@ export default function BadmintonCourt({
       aspectRatio={aspectRatio}
       position="relative"
       borderColor={
-        status === "READY"
-          ? "#facc15" // yellow border for READY
-          : status === "IN_USE" || isActive || mode === "selection"
-          ? "#b6e2c6" // green border for active courts and selection mode
-          : "gray.300"
+        status === 'READY'
+          ? '#facc15' // yellow border for READY
+          : status === 'IN_USE' || isActive || mode === 'selection'
+            ? '#b6e2c6' // green border for active courts and selection mode
+            : 'gray.300'
       }
       borderRadius="md"
       overflow="visible"
@@ -170,19 +170,19 @@ export default function BadmintonCourt({
         pointerEvents="all"
         zIndex={1}
         bg={
-          status === "READY"
-            ? "#fef3c7" // light yellow background for READY state
-            : status === "IN_USE" || isActive || mode === "selection"
-            ? courtColor // use prop for active courts and selection mode
-            : "#e6e6e6"
+          status === 'READY'
+            ? '#fef3c7' // light yellow background for READY state
+            : status === 'IN_USE' || isActive || mode === 'selection'
+              ? courtColor // use prop for active courts and selection mode
+              : '#e6e6e6'
         }
         border="4px solid"
         borderColor={
-          status === "READY"
-            ? "#facc15" // yellow border for READY
-            : status === "IN_USE" || isActive || mode === "selection"
-            ? "#b6e2c6" // green border for active courts and selection mode
-            : "gray.300"
+          status === 'READY'
+            ? '#facc15' // yellow border for READY
+            : status === 'IN_USE' || isActive || mode === 'selection'
+              ? '#b6e2c6' // green border for active courts and selection mode
+              : 'gray.300'
         }
         onClick={(e) => {
           e.stopPropagation();
@@ -297,7 +297,7 @@ export default function BadmintonCourt({
         />
       )}
       {/* Player positions: center of each doubles service box */}
-      {mode === "selection"
+      {mode === 'selection'
         ? // Selection mode: Show placeholders and highlight current position
           displayPlayers.map((player, index) => {
             if (player) {
@@ -337,10 +337,10 @@ export default function BadmintonCourt({
                   position="absolute"
                   {...(() => {
                     const positions = [
-                      { top: "30%", left: "25%" }, // Top-left
-                      { top: "30%", left: "75%" }, // Top-right
-                      { top: "72%", left: "25%" }, // Bottom-left
-                      { top: "72%", left: "75%" }, // Bottom-right
+                      { top: '30%', left: '25%' }, // Top-left
+                      { top: '30%', left: '75%' }, // Top-right
+                      { top: '72%', left: '25%' }, // Bottom-left
+                      { top: '72%', left: '75%' }, // Bottom-right
                     ];
                     return positions[index];
                   })()}
@@ -351,15 +351,15 @@ export default function BadmintonCourt({
                     position="relative"
                     bg={
                       selectionOrder === currentPlayerPosition
-                        ? "yellow.100"
-                        : "gray.100"
+                        ? 'yellow.100'
+                        : 'gray.100'
                     }
                     borderRadius="full"
                     border="3px dashed"
                     borderColor={
                       selectionOrder === currentPlayerPosition
-                        ? "yellow.500"
-                        : "gray.400"
+                        ? 'yellow.500'
+                        : 'gray.400'
                     }
                     w="50px"
                     h="50px"
@@ -367,14 +367,14 @@ export default function BadmintonCourt({
                     alignItems="center"
                     justifyContent="center"
                     boxShadow={
-                      selectionOrder === currentPlayerPosition ? "lg" : "sm"
+                      selectionOrder === currentPlayerPosition ? 'lg' : 'sm'
                     }
                     transition="all 0.3s"
                     _hover={{
                       transform:
                         selectionOrder === currentPlayerPosition
-                          ? "scale(1.1)"
-                          : "scale(1.05)",
+                          ? 'scale(1.1)'
+                          : 'scale(1.05)',
                     }}
                   >
                     {selectionOrder === currentPlayerPosition && (
@@ -415,8 +415,8 @@ export default function BadmintonCourt({
                       fontWeight="bold"
                       color={
                         index === currentPlayerPosition
-                          ? "yellow.700"
-                          : "gray.500"
+                          ? 'yellow.700'
+                          : 'gray.500'
                       }
                     >
                       {selectionOrder + 1}

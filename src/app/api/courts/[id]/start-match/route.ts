@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface CourtParams {
   id: string;
@@ -24,28 +24,28 @@ export async function POST(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Validate court has 4 players
     if (court.currentPlayers.length !== 4) {
       return errorResponse(
-        "Court must have exactly 4 players to start a match",
+        'Court must have exactly 4 players to start a match',
         400
       );
     }
 
     // Validate session is in progress
-    if (court.session.status !== "IN_PROGRESS") {
+    if (court.session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot start a match for a session that is not in progress",
+        'Cannot start a match for a session that is not in progress',
         400
       );
     }
 
     // Validate court doesn't already have an active match
     if (court.currentMatchId) {
-      return errorResponse("Court already has an active match", 400);
+      return errorResponse('Court already has an active match', 400);
     }
 
     // All validations passed, create a new match in a transaction
@@ -62,7 +62,7 @@ export async function POST(
           data: {
             sessionId: court.sessionId,
             courtId: id,
-            status: "IN_PROGRESS",
+            status: 'IN_PROGRESS',
             startTime: currentTime,
             isExtra: isExtra, // Set isExtra based on session end time
           },
@@ -87,7 +87,7 @@ export async function POST(
                 matchesPlayed: {
                   increment: 1,
                 },
-                status: "PLAYING", // Update status to PLAYING
+                status: 'PLAYING', // Update status to PLAYING
                 currentWaitTime: 0, // Reset wait time to 0
               },
             });
@@ -102,7 +102,7 @@ export async function POST(
           where: { id },
           data: {
             currentMatchId: match.id,
-            status: "IN_USE", // Set court status to IN_USE
+            status: 'IN_USE', // Set court status to IN_USE
           },
           include: {
             currentPlayers: true,
@@ -121,9 +121,9 @@ export async function POST(
       }
     );
 
-    return successResponse(result, "Match started successfully");
+    return successResponse(result, 'Match started successfully');
   } catch (error) {
-    console.error("Error starting match:", error);
-    return errorResponse("Failed to start match");
+    console.error('Error starting match:', error);
+    return errorResponse('Failed to start match');
   }
 }

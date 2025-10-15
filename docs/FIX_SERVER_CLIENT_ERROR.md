@@ -15,12 +15,10 @@ Error creating session: Error: Attempted to call generateCourtName() from the se
 ## 🛠️ Solution:
 
 1. **Create centralized utilities file**: `src/utils/session-helpers.ts`
-
    - No `"use client"` directive
    - Contains functions that can be used on both server and client-side
 
 2. **Keep client-side file**: `src/lib/api/sessions.ts`
-
    - Has `"use client"` directive
    - Re-exports functions from utils with client-side customizations
 

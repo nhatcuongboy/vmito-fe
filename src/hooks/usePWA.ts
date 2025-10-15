@@ -11,7 +11,9 @@ export function usePWA() {
   useEffect(() => {
     // Check if running in standalone mode (PWA installed)
     const checkInstallStatus = () => {
-      const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+      const isInStandaloneMode = window.matchMedia(
+        '(display-mode: standalone)'
+      ).matches;
       const isIOSStandalone = (window.navigator as any).standalone === true;
       setIsInstalled(isInStandaloneMode || isIOSStandalone);
     };
@@ -29,16 +31,20 @@ export function usePWA() {
 
     // Service Worker registration and update detection
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker
+        .register('/sw.js')
         .then((registration) => {
           console.log('Service Worker registered successfully:', registration);
-          
+
           // Check for updates
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (
+                  newWorker.state === 'installed' &&
+                  navigator.serviceWorker.controller
+                ) {
                   setUpdateAvailable(true);
                 }
               });
@@ -72,7 +78,10 @@ export function usePWA() {
     return () => {
       window.removeEventListener('online', updateOnlineStatus);
       window.removeEventListener('offline', updateOnlineStatus);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      );
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);

@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 // GET /api/sessions - Retrieve list of all sessions
 export async function GET(_: NextRequest) {
@@ -22,14 +22,14 @@ export async function GET(_: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     });
 
-    return successResponse(sessions, "Sessions retrieved successfully");
+    return successResponse(sessions, 'Sessions retrieved successfully');
   } catch (error) {
-    console.error("Error fetching sessions:", error);
-    return errorResponse("Failed to fetch sessions");
+    console.error('Error fetching sessions:', error);
+    return errorResponse('Failed to fetch sessions');
   }
 }
 
@@ -52,12 +52,12 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!name) {
-      return errorResponse("Session name is required");
+      return errorResponse('Session name is required');
     }
 
     if (!hostId) {
       return errorResponse(
-        "Host ID is required (check DEFAULT_HOST_ID environment variable)"
+        'Host ID is required (check DEFAULT_HOST_ID environment variable)'
       );
     }
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!host) {
-      return errorResponse("Host not found");
+      return errorResponse('Host not found');
     }
 
     // Create session
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         endTime: endTime
           ? new Date(endTime)
           : new Date(Date.now() + (sessionDuration || 120) * 60 * 1000),
-        status: "PREPARING",
+        status: 'PREPARING',
       },
       include: {
         host: {
@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
           sessionId: session.id,
           courtNumber: courtConfig.courtNumber,
           courtName: courtConfig.courtName, // Use only provided court name
-          direction: courtConfig.direction || "HORIZONTAL", // TODO: Enable after prisma client regeneration
-          status: "EMPTY" as const,
+          direction: courtConfig.direction || 'HORIZONTAL', // TODO: Enable after prisma client regeneration
+          status: 'EMPTY' as const,
         });
       }
     } else {
@@ -119,8 +119,8 @@ export async function POST(request: NextRequest) {
           sessionId: session.id,
           courtNumber: i,
           courtName: null, // No auto-generated court name
-          direction: "HORIZONTAL" as const, // TODO: Enable after prisma client regeneration
-          status: "EMPTY" as const,
+          direction: 'HORIZONTAL' as const, // TODO: Enable after prisma client regeneration
+          status: 'EMPTY' as const,
         });
       }
     }
@@ -141,10 +141,10 @@ export async function POST(request: NextRequest) {
           },
         },
         courts: {
-          orderBy: { courtNumber: "asc" },
+          orderBy: { courtNumber: 'asc' },
         },
         players: {
-          orderBy: { playerNumber: "asc" },
+          orderBy: { playerNumber: 'asc' },
           select: {
             id: true,
             playerNumber: true,
@@ -164,9 +164,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return successResponse(createdSession, "Session created successfully");
+    return successResponse(createdSession, 'Session created successfully');
   } catch (error) {
-    console.error("Error creating session:", error);
-    return errorResponse("Failed to create session");
+    console.error('Error creating session:', error);
+    return errorResponse('Failed to create session');
   }
 }

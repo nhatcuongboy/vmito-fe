@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { NextLinkButton } from "@/components/ui/NextLinkButton";
-import TopBar from "@/components/ui/TopBar";
-import PublicRouteGuard from "@/components/guards/PublicRouteGuard";
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import TopBar from '@/components/ui/TopBar';
+import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import {
   Box,
   Container,
@@ -12,7 +12,7 @@ import {
   SimpleGrid,
   Stack,
   Text,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -20,9 +20,9 @@ import {
   Check,
   Plus,
   Users,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import * as React from "react";
+} from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import * as React from 'react';
 
 type FeatureCardProps = {
   title: string;
@@ -42,11 +42,11 @@ type StartGuideProps = {
 };
 
 export default function Home() {
-  const t = useTranslations("pages.home");
-  const nav = useTranslations("navigation");
+  const t = useTranslations('pages.home');
+  const nav = useTranslations('navigation');
 
-  const bgGradient = "linear(to-r, teal.100, green.100)";
-  const accentColor = "blue.500";
+  const bgGradient = 'linear(to-r, teal.100, green.100)';
+  const accentColor = 'blue.500';
 
   return (
     <PublicRouteGuard redirectTo="/host">
@@ -70,17 +70,17 @@ export default function Home() {
               css={{
                 // Fallback for older browsers
                 background:
-                  "linear-gradient(to right, #3182ce, #9f7aea, #00b3d4)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                  'linear-gradient(to right, #3182ce, #9f7aea, #00b3d4)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 // Ensure text is visible if gradient fails
-                "@supports not (-webkit-background-clip: text)": {
-                  color: "blue.500",
+                '@supports not (-webkit-background-clip: text)': {
+                  color: 'blue.500',
                 },
               }}
             >
-              {t("title")}
+              {t('title')}
             </Heading>
             <Text
               fontSize="xl"
@@ -88,9 +88,9 @@ export default function Home() {
               mx="auto"
               mb={10}
               color="gray.600"
-              _dark={{ color: "gray.300" }}
+              _dark={{ color: 'gray.300' }}
             >
-              {t("description")}
+              {t('description')}
             </Text>
             <Flex gap={6} justify="center" flexWrap="wrap">
               <NextLinkButton
@@ -101,10 +101,10 @@ export default function Home() {
                 py={7}
                 fontSize="lg"
                 fontWeight="bold"
-                _hover={{ transform: "translateY(-3px)" }}
+                _hover={{ transform: 'translateY(-3px)' }}
                 transition="all 0.2s"
               >
-                {t("hostButton")}
+                {t('hostButton')}
                 <ArrowRight className="ml-2" size={18} />
               </NextLinkButton>
               <NextLinkButton
@@ -114,10 +114,10 @@ export default function Home() {
                 px={8}
                 py={7}
                 fontSize="lg"
-                _hover={{ transform: "translateY(-3px)" }}
+                _hover={{ transform: 'translateY(-3px)' }}
                 transition="all 0.2s"
               >
-                {t("joinButton")}
+                {t('joinButton')}
                 <Users className="ml-2" size={18} />
               </NextLinkButton>
             </Flex>
@@ -130,39 +130,39 @@ export default function Home() {
           <Stack gap={16}>
             {/* Description section */}
             <Grid
-              templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+              templateColumns={{ base: '1fr', md: '1fr 1fr' }}
               gap={12}
               w="full"
               alignItems="center"
             >
               <Box>
                 <Heading as="h2" size="xl" mb={6}>
-                  {t("sectionTitle")}{" "}
+                  {t('sectionTitle')}{' '}
                   <Text as="span" color="blue.500">
-                    {t("sectionTitleHighlight")}
+                    {t('sectionTitleHighlight')}
                   </Text>
                 </Heading>
                 <Text
                   fontSize="lg"
                   mb={6}
                   color="gray.600"
-                  _dark={{ color: "gray.400" }}
+                  _dark={{ color: 'gray.400' }}
                   lineHeight="taller"
                 >
-                  {t("sectionDescription")}
+                  {t('sectionDescription')}
                 </Text>
-                <Flex gap={4} flexDir={{ base: "column", sm: "row" }}>
+                <Flex gap={4} flexDir={{ base: 'column', sm: 'row' }}>
                   <NextLinkButton
                     href="/auth/signin"
                     colorScheme="blue"
                     size="lg"
                     fontWeight="bold"
                   >
-                    {t("getStarted")}
+                    {t('getStarted')}
                     <ArrowRight className="ml-2" size={18} />
                   </NextLinkButton>
                   <NextLinkButton href="#features" variant="ghost" size="lg">
-                    {t("exploreFeatures")}
+                    {t('exploreFeatures')}
                     <ArrowUpRight className="ml-2" size={18} />
                   </NextLinkButton>
                 </Flex>
@@ -170,7 +170,7 @@ export default function Home() {
               <Flex justify="center" align="center">
                 <Box
                   bg="gray.100"
-                  _dark={{ bg: "gray.700" }}
+                  _dark={{ bg: 'gray.700' }}
                   borderRadius="xl"
                   p={8}
                   display="flex"
@@ -188,7 +188,7 @@ export default function Home() {
             <Box id="features" width="full" pt={8}>
               <Box textAlign="center" mb={12} position="relative">
                 <Heading as="h2" size="xl">
-                  {t("keyFeatures")}
+                  {t('keyFeatures')}
                 </Heading>
                 <Box
                   w="80px"
@@ -202,26 +202,26 @@ export default function Home() {
               </Box>
               <SimpleGrid columns={{ base: 1, md: 3 }} gap={10}>
                 <FeatureCard
-                  title={t("features.sessionManagement.title")}
-                  description={t("features.sessionManagement.description")}
+                  title={t('features.sessionManagement.title')}
+                  description={t('features.sessionManagement.description')}
                   icon={Calendar}
-                  buttonText={t("features.sessionManagement.buttonText")}
+                  buttonText={t('features.sessionManagement.buttonText')}
                   buttonLink="/host"
                   accentColor={accentColor}
                 />
                 <FeatureCard
-                  title={t("features.playerTracking.title")}
-                  description={t("features.playerTracking.description")}
+                  title={t('features.playerTracking.title')}
+                  description={t('features.playerTracking.description')}
                   icon={Users}
-                  buttonText={t("features.playerTracking.buttonText")}
+                  buttonText={t('features.playerTracking.buttonText')}
                   buttonLink="/host"
                   accentColor={accentColor}
                 />
                 <FeatureCard
-                  title={t("features.sessionHistory.title")}
-                  description={t("features.sessionHistory.description")}
+                  title={t('features.sessionHistory.title')}
+                  description={t('features.sessionHistory.description')}
                   icon={Calendar}
-                  buttonText={t("features.sessionHistory.buttonText")}
+                  buttonText={t('features.sessionHistory.buttonText')}
                   buttonLink="/host/history"
                   accentColor={accentColor}
                 />
@@ -232,38 +232,38 @@ export default function Home() {
             <Box
               width="full"
               bg="gray.50"
-              _dark={{ bg: "gray.800" }}
+              _dark={{ bg: 'gray.800' }}
               p={{ base: 6, md: 12 }}
               borderRadius="xl"
               boxShadow="lg"
             >
               <Heading as="h2" size="xl" mb={8} textAlign="center">
-                {t("gettingStarted")}
+                {t('gettingStarted')}
               </Heading>
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={12}>
+              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={12}>
                 <StartGuide
-                  title={t("guides.hosts.title")}
+                  title={t('guides.hosts.title')}
                   steps={[
-                    t("guides.hosts.step1"),
-                    t("guides.hosts.step2"),
-                    t("guides.hosts.step3"),
-                    t("guides.hosts.step4"),
-                    t("guides.hosts.step5"),
+                    t('guides.hosts.step1'),
+                    t('guides.hosts.step2'),
+                    t('guides.hosts.step3'),
+                    t('guides.hosts.step4'),
+                    t('guides.hosts.step5'),
                   ]}
-                  buttonText={t("guides.hosts.buttonText")}
+                  buttonText={t('guides.hosts.buttonText')}
                   buttonLink="/host"
                   primary={true}
                 />
                 <StartGuide
-                  title={t("guides.players.title")}
+                  title={t('guides.players.title')}
                   steps={[
-                    t("guides.players.step1"),
-                    t("guides.players.step2"),
-                    t("guides.players.step3"),
-                    t("guides.players.step4"),
-                    t("guides.players.step5"),
+                    t('guides.players.step1'),
+                    t('guides.players.step2'),
+                    t('guides.players.step3'),
+                    t('guides.players.step4'),
+                    t('guides.players.step5'),
                   ]}
-                  buttonText={t("guides.players.buttonText")}
+                  buttonText={t('guides.players.buttonText')}
                   buttonLink="/join"
                   primary={false}
                 />
@@ -273,11 +273,11 @@ export default function Home() {
         </Container>
 
         {/* Footer */}
-        <Box bg="gray.50" _dark={{ bg: "gray.900" }} py={10}>
+        <Box bg="gray.50" _dark={{ bg: 'gray.900' }} py={10}>
           <Container maxW="container.xl">
             <Flex direction="column" align="center">
               <Text color="gray.500" fontSize="sm">
-                © {new Date().getFullYear()} {t("title")}. {t("copyright")}
+                © {new Date().getFullYear()} {t('title')}. {t('copyright')}
               </Text>
             </Flex>
           </Container>
@@ -304,13 +304,13 @@ function FeatureCard({
       p={5}
       h="full"
       bg="white"
-      _dark={{ bg: "gray.800" }}
+      _dark={{ bg: 'gray.800' }}
       boxShadow="md"
       transition="all 0.3s"
       _hover={{
-        transform: "translateY(-5px)",
-        boxShadow: "xl",
-        borderColor: "blue.500",
+        transform: 'translateY(-5px)',
+        boxShadow: 'xl',
+        borderColor: 'blue.500',
       }}
     >
       <Box pb={2}>
@@ -322,7 +322,7 @@ function FeatureCard({
         </Flex>
       </Box>
       <Box pt={0} pb={4}>
-        <Text color="gray.500" _dark={{ color: "gray.400" }}>
+        <Text color="gray.500" _dark={{ color: 'gray.400' }}>
           {description}
         </Text>
       </Box>
@@ -357,7 +357,7 @@ function StartGuide({
       <Stack gap={3}>
         {steps.map((step, index) => (
           <Flex key={index} alignItems="flex-start">
-            <Box color={primary ? "blue.500" : "green.500"} mr={2} mt={1}>
+            <Box color={primary ? 'blue.500' : 'green.500'} mr={2} mt={1}>
               <Check size={16} />
             </Box>
             <Text>{step}</Text>
@@ -366,7 +366,7 @@ function StartGuide({
       </Stack>
       <NextLinkButton
         href={buttonLink}
-        colorScheme={primary ? "blue" : "gray"}
+        colorScheme={primary ? 'blue' : 'gray'}
         mt={4}
         alignSelf="flex-start"
       >

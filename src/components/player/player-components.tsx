@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 // import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,12 +8,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Player } from "@/lib/api/types";
-import { UserPlus, User, Edit, Trash } from "lucide-react";
-import { Button } from "@chakra-ui/react";
-import { getLevelLabel } from "@/utils/level-mapping";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Player } from '@/lib/api/types';
+import { UserPlus, User, Edit, Trash } from 'lucide-react';
+import { Button } from '@chakra-ui/react';
+import { getLevelLabel } from '@/utils/level-mapping';
 
 export function AddPlayerForm({
   sessionId,
@@ -31,25 +31,25 @@ export function AddPlayerForm({
     try {
       const formData = new FormData(e.currentTarget);
       const playerData = {
-        name: formData.get("name") as string,
-        gender: formData.get("gender") as
-          | "MALE"
-          | "FEMALE"
-          | "OTHER"
-          | "PREFER_NOT_TO_SAY",
-        level: formData.get("level") as
-          | "Y"
-          | "Y_PLUS"
-          | "TBY"
-          | "TB_MINUS"
-          | "TB"
-          | "TB_PLUS",
-        phone: formData.get("phone") as string,
+        name: formData.get('name') as string,
+        gender: formData.get('gender') as
+          | 'MALE'
+          | 'FEMALE'
+          | 'OTHER'
+          | 'PREFER_NOT_TO_SAY',
+        level: formData.get('level') as
+          | 'Y'
+          | 'Y_PLUS'
+          | 'TBY'
+          | 'TB_MINUS'
+          | 'TB'
+          | 'TB_PLUS',
+        phone: formData.get('phone') as string,
         preFilledByHost: true,
       };
 
       // This would call your API in a real implementation
-      console.log("Adding player:", playerData);
+      console.log('Adding player:', playerData);
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -59,7 +59,7 @@ export function AddPlayerForm({
       // Reset form
       e.currentTarget.reset();
     } catch (error) {
-      console.error("Error adding player:", error);
+      console.error('Error adding player:', error);
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +131,7 @@ export function AddPlayerForm({
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Adding..." : "Add Player"}
+            {isLoading ? 'Adding...' : 'Add Player'}
           </Button>
         </CardFooter>
       </form>
@@ -155,7 +155,7 @@ export function PlayerCard({
           <div className="flex items-center">
             <User className="mr-2 h-4 w-4" />
             <span>
-              #{player.playerNumber} - {player.name || "Unnamed Player"}
+              #{player.playerNumber} - {player.name || 'Unnamed Player'}
             </span>
           </div>
           <div className="flex gap-1">
@@ -185,10 +185,10 @@ export function PlayerCard({
       <CardContent>
         <div className="grid grid-cols-2 gap-1 text-sm">
           <div className="text-muted-foreground">Gender:</div>
-          <div>{player.gender || "Not specified"}</div>
+          <div>{player.gender || 'Not specified'}</div>
 
           <div className="text-muted-foreground">Level:</div>
-          <div>{getLevelLabel(player.level, "Not specified")}</div>
+          <div>{getLevelLabel(player.level, 'Not specified')}</div>
 
           <div className="text-muted-foreground">Status:</div>
           <div>{player.status}</div>
@@ -199,10 +199,10 @@ export function PlayerCard({
       </CardContent>
       <CardFooter className="border-t pt-4 text-xs text-muted-foreground">
         {player.confirmedByPlayer
-          ? "Player has confirmed participation"
+          ? 'Player has confirmed participation'
           : player.preFilledByHost
-          ? "Pre-filled by host, waiting for player confirmation"
-          : "Waiting for player to complete registration"}
+            ? 'Pre-filled by host, waiting for player confirmation'
+            : 'Waiting for player to complete registration'}
       </CardFooter>
     </Card>
   );

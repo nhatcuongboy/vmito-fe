@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Box, Input, Text } from "@chakra-ui/react";
+import { useState } from 'react';
+import { Box, Input, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
@@ -9,12 +9,12 @@ import {
   Card,
   CardBody,
   CardHeader,
-} from "@/components/ui/chakra-compat";
-import { PlayerService } from "@/lib/api/player.service";
+} from '@/components/ui/chakra-compat';
+import { PlayerService } from '@/lib/api/player.service';
 import {
   type BulkPlayerData,
   type BulkPlayersInfoResponse,
-} from "@/lib/api/types";
+} from '@/lib/api/types';
 
 interface BulkPlayersFormProps {
   sessionId: string;
@@ -42,7 +42,7 @@ export default function BulkPlayersForm({
       setSessionInfo(info);
       setLoading(false);
     } catch (err) {
-      setError("Failed to load session info");
+      setError('Failed to load session info');
       setLoading(false);
     }
   };
@@ -86,7 +86,7 @@ export default function BulkPlayersForm({
       );
       onSuccess?.();
     } catch (err: any) {
-      setError(err.message || "Failed to create players");
+      setError(err.message || 'Failed to create players');
     } finally {
       setLoading(false);
     }
@@ -110,14 +110,14 @@ export default function BulkPlayersForm({
           {sessionInfo && (
             <Box p={3} bg="blue.50" borderRadius="md" width="100%">
               <Text fontSize="sm">
-                Session: {sessionInfo.sessionName} | Max Players:{" "}
-                {sessionInfo.maxPlayers} | Current:{" "}
-                {sessionInfo.currentPlayersCount} | Available:{" "}
+                Session: {sessionInfo.sessionName} | Max Players:{' '}
+                {sessionInfo.maxPlayers} | Current:{' '}
+                {sessionInfo.currentPlayersCount} | Available:{' '}
                 {sessionInfo.availableSlots}
               </Text>
               <Text fontSize="xs" color="gray.600">
-                Available Numbers:{" "}
-                {sessionInfo.availablePlayerNumbers.join(", ")}
+                Available Numbers:{' '}
+                {sessionInfo.availablePlayerNumbers.join(', ')}
               </Text>
             </Box>
           )}
@@ -156,7 +156,7 @@ export default function BulkPlayersForm({
                   onChange={(e: any) =>
                     updatePlayer(
                       index,
-                      "playerNumber",
+                      'playerNumber',
                       parseInt(e.target.value) || 1
                     )
                   }
@@ -164,21 +164,21 @@ export default function BulkPlayersForm({
                 />
                 <Input
                   placeholder="Name (optional)"
-                  value={player.name || ""}
+                  value={player.name || ''}
                   onChange={(e: any) =>
-                    updatePlayer(index, "name", e.target.value || undefined)
+                    updatePlayer(index, 'name', e.target.value || undefined)
                   }
                 />
                 <select
-                  value={player.gender || ""}
+                  value={player.gender || ''}
                   onChange={(e: any) =>
-                    updatePlayer(index, "gender", e.target.value || undefined)
+                    updatePlayer(index, 'gender', e.target.value || undefined)
                   }
                   style={{
-                    padding: "8px",
-                    borderWidth: "1px",
-                    borderRadius: "6px",
-                    width: "120px",
+                    padding: '8px',
+                    borderWidth: '1px',
+                    borderRadius: '6px',
+                    width: '120px',
                   }}
                 >
                   <option value="">Gender</option>
@@ -188,15 +188,15 @@ export default function BulkPlayersForm({
                   <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
                 </select>
                 <select
-                  value={player.level || ""}
+                  value={player.level || ''}
                   onChange={(e: any) =>
-                    updatePlayer(index, "level", e.target.value || undefined)
+                    updatePlayer(index, 'level', e.target.value || undefined)
                   }
                   style={{
-                    padding: "8px",
-                    borderWidth: "1px",
-                    borderRadius: "6px",
-                    width: "120px",
+                    padding: '8px',
+                    borderWidth: '1px',
+                    borderRadius: '6px',
+                    width: '120px',
                   }}
                 >
                   <option value="">Level</option>
@@ -209,9 +209,9 @@ export default function BulkPlayersForm({
                 </select>
                 <Input
                   placeholder="Phone (optional)"
-                  value={player.phone || ""}
+                  value={player.phone || ''}
                   onChange={(e: any) =>
-                    updatePlayer(index, "phone", e.target.value || undefined)
+                    updatePlayer(index, 'phone', e.target.value || undefined)
                   }
                   width="150px"
                 />
@@ -230,7 +230,7 @@ export default function BulkPlayersForm({
           <HStack gap={2}>
             <Button onClick={addPlayer}>Add Player</Button>
             <Button colorScheme="blue" onClick={handleSubmit} loading={loading}>
-              {loading ? "Creating..." : "Create Players"}
+              {loading ? 'Creating...' : 'Create Players'}
             </Button>
           </HStack>
         </VStack>

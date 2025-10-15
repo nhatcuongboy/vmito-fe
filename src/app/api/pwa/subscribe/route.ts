@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
+import { NextRequest, NextResponse } from 'next/server';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
 
 // POST /api/pwa/subscribe - Subscribe to push notifications
 export async function POST(request: NextRequest) {
@@ -7,13 +7,13 @@ export async function POST(request: NextRequest) {
     const { subscription, userId } = await request.json();
 
     if (!subscription) {
-      return errorResponse("Subscription object is required", 400);
+      return errorResponse('Subscription object is required', 400);
     }
 
     // Here you would typically save the subscription to your database
     // associated with the user ID
-    console.log("Push subscription received:", subscription);
-    console.log("User ID:", userId);
+    console.log('Push subscription received:', subscription);
+    console.log('User ID:', userId);
 
     // Example: Save to database
     // await prisma.pushSubscription.create({
@@ -26,11 +26,11 @@ export async function POST(request: NextRequest) {
     // });
 
     return successResponse({
-      message: "Push notification subscription saved successfully",
+      message: 'Push notification subscription saved successfully',
     });
   } catch (error) {
-    console.error("Error saving push subscription:", error);
-    return errorResponse("Failed to save push subscription", 500);
+    console.error('Error saving push subscription:', error);
+    return errorResponse('Failed to save push subscription', 500);
   }
 }
 
@@ -40,12 +40,12 @@ export async function DELETE(request: NextRequest) {
     const { endpoint, userId } = await request.json();
 
     if (!endpoint) {
-      return errorResponse("Endpoint is required", 400);
+      return errorResponse('Endpoint is required', 400);
     }
 
     // Here you would typically remove the subscription from your database
-    console.log("Removing push subscription:", endpoint);
-    console.log("User ID:", userId);
+    console.log('Removing push subscription:', endpoint);
+    console.log('User ID:', userId);
 
     // Example: Remove from database
     // await prisma.pushSubscription.deleteMany({
@@ -56,10 +56,10 @@ export async function DELETE(request: NextRequest) {
     // });
 
     return successResponse({
-      message: "Push notification subscription removed successfully",
+      message: 'Push notification subscription removed successfully',
     });
   } catch (error) {
-    console.error("Error removing push subscription:", error);
-    return errorResponse("Failed to remove push subscription", 500);
+    console.error('Error removing push subscription:', error);
+    return errorResponse('Failed to remove push subscription', 500);
   }
 }

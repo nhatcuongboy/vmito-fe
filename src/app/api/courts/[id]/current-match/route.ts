@@ -1,13 +1,16 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface CourtParams {
   id: string;
 }
 
 // GET /api/courts/[id]/current-match - Retrieve current match information on the court
-export async function GET(request: NextRequest, { params }: { params: Promise<CourtParams> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<CourtParams> }
+) {
   try {
     const { id } = await params;
 
@@ -20,12 +23,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Co
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Check if court has an active match
     if (!court.currentMatchId) {
-      return successResponse(null, "Court does not have an active match");
+      return successResponse(null, 'Court does not have an active match');
     }
 
     // Get match with players
@@ -49,7 +52,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Co
     });
 
     if (!match) {
-      return errorResponse("Match not found", 404);
+      return errorResponse('Match not found', 404);
     }
 
     // Calculate duration in minutes
@@ -62,10 +65,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Co
         ...match,
         durationMinutes,
       },
-      "Current match retrieved successfully"
+      'Current match retrieved successfully'
     );
   } catch (error) {
-    console.error("Error fetching current match:", error);
-    return errorResponse("Failed to fetch current match");
+    console.error('Error fetching current match:', error);
+    return errorResponse('Failed to fetch current match');
   }
 }

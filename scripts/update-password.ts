@@ -1,8 +1,8 @@
 // Script to update user password directly via Prisma
 // Run this script: npx tsx scripts/update-password.ts
 
-import { prisma } from "../src/app/lib/prisma";
-import bcrypt from "bcryptjs";
+import { prisma } from '../src/app/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 async function updateUserPassword(email: string, newPassword: string) {
   try {
@@ -29,7 +29,7 @@ async function updateUserPassword(email: string, newPassword: string) {
     console.log(`User ID: ${user.id}`);
     console.log(`User Name: ${user.name}`);
   } catch (error) {
-    console.error("❌ Error updating password:", error);
+    console.error('❌ Error updating password:', error);
   } finally {
     await prisma.$disconnect();
   }
@@ -44,10 +44,10 @@ const password = process.argv[3];
 
 if (!email || !password) {
   console.log(
-    "Usage: npx tsx scripts/update-password.ts <email> <new-password>"
+    'Usage: npx tsx scripts/update-password.ts <email> <new-password>'
   );
   console.log(
-    "Example: npx tsx scripts/update-password.ts user@example.com newpassword123"
+    'Example: npx tsx scripts/update-password.ts user@example.com newpassword123'
   );
   process.exit(1);
 }

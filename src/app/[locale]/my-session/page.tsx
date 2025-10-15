@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import BadmintonCourt from "@/components/court/BadmintonCourt";
-import ProtectedRouteGuard from "@/components/guards/ProtectedRouteGuard";
-import CourtsTab from "@/components/session/CourtsTab";
-import PlayersTab, { PlayerFilter } from "@/components/session/PlayersTab";
-import { IconButton } from "@/components/ui/chakra-compat";
-import { NextLinkButton } from "@/components/ui/NextLinkButton";
-import TopBar from "@/components/ui/TopBar";
-import { SessionService } from "@/lib/api/session.service";
-import { PlayerService } from "@/lib/api/player.service";
-import { type Court, type Match, type Player } from "@/lib/api/types";
-import { getCourtDisplayName } from "@/utils/session-helpers";
+import BadmintonCourt from '@/components/court/BadmintonCourt';
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import CourtsTab from '@/components/session/CourtsTab';
+import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import TopBar from '@/components/ui/TopBar';
+import { SessionService } from '@/lib/api/session.service';
+import { PlayerService } from '@/lib/api/player.service';
+import { type Court, type Match, type Player } from '@/lib/api/types';
+import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
   Box,
   Center,
@@ -20,7 +20,7 @@ import {
   Spinner,
   Stack,
   Text,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   Activity,
   CheckCircle2,
@@ -28,21 +28,21 @@ import {
   RefreshCw,
   User,
   Users,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { ISession } from "@/lib/api/types";
-import { useSession } from "next-auth/react";
+} from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { ISession } from '@/lib/api/types';
+import { useSession } from 'next-auth/react';
 
 function MySession() {
   const { data: sessionData } = useSession();
   const searchParams = useSearchParams();
   // const playerId = searchParams.get("playerId");
   const playerId = sessionData?.user.playerId;
-  const t = useTranslations("pages.join.status");
-  const common = useTranslations("common");
+  const t = useTranslations('pages.join.status');
+  const common = useTranslations('common');
 
   const [refreshInterval, setRefreshInterval] = useState(60); // seconds
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
@@ -56,7 +56,7 @@ function MySession() {
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0); // 0: Status, 1: Courts, 2: Players
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>("ALL");
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
 
   // Helper function to format elapsed time for match display
   const formatMatchElapsedTime = (startTime: Date): string => {
@@ -65,11 +65,11 @@ function MySession() {
     const elapsedMinutes = Math.floor(elapsedMs / 60000);
 
     if (elapsedMinutes === 0) {
-      return t("time.lessThanMinute");
+      return t('time.lessThanMinute');
     } else if (elapsedMinutes === 1) {
-      return t("time.oneMinute");
+      return t('time.oneMinute');
     } else {
-      return t("time.minutes", { count: elapsedMinutes });
+      return t('time.minutes', { count: elapsedMinutes });
     }
   };
 
@@ -94,7 +94,7 @@ function MySession() {
 
   // Helper function to get waiting players
   const getWaitingPlayers = () => {
-    return session?.players?.filter((p) => p.status === "WAITING") || [];
+    return session?.players?.filter((p) => p.status === 'WAITING') || [];
   };
 
   // Helper function to get active courts
@@ -144,9 +144,9 @@ function MySession() {
           setSession(sessionData);
 
           // Calculate queue position if player is waiting
-          if (playerData.status === "WAITING") {
+          if (playerData.status === 'WAITING') {
             const waitingPlayers =
-              sessionData.players?.filter((p) => p.status === "WAITING") || [];
+              sessionData.players?.filter((p) => p.status === 'WAITING') || [];
             // Sort by current wait time (descending)
             const sortedPlayers = [...waitingPlayers].sort(
               (a, b) => b.currentWaitTime - a.currentWaitTime
@@ -158,8 +158,8 @@ function MySession() {
 
           // Get match and court info if player is playing or ready
           if (
-            (playerData.status === "PLAYING" ||
-              playerData.status === "READY") &&
+            (playerData.status === 'PLAYING' ||
+              playerData.status === 'READY') &&
             playerData.currentCourtId
           ) {
             const court = sessionData.courts?.find(
@@ -186,24 +186,24 @@ function MySession() {
       // Clear error state after successful fetch
       setError(null);
     } catch (error: any) {
-      console.error("Error fetching player data:", error);
+      console.error('Error fetching player data:', error);
 
       // Handle different types of errors
       if (error.response?.status === 404) {
         // Only set error for initial load, not background refresh
         if (!isBackgroundRefresh) {
-          setError("PLAYER_NOT_FOUND");
+          setError('PLAYER_NOT_FOUND');
         }
       } else {
         // Only show toast for background refresh errors
         if (isBackgroundRefresh) {
           toast.error(
-            t("errors.refreshFailed") || "Không thể cập nhật dữ liệu"
+            t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu'
           );
           // Don't set error state for background refresh failures
         } else {
-          setError("GENERAL_ERROR");
-          toast.error(t("errors.loadFailed"));
+          setError('GENERAL_ERROR');
+          toast.error(t('errors.loadFailed'));
         }
       }
     } finally {
@@ -219,7 +219,7 @@ function MySession() {
   // Initial data fetch
   useEffect(() => {
     if (!playerId) {
-      setError("MISSING_PLAYER_ID");
+      setError('MISSING_PLAYER_ID');
       setLoading(false);
       return;
     }
@@ -245,7 +245,7 @@ function MySession() {
   if (loading && !player) {
     return (
       <>
-        <TopBar title={t("yourStatus")} />
+        <TopBar title={t('yourStatus')} />
         <Container maxW="md" py={12}>
           <Flex
             justify="center"
@@ -254,7 +254,7 @@ function MySession() {
             direction="column"
           >
             <Spinner size="xl" color="blue.500" mb={4} />
-            <Text>{common("loading")}</Text>
+            <Text>{common('loading')}</Text>
           </Flex>
         </Container>
       </>
@@ -264,7 +264,7 @@ function MySession() {
   if (error || (!loading && (!player || !session))) {
     return (
       <>
-        <TopBar title={t("yourStatus")} />
+        <TopBar title={t('yourStatus')} />
         <Container maxW="md" py={12}>
           <Flex
             justify="center"
@@ -282,25 +282,25 @@ function MySession() {
               textAlign="center"
             >
               <Heading size="md" mb={2}>
-                {error === "MISSING_PLAYER_ID"
-                  ? t("errors.missingPlayerId")
-                  : error === "PLAYER_NOT_FOUND"
-                  ? t("errors.playerNotFound")
-                  : t("errors.loadFailed")}
+                {error === 'MISSING_PLAYER_ID'
+                  ? t('errors.missingPlayerId')
+                  : error === 'PLAYER_NOT_FOUND'
+                    ? t('errors.playerNotFound')
+                    : t('errors.loadFailed')}
               </Heading>
               <Text>
-                {error === "MISSING_PLAYER_ID"
-                  ? t("errors.missingPlayerIdDescription")
-                  : error === "PLAYER_NOT_FOUND"
-                  ? t("errors.playerNotFoundDescription")
-                  : t("errors.generalErrorDescription")}
+                {error === 'MISSING_PLAYER_ID'
+                  ? t('errors.missingPlayerIdDescription')
+                  : error === 'PLAYER_NOT_FOUND'
+                    ? t('errors.playerNotFoundDescription')
+                    : t('errors.generalErrorDescription')}
               </Text>
             </Box>
             <Flex gap={3}>
               <NextLinkButton href="/join" colorScheme="blue">
-                {t("errors.returnToJoin")}
+                {t('errors.returnToJoin')}
               </NextLinkButton>
-              {error === "GENERAL_ERROR" && (
+              {error === 'GENERAL_ERROR' && (
                 <NextLinkButton
                   href="#"
                   variant="outline"
@@ -310,7 +310,7 @@ function MySession() {
                     fetchPlayerData(false); // Initial load for retry
                   }}
                 >
-                  {common("retry")}
+                  {common('retry')}
                 </NextLinkButton>
               )}
             </Flex>
@@ -324,7 +324,7 @@ function MySession() {
     <>
       <TopBar title={session?.name} />
 
-      <Container maxW="3xl" pt={"70px"} pb={"80px"}>
+      <Container maxW="3xl" pt={'70px'} pb={'80px'}>
         {/* Tab Content */}
         {!player || !session ? (
           <Center>
@@ -337,7 +337,7 @@ function MySession() {
               <IconButton
                 aria-label="Refresh"
                 icon={<Box as={RefreshCw} boxSize={{ base: 3, md: 4 }} />}
-                size={{ base: "xs", md: "sm" }}
+                size={{ base: 'xs', md: 'sm' }}
                 isLoading={refreshing || loading}
                 onClick={() => fetchPlayerData(false)}
                 disabled={loading || refreshing}
@@ -353,7 +353,7 @@ function MySession() {
                 overflow="hidden"
                 boxShadow="md"
                 transition="all 0.2s"
-                _hover={{ boxShadow: "lg", transform: "translateY(-2px)" }}
+                _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
               >
                 {/* Card Header */}
                 <Box
@@ -361,14 +361,14 @@ function MySession() {
                   pb={2}
                   borderBottomWidth="1px"
                   borderBottomColor="gray.100"
-                  _dark={{ borderBottomColor: "gray.700" }}
+                  _dark={{ borderBottomColor: 'gray.700' }}
                 >
                   <Flex align="center">
                     <Box as={User} boxSize={5} color="blue.500" mr={2} />
                     <Box>
-                      <Heading size="md">{t("yourStatus")}</Heading>
+                      <Heading size="md">{t('yourStatus')}</Heading>
                       <Text color="gray.500" fontSize="sm">
-                        {t("statusDescription")}
+                        {t('statusDescription')}
                       </Text>
                     </Box>
                   </Flex>
@@ -380,7 +380,7 @@ function MySession() {
                     {/* Refactored Status Bar with Player Info */}
                     <Box
                       bg="gray.50"
-                      _dark={{ bg: "gray.700" }}
+                      _dark={{ bg: 'gray.700' }}
                       p={3}
                       borderRadius="md"
                       textAlign="center"
@@ -391,47 +391,47 @@ function MySession() {
                       justifyContent="center"
                     >
                       <Text color="red.500" fontWeight="bold" mb={1}>
-                        {t("playerInfo", {
+                        {t('playerInfo', {
                           number: player.playerNumber,
                           name: player.name || `Player ${player.playerNumber}`,
                         })}
                       </Text>
-                      {player.status === "PLAYING" ? (
+                      {player.status === 'PLAYING' ? (
                         <>
                           <Box mb={1}>
                             <CheckCircle2 size={28} color="#38A169" />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
-                            {t("playing.title")}
+                            {t('playing.title')}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
                             {player.currentCourt?.courtName
                               ? `${player.currentCourt.courtName}`
                               : `Court ${
-                                  player.currentCourt?.courtNumber || "?"
+                                  player.currentCourt?.courtNumber || '?'
                                 }`}
                             {` - Enjoy your match!`}
                           </Text>
                         </>
-                      ) : player.status === "WAITING" ? (
+                      ) : player.status === 'WAITING' ? (
                         <>
                           <Box mb={1}>
                             <Clock size={28} color="#3182CE" />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
-                            {t("waiting.title")}
+                            {t('waiting.title')}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
-                            {t("waiting.description")}
+                            {t('waiting.description')}
                           </Text>
                         </>
-                      ) : player.status === "READY" ? (
+                      ) : player.status === 'READY' ? (
                         <>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
-                            {t("ready.title")}
+                            {t('ready.title')}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
-                            {t("ready.description")}
+                            {t('ready.description')}
                           </Text>
                         </>
                       ) : (
@@ -440,18 +440,18 @@ function MySession() {
                             <CheckCircle2 size={28} color="#A0AEC0" />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
-                            {t("finished.title")}
+                            {t('finished.title')}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
-                            {t("finished.description")}
+                            {t('finished.description')}
                           </Text>
                         </>
                       )}
                     </Box>
 
                     {/* Court Visual - Show when player is playing or ready */}
-                    {(player.status === "PLAYING" ||
-                      player.status === "READY") &&
+                    {(player.status === 'PLAYING' ||
+                      player.status === 'READY') &&
                       currentCourt &&
                       courtPlayers.length > 0 && (
                         <Box
@@ -459,20 +459,20 @@ function MySession() {
                           p={4}
                           borderRadius="md"
                           bg="white"
-                          _dark={{ bg: "gray.800" }}
+                          _dark={{ bg: 'gray.800' }}
                           boxShadow="sm"
                           transition="all 0.2s"
-                          _hover={{ boxShadow: "md" }}
+                          _hover={{ boxShadow: 'md' }}
                         >
                           <Flex justify="space-between" align="center" mb={3}>
                             <Heading size="sm" color="green.600">
-                              {t("court.title", {
+                              {t('court.title', {
                                 number: currentCourt.courtNumber,
                               })}
                             </Heading>
                             {currentMatch && (
                               <Text fontSize="sm" color="gray.500">
-                                {t("court.elapsed", {
+                                {t('court.elapsed', {
                                   time: formatMatchElapsedTime(
                                     currentMatch.startTime
                                   ),
@@ -506,7 +506,7 @@ function MySession() {
                             mt={2}
                             textAlign="center"
                           >
-                            {t("court.playerHighlight")}
+                            {t('court.playerHighlight')}
                           </Text>
 
                           {/* Show partner information */}
@@ -534,7 +534,7 @@ function MySession() {
                                   p={3}
                                   bg="blue.50"
                                   borderRadius="md"
-                                  _dark={{ bg: "blue.900" }}
+                                  _dark={{ bg: 'blue.900' }}
                                 >
                                   {partners.length > 0 && (
                                     <Box mb={2}>
@@ -542,10 +542,10 @@ function MySession() {
                                         fontSize="sm"
                                         fontWeight="semibold"
                                         color="blue.700"
-                                        _dark={{ color: "blue.300" }}
+                                        _dark={{ color: 'blue.300' }}
                                         mb={1}
                                       >
-                                        🤝 {t("court.partnerWith")}
+                                        🤝 {t('court.partnerWith')}
                                       </Text>
                                       <Flex
                                         justify="center"
@@ -559,16 +559,16 @@ function MySession() {
                                             color="blue.600"
                                             bg="blue.100"
                                             _dark={{
-                                              bg: "blue.800",
-                                              color: "blue.200",
+                                              bg: 'blue.800',
+                                              color: 'blue.200',
                                             }}
                                             px={3}
                                             py={1}
                                             borderRadius="md"
                                             fontWeight="medium"
                                           >
-                                            #{p.playerNumber}{" "}
-                                            {p.name?.split(" ")[0] ||
+                                            #{p.playerNumber}{' '}
+                                            {p.name?.split(' ')[0] ||
                                               `P${p.playerNumber}`}
                                           </Text>
                                         ))}
@@ -582,10 +582,10 @@ function MySession() {
                                         fontSize="sm"
                                         fontWeight="semibold"
                                         color="orange.700"
-                                        _dark={{ color: "orange.300" }}
+                                        _dark={{ color: 'orange.300' }}
                                         mb={1}
                                       >
-                                        ⚔️ {t("court.opponents")}
+                                        ⚔️ {t('court.opponents')}
                                       </Text>
                                       <Flex
                                         justify="center"
@@ -599,16 +599,16 @@ function MySession() {
                                             color="orange.600"
                                             bg="orange.100"
                                             _dark={{
-                                              bg: "orange.800",
-                                              color: "orange.200",
+                                              bg: 'orange.800',
+                                              color: 'orange.200',
                                             }}
                                             px={3}
                                             py={1}
                                             borderRadius="md"
                                             fontWeight="medium"
                                           >
-                                            #{p.playerNumber}{" "}
-                                            {p.name?.split(" ")[0] ||
+                                            #{p.playerNumber}{' '}
+                                            {p.name?.split(' ')[0] ||
                                               `P${p.playerNumber}`}
                                           </Text>
                                         ))}
@@ -630,12 +630,12 @@ function MySession() {
                         flex={1}
                         transition="all 0.2s"
                         _hover={{
-                          borderColor: "blue.200",
-                          bg: "blue.50",
-                          transform: "translateY(-2px)",
+                          borderColor: 'blue.200',
+                          bg: 'blue.50',
+                          transform: 'translateY(-2px)',
                         }}
                         _dark={{
-                          _hover: { bg: "blue.900", borderColor: "blue.700" },
+                          _hover: { bg: 'blue.900', borderColor: 'blue.700' },
                         }}
                       >
                         <Center mb={1}>
@@ -645,10 +645,10 @@ function MySession() {
                           />
                         </Center>
                         <Text fontSize="xl" fontWeight="semibold">
-                          {player.currentWaitTime} {t("stats.minutes")}
+                          {player.currentWaitTime} {t('stats.minutes')}
                         </Text>
                         <Text fontSize="xs" color="gray.500">
-                          {t("stats.currentWait")}
+                          {t('stats.currentWait')}
                         </Text>
                       </Box>
 
@@ -660,12 +660,12 @@ function MySession() {
                         flex={1}
                         transition="all 0.2s"
                         _hover={{
-                          borderColor: "blue.200",
-                          bg: "blue.50",
-                          transform: "translateY(-2px)",
+                          borderColor: 'blue.200',
+                          bg: 'blue.50',
+                          transform: 'translateY(-2px)',
                         }}
                         _dark={{
-                          _hover: { bg: "blue.900", borderColor: "blue.700" },
+                          _hover: { bg: 'blue.900', borderColor: 'blue.700' },
                         }}
                       >
                         <Center mb={1}>
@@ -678,29 +678,29 @@ function MySession() {
                           {player.matchesPlayed}
                         </Text>
                         <Text fontSize="xs" color="gray.500">
-                          {t("stats.matchesPlayed")}
+                          {t('stats.matchesPlayed')}
                         </Text>
                       </Box>
                     </Flex>
 
-                    {player.status === "WAITING" && (
+                    {player.status === 'WAITING' && (
                       <Box
                         borderWidth="1px"
                         p={4}
                         borderRadius="md"
                         boxShadow="sm"
                         transition="all 0.2s"
-                        _hover={{ borderColor: "blue.200", boxShadow: "md" }}
+                        _hover={{ borderColor: 'blue.200', boxShadow: 'md' }}
                       >
                         <Flex justify="space-between" align="center" mb={2}>
                           <Text fontSize="sm" fontWeight="medium">
-                            {t("queue.title")}
+                            {t('queue.title')}
                           </Text>
                           <Text fontSize="sm" color="gray.500">
-                            {t("queue.updated", {
+                            {t('queue.updated', {
                               time: lastRefreshed.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
+                                hour: '2-digit',
+                                minute: '2-digit',
                               }),
                             })}
                           </Text>
@@ -713,7 +713,7 @@ function MySession() {
                             bg="gray.200"
                             borderRadius="full"
                             overflow="hidden"
-                            _dark={{ bg: "gray.700" }}
+                            _dark={{ bg: 'gray.700' }}
                           >
                             <Box
                               h="100%"
@@ -728,11 +728,11 @@ function MySession() {
                             width="24px"
                             textAlign="center"
                           >
-                            #{queuePosition || "?"}
+                            #{queuePosition || '?'}
                           </Text>
                         </Flex>
                         <Text fontSize="xs" color="gray.500" mt={2}>
-                          {t("queue.autoRefresh", { seconds: refreshInterval })}
+                          {t('queue.autoRefresh', { seconds: refreshInterval })}
                         </Text>
                       </Box>
                     )}
@@ -742,7 +742,7 @@ function MySession() {
                 {/* Card Footer */}
                 <Box p={4} borderTopWidth="1px" textAlign="center">
                   <Text fontSize="xs" color="gray.500">
-                    {t("footer")}
+                    {t('footer')}
                   </Text>
                 </Box>
               </Box>
@@ -799,8 +799,8 @@ function MySession() {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 0 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 0 ? "bold" : "normal"}
+            color={activeTab === 0 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 0 ? 'bold' : 'normal'}
           >
             <Box as={User} boxSize={6} mb={1} />
             Status
@@ -813,8 +813,8 @@ function MySession() {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 1 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 1 ? "bold" : "normal"}
+            color={activeTab === 1 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 1 ? 'bold' : 'normal'}
           >
             <Box as={Activity} boxSize={6} mb={1} />
             Courts
@@ -827,8 +827,8 @@ function MySession() {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 2 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 2 ? "bold" : "normal"}
+            color={activeTab === 2 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 2 ? 'bold' : 'normal'}
           >
             <Box as={Users} boxSize={6} mb={1} />
             Players
@@ -841,7 +841,7 @@ function MySession() {
 
 export default function StatusPage() {
   return (
-    <ProtectedRouteGuard requiredRole={["GUEST"]}>
+    <ProtectedRouteGuard requiredRole={['GUEST']}>
       <Suspense
         fallback={
           <Center>

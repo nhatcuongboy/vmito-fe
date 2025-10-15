@@ -13,14 +13,12 @@ This document provides an overview of the UI implementation for Phase 1 of the B
 ### Host Interface
 
 1. **Host Dashboard**
-
    - Overview of active sessions
    - Ability to create new sessions
    - Session history view
    - Path: `/src/app/host/page.tsx`
 
 2. **Create Session**
-
    - Form to configure a new badminton session
    - Fields for session name, courts, duration, player limits, etc.
    - Path: `/src/app/host/new/page.tsx`
@@ -34,12 +32,10 @@ This document provides an overview of the UI implementation for Phase 1 of the B
 ### Player Interface
 
 1. **Join Session**
-
    - Form to join a session using session ID and player number
    - Path: `/src/app/join/page.tsx`
 
 2. **Confirm Details**
-
    - Form to confirm personal details
    - Fields for name, gender, skill level, phone
    - Path: `/src/app/join/confirm/page.tsx`

@@ -1,6 +1,6 @@
-import { ApiResponse, Level } from "@/lib/api/types";
-import { api } from "./base";
-import { JoinByCodeResponse } from "./types";
+import { ApiResponse, Level } from '@/lib/api/types';
+import { api } from './base';
+import { JoinByCodeResponse } from './types';
 
 // Auth service
 export const AuthService = {
@@ -23,7 +23,7 @@ export const AuthService = {
     }
   ): Promise<ApiResponse<JoinByCodeResponse>> => {
     const response = await api.post<ApiResponse<JoinByCodeResponse>>(
-      "/join-by-code",
+      '/join-by-code',
       {
         sessionCode: sessionCode.trim().toUpperCase(),
         ...playerInfo,

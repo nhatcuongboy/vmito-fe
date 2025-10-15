@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/chakra-compat";
-import TopBar from "@/components/ui/TopBar";
-import { useRouter } from "@/i18n/config";
-import { SessionService } from "@/lib/api/session.service";
-import { PlayerService } from "@/lib/api/player.service";
+import { Button } from '@/components/ui/chakra-compat';
+import TopBar from '@/components/ui/TopBar';
+import { useRouter } from '@/i18n/config';
+import { SessionService } from '@/lib/api/session.service';
+import { PlayerService } from '@/lib/api/player.service';
 import {
   Box,
   Container,
@@ -14,30 +14,30 @@ import {
   Spinner,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import dayjs from "dayjs";
-import { Activity, ArrowRight, Hash, LogIn, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { ISession } from "@/lib/api/types";
+} from '@chakra-ui/react';
+import dayjs from 'dayjs';
+import { Activity, ArrowRight, Hash, LogIn, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { ISession } from '@/lib/api/types';
 
 const formatRangeTime = (
   startTime?: string | Date,
   endTime?: string | Date
 ) => {
-  return `${dayjs(startTime).format("HH:mm")}-${dayjs(endTime).format(
-    "HH:mm"
+  return `${dayjs(startTime).format('HH:mm')}-${dayjs(endTime).format(
+    'HH:mm'
   )}`;
 };
 
 export default function JoinPage() {
-  const t = useTranslations("pages.join");
-  const common = useTranslations("common");
+  const t = useTranslations('pages.join');
+  const common = useTranslations('common');
   const router = useRouter();
 
-  const [sessionId, setSessionId] = useState("");
-  const [playerNumber, setPlayerNumber] = useState("");
+  const [sessionId, setSessionId] = useState('');
+  const [playerNumber, setPlayerNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,12 +54,12 @@ export default function JoinPage() {
         const sessionsData = await SessionService.getAllSessions();
         const availableSessions = sessionsData.filter(
           (session) =>
-            session.status === "PREPARING" || session.status === "IN_PROGRESS"
+            session.status === 'PREPARING' || session.status === 'IN_PROGRESS'
         );
         setSessions(availableSessions);
       } catch (error) {
-        console.error("Error fetching sessions:", error);
-        toast.error(t("errors.failedToLoadSessions"));
+        console.error('Error fetching sessions:', error);
+        toast.error(t('errors.failedToLoadSessions'));
       } finally {
         setLoadingSessions(false);
       }
@@ -72,7 +72,7 @@ export default function JoinPage() {
   const handleSessionChange = async (e: any) => {
     const selectedId = e.target.value;
     setSessionId(selectedId);
-    setPlayerNumber("");
+    setPlayerNumber('');
     setSelectedPlayer(null);
 
     if (!selectedId) {
@@ -89,8 +89,8 @@ export default function JoinPage() {
       // Show all players, not just pre-filled ones
       setExistingPlayers(players);
     } catch (error) {
-      console.error("Error fetching session details:", error);
-      toast.error(t("errors.failedToLoadSessionDetails"));
+      console.error('Error fetching session details:', error);
+      toast.error(t('errors.failedToLoadSessionDetails'));
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ export default function JoinPage() {
     e.preventDefault();
 
     if (!sessionId || !playerNumber || !selectedPlayer) {
-      toast.error(t("errors.missingFields"));
+      toast.error(t('errors.missingFields'));
       return;
     }
 
@@ -143,8 +143,8 @@ export default function JoinPage() {
         router.push(`/my-session`);
       }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error(t("errors.somethingWentWrong"));
+      console.error('Error:', error);
+      toast.error(t('errors.somethingWentWrong'));
       setIsSubmitting(false);
     }
   };
@@ -152,7 +152,7 @@ export default function JoinPage() {
   return (
     <Box minH="100vh">
       {/* Top Bar */}
-      <TopBar showBackButton={true} backHref="/" title={t("title")} />
+      <TopBar showBackButton={true} backHref="/" title={t('title')} />
 
       <Container maxW="md" py={12} pt={24}>
         <Box
@@ -161,11 +161,11 @@ export default function JoinPage() {
           boxShadow="lg"
           borderWidth="1px"
           bg="white"
-          _dark={{ bg: "gray.800" }}
+          _dark={{ bg: 'gray.800' }}
           transition="all 0.2s"
           _hover={{
-            transform: "translateY(-3px)",
-            boxShadow: "xl",
+            transform: 'translateY(-3px)',
+            boxShadow: 'xl',
           }}
           position="relative"
         >
@@ -183,7 +183,7 @@ export default function JoinPage() {
 
           <Box
             bg="blue.50"
-            _dark={{ bg: "blue.900" }}
+            _dark={{ bg: 'blue.900' }}
             borderBottomWidth="1px"
             px={6}
             py={5}
@@ -192,10 +192,10 @@ export default function JoinPage() {
           >
             <Flex align="center" mb={2}>
               <Box as={LogIn} boxSize={5} color="blue.500" mr={2} />
-              <Heading size="md">{t("joinBadmintonSession")}</Heading>
+              <Heading size="md">{t('joinBadmintonSession')}</Heading>
             </Flex>
             <Text color="gray.500" fontSize="sm">
-              {t("description")}
+              {t('description')}
             </Text>
           </Box>
 
@@ -207,7 +207,7 @@ export default function JoinPage() {
                     <Flex align="center">
                       <Box as={Hash} boxSize={4} color="blue.500" mr={2} />
                       <Text fontWeight="medium">
-                        {t("selectSession")}
+                        {t('selectSession')}
                         <Box as="span" color="red.500">
                           *
                         </Box>
@@ -221,19 +221,19 @@ export default function JoinPage() {
                   ) : (
                     <select
                       style={{
-                        width: "100%",
-                        padding: "12px",
-                        borderRadius: "8px",
-                        borderWidth: "1px",
-                        borderColor: "#CBD5E0",
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        borderWidth: '1px',
+                        borderColor: '#CBD5E0',
                       }}
                       value={sessionId}
                       onChange={handleSessionChange}
                       required
                     >
-                      <option value="">{t("selectAvailableSession")}</option>
+                      <option value="">{t('selectAvailableSession')}</option>
                       {sessions.length === 0 ? (
-                        <option disabled>{t("noAvailableSessions")}</option>
+                        <option disabled>{t('noAvailableSessions')}</option>
                       ) : (
                         sessions.map((session) => (
                           <option key={session.id} value={session.id}>
@@ -251,7 +251,7 @@ export default function JoinPage() {
                   {selectedSession && (
                     <Box mt={2} p={2} bg="blue.50" borderRadius="md">
                       <Text fontSize="sm" color="blue.600">
-                        {t("sessionInfo", {
+                        {t('sessionInfo', {
                           host: selectedSession.host.name,
                           courts: selectedSession.numberOfCourts,
                           players: selectedSession.players?.length || 0,
@@ -266,7 +266,7 @@ export default function JoinPage() {
                     <Flex align="center">
                       <Box as={Users} boxSize={4} color="blue.500" mr={2} />
                       <Text fontWeight="medium">
-                        {t("playerNumber")}
+                        {t('playerNumber')}
                         <Box as="span" color="red.500">
                           *
                         </Box>
@@ -283,28 +283,28 @@ export default function JoinPage() {
                         existingPlayers.length > 0 ? (
                           <select
                             style={{
-                              width: "100%",
-                              padding: "12px",
-                              borderRadius: "8px",
-                              borderWidth: "1px",
-                              borderColor: "#CBD5E0",
+                              width: '100%',
+                              padding: '12px',
+                              borderRadius: '8px',
+                              borderWidth: '1px',
+                              borderColor: '#CBD5E0',
                             }}
                             value={playerNumber}
                             onChange={handlePlayerChange}
                             required
                           >
                             <option value="">
-                              {t("selectYourPlayerNumber")}
+                              {t('selectYourPlayerNumber')}
                             </option>
                             {existingPlayers.map((player) => (
                               <option
                                 key={player.id}
                                 value={player.playerNumber}
                               >
-                                {t("playerNumberFormat", {
+                                {t('playerNumberFormat', {
                                   number: player.playerNumber,
-                                })}{" "}
-                                {player.name ? `(${player.name})` : ""}
+                                })}{' '}
+                                {player.name ? `(${player.name})` : ''}
                                 {/* {player.confirmedByPlayer
                                   ? ` - ${t("alreadyConfirmed")}`
                                   : ""} */}
@@ -318,12 +318,12 @@ export default function JoinPage() {
                             color="yellow.700"
                             borderRadius="md"
                           >
-                            <Text>{t("noPlayersAvailable")}</Text>
+                            <Text>{t('noPlayersAvailable')}</Text>
                           </Box>
                         )
                       ) : (
                         <Input
-                          placeholder={t("selectSessionFirst")}
+                          placeholder={t('selectSessionFirst')}
                           disabled
                           borderColor="gray.300"
                           size="lg"
@@ -339,54 +339,54 @@ export default function JoinPage() {
                           bg={
                             selectedPlayer?.requireConfirmInfo &&
                             !selectedPlayer.confirmedByPlayer
-                              ? "yellow.50"
-                              : "blue.50"
+                              ? 'yellow.50'
+                              : 'blue.50'
                           }
                           borderRadius="md"
                         >
                           <Text fontWeight="medium" mb={1}>
-                            {t("playerInformation")}
+                            {t('playerInformation')}
                           </Text>
                           <Stack gap={1} fontSize="sm">
                             <Text>
-                              {t("number")}:{" "}
+                              {t('number')}:{' '}
                               <strong>#{selectedPlayer.playerNumber}</strong>
                             </Text>
                             {selectedPlayer.name && (
                               <Text>
-                                {t("name")}:{" "}
+                                {t('name')}:{' '}
                                 <strong>{selectedPlayer.name}</strong>
                               </Text>
                             )}
                             {selectedPlayer.gender && (
                               <Text>
-                                {t("gender")}:{" "}
+                                {t('gender')}:{' '}
                                 <strong>
-                                  {selectedPlayer.gender === "MALE"
-                                    ? t("male")
-                                    : t("female")}
+                                  {selectedPlayer.gender === 'MALE'
+                                    ? t('male')
+                                    : t('female')}
                                 </strong>
                               </Text>
                             )}
                             {selectedPlayer.phone && (
                               <Text>
-                                {t("phone")}:{" "}
+                                {t('phone')}:{' '}
                                 <strong>{selectedPlayer.phone}</strong>
                               </Text>
                             )}
                             <Text>
-                              {t("status.yourStatus")}:{" "}
+                              {t('status.yourStatus')}:{' '}
                               <strong
                                 color={
                                   selectedPlayer.confirmedByPlayer
-                                    ? "orange.600"
-                                    : "green.600"
+                                    ? 'orange.600'
+                                    : 'green.600'
                                 }
                               >
                                 {selectedPlayer?.requireConfirmInfo &&
                                 !selectedPlayer.confirmedByPlayer
-                                  ? t("needConfirmation")
-                                  : t("alreadyConfirmed")}
+                                  ? t('needConfirmation')
+                                  : t('alreadyConfirmed')}
                               </strong>
                             </Text>
                           </Stack>
@@ -402,7 +402,7 @@ export default function JoinPage() {
                     </>
                   )}
                   <Text fontSize="sm" color="gray.500" mt={2}>
-                    {t("selectPlayerHelpText")}
+                    {t('selectPlayerHelpText')}
                   </Text>
                 </Box>
 
@@ -417,11 +417,11 @@ export default function JoinPage() {
                 >
                   <Flex align="center" justify="center" width="100%">
                     {isSubmitting
-                      ? t("processing")
+                      ? t('processing')
                       : selectedPlayer?.requireConfirmInfo &&
-                        !selectedPlayer.confirmedByPlayer
-                      ? t("continueToConfirm")
-                      : t("joinNow")}
+                          !selectedPlayer.confirmedByPlayer
+                        ? t('continueToConfirm')
+                        : t('joinNow')}
                     {!isSubmitting && (
                       <Box as={ArrowRight} ml={2} boxSize={5} />
                     )}
@@ -433,7 +433,7 @@ export default function JoinPage() {
 
           <Box
             bg="gray.50"
-            _dark={{ bg: "gray.700" }}
+            _dark={{ bg: 'gray.700' }}
             borderTopWidth="1px"
             p={6}
             display="flex"
@@ -443,7 +443,7 @@ export default function JoinPage() {
           >
             <Flex direction="column" align="center">
               <Text fontSize="sm" color="gray.500" textAlign="center">
-                {t("hostMustAddYou")}
+                {t('hostMustAddYou')}
               </Text>
               <Box
                 as={Activity}
@@ -455,7 +455,7 @@ export default function JoinPage() {
                 transition="all 0.3s ease-in-out"
                 _hover={{
                   opacity: 1,
-                  transform: "rotate(30deg) scale(1.2)",
+                  transform: 'rotate(30deg) scale(1.2)',
                 }}
               />
             </Flex>

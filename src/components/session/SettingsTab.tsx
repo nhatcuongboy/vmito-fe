@@ -1,9 +1,9 @@
-import { useToast } from "@/components/ui/chakra-compat";
-import { Box, Tabs, Text, VStack, Heading } from "@chakra-ui/react";
-import React, { useState } from "react";
-import PlayerManagement from "./PlayerManagement";
-import QRCodeGenerator from "@/components/QRCodeGenerator";
-import GeneralSettings from "./GeneralSettings";
+import { useToast } from '@/components/ui/chakra-compat';
+import { Box, Tabs, Text, VStack, Heading } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import PlayerManagement from './PlayerManagement';
+import QRCodeGenerator from '@/components/QRCodeGenerator';
+import GeneralSettings from './GeneralSettings';
 
 interface SettingsTabProps {
   session: any;

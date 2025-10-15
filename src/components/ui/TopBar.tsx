@@ -1,22 +1,13 @@
-"use client";
+'use client';
 
-import { NextLinkButton } from "@/components/ui/NextLinkButton";
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  IconButton,
-} from "@chakra-ui/react";
-import {
-  ArrowLeft,
-  Menu,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { useSession, signOut } from "next-auth/react";
-import { useLocale } from "next-intl";
-import SlideOutMenu from "./SlideOutMenu";
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { Box, Container, Flex, Heading, IconButton } from '@chakra-ui/react';
+import { ArrowLeft, Menu } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useLocale } from 'next-intl';
+import SlideOutMenu from './SlideOutMenu';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -26,11 +17,11 @@ interface TopBarProps {
 
 export default function TopBar({
   showBackButton = false,
-  backHref = "/",
+  backHref = '/',
   title,
 }: TopBarProps) {
-  const common = useTranslations("common");
-  const appName = "🏸";
+  const common = useTranslations('common');
+  const appName = '🏸';
   const { data: session } = useSession();
   const locale = useLocale();
 
@@ -43,7 +34,7 @@ export default function TopBar({
   const handleLogout = async () => {
     const userRole = session?.user?.role;
     const callbackUrl =
-      userRole === "HOST"
+      userRole === 'HOST'
         ? `/${locale}/auth/signin`
         : `/${locale}/join-by-code`;
     await signOut({ callbackUrl });
@@ -65,8 +56,8 @@ export default function TopBar({
         height="64px"
         minHeight="64px"
         _dark={{
-          bg: "rgba(26, 32, 44, 0.95)",
-          borderColor: "gray.600",
+          bg: 'rgba(26, 32, 44, 0.95)',
+          borderColor: 'gray.600',
         }}
       >
         <Container maxW="container.xl" height="100%">
@@ -79,10 +70,10 @@ export default function TopBar({
                   variant="ghost"
                   size="sm"
                   color="gray.600"
-                  _hover={{ color: "blue.500" }}
+                  _hover={{ color: 'blue.500' }}
                 >
                   <ArrowLeft size={16} />
-                  {common("back")}
+                  {common('back')}
                 </NextLinkButton>
               ) : (
                 <Box />
@@ -95,8 +86,8 @@ export default function TopBar({
               color="blue.600"
               fontWeight="bold"
               textAlign="center"
-              _dark={{ color: "blue.400" }}
-              maxWidth={{ base: "60vw", md: "500px" }}
+              _dark={{ color: 'blue.400' }}
+              maxWidth={{ base: '60vw', md: '500px' }}
               whiteSpace="nowrap"
               overflow="hidden"
               textOverflow="ellipsis"
@@ -120,7 +111,7 @@ export default function TopBar({
                 aria-label="Open menu"
                 onClick={onMenuOpen}
                 bg="white"
-                _dark={{ bg: "gray.800" }}
+                _dark={{ bg: 'gray.800' }}
                 shadow="md"
                 borderRadius="full"
                 size="md"

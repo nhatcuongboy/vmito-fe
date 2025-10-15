@@ -9,7 +9,6 @@ I've successfully reverted the UI back to commit `a6683a4` while keeping all the
 ### **UI Components Restored:**
 
 - ✅ **Home Page (`src/app/page.tsx`)** - Complete original landing page with:
-
   - Hero section with gradient background
   - "Badminton Session Manager" title
   - Feature cards (Session Management, Player Tracking, Session History)
@@ -17,13 +16,11 @@ I've successfully reverted the UI back to commit `a6683a4` while keeping all the
   - Full footer section
 
 - ✅ **Layout (`src/app/layout.tsx`)** - Original root layout with:
-
   - Proper font configuration (Geist Sans & Geist Mono)
   - Toaster notifications
   - Clean HTML structure
 
 - ✅ **Host Page (`src/app/host/page.tsx`)** - Complete host dashboard with:
-
   - Tab-based interface (My Sessions, Session History)
   - Session management functionality
   - Clean navigation with back button

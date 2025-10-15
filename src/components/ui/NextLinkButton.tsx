@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Link } from "../../i18n/config";
-import { Button, ButtonProps } from "./chakra-compat";
+import React from 'react';
+import { Link } from '../../i18n/config';
+import { Button, ButtonProps } from './chakra-compat';
 
 interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
   href: string;
@@ -11,12 +11,12 @@ interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
 
 /**
  * NextLinkButton - Component kết hợp Next.js Link với Chakra Button
- * 
+ *
  * Cách sử dụng:
  * ```tsx
  * <NextLinkButton href="/route" colorScheme="blue">Go to route</NextLinkButton>
  * ```
- * 
+ *
  * Giải quyết vấn đề hydration error với việc sử dụng đúng cách Next.js Link
  */
 export const NextLinkButton: React.FC<NextLinkButtonProps> = ({

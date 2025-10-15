@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import bcrypt from "bcryptjs";
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
+import { NextRequest } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,11 +9,11 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     if (!email || !password || !name) {
-      return errorResponse("Missing required fields", 400);
+      return errorResponse('Missing required fields', 400);
     }
 
     if (password.length < 6) {
-      return errorResponse("Password must be at least 6 characters", 400);
+      return errorResponse('Password must be at least 6 characters', 400);
     }
 
     // Check if user exists
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      return errorResponse("User already exists", 400);
+      return errorResponse('User already exists', 400);
     }
 
     // Hash password
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         name,
-        role: "PLAYER",
+        role: 'PLAYER',
       },
     });
 
@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
         name: user.name,
         role: user.role,
       },
-      "User created successfully"
+      'User created successfully'
     );
   } catch (error) {
-    console.error("Registration error:", error);
-    return errorResponse("Failed to create user", 500);
+    console.error('Registration error:', error);
+    return errorResponse('Failed to create user', 500);
   }
 }

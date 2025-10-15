@@ -1,12 +1,12 @@
-import { BulkPlayerData } from "@/lib/api/types";
+import { BulkPlayerData } from '@/lib/api/types';
 
 // Function to create players from CSV data
 export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
-  const lines = csvData.trim().split("\n");
-  const headers = lines[0].split(",").map((h) => h.trim());
+  const lines = csvData.trim().split('\n');
+  const headers = lines[0].split(',').map((h) => h.trim());
 
   return lines.slice(1).map((line, index) => {
-    const values = line.split(",").map((v) => v.trim());
+    const values = line.split(',').map((v) => v.trim());
     const player: BulkPlayerData = {
       playerNumber: parseInt(values[0]) || index + 1,
     };
@@ -17,25 +17,25 @@ export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
       if (!value) return;
 
       switch (header.toLowerCase()) {
-        case "name":
+        case 'name':
           player.name = value;
           break;
-        case "gender":
-          player.gender = value.toUpperCase() as "MALE" | "FEMALE";
+        case 'gender':
+          player.gender = value.toUpperCase() as 'MALE' | 'FEMALE';
           break;
-        case "level":
+        case 'level':
           player.level = value.toUpperCase() as any;
           break;
-        case "leveldescription":
-        case "level description":
+        case 'leveldescription':
+        case 'level description':
           player.levelDescription = value;
           break;
-        case "requireconfirminfo":
-        case "require confirm info":
+        case 'requireconfirminfo':
+        case 'require confirm info':
           player.requireConfirmInfo =
-            value.toLowerCase() === "true" || value.toLowerCase() === "yes";
+            value.toLowerCase() === 'true' || value.toLowerCase() === 'yes';
           break;
-        case "phone":
+        case 'phone':
           player.phone = value;
           break;
       }
@@ -81,7 +81,7 @@ export function validateBulkPlayerData(
     }
 
     // Validate gender if provided
-    if (player.gender && !["MALE", "FEMALE"].includes(player.gender)) {
+    if (player.gender && !['MALE', 'FEMALE'].includes(player.gender)) {
       errors.push(`Player ${index + 1}: invalid gender "${player.gender}"`);
     }
 
@@ -89,14 +89,14 @@ export function validateBulkPlayerData(
     if (
       player.level &&
       ![
-        "Y_MINUS",
-        "Y",
-        "Y_PLUS",
-        "TBY",
-        "TB_MINUS",
-        "TB",
-        "TB_PLUS",
-        "K",
+        'Y_MINUS',
+        'Y',
+        'Y_PLUS',
+        'TBY',
+        'TB_MINUS',
+        'TB',
+        'TB_PLUS',
+        'K',
       ].includes(player.level)
     ) {
       errors.push(`Player ${index + 1}: invalid level "${player.level}"`);

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Player } from "@/types/session";
-import { getLevelLabel } from "@/utils/level-mapping";
-import { Box, Text } from "@chakra-ui/react";
-import { Mars, User, Venus, X, HelpCircle, UserX } from "lucide-react";
-import { useRef } from "react";
-import PlayerTooltip from "./PlayerTooltip";
+import { Player } from '@/types/session';
+import { getLevelLabel } from '@/utils/level-mapping';
+import { Box, Text } from '@chakra-ui/react';
+import { Mars, User, Venus, X, HelpCircle, UserX } from 'lucide-react';
+import { useRef } from 'react';
+import PlayerTooltip from './PlayerTooltip';
 
 interface BadmintonCourtPlayer extends Player {
   pairNumber?: number; // Add pair number for explicit pair assignment
@@ -16,18 +16,18 @@ interface BadmintonCourtPlayer extends Player {
 
 // Helper functions
 function getGenderColor(gender?: string): string {
-  if (gender === "MALE") return "#3182ce";
-  if (gender === "FEMALE") return "#d53f8c";
-  if (gender === "OTHER") return "#805ad5";
-  if (gender === "PREFER_NOT_TO_SAY") return "#718096";
-  return "#718096";
+  if (gender === 'MALE') return '#3182ce';
+  if (gender === 'FEMALE') return '#d53f8c';
+  if (gender === 'OTHER') return '#805ad5';
+  if (gender === 'PREFER_NOT_TO_SAY') return '#718096';
+  return '#718096';
 }
 
 function getGenderIcon(gender?: string) {
-  if (gender === "MALE") return Mars;
-  if (gender === "FEMALE") return Venus;
-  if (gender === "OTHER") return User;
-  if (gender === "PREFER_NOT_TO_SAY") return HelpCircle;
+  if (gender === 'MALE') return Mars;
+  if (gender === 'FEMALE') return Venus;
+  if (gender === 'OTHER') return User;
+  if (gender === 'PREFER_NOT_TO_SAY') return HelpCircle;
   return User;
 }
 
@@ -41,8 +41,8 @@ function getPairColor(player?: BadmintonCourtPlayer, playerIndex?: number) {
   }
   const pairIndex = pairNumber - 1;
   const pairColors = [
-    { bg: "blue.50", border: "blue.500", name: "Blue" },
-    { bg: "orange.50", border: "orange.500", name: "Orange" },
+    { bg: 'blue.50', border: 'blue.500', name: 'Blue' },
+    { bg: 'orange.50', border: 'orange.500', name: 'Orange' },
   ];
   return pairColors[pairIndex] || pairColors[0];
 }
@@ -52,7 +52,7 @@ interface CourtPlayerProps {
   player: BadmintonCourtPlayer;
   index: number;
   players: BadmintonCourtPlayer[];
-  mode: "manage" | "view" | "selection";
+  mode: 'manage' | 'view' | 'selection';
   isClicked: boolean;
   onPlayerClick: (id: string | null) => void;
   onRemovePlayer?: (position: number) => void; // Remove callback with position
@@ -78,7 +78,7 @@ export default function CourtPlayer({
   // In selection mode, always use index as position
   let positionIndex = index;
   // For other modes, simply use the index (since BadmintonCourt already handles the mapping)
-  if (mode !== "selection") {
+  if (mode !== 'selection') {
     positionIndex = index;
   }
 
@@ -87,10 +87,10 @@ export default function CourtPlayer({
   // Centers: (25%,25%), (75%,25%), (25%,75%), (75%,75%)
   // index 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right
   const positions = [
-    { top: "30%", left: "25%" }, // Top-left (1)
-    { top: "30%", left: "75%" }, // Top-right (2)
-    { top: "72%", left: "25%" }, // Bottom-left (3)
-    { top: "72%", left: "75%" }, // Bottom-right (4)
+    { top: '30%', left: '25%' }, // Top-left (1)
+    { top: '30%', left: '75%' }, // Top-right (2)
+    { top: '72%', left: '25%' }, // Bottom-left (3)
+    { top: '72%', left: '75%' }, // Bottom-right (4)
   ];
   const position = positions[positionIndex] || positions[0];
   const pairColors = getPairColor(player, index);
@@ -99,7 +99,7 @@ export default function CourtPlayer({
   // Calculate tooltip position based on player position
   const getTooltipPosition = () => {
     if (!playerRef.current) {
-      return { left: "50%", top: "50%" };
+      return { left: '50%', top: '50%' };
     }
 
     const rect = playerRef.current.getBoundingClientRect();
@@ -128,7 +128,7 @@ export default function CourtPlayer({
     };
   };
 
-  const playerEffectColor = "#ffffff";
+  const playerEffectColor = '#ffffff';
 
   return (
     <>
@@ -156,8 +156,8 @@ export default function CourtPlayer({
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            transform: "scale(1.1)",
-            boxShadow: "xl",
+            transform: 'scale(1.1)',
+            boxShadow: 'xl',
           }}
           zIndex={2}
           onClick={(e) => {
@@ -185,7 +185,7 @@ export default function CourtPlayer({
             <Box as={GenderIcon} boxSize="14px" />
           </Box>
           {/* Current player effect - hidden in selection mode */}
-          {player.isCurrentPlayer && mode !== "selection" && (
+          {player.isCurrentPlayer && mode !== 'selection' && (
             <>
               <Box
                 position="absolute"
@@ -202,15 +202,18 @@ export default function CourtPlayer({
               <style jsx>{`
                 @keyframes currentPlayerPulse {
                   0% {
-                    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.6),
+                    box-shadow:
+                      0 0 0 6px rgba(255, 255, 255, 0.6),
                       0 0 8px 0 ${playerEffectColor};
                   }
                   50% {
-                    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.3),
+                    box-shadow:
+                      0 0 0 10px rgba(255, 255, 255, 0.3),
                       0 0 16px 0 ${playerEffectColor};
                   }
                   100% {
-                    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.6),
+                    box-shadow:
+                      0 0 0 6px rgba(255, 255, 255, 0.6),
                       0 0 8px 0 ${playerEffectColor};
                   }
                 }
@@ -229,7 +232,7 @@ export default function CourtPlayer({
           </Text>
         </Box>
 
-        {mode !== "view" && (
+        {mode !== 'view' && (
           <>
             <Box
               position="absolute"
@@ -248,12 +251,12 @@ export default function CourtPlayer({
               border="2px solid white"
               zIndex={4}
             >
-              {getLevelLabel(player.level, "?")}
+              {getLevelLabel(player.level, '?')}
             </Box>
           </>
         )}
         {/* Remove button */}
-        {mode === "selection" && (
+        {mode === 'selection' && (
           <Box
             position="absolute"
             bottom="-8px"
@@ -271,8 +274,8 @@ export default function CourtPlayer({
             cursor="pointer"
             transition="all 0.2s"
             _hover={{
-              bg: "red.600",
-              transform: "scale(1.1)",
+              bg: 'red.600',
+              transform: 'scale(1.1)',
             }}
             onClick={(e) => {
               e.stopPropagation();

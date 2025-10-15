@@ -1,16 +1,16 @@
-import { createNavigation } from "next-intl/navigation";
-import { defineRouting } from "next-intl/routing";
+import { createNavigation } from 'next-intl/navigation';
+import { defineRouting } from 'next-intl/routing';
 
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: ["vi", "en"],
+  locales: ['vi', 'en'],
 
   // Used when no locale matches
   defaultLocale:
-    (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as "vi" | "en") || "en",
+    (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as 'vi' | 'en') || 'en',
 
   // The locale prefix strategy - always show locale in URL
-  localePrefix: "always",
+  localePrefix: 'always',
 });
 
 // Lightweight wrappers around Next.js' navigation APIs

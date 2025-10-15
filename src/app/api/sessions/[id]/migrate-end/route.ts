@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionParams {
   id: string;
@@ -25,12 +25,15 @@ export async function POST(
     });
 
     if (!sessionData) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Only allow migration for FINISHED sessions
-    if (sessionData.status !== "FINISHED") {
-      return errorResponse("Can only migrate sessions that are already FINISHED", 400);
+    if (sessionData.status !== 'FINISHED') {
+      return errorResponse(
+        'Can only migrate sessions that are already FINISHED',
+        400
+      );
     }
 
     // Use transaction to ensure all operations succeed together
@@ -40,10 +43,10 @@ export async function POST(
         const unfinishedMatches = await tx.match.updateMany({
           where: {
             sessionId: id,
-            status: "IN_PROGRESS",
+            status: 'IN_PROGRESS',
           },
           data: {
-            status: "FINISHED",
+            status: 'FINISHED',
             endTime: new Date(),
           },
         });
@@ -54,14 +57,17 @@ export async function POST(
           let updatedTotalWaitTime = player.totalWaitTime;
 
           // If player is still in WAITING or PLAYING status, add current wait time to total
-          if ((player.status === "WAITING" || player.status === "PLAYING") && player.currentWaitTime > 0) {
+          if (
+            (player.status === 'WAITING' || player.status === 'PLAYING') &&
+            player.currentWaitTime > 0
+          ) {
             updatedTotalWaitTime += player.currentWaitTime;
           }
 
           return tx.player.update({
             where: { id: player.id },
             data: {
-              status: "FINISHED", // Ensure all players are marked as FINISHED
+              status: 'FINISHED', // Ensure all players are marked as FINISHED
               currentWaitTime: 0, // Reset current waiting time
               totalWaitTime: updatedTotalWaitTime, // Update total wait time
               currentCourtId: null, // Clear court assignment
@@ -78,7 +84,7 @@ export async function POST(
             sessionId: id,
           },
           data: {
-            status: "EMPTY",
+            status: 'EMPTY',
             currentMatchId: null,
           },
         });
@@ -97,7 +103,7 @@ export async function POST(
             status: true,
           },
           orderBy: {
-            matchesPlayed: "desc",
+            matchesPlayed: 'desc',
           },
         });
 
@@ -136,7 +142,7 @@ export async function POST(
       `Session migration completed successfully. Fixed ${transactionResult.migrationResults.unfinishedMatchesFixed} matches, updated ${transactionResult.migrationResults.playersUpdated} players, and cleaned ${transactionResult.migrationResults.courtsUpdated} courts.`
     );
   } catch (error) {
-    console.error("Error migrating session:", error);
-    return errorResponse("Failed to migrate session");
+    console.error('Error migrating session:', error);
+    return errorResponse('Failed to migrate session');
   }
 }

@@ -1,4 +1,4 @@
-import QRCodeGenerator from "@/components/QRCodeGenerator";
+import QRCodeGenerator from '@/components/QRCodeGenerator';
 import {
   Button,
   Card,
@@ -7,10 +7,10 @@ import {
   IconButton,
   VStack,
   useToast,
-} from "@/components/ui/chakra-compat";
-import { PlayerService } from "@/lib/api/player.service";
-import { Level } from "@/lib/api/types";
-import { getLevelLabel } from "@/utils/level-mapping";
+} from '@/components/ui/chakra-compat';
+import { PlayerService } from '@/lib/api/player.service';
+import { Level } from '@/lib/api/types';
+import { getLevelLabel } from '@/utils/level-mapping';
 import {
   Badge,
   Box,
@@ -20,7 +20,7 @@ import {
   Input,
   Text,
   Textarea,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   AlertCircle,
   Edit,
@@ -34,8 +34,8 @@ import {
   UserCheck,
   Users,
   Venus,
-} from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Player {
   id: string;
@@ -56,35 +56,35 @@ interface Player {
 
 // Helper functions for gender display
 function getGenderIcon(gender?: string) {
-  if (gender === "MALE") return Mars;
-  if (gender === "FEMALE") return Venus;
-  if (gender === "OTHER") return User;
-  if (gender === "PREFER_NOT_TO_SAY") return HelpCircle;
+  if (gender === 'MALE') return Mars;
+  if (gender === 'FEMALE') return Venus;
+  if (gender === 'OTHER') return User;
+  if (gender === 'PREFER_NOT_TO_SAY') return HelpCircle;
   return User;
 }
 
 function getGenderColor(gender?: string): string {
-  if (gender === "MALE") return "blue";
-  if (gender === "FEMALE") return "pink";
-  if (gender === "OTHER") return "purple";
-  if (gender === "PREFER_NOT_TO_SAY") return "gray";
-  return "gray";
+  if (gender === 'MALE') return 'blue';
+  if (gender === 'FEMALE') return 'pink';
+  if (gender === 'OTHER') return 'purple';
+  if (gender === 'PREFER_NOT_TO_SAY') return 'gray';
+  return 'gray';
 }
 
 function getGenderSymbol(gender?: string): string {
-  if (gender === "MALE") return "♂";
-  if (gender === "FEMALE") return "♀";
-  if (gender === "OTHER") return "◈";
-  if (gender === "PREFER_NOT_TO_SAY") return "?";
-  return "?";
+  if (gender === 'MALE') return '♂';
+  if (gender === 'FEMALE') return '♀';
+  if (gender === 'OTHER') return '◈';
+  if (gender === 'PREFER_NOT_TO_SAY') return '?';
+  return '?';
 }
 
 function getGenderLabel(gender?: string): string {
-  if (gender === "MALE") return "M";
-  if (gender === "FEMALE") return "F";
-  if (gender === "OTHER") return "O";
-  if (gender === "PREFER_NOT_TO_SAY") return "P";
-  return "?";
+  if (gender === 'MALE') return 'M';
+  if (gender === 'FEMALE') return 'F';
+  if (gender === 'OTHER') return 'O';
+  if (gender === 'PREFER_NOT_TO_SAY') return 'P';
+  return '?';
 }
 
 interface PlayerManagementProps {
@@ -138,10 +138,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       ...newPlayers,
       {
         playerNumber: nextPlayerNumber,
-        name: "",
-        gender: "MALE",
+        name: '',
+        gender: 'MALE',
         level: Level.TB_MINUS,
-        levelDescription: "",
+        levelDescription: '',
         requireConfirmInfo: true,
       },
     ]);
@@ -202,7 +202,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
       // Prepare data for API
       const playersToUpdate = Object.values(editingPlayers);
-      const playersToCreate = newPlayers.filter((p) => p.name.trim() !== "");
+      const playersToCreate = newPlayers.filter((p) => p.name.trim() !== '');
 
       // Update existing players
       if (playersToUpdate.length > 0) {
@@ -231,15 +231,15 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       }
 
       toast.toast({
-        title: "Player changes saved successfully",
-        status: "success",
+        title: 'Player changes saved successfully',
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error saving player changes:", error);
+      console.error('Error saving player changes:', error);
       toast.toast({
-        title: "Failed to save player changes",
-        status: "error",
+        title: 'Failed to save player changes',
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -253,7 +253,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
       const playerToUpdate = editingPlayers[playerId];
       if (!playerToUpdate) {
-        throw new Error("No player data to update");
+        throw new Error('No player data to update');
       }
 
       await PlayerService.updatePlayerBySession(
@@ -275,16 +275,16 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       }
 
       toast.toast({
-        title: "Player updated successfully",
-        status: "success",
+        title: 'Player updated successfully',
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error updating player:", error);
+      console.error('Error updating player:', error);
       toast.toast({
-        title: "Failed to update player",
-        description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
+        title: 'Failed to update player',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -295,7 +295,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   const deletePlayer = async (playerId: string) => {
     // Find player name for confirmation
     const player = session.players.find((p: any) => p.id === playerId);
-    const playerName = player?.name || `Player ${player?.playerNumber || ""}`;
+    const playerName = player?.name || `Player ${player?.playerNumber || ''}`;
 
     // Show confirmation dialog
     const confirmed = window.confirm(
@@ -313,14 +313,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       }
       toast.toast({
         title: `Player "${playerName}" deleted successfully`,
-        status: "success",
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error deleting player:", error);
+      console.error('Error deleting player:', error);
       toast.toast({
-        title: "Failed to delete player",
-        status: "error",
+        title: 'Failed to delete player',
+        status: 'error',
         duration: 3000,
       });
     }
@@ -387,12 +387,12 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       // A new player was added
       const newPlayerIndex = newPlayers.length - 1;
       const newPlayer = newPlayers[newPlayerIndex];
-      if (newPlayer && (!newPlayer.name || newPlayer.name.trim() === "")) {
+      if (newPlayer && (!newPlayer.name || newPlayer.name.trim() === '')) {
         // Use setTimeout to avoid state update conflicts
         setTimeout(() => {
           updateNewPlayer(
             newPlayerIndex,
-            "name",
+            'name',
             `Player ${newPlayer.playerNumber}`
           );
         }, 10);
@@ -410,8 +410,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   const validateNewPlayers = () => {
     const errors: { [index: number]: string } = {};
     newPlayers.forEach((player: any, idx: any) => {
-      if (!player.name || player.name.trim() === "") {
-        errors[idx] = "Player name is required";
+      if (!player.name || player.name.trim() === '') {
+        errors[idx] = 'Player name is required';
       }
     });
     setNewPlayerErrors(errors);
@@ -428,20 +428,20 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   // Function to cancel adding players (clear all newPlayers)
   const cancelAddPlayers = () => {
     console.log(
-      "cancelAddPlayers called, newPlayers.length:",
+      'cancelAddPlayers called, newPlayers.length:',
       newPlayers.length
     );
-    console.log("clearAllNewPlayers prop:", clearAllNewPlayers);
+    console.log('clearAllNewPlayers prop:', clearAllNewPlayers);
 
     if (newPlayers.length > 0) {
       // If clearAllNewPlayers prop exists, use it (clear all at once)
       if (clearAllNewPlayers) {
-        console.log("Using clearAllNewPlayers prop");
+        console.log('Using clearAllNewPlayers prop');
         clearAllNewPlayers();
         // Clear validation errors
         setNewPlayerErrors({});
       } else {
-        console.log("Using fallback removeNewPlayerRow loop");
+        console.log('Using fallback removeNewPlayerRow loop');
         // Fallback: remove all by calling removeNewPlayerRow multiple times
         // Create copy of array to avoid issues with changing indices
         const playerCount = newPlayers.length;
@@ -462,7 +462,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   const handleStartEditingPlayer = (player: any) => {
     startEditingPlayer({
       ...player,
-      levelDescription: player.levelDescription || "",
+      levelDescription: player.levelDescription || '',
       requireConfirmInfo: !!player.requireConfirmInfo,
     });
   };
@@ -479,7 +479,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             </Heading>
           </HStack>
           <Badge
-            colorScheme={isMaxPlayersReached ? "red" : "green"}
+            colorScheme={isMaxPlayersReached ? 'red' : 'green'}
             variant="subtle"
             px={3}
             py={1}
@@ -525,8 +525,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             py={2}
             border="1px solid #38a169"
             boxShadow="none"
-            _hover={{ bg: "#f0fff4" }}
-            width={{ base: "auto", md: "auto" }}
+            _hover={{ bg: '#f0fff4' }}
+            width={{ base: 'auto', md: 'auto' }}
             title="Add new player"
           >
             Add Player
@@ -545,8 +545,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                   Recommended player limit reached
                 </Text>
                 <Text fontSize="sm" color="orange.600">
-                  You have {currentPlayerCount} players for{" "}
-                  {session.numberOfCourts} courts ({session.maxPlayersPerCourt}{" "}
+                  You have {currentPlayerCount} players for{' '}
+                  {session.numberOfCourts} courts ({session.maxPlayersPerCourt}{' '}
                   players per court). Adding more players may increase waiting
                   times.
                 </Text>
@@ -626,31 +626,31 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                             onChange={(
                               e: React.ChangeEvent<HTMLInputElement>
                             ) => {
-                              updateNewPlayer(index, "name", e.target.value);
+                              updateNewPlayer(index, 'name', e.target.value);
                               // Clear error when user starts typing
                               if (newPlayerErrors[index]) {
                                 setNewPlayerErrors((prev) => ({
                                   ...prev,
-                                  [index]: "",
+                                  [index]: '',
                                 }));
                               }
                             }}
                             size="md"
                             borderColor={
-                              newPlayerErrors[index] ? "red.400" : undefined
+                              newPlayerErrors[index] ? 'red.400' : undefined
                             }
                             boxShadow={
                               newPlayerErrors[index]
-                                ? "0 0 0 1px #F56565"
+                                ? '0 0 0 1px #F56565'
                                 : undefined
                             }
                             _focus={{
                               borderColor: newPlayerErrors[index]
-                                ? "red.400"
-                                : "blue.500",
+                                ? 'red.400'
+                                : 'blue.500',
                               boxShadow: newPlayerErrors[index]
-                                ? "0 0 0 1px #F56565"
-                                : "0 0 0 1px #3182ce",
+                                ? '0 0 0 1px #F56565'
+                                : '0 0 0 1px #3182ce',
                             }}
                           />
                           {newPlayerErrors[index] && (
@@ -662,7 +662,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
                         {/* Gender and Level - responsive grid */}
                         <Grid
-                          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                          templateColumns={{ base: '1fr', md: '1fr 1fr' }}
                           gap={4}
                         >
                           <Box>
@@ -677,15 +677,15 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                             <select
                               value={player.gender}
                               onChange={(e: any) =>
-                                updateNewPlayer(index, "gender", e.target.value)
+                                updateNewPlayer(index, 'gender', e.target.value)
                               }
                               style={{
-                                width: "100%",
-                                padding: "12px",
-                                borderRadius: "6px",
-                                border: "1px solid #E2E8F0",
-                                backgroundColor: "white",
-                                fontSize: "14px",
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '6px',
+                                border: '1px solid #E2E8F0',
+                                backgroundColor: 'white',
+                                fontSize: '14px',
                               }}
                             >
                               <option value="MALE">Male</option>
@@ -708,15 +708,15 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                             <select
                               value={player.level}
                               onChange={(e: any) =>
-                                updateNewPlayer(index, "level", e.target.value)
+                                updateNewPlayer(index, 'level', e.target.value)
                               }
                               style={{
-                                width: "100%",
-                                padding: "12px",
-                                borderRadius: "6px",
-                                border: "1px solid #E2E8F0",
-                                backgroundColor: "white",
-                                fontSize: "14px",
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '6px',
+                                border: '1px solid #E2E8F0',
+                                backgroundColor: 'white',
+                                fontSize: '14px',
                               }}
                             >
                               <option value="">Select Level</option>
@@ -745,13 +745,13 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                           <Textarea
                             placeholder="Optional level description or notes"
                             size="md"
-                            value={player.levelDescription || ""}
+                            value={player.levelDescription || ''}
                             onChange={(
                               e: React.ChangeEvent<HTMLTextAreaElement>
                             ) =>
                               updateNewPlayer(
                                 index,
-                                "levelDescription",
+                                'levelDescription',
                                 e.target.value
                               )
                             }
@@ -769,22 +769,22 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                               onChange={(e) =>
                                 updateNewPlayer(
                                   index,
-                                  "requireConfirmInfo",
+                                  'requireConfirmInfo',
                                   e.target.checked
                                 )
                               }
                               style={{
-                                width: "16px",
-                                height: "16px",
-                                accentColor: "#3182ce",
+                                width: '16px',
+                                height: '16px',
+                                accentColor: '#3182ce',
                               }}
                             />
                             <label
                               htmlFor={`requireConfirm-${index}`}
                               style={{
-                                fontSize: "14px",
-                                color: "#4A5568",
-                                lineHeight: "1.4",
+                                fontSize: '14px',
+                                color: '#4A5568',
+                                lineHeight: '1.4',
                               }}
                             >
                               Require player to confirm information
@@ -900,12 +900,12 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                         key={player.id}
                         width="100%"
                         variant="outline"
-                        bg={isEditing ? "blue.50" : "white"}
-                        borderColor={isEditing ? "blue.200" : undefined}
+                        bg={isEditing ? 'blue.50' : 'white'}
+                        borderColor={isEditing ? 'blue.200' : undefined}
                         boxShadow="md"
                         mb={4}
                       >
-                        {" "}
+                        {' '}
                         <CardBody p={{ base: 4, md: 5 }}>
                           {isEditing ? (
                             // Editing mode
@@ -970,7 +970,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                   ) =>
                                     updateEditingPlayer(
                                       player.id,
-                                      "name",
+                                      'name',
                                       e.target.value
                                     )
                                   }
@@ -981,7 +981,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
                               {/* Gender and Level - responsive grid */}
                               <Grid
-                                templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                                templateColumns={{ base: '1fr', md: '1fr 1fr' }}
                                 gap={4}
                               >
                                 <Box>
@@ -998,17 +998,17 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     onChange={(e: any) =>
                                       updateEditingPlayer(
                                         player.id,
-                                        "gender",
+                                        'gender',
                                         e.target.value
                                       )
                                     }
                                     style={{
-                                      width: "100%",
-                                      padding: "12px",
-                                      borderRadius: "6px",
-                                      border: "1px solid #E2E8F0",
-                                      backgroundColor: "white",
-                                      fontSize: "14px",
+                                      width: '100%',
+                                      padding: '12px',
+                                      borderRadius: '6px',
+                                      border: '1px solid #E2E8F0',
+                                      backgroundColor: 'white',
+                                      fontSize: '14px',
                                     }}
                                   >
                                     <option value="MALE">Male</option>
@@ -1033,17 +1033,17 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     onChange={(e: any) =>
                                       updateEditingPlayer(
                                         player.id,
-                                        "level",
+                                        'level',
                                         e.target.value
                                       )
                                     }
                                     style={{
-                                      width: "100%",
-                                      padding: "12px",
-                                      borderRadius: "6px",
-                                      border: "1px solid #E2E8F0",
-                                      backgroundColor: "white",
-                                      fontSize: "14px",
+                                      width: '100%',
+                                      padding: '12px',
+                                      borderRadius: '6px',
+                                      border: '1px solid #E2E8F0',
+                                      backgroundColor: 'white',
+                                      fontSize: '14px',
                                     }}
                                   >
                                     <option value="">Select Level</option>
@@ -1072,13 +1072,13 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 <Textarea
                                   placeholder="Optional level description or notes"
                                   size="md"
-                                  value={isEditing.levelDescription || ""}
+                                  value={isEditing.levelDescription || ''}
                                   onChange={(
                                     e: React.ChangeEvent<HTMLTextAreaElement>
                                   ) =>
                                     updateEditingPlayer(
                                       player.id,
-                                      "levelDescription",
+                                      'levelDescription',
                                       e.target.value
                                     )
                                   }
@@ -1098,22 +1098,22 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     onChange={(e) =>
                                       updateEditingPlayer(
                                         player.id,
-                                        "requireConfirmInfo",
+                                        'requireConfirmInfo',
                                         e.target.checked
                                       )
                                     }
                                     style={{
-                                      width: "16px",
-                                      height: "16px",
-                                      accentColor: "#3182ce",
+                                      width: '16px',
+                                      height: '16px',
+                                      accentColor: '#3182ce',
                                     }}
                                   />
                                   <label
                                     htmlFor={`requireConfirm-edit-${player.id}`}
                                     style={{
-                                      fontSize: "14px",
-                                      color: "#4A5568",
-                                      lineHeight: "1.4",
+                                      fontSize: '14px',
+                                      color: '#4A5568',
+                                      lineHeight: '1.4',
                                     }}
                                   >
                                     Require player to confirm information
@@ -1129,22 +1129,22 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     onChange={(e) =>
                                       updateEditingPlayer(
                                         player.id,
-                                        "confirmedByPlayer",
+                                        'confirmedByPlayer',
                                         e.target.checked
                                       )
                                     }
                                     style={{
-                                      width: "16px",
-                                      height: "16px",
-                                      accentColor: "#38a169",
+                                      width: '16px',
+                                      height: '16px',
+                                      accentColor: '#38a169',
                                     }}
                                   />
                                   <label
                                     htmlFor={`confirmedByPlayer-edit-${player.id}`}
                                     style={{
-                                      fontSize: "14px",
-                                      color: "#22543d",
-                                      lineHeight: "1.4",
+                                      fontSize: '14px',
+                                      color: '#22543d',
+                                      lineHeight: '1.4',
                                     }}
                                   >
                                     Confirmed by player
@@ -1176,9 +1176,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                       fontSize="md"
                                       color="gray.800"
                                       style={{
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap",
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
                                       }}
                                     >
                                       {player.name ||
@@ -1189,7 +1189,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                   {/* Status badges - desktop only */}
                                   <HStack
                                     spacing={2}
-                                    display={{ base: "none", md: "flex" }}
+                                    display={{ base: 'none', md: 'flex' }}
                                   >
                                     {/* Gender badge */}
                                     <Badge
@@ -1228,13 +1228,13 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     {/* Status badge */}
                                     <Badge
                                       colorScheme={
-                                        player.status === "PLAYING"
-                                          ? "green"
-                                          : player.status === "WAITING"
-                                          ? "orange"
-                                          : player.status === "READY"
-                                          ? "blue"
-                                          : "gray"
+                                        player.status === 'PLAYING'
+                                          ? 'green'
+                                          : player.status === 'WAITING'
+                                            ? 'orange'
+                                            : player.status === 'READY'
+                                              ? 'blue'
+                                              : 'gray'
                                       }
                                       variant="solid"
                                       borderRadius="md"
@@ -1281,7 +1281,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                               {/* Mobile badges row */}
                               <HStack
                                 spacing={2}
-                                display={{ base: "flex", md: "none" }}
+                                display={{ base: 'flex', md: 'none' }}
                                 flexWrap="wrap"
                               >
                                 <Badge
@@ -1297,7 +1297,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                       boxSize="12px"
                                     />
                                     <Text fontSize="xs">
-                                      {player.gender || "Unknown"}
+                                      {player.gender || 'Unknown'}
                                     </Text>
                                   </HStack>
                                 </Badge>
@@ -1315,13 +1315,13 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
                                 <Badge
                                   colorScheme={
-                                    player.status === "PLAYING"
-                                      ? "green"
-                                      : player.status === "WAITING"
-                                      ? "orange"
-                                      : player.status === "READY"
-                                      ? "blue"
-                                      : "gray"
+                                    player.status === 'PLAYING'
+                                      ? 'green'
+                                      : player.status === 'WAITING'
+                                        ? 'orange'
+                                        : player.status === 'READY'
+                                          ? 'blue'
+                                          : 'gray'
                                   }
                                   variant="solid"
                                   borderRadius="md"
@@ -1331,7 +1331,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 >
                                   {player.status}
                                 </Badge>
-                              </HStack>{" "}
+                              </HStack>{' '}
                               {/* Additional info section - enhanced styling */}
                               {(player.levelDescription ||
                                 player.requireConfirmInfo ||
@@ -1436,7 +1436,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         >
           <Box
             bg="white"
-            _dark={{ bg: "gray.800" }}
+            _dark={{ bg: 'gray.800' }}
             borderRadius="lg"
             boxShadow="xl"
             p={6}
@@ -1454,10 +1454,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
               <Text
                 color="gray.600"
-                _dark={{ color: "gray.300" }}
+                _dark={{ color: 'gray.300' }}
                 lineHeight="1.6"
               >
-                You currently have <strong>{currentPlayerCount} players</strong>{" "}
+                You currently have <strong>{currentPlayerCount} players</strong>{' '}
                 for <strong>{session.numberOfCourts} courts</strong> (
                 {session.maxPlayersPerCourt} players per court).
                 <br />

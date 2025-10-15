@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/chakra-compat";
-import { MatchService } from "@/lib/api/match.service";
-import { RealTimeService } from "@/lib/api/real-time.service";
-import { ISession } from "@/lib/api/types";
-import { WaitTimeService } from "@/lib/api/wait-time.service";
-import { getLevelLabel } from "@/utils/level-mapping";
+import { Button } from '@/components/ui/chakra-compat';
+import { MatchService } from '@/lib/api/match.service';
+import { RealTimeService } from '@/lib/api/real-time.service';
+import { ISession } from '@/lib/api/types';
+import { WaitTimeService } from '@/lib/api/wait-time.service';
+import { getLevelLabel } from '@/utils/level-mapping';
 import {
   Badge,
   Box,
@@ -14,10 +14,10 @@ import {
   Spinner,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import { Clock, RefreshCw, RotateCcw, Square, Target } from "lucide-react";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+} from '@chakra-ui/react';
+import { Clock, RefreshCw, RotateCcw, Square, Target } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface SessionManagementProps {
   sessionId: string;
@@ -36,8 +36,8 @@ export default function SessionManagement({
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(60000); // milliseconds
   const [autoAssignStrategy, setAutoAssignStrategy] = useState<
-    "fairness" | "speed" | "level_balance"
-  >("fairness");
+    'fairness' | 'speed' | 'level_balance'
+  >('fairness');
   const [waitTimeIncrement, setWaitTimeIncrement] = useState(1);
 
   // Fetch real-time data
@@ -47,8 +47,8 @@ export default function SessionManagement({
       const data = await RealTimeService.getSessionStatus(sessionId);
       setRealTimeData(data);
     } catch (error) {
-      console.error("Error fetching real-time data:", error);
-      toast.error("Failed to fetch session status");
+      console.error('Error fetching real-time data:', error);
+      toast.error('Failed to fetch session status');
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export default function SessionManagement({
   // Auto-assign players
   const handleAutoAssign = async () => {
     try {
-      setActionLoading("auto-assign");
+      setActionLoading('auto-assign');
       const result = await MatchService.autoAssignPlayers(sessionId, {
         strategy: autoAssignStrategy,
         maxPlayersPerCourt: 4,
@@ -78,7 +78,7 @@ export default function SessionManagement({
       // toast.success(result.message);
       await fetchRealTimeData();
     } catch (error) {
-      console.error("Error auto-assigning players:", error);
+      console.error('Error auto-assigning players:', error);
     } finally {
       setActionLoading(null);
     }
@@ -87,7 +87,7 @@ export default function SessionManagement({
   // Update wait times
   const handleUpdateWaitTimes = async () => {
     try {
-      setActionLoading("wait-times");
+      setActionLoading('wait-times');
       const result = await WaitTimeService.updateSessionWaitTimes(
         sessionId,
         waitTimeIncrement
@@ -95,7 +95,7 @@ export default function SessionManagement({
       // toast.success(`Updated wait times for ${result.updatedCount} players`);
       await fetchRealTimeData();
     } catch (error) {
-      console.error("Error updating wait times:", error);
+      console.error('Error updating wait times:', error);
     } finally {
       setActionLoading(null);
     }
@@ -108,7 +108,7 @@ export default function SessionManagement({
       await MatchService.endMatch(sessionId, matchId);
       await fetchRealTimeData();
     } catch (error) {
-      console.error("Error ending match:", error);
+      console.error('Error ending match:', error);
     } finally {
       setActionLoading(null);
     }
@@ -119,17 +119,17 @@ export default function SessionManagement({
     if (!realTimeData?.waitingQueue?.length) return;
 
     try {
-      setActionLoading("reset-wait-times");
+      setActionLoading('reset-wait-times');
       const playerIds = realTimeData.waitingQueue.map((p: any) => p.id);
       const result = await WaitTimeService.resetWaitTimes(
         sessionId,
         playerIds,
-        "current"
+        'current'
       );
       // toast.success(`Reset wait times for ${result.updatedCount} players`);
       await fetchRealTimeData();
     } catch (error) {
-      console.error("Error resetting wait times:", error);
+      console.error('Error resetting wait times:', error);
     } finally {
       setActionLoading(null);
     }
@@ -170,18 +170,18 @@ export default function SessionManagement({
         <Heading size="lg">Session Management</Heading>
         <Flex gap={2} align="center">
           <Text fontSize="sm" color="gray.500">
-            Auto-refresh: {autoRefresh ? `${refreshInterval / 1000}s` : "Off"}
+            Auto-refresh: {autoRefresh ? `${refreshInterval / 1000}s` : 'Off'}
           </Text>
           <Button
             size="sm"
             variant="outline"
             onClick={() => setAutoRefresh(!autoRefresh)}
           >
-            <RefreshCw size={16} style={{ marginRight: "8px" }} />
-            {autoRefresh ? "Disable" : "Enable"}
+            <RefreshCw size={16} style={{ marginRight: '8px' }} />
+            {autoRefresh ? 'Disable' : 'Enable'}
           </Button>
           <Button size="sm" onClick={fetchRealTimeData} loading={loading}>
-            <RefreshCw size={16} style={{ marginRight: "8px" }} />
+            <RefreshCw size={16} style={{ marginRight: '8px' }} />
             Refresh
           </Button>
         </Flex>
@@ -254,12 +254,12 @@ export default function SessionManagement({
               value={autoAssignStrategy}
               onChange={(e) => setAutoAssignStrategy(e.target.value as any)}
               style={{
-                width: "100%",
-                padding: "8px",
-                borderRadius: "6px",
-                borderWidth: "1px",
-                borderColor: "#CBD5E0",
-                marginBottom: "8px",
+                width: '100%',
+                padding: '8px',
+                borderRadius: '6px',
+                borderWidth: '1px',
+                borderColor: '#CBD5E0',
+                marginBottom: '8px',
               }}
             >
               <option value="fairness">Fairness (longest wait first)</option>
@@ -268,13 +268,13 @@ export default function SessionManagement({
             </select>
             <Button
               onClick={handleAutoAssign}
-              loading={actionLoading === "auto-assign"}
+              loading={actionLoading === 'auto-assign'}
               disabled={stats.availableCourts === 0 || stats.waitingPlayers < 4}
               colorScheme="blue"
               size="sm"
               width="full"
             >
-              <Target size={16} style={{ marginRight: "8px" }} />
+              <Target size={16} style={{ marginRight: '8px' }} />
               Auto-assign Players
             </Button>
           </Box>
@@ -296,23 +296,23 @@ export default function SessionManagement({
             <Flex gap={2}>
               <Button
                 onClick={handleUpdateWaitTimes}
-                loading={actionLoading === "wait-times"}
+                loading={actionLoading === 'wait-times'}
                 disabled={stats.waitingPlayers === 0}
                 colorScheme="orange"
                 size="sm"
                 flex={1}
               >
-                <Clock size={16} style={{ marginRight: "8px" }} />
+                <Clock size={16} style={{ marginRight: '8px' }} />
                 Update Wait Times
               </Button>
               <Button
                 onClick={handleResetWaitTimes}
-                loading={actionLoading === "reset-wait-times"}
+                loading={actionLoading === 'reset-wait-times'}
                 disabled={stats.waitingPlayers === 0}
                 variant="outline"
                 size="sm"
               >
-                <RotateCcw size={16} style={{ marginRight: "8px" }} />
+                <RotateCcw size={16} style={{ marginRight: '8px' }} />
                 Reset
               </Button>
             </Flex>
@@ -343,10 +343,10 @@ export default function SessionManagement({
                     borderLeftWidth="4px"
                     borderLeftColor={
                       player.currentWaitTime > 15
-                        ? "red.400"
+                        ? 'red.400'
                         : player.currentWaitTime > 10
-                        ? "orange.400"
-                        : "green.400"
+                          ? 'orange.400'
+                          : 'green.400'
                     }
                   >
                     <Flex justify="space-between" align="center">
@@ -408,7 +408,7 @@ export default function SessionManagement({
                             actionLoading === `end-match-${match.matchId}`
                           }
                         >
-                          <Square size={12} style={{ marginRight: "4px" }} />
+                          <Square size={12} style={{ marginRight: '4px' }} />
                           End
                         </Button>
                       </Flex>
@@ -443,15 +443,15 @@ export default function SessionManagement({
               borderWidth="1px"
               borderLeftWidth="4px"
               borderLeftColor={
-                court.status === "IN_USE" ? "green.400" : "gray.400"
+                court.status === 'IN_USE' ? 'green.400' : 'gray.400'
               }
             >
               <Flex justify="space-between" align="center" mb={2}>
                 <Text fontWeight="medium">Court {court.courtNumber}</Text>
                 <Badge
-                  colorScheme={court.status === "IN_USE" ? "green" : "gray"}
+                  colorScheme={court.status === 'IN_USE' ? 'green' : 'gray'}
                 >
-                  {court.status === "IN_USE" ? "In Use" : "Available"}
+                  {court.status === 'IN_USE' ? 'In Use' : 'Available'}
                 </Badge>
               </Flex>
               {court.currentMatch && (

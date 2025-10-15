@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { generatePlayerSlots } from "@/utils/session-join-helpers";
+import { prisma } from '@/app/lib/prisma';
+import { generatePlayerSlots } from '@/utils/session-join-helpers';
 
-export type SessionCreationStrategy = "fresh" | "repeat_previous" | "template";
+export type SessionCreationStrategy = 'fresh' | 'repeat_previous' | 'template';
 
 export interface SessionCreationOptions {
   strategy: SessionCreationStrategy;
@@ -14,22 +14,22 @@ export async function createPlayerSlotsForSession(
   sessionId: string,
   numberOfCourts: number,
   maxPlayersPerCourt: number,
-  options: SessionCreationOptions = { strategy: "fresh" }
+  options: SessionCreationOptions = { strategy: 'fresh' }
 ) {
   const maxPlayers = options.maxPlayers || numberOfCourts * maxPlayersPerCourt;
 
   switch (options.strategy) {
-    case "fresh":
+    case 'fresh':
       return createFreshPlayerSlots(sessionId, maxPlayers);
 
-    case "repeat_previous":
+    case 'repeat_previous':
       return repeatPreviousSession(
         sessionId,
         maxPlayers,
         options.templateSessionId!
       );
 
-    case "template":
+    case 'template':
       return useSessionTemplate(
         sessionId,
         maxPlayers,
@@ -48,7 +48,7 @@ async function createFreshPlayerSlots(sessionId: string, maxPlayers: number) {
     data: playerSlots,
   });
 
-  return { created: playerSlots.length, reused: 0, strategy: "fresh" };
+  return { created: playerSlots.length, reused: 0, strategy: 'fresh' };
 }
 
 async function repeatPreviousSession(
@@ -65,7 +65,7 @@ async function repeatPreviousSession(
     include: {
       user: true,
     },
-    orderBy: { playerNumber: "asc" },
+    orderBy: { playerNumber: 'asc' },
   });
 
   const playerSlots = [];
@@ -111,7 +111,7 @@ async function repeatPreviousSession(
   return {
     created: playerSlots.length,
     reused: previousPlayers.length,
-    strategy: "repeat_previous",
+    strategy: 'repeat_previous',
   };
 }
 
@@ -124,7 +124,7 @@ async function useSessionTemplate(
   const templatePlayers = await prisma.player.findMany({
     where: { sessionId: templateSessionId },
     include: { user: true },
-    orderBy: { playerNumber: "asc" },
+    orderBy: { playerNumber: 'asc' },
   });
 
   const playerSlots = [];
@@ -163,6 +163,6 @@ async function useSessionTemplate(
   return {
     created: playerSlots.length,
     reused: templatePlayers.length,
-    strategy: "template",
+    strategy: 'template',
   };
 }

@@ -36,16 +36,16 @@
 ### 1. Sử dụng translations trong component
 
 ```tsx
-import { useTranslations } from "next-intl";
+import { useTranslations } from 'next-intl';
 
 export default function MyComponent() {
-  const t = useTranslations("session");
-  const common = useTranslations("common");
+  const t = useTranslations('session');
+  const common = useTranslations('common');
 
   return (
     <div>
-      <h1>{t("createSession")}</h1>
-      <button>{common("save")}</button>
+      <h1>{t('createSession')}</h1>
+      <button>{common('save')}</button>
     </div>
   );
 }
@@ -54,7 +54,7 @@ export default function MyComponent() {
 ### 2. Navigation với i18n
 
 ```tsx
-import { Link } from "@/i18n/config";
+import { Link } from '@/i18n/config';
 
 export default function Navigation() {
   return (
@@ -71,7 +71,7 @@ export default function Navigation() {
 Component `LanguageSwitcher` đã được tích hợp sẵn:
 
 ```tsx
-import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 export default function Header() {
   return (
@@ -99,19 +99,19 @@ export default function Header() {
 
 ```tsx
 // Session related
-const t = useTranslations("session");
-t("createSession"); // "Create Session" / "Tạo Phiên Chơi"
-t("sessionName"); // "Session Name" / "Tên Phiên Chơi"
-t("maxPlayersPerCourt"); // "Max Players Per Court" / "Tối Đa Người Chơi Mỗi Sân"
+const t = useTranslations('session');
+t('createSession'); // "Create Session" / "Tạo Phiên Chơi"
+t('sessionName'); // "Session Name" / "Tên Phiên Chơi"
+t('maxPlayersPerCourt'); // "Max Players Per Court" / "Tối Đa Người Chơi Mỗi Sân"
 
 // Common words
-const common = useTranslations("common");
-common("save"); // "Save" / "Lưu"
-common("cancel"); // "Cancel" / "Hủy"
-common("loading"); // "Loading..." / "Đang tải..."
+const common = useTranslations('common');
+common('save'); // "Save" / "Lưu"
+common('cancel'); // "Cancel" / "Hủy"
+common('loading'); // "Loading..." / "Đang tải..."
 
 // Validation messages
-t("validation.sessionNameRequired"); // "Session name is required" / "Tên phiên chơi là bắt buộc"
+t('validation.sessionNameRequired'); // "Session name is required" / "Tên phiên chơi là bắt buộc"
 ```
 
 ## Thêm ngôn ngữ mới
@@ -121,9 +121,9 @@ t("validation.sessionNameRequired"); // "Session name is required" / "Tên phiê
 ```typescript
 // src/i18n/config.ts
 export const routing = defineRouting({
-  locales: ["en", "vi", "fr"], // Thêm 'fr' cho tiếng Pháp
-  defaultLocale: "en",
-  localePrefix: "always",
+  locales: ['en', 'vi', 'fr'], // Thêm 'fr' cho tiếng Pháp
+  defaultLocale: 'en',
+  localePrefix: 'always',
 });
 ```
 
@@ -136,9 +136,9 @@ Tạo file `src/i18n/messages/fr.json` với cấu trúc tương tự file tiế
 ```typescript
 // src/components/ui/LanguageSwitcher.tsx
 const locales = [
-  { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
-  { code: "fr", label: "Français", flag: "🇫🇷" }, // Thêm tiếng Pháp
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' }, // Thêm tiếng Pháp
 ];
 ```
 
@@ -167,8 +167,8 @@ const locales = [
 ### 2. Sử dụng trong component
 
 ```tsx
-const t = useTranslations("newFeature");
-return <h1>{t("title")}</h1>;
+const t = useTranslations('newFeature');
+return <h1>{t('title')}</h1>;
 ```
 
 ## Best Practices

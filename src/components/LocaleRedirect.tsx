@@ -8,7 +8,10 @@ interface LocaleRedirectProps {
   validLocales: string[];
 }
 
-export default function LocaleRedirect({ locale, validLocales }: LocaleRedirectProps) {
+export default function LocaleRedirect({
+  locale,
+  validLocales,
+}: LocaleRedirectProps) {
   const pathname = usePathname();
   const router = useRouter();
 

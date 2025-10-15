@@ -1,5 +1,5 @@
-import { api, ApiResponse } from "./base";
-import { ISession, Player } from "./types";
+import { api, ApiResponse } from './base';
+import { ISession, Player } from './types';
 
 export const RealTimeService = {
   // Get real-time session status

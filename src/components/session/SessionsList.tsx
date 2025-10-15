@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { SessionService } from "@/lib/api/session.service";
-import { ISession } from "@/lib/api/types";
-import { Box, Center, Grid, Heading, Spinner, Text } from "@chakra-ui/react";
-import "dayjs/locale/en";
-import "dayjs/locale/vi";
-import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-import SessionCard from "./SessionCard";
+import { SessionService } from '@/lib/api/session.service';
+import { ISession } from '@/lib/api/types';
+import { Box, Center, Grid, Heading, Spinner, Text } from '@chakra-ui/react';
+import 'dayjs/locale/en';
+import 'dayjs/locale/vi';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import SessionCard from './SessionCard';
 
 interface SessionsListProps {
   status?: string;
-  mode?: "view" | "manage";
+  mode?: 'view' | 'manage';
 }
 
 export default function SessionsList({
-  status = "ALL",
-  mode = "view",
+  status = 'ALL',
+  mode = 'view',
 }: SessionsListProps) {
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const t = useTranslations("session");
+  const t = useTranslations('session');
   const locale = useLocale();
 
   // Delete handler
@@ -31,7 +31,7 @@ export default function SessionsList({
       await SessionService.deleteSession(id);
       setSessions((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
-      setError("Failed to delete session");
+      setError('Failed to delete session');
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ export default function SessionsList({
         const sessionData = await SessionService.getAllSessions();
         setSessions(sessionData);
       } catch (err) {
-        setError(t("loadingError"));
+        setError(t('loadingError'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -56,13 +56,13 @@ export default function SessionsList({
 
   // Filter sessions by status
   const filteredSessions =
-    status === "ALL"
+    status === 'ALL'
       ? sessions
-      : status === "UPCOMING_AND_INPROGRESS"
-      ? sessions.filter(
-          (s) => s.status === "PREPARING" || s.status === "IN_PROGRESS"
-        )
-      : sessions.filter((s) => s.status === status);
+      : status === 'UPCOMING_AND_INPROGRESS'
+        ? sessions.filter(
+            (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
+          )
+        : sessions.filter((s) => s.status === status);
 
   if (loading) {
     return (
@@ -97,12 +97,12 @@ export default function SessionsList({
         borderWidth="1px"
         borderRadius="lg"
         bg="white"
-        _dark={{ bg: "gray.800" }}
+        _dark={{ bg: 'gray.800' }}
       >
         <Heading size="md" mb={2}>
-          {t("noActiveSessions")}
+          {t('noActiveSessions')}
         </Heading>
-        <Text color="gray.500">{t("noActiveSessionsDescription")}</Text>
+        <Text color="gray.500">{t('noActiveSessionsDescription')}</Text>
       </Box>
     );
   }
@@ -110,9 +110,9 @@ export default function SessionsList({
   return (
     <Grid
       templateColumns={{
-        base: "1fr",
-        md: "repeat(2, 1fr)",
-        lg: "repeat(3, 1fr)",
+        base: '1fr',
+        md: 'repeat(2, 1fr)',
+        lg: 'repeat(3, 1fr)',
       }}
       gap={6}
     >
@@ -120,7 +120,7 @@ export default function SessionsList({
         <SessionCard
           key={session.id}
           session={session}
-          onDelete={mode === "manage" ? handleDelete : undefined}
+          onDelete={mode === 'manage' ? handleDelete : undefined}
           mode={mode}
         />
       ))}

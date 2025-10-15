@@ -1,12 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/app/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/app/lib/prisma';
 
 interface RouteParams {
   id: string;
 }
 
 // PATCH - Bulk update players
-export async function PATCH(request: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<RouteParams> }
+) {
   try {
     const { id: sessionId } = await params;
     const body = await request.json();
@@ -14,7 +17,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     if (!Array.isArray(players)) {
       return NextResponse.json(
-        { success: false, message: "Players must be an array" },
+        { success: false, message: 'Players must be an array' },
         { status: 400 }
       );
     }
@@ -26,17 +29,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     if (!session) {
       return NextResponse.json(
-        { success: false, message: "Session not found" },
+        { success: false, message: 'Session not found' },
         { status: 404 }
       );
     }
 
     // Update players in bulk
     const updatePromises = players.map(async (playerData: any) => {
-      const { id, name, gender, level, levelDescription, requireConfirmInfo } = playerData;
-      
+      const { id, name, gender, level, levelDescription, requireConfirmInfo } =
+        playerData;
+
       if (!id) {
-        throw new Error("Player ID is required for updates");
+        throw new Error('Player ID is required for updates');
       }
 
       // Validate that player exists in this session
@@ -58,8 +62,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           name: name?.trim() || existingPlayer.name,
           gender: gender || existingPlayer.gender,
           level: level || existingPlayer.level,
-          levelDescription: levelDescription !== undefined ? levelDescription : existingPlayer.levelDescription,
-          requireConfirmInfo: requireConfirmInfo !== undefined ? requireConfirmInfo : existingPlayer.requireConfirmInfo,
+          levelDescription:
+            levelDescription !== undefined
+              ? levelDescription
+              : existingPlayer.levelDescription,
+          requireConfirmInfo:
+            requireConfirmInfo !== undefined
+              ? requireConfirmInfo
+              : existingPlayer.requireConfirmInfo,
         },
       });
     });
@@ -71,14 +81,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       data: {
         updatedPlayers,
       },
-      message: "Players updated successfully",
+      message: 'Players updated successfully',
     });
   } catch (error) {
-    console.error("Error bulk updating players:", error);
+    console.error('Error bulk updating players:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        message: error instanceof Error ? error.message : "Internal server error" 
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Internal server error',
       },
       { status: 500 }
     );

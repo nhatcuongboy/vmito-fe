@@ -1,20 +1,20 @@
-import NextAuth from "next-auth";
+import NextAuth from 'next-auth';
 // import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-import { prisma } from "@/app/lib/prisma";
-import bcrypt from "bcryptjs";
-import { UserRole } from "./api/types";
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import { prisma } from '@/app/lib/prisma';
+import bcrypt from 'bcryptjs';
+import { UserRole } from './api/types';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -48,10 +48,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
     CredentialsProvider({
-      id: "otp",
-      name: "OTP",
+      id: 'otp',
+      name: 'OTP',
       credentials: {
-        joinCode: { label: "Join Code", type: "text" },
+        joinCode: { label: 'Join Code', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.joinCode) {
@@ -75,7 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (
           !player ||
           !player.session.allowGuestJoin ||
-          player.session.status === "FINISHED"
+          player.session.status === 'FINISHED'
         ) {
           return null;
         }
@@ -99,7 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -136,7 +136,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   pages: {
-    signIn: "/auth/signin",
+    signIn: '/auth/signin',
   },
   // trustHost: true,
 });

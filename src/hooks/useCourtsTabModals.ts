@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Court, Match } from "@/types/session";
+import { useState } from 'react';
+import { Court, Match } from '@/types/session';
 
 export const useCourtsTabModals = () => {
   // Auto-assign modal state

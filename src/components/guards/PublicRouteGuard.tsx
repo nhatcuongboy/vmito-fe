@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Box, Spinner, Text, VStack } from "@chakra-ui/react";
-import { useLocale } from "next-intl";
-import { UserRole } from "@/lib/api/types";
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
+import { useLocale } from 'next-intl';
+import { UserRole } from '@/lib/api/types';
 
 interface PublicRouteGuardProps {
   children: React.ReactNode;
@@ -19,7 +19,7 @@ interface PublicRouteGuardProps {
  */
 export default function PublicRouteGuard({
   children,
-  redirectTo = "/dashboard",
+  redirectTo = '/dashboard',
 }: PublicRouteGuardProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -27,19 +27,19 @@ export default function PublicRouteGuard({
 
   useEffect(() => {
     // If already logged in, redirect to functional pages
-    if (status === "authenticated" && session?.user) {
+    if (status === 'authenticated' && session?.user) {
       let targetPath = redirectTo;
 
       // Override redirectTo based on user role
       if (session.user.role !== UserRole.GUEST) {
-        targetPath = "/dashboard";
+        targetPath = '/dashboard';
       } else {
         const playerId = session.user.playerId;
-        targetPath = playerId ? `/my-session` : "/join-by-code";
+        targetPath = playerId ? `/my-session` : '/join-by-code';
       }
 
       // Ensure the redirect path includes the locale
-      const localizedRedirectTo = targetPath.startsWith("/")
+      const localizedRedirectTo = targetPath.startsWith('/')
         ? `/${locale}${targetPath}`
         : targetPath;
       router.push(localizedRedirectTo);
@@ -47,7 +47,7 @@ export default function PublicRouteGuard({
   }, [session, status, router, redirectTo, locale]);
 
   // Loading state
-  if (status === "loading") {
+  if (status === 'loading') {
     return (
       <Box
         minH="100vh"
@@ -65,7 +65,7 @@ export default function PublicRouteGuard({
   }
 
   // If already logged in, show loading while redirecting
-  if (status === "authenticated") {
+  if (status === 'authenticated') {
     return (
       <Box
         minH="100vh"

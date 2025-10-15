@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { generateCourtName } from "@/utils/session-helpers";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { generateCourtName } from '@/utils/session-helpers';
+import { NextRequest } from 'next/server';
 
 interface SessionParams {
   id: string;
@@ -27,7 +27,7 @@ export async function GET(
         },
         courts: {
           orderBy: {
-            courtNumber: "asc",
+            courtNumber: 'asc',
           },
           include: {
             currentPlayers: {
@@ -46,7 +46,7 @@ export async function GET(
                 updatedAt: true,
               },
               orderBy: {
-                courtPosition: "asc", // Order by court position instead of updatedAt
+                courtPosition: 'asc', // Order by court position instead of updatedAt
               },
             },
             currentMatch: {
@@ -63,7 +63,7 @@ export async function GET(
                     },
                   },
                   orderBy: {
-                    position: "asc",
+                    position: 'asc',
                   },
                 },
               },
@@ -72,7 +72,7 @@ export async function GET(
         },
         players: {
           orderBy: {
-            playerNumber: "asc",
+            playerNumber: 'asc',
           },
           select: {
             id: true,
@@ -102,7 +102,7 @@ export async function GET(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Process courts to add position information to currentPlayers
@@ -148,10 +148,10 @@ export async function GET(
       courts: processedCourts,
     };
 
-    return successResponse(processedSession, "Session retrieved successfully");
+    return successResponse(processedSession, 'Session retrieved successfully');
   } catch (error) {
-    console.error("Error fetching session:", error);
-    return errorResponse("Failed to fetch session");
+    console.error('Error fetching session:', error);
+    return errorResponse('Failed to fetch session');
   }
 }
 
@@ -170,7 +170,7 @@ export async function PUT(
     });
 
     if (!existingSession) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Allow updating session regardless of status
@@ -229,8 +229,8 @@ export async function PUT(
             sessionId: id,
             courtNumber: i,
             courtName: generateCourtName(i), // Generate court name
-            direction: "HORIZONTAL" as any, // Cast to the correct enum type if needed
-            status: "EMPTY",
+            direction: 'HORIZONTAL' as any, // Cast to the correct enum type if needed
+            status: 'EMPTY',
           });
         }
 
@@ -239,8 +239,8 @@ export async function PUT(
             sessionId: court.sessionId,
             courtNumber: court.courtNumber,
             courtName: court.courtName,
-            direction: "HORIZONTAL" as any, // Cast to the correct enum type if needed
-            status: "EMPTY",
+            direction: 'HORIZONTAL' as any, // Cast to the correct enum type if needed
+            status: 'EMPTY',
           })),
         });
       } else if (numberOfCourts < existingSession.numberOfCourts) {
@@ -251,16 +251,16 @@ export async function PUT(
             courtNumber: {
               gt: numberOfCourts,
             },
-            status: "EMPTY",
+            status: 'EMPTY',
           },
         });
       }
     }
 
-    return successResponse(session, "Session updated successfully");
+    return successResponse(session, 'Session updated successfully');
   } catch (error) {
-    console.error("Error updating session:", error);
-    return errorResponse("Failed to update session");
+    console.error('Error updating session:', error);
+    return errorResponse('Failed to update session');
   }
 }
 
@@ -278,7 +278,7 @@ export async function DELETE(
     });
 
     if (!existingSession) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Delete all players related to this session
@@ -293,10 +293,10 @@ export async function DELETE(
 
     return successResponse(
       null,
-      "Session and related players deleted successfully"
+      'Session and related players deleted successfully'
     );
   } catch (error) {
-    console.error("Error deleting session:", error);
-    return errorResponse("Failed to delete session");
+    console.error('Error deleting session:', error);
+    return errorResponse('Failed to delete session');
   }
 }

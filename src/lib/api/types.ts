@@ -8,27 +8,27 @@ export interface ApiResponse<T> {
 
 // User roles
 export enum UserRole {
-  HOST = "HOST",
-  GUEST = "GUEST",
-  PLAYER = "PLAYER",
+  HOST = 'HOST',
+  GUEST = 'GUEST',
+  PLAYER = 'PLAYER',
 }
 
 // Level enum
 export enum Level {
-  Y_MINUS = "Y_MINUS",
-  Y = "Y",
-  Y_PLUS = "Y_PLUS",
-  TBY = "TBY",
-  TB_MINUS = "TB_MINUS",
-  TB = "TB",
-  TB_PLUS = "TB_PLUS",
-  K = "K",
+  Y_MINUS = 'Y_MINUS',
+  Y = 'Y',
+  Y_PLUS = 'Y_PLUS',
+  TBY = 'TBY',
+  TB_MINUS = 'TB_MINUS',
+  TB = 'TB',
+  TB_PLUS = 'TB_PLUS',
+  K = 'K',
 }
 
 // Court Direction enum
 export enum CourtDirection {
-  HORIZONTAL = "HORIZONTAL",
-  VERTICAL = "VERTICAL",
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
 }
 
 // Session types
@@ -45,7 +45,7 @@ export interface ISession {
   sessionDuration: number;
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
-  status: "PREPARING" | "IN_PROGRESS" | "FINISHED";
+  status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
   startTime?: Date;
   endTime?: Date;
   createdAt: Date;
@@ -65,13 +65,13 @@ export interface Player {
   userId?: string;
   playerNumber: number;
   name?: string;
-  gender?: "MALE" | "FEMALE";
+  gender?: 'MALE' | 'FEMALE';
   level?: Level;
   levelDescription?: string;
   currentWaitTime: number;
   totalWaitTime: number;
   matchesPlayed: number;
-  status: "WAITING" | "PLAYING" | "FINISHED" | "READY" | "INACTIVE";
+  status: 'WAITING' | 'PLAYING' | 'FINISHED' | 'READY' | 'INACTIVE';
   currentCourtId?: string;
   currentCourt?: Court;
   preFilledByHost: boolean;
@@ -90,7 +90,7 @@ export interface Court {
   courtNumber: number;
   courtName?: string;
   direction: CourtDirection;
-  status: "EMPTY" | "IN_USE" | "READY";
+  status: 'EMPTY' | 'IN_USE' | 'READY';
   currentPlayers?: Player[];
   currentMatchId?: string;
   currentMatch?: Match;
@@ -106,7 +106,7 @@ export interface Match {
   id: string;
   sessionId: string;
   courtId: string;
-  status: "IN_PROGRESS" | "FINISHED";
+  status: 'IN_PROGRESS' | 'FINISHED';
   startTime: Date;
   endTime?: Date;
   players?: MatchPlayer[];
@@ -152,7 +152,7 @@ export interface PlayerStatistics {
 export interface BulkPlayerData {
   playerNumber: number;
   name?: string;
-  gender?: "MALE" | "FEMALE";
+  gender?: 'MALE' | 'FEMALE';
   level?: Level;
   levelDescription?: string;
   phone?: string;

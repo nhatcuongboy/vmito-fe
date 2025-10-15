@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react';
 import {
   Card,
   CardBody,
   CardHeader,
   Button as CompatButton,
-} from "@/components/ui/chakra-compat";
-import { CourtDirection } from "@/lib/api/types";
-import { Court, Match } from "@/types/session";
+} from '@/components/ui/chakra-compat';
+import { CourtDirection } from '@/lib/api/types';
+import { Court, Match } from '@/types/session';
 import {
   Badge,
   Box,
@@ -15,16 +15,16 @@ import {
   HStack,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { Clock, Play, Plus, Shuffle, Square, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-import BadmintonCourt from "../court/BadmintonCourt";
+} from '@chakra-ui/react';
+import { Clock, Play, Plus, Shuffle, Square, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import BadmintonCourt from '../court/BadmintonCourt';
 
 interface CourtCardProps {
   court: Court;
   currentMatch: Match | null;
   session: any;
-  mode: "manage" | "view";
+  mode: 'manage' | 'view';
   isRefreshing: boolean;
   waitingPlayers: any[];
 
@@ -78,10 +78,10 @@ const CourtCard: React.FC<CourtCardProps> = ({
   loadingEndMatchId,
   startManualMatchCreation,
 }) => {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
 
-  const isActive = court.status === "IN_USE" || court.status === "READY";
-  const isCourtReady = court.status === "READY";
+  const isActive = court.status === 'IN_USE' || court.status === 'READY';
+  const isCourtReady = court.status === 'READY';
 
   const handleEndMatchClick = () => {
     if (currentMatch) {
@@ -99,18 +99,18 @@ const CourtCard: React.FC<CourtCardProps> = ({
   return (
     <Card key={court.id} variant="outline" boxShadow="md">
       <CardHeader
-        bg={isCourtReady ? "yellow.50" : isActive ? "green.50" : "gray.50"}
+        bg={isCourtReady ? 'yellow.50' : isActive ? 'green.50' : 'gray.50'}
         p={4}
         boxShadow="md"
         transition="all 0.2s ease-in-out"
         _hover={{
-          boxShadow: "lg",
+          boxShadow: 'lg',
           borderColor: isCourtReady
-            ? "yellow.300"
+            ? 'yellow.300'
             : isActive
-            ? "green.300"
-            : "gray.300",
-          transform: "translateY(-1px)",
+              ? 'green.300'
+              : 'gray.300',
+          transform: 'translateY(-1px)',
         }}
       >
         <Flex justifyContent="space-between" alignItems="center">
@@ -121,10 +121,10 @@ const CourtCard: React.FC<CourtCardProps> = ({
               borderRadius="full"
               bg={
                 isCourtReady
-                  ? "yellow.500"
+                  ? 'yellow.500'
                   : isActive
-                  ? "green.500"
-                  : "gray.500"
+                    ? 'green.500'
+                    : 'gray.500'
               }
               display="flex"
               alignItems="center"
@@ -141,21 +141,21 @@ const CourtCard: React.FC<CourtCardProps> = ({
               fontWeight="semibold"
               color={
                 isCourtReady
-                  ? "yellow.700"
+                  ? 'yellow.700'
                   : isActive
-                  ? "green.700"
-                  : "gray.700"
+                    ? 'green.700'
+                    : 'gray.700'
               }
             >
               {court.courtName ??
-                t("courtsTab.courtNumber", {
+                t('courtsTab.courtNumber', {
                   number: court.courtNumber,
                 })}
             </Heading>
           </Box>
 
           <HStack gap={2} alignItems="center">
-            {currentMatch && court.status === "IN_USE" && (
+            {currentMatch && court.status === 'IN_USE' && (
               <Badge
                 colorPalette="blue"
                 variant="solid"
@@ -174,12 +174,12 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 <Box as={Clock} boxSize={3} />
                 {currentMatch.startTime
                   ? elapsedTimeFormatter(currentMatch.startTime)
-                  : "-"}
+                  : '-'}
               </Badge>
             )}
             <Badge
               colorPalette={
-                isCourtReady ? "yellow" : isActive ? "green" : "gray"
+                isCourtReady ? 'yellow' : isActive ? 'green' : 'gray'
               }
               variant="solid"
               fontSize="xs"
@@ -193,10 +193,10 @@ const CourtCard: React.FC<CourtCardProps> = ({
               style={{ letterSpacing: 0.2 }}
             >
               {isCourtReady
-                ? t("courtsTab.ready")
+                ? t('courtsTab.ready')
                 : isActive
-                ? t("courtsTab.inUse")
-                : t("courtsTab.empty")}
+                  ? t('courtsTab.inUse')
+                  : t('courtsTab.empty')}
             </Badge>
             {hasPreSelectedPlayers(court) && (
               <Badge
@@ -212,7 +212,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 lineHeight={1.2}
                 style={{ letterSpacing: 0.2 }}
               >
-                {t("courtsTab.nextSelected")}
+                {t('courtsTab.nextSelected')}
               </Badge>
             )}
           </HStack>
@@ -228,7 +228,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               elapsedTime={
                 currentMatch
                   ? elapsedTimeFormatter(currentMatch.startTime)
-                  : t("courtsTab.playing")
+                  : t('courtsTab.playing')
               }
               courtName={getCourtDisplayName(
                 court.courtName,
@@ -245,9 +245,9 @@ const CourtCard: React.FC<CourtCardProps> = ({
             {/* Action buttons for courts with players */}
             <VStack gap={2} pb={4} width="100%">
               {/* Start Match button */}
-              {session.status === "IN_PROGRESS" &&
-                mode === "manage" &&
-                court.status === "READY" &&
+              {session.status === 'IN_PROGRESS' &&
+                mode === 'manage' &&
+                court.status === 'READY' &&
                 !court.currentMatchId && (
                   <CompatButton
                     size="sm"
@@ -257,14 +257,14 @@ const CourtCard: React.FC<CourtCardProps> = ({
                     disabled={isRefreshing}
                   >
                     <Box as={Play} boxSize={4} mr={1} />
-                    {t("startMatch")}
+                    {t('startMatch')}
                   </CompatButton>
                 )}
 
               {/* Cancel button */}
-              {session.status === "IN_PROGRESS" &&
-                mode === "manage" &&
-                court.status === "READY" &&
+              {session.status === 'IN_PROGRESS' &&
+                mode === 'manage' &&
+                court.status === 'READY' &&
                 court.currentPlayers.length > 0 && (
                   <CompatButton
                     size="sm"
@@ -275,15 +275,15 @@ const CourtCard: React.FC<CourtCardProps> = ({
                     disabled={isRefreshing}
                   >
                     <Box as={X} boxSize={4} mr={1} />
-                    {t("courtsTab.cancel")}
+                    {t('courtsTab.cancel')}
                   </CompatButton>
                 )}
 
               {/* Pre-select button */}
-              {session.status === "IN_PROGRESS" &&
-                mode === "manage" &&
+              {session.status === 'IN_PROGRESS' &&
+                mode === 'manage' &&
                 court.currentMatchId &&
-                court.status !== "READY" &&
+                court.status !== 'READY' &&
                 !hasPreSelectedPlayers(court) && (
                   <CompatButton
                     size="sm"
@@ -293,15 +293,15 @@ const CourtCard: React.FC<CourtCardProps> = ({
                     disabled={isRefreshing || waitingPlayers.length < 4}
                   >
                     <Box as={Plus} boxSize={4} mr={1} />
-                    {t("courtsTab.preSelectNext")}
+                    {t('courtsTab.preSelectNext')}
                   </CompatButton>
                 )}
 
               {/* Cancel pre-select button */}
-              {session.status === "IN_PROGRESS" &&
-                mode === "manage" &&
+              {session.status === 'IN_PROGRESS' &&
+                mode === 'manage' &&
                 court.currentMatchId &&
-                court.status !== "READY" &&
+                court.status !== 'READY' &&
                 hasPreSelectedPlayers(court) && (
                   <CompatButton
                     size="sm"
@@ -312,15 +312,15 @@ const CourtCard: React.FC<CourtCardProps> = ({
                     disabled={isRefreshing}
                   >
                     <Box as={X} boxSize={4} mr={1} />
-                    {t("courtsTab.cancelPreSelect")}
+                    {t('courtsTab.cancelPreSelect')}
                   </CompatButton>
                 )}
 
               {/* End Match button */}
-              {session.status === "IN_PROGRESS" &&
-                mode === "manage" &&
+              {session.status === 'IN_PROGRESS' &&
+                mode === 'manage' &&
                 court.currentMatchId &&
-                court.status !== "READY" && (
+                court.status !== 'READY' && (
                   <CompatButton
                     size="sm"
                     colorScheme="red"
@@ -329,7 +329,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                     disabled={isRefreshing}
                   >
                     <Box as={Square} boxSize={4} mr={1} />
-                    {t("courtsTab.endMatch")}
+                    {t('courtsTab.endMatch')}
                   </CompatButton>
                 )}
             </VStack>
@@ -349,7 +349,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               status="EMPTY"
               direction={court.direction || CourtDirection.HORIZONTAL}
             />
-            {session.status === "IN_PROGRESS" && mode === "manage" ? (
+            {session.status === 'IN_PROGRESS' && mode === 'manage' ? (
               <VStack gap={2}>
                 <CompatButton
                   colorScheme="green"
@@ -359,7 +359,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                   disabled={waitingPlayers.length < 4 || isRefreshing}
                 >
                   <Box as={Shuffle} boxSize={4} mr={1} />
-                  {t("courtsTab.autoAssignMatch")}
+                  {t('courtsTab.autoAssignMatch')}
                 </CompatButton>
                 {startManualMatchCreation && (
                   <CompatButton
@@ -371,13 +371,13 @@ const CourtCard: React.FC<CourtCardProps> = ({
                     disabled={waitingPlayers.length < 4 || isRefreshing}
                   >
                     <Box as={Plus} boxSize={4} mr={1} />
-                    {t("courtsTab.manualSelection")}
+                    {t('courtsTab.manualSelection')}
                   </CompatButton>
                 )}
               </VStack>
-            ) : session.status === "IN_PROGRESS" ? (
+            ) : session.status === 'IN_PROGRESS' ? (
               <Text fontSize="sm" color="gray.500" textAlign="center" mt={2}>
-                {t("courtsTab.courtAvailableForPlay")}
+                {t('courtsTab.courtAvailableForPlay')}
               </Text>
             ) : null}
           </VStack>

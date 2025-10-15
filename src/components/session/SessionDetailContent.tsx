@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { SessionService } from "@/lib/api/session.service";
-import { Box, Container, Flex, Heading, Text } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { SessionService } from '@/lib/api/session.service';
+import { Box, Container, Flex, Heading, Text } from '@chakra-ui/react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 // Import compatibility components
-import CourtsTab from "@/components/session/CourtsTab";
-import PlayersTab, { PlayerFilter } from "@/components/session/PlayersTab";
-import SessionHistoryList from "@/components/session/SessionHistoryList";
-import SessionStatusHeader from "@/components/session/SessionStatusHeader";
-import SettingsTab from "@/components/session/SettingsTab";
-import { Button, useToast } from "@/components/ui/chakra-compat";
-import MainLayout from "@/components/layout/MainLayout";
-import { getCourtDisplayName } from "@/utils/session-helpers";
-import { RefreshCw, Square, Trophy, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
-import WaitTimeUpdater from "./WaitTimeUpdater";
-import { Level } from "@/lib/api/types";
+import CourtsTab from '@/components/session/CourtsTab';
+import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
+import SessionHistoryList from '@/components/session/SessionHistoryList';
+import SessionStatusHeader from '@/components/session/SessionStatusHeader';
+import SettingsTab from '@/components/session/SettingsTab';
+import { Button, useToast } from '@/components/ui/chakra-compat';
+import MainLayout from '@/components/layout/MainLayout';
+import { getCourtDisplayName } from '@/utils/session-helpers';
+import { RefreshCw, Square, Trophy, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import WaitTimeUpdater from './WaitTimeUpdater';
+import { Level } from '@/lib/api/types';
 
 // Types for session data and related entities
 interface Player {
@@ -89,7 +89,7 @@ export default function SessionDetailContent({
 }: {
   sessionData: SessionData;
 }) {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [session, setSession] = useState<SessionData>(sessionData);
@@ -99,26 +99,26 @@ export default function SessionDetailContent({
 
   // Initialize activeTab from URL parameter or default to 0
   const [activeTab, setActiveTab] = useState<number>(() => {
-    const tabParam = searchParams.get("tab");
+    const tabParam = searchParams.get('tab');
     const tabIndex = tabParam ? parseInt(tabParam, 10) : 0;
     return tabIndex >= 0 && tabIndex <= 3 ? tabIndex : 0;
   });
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [selectedCourt, setSelectedCourt] = useState<string | null>(null);
-  const [matchMode, setMatchMode] = useState<"auto" | "manual">("auto");
+  const [matchMode, setMatchMode] = useState<'auto' | 'manual'>('auto');
   const [showMatchCreation, setShowMatchCreation] = useState<boolean>(false);
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>("ALL");
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
   const [isToggleStatusLoading, setIsToggleStatusLoading] =
     useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
-  const [pendingAction, setPendingAction] = useState<string>("");
+  const [pendingAction, setPendingAction] = useState<string>('');
 
   const toast = useToast();
 
   // Function to update URL with current tab
   const updateTabInURL = (tabIndex: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tabIndex.toString());
+    params.set('tab', tabIndex.toString());
     router.replace(`?${params.toString()}`, { scroll: false });
   };
 
@@ -130,15 +130,15 @@ export default function SessionDetailContent({
 
   // Get waiting players (players with status WAITING)
   const waitingPlayers = session.players
-    .filter((player) => player.status === "WAITING")
+    .filter((player) => player.status === 'WAITING')
     .sort((a, b) => b.currentWaitTime - a.currentWaitTime);
 
   // Get active courts (with current matches)
   const activeCourts = session.courts
-    .filter((court) => court.status === "IN_USE")
+    .filter((court) => court.status === 'IN_USE')
     .map((court) => ({
       ...court,
-      status: court.status as "READY" | "IN_USE" | "EMPTY",
+      status: court.status as 'READY' | 'IN_USE' | 'EMPTY',
     }));
 
   // Helper function to get current match for a court
@@ -179,7 +179,7 @@ export default function SessionDetailContent({
         ...data,
         players: (data.players || []).map((p: any) => ({
           ...p,
-          name: p.name || "",
+          name: p.name || '',
         })),
         courts: (data.courts || []).map((c: any) => ({
           ...c,
@@ -204,7 +204,7 @@ export default function SessionDetailContent({
       });
       setLastRefreshed(new Date());
     } catch (error) {
-      console.error("Error refreshing session data:", error);
+      console.error('Error refreshing session data:', error);
     } finally {
       setIsRefreshing(false);
     }
@@ -214,7 +214,7 @@ export default function SessionDetailContent({
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
 
-    if (session.status === "IN_PROGRESS" && refreshInterval > 0) {
+    if (session.status === 'IN_PROGRESS' && refreshInterval > 0) {
       intervalId = setInterval(refreshSessionData, refreshInterval * 1000);
     }
 
@@ -227,17 +227,17 @@ export default function SessionDetailContent({
   const toggleSessionStatus = async () => {
     // Determine the next status
     let nextStatus = session.status;
-    if (session.status === "PREPARING") {
-      nextStatus = "IN_PROGRESS";
-    } else if (session.status === "IN_PROGRESS") {
-      nextStatus = "FINISHED";
+    if (session.status === 'PREPARING') {
+      nextStatus = 'IN_PROGRESS';
+    } else if (session.status === 'IN_PROGRESS') {
+      nextStatus = 'FINISHED';
     } else {
       return; // No change if already FINISHED
     }
 
     // Show confirmation dialog for ending session
-    if (nextStatus === "FINISHED") {
-      setPendingAction("end");
+    if (nextStatus === 'FINISHED') {
+      setPendingAction('end');
       setShowConfirmDialog(true);
       return;
     }
@@ -251,7 +251,7 @@ export default function SessionDetailContent({
     try {
       setIsToggleStatusLoading(true);
 
-      if (nextStatus === "FINISHED") {
+      if (nextStatus === 'FINISHED') {
         // Use endSession API for comprehensive cleanup
         const result = await SessionService.endSession(session.id);
 
@@ -291,17 +291,17 @@ export default function SessionDetailContent({
 
       toast.toast({
         title:
-          nextStatus === "IN_PROGRESS"
-            ? t("sessionStarted")
-            : t("sessionEnded"),
-        status: "success",
+          nextStatus === 'IN_PROGRESS'
+            ? t('sessionStarted')
+            : t('sessionEnded'),
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error updating session status:", error);
+      console.error('Error updating session status:', error);
       toast.toast({
-        title: t("errorUpdatingSessionStatus"),
-        status: "error",
+        title: t('errorUpdatingSessionStatus'),
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -312,15 +312,15 @@ export default function SessionDetailContent({
   // Handle confirmation dialog
   const handleConfirmAction = async () => {
     setShowConfirmDialog(false);
-    if (pendingAction === "end") {
-      await executeStatusChange("FINISHED");
+    if (pendingAction === 'end') {
+      await executeStatusChange('FINISHED');
     }
-    setPendingAction("");
+    setPendingAction('');
   };
 
   const handleCancelAction = () => {
     setShowConfirmDialog(false);
-    setPendingAction("");
+    setPendingAction('');
   };
 
   // Format wait time to display in mm:ss format
@@ -329,16 +329,16 @@ export default function SessionDetailContent({
     const minutes = waitTimeInMinutes % 60;
 
     if (hours > 0) {
-      return t("hoursMinutes", { hours, minutes });
+      return t('hoursMinutes', { hours, minutes });
     }
 
-    return t("minutesShort", { minutes });
+    return t('minutesShort', { minutes });
   };
 
   // Start manual match creation for a court
   const startManualMatchCreation = (courtId: string) => {
     setSelectedCourt(courtId);
-    setMatchMode("manual");
+    setMatchMode('manual');
     setShowMatchCreation(true);
     setSelectedPlayers([]);
   };
@@ -366,11 +366,11 @@ export default function SessionDetailContent({
 
         {/* Bottom Navigation Bar for Tabs */}
         <Box minH="60vh" pb="80px">
-          {session.status !== "IN_PROGRESS" && (
+          {session.status !== 'IN_PROGRESS' && (
             <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
-              {session.status === "PREPARING"
-                ? t("courtsTab.startSessionToBeginMatches")
-                : t("courtsTab.sessionHasEnded")}
+              {session.status === 'PREPARING'
+                ? t('courtsTab.startSessionToBeginMatches')
+                : t('courtsTab.sessionHasEnded')}
             </Text>
           )}
           {activeTab === 0 && (
@@ -436,11 +436,11 @@ export default function SessionDetailContent({
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 0 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 0 ? "bold" : "normal"}
+            color={activeTab === 0 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 0 ? 'bold' : 'normal'}
           >
             <Box as={Square} boxSize={6} mb={1} />
-            {t("courts")}
+            {t('courts')}
           </Box>
           <Box
             as="button"
@@ -450,11 +450,11 @@ export default function SessionDetailContent({
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 1 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 1 ? "bold" : "normal"}
+            color={activeTab === 1 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 1 ? 'bold' : 'normal'}
           >
             <Box as={Users} boxSize={6} mb={1} />
-            {t("players")}
+            {t('players')}
           </Box>
           <Box
             as="button"
@@ -464,11 +464,11 @@ export default function SessionDetailContent({
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 2 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 2 ? "bold" : "normal"}
+            color={activeTab === 2 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 2 ? 'bold' : 'normal'}
           >
             <Box as={Trophy} boxSize={6} mb={1} />
-            {t("matchs.tabTitle")}
+            {t('matchs.tabTitle')}
           </Box>
           <Box
             as="button"
@@ -478,11 +478,11 @@ export default function SessionDetailContent({
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 3 ? "blue.500" : "gray.500"}
-            fontWeight={activeTab === 3 ? "bold" : "normal"}
+            color={activeTab === 3 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 3 ? 'bold' : 'normal'}
           >
             <Box as={RefreshCw} boxSize={6} mb={1} />
-            {t("settings")}
+            {t('settings')}
           </Box>
         </Box>
       </Container>
@@ -504,7 +504,7 @@ export default function SessionDetailContent({
         >
           <Box
             bg="white"
-            _dark={{ bg: "gray.800" }}
+            _dark={{ bg: 'gray.800' }}
             borderRadius="lg"
             boxShadow="xl"
             p={6}
@@ -513,10 +513,10 @@ export default function SessionDetailContent({
             onClick={(e) => e.stopPropagation()}
           >
             <Heading size="md" mb={4} color="red.500">
-              {t("confirmEndSession")}
+              {t('confirmEndSession')}
             </Heading>
-            <Text mb={6} color="gray.600" _dark={{ color: "gray.300" }}>
-              {t("confirmEndSessionMessage")}
+            <Text mb={6} color="gray.600" _dark={{ color: 'gray.300' }}>
+              {t('confirmEndSessionMessage')}
             </Text>
             <Flex gap={3} justifyContent="flex-end">
               <Button
@@ -524,14 +524,14 @@ export default function SessionDetailContent({
                 onClick={handleCancelAction}
                 disabled={isToggleStatusLoading}
               >
-                {t("cancel")}
+                {t('cancel')}
               </Button>
               <Button
                 colorScheme="red"
                 onClick={handleConfirmAction}
                 loading={isToggleStatusLoading}
               >
-                {t("endSession")}
+                {t('endSession')}
               </Button>
             </Flex>
           </Box>

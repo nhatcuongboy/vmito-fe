@@ -1,45 +1,45 @@
-"use client";
+'use client';
 
-import { Card, CardBody, SimpleGrid } from "@/components/ui/chakra-compat";
-import { SessionService } from "@/lib/api/session.service";
-import { Level } from "@/lib/api/types";
-import { getLevelLabel } from "@/utils/level-mapping";
-import { Badge, Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
-import { Mars, Pause, Play, User, Users, Venus } from "lucide-react";
-import { useState } from "react";
-import { PlayerDetailModal } from "./PlayerDetailModal";
+import { Card, CardBody, SimpleGrid } from '@/components/ui/chakra-compat';
+import { SessionService } from '@/lib/api/session.service';
+import { Level } from '@/lib/api/types';
+import { getLevelLabel } from '@/utils/level-mapping';
+import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
+import { Mars, Pause, Play, User, Users, Venus } from 'lucide-react';
+import { useState } from 'react';
+import { PlayerDetailModal } from './PlayerDetailModal';
 
 // Color constants for different player states
 const PLAYER_COLORS = {
   SELECTED: {
-    bg: "rgba(59, 130, 246, 0.3)",
-    border: "rgba(59, 130, 246, 0.8)",
-    scheme: "blue",
+    bg: 'rgba(59, 130, 246, 0.3)',
+    border: 'rgba(59, 130, 246, 0.8)',
+    scheme: 'blue',
   },
   READY: {
-    bg: "#fae593",
-    border: "#fae593",
-    scheme: "green",
+    bg: '#fae593',
+    border: '#fae593',
+    scheme: 'green',
   },
   WAITING: {
-    bg: "rgba(251, 146, 60, 0.9)", // Increased opacity from 0.2 to 0.4
-    border: "rgba(251, 146, 60, 0.9)", // Increased opacity from 0.8 to 1 (full)
-    scheme: "orange",
+    bg: 'rgba(251, 146, 60, 0.9)', // Increased opacity from 0.2 to 0.4
+    border: 'rgba(251, 146, 60, 0.9)', // Increased opacity from 0.8 to 1 (full)
+    scheme: 'orange',
   },
   PLAYING: {
-    bg: "rgba(72, 187, 120, 0.8)",
-    border: "rgba(72, 187, 120, 0.8)",
-    scheme: "blue",
+    bg: 'rgba(72, 187, 120, 0.8)',
+    border: 'rgba(72, 187, 120, 0.8)',
+    scheme: 'blue',
   },
   INACTIVE: {
-    bg: "rgb(214 216 220)",
-    border: "rgb(214 216 220)",
-    scheme: "gray",
+    bg: 'rgb(214 216 220)',
+    border: 'rgb(214 216 220)',
+    scheme: 'gray',
   },
   DEFAULT: {
-    bg: "rgba(251, 146, 60, 0.3)",
-    border: "rgba(251, 146, 60, 0.5)",
-    scheme: "orange",
+    bg: 'rgba(251, 146, 60, 0.3)',
+    border: 'rgba(251, 146, 60, 0.5)',
+    scheme: 'orange',
   },
 };
 
@@ -60,12 +60,12 @@ interface Player {
 
 interface PlayerGridProps {
   players: Player[];
-  playerFilter: "ALL" | "PLAYING" | "WAITING" | "READY" | "INACTIVE";
+  playerFilter: 'ALL' | 'PLAYING' | 'WAITING' | 'READY' | 'INACTIVE';
   formatWaitTime: (waitTimeInMinutes: number) => string;
   selectedPlayers?: string[];
   onPlayerToggle?: (playerId: string) => void;
   selectionMode?: boolean;
-  mode?: "view" | "manage";
+  mode?: 'view' | 'manage';
   sessionId?: string;
   onPlayerUpdate?: () => void;
 }
@@ -77,7 +77,7 @@ export const PlayerGrid = ({
   selectedPlayers = [],
   onPlayerToggle,
   selectionMode = false,
-  mode = "manage",
+  mode = 'manage',
   sessionId,
   onPlayerUpdate,
 }: PlayerGridProps) => {
@@ -86,7 +86,7 @@ export const PlayerGrid = ({
     playerId: string;
     playerName: string;
     action: string;
-  }>({ isOpen: false, playerId: "", playerName: "", action: "" });
+  }>({ isOpen: false, playerId: '', playerName: '', action: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlayerForDetail, setSelectedPlayerForDetail] =
     useState<Player | null>(null);
@@ -99,19 +99,19 @@ export const PlayerGrid = ({
       onPlayerUpdate?.();
       setConfirmDialog({
         isOpen: false,
-        playerId: "",
-        playerName: "",
-        action: "",
+        playerId: '',
+        playerName: '',
+        action: '',
       });
     } catch (error) {
-      console.error("Failed to toggle player inactive status:", error);
+      console.error('Failed to toggle player inactive status:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const showConfirmDialog = (player: Player) => {
-    const action = player.status === "WAITING" ? "pause" : "continue";
+    const action = player.status === 'WAITING' ? 'pause' : 'continue';
     setConfirmDialog({
       isOpen: true,
       playerId: player.id,
@@ -134,27 +134,27 @@ export const PlayerGrid = ({
             borderColor = PLAYER_COLORS.SELECTED.border;
             colorScheme = PLAYER_COLORS.SELECTED.scheme;
           } else if (
-            playerFilter === "READY" ||
-            (playerFilter === "ALL" && player.status === "READY")
+            playerFilter === 'READY' ||
+            (playerFilter === 'ALL' && player.status === 'READY')
           ) {
             // Green for ready players
             bgColor = PLAYER_COLORS.READY.bg;
             borderColor = PLAYER_COLORS.READY.border;
             colorScheme = PLAYER_COLORS.READY.scheme;
           } else if (
-            playerFilter === "WAITING" ||
-            (playerFilter === "ALL" && player.status === "WAITING")
+            playerFilter === 'WAITING' ||
+            (playerFilter === 'ALL' && player.status === 'WAITING')
           ) {
             // Orange color for waiting players (increased intensity)
             bgColor = PLAYER_COLORS.WAITING.bg;
             borderColor = PLAYER_COLORS.WAITING.border;
             colorScheme = PLAYER_COLORS.WAITING.scheme;
-          } else if (player.status === "PLAYING") {
+          } else if (player.status === 'PLAYING') {
             // Blue for playing players
             bgColor = PLAYER_COLORS.PLAYING.bg;
             borderColor = PLAYER_COLORS.PLAYING.border;
             colorScheme = PLAYER_COLORS.PLAYING.scheme;
-          } else if (player.status === "INACTIVE") {
+          } else if (player.status === 'INACTIVE') {
             // Gray for inactive players
             bgColor = PLAYER_COLORS.INACTIVE.bg;
             borderColor = PLAYER_COLORS.INACTIVE.border;
@@ -167,12 +167,12 @@ export const PlayerGrid = ({
           }
 
           // Priority indicator color (for waiting queue)
-          let priorityColor = "gray.300";
+          let priorityColor = 'gray.300';
           if (
-            playerFilter === "WAITING" ||
-            (playerFilter === "ALL" && player.status === "WAITING")
+            playerFilter === 'WAITING' ||
+            (playerFilter === 'ALL' && player.status === 'WAITING')
           ) {
-            if (index < 4) priorityColor = "red.400";
+            if (index < 4) priorityColor = 'red.400';
           }
 
           return (
@@ -188,18 +188,18 @@ export const PlayerGrid = ({
               minH="140px"
               position="relative"
               cursor={
-                selectionMode || mode === "manage" ? "pointer" : "default"
+                selectionMode || mode === 'manage' ? 'pointer' : 'default'
               }
               onClick={
                 selectionMode
                   ? () => onPlayerToggle?.(player.id)
-                  : mode === "manage"
-                  ? () => setSelectedPlayerForDetail(player)
-                  : undefined
+                  : mode === 'manage'
+                    ? () => setSelectedPlayerForDetail(player)
+                    : undefined
               }
               _hover={
-                selectionMode || mode === "manage"
-                  ? { transform: "scale(1.02)", boxShadow: "lg" }
+                selectionMode || mode === 'manage'
+                  ? { transform: 'scale(1.02)', boxShadow: 'lg' }
                   : undefined
               }
             >
@@ -245,15 +245,15 @@ export const PlayerGrid = ({
                     <Text fontWeight="bold" color="orange.700" fontSize="md">
                       #{player.playerNumber}
                     </Text>
-                    {(player.status === "WAITING" ||
-                      player.status === "READY") && (
+                    {(player.status === 'WAITING' ||
+                      player.status === 'READY') && (
                       <Badge
                         colorPalette={
                           player.currentWaitTime > 15
-                            ? "red"
+                            ? 'red'
                             : player.currentWaitTime > 10
-                            ? "yellow"
-                            : "gray"
+                              ? 'yellow'
+                              : 'gray'
                         }
                         variant="solid"
                         fontSize="xs"
@@ -282,11 +282,11 @@ export const PlayerGrid = ({
                     alignItems="center"
                     gap={3}
                   >
-                    {mode === "manage" && (
+                    {mode === 'manage' && (
                       <Badge
                         variant="outline"
                         // colorPalette={"purple"}
-                        background={"whiteAlpha.800"}
+                        background={'whiteAlpha.800'}
                         fontSize="xs"
                         borderRadius="sm"
                       >
@@ -296,13 +296,13 @@ export const PlayerGrid = ({
                     <Badge
                       variant="solid"
                       colorPalette={
-                        player.gender === "MALE"
-                          ? "blue"
-                          : player.gender === "FEMALE"
-                          ? "pink"
-                          : player.gender === "OTHER"
-                          ? "purple"
-                          : "gray"
+                        player.gender === 'MALE'
+                          ? 'blue'
+                          : player.gender === 'FEMALE'
+                            ? 'pink'
+                            : player.gender === 'OTHER'
+                              ? 'purple'
+                              : 'gray'
                       }
                       fontSize="xs"
                       borderRadius="sm"
@@ -310,11 +310,11 @@ export const PlayerGrid = ({
                       alignItems="center"
                       gap={1}
                     >
-                      {player.gender === "MALE" ? (
+                      {player.gender === 'MALE' ? (
                         <Mars size={12} />
-                      ) : player.gender === "FEMALE" ? (
+                      ) : player.gender === 'FEMALE' ? (
                         <Venus size={12} />
-                      ) : player.gender === "OTHER" ? (
+                      ) : player.gender === 'OTHER' ? (
                         <Users size={12} />
                       ) : (
                         <User size={12} />
@@ -328,22 +328,22 @@ export const PlayerGrid = ({
                 </VStack>
 
                 {/* Pause/Continue Button */}
-                {mode === "manage" &&
+                {mode === 'manage' &&
                   sessionId &&
-                  (player.status === "WAITING" ||
-                    player.status === "INACTIVE") && (
+                  (player.status === 'WAITING' ||
+                    player.status === 'INACTIVE') && (
                     <Box position="absolute" bottom={2} right={2}>
                       <Button
                         size="xs"
                         colorPalette={
-                          player.status === "WAITING" ? "red" : "gray"
+                          player.status === 'WAITING' ? 'red' : 'gray'
                         }
                         onClick={(e) => {
                           e.stopPropagation();
                           showConfirmDialog(player);
                         }}
                       >
-                        {player.status === "WAITING" ? <Pause /> : <Play />}
+                        {player.status === 'WAITING' ? <Pause /> : <Play />}
                       </Button>
                     </Box>
                   )}
@@ -369,9 +369,9 @@ export const PlayerGrid = ({
           onClick={() =>
             setConfirmDialog({
               isOpen: false,
-              playerId: "",
-              playerName: "",
-              action: "",
+              playerId: '',
+              playerName: '',
+              action: '',
             })
           }
         >
@@ -385,12 +385,12 @@ export const PlayerGrid = ({
             onClick={(e) => e.stopPropagation()}
           >
             <Text fontWeight="bold" mb={4}>
-              {confirmDialog.action === "pause"
-                ? "Pause Player"
-                : "Continue Player"}
+              {confirmDialog.action === 'pause'
+                ? 'Pause Player'
+                : 'Continue Player'}
             </Text>
             <Text mb={6} color="gray.600">
-              Are you sure you want to {confirmDialog.action}{" "}
+              Are you sure you want to {confirmDialog.action}{' '}
               {confirmDialog.playerName}?
             </Text>
             <Flex gap={3} justifyContent="flex-end">
@@ -400,20 +400,20 @@ export const PlayerGrid = ({
                 onClick={() =>
                   setConfirmDialog({
                     isOpen: false,
-                    playerId: "",
-                    playerName: "",
-                    action: "",
+                    playerId: '',
+                    playerName: '',
+                    action: '',
                   })
                 }
               >
                 Cancel
               </Button>
               <Button
-                colorScheme={confirmDialog.action === "pause" ? "red" : "green"}
+                colorScheme={confirmDialog.action === 'pause' ? 'red' : 'green'}
                 loading={isLoading}
                 onClick={() => handleToggleInactive(confirmDialog.playerId)}
               >
-                {confirmDialog.action === "pause" ? "Pause" : "Continue"}
+                {confirmDialog.action === 'pause' ? 'Pause' : 'Continue'}
               </Button>
             </Flex>
           </Box>

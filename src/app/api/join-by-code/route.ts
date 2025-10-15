@@ -1,6 +1,6 @@
-import { errorResponse, successResponse } from "@/app/lib/api-response";
-import { prisma } from "@/app/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from '@/app/lib/api-response';
+import { prisma } from '@/app/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 // POST /api/join-by-code - Create new player in session
 export async function POST(request: NextRequest) {
@@ -8,11 +8,11 @@ export async function POST(request: NextRequest) {
     const { sessionCode, name, gender, level, phone } = await request.json();
 
     if (!sessionCode) {
-      return errorResponse("Session code is required", 400);
+      return errorResponse('Session code is required', 400);
     }
 
     if (!name) {
-      return errorResponse("Name is required", 400);
+      return errorResponse('Name is required', 400);
     }
 
     // Find session by matching last 8 characters of sessionId with sessionCode
@@ -35,17 +35,17 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     if (!session.allowNewPlayers) {
-      return errorResponse("Session does not allow new players", 403);
+      return errorResponse('Session does not allow new players', 403);
     }
 
     // Get next player number
     const maxPlayerNumber = await prisma.player.findFirst({
       where: { sessionId: session.id },
-      orderBy: { playerNumber: "desc" },
+      orderBy: { playerNumber: 'desc' },
       select: { playerNumber: true },
     });
 
@@ -103,10 +103,10 @@ export async function POST(request: NextRequest) {
         },
         message: `Successfully created as ${newPlayer.name} (Player ${newPlayer.playerNumber})`,
       },
-      "Successfully created player"
+      'Successfully created player'
     );
   } catch (error) {
-    console.error("Error creating player:", error);
-    return errorResponse("Failed to create player", 500);
+    console.error('Error creating player:', error);
+    return errorResponse('Failed to create player', 500);
   }
 }

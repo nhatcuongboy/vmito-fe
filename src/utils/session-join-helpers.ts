@@ -8,9 +8,9 @@ export function generatePlayerJoinCode(): string {
 }
 
 export function generatePlayerQRData(joinCode: string): string {
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const url = new URL("/join", baseUrl);
-  url.searchParams.set("code", joinCode);
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const url = new URL('/join', baseUrl);
+  url.searchParams.set('code', joinCode);
   return url.toString();
 }
 
@@ -18,7 +18,7 @@ export function parseQRData(qrData: string): { joinCode?: string } {
   try {
     const url = new URL(qrData);
     return {
-      joinCode: url.searchParams.get("code") || undefined,
+      joinCode: url.searchParams.get('code') || undefined,
     };
   } catch (error) {
     return {};

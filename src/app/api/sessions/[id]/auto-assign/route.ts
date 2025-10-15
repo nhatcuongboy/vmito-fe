@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionParams {
   id: string;
@@ -20,12 +20,12 @@ export async function POST(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
-    if (session.status !== "IN_PROGRESS") {
+    if (session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot auto-assign players for a session that is not in progress",
+        'Cannot auto-assign players for a session that is not in progress',
         400
       );
     }
@@ -34,31 +34,31 @@ export async function POST(
     const emptyCourts = await prisma.court.findMany({
       where: {
         sessionId,
-        status: "EMPTY",
+        status: 'EMPTY',
       },
       orderBy: {
-        courtNumber: "asc",
+        courtNumber: 'asc',
       },
     });
 
     if (emptyCourts.length === 0) {
-      return errorResponse("No empty courts available", 400);
+      return errorResponse('No empty courts available', 400);
     }
 
     // Get waiting players ordered by wait time (longest wait first)
     const waitingPlayers = await prisma.player.findMany({
       where: {
         sessionId,
-        status: "WAITING",
+        status: 'WAITING',
       },
       orderBy: {
-        currentWaitTime: "desc",
+        currentWaitTime: 'desc',
       },
     });
 
     // Check if we have enough players for at least one court
     if (waitingPlayers.length < 4) {
-      return errorResponse("Not enough waiting players to start a match", 400);
+      return errorResponse('Not enough waiting players to start a match', 400);
     }
 
     // Calculate how many courts we can fill
@@ -68,7 +68,7 @@ export async function POST(
     );
 
     if (courtsToFill === 0) {
-      return errorResponse("Not enough players to fill any courts", 400);
+      return errorResponse('Not enough players to fill any courts', 400);
     }
 
     // Create matches for each court we can fill
@@ -87,7 +87,7 @@ export async function POST(
             data: {
               sessionId,
               courtId: court.id,
-              status: "IN_PROGRESS",
+              status: 'IN_PROGRESS',
               startTime: new Date(),
             },
           });
@@ -109,7 +109,7 @@ export async function POST(
           await tx.court.update({
             where: { id: court.id },
             data: {
-              status: "IN_USE",
+              status: 'IN_USE',
               currentMatchId: newMatch.id,
             },
           });
@@ -120,7 +120,7 @@ export async function POST(
               id: { in: playerIds },
             },
             data: {
-              status: "PLAYING",
+              status: 'PLAYING',
               currentCourtId: court.id,
               currentWaitTime: 0, // Reset wait time when starting a match
             },
@@ -145,7 +145,7 @@ export async function POST(
       `Successfully created ${createdMatches.length} matches`
     );
   } catch (error) {
-    console.error("Error auto-assigning players:", error);
-    return errorResponse("Failed to auto-assign players");
+    console.error('Error auto-assigning players:', error);
+    return errorResponse('Failed to auto-assign players');
   }
 }

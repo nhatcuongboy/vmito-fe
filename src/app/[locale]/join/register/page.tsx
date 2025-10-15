@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, Suspense } from "react";
-import { useRouter } from "@/i18n/config";
-import { useSearchParams } from "next/navigation";
+import { useState, Suspense } from 'react';
+import { useRouter } from '@/i18n/config';
+import { useSearchParams } from 'next/navigation';
 import {
   Box,
   Button,
@@ -11,35 +11,35 @@ import {
   Text,
   VStack,
   Spinner,
-} from "@chakra-ui/react";
-import { AuthService } from "@/lib/api/auth.service";
-import { Level } from "@/lib/api/types";
-import toast from "react-hot-toast";
-import { signIn, getSession } from "next-auth/react";
-import TopBar from "@/components/ui/TopBar";
-import { useTranslations } from "next-intl";
+} from '@chakra-ui/react';
+import { AuthService } from '@/lib/api/auth.service';
+import { Level } from '@/lib/api/types';
+import toast from 'react-hot-toast';
+import { signIn, getSession } from 'next-auth/react';
+import TopBar from '@/components/ui/TopBar';
+import { useTranslations } from 'next-intl';
 
 function RegisterContent() {
-  const t = useTranslations("pages.join.register");
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState("MALE");
+  const t = useTranslations('pages.join.register');
+  const [name, setName] = useState('');
+  const [gender, setGender] = useState('MALE');
   const [level, setLevel] = useState<Level>(Level.TB_MINUS);
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionCode = searchParams.get("code");
+  const sessionCode = searchParams.get('code');
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
-      toast.error(t("nameRequired"));
+      toast.error(t('nameRequired'));
       return;
     }
 
     if (!sessionCode) {
-      toast.error(t("invalidSessionCode"));
+      toast.error(t('invalidSessionCode'));
       return;
     }
 
@@ -54,13 +54,13 @@ function RegisterContent() {
       });
 
       // For player codes, proceed with normal join
-      const result = await signIn("otp", {
+      const result = await signIn('otp', {
         joinCode: playerResult.data?.player.joinCode,
         redirect: false,
       });
 
       if (result?.error) {
-        toast.error(t("invalidSessionCode"));
+        toast.error(t('invalidSessionCode'));
         return;
       }
 
@@ -70,13 +70,13 @@ function RegisterContent() {
 
       // Check requireConfirmInfo to determine navigation
       if (user?.requireConfirmInfo && !user?.confirmedByPlayer) {
-        router.push("/join/confirm?playerId=" + user.playerId);
+        router.push('/join/confirm?playerId=' + user.playerId);
       } else {
         router.push(`/my-session`);
       }
     } catch (error) {
-      toast.error(t("joinFailed"));
-      console.error("Register error:", error);
+      toast.error(t('joinFailed'));
+      console.error('Register error:', error);
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ function RegisterContent() {
 
   return (
     <Box minH="100vh" bg="gray.50">
-      <TopBar title={t("title")} />
+      <TopBar title={t('title')} />
       <Box
         display="flex"
         alignItems="center"
@@ -104,66 +104,66 @@ function RegisterContent() {
           <VStack gap={6}>
             <Box textAlign="center">
               <Heading size="lg" color="green.600">
-                🏸 {t("title")}
+                🏸 {t('title')}
               </Heading>
               <Text color="gray.600" mt={2}>
-                {t("subtitle")}
+                {t('subtitle')}
               </Text>
             </Box>
 
-            <form onSubmit={handleRegister} style={{ width: "100%" }}>
+            <form onSubmit={handleRegister} style={{ width: '100%' }}>
               <VStack gap={4}>
                 <Box w="full">
                   <Text mb={2} fontWeight="medium">
-                    {t("name")} *
+                    {t('name')} *
                   </Text>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={t("namePlaceholder")}
+                    placeholder={t('namePlaceholder')}
                     required
                   />
                 </Box>
 
                 <Box w="full">
                   <Text mb={2} fontWeight="medium">
-                    {t("gender")}
+                    {t('gender')}
                   </Text>
                   <select
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                     style={{
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "6px",
-                      border: "1px solid #E2E8F0",
-                      backgroundColor: "white",
-                      fontSize: "16px",
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: 'white',
+                      fontSize: '16px',
                     }}
                   >
-                    <option value="MALE">{t("male")}</option>
-                    <option value="FEMALE">{t("female")}</option>
-                    <option value="OTHER">{t("other")}</option>
+                    <option value="MALE">{t('male')}</option>
+                    <option value="FEMALE">{t('female')}</option>
+                    <option value="OTHER">{t('other')}</option>
                     <option value="PREFER_NOT_TO_SAY">
-                      {t("preferNotToSay")}
+                      {t('preferNotToSay')}
                     </option>
                   </select>
                 </Box>
 
                 <Box w="full">
                   <Text mb={2} fontWeight="medium">
-                    {t("skillLevel")}
+                    {t('skillLevel')}
                   </Text>
                   <select
                     value={level}
                     onChange={(e) => setLevel(e.target.value as Level)}
                     style={{
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "6px",
-                      border: "1px solid #E2E8F0",
-                      backgroundColor: "white",
-                      fontSize: "16px",
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: 'white',
+                      fontSize: '16px',
                     }}
                   >
                     <option value={Level.Y_MINUS}>Y-</option>
@@ -179,12 +179,12 @@ function RegisterContent() {
 
                 <Box w="full">
                   <Text mb={2} fontWeight="medium">
-                    {t("phone")}
+                    {t('phone')}
                   </Text>
                   <Input
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder={t("phonePlaceholder")}
+                    placeholder={t('phonePlaceholder')}
                     type="tel"
                   />
                 </Box>
@@ -197,13 +197,13 @@ function RegisterContent() {
                   loading={loading}
                   disabled={!name.trim()}
                 >
-                  {loading ? t("joining") : t("joinSession")}
+                  {loading ? t('joining') : t('joinSession')}
                 </Button>
               </VStack>
             </form>
 
             <Text fontSize="sm" color="gray.500" textAlign="center">
-              {t("agreementText")}
+              {t('agreementText')}
             </Text>
           </VStack>
         </Box>

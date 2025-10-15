@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Box, Flex, Heading, Text, Spinner } from "@chakra-ui/react";
+import { useState, useEffect } from 'react';
+import { Box, Flex, Heading, Text, Spinner } from '@chakra-ui/react';
 import {
   Button,
   Table,
@@ -10,13 +10,13 @@ import {
   Th,
   Thead,
   Tr,
-} from "@/components/ui/chakra-compat";
-import { PlayerService } from "@/lib/api/player.service";
-import { BulkPlayerData } from "@/lib/api/types";
+} from '@/components/ui/chakra-compat';
+import { PlayerService } from '@/lib/api/player.service';
+import { BulkPlayerData } from '@/lib/api/types';
 import {
   parseCSVToBulkPlayers,
   EXAMPLE_CSV,
-} from "@/utils/bulk-players-example";
+} from '@/utils/bulk-players-example';
 
 interface BulkPlayersFormProps {
   sessionId: string;
@@ -28,7 +28,7 @@ export default function BulkPlayersForm({
   onSuccess,
 }: BulkPlayersFormProps) {
   const [players, setPlayers] = useState<BulkPlayerData[]>([]);
-  const [csvData, setCsvData] = useState<string>("");
+  const [csvData, setCsvData] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -57,8 +57,8 @@ export default function BulkPlayersForm({
           setPlayers([{ playerNumber: response.availablePlayerNumbers[0] }]);
         }
       } catch (error) {
-        console.error("Error fetching session info:", error);
-        setErrorMessage("Error fetching session info");
+        console.error('Error fetching session info:', error);
+        setErrorMessage('Error fetching session info');
       } finally {
         setIsLoading(false);
       }
@@ -79,7 +79,7 @@ export default function BulkPlayersForm({
     if (availableNumber) {
       setPlayers([...players, { playerNumber: availableNumber }]);
     } else {
-      setErrorMessage("No available player numbers");
+      setErrorMessage('No available player numbers');
     }
   };
 
@@ -98,7 +98,7 @@ export default function BulkPlayersForm({
   ) => {
     const newPlayers = [...players];
 
-    if (field === "playerNumber") {
+    if (field === 'playerNumber') {
       // Convert to number
       value = parseInt(value, 10);
 
@@ -129,7 +129,7 @@ export default function BulkPlayersForm({
       // Basic validation
       const invalidPlayers = players.filter((p) => !p.playerNumber);
       if (invalidPlayers.length > 0) {
-        setErrorMessage("All players must have a player number");
+        setErrorMessage('All players must have a player number');
         setIsLoading(false);
         return;
       }
@@ -138,7 +138,7 @@ export default function BulkPlayersForm({
       const playerNumbers = players.map((p) => p.playerNumber);
       const uniqueNumbers = new Set(playerNumbers);
       if (playerNumbers.length !== uniqueNumbers.size) {
-        setErrorMessage("Each player must have a unique player number");
+        setErrorMessage('Each player must have a unique player number');
         setIsLoading(false);
         return;
       }
@@ -147,31 +147,31 @@ export default function BulkPlayersForm({
       const invalidGender = players.some(
         (p) =>
           p.gender &&
-          !["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"].includes(p.gender)
+          !['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
       );
       if (invalidGender) {
         setErrorMessage(
-          "Gender must be one of: Male, Female, Other, or Prefer not to say"
+          'Gender must be one of: Male, Female, Other, or Prefer not to say'
         );
         setIsLoading(false);
         return;
       }
 
       const validLevels = [
-        "Y_MINUS",
-        "Y",
-        "Y_PLUS",
-        "TBY",
-        "TB_MINUS",
-        "TB",
-        "TB_PLUS",
-        "K",
+        'Y_MINUS',
+        'Y',
+        'Y_PLUS',
+        'TBY',
+        'TB_MINUS',
+        'TB',
+        'TB_PLUS',
+        'K',
       ];
       const invalidLevel = players.some(
         (p) => p.level && !validLevels.includes(p.level)
       );
       if (invalidLevel) {
-        setErrorMessage("Invalid player level detected");
+        setErrorMessage('Invalid player level detected');
         setIsLoading(false);
         return;
       }
@@ -205,10 +205,10 @@ export default function BulkPlayersForm({
       }
 
       // Clear CSV data
-      setCsvData("");
+      setCsvData('');
     } catch (error) {
-      console.error("Error creating players:", error);
-      setErrorMessage("Error creating players");
+      console.error('Error creating players:', error);
+      setErrorMessage('Error creating players');
     } finally {
       setIsLoading(false);
     }
@@ -221,24 +221,24 @@ export default function BulkPlayersForm({
       setSuccessMessage(null);
 
       if (!csvData.trim()) {
-        setErrorMessage("Empty CSV data");
+        setErrorMessage('Empty CSV data');
         return;
       }
 
       // Check if CSV format is valid (has header row and at least one player row)
-      const lines = csvData.trim().split("\n");
+      const lines = csvData.trim().split('\n');
       if (lines.length < 2) {
         setErrorMessage(
-          "CSV must have a header row and at least one player row"
+          'CSV must have a header row and at least one player row'
         );
         return;
       }
 
       // Check if header has required columns
-      const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
       if (
-        !headers.includes("playernumber") &&
-        !headers.includes("player number")
+        !headers.includes('playernumber') &&
+        !headers.includes('player number')
       ) {
         setErrorMessage("CSV must have a 'playerNumber' column");
         return;
@@ -246,7 +246,7 @@ export default function BulkPlayersForm({
 
       const parsedPlayers = parseCSVToBulkPlayers(csvData);
       if (parsedPlayers.length === 0) {
-        setErrorMessage("No valid players found in CSV");
+        setErrorMessage('No valid players found in CSV');
         return;
       }
 
@@ -254,7 +254,7 @@ export default function BulkPlayersForm({
       const playerNumbers = parsedPlayers.map((p) => p.playerNumber);
       const uniqueNumbers = new Set(playerNumbers);
       if (playerNumbers.length !== uniqueNumbers.size) {
-        setErrorMessage("CSV contains duplicate player numbers");
+        setErrorMessage('CSV contains duplicate player numbers');
         return;
       }
 
@@ -276,30 +276,30 @@ export default function BulkPlayersForm({
       const invalidGender = parsedPlayers.some(
         (p) =>
           p.gender &&
-          !["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"].includes(p.gender)
+          !['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
       );
 
       const validLevels = [
-        "Y_MINUS",
-        "Y",
-        "Y_PLUS",
-        "TBY",
-        "TB_MINUS",
-        "TB",
-        "TB_PLUS",
-        "K",
+        'Y_MINUS',
+        'Y',
+        'Y_PLUS',
+        'TBY',
+        'TB_MINUS',
+        'TB',
+        'TB_PLUS',
+        'K',
       ];
       const invalidLevel = parsedPlayers.some(
         (p) => p.level && !validLevels.includes(p.level)
       );
 
       if (invalidGender || invalidLevel) {
-        let errorMsg = "Warning: ";
+        let errorMsg = 'Warning: ';
         if (invalidGender)
-          errorMsg += "Some players have invalid gender values. ";
+          errorMsg += 'Some players have invalid gender values. ';
         if (invalidLevel)
-          errorMsg += "Some players have invalid level values. ";
-        errorMsg += "These will be imported as blank values.";
+          errorMsg += 'Some players have invalid level values. ';
+        errorMsg += 'These will be imported as blank values.';
         setErrorMessage(errorMsg);
 
         // Fix invalid values
@@ -307,7 +307,7 @@ export default function BulkPlayersForm({
           ...p,
           gender:
             p.gender &&
-            ["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"].includes(p.gender)
+            ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
               ? p.gender
               : undefined,
           level: p.level && validLevels.includes(p.level) ? p.level : undefined,
@@ -320,8 +320,8 @@ export default function BulkPlayersForm({
       setPlayers(parsedPlayers);
       setSuccessMessage(`${parsedPlayers.length} players imported from CSV`);
     } catch (error) {
-      console.error("Error parsing CSV:", error);
-      setErrorMessage("Error parsing CSV: Please check the format");
+      console.error('Error parsing CSV:', error);
+      setErrorMessage('Error parsing CSV: Please check the format');
     }
   };
 
@@ -329,7 +329,7 @@ export default function BulkPlayersForm({
   const showExampleCSV = () => {
     setCsvData(EXAMPLE_CSV);
     setSuccessMessage(
-      "Example CSV loaded. You can edit it or copy this format for your own data."
+      'Example CSV loaded. You can edit it or copy this format for your own data.'
     );
   };
 
@@ -337,7 +337,7 @@ export default function BulkPlayersForm({
   const clearForm = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
-    setCsvData("");
+    setCsvData('');
 
     // Reset players to initial state with just one empty player
     if (sessionInfo && sessionInfo.availablePlayerNumbers.length > 0) {
@@ -386,9 +386,9 @@ export default function BulkPlayersForm({
             <strong>Available Slots:</strong> {sessionInfo.availableSlots}
           </Text>
           <Text>
-            <strong>Available Player Numbers:</strong>{" "}
-            {sessionInfo.availablePlayerNumbers.slice(0, 10).join(", ")}
-            {sessionInfo.availablePlayerNumbers.length > 10 ? "..." : ""}
+            <strong>Available Player Numbers:</strong>{' '}
+            {sessionInfo.availablePlayerNumbers.slice(0, 10).join(', ')}
+            {sessionInfo.availablePlayerNumbers.length > 10 ? '...' : ''}
           </Text>
         </Box>
       )}
@@ -401,12 +401,12 @@ export default function BulkPlayersForm({
         borderWidth="1px"
         borderRadius="md"
         style={{
-          maxWidth: "100%",
+          maxWidth: '100%',
         }}
       >
         <div
           style={{
-            minWidth: "750px",
+            minWidth: '750px',
           }}
         >
           <Table variant="simple" size="sm">
@@ -430,44 +430,44 @@ export default function BulkPlayersForm({
                       type="number"
                       min={1}
                       max={sessionInfo?.maxPlayers || 100}
-                      value={player.playerNumber || ""}
+                      value={player.playerNumber || ''}
                       onChange={(e) =>
-                        updatePlayer(index, "playerNumber", e.target.value)
+                        updatePlayer(index, 'playerNumber', e.target.value)
                       }
                       style={{
-                        width: "70px",
-                        padding: "4px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
+                        width: '70px',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
                       }}
                     />
                   </Td>
                   <Td>
                     <input
-                      value={player.name || ""}
+                      value={player.name || ''}
                       onChange={(e) =>
-                        updatePlayer(index, "name", e.target.value)
+                        updatePlayer(index, 'name', e.target.value)
                       }
                       placeholder="Name"
                       style={{
-                        width: "100%",
-                        padding: "4px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
+                        width: '100%',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
                       }}
                     />
                   </Td>
                   <Td>
                     <select
-                      value={player.gender || ""}
+                      value={player.gender || ''}
                       onChange={(e) =>
-                        updatePlayer(index, "gender", e.target.value)
+                        updatePlayer(index, 'gender', e.target.value)
                       }
                       style={{
-                        padding: "4px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
-                        width: "100%",
+                        padding: '4px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
+                        width: '100%',
                       }}
                     >
                       <option value="">Select</option>
@@ -477,15 +477,15 @@ export default function BulkPlayersForm({
                   </Td>
                   <Td>
                     <select
-                      value={player.level || ""}
+                      value={player.level || ''}
                       onChange={(e) =>
-                        updatePlayer(index, "level", e.target.value)
+                        updatePlayer(index, 'level', e.target.value)
                       }
                       style={{
-                        padding: "4px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
-                        width: "100%",
+                        padding: '4px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
+                        width: '100%',
                       }}
                     >
                       <option value="">Select</option>
@@ -501,52 +501,52 @@ export default function BulkPlayersForm({
                   </Td>
                   <Td>
                     <textarea
-                      value={player.levelDescription || ""}
+                      value={player.levelDescription || ''}
                       onChange={(e) =>
-                        updatePlayer(index, "levelDescription", e.target.value)
+                        updatePlayer(index, 'levelDescription', e.target.value)
                       }
                       placeholder="Skill description..."
                       style={{
-                        width: "100%",
-                        padding: "4px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
-                        height: "36px",
-                        resize: "vertical",
+                        width: '100%',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
+                        height: '36px',
+                        resize: 'vertical',
                       }}
                     />
                   </Td>
                   <Td>
                     <input
-                      value={player.phone || ""}
+                      value={player.phone || ''}
                       onChange={(e) =>
-                        updatePlayer(index, "phone", e.target.value)
+                        updatePlayer(index, 'phone', e.target.value)
                       }
                       placeholder="Phone"
                       style={{
-                        width: "100%",
-                        padding: "4px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
+                        width: '100%',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
                       }}
                     />
                   </Td>
                   <Td>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <input
                         type="checkbox"
                         checked={player.requireConfirmInfo || false}
                         onChange={(e) =>
                           updatePlayer(
                             index,
-                            "requireConfirmInfo",
+                            'requireConfirmInfo',
                             e.target.checked
                           )
                         }
                         style={{
-                          width: "16px",
-                          height: "16px",
-                          marginRight: "8px",
+                          width: '16px',
+                          height: '16px',
+                          marginRight: '8px',
                         }}
                       />
                       <span>Required</span>
@@ -585,7 +585,7 @@ export default function BulkPlayersForm({
           disabled={players.length === 0 || isLoading}
           size="md"
         >
-          {isLoading ? "Submitting..." : "Submit All Players"}
+          {isLoading ? 'Submitting...' : 'Submit All Players'}
         </Button>
         <Button onClick={clearForm} variant="outline" size="md">
           Reset Form

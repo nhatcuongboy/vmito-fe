@@ -1,12 +1,12 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
-import { X, Check } from "lucide-react";
-import { PlayerGrid } from "@/components/player/PlayerGrid";
-import { Button as CompatButton } from "@/components/ui/chakra-compat";
-import { Player, Court } from "@/types/session";
-import BadmintonCourt from "@/components/court/BadmintonCourt";
-import { useTranslations } from "next-intl";
-import { CourtDirection } from "@/lib/api/types";
+import React, { useState, useMemo, useEffect } from 'react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { X, Check } from 'lucide-react';
+import { PlayerGrid } from '@/components/player/PlayerGrid';
+import { Button as CompatButton } from '@/components/ui/chakra-compat';
+import { Player, Court } from '@/types/session';
+import BadmintonCourt from '@/components/court/BadmintonCourt';
+import { useTranslations } from 'next-intl';
+import { CourtDirection } from '@/lib/api/types';
 
 interface ManualSelectPlayersModalProps {
   isOpen: boolean;
@@ -40,7 +40,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
   getCourtDisplayName = (name, number) => name || `Court ${number}`,
   title, // Custom title prop
 }) => {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
   const [showPreview, setShowPreview] = useState(false);
   const [currentPlayerPosition, setCurrentPlayerPosition] = useState(0);
   // Remove local isLoading state since we're using the prop
@@ -111,7 +111,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
         playerId,
         position: index, // 0=top-left, 1=top-right, 2=bottom-left, 3=bottom-right
       }));
-      if (typeof onConfirm === "function") {
+      if (typeof onConfirm === 'function') {
         onConfirm(playersWithPosition);
       }
     }
@@ -153,7 +153,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
           >
             <Heading size="md">
               {title ||
-                t("courtsTab.manualPlayerSelectionTitle", {
+                t('courtsTab.manualPlayerSelectionTitle', {
                   courtNumber: court.courtNumber,
                 })}
             </Heading>
@@ -162,7 +162,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
               onClick={onCancel}
               p={1}
               borderRadius="md"
-              _hover={{ bg: "gray.100" }}
+              _hover={{ bg: 'gray.100' }}
             >
               <Box as={X} boxSize={5} />
             </Box>
@@ -170,9 +170,9 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
 
           <Box flexShrink={0} p={4}>
             {/* Court Preview and Selected Players Section */}
-            <Box flex={{ base: "1", lg: "0 0 400px" }} minW="0">
+            <Box flex={{ base: '1', lg: '0 0 400px' }} minW="0">
               <Text fontSize="sm" fontWeight="medium" mb={3}>
-                {t("courtsTab.selectedPlayersCount", {
+                {t('courtsTab.selectedPlayersCount', {
                   count: selectedPlayers.length,
                 })}
               </Text>
@@ -202,11 +202,11 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
             {/* Available Players */}
             <Box>
               <Text fontSize="md" fontWeight="medium" mb={3}>
-                {t("courtsTab.availablePlayers")}
+                {t('courtsTab.availablePlayers')}
               </Text>
               {waitingPlayers.length === 0 ? (
                 <Text fontSize="sm" color="gray.500" textAlign="center" py={8}>
-                  {t("courtsTab.noPlayersWaiting")}
+                  {t('courtsTab.noPlayersWaiting')}
                 </Text>
               ) : (
                 <PlayerGrid
@@ -230,7 +230,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
             flexShrink={0}
           >
             <CompatButton variant="outline" onClick={onCancel}>
-              {t("courtsTab.cancel")}
+              {t('courtsTab.cancel')}
             </CompatButton>
             <CompatButton
               colorScheme="blue"
@@ -239,7 +239,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
               loading={isLoading}
             >
               <Box as={Check} boxSize={4} mr={1} />
-              {t("courtsTab.confirmMatchManual", {
+              {t('courtsTab.confirmMatchManual', {
                 count: selectedPlayers.length,
               })}
             </CompatButton>

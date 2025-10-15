@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
-import { Prisma } from "@/generated/prisma";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
+import { Prisma } from '@/generated/prisma';
 
 interface CourtParams {
   id: string;
@@ -15,18 +15,33 @@ export async function POST(
   try {
     const { id: courtId } = await params;
     const body = await request.json();
-    
+
     const { playersWithPosition } = body;
 
     // Validate input
-    if (!playersWithPosition || !Array.isArray(playersWithPosition) || playersWithPosition.length !== 4) {
-      return errorResponse("Must provide exactly 4 players with positions", 400);
+    if (
+      !playersWithPosition ||
+      !Array.isArray(playersWithPosition) ||
+      playersWithPosition.length !== 4
+    ) {
+      return errorResponse(
+        'Must provide exactly 4 players with positions',
+        400
+      );
     }
 
     // Validate each player has required fields
     for (const player of playersWithPosition) {
-      if (!player.playerId || typeof player.position !== 'number' || player.position < 0 || player.position > 3) {
-        return errorResponse("Each player must have playerId and position (0-3)", 400);
+      if (
+        !player.playerId ||
+        typeof player.position !== 'number' ||
+        player.position < 0 ||
+        player.position > 3
+      ) {
+        return errorResponse(
+          'Each player must have playerId and position (0-3)',
+          400
+        );
       }
     }
 
@@ -40,25 +55,31 @@ export async function POST(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
-    if (court.status !== "IN_USE" || !court.currentMatch) {
-      return errorResponse("Can only pre-select for courts that are currently in use", 400);
+    if (court.status !== 'IN_USE' || !court.currentMatch) {
+      return errorResponse(
+        'Can only pre-select for courts that are currently in use',
+        400
+      );
     }
 
     // Validate that selected players exist and are in WAITING status
-    const playerIds = playersWithPosition.map(p => p.playerId);
+    const playerIds = playersWithPosition.map((p) => p.playerId);
     const players = await prisma.player.findMany({
       where: {
         id: { in: playerIds },
         sessionId: court.sessionId,
-        status: "WAITING",
+        status: 'WAITING',
       },
     });
 
     if (players.length !== 4) {
-      return errorResponse("All selected players must exist and be in WAITING status", 400);
+      return errorResponse(
+        'All selected players must exist and be in WAITING status',
+        400
+      );
     }
 
     // Update court with pre-selected players
@@ -83,7 +104,7 @@ export async function POST(
             updatedAt: true,
           },
           orderBy: {
-            courtPosition: "asc",
+            courtPosition: 'asc',
           },
         },
         currentMatch: {
@@ -94,7 +115,7 @@ export async function POST(
                 position: true,
               },
               orderBy: {
-                position: "asc",
+                position: 'asc',
               },
             },
           },
@@ -102,10 +123,10 @@ export async function POST(
       },
     });
 
-    return successResponse(updatedCourt, "Players pre-selected successfully");
+    return successResponse(updatedCourt, 'Players pre-selected successfully');
   } catch (error) {
-    console.error("Error pre-selecting players:", error);
-    return errorResponse("Failed to pre-select players", 500);
+    console.error('Error pre-selecting players:', error);
+    return errorResponse('Failed to pre-select players', 500);
   }
 }
 
@@ -123,7 +144,7 @@ export async function DELETE(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Clear pre-selected players
@@ -148,7 +169,7 @@ export async function DELETE(
             updatedAt: true,
           },
           orderBy: {
-            courtPosition: "asc",
+            courtPosition: 'asc',
           },
         },
         currentMatch: {
@@ -159,7 +180,7 @@ export async function DELETE(
                 position: true,
               },
               orderBy: {
-                position: "asc",
+                position: 'asc',
               },
             },
           },
@@ -167,10 +188,13 @@ export async function DELETE(
       },
     });
 
-    return successResponse(updatedCourt, "Pre-selection cancelled successfully");
+    return successResponse(
+      updatedCourt,
+      'Pre-selection cancelled successfully'
+    );
   } catch (error) {
-    console.error("Error cancelling pre-selection:", error);
-    return errorResponse("Failed to cancel pre-selection", 500);
+    console.error('Error cancelling pre-selection:', error);
+    return errorResponse('Failed to cancel pre-selection', 500);
   }
 }
 
@@ -191,13 +215,15 @@ export async function GET(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // If there are pre-selected players, fetch their full info
     let preSelectedPlayersInfo = null;
     if (court.preSelectedPlayers && Array.isArray(court.preSelectedPlayers)) {
-      const playerIds = (court.preSelectedPlayers as any[]).map(p => p.playerId);
+      const playerIds = (court.preSelectedPlayers as any[]).map(
+        (p) => p.playerId
+      );
       const players = await prisma.player.findMany({
         where: {
           id: { in: playerIds },
@@ -217,9 +243,9 @@ export async function GET(
       });
 
       // Map players with their positions
-      preSelectedPlayersInfo = (court.preSelectedPlayers as any[]).map(p => ({
+      preSelectedPlayersInfo = (court.preSelectedPlayers as any[]).map((p) => ({
         ...p,
-        player: players.find(player => player.id === p.playerId),
+        player: players.find((player) => player.id === p.playerId),
       }));
     }
 
@@ -228,7 +254,7 @@ export async function GET(
       preSelectedPlayers: preSelectedPlayersInfo,
     });
   } catch (error) {
-    console.error("Error fetching pre-selection:", error);
-    return errorResponse("Failed to fetch pre-selection", 500);
+    console.error('Error fetching pre-selection:', error);
+    return errorResponse('Failed to fetch pre-selection', 500);
   }
 }

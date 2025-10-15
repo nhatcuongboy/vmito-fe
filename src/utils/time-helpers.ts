@@ -20,7 +20,7 @@ export const formatCourtElapsedTime = (
   startTime: string | Date,
   currentTime: Date = new Date(),
   t: (key: string, params?: any) => string,
-  keyPrefix: string = ""
+  keyPrefix: string = ''
 ): string => {
   const start = new Date(startTime);
   const elapsedMs = currentTime.getTime() - start.getTime();
@@ -44,7 +44,7 @@ export const formatCourtElapsedTime = (
  */
 export const createCourtElapsedTimeFormatter = (
   t: (key: string, params?: any) => string,
-  keyPrefix: string = ""
+  keyPrefix: string = ''
 ) => {
   return (startTime: string | Date, currentTime: Date = new Date()): string => {
     return formatCourtElapsedTime(startTime, currentTime, t, keyPrefix);

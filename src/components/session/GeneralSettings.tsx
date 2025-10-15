@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Box,
@@ -12,7 +12,7 @@ import {
   Grid,
   Badge,
   HStack,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   Settings,
   MapPin,
@@ -21,11 +21,11 @@ import {
   Clock,
   UserCheck,
   UserPlus,
-} from "lucide-react";
-import { Card, CardBody } from "@/components/ui/chakra-compat";
-import { useState } from "react";
-import { SessionService } from "@/lib/api/session.service";
-import toast from "react-hot-toast";
+} from 'lucide-react';
+import { Card, CardBody } from '@/components/ui/chakra-compat';
+import { useState } from 'react';
+import { SessionService } from '@/lib/api/session.service';
+import toast from 'react-hot-toast';
 
 interface GeneralSettingsProps {
   session: any;
@@ -35,19 +35,19 @@ interface GeneralSettingsProps {
 const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: session.name || "",
-    description: session.description || "",
-    location: session.location || "",
+    name: session.name || '',
+    description: session.description || '',
+    location: session.location || '',
     maxPlayersPerCourt: session.maxPlayersPerCourt || 4,
     requirePlayerInfo: session.requirePlayerInfo || false,
     allowGuestJoin: session.allowGuestJoin || false,
     allowNewPlayers: session.allowNewPlayers || false,
     startTime: session.startTime
       ? new Date(session.startTime).toISOString().slice(0, 16)
-      : "",
+      : '',
     endTime: session.endTime
       ? new Date(session.endTime).toISOString().slice(0, 16)
-      : "",
+      : '',
   });
 
   const handleInputChange = (
@@ -71,11 +71,11 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
         endTime: formData.endTime ? new Date(formData.endTime) : undefined,
       };
       await SessionService.updateSession(session.id, updateData);
-      toast.success("Session updated successfully");
+      toast.success('Session updated successfully');
       onDataRefresh();
     } catch (error) {
-      console.error("Failed to update session:", error);
-      toast.error("Failed to update session");
+      console.error('Failed to update session:', error);
+      toast.error('Failed to update session');
     } finally {
       setIsLoading(false);
     }
@@ -96,14 +96,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 </HStack>
                 <Input
                   value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
                   placeholder="Enter session name"
                   size="lg"
                   borderRadius="lg"
                   borderColor="gray.300"
                   _focus={{
-                    borderColor: "blue.400",
-                    boxShadow: "0 0 0 1px #3182ce",
+                    borderColor: 'blue.400',
+                    boxShadow: '0 0 0 1px #3182ce',
                   }}
                 />
               </Box>
@@ -118,20 +118,20 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 <Textarea
                   value={formData.description}
                   onChange={(e) =>
-                    handleInputChange("description", e.target.value)
+                    handleInputChange('description', e.target.value)
                   }
                   placeholder="Enter session description"
                   rows={4}
                   borderRadius="lg"
                   borderColor="gray.300"
                   _focus={{
-                    borderColor: "blue.400",
-                    boxShadow: "0 0 0 1px #3182ce",
+                    borderColor: 'blue.400',
+                    boxShadow: '0 0 0 1px #3182ce',
                   }}
                 />
               </Box>
 
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
                 <Box>
                   <HStack mb={3}>
                     <MapPin size={16} color="#4a5568" />
@@ -142,15 +142,15 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   <Input
                     value={formData.location}
                     onChange={(e) =>
-                      handleInputChange("location", e.target.value)
+                      handleInputChange('location', e.target.value)
                     }
                     placeholder="Enter location"
                     size="lg"
                     borderRadius="lg"
                     borderColor="gray.300"
                     _focus={{
-                      borderColor: "blue.400",
-                      boxShadow: "0 0 0 1px #3182ce",
+                      borderColor: 'blue.400',
+                      boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
                 </Box>
@@ -167,7 +167,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     value={formData.maxPlayersPerCourt}
                     onChange={(e) =>
                       handleInputChange(
-                        "maxPlayersPerCourt",
+                        'maxPlayersPerCourt',
                         parseInt(e.target.value) || 4
                       )
                     }
@@ -177,14 +177,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     borderRadius="lg"
                     borderColor="gray.300"
                     _focus={{
-                      borderColor: "blue.400",
-                      boxShadow: "0 0 0 1px #3182ce",
+                      borderColor: 'blue.400',
+                      boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
                 </Box>
               </Grid>
 
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
                 <Box>
                   <HStack mb={3}>
                     <Clock size={16} color="#4a5568" />
@@ -196,14 +196,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     type="datetime-local"
                     value={formData.startTime}
                     onChange={(e) =>
-                      handleInputChange("startTime", e.target.value)
+                      handleInputChange('startTime', e.target.value)
                     }
                     size="lg"
                     borderRadius="lg"
                     borderColor="gray.300"
                     _focus={{
-                      borderColor: "blue.400",
-                      boxShadow: "0 0 0 1px #3182ce",
+                      borderColor: 'blue.400',
+                      boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
                 </Box>
@@ -219,14 +219,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     type="datetime-local"
                     value={formData.endTime}
                     onChange={(e) =>
-                      handleInputChange("endTime", e.target.value)
+                      handleInputChange('endTime', e.target.value)
                     }
                     size="lg"
                     borderRadius="lg"
                     borderColor="gray.300"
                     _focus={{
-                      borderColor: "blue.400",
-                      boxShadow: "0 0 0 1px #3182ce",
+                      borderColor: 'blue.400',
+                      boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
                 </Box>
@@ -263,9 +263,9 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     type="checkbox"
                     checked={formData.requirePlayerInfo}
                     onChange={(e) =>
-                      handleInputChange("requirePlayerInfo", e.target.checked)
+                      handleInputChange('requirePlayerInfo', e.target.checked)
                     }
-                    style={{ width: "20px", height: "20px" }}
+                    style={{ width: '20px', height: '20px' }}
                   />
                 </Flex>
 
@@ -295,9 +295,9 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     type="checkbox"
                     checked={formData.allowGuestJoin}
                     onChange={(e) =>
-                      handleInputChange("allowGuestJoin", e.target.checked)
+                      handleInputChange('allowGuestJoin', e.target.checked)
                     }
-                    style={{ width: "20px", height: "20px" }}
+                    style={{ width: '20px', height: '20px' }}
                   />
                 </Flex>
 
@@ -327,9 +327,9 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     type="checkbox"
                     checked={formData.allowNewPlayers}
                     onChange={(e) =>
-                      handleInputChange("allowNewPlayers", e.target.checked)
+                      handleInputChange('allowNewPlayers', e.target.checked)
                     }
-                    style={{ width: "20px", height: "20px" }}
+                    style={{ width: '20px', height: '20px' }}
                   />
                 </Flex>
               </VStack>
@@ -341,7 +341,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 loading={isLoading}
                 onClick={handleUpdateSession}
                 mt={4}
-                _hover={{ transform: "translateY(-1px)", boxShadow: "lg" }}
+                _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
               >
                 Update Session
               </Button>

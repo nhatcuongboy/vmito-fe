@@ -47,16 +47,16 @@ export function convertMatchResultToUI(
 
   // Sort players by position to ensure correct pairing
   const sortedPlayers = players.sort((a, b) => a.position - b.position);
-  
+
   // Pair 1: positions 1 and 2, Pair 2: positions 3 and 4
-  const pair1PlayerIds = sortedPlayers.slice(0, 2).map(p => p.playerId);
-  const pair2PlayerIds = sortedPlayers.slice(2, 4).map(p => p.playerId);
+  const pair1PlayerIds = sortedPlayers.slice(0, 2).map((p) => p.playerId);
+  const pair2PlayerIds = sortedPlayers.slice(2, 4).map((p) => p.playerId);
 
   // Calculate pair scores by summing individual player scores
   let pair1Total = 0;
   let pair2Total = 0;
 
-  matchResult.score.forEach(playerScore => {
+  matchResult.score.forEach((playerScore) => {
     if (pair1PlayerIds.includes(playerScore.playerId)) {
       pair1Total += playerScore.score || 0;
     } else if (pair2PlayerIds.includes(playerScore.playerId)) {
@@ -71,9 +71,13 @@ export function convertMatchResultToUI(
   if (!result.isDraw) {
     if (matchResult.winnerIds && matchResult.winnerIds.length > 0) {
       // Check if winners belong to pair 1 or pair 2
-      const winnersInPair1 = matchResult.winnerIds.filter(id => pair1PlayerIds.includes(id)).length;
-      const winnersInPair2 = matchResult.winnerIds.filter(id => pair2PlayerIds.includes(id)).length;
-      
+      const winnersInPair1 = matchResult.winnerIds.filter((id) =>
+        pair1PlayerIds.includes(id)
+      ).length;
+      const winnersInPair2 = matchResult.winnerIds.filter((id) =>
+        pair2PlayerIds.includes(id)
+      ).length;
+
       if (winnersInPair1 > winnersInPair2) {
         result.winningPair = 1;
       } else if (winnersInPair2 > winnersInPair1) {
@@ -116,13 +120,17 @@ export function convertBadmintonMatchToUI(
 
   // Sort players by position
   const sortedPlayers = players.sort((a, b) => a.position - b.position);
-  const pair1PlayerIds = sortedPlayers.slice(0, 2).map(p => p.playerId);
-  const pair2PlayerIds = sortedPlayers.slice(2, 4).map(p => p.playerId);
+  const pair1PlayerIds = sortedPlayers.slice(0, 2).map((p) => p.playerId);
+  const pair2PlayerIds = sortedPlayers.slice(2, 4).map((p) => p.playerId);
 
   // For badminton, we expect the score to be the final game score
   // Find the score for each pair (should be the same for both players in a pair)
-  const pair1Score = matchResult.score.find(s => pair1PlayerIds.includes(s.playerId))?.score || 0;
-  const pair2Score = matchResult.score.find(s => pair2PlayerIds.includes(s.playerId))?.score || 0;
+  const pair1Score =
+    matchResult.score.find((s) => pair1PlayerIds.includes(s.playerId))?.score ||
+    0;
+  const pair2Score =
+    matchResult.score.find((s) => pair2PlayerIds.includes(s.playerId))?.score ||
+    0;
 
   result.scores.pair1Score = pair1Score;
   result.scores.pair2Score = pair2Score;
@@ -130,9 +138,13 @@ export function convertBadmintonMatchToUI(
   // Determine winning pair
   if (!result.isDraw) {
     if (matchResult.winnerIds && matchResult.winnerIds.length > 0) {
-      const winnersInPair1 = matchResult.winnerIds.filter(id => pair1PlayerIds.includes(id)).length;
-      const winnersInPair2 = matchResult.winnerIds.filter(id => pair2PlayerIds.includes(id)).length;
-      
+      const winnersInPair1 = matchResult.winnerIds.filter((id) =>
+        pair1PlayerIds.includes(id)
+      ).length;
+      const winnersInPair2 = matchResult.winnerIds.filter((id) =>
+        pair2PlayerIds.includes(id)
+      ).length;
+
       if (winnersInPair1 > 0) {
         result.winningPair = 1;
       } else if (winnersInPair2 > 0) {
@@ -172,20 +184,20 @@ export function parseScoreData(
           // Check if scores are valid numbers
           const score1 = Number(scoreArray[0]);
           const score2 = Number(scoreArray[1]);
-          
+
           if (isNaN(score1) || isNaN(score2)) return null;
-          
+
           return {
             scores: {
               pair1Score: score1,
-              pair2Score: score2
+              pair2Score: score2,
             },
             winningPair: score1 > score2 ? 1 : score2 > score1 ? 2 : undefined,
-            isDraw: score1 === score2
+            isDraw: score1 === score2,
           };
         }
       }
-      
+
       // Try to parse as JSON
       const parsed = JSON.parse(scoreData);
       return parseScoreData(parsed, players);
@@ -202,28 +214,37 @@ export function parseScoreData(
         }
         return result;
       }
-      
+
       // Handle legacy formats
       const scoresObj = scoreData.scores || scoreData;
-      const pair1Score = Number(scoresObj.pair1 || scoresObj.team1 || scoresObj.score1 || 0);
-      const pair2Score = Number(scoresObj.pair2 || scoresObj.team2 || scoresObj.score2 || 0);
-      
+      const pair1Score = Number(
+        scoresObj.pair1 || scoresObj.team1 || scoresObj.score1 || 0
+      );
+      const pair2Score = Number(
+        scoresObj.pair2 || scoresObj.team2 || scoresObj.score2 || 0
+      );
+
       // Return null if both scores are 0 or invalid
-      if ((pair1Score === 0 && pair2Score === 0) || (isNaN(pair1Score) || isNaN(pair2Score))) {
+      if (
+        (pair1Score === 0 && pair2Score === 0) ||
+        isNaN(pair1Score) ||
+        isNaN(pair2Score)
+      ) {
         return null;
       }
-      
+
       return {
         scores: {
           pair1Score,
-          pair2Score
+          pair2Score,
         },
-        winningPair: pair1Score > pair2Score ? 1 : pair2Score > pair1Score ? 2 : undefined,
-        isDraw: pair1Score === pair2Score
+        winningPair:
+          pair1Score > pair2Score ? 1 : pair2Score > pair1Score ? 2 : undefined,
+        isDraw: pair1Score === pair2Score,
       };
     }
   } catch (e) {
-    console.warn("Failed to parse score data:", e);
+    console.warn('Failed to parse score data:', e);
     return null;
   }
 

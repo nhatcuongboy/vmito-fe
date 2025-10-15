@@ -1,5 +1,5 @@
-import { Level } from "@/lib/api/types";
-import { LevelLabel } from "@/types/session";
+import { Level } from '@/lib/api/types';
+import { LevelLabel } from '@/types/session';
 
 /**
  * Helper function to map Level enum to LevelLabel for display
@@ -9,7 +9,7 @@ import { LevelLabel } from "@/types/session";
  */
 export const getLevelLabel = (
   level?: Level,
-  fallback: string = "N/A"
+  fallback: string = 'N/A'
 ): string => {
   if (!level) return fallback;
 
@@ -33,18 +33,18 @@ export const getLevelLabel = (
  * @returns A user-friendly description of the level
  */
 export const getLevelDescription = (level?: Level): string => {
-  if (!level) return "No level specified";
+  if (!level) return 'No level specified';
 
   const descriptions: Record<Level, string> = {
-    [Level.Y_MINUS]: "Beginner (Y-)",
-    [Level.Y]: "Beginner (Y)",
-    [Level.Y_PLUS]: "Beginner Plus (Y+)",
-    [Level.TBY]: "Transition to Basic (TBY)",
-    [Level.TB_MINUS]: "Basic Minus (TB-)",
-    [Level.TB]: "Basic (TB)",
-    [Level.TB_PLUS]: "Basic Plus (TB+)",
-    [Level.K]: "Advanced (K)",
+    [Level.Y_MINUS]: 'Beginner (Y-)',
+    [Level.Y]: 'Beginner (Y)',
+    [Level.Y_PLUS]: 'Beginner Plus (Y+)',
+    [Level.TBY]: 'Transition to Basic (TBY)',
+    [Level.TB_MINUS]: 'Basic Minus (TB-)',
+    [Level.TB]: 'Basic (TB)',
+    [Level.TB_PLUS]: 'Basic Plus (TB+)',
+    [Level.K]: 'Advanced (K)',
   };
 
-  return descriptions[level] || "Unknown level";
+  return descriptions[level] || 'Unknown level';
 };

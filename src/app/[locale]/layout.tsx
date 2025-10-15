@@ -1,23 +1,23 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import { IntlClientProvider } from "../../components/IntlClientProvider";
-import LocaleValidator from "../../components/LocaleValidator";
-import { PWAInstallPrompt, PWAStatus } from "../../components/PWAComponents";
-import "../globals.css";
-import { Providers } from "../providers";
+import { Geist, Geist_Mono } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
+import { IntlClientProvider } from '../../components/IntlClientProvider';
+import LocaleValidator from '../../components/LocaleValidator';
+import { PWAInstallPrompt, PWAStatus } from '../../components/PWAComponents';
+import '../globals.css';
+import { Providers } from '../providers';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export async function generateStaticParams() {
-  return [{ locale: "vi" }, { locale: "en" }];
+  return [{ locale: 'vi' }, { locale: 'en' }];
 }
 
 export default async function LocaleLayout({
@@ -28,26 +28,26 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validLocales = ["vi", "en"];
+  const validLocales = ['vi', 'en'];
 
   // Load messages directly
   let messages = {};
   try {
-    if (locale === "en") {
-      messages = (await import("../../i18n/messages/en.json")).default;
-    } else if (locale === "vi") {
-      messages = (await import("../../i18n/messages/vi.json")).default;
+    if (locale === 'en') {
+      messages = (await import('../../i18n/messages/en.json')).default;
+    } else if (locale === 'vi') {
+      messages = (await import('../../i18n/messages/vi.json')).default;
     } else {
       // Fallback to English
-      messages = (await import("../../i18n/messages/en.json")).default;
+      messages = (await import('../../i18n/messages/en.json')).default;
     }
   } catch (error) {
-    console.error("Error loading messages:", error);
+    console.error('Error loading messages:', error);
     // Fallback to English
     try {
-      messages = (await import("../../i18n/messages/en.json")).default;
+      messages = (await import('../../i18n/messages/en.json')).default;
     } catch (fallbackError) {
-      console.error("Error loading fallback messages:", fallbackError);
+      console.error('Error loading fallback messages:', fallbackError);
       messages = {};
     }
   }

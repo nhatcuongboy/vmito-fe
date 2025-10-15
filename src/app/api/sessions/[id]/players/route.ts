@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
-import { generatePlayerJoinCode } from "@/utils/session-join-helpers";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
+import { generatePlayerJoinCode } from '@/utils/session-join-helpers';
 
 interface SessionParams {
   id: string;
@@ -21,14 +21,14 @@ export async function GET(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
-    const status = searchParams.get("status");
-    const orderBy = searchParams.get("orderBy") || "currentWaitTime";
-    const orderDir = searchParams.get("orderDir") || "desc";
+    const status = searchParams.get('status');
+    const orderBy = searchParams.get('orderBy') || 'currentWaitTime';
+    const orderDir = searchParams.get('orderDir') || 'desc';
 
     // Build query
     const queryOptions: any = {
@@ -53,22 +53,22 @@ export async function GET(
     }
 
     // Add ordering
-    if (orderBy === "playerNumber") {
+    if (orderBy === 'playerNumber') {
       queryOptions.orderBy.playerNumber = orderDir;
-    } else if (orderBy === "currentWaitTime") {
+    } else if (orderBy === 'currentWaitTime') {
       queryOptions.orderBy.currentWaitTime = orderDir;
-    } else if (orderBy === "totalWaitTime") {
+    } else if (orderBy === 'totalWaitTime') {
       queryOptions.orderBy.totalWaitTime = orderDir;
-    } else if (orderBy === "matchesPlayed") {
+    } else if (orderBy === 'matchesPlayed') {
       queryOptions.orderBy.matchesPlayed = orderDir;
     }
 
     const players = await prisma.player.findMany(queryOptions);
 
-    return successResponse(players, "Players retrieved successfully");
+    return successResponse(players, 'Players retrieved successfully');
   } catch (error) {
-    console.error("Error fetching players:", error);
-    return errorResponse("Failed to fetch players");
+    console.error('Error fetching players:', error);
+    return errorResponse('Failed to fetch players');
   }
 }
 
@@ -87,7 +87,7 @@ export async function POST(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Determine if it's host creating a player or player self-registering
@@ -106,7 +106,7 @@ export async function POST(
 
     // Validate player number
     if (!playerNumber) {
-      return errorResponse("Player number is required", 400);
+      return errorResponse('Player number is required', 400);
     }
 
     // Check if player number already exists in this session
@@ -118,7 +118,7 @@ export async function POST(
     });
 
     if (existingPlayer) {
-      return errorResponse("Player number already exists in this session", 400);
+      return errorResponse('Player number already exists in this session', 400);
     }
 
     // Create player
@@ -136,13 +136,13 @@ export async function POST(
         preFilledByHost: preFilledByHost || false,
         confirmedByPlayer: confirmedByPlayer || false,
         requireConfirmInfo: requireConfirmInfo || false,
-        status: "WAITING",
+        status: 'WAITING',
       },
     });
 
-    return successResponse(player, "Player created successfully");
+    return successResponse(player, 'Player created successfully');
   } catch (error) {
-    console.error("Error creating player:", error);
-    return errorResponse("Failed to create player");
+    console.error('Error creating player:', error);
+    return errorResponse('Failed to create player');
   }
 }

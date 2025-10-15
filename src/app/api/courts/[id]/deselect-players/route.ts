@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface CourtParams {
   id: string;
@@ -24,21 +24,21 @@ export async function POST(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Validate session is in progress
-    if (court.session.status !== "IN_PROGRESS") {
+    if (court.session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot deselect players for a session that is not in progress",
+        'Cannot deselect players for a session that is not in progress',
         400
       );
     }
 
     // Validate court is in READY state
-    if (court.status !== "READY") {
+    if (court.status !== 'READY') {
       return errorResponse(
-        "Can only deselect players from a court in READY state",
+        'Can only deselect players from a court in READY state',
         400
       );
     }
@@ -46,7 +46,7 @@ export async function POST(
     // Check if there are currently players assigned to the court
     if (!court.currentPlayers || court.currentPlayers.length === 0) {
       return errorResponse(
-        "No players are currently assigned to this court",
+        'No players are currently assigned to this court',
         400
       );
     }
@@ -64,7 +64,7 @@ export async function POST(
           return tx.player.update({
             where: { id: playerId },
             data: {
-              status: "WAITING",
+              status: 'WAITING',
               currentCourtId: null, // Remove court assignment
               courtPosition: null, // Clear court position
             },
@@ -78,7 +78,7 @@ export async function POST(
         const updatedCourt = await tx.court.update({
           where: { id },
           data: {
-            status: "EMPTY",
+            status: 'EMPTY',
           },
           include: {
             currentPlayers: true, // Should be empty after the transaction
@@ -95,10 +95,10 @@ export async function POST(
 
     return successResponse(
       result,
-      "Players deselected and court status reverted successfully"
+      'Players deselected and court status reverted successfully'
     );
   } catch (error) {
-    console.error("Error deselecting players from court:", error);
-    return errorResponse("Failed to deselect players from court");
+    console.error('Error deselecting players from court:', error);
+    return errorResponse('Failed to deselect players from court');
   }
 }

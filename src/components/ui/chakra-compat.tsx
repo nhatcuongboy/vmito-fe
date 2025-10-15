@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 import {
   Box,
   Button as ChakraButton,
@@ -12,7 +12,7 @@ import {
   IconButton as ChakraIconButton,
   IconButtonProps as ChakraIconButtonProps,
   Heading as ChakraHeading,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
 // Create Card components
 export const Card = ({ children, ...props }: React.PropsWithChildren<any>) => (
@@ -115,7 +115,7 @@ export const TabsComp: React.FC<TabsProps> = ({
   onChange,
 }) => {
   const [selectedIndex, setSelectedIndex] = React.useState(index);
-  
+
   React.useEffect(() => {
     setSelectedIndex(index);
   }, [index]);
@@ -129,12 +129,12 @@ export const TabsComp: React.FC<TabsProps> = ({
 
   // Extract children to manipulate them
   const childrenArray = React.Children.toArray(children);
-  
+
   // Find TabPanels component
   const tabPanels = childrenArray.find(
     (child) => React.isValidElement(child) && child.type === TabPanels
   );
-  
+
   // Find all Tab components and wrap them in a flex container
   const tabs = childrenArray.filter(
     (child) => React.isValidElement(child) && child.type === Tab
@@ -142,10 +142,10 @@ export const TabsComp: React.FC<TabsProps> = ({
 
   return (
     <Box>
-      <Box 
-        display="flex" 
-        mb={4} 
-        borderBottom="1px solid" 
+      <Box
+        display="flex"
+        mb={4}
+        borderBottom="1px solid"
         borderColor="gray.200"
         overflowX="auto"
         overflowY="hidden"
@@ -153,8 +153,8 @@ export const TabsComp: React.FC<TabsProps> = ({
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
           '&::-webkit-scrollbar': {
-            display: 'none'
-          }
+            display: 'none',
+          },
         }}
       >
         {React.Children.map(tabs, (child, idx) => {
@@ -168,8 +168,8 @@ export const TabsComp: React.FC<TabsProps> = ({
         })}
       </Box>
       {React.isValidElement(tabPanels) &&
-        React.cloneElement(tabPanels as React.ReactElement<TabPanelsProps>, { 
-          index: selectedIndex 
+        React.cloneElement(tabPanels as React.ReactElement<TabPanelsProps>, {
+          index: selectedIndex,
         })}
     </Box>
   );
@@ -177,20 +177,20 @@ export const TabsComp: React.FC<TabsProps> = ({
 
 export const Tab = ({ children, ...props }: TabProps) => {
   const isSelected = props['data-selected'];
-  
+
   return (
-    <Box 
-      as="button" 
-      px="4" 
-      py="2" 
+    <Box
+      as="button"
+      px="4"
+      py="2"
       minW="fit-content"
       whiteSpace="nowrap"
-      fontWeight={isSelected ? "bold" : "medium"}
-      color={isSelected ? "blue.500" : "gray.500"}
+      fontWeight={isSelected ? 'bold' : 'medium'}
+      color={isSelected ? 'blue.500' : 'gray.500'}
       borderBottom="2px solid"
-      borderColor={isSelected ? "blue.500" : "transparent"}
+      borderColor={isSelected ? 'blue.500' : 'transparent'}
       transition="all 0.2s"
-      _hover={{ color: isSelected ? "blue.600" : "gray.700" }}
+      _hover={{ color: isSelected ? 'blue.600' : 'gray.700' }}
       fontSize="sm"
       {...props}
     >
@@ -217,7 +217,7 @@ export const TabPanels = ({
 );
 
 // Create enhanced Button with leftIcon support
-export interface ButtonProps extends Omit<ChakraButtonProps, "as"> {
+export interface ButtonProps extends Omit<ChakraButtonProps, 'as'> {
   leftIcon?: React.ReactNode;
   as?: React.ElementType;
   href?: string; // Add href prop for Link compatibility
@@ -247,7 +247,7 @@ export const Button = ({
     );
   }
 
-  // Handle Next.js Link specifically 
+  // Handle Next.js Link specifically
   if (as && typeof as !== 'string' && href) {
     const LinkComponent = as;
     return (
@@ -265,10 +265,10 @@ export const Button = ({
   }
 
   // Regular button or other element
-  const ComponentType = as || "button";
+  const ComponentType = as || 'button';
   // Only include href if ComponentType is a string that accepts href (like 'a')
   const extraProps = href && typeof ComponentType === 'string' ? { href } : {};
-  
+
   return (
     <ChakraButton as={ComponentType} {...extraProps} {...props}>
       {leftIcon && (
@@ -314,7 +314,7 @@ export const VStack = ({
     direction="column"
     gap={spacing}
     alignItems={
-      align === "start" ? "flex-start" : align === "end" ? "flex-end" : align
+      align === 'start' ? 'flex-start' : align === 'end' ? 'flex-end' : align
     }
     {...props}
   >
@@ -407,7 +407,7 @@ export const useColorModeValue = (lightValue: any, darkValue: any) => {
 export const useToast = () => {
   return {
     toast: (options: any) => {
-      console.log("Toast:", options);
+      console.log('Toast:', options);
       // We'll implement proper toast in the next iteration
     },
   };

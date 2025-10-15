@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
-import { Prisma } from "@/generated/prisma";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
+import { Prisma } from '@/generated/prisma';
 
 interface MatchEndParams {
   id: string;
@@ -22,12 +22,12 @@ export async function PATCH(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
-    if (session.status !== "IN_PROGRESS") {
+    if (session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot end a match for a session that is not in progress",
+        'Cannot end a match for a session that is not in progress',
         400
       );
     }
@@ -49,11 +49,11 @@ export async function PATCH(
     });
 
     if (!match) {
-      return errorResponse("Match not found", 404);
+      return errorResponse('Match not found', 404);
     }
 
-    if (match.status !== "IN_PROGRESS") {
-      return errorResponse("Match is already finished", 400);
+    if (match.status !== 'IN_PROGRESS') {
+      return errorResponse('Match is already finished', 400);
     }
 
     // Get player IDs from match
@@ -66,7 +66,7 @@ export async function PATCH(
         const updatedMatch = await tx.match.update({
           where: { id: matchId },
           data: {
-            status: "FINISHED",
+            status: 'FINISHED',
             endTime: new Date(),
           },
         });
@@ -88,17 +88,20 @@ export async function PATCH(
           courtWithPreSelect.preSelectedPlayers.length === 4
         ) {
           // Extract player IDs from pre-selected players array
-          const preSelectedPlayersArray = courtWithPreSelect.preSelectedPlayers as Array<{
-            playerId: string;
-            position: number;
-          }>;
-          const preSelectedPlayerIds = preSelectedPlayersArray.map(p => p.playerId);
+          const preSelectedPlayersArray =
+            courtWithPreSelect.preSelectedPlayers as Array<{
+              playerId: string;
+              position: number;
+            }>;
+          const preSelectedPlayerIds = preSelectedPlayersArray.map(
+            (p) => p.playerId
+          );
 
           // Verify all pre-selected players are still available (waiting)
           const availablePlayers = await tx.player.findMany({
             where: {
               id: { in: preSelectedPlayerIds },
-              status: "WAITING",
+              status: 'WAITING',
               sessionId,
             },
           });
@@ -109,7 +112,7 @@ export async function PATCH(
               data: {
                 sessionId,
                 courtId: match.courtId,
-                status: "IN_PROGRESS",
+                status: 'IN_PROGRESS',
                 startTime: new Date(),
                 players: {
                   create: preSelectedPlayersArray.map((p) => ({
@@ -126,7 +129,7 @@ export async function PATCH(
             await tx.court.update({
               where: { id: match.courtId },
               data: {
-                status: "IN_USE",
+                status: 'IN_USE',
                 currentMatchId: newMatch.id,
                 preSelectedPlayers: Prisma.DbNull,
               },
@@ -138,14 +141,14 @@ export async function PATCH(
                 tx.player.update({
                   where: { id: playerId },
                   data: {
-                    status: "PLAYING",
+                    status: 'PLAYING',
                     currentCourtId: match.courtId,
                   },
                 })
               )
             );
           } else {
-            // Not all pre-selected players are available, clear pre-selection 
+            // Not all pre-selected players are available, clear pre-selection
             // Court status will be determined later after updating players
             await tx.court.update({
               where: { id: match.courtId },
@@ -159,34 +162,39 @@ export async function PATCH(
 
         // 3. Update players from ended match to WAITING status (unless they're in the next match)
         let playersToSetWaiting = playerIds;
-        
+
         if (nextMatchId) {
-          // If there's a next match with pre-selected players, 
+          // If there's a next match with pre-selected players,
           // only set non-pre-selected players to waiting
-          const preSelectedPlayersArray = courtWithPreSelect?.preSelectedPlayers as Array<{
-            playerId: string;
-            position: number;
-          }>;
-          const preSelectedPlayerIds = preSelectedPlayersArray.map(p => p.playerId);
-          
+          const preSelectedPlayersArray =
+            courtWithPreSelect?.preSelectedPlayers as Array<{
+              playerId: string;
+              position: number;
+            }>;
+          const preSelectedPlayerIds = preSelectedPlayersArray.map(
+            (p) => p.playerId
+          );
+
           playersToSetWaiting = playerIds.filter(
             (playerId) => !preSelectedPlayerIds.includes(playerId)
           );
         }
 
         // Update player statuses and stats
-        const playerUpdatePromises = playersToSetWaiting.map(async (playerId) => {
-          return tx.player.update({
-            where: { id: playerId },
-            data: {
-              status: "WAITING",
-              currentCourtId: null,
-              matchesPlayed: {
-                increment: 1,
+        const playerUpdatePromises = playersToSetWaiting.map(
+          async (playerId) => {
+            return tx.player.update({
+              where: { id: playerId },
+              data: {
+                status: 'WAITING',
+                currentCourtId: null,
+                matchesPlayed: {
+                  increment: 1,
+                },
               },
-            },
-          });
-        });
+            });
+          }
+        );
 
         // Update match count for all players who played (including those continuing)
         const allPlayerMatchUpdatePromises = playerIds.map(async (playerId) => {
@@ -203,21 +211,24 @@ export async function PATCH(
           }
         });
 
-        await Promise.all([...playerUpdatePromises, ...allPlayerMatchUpdatePromises.filter(Boolean)]);
+        await Promise.all([
+          ...playerUpdatePromises,
+          ...allPlayerMatchUpdatePromises.filter(Boolean),
+        ]);
 
         // 4. Update court status for cases without next match (after players have been updated)
         if (!nextMatchId) {
           const waitingPlayersCount = await tx.player.count({
             where: {
               sessionId,
-              status: "WAITING",
+              status: 'WAITING',
             },
           });
 
           await tx.court.update({
             where: { id: match.courtId },
             data: {
-              status: waitingPlayersCount >= 4 ? "READY" : "EMPTY",
+              status: waitingPlayersCount >= 4 ? 'READY' : 'EMPTY',
             },
           });
         }
@@ -264,13 +275,13 @@ export async function PATCH(
       nextMatch: nextMatchData,
     };
 
-    const message = result.nextMatchId 
-      ? "Match ended successfully and next match started automatically"
-      : "Match ended successfully";
+    const message = result.nextMatchId
+      ? 'Match ended successfully and next match started automatically'
+      : 'Match ended successfully';
 
     return successResponse(responseData, message);
   } catch (error) {
-    console.error("Error ending match:", error);
-    return errorResponse("Failed to end match");
+    console.error('Error ending match:', error);
+    return errorResponse('Failed to end match');
   }
 }

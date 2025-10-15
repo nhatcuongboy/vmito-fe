@@ -1,6 +1,6 @@
 /**
  * Example: Converting a component to use Zustand
- * 
+ *
  * This shows how to refactor a component that currently uses props
  * to use Zustand stores instead.
  */
@@ -29,7 +29,10 @@ interface NewComponentProps {
   waitingPlayers: any[]; // Data that might be fetched by parent
 }
 
-export function ExampleComponentWithZustand({ session, waitingPlayers }: NewComponentProps) {
+export function ExampleComponentWithZustand({
+  session,
+  waitingPlayers,
+}: NewComponentProps) {
   // Get state and actions from stores
   const {
     selectedPlayers,
@@ -43,7 +46,7 @@ export function ExampleComponentWithZustand({ session, waitingPlayers }: NewComp
     setShowMatchCreation,
     togglePlayerSelection,
     startManualMatchCreation,
-    cancelMatchCreation
+    cancelMatchCreation,
   } = useSessionStore();
 
   const {
@@ -51,7 +54,7 @@ export function ExampleComponentWithZustand({ session, waitingPlayers }: NewComp
     openAutoAssignModal,
     closeAutoAssignModal,
     manualSelectedPlayers,
-    toggleManualPlayer
+    toggleManualPlayer,
   } = useCourtStore();
 
   // Component logic stays the same
@@ -74,10 +77,10 @@ export function ExampleComponentWithZustand({ session, waitingPlayers }: NewComp
     <div>
       <h3>Match Mode: {matchMode}</h3>
       <p>Selected Players: {selectedPlayers.length}/4</p>
-      
+
       {/* Player selection */}
       <div>
-        {waitingPlayers.map(player => (
+        {waitingPlayers.map((player) => (
           <button
             key={player.id}
             onClick={() => handlePlayerClick(player.id)}
@@ -103,12 +106,8 @@ export function ExampleComponentWithZustand({ session, waitingPlayers }: NewComp
       {/* Match creation controls */}
       {showMatchCreation && (
         <div>
-          <button onClick={handleConfirmMatch}>
-            Confirm Match
-          </button>
-          <button onClick={cancelMatchCreation}>
-            Cancel
-          </button>
+          <button onClick={handleConfirmMatch}>Confirm Match</button>
+          <button onClick={cancelMatchCreation}>Cancel</button>
         </div>
       )}
 
@@ -128,11 +127,11 @@ export function ParentComponent() {
   // Assume these are fetched/provided by parent
   const session = {}; // Your session data
   const waitingPlayers: any[] = []; // Your waiting players data
-  
+
   // Parent only needs to provide essential data
   // No need to manage and pass down all the state
   return (
-    <ExampleComponentWithZustand 
+    <ExampleComponentWithZustand
       session={session}
       waitingPlayers={waitingPlayers}
     />

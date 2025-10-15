@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Box,
   VStack,
@@ -13,15 +13,15 @@ import {
   Separator,
   Spinner,
   Link,
-} from "@chakra-ui/react";
-import { RefreshCw, Clock, Users, Trophy, ExternalLink } from "lucide-react";
-import toast from "react-hot-toast";
+} from '@chakra-ui/react';
+import { RefreshCw, Clock, Users, Trophy, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface PlayerStatus {
   id: string;
   playerNumber: number;
   name: string;
-  status: "WAITING" | "PLAYING" | "FINISHED" | "READY";
+  status: 'WAITING' | 'PLAYING' | 'FINISHED' | 'READY';
   currentWaitTime: number;
   totalWaitTime: number;
   matchesPlayed: number;
@@ -38,11 +38,11 @@ function PlayerStatusContent() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const searchParams = useSearchParams();
-  const guestToken = searchParams.get("token");
+  const guestToken = searchParams.get('token');
 
   const fetchPlayerStatus = async (showRefreshing = false) => {
     if (!guestToken) {
-      toast.error("Invalid player token");
+      toast.error('Invalid player token');
       setLoading(false);
       return;
     }
@@ -56,11 +56,11 @@ function PlayerStatusContent() {
       if (response.ok) {
         setPlayerStatus(data.data);
       } else {
-        toast.error(data.message || "Failed to fetch player status");
+        toast.error(data.message || 'Failed to fetch player status');
       }
     } catch (error) {
-      toast.error("Failed to fetch player status");
-      console.error("Status fetch error:", error);
+      toast.error('Failed to fetch player status');
+      console.error('Status fetch error:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -80,29 +80,29 @@ function PlayerStatusContent() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "WAITING":
-        return "yellow";
-      case "PLAYING":
-        return "green";
-      case "READY":
-        return "blue";
-      case "FINISHED":
-        return "gray";
+      case 'WAITING':
+        return 'yellow';
+      case 'PLAYING':
+        return 'green';
+      case 'READY':
+        return 'blue';
+      case 'FINISHED':
+        return 'gray';
       default:
-        return "gray";
+        return 'gray';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "WAITING":
-        return "⏳ Waiting";
-      case "PLAYING":
-        return "🏸 Playing";
-      case "READY":
-        return "✅ Ready";
-      case "FINISHED":
-        return "✅ Finished";
+      case 'WAITING':
+        return '⏳ Waiting';
+      case 'PLAYING':
+        return '🏸 Playing';
+      case 'READY':
+        return '✅ Ready';
+      case 'FINISHED':
+        return '✅ Finished';
       default:
         return status;
     }
@@ -279,7 +279,7 @@ function PlayerStatusContent() {
                 width="full"
                 loading={refreshing}
               >
-                <RefreshCw size={16} style={{ marginRight: "8px" }} />
+                <RefreshCw size={16} style={{ marginRight: '8px' }} />
                 Refresh Status
               </Button>
 

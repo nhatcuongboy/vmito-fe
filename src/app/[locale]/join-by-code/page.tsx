@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useRouter } from "@/i18n/config";
-import { signIn, getSession, useSession } from "next-auth/react";
-import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from '@/i18n/config';
+import { signIn, getSession, useSession } from 'next-auth/react';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Box,
   Button,
@@ -13,18 +13,18 @@ import {
   Text,
   VStack,
   HStack,
-} from "@chakra-ui/react";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { Camera } from "lucide-react";
-import toast from "react-hot-toast";
-import QRScanner from "@/components/QRScanner";
-import { AuthService } from "@/lib/api/auth.service";
-import MainLayout from "@/components/layout/MainLayout";
-import PublicRouteGuard from "@/components/guards/PublicRouteGuard";
+} from '@chakra-ui/react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { Camera } from 'lucide-react';
+import toast from 'react-hot-toast';
+import QRScanner from '@/components/QRScanner';
+import { AuthService } from '@/lib/api/auth.service';
+import MainLayout from '@/components/layout/MainLayout';
+import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 
 function JoinByCodeContent() {
-  const [joinCode, setJoinCode] = useState("");
+  const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const onOpen = () => setIsOpen(true);
@@ -33,7 +33,7 @@ function JoinByCodeContent() {
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const locale = useLocale();
-  const t = useTranslations("pages.join.joinByCode");
+  const t = useTranslations('pages.join.joinByCode');
 
   // Redirect authenticated users based on role
   //   useEffect(() => {
@@ -51,7 +51,7 @@ function JoinByCodeContent() {
 
   // Auto-fill from QR code if present
   useEffect(() => {
-    const codeFromUrl = searchParams.get("code");
+    const codeFromUrl = searchParams.get('code');
     if (codeFromUrl) {
       setJoinCode(codeFromUrl);
     }
@@ -60,9 +60,9 @@ function JoinByCodeContent() {
   const checkCodeType = async (code: string) => {
     try {
       const result = await AuthService.checkCode(code);
-      return result.isPlayerCode ? "player" : "session";
+      return result.isPlayerCode ? 'player' : 'session';
     } catch (error) {
-      return "session";
+      return 'session';
     }
   };
 
@@ -70,7 +70,7 @@ function JoinByCodeContent() {
     e.preventDefault();
 
     if (!joinCode.trim()) {
-      toast.error(t("enterCodeError"));
+      toast.error(t('enterCodeError'));
       return;
     }
 
@@ -80,20 +80,20 @@ function JoinByCodeContent() {
       // Check code type first
       const codeType = await checkCodeType(joinCode);
 
-      if (codeType === "session") {
+      if (codeType === 'session') {
         // Redirect to register page for session codes
         router.push(`/join/register?code=${joinCode}`);
         return;
       }
 
       // For player codes, proceed with normal join
-      const result = await signIn("otp", {
+      const result = await signIn('otp', {
         joinCode,
         redirect: false,
       });
 
       if (result?.error) {
-        toast.error(t("invalidCodeError"));
+        toast.error(t('invalidCodeError'));
         return;
       }
 
@@ -103,13 +103,13 @@ function JoinByCodeContent() {
 
       // Check requireConfirmInfo to determine navigation
       if (user?.requireConfirmInfo && !user?.confirmedByPlayer) {
-        router.push("/join/confirm?playerId=" + user.playerId);
+        router.push('/join/confirm?playerId=' + user.playerId);
       } else {
         router.push(`/my-session`);
       }
     } catch (error: any) {
-      toast.error(t("joinFailedError"));
-      console.error("Join error:", error);
+      toast.error(t('joinFailedError'));
+      console.error('Join error:', error);
     } finally {
       setLoading(false);
     }
@@ -117,11 +117,11 @@ function JoinByCodeContent() {
 
   const handleQRScan = (code: string) => {
     setJoinCode(code.toUpperCase());
-    toast.success(t("qrScanSuccess"));
+    toast.success(t('qrScanSuccess'));
   };
 
   return (
-    <MainLayout title={t("title")}>
+    <MainLayout title={t('title')}>
       <Box
         display="flex"
         alignItems="center"
@@ -140,18 +140,18 @@ function JoinByCodeContent() {
           <VStack gap={6}>
             <Box textAlign="center">
               <Heading size="lg" color="green.600">
-                🏸 {t("title")}
+                🏸 {t('title')}
               </Heading>
               <Text color="gray.600" mt={2}>
-                {t("subtitle")}
+                {t('subtitle')}
               </Text>
             </Box>
 
-            <form onSubmit={handleJoinSession} style={{ width: "100%" }}>
+            <form onSubmit={handleJoinSession} style={{ width: '100%' }}>
               <VStack gap={4}>
                 <Box w="full">
                   <Text mb={2} fontWeight="medium">
-                    {t("joinCode")}
+                    {t('joinCode')}
                   </Text>
                   <HStack gap={2}>
                     <Input
@@ -159,7 +159,7 @@ function JoinByCodeContent() {
                       onChange={(e) =>
                         setJoinCode(e.target.value.toUpperCase())
                       }
-                      placeholder={t("joinCodePlaceholder")}
+                      placeholder={t('joinCodePlaceholder')}
                       maxLength={8}
                       required
                       fontSize="lg"
@@ -172,7 +172,7 @@ function JoinByCodeContent() {
                     </Button>
                   </HStack>
                   <Text fontSize="sm" color="gray.500" mt={1}>
-                    {t("joinCodeHelp")}
+                    {t('joinCodeHelp')}
                   </Text>
                 </Box>
 
@@ -184,25 +184,25 @@ function JoinByCodeContent() {
                   loading={loading}
                   disabled={!joinCode.trim()}
                 >
-                  {loading ? <Spinner size="sm" /> : t("joinSession")}
+                  {loading ? <Spinner size="sm" /> : t('joinSession')}
                 </Button>
               </VStack>
             </form>
 
             <VStack gap={2}>
               <Text color="gray.600" textAlign="center">
-                {t("alreadyHaveAccount")}{" "}
+                {t('alreadyHaveAccount')}{' '}
                 <Link
                   href="/auth/signin"
                   color="blue.600"
                   fontWeight="semibold"
                 >
-                  {t("signIn")}
+                  {t('signIn')}
                 </Link>
               </Text>
 
               <Text color="gray.500" fontSize="sm" textAlign="center">
-                {t("troubleHelp")}
+                {t('troubleHelp')}
               </Text>
             </VStack>
           </VStack>

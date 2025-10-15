@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import { useRouter } from "@/i18n/config";
-import PublicRouteGuard from "@/components/guards/PublicRouteGuard";
+import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
+import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import {
   Box,
   VStack,
@@ -12,35 +12,35 @@ import {
   Text,
   Link,
   Field,
-} from "@chakra-ui/react";
-import toast from "react-hot-toast";
-import TopBar from "@/components/ui/TopBar";
-import { useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { PasswordInput } from "@/components/ui/password-input";
+} from '@chakra-ui/react';
+import toast from 'react-hot-toast';
+import TopBar from '@/components/ui/TopBar';
+import { useTranslations } from 'next-intl';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { PasswordInput } from '@/components/ui/password-input';
 
 // Define zod schema for form validation
 const signUpSchema = z
   .object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, 'Name is required'),
     email: z
       .string()
-      .email("Invalid email address")
-      .min(1, "Email is required"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
+      .email('Invalid email address')
+      .min(1, 'Email is required'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
   });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
-  const t = useTranslations("auth.signup");
+  const t = useTranslations('auth.signup');
   const params = useParams();
   const locale = params.locale as string;
   const router = useRouter();
@@ -52,19 +52,19 @@ export default function SignUpPage() {
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     },
   });
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: data.name,
@@ -76,21 +76,21 @@ export default function SignUpPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success(t("accountCreated"));
+        toast.success(t('accountCreated'));
         router.push(`/${locale}/auth/signin`);
       } else {
-        toast.error(result.message || t("registrationFailed"));
+        toast.error(result.message || t('registrationFailed'));
       }
     } catch (error) {
-      toast.error(t("registrationFailed"));
-      console.error("Registration error:", error);
+      toast.error(t('registrationFailed'));
+      console.error('Registration error:', error);
     }
   };
 
   return (
     <PublicRouteGuard redirectTo="/host">
       <Box minH="100vh" bg="gray.50">
-        <TopBar title={t("title")} />
+        <TopBar title={t('title')} />
         <Box
           display="flex"
           alignItems="center"
@@ -110,39 +110,39 @@ export default function SignUpPage() {
             <VStack gap={6}>
               <Box textAlign="center">
                 <Heading size="lg" color="blue.600">
-                  {t("heading")}
+                  {t('heading')}
                 </Heading>
                 <Text color="gray.600" mt={2}>
-                  {t("description")}
+                  {t('description')}
                 </Text>
               </Box>
 
-              <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+              <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
                 <VStack gap={4}>
                   <Field.Root invalid={!!errors.name}>
-                    <Field.Label>{t("name")}</Field.Label>
+                    <Field.Label>{t('name')}</Field.Label>
                     <Input
-                      {...register("name")}
-                      placeholder={t("namePlaceholder")}
+                      {...register('name')}
+                      placeholder={t('namePlaceholder')}
                     />
                     <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.email}>
-                    <Field.Label>{t("email")}</Field.Label>
+                    <Field.Label>{t('email')}</Field.Label>
                     <Input
-                      {...register("email")}
+                      {...register('email')}
                       type="email"
-                      placeholder={t("emailPlaceholder")}
+                      placeholder={t('emailPlaceholder')}
                     />
                     <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.password}>
-                    <Field.Label>{t("password")}</Field.Label>
+                    <Field.Label>{t('password')}</Field.Label>
                     <PasswordInput
-                      {...register("password")}
-                      placeholder={t("passwordPlaceholder")}
+                      {...register('password')}
+                      placeholder={t('passwordPlaceholder')}
                     />
                     <Field.ErrorText>
                       {errors.password?.message}
@@ -150,10 +150,10 @@ export default function SignUpPage() {
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.confirmPassword}>
-                    <Field.Label>{t("confirmPassword")}</Field.Label>
+                    <Field.Label>{t('confirmPassword')}</Field.Label>
                     <PasswordInput
-                      {...register("confirmPassword")}
-                      placeholder={t("confirmPasswordPlaceholder")}
+                      {...register('confirmPassword')}
+                      placeholder={t('confirmPasswordPlaceholder')}
                     />
                     <Field.ErrorText>
                       {errors.confirmPassword?.message}
@@ -167,31 +167,31 @@ export default function SignUpPage() {
                     size="lg"
                     loading={isSubmitting}
                   >
-                    {t("createAccount")}
+                    {t('createAccount')}
                   </Button>
                 </VStack>
               </form>
 
               <VStack gap={2}>
                 <Text color="gray.600">
-                  {t("alreadyHaveAccount")}{" "}
+                  {t('alreadyHaveAccount')}{' '}
                   <Link
                     href={`/${locale}/auth/signin`}
                     color="blue.600"
                     fontWeight="semibold"
                   >
-                    {t("signIn")}
+                    {t('signIn')}
                   </Link>
                 </Text>
 
                 <Text color="gray.500" fontSize="sm">
-                  {t("or")}{" "}
+                  {t('or')}{' '}
                   <Link
                     href={`/${locale}/join-by-code`}
                     color="blue.600"
                     fontWeight="semibold"
                   >
-                    {t("joinAsGuest")}
+                    {t('joinAsGuest')}
                   </Link>
                 </Text>
               </VStack>

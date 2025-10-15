@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 // Component to update wait times for active sessions in the background
 export default function WaitTimeUpdater() {
@@ -15,10 +15,10 @@ export default function WaitTimeUpdater() {
     try {
       setIsUpdating(true);
 
-      const response = await fetch("/api/update-wait-times", {
-        method: "POST",
+      const response = await fetch('/api/update-wait-times', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -28,10 +28,10 @@ export default function WaitTimeUpdater() {
         setLastUpdate(new Date());
         setUpdateCount((prev) => prev + 1);
       } else {
-        console.error("Failed to update wait times:", result.message);
+        console.error('Failed to update wait times:', result.message);
       }
     } catch (error) {
-      console.error("Error updating wait times:", error);
+      console.error('Error updating wait times:', error);
     } finally {
       setIsUpdating(false);
     }

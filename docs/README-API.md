@@ -103,30 +103,25 @@ This is the API documentation for the badminton session management system with c
 ### Host Management Flow
 
 1. **Session Creation**
-
    - Host creates a session with courts and player limits
    - Configure session duration, player requirements, etc.
 
 2. **Player Registration**
-
    - Host adds players manually or players join with numbers
    - Players fill in personal info (if required by session)
    - Players confirm participation
 
 3. **Session Start**
-
    - Host starts the session
    - System begins tracking wait times automatically
 
 4. **Match Management**
-
    - Host uses auto-assign to distribute players to courts
    - Or manually select players for each court
    - Start matches on courts
    - Monitor real-time session status
 
 5. **Ongoing Management**
-
    - End matches when complete
    - Players return to waiting queue with updated wait times
    - Use auto-assign for next round or manual selection
@@ -147,13 +142,11 @@ This is the API documentation for the badminton session management system with c
 ### Player Experience Flow
 
 1. **Join Session**
-
    - Enter player number provided by host
    - Fill in personal information (if required)
    - Confirm participation
 
 2. **Wait and Play**
-
    - Join waiting queue
    - Get assigned to courts by host
    - Play matches and return to queue

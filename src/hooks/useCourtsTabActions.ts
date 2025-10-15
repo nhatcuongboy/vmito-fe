@@ -1,8 +1,8 @@
-import { useToast } from "@/components/ui/chakra-compat";
-import { CourtService } from "@/lib/api/court.service";
-import { CourtDirection, SuggestedPlayersResponse } from "@/lib/api/types";
-import { Court, Player } from "@/types/session";
-import { useTranslations } from "next-intl";
+import { useToast } from '@/components/ui/chakra-compat';
+import { CourtService } from '@/lib/api/court.service';
+import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
+import { Court, Player } from '@/types/session';
+import { useTranslations } from 'next-intl';
 
 interface UseCourtsTabActionsProps {
   onDataRefresh?: () => void;
@@ -12,7 +12,7 @@ export const useCourtsTabActions = ({
   onDataRefresh,
 }: UseCourtsTabActionsProps) => {
   const toast = useToast();
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
 
   // Handle confirm from modal with suggested players
   const handleConfirmAutoAssign = async (
@@ -40,8 +40,8 @@ export const useCourtsTabActions = ({
               direction === CourtDirection.HORIZONTAL
                 ? index
                 : index === 0
-                ? 0
-                : 2,
+                  ? 0
+                  : 2,
           })),
           ...suggestedPlayers.pair2.players.map((p: Player, index: number) => ({
             playerId: p.id,
@@ -49,8 +49,8 @@ export const useCourtsTabActions = ({
               direction === CourtDirection.HORIZONTAL
                 ? index + 2
                 : index === 0
-                ? 1
-                : 3,
+                  ? 1
+                  : 3,
           })),
         ];
 
@@ -67,17 +67,17 @@ export const useCourtsTabActions = ({
       }
 
       toast.toast({
-        title: t("courtsTab.playersAssignedToCourt"),
-        description: t("courtsTab.pleaseStartMatchManually"),
-        status: "success",
+        title: t('courtsTab.playersAssignedToCourt'),
+        description: t('courtsTab.pleaseStartMatchManually'),
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error selecting players for court:", error);
+      console.error('Error selecting players for court:', error);
       toast.toast({
-        title: t("courtsTab.errorAssigningPlayers"),
-        description: t("courtsTab.pleaseRetryLater"),
-        status: "error",
+        title: t('courtsTab.errorAssigningPlayers'),
+        description: t('courtsTab.pleaseRetryLater'),
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -104,7 +104,7 @@ export const useCourtsTabActions = ({
         | undefined;
 
       if (Array.isArray(playersData) && playersData.length > 0) {
-        if (typeof playersData[0] === "string") {
+        if (typeof playersData[0] === 'string') {
           playerIds = playersData as string[];
           playersWithPosition = undefined;
         } else {
@@ -132,17 +132,17 @@ export const useCourtsTabActions = ({
       }
 
       toast.toast({
-        title: t("courtsTab.playersAssignedToCourt"),
-        description: t("courtsTab.pleaseStartMatchManually"),
-        status: "success",
+        title: t('courtsTab.playersAssignedToCourt'),
+        description: t('courtsTab.pleaseStartMatchManually'),
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error selecting players for court:", error);
+      console.error('Error selecting players for court:', error);
       toast.toast({
-        title: t("courtsTab.errorAssigningPlayers"),
-        description: t("courtsTab.pleaseRetryLater"),
-        status: "error",
+        title: t('courtsTab.errorAssigningPlayers'),
+        description: t('courtsTab.pleaseRetryLater'),
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -173,11 +173,11 @@ export const useCourtsTabActions = ({
         onDataRefresh();
       }
     } catch (error) {
-      console.error("Error pre-selecting players:", error);
+      console.error('Error pre-selecting players:', error);
       toast.toast({
-        title: t("courtsTab.errorPreSelecting"),
-        description: t("courtsTab.pleaseRetryLater"),
-        status: "error",
+        title: t('courtsTab.errorPreSelecting'),
+        description: t('courtsTab.pleaseRetryLater'),
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -199,17 +199,17 @@ export const useCourtsTabActions = ({
       }
 
       toast.toast({
-        title: t("courtsTab.preSelectCancelled"),
-        description: t("courtsTab.preSelectCancelledDesc"),
-        status: "success",
+        title: t('courtsTab.preSelectCancelled'),
+        description: t('courtsTab.preSelectCancelledDesc'),
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error cancelling pre-selection:", error);
+      console.error('Error cancelling pre-selection:', error);
       toast.toast({
-        title: t("courtsTab.errorCancellingPreSelect"),
-        description: t("courtsTab.pleaseRetryLater"),
-        status: "error",
+        title: t('courtsTab.errorCancellingPreSelect'),
+        description: t('courtsTab.pleaseRetryLater'),
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -247,17 +247,17 @@ export const useCourtsTabActions = ({
       if (onDataRefresh) onDataRefresh();
 
       toast.toast({
-        title: t("courtsTab.matchEndedSuccessfully"),
-        description: t("courtsTab.courtAvailableForPlay"),
-        status: "success",
+        title: t('courtsTab.matchEndedSuccessfully'),
+        description: t('courtsTab.courtAvailableForPlay'),
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error ending match:", error);
+      console.error('Error ending match:', error);
       toast.toast({
-        title: t("courtsTab.errorEndingMatch"),
-        description: t("courtsTab.pleaseRetryLater"),
-        status: "error",
+        title: t('courtsTab.errorEndingMatch'),
+        description: t('courtsTab.pleaseRetryLater'),
+        status: 'error',
         duration: 3000,
       });
     } finally {
@@ -275,9 +275,9 @@ export const useCourtsTabActions = ({
       await CourtService.startMatch(courtId);
       if (onDataRefresh) onDataRefresh();
       toast.toast({
-        title: t("courtsTab.matchStartedSuccessfully"),
-        description: t("courtsTab.matchHasStarted"),
-        status: "success",
+        title: t('courtsTab.matchStartedSuccessfully'),
+        description: t('courtsTab.matchHasStarted'),
+        status: 'success',
         duration: 3000,
       });
     } finally {
@@ -295,13 +295,13 @@ export const useCourtsTabActions = ({
       await CourtService.deselectPlayers(courtId);
       if (onDataRefresh) onDataRefresh();
       toast.toast({
-        title: t("courtsTab.playersDeselected"),
-        description: t("courtsTab.courtAvailableForPlay"),
-        status: "success",
+        title: t('courtsTab.playersDeselected'),
+        description: t('courtsTab.courtAvailableForPlay'),
+        status: 'success',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error deselecting players:", error);
+      console.error('Error deselecting players:', error);
     } finally {
       setLoadingCancelCourtId(null);
     }

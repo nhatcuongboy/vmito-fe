@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Box, Button, VStack, HStack, Text } from "@chakra-ui/react";
-import { useTranslations } from "next-intl";
-import BadmintonCourt from "@/components/court/BadmintonCourt";
-import { useCourtSelection } from "@/hooks/useCourtSelection";
-import { BadmintonCourtPlayer } from "@/components/court/CourtPlayer";
+import React, { useState } from 'react';
+import { Box, Button, VStack, HStack, Text } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
+import BadmintonCourt from '@/components/court/BadmintonCourt';
+import { useCourtSelection } from '@/hooks/useCourtSelection';
+import { BadmintonCourtPlayer } from '@/components/court/CourtPlayer';
 
 interface CourtSelectionModeProps {
   availablePlayers: BadmintonCourtPlayer[];
@@ -16,9 +16,9 @@ export default function CourtSelectionMode({
   onSelectionComplete,
   onCancel,
 }: CourtSelectionModeProps) {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
   const [selectedFromList, setSelectedFromList] = useState<string | null>(null);
-  
+
   const {
     allPositions,
     currentPlayerPosition,
@@ -39,9 +39,9 @@ export default function CourtSelectionMode({
 
   const handleConfirm = () => {
     // Map selected players to [0,2,1,3] order for consistency
-    const mapping = [0,2,1,3];
+    const mapping = [0, 2, 1, 3];
     const mappedPlayers = mapping
-      .map(i => allPositions[i])
+      .map((i) => allPositions[i])
       .filter((p): p is BadmintonCourtPlayer => !!p);
     onSelectionComplete?.(mappedPlayers);
   };
@@ -54,9 +54,9 @@ export default function CourtSelectionMode({
   return (
     <VStack gap={6} p={4}>
       <Text fontSize="lg" fontWeight="bold">
-        {t("selectPlayersForCourt")}
+        {t('selectPlayersForCourt')}
       </Text>
-      
+
       {/* Court Display */}
       <BadmintonCourt
         players={[]} // Empty for selection mode
@@ -89,19 +89,19 @@ export default function CourtSelectionMode({
                 border="1px"
                 borderColor={
                   isAlreadySelected
-                    ? "green.300"
+                    ? 'green.300'
                     : isSelectedFromList
-                    ? "blue.300"
-                    : "gray.200"
+                      ? 'blue.300'
+                      : 'gray.200'
                 }
                 bg={
                   isAlreadySelected
-                    ? "green.50"
+                    ? 'green.50'
                     : isSelectedFromList
-                    ? "blue.50"
-                    : "white"
+                      ? 'blue.50'
+                      : 'white'
                 }
-                cursor={isAlreadySelected ? "not-allowed" : "pointer"}
+                cursor={isAlreadySelected ? 'not-allowed' : 'pointer'}
                 opacity={isAlreadySelected ? 0.6 : 1}
                 onClick={() => {
                   if (!isAlreadySelected) {
@@ -114,10 +114,10 @@ export default function CourtSelectionMode({
                 }}
                 _hover={{
                   bg: isAlreadySelected
-                    ? "green.50"
+                    ? 'green.50'
                     : isSelectedFromList
-                    ? "blue.100"
-                    : "gray.50",
+                      ? 'blue.100'
+                      : 'gray.50',
                 }}
               >
                 <Box
@@ -132,7 +132,7 @@ export default function CourtSelectionMode({
                   fontSize="sm"
                   fontWeight="bold"
                 >
-                  {player.name?.charAt(0).toUpperCase() || "?"}
+                  {player.name?.charAt(0).toUpperCase() || '?'}
                 </Box>
                 <VStack align="start" gap={0} flex={1}>
                   <Text fontWeight="semibold">{player.name}</Text>
@@ -142,10 +142,10 @@ export default function CourtSelectionMode({
                 </VStack>
                 <Text fontSize="sm" color="gray.500">
                   {isAlreadySelected
-                    ? "Selected"
+                    ? 'Selected'
                     : isSelectedFromList
-                    ? "Click again to add"
-                    : "Click to select"}
+                      ? 'Click again to add'
+                      : 'Click to select'}
                 </Text>
               </HStack>
             );

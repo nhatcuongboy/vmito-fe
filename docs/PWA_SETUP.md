@@ -7,6 +7,7 @@ This document outlines the PWA implementation for the Badminton Session Manageme
 The app has been configured as a Progressive Web App with the following features:
 
 ### ✅ Core PWA Features
+
 - **App Manifest**: Complete web app manifest with icons and metadata
 - **Service Worker**: Custom service worker for caching and offline functionality
 - **Installable**: Users can install the app on their devices
@@ -15,7 +16,9 @@ The app has been configured as a Progressive Web App with the following features
 - **Background Sync**: Support for background data synchronization
 
 ### 📱 Installation
+
 Users can install the app by:
+
 1. Visiting the website on a PWA-compatible browser
 2. Looking for the "Install App" prompt or browser install button
 3. Following the installation prompts
@@ -23,6 +26,7 @@ Users can install the app by:
 ### 🔧 Technical Implementation
 
 #### Files Created/Modified:
+
 1. **`next.config.ts`** - PWA configuration with next-pwa
 2. **`public/manifest.json`** - Web app manifest
 3. **`public/sw.js`** - Custom service worker
@@ -33,12 +37,14 @@ Users can install the app by:
 8. **`src/app/api/pwa/`** - PWA-related API endpoints
 
 #### Service Worker Features:
+
 - **Caching Strategy**: NetworkFirst for all requests
 - **Background Sync**: Support for offline data synchronization
 - **Push Notifications**: Framework for notifications
 - **Update Detection**: Automatic detection of app updates
 
 #### Components:
+
 - **PWAInstallPrompt**: Shows install prompt to users
 - **PWAStatus**: Shows offline/online status and update notifications
 - **usePWA Hook**: Provides PWA functionality to components
@@ -47,7 +53,7 @@ Users can install the app by:
 
 1. **Icons**: Replace placeholder icon files in `public/icons/` with proper PNG icons:
    - icon-72x72.png
-   - icon-96x96.png  
+   - icon-96x96.png
    - icon-128x128.png
    - icon-144x144.png
    - icon-152x152.png
@@ -73,22 +79,22 @@ Users can install the app by:
 
 ### 📊 PWA Features Status
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Manifest | ✅ Complete | Ready for production |
-| Service Worker | ✅ Complete | Basic caching implemented |
-| Installability | ✅ Complete | Install prompt included |
-| Offline Support | ✅ Basic | Caches requests, can be enhanced |
-| Push Notifications | 🔄 Framework | Requires backend setup |
-| Background Sync | 🔄 Framework | API endpoints ready |
-| App Icons | ⚠️ Placeholder | Replace with proper icons |
+| Feature            | Status         | Notes                            |
+| ------------------ | -------------- | -------------------------------- |
+| Manifest           | ✅ Complete    | Ready for production             |
+| Service Worker     | ✅ Complete    | Basic caching implemented        |
+| Installability     | ✅ Complete    | Install prompt included          |
+| Offline Support    | ✅ Basic       | Caches requests, can be enhanced |
+| Push Notifications | 🔄 Framework   | Requires backend setup           |
+| Background Sync    | 🔄 Framework   | API endpoints ready              |
+| App Icons          | ⚠️ Placeholder | Replace with proper icons        |
 
 ### 🧪 Testing
 
 To test PWA functionality:
 
 1. **Development**: PWA is disabled in development mode
-2. **Production**: 
+2. **Production**:
    ```bash
    pnpm build
    pnpm start
@@ -103,33 +109,32 @@ To test PWA functionality:
 ### 🔧 Customization
 
 #### Adding Custom Caching:
+
 ```javascript
 // In public/sw.js
-const urlsToCache = [
-  '/',
-  '/your-important-route',
-  '/static/css/main.css'
-];
+const urlsToCache = ['/', '/your-important-route', '/static/css/main.css'];
 ```
 
 #### Using PWA Hook:
+
 ```tsx
 import { usePWA } from '@/hooks/usePWA';
 
 function MyComponent() {
   const { isOnline, isInstalled, sendNotification } = usePWA();
-  
+
   // Use PWA features
 }
 ```
 
 #### Sending Notifications:
+
 ```tsx
 const { sendNotification } = usePWA();
 
 sendNotification('New Session Started', {
   body: 'A new badminton session is ready to join!',
-  tag: 'session-notification'
+  tag: 'session-notification',
 });
 ```
 

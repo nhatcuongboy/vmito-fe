@@ -1,5 +1,5 @@
-import toast from "react-hot-toast";
-import { api, ApiResponse } from "./base";
+import toast from 'react-hot-toast';
+import { api, ApiResponse } from './base';
 import {
   ISession,
   Court,
@@ -7,7 +7,7 @@ import {
   Match,
   PlayerStatistics,
   CreateSessionRequest,
-} from "./types";
+} from './types';
 
 export const SessionService = {
   // Get player statistics for a session
@@ -15,7 +15,7 @@ export const SessionService = {
     sessionId: string,
     options?: {
       sortBy?: string;
-      sortOrder?: "asc" | "desc";
+      sortOrder?: 'asc' | 'desc';
       gender?: string;
       level?: string;
       status?: string;
@@ -33,14 +33,14 @@ export const SessionService = {
     lastUpdated: string;
   }> => {
     const params = new URLSearchParams();
-    if (options?.sortBy) params.append("sortBy", options.sortBy);
-    if (options?.sortOrder) params.append("sortOrder", options.sortOrder);
-    if (options?.gender) params.append("gender", options.gender);
-    if (options?.level) params.append("level", options.level);
-    if (options?.status) params.append("status", options.status);
+    if (options?.sortBy) params.append('sortBy', options.sortBy);
+    if (options?.sortOrder) params.append('sortOrder', options.sortOrder);
+    if (options?.gender) params.append('gender', options.gender);
+    if (options?.level) params.append('level', options.level);
+    if (options?.status) params.append('status', options.status);
 
     const url = `/sessions/${sessionId}/players/statistics${
-      params.toString() ? `?${params.toString()}` : ""
+      params.toString() ? `?${params.toString()}` : ''
     }`;
     const response = await api.get<
       ApiResponse<{
@@ -61,7 +61,7 @@ export const SessionService = {
 
   // Get all sessions
   getAllSessions: async (): Promise<ISession[]> => {
-    const response = await api.get<ApiResponse<ISession[]>>("/sessions");
+    const response = await api.get<ApiResponse<ISession[]>>('/sessions');
     return response.data.data || [];
   },
 
@@ -73,7 +73,7 @@ export const SessionService = {
 
   // Create session
   createSession: async (data: CreateSessionRequest): Promise<ISession> => {
-    const response = await api.post<ApiResponse<ISession>>("/sessions", data);
+    const response = await api.post<ApiResponse<ISession>>('/sessions', data);
     return response.data.data!;
   },
 
@@ -131,7 +131,7 @@ export const SessionService = {
         migrationResults: any;
       }>
     >(`/sessions/${id}/migrate-end`);
-    toast.success("ISession migration completed successfully");
+    toast.success('ISession migration completed successfully');
     return response.data.data!;
   },
 
@@ -215,8 +215,8 @@ export const SessionService = {
     };
   }> => {
     const params = new URLSearchParams();
-    if (filters?.playerId) params.append("playerId", filters.playerId);
-    if (filters?.courtId) params.append("courtId", filters.courtId);
+    if (filters?.playerId) params.append('playerId', filters.playerId);
+    if (filters?.courtId) params.append('courtId', filters.courtId);
 
     const url = params.toString()
       ? `/sessions/${id}/matches?${params.toString()}`

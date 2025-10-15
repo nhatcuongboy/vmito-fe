@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
 
 // GET /api/players/me/sessions - Get all sessions that the current user has participated in
 export async function GET(_: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(_: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return errorResponse("Unauthorized", 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     // Find all sessions that the current user has participated in
@@ -41,13 +41,13 @@ export async function GET(_: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     });
 
     return successResponse(sessions);
   } catch (error) {
-    console.error("Error fetching player sessions:", error);
-    return errorResponse("Failed to fetch sessions", 500);
+    console.error('Error fetching player sessions:', error);
+    return errorResponse('Failed to fetch sessions', 500);
   }
 }

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
-import { Spinner, Center, Box, Text } from "@chakra-ui/react";
-import { SessionService } from "@/lib/api/session.service";
-import SessionDetailContent from "@/components/session/SessionDetailContent";
-import ProtectedRouteGuard from "@/components/guards/ProtectedRouteGuard";
+import { useState, useEffect, use } from 'react';
+import { useRouter } from 'next/navigation';
+import { Spinner, Center, Box, Text } from '@chakra-ui/react';
+import { SessionService } from '@/lib/api/session.service';
+import SessionDetailContent from '@/components/session/SessionDetailContent';
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 
 function SessionDetailPageContent({
   params,
@@ -23,7 +23,7 @@ function SessionDetailPageContent({
   useEffect(() => {
     async function fetchSessionData() {
       if (!sessionId) {
-        setError("Session ID not provided");
+        setError('Session ID not provided');
         setLoading(false);
         return;
       }
@@ -60,14 +60,14 @@ function SessionDetailPageContent({
           })),
           players: sessionData.players || [],
           waitingQueue:
-            sessionData.players?.filter((p: any) => p.status === "WAITING") ||
+            sessionData.players?.filter((p: any) => p.status === 'WAITING') ||
             [],
         };
 
         setSession(formattedSession);
       } catch (err) {
-        console.error("Error fetching session:", err);
-        setError("An error occurred while loading session data");
+        console.error('Error fetching session:', err);
+        setError('An error occurred while loading session data');
       } finally {
         setLoading(false);
       }
@@ -139,7 +139,7 @@ export default function SessionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <ProtectedRouteGuard requiredRole={["HOST"]}>
+    <ProtectedRouteGuard requiredRole={['HOST']}>
       <SessionDetailPageContent params={params} />
     </ProtectedRouteGuard>
   );

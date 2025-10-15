@@ -1,22 +1,24 @@
-"use client";
+'use client';
 
-import { useTransition } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
-import { Button, Box, Text, Flex } from "@chakra-ui/react";
-import { ChevronDown, Languages } from "lucide-react";
-import { useState } from "react";
+import { useTransition } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { Button, Box, Text, Flex } from '@chakra-ui/react';
+import { ChevronDown, Languages } from 'lucide-react';
+import { useState } from 'react';
 
 const locales = [
-  { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
 ];
 
 type LanguageSwitcherProps = {
   keepDrawerOpen?: boolean;
 };
 
-export default function LanguageSwitcher({ keepDrawerOpen = false }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({
+  keepDrawerOpen = false,
+}: LanguageSwitcherProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -30,15 +32,17 @@ export default function LanguageSwitcher({ keepDrawerOpen = false }: LanguageSwi
     startTransition(() => {
       // Replace the current locale in the pathname
       const newPathname = pathname.replace(`/${locale}`, `/${newLocale}`);
-      
+
       // Preserve search params
       const queryString = searchParams.toString();
-      const fullUrl = queryString ? `${newPathname}?${queryString}` : newPathname;
-      
+      const fullUrl = queryString
+        ? `${newPathname}?${queryString}`
+        : newPathname;
+
       router.replace(fullUrl);
     });
     setIsOpen(false);
-    
+
     // Nếu keepDrawerOpen là true, sau khi navigation xong, mở lại drawer
     if (keepDrawerOpen) {
       setTimeout(() => {
@@ -85,8 +89,8 @@ export default function LanguageSwitcher({ keepDrawerOpen = false }: LanguageSwi
               px={4}
               py={2}
               cursor="pointer"
-              bg={locale === loc.code ? "blue.50" : "transparent"}
-              _hover={{ bg: "blue.50" }}
+              bg={locale === loc.code ? 'blue.50' : 'transparent'}
+              _hover={{ bg: 'blue.50' }}
               onClick={() => handleLocaleChange(loc.code)}
             >
               <Flex align="center" gap={2}>

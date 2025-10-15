@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface CourtParams {
   id: string;
@@ -47,13 +47,13 @@ export async function GET(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
-    return successResponse(court, "Court retrieved successfully");
+    return successResponse(court, 'Court retrieved successfully');
   } catch (error) {
-    console.error("Error fetching court:", error);
-    return errorResponse("Failed to fetch court");
+    console.error('Error fetching court:', error);
+    return errorResponse('Failed to fetch court');
   }
 }
 
@@ -79,22 +79,24 @@ export async function PATCH(
     });
 
     if (!existingCourt) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Prevent updating if session is in progress or finished
-    if (existingCourt.session.status !== "PREPARING") {
+    if (existingCourt.session.status !== 'PREPARING') {
       return errorResponse(
-        "Cannot update court configuration when session has started or finished",
+        'Cannot update court configuration when session has started or finished',
         400
       );
     }
 
     // Validate direction if provided
     const { courtName, direction } = body;
-    
-    if (direction && !["HORIZONTAL", "VERTICAL"].includes(direction)) {
-      return errorResponse("Invalid direction. Must be 'HORIZONTAL' or 'VERTICAL'");
+
+    if (direction && !['HORIZONTAL', 'VERTICAL'].includes(direction)) {
+      return errorResponse(
+        "Invalid direction. Must be 'HORIZONTAL' or 'VERTICAL'"
+      );
     }
 
     // Update court
@@ -127,9 +129,9 @@ export async function PATCH(
       },
     });
 
-    return successResponse(updatedCourt, "Court updated successfully");
+    return successResponse(updatedCourt, 'Court updated successfully');
   } catch (error) {
-    console.error("Error updating court:", error);
-    return errorResponse("Failed to update court");
+    console.error('Error updating court:', error);
+    return errorResponse('Failed to update court');
   }
 }

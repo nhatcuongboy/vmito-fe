@@ -1,5 +1,5 @@
-import { api, ApiResponse } from "./base";
-import { Player } from "./types";
+import { api, ApiResponse } from './base';
+import { Player } from './types';
 
 export const WaitTimeService = {
   // Update wait times for session
@@ -54,7 +54,7 @@ export const WaitTimeService = {
   resetWaitTimes: async (
     sessionId: string,
     playerIds: string[],
-    resetType: "current" | "total" | "both" = "current"
+    resetType: 'current' | 'total' | 'both' = 'current'
   ): Promise<{
     updatedCount: number;
     players: Player[];

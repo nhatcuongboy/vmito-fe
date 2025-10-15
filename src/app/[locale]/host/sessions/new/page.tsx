@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import TopBar from "@/components/ui/TopBar";
-import { SessionService } from "@/lib/api/session.service";
-import { CourtDirection } from "@/lib/api/types";
-import ProtectedRouteGuard from "@/components/guards/ProtectedRouteGuard";
+import TopBar from '@/components/ui/TopBar';
+import { SessionService } from '@/lib/api/session.service';
+import { CourtDirection } from '@/lib/api/types';
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import {
   Box,
   // Button,
@@ -13,20 +13,20 @@ import {
   Input,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import { Button } from "@/components/ui/chakra-compat";
-import { Plus, Minus, Save } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams, useParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
+} from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
+import { Plus, Minus, Save } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 function formatDateTimeLocal(date: Date): string {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
@@ -35,13 +35,13 @@ function NewSessionPageContent() {
   const searchParams = useSearchParams();
   const params = useParams();
   const locale = params.locale as string;
-  const t = useTranslations("session");
+  const t = useTranslations('session');
 
   const [isLoading, setIsLoading] = useState(false);
   const [courts, setCourts] = useState([
     {
       courtNumber: 1,
-      courtName: "",
+      courtName: '',
       direction: CourtDirection.HORIZONTAL,
     },
   ]);
@@ -73,11 +73,11 @@ function NewSessionPageContent() {
   }, [startTime, endTime]);
 
   useEffect(() => {
-    const error = searchParams.get("error");
-    const details = searchParams.get("details");
+    const error = searchParams.get('error');
+    const details = searchParams.get('details');
     if (error) {
       toast.error(
-        decodeURIComponent(details || t("validation.sessionCreateFailed"))
+        decodeURIComponent(details || t('validation.sessionCreateFailed'))
       );
     }
   }, [searchParams, t]);
@@ -87,12 +87,12 @@ function NewSessionPageContent() {
     const uniqueNumbers = new Set(courtNumbers);
 
     if (uniqueNumbers.size !== courtNumbers.length) {
-      return t("validation.courtNumberUnique");
+      return t('validation.courtNumberUnique');
     }
 
     for (const court of courts) {
       if (!court.courtNumber || court.courtNumber < 1) {
-        return t("validation.allCourtsMustHaveValidNumber");
+        return t('validation.allCourtsMustHaveValidNumber');
       }
     }
     return null;
@@ -103,7 +103,7 @@ function NewSessionPageContent() {
 
     try {
       if (!isEndTimeValid) {
-        toast.error(t("endTimeMustBeAfterStartTime"));
+        toast.error(t('endTimeMustBeAfterStartTime'));
         return;
       }
 
@@ -113,9 +113,9 @@ function NewSessionPageContent() {
         return;
       }
 
-      const name = formData.get("name") as string;
+      const name = formData.get('name') as string;
       const maxPlayersPerCourt = parseInt(
-        formData.get("maxPlayersPerCourt") as string
+        formData.get('maxPlayersPerCourt') as string
       );
 
       const session = await SessionService.createSession({
@@ -133,11 +133,11 @@ function NewSessionPageContent() {
         })),
       });
 
-      toast.success(t("validation.sessionCreatedSuccessfully"));
+      toast.success(t('validation.sessionCreatedSuccessfully'));
       router.push(`/${locale}/host/sessions/${session.id}`);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : t("validation.unknownError");
+        error instanceof Error ? error.message : t('validation.unknownError');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -150,7 +150,7 @@ function NewSessionPageContent() {
       ...courts,
       {
         courtNumber: newCourtNumber,
-        courtName: "",
+        courtName: '',
         direction: CourtDirection.HORIZONTAL,
       },
     ]);
@@ -171,7 +171,7 @@ function NewSessionPageContent() {
 
   const handleCourtChange = (
     index: number,
-    field: "courtNumber" | "courtName" | "direction",
+    field: 'courtNumber' | 'courtName' | 'direction',
     value: string | number | CourtDirection
   ) => {
     const newCourts = [...courts];
@@ -182,7 +182,7 @@ function NewSessionPageContent() {
   return (
     <Box minH="100vh" bg="gray.50">
       <TopBar
-        title={t("createNewSession")}
+        title={t('createNewSession')}
         showBackButton
         backHref="/host/sessions"
       />
@@ -192,11 +192,11 @@ function NewSessionPageContent() {
           <Stack gap={6}>
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Heading size="md" mb={4}>
-                {t("sessionName")}
+                {t('sessionName')}
               </Heading>
               <Input
                 name="name"
-                placeholder={t("sessionNamePlaceholder")}
+                placeholder={t('sessionNamePlaceholder')}
                 required
                 size="lg"
               />
@@ -204,11 +204,11 @@ function NewSessionPageContent() {
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Heading size="md" mb={4}>
-                {t("startTime")} & {t("endTime")}
+                {t('startTime')} & {t('endTime')}
               </Heading>
               <Flex gap={4}>
                 <Box flex={1}>
-                  <Text mb={2}>{t("startTime")}</Text>
+                  <Text mb={2}>{t('startTime')}</Text>
                   <Input
                     type="datetime-local"
                     value={startTime}
@@ -217,25 +217,25 @@ function NewSessionPageContent() {
                   />
                 </Box>
                 <Box flex={1}>
-                  <Text mb={2}>{t("endTime")}</Text>
+                  <Text mb={2}>{t('endTime')}</Text>
                   <Input
                     type="datetime-local"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                     size="lg"
-                    borderColor={!isEndTimeValid ? "red.500" : undefined}
+                    borderColor={!isEndTimeValid ? 'red.500' : undefined}
                   />
                 </Box>
               </Flex>
               <Text fontSize="sm" color="gray.500" mt={2}>
-                {t("sessionDuration")}: {Math.floor(sessionDuration / 60)}h{" "}
+                {t('sessionDuration')}: {Math.floor(sessionDuration / 60)}h{' '}
                 {sessionDuration % 60}m
               </Text>
             </Box>
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Heading size="md" mb={4}>
-                {t("maxPlayersPerCourt")}
+                {t('maxPlayersPerCourt')}
               </Heading>
               <Input
                 name="maxPlayersPerCourt"
@@ -249,10 +249,10 @@ function NewSessionPageContent() {
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Flex align="center" justify="space-between" mb={4}>
-                <Heading size="md">{t("courtsConfiguration")}</Heading>
+                <Heading size="md">{t('courtsConfiguration')}</Heading>
                 <Button onClick={handleAddCourt} size="sm">
-                  <Plus size={16} style={{ marginRight: "8px" }} />
-                  {t("addCourt")}
+                  <Plus size={16} style={{ marginRight: '8px' }} />
+                  {t('addCourt')}
                 </Button>
               </Flex>
 
@@ -279,7 +279,7 @@ function NewSessionPageContent() {
                           onChange={(e) =>
                             handleCourtChange(
                               index,
-                              "courtNumber",
+                              'courtNumber',
                               parseInt(e.target.value) || 1
                             )
                           }
@@ -296,7 +296,7 @@ function NewSessionPageContent() {
                           onChange={(e) =>
                             handleCourtChange(
                               index,
-                              "courtName",
+                              'courtName',
                               e.target.value
                             )
                           }
@@ -314,18 +314,18 @@ function NewSessionPageContent() {
                           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                             handleCourtChange(
                               index,
-                              "direction",
+                              'direction',
                               e.target.value as CourtDirection
                             )
                           }
                           style={{
-                            width: "100%",
-                            padding: "8px 12px",
-                            border: "1px solid #E2E8F0",
-                            borderRadius: "6px",
-                            fontSize: "16px",
-                            backgroundColor: "white",
-                            height: "40px",
+                            width: '100%',
+                            padding: '8px 12px',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '6px',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            height: '40px',
                           }}
                         >
                           <option value={CourtDirection.HORIZONTAL}>
@@ -366,8 +366,8 @@ function NewSessionPageContent() {
               disabled={isLoading}
               loading={isLoading}
             >
-              <Save size={16} style={{ marginRight: "8px" }} />
-              {t("createSession")}
+              <Save size={16} style={{ marginRight: '8px' }} />
+              {t('createSession')}
             </Button>
 
             <Box
@@ -410,7 +410,7 @@ function NewSessionPageContent() {
 
 export default function NewSessionPage() {
   return (
-    <ProtectedRouteGuard requiredRole={["HOST"]}>
+    <ProtectedRouteGuard requiredRole={['HOST']}>
       <Suspense fallback={<div>Loading...</div>}>
         <NewSessionPageContent />
       </Suspense>

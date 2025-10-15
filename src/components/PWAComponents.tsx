@@ -12,15 +12,18 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     // Check if app is already installed
-    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+    const isInStandaloneMode = window.matchMedia(
+      '(display-mode: standalone)'
+    ).matches;
     const isIOSStandalone = (window.navigator as any).standalone === true;
-    
+
     if (isInStandaloneMode || isIOSStandalone) {
       setIsInstalled(true);
     }
@@ -43,7 +46,10 @@ export function PWAInstallPrompt() {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      );
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
@@ -53,7 +59,7 @@ export function PWAInstallPrompt() {
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
       setIsInstallable(false);
@@ -69,7 +75,9 @@ export function PWAInstallPrompt() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-semibold">Install Badminton App</h3>
-          <p className="text-sm opacity-90">Add to your home screen for quick access</p>
+          <p className="text-sm opacity-90">
+            Add to your home screen for quick access
+          </p>
         </div>
         <div className="flex gap-2 ml-4">
           <button
@@ -132,7 +140,9 @@ export function PWAStatus() {
       {/* Offline indicator */}
       {!isOnline && (
         <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-white text-center py-2 z-50">
-          <p className="text-sm">You're offline. Some features may be limited.</p>
+          <p className="text-sm">
+            You're offline. Some features may be limited.
+          </p>
         </div>
       )}
 

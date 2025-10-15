@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface CourtParams {
   id: string;
@@ -82,7 +82,7 @@ export async function GET(
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const topCount = searchParams.get("topCount");
+    const topCount = searchParams.get('topCount');
 
     // Validate court exists
     const court = await prisma.court.findUnique({
@@ -93,20 +93,20 @@ export async function GET(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Validate session is in progress
-    if (court.session.status !== "IN_PROGRESS") {
+    if (court.session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot get suggested players for a session that is not in progress",
+        'Cannot get suggested players for a session that is not in progress',
         400
       );
     }
 
     // Validate court is empty
-    if (court.status === "IN_USE") {
-      return errorResponse("Court is already in use", 400);
+    if (court.status === 'IN_USE') {
+      return errorResponse('Court is already in use', 400);
     }
 
     // Determine how many players to consider
@@ -114,7 +114,7 @@ export async function GET(
     if (topCount) {
       const numberOfPlayers = parseInt(topCount);
       if (isNaN(numberOfPlayers) || numberOfPlayers < 4) {
-        return errorResponse("topCount must be at least 4", 400);
+        return errorResponse('topCount must be at least 4', 400);
       }
       playersToConsider = numberOfPlayers;
     }
@@ -123,24 +123,24 @@ export async function GET(
     const waitingPlayers = await prisma.player.findMany({
       where: {
         sessionId: court.sessionId,
-        status: "WAITING",
+        status: 'WAITING',
       },
       orderBy: {
-        currentWaitTime: "desc",
+        currentWaitTime: 'desc',
       },
       take: playersToConsider || undefined, // Take specified number or all
     });
 
     // Check if we have enough players
     if (waitingPlayers.length < 4) {
-      return errorResponse("Not enough waiting players to start a match", 400);
+      return errorResponse('Not enough waiting players to start a match', 400);
     }
 
     // Find balanced pairs
     const balancedPairs = findBalancedPairs(waitingPlayers);
 
     if (!balancedPairs) {
-      return errorResponse("Could not find balanced pairs", 400);
+      return errorResponse('Could not find balanced pairs', 400);
     }
 
     // Calculate pair scores for response
@@ -167,10 +167,10 @@ export async function GET(
         scoreDifference: Math.abs(pair1TotalScore - pair2TotalScore),
         totalPlayersConsidered: waitingPlayers.length,
       },
-      "Balanced pairs retrieved successfully"
+      'Balanced pairs retrieved successfully'
     );
   } catch (error) {
-    console.error("Error getting suggested players:", error);
-    return errorResponse("Failed to get suggested players");
+    console.error('Error getting suggested players:', error);
+    return errorResponse('Failed to get suggested players');
   }
 }

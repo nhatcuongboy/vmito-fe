@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   VStack,
   Flex,
@@ -8,12 +8,12 @@ import {
   Text,
   Box,
   Collapsible,
-} from "@chakra-ui/react";
-import { PlayerGrid } from "@/components/player/PlayerGrid";
-import { Level } from "@/lib/api/types";
-import SessionPlayerStatistics from "./SessionPlayerStatistics";
-import { ChevronDown } from "lucide-react";
-import { useTranslations } from "next-intl";
+} from '@chakra-ui/react';
+import { PlayerGrid } from '@/components/player/PlayerGrid';
+import { Level } from '@/lib/api/types';
+import SessionPlayerStatistics from './SessionPlayerStatistics';
+import { ChevronDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface Player {
   id: string;
@@ -31,14 +31,14 @@ interface Player {
 }
 
 // Ensure PlayerFilter type includes 'READY' and 'INACTIVE'
-export type PlayerFilter = "ALL" | "PLAYING" | "WAITING" | "READY" | "INACTIVE";
+export type PlayerFilter = 'ALL' | 'PLAYING' | 'WAITING' | 'READY' | 'INACTIVE';
 
 interface PlayersTabProps {
   sessionPlayers: Player[];
   playerFilter: PlayerFilter;
   setPlayerFilter: (filter: PlayerFilter) => void;
   formatWaitTime: (waitTimeInMinutes: number) => string;
-  mode?: "view" | "manage"; // Optional mode prop to control UI
+  mode?: 'view' | 'manage'; // Optional mode prop to control UI
   sessionId: string; // Add sessionId prop
   onPlayerUpdate?: () => void;
 }
@@ -47,11 +47,11 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   playerFilter,
   setPlayerFilter,
   formatWaitTime,
-  mode = "manage", // Default to manage mode
+  mode = 'manage', // Default to manage mode
   sessionId, // Destructure sessionId from props
   onPlayerUpdate,
 }) => {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
 
   // Collapsible state for players section
   const [isPlayersSectionOpen, setIsPlayersSectionOpen] = React.useState(true);
@@ -68,13 +68,13 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         <Collapsible.Trigger paddingY="3" width="100%">
           <Flex justify="space-between" align="center">
             <HStack gap={2} alignItems="center">
-              <Heading size="md">{t("playersTab.players")}</Heading>
+              <Heading size="md">{t('playersTab.players')}</Heading>
               <Box
                 as={ChevronDown}
                 boxSize={5}
                 color="gray.500"
                 transform={
-                  isPlayersSectionOpen ? "rotate(180deg)" : "rotate(0deg)"
+                  isPlayersSectionOpen ? 'rotate(180deg)' : 'rotate(0deg)'
                 }
                 transition="transform 0.2s ease-in-out"
               />
@@ -86,62 +86,62 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             <HStack gap={2}>
               <Button
                 size="sm"
-                onClick={() => setPlayerFilter("ALL")}
-                colorScheme={playerFilter === "ALL" ? "orange" : "gray"}
-                variant={playerFilter === "ALL" ? "solid" : "outline"}
+                onClick={() => setPlayerFilter('ALL')}
+                colorScheme={playerFilter === 'ALL' ? 'orange' : 'gray'}
+                variant={playerFilter === 'ALL' ? 'solid' : 'outline'}
               >
-                {t("playersTab.all")} ({sessionPlayers.length})
+                {t('playersTab.all')} ({sessionPlayers.length})
               </Button>
               <Button
                 size="sm"
-                onClick={() => setPlayerFilter("PLAYING")}
-                colorScheme={playerFilter === "PLAYING" ? "blue" : "gray"}
-                variant={playerFilter === "PLAYING" ? "solid" : "outline"}
+                onClick={() => setPlayerFilter('PLAYING')}
+                colorScheme={playerFilter === 'PLAYING' ? 'blue' : 'gray'}
+                variant={playerFilter === 'PLAYING' ? 'solid' : 'outline'}
               >
-                {t("playersTab.playing")} (
-                {sessionPlayers.filter((p) => p.status === "PLAYING").length})
+                {t('playersTab.playing')} (
+                {sessionPlayers.filter((p) => p.status === 'PLAYING').length})
               </Button>
               <Button
                 size="sm"
-                onClick={() => setPlayerFilter("WAITING")}
-                colorScheme={playerFilter === "WAITING" ? "orange" : "gray"}
-                variant={playerFilter === "WAITING" ? "solid" : "outline"}
+                onClick={() => setPlayerFilter('WAITING')}
+                colorScheme={playerFilter === 'WAITING' ? 'orange' : 'gray'}
+                variant={playerFilter === 'WAITING' ? 'solid' : 'outline'}
               >
-                {t("playersTab.waiting")} (
-                {sessionPlayers.filter((p) => p.status === "WAITING").length})
+                {t('playersTab.waiting')} (
+                {sessionPlayers.filter((p) => p.status === 'WAITING').length})
               </Button>
               <Button
                 size="sm"
                 onClick={() => {
-                  setPlayerFilter("READY");
+                  setPlayerFilter('READY');
                 }}
-                colorScheme={playerFilter === "READY" ? "green" : "gray"}
-                variant={playerFilter === "READY" ? "solid" : "outline"}
+                colorScheme={playerFilter === 'READY' ? 'green' : 'gray'}
+                variant={playerFilter === 'READY' ? 'solid' : 'outline'}
               >
-                {t("playersTab.ready")} (
-                {sessionPlayers.filter((p) => p.status === "READY").length})
+                {t('playersTab.ready')} (
+                {sessionPlayers.filter((p) => p.status === 'READY').length})
               </Button>
               <Button
                 size="sm"
-                onClick={() => setPlayerFilter("INACTIVE")}
-                colorScheme={playerFilter === "INACTIVE" ? "red" : "gray"}
-                variant={playerFilter === "INACTIVE" ? "solid" : "outline"}
+                onClick={() => setPlayerFilter('INACTIVE')}
+                colorScheme={playerFilter === 'INACTIVE' ? 'red' : 'gray'}
+                variant={playerFilter === 'INACTIVE' ? 'solid' : 'outline'}
               >
-                {t("playersTab.inactive")} (
-                {sessionPlayers.filter((p) => p.status === "INACTIVE").length})
+                {t('playersTab.inactive')} (
+                {sessionPlayers.filter((p) => p.status === 'INACTIVE').length})
               </Button>
             </HStack>
           </Flex>
           {/* Filtered Players Grid */}
           {(() => {
             const filteredPlayers = sessionPlayers.filter((player) => {
-              if (playerFilter === "ALL") return true;
+              if (playerFilter === 'ALL') return true;
               return player.status === playerFilter;
             });
             if (filteredPlayers.length === 0) {
               return (
                 <Text fontSize="lg" color="gray.500" textAlign="center" py={8}>
-                  {t("playersTab.noPlayersFound", {
+                  {t('playersTab.noPlayersFound', {
                     status: t(`playersTab.${playerFilter.toLowerCase()}`),
                   })}
                 </Text>
@@ -168,13 +168,13 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
       >
         <Collapsible.Trigger paddingY="3" width="100%">
           <HStack gap={2} alignItems="center">
-            <Heading size="md">{t("playersTab.playerStatistics")}</Heading>
+            <Heading size="md">{t('playersTab.playerStatistics')}</Heading>
             <Box
               as={ChevronDown}
               boxSize={5}
               color="gray.500"
               transform={
-                isStatisticsSectionOpen ? "rotate(180deg)" : "rotate(0deg)"
+                isStatisticsSectionOpen ? 'rotate(180deg)' : 'rotate(0deg)'
               }
               transition="transform 0.2s ease-in-out"
             />

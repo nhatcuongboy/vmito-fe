@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionStatusParams {
   id: string;
@@ -45,7 +45,7 @@ export async function GET(
                           },
                         },
                       },
-                      orderBy: { position: "asc" },
+                      orderBy: { position: 'asc' },
                     },
                   },
                 },
@@ -53,9 +53,9 @@ export async function GET(
             },
           },
           orderBy: [
-            { status: "desc" }, // PLAYING first, then WAITING
-            { currentWaitTime: "desc" }, // Longest waiting first
-            { playerNumber: "asc" }, // Then by player number
+            { status: 'desc' }, // PLAYING first, then WAITING
+            { currentWaitTime: 'desc' }, // Longest waiting first
+            { playerNumber: 'asc' }, // Then by player number
           ],
         },
         courts: {
@@ -74,18 +74,18 @@ export async function GET(
                       },
                     },
                   },
-                  orderBy: { position: "asc" },
+                  orderBy: { position: 'asc' },
                 },
               },
             },
           },
-          orderBy: { courtNumber: "asc" },
+          orderBy: { courtNumber: 'asc' },
         },
       },
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Calculate real-time statistics
@@ -93,19 +93,19 @@ export async function GET(
       totalPlayers: session.players.length,
       confirmedPlayers: session.players.filter((p) => p.confirmedByPlayer)
         .length,
-      waitingPlayers: session.players.filter((p) => p.status === "WAITING")
+      waitingPlayers: session.players.filter((p) => p.status === 'WAITING')
         .length,
-      playingPlayers: session.players.filter((p) => p.status === "PLAYING")
+      playingPlayers: session.players.filter((p) => p.status === 'PLAYING')
         .length,
-      availableCourts: session.courts.filter((c) => c.status === "EMPTY")
+      availableCourts: session.courts.filter((c) => c.status === 'EMPTY')
         .length,
-      activeCourts: session.courts.filter((c) => c.status === "IN_USE").length,
+      activeCourts: session.courts.filter((c) => c.status === 'IN_USE').length,
       activeMatches: session.courts.filter((c) => c.currentMatch).length,
     };
 
     // Get waiting queue with priority
     const waitingQueue = session.players
-      .filter((p) => p.status === "WAITING" && p.confirmedByPlayer)
+      .filter((p) => p.status === 'WAITING' && p.confirmedByPlayer)
       .map((player, index) => ({
         ...player,
         queuePosition: index + 1,
@@ -134,7 +134,7 @@ export async function GET(
 
     // Calculate wait time statistics
     const waitTimes = session.players
-      .filter((p) => p.status === "WAITING")
+      .filter((p) => p.status === 'WAITING')
       .map((p) => p.currentWaitTime);
 
     const waitStats = {
@@ -183,8 +183,8 @@ export async function GET(
       lastUpdated: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error getting session status:", error);
-    return errorResponse("Failed to get session status", 500);
+    console.error('Error getting session status:', error);
+    return errorResponse('Failed to get session status', 500);
   }
 }
 
@@ -199,13 +199,13 @@ export async function PATCH(
     const { status } = body;
 
     if (!status) {
-      return errorResponse("Status is required");
+      return errorResponse('Status is required');
     }
 
     // Validate status
-    if (!["PREPARING", "IN_PROGRESS", "FINISHED"].includes(status)) {
+    if (!['PREPARING', 'IN_PROGRESS', 'FINISHED'].includes(status)) {
       return errorResponse(
-        "Invalid status. Must be one of: PREPARING, IN_PROGRESS, FINISHED"
+        'Invalid status. Must be one of: PREPARING, IN_PROGRESS, FINISHED'
       );
     }
 
@@ -216,11 +216,11 @@ export async function PATCH(
     });
 
     if (!currentSession) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Update session data based on status transition
-    let updateData: any = { status };
+    const updateData: any = { status };
 
     // // If transitioning from PREPARING to IN_PROGRESS, set startTime
     // if (currentSession.status === "PREPARING" && status === "IN_PROGRESS") {
@@ -249,10 +249,10 @@ export async function PATCH(
 
     return successResponse(
       updatedSession,
-      "Session status updated successfully"
+      'Session status updated successfully'
     );
   } catch (error) {
-    console.error("Error updating session status:", error);
-    return errorResponse("Failed to update session status");
+    console.error('Error updating session status:', error);
+    return errorResponse('Failed to update session status');
   }
 }

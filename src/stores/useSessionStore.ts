@@ -9,18 +9,18 @@ interface SessionState {
   selectedCourt: string | null;
   matchMode: 'auto' | 'manual';
   showMatchCreation: boolean;
-  
+
   // Players management
   waitingPlayers: Player[];
   playingPlayers: Player[];
-  
+
   // Court management
   activeCourts: any[];
-  
+
   // UI state for session
   activeTab: number;
   isRefreshing: boolean;
-  
+
   // Actions
   setCurrentSession: (sessionId: string | null) => void;
   setSelectedPlayers: (playerIds: string[]) => void;
@@ -35,7 +35,7 @@ interface SessionState {
   setActiveCourts: (courts: any[]) => void;
   setActiveTab: (tab: number) => void;
   setRefreshing: (refreshing: boolean) => void;
-  
+
   // Combined actions
   togglePlayerSelection: (playerId: string) => void;
   cancelMatchCreation: () => void;
@@ -57,35 +57,59 @@ export const useSessionStore = create<SessionState>()(
         activeCourts: [],
         activeTab: 0,
         isRefreshing: false,
-        
+
         // Basic setters
-        setCurrentSession: (sessionId) => set({ currentSessionId: sessionId }, false, 'setCurrentSession'),
-        setSelectedPlayers: (playerIds) => set({ selectedPlayers: playerIds }, false, 'setSelectedPlayers'),
-        setSelectedCourt: (courtId) => set({ selectedCourt: courtId }, false, 'setSelectedCourt'),
+        setCurrentSession: (sessionId) =>
+          set({ currentSessionId: sessionId }, false, 'setCurrentSession'),
+        setSelectedPlayers: (playerIds) =>
+          set({ selectedPlayers: playerIds }, false, 'setSelectedPlayers'),
+        setSelectedCourt: (courtId) =>
+          set({ selectedCourt: courtId }, false, 'setSelectedCourt'),
         setMatchMode: (mode) => set({ matchMode: mode }, false, 'setMatchMode'),
-        setShowMatchCreation: (show) => set({ showMatchCreation: show }, false, 'setShowMatchCreation'),
-        setWaitingPlayers: (players) => set({ waitingPlayers: players }, false, 'setWaitingPlayers'),
-        setPlayingPlayers: (players) => set({ playingPlayers: players }, false, 'setPlayingPlayers'),
-        setActiveCourts: (courts) => set({ activeCourts: courts }, false, 'setActiveCourts'),
+        setShowMatchCreation: (show) =>
+          set({ showMatchCreation: show }, false, 'setShowMatchCreation'),
+        setWaitingPlayers: (players) =>
+          set({ waitingPlayers: players }, false, 'setWaitingPlayers'),
+        setPlayingPlayers: (players) =>
+          set({ playingPlayers: players }, false, 'setPlayingPlayers'),
+        setActiveCourts: (courts) =>
+          set({ activeCourts: courts }, false, 'setActiveCourts'),
         setActiveTab: (tab) => set({ activeTab: tab }, false, 'setActiveTab'),
-        setRefreshing: (refreshing) => set({ isRefreshing: refreshing }, false, 'setRefreshing'),
-        
+        setRefreshing: (refreshing) =>
+          set({ isRefreshing: refreshing }, false, 'setRefreshing'),
+
         // Player selection actions
-        addSelectedPlayer: (playerId) => 
-          set((state) => {
-            if (!state.selectedPlayers.includes(playerId) && state.selectedPlayers.length < 4) {
-              return { selectedPlayers: [...state.selectedPlayers, playerId] };
-            }
-            return state;
-          }, false, 'addSelectedPlayer'),
-        
+        addSelectedPlayer: (playerId) =>
+          set(
+            (state) => {
+              if (
+                !state.selectedPlayers.includes(playerId) &&
+                state.selectedPlayers.length < 4
+              ) {
+                return {
+                  selectedPlayers: [...state.selectedPlayers, playerId],
+                };
+              }
+              return state;
+            },
+            false,
+            'addSelectedPlayer'
+          ),
+
         removeSelectedPlayer: (playerId) =>
-          set((state) => ({
-            selectedPlayers: state.selectedPlayers.filter(id => id !== playerId)
-          }), false, 'removeSelectedPlayer'),
-        
-        clearSelectedPlayers: () => set({ selectedPlayers: [] }, false, 'clearSelectedPlayers'),
-        
+          set(
+            (state) => ({
+              selectedPlayers: state.selectedPlayers.filter(
+                (id) => id !== playerId
+              ),
+            }),
+            false,
+            'removeSelectedPlayer'
+          ),
+
+        clearSelectedPlayers: () =>
+          set({ selectedPlayers: [] }, false, 'clearSelectedPlayers'),
+
         // Combined actions
         togglePlayerSelection: (playerId) => {
           const state = get();
@@ -95,20 +119,30 @@ export const useSessionStore = create<SessionState>()(
             state.addSelectedPlayer(playerId);
           }
         },
-        
-        cancelMatchCreation: () => set({
-          selectedCourt: null,
-          matchMode: 'auto',
-          showMatchCreation: false,
-          selectedPlayers: []
-        }, false, 'cancelMatchCreation'),
-        
-        startManualMatchCreation: (courtId) => set({
-          selectedCourt: courtId,
-          matchMode: 'manual',
-          showMatchCreation: true,
-          selectedPlayers: []
-        }, false, 'startManualMatchCreation'),
+
+        cancelMatchCreation: () =>
+          set(
+            {
+              selectedCourt: null,
+              matchMode: 'auto',
+              showMatchCreation: false,
+              selectedPlayers: [],
+            },
+            false,
+            'cancelMatchCreation'
+          ),
+
+        startManualMatchCreation: (courtId) =>
+          set(
+            {
+              selectedCourt: courtId,
+              matchMode: 'manual',
+              showMatchCreation: true,
+              selectedPlayers: [],
+            },
+            false,
+            'startManualMatchCreation'
+          ),
       }),
       {
         name: 'session-store',

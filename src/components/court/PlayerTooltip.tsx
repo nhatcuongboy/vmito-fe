@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Player } from "@/types/session";
-import { getLevelLabel } from "@/utils/level-mapping";
-import { Box, Text, Portal } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { Player } from '@/types/session';
+import { getLevelLabel } from '@/utils/level-mapping';
+import { Box, Text, Portal } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
 
 interface BadmintonCourtPlayer extends Player {
   pairNumber?: number;
@@ -13,7 +13,7 @@ interface BadmintonCourtPlayer extends Player {
 }
 
 function formatWaitTime(waitTimeInMinutes?: number): string {
-  if (!waitTimeInMinutes) return "0m";
+  if (!waitTimeInMinutes) return '0m';
   const hours = Math.floor(waitTimeInMinutes / 60);
   const minutes = waitTimeInMinutes % 60;
   if (hours > 0) {
@@ -32,8 +32,8 @@ function getPairColor(player?: BadmintonCourtPlayer, playerIndex?: number) {
   }
   const pairIndex = pairNumber - 1;
   const pairColors = [
-    { bg: "blue.50", border: "blue.500", name: "Blue" },
-    { bg: "orange.50", border: "orange.500", name: "Orange" },
+    { bg: 'blue.50', border: 'blue.500', name: 'Blue' },
+    { bg: 'orange.50', border: 'orange.500', name: 'Orange' },
   ];
   return pairColors[pairIndex] || pairColors[0];
 }
@@ -43,7 +43,7 @@ interface PlayerTooltipProps {
   index: number;
   isVisible: boolean;
   position: { left: string; top: string };
-  mode?: "manage" | "view" | "selection";
+  mode?: 'manage' | 'view' | 'selection';
   playerRef?: React.RefObject<HTMLDivElement>;
 }
 
@@ -52,7 +52,7 @@ export default function PlayerTooltip({
   index,
   isVisible,
   position,
-  mode = "manage",
+  mode = 'manage',
   playerRef,
 }: PlayerTooltipProps) {
   const [tooltipPosition, setTooltipPosition] = useState(position);
@@ -88,8 +88,8 @@ export default function PlayerTooltip({
       };
 
       updatePosition();
-      window.addEventListener("resize", updatePosition);
-      return () => window.removeEventListener("resize", updatePosition);
+      window.addEventListener('resize', updatePosition);
+      return () => window.removeEventListener('resize', updatePosition);
     }
   }, [isVisible, playerRef]);
 
@@ -133,12 +133,12 @@ export default function PlayerTooltip({
               Gender:
             </Text>
             <Text fontSize="xs" color="white">
-              {player.gender || "Unknown"}
+              {player.gender || 'Unknown'}
             </Text>
           </Box>
 
           {/* Level, Level Description, Desire - Only show in manage mode */}
-          {mode === "manage" && (
+          {mode === 'manage' && (
             <>
               {/* Level */}
               <Box display="flex" justifyContent="space-between">
@@ -146,7 +146,7 @@ export default function PlayerTooltip({
                   Level:
                 </Text>
                 <Text fontSize="xs" color="white">
-                  {getLevelLabel(player.level, "Unknown")}
+                  {getLevelLabel(player.level, 'Unknown')}
                 </Text>
               </Box>
               {/* Level Description */}
@@ -193,8 +193,8 @@ export default function PlayerTooltip({
             </Text>
           </Box>
 
-          {mode === "manage" &&
-            ["WAITING", "READY"].includes(player.status) && (
+          {mode === 'manage' &&
+            ['WAITING', 'READY'].includes(player.status) && (
               <Box display="flex" justifyContent="space-between">
                 <Text fontSize="xs" color="gray.300">
                   Wait Time:

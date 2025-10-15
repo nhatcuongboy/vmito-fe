@@ -1,5 +1,5 @@
-import { api, ApiResponse } from "./base";
-import { Match } from "./types";
+import { api, ApiResponse } from './base';
+import { Match } from './types';
 
 export const MatchService = {
   // Get session matches
@@ -48,7 +48,7 @@ export const MatchService = {
   autoAssignPlayers: async (
     sessionId: string,
     options?: {
-      strategy?: "fairness" | "speed" | "level_balance";
+      strategy?: 'fairness' | 'speed' | 'level_balance';
       maxPlayersPerCourt?: number;
     }
   ): Promise<{

@@ -5,6 +5,7 @@ This directory contains the Zustand state management stores for the Badminton Ap
 ## Overview
 
 Zustand is a lightweight state management library that provides:
+
 - Simple and intuitive API
 - TypeScript support
 - DevTools integration
@@ -14,7 +15,9 @@ Zustand is a lightweight state management library that provides:
 ## Store Structure
 
 ### 1. `useAppStore` - Global Application State
+
 Manages global app-wide state:
+
 - Theme settings (dark mode)
 - UI state (sidebar)
 - Global loading states
@@ -27,7 +30,9 @@ const { isDarkMode, setDarkMode, isLoading, setLoading } = useAppStore();
 ```
 
 ### 2. `useSessionStore` - Session Management
+
 Manages session-specific state:
+
 - Current session data
 - Player selections
 - Court selections
@@ -37,17 +42,19 @@ Manages session-specific state:
 ```typescript
 import { useSessionStore } from '@/stores';
 
-const { 
-  selectedPlayers, 
-  addSelectedPlayer, 
+const {
+  selectedPlayers,
+  addSelectedPlayer,
   togglePlayerSelection,
   matchMode,
-  setMatchMode 
+  setMatchMode,
 } = useSessionStore();
 ```
 
 ### 3. `useCourtStore` - Court Operations
+
 Manages court-related operations:
+
 - Modal states (auto-assign, manual selection, etc.)
 - Loading states for court operations
 - Selected courts and matches
@@ -60,24 +67,29 @@ const {
   autoAssignModalOpen,
   openAutoAssignModal,
   closeAutoAssignModal,
-  toggleManualPlayer
+  toggleManualPlayer,
 } = useCourtStore();
 ```
 
 ## Key Features
 
 ### DevTools Integration
+
 All stores are configured with Redux DevTools for debugging:
+
 - Action tracking
 - State inspection
 - Time-travel debugging
 
 ### Persistence
+
 The `useSessionStore` persists:
+
 - `activeTab` - Current tab selection
 - `matchMode` - Auto or manual match mode
 
 ### Type Safety
+
 All stores are fully typed with TypeScript interfaces.
 
 ## Migration Guide
@@ -85,9 +97,10 @@ All stores are fully typed with TypeScript interfaces.
 ### From Prop Drilling to Zustand
 
 **Before:**
+
 ```typescript
 // Parent component
-<ChildComponent 
+<ChildComponent
   selectedPlayers={selectedPlayers}
   setSelectedPlayers={setSelectedPlayers}
   matchMode={matchMode}
@@ -104,6 +117,7 @@ interface Props {
 ```
 
 **After:**
+
 ```typescript
 // Parent component
 <ChildComponent />
@@ -117,12 +131,14 @@ const { selectedPlayers, setSelectedPlayers, matchMode, setMatchMode } = useSess
 ### From Custom Hooks to Zustand
 
 **Before:**
+
 ```typescript
 const modals = useCourtsTabModals();
 modals.openAutoAssignModal(court);
 ```
 
 **After:**
+
 ```typescript
 const { openAutoAssignModal } = useCourtStore();
 openAutoAssignModal(court);
@@ -131,39 +147,47 @@ openAutoAssignModal(court);
 ## Best Practices
 
 ### 1. Use Selectors for Performance
+
 ```typescript
 // ✅ Good - Only subscribe to what you need
-const selectedPlayers = useSessionStore(state => state.selectedPlayers);
+const selectedPlayers = useSessionStore((state) => state.selectedPlayers);
 
 // ❌ Avoid - Subscribes to entire store
 const store = useSessionStore();
 ```
 
 ### 2. Group Related Actions
+
 ```typescript
 // Create custom hooks for related actions
 function usePlayerSelection() {
-  const { selectedPlayers, addSelectedPlayer, removeSelectedPlayer, clearSelectedPlayers } = useSessionStore();
-  
+  const {
+    selectedPlayers,
+    addSelectedPlayer,
+    removeSelectedPlayer,
+    clearSelectedPlayers,
+  } = useSessionStore();
+
   const selectPlayer = (id: string) => {
     if (selectedPlayers.length < 4) {
       addSelectedPlayer(id);
     }
   };
-  
+
   return { selectedPlayers, selectPlayer, clearSelectedPlayers };
 }
 ```
 
 ### 3. Combine Stores When Needed
+
 ```typescript
 function useMatchCreation() {
   const { setLoading } = useAppStore();
   const { selectedPlayers, selectedCourt } = useSessionStore();
   const { openAutoAssignModal } = useCourtStore();
-  
+
   const canCreateMatch = selectedPlayers.length === 4 && selectedCourt;
-  
+
   return { canCreateMatch, openAutoAssignModal };
 }
 ```
@@ -171,6 +195,7 @@ function useMatchCreation() {
 ## Testing
 
 ### Mocking Stores
+
 ```typescript
 import { useSessionStore } from '@/stores';
 
@@ -179,11 +204,12 @@ jest.mock('@/stores', () => ({
     selectedPlayers: ['player1', 'player2'],
     addSelectedPlayer: jest.fn(),
     removeSelectedPlayer: jest.fn(),
-  }))
+  })),
 }));
 ```
 
 ### Resetting State
+
 ```typescript
 // Reset store state in tests
 beforeEach(() => {
@@ -194,6 +220,7 @@ beforeEach(() => {
 ## Performance
 
 Zustand is highly performant:
+
 - Only re-renders components that use changed state
 - No unnecessary re-renders
 - Minimal bundle size
@@ -202,6 +229,7 @@ Zustand is highly performant:
 ## Debugging
 
 Enable Redux DevTools:
+
 1. Install Redux DevTools browser extension
 2. Stores are already configured with devtools
 3. View state changes in real-time

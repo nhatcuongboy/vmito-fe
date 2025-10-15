@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionParams {
   id: string;
@@ -20,7 +20,7 @@ export async function POST(
       include: {
         players: true,
         matches: {
-          where: { status: "IN_PROGRESS" },
+          where: { status: 'IN_PROGRESS' },
           include: {
             players: true, // Include MatchPlayer relationships
           },
@@ -30,12 +30,12 @@ export async function POST(
     });
 
     if (!sessionData) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Validate session can be ended
-    if (sessionData.status !== "IN_PROGRESS") {
-      return errorResponse("Only in-progress sessions can be ended", 400);
+    if (sessionData.status !== 'IN_PROGRESS') {
+      return errorResponse('Only in-progress sessions can be ended', 400);
     }
 
     // Use transaction to ensure all operations succeed together
@@ -45,10 +45,10 @@ export async function POST(
         await tx.match.updateMany({
           where: {
             sessionId: id,
-            status: "IN_PROGRESS",
+            status: 'IN_PROGRESS',
           },
           data: {
-            status: "FINISHED",
+            status: 'FINISHED',
             endTime: new Date(),
           },
         });
@@ -58,7 +58,7 @@ export async function POST(
           // Calculate updated total wait time for players who were waiting
           let updatedTotalWaitTime = player.totalWaitTime;
 
-          if (player.status === "WAITING" && player.currentWaitTime > 0) {
+          if (player.status === 'WAITING' && player.currentWaitTime > 0) {
             // Add current wait time to total wait time before resetting
             updatedTotalWaitTime += player.currentWaitTime;
           }
@@ -66,7 +66,7 @@ export async function POST(
           return tx.player.update({
             where: { id: player.id },
             data: {
-              status: "FINISHED",
+              status: 'FINISHED',
               currentWaitTime: 0, // Reset current waiting time
               totalWaitTime: updatedTotalWaitTime, // Update total wait time
               currentCourtId: null, // Clear court assignment
@@ -83,7 +83,7 @@ export async function POST(
             sessionId: id,
           },
           data: {
-            status: "EMPTY",
+            status: 'EMPTY',
             currentMatchId: null,
           },
         });
@@ -92,7 +92,7 @@ export async function POST(
         const session = await tx.session.update({
           where: { id },
           data: {
-            status: "FINISHED",
+            status: 'FINISHED',
             endTime: new Date(),
           },
         });
@@ -110,7 +110,7 @@ export async function POST(
             totalWaitTime: true,
           },
           orderBy: {
-            matchesPlayed: "desc",
+            matchesPlayed: 'desc',
           },
         });
 
@@ -122,12 +122,9 @@ export async function POST(
       }
     );
 
-    return successResponse(
-      transactionResult,
-      "Session ended successfully"
-    );
+    return successResponse(transactionResult, 'Session ended successfully');
   } catch (error) {
-    console.error("Error ending session:", error);
-    return errorResponse("Failed to end session");
+    console.error('Error ending session:', error);
+    return errorResponse('Failed to end session');
   }
 }

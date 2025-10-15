@@ -8,7 +8,10 @@ interface LocaleValidatorProps {
   validLocales: string[];
 }
 
-export default function LocaleValidator({ locale, validLocales }: LocaleValidatorProps) {
+export default function LocaleValidator({
+  locale,
+  validLocales,
+}: LocaleValidatorProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -17,8 +20,10 @@ export default function LocaleValidator({ locale, validLocales }: LocaleValidato
       // Extract the path after the invalid locale
       const pathParts = pathname.split('/');
       const pathWithoutLocale = pathParts.slice(2).join('/'); // Remove first empty and locale
-      const redirectPath = pathWithoutLocale ? `/vi/${pathWithoutLocale}` : '/vi';
-      
+      const redirectPath = pathWithoutLocale
+        ? `/vi/${pathWithoutLocale}`
+        : '/vi';
+
       router.replace(redirectPath);
     }
   }, [locale, pathname, router, validLocales]);

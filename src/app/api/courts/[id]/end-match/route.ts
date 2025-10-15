@@ -1,7 +1,7 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
-import { Prisma } from "@/generated/prisma";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
+import { Prisma } from '@/generated/prisma';
 
 interface CourtParams {
   id: string;
@@ -23,7 +23,7 @@ export async function POST(
       const body = await request.json();
       // Score: if array/object, stringify
       if (body.score !== undefined) {
-        if (typeof body.score === "object") {
+        if (typeof body.score === 'object') {
           score = JSON.stringify(body.score);
         } else {
           score = body.score;
@@ -54,18 +54,18 @@ export async function POST(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
     // Validate court has an active match
     if (!court.currentMatchId || !court.currentMatch) {
-      return errorResponse("Court does not have an active match", 400);
+      return errorResponse('Court does not have an active match', 400);
     }
 
     // Validate session is in progress
-    if (court.session.status !== "IN_PROGRESS") {
+    if (court.session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot end a match for a session that is not in progress",
+        'Cannot end a match for a session that is not in progress',
         400
       );
     }
@@ -77,7 +77,7 @@ export async function POST(
         const match = await tx.match.update({
           where: { id: court.currentMatchId! },
           data: {
-            status: "FINISHED",
+            status: 'FINISHED',
             endTime: new Date(),
             ...(score !== undefined ? { score } : {}),
             ...(winnerIds !== undefined ? { winnerIds } : {}),
@@ -92,7 +92,7 @@ export async function POST(
             return tx.player.update({
               where: { id: player.id },
               data: {
-                status: "WAITING",
+                status: 'WAITING',
                 currentCourtId: null,
                 // Add the time they just played to their total wait time
                 // This is just for record-keeping; the current wait time is reset
@@ -106,14 +106,14 @@ export async function POST(
         await Promise.all(playerUpdatePromises);
 
         // Check if there are pre-selected players for the next match
-        let nextCourtStatus: "EMPTY" | "READY" = "EMPTY";
+        let nextCourtStatus: 'EMPTY' | 'READY' = 'EMPTY';
         let preSelectedData = null;
 
         if (court.preSelectedPlayers) {
           try {
             // Parse pre-selected players data
             preSelectedData =
-              typeof court.preSelectedPlayers === "string"
+              typeof court.preSelectedPlayers === 'string'
                 ? JSON.parse(court.preSelectedPlayers)
                 : court.preSelectedPlayers;
 
@@ -130,14 +130,14 @@ export async function POST(
               const availablePlayers = await tx.player.findMany({
                 where: {
                   id: { in: preSelectedPlayerIds },
-                  status: "WAITING",
+                  status: 'WAITING',
                   currentCourtId: null,
                 },
               });
 
               if (availablePlayers.length === preSelectedPlayerIds.length) {
-                nextCourtStatus = "READY";
-                
+                nextCourtStatus = 'READY';
+
                 // Use the proper court selection mechanism with positions
                 // Create players with position data (sorted by position)
                 const sortedPreSelectedData = preSelectedData.sort(
@@ -150,7 +150,7 @@ export async function POST(
                   await tx.player.update({
                     where: { id: playerId },
                     data: {
-                      status: "READY", // Use READY status like select-players API
+                      status: 'READY', // Use READY status like select-players API
                       currentCourtId: id,
                       courtPosition: position, // Store the court position
                     },
@@ -217,9 +217,9 @@ export async function POST(
       }
     );
 
-    return successResponse(result, "Match ended successfully");
+    return successResponse(result, 'Match ended successfully');
   } catch (error) {
-    console.error("Error ending match:", error);
-    return errorResponse("Failed to end match");
+    console.error('Error ending match:', error);
+    return errorResponse('Failed to end match');
   }
 }

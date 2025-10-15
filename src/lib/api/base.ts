@@ -1,11 +1,11 @@
-import axios from "axios";
-import toast from "react-hot-toast";
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 // Axios instance with base configuration
 export const api = axios.create({
-  baseURL: "/api",
+  baseURL: '/api',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -21,7 +21,7 @@ export interface ApiResponse<T> {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.error || "Something went wrong";
+    const message = error.response?.data?.error || 'Something went wrong';
     toast.error(message);
     return Promise.reject(error);
   }

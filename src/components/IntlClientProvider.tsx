@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { NextIntlClientProvider } from "next-intl";
-import { ReactNode } from "react";
+import { NextIntlClientProvider } from 'next-intl';
+import { ReactNode } from 'react';
 
 interface IntlClientProviderProps {
   children: ReactNode;

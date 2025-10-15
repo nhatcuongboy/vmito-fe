@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 import {
   Box,
   Button as ChakraButton,
@@ -12,7 +12,7 @@ import {
   IconButton as ChakraIconButton,
   IconButtonProps as ChakraIconButtonProps,
   Heading as ChakraHeading,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
 // Create Card components
 export const Card = ({ children, ...props }: React.PropsWithChildren<any>) => (
@@ -98,7 +98,10 @@ export const TabsComp = ({
   <Box {...props}>
     {React.Children.map(children, (child) => {
       if (React.isValidElement(child)) {
-        return React.cloneElement(child as React.ReactElement<any>, { index, onChange });
+        return React.cloneElement(child as React.ReactElement<any>, {
+          index,
+          onChange,
+        });
       }
       return child;
     })}
@@ -181,7 +184,7 @@ export const VStack = ({
     direction="column"
     gap={spacing}
     alignItems={
-      align === "start" ? "flex-start" : align === "end" ? "flex-end" : align
+      align === 'start' ? 'flex-start' : align === 'end' ? 'flex-end' : align
     }
     {...props}
   >
@@ -274,7 +277,7 @@ export const useColorModeValue = (lightValue: any, darkValue: any) => {
 export const useToast = () => {
   return {
     toast: (options: any) => {
-      console.log("Toast:", options);
+      console.log('Toast:', options);
       // We'll implement proper toast in the next iteration
     },
   };

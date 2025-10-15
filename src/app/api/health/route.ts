@@ -1,5 +1,5 @@
-import { prisma } from "@/app/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,16 +23,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: dbStatus,
-      message: "Database connection successful",
+      message: 'Database connection successful',
     });
   } catch (error) {
-    console.error("Database health check failed:", error);
+    console.error('Database health check failed:', error);
 
     return NextResponse.json(
       {
         success: false,
-        error: "Database connection failed",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: 'Database connection failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
       },

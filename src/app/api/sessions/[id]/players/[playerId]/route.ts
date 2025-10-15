@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/app/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/app/lib/prisma';
 
 interface RouteParams {
   id: string;
@@ -27,9 +27,9 @@ export async function PATCH(
     } = body;
 
     // Validate input - only name is required
-    if (!name || name.trim() === "") {
+    if (!name || name.trim() === '') {
       return NextResponse.json(
-        { success: false, message: "Player name is required" },
+        { success: false, message: 'Player name is required' },
         { status: 400 }
       );
     }
@@ -41,7 +41,7 @@ export async function PATCH(
 
     if (!session) {
       return NextResponse.json(
-        { success: false, message: "Session not found" },
+        { success: false, message: 'Session not found' },
         { status: 404 }
       );
     }
@@ -56,7 +56,7 @@ export async function PATCH(
 
     if (!existingPlayer) {
       return NextResponse.json(
-        { success: false, message: "Player not found in this session" },
+        { success: false, message: 'Player not found in this session' },
         { status: 404 }
       );
     }
@@ -71,21 +71,30 @@ export async function PATCH(
         levelDescription: levelDescription || null,
         desire: desire || null,
         status: status || existingPlayer.status,
-        preFilledByHost: preFilledByHost !== undefined ? preFilledByHost : existingPlayer.preFilledByHost,
-        confirmedByPlayer: confirmedByPlayer !== undefined ? confirmedByPlayer : existingPlayer.confirmedByPlayer,
-        requireConfirmInfo: requireConfirmInfo !== undefined ? requireConfirmInfo : existingPlayer.requireConfirmInfo,
+        preFilledByHost:
+          preFilledByHost !== undefined
+            ? preFilledByHost
+            : existingPlayer.preFilledByHost,
+        confirmedByPlayer:
+          confirmedByPlayer !== undefined
+            ? confirmedByPlayer
+            : existingPlayer.confirmedByPlayer,
+        requireConfirmInfo:
+          requireConfirmInfo !== undefined
+            ? requireConfirmInfo
+            : existingPlayer.requireConfirmInfo,
       },
     });
 
     return NextResponse.json({
       success: true,
       player: updatedPlayer,
-      message: "Player updated successfully",
+      message: 'Player updated successfully',
     });
   } catch (error) {
-    console.error("Error updating player:", error);
+    console.error('Error updating player:', error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      { success: false, message: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -106,7 +115,7 @@ export async function DELETE(
 
     if (!session) {
       return NextResponse.json(
-        { success: false, message: "Session not found" },
+        { success: false, message: 'Session not found' },
         { status: 404 }
       );
     }
@@ -121,18 +130,18 @@ export async function DELETE(
 
     if (!existingPlayer) {
       return NextResponse.json(
-        { success: false, message: "Player not found in this session" },
+        { success: false, message: 'Player not found in this session' },
         { status: 404 }
       );
     }
 
     // Check if player is currently playing
-    if (existingPlayer.status === "PLAYING") {
+    if (existingPlayer.status === 'PLAYING') {
       return NextResponse.json(
         {
           success: false,
           message:
-            "Cannot delete player who is currently playing. End their match first.",
+            'Cannot delete player who is currently playing. End their match first.',
         },
         { status: 400 }
       );
@@ -145,12 +154,12 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: "Player deleted successfully",
+      message: 'Player deleted successfully',
     });
   } catch (error) {
-    console.error("Error deleting player:", error);
+    console.error('Error deleting player:', error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      { success: false, message: 'Internal server error' },
       { status: 500 }
     );
   }

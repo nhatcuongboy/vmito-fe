@@ -1,6 +1,12 @@
-import toast from "react-hot-toast";
-import { api, ApiResponse } from "./base";
-import { Court, Match, Player, CourtDirection, SuggestedPlayersResponse } from "./types";
+import toast from 'react-hot-toast';
+import { api, ApiResponse } from './base';
+import {
+  Court,
+  Match,
+  Player,
+  CourtDirection,
+  SuggestedPlayersResponse,
+} from './types';
 
 export const CourtService = {
   // Get court details
@@ -98,7 +104,7 @@ export const CourtService = {
       `/courts/${courtId}`,
       data
     );
-    toast.success("Court updated successfully");
+    toast.success('Court updated successfully');
     return response.data.data!;
   },
 

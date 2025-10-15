@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export function HeroImage() {
   return (
@@ -9,7 +9,7 @@ export function HeroImage() {
       onError={(e) => {
         e.currentTarget.onerror = null;
         e.currentTarget.src =
-          "https://placehold.co/600x400/22c55e/ffffff?text=Badminton+Manager";
+          'https://placehold.co/600x400/22c55e/ffffff?text=Badminton+Manager';
       }}
     />
   );

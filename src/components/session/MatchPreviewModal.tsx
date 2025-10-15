@@ -1,8 +1,8 @@
-import { Button as CompatButton } from "@/components/ui/chakra-compat";
-import { CourtService } from "@/lib/api/court.service";
-import { CourtDirection, SuggestedPlayersResponse } from "@/lib/api/types";
-import { Court, Player } from "@/types/session";
-import { getLevelLabel } from "@/utils/level-mapping";
+import { Button as CompatButton } from '@/components/ui/chakra-compat';
+import { CourtService } from '@/lib/api/court.service';
+import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
+import { Court, Player } from '@/types/session';
+import { getLevelLabel } from '@/utils/level-mapping';
 import {
   Badge,
   Box,
@@ -11,7 +11,7 @@ import {
   HStack,
   Text,
   VStack,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   ArrowLeft,
   HelpCircle,
@@ -20,10 +20,10 @@ import {
   User,
   Venus,
   X,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import BadmintonCourt from "../court/BadmintonCourt";
+} from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import BadmintonCourt from '../court/BadmintonCourt';
 
 interface MatchPreviewModalProps {
   isOpen: boolean;
@@ -48,19 +48,19 @@ interface MatchPreviewModalProps {
 
 // Helper functions for gender display
 function getGenderIcon(gender?: string) {
-  if (gender === "MALE") return Mars;
-  if (gender === "FEMALE") return Venus;
-  if (gender === "OTHER") return User;
-  if (gender === "PREFER_NOT_TO_SAY") return HelpCircle;
+  if (gender === 'MALE') return Mars;
+  if (gender === 'FEMALE') return Venus;
+  if (gender === 'OTHER') return User;
+  if (gender === 'PREFER_NOT_TO_SAY') return HelpCircle;
   return User;
 }
 
 function getGenderColorHex(gender?: string): string {
-  if (gender === "MALE") return "#3182ce";
-  if (gender === "FEMALE") return "#d53f8c";
-  if (gender === "OTHER") return "#805ad5";
-  if (gender === "PREFER_NOT_TO_SAY") return "#718096";
-  return "#718096";
+  if (gender === 'MALE') return '#3182ce';
+  if (gender === 'FEMALE') return '#d53f8c';
+  if (gender === 'OTHER') return '#805ad5';
+  if (gender === 'PREFER_NOT_TO_SAY') return '#718096';
+  return '#718096';
 }
 
 const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
@@ -77,7 +77,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   description,
   isLoadingConfirm: externalLoading = false,
 }) => {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
 
   // Calculate default topCount: 4 * numberOfCourts, but not more than waitingPlayersCount
   const defaultTopCount = useMemo(() => {
@@ -114,7 +114,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
         );
         setSuggestedPlayers(response);
       } catch (error) {
-        console.error("Error getting suggested players:", error);
+        console.error('Error getting suggested players:', error);
         // You might want to add error handling here
       } finally {
         setIsLoading(false);
@@ -169,7 +169,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
     try {
       await onConfirm(suggestedPlayers, direction);
     } catch (error) {
-      console.error("Error confirming match:", error);
+      console.error('Error confirming match:', error);
     }
   };
 
@@ -177,9 +177,9 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
 
   const modalTitle =
     title ||
-    t("courtsTab.autoAssignMatchTitle", { courtNumber: court.courtNumber });
+    t('courtsTab.autoAssignMatchTitle', { courtNumber: court.courtNumber });
   const modalDescription =
-    description || t("courtsTab.autoAssignMatchDescription");
+    description || t('courtsTab.autoAssignMatchDescription');
 
   return (
     <Box
@@ -217,7 +217,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             onClick={onCancel}
             p={1}
             borderRadius="md"
-            _hover={{ bg: "gray.100" }}
+            _hover={{ bg: 'gray.100' }}
           >
             <Box as={X} boxSize={5} />
           </Box>
@@ -232,19 +232,19 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             <Box bg="gray.50" p={3} borderRadius="md">
               <HStack gap={3} align="center">
                 <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                  {t("courtsTab.playersToConsider")}:
+                  {t('courtsTab.playersToConsider')}:
                 </Text>
                 <Box flex="1" maxW="130px">
                   <select
                     style={{
-                      fontSize: "14px",
-                      backgroundColor: "white",
-                      borderColor: "#d1d5db",
-                      borderWidth: "1px",
-                      borderRadius: "6px",
-                      padding: "8px",
-                      width: "100%",
-                      cursor: isLoadingConfirm ? "not-allowed" : "pointer",
+                      fontSize: '14px',
+                      backgroundColor: 'white',
+                      borderColor: '#d1d5db',
+                      borderWidth: '1px',
+                      borderRadius: '6px',
+                      padding: '8px',
+                      width: '100%',
+                      cursor: isLoadingConfirm ? 'not-allowed' : 'pointer',
                       opacity: isLoadingConfirm ? 0.6 : 1,
                     }}
                     value={topCount}
@@ -258,13 +258,13 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                       (_, i) => i + 4
                     ).map((count) => (
                       <option key={count} value={count}>
-                        {count} {t("courtsTab.players")}
+                        {count} {t('courtsTab.players')}
                       </option>
                     ))}
                   </select>
                 </Box>
                 <Box fontSize="sm" color="gray.500">
-                  {t("courtsTab.longestWait")}
+                  {t('courtsTab.longestWait')}
                 </Box>
               </HStack>
             </Box>
@@ -294,7 +294,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
               >
                 <HStack gap={2} justify="center" flex="1">
                   <Badge colorPalette="blue" variant="solid" fontSize="sm">
-                    {t("courtsTab.pair1")}
+                    {t('courtsTab.pair1')}
                   </Badge>
                 </HStack>
 
@@ -310,7 +310,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
 
                 <HStack gap={2} justify="center" flex="1">
                   <Badge colorPalette="orange" variant="solid" fontSize="sm">
-                    {t("courtsTab.pair2")}
+                    {t('courtsTab.pair2')}
                   </Badge>
                 </HStack>
               </HStack>
@@ -378,7 +378,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                             textOverflow="ellipsis"
                           >
                             {player.name ||
-                              t("courtsTab.playerFallback", {
+                              t('courtsTab.playerFallback', {
                                 number: player.playerNumber,
                               })}
                           </Text>
@@ -421,7 +421,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                       textAlign="center"
                       mb={1}
                     >
-                      {t("courtsTab.gapLabel")}
+                      {t('courtsTab.gapLabel')}
                     </Text>
                     <Badge
                       colorPalette="yellow"
@@ -483,7 +483,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                             textOverflow="ellipsis"
                           >
                             {player.name ||
-                              t("courtsTab.playerFallback", {
+                              t('courtsTab.playerFallback', {
                                 number: player.playerNumber,
                               })}
                           </Text>
@@ -534,7 +534,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
               disabled={isLoadingConfirm}
             >
               <Box as={ArrowLeft} boxSize={4} mr={1} />
-              {t("courtsTab.back")}
+              {t('courtsTab.back')}
             </CompatButton>
           )}
           <CompatButton
@@ -542,7 +542,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             onClick={onCancel}
             disabled={isLoadingConfirm || isConfirming}
           >
-            {t("courtsTab.cancel")}
+            {t('courtsTab.cancel')}
           </CompatButton>
           <CompatButton
             // colorPalette="green"
@@ -551,7 +551,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             disabled={isLoadingConfirm}
           >
             <Box as={Play} boxSize={4} mr={1} />
-            {t("courtsTab.confirmMatch")}
+            {t('courtsTab.confirmMatch')}
           </CompatButton>
         </Flex>
       </Box>

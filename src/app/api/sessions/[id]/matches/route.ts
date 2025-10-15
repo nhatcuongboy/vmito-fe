@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionMatchParams {
   id: string;
@@ -22,12 +22,12 @@ export async function POST(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
-    if (session.status !== "IN_PROGRESS") {
+    if (session.status !== 'IN_PROGRESS') {
       return errorResponse(
-        "Cannot create a match for a session that is not in progress",
+        'Cannot create a match for a session that is not in progress',
         400
       );
     }
@@ -35,7 +35,7 @@ export async function POST(
     // Check if we have exactly 4 players
     if (!playerIds || !Array.isArray(playerIds) || playerIds.length !== 4) {
       return errorResponse(
-        "Exactly 4 players are required to start a match",
+        'Exactly 4 players are required to start a match',
         400
       );
     }
@@ -47,11 +47,11 @@ export async function POST(
     });
 
     if (!court) {
-      return errorResponse("Court not found", 404);
+      return errorResponse('Court not found', 404);
     }
 
-    if (court.status === "IN_USE" || court.currentMatchId) {
-      return errorResponse("Court is already in use", 400);
+    if (court.status === 'IN_USE' || court.currentMatchId) {
+      return errorResponse('Court is already in use', 400);
     }
 
     // Check if players are valid and available
@@ -59,13 +59,13 @@ export async function POST(
       where: {
         id: { in: playerIds },
         sessionId,
-        status: "WAITING",
+        status: 'WAITING',
       },
     });
 
     if (players.length !== 4) {
       return errorResponse(
-        "One or more selected players are not available",
+        'One or more selected players are not available',
         400
       );
     }
@@ -78,7 +78,7 @@ export async function POST(
           data: {
             sessionId,
             courtId,
-            status: "IN_PROGRESS",
+            status: 'IN_PROGRESS',
             startTime: new Date(),
           },
         });
@@ -100,7 +100,7 @@ export async function POST(
         await tx.court.update({
           where: { id: courtId },
           data: {
-            status: "IN_USE",
+            status: 'IN_USE',
             currentMatchId: newMatch.id,
           },
         });
@@ -111,7 +111,7 @@ export async function POST(
             id: { in: playerIds },
           },
           data: {
-            status: "PLAYING",
+            status: 'PLAYING',
             currentCourtId: courtId,
             currentWaitTime: 0, // Reset wait time when starting a match
           },
@@ -138,10 +138,10 @@ export async function POST(
       },
     });
 
-    return successResponse(matchData, "Match started successfully");
+    return successResponse(matchData, 'Match started successfully');
   } catch (error) {
-    console.error("Error starting match:", error);
-    return errorResponse("Failed to start match");
+    console.error('Error starting match:', error);
+    return errorResponse('Failed to start match');
   }
 }
 
@@ -152,7 +152,7 @@ export async function GET(
 ) {
   try {
     const { id: sessionId } = await params;
-    
+
     // Get query parameters for filtering
     const { searchParams } = new URL(request.url);
     const playerId = searchParams.get('playerId');
@@ -164,11 +164,11 @@ export async function GET(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Build where condition based on filters
-    let whereCondition: any = { sessionId };
+    const whereCondition: any = { sessionId };
 
     // Filter by court if courtId is provided
     if (courtId) {
@@ -196,7 +196,7 @@ export async function GET(
         court: true,
       },
       orderBy: {
-        startTime: "desc",
+        startTime: 'desc',
       },
     });
 
@@ -210,13 +210,13 @@ export async function GET(
         try {
           // Parse the score if it's a JSON string
           const scoreData =
-            typeof match.score === "string"
+            typeof match.score === 'string'
               ? JSON.parse(match.score)
               : match.score;
 
           formattedMatch.score = scoreData;
         } catch (e) {
-          console.warn("Failed to parse match score:", e);
+          console.warn('Failed to parse match score:', e);
           // Keep the original score if parsing fails
         }
       }
@@ -225,13 +225,13 @@ export async function GET(
         try {
           // Parse the winnerIds if it's a JSON string
           const winnerIdsData =
-            typeof match.winnerIds === "string"
+            typeof match.winnerIds === 'string'
               ? JSON.parse(match.winnerIds)
               : match.winnerIds;
 
           formattedMatch.winnerIds = winnerIdsData;
         } catch (e) {
-          console.warn("Failed to parse match winnerIds:", e);
+          console.warn('Failed to parse match winnerIds:', e);
         }
       }
 
@@ -248,7 +248,7 @@ export async function GET(
       },
     };
 
-    let message = "Matches retrieved successfully";
+    let message = 'Matches retrieved successfully';
     if (playerId || courtId) {
       const filterDescriptions = [];
       if (playerId) filterDescriptions.push(`player ID: ${playerId}`);
@@ -258,7 +258,7 @@ export async function GET(
 
     return successResponse(responseData, message);
   } catch (error) {
-    console.error("Error retrieving matches:", error);
-    return errorResponse("Failed to retrieve matches");
+    console.error('Error retrieving matches:', error);
+    return errorResponse('Failed to retrieve matches');
   }
 }

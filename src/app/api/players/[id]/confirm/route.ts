@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface PlayerParams {
   id: string;
@@ -24,7 +24,7 @@ export async function POST(
     });
 
     if (!existingPlayer) {
-      return errorResponse("Player not found", 404);
+      return errorResponse('Player not found', 404);
     }
 
     // For sessions requiring player info, validate data
@@ -33,7 +33,7 @@ export async function POST(
 
       if (!name || !gender || !level) {
         return errorResponse(
-          "Name, gender, and level are required for this session",
+          'Name, gender, and level are required for this session',
           400
         );
       }
@@ -54,7 +54,7 @@ export async function POST(
 
       return successResponse(
         player,
-        "Player confirmed successfully with info updated"
+        'Player confirmed successfully with info updated'
       );
     } else {
       // For sessions not requiring info, just confirm and update desire
@@ -71,10 +71,10 @@ export async function POST(
         },
       });
 
-      return successResponse(player, "Player confirmed successfully");
+      return successResponse(player, 'Player confirmed successfully');
     }
   } catch (error) {
-    console.error("Error confirming player:", error);
-    return errorResponse("Failed to confirm player");
+    console.error('Error confirming player:', error);
+    return errorResponse('Failed to confirm player');
   }
 }

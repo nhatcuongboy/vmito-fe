@@ -1,7 +1,7 @@
-import { Box } from "@chakra-ui/react";
-import TopBar from "@/components/ui/TopBar";
-import { TOP_BAR_HEIGHT } from "@/constants";
-import { ReactNode } from "react";
+import { Box } from '@chakra-ui/react';
+import TopBar from '@/components/ui/TopBar';
+import { TOP_BAR_HEIGHT } from '@/constants';
+import { ReactNode } from 'react';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -16,8 +16,8 @@ export default function MainLayout({
   children,
   title,
   showBackButton = false,
-  backHref = "/",
-  backgroundColor = "gray.50",
+  backHref = '/',
+  backgroundColor = 'gray.50',
   contentPadding = 0,
 }: MainLayoutProps) {
   return (

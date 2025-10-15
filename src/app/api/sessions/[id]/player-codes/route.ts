@@ -1,6 +1,6 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
+import { NextRequest } from 'next/server';
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
 
 // GET /api/sessions/[id]/player-codes - Get all player join codes and QR data for host
 export async function GET(
@@ -15,7 +15,7 @@ export async function GET(
       where: { id: sessionId },
       include: {
         players: {
-          orderBy: { playerNumber: "asc" },
+          orderBy: { playerNumber: 'asc' },
           select: {
             id: true,
             playerNumber: true,
@@ -39,7 +39,7 @@ export async function GET(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Format player codes for easy sharing
@@ -82,10 +82,10 @@ export async function GET(
             totalSlots > 0 ? Math.round((joinedCount / totalSlots) * 100) : 0,
         },
       },
-      "Player codes retrieved successfully"
+      'Player codes retrieved successfully'
     );
   } catch (error) {
-    console.error("Error getting player codes:", error);
-    return errorResponse("Failed to get player codes", 500);
+    console.error('Error getting player codes:', error);
+    return errorResponse('Failed to get player codes', 500);
   }
 }

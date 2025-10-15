@@ -1,6 +1,6 @@
 /**
  * Zustand Store Examples for Badminton App
- * 
+ *
  * This file contains examples of how to use the Zustand stores
  * in your components and how to migrate from existing hooks.
  */
@@ -18,25 +18,25 @@ import { useAppStore, useSessionStore, useCourtStore } from '@/stores';
 function ExampleComponent() {
   // App Store - Global app state
   const { isDarkMode, isLoading, setDarkMode, setLoading } = useAppStore();
-  
+
   // Session Store - Session-specific state
-  const { 
-    selectedPlayers, 
-    selectedCourt, 
+  const {
+    selectedPlayers,
+    selectedCourt,
     matchMode,
     addSelectedPlayer,
     removeSelectedPlayer,
     setMatchMode,
-    togglePlayerSelection 
+    togglePlayerSelection,
   } = useSessionStore();
-  
+
   // Court Store - Court modals and loading states
   const {
     autoAssignModalOpen,
     selectedAutoAssignCourt,
     openAutoAssignModal,
     closeAutoAssignModal,
-    toggleManualPlayer
+    toggleManualPlayer,
   } = useCourtStore();
 
   // Usage examples...
@@ -57,13 +57,13 @@ function ExampleComponent() {
 
 /**
  * Before (using useCourtsTabModals hook):
- * 
+ *
  * const modals = useCourtsTabModals();
  * modals.openAutoAssignModal(court);
  * modals.toggleManualPlayer(playerId);
- * 
+ *
  * After (using Zustand):
- * 
+ *
  * const { openAutoAssignModal, toggleManualPlayer } = useCourtStore();
  * openAutoAssignModal(court);
  * toggleManualPlayer(playerId);
@@ -71,7 +71,7 @@ function ExampleComponent() {
 
 /**
  * Before (prop drilling):
- * 
+ *
  * <CourtsTab
  *   selectedPlayers={selectedPlayers}
  *   setSelectedPlayers={setSelectedPlayers}
@@ -79,14 +79,14 @@ function ExampleComponent() {
  *   setMatchMode={setMatchMode}
  *   // ... many other props
  * />
- * 
+ *
  * After (using Zustand inside CourtsTab):
- * 
+ *
  * <CourtsTab
  *   session={session}
  *   // Only essential props needed
  * />
- * 
+ *
  * // Inside CourtsTab component:
  * const { selectedPlayers, matchMode, setSelectedPlayers, setMatchMode } = useSessionStore();
  */
@@ -98,29 +98,29 @@ function ExampleComponent() {
 // 1. Computed values (derived state)
 function useComputedSessionData() {
   const { selectedPlayers, waitingPlayers } = useSessionStore();
-  
+
   const canStartMatch = selectedPlayers.length === 4;
   const availablePlayersCount = waitingPlayers.length;
-  
+
   return { canStartMatch, availablePlayersCount };
 }
 
 // 2. Combined actions
 function useSessionActions() {
-  const { 
-    setSelectedCourt, 
-    setMatchMode, 
-    setShowMatchCreation, 
-    clearSelectedPlayers 
+  const {
+    setSelectedCourt,
+    setMatchMode,
+    setShowMatchCreation,
+    clearSelectedPlayers,
   } = useSessionStore();
-  
+
   const startManualMatchCreation = (courtId: string) => {
     setSelectedCourt(courtId);
     setMatchMode('manual');
     setShowMatchCreation(true);
     clearSelectedPlayers();
   };
-  
+
   return { startManualMatchCreation };
 }
 
@@ -129,18 +129,18 @@ function useCrossStoreActions() {
   const { setLoading } = useAppStore();
   const { setRefreshing } = useSessionStore();
   const { setLoadingConfirmAutoAssign } = useCourtStore();
-  
+
   const startGlobalLoading = () => {
     setLoading(true);
     setRefreshing(true);
   };
-  
+
   const stopGlobalLoading = () => {
     setLoading(false);
     setRefreshing(false);
     setLoadingConfirmAutoAssign(false);
   };
-  
+
   return { startGlobalLoading, stopGlobalLoading };
 }
 
@@ -150,9 +150,9 @@ function useCrossStoreActions() {
 
 /**
  * For testing, you can easily mock stores:
- * 
+ *
  * import { useSessionStore } from '@/stores';
- * 
+ *
  * // Mock the store
  * jest.mock('@/stores', () => ({
  *   useSessionStore: jest.fn(() => ({
@@ -171,7 +171,7 @@ function useCrossStoreActions() {
  * The SessionStore is configured with persistence for:
  * - activeTab
  * - matchMode
- * 
+ *
  * These values will be restored when the app is reloaded.
  * Add more fields to the partialize function if needed.
  */

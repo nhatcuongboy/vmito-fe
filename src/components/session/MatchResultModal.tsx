@@ -1,6 +1,6 @@
-import { Button as CompatButton } from "@/components/ui/chakra-compat";
-import { CourtDirection } from "@/lib/api/types";
-import { Match } from "@/types/session";
+import { Button as CompatButton } from '@/components/ui/chakra-compat';
+import { CourtDirection } from '@/lib/api/types';
+import { Match } from '@/types/session';
 import {
   Box,
   Flex,
@@ -10,10 +10,10 @@ import {
   Text,
   Textarea,
   VStack,
-} from "@chakra-ui/react";
-import { Trophy, Users, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-import React, { useState } from "react";
+} from '@chakra-ui/react';
+import { Trophy, Users, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import React, { useState } from 'react';
 
 interface MatchResultModalProps {
   isOpen: boolean;
@@ -37,25 +37,25 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   isLoading = false,
   direction = CourtDirection.HORIZONTAL, // Default to horizontal like BadmintonCourt
 }) => {
-  const t = useTranslations("SessionDetail");
+  const t = useTranslations('SessionDetail');
 
   // Form state
-  const [pair1Score, setPair1Score] = useState<string>("");
-  const [pair2Score, setPair2Score] = useState<string>("");
+  const [pair1Score, setPair1Score] = useState<string>('');
+  const [pair2Score, setPair2Score] = useState<string>('');
   const [selectedWinnerPair, setSelectedWinnerPair] = useState<1 | 2 | null>(
     null
   );
   const [isDraw, setIsDraw] = useState<boolean>(false);
-  const [notes, setNotes] = useState<string>("");
+  const [notes, setNotes] = useState<string>('');
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
-      setPair1Score("");
-      setPair2Score("");
+      setPair1Score('');
+      setPair2Score('');
       setSelectedWinnerPair(null);
       setIsDraw(false);
-      setNotes("");
+      setNotes('');
     }
   }, [isOpen]);
 
@@ -190,13 +190,13 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
           borderBottom="1px"
           borderColor="gray.200"
         >
-          <Heading size="md">{t("matchResult.title")}</Heading>
+          <Heading size="md">{t('matchResult.title')}</Heading>
           <Box
             as="button"
             onClick={onCancel}
             p={1}
             borderRadius="md"
-            _hover={{ bg: "gray.100" }}
+            _hover={{ bg: 'gray.100' }}
           >
             <Box as={X} boxSize={5} />
           </Box>
@@ -209,13 +209,13 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             {/* Score Input Row */}
             <VStack gap={3} w="full">
               <Text fontSize="sm" fontWeight="medium">
-                {t("matchResult.score")}
+                {t('matchResult.score')}
               </Text>
               <HStack gap={6} justify="center" w="full">
                 {/* Pair 1 Score */}
                 <VStack gap={2} align="center">
                   <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                    {t("matchResult.pair1")}
+                    {t('matchResult.pair1')}
                   </Text>
                   <Input
                     type="number"
@@ -236,7 +236,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 {/* Pair 2 Score */}
                 <VStack gap={2} align="center">
                   <Text fontSize="sm" color="red.600" fontWeight="semibold">
-                    {t("matchResult.pair2")}
+                    {t('matchResult.pair2')}
                   </Text>
                   <Input
                     type="number"
@@ -254,7 +254,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             {/* Winner Selection */}
             <VStack gap={3} w="full">
               <Text fontSize="sm" color="gray.600" textAlign="center">
-                {t("matchResult.selectWinnerInstruction")}
+                {t('matchResult.selectWinnerInstruction')}
               </Text>
 
               <HStack gap={4} w="full">
@@ -264,13 +264,13 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                   p={3}
                   border="2px"
                   borderColor={
-                    selectedWinnerPair === 1 ? "green.400" : "gray.300"
+                    selectedWinnerPair === 1 ? 'green.400' : 'gray.300'
                   }
                   borderRadius="lg"
-                  bg={selectedWinnerPair === 1 ? "green.50" : "gray.50"}
+                  bg={selectedWinnerPair === 1 ? 'green.50' : 'gray.50'}
                   position="relative"
-                  cursor={isDraw ? "not-allowed" : "pointer"}
-                  boxShadow={selectedWinnerPair === 1 ? "md" : "sm"}
+                  cursor={isDraw ? 'not-allowed' : 'pointer'}
+                  boxShadow={selectedWinnerPair === 1 ? 'md' : 'sm'}
                   onClick={() => {
                     if (!isDraw) {
                       setSelectedWinnerPair(
@@ -282,16 +282,16 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                   _hover={
                     !isDraw
                       ? {
-                          borderColor: "green.400",
-                          bg: "green.100",
-                          boxShadow: "lg",
-                          transform: "scale(1.03)",
+                          borderColor: 'green.400',
+                          bg: 'green.100',
+                          boxShadow: 'lg',
+                          transform: 'scale(1.03)',
                         }
                       : {}
                   }
                   style={{
-                    outline: !isDraw ? "2px dashed #38a169" : undefined,
-                    outlineOffset: selectedWinnerPair === 1 ? "2px" : undefined,
+                    outline: !isDraw ? '2px dashed #38a169' : undefined,
+                    outlineOffset: selectedWinnerPair === 1 ? '2px' : undefined,
                   }}
                 >
                   {selectedWinnerPair === 1 && (
@@ -312,14 +312,14 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                         fontWeight="semibold"
                         color="blue.600"
                       >
-                        {t("matchResult.pair1")}
+                        {t('matchResult.pair1')}
                       </Text>
                     </HStack>
                     <VStack gap={1}>
                       {pair1.map((player) => (
                         <VStack key={player.id} gap={0}>
                           <Text fontSize="xs" fontWeight="medium">
-                            #{player.player.playerNumber} -{" "}
+                            #{player.player.playerNumber} -{' '}
                             {player.player.name ||
                               `Player ${player.player.playerNumber}`}
                           </Text>
@@ -335,13 +335,13 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                   p={3}
                   border="2px"
                   borderColor={
-                    selectedWinnerPair === 2 ? "green.400" : "gray.300"
+                    selectedWinnerPair === 2 ? 'green.400' : 'gray.300'
                   }
                   borderRadius="lg"
-                  bg={selectedWinnerPair === 2 ? "green.50" : "gray.50"}
+                  bg={selectedWinnerPair === 2 ? 'green.50' : 'gray.50'}
                   position="relative"
-                  cursor={isDraw ? "not-allowed" : "pointer"}
-                  boxShadow={selectedWinnerPair === 2 ? "md" : "sm"}
+                  cursor={isDraw ? 'not-allowed' : 'pointer'}
+                  boxShadow={selectedWinnerPair === 2 ? 'md' : 'sm'}
                   onClick={() => {
                     if (!isDraw) {
                       setSelectedWinnerPair(
@@ -353,16 +353,16 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                   _hover={
                     !isDraw
                       ? {
-                          borderColor: "green.400",
-                          bg: "green.100",
-                          boxShadow: "lg",
-                          transform: "scale(1.03)",
+                          borderColor: 'green.400',
+                          bg: 'green.100',
+                          boxShadow: 'lg',
+                          transform: 'scale(1.03)',
                         }
                       : {}
                   }
                   style={{
-                    outline: !isDraw ? "2px dashed #38a169" : undefined,
-                    outlineOffset: selectedWinnerPair === 2 ? "2px" : undefined,
+                    outline: !isDraw ? '2px dashed #38a169' : undefined,
+                    outlineOffset: selectedWinnerPair === 2 ? '2px' : undefined,
                   }}
                 >
                   {selectedWinnerPair === 2 && (
@@ -379,14 +379,14 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                     <HStack gap={1} justify="center">
                       <Box as={Users} boxSize={3} color="red.500" />
                       <Text fontSize="sm" fontWeight="semibold" color="red.600">
-                        {t("matchResult.pair2")}
+                        {t('matchResult.pair2')}
                       </Text>
                     </HStack>
                     <VStack gap={1}>
                       {pair2.map((player) => (
                         <VStack key={player.id} gap={0}>
                           <Text fontSize="xs" fontWeight="medium">
-                            #{player.player.playerNumber} -{" "}
+                            #{player.player.playerNumber} -{' '}
                             {player.player.name ||
                               `Player ${player.player.playerNumber}`}
                           </Text>
@@ -412,17 +412,17 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                   }
                 }}
               />
-              <Text fontSize="sm">{t("matchResult.isDraw")}</Text>
+              <Text fontSize="sm">{t('matchResult.isDraw')}</Text>
             </HStack>
           </Box>
 
           {/* Notes */}
           <Box w="full">
             <Text fontSize="sm" mb={2} fontWeight="medium">
-              {t("matchResult.notes")}
+              {t('matchResult.notes')}
             </Text>
             <Textarea
-              placeholder={t("matchResult.notesPlaceholder")}
+              placeholder={t('matchResult.notesPlaceholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
@@ -444,7 +444,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             onClick={onCancel}
             disabled={isLoading}
           >
-            {t("matchResult.cancel")}
+            {t('matchResult.cancel')}
           </CompatButton>
           <CompatButton
             colorScheme="blue"
@@ -452,7 +452,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             loading={isLoading}
             disabled={!canSubmit}
           >
-            {t("matchResult.submitResult")}
+            {t('matchResult.submitResult')}
           </CompatButton>
         </Flex>
       </Box>

@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionParams {
   id: string;
@@ -22,11 +22,11 @@ export async function PUT(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
-    if (session.status !== "IN_PROGRESS") {
-      return errorResponse("Session is not in progress", 400);
+    if (session.status !== 'IN_PROGRESS') {
+      return errorResponse('Session is not in progress', 400);
     }
 
     let result;
@@ -36,15 +36,15 @@ export async function PUT(
     if (resetType && playerIds && Array.isArray(playerIds)) {
       // Reset specific players' wait times
       let updateData: any = {};
-      
+
       switch (resetType) {
-        case "current":
+        case 'current':
           updateData = { currentWaitTime: 0 };
           break;
-        case "total":
+        case 'total':
           updateData = { totalWaitTime: 0 };
           break;
-        case "both":
+        case 'both':
           updateData = { currentWaitTime: 0, totalWaitTime: 0 };
           break;
         default:
@@ -64,17 +64,14 @@ export async function PUT(
           sessionId,
           id: { in: playerIds },
         },
-        orderBy: [
-          { currentWaitTime: "desc" },
-          { playerNumber: "asc" },
-        ],
+        orderBy: [{ currentWaitTime: 'desc' }, { playerNumber: 'asc' }],
       });
     } else {
       // Regular wait time update for all waiting players
       result = await prisma.player.updateMany({
         where: {
           sessionId,
-          status: "WAITING",
+          status: 'WAITING',
         },
         data: {
           currentWaitTime: {
@@ -90,12 +87,9 @@ export async function PUT(
       updatedPlayers = await prisma.player.findMany({
         where: {
           sessionId,
-          status: "WAITING",
+          status: 'WAITING',
         },
-        orderBy: [
-          { currentWaitTime: "desc" },
-          { playerNumber: "asc" },
-        ],
+        orderBy: [{ currentWaitTime: 'desc' }, { playerNumber: 'asc' }],
       });
     }
 
@@ -105,8 +99,8 @@ export async function PUT(
       minutesAdded: resetType ? 0 : minutesToAdd,
     });
   } catch (error) {
-    console.error("Error updating wait times:", error);
-    return errorResponse("Failed to update wait times", 500);
+    console.error('Error updating wait times:', error);
+    return errorResponse('Failed to update wait times', 500);
   }
 }
 
@@ -124,25 +118,22 @@ export async function GET(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Get wait time statistics
     const waitingPlayers = await prisma.player.findMany({
       where: {
         sessionId,
-        status: "WAITING",
+        status: 'WAITING',
       },
-      orderBy: [
-        { currentWaitTime: "desc" },
-        { playerNumber: "asc" },
-      ],
+      orderBy: [{ currentWaitTime: 'desc' }, { playerNumber: 'asc' }],
     });
 
     const playingPlayers = await prisma.player.findMany({
       where: {
         sessionId,
-        status: "PLAYING",
+        status: 'PLAYING',
       },
       include: {
         currentCourt: {
@@ -168,19 +159,29 @@ export async function GET(
       totalPlayers: allPlayers.length,
       waitingPlayers: waitingPlayers.length,
       playingPlayers: playingPlayers.length,
-      averageWaitTime: waitingPlayers.length > 0 
-        ? Math.round(waitingPlayers.reduce((sum, p) => sum + p.currentWaitTime, 0) / waitingPlayers.length)
-        : 0,
-      maxWaitTime: waitingPlayers.length > 0 
-        ? Math.max(...waitingPlayers.map(p => p.currentWaitTime))
-        : 0,
-      minWaitTime: waitingPlayers.length > 0 
-        ? Math.min(...waitingPlayers.map(p => p.currentWaitTime))
-        : 0,
+      averageWaitTime:
+        waitingPlayers.length > 0
+          ? Math.round(
+              waitingPlayers.reduce((sum, p) => sum + p.currentWaitTime, 0) /
+                waitingPlayers.length
+            )
+          : 0,
+      maxWaitTime:
+        waitingPlayers.length > 0
+          ? Math.max(...waitingPlayers.map((p) => p.currentWaitTime))
+          : 0,
+      minWaitTime:
+        waitingPlayers.length > 0
+          ? Math.min(...waitingPlayers.map((p) => p.currentWaitTime))
+          : 0,
       totalWaitTime: allPlayers.reduce((sum, p) => sum + p.totalWaitTime, 0),
-      averageTotalWaitTime: allPlayers.length > 0 
-        ? Math.round(allPlayers.reduce((sum, p) => sum + p.totalWaitTime, 0) / allPlayers.length)
-        : 0,
+      averageTotalWaitTime:
+        allPlayers.length > 0
+          ? Math.round(
+              allPlayers.reduce((sum, p) => sum + p.totalWaitTime, 0) /
+                allPlayers.length
+            )
+          : 0,
     };
 
     return successResponse({
@@ -190,8 +191,8 @@ export async function GET(
       lastUpdated: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error getting wait time statistics:", error);
-    return errorResponse("Failed to get wait time statistics", 500);
+    console.error('Error getting wait time statistics:', error);
+    return errorResponse('Failed to get wait time statistics', 500);
   }
 }
 
@@ -203,10 +204,10 @@ export async function POST(
   try {
     const { id: sessionId } = await params;
     const body = await request.json();
-    const { playerIds, resetType = "current" } = body;
+    const { playerIds, resetType = 'current' } = body;
 
     if (!playerIds || !Array.isArray(playerIds) || playerIds.length === 0) {
-      return errorResponse("Player IDs are required", 400);
+      return errorResponse('Player IDs are required', 400);
     }
 
     // Validate session exists
@@ -215,7 +216,7 @@ export async function POST(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Validate players exist in the session
@@ -227,16 +228,16 @@ export async function POST(
     });
 
     if (players.length !== playerIds.length) {
-      return errorResponse("Some players not found in session", 400);
+      return errorResponse('Some players not found in session', 400);
     }
 
     // Reset wait times based on type
     const updateData: any = {};
-    if (resetType === "current") {
+    if (resetType === 'current') {
       updateData.currentWaitTime = 0;
-    } else if (resetType === "total") {
+    } else if (resetType === 'total') {
       updateData.totalWaitTime = 0;
-    } else if (resetType === "both") {
+    } else if (resetType === 'both') {
       updateData.currentWaitTime = 0;
       updateData.totalWaitTime = 0;
     }
@@ -249,7 +250,7 @@ export async function POST(
     // Get updated players
     const updatedPlayers = await prisma.player.findMany({
       where: { id: { in: playerIds } },
-      orderBy: { playerNumber: "asc" },
+      orderBy: { playerNumber: 'asc' },
     });
 
     return successResponse({
@@ -258,7 +259,7 @@ export async function POST(
       resetType,
     });
   } catch (error) {
-    console.error("Error resetting wait times:", error);
-    return errorResponse("Failed to reset wait times", 500);
+    console.error('Error resetting wait times:', error);
+    return errorResponse('Failed to reset wait times', 500);
   }
 }

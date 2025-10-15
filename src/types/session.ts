@@ -1,5 +1,5 @@
 // Common types for the session management components
-import { Level, CourtDirection } from "@/lib/api/types";
+import { Level, CourtDirection } from '@/lib/api/types';
 
 export interface Player {
   id: string;
@@ -26,7 +26,7 @@ export interface Court {
   courtNumber: number;
   courtName?: string;
   direction?: CourtDirection;
-  status: "IN_USE" | "READY" | "EMPTY";
+  status: 'IN_USE' | 'READY' | 'EMPTY';
   currentMatchId?: string;
   currentPlayers: Player[];
   preSelectedPlayers?: Array<{
@@ -53,15 +53,15 @@ export interface Match {
   players: MatchPlayer[];
 }
 
-export type PlayerFilter = "ALL" | "PLAYING" | "WAITING";
+export type PlayerFilter = 'ALL' | 'PLAYING' | 'WAITING';
 
 export enum LevelLabel {
-  Y_MINUS = "Y-",
-  Y = "Y",
-  Y_PLUS = "Y+",
-  TBY = "TBY",
-  TB_MINUS = "TB-",
-  TB = "TB",
-  TB_PLUS = "TB+",
-  K = "K",
+  Y_MINUS = 'Y-',
+  Y = 'Y',
+  Y_PLUS = 'Y+',
+  TBY = 'TBY',
+  TB_MINUS = 'TB-',
+  TB = 'TB',
+  TB_PLUS = 'TB+',
+  K = 'K',
 }

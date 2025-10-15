@@ -1,6 +1,6 @@
-import { prisma } from "@/app/lib/prisma";
-import { successResponse, errorResponse } from "@/app/lib/api-response";
-import { NextRequest } from "next/server";
+import { prisma } from '@/app/lib/prisma';
+import { successResponse, errorResponse } from '@/app/lib/api-response';
+import { NextRequest } from 'next/server';
 
 interface SessionParams {
   id: string;
@@ -20,7 +20,7 @@ export async function GET(
     });
 
     if (!session) {
-      return errorResponse("Session not found", 404);
+      return errorResponse('Session not found', 404);
     }
 
     // Get courts with current players
@@ -29,7 +29,7 @@ export async function GET(
         sessionId: id,
       },
       orderBy: {
-        courtNumber: "asc",
+        courtNumber: 'asc',
       },
       include: {
         currentPlayers: {
@@ -54,9 +54,9 @@ export async function GET(
       },
     });
 
-    return successResponse(courts, "Courts retrieved successfully");
+    return successResponse(courts, 'Courts retrieved successfully');
   } catch (error) {
-    console.error("Error fetching courts:", error);
-    return errorResponse("Failed to fetch courts");
+    console.error('Error fetching courts:', error);
+    return errorResponse('Failed to fetch courts');
   }
 }

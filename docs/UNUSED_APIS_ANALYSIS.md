@@ -5,6 +5,7 @@
 ### ✅ **ĐANG SỬ DỤNG (Used API Endpoints)**
 
 #### Sessions APIs:
+
 - ✅ `/sessions` (GET, POST) - SessionService.getAllSessions(), createSession()
 - ✅ `/sessions/[id]` (GET, PUT, DELETE) - SessionService.getSession(), updateSession(), deleteSession()
 - ✅ `/sessions/[id]/start` (POST) - SessionService.startSession()
@@ -25,10 +26,12 @@
 - ✅ `/update-wait-times` (POST) - WaitTimeUpdater.tsx background updates
 
 #### Players APIs:
+
 - ✅ `/players/[id]` (GET, PUT, DELETE) - PlayerService.getPlayer(), updatePlayer(), deletePlayer()
 - ✅ `/players/[id]/confirm` (POST) - PlayerService.confirmPlayer()
 
 #### Courts APIs:
+
 - ✅ `/courts/[id]` (GET, PATCH) - CourtService.getCourt(), updateCourt()
 - ✅ `/courts/[id]/suggested-players` (GET) - CourtService.getSuggestedPlayersForCourt()
 - ✅ `/courts/[id]/select-players` (POST) - CourtService.selectPlayers()
@@ -43,16 +46,20 @@
 ## ❌ **CHƯA SỬ DỤNG (Unused API Endpoints)**
 
 ### ❌ Health APIs:
+
 - `/health` (GET) - **Chưa được sử dụng trong client-side code**
 
 ### ❌ PWA APIs:
+
 - `/pwa/subscribe` (POST, DELETE) - **Chưa được sử dụng trong client-side code**
 - `/pwa/sync` (POST, GET) - **Chưa được sử dụng trong client-side code**
 
 ### ❌ Player Utils APIs:
+
 - `/players/update-wait-times` (PUT) - **Chưa được sử dụng (có thể deprecated)**
 
 ### ✅ **CẬP NHẬT**: Các API được sử dụng sau khi kiểm tra lại:
+
 - ✅ `/update-wait-times` (POST) - **ĐANG SỬ DỤNG** trong `WaitTimeUpdater.tsx`
 
 ---
@@ -60,15 +67,19 @@
 ## 🔍 **Chi tiết phân tích:**
 
 ### PWA APIs (Chưa sử dụng):
+
 Các API này có thể được sử dụng cho Progressive Web App features:
+
 - **Subscribe**: Để đăng ký push notifications
 - **Sync**: Để đồng bộ dữ liệu offline
 
 ### Health API (Chưa sử dụng):
+
 - Có thể được sử dụng cho health checks hoặc monitoring
 - Thường được gọi bởi load balancers hoặc monitoring tools
 
 ### Deprecated APIs:
+
 - `/players/update-wait-times` có vẻ đã được thay thế bởi:
   - `/sessions/[id]/wait-times` trong WaitTimeService
 - `/update-wait-times` **VẪN ĐANG SỬ DỤNG** trong WaitTimeUpdater component
