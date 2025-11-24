@@ -3,10 +3,19 @@
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
 import dayjs from '@/lib/dayjs';
-import { Badge, Box, Flex, Heading, Icon, Stack, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  Icon,
+  Stack,
+  Text,
+  Wrap
+} from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
-import { Calendar, Clock, SquareAsterisk, Users } from 'lucide-react';
+import { Calendar, Clock, Shield, SquareAsterisk, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 // Helper functions for formatting with locale support
@@ -138,6 +147,24 @@ const SessionCard = ({
               {t('players')}
             </Text>
           </Flex>
+          {session.requiredLevels &&
+            session.requiredLevels.length > 0 && (
+              <Flex align="flex-start">
+                <Icon as={Shield} boxSize={5} mr={2} color="blue.500" mt={0.5} />
+                <Box>
+                  <Text fontSize="sm" fontWeight="semibold" mb={1}>
+                    Required Levels:
+                  </Text>
+                  <Wrap gap={1}>
+                    {session.requiredLevels.map((level) => (
+                      <Badge key={level} colorScheme="blue" fontSize="xs">
+                        {level.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                  </Wrap>
+                </Box>
+              </Flex>
+            )}
         </Stack>
 
         <Flex mt={4} gap={2} justify="flex-end">

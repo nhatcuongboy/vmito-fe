@@ -81,9 +81,13 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
 
-    // Validate session exists
+    // Validate session exists and get requiredLevels
     const session = await prisma.session.findUnique({
       where: { id },
+      select: {
+        id: true,
+        requiredLevels: true,
+      },
     });
 
     if (!session) {
@@ -103,6 +107,30 @@ export async function POST(
       confirmedByPlayer,
       requireConfirmInfo,
     } = body;
+
+    /**
+     * Validate player level against session requiredLevels
+     * - If session has requiredLevels (non-empty array):
+     *   1. Player must have a level set
+     *   2. Player's level must be in the requiredLevels list
+     * - If requiredLevels is empty or undefined, all levels are allowed
+     */
+    if (session.requiredLevels && session.requiredLevels.length > 0) {
+      // Player must have a level if session requires one
+      if (!level) {
+        return errorResponse(
+          `This session requires players to have one of these levels: ${session.requiredLevels.join(', ')}. Please provide your level.`,
+          400
+        );
+      }
+      // Player's level must match one of the required levels
+      if (!session.requiredLevels.includes(level)) {
+        return errorResponse(
+          `Your level (${level}) is not allowed in this session. Required levels: ${session.requiredLevels.join(', ')}`,
+          400
+        );
+      }
+    }
 
     // Validate player number
     if (!playerNumber) {

@@ -172,6 +172,231 @@ For hosts:
 
 ## Detailed API Documentation
 
+### Create Session Endpoint
+
+#### `POST /api/sessions`
+
+Create a new badminton session with optional level requirements.
+
+**Request Body:**
+
+```json
+{
+  "name": "Friday Evening Session",
+  "numberOfCourts": 2,
+  "sessionDuration": 120,
+  "maxPlayersPerCourt": 8,
+  "requirePlayerInfo": true,
+  "allowGuestJoin": true,
+  "requiredLevels": ["Y", "Y_PLUS", "TBY"],
+  "startTime": "2025-07-04T18:00:00.000Z",
+  "endTime": "2025-07-04T20:00:00.000Z",
+  "courts": [
+    {
+      "courtNumber": 1,
+      "courtName": "Court A",
+      "direction": "HORIZONTAL"
+    }
+  ]
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Session name |
+| `numberOfCourts` | number | No | Number of courts (default: 2) |
+| `sessionDuration` | number | No | Duration in minutes (default: 120) |
+| `maxPlayersPerCourt` | number | No | Max players per court (default: 8) |
+| `requirePlayerInfo` | boolean | No | Require player information (default: true) |
+| `allowGuestJoin` | boolean | No | Allow guest players (default: true) |
+| `requiredLevels` | Level[] | No | Array of required player levels. Empty array or undefined = all levels allowed |
+| `startTime` | string (ISO) | No | Session start time |
+| `endTime` | string (ISO) | No | Session end time |
+| `courts` | CourtConfig[] | No | Custom court configuration |
+
+**Level Enum Values:**
+
+- `Y_MINUS` - Y-
+- `Y` - Y
+- `Y_PLUS` - Y+
+- `TBY` - TBY
+- `TB_MINUS` - TB-
+- `TB` - TB
+- `TB_PLUS` - TB+
+- `K` - K
+
+**Response Success (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "cmcoksz69000p0q2j0w6mm3tr",
+    "name": "Friday Evening Session",
+    "status": "PREPARING",
+    "numberOfCourts": 2,
+    "maxPlayersPerCourt": 8,
+    "requiredLevels": ["Y", "Y_PLUS", "TBY"],
+    "startTime": "2025-07-04T18:00:00.000Z",
+    "endTime": "2025-07-04T20:00:00.000Z",
+    "courts": [...],
+    "host": {...}
+  },
+  "message": "Session created successfully"
+}
+```
+
+**Response Error (400):**
+
+```json
+{
+  "success": false,
+  "error": "Invalid level values: INVALID_LEVEL. Valid levels are: Y_MINUS, Y, Y_PLUS, TBY, TB_MINUS, TB, TB_PLUS, K"
+}
+```
+
+**Notes:**
+
+- If `requiredLevels` is empty array `[]` or not provided, all levels are allowed
+- If `requiredLevels` is provided, only players with levels in this list can join
+- Invalid level values will be rejected with a clear error message
+
+### Update Session Endpoint
+
+#### `PUT /api/sessions/:id`
+
+Update an existing session, including required levels.
+
+**Request Body:**
+
+```json
+{
+  "name": "Updated Session Name",
+  "requiredLevels": ["TB", "TB_PLUS", "K"],
+  "maxPlayersPerCourt": 6
+}
+```
+
+**Request Fields:**
+
+All fields are optional. Only provided fields will be updated.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Session name |
+| `requiredLevels` | Level[] | Array of required player levels. Empty array = all levels allowed |
+| `numberOfCourts` | number | Number of courts |
+| `maxPlayersPerCourt` | number | Max players per court |
+| `sessionDuration` | number | Duration in minutes |
+| `requirePlayerInfo` | boolean | Require player information |
+| `allowGuestJoin` | boolean | Allow guest players |
+| `allowNewPlayers` | boolean | Allow new players to join |
+| `startTime` | string (ISO) | Session start time |
+| `endTime` | string (ISO) | Session end time |
+
+**Response Success (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "cmcoksz69000p0q2j0w6mm3tr",
+    "name": "Updated Session Name",
+    "requiredLevels": ["TB", "TB_PLUS", "K"],
+    ...
+  },
+  "message": "Session updated successfully"
+}
+```
+
+**Response Error (400):**
+
+```json
+{
+  "success": false,
+  "error": "requiredLevels must be an array"
+}
+```
+
+**Notes:**
+
+- Changing `requiredLevels` on an active session may affect existing players
+- Frontend should show confirmation dialog when changing levels on active sessions
+- Empty array `[]` means all levels are allowed
+
+### Player Join Validation
+
+#### `POST /api/sessions/:id/players`
+
+Create a new player in a session. The player's level will be validated against the session's `requiredLevels`.
+
+**Request Body:**
+
+```json
+{
+  "playerNumber": 1,
+  "name": "John Doe",
+  "gender": "MALE",
+  "level": "Y_PLUS",
+  "phone": "1234567890",
+  "preFilledByHost": false,
+  "requireConfirmInfo": true
+}
+```
+
+**Level Validation:**
+
+If the session has `requiredLevels` set:
+
+1. **Player must have a level:**
+   - If player has no level, returns error: `"This session requires players to have one of these levels: Y, Y_PLUS, TBY. Please provide your level."`
+
+2. **Player level must be in requiredLevels:**
+   - If player's level is not in the required list, returns error: `"Your level (TB) is not allowed in this session. Required levels: Y, Y_PLUS, TBY"`
+
+**Response Success (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "player123",
+    "playerNumber": 1,
+    "name": "John Doe",
+    "level": "Y_PLUS",
+    "sessionId": "session123",
+    ...
+  },
+  "message": "Player created successfully"
+}
+```
+
+**Response Error (400) - No Level:**
+
+```json
+{
+  "success": false,
+  "error": "This session requires players to have one of these levels: Y, Y_PLUS, TBY. Please provide your level."
+}
+```
+
+**Response Error (400) - Invalid Level:**
+
+```json
+{
+  "success": false,
+  "error": "Your level (TB) is not allowed in this session. Required levels: Y, Y_PLUS, TBY"
+}
+```
+
+**Notes:**
+
+- Validation only applies if session has `requiredLevels` set (non-empty array)
+- If `requiredLevels` is empty or undefined, all levels are allowed
+- Bulk player creation also validates levels for each player
+
 ### Session End Endpoint
 
 #### `POST /api/sessions/:id/end`

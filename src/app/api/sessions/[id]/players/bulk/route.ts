@@ -52,7 +52,7 @@ export async function POST(
 
     const playersData: BulkPlayerData[] = body;
 
-    // Validate session exists
+    // Validate session exists and get requiredLevels
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: {
@@ -70,6 +70,7 @@ export async function POST(
       numberOfCourts: session.numberOfCourts,
       maxPlayersPerCourt: session.maxPlayersPerCourt,
       existingPlayersCount: session.players.length,
+      requiredLevels: session.requiredLevels,
     });
 
     // Calculate max players allowed
@@ -141,6 +142,19 @@ export async function POST(
         ].includes(playerData.level)
       ) {
         errors.push(`Player ${index + 1}: level is not valid`);
+      }
+
+      // Validate level against session's requiredLevels
+      if (session.requiredLevels && session.requiredLevels.length > 0) {
+        if (!playerData.level) {
+          errors.push(
+            `Player ${index + 1}: level is required for this session. Required levels: ${session.requiredLevels.join(', ')}`
+          );
+        } else if (!session.requiredLevels.includes(playerData.level as any)) {
+          errors.push(
+            `Player ${index + 1}: level ${playerData.level} is not allowed in this session. Required levels: ${session.requiredLevels.join(', ')}`
+          );
+        }
       }
 
       // Validate phone format (optional)

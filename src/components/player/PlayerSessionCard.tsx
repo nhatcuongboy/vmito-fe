@@ -1,7 +1,16 @@
 'use client';
 
-import { Box, Stack, Badge, Icon, Flex, Text, Heading } from '@chakra-ui/react';
-import { Calendar, Clock, Users, SquareAsterisk, Eye } from 'lucide-react';
+import {
+  Box,
+  Stack,
+  Badge,
+  Icon,
+  Flex,
+  Text,
+  Heading,
+  Wrap
+} from '@chakra-ui/react';
+import { Calendar, Clock, Users, SquareAsterisk, Eye, Shield } from 'lucide-react';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { useTranslations, useLocale } from 'next-intl';
 import dayjs from '@/lib/dayjs';
@@ -147,6 +156,24 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
               {session._count.players} / {maxPlayers} {t("players")}
             </Text> */}
           </Flex>
+          {session.requiredLevels &&
+            session.requiredLevels.length > 0 && (
+              <Flex align="flex-start">
+                <Icon as={Shield} boxSize={5} mr={2} color="blue.500" mt={0.5} />
+                <Box>
+                  <Text fontSize="sm" fontWeight="semibold" mb={1}>
+                    Required Levels:
+                  </Text>
+                  <Wrap gap={1}>
+                    {session.requiredLevels.map((level) => (
+                      <Badge key={level} colorScheme="blue" fontSize="xs">
+                        {level.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                  </Wrap>
+                </Box>
+              </Flex>
+            )}
 
           {/* Player-specific info */}
           <Box

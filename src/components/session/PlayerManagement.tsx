@@ -102,7 +102,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
-  
+
   // Internal state management
   const [newPlayers, setNewPlayers] = useState<
     Array<{
@@ -149,6 +149,21 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     loadUsers();
   }, []);
 
+  /**
+   * Get default level for new players based on session requiredLevels
+   * - If session has requiredLevels, use the first level as default
+   * - Otherwise, default to TB_MINUS
+   * Ensures new players start with a valid level for the session
+   */
+  const getDefaultLevel = (): Level => {
+    if (session.requiredLevels && session.requiredLevels.length > 0) {
+      // Use the first required level as default
+      return session.requiredLevels[0] as Level;
+    }
+    // Default to TB_MINUS if no required levels
+    return Level.TB_MINUS;
+  };
+
   // Player management functions
   const addNewPlayerRow = () => {
     // Find the highest player number from both existing players and new players being added
@@ -171,7 +186,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         playerNumber: nextPlayerNumber,
         name: '',
         gender: 'MALE',
-        level: Level.TB_MINUS,
+        level: getDefaultLevel(),
         levelDescription: '',
         requireConfirmInfo: true,
       },
@@ -191,9 +206,13 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     if (!userId) {
       // Clear selection
       updateNewPlayer(index, 'userId', '');
-      updateNewPlayer(index, 'name', `Player ${newPlayers[index].playerNumber}`);
+      updateNewPlayer(
+        index,
+        'name',
+        `Player ${newPlayers[index].playerNumber}`
+      );
       updateNewPlayer(index, 'gender', 'MALE');
-      updateNewPlayer(index, 'level', Level.TB_MINUS);
+      updateNewPlayer(index, 'level', getDefaultLevel());
       updateNewPlayer(index, 'levelDescription', '');
       return;
     }
@@ -241,7 +260,11 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         updateNewPlayer(index, 'level', selectedUser.level as Level);
       }
       if (selectedUser.levelDescription) {
-        updateNewPlayer(index, 'levelDescription', selectedUser.levelDescription);
+        updateNewPlayer(
+          index,
+          'levelDescription',
+          selectedUser.levelDescription
+        );
       }
     }
   };
@@ -559,18 +582,38 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   };
 
   // Helper function to check if a user is already selected
-  const isUserAlreadyUsed = (userId: string, currentIndex?: number): boolean => {
+  const isUserAlreadyUsed = (
+    userId: string,
+    currentIndex?: number
+  ): boolean => {
     // Check in new players (excluding current index if provided)
     const inNewPlayers = newPlayers.some(
-      (p, idx) => p.userId === userId && (currentIndex === undefined || idx !== currentIndex)
+      (p, idx) =>
+        p.userId === userId &&
+        (currentIndex === undefined || idx !== currentIndex)
     );
-    
+
     // Check in existing players
     const inExistingPlayers = session.players.some(
       (p: any) => p.userId === userId
     );
-    
+
     return inNewPlayers || inExistingPlayers;
+  };
+
+  /**
+   * Get available levels for player selection based on session requiredLevels
+   * - If session has requiredLevels (non-empty), return only those levels
+   * - If requiredLevels is empty/undefined, return all levels
+   * Used to filter level dropdown options in player forms
+   */
+  const getAvailableLevels = (): Level[] => {
+    // If session has requiredLevels and it's not empty, return only those levels
+    if (session.requiredLevels && session.requiredLevels.length > 0) {
+      return session.requiredLevels as Level[];
+    }
+    // Otherwise, return all levels
+    return Object.values(Level);
   };
 
   return (
@@ -729,7 +772,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                           </Text>
                           <select
                             value={player.userId || ''}
-                            onChange={(e) => handleUserSelection(index, e.target.value)}
+                            onChange={(e) =>
+                              handleUserSelection(index, e.target.value)
+                            }
                             style={{
                               width: '100%',
                               padding: '12px',
@@ -745,8 +790,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                             {availableUsers.map((user) => {
                               const isUsed = isUserAlreadyUsed(user.id, index);
                               return (
-                                <option 
-                                  key={user.id} 
+                                <option
+                                  key={user.id}
                                   value={user.id}
                                   disabled={isUsed}
                                   style={{
@@ -754,7 +799,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     fontStyle: isUsed ? 'italic' : 'normal',
                                   }}
                                 >
-                                  {user.name} ({user.email}){isUsed ? ` - ${t('alreadySelected')}` : ''}
+                                  {user.name} ({user.email})
+                                  {isUsed ? ` - ${t('alreadySelected')}` : ''}
                                 </option>
                               );
                             })}
@@ -837,10 +883,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 padding: '12px',
                                 borderRadius: '6px',
                                 border: '1px solid #E2E8F0',
-                                backgroundColor: player.userId ? '#F7FAFC' : 'white',
+                                backgroundColor: player.userId
+                                  ? '#F7FAFC'
+                                  : 'white',
                                 fontSize: '14px',
                                 opacity: player.userId ? 0.6 : 1,
-                                cursor: player.userId ? 'not-allowed' : 'pointer',
+                                cursor: player.userId
+                                  ? 'not-allowed'
+                                  : 'pointer',
                               }}
                               disabled={!!player.userId}
                             >
@@ -871,22 +921,23 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                 padding: '12px',
                                 borderRadius: '6px',
                                 border: '1px solid #E2E8F0',
-                                backgroundColor: player.userId ? '#F7FAFC' : 'white',
+                                backgroundColor: player.userId
+                                  ? '#F7FAFC'
+                                  : 'white',
                                 fontSize: '14px',
                                 opacity: player.userId ? 0.6 : 1,
-                                cursor: player.userId ? 'not-allowed' : 'pointer',
+                                cursor: player.userId
+                                  ? 'not-allowed'
+                                  : 'pointer',
                               }}
                               disabled={!!player.userId}
                             >
                               <option value="">{t('selectLevel')}</option>
-                              <option value={Level.Y_MINUS}>Y-</option>
-                              <option value={Level.Y}>Y</option>
-                              <option value={Level.Y_PLUS}>Y+</option>
-                              <option value={Level.TBY}>TBY</option>
-                              <option value={Level.TB_MINUS}>TB-</option>
-                              <option value={Level.TB}>TB</option>
-                              <option value={Level.TB_PLUS}>TB+</option>
-                              <option value={Level.K}>K</option>
+                              {getAvailableLevels().map((level) => (
+                                <option key={level} value={level}>
+                                  {getLevelLabel(level)}
+                                </option>
+                              ))}
                             </select>
                           </Box>
                         </Grid>
@@ -1174,7 +1225,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     }}
                                   >
                                     <option value="MALE">{t('male')}</option>
-                                    <option value="FEMALE">{t('female')}</option>
+                                    <option value="FEMALE">
+                                      {t('female')}
+                                    </option>
                                     <option value="OTHER">{t('other')}</option>
                                     <option value="PREFER_NOT_TO_SAY">
                                       {t('preferNotToSay')}
@@ -1209,14 +1262,11 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                                     }}
                                   >
                                     <option value="">{t('selectLevel')}</option>
-                                    <option value={Level.Y_MINUS}>Y-</option>
-                                    <option value={Level.Y}>Y</option>
-                                    <option value={Level.Y_PLUS}>Y+</option>
-                                    <option value={Level.TBY}>TBY</option>
-                                    <option value={Level.TB_MINUS}>TB-</option>
-                                    <option value={Level.TB}>TB</option>
-                                    <option value={Level.TB_PLUS}>TB+</option>
-                                    <option value={Level.K}>K</option>
+                                    {getAvailableLevels().map((level) => (
+                                      <option key={level} value={level}>
+                                        {getLevelLabel(level)}
+                                      </option>
+                                    ))}
                                   </select>
                                 </Box>
                               </Grid>
@@ -1689,7 +1739,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             <VStack gap={4}>
               <HStack justify="space-between" w="full">
                 <Text fontSize="lg" fontWeight="bold">
-                  {t('qrCodeModal.title', { number: selectedPlayerForQR.playerNumber })}
+                  {t('qrCodeModal.title', {
+                    number: selectedPlayerForQR.playerNumber,
+                  })}
                 </Text>
                 <Button size="sm" variant="ghost" onClick={closeQRModal}>
                   ✕

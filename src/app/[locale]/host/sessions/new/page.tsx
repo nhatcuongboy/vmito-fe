@@ -2,20 +2,25 @@
 
 import TopBar from '@/components/ui/TopBar';
 import { SessionService } from '@/lib/api/session.service';
-import { CourtDirection } from '@/lib/api/types';
+import { CourtDirection, Level } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import {
+  Badge,
   Box,
   // Button,
   Container,
   Flex,
   Heading,
+  HStack,
   Input,
   Stack,
   Text,
+  VStack,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Plus, Minus, Save } from 'lucide-react';
+import { Plus, Minus, Save, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
@@ -45,6 +50,7 @@ function NewSessionPageContent() {
       direction: CourtDirection.HORIZONTAL,
     },
   ]);
+  const [requiredLevels, setRequiredLevels] = useState<Level[]>([]);
 
   const now = new Date();
   const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
@@ -124,6 +130,7 @@ function NewSessionPageContent() {
         sessionDuration,
         maxPlayersPerCourt,
         requirePlayerInfo: false,
+        requiredLevels: requiredLevels.length > 0 ? requiredLevels : undefined,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         courts: courts.map((court) => ({
@@ -177,6 +184,15 @@ function NewSessionPageContent() {
     const newCourts = [...courts];
     newCourts[index] = { ...newCourts[index], [field]: value };
     setCourts(newCourts);
+  };
+
+  const handleLevelToggle = (level: Level) => {
+    setRequiredLevels((prev) => {
+      const isSelected = prev.includes(level);
+      return isSelected
+        ? prev.filter((l) => l !== level)
+        : [...prev, level];
+    });
   };
 
   return (
@@ -245,6 +261,58 @@ function NewSessionPageContent() {
                 max={12}
                 size="lg"
               />
+            </Box>
+
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <VStack gap={4} align="stretch">
+                <Heading size="md">
+                  <HStack>
+                    <Shield size={16} />
+                    <Text>Required Player Levels</Text>
+                  </HStack>
+                </Heading>
+
+                <Box p={4} bg="gray.50" borderRadius="lg">
+                  <Text fontSize="sm" color="gray.600" mb={3}>
+                    Select required levels for this session. Leave empty to allow
+                    all levels.
+                  </Text>
+
+                  <Wrap gap={2}>
+                    {Object.values(Level).map((level) => {
+                      const isSelected = requiredLevels.includes(level);
+                      return (
+                        <WrapItem key={level}>
+                          <Badge
+                            px={3}
+                            py={2}
+                            borderRadius="md"
+                            cursor="pointer"
+                            bg={isSelected ? 'blue.500' : 'gray.200'}
+                            color={isSelected ? 'white' : 'gray.700'}
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            onClick={() => handleLevelToggle(level)}
+                            _hover={{
+                              transform: 'translateY(-1px)',
+                              boxShadow: 'sm',
+                            }}
+                            transition="all 0.2s"
+                          >
+                            {level.replace('_', ' ')}
+                          </Badge>
+                        </WrapItem>
+                      );
+                    })}
+                  </Wrap>
+
+                  {requiredLevels.length > 0 && (
+                    <Text fontSize="xs" color="blue.600" mt={2}>
+                      ✓ {requiredLevels.length} level(s) selected
+                    </Text>
+                  )}
+                </Box>
+              </VStack>
             </Box>
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">

@@ -1,6 +1,7 @@
 import { prisma } from '@/app/lib/prisma';
 import { successResponse, errorResponse } from '@/app/lib/api-response';
 import { NextRequest } from 'next/server';
+import { Level } from '@/lib/api/types';
 
 // GET /api/sessions - Retrieve list of all sessions
 export async function GET(_: NextRequest) {
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
       maxPlayersPerCourt,
       requirePlayerInfo,
       allowGuestJoin = true, // New field for guest access
+      requiredLevels = [], // Default to empty array (all levels allowed)
       startTime,
       endTime,
     } = body;
@@ -70,6 +72,35 @@ export async function POST(request: NextRequest) {
       return errorResponse('Host not found');
     }
 
+    /**
+     * Validate requiredLevels if provided
+     * - Must be an array (empty array = all levels allowed)
+     * - Each level must be a valid Level enum value
+     * - Rejects invalid level values with clear error message
+     */
+    if (requiredLevels !== undefined) {
+      // Must be an array
+      if (!Array.isArray(requiredLevels)) {
+        return errorResponse(
+          'requiredLevels must be an array',
+          400
+        );
+      }
+
+      // Validate each level is a valid Level enum value
+      const validLevels = Object.values(Level);
+      const invalidLevels = requiredLevels.filter(
+        (level) => !validLevels.includes(level)
+      );
+
+      if (invalidLevels.length > 0) {
+        return errorResponse(
+          `Invalid level values: ${invalidLevels.join(', ')}. Valid levels are: ${validLevels.join(', ')}`,
+          400
+        );
+      }
+    }
+
     // Create session
     const session = await prisma.session.create({
       data: {
@@ -80,6 +111,7 @@ export async function POST(request: NextRequest) {
         maxPlayersPerCourt: maxPlayersPerCourt || 8,
         requirePlayerInfo: requirePlayerInfo ?? true,
         allowGuestJoin: allowGuestJoin ?? true,
+        requiredLevels: requiredLevels || [], // Add requiredLevels field
         startTime: startTime ? new Date(startTime) : new Date(),
         endTime: endTime
           ? new Date(endTime)

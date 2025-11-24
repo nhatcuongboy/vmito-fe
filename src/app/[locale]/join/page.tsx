@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
 import {
+  Badge,
   Box,
   Container,
   Flex,
@@ -14,13 +15,14 @@ import {
   Spinner,
   Stack,
   Text,
+  Wrap,
 } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import { Activity, ArrowRight, Hash, LogIn, Users } from 'lucide-react';
+import { Activity, ArrowRight, Hash, LogIn, Shield, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ISession } from '@/lib/api/types';
+import { ISession, Level } from '@/lib/api/types';
 
 const formatRangeTime = (
   startTime?: string | Date,
@@ -249,14 +251,43 @@ export default function JoinPage() {
                     </select>
                   )}
                   {selectedSession && (
-                    <Box mt={2} p={2} bg="blue.50" borderRadius="md">
-                      <Text fontSize="sm" color="blue.600">
-                        {t('sessionInfo', {
-                          host: selectedSession.host.name,
-                          courts: selectedSession.numberOfCourts,
-                          players: selectedSession.players?.length || 0,
-                        })}
-                      </Text>
+                    <Box mt={2}>
+                      <Box p={2} bg="blue.50" borderRadius="md" mb={2}>
+                        <Text fontSize="sm" color="blue.600">
+                          {t('sessionInfo', {
+                            host: selectedSession.host.name,
+                            courts: selectedSession.numberOfCourts,
+                            players: selectedSession.players?.length || 0,
+                          })}
+                        </Text>
+                      </Box>
+                      {selectedSession.requiredLevels &&
+                        selectedSession.requiredLevels.length > 0 && (
+                          <Box
+                            p={3}
+                            bg="orange.50"
+                            borderRadius="md"
+                            borderLeft="4px solid"
+                            borderColor="orange.400"
+                          >
+                            <Flex align="center" mb={2}>
+                              <Box as={Shield} boxSize={4} color="orange.600" mr={2} />
+                              <Text fontSize="sm" fontWeight="semibold" color="orange.700">
+                                Required Levels:
+                              </Text>
+                            </Flex>
+                            <Wrap gap={1}>
+                              {selectedSession.requiredLevels.map((level) => (
+                                <Badge key={level} colorScheme="orange" fontSize="xs">
+                                  {level.replace('_', ' ')}
+                                </Badge>
+                              ))}
+                            </Wrap>
+                            <Text fontSize="xs" color="orange.600" mt={2}>
+                              Only players with these levels can join this session.
+                            </Text>
+                          </Box>
+                        )}
                     </Box>
                   )}
                 </Box>
@@ -333,63 +364,133 @@ export default function JoinPage() {
 
                       {/* Player info preview */}
                       {selectedPlayer && (
-                        <Box
-                          mt={3}
-                          p={3}
-                          bg={
-                            selectedPlayer?.requireConfirmInfo &&
-                            !selectedPlayer.confirmedByPlayer
-                              ? 'yellow.50'
-                              : 'blue.50'
-                          }
-                          borderRadius="md"
-                        >
-                          <Text fontWeight="medium" mb={1}>
-                            {t('playerInformation')}
-                          </Text>
-                          <Stack gap={1} fontSize="sm">
-                            <Text>
-                              {t('number')}:{' '}
-                              <strong>#{selectedPlayer.playerNumber}</strong>
-                            </Text>
-                            {selectedPlayer.name && (
-                              <Text>
-                                {t('name')}:{' '}
-                                <strong>{selectedPlayer.name}</strong>
-                              </Text>
-                            )}
-                            {selectedPlayer.gender && (
-                              <Text>
-                                {t('gender')}:{' '}
-                                <strong>
-                                  {selectedPlayer.gender === 'MALE'
-                                    ? t('male')
-                                    : t('female')}
-                                </strong>
-                              </Text>
-                            )}
-                            {selectedPlayer.phone && (
-                              <Text>
-                                {t('phone')}:{' '}
-                                <strong>{selectedPlayer.phone}</strong>
-                              </Text>
-                            )}
-                            <Text>
-                              {t('status.yourStatus')}:{' '}
-                              <strong
-                                color={
-                                  selectedPlayer.confirmedByPlayer
-                                    ? 'orange.600'
-                                    : 'green.600'
+                        <Box mt={3}>
+                          {/* Level validation warning */}
+                          {selectedSession?.requiredLevels &&
+                            selectedSession.requiredLevels.length > 0 && (
+                              <Box
+                                p={3}
+                                bg={
+                                  selectedPlayer.level &&
+                                  selectedSession.requiredLevels.includes(
+                                    selectedPlayer.level as Level
+                                  )
+                                    ? 'green.50'
+                                    : !selectedPlayer.level
+                                      ? 'yellow.50'
+                                      : 'red.50'
+                                }
+                                borderRadius="md"
+                                mb={3}
+                                borderLeft="4px solid"
+                                borderColor={
+                                  selectedPlayer.level &&
+                                  selectedSession.requiredLevels.includes(
+                                    selectedPlayer.level as Level
+                                  )
+                                    ? 'green.400'
+                                    : !selectedPlayer.level
+                                      ? 'yellow.400'
+                                      : 'red.400'
                                 }
                               >
-                                {selectedPlayer?.requireConfirmInfo &&
-                                !selectedPlayer.confirmedByPlayer
-                                  ? t('needConfirmation')
-                                  : t('alreadyConfirmed')}
-                              </strong>
+                                {selectedPlayer.level ? (
+                                  selectedSession.requiredLevels.includes(
+                                    selectedPlayer.level as Level
+                                  ) ? (
+                                    <Flex align="center">
+                                      <Text fontSize="sm" color="green.700" fontWeight="medium">
+                                        ✓ Your level ({selectedPlayer.level.replace('_', ' ')}) is
+                                        allowed in this session.
+                                      </Text>
+                                    </Flex>
+                                  ) : (
+                                    <Flex align="center">
+                                      <Text fontSize="sm" color="red.700" fontWeight="medium">
+                                        ⚠️ Your level ({selectedPlayer.level.replace('_', ' ')}) is
+                                        not allowed. Required levels:{' '}
+                                        {selectedSession.requiredLevels
+                                          .map((l) => l.replace('_', ' '))
+                                          .join(', ')}
+                                      </Text>
+                                    </Flex>
+                                  )
+                                ) : (
+                                  <Flex align="center">
+                                    <Text fontSize="sm" color="yellow.700" fontWeight="medium">
+                                      ⚠️ This session requires a level. Please update your profile
+                                      with one of: {selectedSession.requiredLevels
+                                        .map((l) => l.replace('_', ' '))
+                                        .join(', ')}
+                                    </Text>
+                                  </Flex>
+                                )}
+                              </Box>
+                            )}
+                          <Box
+                            p={3}
+                            bg={
+                              selectedPlayer?.requireConfirmInfo &&
+                              !selectedPlayer.confirmedByPlayer
+                                ? 'yellow.50'
+                                : 'blue.50'
+                            }
+                            borderRadius="md"
+                          >
+                            <Text fontWeight="medium" mb={1}>
+                              {t('playerInformation')}
                             </Text>
-                          </Stack>
+                            <Stack gap={1} fontSize="sm">
+                              <Text>
+                                {t('number')}:{' '}
+                                <strong>#{selectedPlayer.playerNumber}</strong>
+                              </Text>
+                              {selectedPlayer.name && (
+                                <Text>
+                                  {t('name')}:{' '}
+                                  <strong>{selectedPlayer.name}</strong>
+                                </Text>
+                              )}
+                              {selectedPlayer.gender && (
+                                <Text>
+                                  {t('gender')}:{' '}
+                                  <strong>
+                                    {selectedPlayer.gender === 'MALE'
+                                      ? t('male')
+                                      : t('female')}
+                                  </strong>
+                                </Text>
+                              )}
+                              {selectedPlayer.level && (
+                                <Text>
+                                  {t('level')}:{' '}
+                                  <strong>
+                                    {selectedPlayer.level.replace('_', ' ')}
+                                  </strong>
+                                </Text>
+                              )}
+                              {selectedPlayer.phone && (
+                                <Text>
+                                  {t('phone')}:{' '}
+                                  <strong>{selectedPlayer.phone}</strong>
+                                </Text>
+                              )}
+                              <Text>
+                                {t('status.yourStatus')}:{' '}
+                                <strong
+                                  color={
+                                    selectedPlayer.confirmedByPlayer
+                                      ? 'orange.600'
+                                      : 'green.600'
+                                  }
+                                >
+                                  {selectedPlayer?.requireConfirmInfo &&
+                                  !selectedPlayer.confirmedByPlayer
+                                    ? t('needConfirmation')
+                                    : t('alreadyConfirmed')}
+                                </strong>
+                              </Text>
+                            </Stack>
                           {/* {selectedPlayer.confirmedByPlayer && (
                             <Box mt={2} p={2} bg="orange.100" borderRadius="md">
                               <Text fontSize="xs" color="orange.700">

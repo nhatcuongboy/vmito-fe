@@ -66,18 +66,36 @@ export const SessionService = {
   },
 
   // Get session by ID
+  /**
+   * Get a session by ID
+   * @param id - Session ID
+   * @returns Session object including requiredLevels field (if set)
+   */
   getSession: async (id: string): Promise<ISession> => {
     const response = await api.get<ApiResponse<ISession>>(`/sessions/${id}`);
     return response.data.data!;
   },
 
   // Create session
+  /**
+   * Create a new session
+   * @param data - Session creation data including optional requiredLevels
+   * @param data.requiredLevels - Optional array of Level enum values. Empty array or undefined = all levels allowed
+   * @returns Created session object with requiredLevels field
+   */
   createSession: async (data: CreateSessionRequest): Promise<ISession> => {
     const response = await api.post<ApiResponse<ISession>>('/sessions', data);
     return response.data.data!;
   },
 
   // Update session
+  /**
+   * Update an existing session
+   * @param id - Session ID
+   * @param data - Partial session data including optional requiredLevels
+   * @param data.requiredLevels - Optional array of Level enum values. Empty array or undefined = all levels allowed
+   * @returns Updated session object with requiredLevels field
+   */
   updateSession: async (
     id: string,
     data: Partial<ISession>

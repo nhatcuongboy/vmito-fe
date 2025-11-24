@@ -2,6 +2,7 @@ import { prisma } from '@/app/lib/prisma';
 import { successResponse, errorResponse } from '@/app/lib/api-response';
 import { generateCourtName } from '@/utils/session-helpers';
 import { NextRequest } from 'next/server';
+import { Level } from '@/lib/api/types';
 
 interface SessionParams {
   id: string;
@@ -184,9 +185,40 @@ export async function PUT(
       requirePlayerInfo,
       allowGuestJoin,
       allowNewPlayers,
+      requiredLevels,
       startTime,
       endTime,
     } = body;
+
+    /**
+     * Validate requiredLevels if provided
+     * - Must be an array (empty array = all levels allowed)
+     * - Each level must be a valid Level enum value
+     * - Rejects invalid level values with clear error message
+     * Note: Changing requiredLevels on active session may affect existing players
+     */
+    if (requiredLevels !== undefined) {
+      // Must be an array
+      if (!Array.isArray(requiredLevels)) {
+        return errorResponse(
+          'requiredLevels must be an array',
+          400
+        );
+      }
+
+      // Validate each level is a valid Level enum value
+      const validLevels = Object.values(Level);
+      const invalidLevels = requiredLevels.filter(
+        (level) => !validLevels.includes(level)
+      );
+
+      if (invalidLevels.length > 0) {
+        return errorResponse(
+          `Invalid level values: ${invalidLevels.join(', ')}. Valid levels are: ${validLevels.join(', ')}`,
+          400
+        );
+      }
+    }
 
     const session = await prisma.session.update({
       where: { id },
@@ -198,6 +230,7 @@ export async function PUT(
         requirePlayerInfo: requirePlayerInfo ?? undefined,
         allowGuestJoin: allowGuestJoin ?? undefined,
         allowNewPlayers: allowNewPlayers ?? undefined,
+        requiredLevels: requiredLevels !== undefined ? requiredLevels : undefined,
         startTime: startTime ? new Date(startTime) : undefined,
         endTime: endTime ? new Date(endTime) : undefined,
       },

@@ -45,6 +45,7 @@ export interface ISession {
   sessionDuration: number;
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
+  requiredLevels?: Level[]; // Optional: empty array or undefined = all levels allowed
   status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
   startTime?: Date;
   endTime?: Date;
@@ -190,6 +191,7 @@ export interface CreateSessionRequest {
   sessionDuration: number;
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
+  requiredLevels?: Level[]; // Optional: empty array or undefined = all levels allowed
   startTime?: Date;
   endTime?: Date;
   courts?: CourtConfig[];
