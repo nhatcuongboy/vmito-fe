@@ -12,6 +12,9 @@ import {
   IconButton as ChakraIconButton,
   IconButtonProps as ChakraIconButtonProps,
   Heading as ChakraHeading,
+  Input as ChakraInput,
+  InputProps as ChakraInputProps,
+  useDisclosure as useChakraDisclosure,
 } from '@chakra-ui/react';
 
 // Create Card components
@@ -84,6 +87,15 @@ export const Th = ({ children, ...props }: React.PropsWithChildren<any>) => (
 
 export const Td = ({ children, ...props }: React.PropsWithChildren<any>) => (
   <Box as="td" padding="2" flex="1" {...props}>
+    {children}
+  </Box>
+);
+
+export const TableContainer = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box overflowX="auto" {...props}>
     {children}
   </Box>
 );
@@ -215,6 +227,95 @@ export const TabPanels = ({
 }: TabPanelsProps) => (
   <Box {...props}>{React.Children.toArray(children)[index] || null}</Box>
 );
+
+export const TabList = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box
+    display="flex"
+    borderBottom="1px solid"
+    borderColor="gray.200"
+    {...props}
+  >
+    {children}
+  </Box>
+);
+
+// Create Tabs component that works with TabList and TabPanels
+interface TabsComponentProps {
+  children: React.ReactNode;
+  variant?: string;
+  colorScheme?: string;
+  index?: number;
+  onChange?: (index: number) => void;
+}
+
+export const Tabs: React.FC<TabsComponentProps> = ({
+  children,
+  index = 0,
+  onChange,
+  ...props
+}) => {
+  const [selectedIndex, setSelectedIndex] = React.useState(index);
+
+  React.useEffect(() => {
+    setSelectedIndex(index);
+  }, [index]);
+
+  const handleTabClick = (idx: number) => {
+    setSelectedIndex(idx);
+    if (onChange) {
+      onChange(idx);
+    }
+  };
+
+  // Extract TabList and TabPanels from children
+  const childrenArray = React.Children.toArray(children);
+  const tabList = childrenArray.find(
+    (child) => React.isValidElement(child) && child.type === TabList
+  );
+  const tabPanels = childrenArray.find(
+    (child) => React.isValidElement(child) && child.type === TabPanels
+  );
+
+  // Clone TabList with click handlers on Tab children
+  const enhancedTabList = React.isValidElement(tabList)
+    ? React.cloneElement(
+        tabList as React.ReactElement<React.PropsWithChildren<any>>,
+        {},
+        React.Children.map(
+          (tabList as React.ReactElement<React.PropsWithChildren<any>>).props
+            .children,
+          (tab: React.ReactNode, idx: number) => {
+            if (React.isValidElement(tab) && tab.type === Tab) {
+              return React.cloneElement(tab as React.ReactElement<TabProps>, {
+                key: idx,
+                onClick: () => handleTabClick(idx),
+                'data-selected': selectedIndex === idx,
+                'aria-selected': selectedIndex === idx,
+              });
+            }
+            return tab;
+          }
+        )
+      )
+    : tabList;
+
+  // Clone TabPanels with selected index
+  const enhancedTabPanels = React.isValidElement(tabPanels)
+    ? React.cloneElement(tabPanels as React.ReactElement<TabPanelsProps>, {
+        index: selectedIndex,
+      })
+    : tabPanels;
+
+  return (
+    <Box {...props}>
+      {enhancedTabList}
+      {enhancedTabPanels}
+    </Box>
+  );
+};
 
 // Create enhanced Button with leftIcon support
 export interface ButtonProps extends Omit<ChakraButtonProps, 'as'> {
@@ -410,5 +511,246 @@ export const useToast = () => {
       console.log('Toast:', options);
       // We'll implement proper toast in the next iteration
     },
+  };
+};
+
+// Create Modal components
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  size?: string;
+  children: React.ReactNode;
+}
+
+export const Modal = ({ isOpen, onClose, size, children }: ModalProps) => {
+  if (!isOpen) return null;
+
+  const maxWidth = size === 'lg' ? '600px' : size === 'md' ? '500px' : '400px';
+
+  return (
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      bg="blackAlpha.600"
+      zIndex={1000}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      p={4}
+      onClick={onClose}
+    >
+      <Box
+        bg="white"
+        borderRadius="lg"
+        boxShadow="xl"
+        maxW={maxWidth}
+        w="full"
+        maxH="90vh"
+        overflow="auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
+export const ModalOverlay = () => null; // Handled by Modal
+
+export const ModalContent = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box position="relative" {...props}>
+    {children}
+  </Box>
+);
+
+export const ModalHeader = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box
+    p={4}
+    pr={12}
+    borderBottomWidth="1px"
+    borderColor="gray.200"
+    fontWeight="bold"
+    fontSize="lg"
+    {...props}
+  >
+    {children}
+  </Box>
+);
+
+export const ModalBody = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box p={4} {...props}>
+    {children}
+  </Box>
+);
+
+export const ModalFooter = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box
+    p={4}
+    borderTopWidth="1px"
+    borderColor="gray.200"
+    display="flex"
+    justifyContent="flex-end"
+    gap={3}
+    {...props}
+  >
+    {children}
+  </Box>
+);
+
+export const ModalCloseButton = ({
+  onClose,
+  ...props
+}: { onClose?: () => void } & any) => (
+  <Box
+    as="button"
+    position="absolute"
+    top={2}
+    right={2}
+    p={1}
+    borderRadius="md"
+    _hover={{ bg: 'gray.100' }}
+    onClick={onClose}
+    {...props}
+  >
+    <Box as="span" fontSize="xl" lineHeight={1}>
+      ×
+    </Box>
+  </Box>
+);
+
+// Create Form components
+interface FormControlProps {
+  children: React.ReactNode;
+  isRequired?: boolean;
+}
+
+export const FormControl = ({
+  children,
+  isRequired,
+  ...props
+}: FormControlProps & any) => (
+  <Box mb={4} {...props}>
+    {React.Children.map(children, (child) => {
+      if (
+        React.isValidElement(child) &&
+        child.type === FormLabel &&
+        isRequired
+      ) {
+        const childElement = child as React.ReactElement<FormLabelProps>;
+        return React.cloneElement(childElement, {
+          children: (
+            <>
+              {childElement.props.children}
+              <Box as="span" color="red.500" ml={1}>
+                *
+              </Box>
+            </>
+          ),
+        });
+      }
+      return child;
+    })}
+  </Box>
+);
+
+interface FormLabelProps {
+  children: React.ReactNode;
+}
+
+export const FormLabel = ({ children, ...props }: FormLabelProps & any) => (
+  <Box
+    as="label"
+    display="block"
+    mb={2}
+    fontWeight="medium"
+    fontSize="sm"
+    {...props}
+  >
+    {children}
+  </Box>
+);
+
+// Create Select component wrapper
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  isDisabled?: boolean;
+  children: React.ReactNode;
+}
+
+export const Select = ({ isDisabled, children, ...props }: SelectProps) => (
+  <Box
+    as="select"
+    width="100%"
+    p={2}
+    borderWidth="1px"
+    borderColor="gray.300"
+    borderRadius="md"
+    bg="white"
+    disabled={isDisabled}
+    _disabled={{
+      opacity: 0.6,
+      cursor: 'not-allowed',
+    }}
+    _focus={{
+      borderColor: 'blue.500',
+      boxShadow: '0 0 0 1px blue.500',
+    }}
+    {...(props as any)}
+  >
+    {children}
+  </Box>
+);
+
+// Create enhanced Input with leftElement support
+interface InputProps extends ChakraInputProps {
+  leftElement?: React.ReactNode;
+}
+
+export const Input = ({ leftElement, ...props }: InputProps) => {
+  if (leftElement) {
+    return (
+      <Box position="relative" width="100%">
+        <Box
+          position="absolute"
+          left={3}
+          top="50%"
+          transform="translateY(-50%)"
+          zIndex={1}
+          pointerEvents="none"
+        >
+          {leftElement}
+        </Box>
+        <ChakraInput pl={10} {...props} />
+      </Box>
+    );
+  }
+  return <ChakraInput {...props} />;
+};
+
+// Create useDisclosure wrapper that returns isOpen instead of open
+export const useDisclosure = (defaultIsOpen = false) => {
+  const { open, onOpen, onClose, onToggle, setOpen } = useChakraDisclosure({
+    defaultOpen: defaultIsOpen,
+  });
+  return {
+    isOpen: open,
+    onOpen,
+    onClose,
+    onToggle,
+    setOpen,
   };
 };

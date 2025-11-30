@@ -2,7 +2,7 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Settings, Info, X, LogOut, User } from 'lucide-react';
+import { Home, Settings, Info, X, LogOut, User, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useSession } from 'next-auth/react';
@@ -127,6 +127,18 @@ export default function SlideOutMenu({
                   <Flex align="center" gap={3} w="full">
                     <Info size={18} />
                     <Text>{common('about')}</Text>
+                  </Flex>
+                </NextLinkButton>
+                <NextLinkButton
+                  href="/tournaments"
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={onClose}
+                  w="full"
+                >
+                  <Flex align="center" gap={3} w="full">
+                    <Trophy size={18} />
+                    <Text>{nav('tournaments')}</Text>
                   </Flex>
                 </NextLinkButton>
               </Stack>
