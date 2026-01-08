@@ -16,7 +16,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Clock, MapPin } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 const formatTime = (dateString: string | Date): string => {
   const date = new Date(dateString);
@@ -248,7 +248,7 @@ interface SessionHistoryListProps {
     players: Array<{
       id: string;
       playerNumber: number;
-      name: string;
+      name?: string;
     }>;
     courts: Array<{
       id: string;
@@ -267,55 +267,43 @@ export default function SessionHistoryList({
   const [error, setError] = useState<string | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
-  const [players, setPlayers] = useState<any[]>([]);
-  const [courts, setCourts] = useState<any[]>([]);
-  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  const [players, setPlayers] = useState<any[]>(sessionData?.players || []);
+  const [courts, setCourts] = useState<any[]>(sessionData?.courts || []);
+  
+  // Use ref to store sessionData to avoid triggering effect on object reference changes
+  const sessionDataRef = useRef(sessionData);
+  sessionDataRef.current = sessionData;
 
+  // Combined effect: Load initial data and matches together
   useEffect(() => {
-    async function fetchInitialData() {
+    let cancelled = false;
+
+    async function loadData() {
       try {
         setLoading(true);
         setError(null);
 
-        // Use sessionData if provided, otherwise fetch from API
-        // This optimization avoids redundant API calls when session data is already available
-        if (sessionData) {
-          setPlayers(sessionData.players || []);
-          setCourts(sessionData.courts || []);
-          setInitialDataLoaded(true);
-        } else {
+        // Step 1: Load players and courts if not provided via sessionData
+        const currentSessionData = sessionDataRef.current;
+        let currentPlayers = currentSessionData?.players || [];
+        let currentCourts = currentSessionData?.courts || [];
+
+        if (!currentSessionData) {
           // Fallback to API calls if sessionData is not provided
           const [playersData, courtsData] = await Promise.all([
             SessionService.getSessionPlayers(sessionId),
             SessionService.getSessionCourts(sessionId),
           ]);
-
-          setPlayers(playersData);
-          setCourts(courtsData);
-          setInitialDataLoaded(true);
+          currentPlayers = playersData;
+          currentCourts = courtsData;
         }
-      } catch (err) {
-        setError('Failed to load initial data. Please try again later.');
-        console.error('Error fetching initial data:', err);
-        setLoading(false);
-      }
-      // Don't set loading to false here - let the matches fetch do it
-    }
 
-    fetchInitialData();
-  }, [sessionId, sessionData]);
+        if (cancelled) return;
 
-  useEffect(() => {
-    async function fetchCompletedMatches() {
-      // Only proceed if initial data is loaded
-      if (!initialDataLoaded) return;
+        setPlayers(currentPlayers);
+        setCourts(currentCourts);
 
-      try {
-        setLoading(true);
-        setError(null);
-        const allMatches: HistoryMatch[] = [];
-
-        // Use the new API with filters
+        // Step 2: Load matches
         const filters: { playerId?: string; courtId?: string } = {};
         if (selectedPlayerId) filters.playerId = selectedPlayerId;
         if (selectedCourtId) filters.courtId = selectedCourtId;
@@ -325,12 +313,15 @@ export default function SessionHistoryList({
           Object.keys(filters).length > 0 ? filters : undefined
         );
 
-        const sessionMatches = result.matches; // Only completed matches (status === 'COMPLETED' or similar)
+        if (cancelled) return;
+
+        const sessionMatches = result.matches;
         const completedMatches = sessionMatches.filter(
           (m: any) => m.status === 'COMPLETED' || m.status === 'FINISHED'
         );
+
+        const allMatches: HistoryMatch[] = [];
         for (const match of completedMatches) {
-          // Use any type to avoid TypeScript errors with API data
           const matchData = match as any;
 
           // Get court name/number if available, fallback to courtId
@@ -348,10 +339,10 @@ export default function SessionHistoryList({
           } else if (matchData.courtId) {
             courtName = `Court ${matchData.courtId}`;
           }
+
           // Get player names sorted by courtPosition
           let playerNames: string[] = [];
           if (Array.isArray(matchData.players)) {
-            // Sort players by courtPosition to ensure correct pairing
             const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
               const posA = a.player?.courtPosition ?? a.position ?? 0;
               const posB = b.player?.courtPosition ?? b.position ?? 0;
@@ -362,11 +353,10 @@ export default function SessionHistoryList({
             );
           }
 
-          // Extract match results using the new utility function
+          // Extract match results using the utility function
           let scores;
           let winningPair;
 
-          // Create players array with position info for the utility function
           const playersWithPosition = Array.isArray(matchData.players)
             ? matchData.players.map((mp: any, index: number) => ({
                 playerId: mp.player?.id || mp.playerId,
@@ -374,7 +364,6 @@ export default function SessionHistoryList({
               }))
             : [];
 
-          // Try to parse score data using the utility function
           const matchResult = parseScoreData(matchData, playersWithPosition);
           if (matchResult) {
             scores = matchResult.scores;
@@ -389,7 +378,6 @@ export default function SessionHistoryList({
 
             if (scoreData) {
               try {
-                // Handle the new [21,19] format
                 if (
                   typeof scoreData === 'string' &&
                   scoreData.startsWith('[') &&
@@ -401,27 +389,20 @@ export default function SessionHistoryList({
                       pair1Score: scoreArray[0],
                       pair2Score: scoreArray[1],
                     };
-
-                    // Determine winning pair
                     if (scores.pair1Score > scores.pair2Score) {
                       winningPair = 1 as const;
                     } else if (scores.pair2Score > scores.pair1Score) {
                       winningPair = 2 as const;
                     }
                   }
-                }
-                // Handle legacy formats
-                else {
-                  // Parse if string, use directly if object
+                } else {
                   const parsedScore =
                     typeof scoreData === 'string'
                       ? JSON.parse(scoreData)
                       : scoreData;
 
                   if (parsedScore && typeof parsedScore === 'object') {
-                    // Extract scores from various possible formats
                     const scoresObj = parsedScore.scores || parsedScore;
-
                     const pair1Score =
                       scoresObj.pair1 ||
                       scoresObj.team1 ||
@@ -438,7 +419,6 @@ export default function SessionHistoryList({
                       pair2Score: Number(pair2Score),
                     };
 
-                    // Determine winning pair
                     if (scores.pair1Score > scores.pair2Score) {
                       winningPair = 1 as const;
                     } else if (scores.pair2Score > scores.pair1Score) {
@@ -462,7 +442,7 @@ export default function SessionHistoryList({
             winner: matchData.winner,
             scores,
             winningPair,
-            isExtra: Boolean(matchData.isExtra), // Include isExtra field
+            isExtra: Boolean(matchData.isExtra),
           });
         }
 
@@ -472,17 +452,28 @@ export default function SessionHistoryList({
           const bDate = b.startTime ? new Date(b.startTime).getTime() : 0;
           return bDate - aDate;
         });
-        setMatches(allMatches);
+
+        if (!cancelled) {
+          setMatches(allMatches);
+        }
       } catch (err) {
-        setError('Failed to load match history. Please try again later.');
-        console.error('Error fetching match history:', err);
+        if (!cancelled) {
+          setError('Failed to load match history. Please try again later.');
+          console.error('Error fetching match history:', err);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
-    fetchCompletedMatches();
-  }, [sessionId, selectedPlayerId, selectedCourtId, initialDataLoaded]);
+    loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, selectedPlayerId, selectedCourtId]); // Note: sessionData intentionally omitted - only used for initial values
 
   return (
     <Box>

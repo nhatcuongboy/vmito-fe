@@ -5,8 +5,10 @@ import { Box, Container, Flex, Heading, IconButton } from '@chakra-ui/react';
 import { ArrowLeft, Menu } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { AuthService } from '@/lib/api/auth.service';
 import { useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import SlideOutMenu from './SlideOutMenu';
 
 interface TopBarProps {
@@ -22,8 +24,9 @@ export default function TopBar({
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = '🏸';
-  const { data: session } = useSession();
+  const { user } = useAuthStore();
   const locale = useLocale();
+  const router = useRouter();
 
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,14 +34,19 @@ export default function TopBar({
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-  const handleLogout = async () => {
-    const userRole = session?.user?.role;
+  const handleLogout = () => {
+    const userRole = user?.role;
     const callbackUrl =
       userRole === 'HOST'
         ? `/${locale}/auth/signin`
         : `/${locale}/join-by-code`;
-    await signOut({ callbackUrl });
+    
+    // Clear auth state
+    AuthService.logout();
     onMenuClose();
+    
+    // Redirect
+    router.push(callbackUrl);
   };
 
   return (

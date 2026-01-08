@@ -7,7 +7,9 @@ import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useState, useRef, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { AuthService } from '@/lib/api/auth.service';
+import { useRouter } from '@/i18n/config';
 import SlideOutMenu from '@/components/ui/SlideOutMenu';
 
 interface TournamentLayoutProps {
@@ -21,7 +23,8 @@ export default function TournamentLayout({
 }: TournamentLayoutProps) {
   const pathname = usePathname();
   const locale = useLocale();
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { user } = useAuthStore();
   const tournamentId = tournament.id;
   
   // Menu drawer state
@@ -32,13 +35,14 @@ export default function TournamentLayout({
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-  const handleLogout = async () => {
-    const userRole = session?.user?.role;
+  const handleLogout = () => {
+    const userRole = user?.role;
+    AuthService.logout();
     const callbackUrl =
       userRole === 'HOST'
-        ? `/${locale}/auth/signin`
-        : `/${locale}/join-by-code`;
-    await signOut({ callbackUrl });
+        ? '/auth/signin'
+        : '/join-by-code';
+    router.push(callbackUrl);
     onMenuClose();
   };
 

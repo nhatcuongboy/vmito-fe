@@ -1,9 +1,10 @@
 'use client';
 
-import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import MainLayout from '@/components/layout/MainLayout';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useRouter } from '@/i18n/config';
+import { AuthService } from '@/lib/api/auth.service';
+import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import {
   Box,
   Button,
@@ -17,10 +18,9 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useParams, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -36,10 +36,27 @@ type SignInFormData = z.infer<typeof signInSchema>;
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const params = useParams();
-  const locale = params.locale as string;
-  const callbackUrl = searchParams.get('callbackUrl') || `/${locale}/host`;
   const t = useTranslations('auth.signin');
+  const { user, isAuthenticated } = useAuthStore();
+  const isHydrated = useAuthHydration();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Get callbackUrl from query params, strip locale prefix if present
+  const rawCallbackUrl = searchParams.get('callbackUrl') || '/host';
+  // Remove leading locale prefix if exists (e.g., /en/host -> /host)
+  const callbackUrl = rawCallbackUrl.replace(/^\/(vi|en)/, '') || '/host';
+
+  // Handle redirect for already authenticated users (e.g., direct URL access)
+  useEffect(() => {
+    if (!isHydrated) return;
+    
+    // If already authenticated before form submission, redirect
+    if (isAuthenticated && user && !isRedirecting) {
+      setIsRedirecting(true);
+      const targetPath = user.role !== 'GUEST' ? '/dashboard' : '/join-by-code';
+      router.replace(targetPath);
+    }
+  }, [isHydrated, isAuthenticated, user, router, isRedirecting]);
 
   const {
     register,
@@ -55,40 +72,67 @@ function SignInForm() {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      const result = await signIn('credentials', {
+      const loginResponse = await AuthService.login({
         email: data.email,
         password: data.password,
-        redirect: false,
       });
 
-      if (result?.error) {
-        toast.error(t('invalidCredentials'));
-      } else {
-        toast.success(t('loginSuccessful'));
-        router.push(callbackUrl);
-        router.refresh();
+      toast.success(t('loginSuccessful'));
+
+      // Redirect based on user role if no specific callbackUrl
+      const hasCustomCallback = searchParams.get('callbackUrl');
+      let redirectPath = callbackUrl;
+
+      if (!hasCustomCallback && loginResponse.user) {
+        // Default redirect based on role
+        if (loginResponse.user.role === 'HOST') {
+          redirectPath = '/host';
+        } else if (loginResponse.user.role === 'PLAYER') {
+          redirectPath = '/my-session';
+        } else {
+          redirectPath = '/dashboard';
+        }
       }
-    } catch (error) {
-      toast.error(t('loginFailed'));
+
+      // Set redirecting state and navigate
+      setIsRedirecting(true);
+      router.replace(redirectPath);
+    } catch (error: unknown) {
+      // Error toast is handled by axios interceptor
       console.error('Login error:', error);
     }
   };
 
-  // const handleGoogleSignIn = () => {
-  //   signIn("google", { callbackUrl });
-  // };
+  // Show loading while checking auth or redirecting
+  if (!isHydrated || isRedirecting) {
+    return (
+      <Box
+        minH="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        bg="gray.50"
+      >
+        <VStack gap={4}>
+          <Spinner size="lg" color="blue.500" />
+          <Text color="gray.600">
+            {isRedirecting ? 'Redirecting...' : 'Loading...'}
+          </Text>
+        </VStack>
+      </Box>
+    );
+  }
 
   return (
-    <PublicRouteGuard redirectTo="/host">
-      <MainLayout title={t('title')}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          px={4}
-          py={8}
-          height="100%"
-        >
+    <MainLayout title={t('title')}>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        px={4}
+        py={8}
+        height="100%"
+      >
           <Box
             maxW="md"
             w="full"
@@ -159,20 +203,11 @@ function SignInForm() {
 
               <Separator />
 
-              {/* <Button
-                onClick={handleGoogleSignIn}
-                variant="outline"
-                width="full"
-                size="lg"
-              >
-                {t("continueWithGoogle")}
-              </Button> */}
-
               <VStack gap={2}>
                 <Text color="gray.600">
                   {t('noAccount')}{' '}
                   <Link
-                    href={`/${locale}/auth/signup`}
+                    href="/auth/signup"
                     color="blue.600"
                     fontWeight="semibold"
                   >
@@ -183,7 +218,7 @@ function SignInForm() {
                 <Text color="gray.500" fontSize="sm">
                   {t('or')}{' '}
                   <Link
-                    href={`/${locale}/join-by-code`}
+                    href="/join-by-code"
                     color="blue.600"
                     fontWeight="semibold"
                   >
@@ -195,7 +230,6 @@ function SignInForm() {
           </Box>
         </Box>
       </MainLayout>
-    </PublicRouteGuard>
   );
 }
 

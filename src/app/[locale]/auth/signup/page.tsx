@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
+import { AuthService } from '@/lib/api/auth.service';
 import {
   Box,
   VStack,
@@ -61,28 +62,17 @@ export default function SignUpPage() {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
+      // Register user via backend API
+      await AuthService.register({
+        name: data.name,
+        email: data.email,
+        password: data.password,
       });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success(t('accountCreated'));
-        router.push(`/${locale}/auth/signin`);
-      } else {
-        toast.error(result.message || t('registrationFailed'));
-      }
-    } catch (error) {
-      toast.error(t('registrationFailed'));
+      toast.success(t('accountCreated'));
+      router.push(`/${locale}/auth/signin`);
+    } catch (error: unknown) {
+      // Error toast is handled by axios interceptor
       console.error('Registration error:', error);
     }
   };

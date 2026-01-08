@@ -34,7 +34,6 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ISession } from '@/lib/api/types';
-import { useSession } from 'next-auth/react';
 
 function StatusPageContent() {
   const searchParams = useSearchParams();

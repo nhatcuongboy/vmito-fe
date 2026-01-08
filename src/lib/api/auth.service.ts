@@ -1,10 +1,98 @@
 import { ApiResponse, Level } from '@/lib/api/types';
 import { api } from './base';
 import { JoinByCodeResponse } from './types';
+import {
+  LoginRequest,
+  RegisterRequest,
+  LoginResponse,
+  User,
+  ChangePasswordRequest,
+} from '@/types/auth';
+import { useAuthStore } from '@/stores/useAuthStore';
 
-// Auth service
+// Auth service - connects to NestJS backend
 export const AuthService = {
-  // Check if code is valid player code
+  /**
+   * Login with email and password
+   */
+  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+    const response = await api.post<{ success: boolean; data: LoginResponse }>(
+      '/auth/login',
+      credentials
+    );
+
+    console.log('Login response:', response.data);
+
+    // Backend wraps response in { success, data }
+    const loginData = response.data.data;
+    console.log('Login data:', loginData);
+
+    // Save to auth store
+    const { user, accessToken } = loginData;
+    console.log('User from response:', user);
+    useAuthStore.getState().setAuth(user, accessToken);
+
+    return loginData;
+  },
+
+  /**
+   * Register new user
+   */
+  register: async (data: RegisterRequest): Promise<User> => {
+    const response = await api.post<User>('/auth/register', data);
+    return response.data;
+  },
+
+  /**
+   * Logout - clear local state
+   */
+  logout: (): void => {
+    useAuthStore.getState().clearAuth();
+  },
+
+  /**
+   * Get new token (refresh)
+   */
+  refreshToken: async (): Promise<LoginResponse> => {
+    const response = await api.get<LoginResponse>('/auth/token');
+
+    // Update token in store
+    const { accessToken } = response.data;
+    useAuthStore.getState().updateToken(accessToken);
+
+    return response.data;
+  },
+
+  /**
+   * Change password
+   */
+  changePassword: async (
+    data: ChangePasswordRequest
+  ): Promise<{ message: string }> => {
+    const response = await api.put<{ message: string }>(
+      '/auth/change-password',
+      data
+    );
+    return response.data;
+  },
+
+  /**
+   * Get current user from store
+   */
+  getCurrentUser: (): User | null => {
+    return useAuthStore.getState().user;
+  },
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated: (): boolean => {
+    return useAuthStore.getState().isAuthenticated;
+  },
+
+  /**
+   * Check code validation (for guest join)
+   */
   checkCode: async (code: string): Promise<{ isPlayerCode: boolean }> => {
     const response = await api.get<ApiResponse<{ isPlayerCode: boolean }>>(
       `/players/check-code?code=${code}`
@@ -12,7 +100,9 @@ export const AuthService = {
     return response.data.data!;
   },
 
-  // Join session by code
+  /**
+   * Join session by code (guest flow)
+   */
   joinByCode: async (
     sessionCode: string,
     playerInfo?: {

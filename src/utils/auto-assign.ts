@@ -111,7 +111,7 @@ export function autoAssignTeamsToGroups(
       });
       break;
 
-    case 'sequential':
+    case 'sequential': {
       // Sequential: fill each group completely before moving to next
       const registrationsPerGroup = Math.floor(
         registrationsToAssign.length / groups.length
@@ -129,8 +129,9 @@ export function autoAssignTeamsToGroups(
         registrationIndex += count;
       });
       break;
+    }
 
-    case 'balanced':
+    case 'balanced': {
       // Balanced: try to keep groups as equal as possible
       const avgPerGroup = registrationsToAssign.length / groups.length;
       const baseCount = Math.floor(avgPerGroup);
@@ -146,6 +147,7 @@ export function autoAssignTeamsToGroups(
         registrationIndex += count;
       });
       break;
+    }
 
     default:
       throw new Error(`Unknown strategy: ${strategy}`);

@@ -15,7 +15,6 @@ import {
 import { AuthService } from '@/lib/api/auth.service';
 import { Level } from '@/lib/api/types';
 import toast from 'react-hot-toast';
-import { signIn, getSession } from 'next-auth/react';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
 
@@ -53,26 +52,11 @@ function RegisterContent() {
         phone,
       });
 
-      // For player codes, proceed with normal join
-      const result = await signIn('otp', {
-        joinCode: playerResult.data?.player.joinCode,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        toast.error(t('invalidSessionCode'));
-        return;
-      }
-
-      // Get session data after successful signIn
-      const session = await getSession();
-      const user = session?.user as any;
-
-      // Check requireConfirmInfo to determine navigation
-      if (user?.requireConfirmInfo && !user?.confirmedByPlayer) {
-        router.push('/join/confirm?playerId=' + user.playerId);
-      } else {
+      // Successfully registered and joined - redirect to my-session
+      if (playerResult.data?.player) {
         router.push(`/my-session`);
+      } else {
+        toast.error(t('joinFailed'));
       }
     } catch (error) {
       toast.error(t('joinFailed'));

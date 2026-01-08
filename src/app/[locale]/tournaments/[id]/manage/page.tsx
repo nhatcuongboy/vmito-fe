@@ -44,7 +44,7 @@ import {
   Users,
   UsersRound,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -53,7 +53,7 @@ export default function TournamentManagePage() {
   const t = useTranslations('pages.tournaments.manage');
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useAuthStore();
   const tournamentId = params.id as string;
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -166,8 +166,8 @@ export default function TournamentManagePage() {
   }
 
   // Check if user is the host
-  const isHost = session?.user?.role === UserRole.HOST;
-  const canManage = isHost && tournament.hostId === session?.user?.id;
+  const isHost = user?.role === UserRole.HOST;
+  const canManage = isHost && tournament.hostId === user?.id;
 
   if (!canManage) {
     return (

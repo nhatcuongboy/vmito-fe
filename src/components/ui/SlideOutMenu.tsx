@@ -2,12 +2,11 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Settings, Info, X, LogOut, User, Trophy } from 'lucide-react';
+import { Home, Settings, Info, X, LogOut, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import LanguageSwitcher from './LanguageSwitcher';
-import { UserRole } from '@/lib/api/types';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -22,7 +21,7 @@ export default function SlideOutMenu({
 }: SlideOutMenuProps) {
   const common = useTranslations('common');
   const nav = useTranslations('navigation');
-  const { data: session } = useSession();
+  const { user, isAuthenticated } = useAuthStore();
 
   return (
     <>
@@ -89,9 +88,9 @@ export default function SlideOutMenu({
               <Stack gap={2}>
                 <NextLinkButton
                   href={
-                    session?.user?.role === UserRole.HOST
+                    user?.role === 'HOST'
                       ? '/host/sessions'
-                      : session?.user?.role === UserRole.PLAYER
+                      : user?.role === 'PLAYER'
                         ? `/my-session`
                         : '/'
                   }
@@ -157,7 +156,7 @@ export default function SlideOutMenu({
             {/* Footer */}
             <Box pt={4}>
               {/* User Info Section - Only show when logged in */}
-              {session?.user && (
+              {isAuthenticated && user && (
                 <Box mb={4}>
                   <Text
                     fontSize="sm"
@@ -188,28 +187,28 @@ export default function SlideOutMenu({
                       fontSize="sm"
                       fontWeight="bold"
                     >
-                      {(session.user.name || session.user.email || 'U')
+                      {(user.name || user.email || 'U')
                         .charAt(0)
                         .toUpperCase()}
                     </Box>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium">
-                        {session.user.name || 'User'}
+                        {user.name || 'User'}
                       </Text>
                       <Text
                         fontSize="xs"
                         color="gray.600"
                         _dark={{ color: 'gray.400' }}
                       >
-                        {session.user.email}
+                        {user.email}
                       </Text>
-                      {session.user.role && (
+                      {user.role && (
                         <Text
                           fontSize="xs"
                           color="blue.600"
                           _dark={{ color: 'blue.400' }}
                         >
-                          {session.user.role}
+                          {user.role}
                         </Text>
                       )}
                     </Box>

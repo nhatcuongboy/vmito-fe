@@ -1,11 +1,9 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-// import { useRouter } from "next/navigation";
+import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { useEffect } from 'react';
 import { Box, Spinner, Text, VStack, Button } from '@chakra-ui/react';
-import { useLocale } from 'next-intl';
 
 interface ProtectedRouteGuardProps {
   children: React.ReactNode;
@@ -23,33 +21,33 @@ export default function ProtectedRouteGuard({
   redirectTo = '/auth/signin',
   requiredRole = [],
 }: ProtectedRouteGuardProps) {
-  const { data: session, status } = useSession();
+  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const isHydrated = useAuthHydration();
   const router = useRouter();
-  const locale = useLocale();
 
   useEffect(() => {
+    // Wait for hydration before checking auth
+    if (!isHydrated) return;
+
     // If not logged in, redirect to signin
-    if (status === 'unauthenticated') {
+    if (!isAuthenticated) {
       const currentPath = window.location.pathname;
-      // Ensure the redirect path includes the locale
-      const localizedRedirectTo = redirectTo.startsWith('/')
-        ? `${redirectTo}`
-        : redirectTo;
-      const redirectUrl = `${localizedRedirectTo}?callbackUrl=${encodeURIComponent(
+      // next-intl router automatically handles locale prefix
+      const redirectUrl = `${redirectTo}?callbackUrl=${encodeURIComponent(
         currentPath
       )}`;
       router.push(redirectUrl);
     }
-  }, [status, router, redirectTo, locale]);
+  }, [isHydrated, isAuthenticated, router, redirectTo]);
 
   // Check role permission if required
   const hasRequiredRole = () => {
     if (requiredRole.length === 0) return true;
-    return requiredRole.includes(session?.user?.role || '');
+    return requiredRole.includes(user?.role || '');
   };
 
-  // Loading state
-  if (status === 'loading') {
+  // Loading state - waiting for hydration
+  if (!isHydrated || isLoading) {
     return (
       <Box
         minH="100vh"
@@ -67,7 +65,7 @@ export default function ProtectedRouteGuard({
   }
 
   // If not logged in, show loading while redirecting
-  if (status === 'unauthenticated') {
+  if (!isAuthenticated) {
     return (
       <Box
         minH="100vh"
@@ -85,7 +83,7 @@ export default function ProtectedRouteGuard({
   }
 
   // Check role permission
-  if (status === 'authenticated' && !hasRequiredRole()) {
+  if (isAuthenticated && !hasRequiredRole()) {
     return (
       <Box
         minH="100vh"
@@ -100,13 +98,13 @@ export default function ProtectedRouteGuard({
             Access Denied
           </Text>
           <Text color="gray.600">
-            You don't have permission to access this page.
+            You don&apos;t have permission to access this page.
           </Text>
           <Text fontSize="sm" color="gray.500">
             Required role: {requiredRole.join(', ')}
           </Text>
           <Text fontSize="sm" color="gray.500">
-            Your role: {session?.user?.role || 'Unknown'}
+            Your role: {user?.role || 'Unknown'}
           </Text>
           <Button colorScheme="blue" onClick={() => router.push(`/`)}>
             Go Home

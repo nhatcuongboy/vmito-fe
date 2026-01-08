@@ -51,7 +51,9 @@ import {
   Menu,
   ChevronDown,
 } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { AuthService } from '@/lib/api/auth.service';
+import { useRouter as useNextIntlRouter } from '@/i18n/config';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
@@ -85,7 +87,8 @@ export default function TournamentDetailPage() {
   const tCategory = useTranslations('pages.tournaments.categoryTypeLabels');
   const params = useParams();
   const locale = useLocale();
-  const { data: session } = useSession();
+  const nextIntlRouter = useNextIntlRouter();
+  const { user } = useAuthStore();
   const tournamentId = params.id as string;
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -97,13 +100,14 @@ export default function TournamentDetailPage() {
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-  const handleLogout = async () => {
-    const userRole = session?.user?.role;
+  const handleLogout = () => {
+    const userRole = user?.role;
+    AuthService.logout();
     const callbackUrl =
       userRole === 'HOST'
-        ? `/${locale}/auth/signin`
-        : `/${locale}/join-by-code`;
-    await signOut({ callbackUrl });
+        ? '/auth/signin'
+        : '/join-by-code';
+    nextIntlRouter.push(callbackUrl);
     onMenuClose();
   };
 
@@ -264,8 +268,8 @@ export default function TournamentDetailPage() {
     );
   }
 
-  const isHost = session?.user?.role === UserRole.HOST;
-  const canManage = isHost && tournament?.hostId === session?.user?.id;
+  const isHost = user?.role === UserRole.HOST;
+  const canManage = isHost && tournament?.hostId === user?.id;
 
   const tabs = [
     {

@@ -1,11 +1,17 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
+import { useEffect } from 'react';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  return <SessionProvider>{children}</SessionProvider>;
+  // Initialize auth store hydration on mount
+  useEffect(() => {
+    useAuthStore.persist.rehydrate();
+  }, []);
+
+  return <>{children}</>;
 }

@@ -70,14 +70,14 @@ import {
 } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { UserRole } from '@/lib/api/types';
-import { useSession } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { format } from 'date-fns';
 
 export default function CategoryManagePage() {
   const t = useTranslations('pages.tournaments.categoryManage');
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useAuthStore();
   const tournamentId = params.id as string;
   const categoryId = params.categoryId as string;
   const [category, setCategory] = useState<Category | null>(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from '@/i18n/config';
-import { signIn, getSession, useSession } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Box,
@@ -31,7 +31,7 @@ function JoinByCodeContent() {
   const onClose = () => setIsOpen(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
+  const { user, isAuthenticated } = useAuthStore();
   const locale = useLocale();
   const t = useTranslations('pages.join.joinByCode');
 
@@ -86,26 +86,16 @@ function JoinByCodeContent() {
         return;
       }
 
-      // For player codes, proceed with normal join
-      const result = await signIn('otp', {
-        joinCode,
-        redirect: false,
-      });
-
-      if (result?.error) {
+      // For player codes, proceed with join by code via backend API
+      try {
+        const joinResult = await AuthService.joinByCode(joinCode);
+        if (joinResult.data?.player) {
+          // Successfully joined - redirect to my-session
+          router.push(`/my-session`);
+        }
+      } catch (joinError) {
         toast.error(t('invalidCodeError'));
         return;
-      }
-
-      // Get session data after successful signIn
-      const session = await getSession();
-      const user = session?.user as any;
-
-      // Check requireConfirmInfo to determine navigation
-      if (user?.requireConfirmInfo && !user?.confirmedByPlayer) {
-        router.push('/join/confirm?playerId=' + user.playerId);
-      } else {
-        router.push(`/my-session`);
       }
     } catch (error: any) {
       toast.error(t('joinFailedError'));

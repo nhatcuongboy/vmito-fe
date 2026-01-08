@@ -498,6 +498,7 @@ export default function JoinPage() {
                               </Text>
                             </Box>
                           )} */}
+                          </Box>
                         </Box>
                       )}
                     </>

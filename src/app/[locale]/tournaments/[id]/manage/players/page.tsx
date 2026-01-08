@@ -30,7 +30,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -39,7 +39,7 @@ export default function TournamentPlayersPage() {
   const t = useTranslations('pages.tournaments.players');
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useAuthStore();
   const tournamentId = params.id as string;
   const [players, setPlayers] = useState<TournamentPlayer[]>([]);
   const [loading, setLoading] = useState(true);
