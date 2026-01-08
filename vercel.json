@@ -1,6 +1,3 @@
 {
-  "buildCommand": "prisma generate && next build",
-  "env": {
-    "PRISMA_GENERATE_DATAPROXY": "true"
-  }
+  "buildCommand": "next build"
 }
