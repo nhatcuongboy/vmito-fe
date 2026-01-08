@@ -1,6 +1,6 @@
 /**
  * Standings Calculation Utilities
- * 
+ *
  * Calculate tournament group standings based on match results.
  * Supports multiple tie-breaking criteria: wins, head-to-head, point difference.
  */
@@ -39,12 +39,12 @@ export interface StandingsCalculationOptions {
 
 /**
  * Calculate standings from match results
- * 
+ *
  * @param teamIds - Array of team/registration IDs in the group
  * @param matches - Array of finished match results
  * @param options - Calculation options
  * @returns Array of standings sorted by rank
- * 
+ *
  * @example
  * const teamIds = ['team1', 'team2', 'team3', 'team4'];
  * const matches = [
@@ -171,7 +171,7 @@ export function calculateStandings(
 
 /**
  * Compare two teams using head-to-head record
- * 
+ *
  * @param standing1 - First team's standing
  * @param standing2 - Second team's standing
  * @param matches - All matches
@@ -223,7 +223,7 @@ function compareHeadToHead(
 
 /**
  * Determine winners from standings
- * 
+ *
  * @param standings - Sorted standings array
  * @param winnersCount - Number of winners to select
  * @returns Array of team IDs that are winners
@@ -241,7 +241,7 @@ export function determineWinners(
 
 /**
  * Get teams with same rank (ties)
- * 
+ *
  * @param standings - Sorted standings array
  * @param rank - Rank to check
  * @returns Array of team IDs with the same rank
@@ -257,7 +257,7 @@ export function getTeamsWithRank(
 
 /**
  * Check if standings are complete (all teams have played all matches)
- * 
+ *
  * @param standings - Standings array
  * @param totalTeams - Total number of teams
  * @returns true if all teams have played all possible matches
@@ -276,7 +276,7 @@ export function isStandingsComplete(
 
 /**
  * Calculate win percentage
- * 
+ *
  * @param standing - Team standing
  * @returns Win percentage (0-100)
  */
@@ -287,7 +287,7 @@ export function calculateWinPercentage(standing: TeamStanding): number {
 
 /**
  * Format standings for display
- * 
+ *
  * @param standings - Standings array
  * @returns Formatted standings with display strings
  */
@@ -311,4 +311,3 @@ export function formatStandings(standings: TeamStanding[]): Array<{
     winPercentage: calculateWinPercentage(standing),
   }));
 }
-

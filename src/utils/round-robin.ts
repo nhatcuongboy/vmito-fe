@@ -1,6 +1,6 @@
 /**
  * Round-Robin Tournament Algorithm Utilities
- * 
+ *
  * Round-robin tournament: Each team plays against every other team exactly once.
  * For n teams, total matches = n * (n - 1) / 2
  */
@@ -19,10 +19,10 @@ export interface RoundRobinResult {
 
 /**
  * Generate all round-robin matches for a given set of registrations
- * 
+ *
  * @param registrations - Array of category registration IDs
  * @returns Array of matches where each match contains two participant IDs
- * 
+ *
  * @example
  * const registrations = ['reg1', 'reg2', 'reg3', 'reg4'];
  * const matches = generateRoundRobinMatches(registrations);
@@ -75,10 +75,10 @@ export function generateRoundRobinMatches(
 
 /**
  * Calculate total number of matches for a round-robin tournament
- * 
+ *
  * @param teamsCount - Number of teams
  * @returns Total number of matches
- * 
+ *
  * @example
  * calculateTotalMatches(4) // Returns 6
  * calculateTotalMatches(8) // Returns 28
@@ -90,7 +90,7 @@ export function calculateTotalMatches(teamsCount: number): number {
 
 /**
  * Validate if round-robin tournament is possible with given number of teams
- * 
+ *
  * @param teamsCount - Number of teams
  * @returns true if tournament is possible (at least 2 teams)
  */
@@ -101,10 +101,10 @@ export function isValidRoundRobinTournament(teamsCount: number): boolean {
 /**
  * Generate round-robin matches with scheduling (rounds)
  * This divides matches into rounds where each team plays at most once per round
- * 
+ *
  * @param registrations - Array of category registration IDs
  * @returns Array of rounds, each containing matches for that round
- * 
+ *
  * @example
  * const registrations = ['reg1', 'reg2', 'reg3', 'reg4'];
  * const rounds = generateRoundRobinRounds(registrations);
@@ -137,7 +137,8 @@ export function generateRoundRobinRounds(
 
     for (let match = 0; match < numMatchesPerRound; match++) {
       const team1Index = (round + match) % (teams.length - 1);
-      const team2Index = (teams.length - 1 - match + round) % (teams.length - 1);
+      const team2Index =
+        (teams.length - 1 - match + round) % (teams.length - 1);
 
       const team1 = teams[team1Index];
       const team2 = teams[team2Index];
@@ -161,7 +162,7 @@ export function generateRoundRobinRounds(
 
 /**
  * Get the number of rounds needed for a round-robin tournament
- * 
+ *
  * @param teamsCount - Number of teams
  * @returns Number of rounds
  */
@@ -169,8 +170,3 @@ export function calculateRoundsCount(teamsCount: number): number {
   if (teamsCount < 2) return 0;
   return teamsCount % 2 === 0 ? teamsCount - 1 : teamsCount;
 }
-
-
-
-
-

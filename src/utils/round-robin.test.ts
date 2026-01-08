@@ -1,6 +1,6 @@
 /**
  * Tests for Round-Robin Algorithm
- * 
+ *
  * Run with: npm test round-robin.test.ts
  */
 
@@ -145,8 +145,3 @@ describe('Round-Robin Algorithm', () => {
     });
   });
 });
-
-
-
-
-

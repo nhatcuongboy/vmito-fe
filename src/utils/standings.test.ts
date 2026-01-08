@@ -1,6 +1,6 @@
 /**
  * Tests for Standings Calculation
- * 
+ *
  * Run with: npm test standings.test.ts
  */
 
@@ -260,4 +260,3 @@ describe('Standings Calculation', () => {
     });
   });
 });
-

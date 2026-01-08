@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { Spinner, Center, Box, Text } from '@chakra-ui/react';
 import { SessionService } from '@/lib/api/session.service';
 import SessionDetailContent from '@/components/session/SessionDetailContent';
@@ -12,7 +12,7 @@ function SessionDetailPageContent({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const router = useRouter();
+  // const router = useRouter();
   // Use React.use() to unwrap params if it's a Promise, otherwise use it directly
   const unwrappedParams = use(params);
   const sessionId = unwrappedParams.id;

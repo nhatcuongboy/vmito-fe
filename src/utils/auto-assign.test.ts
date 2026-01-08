@@ -1,6 +1,6 @@
 /**
  * Tests for Auto-Assign Algorithm
- * 
+ *
  * Run with: npm test auto-assign.test.ts
  */
 
@@ -74,7 +74,15 @@ describe('Auto-Assign Algorithm', () => {
     });
 
     it('should work with balanced strategy', () => {
-      const registrations = ['reg1', 'reg2', 'reg3', 'reg4', 'reg5', 'reg6', 'reg7'];
+      const registrations = [
+        'reg1',
+        'reg2',
+        'reg3',
+        'reg4',
+        'reg5',
+        'reg6',
+        'reg7',
+      ];
       const groups = [
         { id: 'group1', groupNumber: 1 },
         { id: 'group2', groupNumber: 2 },
@@ -209,8 +217,3 @@ describe('Auto-Assign Algorithm', () => {
     });
   });
 });
-
-
-
-
-

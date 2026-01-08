@@ -17,7 +17,9 @@ export const TournamentService = {
 
   // Get tournament by ID
   getTournament: async (id: string): Promise<Tournament> => {
-    const response = await api.get<ApiResponse<Tournament>>(`/tournaments/${id}`);
+    const response = await api.get<ApiResponse<Tournament>>(
+      `/tournaments/${id}`
+    );
     return response.data.data!;
   },
 
@@ -25,7 +27,10 @@ export const TournamentService = {
   createTournament: async (
     data: CreateTournamentRequest
   ): Promise<Tournament> => {
-    const response = await api.post<ApiResponse<Tournament>>('/tournaments', data);
+    const response = await api.post<ApiResponse<Tournament>>(
+      '/tournaments',
+      data
+    );
     toast.success('Tournament created successfully');
     return response.data.data!;
   },
@@ -176,4 +181,3 @@ export const TournamentService = {
     toast.success('Court deleted successfully');
   },
 };
-

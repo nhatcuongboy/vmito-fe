@@ -189,9 +189,7 @@ function NewSessionPageContent() {
   const handleLevelToggle = (level: Level) => {
     setRequiredLevels((prev) => {
       const isSelected = prev.includes(level);
-      return isSelected
-        ? prev.filter((l) => l !== level)
-        : [...prev, level];
+      return isSelected ? prev.filter((l) => l !== level) : [...prev, level];
     });
   };
 
@@ -274,8 +272,8 @@ function NewSessionPageContent() {
 
                 <Box p={4} bg="gray.50" borderRadius="lg">
                   <Text fontSize="sm" color="gray.600" mb={3}>
-                    Select required levels for this session. Leave empty to allow
-                    all levels.
+                    Select required levels for this session. Leave empty to
+                    allow all levels.
                   </Text>
 
                   <Wrap gap={2}>

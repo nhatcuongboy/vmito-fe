@@ -40,11 +40,11 @@ export default function TopBar({
       userRole === 'HOST'
         ? `/${locale}/auth/signin`
         : `/${locale}/join-by-code`;
-    
+
     // Clear auth state
     AuthService.logout();
     onMenuClose();
-    
+
     // Redirect
     router.push(callbackUrl);
   };

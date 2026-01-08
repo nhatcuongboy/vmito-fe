@@ -67,4 +67,3 @@ export const TournamentPlayerService = {
     toast.success('Player deleted successfully');
   },
 };
-

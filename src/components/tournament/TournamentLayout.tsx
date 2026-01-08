@@ -1,6 +1,16 @@
 'use client';
 
-import { Box, Button, Container, Flex, Heading, HStack, IconButton, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  HStack,
+  IconButton,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { Menu as MenuIcon, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,7 +36,7 @@ export default function TournamentLayout({
   const router = useRouter();
   const { user } = useAuthStore();
   const tournamentId = tournament.id;
-  
+
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
@@ -38,10 +48,7 @@ export default function TournamentLayout({
   const handleLogout = () => {
     const userRole = user?.role;
     AuthService.logout();
-    const callbackUrl =
-      userRole === 'HOST'
-        ? '/auth/signin'
-        : '/join-by-code';
+    const callbackUrl = userRole === 'HOST' ? '/auth/signin' : '/join-by-code';
     router.push(callbackUrl);
     onMenuClose();
   };
@@ -58,7 +65,11 @@ export default function TournamentLayout({
   const activeTab = getActiveTab();
 
   const tabs = [
-    { id: 'overview', label: 'Overview', path: `/${locale}/tournaments/${tournamentId}` },
+    {
+      id: 'overview',
+      label: 'Overview',
+      path: `/${locale}/tournaments/${tournamentId}`,
+    },
     {
       id: 'matches',
       label: 'Matches',
@@ -89,7 +100,10 @@ export default function TournamentLayout({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+      if (
+        moreMenuRef.current &&
+        !moreMenuRef.current.contains(event.target as Node)
+      ) {
         setIsMoreMenuOpen(false);
       }
     };
@@ -191,11 +205,21 @@ export default function TournamentLayout({
                 <Box ref={moreMenuRef} position="relative">
                   <Button
                     size="sm"
-                    variant={moreTabs.some(tab => activeTab === tab.id) ? 'solid' : 'ghost'}
-                    bg={moreTabs.some(tab => activeTab === tab.id) ? 'blue.700' : 'transparent'}
+                    variant={
+                      moreTabs.some((tab) => activeTab === tab.id)
+                        ? 'solid'
+                        : 'ghost'
+                    }
+                    bg={
+                      moreTabs.some((tab) => activeTab === tab.id)
+                        ? 'blue.700'
+                        : 'transparent'
+                    }
                     color="white"
                     _hover={{
-                      bg: moreTabs.some(tab => activeTab === tab.id) ? 'blue.700' : 'blue.500',
+                      bg: moreTabs.some((tab) => activeTab === tab.id)
+                        ? 'blue.700'
+                        : 'blue.500',
                     }}
                     borderRadius="md"
                     onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
@@ -224,20 +248,40 @@ export default function TournamentLayout({
                     >
                       <VStack align="stretch" gap={0}>
                         {moreTabs.map((tab) => (
-                          <Link key={tab.id} href={tab.path} onClick={() => setIsMoreMenuOpen(false)}>
+                          <Link
+                            key={tab.id}
+                            href={tab.path}
+                            onClick={() => setIsMoreMenuOpen(false)}
+                          >
                             <Box
                               px={4}
                               py={2}
                               cursor="pointer"
-                              bg={activeTab === tab.id ? 'blue.50' : 'transparent'}
-                              color={activeTab === tab.id ? 'blue.700' : 'gray.700'}
+                              bg={
+                                activeTab === tab.id ? 'blue.50' : 'transparent'
+                              }
+                              color={
+                                activeTab === tab.id ? 'blue.700' : 'gray.700'
+                              }
                               _hover={{
-                                bg: activeTab === tab.id ? 'blue.100' : 'gray.50',
+                                bg:
+                                  activeTab === tab.id ? 'blue.100' : 'gray.50',
                               }}
-                              borderTopRadius={tab.id === moreTabs[0].id ? 'md' : 'none'}
-                              borderBottomRadius={tab.id === moreTabs[moreTabs.length - 1].id ? 'md' : 'none'}
+                              borderTopRadius={
+                                tab.id === moreTabs[0].id ? 'md' : 'none'
+                              }
+                              borderBottomRadius={
+                                tab.id === moreTabs[moreTabs.length - 1].id
+                                  ? 'md'
+                                  : 'none'
+                              }
                             >
-                              <Text fontSize="sm" fontWeight={activeTab === tab.id ? 'semibold' : 'normal'}>
+                              <Text
+                                fontSize="sm"
+                                fontWeight={
+                                  activeTab === tab.id ? 'semibold' : 'normal'
+                                }
+                              >
                                 {tab.label}
                               </Text>
                             </Box>
@@ -253,9 +297,7 @@ export default function TournamentLayout({
         </Box>
 
         {/* Main Content with padding for fixed header */}
-        <Box pt={headerHeight}>
-          {children}
-        </Box>
+        <Box pt={headerHeight}>{children}</Box>
       </Box>
 
       <SlideOutMenu
@@ -266,4 +308,3 @@ export default function TournamentLayout({
     </>
   );
 }
-

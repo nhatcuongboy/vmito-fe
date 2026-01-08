@@ -543,7 +543,7 @@ export interface GroupStandingsResponse {
   standings: GroupStanding[];
 }
 
-export interface CategoryStandingsResponse extends Array<{
+export type CategoryStandingsResponse = Array<{
   group: CategoryGroup;
   standings: GroupStanding[];
-}> {}
+}>;

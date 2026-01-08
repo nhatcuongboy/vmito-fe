@@ -1,6 +1,6 @@
 /**
  * Auto-Assign Algorithm Utilities
- * 
+ *
  * Automatically distribute teams/registrations evenly across groups
  * using round-robin distribution or shuffle-based assignment.
  */
@@ -24,12 +24,12 @@ export interface AutoAssignResult {
 
 /**
  * Auto-assign registrations to groups using round-robin distribution
- * 
+ *
  * @param registrations - Array of registration IDs to assign
  * @param groups - Array of groups with id and groupNumber
  * @param options - Assignment options (shuffle, strategy)
  * @returns Assignment result with distribution details
- * 
+ *
  * @example
  * const registrations = ['reg1', 'reg2', 'reg3', 'reg4', 'reg5', 'reg6', 'reg7', 'reg8', 'reg9', 'reg10'];
  * const groups = [
@@ -81,7 +81,7 @@ export function autoAssignTeamsToGroups(
   }
 
   // Prepare registrations based on strategy
-  let registrationsToAssign = [...registrations];
+  const registrationsToAssign = [...registrations];
 
   if (shuffle) {
     // Fisher-Yates shuffle algorithm
@@ -120,8 +120,7 @@ export function autoAssignTeamsToGroups(
 
       let registrationIndex = 0;
       groups.forEach((group, groupIndex) => {
-        const count =
-          registrationsPerGroup + (groupIndex < remainder ? 1 : 0);
+        const count = registrationsPerGroup + (groupIndex < remainder ? 1 : 0);
         assignments[group.id] = registrationsToAssign.slice(
           registrationIndex,
           registrationIndex + count
@@ -180,7 +179,7 @@ export function autoAssignTeamsToGroups(
 
 /**
  * Calculate optimal group distribution for given number of teams and groups
- * 
+ *
  * @param totalTeams - Total number of teams
  * @param groupCount - Number of groups
  * @returns Distribution info
@@ -216,7 +215,7 @@ export function calculateOptimalDistribution(
 
 /**
  * Validate if auto-assignment is possible
- * 
+ *
  * @param totalTeams - Total number of teams
  * @param groupCount - Number of groups
  * @returns Validation result
@@ -254,7 +253,7 @@ export function validateAutoAssign(
 
 /**
  * Get distribution preview before actual assignment
- * 
+ *
  * @param totalTeams - Total number of teams
  * @param groupCount - Number of groups
  * @param strategy - Assignment strategy
@@ -305,12 +304,8 @@ export function previewDistribution(
   return {
     distribution,
     totalTeams,
-    averagePerGroup: optimal.baseTeamsPerGroup + optimal.groupsWithExtra / groupCount,
+    averagePerGroup:
+      optimal.baseTeamsPerGroup + optimal.groupsWithExtra / groupCount,
     isBalanced: optimal.isBalanced,
   };
 }
-
-
-
-
-

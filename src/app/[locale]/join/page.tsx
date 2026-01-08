@@ -271,20 +271,34 @@ export default function JoinPage() {
                             borderColor="orange.400"
                           >
                             <Flex align="center" mb={2}>
-                              <Box as={Shield} boxSize={4} color="orange.600" mr={2} />
-                              <Text fontSize="sm" fontWeight="semibold" color="orange.700">
+                              <Box
+                                as={Shield}
+                                boxSize={4}
+                                color="orange.600"
+                                mr={2}
+                              />
+                              <Text
+                                fontSize="sm"
+                                fontWeight="semibold"
+                                color="orange.700"
+                              >
                                 Required Levels:
                               </Text>
                             </Flex>
                             <Wrap gap={1}>
                               {selectedSession.requiredLevels.map((level) => (
-                                <Badge key={level} colorScheme="orange" fontSize="xs">
+                                <Badge
+                                  key={level}
+                                  colorScheme="orange"
+                                  fontSize="xs"
+                                >
                                   {level.replace('_', ' ')}
                                 </Badge>
                               ))}
                             </Wrap>
                             <Text fontSize="xs" color="orange.600" mt={2}>
-                              Only players with these levels can join this session.
+                              Only players with these levels can join this
+                              session.
                             </Text>
                           </Box>
                         )}
@@ -399,16 +413,26 @@ export default function JoinPage() {
                                     selectedPlayer.level as Level
                                   ) ? (
                                     <Flex align="center">
-                                      <Text fontSize="sm" color="green.700" fontWeight="medium">
-                                        ✓ Your level ({selectedPlayer.level.replace('_', ' ')}) is
-                                        allowed in this session.
+                                      <Text
+                                        fontSize="sm"
+                                        color="green.700"
+                                        fontWeight="medium"
+                                      >
+                                        ✓ Your level (
+                                        {selectedPlayer.level.replace('_', ' ')}
+                                        ) is allowed in this session.
                                       </Text>
                                     </Flex>
                                   ) : (
                                     <Flex align="center">
-                                      <Text fontSize="sm" color="red.700" fontWeight="medium">
-                                        ⚠️ Your level ({selectedPlayer.level.replace('_', ' ')}) is
-                                        not allowed. Required levels:{' '}
+                                      <Text
+                                        fontSize="sm"
+                                        color="red.700"
+                                        fontWeight="medium"
+                                      >
+                                        ⚠️ Your level (
+                                        {selectedPlayer.level.replace('_', ' ')}
+                                        ) is not allowed. Required levels:{' '}
                                         {selectedSession.requiredLevels
                                           .map((l) => l.replace('_', ' '))
                                           .join(', ')}
@@ -417,9 +441,14 @@ export default function JoinPage() {
                                   )
                                 ) : (
                                   <Flex align="center">
-                                    <Text fontSize="sm" color="yellow.700" fontWeight="medium">
-                                      ⚠️ This session requires a level. Please update your profile
-                                      with one of: {selectedSession.requiredLevels
+                                    <Text
+                                      fontSize="sm"
+                                      color="yellow.700"
+                                      fontWeight="medium"
+                                    >
+                                      ⚠️ This session requires a level. Please
+                                      update your profile with one of:{' '}
+                                      {selectedSession.requiredLevels
                                         .map((l) => l.replace('_', ' '))
                                         .join(', ')}
                                     </Text>
@@ -491,7 +520,7 @@ export default function JoinPage() {
                                 </strong>
                               </Text>
                             </Stack>
-                          {/* {selectedPlayer.confirmedByPlayer && (
+                            {/* {selectedPlayer.confirmedByPlayer && (
                             <Box mt={2} p={2} bg="orange.100" borderRadius="md">
                               <Text fontSize="xs" color="orange.700">
                                 ⚠️ {t("playerAlreadyJoinedWarning")}

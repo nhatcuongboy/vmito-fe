@@ -47,7 +47,10 @@ export const CategoryService = {
     id: string,
     data: UpdateCategoryRequest
   ): Promise<Category> => {
-    const response = await api.put<ApiResponse<Category>>(`/categories/${id}`, data);
+    const response = await api.put<ApiResponse<Category>>(
+      `/categories/${id}`,
+      data
+    );
     toast.success('Category updated successfully');
     return response.data.data!;
   },
@@ -313,4 +316,3 @@ export const CategoryService = {
     return response.data.data!;
   },
 };
-

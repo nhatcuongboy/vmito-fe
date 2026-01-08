@@ -187,9 +187,7 @@ export default function SlideOutMenu({
                       fontSize="sm"
                       fontWeight="bold"
                     >
-                      {(user.name || user.email || 'U')
-                        .charAt(0)
-                        .toUpperCase()}
+                      {(user.name || user.email || 'U').charAt(0).toUpperCase()}
                     </Box>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium">

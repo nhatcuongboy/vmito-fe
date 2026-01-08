@@ -56,4 +56,3 @@ export const TournamentPairService = {
     toast.success('Pair deleted successfully');
   },
 };
-

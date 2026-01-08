@@ -269,7 +269,7 @@ export default function SessionHistoryList({
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
   const [players, setPlayers] = useState<any[]>(sessionData?.players || []);
   const [courts, setCourts] = useState<any[]>(sessionData?.courts || []);
-  
+
   // Use ref to store sessionData to avoid triggering effect on object reference changes
   const sessionDataRef = useRef(sessionData);
   sessionDataRef.current = sessionData;

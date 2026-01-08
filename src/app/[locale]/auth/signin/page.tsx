@@ -49,7 +49,7 @@ function SignInForm() {
   // Handle redirect for already authenticated users (e.g., direct URL access)
   useEffect(() => {
     if (!isHydrated) return;
-    
+
     // If already authenticated before form submission, redirect
     if (isAuthenticated && user && !isRedirecting) {
       setIsRedirecting(true);
@@ -133,103 +133,101 @@ function SignInForm() {
         py={8}
         height="100%"
       >
-          <Box
-            maxW="md"
-            w="full"
-            bg="white"
-            p={8}
-            borderRadius="lg"
-            boxShadow="lg"
-          >
-            <VStack gap={6}>
-              <Box textAlign="center">
-                <Heading size="lg" color="brand.600">
-                  {t('appTitle')}
-                </Heading>
-                <Text color="gray.600" mt={2}>
-                  {t('description')}
-                </Text>
+        <Box
+          maxW="md"
+          w="full"
+          bg="white"
+          p={8}
+          borderRadius="lg"
+          boxShadow="lg"
+        >
+          <VStack gap={6}>
+            <Box textAlign="center">
+              <Heading size="lg" color="brand.600">
+                {t('appTitle')}
+              </Heading>
+              <Text color="gray.600" mt={2}>
+                {t('description')}
+              </Text>
+            </Box>
+
+            {searchParams.get('error') && (
+              <Box
+                bg="red.50"
+                color="red.700"
+                p={3}
+                borderRadius="md"
+                border="1px solid"
+                borderColor="red.200"
+              >
+                {searchParams.get('error') === 'CredentialsSignin'
+                  ? t('invalidEmailOrPassword')
+                  : t('authenticationFailed')}
               </Box>
+            )}
 
-              {searchParams.get('error') && (
-                <Box
-                  bg="red.50"
-                  color="red.700"
-                  p={3}
-                  borderRadius="md"
-                  border="1px solid"
-                  borderColor="red.200"
+            <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
+              <VStack gap={4}>
+                <Field.Root invalid={!!errors.email}>
+                  <Field.Label>{t('email')}</Field.Label>
+                  <Input
+                    {...register('email')}
+                    type="email"
+                    placeholder={t('emailPlaceholder')}
+                  />
+                  <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                </Field.Root>
+
+                <Field.Root invalid={!!errors.password}>
+                  <Field.Label>{t('password')}</Field.Label>
+                  <PasswordInput
+                    {...register('password')}
+                    placeholder={t('passwordPlaceholder')}
+                  />
+                  <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+                </Field.Root>
+
+                <Button
+                  type="submit"
+                  colorScheme="blue"
+                  width="full"
+                  size="lg"
+                  loading={isSubmitting}
                 >
-                  {searchParams.get('error') === 'CredentialsSignin'
-                    ? t('invalidEmailOrPassword')
-                    : t('authenticationFailed')}
-                </Box>
-              )}
-
-              <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
-                <VStack gap={4}>
-                  <Field.Root invalid={!!errors.email}>
-                    <Field.Label>{t('email')}</Field.Label>
-                    <Input
-                      {...register('email')}
-                      type="email"
-                      placeholder={t('emailPlaceholder')}
-                    />
-                    <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.password}>
-                    <Field.Label>{t('password')}</Field.Label>
-                    <PasswordInput
-                      {...register('password')}
-                      placeholder={t('passwordPlaceholder')}
-                    />
-                    <Field.ErrorText>
-                      {errors.password?.message}
-                    </Field.ErrorText>
-                  </Field.Root>
-
-                  <Button
-                    type="submit"
-                    colorScheme="blue"
-                    width="full"
-                    size="lg"
-                    loading={isSubmitting}
-                  >
-                    {t('signInButton')}
-                  </Button>
-                </VStack>
-              </form>
-
-              <Separator />
-
-              <VStack gap={2}>
-                <Text color="gray.600">
-                  {t('noAccount')}{' '}
-                  <Link
-                    href="/auth/signup"
-                    color="blue.600"
-                    fontWeight="semibold"
-                  >
-                    {t('signUp')}
-                  </Link>
-                </Text>
-
-                <Text color="gray.500" fontSize="sm">
-                  {t('or')}{' '}
-                  <Link
-                    href="/join-by-code"
-                    color="blue.600"
-                    fontWeight="semibold"
-                  >
-                    {t('joinAsGuest')}
-                  </Link>
-                </Text>
+                  {t('signInButton')}
+                </Button>
               </VStack>
+            </form>
+
+            <Separator />
+
+            <VStack gap={2}>
+              <Text color="gray.600">
+                {t('noAccount')}{' '}
+                <Link
+                  href="/auth/signup"
+                  color="blue.600"
+                  fontWeight="semibold"
+                >
+                  {t('signUp')}
+                </Link>
+              </Text>
+
+              <Text color="gray.500" fontSize="sm">
+                {t('or')}{' '}
+                <Link
+                  href="/join-by-code"
+                  color="blue.600"
+                  fontWeight="semibold"
+                >
+                  {t('joinAsGuest')}
+                </Link>
+              </Text>
             </VStack>
-          </Box>
+          </VStack>
         </Box>
-      </MainLayout>
+      </Box>
+    </MainLayout>
   );
 }
 
