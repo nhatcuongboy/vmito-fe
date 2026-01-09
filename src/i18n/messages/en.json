@@ -190,8 +190,8 @@
     "home": {
       "title": "Badminton Session Manager",
       "description": "Manage your badminton sessions, track player rotation, and optimize court usage",
-      "hostButton": "Host Mode",
-      "joinButton": "Join as Player",
+      "loginButton": "Login",
+      "joinButton": "Join as Guest",
       "sectionTitle": "Effortless Badminton",
       "sectionTitleHighlight": "Session Management",
       "sectionDescription": "Our intuitive platform helps you organize badminton sessions with ease. Easily track players, manage courts, and ensure everyone gets fair play time with our smart rotation system.",

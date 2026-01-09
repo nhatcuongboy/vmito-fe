@@ -104,7 +104,7 @@ export default function Home() {
                 _hover={{ transform: 'translateY(-3px)' }}
                 transition="all 0.2s"
               >
-                {t('hostButton')}
+                {t('loginButton')}
                 <ArrowRight className="ml-2" size={18} />
               </NextLinkButton>
               <NextLinkButton

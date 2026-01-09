@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Link } from '../../i18n/config';
+import { Link, useRouter } from '../../i18n/config';
 import { Button, ButtonProps } from './chakra-compat';
 
 interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
@@ -22,12 +22,44 @@ interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
 export const NextLinkButton: React.FC<NextLinkButtonProps> = ({
   href,
   children,
+  onClick,
   ...props
 }) => {
+  const router = useRouter();
+  const [isPending, startTransition] = React.useTransition();
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (onClick) {
+      onClick(e);
+    }
+
+    if (
+      e.isDefaultPrevented() ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    startTransition(() => {
+      router.push(href);
+    });
+  };
+
   // We don't use as={Link} directly to avoid nested <a> tags
   return (
-    <Link href={href} style={{ textDecoration: 'none' }}>
-      <Button isWithinLink {...props}>
+    <Link href={href} style={{ textDecoration: 'none' }} tabIndex={-1}>
+      <Button
+        isWithinLink
+        loading={isPending || (props as any).loading}
+        onClick={handleClick}
+        {...props}
+      >
         {children}
       </Button>
     </Link>

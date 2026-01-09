@@ -190,8 +190,8 @@
     "home": {
       "title": "Quản lý kèo cầu lông",
       "description": "Quản lý các kèo cầu lông, theo dõi luân phiên người chơi và tối ưu hóa việc sử dụng sân",
-      "hostButton": "Chế độ host",
-      "joinButton": "Tham gia như người chơi",
+      "loginButton": "Đăng nhập",
+      "joinButton": "Tham gia vãng lai",
       "sectionTitle": "Quản lý kèo cầu lông",
       "sectionTitleHighlight": "dễ dàng",
       "sectionDescription": "Nền tảng trực quan của chúng tôi giúp bạn tổ chức các kèo cầu lông một cách dễ dàng. Dễ dàng theo dõi người chơi, quản lý sân và đảm bảo mọi người có thời gian chơi công bằng với hệ thống luân phiên thông minh của chúng tôi.",

@@ -102,7 +102,10 @@ const SessionCard = ({
   };
 
   return (
-    <Box
+    <Flex
+      direction="column"
+      h="100%"
+      gap={4}
       borderWidth="1px"
       borderRadius="lg"
       overflow="hidden"
@@ -115,7 +118,6 @@ const SessionCard = ({
         boxShadow: 'lg',
       }}
     >
-      <Stack gap={4}>
         <Flex justify="space-between" align="flex-start">
           <Heading size="md" mb={2}>
             {convertedSession.title}
@@ -125,7 +127,7 @@ const SessionCard = ({
           </Badge>
         </Flex>
 
-        <Stack gap={3}>
+        <Stack gap={3} flex={1}>
           <Flex align="center">
             <Icon as={Calendar} boxSize={5} mr={2} color="blue.500" />
             <Text>{convertedSession.date}</Text>
@@ -204,8 +206,7 @@ const SessionCard = ({
             </button>
           )}
         </Flex>
-      </Stack>
-    </Box>
+    </Flex>
   );
 };
 
