@@ -239,7 +239,8 @@
       }
     },
     "host": {
-      "title": "Host Session",
+      "title": "Sessions",
+      "header": "Manage Sessions",
       "description": "Create and manage a badminton session",
       "dashboard": "Host Dashboard",
       "createNew": "Create New Session",
@@ -383,7 +384,7 @@
       "existingSessions": "Existing Sessions",
       "yourSessions": "Your Sessions",
       "upcomingSessions": "Upcoming Sessions",
-      "mySessions": "My Badminton Sessions",
+      "mySessions": "My sessions",
       "createNewSession": "New Session",
       "manageSessions": "Manage Sessions",
       "hostFeatures": "Host Features",

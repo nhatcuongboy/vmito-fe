@@ -38,7 +38,7 @@ export default function PlayerDashboard() {
         <Box mb={10}>
           <Flex mb={4} justify="space-between" align="center">
             <Heading as="h2" size="xl" textAlign="left">
-              {t('upcomingSessions')}
+              {t('mySessions')}
             </Heading>
           </Flex>
           {/* <SessionsList status="UPCOMING_AND_INPROGRESS" /> */}

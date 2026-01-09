@@ -1,25 +1,23 @@
 'use client';
 
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import SessionsList from '@/components/session/SessionsList';
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import TopBar from '@/components/ui/TopBar';
 import {
   Box,
   Container,
   Flex,
   Heading,
-  Text,
-  Stack,
-  VStack,
+  VStack
 } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import TopBar from '@/components/ui/TopBar';
 import { Plus } from 'lucide-react';
-import SessionsList from '@/components/session/SessionsList';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 
 export default function HostSessionsPage() {
   const t = useTranslations('pages.host');
-  const common = useTranslations('common');
+  // const common = useTranslations('common');
   const [status, setStatus] = useState<string>('ALL');
 
   const statusOptions = [
@@ -33,7 +31,11 @@ export default function HostSessionsPage() {
     <ProtectedRouteGuard requiredRole={['HOST']}>
       <Box minH="100vh">
         {/* Top Bar */}
-        <TopBar showBackButton={true} backHref="/dashboard" title={t('dashboard')} />
+        <TopBar
+          showBackButton={true}
+          backHref="/dashboard"
+          title={t('title')}
+        />
 
         <Container maxW="7xl" p={4} pt={24}>
           {/* Filter */}
@@ -57,7 +59,9 @@ export default function HostSessionsPage() {
           </Flex>
           {/* My Sessions Content Only */}
           <Flex mb={6} justify="space-between" alignItems="center">
-            <Heading size="md">{t('mySessions')}</Heading>
+            <Heading as="h2" size="xl" textAlign="left">
+              {t('header')}
+            </Heading>
             <NextLinkButton href="/host/sessions/new">
               <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
             </NextLinkButton>
