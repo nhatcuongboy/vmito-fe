@@ -350,8 +350,8 @@ export default function SessionDetailContent({
       backHref="/host/sessions"
       contentPadding={0}
     >
-      {/* Add WaitTimeUpdater to automatically update wait times every minute */}
-      <WaitTimeUpdater />
+      {/* Add WaitTimeUpdater to automatically update wait times every minute - only for IN_PROGRESS sessions */}
+      <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
       <Container maxW="7xl" py={4}>
         {/* Session Status Cards */}
         <SessionStatusHeader

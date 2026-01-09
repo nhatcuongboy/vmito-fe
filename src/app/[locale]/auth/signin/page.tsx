@@ -85,12 +85,11 @@ function SignInForm() {
 
       if (!hasCustomCallback && loginResponse.user) {
         // Default redirect based on role
-        if (loginResponse.user.role === 'HOST') {
-          redirectPath = '/host';
-        } else if (loginResponse.user.role === 'PLAYER') {
-          redirectPath = '/my-session';
-        } else {
+        if (loginResponse.user.role === 'HOST' || loginResponse.user.role === 'PLAYER') {
           redirectPath = '/dashboard';
+        } else {
+          // GUEST role
+          redirectPath = '/my-session';
         }
       }
 

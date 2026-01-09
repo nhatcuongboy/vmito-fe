@@ -250,4 +250,16 @@ export const SessionService = {
 
     return response.data.data!;
   },
+
+  // Update wait times
+  updateWaitTimes: async (
+    id: string,
+    data: {
+      minutesToAdd?: number;
+      resetType?: 'current' | 'total' | 'both';
+      playerIds?: string[];
+    }
+  ): Promise<void> => {
+    await api.put(`/sessions/${id}/wait-times`, data);
+  },
 };

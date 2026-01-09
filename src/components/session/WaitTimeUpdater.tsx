@@ -1,35 +1,33 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { SessionService } from '@/lib/api/session.service';
 
 // Component to update wait times for active sessions in the background
-export default function WaitTimeUpdater() {
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [updateCount, setUpdateCount] = useState(0);
+export default function WaitTimeUpdater({
+  sessionId,
+  sessionStatus,
+}: {
+  sessionId: string;
+  sessionStatus: string;
+}) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Function to update wait times
   const updateWaitTimes = async () => {
     if (isUpdating) return;
+    
+    // Only update wait times if session is IN_PROGRESS
+    if (sessionStatus !== 'IN_PROGRESS') {
+      return;
+    }
 
     try {
       setIsUpdating(true);
 
-      const response = await fetch('/api/update-wait-times', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      await SessionService.updateWaitTimes(sessionId, {
+        minutesToAdd: 1,
       });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setLastUpdate(new Date());
-        setUpdateCount((prev) => prev + 1);
-      } else {
-        console.error('Failed to update wait times:', result.message);
-      }
     } catch (error) {
       console.error('Error updating wait times:', error);
     } finally {
@@ -39,6 +37,11 @@ export default function WaitTimeUpdater() {
 
   // Set up interval to update wait times every minute
   useEffect(() => {
+    // Only set up interval if session is IN_PROGRESS
+    if (sessionStatus !== 'IN_PROGRESS') {
+      return;
+    }
+
     // Update immediately on mount
     updateWaitTimes();
 
@@ -47,7 +50,8 @@ export default function WaitTimeUpdater() {
 
     // Clean up on unmount
     return () => clearInterval(intervalId);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionStatus]); // Re-run when sessionStatus changes
 
   // This component doesn't render anything visible
   return null;

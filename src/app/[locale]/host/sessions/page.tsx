@@ -33,7 +33,7 @@ export default function HostSessionsPage() {
     <ProtectedRouteGuard requiredRole={['HOST']}>
       <Box minH="100vh">
         {/* Top Bar */}
-        <TopBar showBackButton={true} backHref="/host" title={t('dashboard')} />
+        <TopBar showBackButton={true} backHref="/dashboard" title={t('dashboard')} />
 
         <Container maxW="7xl" p={4} pt={24}>
           {/* Filter */}

@@ -4,23 +4,27 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PlayerSessionView from '@/components/session/PlayerSessionView';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Center, Spinner } from '@chakra-ui/react';
+import { useParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-function GuestMySession() {
+function PlayerMySession() {
   const { user } = useAuthStore();
+  const params = useParams();
+  const sessionId = params.id as string;
 
   return (
     <PlayerSessionView
-      mode="guest"
-      playerId={user?.id}
-      errorRedirectPath="/join"
+      mode="player"
+      sessionId={sessionId}
+      userId={user?.id}
+      errorRedirectPath="/dashboard"
     />
   );
 }
 
-export default function MySessionPage() {
+export default function PlayerSessionPage() {
   return (
-    <ProtectedRouteGuard requiredRole={['GUEST']}>
+    <ProtectedRouteGuard requiredRole={['PLAYER', 'HOST']}>
       <Suspense
         fallback={
           <Center>
@@ -28,7 +32,7 @@ export default function MySessionPage() {
           </Center>
         }
       >
-        <GuestMySession />
+        <PlayerMySession />
       </Suspense>
     </ProtectedRouteGuard>
   );

@@ -179,7 +179,7 @@ const SessionCard = ({
               href={`/my-session/${session.id}`}
               colorScheme="blue"
             >
-              {t('view')}
+              {t('viewSession')}
             </NextLinkButton>
           )}
           {mode === 'manage' && onDelete && (
