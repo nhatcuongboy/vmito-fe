@@ -44,7 +44,7 @@ function StatusPageContent() {
   // console.log(sessionData);
   const [refreshInterval, setRefreshInterval] = useState(60); // seconds
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
-  const [queuePosition, setQueuePosition] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // For background refresh
   const [error, setError] = useState<string | null>(null);
@@ -141,18 +141,7 @@ function StatusPageContent() {
         if (sessionData) {
           setSession(sessionData);
 
-          // Calculate queue position if player is waiting
-          if (playerData.status === 'WAITING') {
-            const waitingPlayers =
-              sessionData.players?.filter((p) => p.status === 'WAITING') || [];
-            // Sort by current wait time (descending)
-            const sortedPlayers = [...waitingPlayers].sort(
-              (a, b) => b.currentWaitTime - a.currentWaitTime
-            );
-            const position =
-              sortedPlayers.findIndex((p) => p.id === playerData.id) + 1;
-            setQueuePosition(position);
-          }
+
 
           // Get match and court info if player is playing or ready
           if (
@@ -681,59 +670,7 @@ function StatusPageContent() {
                       </Box>
                     </Flex>
 
-                    {player.status === 'WAITING' && (
-                      <Box
-                        borderWidth="1px"
-                        p={4}
-                        borderRadius="md"
-                        boxShadow="sm"
-                        transition="all 0.2s"
-                        _hover={{ borderColor: 'blue.200', boxShadow: 'md' }}
-                      >
-                        <Flex justify="space-between" align="center" mb={2}>
-                          <Text fontSize="sm" fontWeight="medium">
-                            {t('queue.title')}
-                          </Text>
-                          <Text fontSize="sm" color="gray.500">
-                            {t('queue.updated', {
-                              time: lastRefreshed.toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              }),
-                            })}
-                          </Text>
-                        </Flex>
-                        <Flex align="center">
-                          <Box
-                            flex={1}
-                            mr={2}
-                            h="8px"
-                            bg="gray.200"
-                            borderRadius="full"
-                            overflow="hidden"
-                            _dark={{ bg: 'gray.700' }}
-                          >
-                            <Box
-                              h="100%"
-                              w={`${Math.max(0, 100 - queuePosition * 10)}%`}
-                              bg="blue.500"
-                              borderRadius="full"
-                            />
-                          </Box>
-                          <Text
-                            fontSize="sm"
-                            fontWeight="medium"
-                            width="24px"
-                            textAlign="center"
-                          >
-                            #{queuePosition || '?'}
-                          </Text>
-                        </Flex>
-                        <Text fontSize="xs" color="gray.500" mt={2}>
-                          {t('queue.autoRefresh', { seconds: refreshInterval })}
-                        </Text>
-                      </Box>
-                    )}
+
                   </Stack>
                 </Box>
 

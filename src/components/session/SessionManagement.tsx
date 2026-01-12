@@ -359,9 +359,7 @@ export default function SessionManagement({
                         </Text>
                       </Box>
                       <Box textAlign="right">
-                        <Badge colorScheme="blue" mb={1}>
-                          Position {player.queuePosition}
-                        </Badge>
+
                         <Text fontSize="sm" color="gray.600">
                           {player.currentWaitTime}min
                         </Text>
