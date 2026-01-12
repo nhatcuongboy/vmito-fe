@@ -3,17 +3,45 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import SessionsList from '@/components/session/SessionsList';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { SessionService } from '@/lib/api/session.service';
+import { ISession } from '@/lib/api/types';
 import { Box, Container, Flex, Heading } from '@chakra-ui/react';
 import { Calendar, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import OverviewStats from './OverviewStats';
 
 export default function HostDashboard() {
   const t = useTranslations('pages.dashboard');
+  const [sessions, setSessions] = useState<ISession[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSessions = async () => {
+    try {
+      setLoading(true);
+      const data = await SessionService.getAllSessions();
+      setSessions(data);
+    } catch (error) {
+      console.error('Failed to fetch sessions', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
 
   return (
     <ProtectedRouteGuard requiredRole={['HOST']}>
       {/* Main Content */}
       <Container maxW="container.xl" py={16} mt={10}>
+        
+        {/* Overview Stats */}
+        <Box mb={8}>
+           <OverviewStats sessions={sessions} />
+        </Box>
+
         {/* Sessions Section */}
         <Box mb={10}>
           <Flex mb={4} justify="space-between" align="center">
@@ -38,7 +66,13 @@ export default function HostDashboard() {
               </NextLinkButton>
             </Flex>
           </Flex>
-          <SessionsList status="UPCOMING_AND_INPROGRESS" mode="manage" />
+          <SessionsList 
+            status="UPCOMING_AND_INPROGRESS" 
+            mode="manage" 
+            sessions={sessions}
+            isLoading={loading}
+            onRefresh={fetchSessions}
+          />
         </Box>
       </Container>
     </ProtectedRouteGuard>

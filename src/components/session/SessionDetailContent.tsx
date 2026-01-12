@@ -13,10 +13,11 @@ import SettingsTab from '@/components/session/SettingsTab';
 import { Button, useToast } from '@/components/ui/chakra-compat';
 import MainLayout from '@/components/layout/MainLayout';
 import { getCourtDisplayName } from '@/utils/session-helpers';
-import { RefreshCw, Square, Trophy, Users } from 'lucide-react';
+import { RefreshCw, Square, Trophy, Users, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import WaitTimeUpdater from './WaitTimeUpdater';
 import { Level } from '@/lib/api/types';
+import SessionOverviewTab from './SessionOverviewTab';
 
 // Types for session data and related entities
 interface Player {
@@ -366,14 +367,19 @@ export default function SessionDetailContent({
 
         {/* Bottom Navigation Bar for Tabs */}
         <Box minH="60vh" pb="80px">
-          {session.status !== 'IN_PROGRESS' && (
+          {session.status !== 'IN_PROGRESS' && activeTab !== 0 && (
             <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
               {session.status === 'PREPARING'
                 ? t('courtsTab.startSessionToBeginMatches')
                 : t('courtsTab.sessionHasEnded')}
             </Text>
           )}
+          
           {activeTab === 0 && (
+            <SessionOverviewTab session={session} />
+          )}
+
+          {activeTab === 1 && (
             <CourtsTab
               session={session}
               waitingPlayers={waitingPlayers}
@@ -386,7 +392,8 @@ export default function SessionDetailContent({
               selectedPlayers={selectedPlayers}
             />
           )}
-          {activeTab === 1 && (
+
+          {activeTab === 2 && (
             <PlayersTab
               sessionPlayers={session.players}
               playerFilter={playerFilter}
@@ -396,7 +403,8 @@ export default function SessionDetailContent({
               onPlayerUpdate={refreshSessionData}
             />
           )}
-          {activeTab === 2 && (
+
+          {activeTab === 3 && (
             <SessionHistoryList
               sessionId={session.id}
               sessionData={{
@@ -405,7 +413,8 @@ export default function SessionDetailContent({
               }}
             />
           )}
-          {activeTab === 3 && (
+
+          {activeTab === 4 && (
             <SettingsTab
               session={session}
               refreshSessionData={refreshSessionData}
@@ -439,8 +448,8 @@ export default function SessionDetailContent({
             color={activeTab === 0 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 0 ? 'bold' : 'normal'}
           >
-            <Box as={Square} boxSize={6} mb={1} />
-            {t('courts')}
+           <Box as={Info} boxSize={6} mb={1} />
+            {t('overview')}
           </Box>
           <Box
             as="button"
@@ -453,8 +462,8 @@ export default function SessionDetailContent({
             color={activeTab === 1 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 1 ? 'bold' : 'normal'}
           >
-            <Box as={Users} boxSize={6} mb={1} />
-            {t('players')}
+            <Box as={Square} boxSize={6} mb={1} />
+            {t('courts')}
           </Box>
           <Box
             as="button"
@@ -467,8 +476,8 @@ export default function SessionDetailContent({
             color={activeTab === 2 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 2 ? 'bold' : 'normal'}
           >
-            <Box as={Trophy} boxSize={6} mb={1} />
-            {t('matchs.tabTitle')}
+            <Box as={Users} boxSize={6} mb={1} />
+            {t('players')}
           </Box>
           <Box
             as="button"
@@ -480,6 +489,20 @@ export default function SessionDetailContent({
             alignItems="center"
             color={activeTab === 3 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 3 ? 'bold' : 'normal'}
+          >
+            <Box as={Trophy} boxSize={6} mb={1} />
+            {t('matchs.tabTitle')}
+          </Box>
+          <Box
+            as="button"
+            flex={1}
+            py={2}
+            onClick={() => handleTabChange(4)}
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color={activeTab === 4 ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === 4 ? 'bold' : 'normal'}
           >
             <Box as={RefreshCw} boxSize={6} mb={1} />
             {t('settings')}

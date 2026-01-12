@@ -12,47 +12,73 @@ import SessionCard from './SessionCard';
 interface SessionsListProps {
   status?: string;
   mode?: 'view' | 'manage';
+  sessions?: ISession[];
+  isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
 export default function SessionsList({
   status = 'ALL',
   mode = 'view',
+  sessions: externalSessions,
+  isLoading: externalLoading,
+  onRefresh,
 }: SessionsListProps) {
-  const [sessions, setSessions] = useState<ISession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
+  const [internalLoading, setInternalLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('session');
   const locale = useLocale();
 
+  const isExternalControl = externalSessions !== undefined;
+  const sessions = isExternalControl ? externalSessions || [] : internalSessions;
+  const loading = isExternalControl
+    ? externalLoading || false
+    : internalLoading;
+
   // Delete handler
   const handleDelete = async (id: string) => {
     try {
-      setLoading(true);
+      if (!isExternalControl) {
+        setInternalLoading(true);
+      }
       await SessionService.deleteSession(id);
-      setSessions((prev) => prev.filter((s) => s.id !== id));
+      
+      if (isExternalControl) {
+        if (onRefresh) {
+            onRefresh();
+        }
+      } else {
+        setInternalSessions((prev) => prev.filter((s) => s.id !== id));
+      }
     } catch (err) {
       setError('Failed to delete session');
     } finally {
-      setLoading(false);
+      if (!isExternalControl) {
+        setInternalLoading(false);
+      }
     }
   };
 
   useEffect(() => {
+    // Only fetch if not controlled externally
+    if (isExternalControl) return;
+
     async function fetchSessions() {
       try {
-        setLoading(true);
+        setInternalLoading(true);
         const sessionData = await SessionService.getAllSessions();
-        setSessions(sessionData);
+        setInternalSessions(sessionData);
       } catch (err) {
         setError(t('loadingError'));
         console.error(err);
       } finally {
-        setLoading(false);
+        setInternalLoading(false);
       }
     }
 
     fetchSessions();
-  }, [locale, t]);
+  }, [locale, t, isExternalControl]);
 
   // Filter sessions by status
   const filteredSessions =

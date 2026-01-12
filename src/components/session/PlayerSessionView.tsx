@@ -461,7 +461,7 @@ export default function PlayerSessionView({
     <>
       <TopBar title={session?.name} />
 
-      <Container maxW="3xl" pt={'70px'} pb={'80px'}>
+      <Container pt={'70px'} pb={'80px'}>
         {/* Tab Content */}
         {!player || !session ? (
           <Center>
@@ -484,6 +484,8 @@ export default function PlayerSessionView({
             {/* Status Tab */}
             {activeTab === 0 && (
               <Box
+                maxW="2xl"
+                mx="auto"
                 borderWidth="1px"
                 borderRadius="lg"
                 mb={6}

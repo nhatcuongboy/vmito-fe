@@ -162,7 +162,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
       </Collapsible.Root>
 
       {/* Player Statistics Section with Collapsible */}
-      <Collapsible.Root
+      {/* <Collapsible.Root
         open={isStatisticsSectionOpen}
         onOpenChange={(details) => setIsStatisticsSectionOpen(details.open)}
       >
@@ -185,7 +185,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             <SessionPlayerStatistics sessionId={sessionId} />
           )}
         </Collapsible.Content>
-      </Collapsible.Root>
+      </Collapsible.Root> */}
     </VStack>
   );
 };

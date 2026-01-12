@@ -5,10 +5,17 @@ import {
   Button,
   Center,
   Flex,
+  HStack,
+  Heading,
+  Icon,
+  SimpleGrid,
   Spinner,
   Table,
   Text,
+  VStack,
+  chakra,
 } from '@chakra-ui/react';
+import { Archive, Filter, RotateCcw, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -62,172 +69,210 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
     { value: 'losses', label: t('columnLosses') },
     { value: 'winRate', label: t('columnWinRate') },
     { value: 'averageScore', label: t('columnAvgScore') },
-    { value: 'totalPlayTime', label: 'Total Play Time' },
-    { value: 'totalWaitTime', label: 'Total Wait Time' },
+    { value: 'totalPlayTime', label: t('columnTotalPlayTime') },
+    { value: 'totalWaitTime', label: t('columnTotalWaitTime') },
   ];
 
+  const selectStyles = {
+    width: '100%',
+    padding: '8px 12px',
+    borderRadius: '6px',
+    border: '1px solid',
+    borderColor: 'gray.200',
+    fontSize: '0.875rem',
+    backgroundColor: 'white',
+    outline: 'none',
+    _dark: {
+      backgroundColor: 'gray.800',
+      borderColor: 'gray.600',
+    }
+  };
+
   return (
-    <Box>
+    <VStack gap={6} align="stretch">
       {/* Filter and Sort Controls */}
-      <Box mb={4} p={4} borderWidth={1} borderRadius="md" bg="gray.50">
-        <Text fontWeight="bold" mb={3}>
-          {t('filtersAndSorting')}
-        </Text>
-        <Flex direction={{ base: 'column', md: 'row' }} gap={3} align="end">
+      <Box
+        p={5}
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        borderRadius="xl"
+        shadow="sm"
+        border="1px solid"
+        borderColor="gray.100"
+      >
+        <Flex align="center" mb={4}>
+          <Icon as={Filter} boxSize={5} mr={2} color="blue.500" />
+          <Heading size="sm" fontWeight="bold">
+            {t('filtersAndSorting')}
+          </Heading>
+        </Flex>
+        
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4}>
           <Box>
-            <Text fontSize="sm" mb={1}>
+            <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
               {t('sortBy')}
             </Text>
-            <select
+            <chakra.select 
               value={sortBy}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setSortBy(e.target.value)
-              }
-              style={{
-                fontSize: '14px',
-                minWidth: '150px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                border: '1px solid #CBD5E0',
-              }}
+              onChange={(e: any) => setSortBy(e.target.value)}
+              {...selectStyles}
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
-            </select>
+            </chakra.select>
           </Box>
 
           <Box>
-            <Text fontSize="sm" mb={1}>
+             <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
               {t('sortOrder')}
             </Text>
-            <select
+            <chakra.select 
               value={sortOrder}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setSortOrder(e.target.value as 'asc' | 'desc')
-              }
-              style={{
-                fontSize: '14px',
-                minWidth: '120px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                border: '1px solid #CBD5E0',
-              }}
+              onChange={(e: any) => setSortOrder(e.target.value as 'asc' | 'desc')}
+              {...selectStyles}
             >
               <option value="asc">{t('ascending')}</option>
               <option value="desc">{t('descending')}</option>
-            </select>
+            </chakra.select>
           </Box>
 
           <Box>
-            <Text fontSize="sm" mb={1}>
+             <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
               {t('filterByGender')}
             </Text>
-            <select
+            <chakra.select 
               value={genderFilter}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setGenderFilter(e.target.value)
-              }
-              style={{
-                fontSize: '14px',
-                minWidth: '120px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                border: '1px solid #CBD5E0',
-              }}
+              onChange={(e: any) => setGenderFilter(e.target.value)}
+              {...selectStyles}
             >
               <option value="">{t('allGenders')}</option>
               <option value="MALE">{t('male')}</option>
               <option value="FEMALE">{t('female')}</option>
               <option value="OTHER">{t('other')}</option>
               <option value="PREFER_NOT_TO_SAY">{t('preferNotToSay')}</option>
-            </select>
+            </chakra.select>
           </Box>
 
-          <Button
-            size="sm"
-            onClick={() => {
-              setSortBy('playerNumber');
-              setSortOrder('asc');
-              setGenderFilter('');
-            }}
-            variant="outline"
-          >
-            {t('resetFilters')}
-          </Button>
-        </Flex>
+          <Box display="flex" alignItems="flex-end">
+            <Button
+              size="sm"
+              width="full"
+              onClick={() => {
+                setSortBy('playerNumber');
+                setSortOrder('asc');
+                setGenderFilter('');
+              }}
+              variant="outline"
+              colorScheme="gray"
+            >
+              <Icon as={RotateCcw} mr={2} boxSize={4} />
+              {t('resetFilters')}
+            </Button>
+          </Box>
+        </SimpleGrid>
       </Box>
 
-      {loading ? (
-        <Center py={8}>
-          <Spinner size="lg" />
-        </Center>
-      ) : error ? (
-        <Text color="red.500">{error}</Text>
-      ) : stats.length === 0 ? (
-        <Text>{t('noDataAvailable')}</Text>
-      ) : (
-        <Box>
-          <Table.Root size="sm" variant="outline" colorScheme="gray">
-            <Table.Caption>{t('tableCaption')}</Table.Caption>
-            <Table.Header>
-              <Table.Row>
-                <Table.ColumnHeader>{t('columnNo')}</Table.ColumnHeader>
-                <Table.ColumnHeader>{t('columnName')}</Table.ColumnHeader>
-                <Table.ColumnHeader>
-                  {t('columnTotalMatches')}
-                </Table.ColumnHeader>
-                <Table.ColumnHeader>
-                  <span
-                    title={t('regularMatchesTooltip')}
-                    style={{ cursor: 'help' }}
-                  >
-                    {t('columnRegularMatches')}
-                  </span>
-                </Table.ColumnHeader>
-                <Table.ColumnHeader>
-                  <span
-                    title={t('extraMatchesTooltip')}
-                    style={{ cursor: 'help' }}
-                  >
-                    {t('columnExtraMatches')}
-                  </span>
-                </Table.ColumnHeader>
-                <Table.ColumnHeader>{t('columnWins')}</Table.ColumnHeader>
-                <Table.ColumnHeader>{t('columnLosses')}</Table.ColumnHeader>
-                <Table.ColumnHeader>{t('columnWinRate')}</Table.ColumnHeader>
-                <Table.ColumnHeader>{t('columnAvgScore')}</Table.ColumnHeader>
-                <Table.ColumnHeader>Total Play Time</Table.ColumnHeader>
-                <Table.ColumnHeader>Total Wait Time</Table.ColumnHeader>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {stats.map((p, idx) => (
-                <Table.Row key={p.playerId}>
-                  <Table.Cell>{p.playerNumber}</Table.Cell>
-                  <Table.Cell>{p.name || t('unnamed')}</Table.Cell>
-                  <Table.Cell>{p.totalMatches}</Table.Cell>
-                  <Table.Cell>{p.regularMatches || 0}</Table.Cell>
-                  <Table.Cell>{p.extraMatches || 0}</Table.Cell>
-                  <Table.Cell>{p.wins}</Table.Cell>
-                  <Table.Cell>{p.losses}</Table.Cell>
-                  <Table.Cell>{p.winRate}%</Table.Cell>
-                  <Table.Cell>{p.averageScore}</Table.Cell>
-                  <Table.Cell>{p.totalPlayTime || 0}m</Table.Cell>
-                  <Table.Cell>{p.totalWaitTime || 0}m</Table.Cell>
+      {/* Stats Table */}
+      <Box
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        borderRadius="xl"
+        shadow="sm"
+        border="1px solid"
+        borderColor="gray.100"
+        overflow="hidden"
+      >
+        {loading ? (
+          <Center py={12}>
+            <Spinner size="xl" color="blue.500" />
+          </Center>
+        ) : error ? (
+          <Center py={10}>
+             <Text color="red.500">{error}</Text>
+          </Center>
+        ) : stats.length === 0 ? (
+          <Center py={10}>
+            <Text color="gray.500">{t('noDataAvailable')}</Text>
+          </Center>
+        ) : (
+          <Box overflowX="auto">
+            <Table.Root size="sm" variant="outline" colorScheme="gray">
+              <Table.Header bg="gray.50" _dark={{ bg: 'gray.700' }}>
+                <Table.Row>
+                  <Table.ColumnHeader py={3} ps={4}>{t('columnNo')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3}>{t('columnName')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">{t('columnTotalMatches')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">
+                    <HStack justify="center" gap={1}>
+                       <Text>{t('columnRegularMatches')}</Text>
+                       <Icon as={Archive} boxSize={3} color="gray.400" />
+                    </HStack>
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">{t('columnExtraMatches')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">{t('columnWins')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">{t('columnLosses')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">
+                      <HStack justify="center" gap={1}>
+                         <Icon as={Trophy} boxSize={3} color="yellow.500" />
+                         <Text>{t('columnWinRate')}</Text>
+                      </HStack>
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">{t('columnAvgScore')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">{t('columnTotalPlayTime')}</Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center" pe={4}>{t('columnTotalWaitTime')}</Table.ColumnHeader>
                 </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Root>
-          <Text fontSize="xs" color="gray.500" mt={2}>
-            {t('lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
-          </Text>
+              </Table.Header>
+              <Table.Body>
+                {stats.map((p, idx) => (
+                  <Table.Row 
+                    key={p.playerId} 
+                    _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                    transition="background 0.2s"
+                  >
+                    <Table.Cell py={2.5} ps={4} fontWeight="medium">{p.playerNumber}</Table.Cell>
+                    <Table.Cell py={2.5} fontWeight="medium" color="blue.600" _dark={{ color: 'blue.300' }}>
+                        {p.name || t('unnamed')}
+                    </Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center">{p.totalMatches}</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center" color="gray.500">{p.regularMatches || 0}</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center" color="gray.500">{p.extraMatches || 0}</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center" color="green.600" fontWeight="bold">{p.wins}</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center" color="red.500">{p.losses}</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center" fontWeight="bold">
+                        <Text 
+                            as="span" 
+                            px={2} 
+                            py={0.5} 
+                            borderRadius="full" 
+                            bg={p.winRate >= 50 ? "green.50" : "orange.50"} 
+                            color={p.winRate >= 50 ? "green.700" : "orange.700"}
+                            fontSize="xs"
+                        >
+                            {p.winRate}%
+                        </Text>
+                    </Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center">{p.averageScore}</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center">{p.totalPlayTime || 0}m</Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center" pe={4}>{p.totalWaitTime || 0}m</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
+          </Box>
+        )}
+        <Box bg="gray.50" _dark={{ bg: 'gray.900' }} p={3} borderTop="1px solid" borderColor="gray.100">
+             <Text fontSize="xs" color="gray.500" textAlign="right">
+                {t('lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
+             </Text>
         </Box>
-      )}
-    </Box>
+      </Box>
+    </VStack>
   );
 };
 
 export default SessionPlayerStatistics;
+
+

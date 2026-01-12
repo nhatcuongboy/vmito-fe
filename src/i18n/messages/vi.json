@@ -404,7 +404,13 @@
       "matches": "Trận đấu",
       "waitTime": "Thời gian chờ",
       "playerNumber": "Người chơi số",
-      "viewSession": "Xem kèo"
+      "viewSession": "Xem kèo",
+      "stats": {
+        "totalSessions": "Tổng số phiên",
+        "activeSessions": "Đang diễn ra",
+        "upcomingSessions": "Sắp diễn ra",
+        "totalPlayers": "Tổng lượt người chơi"
+      }
     },
     "join": {
       "title": "Tham gia kèo",
@@ -913,6 +919,8 @@
     "validationError": "Lỗi xác thực"
   },
   "SessionDetail": {
+    "requiredLevels": "Trình độ yêu cầu",
+    "allLevels": "Tất cả trình độ",
     "sessionTime": "Thời gian",
     "status": "Trạng thái",
     "notStartedYet": "Chưa bắt đầu",
@@ -1056,7 +1064,14 @@
     },
     "matchs": {
       "tabTitle": "Trận đấu"
-    }
+    },
+    "title": "Session Details",
+    "overview": "Tổng quan",
+    "quickActions": "Thao tác nhanh",
+    "copyCode": "Copy Code",
+    "copyJoinLink": "Copy Join Link",
+    "noLocation": "No location",
+    "notScheduled": "Not scheduled"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",
@@ -1071,6 +1086,8 @@
     "columnLosses": "Thua",
     "columnWinRate": "Tỷ lệ thắng",
     "columnAvgScore": "Điểm TB",
+    "columnTotalPlayTime": "Thời gian chơi",
+    "columnTotalWaitTime": "Thời gian chờ",
     "regularMatchesTooltip": "Trận đấu chính thức (trong thời gian phiên)",
     "extraMatchesTooltip": "Trận đấu thêm giờ (ngoài giờ)",
     "unnamed": "Chưa đặt tên",

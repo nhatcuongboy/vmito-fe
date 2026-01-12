@@ -404,7 +404,13 @@
       "matches": "Matches",
       "waitTime": "Wait Time",
       "playerNumber": "Player #",
-      "viewSession": "View Session"
+      "viewSession": "View Session",
+      "stats": {
+        "totalSessions": "Total Sessions",
+        "activeSessions": "Active Sessions",
+        "upcomingSessions": "Upcoming Sessions",
+        "totalPlayers": "Total Players"
+      }
     },
     "tournaments": {
       "title": "Tournaments",
@@ -914,6 +920,8 @@
     "validationError": "Validation error"
   },
   "SessionDetail": {
+    "requiredLevels": "Required Levels",
+    "allLevels": "All Levels",
     "sessionTime": "Time",
     "status": "Status",
     "notStartedYet": "Not started yet",
@@ -1057,7 +1065,14 @@
     },
     "matchs": {
       "tabTitle": "Matches"
-    }
+    },
+    "title": "Session Details",
+    "overview": "Overview",
+    "quickActions": "Quick Actions",
+    "copyCode": "Copy Code",
+    "copyJoinLink": "Copy Join Link",
+    "noLocation": "No location",
+    "notScheduled": "Not scheduled"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Failed to load player statistics.",
@@ -1072,6 +1087,8 @@
     "columnLosses": "Losses",
     "columnWinRate": "Win Rate",
     "columnAvgScore": "Avg Score",
+    "columnTotalPlayTime": "Total Play Time",
+    "columnTotalWaitTime": "Total Wait Time",
     "regularMatchesTooltip": "Regular matches (within session time)",
     "extraMatchesTooltip": "Extra matches (overtime)",
     "unnamed": "Unnamed",
