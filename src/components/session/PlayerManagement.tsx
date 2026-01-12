@@ -1,5 +1,6 @@
 'use client';
 
+import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import {
   Button,
@@ -8,8 +9,8 @@ import {
   HStack,
   IconButton,
   VStack,
-  useToast,
 } from '@/components/ui/chakra-compat';
+import { toaster } from '@/components/ui/toaster';
 import { PlayerService } from '@/lib/api/player.service';
 import { UserService, UserOption } from '@/lib/api/user.service';
 import { Level } from '@/lib/api/types';
@@ -123,10 +124,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     useState<boolean>(false);
   const [showQRModal, setShowQRModal] = useState<boolean>(false);
   const [selectedPlayerForQR, setSelectedPlayerForQR] = useState<any>(null);
+  const [playerToDelete, setPlayerToDelete] = useState<any>(null);
   const [availableUsers, setAvailableUsers] = useState<UserOption[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
-
-  const toast = useToast();
 
   // Load available users on mount
   useEffect(() => {
@@ -137,9 +137,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         setAvailableUsers(users);
       } catch (error) {
         console.error('Error loading users:', error);
-        toast.toast({
+        toaster.create({
           title: t('failedToLoadUsers'),
-          status: 'error',
+          type: 'error',
           duration: 3000,
         });
       } finally {
@@ -223,10 +223,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     );
 
     if (isUserAlreadySelected) {
-      toast.toast({
+      toaster.create({
         title: t('userAlreadySelected'),
         description: t('userAlreadySelectedDescription'),
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
       return;
@@ -238,10 +238,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     );
 
     if (isUserInExistingPlayers) {
-      toast.toast({
+      toaster.create({
         title: t('userAlreadyExists'),
         description: t('userAlreadyExistsDescription'),
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
       return;
@@ -344,16 +344,16 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onDataRefresh();
       }
 
-      toast.toast({
+      toaster.create({
         title: t('playerChangesSavedSuccess'),
-        status: 'success',
+        type: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error saving player changes:', error);
-      toast.toast({
+      toaster.create({
         title: t('failedToSavePlayerChanges'),
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
     } finally {
@@ -388,17 +388,17 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onDataRefresh();
       }
 
-      toast.toast({
+      toaster.create({
         title: t('playerUpdatedSuccess'),
-        status: 'success',
+        type: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error updating player:', error);
-      toast.toast({
+      toaster.create({
         title: t('failedToUpdatePlayer'),
         description: error instanceof Error ? error.message : 'Unknown error',
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
     } finally {
@@ -406,37 +406,40 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     }
   };
 
-  const deletePlayer = async (playerId: string) => {
-    // Find player name for confirmation
+  const deletePlayer = (playerId: string) => {
     const player = session.players.find((p: any) => p.id === playerId);
-    const playerName = player?.name || `Player ${player?.playerNumber || ''}`;
-
-    // Show confirmation dialog
-    const confirmed = window.confirm(
-      t('deleteConfirmation', { name: playerName })
-    );
-
-    if (!confirmed) {
-      return; // User cancelled
+    if (player) {
+      setPlayerToDelete(player);
     }
+  };
+
+  const confirmDeletePlayer = async () => {
+    if (!playerToDelete) return;
+
+    const playerName =
+      playerToDelete.name || `Player ${playerToDelete.playerNumber || ''}`;
 
     try {
-      await PlayerService.deletePlayerBySession(session.id, playerId);
+      setIsSaving(true);
+      await PlayerService.deletePlayerBySession(session.id, playerToDelete.id);
       if (onDataRefresh) {
         onDataRefresh();
       }
-      toast.toast({
+      toaster.create({
         title: t('playerDeletedSuccess', { name: playerName }),
-        status: 'success',
+        type: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error deleting player:', error);
-      toast.toast({
+      toaster.create({
         title: t('failedToDeletePlayer'),
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
+    } finally {
+      setIsSaving(false);
+      setPlayerToDelete(null);
     }
   };
   // Calculate maximum players based on courts and players per court
@@ -1632,147 +1635,116 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       </Card>
 
       {/* Warning popup for exceeding recommended player limit */}
-      {showMaxPlayersWarning && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="blackAlpha.600"
-          zIndex={9999}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          onClick={cancelAddPlayer}
-        >
-          <Box
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-            borderRadius="lg"
-            boxShadow="xl"
-            p={6}
-            maxW="md"
-            mx={4}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <VStack spacing={4} align="stretch">
-              <HStack spacing={3}>
-                <Box as={AlertCircle} boxSize={6} color="orange.500" />
-                <Heading size="md" color="orange.600">
-                  {t('limitWarningModal.title')}
-                </Heading>
-              </HStack>
+      <CommonModal
+        isOpen={showMaxPlayersWarning}
+        onClose={cancelAddPlayer}
+        title={
+          <HStack spacing={3}>
+            <Box as={AlertCircle} boxSize={6} color="orange.500" />
+            <Text>{t('limitWarningModal.title')}</Text>
+          </HStack>
+        }
+        size="md"
+        primaryActionText={t('limitWarningModal.addAnyway')}
+        onPrimaryAction={confirmAddPlayerDespiteWarning}
+        primaryColorScheme="orange"
+        secondaryActionText={tCommon('cancel')}
+      >
+        <VStack spacing={4} align="stretch" py={2}>
+          <Text color="gray.600" lineHeight="1.6">
+            {t('limitWarningModal.description', {
+              currentPlayerCount,
+              numberOfCourts: session.numberOfCourts,
+              maxPlayersPerCourt: session.maxPlayersPerCourt,
+            })}
+          </Text>
 
-              <Text
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
-                lineHeight="1.6"
-              >
-                {t('limitWarningModal.description', {
-                  currentPlayerCount,
-                  numberOfCourts: session.numberOfCourts,
-                  maxPlayersPerCourt: session.maxPlayersPerCourt,
-                })}
-                <br />
-                <br />
-                {t('limitWarningModal.addingMoreMayResultIn')}
-              </Text>
+          <VStack align="start" spacing={2} pl={4} bg="gray.50" p={4} borderRadius="md">
+            <Text fontSize="sm" color="gray.600" fontWeight="medium">
+              Adding more players may result in:
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              • {t('limitWarningModal.longerWaitingTimes')}
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              • {t('limitWarningModal.complexScheduling')}
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              • {t('limitWarningModal.potentialDissatisfaction')}
+            </Text>
+          </VStack>
 
-              <VStack align="start" spacing={2} pl={4}>
-                <Text fontSize="sm" color="gray.600">
-                  • {t('limitWarningModal.longerWaitingTimes')}
-                </Text>
-                <Text fontSize="sm" color="gray.600">
-                  • {t('limitWarningModal.complexScheduling')}
-                </Text>
-                <Text fontSize="sm" color="gray.600">
-                  • {t('limitWarningModal.potentialDissatisfaction')}
-                </Text>
-              </VStack>
-
-              <Text fontSize="sm" color="gray.600" fontStyle="italic">
-                {t('limitWarningModal.confirmQuestion')}
-              </Text>
-
-              <Flex gap={3} justifyContent="flex-end" pt={2}>
-                <Button variant="outline" onClick={cancelAddPlayer} size="sm">
-                  {tCommon('cancel')}
-                </Button>
-                <Button
-                  colorScheme="orange"
-                  onClick={confirmAddPlayerDespiteWarning}
-                  size="sm"
-                >
-                  {t('limitWarningModal.addAnyway')}
-                </Button>
-              </Flex>
-            </VStack>
-          </Box>
-        </Box>
-      )}
+          <Text fontSize="sm" color="gray.600" fontStyle="italic">
+            {t('limitWarningModal.confirmQuestion')}
+          </Text>
+        </VStack>
+      </CommonModal>
 
       {/* QR Code Modal */}
-      {showQRModal && selectedPlayerForQR && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="blackAlpha.800"
-          zIndex={9999}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          p={4}
-          onClick={closeQRModal}
-        >
-          <Box
-            bg="white"
-            borderRadius="lg"
-            p={6}
-            maxW="sm"
-            w="full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <VStack gap={4}>
-              <HStack justify="space-between" w="full">
-                <Text fontSize="lg" fontWeight="bold">
-                  {t('qrCodeModal.title', {
-                    number: selectedPlayerForQR.playerNumber,
-                  })}
-                </Text>
-                <Button size="sm" variant="ghost" onClick={closeQRModal}>
-                  ✕
-                </Button>
-              </HStack>
+      <CommonModal
+        isOpen={showQRModal && !!selectedPlayerForQR}
+        onClose={closeQRModal}
+        title={
+          selectedPlayerForQR &&
+          t('qrCodeModal.title', {
+            number: selectedPlayerForQR.playerNumber,
+          })
+        }
+        size="sm"
+        showCloseButton={true}
+        primaryActionText={tCommon('close')}
+        onPrimaryAction={closeQRModal}
+      >
+        {selectedPlayerForQR && (
+          <VStack gap={6} py={4}>
+            <Text textAlign="center" color="gray.800" fontWeight="semibold" fontSize="lg">
+              {selectedPlayerForQR.name ||
+                `Player ${selectedPlayerForQR.playerNumber}`}
+            </Text>
 
-              <Text textAlign="center" color="gray.600">
-                {selectedPlayerForQR.name ||
-                  `Player ${selectedPlayerForQR.playerNumber}`}
-              </Text>
-
-              {selectedPlayerForQR.joinCode && (
+            <Box p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
+              {selectedPlayerForQR.joinCode ? (
                 <QRCodeGenerator
                   joinCode={selectedPlayerForQR.joinCode}
                   size={200}
                 />
+              ) : (
+                <VStack p={10} justify="center" align="center">
+                   <Box as={AlertCircle} boxSize={10} color="red.400" mb={2} />
+                   <Text color="red.500" textAlign="center" fontWeight="medium">
+                    {t('qrCodeModal.joinCodeNotAvailable')}
+                  </Text>
+                </VStack>
               )}
+            </Box>
 
-              {!selectedPlayerForQR.joinCode && (
-                <Text color="red.500" textAlign="center">
-                  {t('qrCodeModal.joinCodeNotAvailable')}
-                </Text>
-              )}
+            <Text fontSize="sm" color="gray.500" textAlign="center" px={4}>
+              {t('qrCodeModal.shareInstructions')}
+            </Text>
+          </VStack>
+        )}
+      </CommonModal>
 
-              <Text fontSize="sm" color="gray.500" textAlign="center">
-                {t('qrCodeModal.shareInstructions')}
-              </Text>
-            </VStack>
-          </Box>
-        </Box>
-      )}
+      {/* Delete Player Confirmation Modal */}
+      <CommonModal
+        isOpen={!!playerToDelete}
+        onClose={() => setPlayerToDelete(null)}
+        title={t('deletePlayer')}
+        primaryActionText={tCommon('delete')}
+        secondaryActionText={tCommon('cancel')}
+        onPrimaryAction={confirmDeletePlayer}
+        isPrimaryLoading={isSaving}
+        primaryColorScheme="red"
+      >
+        <Text>
+          {playerToDelete &&
+            t('deleteConfirmation', {
+              name:
+                playerToDelete.name ||
+                `Player ${playerToDelete.playerNumber || ''}`,
+            })}
+        </Text>
+      </CommonModal>
     </VStack>
   );
 };

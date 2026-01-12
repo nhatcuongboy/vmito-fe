@@ -17,6 +17,7 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { Calendar, Clock, Shield, SquareAsterisk, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { CommonModal, useModal } from '@/components/ui/CommonModal';
 
 // Helper functions for formatting with locale support
 const formatDate = (dateString: string | Date, locale: string): string => {
@@ -77,6 +78,7 @@ const SessionCard = ({
   mode = 'view',
 }: SessionCardProps) => {
   const t = useTranslations('session');
+  const tCommon = useTranslations('common');
   const locale = useLocale();
   // Calculate max players based on courts and maxPlayersPerCourt
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -101,23 +103,26 @@ const SessionCard = ({
     hostName: session.host?.name || '',
   };
 
+  const { isOpen, onOpen, onClose } = useModal();
+
   return (
-    <Flex
-      direction="column"
-      h="100%"
-      gap={4}
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      bg="white"
-      _dark={{ bg: 'gray.800' }}
-      p={6}
-      transition="transform 0.2s, box-shadow 0.2s"
-      _hover={{
-        transform: 'translateY(-4px)',
-        boxShadow: 'lg',
-      }}
-    >
+    <>
+      <Flex
+        direction="column"
+        h="100%"
+        gap={4}
+        borderWidth="1px"
+        borderRadius="lg"
+        overflow="hidden"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        p={6}
+        transition="transform 0.2s, box-shadow 0.2s"
+        _hover={{
+          transform: 'translateY(-4px)',
+          boxShadow: 'lg',
+        }}
+      >
         <Flex justify="space-between" align="flex-start">
           <Heading size="md" mb={2}>
             {convertedSession.title}
@@ -196,17 +201,31 @@ const SessionCard = ({
                 cursor: 'pointer',
                 transition: 'background 0.2s',
               }}
-              onClick={() => {
-                if (window.confirm(t('deleteConfirmation'))) {
-                  onDelete(session.id);
-                }
-              }}
+              onClick={onOpen}
             >
               {t('deleteSession')}
             </button>
           )}
         </Flex>
-    </Flex>
+      </Flex>
+
+      <CommonModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={t('deleteSession')}
+        primaryActionText={tCommon('delete')}
+        secondaryActionText={tCommon('cancel')}
+        onPrimaryAction={() => {
+          if (onDelete) {
+            onDelete(session.id);
+          }
+          onClose();
+        }}
+        primaryColorScheme="red"
+      >
+        <Text>{t('deleteConfirmation')}</Text>
+      </CommonModal>
+    </>
   );
 };
 

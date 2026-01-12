@@ -267,18 +267,3 @@ export const DrawerFooter = ({
   </Box>
 );
 
-// Create a function to mimic useColorModeValue
-export const useColorModeValue = (lightValue: any, darkValue: any) => {
-  // For now, we'll always return the light value, but this can be enhanced
-  return lightValue;
-};
-
-// Create our own toast implementation since useToast is not available in Chakra v3
-export const useToast = () => {
-  return {
-    toast: (options: any) => {
-      console.log('Toast:', options);
-      // We'll implement proper toast in the next iteration
-    },
-  };
-};

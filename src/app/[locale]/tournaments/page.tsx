@@ -27,7 +27,7 @@ import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { useEffect, useState } from 'react';
 import { Calendar, Users, Trophy, Plus, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api } from '@/lib/api/base';
 
 export default function TournamentsPage() {
@@ -61,16 +61,16 @@ export default function TournamentsPage() {
       const response = await api.post('/tournaments/create-sample');
       const result = response.data.data;
 
-      toast.success(t('sampleCreatedSuccess'));
+      toaster.success({ title: t('sampleCreatedSuccess') });
       // Reload tournaments
       await loadTournaments();
       // Navigate to the new tournament
       router.push(`/tournaments/${result.tournament.id}`);
     } catch (error: any) {
       console.error('Error creating sample tournament:', error);
-      toast.error(
+      toaster.error({ title: 
         error.response?.data?.error || 'Failed to create sample tournament'
-      );
+       });
     } finally {
       setCreatingSample(false);
     }

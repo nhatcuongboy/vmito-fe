@@ -22,7 +22,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { z } from 'zod';
 
 // Define zod schema for form validation
@@ -77,7 +77,7 @@ function SignInForm() {
         password: data.password,
       });
 
-      toast.success(t('loginSuccessful'));
+      toaster.success({ title: t('loginSuccessful') });
 
       // Redirect based on user role if no specific callbackUrl
       const hasCustomCallback = searchParams.get('callbackUrl');

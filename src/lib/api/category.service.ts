@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
   Category,
@@ -38,7 +38,7 @@ export const CategoryService = {
       `/tournaments/${tournamentId}/categories`,
       data
     );
-    toast.success('Category created successfully');
+    toaster.success({ title: 'Category created successfully' });
     return response.data.data!;
   },
 
@@ -51,14 +51,14 @@ export const CategoryService = {
       `/categories/${id}`,
       data
     );
-    toast.success('Category updated successfully');
+    toaster.success({ title: 'Category updated successfully' });
     return response.data.data!;
   },
 
   // Delete category
   deleteCategory: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/categories/${id}`);
-    toast.success('Category deleted successfully');
+    toaster.success({ title: 'Category deleted successfully' });
   },
 
   // Registration management
@@ -79,7 +79,7 @@ export const CategoryService = {
       `/categories/${categoryId}/registrations`,
       data
     );
-    toast.success('Registration created successfully');
+    toaster.success({ title: 'Registration created successfully' });
     return response.data.data!;
   },
 
@@ -90,7 +90,7 @@ export const CategoryService = {
     await api.delete<ApiResponse<null>>(
       `/categories/${categoryId}/registrations/${registrationId}`
     );
-    toast.success('Registration removed successfully');
+    toaster.success({ title: 'Registration removed successfully' });
   },
 
   // Match management
@@ -109,7 +109,7 @@ export const CategoryService = {
       `/categories/${categoryId}/matches`,
       data
     );
-    toast.success('Match created successfully');
+    toaster.success({ title: 'Match created successfully' });
     return response.data.data!;
   },
 
@@ -128,20 +128,20 @@ export const CategoryService = {
       `/category-matches/${id}`,
       data
     );
-    toast.success('Match updated successfully');
+    toaster.success({ title: 'Match updated successfully' });
     return response.data.data!;
   },
 
   deleteMatch: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/category-matches/${id}`);
-    toast.success('Match deleted successfully');
+    toaster.success({ title: 'Match deleted successfully' });
   },
 
   startMatch: async (id: string): Promise<CategoryMatch> => {
     const response = await api.post<ApiResponse<CategoryMatch>>(
       `/category-matches/${id}/start`
     );
-    toast.success('Match started');
+    toaster.success({ title: 'Match started' });
     return response.data.data!;
   },
 
@@ -153,7 +153,7 @@ export const CategoryService = {
       `/category-matches/${id}/end`,
       data
     );
-    toast.success('Match ended successfully');
+    toaster.success({ title: 'Match ended successfully' });
     return response.data.data!;
   },
 
@@ -184,7 +184,7 @@ export const CategoryService = {
     const response = await api.post<ApiResponse<GroupStandingsResponse>>(
       `/categories/${categoryId}/groups/${groupId}/calculate-standings`
     );
-    toast.success('Standings recalculated');
+    toaster.success({ title: 'Standings recalculated' });
     return response.data.data!;
   },
 
@@ -203,7 +203,7 @@ export const CategoryService = {
     const response = await api.post<ApiResponse<CategoryGroup[]>>(
       `/categories/${categoryId}/groups`
     );
-    toast.success('Groups created successfully');
+    toaster.success({ title: 'Groups created successfully' });
     return response.data.data!;
   },
 
@@ -223,7 +223,7 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}`,
       data
     );
-    toast.success('Group updated successfully');
+    toaster.success({ title: 'Group updated successfully' });
     return response.data.data!;
   },
 
@@ -231,7 +231,7 @@ export const CategoryService = {
     await api.delete<ApiResponse<null>>(
       `/categories/${categoryId}/groups/${groupId}`
     );
-    toast.success('Group deleted successfully');
+    toaster.success({ title: 'Group deleted successfully' });
   },
 
   // Group registration assignment
@@ -244,7 +244,7 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}/registrations`,
       { categoryRegistrationId: registrationId }
     );
-    toast.success('Registration assigned to group successfully');
+    toaster.success({ title: 'Registration assigned to group successfully' });
     return response.data.data!;
   },
 
@@ -256,7 +256,7 @@ export const CategoryService = {
     await api.delete<ApiResponse<null>>(
       `/categories/${categoryId}/groups/${groupId}/registrations/${registrationId}`
     );
-    toast.success('Registration removed from group successfully');
+    toaster.success({ title: 'Registration removed from group successfully' });
   },
 
   bulkAssignRegistrationsToGroup: async (
@@ -268,9 +268,9 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}/registrations/bulk`,
       { categoryRegistrationIds: registrationIds }
     );
-    toast.success(
+    toaster.success({ title: 
       `Successfully assigned ${registrationIds.length} registration(s) to group`
-    );
+     });
     return response.data.data!;
   },
 
@@ -281,7 +281,7 @@ export const CategoryService = {
     const response = await api.post<
       ApiResponse<Record<string, CategoryGroupRegistration[]>>
     >(`/categories/${categoryId}/groups/auto-assign`, options || {});
-    toast.success('Teams auto-assigned to groups successfully');
+    toaster.success({ title: 'Teams auto-assigned to groups successfully' });
     return response.data.data!;
   },
 
@@ -293,7 +293,7 @@ export const CategoryService = {
     const response = await api.post<ApiResponse<CategoryMatch[]>>(
       `/categories/${categoryId}/groups/${groupId}/generate-matches`
     );
-    toast.success('Matches generated successfully');
+    toaster.success({ title: 'Matches generated successfully' });
     return response.data.data!;
   },
 
@@ -312,7 +312,7 @@ export const CategoryService = {
     const response = await api.post<ApiResponse<any>>(
       `/categories/${categoryId}/complete-group-stage`
     );
-    toast.success('Group stage completed successfully');
+    toaster.success({ title: 'Group stage completed successfully' });
     return response.data.data!;
   },
 };

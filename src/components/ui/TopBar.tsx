@@ -10,6 +10,7 @@ import { AuthService } from '@/lib/api/auth.service';
 import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SlideOutMenu from './SlideOutMenu';
+import NotificationBell from './NotificationBell';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -114,7 +115,10 @@ export default function TopBar({
               display="flex"
               alignItems="center"
               justifyContent="flex-end"
+              gap={2}
             >
+              <NotificationBell />
+              
               <IconButton
                 aria-label="Open menu"
                 onClick={onMenuOpen}

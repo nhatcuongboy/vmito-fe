@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { Box, Text, VStack, Button, HStack } from '@chakra-ui/react';
 import { Copy, Check } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 interface QRCodeGeneratorProps {
   joinCode: string;
@@ -49,10 +49,10 @@ export default function QRCodeGenerator({
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toast.success('Link copied to clipboard!');
+      toaster.success({ title: 'Link copied to clipboard!' });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error('Failed to copy link');
+      toaster.error({ title: 'Failed to copy link' });
     }
   };
 

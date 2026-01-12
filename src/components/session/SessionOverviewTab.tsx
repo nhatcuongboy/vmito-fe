@@ -1,6 +1,7 @@
 'use client';
 
-import { useToast, Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
+import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
+import { toaster } from '@/components/ui/toaster';
 import { Box, Flex, Heading, Text, Icon } from '@chakra-ui/react';
 import { Award, Calendar, Clock, Copy, Info, MapPin, QrCode, Share2 } from 'lucide-react';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
@@ -15,16 +16,15 @@ interface SessionOverviewTabProps {
 
 export default function SessionOverviewTab({ session }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
-  const toast = useToast();
 
   const handleCopyLink = () => {
     // Construct the join link (adjust based on your actual route structure)
     // Assuming /join/[code] or /sessions/[code]
     const joinLink = `${window.location.origin}/join`;
     navigator.clipboard.writeText(joinLink);
-    toast.toast({
+    toaster.create({
       title: 'Link copied to clipboard',
-      status: 'success',
+      type: 'success',
       duration: 2000,
     });
   };
@@ -32,9 +32,9 @@ export default function SessionOverviewTab({ session }: SessionOverviewTabProps)
   const handleCopyCode = () => {
      const joinCode = session.id.slice(-8).toUpperCase();
      navigator.clipboard.writeText(joinCode);
-      toast.toast({
+      toaster.create({
       title: 'Code copied to clipboard',
-      status: 'success',
+      type: 'success',
       duration: 2000,
     });
   }

@@ -504,15 +504,6 @@ export const useColorModeValue = (lightValue: any, darkValue: any) => {
   return lightValue;
 };
 
-// Create our own toast implementation since useToast is not available in Chakra v3
-export const useToast = () => {
-  return {
-    toast: (options: any) => {
-      console.log('Toast:', options);
-      // We'll implement proper toast in the next iteration
-    },
-  };
-};
 
 // Create Modal components
 interface ModalProps {

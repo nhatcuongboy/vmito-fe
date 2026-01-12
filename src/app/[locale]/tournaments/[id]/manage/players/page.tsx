@@ -8,6 +8,7 @@ import {
   IconButton,
   SimpleGrid,
 } from '@/components/ui/chakra-compat';
+import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { Level, TournamentPlayer, UserRole } from '@/lib/api/types';
@@ -37,6 +38,7 @@ import { useTranslations } from 'next-intl';
 
 export default function TournamentPlayersPage() {
   const t = useTranslations('pages.tournaments.players');
+  const tCommon = useTranslations('common');
   const params = useParams();
   const router = useRouter();
   const { user } = useAuthStore();
@@ -48,6 +50,8 @@ export default function TournamentPlayersPage() {
   const [editingPlayer, setEditingPlayer] = useState<TournamentPlayer | null>(
     null
   );
+  const [playerToDelete, setPlayerToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -127,13 +131,21 @@ export default function TournamentPlayersPage() {
     }
   };
 
-  const handleDelete = async (playerId: string) => {
-    if (!confirm(t('deleteConfirmation'))) return;
+  const handleDelete = (playerId: string) => {
+    setPlayerToDelete(playerId);
+  };
+
+  const confirmDelete = async () => {
+    if (!playerToDelete) return;
     try {
-      await TournamentPlayerService.deletePlayer(playerId);
+      setIsDeleting(true);
+      await TournamentPlayerService.deletePlayer(playerToDelete);
       loadPlayers();
+      setPlayerToDelete(null);
     } catch (error) {
       console.error('Error deleting player:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -422,6 +434,19 @@ export default function TournamentPlayersPage() {
             </Flex>
           </DialogContent>
         </DialogRoot>
+
+        <CommonModal
+          isOpen={!!playerToDelete}
+          onClose={() => setPlayerToDelete(null)}
+          title={t('deletePlayer')}
+          primaryActionText={tCommon('delete')}
+          secondaryActionText={tCommon('cancel')}
+          onPrimaryAction={confirmDelete}
+          isPrimaryLoading={isDeleting}
+          primaryColorScheme="red"
+        >
+          <Text>{t('deleteConfirmation')}</Text>
+        </CommonModal>
       </Box>
     </ProtectedRouteGuard>
   );

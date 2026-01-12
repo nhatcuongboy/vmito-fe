@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { AuthService } from '@/lib/api/auth.service';
 import { Level } from '@/lib/api/types';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
 
@@ -33,12 +33,12 @@ function RegisterContent() {
     e.preventDefault();
 
     if (!name.trim()) {
-      toast.error(t('nameRequired'));
+      toaster.error({ title: t('nameRequired') });
       return;
     }
 
     if (!sessionCode) {
-      toast.error(t('invalidSessionCode'));
+      toaster.error({ title: t('invalidSessionCode') });
       return;
     }
 
@@ -56,10 +56,10 @@ function RegisterContent() {
       if (playerResult.data?.player) {
         router.push(`/my-session`);
       } else {
-        toast.error(t('joinFailed'));
+        toaster.error({ title: t('joinFailed') });
       }
     } catch (error) {
-      toast.error(t('joinFailed'));
+      toaster.error({ title: t('joinFailed') });
       console.error('Register error:', error);
     } finally {
       setLoading(false);

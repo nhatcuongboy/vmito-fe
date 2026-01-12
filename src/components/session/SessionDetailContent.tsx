@@ -10,7 +10,8 @@ import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
 import SessionHistoryList from '@/components/session/SessionHistoryList';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import SettingsTab from '@/components/session/SettingsTab';
-import { Button, useToast } from '@/components/ui/chakra-compat';
+import { Button } from '@/components/ui/chakra-compat';
+import { toaster } from '@/components/ui/toaster';
 import MainLayout from '@/components/layout/MainLayout';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import { RefreshCw, Square, Trophy, Users, Info } from 'lucide-react';
@@ -18,6 +19,7 @@ import { useTranslations } from 'next-intl';
 import WaitTimeUpdater from './WaitTimeUpdater';
 import { Level } from '@/lib/api/types';
 import SessionOverviewTab from './SessionOverviewTab';
+import { CommonModal } from '@/components/ui/CommonModal';
 
 // Types for session data and related entities
 interface Player {
@@ -114,7 +116,7 @@ export default function SessionDetailContent({
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [pendingAction, setPendingAction] = useState<string>('');
 
-  const toast = useToast();
+  
 
   // Function to update URL with current tab
   const updateTabInURL = (tabIndex: number) => {
@@ -290,19 +292,19 @@ export default function SessionDetailContent({
         }));
       }
 
-      toast.toast({
+      toaster.create({
         title:
           nextStatus === 'IN_PROGRESS'
             ? t('sessionStarted')
             : t('sessionEnded'),
-        status: 'success',
+        type: 'success',
         duration: 3000,
       });
     } catch (error) {
       console.error('Error updating session status:', error);
-      toast.toast({
+      toaster.create({
         title: t('errorUpdatingSessionStatus'),
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
     } finally {
@@ -511,55 +513,20 @@ export default function SessionDetailContent({
       </Container>
 
       {/* Confirmation Dialog */}
-      {showConfirmDialog && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="blackAlpha.600"
-          zIndex={9999}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          onClick={handleCancelAction}
-        >
-          <Box
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-            borderRadius="lg"
-            boxShadow="xl"
-            p={6}
-            maxW="md"
-            mx={4}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Heading size="md" mb={4} color="red.500">
-              {t('confirmEndSession')}
-            </Heading>
-            <Text mb={6} color="gray.600" _dark={{ color: 'gray.300' }}>
-              {t('confirmEndSessionMessage')}
-            </Text>
-            <Flex gap={3} justifyContent="flex-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelAction}
-                disabled={isToggleStatusLoading}
-              >
-                {t('cancel')}
-              </Button>
-              <Button
-                colorScheme="red"
-                onClick={handleConfirmAction}
-                loading={isToggleStatusLoading}
-              >
-                {t('endSession')}
-              </Button>
-            </Flex>
-          </Box>
-        </Box>
-      )}
+      <CommonModal
+        isOpen={showConfirmDialog}
+        onClose={handleCancelAction}
+        title={t('confirmEndSession')}
+        primaryActionText={t('endSession')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleConfirmAction}
+        isPrimaryLoading={isToggleStatusLoading}
+        secondaryActionText={t('cancel')}
+      >
+        <Text color="gray.600" _dark={{ color: 'gray.300' }}>
+          {t('confirmEndSessionMessage')}
+        </Text>
+      </CommonModal>
     </MainLayout>
   );
 }

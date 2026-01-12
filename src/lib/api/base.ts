@@ -1,5 +1,5 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 // Get API URL from environment - use backend URL if set, otherwise fallback to /api for local
@@ -55,7 +55,7 @@ api.interceptors.response.use(
 
       // Only show toast and redirect if not already on auth pages
       if (!window.location.pathname.includes('/auth/')) {
-        toast.error('Session expired. Please login again.');
+        toaster.error({ title: 'Session expired. Please login again.' });
         // Delay redirect to allow toast to show
         setTimeout(() => {
           window.location.href = '/auth/signin';
@@ -63,7 +63,7 @@ api.interceptors.response.use(
       }
     } else if (status !== 401) {
       // Don't show toast for 401 errors (handled above)
-      toast.error(message);
+      toaster.error({ title: message });
     }
 
     return Promise.reject(error);

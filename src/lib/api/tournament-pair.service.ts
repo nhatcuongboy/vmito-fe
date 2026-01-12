@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import { TournamentPair, CategoryType } from './types';
 
@@ -33,7 +33,7 @@ export const TournamentPairService = {
       `/tournaments/${tournamentId}/pairs`,
       data
     );
-    toast.success('Pair created successfully');
+    toaster.success({ title: 'Pair created successfully' });
     return response.data.data!;
   },
 
@@ -46,13 +46,13 @@ export const TournamentPairService = {
       `/tournament-pairs/${id}`,
       data
     );
-    toast.success('Pair updated successfully');
+    toaster.success({ title: 'Pair updated successfully' });
     return response.data.data!;
   },
 
   // Delete pair
   deletePair: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-pairs/${id}`);
-    toast.success('Pair deleted successfully');
+    toaster.success({ title: 'Pair deleted successfully' });
   },
 };

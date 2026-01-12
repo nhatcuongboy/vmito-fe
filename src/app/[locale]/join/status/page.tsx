@@ -32,7 +32,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { ISession } from '@/lib/api/types';
 
 function StatusPageContent() {
@@ -195,13 +195,13 @@ function StatusPageContent() {
       } else {
         // Only show toast for background refresh errors
         if (isBackgroundRefresh) {
-          toast.error(
+          toaster.error({ title: 
             t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu'
-          );
+           });
           // Don't set error state for background refresh failures
         } else {
           setError('GENERAL_ERROR');
-          toast.error(t('errors.loadFailed'));
+          toaster.error({ title: t('errors.loadFailed') });
         }
       }
     } finally {

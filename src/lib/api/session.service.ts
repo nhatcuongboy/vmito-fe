@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
   ISession,
@@ -149,7 +149,7 @@ export const SessionService = {
         migrationResults: any;
       }>
     >(`/sessions/${id}/migrate-end`);
-    toast.success('ISession migration completed successfully');
+    toaster.success({ title: 'ISession migration completed successfully' });
     return response.data.data!;
   },
 

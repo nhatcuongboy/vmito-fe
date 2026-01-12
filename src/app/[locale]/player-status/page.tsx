@@ -15,7 +15,7 @@ import {
   Link,
 } from '@chakra-ui/react';
 import { RefreshCw, Clock, Users, Trophy, ExternalLink } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 interface PlayerStatus {
   id: string;
@@ -42,7 +42,7 @@ function PlayerStatusContent() {
 
   const fetchPlayerStatus = async (showRefreshing = false) => {
     if (!guestToken) {
-      toast.error('Invalid player token');
+      toaster.error({ title: 'Invalid player token' });
       setLoading(false);
       return;
     }
@@ -56,10 +56,10 @@ function PlayerStatusContent() {
       if (response.ok) {
         setPlayerStatus(data.data);
       } else {
-        toast.error(data.message || 'Failed to fetch player status');
+        toaster.error({ title: data.message || 'Failed to fetch player status' });
       }
     } catch (error) {
-      toast.error('Failed to fetch player status');
+      toaster.error({ title: 'Failed to fetch player status' });
       console.error('Status fetch error:', error);
     } finally {
       setLoading(false);

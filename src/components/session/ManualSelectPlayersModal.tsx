@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { X, Check } from 'lucide-react';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
+import { CommonModal } from '@/components/ui/CommonModal';
 import { Button as CompatButton } from '@/components/ui/chakra-compat';
 import { Player, Court } from '@/types/session';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
@@ -118,135 +119,79 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
   };
 
   return (
-    <>
-      <Box
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        bg="blackAlpha.600"
-        zIndex={1000}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        p={4}
-      >
-        <Box
-          bg="white"
-          borderRadius="lg"
-          boxShadow="xl"
-          maxW="6xl"
-          w="full"
-          maxH="90vh"
-          overflow="hidden"
-          display="flex"
-          flexDirection="column"
-        >
-          <Flex
-            justify="space-between"
-            align="center"
-            p={4}
-            borderBottom="1px"
-            borderColor="gray.200"
-            flexShrink={0}
-          >
-            <Heading size="md">
-              {title ||
-                t('courtsTab.manualPlayerSelectionTitle', {
-                  courtNumber: court.courtNumber,
-                })}
-            </Heading>
-            <Box
-              as="button"
-              onClick={onCancel}
-              p={1}
-              borderRadius="md"
-              _hover={{ bg: 'gray.100' }}
-            >
-              <Box as={X} boxSize={5} />
-            </Box>
-          </Flex>
+    <CommonModal
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={
+        title ||
+        t('courtsTab.manualPlayerSelectionTitle', {
+          courtNumber: court.courtNumber,
+        })
+      }
+      size="xl" // xl corresponds to 800px, but the original was 6xl (huge). CommonModal 'xl' or 'full' might be better.
+      // Let's use custom maxW if needed, or stick to xl/full.
+      // Original maxW="6xl" is very wide. I'll use size="xl" for now or keep it flexible.
+      showCloseButton={true}
+      primaryActionText={t('courtsTab.confirmMatchManual', {
+        count: selectedPlayers.length,
+      })}
+      onPrimaryAction={handleConfirmSelection}
+      isPrimaryDisabled={selectedPlayers.length !== 4 || isLoading}
+      isPrimaryLoading={isLoading}
+      secondaryActionText={t('courtsTab.cancel')}
+      maxBodyHeight="75vh"
+    >
+      <Box p={0}>
+        {/* Court Preview and Selected Players Section */}
+        <Box mb={6}>
+          <Text fontSize="sm" fontWeight="medium" mb={3}>
+            {t('courtsTab.selectedPlayersCount', {
+              count: selectedPlayers.length,
+            })}
+          </Text>
 
-          <Box flexShrink={0} p={4}>
-            {/* Court Preview and Selected Players Section */}
-            <Box flex={{ base: '1', lg: '0 0 400px' }} minW="0">
-              <Text fontSize="sm" fontWeight="medium" mb={3}>
-                {t('courtsTab.selectedPlayersCount', {
-                  count: selectedPlayers.length,
-                })}
-              </Text>
-
-              {/* BadmintonCourt for Selected Players */}
-              <Box maxW="400px" mx="auto">
-                <BadmintonCourt
-                  players={[]} // Empty array since we use selectedPositions
-                  isActive={false}
-                  mode="selection"
-                  selectedPositions={selectedPositions}
-                  currentPlayerPosition={currentPlayerPosition}
-                  onPlayerRemove={handleRemoveFromPosition}
-                  courtName={getCourtDisplayName(
-                    court.courtName,
-                    court.courtNumber
-                  )}
-                  width="100%"
-                  showTimeInCenter={false}
-                  direction={court?.direction || CourtDirection.HORIZONTAL}
-                />
-              </Box>
-            </Box>
-          </Box>
-
-          <Box flex={1} overflow="auto" p={4}>
-            {/* Available Players */}
-            <Box>
-              <Text fontSize="md" fontWeight="medium" mb={3}>
-                {t('courtsTab.availablePlayers')}
-              </Text>
-              {waitingPlayers.length === 0 ? (
-                <Text fontSize="sm" color="gray.500" textAlign="center" py={8}>
-                  {t('courtsTab.noPlayersWaiting')}
-                </Text>
-              ) : (
-                <PlayerGrid
-                  players={waitingPlayers}
-                  playerFilter="WAITING"
-                  formatWaitTime={formatWaitTime}
-                  selectedPlayers={selectedPlayers}
-                  onPlayerToggle={onPlayerToggle}
-                  selectionMode={true}
-                />
+          {/* BadmintonCourt for Selected Players */}
+          <Box maxW="400px" mx="auto">
+            <BadmintonCourt
+              players={[]} // Empty array since we use selectedPositions
+              isActive={false}
+              mode="selection"
+              selectedPositions={selectedPositions}
+              currentPlayerPosition={currentPlayerPosition}
+              onPlayerRemove={handleRemoveFromPosition}
+              courtName={getCourtDisplayName(
+                court.courtName,
+                court.courtNumber
               )}
-            </Box>
+              width="100%"
+              showTimeInCenter={false}
+              direction={court?.direction || CourtDirection.HORIZONTAL}
+            />
           </Box>
+        </Box>
 
-          <Flex
-            justify="flex-end"
-            gap={2}
-            p={4}
-            borderTop="1px"
-            borderColor="gray.200"
-            flexShrink={0}
-          >
-            <CompatButton variant="outline" onClick={onCancel}>
-              {t('courtsTab.cancel')}
-            </CompatButton>
-            <CompatButton
-              colorScheme="blue"
-              onClick={handleConfirmSelection}
-              disabled={selectedPlayers.length !== 4 || isLoading}
-              loading={isLoading}
-            >
-              <Box as={Check} boxSize={4} mr={1} />
-              {t('courtsTab.confirmMatchManual', {
-                count: selectedPlayers.length,
-              })}
-            </CompatButton>
-          </Flex>
+        {/* Available Players */}
+        <Box>
+          <Text fontSize="md" fontWeight="medium" mb={3}>
+            {t('courtsTab.availablePlayers')}
+          </Text>
+          {waitingPlayers.length === 0 ? (
+            <Text fontSize="sm" color="gray.500" textAlign="center" py={8}>
+              {t('courtsTab.noPlayersWaiting')}
+            </Text>
+          ) : (
+            <PlayerGrid
+              players={waitingPlayers}
+              playerFilter="WAITING"
+              formatWaitTime={formatWaitTime}
+              selectedPlayers={selectedPlayers}
+              onPlayerToggle={onPlayerToggle}
+              selectionMode={true}
+            />
+          )}
         </Box>
       </Box>
-    </>
+    </CommonModal>
   );
 };
 

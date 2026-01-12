@@ -17,7 +17,7 @@ import {
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Camera } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import QRScanner from '@/components/QRScanner';
 import { AuthService } from '@/lib/api/auth.service';
 import MainLayout from '@/components/layout/MainLayout';
@@ -70,7 +70,7 @@ function JoinByCodeContent() {
     e.preventDefault();
 
     if (!joinCode.trim()) {
-      toast.error(t('enterCodeError'));
+      toaster.error({ title: t('enterCodeError') });
       return;
     }
 
@@ -94,11 +94,11 @@ function JoinByCodeContent() {
           router.push(`/my-session`);
         }
       } catch (joinError) {
-        toast.error(t('invalidCodeError'));
+        toaster.error({ title: t('invalidCodeError') });
         return;
       }
     } catch (error: any) {
-      toast.error(t('joinFailedError'));
+      toaster.error({ title: t('joinFailedError') });
       console.error('Join error:', error);
     } finally {
       setLoading(false);
@@ -107,7 +107,7 @@ function JoinByCodeContent() {
 
   const handleQRScan = (code: string) => {
     setJoinCode(code.toUpperCase());
-    toast.success(t('qrScanSuccess'));
+    toaster.success({ title: t('qrScanSuccess') });
   };
 
   return (

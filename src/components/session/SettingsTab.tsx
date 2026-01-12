@@ -1,9 +1,7 @@
-import { useToast } from '@/components/ui/chakra-compat';
-import { Box, Tabs, Text, VStack, Heading } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import PlayerManagement from './PlayerManagement';
-import QRCodeGenerator from '@/components/QRCodeGenerator';
+import { Box, Tabs, Text } from '@chakra-ui/react';
+import React from 'react';
 import GeneralSettings from './GeneralSettings';
+import PlayerManagement from './PlayerManagement';
 
 interface SettingsTabProps {
   session: any;
@@ -20,7 +18,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
   const courtsCount = session.numberOfCourts;
 
   // State for quick actions
-  const toast = useToast();
 
   // Real API handlers
 
@@ -33,7 +30,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
         <Tabs.List>
           <Tabs.Trigger value="general">General</Tabs.Trigger>
           <Tabs.Trigger value="player">Players</Tabs.Trigger>
-          <Tabs.Trigger value="qr">QR</Tabs.Trigger>
           <Tabs.Trigger value="court">Courts</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="general">
@@ -41,33 +37,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             session={session}
             onDataRefresh={refreshSessionData}
           />
-        </Tabs.Content>
-        <Tabs.Content value="qr">
-          <VStack gap={6} py={6}>
-            <Box textAlign="center">
-              <Heading size="md" mb={2}>
-                Session QR Code
-              </Heading>
-              <Text color="gray.600" fontSize="sm">
-                Players can scan this QR code to join the session
-              </Text>
-            </Box>
-
-            <QRCodeGenerator
-              joinCode={session.id.slice(-8).toUpperCase()}
-              size={250}
-            />
-
-            <Text
-              fontSize="sm"
-              color="gray.500"
-              textAlign="center"
-              maxW="300px"
-            >
-              Share this QR code with players to let them join the session
-              quickly
-            </Text>
-          </VStack>
         </Tabs.Content>
         <Tabs.Content value="player">
           <PlayerManagement

@@ -24,7 +24,7 @@ import { Plus, Minus, Save, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 function formatDateTimeLocal(date: Date): string {
   const year = date.getFullYear();
@@ -82,9 +82,9 @@ function NewSessionPageContent() {
     const error = searchParams.get('error');
     const details = searchParams.get('details');
     if (error) {
-      toast.error(
+      toaster.error({ title: 
         decodeURIComponent(details || t('validation.sessionCreateFailed'))
-      );
+       });
     }
   }, [searchParams, t]);
 
@@ -109,13 +109,13 @@ function NewSessionPageContent() {
 
     try {
       if (!isEndTimeValid) {
-        toast.error(t('endTimeMustBeAfterStartTime'));
+        toaster.error({ title: t('endTimeMustBeAfterStartTime') });
         return;
       }
 
       const courtValidationError = validateCourts();
       if (courtValidationError) {
-        toast.error(courtValidationError);
+        toaster.error({ title: courtValidationError });
         return;
       }
 
@@ -140,12 +140,12 @@ function NewSessionPageContent() {
         })),
       });
 
-      toast.success(t('validation.sessionCreatedSuccessfully'));
+      toaster.success({ title: t('validation.sessionCreatedSuccessfully') });
       router.push(`/${locale}/host/sessions/${session.id}`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : t('validation.unknownError');
-      toast.error(errorMessage);
+      toaster.error({ title: errorMessage });
     } finally {
       setIsLoading(false);
     }

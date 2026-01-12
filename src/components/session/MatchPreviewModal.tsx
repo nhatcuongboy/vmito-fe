@@ -1,4 +1,5 @@
 import { Button as CompatButton } from '@/components/ui/chakra-compat';
+import { CommonModal } from '@/components/ui/CommonModal';
 import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
@@ -182,351 +183,15 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
     description || t('courtsTab.autoAssignMatchDescription');
 
   return (
-    <Box
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bg="blackAlpha.600"
-      zIndex={1000}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={4}
-    >
-      <Box
-        bg="white"
-        borderRadius="lg"
-        boxShadow="xl"
-        maxW="md"
-        w="full"
-        maxH="80vh"
-        overflow="auto"
-      >
-        <Flex
-          justify="space-between"
-          align="center"
-          p={4}
-          borderBottom="1px"
-          borderColor="gray.200"
-        >
-          <Heading size="md">{modalTitle}</Heading>
-          <Box
-            as="button"
-            onClick={onCancel}
-            p={1}
-            borderRadius="md"
-            _hover={{ bg: 'gray.100' }}
-          >
-            <Box as={X} boxSize={5} />
-          </Box>
-        </Flex>
-
-        <Box p={4} pt={0} flex="1" overflowY="auto">
-          {/* <Text fontSize="sm" color="gray.600" mb={4}>
-            {modalDescription}
-          </Text> */}
-          {/* TopCount Selection */}
-          {waitingPlayersCount && (
-            <Box bg="gray.50" p={3} borderRadius="md">
-              <HStack gap={3} align="center">
-                <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                  {t('courtsTab.playersToConsider')}:
-                </Text>
-                <Box flex="1" maxW="130px">
-                  <select
-                    style={{
-                      fontSize: '14px',
-                      backgroundColor: 'white',
-                      borderColor: '#d1d5db',
-                      borderWidth: '1px',
-                      borderRadius: '6px',
-                      padding: '8px',
-                      width: '100%',
-                      cursor: isLoadingConfirm ? 'not-allowed' : 'pointer',
-                      opacity: isLoadingConfirm ? 0.6 : 1,
-                    }}
-                    value={topCount}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                      handleTopCountChange(parseInt(e.target.value))
-                    }
-                    disabled={isLoadingConfirm}
-                  >
-                    {Array.from(
-                      { length: Math.max(0, waitingPlayersCount - 3) },
-                      (_, i) => i + 4
-                    ).map((count) => (
-                      <option key={count} value={count}>
-                        {count} {t('courtsTab.players')}
-                      </option>
-                    ))}
-                  </select>
-                </Box>
-                <Box fontSize="sm" color="gray.500">
-                  {t('courtsTab.longestWait')}
-                </Box>
-              </HStack>
-            </Box>
-          )}
-          <Box>
-            <BadmintonCourt
-              players={allPlayers}
-              isActive={true}
-              courtName={getCourtDisplayName(
-                court.courtName,
-                court.courtNumber
-              )}
-              width="100%"
-              showTimeInCenter={false}
-              isLoading={isLoadingConfirm}
-              direction={court?.direction || CourtDirection.HORIZONTAL}
-            />
-          </Box>
-          {/* Display pair information */}
-          <VStack gap={2} mt={2}>
-            {!isLoadingConfirm && suggestedPlayers && (
-              <HStack
-                justify="space-between"
-                width="full"
-                px={4}
-                align="center"
-              >
-                <HStack gap={2} justify="center" flex="1">
-                  <Badge colorPalette="blue" variant="solid" fontSize="sm">
-                    {t('courtsTab.pair1')}
-                  </Badge>
-                </HStack>
-
-                <Text
-                  fontSize="lg"
-                  fontWeight="bold"
-                  color="gray.600"
-                  minW="80px"
-                  textAlign="center"
-                >
-                  Vs
-                </Text>
-
-                <HStack gap={2} justify="center" flex="1">
-                  <Badge colorPalette="orange" variant="solid" fontSize="sm">
-                    {t('courtsTab.pair2')}
-                  </Badge>
-                </HStack>
-              </HStack>
-            )}
-
-            {!isLoadingConfirm && suggestedPlayers ? (
-              <Box
-                bg="gray.50"
-                borderRadius="lg"
-                p={3}
-                border="1px solid"
-                borderColor="gray.200"
-                maxHeight="280px"
-                overflowY="auto"
-                width="full"
-              >
-                <HStack gap={2} width="full" justify="center" align="stretch">
-                  {/* Pair 1 */}
-                  <Box
-                    bg="blue.50"
-                    border="2px solid"
-                    borderColor="blue.200"
-                    borderRadius="lg"
-                    p={3}
-                    textAlign="center"
-                    flex="1"
-                    minW="140px"
-                    position="relative"
-                  >
-                    <Badge
-                      colorPalette="yellow"
-                      variant="solid"
-                      fontSize="xs"
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      borderRadius="full"
-                    >
-                      {suggestedPlayers.pair1.totalLevelScore}
-                    </Badge>
-                    <VStack gap={1.5}>
-                      {suggestedPlayers.pair1.players.map((player: Player) => (
-                        <Box
-                          key={player.id}
-                          bg="white"
-                          borderRadius="md"
-                          p={2}
-                          border="1px solid"
-                          borderColor="blue.100"
-                          width="full"
-                        >
-                          <Text
-                            fontSize="xs"
-                            fontWeight="semibold"
-                            color="gray.800"
-                          >
-                            #{player.playerNumber}
-                          </Text>
-                          <Text
-                            fontSize="xs"
-                            color="gray.600"
-                            mb={1}
-                            overflow="hidden"
-                            whiteSpace="nowrap"
-                            textOverflow="ellipsis"
-                          >
-                            {player.name ||
-                              t('courtsTab.playerFallback', {
-                                number: player.playerNumber,
-                              })}
-                          </Text>
-                          <HStack justify="center" gap={1}>
-                            {player.gender && (
-                              <Box
-                                as={getGenderIcon(player.gender)}
-                                boxSize={3}
-                                color={getGenderColorHex(player.gender)}
-                              />
-                            )}
-                            {player.level && (
-                              <Badge
-                                colorPalette="red"
-                                size="sm"
-                                variant="solid"
-                                fontSize="xs"
-                              >
-                                {getLevelLabel(player.level)}
-                              </Badge>
-                            )}
-                          </HStack>
-                        </Box>
-                      ))}
-                    </VStack>
-                  </Box>
-
-                  {/* Gap indicator */}
-                  <Flex
-                    direction="column"
-                    align="center"
-                    justify="center"
-                    minW="60px"
-                  >
-                    <Text
-                      fontSize="sm"
-                      // fontWeight="bold"
-                      color="gray.600"
-                      // minW="80px"
-                      textAlign="center"
-                      mb={1}
-                    >
-                      {t('courtsTab.gapLabel')}
-                    </Text>
-                    <Badge
-                      colorPalette="yellow"
-                      variant="solid"
-                      fontSize="xs"
-                      // borderRadius="full"
-                    >
-                      {suggestedPlayers.scoreDifference}
-                    </Badge>
-                  </Flex>
-
-                  {/* Pair 2 */}
-                  <Box
-                    bg="orange.50"
-                    border="2px solid"
-                    borderColor="orange.200"
-                    borderRadius="lg"
-                    p={3}
-                    textAlign="center"
-                    flex="1"
-                    minW="140px"
-                    position="relative"
-                  >
-                    <Badge
-                      colorPalette="yellow"
-                      variant="solid"
-                      fontSize="xs"
-                      position="absolute"
-                      top={2}
-                      left={2}
-                      borderRadius="full"
-                    >
-                      {suggestedPlayers.pair2.totalLevelScore}
-                    </Badge>
-                    <VStack gap={1.5}>
-                      {suggestedPlayers.pair2.players.map((player: Player) => (
-                        <Box
-                          key={player.id}
-                          bg="white"
-                          borderRadius="md"
-                          p={2}
-                          border="1px solid"
-                          borderColor="orange.100"
-                          width="full"
-                        >
-                          <Text
-                            fontSize="xs"
-                            fontWeight="semibold"
-                            color="gray.800"
-                          >
-                            #{player.playerNumber}
-                          </Text>
-                          <Text
-                            fontSize="xs"
-                            color="gray.600"
-                            mb={1}
-                            overflow="hidden"
-                            whiteSpace="nowrap"
-                            textOverflow="ellipsis"
-                          >
-                            {player.name ||
-                              t('courtsTab.playerFallback', {
-                                number: player.playerNumber,
-                              })}
-                          </Text>
-                          <HStack justify="center" gap={1}>
-                            {player.gender && (
-                              <Box
-                                as={getGenderIcon(player.gender)}
-                                boxSize={3}
-                                color={getGenderColorHex(player.gender)}
-                              />
-                            )}
-                            {player.level && (
-                              <Badge
-                                colorPalette="red"
-                                size="sm"
-                                variant="solid"
-                                fontSize="xs"
-                              >
-                                {getLevelLabel(player.level)}
-                              </Badge>
-                            )}
-                          </HStack>
-                        </Box>
-                      ))}
-                    </VStack>
-                  </Box>
-                </HStack>
-              </Box>
-            ) : null}
-          </VStack>
-        </Box>
-
-        <Flex
-          justify="flex-end"
-          gap={2}
-          p={4}
-          borderTop="1px"
-          borderColor="gray.200"
-          position="sticky"
-          bottom={0}
-          bg="white"
-          zIndex={1}
-        >
+    <CommonModal
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={modalTitle}
+      description={modalDescription}
+      size="md"
+      showCloseButton={true}
+      footer={
+        <Flex justify="flex-end" gap={2} width="full">
           {onBack && (
             <CompatButton
               variant="outline"
@@ -545,7 +210,6 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             {t('courtsTab.cancel')}
           </CompatButton>
           <CompatButton
-            // colorPalette="green"
             onClick={handleConfirm}
             loading={isConfirming}
             disabled={isLoadingConfirm}
@@ -554,8 +218,297 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             {t('courtsTab.confirmMatch')}
           </CompatButton>
         </Flex>
+      }
+    >
+      <Box pt={0} flex="1">
+        {/* TopCount Selection */}
+        {waitingPlayersCount && (
+          <Box bg="gray.50" p={3} borderRadius="md" mb={4}>
+            <HStack gap={3} align="center">
+              <Text fontSize="sm" fontWeight="medium" color="gray.700">
+                {t('courtsTab.playersToConsider')}:
+              </Text>
+              <Box flex="1" maxW="130px">
+                <select
+                  style={{
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                    borderColor: '#d1d5db',
+                    borderWidth: '1px',
+                    borderRadius: '6px',
+                    padding: '8px',
+                    width: '100%',
+                    cursor: isLoadingConfirm ? 'not-allowed' : 'pointer',
+                    opacity: isLoadingConfirm ? 0.6 : 1,
+                  }}
+                  value={topCount}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    handleTopCountChange(parseInt(e.target.value))
+                  }
+                  disabled={isLoadingConfirm}
+                >
+                  {Array.from(
+                    { length: Math.max(0, waitingPlayersCount - 3) },
+                    (_, i) => i + 4
+                  ).map((count) => (
+                    <option key={count} value={count}>
+                      {count} {t('courtsTab.players')}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+              <Box fontSize="sm" color="gray.500">
+                {t('courtsTab.longestWait')}
+              </Box>
+            </HStack>
+          </Box>
+        )}
+
+        <Box>
+          <BadmintonCourt
+            players={allPlayers}
+            isActive={true}
+            courtName={getCourtDisplayName(
+              court.courtName,
+              court.courtNumber
+            )}
+            width="100%"
+            showTimeInCenter={false}
+            isLoading={isLoadingConfirm}
+            direction={court?.direction || CourtDirection.HORIZONTAL}
+          />
+        </Box>
+
+        {/* Display pair information */}
+        <VStack gap={2} mt={2}>
+          {!isLoadingConfirm && suggestedPlayers && (
+            <HStack
+              justify="space-between"
+              width="full"
+              px={4}
+              align="center"
+            >
+              <HStack gap={2} justify="center" flex="1">
+                <Badge colorPalette="blue" variant="solid" fontSize="sm">
+                  {t('courtsTab.pair1')}
+                </Badge>
+              </HStack>
+
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="gray.600"
+                minW="80px"
+                textAlign="center"
+              >
+                Vs
+              </Text>
+
+              <HStack gap={2} justify="center" flex="1">
+                <Badge colorPalette="orange" variant="solid" fontSize="sm">
+                  {t('courtsTab.pair2')}
+                </Badge>
+              </HStack>
+            </HStack>
+          )}
+
+          {!isLoadingConfirm && suggestedPlayers ? (
+            <Box
+              bg="gray.50"
+              borderRadius="lg"
+              p={3}
+              border="1px solid"
+              borderColor="gray.200"
+              maxHeight="280px"
+              overflowY="auto"
+              width="full"
+            >
+              <HStack gap={2} width="full" justify="center" align="stretch">
+                {/* Pair 1 */}
+                <Box
+                  bg="blue.50"
+                  border="2px solid"
+                  borderColor="blue.200"
+                  borderRadius="lg"
+                  p={3}
+                  textAlign="center"
+                  flex="1"
+                  minW="140px"
+                  position="relative"
+                >
+                  <Badge
+                    colorPalette="yellow"
+                    variant="solid"
+                    fontSize="xs"
+                    position="absolute"
+                    top={2}
+                    right={2}
+                    borderRadius="full"
+                  >
+                    {suggestedPlayers.pair1.totalLevelScore}
+                  </Badge>
+                  <VStack gap={1.5}>
+                    {suggestedPlayers.pair1.players.map((player: Player) => (
+                      <Box
+                        key={player.id}
+                        bg="white"
+                        borderRadius="md"
+                        p={2}
+                        border="1px solid"
+                        borderColor="blue.100"
+                        width="full"
+                      >
+                        <Text
+                          fontSize="xs"
+                          fontWeight="semibold"
+                          color="gray.800"
+                        >
+                          #{player.playerNumber}
+                        </Text>
+                        <Text
+                          fontSize="xs"
+                          color="gray.600"
+                          mb={1}
+                          overflow="hidden"
+                          whiteSpace="nowrap"
+                          textOverflow="ellipsis"
+                        >
+                          {player.name ||
+                            t('courtsTab.playerFallback', {
+                              number: player.playerNumber,
+                            })}
+                        </Text>
+                        <HStack justify="center" gap={1}>
+                          {player.gender && (
+                            <Box
+                              as={getGenderIcon(player.gender)}
+                              boxSize={3}
+                              color={getGenderColorHex(player.gender)}
+                            />
+                          )}
+                          {player.level && (
+                            <Badge
+                              colorPalette="red"
+                              size="sm"
+                              variant="solid"
+                              fontSize="xs"
+                            >
+                              {getLevelLabel(player.level)}
+                            </Badge>
+                          )}
+                        </HStack>
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+
+                {/* Gap indicator */}
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  minW="60px"
+                >
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    textAlign="center"
+                    mb={1}
+                  >
+                    {t('courtsTab.gapLabel')}
+                  </Text>
+                  <Badge
+                    colorPalette="yellow"
+                    variant="solid"
+                    fontSize="xs"
+                  >
+                    {suggestedPlayers.scoreDifference}
+                  </Badge>
+                </Flex>
+
+                {/* Pair 2 */}
+                <Box
+                  bg="orange.50"
+                  border="2px solid"
+                  borderColor="orange.200"
+                  borderRadius="lg"
+                  p={3}
+                  textAlign="center"
+                  flex="1"
+                  minW="140px"
+                  position="relative"
+                >
+                  <Badge
+                    colorPalette="yellow"
+                    variant="solid"
+                    fontSize="xs"
+                    position="absolute"
+                    top={2}
+                    left={2}
+                    borderRadius="full"
+                  >
+                    {suggestedPlayers.pair2.totalLevelScore}
+                  </Badge>
+                  <VStack gap={1.5}>
+                    {suggestedPlayers.pair2.players.map((player: Player) => (
+                      <Box
+                        key={player.id}
+                        bg="white"
+                        borderRadius="md"
+                        p={2}
+                        border="1px solid"
+                        borderColor="orange.100"
+                        width="full"
+                      >
+                        <Text
+                          fontSize="xs"
+                          fontWeight="semibold"
+                          color="gray.800"
+                        >
+                          #{player.playerNumber}
+                        </Text>
+                        <Text
+                          fontSize="xs"
+                          color="gray.600"
+                          mb={1}
+                          overflow="hidden"
+                          whiteSpace="nowrap"
+                          textOverflow="ellipsis"
+                        >
+                          {player.name ||
+                            t('courtsTab.playerFallback', {
+                              number: player.playerNumber,
+                            })}
+                        </Text>
+                        <HStack justify="center" gap={1}>
+                          {player.gender && (
+                            <Box
+                              as={getGenderIcon(player.gender)}
+                              boxSize={3}
+                              color={getGenderColorHex(player.gender)}
+                            />
+                          )}
+                          {player.level && (
+                            <Badge
+                              colorPalette="red"
+                              size="sm"
+                              variant="solid"
+                              fontSize="xs"
+                            >
+                              {getLevelLabel(player.level)}
+                            </Badge>
+                          )}
+                        </HStack>
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              </HStack>
+            </Box>
+          ) : null}
+        </VStack>
       </Box>
-    </Box>
+    </CommonModal>
   );
 };
 

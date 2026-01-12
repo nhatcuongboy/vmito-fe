@@ -8,6 +8,7 @@ import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import { Mars, Pause, Play, User, Users, Venus } from 'lucide-react';
 import { useState } from 'react';
 import { PlayerDetailModal } from './PlayerDetailModal';
+import { CommonModal } from '@/components/ui/CommonModal';
 
 // Color constants for different player states
 const PLAYER_COLORS = {
@@ -354,71 +355,35 @@ export const PlayerGrid = ({
       </SimpleGrid>
 
       {/* Confirmation Dialog */}
-      {confirmDialog.isOpen && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="blackAlpha.600"
-          zIndex={9999}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          onClick={() =>
-            setConfirmDialog({
-              isOpen: false,
-              playerId: '',
-              playerName: '',
-              action: '',
-            })
-          }
-        >
-          <Box
-            bg="white"
-            borderRadius="lg"
-            boxShadow="xl"
-            p={6}
-            maxW="md"
-            mx={4}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Text fontWeight="bold" mb={4}>
-              {confirmDialog.action === 'pause'
-                ? 'Pause Player'
-                : 'Continue Player'}
-            </Text>
-            <Text mb={6} color="gray.600">
-              Are you sure you want to {confirmDialog.action}{' '}
-              {confirmDialog.playerName}?
-            </Text>
-            <Flex gap={3} justifyContent="flex-end">
-              <Button
-                variant="outline"
-                disabled={isLoading}
-                onClick={() =>
-                  setConfirmDialog({
-                    isOpen: false,
-                    playerId: '',
-                    playerName: '',
-                    action: '',
-                  })
-                }
-              >
-                Cancel
-              </Button>
-              <Button
-                colorScheme={confirmDialog.action === 'pause' ? 'red' : 'green'}
-                loading={isLoading}
-                onClick={() => handleToggleInactive(confirmDialog.playerId)}
-              >
-                {confirmDialog.action === 'pause' ? 'Pause' : 'Continue'}
-              </Button>
-            </Flex>
-          </Box>
-        </Box>
-      )}
+      <CommonModal
+        isOpen={confirmDialog.isOpen}
+        onClose={() =>
+          setConfirmDialog({
+            isOpen: false,
+            playerId: '',
+            playerName: '',
+            action: '',
+          })
+        }
+        title={
+          confirmDialog.action === 'pause' ? 'Pause Player' : 'Continue Player'
+        }
+        size="sm"
+        primaryActionText={
+          confirmDialog.action === 'pause' ? 'Pause' : 'Continue'
+        }
+        primaryColorScheme={
+          confirmDialog.action === 'pause' ? 'red' : 'green'
+        }
+        onPrimaryAction={() => handleToggleInactive(confirmDialog.playerId)}
+        isPrimaryLoading={isLoading}
+        secondaryActionText="Cancel"
+      >
+        <Text color="gray.600">
+          Are you sure you want to {confirmDialog.action}{' '}
+          {confirmDialog.playerName}?
+        </Text>
+      </CommonModal>
 
       {/* Player Detail Modal */}
       {selectedPlayerForDetail && (

@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import { TournamentPlayer, Level, CategoryMatch } from './types';
 
@@ -44,7 +44,7 @@ export const TournamentPlayerService = {
       `/tournaments/${tournamentId}/players`,
       data
     );
-    toast.success('Player created successfully');
+    toaster.success({ title: 'Player created successfully' });
     return response.data.data!;
   },
 
@@ -57,13 +57,13 @@ export const TournamentPlayerService = {
       `/tournament-players/${id}`,
       data
     );
-    toast.success('Player updated successfully');
+    toaster.success({ title: 'Player updated successfully' });
     return response.data.data!;
   },
 
   // Delete player
   deletePlayer: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-players/${id}`);
-    toast.success('Player deleted successfully');
+    toaster.success({ title: 'Player deleted successfully' });
   },
 };

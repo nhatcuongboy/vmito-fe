@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { Clock, RefreshCw, RotateCcw, Square, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 interface SessionManagementProps {
   sessionId: string;
@@ -48,7 +48,7 @@ export default function SessionManagement({
       setRealTimeData(data);
     } catch (error) {
       console.error('Error fetching real-time data:', error);
-      toast.error('Failed to fetch session status');
+      toaster.error({ title: 'Failed to fetch session status' });
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ export default function SessionManagement({
         strategy: autoAssignStrategy,
         maxPlayersPerCourt: 4,
       });
-      // toast.success(result.message);
+      // toaster.success({ title: result.message });
       await fetchRealTimeData();
     } catch (error) {
       console.error('Error auto-assigning players:', error);
@@ -92,7 +92,7 @@ export default function SessionManagement({
         sessionId,
         waitTimeIncrement
       );
-      // toast.success(`Updated wait times for ${result.updatedCount} players`);
+      // toaster.success({ title: `Updated wait times for ${result.updatedCount} players` });
       await fetchRealTimeData();
     } catch (error) {
       console.error('Error updating wait times:', error);
@@ -126,7 +126,7 @@ export default function SessionManagement({
         playerIds,
         'current'
       );
-      // toast.success(`Reset wait times for ${result.updatedCount} players`);
+      // toaster.success({ title: `Reset wait times for ${result.updatedCount} players` });
       await fetchRealTimeData();
     } catch (error) {
       console.error('Error resetting wait times:', error);

@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 import { Activity, ArrowRight, Hash, LogIn, Shield, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { ISession, Level } from '@/lib/api/types';
 
 const formatRangeTime = (
@@ -61,7 +61,7 @@ export default function JoinPage() {
         setSessions(availableSessions);
       } catch (error) {
         console.error('Error fetching sessions:', error);
-        toast.error(t('errors.failedToLoadSessions'));
+        toaster.error({ title: t('errors.failedToLoadSessions') });
       } finally {
         setLoadingSessions(false);
       }
@@ -92,7 +92,7 @@ export default function JoinPage() {
       setExistingPlayers(players);
     } catch (error) {
       console.error('Error fetching session details:', error);
-      toast.error(t('errors.failedToLoadSessionDetails'));
+      toaster.error({ title: t('errors.failedToLoadSessionDetails') });
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function JoinPage() {
     e.preventDefault();
 
     if (!sessionId || !playerNumber || !selectedPlayer) {
-      toast.error(t('errors.missingFields'));
+      toaster.error({ title: t('errors.missingFields') });
       return;
     }
 
@@ -146,7 +146,7 @@ export default function JoinPage() {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error(t('errors.somethingWentWrong'));
+      toaster.error({ title: t('errors.somethingWentWrong') });
       setIsSubmitting(false);
     }
   };

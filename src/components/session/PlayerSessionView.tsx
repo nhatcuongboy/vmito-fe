@@ -31,7 +31,8 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
+import { useSocket } from '@/contexts/SocketContext';
 
 export interface PlayerSessionViewProps {
   /**
@@ -67,6 +68,8 @@ export default function PlayerSessionView({
 }: PlayerSessionViewProps) {
   const t = useTranslations('pages.join.status');
   const common = useTranslations('common');
+  
+  const { socket, joinSession, leaveSession } = useSocket();
 
   const [refreshInterval, setRefreshInterval] = useState(60); // seconds
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
@@ -297,12 +300,12 @@ export default function PlayerSessionView({
       } else {
         // Only show toast for background refresh errors
         if (isBackgroundRefresh) {
-          toast.error(
-            t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu'
-          );
+          toaster.error({
+            title: t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu'
+          });
         } else {
           setError('GENERAL_ERROR');
-          toast.error(t('errors.loadFailed'));
+          toaster.error({ title: t('errors.loadFailed') });
         }
       }
     } finally {
@@ -314,6 +317,45 @@ export default function PlayerSessionView({
       setLastRefreshed(new Date());
     }
   };
+
+  // Socket.io integration
+  useEffect(() => {
+    if (session?.id) {
+      joinSession(session.id);
+      return () => leaveSession(session.id);
+    }
+  }, [session?.id, joinSession, leaveSession]);
+
+  useEffect(() => {
+    if (!socket || !session?.id) return;
+
+    // Handler for any session-related event
+    const handleAnySessionEvent = (data: { sessionId: string }) => {
+      if (data.sessionId === session.id) {
+        console.log('Received session event, refreshing...');
+        fetchPlayerData(true); // Background refresh
+      }
+    };
+
+    // Listen to all session-related events
+    const events = [
+      'session_updated',
+      'player_created',
+      'player_updated',
+      'player_removed',
+      'match_started',
+      'match_ended',
+      'players_selected',
+      'players_deselected',
+    ];
+
+    events.forEach((event) => socket.on(event, handleAnySessionEvent));
+
+    return () => {
+      events.forEach((event) => socket.off(event, handleAnySessionEvent));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, session?.id]); // Exclude fetchPlayerData to avoid infinite loops/large refactor
 
   // Initial data fetch
   useEffect(() => {
@@ -470,7 +512,7 @@ export default function PlayerSessionView({
         ) : (
           <Box minH="60vh">
             {/* Manual Refresh Button */}
-            <Box w="100%" textAlign="right" mb={2}>
+            {/* <Box w="100%" textAlign="right" mb={2}>
               <IconButton
                 aria-label="Refresh"
                 icon={<Box as={RefreshCw} boxSize={{ base: 3, md: 4 }} />}
@@ -479,7 +521,7 @@ export default function PlayerSessionView({
                 onClick={() => fetchPlayerData(false)}
                 disabled={loading || refreshing}
               />
-            </Box>
+            </Box> */}
 
             {/* Status Tab */}
             {activeTab === 0 && (

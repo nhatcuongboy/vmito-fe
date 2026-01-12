@@ -1,5 +1,4 @@
 import { Geist, Geist_Mono } from 'next/font/google';
-import { Toaster } from 'react-hot-toast';
 import { IntlClientProvider } from '../../components/IntlClientProvider';
 import LocaleValidator from '../../components/LocaleValidator';
 import { PWAStatus } from '../../components/PWAComponents';
@@ -63,7 +62,6 @@ export default async function LocaleLayout({
             <PWAStatus />
             {children}
             {/* <PWAInstallPrompt /> */}
-            <Toaster />
           </Providers>
         </IntlClientProvider>
       </body>

@@ -26,7 +26,7 @@ import { useState } from 'react';
 import { Plus, Minus, X } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { UserRole } from '@/lib/api/types';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 function formatDateTimeLocal(date: Date): string {
   const year = date.getFullYear();
@@ -88,12 +88,12 @@ export default function NewTournamentPage() {
     e.preventDefault();
 
     if (!name || !startDate || !endDate) {
-      toast.error(t('fillAllFields'));
+      toaster.error({ title: t('fillAllFields') });
       return;
     }
 
     if (categories.length === 0) {
-      toast.error(t('addAtLeastOneCategory'));
+      toaster.error({ title: t('addAtLeastOneCategory') });
       return;
     }
 
@@ -112,7 +112,7 @@ export default function NewTournamentPage() {
       router.push(`/${locale}/tournaments/${tournament.id}/manage`);
     } catch (error: any) {
       console.error('Error creating tournament:', error);
-      toast.error(error.response?.data?.error || 'Failed to create tournament');
+      toaster.error({ title: error.response?.data?.error || 'Failed to create tournament' });
     } finally {
       setIsLoading(false);
     }

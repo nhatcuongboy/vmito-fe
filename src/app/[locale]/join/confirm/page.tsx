@@ -20,7 +20,7 @@ import { Check, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 function ConfirmPageContent() {
   const router = useRouter();
@@ -45,7 +45,7 @@ function ConfirmPageContent() {
     async function loadPlayer() {
       try {
         if (!playerId) {
-          toast.error(t('confirm.errors.missingInfo'));
+          toaster.error({ title: t('confirm.errors.missingInfo') });
           router.push('/join');
           return;
         }
@@ -65,7 +65,7 @@ function ConfirmPageContent() {
         });
       } catch (error) {
         console.error('Error loading player:', error);
-        toast.error(t('confirm.errors.loadFailed'));
+        toaster.error({ title: t('confirm.errors.loadFailed') });
       } finally {
         setIsLoading(false);
       }
@@ -88,13 +88,13 @@ function ConfirmPageContent() {
     e.preventDefault();
 
     if (!player) {
-      toast.error(t('confirm.errors.playerNotFound'));
+      toaster.error({ title: t('confirm.errors.playerNotFound') });
       return;
     }
 
     // Validate form data
     if (!formData.name || !formData.gender || !formData.level) {
-      toast.error(t('confirm.errors.requiredFields'));
+      toaster.error({ title: t('confirm.errors.requiredFields') });
       return;
     }
 
@@ -119,7 +119,7 @@ function ConfirmPageContent() {
       router.push(`/my-session`);
     } catch (error) {
       console.error('Error confirming player:', error);
-      toast.error(t('confirm.errors.confirmFailed'));
+      toaster.error({ title: t('confirm.errors.confirmFailed') });
       setIsSubmitting(false);
     }
   };

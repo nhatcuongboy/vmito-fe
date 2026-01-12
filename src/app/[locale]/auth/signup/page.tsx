@@ -14,7 +14,7 @@ import {
   Link,
   Field,
 } from '@chakra-ui/react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -69,7 +69,7 @@ export default function SignUpPage() {
         password: data.password,
       });
 
-      toast.success(t('accountCreated'));
+      toaster.success({ title: t('accountCreated') });
       router.push(`/${locale}/auth/signin`);
     } catch (error: unknown) {
       // Error toast is handled by axios interceptor

@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
   BulkPlayerData,
@@ -24,7 +24,7 @@ export const PlayerService = {
       `/sessions/${sessionId}/players`,
       data
     );
-    toast.success('Player created successfully');
+    toaster.success({ title: 'Player created successfully' });
     return response.data.data!;
   },
 
@@ -37,11 +37,11 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/bulk`,
       playersData
     );
-    toast.success(
+    toaster.success({ title: 
       `${
         response.data.data!.createdPlayers.length
       } players created successfully`
-    );
+     });
     return response.data.data!;
   },
 
@@ -58,14 +58,14 @@ export const PlayerService = {
   // Update player
   updatePlayer: async (id: string, data: Partial<Player>): Promise<Player> => {
     const response = await api.put<ApiResponse<Player>>(`/players/${id}`, data);
-    toast.success('Player information updated');
+    toaster.success({ title: 'Player information updated' });
     return response.data.data!;
   },
 
   // Delete player
   deletePlayer: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/players/${id}`);
-    toast.success('Player removed successfully');
+    toaster.success({ title: 'Player removed successfully' });
   },
 
   // Confirm player
@@ -100,7 +100,7 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/${playerId}`,
       data
     );
-    toast.success('Player updated successfully');
+    toaster.success({ title: 'Player updated successfully' });
     return response.data.data!;
   },
 
@@ -112,7 +112,7 @@ export const PlayerService = {
     await api.delete<ApiResponse<null>>(
       `/sessions/${sessionId}/players/${playerId}`
     );
-    toast.success('Player deleted successfully');
+    toaster.success({ title: 'Player deleted successfully' });
   },
 
   // Bulk update players
@@ -124,7 +124,7 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/bulk-update`,
       { players }
     );
-    toast.success('Players updated successfully');
+    toaster.success({ title: 'Players updated successfully' });
     return response.data.data!;
   },
 

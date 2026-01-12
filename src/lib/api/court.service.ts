@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
   Court,
@@ -104,7 +104,7 @@ export const CourtService = {
       `/courts/${courtId}`,
       data
     );
-    toast.success('Court updated successfully');
+    toaster.success({ title: 'Court updated successfully' });
     return response.data.data!;
   },
 
@@ -124,7 +124,7 @@ export const CourtService = {
       })
     );
     const updatedCourts = await Promise.all(updatePromises);
-    toast.success(`${courts.length} courts updated successfully`);
+    toaster.success({ title: `${courts.length} courts updated successfully` });
     return updatedCourts;
   },
 

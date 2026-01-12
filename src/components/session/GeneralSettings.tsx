@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardBody } from '@/components/ui/chakra-compat';
+import { CommonModal } from '@/components/ui/CommonModal';
 import { SessionService } from '@/lib/api/session.service';
 import { Level } from '@/lib/api/types';
 import {
@@ -29,7 +30,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { toaster } from '@/components/ui/toaster';
 
 interface GeneralSettingsProps {
   session: any;
@@ -123,9 +124,9 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       );
 
       if (invalidLevels.length > 0) {
-        toast.error(
+        toaster.error({ title: 
           `Invalid level values: ${invalidLevels.join(', ')}. Please select valid levels.`
-        );
+         });
         return;
       }
     }
@@ -148,7 +149,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
         endTime: formData.endTime ? new Date(formData.endTime) : undefined,
       };
       await SessionService.updateSession(session.id, updateData);
-      toast.success('Session updated successfully');
+      toaster.success({ title: 'Session updated successfully' });
       setShowConfirmDialog(false);
       onDataRefresh();
     } catch (error: any) {
@@ -157,7 +158,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
         error?.response?.data?.error ||
         error?.message ||
         'Failed to update session';
-      toast.error(errorMessage);
+      toaster.error({ title: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -491,83 +492,54 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               </VStack>
 
               {/* Confirmation Dialog */}
-              {showConfirmDialog && (
-                <Box
-                  position="fixed"
-                  top={0}
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  bg="blackAlpha.600"
-                  zIndex={9999}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  onClick={handleCancelUpdate}
-                >
-                  <Box
-                    bg="white"
-                    borderRadius="lg"
-                    boxShadow="xl"
-                    p={6}
-                    maxW="md"
-                    mx={4}
-                    onClick={(e) => e.stopPropagation()}
+              <CommonModal
+                isOpen={showConfirmDialog}
+                onClose={handleCancelUpdate}
+                title={
+                  <HStack gap={3}>
+                    <Box as={AlertCircle} boxSize={6} color="orange.500" />
+                    <Text>Confirm Level Requirements Change</Text>
+                  </HStack>
+                }
+                size="md"
+                primaryActionText="Confirm Change"
+                onPrimaryAction={handleConfirmUpdate}
+                isPrimaryLoading={isLoading}
+                primaryColorScheme="orange"
+                secondaryActionText="Cancel"
+                isSecondaryDisabled={isLoading}
+              >
+                <VStack align="stretch" gap={4}>
+                  <Text color="gray.600" lineHeight="1.6">
+                    You are changing the required levels for an active
+                    session. This may affect players who are already in the
+                    session.
+                  </Text>
+                  <VStack align="start" gap={2} p={4} bg="gray.50" borderRadius="md">
+                    <Text fontSize="sm" color="gray.700">
+                      <strong>Current levels:</strong>{' '}
+                      {(session.requiredLevels || []).length > 0
+                        ? (session.requiredLevels || []).join(', ')
+                        : 'All levels allowed'}
+                    </Text>
+                    <Text fontSize="sm" color="gray.700">
+                      <strong>New levels:</strong>{' '}
+                      {pendingRequiredLevels.length > 0
+                        ? pendingRequiredLevels.join(', ')
+                        : 'All levels allowed'}
+                    </Text>
+                  </VStack>
+                  <Text
+                    fontSize="sm"
+                    color="red.600"
+                    fontStyle="italic"
                   >
-                    <HStack gap={3} mb={4}>
-                      <Box as={AlertCircle} boxSize={6} color="orange.500" />
-                      <Heading size="md" color="orange.600">
-                        Confirm Level Requirements Change
-                      </Heading>
-                    </HStack>
-                    <Text mb={4} color="gray.600" lineHeight="1.6">
-                      You are changing the required levels for an active
-                      session. This may affect players who are already in the
-                      session.
-                    </Text>
-                    <VStack align="start" gap={2} mb={6} pl={4}>
-                      <Text fontSize="sm" color="gray.700">
-                        <strong>Current levels:</strong>{' '}
-                        {(session.requiredLevels || []).length > 0
-                          ? (session.requiredLevels || []).join(', ')
-                          : 'All levels allowed'}
-                      </Text>
-                      <Text fontSize="sm" color="gray.700">
-                        <strong>New levels:</strong>{' '}
-                        {pendingRequiredLevels.length > 0
-                          ? pendingRequiredLevels.join(', ')
-                          : 'All levels allowed'}
-                      </Text>
-                    </VStack>
-                    <Text
-                      fontSize="sm"
-                      color="red.600"
-                      mb={6}
-                      fontStyle="italic"
-                    >
-                      ⚠️ Players with levels not in the new list may need to
-                      update their profiles or may be restricted from future
-                      actions.
-                    </Text>
-                    <Flex gap={3} justifyContent="flex-end">
-                      <Button
-                        variant="outline"
-                        onClick={handleCancelUpdate}
-                        disabled={isLoading}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        colorScheme="orange"
-                        onClick={handleConfirmUpdate}
-                        loading={isLoading}
-                      >
-                        Confirm Change
-                      </Button>
-                    </Flex>
-                  </Box>
-                </Box>
-              )}
+                    ⚠️ Players with levels not in the new list may need to
+                    update their profiles or may be restricted from future
+                    actions.
+                  </Text>
+                </VStack>
+              </CommonModal>
 
               <Button
                 colorScheme="blue"

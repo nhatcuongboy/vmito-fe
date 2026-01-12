@@ -29,6 +29,7 @@ import {
   useDisclosure,
   IconButton,
 } from '@/components/ui/chakra-compat';
+import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentPairService } from '@/lib/api/tournament-pair.service';
@@ -46,6 +47,7 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 
 export default function TournamentPairsPage() {
   const t = useTranslations('pages.tournaments.pairs');
+  const tCommon = useTranslations('common');
   const params = useParams();
   const tournamentId = params.id as string;
   const [pairs, setPairs] = useState<TournamentPair[]>([]);
@@ -54,6 +56,8 @@ export default function TournamentPairsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editingPair, setEditingPair] = useState<TournamentPair | null>(null);
+  const [pairToDelete, setPairToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     player1Id: '',
@@ -143,13 +147,21 @@ export default function TournamentPairsPage() {
     }
   };
 
-  const handleDelete = async (pairId: string) => {
-    if (!confirm(t('deleteConfirmation'))) return;
+  const handleDelete = (pairId: string) => {
+    setPairToDelete(pairId);
+  };
+
+  const confirmDelete = async () => {
+    if (!pairToDelete) return;
     try {
-      await TournamentPairService.deletePair(pairId);
+      setIsDeleting(true);
+      await TournamentPairService.deletePair(pairToDelete);
       loadPairs();
+      setPairToDelete(null);
     } catch (error) {
       console.error('Error deleting pair:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -387,6 +399,19 @@ export default function TournamentPairsPage() {
             </ModalFooter>
           </ModalContent>
         </Modal>
+
+        <CommonModal
+          isOpen={!!pairToDelete}
+          onClose={() => setPairToDelete(null)}
+          title={t('deletePair')}
+          primaryActionText={tCommon('delete')}
+          secondaryActionText={tCommon('cancel')}
+          onPrimaryAction={confirmDelete}
+          isPrimaryLoading={isDeleting}
+          primaryColorScheme="red"
+        >
+          <Text>{t('deleteConfirmation')}</Text>
+        </CommonModal>
       </Box>
     </ProtectedRouteGuard>
   );
