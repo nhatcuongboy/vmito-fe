@@ -111,6 +111,9 @@
       "atLeastOneCourt": "At least one court is required",
       "sessionCreateFailed": "Failed to create session",
       "sessionCreatedSuccessfully": "Session created successfully!",
+      "sessionUpdatedSuccessfully": "Session updated successfully",
+      "failedToUpdateSession": "Failed to update session",
+      "invalidLevels": "Invalid level values: {levels}. Please select valid levels.",
       "unknownError": "Unknown error occurred",
       "allCourtsMustHaveValidNumber": "All courts must have a valid court number (≥ 1)",
       "sessionIdNotProvided": "Session ID not provided",
@@ -118,6 +121,37 @@
       "tryAgainOrContactSupport": "Please try again or contact support if the problem persists.",
       "sessionNotFound": "Session not found",
       "sessionNotFoundDescription": "The session you're looking for might have been deleted or doesn't exist."
+    },
+    "generalSettings": {
+      "sessionName": "Session Name",
+      "enterSessionName": "Enter session name",
+      "description": "Description",
+      "enterDescription": "Enter session description",
+      "location": "Location",
+      "enterLocation": "Enter location",
+      "maxPlayersPerCourt": "Max Players Per Court",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "sessionSettings": "Session Settings",
+      "requirePlayerInfo": "Require Player Info",
+      "requirePlayerInfoDesc": "Players must provide personal information",
+      "allowGuestJoin": "Allow Guest Join",
+      "allowGuestJoinDesc": "Allow guests to join without registration",
+      "allowNewPlayers": "Allow New Players",
+      "allowNewPlayersDesc": "Allow new players to join during session",
+      "requiredPlayerLevels": "Required Player Levels",
+      "selectRequiredLevels": "Select required levels for this session. Leave empty to allow all levels.",
+      "levelsSelected": "✓ {count} level(s) selected",
+      "allLevelsSelected": "⚠️ All levels selected. Consider leaving empty to allow all levels.",
+      "updateSession": "Update Session",
+      "confirmLevelChange": "Confirm Level Requirements Change",
+      "changeLevelWarning": "You are changing the required levels for an active session. This may affect players who are already in the session.",
+      "currentLevels": "Current levels:",
+      "newLevels": "New levels:",
+      "allLevelsAllowed": "All levels allowed",
+      "playerImpactWarning": "⚠️ Players with levels not in the new list may need to update their profiles or may be restricted from future actions.",
+      "confirmChange": "Confirm Change",
+      "cancel": "Cancel"
     },
     "addPlayers": "Add Players",
     "addPlayersToSession": "Add Players to Session",
@@ -305,6 +339,7 @@
       "levelDescriptionPlaceholder": "Optional level description or notes",
       "requirePlayerConfirmInfo": "Require player to confirm information",
       "requireConfirmation": "Require player to confirm information",
+      "awaitingPlayerConfirmation": "Awaiting confirmation from player",
       "confirmedByPlayer": "Confirmed by player",
       "editPlayer": "Edit player",
       "deletePlayer": "Delete player",
@@ -908,6 +943,13 @@
         "ready": {
           "title": "Ready to Play",
           "description": "You are ready to play. Please wait for your turn."
+        },
+        "events": {
+          "playerJoined": "New player joined",
+          "playerUpdated": "Player {name} info updated",
+          "playerLeft": "Player {name} left the session",
+          "playersSelected": "Players selected for court {court}",
+          "playersDeselected": "Players deselected from court {court}"
         }
       }
     }
@@ -994,6 +1036,7 @@
       "pleaseRetryLater": "Please try again later",
       "pleaseStartMatchManually": "Please start the match manually",
       "matchStartedSuccessfully": "Match started successfully",
+      "matchHasStarted": "Match has started",
       "playersAssignedToCourt": "Players have been assigned to the court",
       "errorStartingMatch": "Error starting match",
       "autoAssignMatchTitle": "Auto Assign Match - Court {courtNumber}",

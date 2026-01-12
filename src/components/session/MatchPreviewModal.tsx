@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Mars,
   Play,
+  Sparkles,
   User,
   Venus,
   X,
@@ -45,6 +46,7 @@ interface MatchPreviewModalProps {
   title?: string; // Custom title for the modal
   description?: string; // Custom description text
   isLoadingConfirm?: boolean; // External loading state
+  courtColor?: string; // Court color from session settings
 }
 
 // Helper functions for gender display
@@ -77,6 +79,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   title,
   description,
   isLoadingConfirm: externalLoading = false,
+  courtColor,
 }) => {
   const t = useTranslations('SessionDetail');
 
@@ -100,18 +103,20 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   const [direction, setDirection] = useState<CourtDirection>(
     CourtDirection.HORIZONTAL
   );
+  const [useAi, setUseAi] = useState(false);
 
   // Use external loading state for confirming
   const isConfirming = externalLoading;
 
   // Fetch suggested players when modal opens or topCount changes
   const fetchSuggestedPlayers = useCallback(
-    async (courtId: string, count: number) => {
+    async (courtId: string, count: number, enableAi: boolean = false) => {
       try {
         setIsLoading(true);
         const response = await CourtService.getSuggestedPlayersForCourt(
           courtId,
-          count
+          count,
+          enableAi
         );
         setSuggestedPlayers(response);
       } catch (error) {
@@ -148,19 +153,28 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   useEffect(() => {
     if (isOpen && court?.id) {
       setTopCount(initialTopCount);
-      fetchSuggestedPlayers(court.id, initialTopCount);
+      fetchSuggestedPlayers(court.id, initialTopCount, useAi);
     } else if (!isOpen) {
       // Reset state when modal closes
       setSuggestedPlayers(null);
       setIsLoading(false);
+      setUseAi(false);
     }
-  }, [isOpen, court?.id, initialTopCount, fetchSuggestedPlayers]);
+  }, [isOpen, court?.id, initialTopCount, fetchSuggestedPlayers, useAi]);
 
   // Handle topCount change
   const handleTopCountChange = (newTopCount: number) => {
     if (!court?.id) return;
     setTopCount(newTopCount);
-    fetchSuggestedPlayers(court.id, newTopCount);
+    fetchSuggestedPlayers(court.id, newTopCount, useAi);
+  };
+
+  // Handle AI toggle
+  const handleAiToggle = () => {
+    if (!court?.id) return;
+    const newUseAi = !useAi;
+    setUseAi(newUseAi);
+    fetchSuggestedPlayers(court.id, topCount, newUseAi);
   };
 
   // Handle confirm
@@ -264,6 +278,36 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
           </Box>
         )}
 
+        {/* AI Toggle */}
+        <Box bg="purple.50" p={3} borderRadius="md" mb={4}>
+          <HStack gap={3} align="center" justify="space-between">
+            <HStack gap={2}>
+              <Box as={Sparkles} boxSize={4} color="purple.500" />
+              <Text fontSize="sm" fontWeight="medium" color="purple.700">
+                AI-Powered Matching
+              </Text>
+            </HStack>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={useAi}
+                onChange={handleAiToggle}
+                disabled={isLoadingConfirm}
+                style={{ marginRight: '8px', cursor: isLoadingConfirm ? 'not-allowed' : 'pointer' }}
+              />
+              <Text fontSize="sm" color="purple.600">
+                {useAi ? 'On' : 'Off'}
+              </Text>
+            </label>
+          </HStack>
+          {suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
+            <Box mt={2} p={2} bg="white" borderRadius="md" fontSize="xs" color="purple.600">
+              <Text fontWeight="medium">AI Reasoning:</Text>
+              <Text>{suggestedPlayers.aiReason}</Text>
+            </Box>
+          )}
+        </Box>
+
         <Box>
           <BadmintonCourt
             players={allPlayers}
@@ -276,6 +320,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             showTimeInCenter={false}
             isLoading={isLoadingConfirm}
             direction={court?.direction || CourtDirection.HORIZONTAL}
+            courtColor={courtColor}
           />
         </Box>
 

@@ -117,7 +117,41 @@
       "loadSessionFailed": "Có lỗi xảy ra khi tải dữ liệu kèo",
       "tryAgainOrContactSupport": "Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục.",
       "sessionNotFound": "Không tìm thấy kèo",
-      "sessionNotFoundDescription": "Kèo bạn đang tìm có thể đã bị xóa hoặc không tồn tại."
+      "sessionNotFoundDescription": "Kèo bạn đang tìm có thể đã bị xóa hoặc không tồn tại.",
+      "sessionUpdatedSuccessfully": "Cập nhật kèo thành công",
+      "failedToUpdateSession": "Không thể cập nhật kèo",
+      "invalidLevels": "Giá trị trình độ không hợp lệ: {levels}. Vui lòng chọn trình độ hợp lệ."
+    },
+    "generalSettings": {
+      "sessionName": "Tên kèo",
+      "enterSessionName": "Nhập tên kèo",
+      "description": "Mô tả",
+      "enterDescription": "Nhập mô tả kèo",
+      "location": "Địa điểm",
+      "enterLocation": "Nhập địa điểm",
+      "maxPlayersPerCourt": "Người chơi tối đa mỗi sân",
+      "startTime": "Thời gian bắt đầu",
+      "endTime": "Thời gian kết thúc",
+      "sessionSettings": "Cài đặt kèo",
+      "requirePlayerInfo": "Yêu cầu thông tin người chơi",
+      "requirePlayerInfoDesc": "Người chơi phải cung cấp thông tin cá nhân",
+      "allowGuestJoin": "Cho phép khách tham gia",
+      "allowGuestJoinDesc": "Cho phép khách tham gia mà không cần đăng ký",
+      "allowNewPlayers": "Cho phép người chơi mới",
+      "allowNewPlayersDesc": "Cho phép người chơi mới tham gia trong thời gian diễn ra",
+      "requiredPlayerLevels": "Yêu cầu trình độ người chơi",
+      "selectRequiredLevels": "Chọn trình độ yêu cầu cho kèo này. Để trống để cho phép tất cả trình độ.",
+      "levelsSelected": "✓ Đã chọn {count} trình độ",
+      "allLevelsSelected": "⚠️ Đã chọn tất cả trình độ. Cân nhắc để trống để cho phép mọi trình độ.",
+      "updateSession": "Cập nhật kèo",
+      "confirmLevelChange": "Xác nhận thay đổi yêu cầu trình độ",
+      "changeLevelWarning": "Bạn đang thay đổi yêu cầu trình độ cho một kèo đang hoạt động. Điều này có thể ảnh hưởng đến những người chơi đã tham gia.",
+      "currentLevels": "Trình độ hiện tại:",
+      "newLevels": "Trình độ mới:",
+      "allLevelsAllowed": "Cho phép mọi trình độ",
+      "playerImpactWarning": "⚠️ Người chơi có trình độ không nằm trong danh sách mới có thể cần cập nhật hồ sơ hoặc bị hạn chế các hành động trong tương lai.",
+      "confirmChange": "Xác nhận thay đổi",
+      "cancel": "Hủy"
     },
     "addPlayers": "Thêm người chơi",
     "addPlayersToSession": "Thêm người chơi vào kèo",
@@ -305,6 +339,7 @@
       "levelDescriptionPlaceholder": "Mô tả trình độ hoặc ghi chú (tùy chọn)",
       "requirePlayerConfirmInfo": "Yêu cầu người chơi xác nhận thông tin",
       "requireConfirmation": "Yêu cầu người chơi xác nhận thông tin",
+      "awaitingPlayerConfirmation": "Chờ xác nhận từ người chơi",
       "confirmedByPlayer": "Đã được người chơi xác nhận",
       "editPlayer": "Sửa người chơi",
       "deletePlayer": "Xóa người chơi",
@@ -602,7 +637,15 @@
         "ready": {
           "title": "Chuẩn bị sẵn sàng",
           "description": "Bạn đã sẵn sàng để chơi. Vui lòng đợi lượt của bạn."
+        },
+        "events": {
+          "playerJoined": "Có người chơi mới tham gia",
+          "playerUpdated": "Thông tin người chơi {name} đã được cập nhật",
+          "playerLeft": "Người chơi {name} đã rời khỏi session",
+          "playersSelected": "Đã chọn người chơi cho sân {court}",
+          "playersDeselected": "Đã hủy chọn người chơi sân {court}"
         }
+
       }
     },
     "tournaments": {
@@ -993,6 +1036,7 @@
       "pleaseRetryLater": "Vui lòng thử lại sau",
       "pleaseStartMatchManually": "Vui lòng bắt đầu trận đấu thủ công",
       "matchStartedSuccessfully": "Trận đấu đã bắt đầu thành công",
+      "matchHasStarted": "Trận đấu đã bắt đầu",
       "playersAssignedToCourt": "Các người chơi đã được phân bổ vào sân",
       "errorStartingMatch": "Lỗi bắt đầu trận đấu",
       "autoAssignMatchTitle": "Tự động ghép trận - Sân {courtNumber}",

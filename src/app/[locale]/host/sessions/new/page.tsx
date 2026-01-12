@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Plus, Minus, Save, Shield } from 'lucide-react';
+import { COURT_COLORS } from '@/components/session/CourtSettings';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
@@ -51,6 +52,7 @@ function NewSessionPageContent() {
     },
   ]);
   const [requiredLevels, setRequiredLevels] = useState<Level[]>([]);
+  const [courtColor, setCourtColor] = useState(COURT_COLORS[0].value);
 
   const now = new Date();
   const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
@@ -133,6 +135,7 @@ function NewSessionPageContent() {
         requiredLevels: requiredLevels.length > 0 ? requiredLevels : undefined,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
+        courtColor,
         courts: courts.map((court) => ({
           courtNumber: court.courtNumber,
           courtName: court.courtName || undefined,
@@ -312,6 +315,54 @@ function NewSessionPageContent() {
                 </Box>
               </VStack>
             </Box>
+
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <Heading size="md" mb={4}>
+                Court Appearance
+              </Heading>
+              <Text fontSize="sm" color="gray.600" mb={4}>
+                Select the color for your courts.
+              </Text>
+              
+              <Wrap gap={4}>
+                {COURT_COLORS.map((color) => {
+                  const isSelected = courtColor === color.value;
+                  return (
+                    <WrapItem key={color.value}>
+                      <VStack>
+                        <Box
+                          w="60px"
+                          h="60px"
+                          borderRadius="md"
+                          bg={color.value}
+                          cursor="pointer"
+                          position="relative"
+                          onClick={() => setCourtColor(color.value)}
+                          border="3px solid"
+                          borderColor={isSelected ? 'blue.500' : 'transparent'}
+                          boxShadow={isSelected ? 'lg' : 'sm'}
+                          transition="all 0.2s"
+                          _hover={{
+                            transform: 'scale(1.05)',
+                            boxShadow: 'md',
+                          }}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                           {/* White lines representation - smaller version */}
+                           <Box w="40px" h="30px" border="1px solid white" position="absolute" opacity={0.7} />
+                        </Box>
+                        <Text fontSize="xs" fontWeight={isSelected ? 'bold' : 'normal'}>
+                          {color.name}
+                        </Text>
+                      </VStack>
+                    </WrapItem>
+                  );
+                })}
+              </Wrap>
+            </Box>
+
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Flex align="center" justify="space-between" mb={4}>

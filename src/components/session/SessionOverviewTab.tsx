@@ -139,60 +139,12 @@ export default function SessionOverviewTab({ session }: SessionOverviewTabProps)
               textAlign="center"
               h="full"
             >
-                <Heading size="md" mb={2} color="gray.800" _dark={{ color: 'white' }}>Suggest to Join</Heading>
-                <Text color="gray.500" mb={6} fontSize="sm">Scan to join instantly</Text>
+                <Heading size="md" mb={2} color="gray.800" _dark={{ color: 'white' }}>QR Code</Heading>
                 
-                <Box p={4} bg="white" borderRadius="2xl" shadow="sm" border="1px solid" borderColor="gray.100" mb={6}>
+                <Box p={4} bg="white" borderRadius="2xl" shadow="sm" border="1px solid" borderColor="gray.100">
                     <QRCodeGenerator joinCode={joinCode} size={200} />
                 </Box>
 
-                <VStack spacing={4} width="100%">
-                    <Box width="100%">
-                        <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase" mb={2} letterSpacing="wide">
-                            Session Code
-                        </Text>
-                         <Flex 
-                          align="center" 
-                          justify="center"
-                          bg="gray.50" 
-                          _dark={{ bg: 'gray.700' }} 
-                          px={6} 
-                          py={3} 
-                          borderRadius="xl"
-                          cursor="pointer"
-                          onClick={handleCopyCode}
-                          _hover={{ bg: 'gray.100', _dark: { bg: 'gray.600' } }}
-                          border="1px dashed"
-                          borderColor="gray.300"
-                          transition="all 0.2s"
-                        >
-                            <Text fontWeight="bold" fontSize="2xl" letterSpacing="wider" fontFamily="monospace" color="blue.600" _dark={{ color: 'blue.300' }} mr={2}>
-                                {joinCode}
-                            </Text>
-                             <Icon as={Copy} boxSize={4} color="gray.400" />
-                        </Flex>
-                    </Box>
-
-                    <SimpleGrid columns={2} spacing={3} width="100%">
-                        <Button 
-                            leftIcon={<Icon as={Copy} />} 
-                            onClick={handleCopyCode} 
-                            size="md" 
-                            variant="outline"
-                            colorScheme="gray"
-                        >
-                           Code
-                        </Button>
-                        <Button 
-                            leftIcon={<Icon as={Share2} />} 
-                            onClick={handleCopyLink} 
-                            colorScheme="blue" 
-                            size="md"
-                        >
-                           Link
-                        </Button>
-                    </SimpleGrid>
-                </VStack>
             </Box>
         </Box>
       </SimpleGrid>

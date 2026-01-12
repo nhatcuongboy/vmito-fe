@@ -18,9 +18,13 @@ export const CourtService = {
   // Get suggested players for court (auto-assign preview)
   getSuggestedPlayersForCourt: async (
     courtId: string,
-    topCount?: number
+    topCount?: number,
+    useAi?: boolean
   ): Promise<SuggestedPlayersResponse> => {
-    const params = topCount ? { topCount: topCount.toString() } : {};
+    const params: Record<string, string> = {};
+    if (topCount) params.topCount = topCount.toString();
+    if (useAi) params.useAi = 'true';
+    
     const response = await api.get<ApiResponse<SuggestedPlayersResponse>>(
       `/courts/${courtId}/suggested-players`,
       { params }

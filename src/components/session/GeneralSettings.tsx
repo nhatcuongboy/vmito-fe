@@ -29,6 +29,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 
@@ -38,6 +39,9 @@ interface GeneralSettingsProps {
 }
 
 const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
+  const t = useTranslations('session.generalSettings');
+  const tValidation = useTranslations('session.validation');
+  
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingRequiredLevels, setPendingRequiredLevels] = useState<Level[]>(
@@ -124,9 +128,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       );
 
       if (invalidLevels.length > 0) {
-        toaster.error({ title: 
-          `Invalid level values: ${invalidLevels.join(', ')}. Please select valid levels.`
-         });
+        toaster.error({ title: tValidation('invalidLevels', { levels: invalidLevels.join(', ') }) });
         return;
       }
     }
@@ -149,7 +151,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
         endTime: formData.endTime ? new Date(formData.endTime) : undefined,
       };
       await SessionService.updateSession(session.id, updateData);
-      toaster.success({ title: 'Session updated successfully' });
+      toaster.success({ title: tValidation('sessionUpdatedSuccessfully') });
       setShowConfirmDialog(false);
       onDataRefresh();
     } catch (error: any) {
@@ -157,7 +159,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       const errorMessage =
         error?.response?.data?.error ||
         error?.message ||
-        'Failed to update session';
+        tValidation('failedToUpdateSession');
       toaster.error({ title: errorMessage });
     } finally {
       setIsLoading(false);
@@ -188,13 +190,13 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 <HStack mb={3}>
                   <FileText size={16} color="#4a5568" />
                   <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                    Session Name
+                    {t('sessionName')}
                   </Text>
                 </HStack>
                 <Input
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter session name"
+                  placeholder={t('enterSessionName')}
                   size="lg"
                   borderRadius="lg"
                   borderColor="gray.300"
@@ -209,7 +211,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 <HStack mb={3}>
                   <FileText size={16} color="#4a5568" />
                   <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                    Description
+                    {t('description')}
                   </Text>
                 </HStack>
                 <Textarea
@@ -217,7 +219,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   onChange={(e) =>
                     handleInputChange('description', e.target.value)
                   }
-                  placeholder="Enter session description"
+                  placeholder={t('enterDescription')}
                   rows={4}
                   borderRadius="lg"
                   borderColor="gray.300"
@@ -233,7 +235,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   <HStack mb={3}>
                     <MapPin size={16} color="#4a5568" />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                      Location
+                      {t('location')}
                     </Text>
                   </HStack>
                   <Input
@@ -241,7 +243,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     onChange={(e) =>
                       handleInputChange('location', e.target.value)
                     }
-                    placeholder="Enter location"
+                    placeholder={t('enterLocation')}
                     size="lg"
                     borderRadius="lg"
                     borderColor="gray.300"
@@ -256,7 +258,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   <HStack mb={3}>
                     <Users size={16} color="#4a5568" />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                      Max Players Per Court
+                      {t('maxPlayersPerCourt')}
                     </Text>
                   </HStack>
                   <Input
@@ -286,7 +288,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   <HStack mb={3}>
                     <Clock size={16} color="#4a5568" />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                      Start Time
+                      {t('startTime')}
                     </Text>
                   </HStack>
                   <Input
@@ -309,7 +311,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   <HStack mb={3}>
                     <Clock size={16} color="#4a5568" />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                      End Time
+                      {t('endTime')}
                     </Text>
                   </HStack>
                   <Input
@@ -331,7 +333,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
               <VStack gap={4} align="stretch">
                 <Heading size="sm" color="gray.700">
-                  Session Settings
+                  {t('sessionSettings')}
                 </Heading>
 
                 <Flex
@@ -349,10 +351,10 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                         fontWeight="semibold"
                         color="gray.700"
                       >
-                        Require Player Info
+                        {t('requirePlayerInfo')}
                       </Text>
                       <Text fontSize="xs" color="gray.500">
-                        Players must provide personal information
+                        {t('requirePlayerInfoDesc')}
                       </Text>
                     </Box>
                   </HStack>
@@ -381,10 +383,10 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                         fontWeight="semibold"
                         color="gray.700"
                       >
-                        Allow Guest Join
+                        {t('allowGuestJoin')}
                       </Text>
                       <Text fontSize="xs" color="gray.500">
-                        Allow guests to join without registration
+                        {t('allowGuestJoinDesc')}
                       </Text>
                     </Box>
                   </HStack>
@@ -413,10 +415,10 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                         fontWeight="semibold"
                         color="gray.700"
                       >
-                        Allow New Players
+                        {t('allowNewPlayers')}
                       </Text>
                       <Text fontSize="xs" color="gray.500">
-                        Allow new players to join during session
+                        {t('allowNewPlayersDesc')}
                       </Text>
                     </Box>
                   </HStack>
@@ -435,14 +437,13 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 <Heading size="sm" color="gray.700">
                   <HStack>
                     <Shield size={16} />
-                    <Text>Required Player Levels</Text>
+                    <Text>{t('requiredPlayerLevels')}</Text>
                   </HStack>
                 </Heading>
 
                 <Box p={4} bg="gray.50" borderRadius="lg">
                   <Text fontSize="xs" color="gray.600" mb={3}>
-                    Select required levels for this session. Leave empty to
-                    allow all levels.
+                    {t('selectRequiredLevels')}
                   </Text>
 
                   <Wrap gap={2}>
@@ -476,7 +477,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
                   {formData.requiredLevels?.length > 0 && (
                     <Text fontSize="xs" color="blue.600" mt={2}>
-                      ✓ {formData.requiredLevels.length} level(s) selected
+                      {t('levelsSelected', { count: formData.requiredLevels.length })}
                     </Text>
                   )}
                   {formData.requiredLevels &&
@@ -484,8 +485,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     formData.requiredLevels.length ===
                       Object.values(Level).length && (
                       <Text fontSize="xs" color="orange.600" mt={2}>
-                        ⚠️ All levels selected. Consider leaving empty to allow
-                        all levels.
+                        {t('allLevelsSelected')}
                       </Text>
                     )}
                 </Box>
@@ -498,35 +498,33 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 title={
                   <HStack gap={3}>
                     <Box as={AlertCircle} boxSize={6} color="orange.500" />
-                    <Text>Confirm Level Requirements Change</Text>
+                    <Text>{t('confirmLevelChange')}</Text>
                   </HStack>
                 }
                 size="md"
-                primaryActionText="Confirm Change"
+                primaryActionText={t('confirmChange')}
                 onPrimaryAction={handleConfirmUpdate}
                 isPrimaryLoading={isLoading}
                 primaryColorScheme="orange"
-                secondaryActionText="Cancel"
+                secondaryActionText={t('cancel', { defaultValue: 'Cancel' })}
                 isSecondaryDisabled={isLoading}
               >
                 <VStack align="stretch" gap={4}>
                   <Text color="gray.600" lineHeight="1.6">
-                    You are changing the required levels for an active
-                    session. This may affect players who are already in the
-                    session.
+                    {t('changeLevelWarning')}
                   </Text>
                   <VStack align="start" gap={2} p={4} bg="gray.50" borderRadius="md">
                     <Text fontSize="sm" color="gray.700">
-                      <strong>Current levels:</strong>{' '}
+                      <strong>{t('currentLevels')}</strong>{' '}
                       {(session.requiredLevels || []).length > 0
                         ? (session.requiredLevels || []).join(', ')
-                        : 'All levels allowed'}
+                        : t('allLevelsAllowed')}
                     </Text>
                     <Text fontSize="sm" color="gray.700">
-                      <strong>New levels:</strong>{' '}
+                      <strong>{t('newLevels')}</strong>{' '}
                       {pendingRequiredLevels.length > 0
                         ? pendingRequiredLevels.join(', ')
-                        : 'All levels allowed'}
+                        : t('allLevelsAllowed')}
                     </Text>
                   </VStack>
                   <Text
@@ -534,9 +532,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     color="red.600"
                     fontStyle="italic"
                   >
-                    ⚠️ Players with levels not in the new list may need to
-                    update their profiles or may be restricted from future
-                    actions.
+                    {t('playerImpactWarning')}
                   </Text>
                 </VStack>
               </CommonModal>
@@ -550,7 +546,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 mt={4}
                 _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
               >
-                Update Session
+                {t('updateSession')}
               </Button>
             </VStack>
           </CardBody>

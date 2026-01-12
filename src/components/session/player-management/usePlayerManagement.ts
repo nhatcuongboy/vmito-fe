@@ -1,0 +1,455 @@
+import { toaster } from '@/components/ui/toaster';
+import { PlayerService } from '@/lib/api/player.service';
+import { Level } from '@/lib/api/types';
+import { UserOption, UserService } from '@/lib/api/user.service';
+import { useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { NewPlayer, Player } from './types';
+
+export const usePlayerManagement = (
+  session: any,
+  onDataRefresh?: () => void
+) => {
+  const t = useTranslations('pages.playerManagement');
+
+  // Internal state management
+  const [newPlayers, setNewPlayers] = useState<NewPlayer[]>([]);
+  const [editingPlayers, setEditingPlayers] = useState<{
+    [key: string]: Player;
+  }>({});
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [showMaxPlayersWarning, setShowMaxPlayersWarning] =
+    useState<boolean>(false);
+  const [availableUsers, setAvailableUsers] = useState<UserOption[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
+  const [playerToDelete, setPlayerToDelete] = useState<any>(null); // Keep as any for now as in original
+  const [newPlayerErrors, setNewPlayerErrors] = useState<{
+    [index: number]: string;
+  }>({});
+
+  // Load available users on mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setIsLoadingUsers(true);
+        const users = await UserService.getAllUsers();
+        setAvailableUsers(users);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        toaster.create({
+          title: t('failedToLoadUsers'),
+          type: 'error',
+          duration: 3000,
+        });
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+    loadUsers();
+  }, [t]);
+
+  /**
+   * Get default level for new players based on session requiredLevels
+   */
+  const getDefaultLevel = (): Level => {
+    if (session.requiredLevels && session.requiredLevels.length > 0) {
+      return session.requiredLevels[0] as Level;
+    }
+    return Level.TB_MINUS;
+  };
+
+  /**
+   * Get available levels for player selection based on session requiredLevels
+   */
+  const getAvailableLevels = (): Level[] => {
+    if (session.requiredLevels && session.requiredLevels.length > 0) {
+      return session.requiredLevels as Level[];
+    }
+    return Object.values(Level);
+  };
+
+  // Player management functions
+  const addNewPlayerRow = () => {
+    const existingMaxPlayerNumber = Math.max(
+      0,
+      ...session.players.map((p: any) => p.playerNumber || 0)
+    );
+
+    const newPlayerMaxNumber =
+      newPlayers.length > 0
+        ? Math.max(...newPlayers.map((p) => p.playerNumber || 0))
+        : 0;
+
+    const nextPlayerNumber =
+      Math.max(existingMaxPlayerNumber, newPlayerMaxNumber) + 1;
+
+    setNewPlayers([
+      ...newPlayers,
+      {
+        playerNumber: nextPlayerNumber,
+        name: '',
+        gender: 'MALE',
+        level: getDefaultLevel(),
+        levelDescription: '',
+        requireConfirmInfo: true,
+      },
+    ]);
+  };
+
+  const removeNewPlayerRow = (index: number) => {
+    setNewPlayers(newPlayers.filter((_, i) => i !== index));
+    // Also clear errors for this index if any
+    const newErrors = { ...newPlayerErrors };
+    delete newErrors[index];
+    setNewPlayerErrors(newErrors);
+  };
+
+  const clearAllNewPlayers = () => {
+    setNewPlayers([]);
+    setNewPlayerErrors({});
+  };
+
+  const updateNewPlayer = (
+    index: number,
+    field: string,
+    value: string | boolean
+  ) => {
+    setNewPlayers((prev) =>
+      prev.map((player, i) =>
+        i === index ? { ...player, [field]: value } : player
+      )
+    );
+     // Clear error when user starts typing name
+     if (field === 'name' && newPlayerErrors[index]) {
+        setNewPlayerErrors((prev) => {
+          const newState = {...prev};
+          delete newState[index];
+          return newState;
+        });
+      }
+  };
+
+  // Handle user selection from dropdown
+  const handleUserSelection = (index: number, userId: string) => {
+    if (!userId) {
+      // Clear selection
+      updateNewPlayer(index, 'userId', '');
+      updateNewPlayer(
+        index,
+        'name',
+        `Player ${newPlayers[index].playerNumber}`
+      );
+      updateNewPlayer(index, 'gender', 'MALE');
+      updateNewPlayer(index, 'level', getDefaultLevel());
+      updateNewPlayer(index, 'levelDescription', '');
+      return;
+    }
+
+    const isUserAlreadySelected = newPlayers.some(
+      (p, idx) => idx !== index && p.userId === userId
+    );
+
+    if (isUserAlreadySelected) {
+      toaster.create({
+        title: t('userAlreadySelected'),
+        description: t('userAlreadySelectedDescription'),
+        type: 'error',
+        duration: 3000,
+      });
+      return;
+    }
+
+    const isUserInExistingPlayers = session.players.some(
+      (p: any) => p.userId === userId
+    );
+
+    if (isUserInExistingPlayers) {
+      toaster.create({
+        title: t('userAlreadyExists'),
+        description: t('userAlreadyExistsDescription'),
+        type: 'error',
+        duration: 3000,
+      });
+      return;
+    }
+
+    const selectedUser = availableUsers.find((u) => u.id === userId);
+    if (selectedUser) {
+      updateNewPlayer(index, 'userId', selectedUser.id);
+      updateNewPlayer(index, 'name', selectedUser.name);
+      if (selectedUser.gender) {
+        updateNewPlayer(index, 'gender', selectedUser.gender);
+      }
+      if (selectedUser.level) {
+        updateNewPlayer(index, 'level', selectedUser.level as Level);
+      }
+      if (selectedUser.levelDescription) {
+        updateNewPlayer(
+          index,
+          'levelDescription',
+          selectedUser.levelDescription
+        );
+      }
+    }
+  };
+
+  const startEditingPlayer = (player: Player) => {
+    setEditingPlayers((prev) => ({
+      ...prev,
+      [player.id]: { 
+        ...player,
+        levelDescription: player.levelDescription || '',
+        requireConfirmInfo: !!player.requireConfirmInfo,    
+    },
+    }));
+  };
+
+  const cancelEditingPlayer = (playerId: string) => {
+    setEditingPlayers((prev) => {
+      const newState = { ...prev };
+      delete newState[playerId];
+      return newState;
+    });
+  };
+
+  const updateEditingPlayer = (
+    playerId: string,
+    field: string,
+    value: string | boolean
+  ) => {
+    setEditingPlayers((prev) => ({
+      ...prev,
+      [playerId]: {
+        ...prev[playerId],
+        [field]: value,
+      },
+    }));
+  };
+
+  const validateNewPlayers = () => {
+    const errors: { [index: number]: string } = {};
+    newPlayers.forEach((player: any, idx: any) => {
+      if (!player.name || player.name.trim() === '') {
+        errors[idx] = t('playerNameRequired');
+      }
+    });
+    setNewPlayerErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const savePlayerChanges = async () => {
+    if (!validateNewPlayers()) {
+        return;
+    }
+
+    try {
+      setIsSaving(true);
+      const playersToUpdate = Object.values(editingPlayers);
+      const playersToCreate = newPlayers.filter((p) => p.name.trim() !== '');
+
+      if (playersToUpdate.length > 0) {
+        await PlayerService.bulkUpdatePlayers(
+          session.id,
+          playersToUpdate as any
+        );
+      }
+
+      if (playersToCreate.length > 0) {
+        await PlayerService.createBulkPlayers(
+          session.id,
+          playersToCreate as any
+        );
+      }
+
+      setEditingPlayers({});
+      setNewPlayers([]);
+      if (onDataRefresh) {
+        onDataRefresh();
+      }
+
+      toaster.create({
+        title: t('playerChangesSavedSuccess'),
+        type: 'success',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error saving player changes:', error);
+      toaster.create({
+        title: t('failedToSavePlayerChanges'),
+        type: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveIndividualPlayer = async (playerId: string) => {
+    try {
+      setIsSaving(true);
+      const playerToUpdate = editingPlayers[playerId];
+      if (!playerToUpdate) {
+        throw new Error('No player data to update');
+      }
+
+      await PlayerService.updatePlayerBySession(
+        session.id,
+        playerId,
+        playerToUpdate as any
+      );
+
+      setEditingPlayers((prev) => {
+        const newState = { ...prev };
+        delete newState[playerId];
+        return newState;
+      });
+
+      if (onDataRefresh) {
+        onDataRefresh();
+      }
+
+      toaster.create({
+        title: t('playerUpdatedSuccess'),
+        type: 'success',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error updating player:', error);
+      toaster.create({
+        title: t('failedToUpdatePlayer'),
+        description: error instanceof Error ? error.message : 'Unknown error',
+        type: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const deletePlayer = (playerId: string) => {
+    const player = session.players.find((p: any) => p.id === playerId);
+    if (player) {
+      setPlayerToDelete(player);
+    }
+  };
+
+  const confirmDeletePlayer = async () => {
+    if (!playerToDelete) return;
+
+    const playerName =
+      playerToDelete.name || `Player ${playerToDelete.playerNumber || ''}`;
+
+    try {
+      setIsSaving(true);
+      await PlayerService.deletePlayerBySession(session.id, playerToDelete.id);
+      if (onDataRefresh) {
+        onDataRefresh();
+      }
+      toaster.create({
+        title: t('playerDeletedSuccess', { name: playerName }),
+        type: 'success',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error deleting player:', error);
+      toaster.create({
+        title: t('failedToDeletePlayer'),
+        type: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setIsSaving(false);
+      setPlayerToDelete(null);
+    }
+  };
+
+  // Max players logic
+  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+  const currentPlayerCount = session.players.length + newPlayers.length;
+  const isMaxPlayersReached = currentPlayerCount >= maxPlayers;
+
+  const handleAddNewPlayer = () => {
+    if (isMaxPlayersReached && !showMaxPlayersWarning) {
+      setShowMaxPlayersWarning(true);
+    } else {
+      setShowMaxPlayersWarning(false);
+      addNewPlayerRow();
+    }
+  };
+
+  const confirmAddPlayerDespiteWarning = () => {
+      setShowMaxPlayersWarning(false);
+      addNewPlayerRow();
+  }
+
+  const cancelAddPlayer = () => {
+      setShowMaxPlayersWarning(false);
+  }
+
+  const isUserAlreadyUsed = (userId: string, currentIndex?: number): boolean => {
+    const inNewPlayers = newPlayers.some(
+      (p, idx) =>
+        p.userId === userId &&
+        (currentIndex === undefined || idx !== currentIndex)
+    );
+    const inExistingPlayers = session.players.some(
+      (p: any) => p.userId === userId
+    );
+    return inNewPlayers || inExistingPlayers;
+  };
+
+  // Track the last player count to know when a new player is added to auto-name
+  const lastPlayerCount = useRef(newPlayers.length);
+  useEffect(() => {
+    if (newPlayers.length > lastPlayerCount.current) {
+        const newPlayerIndex = newPlayers.length - 1;
+        const newPlayer = newPlayers[newPlayerIndex];
+        if (newPlayer && (!newPlayer.name || newPlayer.name.trim() === '')) {
+             setTimeout(() => {
+                updateNewPlayer(
+                    newPlayerIndex,
+                    'name',
+                    `Player ${newPlayer.playerNumber}`
+                );
+            }, 10);
+        }
+    }
+    lastPlayerCount.current = newPlayers.length;
+  }, [newPlayers.length]);
+
+
+  return {
+    // State
+    newPlayers,
+    editingPlayers,
+    isSaving,
+    showMaxPlayersWarning,
+    availableUsers,
+    isLoadingUsers,
+    newPlayerErrors,
+    availableLevels: getAvailableLevels(),
+    maxPlayers,
+    currentPlayerCount,
+    isMaxPlayersReached,
+
+    // Actions
+    addNewPlayerRow,
+    removeNewPlayerRow,
+    clearAllNewPlayers,
+    handleUserSelection,
+    updateNewPlayer,
+    startEditingPlayer,
+    cancelEditingPlayer,
+    updateEditingPlayer,
+    savePlayerChanges,
+    saveIndividualPlayer,
+    deletePlayer, // Starts the delete process (sets item to delete)
+    confirmDeletePlayer, // ACTUALLY deletes
+    playerToDelete,
+    handleAddNewPlayer,
+    confirmAddPlayerDespiteWarning,
+    cancelAddPlayer,
+    isUserAlreadyUsed,
+    setPlayerToDelete, // Needed to clear modal
+  };
+};

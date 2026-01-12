@@ -315,36 +315,101 @@ export default function PlayerSessionView({
     }
   }, [session?.id, joinSession, leaveSession]);
 
+  // Listen to session events for real-time updates and toasts
   useEffect(() => {
     if (!socket || !session?.id) return;
 
-    // Handler for any session-related event
-    const handleAnySessionEvent = (data: { sessionId: string }) => {
-      if (data.sessionId === session.id) {
-        console.log('Received session event, refreshing...');
-        fetchPlayerData(true); // Background refresh
-      }
+    // Helper to get fresh session data (ref) if needed, but for now we use the dependency
+    // Note: session in dependency might cause re-registrations, but it ensures we have latest data for lookup
+
+    const handlePlayerCreated = (data: { sessionId: string; playerId: string }) => {
+      if (data.sessionId !== session.id) return;
+      toaster.create({
+        title: t('events.playerJoined'),
+        type: 'info',
+      });
+      fetchPlayerData(true);
     };
 
-    // Listen to all session-related events
-    const events = [
-      'session_updated',
-      'player_created',
-      'player_updated',
-      'player_removed',
-      'match_started',
-      'match_ended',
-      'players_selected',
-      'players_deselected',
-    ];
+    const handlePlayerUpdated = (data: { sessionId: string; playerId: string }) => {
+      if (data.sessionId !== session.id) return;
+      // Try to find player name from current session state
+      const p = session.players?.find(p => p.id === data.playerId);
+      const name = p ? (p.name || `Player ${p.playerNumber}`) : 'A player';
+      
+      toaster.create({
+        title: t('events.playerUpdated', { name }),
+        type: 'info',
+      });
+      fetchPlayerData(true);
+    };
 
-    events.forEach((event) => socket.on(event, handleAnySessionEvent));
+    const handlePlayerRemoved = (data: { sessionId: string; playerId: string }) => {
+      if (data.sessionId !== session.id) return;
+      // Try to find player name event if they are being removed (might still be in state)
+      const p = session.players?.find(p => p.id === data.playerId);
+      const name = p ? (p.name || `Player ${p.playerNumber}`) : 'A player';
+
+      toaster.create({
+        title: t('events.playerLeft', { name }),
+        type: 'warning',
+      });
+      fetchPlayerData(true);
+    };
+
+    const handlePlayersSelected = (data: { sessionId: string; courtId: string }) => {
+      if (data.sessionId !== session.id) return;
+      const court = session.courts?.find(c => c.id === data.courtId);
+      const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
+
+      toaster.create({
+        title: t('events.playersSelected', { court: courtName }),
+        type: 'success',
+      });
+      fetchPlayerData(true);
+    };
+
+    const handlePlayersDeselected = (data: { sessionId: string; courtId: string }) => {
+      if (data.sessionId !== session.id) return;
+      const court = session.courts?.find(c => c.id === data.courtId);
+      const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
+
+      toaster.create({
+        title: t('events.playersDeselected', { court: courtName }),
+        type: 'info',
+      });
+      fetchPlayerData(true);
+    };
+
+    const handleGenericEvent = (data: { sessionId: string }) => {
+       if (data.sessionId === session.id) {
+        fetchPlayerData(true);
+       }
+    };
+
+    socket.on('player_created', handlePlayerCreated);
+    socket.on('player_updated', handlePlayerUpdated);
+    socket.on('player_removed', handlePlayerRemoved);
+    socket.on('players_selected', handlePlayersSelected);
+    socket.on('players_deselected', handlePlayersDeselected);
+    
+    // Other events that just trigger refresh without specific toast logic yet
+    socket.on('session_updated', handleGenericEvent);
+    socket.on('match_started', handleGenericEvent);
+    socket.on('match_ended', handleGenericEvent);
 
     return () => {
-      events.forEach((event) => socket.off(event, handleAnySessionEvent));
+      socket.off('player_created', handlePlayerCreated);
+      socket.off('player_updated', handlePlayerUpdated);
+      socket.off('player_removed', handlePlayerRemoved);
+      socket.off('players_selected', handlePlayersSelected);
+      socket.off('players_deselected', handlePlayersDeselected);
+      socket.off('session_updated', handleGenericEvent);
+      socket.off('match_started', handleGenericEvent);
+      socket.off('match_ended', handleGenericEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket, session?.id]); // Exclude fetchPlayerData to avoid infinite loops/large refactor
+  }, [socket, session?.id, session?.players, session?.courts]);
 
   // Initial data fetch
   useEffect(() => {

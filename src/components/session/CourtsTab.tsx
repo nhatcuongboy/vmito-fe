@@ -202,6 +202,7 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
             : undefined
         }
         description={t('courtsTab.autoAssignMatchDescription')}
+        courtColor={session.courtColor}
       />
 
       {/* Manual Selection Modal */}

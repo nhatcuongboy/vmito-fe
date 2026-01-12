@@ -20,6 +20,7 @@ import WaitTimeUpdater from './WaitTimeUpdater';
 import { Level } from '@/lib/api/types';
 import SessionOverviewTab from './SessionOverviewTab';
 import { CommonModal } from '@/components/ui/CommonModal';
+// import AiAssistant from './AiAssistant';
 
 // Types for session data and related entities
 interface Player {
@@ -527,6 +528,9 @@ export default function SessionDetailContent({
           {t('confirmEndSessionMessage')}
         </Text>
       </CommonModal>
+
+      {/* AI Assistant */}
+      {/* <AiAssistant sessionId={session.id} /> */}
     </MainLayout>
   );
 }

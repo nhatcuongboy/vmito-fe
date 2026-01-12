@@ -46,6 +46,7 @@ export interface ISession {
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
   requiredLevels?: Level[]; // Optional: empty array or undefined = all levels allowed
+  courtColor?: string;
   status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
   startTime?: Date;
   endTime?: Date;
@@ -194,6 +195,7 @@ export interface CreateSessionRequest {
   requiredLevels?: Level[]; // Optional: empty array or undefined = all levels allowed
   startTime?: Date;
   endTime?: Date;
+  courtColor?: string;
   courts?: CourtConfig[];
 }
 
@@ -208,6 +210,8 @@ export interface SuggestedPlayersResponse {
   pair2: PlayerPair;
   scoreDifference: number;
   totalPlayersConsidered: number;
+  usedAi?: boolean;
+  aiReason?: string;
 }
 
 // Join by code response types

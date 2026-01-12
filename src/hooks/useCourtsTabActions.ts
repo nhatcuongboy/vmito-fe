@@ -245,12 +245,12 @@ export const useCourtsTabActions = ({
 
       if (onDataRefresh) onDataRefresh();
 
-      toaster.create({
-        title: t('courtsTab.matchEndedSuccessfully'),
-        description: t('courtsTab.courtAvailableForPlay'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('courtsTab.matchEndedSuccessfully'),
+      //   description: t('courtsTab.courtAvailableForPlay'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error ending match:', error);
       toaster.create({

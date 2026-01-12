@@ -2,6 +2,9 @@ import { Box, Tabs, Text } from '@chakra-ui/react';
 import React from 'react';
 import GeneralSettings from './GeneralSettings';
 import PlayerManagement from './PlayerManagement';
+import CourtSettings from './CourtSettings';
+import { SessionService } from '@/lib/api/session.service';
+import { toaster } from '@/components/ui/toaster';
 
 interface SettingsTabProps {
   session: any;
@@ -13,13 +16,22 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
   refreshSessionData,
 }) => {
   // Show session summary cards like Management tab
-  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
-  const availableSlots = maxPlayers - session.players.length;
-  const courtsCount = session.numberOfCourts;
+  // const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+  // const availableSlots = maxPlayers - session.players.length;
+  // const courtsCount = session.numberOfCourts;
 
-  // State for quick actions
-
-  // Real API handlers
+  const handleUpdateSettings = async (key: string, value: any) => {
+    try {
+      await SessionService.updateSession(session.id, {
+        [key]: value,
+      });
+      refreshSessionData();
+      toaster.success({ title: 'Settings updated successfully' });
+    } catch (error) {
+      toaster.error({ title: 'Failed to update settings' });
+      console.error('Update settings error:', error);
+    }
+  };
 
   return (
     <Box maxW="4xl" mx="auto">
@@ -45,7 +57,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
           />
         </Tabs.Content>
         <Tabs.Content value="court">
-          <Text>Court management settings will be here.</Text>
+          <CourtSettings
+            session={session}
+            onUpdateSettings={handleUpdateSettings}
+          />
         </Tabs.Content>
       </Tabs.Root>
     </Box>

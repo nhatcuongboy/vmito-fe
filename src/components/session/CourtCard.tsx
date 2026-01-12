@@ -239,6 +239,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               isLoading={isRefreshing}
               status={court.status}
               mode={mode}
+              courtColor={session.courtColor}
               direction={court.direction || CourtDirection.HORIZONTAL}
             />
 
