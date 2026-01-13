@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Player } from '@/lib/api/types';
 import { UserPlus, User, Edit, Trash } from 'lucide-react';
 import { Button } from '@chakra-ui/react';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { VALID_LEVELS } from '@/constants/levels';
 
 export function AddPlayerForm({
   sessionId,
@@ -23,6 +24,7 @@ export function AddPlayerForm({
   onSuccess?: () => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const getLevelLabel = useLevelLabel();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,6 +32,7 @@ export function AddPlayerForm({
 
     try {
       const formData = new FormData(e.currentTarget);
+      const levelValue = formData.get('level') as string;
       const playerData = {
         name: formData.get('name') as string,
         gender: formData.get('gender') as
@@ -37,13 +40,7 @@ export function AddPlayerForm({
           | 'FEMALE'
           | 'OTHER'
           | 'PREFER_NOT_TO_SAY',
-        level: formData.get('level') as
-          | 'Y'
-          | 'Y_PLUS'
-          | 'TBY'
-          | 'TB_MINUS'
-          | 'TB'
-          | 'TB_PLUS',
+        level: levelValue ? parseInt(levelValue, 10) : undefined,
         phone: formData.get('phone') as string,
         preFilledByHost: true,
       };
@@ -112,12 +109,11 @@ export function AddPlayerForm({
                 required
               >
                 <option value="">Select Level</option>
-                <option value="Y">Y (Weak)</option>
-                <option value="Y_PLUS">Y+ (Weak+)</option>
-                <option value="TBY">TBY (Medium-weak)</option>
-                <option value="TB_MINUS">TB- (Medium-)</option>
-                <option value="TB">TB (Medium)</option>
-                <option value="TB_PLUS">TB+ (Medium+)</option>
+                {VALID_LEVELS.map((level) => (
+                    <option key={level} value={level}>
+                      {getLevelLabel(level)}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -148,6 +144,7 @@ export function PlayerCard({
   onEdit?: (player: Player) => void;
   onDelete?: (player: Player) => void;
 }) {
+  const getLevelLabel = useLevelLabel();
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -188,7 +185,7 @@ export function PlayerCard({
           <div>{player.gender || 'Not specified'}</div>
 
           <div className="text-muted-foreground">Level:</div>
-          <div>{getLevelLabel(player.level, 'Not specified')}</div>
+          <div>{getLevelLabel(player.level) || 'Not specified'}</div>
 
           <div className="text-muted-foreground">Status:</div>
           <div>{player.status}</div>

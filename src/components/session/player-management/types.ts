@@ -1,11 +1,9 @@
-import { Level } from '@/lib/api/types';
-
 export interface Player {
   id: string;
   playerNumber: number;
   name: string;
   gender?: string;
-  level?: Level;
+  level?: number;
   status: string;
   currentWaitTime: number;
   totalWaitTime: number;
@@ -21,7 +19,7 @@ export interface NewPlayer {
   playerNumber: number;
   name: string;
   gender: string;
-  level: Level;
+  level: number;
   levelDescription?: string;
   requireConfirmInfo?: boolean;
   userId?: string;

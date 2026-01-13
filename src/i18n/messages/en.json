@@ -31,7 +31,17 @@
     "about": "About",
     "navigation": "Navigation",
     "logout": "Logout",
-    "userInfo": "User Information"
+    "userInfo": "User Information",
+    "levels": {
+      "1": "Beginner",
+      "2": "Advanced Beginner",
+      "3": "Low Intermediate",
+      "4": "Intermediate",
+      "5": "High Intermediate",
+      "6": "Advanced",
+      "7": "Semi-Pro",
+      "8": "Pro"
+    }
   },
   "session": {
     "title": "Badminton Session",
@@ -41,6 +51,7 @@
     "sessionCode": "Session Code",
     "maxPlayersPerCourt": "Max Players Per Court",
     "requirePlayerInfo": "Require Player Information",
+    "requiredLevels": "Required Levels",
     "courtInformation": "Court Information",
     "courtDirection": "Court Direction",
     "numberOfCourts": "Number of Courts",

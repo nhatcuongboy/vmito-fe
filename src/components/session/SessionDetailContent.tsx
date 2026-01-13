@@ -17,7 +17,6 @@ import { getCourtDisplayName } from '@/utils/session-helpers';
 import { RefreshCw, Square, Trophy, Users, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import WaitTimeUpdater from './WaitTimeUpdater';
-import { Level } from '@/lib/api/types';
 import SessionOverviewTab from './SessionOverviewTab';
 import { CommonModal } from '@/components/ui/CommonModal';
 // import AiAssistant from './AiAssistant';
@@ -28,7 +27,7 @@ interface Player {
   playerNumber: number;
   name: string;
   gender?: string;
-  level?: Level;
+  level?: number;
   status: string;
   currentWaitTime: number;
   totalWaitTime: number;

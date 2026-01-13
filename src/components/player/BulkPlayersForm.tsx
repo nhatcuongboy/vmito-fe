@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/chakra-compat';
 import { PlayerService } from '@/lib/api/player.service';
 import { BulkPlayerData } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   parseCSVToBulkPlayers,
   EXAMPLE_CSV,
@@ -27,6 +29,7 @@ export default function BulkPlayersForm({
   sessionId,
   onSuccess,
 }: BulkPlayersFormProps) {
+  const getLevelLabel = useLevelLabel();
   const [players, setPlayers] = useState<BulkPlayerData[]>([]);
   const [csvData, setCsvData] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -157,18 +160,8 @@ export default function BulkPlayersForm({
         return;
       }
 
-      const validLevels = [
-        'Y_MINUS',
-        'Y',
-        'Y_PLUS',
-        'TBY',
-        'TB_MINUS',
-        'TB',
-        'TB_PLUS',
-        'K',
-      ];
       const invalidLevel = players.some(
-        (p) => p.level && !validLevels.includes(p.level)
+        (p) => p.level && !VALID_LEVELS.includes(p.level as number)
       );
       if (invalidLevel) {
         setErrorMessage('Invalid player level detected');
@@ -279,18 +272,8 @@ export default function BulkPlayersForm({
           !['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
       );
 
-      const validLevels = [
-        'Y_MINUS',
-        'Y',
-        'Y_PLUS',
-        'TBY',
-        'TB_MINUS',
-        'TB',
-        'TB_PLUS',
-        'K',
-      ];
       const invalidLevel = parsedPlayers.some(
-        (p) => p.level && !validLevels.includes(p.level)
+        (p) => p.level !== undefined && !VALID_LEVELS.includes(p.level)
       );
 
       if (invalidGender || invalidLevel) {
@@ -310,7 +293,10 @@ export default function BulkPlayersForm({
             ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
               ? p.gender
               : undefined,
-          level: p.level && validLevels.includes(p.level) ? p.level : undefined,
+          level:
+            p.level !== undefined && VALID_LEVELS.includes(p.level)
+              ? p.level
+              : undefined,
         }));
 
         setPlayers(fixedPlayers);
@@ -479,7 +465,7 @@ export default function BulkPlayersForm({
                     <select
                       value={player.level || ''}
                       onChange={(e) =>
-                        updatePlayer(index, 'level', e.target.value)
+                        updatePlayer(index, 'level', parseInt(e.target.value))
                       }
                       style={{
                         padding: '4px',
@@ -489,14 +475,11 @@ export default function BulkPlayersForm({
                       }}
                     >
                       <option value="">Select</option>
-                      <option value="Y_MINUS">Y-</option>
-                      <option value="Y">Y</option>
-                      <option value="Y_PLUS">Y+</option>
-                      <option value="TBY">TBY</option>
-                      <option value="TB_MINUS">TB-</option>
-                      <option value="TB">TB</option>
-                      <option value="TB_PLUS">TB+</option>
-                      <option value="K">K</option>
+                      {VALID_LEVELS.map((level) => (
+                        <option key={level} value={level}>
+                          {getLevelLabel(level)}
+                        </option>
+                      ))}
                     </select>
                   </Td>
                   <Td>
@@ -591,59 +574,6 @@ export default function BulkPlayersForm({
           Reset Form
         </Button>
       </Flex>
-
-      {/* CSV Import Section */}
-      {/* <Box mb={6} mt={20}>
-        <Heading size="sm" mb={2}>
-          CSV Import
-        </Heading>
-        <Box mb={2} position="relative">
-          <Flex justify="space-between" mb={1}>
-            <Text>Paste CSV data:</Text>
-            <Text fontSize="xs" color="gray.500">
-              Format: playerNumber,name,gender,level,phone
-            </Text>
-          </Flex>
-          <textarea
-            value={csvData}
-            onChange={(e) => setCsvData(e.target.value)}
-            placeholder="playerNumber,name,gender,level,phone"
-            style={{
-              width: "100%",
-              height: "120px",
-              padding: "8px",
-              borderRadius: "4px",
-              border: "1px solid #e2e8f0",
-              fontFamily: "monospace",
-            }}
-          />
-        </Box>
-        <Flex gap={2} wrap="wrap">
-          <Button onClick={handleImportCSV} colorScheme="blue" size="sm">
-            Import CSV
-          </Button>
-          <Button onClick={showExampleCSV} size="sm" variant="outline">
-            Show Example
-          </Button>
-          <Button
-            onClick={clearForm}
-            size="sm"
-            variant="ghost"
-            colorScheme="red"
-          >
-            Clear Form
-          </Button>
-        </Flex>
-        <Box mt={2}>
-          <Text fontSize="xs" color="gray.600">
-            <strong>Valid gender values:</strong> MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY
-          </Text>
-          <Text fontSize="xs" color="gray.600">
-            <strong>Valid level values:</strong> Y_MINUS, Y, Y_PLUS, TBY, TB_MINUS, TB,
-            TB_PLUS, K
-          </Text>
-        </Box>
-      </Box> */}
     </Box>
   );
 }

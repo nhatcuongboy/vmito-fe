@@ -251,7 +251,8 @@ export const SessionService = {
     return response.data.data!;
   },
 
-  // Update wait times
+  // @deprecated - Wait times are now calculated automatically from waitingSince
+  // Keeping for reset functionality only
   updateWaitTimes: async (
     id: string,
     data: {

@@ -77,11 +77,13 @@ export const PlayerService = {
     return response.data.data!;
   },
 
-  // Update wait times (deprecated - use WaitTimeService.updateSessionWaitTimes instead)
+  // @deprecated - Wait times are now calculated automatically from waitingSince timestamp
+  // This function is kept for backward compatibility but should not be used
   updateWaitTimes: async (
     sessionId: string,
     minutesToAdd: number = 1
   ): Promise<{ updatedCount: number; players: Player[] }> => {
+    console.warn('PlayerService.updateWaitTimes is deprecated. Wait times are now calculated automatically.');
     const response = await api.put<
       ApiResponse<{ updatedCount: number; players: Player[] }>
     >(`/sessions/${sessionId}/wait-times`, {

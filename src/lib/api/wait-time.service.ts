@@ -2,26 +2,7 @@ import { api, ApiResponse } from './base';
 import { Player } from './types';
 
 export const WaitTimeService = {
-  // Update wait times for session
-  updateSessionWaitTimes: async (
-    sessionId: string,
-    minutesToAdd: number = 1
-  ): Promise<{
-    updatedCount: number;
-    players: Player[];
-    minutesAdded: number;
-  }> => {
-    const response = await api.put<
-      ApiResponse<{
-        updatedCount: number;
-        players: Player[];
-        minutesAdded: number;
-      }>
-    >(`/sessions/${sessionId}/wait-times`, { minutesToAdd });
-    return response.data.data!;
-  },
-
-  // Get wait time statistics
+  // Get wait time statistics (wait times are now calculated automatically from waitingSince)
   getWaitTimeStats: async (
     sessionId: string
   ): Promise<{

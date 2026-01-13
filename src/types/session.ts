@@ -1,12 +1,12 @@
 // Common types for the session management components
-import { Level, CourtDirection } from '@/lib/api/types';
+import { CourtDirection } from '@/lib/api/types';
 
 export interface Player {
   id: string;
   playerNumber: number;
   name?: string; // Optional to match API response
   gender?: string;
-  level?: Level;
+  level?: number;
   levelDescription?: string;
   status: string;
   currentWaitTime: number;
@@ -54,14 +54,3 @@ export interface Match {
 }
 
 export type PlayerFilter = 'ALL' | 'PLAYING' | 'WAITING';
-
-export enum LevelLabel {
-  Y_MINUS = 'Y-',
-  Y = 'Y',
-  Y_PLUS = 'Y+',
-  TBY = 'TBY',
-  TB_MINUS = 'TB-',
-  TB = 'TB',
-  TB_PLUS = 'TB+',
-  K = 'K',
-}

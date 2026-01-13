@@ -13,16 +13,18 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { AuthService } from '@/lib/api/auth.service';
-import { Level } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { toaster } from '@/components/ui/toaster';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
 
 function RegisterContent() {
   const t = useTranslations('pages.join.register');
+  const getLevelLabel = useLevelLabel();
   const [name, setName] = useState('');
   const [gender, setGender] = useState('MALE');
-  const [level, setLevel] = useState<Level>(Level.TB_MINUS);
+  const [level, setLevel] = useState<number>(VALID_LEVELS[1]); // Default to 2 (Y)
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -140,7 +142,7 @@ function RegisterContent() {
                   </Text>
                   <select
                     value={level}
-                    onChange={(e) => setLevel(e.target.value as Level)}
+                    onChange={(e) => setLevel(Number(e.target.value))}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -150,14 +152,11 @@ function RegisterContent() {
                       fontSize: '16px',
                     }}
                   >
-                    <option value={Level.Y_MINUS}>Y-</option>
-                    <option value={Level.Y}>Y</option>
-                    <option value={Level.Y_PLUS}>Y+</option>
-                    <option value={Level.TBY}>TBY</option>
-                    <option value={Level.TB_MINUS}>TB-</option>
-                    <option value={Level.TB}>TB</option>
-                    <option value={Level.TB_PLUS}>TB+</option>
-                    <option value={Level.K}>K</option>
+                    {VALID_LEVELS.map((lbl) => (
+                      <option key={lbl} value={lbl}>
+                        {getLevelLabel(lbl)}
+                      </option>
+                    ))}
                   </select>
                 </Box>
 

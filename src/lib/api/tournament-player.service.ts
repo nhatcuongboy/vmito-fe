@@ -1,6 +1,6 @@
 import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
-import { TournamentPlayer, Level, CategoryMatch } from './types';
+import { TournamentPlayer, CategoryMatch } from './types';
 
 export const TournamentPlayerService = {
   // Get all players in a tournament
@@ -35,7 +35,7 @@ export const TournamentPlayerService = {
       email?: string;
       phone?: string;
       gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
-      level?: Level;
+      level?: number;
       levelDescription?: string;
       userId?: string;
     }

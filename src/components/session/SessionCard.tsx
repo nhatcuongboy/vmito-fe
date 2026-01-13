@@ -2,6 +2,7 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import dayjs from '@/lib/dayjs';
 import {
   Badge,
@@ -79,6 +80,7 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
+  const getLevelLabel = useLevelLabel();
   const locale = useLocale();
   // Calculate max players based on courts and maxPlayersPerCourt
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -159,12 +161,12 @@ const SessionCard = ({
               <Icon as={Shield} boxSize={5} mr={2} color="blue.500" mt={0.5} />
               <Box>
                 <Text fontSize="sm" fontWeight="semibold" mb={1}>
-                  Required Levels:
+                  {t('requiredLevels')}:
                 </Text>
                 <Wrap gap={1}>
                   {session.requiredLevels.map((level) => (
                     <Badge key={level} colorScheme="blue" fontSize="xs">
-                      {level.replace('_', ' ')}
+                      {getLevelLabel(level)}
                     </Badge>
                   ))}
                 </Wrap>

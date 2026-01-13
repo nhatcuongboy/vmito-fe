@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { formatTime } from '@/utils/session-helpers';
 import dayjs from '@/lib/dayjs';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 interface SessionOverviewTabProps {
   session: any;
@@ -16,6 +17,7 @@ interface SessionOverviewTabProps {
 
 export default function SessionOverviewTab({ session }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
+  const getLevelLabel = useLevelLabel();
 
   const handleCopyLink = () => {
     // Construct the join link (adjust based on your actual route structure)
@@ -67,7 +69,7 @@ export default function SessionOverviewTab({ session }: SessionOverviewTabProps)
 
                 <Flex align="center" mb={3} color="gray.600" _dark={{ color: 'gray.400' }}>
                     <Box as={Calendar} boxSize={5} mr={3} color="purple.500" />
-                     <Text fontSize="md">
+                     <Text fontSize="md" textTransform="capitalize">
                         {session.startTime ? dayjs(session.startTime).format('dddd, DD MMMM YYYY') : t('notScheduled')}
                      </Text>
                 </Flex>
@@ -85,7 +87,7 @@ export default function SessionOverviewTab({ session }: SessionOverviewTabProps)
                         <Text fontSize="md" fontWeight="medium" mb={1}>{t('requiredLevels')}:</Text>
                         <Flex gap={2} flexWrap="wrap">
                             {session.requiredLevels && session.requiredLevels.length > 0 
-                                ? session.requiredLevels.map((level: string) => (
+                                ? session.requiredLevels.map((level: number) => (
                                     <Box 
                                         key={level} 
                                         px={2.5} 
@@ -98,7 +100,7 @@ export default function SessionOverviewTab({ session }: SessionOverviewTabProps)
                                         border="1px solid"
                                         borderColor="orange.100"
                                     >
-                                        {level}
+                                        {getLevelLabel(level)}
                                     </Box>
                                 ))
                                 : <Text>{t('allLevels')}</Text>

@@ -14,8 +14,7 @@ import {
   IconButton,
   VStack,
 } from '@/components/ui/chakra-compat';
-import { Level } from '@/lib/api/types';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   AlertCircle,
   Edit,
@@ -61,7 +60,7 @@ import { Player } from './types';
 interface PlayerListItemProps {
   player: Player;
   isEditing: Player | undefined;
-  availableLevels: Level[];
+  availableLevels: number[];
   isSaving: boolean;
   onEdit: (player: Player) => void;
   onCancelEdit: (playerId: string) => void;
@@ -84,6 +83,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
   onShowQR,
 }) => {
   const t = useTranslations('pages.playerManagement');
+  const getLevelLabel = useLevelLabel();
 
   if (isEditing) {
     return (

@@ -2,8 +2,7 @@
 
 import { Card, CardBody, SimpleGrid } from '@/components/ui/chakra-compat';
 import { SessionService } from '@/lib/api/session.service';
-import { Level } from '@/lib/api/types';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import { Mars, Pause, Play, User, Users, Venus } from 'lucide-react';
 import { useState } from 'react';
@@ -49,7 +48,7 @@ interface Player {
   playerNumber: number;
   name?: string; // Optional to match API
   gender?: string;
-  level?: Level;
+  level?: number;
   status: string;
   currentWaitTime: number;
   totalWaitTime: number;
@@ -82,6 +81,7 @@ export const PlayerGrid = ({
   sessionId,
   onPlayerUpdate,
 }: PlayerGridProps) => {
+  const getLevelLabel = useLevelLabel();
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     playerId: string;

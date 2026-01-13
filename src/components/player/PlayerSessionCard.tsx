@@ -24,6 +24,7 @@ import dayjs from '@/lib/dayjs';
 import 'dayjs/locale/vi';
 import 'dayjs/locale/en';
 import { ISession } from '@/lib/api/types';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 // Helper functions for formatting with locale support
 const formatDate = (dateString: string | Date, locale: string): string => {
@@ -105,6 +106,7 @@ const getStatusLabel = (status: string, t: any) => {
 export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
   const t = useTranslations('session');
   const locale = useLocale();
+  const getLevelLabel = useLevelLabel();
 
   // Calculate max players and format date/time
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -168,12 +170,12 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
               <Icon as={Shield} boxSize={5} mr={2} color="blue.500" mt={0.5} />
               <Box>
                 <Text fontSize="sm" fontWeight="semibold" mb={1}>
-                  Required Levels:
+                  {t('requiredLevels')}:
                 </Text>
                 <Wrap gap={1}>
                   {session.requiredLevels.map((level) => (
                     <Badge key={level} colorScheme="blue" fontSize="xs">
-                      {level.replace('_', ' ')}
+                      {getLevelLabel(level)}
                     </Badge>
                   ))}
                 </Wrap>

@@ -3,7 +3,7 @@ import { CommonModal } from '@/components/ui/CommonModal';
 import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
   Box,
@@ -82,6 +82,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   courtColor,
 }) => {
   const t = useTranslations('SessionDetail');
+  const getLevelLabel = useLevelLabel();
 
   // Calculate default topCount: 4 * numberOfCourts, but not more than waitingPlayersCount
   const defaultTopCount = useMemo(() => {

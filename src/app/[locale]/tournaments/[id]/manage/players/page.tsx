@@ -11,7 +11,9 @@ import {
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
-import { Level, TournamentPlayer, UserRole } from '@/lib/api/types';
+import { TournamentPlayer, UserRole } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
   Box,
@@ -39,6 +41,7 @@ import { useTranslations } from 'next-intl';
 export default function TournamentPlayersPage() {
   const t = useTranslations('pages.tournaments.players');
   const tCommon = useTranslations('common');
+  const getLevelLabel = useLevelLabel();
   const params = useParams();
   const router = useRouter();
   const { user } = useAuthStore();
@@ -57,7 +60,7 @@ export default function TournamentPlayersPage() {
     email: '',
     phone: '',
     gender: '' as 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY' | '',
-    level: '' as Level | '',
+    level: '' as number | '',
     levelDescription: '',
   });
 
@@ -153,8 +156,6 @@ export default function TournamentPlayersPage() {
     player.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const levelOptions = Object.values(Level);
-
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
       <Box minH="100vh" pb="80px">
@@ -226,7 +227,7 @@ export default function TournamentPlayersPage() {
                                 <Heading size="sm">{player.name}</Heading>
                                 {player.level && (
                                   <Badge colorScheme="blue">
-                                    {player.level}
+                                    {getLevelLabel(player.level)}
                                   </Badge>
                                 )}
                               </VStack>
@@ -373,7 +374,7 @@ export default function TournamentPlayersPage() {
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                       setFormData({
                         ...formData,
-                        level: e.target.value as Level | '',
+                        level: e.target.value ? Number(e.target.value) : '',
                       })
                     }
                     style={{
@@ -395,9 +396,9 @@ export default function TournamentPlayersPage() {
                     }}
                   >
                     <option value="">{t('selectLevel')}</option>
-                    {levelOptions.map((level) => (
+                    {VALID_LEVELS.map((level) => (
                       <option key={level} value={level}>
-                        {level}
+                        {getLevelLabel(level)}
                       </option>
                     ))}
                   </select>

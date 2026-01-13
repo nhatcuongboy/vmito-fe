@@ -1,7 +1,7 @@
 'use client';
 
 import { Player } from '@/types/session';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Box, Text } from '@chakra-ui/react';
 import { Mars, User, Venus, X, HelpCircle, UserX } from 'lucide-react';
 import { useRef } from 'react';
@@ -67,6 +67,7 @@ export default function CourtPlayer({
   onPlayerClick,
   onRemovePlayer,
 }: CourtPlayerProps) {
+  const getLevelLabel = useLevelLabel();
   const playerRef = useRef<HTMLDivElement>(null!);
 
   // Skip if player is invalid
@@ -251,7 +252,7 @@ export default function CourtPlayer({
               border="2px solid white"
               zIndex={4}
             >
-              {getLevelLabel(player.level, '?')}
+              {getLevelLabel(player.level) || '?'}
             </Box>
           </>
         )}

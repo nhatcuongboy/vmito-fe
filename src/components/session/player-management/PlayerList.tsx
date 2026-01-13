@@ -4,14 +4,13 @@ import {
   Heading,
   Text,
 } from '@chakra-ui/react';
-import {
-  Button,
-  Card,
-  CardBody,
-  HStack,
-  VStack,
+import { 
+  Button, 
+  Card, 
+  CardBody, 
+  VStack, 
+  HStack 
 } from '@/components/ui/chakra-compat';
-import { Level } from '@/lib/api/types';
 import { Plus, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
@@ -21,7 +20,7 @@ import { Player } from './types';
 interface PlayerListProps {
   players: Player[];
   editingPlayers: { [key: string]: Player };
-  availableLevels: Level[];
+  availableLevels: number[];
   isSaving: boolean;
   onAddNewPlayer: () => void;
   onEditPlayer: (player: Player) => void;

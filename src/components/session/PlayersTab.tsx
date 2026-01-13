@@ -10,7 +10,6 @@ import {
   Collapsible,
 } from '@chakra-ui/react';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
-import { Level } from '@/lib/api/types';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -20,7 +19,7 @@ interface Player {
   playerNumber: number;
   name?: string; // Optional to match API
   gender?: string;
-  level?: Level;
+  level?: number;
   status: string;
   currentWaitTime: number;
   totalWaitTime: number;

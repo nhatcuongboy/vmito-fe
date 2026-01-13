@@ -31,7 +31,17 @@
     "about": "Giới thiệu",
     "navigation": "Điều hướng",
     "logout": "Đăng xuất",
-    "userInfo": "Thông tin người dùng"
+    "userInfo": "Thông tin người dùng",
+    "levels": {
+      "1": "Mới chơi",
+      "2": "TBY",
+      "3": "TB-",
+      "4": "TB",
+      "5": "TB+",
+      "6": "Khá",
+      "7": "Bán chuyên",
+      "8": "Chuyên nghiệp"
+    }
   },
   "session": {
     "title": "Kèo cầu lông",
@@ -41,6 +51,7 @@
     "sessionCode": "Mã kèo",
     "maxPlayersPerCourt": "Số người chơi tối đa mỗi sân",
     "requirePlayerInfo": "Yêu cầu thông tin người chơi",
+    "requiredLevels": "Trình độ yêu cầu",
     "courtInformation": "Thông tin sân",
     "numberOfCourts": "Số lượng sân",
     "addCourt": "Thêm sân",
@@ -1109,13 +1120,13 @@
     "matchs": {
       "tabTitle": "Trận đấu"
     },
-    "title": "Session Details",
+    "title": "Chi tiết kèo",
     "overview": "Tổng quan",
     "quickActions": "Thao tác nhanh",
-    "copyCode": "Copy Code",
-    "copyJoinLink": "Copy Join Link",
-    "noLocation": "No location",
-    "notScheduled": "Not scheduled"
+    "copyCode": "Sao chép mã",
+    "copyJoinLink": "Sao chép link tham gia",
+    "noLocation": "Chưa có địa điểm",
+    "notScheduled": "Chưa có lịch"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",

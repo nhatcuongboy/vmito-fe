@@ -16,9 +16,9 @@ import {
   IconButton,
   VStack,
 } from '@/components/ui/chakra-compat';
-import { Level } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
 import { UserOption } from '@/lib/api/user.service';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Plus,
   Save,
@@ -27,23 +27,14 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
-
-interface NewPlayer {
-  playerNumber: number;
-  name: string;
-  gender: string;
-  level: Level;
-  levelDescription?: string;
-  requireConfirmInfo?: boolean;
-  userId?: string;
-}
+import { NewPlayer } from './types';
 
 interface NewPlayerListProps {
   newPlayers: NewPlayer[];
   availableUsers: UserOption[];
   isLoadingUsers: boolean;
   errors: { [index: number]: string };
-  availableLevels: Level[];
+  availableLevels: number[];
   isSaving: boolean;
   onUpdatePlayer: (index: number, field: string, value: string | boolean) => void;
   onRemovePlayer: (index: number) => void;
@@ -71,6 +62,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
+  const getLevelLabel = useLevelLabel();
 
   if (newPlayers.length === 0) return null;
 

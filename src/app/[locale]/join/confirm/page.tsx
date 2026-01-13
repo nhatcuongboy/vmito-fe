@@ -5,7 +5,9 @@ import TopBar from '@/components/ui/TopBar';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { useRouter } from '@/i18n/config';
 import { PlayerService } from '@/lib/api/player.service';
-import { Level, type Player } from '@/lib/api/types';
+import { type Player } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Box,
   Container,
@@ -28,6 +30,7 @@ function ConfirmPageContent() {
   const playerId = searchParams.get('playerId');
   const t = useTranslations('pages.join');
   const tCommon = useTranslations('common');
+  const getLevelLabel = useLevelLabel();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +38,7 @@ function ConfirmPageContent() {
   const [formData, setFormData] = useState({
     name: '',
     gender: '' as '' | 'MALE' | 'FEMALE',
-    level: '' as '' | Level,
+    level: '' as '' | number,
     levelDescription: '',
     phone: '',
     desire: '',
@@ -57,7 +60,7 @@ function ConfirmPageContent() {
         // Pre-populate form with existing data
         setFormData({
           name: playerData.name || '',
-          gender: playerData.gender || '',
+          gender: (playerData.gender as 'MALE' | 'FEMALE' | '') || '', // Cast to expected type
           level: playerData.level || '',
           levelDescription: playerData.levelDescription || '',
           phone: playerData.phone || '',
@@ -105,7 +108,7 @@ function ConfirmPageContent() {
       const playerData: Partial<Player> = {
         name: formData.name,
         gender: formData.gender as 'MALE' | 'FEMALE',
-        level: formData.level as Level,
+        level: Number(formData.level),
         levelDescription: formData.levelDescription || undefined,
         desire: formData.desire || undefined,
         phone: formData.phone || undefined,
@@ -258,30 +261,11 @@ function ConfirmPageContent() {
                         <option value="">
                           {t('confirm.form.selectLevel')}
                         </option>
-                        <option value={Level.Y_MINUS}>
-                          {t('confirm.form.levels.beginner')}
-                        </option>
-                        <option value={Level.Y}>
-                          {t('confirm.form.levels.weak')}
-                        </option>
-                        <option value={Level.Y_PLUS}>
-                          {t('confirm.form.levels.weakPlus')}
-                        </option>
-                        <option value={Level.TBY}>
-                          {t('confirm.form.levels.mediumWeak')}
-                        </option>
-                        <option value={Level.TB_MINUS}>
-                          {t('confirm.form.levels.mediumMinus')}
-                        </option>
-                        <option value={Level.TB}>
-                          {t('confirm.form.levels.medium')}
-                        </option>
-                        <option value={Level.TB_PLUS}>
-                          {t('confirm.form.levels.mediumPlus')}
-                        </option>
-                        <option value={Level.K}>
-                          {t('confirm.form.levels.advanced')}
-                        </option>
+                        {VALID_LEVELS.map((level) => (
+                          <option key={level} value={level}>
+                            {getLevelLabel(level)}
+                          </option>
+                        ))}
                       </select>
                     </Box>
                   </Flex>

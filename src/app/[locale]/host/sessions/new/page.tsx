@@ -2,12 +2,13 @@
 
 import TopBar from '@/components/ui/TopBar';
 import { SessionService } from '@/lib/api/session.service';
-import { CourtDirection, Level } from '@/lib/api/types';
+import { CourtDirection } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
   Box,
-  // Button,
   Container,
   Flex,
   Heading,
@@ -42,6 +43,7 @@ function NewSessionPageContent() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('session');
+  const getLevelLabel = useLevelLabel();
 
   const [isLoading, setIsLoading] = useState(false);
   const [courts, setCourts] = useState([
@@ -51,7 +53,7 @@ function NewSessionPageContent() {
       direction: CourtDirection.HORIZONTAL,
     },
   ]);
-  const [requiredLevels, setRequiredLevels] = useState<Level[]>([]);
+  const [requiredLevels, setRequiredLevels] = useState<number[]>([]);
   const [courtColor, setCourtColor] = useState(COURT_COLORS[0].value);
 
   const now = new Date();
@@ -189,7 +191,7 @@ function NewSessionPageContent() {
     setCourts(newCourts);
   };
 
-  const handleLevelToggle = (level: Level) => {
+  const handleLevelToggle = (level: number) => {
     setRequiredLevels((prev) => {
       const isSelected = prev.includes(level);
       return isSelected ? prev.filter((l) => l !== level) : [...prev, level];
@@ -280,7 +282,7 @@ function NewSessionPageContent() {
                   </Text>
 
                   <Wrap gap={2}>
-                    {Object.values(Level).map((level) => {
+                    {VALID_LEVELS.map((level) => {
                       const isSelected = requiredLevels.includes(level);
                       return (
                         <WrapItem key={level}>
@@ -300,7 +302,7 @@ function NewSessionPageContent() {
                             }}
                             transition="all 0.2s"
                           >
-                            {level.replace('_', ' ')}
+                            {getLevelLabel(level)}
                           </Badge>
                         </WrapItem>
                       );

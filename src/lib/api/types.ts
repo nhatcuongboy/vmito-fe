@@ -13,18 +13,6 @@ export enum UserRole {
   PLAYER = 'PLAYER',
 }
 
-// Level enum
-export enum Level {
-  Y_MINUS = 'Y_MINUS',
-  Y = 'Y',
-  Y_PLUS = 'Y_PLUS',
-  TBY = 'TBY',
-  TB_MINUS = 'TB_MINUS',
-  TB = 'TB',
-  TB_PLUS = 'TB_PLUS',
-  K = 'K',
-}
-
 // Court Direction enum
 export enum CourtDirection {
   HORIZONTAL = 'HORIZONTAL',
@@ -45,7 +33,7 @@ export interface ISession {
   sessionDuration: number;
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
-  requiredLevels?: Level[]; // Optional: empty array or undefined = all levels allowed
+  requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
   courtColor?: string;
   status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
   startTime?: Date;
@@ -68,7 +56,7 @@ export interface Player {
   playerNumber: number;
   name?: string;
   gender?: 'MALE' | 'FEMALE';
-  level?: Level;
+  level?: number;
   levelDescription?: string;
   currentWaitTime: number;
   totalWaitTime: number;
@@ -155,7 +143,7 @@ export interface BulkPlayerData {
   playerNumber: number;
   name?: string;
   gender?: 'MALE' | 'FEMALE';
-  level?: Level;
+  level?: number;
   levelDescription?: string;
   phone?: string;
   requireConfirmInfo?: boolean;
@@ -192,7 +180,7 @@ export interface CreateSessionRequest {
   sessionDuration: number;
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
-  requiredLevels?: Level[]; // Optional: empty array or undefined = all levels allowed
+  requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
   startTime?: Date;
   endTime?: Date;
   courtColor?: string;
@@ -432,7 +420,7 @@ export interface TournamentPlayer {
   email?: string;
   phone?: string;
   gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
-  level?: Level;
+  level?: number;
   levelDescription?: string;
   notes?: string;
   createdAt: Date;

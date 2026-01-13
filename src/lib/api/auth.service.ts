@@ -1,4 +1,4 @@
-import { ApiResponse, Level } from '@/lib/api/types';
+import { ApiResponse } from '@/lib/api/types';
 import { api } from './base';
 import { JoinByCodeResponse } from './types';
 import {
@@ -108,7 +108,7 @@ export const AuthService = {
     playerInfo?: {
       name?: string;
       gender?: string;
-      level?: Level;
+      level?: number;
       phone?: string;
     }
   ): Promise<ApiResponse<JoinByCodeResponse>> => {

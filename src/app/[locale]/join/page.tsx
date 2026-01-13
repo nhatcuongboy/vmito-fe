@@ -22,7 +22,8 @@ import { Activity, ArrowRight, Hash, LogIn, Shield, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { ISession, Level } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 const formatRangeTime = (
   startTime?: string | Date,
@@ -36,6 +37,8 @@ const formatRangeTime = (
 export default function JoinPage() {
   const t = useTranslations('pages.join');
   const common = useTranslations('common');
+  const tSession = useTranslations('session');
+  const getLevelLabel = useLevelLabel();
   const router = useRouter();
 
   const [sessionId, setSessionId] = useState('');
@@ -282,7 +285,7 @@ export default function JoinPage() {
                                 fontWeight="semibold"
                                 color="orange.700"
                               >
-                                Required Levels:
+                                {tSession('requiredLevels')}:
                               </Text>
                             </Flex>
                             <Wrap gap={1}>
@@ -292,7 +295,7 @@ export default function JoinPage() {
                                   colorScheme="orange"
                                   fontSize="xs"
                                 >
-                                  {level.replace('_', ' ')}
+                                  {getLevelLabel(level)}
                                 </Badge>
                               ))}
                             </Wrap>
@@ -385,75 +388,75 @@ export default function JoinPage() {
                               <Box
                                 p={3}
                                 bg={
-                                  selectedPlayer.level &&
-                                  selectedSession.requiredLevels.includes(
-                                    selectedPlayer.level as Level
-                                  )
-                                    ? 'green.50'
-                                    : !selectedPlayer.level
-                                      ? 'yellow.50'
-                                      : 'red.50'
-                                }
-                                borderRadius="md"
-                                mb={3}
-                                borderLeft="4px solid"
-                                borderColor={
-                                  selectedPlayer.level &&
-                                  selectedSession.requiredLevels.includes(
-                                    selectedPlayer.level as Level
-                                  )
-                                    ? 'green.400'
-                                    : !selectedPlayer.level
-                                      ? 'yellow.400'
-                                      : 'red.400'
-                                }
-                              >
-                                {selectedPlayer.level ? (
-                                  selectedSession.requiredLevels.includes(
-                                    selectedPlayer.level as Level
-                                  ) ? (
-                                    <Flex align="center">
-                                      <Text
-                                        fontSize="sm"
-                                        color="green.700"
-                                        fontWeight="medium"
-                                      >
-                                        ✓ Your level (
-                                        {selectedPlayer.level.replace('_', ' ')}
-                                        ) is allowed in this session.
-                                      </Text>
-                                    </Flex>
+                                    selectedPlayer.level &&
+                                    selectedSession.requiredLevels.includes(
+                                      selectedPlayer.level
+                                    )
+                                      ? 'green.50'
+                                      : !selectedPlayer.level
+                                        ? 'yellow.50'
+                                        : 'red.50'
+                                  }
+                                  borderRadius="md"
+                                  mb={3}
+                                  borderLeft="4px solid"
+                                  borderColor={
+                                    selectedPlayer.level &&
+                                    selectedSession.requiredLevels.includes(
+                                      selectedPlayer.level
+                                    )
+                                      ? 'green.400'
+                                      : !selectedPlayer.level
+                                        ? 'yellow.400'
+                                        : 'red.400'
+                                  }
+                                >
+                                  {selectedPlayer.level ? (
+                                    selectedSession.requiredLevels.includes(
+                                      selectedPlayer.level
+                                    ) ? (
+                                      <Flex align="center">
+                                        <Text
+                                          fontSize="sm"
+                                          color="green.700"
+                                          fontWeight="medium"
+                                        >
+                                          ✓ Your level (
+                                          {getLevelLabel(selectedPlayer.level)}
+                                          ) is allowed in this session.
+                                        </Text>
+                                      </Flex>
+                                    ) : (
+                                      <Flex align="center">
+                                        <Text
+                                          fontSize="sm"
+                                          color="red.700"
+                                          fontWeight="medium"
+                                        >
+                                          ⚠️ Your level (
+                                          {getLevelLabel(selectedPlayer.level)}
+                                          ) is not allowed. Required levels:{' '}
+                                          {selectedSession.requiredLevels
+                                            .map((l) => getLevelLabel(l))
+                                            .join(', ')}
+                                        </Text>
+                                      </Flex>
+                                    )
                                   ) : (
                                     <Flex align="center">
                                       <Text
                                         fontSize="sm"
-                                        color="red.700"
+                                        color="yellow.700"
                                         fontWeight="medium"
                                       >
-                                        ⚠️ Your level (
-                                        {selectedPlayer.level.replace('_', ' ')}
-                                        ) is not allowed. Required levels:{' '}
+                                        ⚠️ This session requires a level. Please
+                                        update your profile with one of:{' '}
                                         {selectedSession.requiredLevels
-                                          .map((l) => l.replace('_', ' '))
+                                          .map((l) => getLevelLabel(l))
                                           .join(', ')}
                                       </Text>
                                     </Flex>
-                                  )
-                                ) : (
-                                  <Flex align="center">
-                                    <Text
-                                      fontSize="sm"
-                                      color="yellow.700"
-                                      fontWeight="medium"
-                                    >
-                                      ⚠️ This session requires a level. Please
-                                      update your profile with one of:{' '}
-                                      {selectedSession.requiredLevels
-                                        .map((l) => l.replace('_', ' '))
-                                        .join(', ')}
-                                    </Text>
-                                  </Flex>
-                                )}
+                                  )}
                               </Box>
                             )}
                           <Box
@@ -494,7 +497,7 @@ export default function JoinPage() {
                                 <Text>
                                   {t('level')}:{' '}
                                   <strong>
-                                    {selectedPlayer.level.replace('_', ' ')}
+                                    {getLevelLabel(selectedPlayer.level)}
                                   </strong>
                                 </Text>
                               )}

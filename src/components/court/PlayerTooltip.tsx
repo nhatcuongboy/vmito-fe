@@ -1,7 +1,7 @@
 'use client';
 
 import { Player } from '@/types/session';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Box, Text, Portal } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 
@@ -55,6 +55,7 @@ export default function PlayerTooltip({
   mode = 'manage',
   playerRef,
 }: PlayerTooltipProps) {
+  const getLevelLabel = useLevelLabel();
   const [tooltipPosition, setTooltipPosition] = useState(position);
 
   // Update tooltip position for better placement
@@ -146,7 +147,7 @@ export default function PlayerTooltip({
                   Level:
                 </Text>
                 <Text fontSize="xs" color="white">
-                  {getLevelLabel(player.level, 'Unknown')}
+                  {getLevelLabel(player.level) || 'Unknown'}
                 </Text>
               </Box>
               {/* Level Description */}

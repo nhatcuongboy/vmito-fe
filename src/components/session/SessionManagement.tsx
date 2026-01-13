@@ -3,19 +3,18 @@ import { MatchService } from '@/lib/api/match.service';
 import { RealTimeService } from '@/lib/api/real-time.service';
 import { ISession } from '@/lib/api/types';
 import { WaitTimeService } from '@/lib/api/wait-time.service';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
   Box,
   Flex,
   Grid,
   Heading,
-  Input,
   Spinner,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Clock, RefreshCw, RotateCcw, Square, Target } from 'lucide-react';
+import { RefreshCw, RotateCcw, Square, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 
@@ -30,6 +29,7 @@ export default function SessionManagement({
   session,
   onSessionUpdate,
 }: SessionManagementProps) {
+  const getLevelLabel = useLevelLabel();
   const [realTimeData, setRealTimeData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -38,7 +38,6 @@ export default function SessionManagement({
   const [autoAssignStrategy, setAutoAssignStrategy] = useState<
     'fairness' | 'speed' | 'level_balance'
   >('fairness');
-  const [waitTimeIncrement, setWaitTimeIncrement] = useState(1);
 
   // Fetch real-time data
   const fetchRealTimeData = async () => {
@@ -79,23 +78,6 @@ export default function SessionManagement({
       await fetchRealTimeData();
     } catch (error) {
       console.error('Error auto-assigning players:', error);
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // Update wait times
-  const handleUpdateWaitTimes = async () => {
-    try {
-      setActionLoading('wait-times');
-      const result = await WaitTimeService.updateSessionWaitTimes(
-        sessionId,
-        waitTimeIncrement
-      );
-      // toaster.success({ title: `Updated wait times for ${result.updatedCount} players` });
-      await fetchRealTimeData();
-    } catch (error) {
-      console.error('Error updating wait times:', error);
     } finally {
       setActionLoading(null);
     }
@@ -279,43 +261,25 @@ export default function SessionManagement({
             </Button>
           </Box>
 
-          {/* Wait time management */}
+          {/* Reset wait times */}
           <Box>
             <Text fontSize="sm" fontWeight="medium" mb={2}>
-              Wait Time Increment (minutes)
+              Wait Time Management
             </Text>
-            <Input
-              type="number"
-              value={waitTimeIncrement}
-              onChange={(e) => setWaitTimeIncrement(Number(e.target.value))}
-              min={1}
-              max={10}
+            <Text fontSize="xs" color="gray.500" mb={2}>
+              Wait times are now calculated automatically
+            </Text>
+            <Button
+              onClick={handleResetWaitTimes}
+              loading={actionLoading === 'reset-wait-times'}
+              disabled={stats.waitingPlayers === 0}
+              variant="outline"
               size="sm"
-              mb={2}
-            />
-            <Flex gap={2}>
-              <Button
-                onClick={handleUpdateWaitTimes}
-                loading={actionLoading === 'wait-times'}
-                disabled={stats.waitingPlayers === 0}
-                colorScheme="orange"
-                size="sm"
-                flex={1}
-              >
-                <Clock size={16} style={{ marginRight: '8px' }} />
-                Update Wait Times
-              </Button>
-              <Button
-                onClick={handleResetWaitTimes}
-                loading={actionLoading === 'reset-wait-times'}
-                disabled={stats.waitingPlayers === 0}
-                variant="outline"
-                size="sm"
-              >
-                <RotateCcw size={16} style={{ marginRight: '8px' }} />
-                Reset
-              </Button>
-            </Flex>
+              width="full"
+            >
+              <RotateCcw size={16} style={{ marginRight: '8px' }} />
+              Reset Wait Times
+            </Button>
           </Box>
         </Grid>
       </Box>

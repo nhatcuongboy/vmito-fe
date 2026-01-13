@@ -1,6 +1,6 @@
 import { toaster } from '@/components/ui/toaster';
 import { PlayerService } from '@/lib/api/player.service';
-import { Level } from '@/lib/api/types';
+import { LEVELS } from '@/constants/levels';
 import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
@@ -51,21 +51,21 @@ export const usePlayerManagement = (
   /**
    * Get default level for new players based on session requiredLevels
    */
-  const getDefaultLevel = (): Level => {
+  const getDefaultLevel = (): number => {
     if (session.requiredLevels && session.requiredLevels.length > 0) {
-      return session.requiredLevels[0] as Level;
+      return session.requiredLevels[0] as number;
     }
-    return Level.TB_MINUS;
+    return LEVELS.INTERMEDIATE;
   };
 
   /**
    * Get available levels for player selection based on session requiredLevels
    */
-  const getAvailableLevels = (): Level[] => {
+  const getAvailableLevels = (): number[] => {
     if (session.requiredLevels && session.requiredLevels.length > 0) {
-      return session.requiredLevels as Level[];
+      return session.requiredLevels as number[];
     }
-    return Object.values(Level);
+    return Object.values(LEVELS).filter((val) => typeof val === 'number') as number[];
   };
 
   // Player management functions
@@ -112,7 +112,7 @@ export const usePlayerManagement = (
   const updateNewPlayer = (
     index: number,
     field: string,
-    value: string | boolean
+    value: string | boolean | number
   ) => {
     setNewPlayers((prev) =>
       prev.map((player, i) =>
@@ -181,7 +181,7 @@ export const usePlayerManagement = (
         updateNewPlayer(index, 'gender', selectedUser.gender);
       }
       if (selectedUser.level) {
-        updateNewPlayer(index, 'level', selectedUser.level as Level);
+        updateNewPlayer(index, 'level', selectedUser.level);
       }
       if (selectedUser.levelDescription) {
         updateNewPlayer(
@@ -215,7 +215,7 @@ export const usePlayerManagement = (
   const updateEditingPlayer = (
     playerId: string,
     field: string,
-    value: string | boolean
+    value: string | boolean | number
   ) => {
     setEditingPlayers((prev) => ({
       ...prev,

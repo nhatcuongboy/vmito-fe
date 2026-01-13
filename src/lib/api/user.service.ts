@@ -5,7 +5,7 @@ export interface UserOption {
   name: string;
   email: string;
   gender?: string;
-  level?: string;
+  level?: number;
   levelDescription?: string;
 }
 

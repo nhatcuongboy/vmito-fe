@@ -1,4 +1,5 @@
 import { BulkPlayerData } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
 
 // Function to create players from CSV data
 export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
@@ -24,7 +25,10 @@ export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
           player.gender = value.toUpperCase() as 'MALE' | 'FEMALE';
           break;
         case 'level':
-          player.level = value.toUpperCase() as any;
+          const parsedLevel = parseInt(value);
+          if (!isNaN(parsedLevel)) {
+             player.level = parsedLevel;
+          }
           break;
         case 'leveldescription':
         case 'level description':
@@ -87,17 +91,8 @@ export function validateBulkPlayerData(
 
     // Validate level if provided
     if (
-      player.level &&
-      ![
-        'Y_MINUS',
-        'Y',
-        'Y_PLUS',
-        'TBY',
-        'TB_MINUS',
-        'TB',
-        'TB_PLUS',
-        'K',
-      ].includes(player.level)
+      player.level !== undefined &&
+      !VALID_LEVELS.includes(player.level)
     ) {
       errors.push(`Player ${index + 1}: invalid level "${player.level}"`);
     }
@@ -111,7 +106,7 @@ export function validateBulkPlayerData(
 
 // Example CSV format
 export const EXAMPLE_CSV = `playerNumber,name,gender,level,levelDescription,requireConfirmInfo,phone
-1,John Smith,MALE,TB,"TB level player, good smash",true,0123456789
-2,Jane Doe,FEMALE,TB_PLUS,"Tournament B player, 5 years experience",false,0987654321
-3,Bob Wilson,MALE,Y,"Beginner, self-taught",true,0111222333
-4,Alice Brown,FEMALE,TBY,"Talented, plays fast",false,0444555666`;
+1,John Smith,MALE,3,"Intermediate player",true,0123456789
+2,Jane Doe,FEMALE,5,"Advanced player",false,0987654321
+3,Bob Wilson,MALE,1,"Beginner",true,0111222333
+4,Alice Brown,FEMALE,4,"High Intermediate",false,0444555666`;

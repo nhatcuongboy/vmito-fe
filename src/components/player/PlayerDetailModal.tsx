@@ -10,8 +10,7 @@ import {
   Button,
   Image,
 } from '@chakra-ui/react';
-import { Level } from '@/lib/api/types';
-import { getLevelLabel } from '@/utils/level-mapping';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { Mars, Venus, Users, User, X, Copy, QrCode } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -22,7 +21,7 @@ interface Player {
   playerNumber: number;
   name?: string;
   gender?: string;
-  level?: Level;
+  level?: number;
   status: string;
   currentWaitTime: number;
   totalWaitTime: number;
@@ -47,6 +46,7 @@ export const PlayerDetailModal = ({
   sessionId,
   formatWaitTime,
 }: IPlayerDetailModalProps) => {
+  const getLevelLabel = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [joinCode, setJoinCode] = useState<string>('');
 

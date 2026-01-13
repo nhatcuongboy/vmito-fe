@@ -3,7 +3,8 @@
 import { Card, CardBody } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { SessionService } from '@/lib/api/session.service';
-import { Level } from '@/lib/api/types';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
   Box,
@@ -41,10 +42,11 @@ interface GeneralSettingsProps {
 const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const t = useTranslations('session.generalSettings');
   const tValidation = useTranslations('session.validation');
+  const getLevelLabel = useLevelLabel();
   
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [pendingRequiredLevels, setPendingRequiredLevels] = useState<Level[]>(
+  const [pendingRequiredLevels, setPendingRequiredLevels] = useState<number[]>(
     []
   );
   const [formData, setFormData] = useState({
@@ -66,7 +68,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | Level[]
+    value: string | number | boolean | number[]
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -74,15 +76,15 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
     }));
   };
 
-  const handleLevelToggle = (level: Level) => {
+  const handleLevelToggle = (level: number) => {
     setFormData((prev) => {
-      const currentLevels: Level[] = (prev.requiredLevels || []) as Level[];
+      const currentLevels: number[] = (prev.requiredLevels || []) as number[];
       const isSelected = currentLevels.includes(level);
 
       return {
         ...prev,
         requiredLevels: isSelected
-          ? currentLevels.filter((l: Level) => l !== level)
+          ? currentLevels.filter((l: number) => l !== level)
           : [...currentLevels, level],
       };
     });
@@ -121,10 +123,9 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const handleUpdateSession = async (skipConfirmation = false) => {
     // Validate requiredLevels - ensure all values are valid Level enum values
     if (formData.requiredLevels && formData.requiredLevels.length > 0) {
-      const validLevels = Object.values(Level);
-      const requiredLevelsArray = formData.requiredLevels as Level[];
+      const requiredLevelsArray = formData.requiredLevels as number[];
       const invalidLevels = requiredLevelsArray.filter(
-        (level: Level) => !validLevels.includes(level)
+        (level: number) => !VALID_LEVELS.includes(level)
       );
 
       if (invalidLevels.length > 0) {
@@ -447,7 +448,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   </Text>
 
                   <Wrap gap={2}>
-                    {Object.values(Level).map((level) => {
+                    {VALID_LEVELS.map((level) => {
                       const isSelected =
                         formData.requiredLevels?.includes(level);
                       return (
@@ -468,7 +469,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                             }}
                             transition="all 0.2s"
                           >
-                            {level.replace('_', ' ')}
+                            {getLevelLabel(level)}
                           </Badge>
                         </WrapItem>
                       );
@@ -483,7 +484,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   {formData.requiredLevels &&
                     formData.requiredLevels.length > 0 &&
                     formData.requiredLevels.length ===
-                      Object.values(Level).length && (
+                    VALID_LEVELS.length && (
                       <Text fontSize="xs" color="orange.600" mt={2}>
                         {t('allLevelsSelected')}
                       </Text>

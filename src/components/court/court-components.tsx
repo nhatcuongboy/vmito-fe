@@ -12,6 +12,7 @@ import {
 import { Court, Player } from '@/lib/api/types';
 import { Button } from '@chakra-ui/react';
 import { Clock, Play, Square, User } from 'lucide-react';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 export function CourtCard({
   court,
@@ -175,6 +176,7 @@ export function SelectPlayersModal({
   onSelect: (courtId: string, playerIds: string[]) => void;
   onCancel: () => void;
 }) {
+  const getLevelLabel = useLevelLabel();
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
   const togglePlayer = (playerId: string) => {
@@ -226,8 +228,8 @@ export function SelectPlayersModal({
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {player.level?.replace('_', '')} • Wait:{' '}
-                      {player.currentWaitTime}m
+                      {player.level ? getLevelLabel(player.level) : 'N/A'} •
+                      Wait: {player.currentWaitTime}m
                     </div>
                   </div>
                 </div>
