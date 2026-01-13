@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.*
+*.md
+.DS_Store
+.eslintrc*
+.prettierrc*
+docs
+scripts
+.agent
+.vercel
+.github
+test-*.sh
+tsconfig.tsbuildinfo
