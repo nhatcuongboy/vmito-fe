@@ -29,7 +29,7 @@ export default function BulkPlayersForm({
   sessionId,
   onSuccess,
 }: BulkPlayersFormProps) {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   const [players, setPlayers] = useState<BulkPlayerData[]>([]);
   const [csvData, setCsvData] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);

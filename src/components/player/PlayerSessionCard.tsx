@@ -106,7 +106,7 @@ const getStatusLabel = (status: string, t: any) => {
 export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
   const t = useTranslations('session');
   const locale = useLocale();
-  const getLevelLabel = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
 
   // Calculate max players and format date/time
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -175,7 +175,7 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
                 <Wrap gap={1}>
                   {session.requiredLevels.map((level) => (
                     <Badge key={level} colorScheme="blue" fontSize="xs">
-                      {getLevelLabel(level)}
+                      {getLevelShortLabel(level)}
                     </Badge>
                   ))}
                 </Wrap>

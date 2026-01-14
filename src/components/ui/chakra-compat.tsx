@@ -24,6 +24,9 @@ export const Card = ({ children, ...props }: React.PropsWithChildren<any>) => (
     borderColor="gray.200"
     borderRadius="md"
     overflow="hidden"
+    bg="white"
+    _dark={{ bg: 'gray.800' }}
+    boxShadow="sm"
     {...props}
   >
     {children}

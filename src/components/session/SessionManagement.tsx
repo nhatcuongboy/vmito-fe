@@ -29,7 +29,7 @@ export default function SessionManagement({
   session,
   onSessionUpdate,
 }: SessionManagementProps) {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const [realTimeData, setRealTimeData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -319,7 +319,7 @@ export default function SessionManagement({
                           #{player.playerNumber} {player.name}
                         </Text>
                         <Text fontSize="sm" color="gray.500">
-                          {player.gender} • {getLevelLabel(player.level)}
+                          {player.gender} • {getLevelShortLabel(player.level)}
                         </Text>
                       </Box>
                       <Box textAlign="right">

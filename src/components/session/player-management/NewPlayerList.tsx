@@ -62,7 +62,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
 
   if (newPlayers.length === 0) return null;
 

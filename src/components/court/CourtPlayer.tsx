@@ -67,7 +67,7 @@ export default function CourtPlayer({
   onPlayerClick,
   onRemovePlayer,
 }: CourtPlayerProps) {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const playerRef = useRef<HTMLDivElement>(null!);
 
   // Skip if player is invalid
@@ -252,7 +252,7 @@ export default function CourtPlayer({
               border="2px solid white"
               zIndex={4}
             >
-              {getLevelLabel(player.level) || '?'}
+              {getLevelShortLabel(player.level) || '?'}
             </Box>
           </>
         )}

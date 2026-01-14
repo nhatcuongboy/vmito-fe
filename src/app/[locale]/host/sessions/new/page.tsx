@@ -43,7 +43,7 @@ function NewSessionPageContent() {
   const params = useParams();
   const locale = params.locale as string;
   const t = useTranslations('session');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
 
   const [isLoading, setIsLoading] = useState(false);
   const [courts, setCourts] = useState([

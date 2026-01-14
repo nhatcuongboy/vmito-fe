@@ -54,6 +54,11 @@ interface Player {
   totalWaitTime: number;
   matchesPlayed: number;
   currentCourtId?: string;
+  currentCourt?: {
+    id: string;
+    courtNumber: number;
+    courtName?: string | null;
+  };
   preFilledByHost: boolean;
   confirmedByPlayer: boolean;
 }
@@ -81,7 +86,7 @@ export const PlayerGrid = ({
   sessionId,
   onPlayerUpdate,
 }: PlayerGridProps) => {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     playerId: string;
@@ -188,21 +193,13 @@ export const PlayerGrid = ({
               transition="all 0.2s"
               minH="140px"
               position="relative"
-              cursor={
-                selectionMode || mode === 'manage' ? 'pointer' : 'default'
-              }
+              cursor="pointer"
               onClick={
                 selectionMode
                   ? () => onPlayerToggle?.(player.id)
-                  : mode === 'manage'
-                    ? () => setSelectedPlayerForDetail(player)
-                    : undefined
+                  : () => setSelectedPlayerForDetail(player)
               }
-              _hover={
-                selectionMode || mode === 'manage'
-                  ? { transform: 'scale(1.02)', boxShadow: 'lg' }
-                  : undefined
-              }
+              _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
             >
               <CardBody p={3} position="relative">
                 {/* Priority indicator (top right) */}
@@ -291,7 +288,7 @@ export const PlayerGrid = ({
                         fontSize="xs"
                         borderRadius="sm"
                       >
-                        {getLevelLabel(player.level)}
+                        {getLevelShortLabel(player.level)}
                       </Badge>
                     )}
                     <Badge

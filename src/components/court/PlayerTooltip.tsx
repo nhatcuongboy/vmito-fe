@@ -55,7 +55,7 @@ export default function PlayerTooltip({
   mode = 'manage',
   playerRef,
 }: PlayerTooltipProps) {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   const [tooltipPosition, setTooltipPosition] = useState(position);
 
   // Update tooltip position for better placement

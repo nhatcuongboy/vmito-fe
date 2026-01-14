@@ -24,7 +24,7 @@ export function AddPlayerForm({
   onSuccess?: () => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -144,7 +144,7 @@ export function PlayerCard({
   onEdit?: (player: Player) => void;
   onDelete?: (player: Player) => void;
 }) {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   return (
     <Card>
       <CardHeader className="pb-2">

@@ -266,12 +266,6 @@ export const usePlayerManagement = (
       if (onDataRefresh) {
         onDataRefresh();
       }
-
-      toaster.create({
-        title: t('playerChangesSavedSuccess'),
-        type: 'success',
-        duration: 3000,
-      });
     } catch (error) {
       console.error('Error saving player changes:', error);
       toaster.create({

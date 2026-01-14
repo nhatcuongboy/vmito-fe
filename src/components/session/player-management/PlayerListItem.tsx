@@ -83,7 +83,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
   onShowQR,
 }) => {
   const t = useTranslations('pages.playerManagement');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
 
   if (isEditing) {
     return (
@@ -352,6 +352,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
+                    maxWidth: '200px',
                   }}
                 >
                   {player.name || `Player ${player.playerNumber}`}
@@ -392,7 +393,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   fontSize="xs"
                   fontWeight="bold"
                 >
-                  {getLevelLabel(player.level)}
+                  {getLevelShortLabel(player.level)}
                 </Badge>
 
                 {/* Status badge */}
@@ -479,7 +480,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
               py={1}
               fontSize="xs"
             >
-              {getLevelLabel(player.level)}
+              {getLevelShortLabel(player.level)}
             </Badge>
 
             <Badge

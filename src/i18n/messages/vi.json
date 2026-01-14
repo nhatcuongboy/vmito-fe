@@ -34,13 +34,23 @@
     "userInfo": "Thông tin người dùng",
     "levels": {
       "1": "Mới chơi",
+      "2": "Trung bình yếu",
+      "3": "Trung bình-",
+      "4": "Trung bình",
+      "5": "Trung bình+",
+      "6": "Khá",
+      "7": "Bán chuyên",
+      "8": "Chuyên nghiệp"
+    },
+    "levelShorts": {
+      "1": "MC",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
       "5": "TB+",
-      "6": "Khá",
-      "7": "Bán chuyên",
-      "8": "Chuyên nghiệp"
+      "6": "K",
+      "7": "BC",
+      "8": "CN"
     }
   },
   "session": {

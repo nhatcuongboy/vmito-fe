@@ -21,7 +21,7 @@ import { useTranslations } from 'next-intl';
 
 function RegisterContent() {
   const t = useTranslations('pages.join.register');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   const [name, setName] = useState('');
   const [gender, setGender] = useState('MALE');
   const [level, setLevel] = useState<number>(VALID_LEVELS[1]); // Default to 2 (Y)

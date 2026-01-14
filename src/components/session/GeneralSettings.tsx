@@ -42,7 +42,7 @@ interface GeneralSettingsProps {
 const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const t = useTranslations('session.generalSettings');
   const tValidation = useTranslations('session.validation');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);

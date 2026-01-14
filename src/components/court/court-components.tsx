@@ -176,7 +176,7 @@ export function SelectPlayersModal({
   onSelect: (courtId: string, playerIds: string[]) => void;
   onCancel: () => void;
 }) {
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
   const togglePlayer = (playerId: string) => {

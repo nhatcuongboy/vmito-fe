@@ -41,6 +41,16 @@
       "6": "Advanced",
       "7": "Semi-Pro",
       "8": "Pro"
+    },
+    "levelShorts": {
+      "1": "BEG",
+      "2": "A-BEG",
+      "3": "L-INT",
+      "4": "INT",
+      "5": "H-INT",
+      "6": "ADV",
+      "7": "S-PRO",
+      "8": "PRO"
     }
   },
   "session": {

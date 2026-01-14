@@ -80,7 +80,7 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   // Calculate max players based on courts and maxPlayersPerCourt
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -166,7 +166,7 @@ const SessionCard = ({
                 <Wrap gap={1}>
                   {session.requiredLevels.map((level) => (
                     <Badge key={level} colorScheme="blue" fontSize="xs">
-                      {getLevelLabel(level)}
+                      {getLevelShortLabel(level)}
                     </Badge>
                   ))}
                 </Wrap>

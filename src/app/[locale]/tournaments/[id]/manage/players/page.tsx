@@ -41,7 +41,7 @@ import { useTranslations } from 'next-intl';
 export default function TournamentPlayersPage() {
   const t = useTranslations('pages.tournaments.players');
   const tCommon = useTranslations('common');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
   const params = useParams();
   const router = useRouter();
   const { user } = useAuthStore();

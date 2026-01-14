@@ -17,7 +17,7 @@ interface SessionOverviewTabProps {
 
 export default function SessionOverviewTab({ session }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
 
   const handleCopyLink = () => {
     // Construct the join link (adjust based on your actual route structure)
@@ -100,7 +100,7 @@ export default function SessionOverviewTab({ session }: SessionOverviewTabProps)
                                         border="1px solid"
                                         borderColor="orange.100"
                                     >
-                                        {getLevelLabel(level)}
+                                        {getLevelShortLabel(level)}
                                     </Box>
                                 ))
                                 : <Text>{t('allLevels')}</Text>

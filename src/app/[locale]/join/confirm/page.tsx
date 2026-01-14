@@ -30,7 +30,7 @@ function ConfirmPageContent() {
   const playerId = searchParams.get('playerId');
   const t = useTranslations('pages.join');
   const tCommon = useTranslations('common');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel } = useLevelLabel();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);

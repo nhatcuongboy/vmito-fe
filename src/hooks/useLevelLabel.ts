@@ -2,17 +2,27 @@ import { useTranslations } from 'next-intl';
 
 export function useLevelLabel() {
   const t = useTranslations('common.levels');
+  const ts = useTranslations('common.levelShorts');
 
   /**
    * Get the translated label for a numeric level.
-   * @param level - The numeric level (1-7)
+   * @param level - The numeric level (1-8)
    * @returns The translated label string
    */
-  const getLevelLabel = (level?: number | null) => {
-    if (level === undefined || level === null) return '';
-    // Assuming keys "1", "2", etc. exist in common.levels
+  const getLevelLabel = (level?: number | string | null) => {
+    if (level === undefined || level === null || level === '') return '';
     return t(`${level}`);
   };
 
-  return getLevelLabel;
+  /**
+   * Get the abbreviated translated label for a numeric level.
+   * @param level - The numeric level (1-8)
+   * @returns The abbreviated translated label string
+   */
+  const getLevelShortLabel = (level?: number | string | null) => {
+    if (level === undefined || level === null || level === '') return '';
+    return ts(`${level}`);
+  };
+
+  return { getLevelLabel, getLevelShortLabel };
 }

@@ -38,7 +38,7 @@ export default function JoinPage() {
   const t = useTranslations('pages.join');
   const common = useTranslations('common');
   const tSession = useTranslations('session');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const router = useRouter();
 
   const [sessionId, setSessionId] = useState('');
@@ -295,7 +295,7 @@ export default function JoinPage() {
                                   colorScheme="orange"
                                   fontSize="xs"
                                 >
-                                  {getLevelLabel(level)}
+                                  {getLevelShortLabel(level)}
                                 </Badge>
                               ))}
                             </Wrap>

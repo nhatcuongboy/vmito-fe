@@ -17,7 +17,11 @@ import {
 } from '@chakra-ui/react';
 import { Archive, Filter, RotateCcw, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toaster } from '@/components/ui/toaster';
 import React, { useCallback, useEffect, useState } from 'react';
+import { PlayerDetailModal } from '../player/PlayerDetailModal';
+import { PlayerService } from '@/lib/api/player.service';
+import { Player } from '@/lib/api/types';
 
 interface SessionPlayerStatisticsProps {
   sessionId: string;
@@ -31,6 +35,10 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  
+  // Player Detail Modal state
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
 
   // Filter and sort states
   const [sortBy, setSortBy] = useState<string>('playerNumber');
@@ -58,6 +66,31 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
+
+  const handlePlayerClick = async (playerId: string) => {
+    try {
+      setIsDetailLoading(true);
+      const fullPlayerData = await PlayerService.getPlayer(playerId);
+      setSelectedPlayer(fullPlayerData);
+    } catch (err) {
+      console.error('Error fetching player details:', err);
+      toaster.create({
+        title: t('errorLoadingPlayerDetail') || 'Error loading player details',
+        type: 'error',
+      });
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
+  const formatWaitTime = (waitTimeInMinutes: number) => {
+    const hours = Math.floor(waitTimeInMinutes / 60);
+    const minutes = waitTimeInMinutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
 
   const sortOptions = [
     { value: 'playerNumber', label: t('columnNo') },
@@ -233,7 +266,15 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
                     transition="background 0.2s"
                   >
                     <Table.Cell py={2.5} ps={4} fontWeight="medium">{p.playerNumber}</Table.Cell>
-                    <Table.Cell py={2.5} fontWeight="medium" color="blue.600" _dark={{ color: 'blue.300' }}>
+                    <Table.Cell 
+                      py={2.5} 
+                      fontWeight="medium" 
+                      color="blue.600" 
+                      _dark={{ color: 'blue.300' }}
+                      cursor="pointer"
+                      _hover={{ textDecoration: 'underline' }}
+                      onClick={() => handlePlayerClick(p.playerId)}
+                    >
                         {p.name || t('unnamed')}
                     </Table.Cell>
                     <Table.Cell py={2.5} textAlign="center">{p.totalMatches}</Table.Cell>
@@ -269,6 +310,35 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
              </Text>
         </Box>
       </Box>
+
+      {/* Player Detail Modal */}
+      {selectedPlayer && (
+        <PlayerDetailModal
+          isOpen={!!selectedPlayer}
+          onClose={() => setSelectedPlayer(null)}
+          player={selectedPlayer as any}
+          sessionId={sessionId}
+          formatWaitTime={formatWaitTime}
+        />
+      )}
+
+      {/* Loading overlay for fetching detail */}
+      {isDetailLoading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="blackAlpha.300"
+          zIndex={9999}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Spinner size="xl" color="blue.500" />
+        </Box>
+      )}
     </VStack>
   );
 };

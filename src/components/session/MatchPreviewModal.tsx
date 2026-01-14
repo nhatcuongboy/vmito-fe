@@ -82,7 +82,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   courtColor,
 }) => {
   const t = useTranslations('SessionDetail');
-  const getLevelLabel = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
 
   // Calculate default topCount: 4 * numberOfCourts, but not more than waitingPlayersCount
   const defaultTopCount = useMemo(() => {
@@ -439,7 +439,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                               variant="solid"
                               fontSize="xs"
                             >
-                              {getLevelLabel(player.level)}
+                              {getLevelShortLabel(player.level)}
                             </Badge>
                           )}
                         </HStack>
@@ -541,7 +541,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                               variant="solid"
                               fontSize="xs"
                             >
-                              {getLevelLabel(player.level)}
+                              {getLevelShortLabel(player.level)}
                             </Badge>
                           )}
                         </HStack>

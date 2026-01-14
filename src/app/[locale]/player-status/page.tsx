@@ -25,7 +25,8 @@ interface PlayerStatus {
   currentWaitTime: number;
   totalWaitTime: number;
   matchesPlayed: number;
-  currentCourtId?: string;
+  currentCourtId?: string | number;
+  courtName?: string;
   session: {
     id: string;
     name: string;
@@ -266,7 +267,7 @@ function PlayerStatusContent() {
                 w="full"
               >
                 <Text color="green.700" fontWeight="bold" textAlign="center">
-                  🏸 You're on Court #{playerStatus.currentCourtId}
+                  🏸 {playerStatus.courtName || `You're on Court #${playerStatus.currentCourtId}`}
                 </Text>
               </Box>
             )}

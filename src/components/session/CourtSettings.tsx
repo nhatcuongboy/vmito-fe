@@ -1,8 +1,6 @@
 import {
   Box,
-  Flex,
   Heading,
-  HStack,
   Text,
   VStack,
   Wrap,
@@ -10,6 +8,10 @@ import {
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
+import {
+  Card,
+  CardBody
+} from '@/components/ui/chakra-compat';
 
 export const COURT_COLORS = [
   { name: 'Green', value: '#179a3b' },
@@ -44,50 +46,52 @@ const CourtSettings: React.FC<CourtSettingsProps> = ({
             in this session.
           </Text>
 
-          <Box p={6} bg="gray.50" borderRadius="lg" border="1px solid" borderColor="gray.200">
-            <Text fontWeight="semibold" mb={4}>
-              Court Color
-            </Text>
-            <Wrap gap={4}>
-              {COURT_COLORS.map((color) => {
-                const isSelected = currentColor === color.value;
-                return (
-                  <WrapItem key={color.value}>
-                    <VStack>
-                      <Box
-                        w="80px"
-                        h="80px"
-                        borderRadius="md"
-                        bg={color.value}
-                        cursor="pointer"
-                        position="relative"
-                        onClick={() => onUpdateSettings('courtColor', color.value)}
-                        border="4px solid"
-                        borderColor={isSelected ? 'blue.500' : 'transparent'}
-                        boxShadow={isSelected ? 'lg' : 'sm'}
-                        transition="all 0.2s"
-                        _hover={{
-                          transform: 'scale(1.05)',
-                          boxShadow: 'md',
-                        }}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                         {/* White lines representation */}
-                         <Box w="60px" h="40px" border="1px solid white" position="absolute" />
-                         <Box w="0px" h="40px" borderLeft="1px solid white" position="absolute" />
-                         <Box w="60px" h="0px" borderTop="1px dashed white" position="absolute" />
-                      </Box>
-                      <Text fontSize="sm" fontWeight={isSelected ? 'bold' : 'normal'}>
-                        {color.name}
-                      </Text>
-                    </VStack>
-                  </WrapItem>
-                );
-              })}
-            </Wrap>
-          </Box>
+          <Card>
+            <CardBody p={6}>
+              <Text fontWeight="semibold" mb={4}>
+                Court Color
+              </Text>
+              <Wrap gap={4}>
+                {COURT_COLORS.map((color) => {
+                  const isSelected = currentColor === color.value;
+                  return (
+                    <WrapItem key={color.value}>
+                      <VStack>
+                        <Box
+                          w="80px"
+                          h="80px"
+                          borderRadius="md"
+                          bg={color.value}
+                          cursor="pointer"
+                          position="relative"
+                          onClick={() => onUpdateSettings('courtColor', color.value)}
+                          border="4px solid"
+                          borderColor={isSelected ? 'blue.500' : 'transparent'}
+                          boxShadow={isSelected ? 'lg' : 'sm'}
+                          transition="all 0.2s"
+                          _hover={{
+                            transform: 'scale(1.05)',
+                            boxShadow: 'md',
+                          }}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                           {/* White lines representation */}
+                           <Box w="60px" h="40px" border="1px solid white" position="absolute" />
+                           <Box w="0px" h="40px" borderLeft="1px solid white" position="absolute" />
+                           <Box w="60px" h="0px" borderTop="1px dashed white" position="absolute" />
+                        </Box>
+                        <Text fontSize="sm" fontWeight={isSelected ? 'bold' : 'normal'}>
+                          {color.name}
+                        </Text>
+                      </VStack>
+                    </WrapItem>
+                  );
+                })}
+              </Wrap>
+            </CardBody>
+          </Card>
         </Box>
       </VStack>
     </Box>
