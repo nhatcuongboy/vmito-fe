@@ -43,15 +43,20 @@
       "8": "Pro"
     },
     "levelShorts": {
-      "1": "BEG",
-      "2": "A-BEG",
-      "3": "L-INT",
-      "4": "INT",
-      "5": "H-INT",
-      "6": "ADV",
-      "7": "S-PRO",
-      "8": "PRO"
-    }
+      "1": "NEW",
+      "2": "TBY",
+      "3": "TB-",
+      "4": "TB",
+      "5": "TB+",
+      "6": "K",
+      "7": "BC",
+      "8": "CN"
+    },
+    "gender": "Gender",
+    "level": "Level",
+    "matchesPlayed": "Matches Played",
+    "pair": "Pair",
+    "waitTime": "Wait Time"
   },
   "session": {
     "title": "Badminton Session",
@@ -913,6 +918,7 @@
         }
       },
       "status": {
+        "title": "Session",
         "playerInfo": "Player #{number} - {name}",
         "yourStatus": "Your Status",
         "statusDescription": "Current status in the badminton session",
@@ -970,7 +976,17 @@
           "playerUpdated": "Player {name} info updated",
           "playerLeft": "Player {name} left the session",
           "playersSelected": "Players selected for court {court}",
-          "playersDeselected": "Players deselected from court {court}"
+          "playersDeselected": "Players deselected from court {court}",
+          "yourInfoUpdated": "Your information has been updated",
+          "youWereRemoved": "You have been removed from the session",
+          "youWereSelected": "You have been selected for {court}",
+          "youWereDeselected": "You have been removed from {court}"
+        },
+        "courtCall": {
+          "title": "🏸 You're Up!",
+          "goToCourt": "Please go to",
+          "description": "Your match is about to start. Please proceed to the court now.",
+          "understood": "Got it, I'm on my way!"
         }
       }
     }
@@ -1100,7 +1116,8 @@
       "preSelectCancelled": "Pre-select cancelled",
       "preSelectCancelledDesc": "Next match pre-selection has been cancelled",
       "errorCancellingPreSelect": "Error cancelling pre-select",
-      "errorAssigningPlayers": "Error assigning players"
+      "errorAssigningPlayers": "Error assigning players",
+      "playersDeselected": "Players deselected from court"
     },
     "matchResult": {
       "title": "Match Result",
@@ -1113,7 +1130,8 @@
       "notesPlaceholder": "Add any additional notes about the match...",
       "submitResult": "Submit",
       "cancel": "Cancel",
-      "selectWinnerInstruction": "Click on a team to select the winner (optional if draw)"
+      "selectWinnerInstruction": "Click on a team to select the winner (optional if draw)",
+      "teams": "Teams"
     },
     "startMatch": "Start Match",
     "selectPlayersForCourt": "Select Players for Court",
@@ -1130,7 +1148,7 @@
     "matchs": {
       "tabTitle": "Matches"
     },
-    "title": "Session Details",
+    "title": "Session",
     "overview": "Overview",
     "quickActions": "Quick Actions",
     "copyCode": "Copy Code",

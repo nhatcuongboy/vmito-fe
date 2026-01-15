@@ -3,9 +3,11 @@
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import CourtsTab from '@/components/session/CourtsTab';
 import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
-import { IconButton } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { CommonModal } from '@/components/ui/CommonModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
+import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { type Court, type Player, ISession, type Match as ApiMatch } from '@/lib/api/types';
@@ -25,6 +27,7 @@ import {
   Activity,
   CheckCircle2,
   Clock,
+  MapPin,
   RefreshCw,
   User,
   Users,
@@ -84,6 +87,10 @@ export default function PlayerSessionView({
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0); // 0: Status, 1: Courts, 2: Players
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
+  
+  // Court call modal state
+  const [courtCallModalOpen, setCourtCallModalOpen] = useState(false);
+  const [courtCallCourtName, setCourtCallCourtName] = useState<string>('');
 
   // Helper function to convert ApiMatch to Match (for type compatibility)
   const convertToMatch = (apiMatch: ApiMatch): Match => ({
@@ -324,60 +331,68 @@ export default function PlayerSessionView({
 
     const handlePlayerCreated = (data: { sessionId: string; playerId: string }) => {
       if (data.sessionId !== session.id) return;
-      toaster.create({
-        title: t('events.playerJoined'),
-        type: 'info',
-      });
+      // Don't show toast for player joined - not relevant to current player
       fetchPlayerData(true);
     };
 
     const handlePlayerUpdated = (data: { sessionId: string; playerId: string }) => {
       if (data.sessionId !== session.id) return;
-      // Try to find player name from current session state
-      const p = session.players?.find(p => p.id === data.playerId);
-      const name = p ? (p.name || `Player ${p.playerNumber}`) : 'A player';
       
-      toaster.create({
-        title: t('events.playerUpdated', { name }),
-        type: 'info',
-      });
+      // Only show toast if it's the current player being updated
+      if (data.playerId === player?.id) {
+        toaster.create({
+          title: t('events.yourInfoUpdated'),
+          type: 'info',
+        });
+      }
       fetchPlayerData(true);
     };
 
     const handlePlayerRemoved = (data: { sessionId: string; playerId: string }) => {
       if (data.sessionId !== session.id) return;
-      // Try to find player name event if they are being removed (might still be in state)
-      const p = session.players?.find(p => p.id === data.playerId);
-      const name = p ? (p.name || `Player ${p.playerNumber}`) : 'A player';
-
-      toaster.create({
-        title: t('events.playerLeft', { name }),
-        type: 'warning',
-      });
+      
+      // Only show toast if it's the current player being removed
+      if (data.playerId === player?.id) {
+        toaster.create({
+          title: t('events.youWereRemoved'),
+          type: 'warning',
+        });
+      }
       fetchPlayerData(true);
     };
 
-    const handlePlayersSelected = (data: { sessionId: string; courtId: string }) => {
+    const handlePlayersSelected = (data: { sessionId: string; courtId: string; playerIds?: string[] }) => {
       if (data.sessionId !== session.id) return;
-      const court = session.courts?.find(c => c.id === data.courtId);
-      const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
-
-      toaster.create({
-        title: t('events.playersSelected', { court: courtName }),
-        type: 'success',
-      });
+      
+      // Only show modal if current player is one of the selected players
+      const isCurrentPlayerSelected = data.playerIds?.includes(player?.id || '');
+      
+      if (isCurrentPlayerSelected) {
+        const court = session.courts?.find(c => c.id === data.courtId);
+        const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
+        
+        // Show modal to call player to court
+        setCourtCallCourtName(courtName);
+        setCourtCallModalOpen(true);
+      }
       fetchPlayerData(true);
     };
 
-    const handlePlayersDeselected = (data: { sessionId: string; courtId: string }) => {
+    const handlePlayersDeselected = (data: { sessionId: string; courtId: string; playerIds?: string[] }) => {
       if (data.sessionId !== session.id) return;
-      const court = session.courts?.find(c => c.id === data.courtId);
-      const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
-
-      toaster.create({
-        title: t('events.playersDeselected', { court: courtName }),
-        type: 'info',
-      });
+      
+      // Only show toast if current player is one of the deselected players
+      const isCurrentPlayerDeselected = data.playerIds?.includes(player?.id || '');
+      
+      if (isCurrentPlayerDeselected) {
+        const court = session.courts?.find(c => c.id === data.courtId);
+        const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
+        
+        toaster.create({
+          title: t('events.youWereDeselected', { court: courtName }),
+          type: 'info',
+        });
+      }
       fetchPlayerData(true);
     };
 
@@ -409,7 +424,7 @@ export default function PlayerSessionView({
       socket.off('match_ended', handleGenericEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket, session?.id, session?.players, session?.courts]);
+  }, [socket, session?.id, session?.players, session?.courts, player?.id]);
 
   // Initial data fetch
   useEffect(() => {
@@ -487,8 +502,8 @@ export default function PlayerSessionView({
   if (loading && !player) {
     return (
       <>
-        <TopBar title={t('yourStatus')} />
-        <Container maxW="md" py={12}>
+        <TopBar title={t('title')} />
+        <Container maxW="md" py={12} pt="70px">
           <Flex
             justify="center"
             align="center"
@@ -507,8 +522,8 @@ export default function PlayerSessionView({
     const errorMessage = getErrorMessage();
     return (
       <>
-        <TopBar title={t('yourStatus')} />
-        <Container maxW="md" py={12}>
+        <TopBar title={t('title')} />
+        <Container maxW="md" py={12} pt="70px">
           <Flex
             justify="center"
             align="center"
@@ -555,9 +570,20 @@ export default function PlayerSessionView({
   
   return (
     <>
-      <TopBar title={session?.name} />
+      <TopBar title={t('title')} />
+      
+      {session && (
+        <SessionStatusHeader
+          session={{
+            name: session.name,
+            status: session.status,
+          }}
+          readOnly
+          stickyTop="64px"
+        />
+      )}
 
-      <Container pt={'70px'} pb={'80px'}>
+      <Container pt={'110px'} pb={'80px'}>
         {/* Tab Content */}
         {!player || !session ? (
           <Center>
@@ -602,9 +628,9 @@ export default function PlayerSessionView({
                     <Box as={User} boxSize={5} color="blue.500" mr={2} />
                     <Box>
                       <Heading size="md">{t('yourStatus')}</Heading>
-                      <Text color="gray.500" fontSize="sm">
+                      {/* <Text color="gray.500" fontSize="sm">
                         {t('statusDescription')}
-                      </Text>
+                      </Text> */}
                     </Box>
                   </Flex>
                 </Box>
@@ -1018,6 +1044,69 @@ export default function PlayerSessionView({
           </Box>
         </Box>
       </Container>
+
+      {/* Court Call Modal - shown when player is selected for a court */}
+      <CommonModal
+        isOpen={courtCallModalOpen}
+        onClose={() => setCourtCallModalOpen(false)}
+        title={t('courtCall.title')}
+        size="md"
+        isCentered
+        showCloseButton={false}
+        closeOnOverlayClick={false}
+      >
+        <Flex direction="column" align="center" py={6} gap={4}>
+          {/* Animated icon */}
+          <Box
+            bg="green.100"
+            _dark={{ bg: 'green.900' }}
+            borderRadius="full"
+            p={4}
+            animation="pulse 1.5s infinite"
+          >
+            <Box as={MapPin} boxSize={12} color="green.500" />
+          </Box>
+          
+          {/* Message */}
+          <Box textAlign="center">
+            <Heading size="lg" color="green.600" _dark={{ color: 'green.400' }} mb={2}>
+              {t('courtCall.goToCourt')}
+            </Heading>
+            <Text fontSize="2xl" fontWeight="bold" color="blue.600" _dark={{ color: 'blue.400' }}>
+              {courtCallCourtName}
+            </Text>
+          </Box>
+          
+          <Text color="gray.600" _dark={{ color: 'gray.400' }} textAlign="center">
+            {t('courtCall.description')}
+          </Text>
+          
+          {/* Action button */}
+          <Button
+            colorScheme="green"
+            size="lg"
+            w="full"
+            onClick={() => setCourtCallModalOpen(false)}
+            mt={2}
+          >
+            {t('courtCall.understood')}
+          </Button>
+        </Flex>
+      </CommonModal>
+
+      {/* CSS animation for pulse effect */}
+      <style jsx global>{`
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.8;
+          }
+        }
+      `}</style>
     </>
   );
 }

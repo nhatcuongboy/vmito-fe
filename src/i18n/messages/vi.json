@@ -43,7 +43,7 @@
       "8": "Chuyên nghiệp"
     },
     "levelShorts": {
-      "1": "MC",
+      "1": "NEW",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
@@ -51,7 +51,12 @@
       "6": "K",
       "7": "BC",
       "8": "CN"
-    }
+    },
+    "gender": "Giới tính",
+    "level": "Trình độ",
+    "matchesPlayed": "Trận đã chơi",
+    "pair": "Cặp",
+    "waitTime": "Thời gian chờ"
   },
   "session": {
     "title": "Kèo cầu lông",
@@ -607,6 +612,7 @@
         }
       },
       "status": {
+        "title": "Kèo",
         "playerInfo": "Người chơi #{number} - {name}",
         "yourStatus": "Trạng thái của bạn",
         "statusDescription": "Trạng thái hiện tại trong kèo cầu lông",
@@ -664,7 +670,17 @@
           "playerUpdated": "Thông tin người chơi {name} đã được cập nhật",
           "playerLeft": "Người chơi {name} đã rời khỏi session",
           "playersSelected": "Đã chọn người chơi cho sân {court}",
-          "playersDeselected": "Đã hủy chọn người chơi sân {court}"
+          "playersDeselected": "Đã hủy chọn người chơi sân {court}",
+          "yourInfoUpdated": "Thông tin của bạn đã được cập nhật",
+          "youWereRemoved": "Bạn đã bị xóa khỏi session",
+          "youWereSelected": "Bạn đã được chọn vào {court}",
+          "youWereDeselected": "Bạn đã bị loại khỏi {court}"
+        },
+        "courtCall": {
+          "title": "🏸 Đến lượt bạn!",
+          "goToCourt": "Vui lòng di chuyển đến",
+          "description": "Trận đấu của bạn sắp bắt đầu. Hãy đến sân ngay nhé.",
+          "understood": "Đã hiểu, tôi đang đến!"
         }
 
       }
@@ -1100,7 +1116,8 @@
       "preSelectCancelled": "Đã hủy chọn trước",
       "preSelectCancelledDesc": "Chọn trước trận tiếp theo đã được hủy",
       "errorCancellingPreSelect": "Lỗi hủy chọn trước",
-      "errorAssigningPlayers": "Lỗi phân bổ người chơi"
+      "errorAssigningPlayers": "Lỗi phân bổ người chơi",
+      "playersDeselected": "Đã hủy chọn người chơi khỏi sân"
     },
     "matchResult": {
       "title": "Kết quả trận đấu",
@@ -1113,7 +1130,8 @@
       "notesPlaceholder": "Thêm ghi chú về trận đấu...",
       "submitResult": "Gửi",
       "cancel": "Hủy",
-      "selectWinnerInstruction": "Nhấn vào một đội để chọn đội thắng (tùy chọn nếu hòa)"
+      "selectWinnerInstruction": "Nhấn vào một đội để chọn đội thắng (tùy chọn nếu hòa)",
+      "teams": "Đội"
     },
     "startMatch": "Bắt đầu",
     "selectPlayersForCourt": "Chọn người chơi cho sân",
@@ -1130,7 +1148,7 @@
     "matchs": {
       "tabTitle": "Trận đấu"
     },
-    "title": "Chi tiết kèo",
+    "title": "Kèo",
     "overview": "Tổng quan",
     "quickActions": "Thao tác nhanh",
     "copyCode": "Sao chép mã",

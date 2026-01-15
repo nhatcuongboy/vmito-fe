@@ -37,6 +37,7 @@ const system = createSystem(defaultConfig, {
 
 import { SocketProvider } from '@/contexts/SocketContext';
 import { Toaster } from '@/components/ui/toaster';
+import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -48,6 +49,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <SocketProvider>
           {children}
           <Toaster />
+          <GlobalErrorModal />
         </SocketProvider>
       </AuthProvider>
     </ChakraProvider>

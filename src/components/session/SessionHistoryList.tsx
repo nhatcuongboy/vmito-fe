@@ -15,9 +15,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Clock, MapPin } from 'lucide-react';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { Edit, Clock, MapPin } from 'lucide-react';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { EditMatchModal } from './EditMatchModal';
 
+// Helper functions
 const formatTime = (dateString: string | Date): string => {
   const date = new Date(dateString);
   return date.toLocaleTimeString('en-US', {
@@ -54,6 +57,7 @@ type HistoryMatch = {
   sessionId: string;
   court: string;
   players: string[];
+  playerIds?: string[]; // Add playerIds field
   startTime?: string | Date;
   endTime?: string | Date;
   winner?: string;
@@ -62,38 +66,29 @@ type HistoryMatch = {
     pair2Score: number;
   };
   winningPair?: 1 | 2;
-  isExtra?: boolean; // Add isExtra field
+  isExtra?: boolean;
 };
 
 const HistoryMatchCard = ({
   match,
   direction = CourtDirection.HORIZONTAL,
+  onEdit,
 }: {
   match: HistoryMatch;
   direction?: CourtDirection;
+  onEdit: (match: HistoryMatch) => void;
 }) => {
-  // For the pairing logic, we need to consider the courtPosition values and direction
-  // According to the user: with direction="horizontal" (default):
-  // #8 (courtPosition=0) pairs with #14 (courtPosition=1) = Pair 1
-  // #7 (courtPosition=2) pairs with #11 (courtPosition=3) = Pair 2
-
-  // The match.players array should be sorted by courtPosition for proper pairing
-  // We'll assume the players are already properly ordered based on courtPosition
-
+  // ... (existing pairing logic)
   let pair1: string[], pair2: string[];
 
   if (direction === CourtDirection.HORIZONTAL) {
-    // Horizontal layout: courtPosition 0,1 = Pair 1, courtPosition 2,3 = Pair 2
-    pair1 = match.players.slice(0, 2); // courtPosition 0, 1
-    pair2 = match.players.slice(2, 4); // courtPosition 2, 3
+    pair1 = match.players.slice(0, 2);
+    pair2 = match.players.slice(2, 4);
   } else {
-    // Vertical layout: courtPosition 0,2 = Pair 1, courtPosition 1,3 = Pair 2
-    // This matches the visual mapping from BadmintonCourt.tsx
-    pair1 = [match.players[0], match.players[2]]; // courtPosition 0, 2
-    pair2 = [match.players[1], match.players[3]]; // courtPosition 1, 3
+    pair1 = [match.players[0], match.players[2]];
+    pair2 = [match.players[1], match.players[3]];
   }
 
-  // Determine which pair is the winner
   const winningPair = match.winningPair;
   // Winning pair: blue, losing pair: red
   const pair1WonStyle =
@@ -122,28 +117,42 @@ const HistoryMatchCard = ({
         transform: 'translateY(-2px)',
         boxShadow: 'md',
       }}
+      position="relative"
     >
+      <Box position="absolute" top={2} right={2}>
+        <IconButton
+          aria-label="Edit match"
+          icon={<Edit size={16} />}
+          size="sm"
+          variant="ghost"
+          color="gray.400"
+          _hover={{ color: 'blue.500', bg: 'blue.50' }}
+          onClick={() => onEdit(match)}
+        />
+      </Box>
+
       <Stack gap={4}>
         <Flex align="center" justify="space-between">
           <Flex align="center" gap={2}>
             <Icon as={MapPin} boxSize={5} color="gray.500" />
             <Text fontWeight="bold">{match.court}</Text>
+            {match.isExtra && (
+              <Badge
+                colorPalette="orange"
+                variant="solid"
+                fontSize="xs"
+                px={2}
+                py={1}
+                borderRadius="md"
+              >
+                Extra
+              </Badge>
+            )}
           </Flex>
-          {/* Extra match badge */}
-          {match.isExtra && (
-            <Badge
-              colorPalette="orange"
-              variant="solid"
-              fontSize="xs"
-              px={2}
-              py={1}
-              borderRadius="md"
-            >
-              Extra
-            </Badge>
-          )}
         </Flex>
 
+        {/* ... (rest of the card content) */}
+        
         <Stack gap={2}>
           <Flex align="center" gap={2}>
             <Icon as={Clock} boxSize={5} color="gray.500" />
@@ -171,13 +180,13 @@ const HistoryMatchCard = ({
               <Text color="gray.600" fontSize="sm">
                 Pair 1
               </Text>
-              <Text>{pair1.join(' & ')}</Text>
+              <Text fontWeight="semibold">{pair1.join(' & ')}</Text>
             </Box>
             <Box {...pair2WonStyle}>
               <Text color="gray.600" fontSize="sm">
                 Pair 2
               </Text>
-              <Text>{pair2.join(' & ')}</Text>
+              <Text fontWeight="semibold">{pair2.join(' & ')}</Text>
             </Box>
           </Flex>
         </Box>
@@ -242,6 +251,8 @@ const HistoryMatchCard = ({
   );
 };
 
+// ... (rest of the file)
+
 interface SessionHistoryListProps {
   sessionId: string;
   sessionData?: {
@@ -269,27 +280,26 @@ export default function SessionHistoryList({
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
   const [players, setPlayers] = useState<any[]>(sessionData?.players || []);
   const [courts, setCourts] = useState<any[]>(sessionData?.courts || []);
+  
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<HistoryMatch | null>(null);
 
   // Use ref to store sessionData to avoid triggering effect on object reference changes
   const sessionDataRef = useRef(sessionData);
   sessionDataRef.current = sessionData;
 
-  // Combined effect: Load initial data and matches together
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadData() {
+  const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Step 1: Load players and courts if not provided via sessionData
+        // Step 1: Load players and courts
         const currentSessionData = sessionDataRef.current;
         let currentPlayers = currentSessionData?.players || [];
         let currentCourts = currentSessionData?.courts || [];
 
         if (!currentSessionData) {
-          // Fallback to API calls if sessionData is not provided
           const [playersData, courtsData] = await Promise.all([
             SessionService.getSessionPlayers(sessionId),
             SessionService.getSessionCourts(sessionId),
@@ -297,8 +307,6 @@ export default function SessionHistoryList({
           currentPlayers = playersData;
           currentCourts = courtsData;
         }
-
-        if (cancelled) return;
 
         setPlayers(currentPlayers);
         setCourts(currentCourts);
@@ -313,8 +321,6 @@ export default function SessionHistoryList({
           Object.keys(filters).length > 0 ? filters : undefined
         );
 
-        if (cancelled) return;
-
         const sessionMatches = result.matches;
         const completedMatches = sessionMatches.filter(
           (m: any) => m.status === 'COMPLETED' || m.status === 'FINISHED'
@@ -324,7 +330,7 @@ export default function SessionHistoryList({
         for (const match of completedMatches) {
           const matchData = match as any;
 
-          // Get court name/number if available, fallback to courtId
+          // ... (existing courtName logic)
           let courtName = 'Court ?';
           if (
             matchData.court &&
@@ -340,9 +346,11 @@ export default function SessionHistoryList({
             courtName = `Court ${matchData.courtId}`;
           }
 
-          // Get player names sorted by courtPosition
+          // Get player names and IDs sorted by courtPosition
           let playerNames: string[] = [];
+          let playerIds: string[] = [];
           if (Array.isArray(matchData.players)) {
+            // Sort by courtPosition (actual visual position) for correct pairing
             const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
               const posA = a.player?.courtPosition ?? a.position ?? 0;
               const posB = b.player?.courtPosition ?? b.position ?? 0;
@@ -351,12 +359,32 @@ export default function SessionHistoryList({
             playerNames = sortedMatchPlayers.map(
               (mp: any) => mp.player?.name || '?'
             );
+            playerIds = sortedMatchPlayers.map((mp: any) => mp.player?.id || mp.playerId);
           }
 
-          // Extract match results using the utility function
+          // ... (existing score parsing logic)
           let scores;
           let winningPair;
 
+          // Ensure score is parsed if it arrives as a string (handling potential API inconsistencies)
+          if (typeof matchData.score === 'string') {
+            try {
+              matchData.score = JSON.parse(matchData.score);
+            } catch (e) {
+              // ignore error, will fail gracefully later
+            }
+          }
+
+          // Ensure winnerIds is parsed if it arrives as a string
+          if (typeof matchData.winnerIds === 'string') {
+            try {
+              matchData.winnerIds = JSON.parse(matchData.winnerIds);
+            } catch (e) {
+              // ignore error
+            }
+          }
+
+          // Use courtPosition for pair calculation to match visual layout
           const playersWithPosition = Array.isArray(matchData.players)
             ? matchData.players.map((mp: any, index: number) => ({
                 playerId: mp.player?.id || mp.playerId,
@@ -369,8 +397,8 @@ export default function SessionHistoryList({
             scores = matchResult.scores;
             winningPair = matchResult.winningPair;
           } else {
-            // Fallback to legacy parsing
-            const scoreData =
+             // ... (legacy parsing fallback)
+             const scoreData =
               matchData.score ||
               matchData.result ||
               matchData.scores ||
@@ -437,6 +465,7 @@ export default function SessionHistoryList({
             sessionId,
             court: courtName,
             players: playerNames,
+            playerIds,
             startTime: matchData.startTime,
             endTime: matchData.endTime,
             winner: matchData.winner,
@@ -453,34 +482,40 @@ export default function SessionHistoryList({
           return bDate - aDate;
         });
 
-        if (!cancelled) {
-          setMatches(allMatches);
-        }
+        setMatches(allMatches);
       } catch (err) {
-        if (!cancelled) {
-          setError('Failed to load match history. Please try again later.');
-          console.error('Error fetching match history:', err);
-        }
+        setError('Failed to load match history. Please try again later.');
+        console.error('Error fetching match history:', err);
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
-    }
+  };
 
+  useEffect(() => {
     loadData();
+  }, [sessionId, selectedPlayerId, selectedCourtId]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [sessionId, selectedPlayerId, selectedCourtId]); // Note: sessionData intentionally omitted - only used for initial values
+  const handleEditMatch = (match: HistoryMatch) => {
+    setSelectedMatch(match);
+    setIsEditModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedMatch(null);
+  };
+
+  const handleMatchUpdate = () => {
+    loadData(); // Refresh data
+  };
 
   return (
     <Box>
       <Text fontWeight="semibold" mb={3}>
         Matches
       </Text>
-      {/* Filter Controls */}
+      
+      {/* ... (Filters) */}
       <Box
         mb={6}
         p={4}
@@ -501,7 +536,7 @@ export default function SessionHistoryList({
             </Text>
             <select
               value={selectedPlayerId}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setSelectedPlayerId(e.target.value)
               }
               style={{
@@ -534,7 +569,7 @@ export default function SessionHistoryList({
             </Text>
             <select
               value={selectedCourtId}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setSelectedCourtId(e.target.value)
               }
               style={{
@@ -608,9 +643,22 @@ export default function SessionHistoryList({
               key={match.id}
               match={match}
               direction={CourtDirection.HORIZONTAL}
+              onEdit={handleEditMatch}
             />
           ))}
         </Grid>
+      )}
+      
+      {/* Edit Match Modal */}
+      {selectedMatch && (
+        <EditMatchModal
+          isOpen={isEditModalOpen}
+          onClose={handleModalClose}
+          match={selectedMatch}
+          sessionId={sessionId}
+          players={players}
+          onUpdate={handleMatchUpdate}
+        />
       )}
     </Box>
   );

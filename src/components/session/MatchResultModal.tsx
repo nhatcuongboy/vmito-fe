@@ -60,29 +60,54 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
     }
   }, [isOpen]);
 
+  // Auto-determine winner based on scores
+  React.useEffect(() => {
+    const score1 = parseInt(pair1Score) || 0;
+    const score2 = parseInt(pair2Score) || 0;
+
+    // Only auto-determine if at least one score is entered
+    if (pair1Score.trim() || pair2Score.trim()) {
+      if (score1 > score2) {
+        setSelectedWinnerPair(1);
+        setIsDraw(false);
+      } else if (score2 > score1) {
+        setSelectedWinnerPair(2);
+        setIsDraw(false);
+      } else {
+        // Scores are equal - could be a draw
+        setSelectedWinnerPair(null);
+        if (score1 === score2 && score1 > 0) {
+          setIsDraw(true);
+        }
+      }
+    } else {
+      // No scores entered
+      setSelectedWinnerPair(null);
+    }
+  }, [pair1Score, pair2Score]);
+
   if (!isOpen || !match) return null;
 
   // Group players into pairs using same logic as BadmintonCourt
   // Apply visual mapping based on direction prop, then determine pairs by column
 
   const playersWithPair = match.players.map((matchPlayer) => {
-    // Apply same visual mapping as BadmintonCourt
-    let visualMapping: number[];
-    if (direction === CourtDirection.HORIZONTAL) {
-      // Horizontal layout: API position 0→0, 1→2, 2→1, 3→3
-      visualMapping = [0, 2, 1, 3];
-    } else {
-      // Vertical layout: API position 0→0, 1→1, 2→2, 3→3
-      visualMapping = [0, 1, 2, 3];
-    }
-
-    // Use courtPosition instead of position
+    // Use courtPosition to determine the actual visual position on the court
+    // courtPosition 0 = top-left, 1 = top-right (or bottom-left in horizontal), etc.
     const courtPosition =
       matchPlayer.player.courtPosition ?? matchPlayer.position;
-    const visualIndex = visualMapping[courtPosition] ?? courtPosition;
 
-    // Determine pair by column: left column (0,2) = pair 1, right column (1,3) = pair 2
-    const pairNumber = visualIndex % 2 === 0 ? 1 : 2;
+    // Determine pair by courtPosition:
+    // In horizontal layout: positions 0, 2 are on the left (Pair 1), positions 1, 3 are on the right (Pair 2)
+    // This is based on visual columns, not rows
+    let pairNumber: 1 | 2;
+    if (direction === CourtDirection.HORIZONTAL) {
+      // Horizontal: Pair 1 = positions 0, 1 (left side), Pair 2 = positions 2, 3 (right side)
+      pairNumber = courtPosition < 2 ? 1 : 2;
+    } else {
+      // Vertical: Pair 1 = positions 0, 2 (top row), Pair 2 = positions 1, 3 (bottom row)
+      pairNumber = courtPosition % 2 === 0 ? 1 : 2;
+    }
 
     return {
       ...matchPlayer,
@@ -221,10 +246,10 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             </HStack>
           </VStack>
 
-          {/* Winner Selection */}
+          {/* Team Display - Shows winner based on scores */}
           <VStack gap={3} w="full">
             <Text fontSize="sm" color="gray.600" textAlign="center">
-              {t('matchResult.selectWinnerInstruction')}
+              {t('matchResult.teams')}
             </Text>
 
             <HStack gap={4} w="full">
@@ -234,35 +259,23 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 p={3}
                 border="2px"
                 borderColor={
-                  selectedWinnerPair === 1 ? 'green.400' : 'gray.300'
+                  selectedWinnerPair === 1
+                    ? 'green.400'
+                    : selectedWinnerPair === 2
+                      ? 'red.300'
+                      : 'gray.300'
                 }
                 borderRadius="lg"
-                bg={selectedWinnerPair === 1 ? 'green.50' : 'gray.50'}
-                position="relative"
-                cursor={isDraw ? 'not-allowed' : 'pointer'}
-                boxShadow={selectedWinnerPair === 1 ? 'md' : 'sm'}
-                onClick={() => {
-                  if (!isDraw) {
-                    setSelectedWinnerPair(
-                      selectedWinnerPair === 1 ? null : 1
-                    );
-                  }
-                }}
-                transition="all 0.2s"
-                _hover={
-                  !isDraw
-                    ? {
-                        borderColor: 'green.400',
-                        bg: 'green.100',
-                        boxShadow: 'lg',
-                        transform: 'scale(1.03)',
-                      }
-                    : {}
+                bg={
+                  selectedWinnerPair === 1
+                    ? 'green.50'
+                    : selectedWinnerPair === 2
+                      ? 'red.50'
+                      : 'gray.50'
                 }
-                style={{
-                  outline: !isDraw ? '2px dashed #38a169' : undefined,
-                  outlineOffset: selectedWinnerPair === 1 ? '2px' : undefined,
-                }}
+                position="relative"
+                boxShadow={selectedWinnerPair === 1 ? 'md' : 'sm'}
+                transition="all 0.2s"
               >
                 {selectedWinnerPair === 1 && (
                   <Box
@@ -305,35 +318,23 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 p={3}
                 border="2px"
                 borderColor={
-                  selectedWinnerPair === 2 ? 'green.400' : 'gray.300'
+                  selectedWinnerPair === 2
+                    ? 'green.400'
+                    : selectedWinnerPair === 1
+                      ? 'red.300'
+                      : 'gray.300'
                 }
                 borderRadius="lg"
-                bg={selectedWinnerPair === 2 ? 'green.50' : 'gray.50'}
-                position="relative"
-                cursor={isDraw ? 'not-allowed' : 'pointer'}
-                boxShadow={selectedWinnerPair === 2 ? 'md' : 'sm'}
-                onClick={() => {
-                  if (!isDraw) {
-                    setSelectedWinnerPair(
-                      selectedWinnerPair === 2 ? null : 2
-                    );
-                  }
-                }}
-                transition="all 0.2s"
-                _hover={
-                  !isDraw
-                    ? {
-                        borderColor: 'green.400',
-                        bg: 'green.100',
-                        boxShadow: 'lg',
-                        transform: 'scale(1.03)',
-                      }
-                    : {}
+                bg={
+                  selectedWinnerPair === 2
+                    ? 'green.50'
+                    : selectedWinnerPair === 1
+                      ? 'red.50'
+                      : 'gray.50'
                 }
-                style={{
-                  outline: !isDraw ? '2px dashed #38a169' : undefined,
-                  outlineOffset: selectedWinnerPair === 2 ? '2px' : undefined,
-                }}
+                position="relative"
+                boxShadow={selectedWinnerPair === 2 ? 'md' : 'sm'}
+                transition="all 0.2s"
               >
                 {selectedWinnerPair === 2 && (
                   <Box

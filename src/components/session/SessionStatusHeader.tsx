@@ -1,245 +1,202 @@
 'use client';
 
-import { Box, Flex, Grid, Heading, Text, VStack } from '@chakra-ui/react';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { formatDuration, formatTime } from '@/utils/session-helpers';
-import dayjs from '@/lib/dayjs';
-import { Clock, Play, RefreshCw, Square, Users } from 'lucide-react';
+import { Box, Flex, Text } from '@chakra-ui/react';
+import { IconButton, Button } from '@/components/ui/chakra-compat';
+import { Play, RefreshCw, Square, MoreVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState, useRef, useEffect } from 'react';
 
 interface SessionStatusHeaderProps {
   session: {
+    name: string;
     status: string;
-    startTime: string | null;
-    endTime: string | null;
-    players: Array<{ status: string }>;
+    startTime?: string | null;
+    endTime?: string | null;
+    players?: Array<{ status: string }>;
   };
-  refreshInterval: number;
-  lastRefreshed: Date;
-  isRefreshing: boolean;
-  isToggleStatusLoading: boolean;
-  onToggleSessionStatus: () => void;
-  onRefreshData: () => void;
+  /** Read-only mode for player view - hides action menu */
+  readOnly?: boolean;
+  isRefreshing?: boolean;
+  isToggleStatusLoading?: boolean;
+  onToggleSessionStatus?: () => void;
+  onRefreshData?: () => void;
+  /** Top offset for sticky positioning */
+  stickyTop?: string | number;
 }
 
 const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   session,
-  refreshInterval,
-  lastRefreshed,
-  isRefreshing,
-  isToggleStatusLoading,
+  readOnly = false,
+  isRefreshing = false,
+  isToggleStatusLoading = false,
   onToggleSessionStatus,
   onRefreshData,
+  stickyTop = 0,
 }) => {
   const t = useTranslations('SessionDetail');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Map session status to UI text
-  const mapSessionStatusToUI = (status: string) => {
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  // Get status color for icons
+  const getStatusBg = (status: string) => {
     switch (status) {
       case 'PREPARING':
-        return t('start');
+        return 'green.500';
       case 'IN_PROGRESS':
-        return t('end');
+        return 'red.500';
       case 'FINISHED':
-        return t('ended');
+        return 'gray.400';
       default:
-        return t('unknownStatus');
+        return 'blue.500';
     }
   };
 
-  // Map session status to color scheme
-  const mapSessionStatusToColor = (status: string) => {
-    switch (status) {
-      case 'PREPARING':
-        return 'green';
-      case 'IN_PROGRESS':
-        return 'red';
-      case 'FINISHED':
-        return 'gray';
-      default:
-        return 'blue';
-    }
+  const handleToggleStatus = () => {
+    onToggleSessionStatus?.();
+    setIsMenuOpen(false);
+  };
+
+  const handleRefresh = () => {
+    onRefreshData?.();
+    setIsMenuOpen(false);
   };
 
   return (
-    <Grid templateColumns="repeat(3, 1fr)" gap={{ base: 2, md: 6 }} mb={8}>
-      {/* Time Card */}
-      <Box
-        p={{ base: 3, md: 6 }}
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="lg"
-        boxShadow="md"
-        borderWidth="1px"
-      >
-        <Flex align="center" justify="space-between" mb={{ base: 1, md: 2 }}>
-          <Flex align="center">
-            <Box
-              as={Clock}
-              boxSize={{ base: 4, md: 5 }}
-              color="blue.500"
-              mr={{ base: 1, md: 2 }}
-            />
-            <Heading
-              size={{ base: 'sm', md: 'md' }}
-              display={{ base: 'none', md: 'block' }}
-            >
-              {t('sessionTime')}
-            </Heading>
-            <Heading size="xs" display={{ base: 'block', md: 'none' }}>
-              {t('sessionTime')}
-            </Heading>
-          </Flex>
-          <Button
-            colorScheme={mapSessionStatusToColor(session.status)}
-            onClick={onToggleSessionStatus}
-            disabled={session.status === 'FINISHED'}
-            loading={isToggleStatusLoading}
-            size={{ base: 'xs', md: 'sm' }}
-            padding={0}
-          >
-            <Flex alignItems="center">
-              <Box
-                as={session.status === 'IN_PROGRESS' ? Square : Play}
-                boxSize={{ base: 3, md: 4 }}
-              />
-            </Flex>
-          </Button>
-        </Flex>
-        <Box display={{ base: 'none', md: 'block' }}>
-          <VStack align="start" gap={2}>
-            <Text fontWeight="medium">
-              {`${formatTime(session.startTime!)}-${formatTime(
-                session.endTime!
-              )} (${
-                session.startTime
-                  ? dayjs(session.startTime).format('DD/MM/YY')
-                  : ''
-              })`}
-            </Text>
-            <Text fontSize="sm" color="gray.600">
-              {t('duration')}:{' '}
-              {formatDuration(session.startTime!, session.endTime!)}
-            </Text>
-          </VStack>
-        </Box>
-        {/* Mobile simplified view */}
-        <Box display={{ base: 'block', md: 'none' }}>
-          <Text fontSize={'xs'}>
-            {`${formatTime(session.startTime!)}-${formatTime(
-              session.endTime!
-            )} (${
-              session.startTime
-                ? dayjs(session.startTime).format('DD/MM/YY')
-                : ''
-            })`}
-          </Text>
-        </Box>
-      </Box>
+    <Box
+      position="sticky"
+      top={stickyTop}
+      zIndex={50}
+      bg="white"
+      _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+      borderBottomWidth="1px"
+      borderColor="gray.200"
+      py={2}
+      px={4}
+    >
+      <Flex align="center" justify="space-between" position="relative">
+        {/* Left spacer for centering title */}
+        <Box width="40px" />
 
-      {/* Players Card */}
-      <Box
-        p={{ base: 3, md: 6 }}
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="lg"
-        boxShadow="md"
-        borderWidth="1px"
-      >
-        <Flex align="center" mb={{ base: 1, md: 2 }}>
-          <Box
-            as={Users}
-            boxSize={{ base: 4, md: 5 }}
-            color="blue.500"
-            mr={{ base: 1, md: 2 }}
-          />
-          <Heading size={{ base: 'xs', md: 'md' }}>{t('players')}</Heading>
-        </Flex>
-        <Text fontSize={{ base: 'sm', md: 'lg' }}>
-          {session.players.length} {t('total')}
-        </Text>
+        {/* Session Name - Centered */}
         <Text
-          fontSize={{ base: 'xs', md: 'sm' }}
-          color="gray.500"
-          display={{ base: 'none', md: 'block' }}
+          fontSize="md"
+          fontWeight="semibold"
+          color="gray.800"
+          _dark={{ color: 'white' }}
+          textAlign="center"
+          whiteSpace="nowrap"
+          overflow="hidden"
+          textOverflow="ellipsis"
+          flex={1}
+          px={2}
         >
-          {session.players.filter((p) => p.status === 'PLAYING').length}{' '}
-          {t('playing')} /{' '}
-          {session.players.filter((p) => p.status === 'WAITING').length}{' '}
-          {t('waiting')}
+          {session.name}
         </Text>
-        {/* Mobile simplified view */}
-        <Text
-          fontSize="xs"
-          color="gray.500"
-          display={{ base: 'block', md: 'none' }}
-        >
-          {session.players.filter((p) => p.status === 'PLAYING').length}P/{' '}
-          {session.players.filter((p) => p.status === 'WAITING').length}W
-        </Text>
-      </Box>
 
-      {/* Updates Card */}
-      <Box
-        p={{ base: 3, md: 6 }}
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="lg"
-        boxShadow="md"
-        borderWidth="1px"
-      >
-        <Flex
-          align="center"
-          mb={{ base: 1, md: 2 }}
-          justifyContent="space-between"
-        >
-          <Flex align="center">
-            <Box
-              as={RefreshCw}
-              boxSize={{ base: 4, md: 5 }}
-              color="blue.500"
-              mr={{ base: 1, md: 2 }}
-            />
-            <Heading
-              size={{ base: 'xs', md: 'md' }}
-              display={{ base: 'none', md: 'block' }}
-            >
-              {t('updates')}
-            </Heading>
-            <Heading size="xs" display={{ base: 'block', md: 'none' }}>
-              {t('refresh')}
-            </Heading>
-          </Flex>
-          {session.status === 'IN_PROGRESS' && (
+        {/* Action Button & Dropdown - Hidden in readOnly mode */}
+        {!readOnly ? (
+          <Box width="40px" display="flex" justifyContent="flex-end" position="relative" ref={menuRef}>
             <IconButton
-              aria-label="Refresh"
-              icon={<Box as={RefreshCw} boxSize={{ base: 3, md: 4 }} />}
-              size={{ base: 'xs', md: 'sm' }}
-              isLoading={isRefreshing}
-              onClick={onRefreshData}
+              aria-label="Actions"
+              icon={<MoreVertical size={20} />}
+              variant="ghost"
+              size="sm"
+              borderRadius="full"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             />
-          )}
-        </Flex>
-        <Box display={{ base: 'none', md: 'block' }}>
-          <Text fontSize="lg">
-            {session.status === 'IN_PROGRESS'
-              ? t('autoRefresh', { seconds: refreshInterval })
-              : t('autoRefreshDisabled')}
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            {t('lastUpdated')}: {lastRefreshed.toLocaleTimeString()}
-          </Text>
-        </Box>
-        {/* Mobile simplified view */}
-        <Box display={{ base: 'block', md: 'none' }}>
-          <Text fontSize="xs" color="gray.500">
-            {session.status === 'IN_PROGRESS'
-              ? `${refreshInterval}s`
-              : t('off')}
-          </Text>
-        </Box>
-      </Box>
-    </Grid>
+
+            {/* Custom Dropdown Menu */}
+            {isMenuOpen && (
+              <Box
+                position="absolute"
+                top="40px"
+                right="0"
+                bg="white"
+                boxShadow="xl"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.200"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                py={2}
+                minWidth="180px"
+                zIndex={100}
+              >
+                {/* Play/Stop Action */}
+                <Button
+                  variant="ghost"
+                  width="100%"
+                  px={4}
+                  py={2}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  gap={3}
+                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                  disabled={session.status === 'FINISHED' || isToggleStatusLoading}
+                  onClick={handleToggleStatus}
+                  opacity={(session.status === 'FINISHED' || isToggleStatusLoading) ? 0.5 : 1}
+                  cursor={(session.status === 'FINISHED' || isToggleStatusLoading) ? 'not-allowed' : 'pointer'}
+                  fontWeight="normal"
+                  borderRadius="0"
+                >
+                  <Box
+                    as={session.status === 'IN_PROGRESS' ? Square : Play}
+                    boxSize={4}
+                    color={getStatusBg(session.status)}
+                  />
+                  <Text fontSize="sm" fontWeight="medium">
+                    {session.status === 'IN_PROGRESS' ? t('end') : t('start')}
+                  </Text>
+                </Button>
+
+                {/* Refresh Action */}
+                {session.status === 'IN_PROGRESS' && (
+                  <Button
+                    variant="ghost"
+                    width="100%"
+                    px={4}
+                    py={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={3}
+                    _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                    disabled={isRefreshing}
+                    onClick={handleRefresh}
+                    opacity={isRefreshing ? 0.5 : 1}
+                    cursor={isRefreshing ? 'not-allowed' : 'pointer'}
+                    fontWeight="normal"
+                    borderRadius="0"
+                  >
+                    <Box as={RefreshCw} boxSize={4} color="blue.500" />
+                    <Text fontSize="sm" fontWeight="medium">{t('refresh')}</Text>
+                  </Button>
+                )}
+              </Box>
+            )}
+          </Box>
+        ) : (
+          /* Right spacer for centering title in readOnly mode */
+          <Box width="40px" />
+        )}
+      </Flex>
+    </Box>
+
   );
 };
 

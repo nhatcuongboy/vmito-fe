@@ -85,14 +85,25 @@ const CourtCard: React.FC<CourtCardProps> = ({
 
   const handleEndMatchClick = () => {
     if (currentMatch) {
+      // Construct players from court.currentPlayers to ensure consistency with visual display
+      // MatchResultModal expects MatchPlayer[] structure
+      const matchPlayers = court.currentPlayers.map((player) => ({
+        id: `mp-${player.id}`,
+        matchId: currentMatch.id,
+        playerId: player.id,
+        position: player.courtPosition ?? 0,
+        player: player,
+      }));
+
       const matchWithCourt = {
         ...currentMatch,
+        players: matchPlayers,
         court: {
           ...court,
           direction: court.direction || CourtDirection.HORIZONTAL,
         },
       };
-      onEndMatch(matchWithCourt);
+      onEndMatch(matchWithCourt as any);
     }
   };
 

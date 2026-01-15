@@ -263,4 +263,10 @@ export const SessionService = {
   ): Promise<void> => {
     await api.put(`/sessions/${id}/wait-times`, data);
   },
+
+  // Update match details
+  updateMatch: async (id: string, data: Partial<Match> & { playerIds?: string[] }): Promise<Match> => {
+    const response = await api.patch<ApiResponse<Match>>(`/matches/${id}`, data);
+    return response.data.data!;
+  },
 };

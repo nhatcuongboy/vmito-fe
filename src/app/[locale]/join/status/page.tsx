@@ -354,9 +354,9 @@ function StatusPageContent() {
                     <Box as={User} boxSize={5} color="blue.500" mr={2} />
                     <Box>
                       <Heading size="md">{t('yourStatus')}</Heading>
-                      <Text color="gray.500" fontSize="sm">
+                      {/* <Text color="gray.500" fontSize="sm">
                         {t('statusDescription')}
-                      </Text>
+                      </Text> */}
                     </Box>
                   </Flex>
                 </Box>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useAppStore } from '@/stores/useAppStore';
 
 // Get API URL from environment - use backend URL if set, otherwise fallback to /api for local
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
@@ -43,10 +44,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    const message =
+    let message =
       error.response?.data?.message ||
       error.response?.data?.error ||
       'Something went wrong';
+
+    if (typeof message !== 'string') {
+      if (Array.isArray(message)) {
+        message = message.join(', ');
+      } else {
+        message = JSON.stringify(message);
+      }
+    }
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (status === 401 && typeof window !== 'undefined') {
@@ -63,7 +72,15 @@ api.interceptors.response.use(
       }
     } else if (status !== 401) {
       // Don't show toast for 401 errors (handled above)
-      toaster.error({ title: message });
+      const method = error.config?.method?.toUpperCase();
+
+      // For GET requests, show toaster to avoid interrupting user flow
+      if (method === 'GET') {
+        toaster.error({ title: message });
+      } else {
+        // For mutations (POST, PUT, DELETE), show modal to ensure user sees the error
+        useAppStore.getState().setError(message);
+      }
     }
 
     return Promise.reject(error);

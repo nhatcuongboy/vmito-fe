@@ -3,6 +3,7 @@
 import { Player } from '@/types/session';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Box, Text, Portal } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
 
 interface BadmintonCourtPlayer extends Player {
@@ -55,7 +56,8 @@ export default function PlayerTooltip({
   mode = 'manage',
   playerRef,
 }: PlayerTooltipProps) {
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
+  const t = useTranslations('common');
   const [tooltipPosition, setTooltipPosition] = useState(position);
 
   // Update tooltip position for better placement
@@ -103,116 +105,81 @@ export default function PlayerTooltip({
     pairNumber = index % 2 === 0 ? 1 : 2;
   }
   const pairColors = getPairColor(player, index);
+  const pairName = pairColors.name;
 
   return (
     <Portal>
       <Box
         position="fixed"
-        {...position}
-        bg="gray.800"
+        {...tooltipPosition}
+        bg="gray.900"
         color="white"
         borderRadius="md"
-        boxShadow="xl"
+        boxShadow="dark-lg"
         fontSize="sm"
         zIndex={9999}
         minW="240px"
         maxW="280px"
-        p={3}
+        p={4}
+        animation="fadeIn 0.2s"
+        border="1px solid"
+        borderColor="gray.700"
       >
-        <Text fontWeight="bold" mb={2} fontSize="md">
-          Player #{player.playerNumber}
+        <Text fontWeight="bold" fontSize="lg" mb={1} color="white">
+          #{player.playerNumber}
         </Text>
-        <Box mb={2}>
-          <Text fontSize="sm" fontWeight="semibold" color="blue.300">
-            {player.name || `Player ${player.playerNumber}`}
-          </Text>
-        </Box>
-        <Box display="flex" flexDirection="column" gap={1}>
-          {/* Gender - Always show */}
-          <Box display="flex" justifyContent="space-between">
-            <Text fontSize="xs" color="gray.300">
-              Gender:
-            </Text>
-            <Text fontSize="xs" color="white">
-              {player.gender || 'Unknown'}
+        
+        <Text fontSize="md" fontWeight="medium" color="blue.300" mb={4}>
+          {player.name || `Player ${player.playerNumber}`}
+        </Text>
+
+        <Box display="flex" flexDirection="column" gap={2}>
+          {/* Gender */}
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Text color="gray.400">{t('gender')}:</Text>
+            <Text color="white" fontWeight="medium">
+              {player.gender ? player.gender.toUpperCase() : 'UNKNOWN'}
             </Text>
           </Box>
 
-          {/* Level, Level Description, Desire - Only show in manage mode */}
+          {/* Level - Only show in manage mode */}
           {mode === 'manage' && (
-            <>
-              {/* Level */}
-              <Box display="flex" justifyContent="space-between">
-                <Text fontSize="xs" color="gray.300">
-                  Level:
-                </Text>
-                <Text fontSize="xs" color="white">
-                  {getLevelLabel(player.level) || 'Unknown'}
-                </Text>
-              </Box>
-              {/* Level Description */}
-              {player.levelDescription && (
-                <Box display="flex" justifyContent="space-between">
-                  <Text fontSize="xs" color="gray.300">
-                    Level Description:
-                  </Text>
-                  <Text
-                    fontSize="xs"
-                    color="white"
-                    maxW="150px"
-                    textAlign="right"
-                  >
-                    {player.levelDescription}
-                  </Text>
-                </Box>
-              )}
-              {/* Desire */}
-              {player.desire && (
-                <Box display="flex" justifyContent="space-between">
-                  <Text fontSize="xs" color="gray.300">
-                    Desire:
-                  </Text>
-                  <Text
-                    fontSize="xs"
-                    color="white"
-                    maxW="150px"
-                    textAlign="right"
-                  >
-                    {player.desire}
-                  </Text>
-                </Box>
-              )}
-            </>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Text color="gray.400">{t('level')}:</Text>
+              <Text color="white" fontWeight="medium">
+                {getLevelShortLabel(player.level) || 'N/A'}
+              </Text>
+            </Box>
           )}
 
-          <Box display="flex" justifyContent="space-between">
-            <Text fontSize="xs" color="gray.300">
-              Matches Played:
-            </Text>
-            <Text fontSize="xs" color="white">
+          {/* Simple check for valid level description - optional display could be added here if needed, 
+              but distinct from the design request which focuses on layout. 
+              Keeping it minimal as per provided image. */}
+
+          {/* Matches Played */}
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Text color="gray.400">{t('matchesPlayed')}:</Text>
+            <Text color="white" fontWeight="medium">
               {player.matchesPlayed || 0}
             </Text>
           </Box>
 
+          {/* Wait Time */}
           {mode === 'manage' &&
             ['WAITING', 'READY'].includes(player.status) && (
-              <Box display="flex" justifyContent="space-between">
-                <Text fontSize="xs" color="gray.300">
-                  Wait Time:
-                </Text>
-                <Text fontSize="xs" color="white">
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Text color="gray.400">{t('waitTime')}:</Text>
+                <Text color="white" fontWeight="medium">
                   {formatWaitTime(player.currentWaitTime)}
                 </Text>
               </Box>
             )}
 
-          {/* Pair - Always show */}
-          <Box display="flex" justifyContent="space-between">
-            <Text fontSize="xs" color="gray.300">
-              Pair:
-            </Text>
-            <Text fontSize="xs" color={pairColors.border} fontWeight="bold">
-              Pair {pairNumber}
+          {/* Pair */}
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Text color="gray.400">{t('pair')}:</Text>
+            <Text color={pairColors.border} fontWeight="bold">
+              {t('pair')} {pairNumber}
             </Text>
           </Box>
         </Box>

@@ -25,7 +25,7 @@ export default function TopBar({
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = '🏸';
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const locale = useLocale();
   const router = useRouter();
 
@@ -92,7 +92,7 @@ export default function TopBar({
             {/* Center - App title */}
             <Heading
               size="lg"
-              color="blue.600"
+              // color="blue.600"
               fontWeight="bold"
               textAlign="center"
               _dark={{ color: 'blue.400' }}
@@ -117,7 +117,7 @@ export default function TopBar({
               justifyContent="flex-end"
               gap={2}
             >
-              <NotificationBell />
+              {isAuthenticated && <NotificationBell />}
               
               <IconButton
                 aria-label="Open menu"

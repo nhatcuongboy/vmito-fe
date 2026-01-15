@@ -348,26 +348,25 @@ export default function SessionDetailContent({
 
   return (
     <MainLayout
-      title={session.name}
+      title={t('title')}
       showBackButton={true}
       backHref="/host/sessions"
       contentPadding={0}
     >
       {/* Add WaitTimeUpdater to automatically update wait times every minute - only for IN_PROGRESS sessions */}
       <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
-      <Container maxW="7xl" py={4}>
-        {/* Session Status Cards */}
-        <SessionStatusHeader
-          session={session}
-          refreshInterval={refreshInterval}
-          lastRefreshed={lastRefreshed}
-          isRefreshing={isRefreshing}
-          isToggleStatusLoading={isToggleStatusLoading}
-          onToggleSessionStatus={toggleSessionStatus}
-          onRefreshData={refreshSessionData}
-        />
+      
+      {/* Session Status Bar - Full width, sticky below TopBar */}
+      <SessionStatusHeader
+        session={session}
+        isRefreshing={isRefreshing}
+        isToggleStatusLoading={isToggleStatusLoading}
+        onToggleSessionStatus={toggleSessionStatus}
+        onRefreshData={refreshSessionData}
+      />
 
-        {/* Bottom Navigation Bar for Tabs */}
+      <Container maxW="7xl" py={2}>
+        {/* Tab Content Area */}
         <Box minH="60vh" pb="80px">
           {session.status !== 'IN_PROGRESS' && activeTab !== 0 && (
             <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
