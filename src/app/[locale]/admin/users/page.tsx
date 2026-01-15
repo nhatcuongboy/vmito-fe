@@ -35,8 +35,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { Pencil, Trash2, Plus, Search, RefreshCcw } from 'lucide-react';
 
 
+import CommonModal from '@/components/ui/CommonModal';
+
 export default function AdminUsersPage() {
   const t = useTranslations('admin');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const { user: currentUser, isAuthenticated, isHydrated } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
@@ -313,182 +316,140 @@ export default function AdminUsersPage() {
         </VStack>
 
         {/* Create User Dialog */}
-        <DialogRoot
-          open={isCreateOpen}
-          onOpenChange={(details) => {
-            if (!details.open) setIsCreateOpen(false);
-          }}
+        <CommonModal
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+          title={t('createUser')}
+          primaryActionText={tCommon('create') || 'Create'}
+          onPrimaryAction={handleCreate}
+          isPrimaryLoading={isSubmitting}
+          secondaryActionText={tCommon('cancel')}
         >
-          <DialogContent maxW="500px">
-            <DialogTitle>Create New User</DialogTitle>
-            <DialogCloseTrigger />
-            <Box p={4}>
-              <VStack gap={4}>
-                <Field.Root>
-                  <Field.Label>Email</Field.Label>
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                  />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Name</Field.Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Password</Field.Label>
-                  <Input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                  />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Role</Field.Label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        role: e.target.value as 'HOST' | 'PLAYER' | 'ADMIN',
-                      })
-                    }
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                    }}
-                  >
-                    <option value="PLAYER">Player</option>
-                    <option value="HOST">Host</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </Field.Root>
-              </VStack>
-            </Box>
-            <Flex justify="flex-end" gap={3} p={4} borderTopWidth="1px">
-              <Button variant="ghost" onClick={() => setIsCreateOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme="blue"
-                onClick={handleCreate}
-                loading={isSubmitting}
+          <VStack gap={4}>
+            <Field.Root>
+              <Field.Label htmlFor="create-email">{t('email')}</Field.Label>
+              <Input
+                id="create-email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
+            </Field.Root>
+            <Field.Root>
+              <Field.Label htmlFor="create-name">{t('name')}</Field.Label>
+              <Input
+                id="create-name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+            </Field.Root>
+            <Field.Root>
+              <Field.Label htmlFor="create-password">{t('password')}</Field.Label>
+              <Input
+                id="create-password"
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
+            </Field.Root>
+            <Field.Root>
+              <Field.Label htmlFor="create-role">{t('role')}</Field.Label>
+              <select
+                id="create-role"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value as 'HOST' | 'PLAYER' | 'ADMIN',
+                  })
+                }
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #e2e8f0',
+                }}
               >
-                Create
-              </Button>
-            </Flex>
-          </DialogContent>
-        </DialogRoot>
+                <option value="PLAYER">Player</option>
+                <option value="HOST">Host</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </Field.Root>
+          </VStack>
+        </CommonModal>
 
         {/* Edit User Dialog */}
-        <DialogRoot
-          open={isEditOpen}
-          onOpenChange={(details) => {
-            if (!details.open) setIsEditOpen(false);
-          }}
+        <CommonModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          title={t('editUser')}
+          primaryActionText={tCommon('save')}
+          onPrimaryAction={handleUpdate}
+          isPrimaryLoading={isSubmitting}
+          secondaryActionText={tCommon('cancel')}
         >
-          <DialogContent maxW="500px">
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogCloseTrigger />
-            <Box p={4}>
-              <VStack gap={4}>
-                <Field.Root>
-                  <Field.Label>Email</Field.Label>
-                  <Input value={formData.email} disabled />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Name</Field.Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Role</Field.Label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        role: e.target.value as 'HOST' | 'PLAYER' | 'ADMIN',
-                      })
-                    }
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                    }}
-                  >
-                    <option value="PLAYER">Player</option>
-                    <option value="HOST">Host</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </Field.Root>
-              </VStack>
-            </Box>
-            <Flex justify="flex-end" gap={3} p={4} borderTopWidth="1px">
-              <Button variant="ghost" onClick={() => setIsEditOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme="blue"
-                onClick={handleUpdate}
-                loading={isSubmitting}
+          <VStack gap={4}>
+            <Field.Root>
+              <Field.Label htmlFor="edit-email">{t('email')}</Field.Label>
+              <Input id="edit-email" value={formData.email} disabled />
+            </Field.Root>
+            <Field.Root>
+              <Field.Label htmlFor="edit-name">{t('name')}</Field.Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+            </Field.Root>
+            <Field.Root>
+              <Field.Label htmlFor="edit-role">{t('role')}</Field.Label>
+              <select
+                id="edit-role"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value as 'HOST' | 'PLAYER' | 'ADMIN',
+                  })
+                }
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #e2e8f0',
+                }}
               >
-                Save
-              </Button>
-            </Flex>
-          </DialogContent>
-        </DialogRoot>
+                <option value="PLAYER">Player</option>
+                <option value="HOST">Host</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </Field.Root>
+          </VStack>
+        </CommonModal>
 
         {/* Delete Confirmation Dialog */}
-        <DialogRoot
-          open={isDeleteOpen}
-          onOpenChange={(details) => {
-            if (!details.open) setIsDeleteOpen(false);
-          }}
+        <CommonModal
+          isOpen={isDeleteOpen}
+          onClose={() => setIsDeleteOpen(false)}
+          title={t('deleteUser')}
+          primaryActionText={tCommon('delete')}
+          onPrimaryAction={handleDelete}
+          isPrimaryLoading={isSubmitting}
+          primaryColorScheme="red"
+          secondaryActionText={tCommon('cancel')}
         >
-          <DialogContent maxW="400px">
-            <DialogTitle>Delete User</DialogTitle>
-            <DialogCloseTrigger />
-            <Box p={4}>
-              <Text>
-                Are you sure you want to delete user{' '}
-                <Text as="span" fontWeight="bold">
-                  {selectedUser?.name}
-                </Text>
-                ? This action cannot be undone.
-              </Text>
-            </Box>
-            <Flex justify="flex-end" gap={3} p={4} borderTopWidth="1px">
-              <Button variant="ghost" onClick={() => setIsDeleteOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                colorPalette="red"
-                onClick={handleDelete}
-                loading={isSubmitting}
-              >
-                Delete
-              </Button>
-            </Flex>
-          </DialogContent>
-        </DialogRoot>
+          <Text>
+            {t('deleteConfirmation', { name: selectedUser?.name || '' })}
+          </Text>
+        </CommonModal>
       </Container>
     </MainLayout>
   );
