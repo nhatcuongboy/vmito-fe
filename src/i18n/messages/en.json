@@ -1241,5 +1241,32 @@
       "accountCreated": "Account created successfully! Please sign in.",
       "registrationFailed": "Registration failed"
     }
+  },
+  "admin": {
+    "title": "Admin",
+    "userManagement": "User Management",
+    "users": "Users",
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "createUser": "Create User",
+    "searchPlaceholder": "Search by email or name...",
+    "allRoles": "All Roles",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "password": "Password",
+    "created": "Created",
+    "actions": "Actions",
+    "noUsersFound": "No users found",
+    "deleteConfirmation": "Are you sure you want to delete user {name}? This action cannot be undone.",
+    "userCreatedSuccess": "User created successfully",
+    "userUpdatedSuccess": "User updated successfully",
+    "userDeletedSuccess": "User deleted successfully",
+    "failedToLoadUsers": "Failed to load users",
+    "failedToCreateUser": "Failed to create user",
+    "failedToUpdateUser": "Failed to update user",
+    "failedToDeleteUser": "Failed to delete user",
+    "accessDenied": "Access denied. Admin only."
   }
 }

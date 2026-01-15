@@ -1241,5 +1241,32 @@
       "accountCreated": "Tạo tài khoản thành công! Vui lòng đăng nhập.",
       "registrationFailed": "Đăng ký thất bại"
     }
+  },
+  "admin": {
+    "title": "Quản trị",
+    "userManagement": "Quản lý người dùng",
+    "users": "Người dùng",
+    "addUser": "Thêm người dùng",
+    "editUser": "Sửa người dùng",
+    "deleteUser": "Xóa người dùng",
+    "createUser": "Tạo người dùng",
+    "searchPlaceholder": "Tìm kiếm theo email hoặc tên...",
+    "allRoles": "Tất cả vai trò",
+    "name": "Tên",
+    "email": "Email",
+    "role": "Vai trò",
+    "password": "Mật khẩu",
+    "created": "Ngày tạo",
+    "actions": "Hành động",
+    "noUsersFound": "Không tìm thấy người dùng",
+    "deleteConfirmation": "Bạn có chắc chắn muốn xóa người dùng {name}? Hành động này không thể hoàn tác.",
+    "userCreatedSuccess": "Tạo người dùng thành công",
+    "userUpdatedSuccess": "Cập nhật người dùng thành công",
+    "userDeletedSuccess": "Xóa người dùng thành công",
+    "failedToLoadUsers": "Không thể tải danh sách người dùng",
+    "failedToCreateUser": "Không thể tạo người dùng",
+    "failedToUpdateUser": "Không thể cập nhật người dùng",
+    "failedToDeleteUser": "Không thể xóa người dùng",
+    "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên."
   }
 }

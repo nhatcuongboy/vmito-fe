@@ -33,7 +33,7 @@ export default function HostDashboard() {
   }, []);
 
   return (
-    <ProtectedRouteGuard requiredRole={['HOST']}>
+    <ProtectedRouteGuard requiredRole={['HOST', 'ADMIN']}>
       {/* Main Content */}
       <Container maxW="container.xl" py={16} mt={10}>
         

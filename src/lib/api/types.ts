@@ -11,6 +11,7 @@ export enum UserRole {
   HOST = 'HOST',
   GUEST = 'GUEST',
   PLAYER = 'PLAYER',
+  ADMIN = 'ADMIN',
 }
 
 // Court Direction enum

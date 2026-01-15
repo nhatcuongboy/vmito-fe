@@ -18,7 +18,11 @@ export default function DashboardPage() {
       <Box minH="100vh">
         {/* Top Bar */}
         <TopBar title={t('title')} />
-        {user?.role === UserRole.HOST ? <HostDashboard /> : <PlayerDashboard />}
+        {user?.role === UserRole.HOST || user?.role === UserRole.ADMIN ? (
+          <HostDashboard />
+        ) : (
+          <PlayerDashboard />
+        )}
       </Box>
     </ProtectedRouteGuard>
   );
