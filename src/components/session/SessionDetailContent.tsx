@@ -377,7 +377,11 @@ export default function SessionDetailContent({
           )}
           
           {activeTab === 0 && (
-            <SessionOverviewTab session={session} />
+            <SessionOverviewTab 
+              session={session} 
+              onToggleSessionStatus={toggleSessionStatus} 
+              isToggleStatusLoading={isToggleStatusLoading} 
+            />
           )}
 
           {activeTab === 1 && (
