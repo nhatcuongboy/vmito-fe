@@ -1,5 +1,5 @@
 'use client';
-
+import { UserRole } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import SessionsList from '@/components/session/SessionsList';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
@@ -28,7 +28,7 @@ export default function HostSessionsPage() {
   ];
 
   return (
-    <ProtectedRouteGuard requiredRole={['HOST']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Box minH="100vh">
         {/* Top Bar */}
         <TopBar

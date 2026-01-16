@@ -157,7 +157,7 @@ export default function TournamentPlayersPage() {
   );
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Box minH="100vh" pb="80px">
         <TopBar
           showBackButton={true}

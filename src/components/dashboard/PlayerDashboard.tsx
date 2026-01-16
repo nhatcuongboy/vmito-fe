@@ -2,7 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { PlayerService } from '@/lib/api/player.service';
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Container, Flex, Grid, Heading } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -31,7 +31,7 @@ export default function PlayerDashboard() {
   }, []);
 
   return (
-    <ProtectedRouteGuard requiredRole={['PLAYER']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
       {/* Main Content */}
       <Container maxW="container.xl" py={16} mt={10}>
         {/* Sessions Section */}

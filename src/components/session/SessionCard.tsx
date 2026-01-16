@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
-import { Calendar, Clock, Shield, SquareAsterisk, Users } from 'lucide-react';
+import { Calendar, Clock, Shield, SquareAsterisk, User, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 
@@ -135,6 +135,12 @@ const SessionCard = ({
         </Flex>
 
         <Stack gap={3} flex={1}>
+          <Flex align="center">
+            <Icon as={User} boxSize={5} mr={2} color="blue.500" />
+            <Text>
+              {t('host')}: <strong>{convertedSession.hostName}</strong>
+            </Text>
+          </Flex>
           <Flex align="center">
             <Icon as={Calendar} boxSize={5} mr={2} color="blue.500" />
             <Text>{convertedSession.date}</Text>

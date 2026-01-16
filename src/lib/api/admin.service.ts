@@ -1,11 +1,13 @@
 import { api } from './base';
 import { ApiResponse } from './types';
 
+import { UserRole } from './types';
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'HOST' | 'PLAYER' | 'ADMIN';
+  role: UserRole;
   image?: string;
   gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
   level?: number;
@@ -20,7 +22,7 @@ export interface CreateUserData {
   email: string;
   name: string;
   password?: string;
-  role: 'HOST' | 'PLAYER' | 'ADMIN';
+  role: UserRole;
   gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
   phone?: string;
 }
@@ -33,7 +35,7 @@ export interface UpdateUserData {
   levelDescription?: string;
   image?: string;
   password?: string;
-  role?: 'HOST' | 'PLAYER' | 'ADMIN';
+  role?: UserRole;
 }
 
 export const AdminService = {

@@ -5,6 +5,7 @@ import { useState, useEffect, use } from 'react';
 import { Spinner, Center, Box, Text } from '@chakra-ui/react';
 import { SessionService } from '@/lib/api/session.service';
 import SessionDetailContent from '@/components/session/SessionDetailContent';
+import { UserRole } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 
 function SessionDetailPageContent({
@@ -139,7 +140,7 @@ export default function SessionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <ProtectedRouteGuard requiredRole={['HOST']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <SessionDetailPageContent params={params} />
     </ProtectedRouteGuard>
   );

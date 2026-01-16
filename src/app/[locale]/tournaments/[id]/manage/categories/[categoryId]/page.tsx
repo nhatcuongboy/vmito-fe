@@ -328,7 +328,7 @@ export default function CategoryManagePage() {
 
   if (loading) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
         <Box minH="100vh">
           <TopBar
             showBackButton={true}
@@ -345,7 +345,7 @@ export default function CategoryManagePage() {
 
   if (!category) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
         <Box minH="100vh">
           <TopBar
             showBackButton={true}
@@ -393,7 +393,7 @@ export default function CategoryManagePage() {
   );
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Box minH="100vh" pb="80px">
         <TopBar
           showBackButton={true}

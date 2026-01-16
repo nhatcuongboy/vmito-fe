@@ -2,7 +2,7 @@
 
 import TopBar from '@/components/ui/TopBar';
 import { SessionService } from '@/lib/api/session.service';
-import { CourtDirection } from '@/lib/api/types';
+import { CourtDirection, UserRole } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -529,7 +529,7 @@ function NewSessionPageContent() {
 
 export default function NewSessionPage() {
   return (
-    <ProtectedRouteGuard requiredRole={['HOST']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Suspense fallback={<div>Loading...</div>}>
         <NewSessionPageContent />
       </Suspense>

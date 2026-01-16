@@ -2,6 +2,7 @@
 
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import { UserRole } from '@/lib/api/types';
 import CourtsTab from '@/components/session/CourtsTab';
 import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
 import { IconButton } from '@/components/ui/chakra-compat';
@@ -776,7 +777,7 @@ function StatusPageContent() {
 
 export default function StatusPage() {
   return (
-    <ProtectedRouteGuard requiredRole={['GUEST']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.GUEST]}>
       <Suspense
         fallback={
           <Center>

@@ -5,6 +5,7 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
+import { UserRole } from '@/lib/api/types';
 import {
   Box,
   Button,
@@ -54,7 +55,7 @@ function SignInForm() {
     // If already authenticated before form submission, redirect
     if (isAuthenticated && user && !isRedirecting) {
       setIsRedirecting(true);
-      const targetPath = user.role !== 'GUEST' ? '/dashboard' : '/join-by-code';
+      const targetPath = user.role !== UserRole.GUEST ? '/dashboard' : '/join-by-code';
       router.replace(targetPath);
     }
   }, [isHydrated, isAuthenticated, user, router, isRedirecting]);
@@ -86,7 +87,7 @@ function SignInForm() {
 
       if (!hasCustomCallback && loginResponse.user) {
         // Default redirect based on role
-        if (loginResponse.user.role === 'HOST' || loginResponse.user.role === 'PLAYER') {
+        if (loginResponse.user.role === UserRole.HOST || loginResponse.user.role === UserRole.PLAYER) {
           redirectPath = '/dashboard';
         } else {
           // GUEST role

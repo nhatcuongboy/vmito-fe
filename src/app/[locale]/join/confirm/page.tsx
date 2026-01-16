@@ -5,7 +5,7 @@ import TopBar from '@/components/ui/TopBar';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { useRouter } from '@/i18n/config';
 import { PlayerService } from '@/lib/api/player.service';
-import { type Player } from '@/lib/api/types';
+import { type Player, UserRole } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -352,7 +352,7 @@ function ConfirmPageContent() {
 
 export default function ConfirmPage() {
   return (
-    <ProtectedRouteGuard requiredRole={['PLAYER']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
       <Suspense fallback={<Spinner />}>
         <ConfirmPageContent />
       </Suspense>

@@ -4,7 +4,7 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import SessionsList from '@/components/session/SessionsList';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { SessionService } from '@/lib/api/session.service';
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Container, Flex, Heading } from '@chakra-ui/react';
 import { Calendar, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -33,7 +33,7 @@ export default function HostDashboard() {
   }, []);
 
   return (
-    <ProtectedRouteGuard requiredRole={['HOST', 'ADMIN']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       {/* Main Content */}
       <Container maxW="container.xl" py={16} mt={10}>
         

@@ -15,7 +15,7 @@ import { Menu as MenuIcon, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { Tournament } from '@/lib/api/types';
+import { Tournament, UserRole } from '@/lib/api/types';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AuthService } from '@/lib/api/auth.service';
@@ -48,7 +48,7 @@ export default function TournamentLayout({
   const handleLogout = () => {
     const userRole = user?.role;
     AuthService.logout();
-    const callbackUrl = userRole === 'HOST' ? '/auth/signin' : '/join-by-code';
+    const callbackUrl = userRole === UserRole.HOST ? '/auth/signin' : '/join-by-code';
     router.push(callbackUrl);
     onMenuClose();
   };

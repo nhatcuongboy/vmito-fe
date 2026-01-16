@@ -1,6 +1,7 @@
 'use client';
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import { UserRole } from '@/lib/api/types';
 import PlayerSessionView from '@/components/session/PlayerSessionView';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Center, Spinner } from '@chakra-ui/react';
@@ -20,7 +21,7 @@ function GuestMySession() {
 
 export default function MySessionPage() {
   return (
-    <ProtectedRouteGuard requiredRole={['GUEST']}>
+    <ProtectedRouteGuard requiredRole={[UserRole.GUEST]}>
       <Suspense
         fallback={
           <Center>

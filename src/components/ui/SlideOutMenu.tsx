@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LanguageSwitcher from './LanguageSwitcher';
+import { UserRole } from '@/lib/api/types';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -88,9 +89,9 @@ export default function SlideOutMenu({
               <Stack gap={2}>
                 <NextLinkButton
                   href={
-                    user?.role === 'HOST'
+                    user?.role === UserRole.HOST || user?.role === UserRole.ADMIN
                       ? '/host/sessions'
-                      : user?.role === 'PLAYER'
+                      : user?.role === UserRole.PLAYER
                         ? `/my-session`
                         : '/'
                   }

@@ -3,6 +3,7 @@
 import MainLayout from '@/components/layout/MainLayout';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { UserRole } from '@/lib/api/types';
 import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -30,7 +31,7 @@ function AuthCallbackContent() {
           id: userId,
           email: email,
           name: name || '',
-          role: role as 'HOST' | 'PLAYER' | 'GUEST',
+          role: role as UserRole,
         },
         token
       );
@@ -41,7 +42,7 @@ function AuthCallbackContent() {
 
         // Redirect based on role
         const redirectPath =
-          role === 'HOST' || role === 'PLAYER' ? '/dashboard' : '/my-session';
+          role === UserRole.HOST || role === UserRole.PLAYER ? '/dashboard' : '/my-session';
         router.replace(redirectPath);
       }, 0);
     } else {

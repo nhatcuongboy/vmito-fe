@@ -11,6 +11,7 @@ import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SlideOutMenu from './SlideOutMenu';
 import NotificationBell from './NotificationBell';
+import { UserRole } from '@/lib/api/types';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -37,8 +38,10 @@ export default function TopBar({
 
   const handleLogout = () => {
     const userRole = user?.role;
+
+
     const callbackUrl =
-      userRole === 'HOST'
+      userRole === UserRole.HOST || userRole === UserRole.ADMIN
         ? `/${locale}/auth/signin`
         : `/${locale}/join-by-code`;
 

@@ -1,10 +1,12 @@
 // Auth types for Backend NestJS JWT authentication
 
+import { UserRole } from '@/lib/api/types';
+
 export interface User {
   id: string;
   email: string;
   name: string | null;
-  role: 'HOST' | 'PLAYER' | 'ADMIN' | 'GUEST';
+  role: UserRole;
   image?: string | null;
 }
 

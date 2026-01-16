@@ -10,6 +10,7 @@ import {
   CreateUserData,
   UpdateUserData,
 } from '@/lib/api/admin.service';
+import { UserRole } from '@/lib/api/types';
 import {
   Badge,
   Box,
@@ -56,7 +57,7 @@ export default function AdminUsersPage() {
     email: '',
     name: '',
     password: '',
-    role: 'PLAYER',
+    role: UserRole.PLAYER,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -94,7 +95,7 @@ export default function AdminUsersPage() {
     }
 
     // Check role after user is loaded
-    if (currentUser.role !== 'ADMIN') {
+    if (currentUser.role !== UserRole.ADMIN) {
       toaster.error({ title: 'Access denied. Admin only.' });
       router.replace('/dashboard');
       return;
@@ -109,7 +110,7 @@ export default function AdminUsersPage() {
       await AdminService.createUser(formData);
       toaster.success({ title: 'User created successfully' });
       setIsCreateOpen(false);
-      setFormData({ email: '', name: '', password: '', role: 'PLAYER' });
+      setFormData({ email: '', name: '', password: '', role: UserRole.PLAYER });
       fetchUsers();
     } catch (error) {
       console.error('Failed to create user:', error);
@@ -168,9 +169,9 @@ export default function AdminUsersPage() {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'ADMIN':
+      case UserRole.ADMIN:
         return 'red';
-      case 'HOST':
+      case UserRole.HOST:
         return 'blue';
       default:
         return 'gray';
@@ -202,7 +203,7 @@ export default function AdminUsersPage() {
             <Button
               colorScheme="blue"
               onClick={() => {
-                setFormData({ email: '', name: '', password: '', role: 'PLAYER' });
+                setFormData({ email: '', name: '', password: '', role: UserRole.PLAYER });
                 setIsCreateOpen(true);
               }}
             >
@@ -236,9 +237,9 @@ export default function AdminUsersPage() {
                 }}
               >
                 <option value="">All Roles</option>
-                <option value="ADMIN">Admin</option>
-                <option value="HOST">Host</option>
-                <option value="PLAYER">Player</option>
+                <option value={UserRole.ADMIN}>Admin</option>
+                <option value={UserRole.HOST}>Host</option>
+                <option value={UserRole.PLAYER}>Player</option>
               </select>
             </Box>
             <IconButton
@@ -366,7 +367,7 @@ export default function AdminUsersPage() {
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    role: e.target.value as 'HOST' | 'PLAYER' | 'ADMIN',
+                    role: e.target.value as UserRole,
                   })
                 }
                 style={{
@@ -417,7 +418,7 @@ export default function AdminUsersPage() {
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    role: e.target.value as 'HOST' | 'PLAYER' | 'ADMIN',
+                    role: e.target.value as UserRole,
                   })
                 }
                 style={{
@@ -427,9 +428,9 @@ export default function AdminUsersPage() {
                   border: '1px solid #e2e8f0',
                 }}
               >
-                <option value="PLAYER">Player</option>
-                <option value="HOST">Host</option>
-                <option value="ADMIN">Admin</option>
+                <option value={UserRole.PLAYER}>Player</option>
+                <option value={UserRole.HOST}>Host</option>
+                <option value={UserRole.ADMIN}>Admin</option>
               </select>
             </Field.Root>
           </VStack>

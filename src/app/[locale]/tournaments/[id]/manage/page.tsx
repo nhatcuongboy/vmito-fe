@@ -133,7 +133,7 @@ export default function TournamentManagePage() {
 
   if (loading) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
         <Box minH="100vh">
           <TopBar
             showBackButton={true}
@@ -150,7 +150,7 @@ export default function TournamentManagePage() {
 
   if (!tournament) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
         <Box minH="100vh">
           <TopBar
             showBackButton={true}
@@ -167,11 +167,11 @@ export default function TournamentManagePage() {
 
   // Check if user is the host
   const isHost = user?.role === UserRole.HOST;
-  const canManage = isHost && tournament.hostId === user?.id;
+  const canManage = (isHost && tournament.hostId === user?.id) || user?.role === UserRole.ADMIN;
 
   if (!canManage) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
         <Box minH="100vh">
           <TopBar
             showBackButton={true}
@@ -187,7 +187,7 @@ export default function TournamentManagePage() {
   }
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST]}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Box minH="100vh" pb="80px">
         <TopBar
           showBackButton={true}
