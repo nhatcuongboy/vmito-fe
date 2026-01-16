@@ -1,15 +1,10 @@
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-} from '@chakra-ui/react';
-import { 
-  Button, 
-  Card, 
-  CardBody, 
-  VStack, 
-  HStack 
+  Button,
+  Card,
+  CardBody,
+  VStack,
+  HStack,
 } from '@/components/ui/chakra-compat';
 import { Plus, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -26,7 +21,11 @@ interface PlayerListProps {
   onEditPlayer: (player: Player) => void;
   onCancelEditPlayer: (playerId: string) => void;
   onSavePlayer: (playerId: string) => void;
-  onUpdateEditingPlayer: (playerId: string, field: string, value: string | boolean) => void;
+  onUpdateEditingPlayer: (
+    playerId: string,
+    field: string,
+    value: string | boolean
+  ) => void;
   onDeletePlayer: (playerId: string) => void;
   onShowQR: (player: Player) => void;
 }

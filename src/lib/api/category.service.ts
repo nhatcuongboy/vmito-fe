@@ -268,9 +268,9 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}/registrations/bulk`,
       { categoryRegistrationIds: registrationIds }
     );
-    toaster.success({ title: 
-      `Successfully assigned ${registrationIds.length} registration(s) to group`
-     });
+    toaster.success({
+      title: `Successfully assigned ${registrationIds.length} registration(s) to group`,
+    });
     return response.data.data!;
   },
 

@@ -323,7 +323,6 @@ export default function SessionManagement({
                         </Text>
                       </Box>
                       <Box textAlign="right">
-
                         <Text fontSize="sm" color="gray.600">
                           {player.currentWaitTime}min
                         </Text>

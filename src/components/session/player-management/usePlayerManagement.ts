@@ -65,7 +65,9 @@ export const usePlayerManagement = (
     if (session.requiredLevels && session.requiredLevels.length > 0) {
       return session.requiredLevels as number[];
     }
-    return Object.values(LEVELS).filter((val) => typeof val === 'number') as number[];
+    return Object.values(LEVELS).filter(
+      (val) => typeof val === 'number'
+    ) as number[];
   };
 
   // Player management functions
@@ -119,14 +121,14 @@ export const usePlayerManagement = (
         i === index ? { ...player, [field]: value } : player
       )
     );
-     // Clear error when user starts typing name
-     if (field === 'name' && newPlayerErrors[index]) {
-        setNewPlayerErrors((prev) => {
-          const newState = {...prev};
-          delete newState[index];
-          return newState;
-        });
-      }
+    // Clear error when user starts typing name
+    if (field === 'name' && newPlayerErrors[index]) {
+      setNewPlayerErrors((prev) => {
+        const newState = { ...prev };
+        delete newState[index];
+        return newState;
+      });
+    }
   };
 
   // Handle user selection from dropdown
@@ -196,11 +198,11 @@ export const usePlayerManagement = (
   const startEditingPlayer = (player: Player) => {
     setEditingPlayers((prev) => ({
       ...prev,
-      [player.id]: { 
+      [player.id]: {
         ...player,
         levelDescription: player.levelDescription || '',
-        requireConfirmInfo: !!player.requireConfirmInfo,    
-    },
+        requireConfirmInfo: !!player.requireConfirmInfo,
+      },
     }));
   };
 
@@ -239,7 +241,7 @@ export const usePlayerManagement = (
 
   const savePlayerChanges = async () => {
     if (!validateNewPlayers()) {
-        return;
+      return;
     }
 
     try {
@@ -372,15 +374,18 @@ export const usePlayerManagement = (
   };
 
   const confirmAddPlayerDespiteWarning = () => {
-      setShowMaxPlayersWarning(false);
-      addNewPlayerRow();
-  }
+    setShowMaxPlayersWarning(false);
+    addNewPlayerRow();
+  };
 
   const cancelAddPlayer = () => {
-      setShowMaxPlayersWarning(false);
-  }
+    setShowMaxPlayersWarning(false);
+  };
 
-  const isUserAlreadyUsed = (userId: string, currentIndex?: number): boolean => {
+  const isUserAlreadyUsed = (
+    userId: string,
+    currentIndex?: number
+  ): boolean => {
     const inNewPlayers = newPlayers.some(
       (p, idx) =>
         p.userId === userId &&
@@ -396,21 +401,20 @@ export const usePlayerManagement = (
   const lastPlayerCount = useRef(newPlayers.length);
   useEffect(() => {
     if (newPlayers.length > lastPlayerCount.current) {
-        const newPlayerIndex = newPlayers.length - 1;
-        const newPlayer = newPlayers[newPlayerIndex];
-        if (newPlayer && (!newPlayer.name || newPlayer.name.trim() === '')) {
-             setTimeout(() => {
-                updateNewPlayer(
-                    newPlayerIndex,
-                    'name',
-                    `Player ${newPlayer.playerNumber}`
-                );
-            }, 10);
-        }
+      const newPlayerIndex = newPlayers.length - 1;
+      const newPlayer = newPlayers[newPlayerIndex];
+      if (newPlayer && (!newPlayer.name || newPlayer.name.trim() === '')) {
+        setTimeout(() => {
+          updateNewPlayer(
+            newPlayerIndex,
+            'name',
+            `Player ${newPlayer.playerNumber}`
+          );
+        }, 10);
+      }
     }
     lastPlayerCount.current = newPlayers.length;
   }, [newPlayers.length]);
-
 
   return {
     // State

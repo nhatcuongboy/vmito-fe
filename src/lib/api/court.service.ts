@@ -24,7 +24,7 @@ export const CourtService = {
     const params: Record<string, string> = {};
     if (topCount) params.topCount = topCount.toString();
     if (useAi) params.useAi = 'true';
-    
+
     const response = await api.get<ApiResponse<SuggestedPlayersResponse>>(
       `/courts/${courtId}/suggested-players`,
       { params }

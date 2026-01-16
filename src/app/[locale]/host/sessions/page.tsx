@@ -4,13 +4,7 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import SessionsList from '@/components/session/SessionsList';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  VStack
-} from '@chakra-ui/react';
+import { Box, Container, Flex, Heading, VStack } from '@chakra-ui/react';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';

@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  VStack,
-  Flex,
-  Heading,
-  HStack,
-  Button,
-  Text,
-} from '@chakra-ui/react';
+import { VStack, Flex, Heading, HStack, Button, Text } from '@chakra-ui/react';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
 

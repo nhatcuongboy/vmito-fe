@@ -46,11 +46,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // Initialize socket connection
     // Use environment variable or default to localhost:3001
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    
+
     // Strip /api from the URL if it exists, as Socket.io works at the root path by default
     // and we use namespaces to separate concerns.
-    const socketBaseUrl = apiUrl.endsWith('/api') 
-      ? apiUrl.slice(0, -4) 
+    const socketBaseUrl = apiUrl.endsWith('/api')
+      ? apiUrl.slice(0, -4)
       : apiUrl;
 
     // Create socket instance with autoConnect: true
@@ -98,7 +98,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SocketContext.Provider
-      value={{ socket, isConnected, connectionError, joinSession, leaveSession }}
+      value={{
+        socket,
+        isConnected,
+        connectionError,
+        joinSession,
+        leaveSession,
+      }}
     >
       {children}
     </SocketContext.Provider>

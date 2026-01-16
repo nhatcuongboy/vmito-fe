@@ -112,7 +112,9 @@ export default function NewTournamentPage() {
       router.push(`/${locale}/tournaments/${tournament.id}/manage`);
     } catch (error: any) {
       console.error('Error creating tournament:', error);
-      toaster.error({ title: error.response?.data?.error || 'Failed to create tournament' });
+      toaster.error({
+        title: error.response?.data?.error || 'Failed to create tournament',
+      });
     } finally {
       setIsLoading(false);
     }

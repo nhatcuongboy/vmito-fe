@@ -290,18 +290,18 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 <VStack gap={2}>
                   <HStack gap={1} justify="center">
                     <Box as={Users} boxSize={3} color="blue.500" />
-                    <Text
-                      fontSize="sm"
-                      fontWeight="semibold"
-                      color="blue.600"
-                    >
+                    <Text fontSize="sm" fontWeight="semibold" color="blue.600">
                       {t('matchResult.pair1')}
                     </Text>
                   </HStack>
                   <VStack gap={1}>
                     {pair1.map((player) => (
                       <VStack key={player.id} gap={0}>
-                        <Text fontSize="xs" fontWeight="medium" textAlign="center">
+                        <Text
+                          fontSize="xs"
+                          fontWeight="medium"
+                          textAlign="center"
+                        >
                           #{player.player.playerNumber} -{' '}
                           {player.player.name ||
                             `Player ${player.player.playerNumber}`}
@@ -356,7 +356,11 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                   <VStack gap={1}>
                     {pair2.map((player) => (
                       <VStack key={player.id} gap={0}>
-                        <Text fontSize="xs" fontWeight="medium" textAlign="center">
+                        <Text
+                          fontSize="xs"
+                          fontWeight="medium"
+                          textAlign="center"
+                        >
                           #{player.player.playerNumber} -{' '}
                           {player.player.name ||
                             `Player ${player.player.playerNumber}`}

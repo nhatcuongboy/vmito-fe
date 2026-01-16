@@ -369,9 +369,7 @@ export const PlayerGrid = ({
         primaryActionText={
           confirmDialog.action === 'pause' ? 'Pause' : 'Continue'
         }
-        primaryColorScheme={
-          confirmDialog.action === 'pause' ? 'red' : 'green'
-        }
+        primaryColorScheme={confirmDialog.action === 'pause' ? 'red' : 'green'}
         onPrimaryAction={() => handleToggleInactive(confirmDialog.playerId)}
         isPrimaryLoading={isLoading}
         secondaryActionText="Cancel"

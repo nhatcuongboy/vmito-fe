@@ -31,7 +31,9 @@ export default function SessionsList({
   const locale = useLocale();
 
   const isExternalControl = externalSessions !== undefined;
-  const sessions = isExternalControl ? externalSessions || [] : internalSessions;
+  const sessions = isExternalControl
+    ? externalSessions || []
+    : internalSessions;
   const loading = isExternalControl
     ? externalLoading || false
     : internalLoading;
@@ -43,10 +45,10 @@ export default function SessionsList({
         setInternalLoading(true);
       }
       await SessionService.deleteSession(id);
-      
+
       if (isExternalControl) {
         if (onRefresh) {
-            onRefresh();
+          onRefresh();
         }
       } else {
         setInternalSessions((prev) => prev.filter((s) => s.id !== id));

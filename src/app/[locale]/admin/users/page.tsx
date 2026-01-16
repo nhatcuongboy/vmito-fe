@@ -35,7 +35,6 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback } from 'react';
 import { Pencil, Trash2, Plus, Search, RefreshCcw } from 'lucide-react';
 
-
 import CommonModal from '@/components/ui/CommonModal';
 
 export default function AdminUsersPage() {
@@ -203,7 +202,12 @@ export default function AdminUsersPage() {
             <Button
               colorScheme="blue"
               onClick={() => {
-                setFormData({ email: '', name: '', password: '', role: UserRole.PLAYER });
+                setFormData({
+                  email: '',
+                  name: '',
+                  password: '',
+                  role: UserRole.PLAYER,
+                });
                 setIsCreateOpen(true);
               }}
             >
@@ -221,7 +225,12 @@ export default function AdminUsersPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 pl={10}
               />
-              <Box position="absolute" left={3} top="50%" transform="translateY(-50%)">
+              <Box
+                position="absolute"
+                left={3}
+                top="50%"
+                transform="translateY(-50%)"
+              >
                 <Search size={16} color="gray" />
               </Box>
             </Box>
@@ -242,10 +251,7 @@ export default function AdminUsersPage() {
                 <option value={UserRole.PLAYER}>Player</option>
               </select>
             </Box>
-            <IconButton
-              aria-label="Refresh"
-              onClick={fetchUsers}
-            >
+            <IconButton aria-label="Refresh" onClick={fetchUsers}>
               <RefreshCcw size={18} />
             </IconButton>
           </Flex>
@@ -265,7 +271,9 @@ export default function AdminUsersPage() {
                   <Table.ColumnHeader>Email</Table.ColumnHeader>
                   <Table.ColumnHeader>Role</Table.ColumnHeader>
                   <Table.ColumnHeader>Created</Table.ColumnHeader>
-                  <Table.ColumnHeader textAlign="right">Actions</Table.ColumnHeader>
+                  <Table.ColumnHeader textAlign="right">
+                    Actions
+                  </Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
@@ -349,7 +357,9 @@ export default function AdminUsersPage() {
               />
             </Field.Root>
             <Field.Root>
-              <Field.Label htmlFor="create-password">{t('password')}</Field.Label>
+              <Field.Label htmlFor="create-password">
+                {t('password')}
+              </Field.Label>
               <Input
                 id="create-password"
                 type="password"
@@ -455,4 +465,3 @@ export default function AdminUsersPage() {
     </MainLayout>
   );
 }
-

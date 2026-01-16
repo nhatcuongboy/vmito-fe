@@ -9,6 +9,7 @@ import { Box, Container, Flex, Heading } from '@chakra-ui/react';
 import { Calendar, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import PendingRequestsList from './PendingRequestsList';
 import OverviewStats from './OverviewStats';
 
 export default function HostDashboard() {
@@ -36,11 +37,13 @@ export default function HostDashboard() {
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       {/* Main Content */}
       <Container maxW="container.xl" py={16} mt={10}>
-        
         {/* Overview Stats */}
         <Box mb={8}>
-           <OverviewStats sessions={sessions} />
+          <OverviewStats sessions={sessions} />
         </Box>
+
+        {/* Pending Requests */}
+        <PendingRequestsList />
 
         {/* Sessions Section */}
         <Box mb={10}>
@@ -66,9 +69,9 @@ export default function HostDashboard() {
               </NextLinkButton>
             </Flex>
           </Flex>
-          <SessionsList 
-            status="UPCOMING_AND_INPROGRESS" 
-            mode="manage" 
+          <SessionsList
+            status="UPCOMING_AND_INPROGRESS"
+            mode="manage"
             sessions={sessions}
             isLoading={loading}
             onRefresh={fetchSessions}

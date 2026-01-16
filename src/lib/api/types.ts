@@ -63,6 +63,7 @@ export interface Player {
   totalWaitTime: number;
   matchesPlayed: number;
   status: 'WAITING' | 'PLAYING' | 'FINISHED' | 'READY' | 'INACTIVE';
+  registrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   currentCourtId?: string;
   currentCourt?: Court;
   preFilledByHost: boolean;

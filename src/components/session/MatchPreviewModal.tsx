@@ -288,13 +288,22 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                 AI-Powered Matching
               </Text>
             </HStack>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
               <input
                 type="checkbox"
                 checked={useAi}
                 onChange={handleAiToggle}
                 disabled={isLoadingConfirm}
-                style={{ marginRight: '8px', cursor: isLoadingConfirm ? 'not-allowed' : 'pointer' }}
+                style={{
+                  marginRight: '8px',
+                  cursor: isLoadingConfirm ? 'not-allowed' : 'pointer',
+                }}
               />
               <Text fontSize="sm" color="purple.600">
                 {useAi ? 'On' : 'Off'}
@@ -302,7 +311,14 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             </label>
           </HStack>
           {suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
-            <Box mt={2} p={2} bg="white" borderRadius="md" fontSize="xs" color="purple.600">
+            <Box
+              mt={2}
+              p={2}
+              bg="white"
+              borderRadius="md"
+              fontSize="xs"
+              color="purple.600"
+            >
               <Text fontWeight="medium">AI Reasoning:</Text>
               <Text>{suggestedPlayers.aiReason}</Text>
             </Box>
@@ -313,10 +329,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
           <BadmintonCourt
             players={allPlayers}
             isActive={true}
-            courtName={getCourtDisplayName(
-              court.courtName,
-              court.courtNumber
-            )}
+            courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
             width="100%"
             showTimeInCenter={false}
             isLoading={isLoadingConfirm}
@@ -328,12 +341,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
         {/* Display pair information */}
         <VStack gap={2} mt={2}>
           {!isLoadingConfirm && suggestedPlayers && (
-            <HStack
-              justify="space-between"
-              width="full"
-              px={4}
-              align="center"
-            >
+            <HStack justify="space-between" width="full" px={4} align="center">
               <HStack gap={2} justify="center" flex="1">
                 <Badge colorPalette="blue" variant="solid" fontSize="sm">
                   {t('courtsTab.pair1')}
@@ -463,11 +471,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                   >
                     {t('courtsTab.gapLabel')}
                   </Text>
-                  <Badge
-                    colorPalette="yellow"
-                    variant="solid"
-                    fontSize="xs"
-                  >
+                  <Badge colorPalette="yellow" variant="solid" fontSize="xs">
                     {suggestedPlayers.scoreDifference}
                   </Badge>
                 </Flex>

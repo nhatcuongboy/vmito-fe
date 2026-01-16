@@ -37,11 +37,11 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/bulk`,
       playersData
     );
-    toaster.success({ title: 
-      `${
+    toaster.success({
+      title: `${
         response.data.data!.createdPlayers.length
-      } players created successfully`
-     });
+      } players created successfully`,
+    });
     return response.data.data!;
   },
 
@@ -83,7 +83,9 @@ export const PlayerService = {
     sessionId: string,
     minutesToAdd: number = 1
   ): Promise<{ updatedCount: number; players: Player[] }> => {
-    console.warn('PlayerService.updateWaitTimes is deprecated. Wait times are now calculated automatically.');
+    console.warn(
+      'PlayerService.updateWaitTimes is deprecated. Wait times are now calculated automatically.'
+    );
     const response = await api.put<
       ApiResponse<{ updatedCount: number; players: Player[] }>
     >(`/sessions/${sessionId}/wait-times`, {
@@ -134,6 +136,40 @@ export const PlayerService = {
   getMySessions: async (): Promise<ISession[]> => {
     const response = await api.get<ApiResponse<ISession[]>>(
       '/players/me/sessions'
+    );
+    return response.data.data || [];
+  },
+
+  // Register players for a session
+  registerPlayers: async (
+    sessionId: string,
+    players: Partial<Player>[]
+  ): Promise<{ createdPlayers: Player[]; message: string }> => {
+    const response = await api.post<
+      ApiResponse<{ createdPlayers: Player[]; message: string }>
+    >(`/sessions/${sessionId}/players/register`, { players });
+    toaster.success({ title: response.data.data!.message });
+    return response.data.data!;
+  },
+
+  // Update player registration status
+  updatePlayerStatus: async (
+    sessionId: string,
+    playerId: string,
+    status: 'APPROVED' | 'REJECTED'
+  ): Promise<Player> => {
+    const response = await api.patch<ApiResponse<Player>>(
+      `/sessions/${sessionId}/players/${playerId}/status`,
+      { status }
+    );
+    toaster.success({ title: `Player ${status.toLowerCase()} successfully` });
+    return response.data.data!;
+  },
+
+  // Get pending requests for host
+  getPendingRequests: async (): Promise<Player[]> => {
+    const response = await api.get<ApiResponse<Player[]>>(
+      '/players/pending-requests'
     );
     return response.data.data || [];
   },

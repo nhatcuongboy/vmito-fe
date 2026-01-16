@@ -167,7 +167,8 @@ export default function TournamentManagePage() {
 
   // Check if user is the host
   const isHost = user?.role === UserRole.HOST;
-  const canManage = (isHost && tournament.hostId === user?.id) || user?.role === UserRole.ADMIN;
+  const canManage =
+    (isHost && tournament.hostId === user?.id) || user?.role === UserRole.ADMIN;
 
   if (!canManage) {
     return (

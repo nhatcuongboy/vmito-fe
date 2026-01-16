@@ -19,12 +19,7 @@ import {
 import { VALID_LEVELS } from '@/constants/levels';
 import { UserOption } from '@/lib/api/user.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import {
-  Plus,
-  Save,
-  Trash2,
-  UserCheck,
-} from 'lucide-react';
+import { Plus, Save, Trash2, UserCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { NewPlayer } from './types';
@@ -36,7 +31,11 @@ interface NewPlayerListProps {
   errors: { [index: number]: string };
   availableLevels: number[];
   isSaving: boolean;
-  onUpdatePlayer: (index: number, field: string, value: string | boolean) => void;
+  onUpdatePlayer: (
+    index: number,
+    field: string,
+    value: string | boolean
+  ) => void;
   onRemovePlayer: (index: number) => void;
   onUserSelect: (index: number, userId: string) => void;
   onAddPlayer: () => void;
@@ -131,9 +130,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                       </Text>
                       <select
                         value={player.userId || ''}
-                        onChange={(e) =>
-                          onUserSelect(index, e.target.value)
-                        }
+                        onChange={(e) => onUserSelect(index, e.target.value)}
                         style={{
                           width: '100%',
                           padding: '12px',
@@ -182,18 +179,12 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                           onUpdatePlayer(index, 'name', e.target.value);
                         }}
                         size="md"
-                        borderColor={
-                          errors[index] ? 'red.400' : undefined
-                        }
+                        borderColor={errors[index] ? 'red.400' : undefined}
                         boxShadow={
-                          errors[index]
-                            ? '0 0 0 1px #F56565'
-                            : undefined
+                          errors[index] ? '0 0 0 1px #F56565' : undefined
                         }
                         _focus={{
-                          borderColor: errors[index]
-                            ? 'red.400'
-                            : 'blue.500',
+                          borderColor: errors[index] ? 'red.400' : 'blue.500',
                           boxShadow: errors[index]
                             ? '0 0 0 1px #F56565'
                             : '0 0 0 1px #3182ce',
@@ -238,9 +229,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                               : 'white',
                             fontSize: '14px',
                             opacity: player.userId ? 0.6 : 1,
-                            cursor: player.userId
-                              ? 'not-allowed'
-                              : 'pointer',
+                            cursor: player.userId ? 'not-allowed' : 'pointer',
                           }}
                           disabled={!!player.userId}
                         >
@@ -276,9 +265,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                               : 'white',
                             fontSize: '14px',
                             opacity: player.userId ? 0.6 : 1,
-                            cursor: player.userId
-                              ? 'not-allowed'
-                              : 'pointer',
+                            cursor: player.userId ? 'not-allowed' : 'pointer',
                           }}
                           disabled={!!player.userId}
                         >
@@ -306,9 +293,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                         placeholder={t('levelDescriptionPlaceholder')}
                         size="md"
                         value={player.levelDescription || ''}
-                        onChange={(
-                          e: React.ChangeEvent<HTMLTextAreaElement>
-                        ) =>
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                           onUpdatePlayer(
                             index,
                             'levelDescription',

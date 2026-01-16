@@ -507,7 +507,6 @@ export const useColorModeValue = (lightValue: any, darkValue: any) => {
   return lightValue;
 };
 
-
 // Create Modal components
 interface ModalProps {
   isOpen: boolean;

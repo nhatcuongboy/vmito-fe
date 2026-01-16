@@ -110,10 +110,10 @@ export function AddPlayerForm({
               >
                 <option value="">Select Level</option>
                 {VALID_LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {getLevelLabel(level)}
-                    </option>
-                  ))}
+                  <option key={level} value={level}>
+                    {getLevelLabel(level)}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

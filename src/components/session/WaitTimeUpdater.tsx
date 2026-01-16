@@ -16,7 +16,7 @@ export default function WaitTimeUpdater({
   // Function to update wait times
   const updateWaitTimes = async () => {
     if (isUpdating) return;
-    
+
     // Only update wait times if session is IN_PROGRESS
     if (sessionStatus !== 'IN_PROGRESS') {
       return;

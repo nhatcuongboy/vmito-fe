@@ -5,15 +5,8 @@ import NewPlayerList from '@/components/session/player-management/NewPlayerList'
 import PlayerList from '@/components/session/player-management/PlayerList';
 import PlayerStatsHeader from '@/components/session/player-management/PlayerStatsHeader';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
-import {
-  Box,
-  Text,
-} from '@chakra-ui/react';
-import {
-  Button,
-  HStack,
-  VStack,
-} from '@/components/ui/chakra-compat';
+import { Box, Text } from '@chakra-ui/react';
+import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { AlertCircle, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -89,41 +82,41 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       {/* Add Player button when no new players (handled inside NewPlayerList but needed here if list empty) */}
       {/* Actually, PlayerStatsHeader doesn't have the button. The original code had it below header. */}
       {newPlayers.length === 0 && (
-         <NewPlayerList
-            newPlayers={newPlayers}
-            availableUsers={availableUsers}
-            isLoadingUsers={isLoadingUsers}
-            errors={newPlayerErrors}
-            availableLevels={availableLevels}
-            isSaving={isSaving}
-            onUpdatePlayer={updateNewPlayer}
-            onRemovePlayer={removeNewPlayerRow}
-            onUserSelect={handleUserSelection}
-            onAddPlayer={handleAddNewPlayer}
-            onSaveAll={savePlayerChanges}
-            onCancelAll={clearAllNewPlayers}
-            isUserAlreadyUsed={isUserAlreadyUsed}
+        <NewPlayerList
+          newPlayers={newPlayers}
+          availableUsers={availableUsers}
+          isLoadingUsers={isLoadingUsers}
+          errors={newPlayerErrors}
+          availableLevels={availableLevels}
+          isSaving={isSaving}
+          onUpdatePlayer={updateNewPlayer}
+          onRemovePlayer={removeNewPlayerRow}
+          onUserSelect={handleUserSelection}
+          onAddPlayer={handleAddNewPlayer}
+          onSaveAll={savePlayerChanges}
+          onCancelAll={clearAllNewPlayers}
+          isUserAlreadyUsed={isUserAlreadyUsed}
         />
       )}
 
       {newPlayers.length > 0 && (
-          <NewPlayerList
-            newPlayers={newPlayers}
-            availableUsers={availableUsers}
-            isLoadingUsers={isLoadingUsers}
-            errors={newPlayerErrors}
-            availableLevels={availableLevels}
-            isSaving={isSaving}
-            onUpdatePlayer={updateNewPlayer}
-            onRemovePlayer={removeNewPlayerRow}
-            onUserSelect={handleUserSelection}
-            onAddPlayer={handleAddNewPlayer}
-            onSaveAll={savePlayerChanges}
-            onCancelAll={clearAllNewPlayers}
-            isUserAlreadyUsed={isUserAlreadyUsed}
+        <NewPlayerList
+          newPlayers={newPlayers}
+          availableUsers={availableUsers}
+          isLoadingUsers={isLoadingUsers}
+          errors={newPlayerErrors}
+          availableLevels={availableLevels}
+          isSaving={isSaving}
+          onUpdatePlayer={updateNewPlayer}
+          onRemovePlayer={removeNewPlayerRow}
+          onUserSelect={handleUserSelection}
+          onAddPlayer={handleAddNewPlayer}
+          onSaveAll={savePlayerChanges}
+          onCancelAll={clearAllNewPlayers}
+          isUserAlreadyUsed={isUserAlreadyUsed}
         />
       )}
-      
+
       {/* Logic correction: NewPlayerList renders nothing if newPlayers.length === 0.
           But we need the "Add Player" button initially.
           The original code had:
@@ -131,24 +124,24 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
           NewPlayerList only renders if items exist.
           I should expose the "Empty State Add Button" or add it here.
       */}
-      
+
       {newPlayers.length === 0 && (
-         <HStack justify="flex-end" w="100%">
-            <Button
-              leftIcon={<Box as={Plus} boxSize={4} />}
-              colorScheme="green"
-              onClick={handleAddNewPlayer}
-            >
-              {t('addPlayer')}
-            </Button>
-         </HStack>
+        <HStack justify="flex-end" w="100%">
+          <Button
+            leftIcon={<Box as={Plus} boxSize={4} />}
+            colorScheme="green"
+            onClick={handleAddNewPlayer}
+          >
+            {t('addPlayer')}
+          </Button>
+        </HStack>
       )}
 
       {/* Re-evaluating NewPlayerList. 
           NewPlayerList returns null if length is 0.
           So we need to render the "Add Player" button explicitly when length is 0.
       */}
-      
+
       {/* Player List */}
       <PlayerList
         players={session.players}
@@ -164,8 +157,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onShowQR={showPlayerQR}
       />
 
-       {/* Warning popup for exceeding recommended player limit */}
-       <CommonModal
+      {/* Warning popup for exceeding recommended player limit */}
+      <CommonModal
         isOpen={showMaxPlayersWarning}
         onClose={cancelAddPlayer}
         title={
@@ -189,7 +182,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             })}
           </Text>
 
-          <VStack align="start" spacing={2} pl={4} bg="gray.50" p={4} borderRadius="md">
+          <VStack
+            align="start"
+            spacing={2}
+            pl={4}
+            bg="gray.50"
+            p={4}
+            borderRadius="md"
+          >
             <Text fontSize="sm" color="gray.600" fontWeight="medium">
               Adding more players may result in:
             </Text>
@@ -227,12 +227,23 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       >
         {selectedPlayerForQR && (
           <VStack gap={6} py={4}>
-            <Text textAlign="center" color="gray.800" fontWeight="semibold" fontSize="lg">
+            <Text
+              textAlign="center"
+              color="gray.800"
+              fontWeight="semibold"
+              fontSize="lg"
+            >
               {selectedPlayerForQR.name ||
                 `Player ${selectedPlayerForQR.playerNumber}`}
             </Text>
 
-            <Box p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
+            <Box
+              p={4}
+              bg="gray.50"
+              borderRadius="xl"
+              border="1px solid"
+              borderColor="gray.100"
+            >
               {selectedPlayerForQR.joinCode ? (
                 <QRCodeGenerator
                   joinCode={selectedPlayerForQR.joinCode}
@@ -240,8 +251,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                 />
               ) : (
                 <VStack p={10} justify="center" align="center">
-                   <Box as={AlertCircle} boxSize={10} color="red.400" mb={2} />
-                   <Text color="red.500" textAlign="center" fontWeight="medium">
+                  <Box as={AlertCircle} boxSize={10} color="red.400" mb={2} />
+                  <Text color="red.500" textAlign="center" fontWeight="medium">
                     {t('qrCodeModal.joinCodeNotAvailable')}
                   </Text>
                 </VStack>

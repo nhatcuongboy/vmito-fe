@@ -142,8 +142,6 @@ function StatusPageContent() {
         if (sessionData) {
           setSession(sessionData);
 
-
-
           // Get match and court info if player is playing or ready
           if (
             (playerData.status === 'PLAYING' ||
@@ -185,9 +183,9 @@ function StatusPageContent() {
       } else {
         // Only show toast for background refresh errors
         if (isBackgroundRefresh) {
-          toaster.error({ title: 
-            t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu'
-           });
+          toaster.error({
+            title: t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu',
+          });
           // Don't set error state for background refresh failures
         } else {
           setError('GENERAL_ERROR');
@@ -670,8 +668,6 @@ function StatusPageContent() {
                         </Text>
                       </Box>
                     </Flex>
-
-
                   </Stack>
                 </Box>
 

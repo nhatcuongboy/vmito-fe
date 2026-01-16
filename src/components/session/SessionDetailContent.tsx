@@ -19,6 +19,9 @@ import { useTranslations } from 'next-intl';
 import WaitTimeUpdater from './WaitTimeUpdater';
 import SessionOverviewTab from './SessionOverviewTab';
 import { CommonModal } from '@/components/ui/CommonModal';
+import BottomNavigationBar, {
+  NavigationTab,
+} from '@/components/ui/BottomNavigationBar';
 // import AiAssistant from './AiAssistant';
 
 // Types for session data and related entities
@@ -116,7 +119,14 @@ export default function SessionDetailContent({
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [pendingAction, setPendingAction] = useState<string>('');
 
-  
+  // Define navigation tabs
+  const navigationTabs: NavigationTab[] = [
+    { id: 0, label: t('overview'), icon: Info },
+    { id: 1, label: t('courts'), icon: Square },
+    { id: 2, label: t('players'), icon: Users },
+    { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
+    { id: 4, label: t('settings'), icon: RefreshCw },
+  ];
 
   // Function to update URL with current tab
   const updateTabInURL = (tabIndex: number) => {
@@ -355,7 +365,7 @@ export default function SessionDetailContent({
     >
       {/* Add WaitTimeUpdater to automatically update wait times every minute - only for IN_PROGRESS sessions */}
       <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
-      
+
       {/* Session Status Bar - Full width, sticky below TopBar */}
       <SessionStatusHeader
         session={session}
@@ -375,12 +385,12 @@ export default function SessionDetailContent({
                 : t('courtsTab.sessionHasEnded')}
             </Text>
           )}
-          
+
           {activeTab === 0 && (
-            <SessionOverviewTab 
-              session={session} 
-              onToggleSessionStatus={toggleSessionStatus} 
-              isToggleStatusLoading={isToggleStatusLoading} 
+            <SessionOverviewTab
+              session={session}
+              onToggleSessionStatus={toggleSessionStatus}
+              isToggleStatusLoading={isToggleStatusLoading}
             />
           )}
 
@@ -428,91 +438,11 @@ export default function SessionDetailContent({
         </Box>
 
         {/* Bottom Navigation Bar */}
-        <Box
-          position="fixed"
-          left={0}
-          right={0}
-          bottom={0}
-          zIndex={100}
-          bg="white"
-          borderTopWidth="1px"
-          boxShadow="md"
-          display="flex"
-          justifyContent="space-around"
-          alignItems="center"
-          height="64px"
-        >
-          <Box
-            as="button"
-            flex={1}
-            py={2}
-            onClick={() => handleTabChange(0)}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color={activeTab === 0 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 0 ? 'bold' : 'normal'}
-          >
-           <Box as={Info} boxSize={6} mb={1} />
-            {t('overview')}
-          </Box>
-          <Box
-            as="button"
-            flex={1}
-            py={2}
-            onClick={() => handleTabChange(1)}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color={activeTab === 1 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 1 ? 'bold' : 'normal'}
-          >
-            <Box as={Square} boxSize={6} mb={1} />
-            {t('courts')}
-          </Box>
-          <Box
-            as="button"
-            flex={1}
-            py={2}
-            onClick={() => handleTabChange(2)}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color={activeTab === 2 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 2 ? 'bold' : 'normal'}
-          >
-            <Box as={Users} boxSize={6} mb={1} />
-            {t('players')}
-          </Box>
-          <Box
-            as="button"
-            flex={1}
-            py={2}
-            onClick={() => handleTabChange(3)}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color={activeTab === 3 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 3 ? 'bold' : 'normal'}
-          >
-            <Box as={Trophy} boxSize={6} mb={1} />
-            {t('matchs.tabTitle')}
-          </Box>
-          <Box
-            as="button"
-            flex={1}
-            py={2}
-            onClick={() => handleTabChange(4)}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color={activeTab === 4 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 4 ? 'bold' : 'normal'}
-          >
-            <Box as={RefreshCw} boxSize={6} mb={1} />
-            {t('settings')}
-          </Box>
-        </Box>
+        <BottomNavigationBar
+          tabs={navigationTabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
       </Container>
 
       {/* Confirmation Dialog */}

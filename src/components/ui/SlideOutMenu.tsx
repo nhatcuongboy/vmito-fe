@@ -89,7 +89,8 @@ export default function SlideOutMenu({
               <Stack gap={2}>
                 <NextLinkButton
                   href={
-                    user?.role === UserRole.HOST || user?.role === UserRole.ADMIN
+                    user?.role === UserRole.HOST ||
+                    user?.role === UserRole.ADMIN
                       ? '/host/sessions'
                       : user?.role === UserRole.PLAYER
                         ? `/my-session`

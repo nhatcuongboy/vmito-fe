@@ -55,7 +55,8 @@ function SignInForm() {
     // If already authenticated before form submission, redirect
     if (isAuthenticated && user && !isRedirecting) {
       setIsRedirecting(true);
-      const targetPath = user.role !== UserRole.GUEST ? '/dashboard' : '/join-by-code';
+      const targetPath =
+        user.role !== UserRole.GUEST ? '/dashboard' : '/join-by-code';
       router.replace(targetPath);
     }
   }, [isHydrated, isAuthenticated, user, router, isRedirecting]);
@@ -87,7 +88,10 @@ function SignInForm() {
 
       if (!hasCustomCallback && loginResponse.user) {
         // Default redirect based on role
-        if (loginResponse.user.role === UserRole.HOST || loginResponse.user.role === UserRole.PLAYER) {
+        if (
+          loginResponse.user.role === UserRole.HOST ||
+          loginResponse.user.role === UserRole.PLAYER
+        ) {
           redirectPath = '/dashboard';
         } else {
           // GUEST role
@@ -219,7 +223,11 @@ function SignInForm() {
               color="gray.700"
               bg="white"
               _hover={{ bg: 'gray.50', textDecoration: 'none' }}
-              _dark={{ bg: 'gray.800', color: 'white', borderColor: 'gray.600' }}
+              _dark={{
+                bg: 'gray.800',
+                color: 'white',
+                borderColor: 'gray.600',
+              }}
             >
               <svg
                 width="18"

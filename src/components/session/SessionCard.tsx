@@ -16,7 +16,14 @@ import {
 } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
-import { Calendar, Clock, Shield, SquareAsterisk, User, Users } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Shield,
+  SquareAsterisk,
+  User,
+  Users,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 
@@ -54,7 +61,7 @@ const statusColors = {
 };
 
 // Helper function to get localized status labels
-const getStatusLabel = (status: string, t: any) => {
+const getStatusLabel = (status: string, t: (key: string) => string) => {
   switch (status) {
     case 'PREPARING':
       return t('status.preparing');
@@ -133,6 +140,35 @@ const SessionCard = ({
             {getStatusLabel(convertedSession.status, t)}
           </Badge>
         </Flex>
+
+        {session.players?.[0]?.registrationStatus === 'PENDING' && (
+          <Box
+            bg="yellow.100"
+            color="yellow.800"
+            px={3}
+            py={2}
+            borderRadius="md"
+            mb={2}
+          >
+            <Text fontSize="sm" fontWeight="bold">
+              ⏳ {t('registrationPending')}
+            </Text>
+          </Box>
+        )}
+        {session.players?.[0]?.registrationStatus === 'REJECTED' && (
+          <Box
+            bg="red.100"
+            color="red.800"
+            px={3}
+            py={2}
+            borderRadius="md"
+            mb={2}
+          >
+            <Text fontSize="sm" fontWeight="bold">
+              ❌ {t('registrationRejected')}
+            </Text>
+          </Box>
+        )}
 
         <Stack gap={3} flex={1}>
           <Flex align="center">

@@ -68,9 +68,10 @@ export default function TournamentsPage() {
       router.push(`/tournaments/${result.tournament.id}`);
     } catch (error: any) {
       console.error('Error creating sample tournament:', error);
-      toaster.error({ title: 
-        error.response?.data?.error || 'Failed to create sample tournament'
-       });
+      toaster.error({
+        title:
+          error.response?.data?.error || 'Failed to create sample tournament',
+      });
     } finally {
       setCreatingSample(false);
     }

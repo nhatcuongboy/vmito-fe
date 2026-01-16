@@ -42,7 +42,9 @@ function AuthCallbackContent() {
 
         // Redirect based on role
         const redirectPath =
-          role === UserRole.HOST || role === UserRole.PLAYER ? '/dashboard' : '/my-session';
+          role === UserRole.HOST || role === UserRole.PLAYER
+            ? '/dashboard'
+            : '/my-session';
         router.replace(redirectPath);
       }, 0);
     } else {

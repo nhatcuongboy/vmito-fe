@@ -57,7 +57,9 @@ function PlayerStatusContent() {
       if (response.ok) {
         setPlayerStatus(data.data);
       } else {
-        toaster.error({ title: data.message || 'Failed to fetch player status' });
+        toaster.error({
+          title: data.message || 'Failed to fetch player status',
+        });
       }
     } catch (error) {
       toaster.error({ title: 'Failed to fetch player status' });
@@ -267,7 +269,9 @@ function PlayerStatusContent() {
                 w="full"
               >
                 <Text color="green.700" fontWeight="bold" textAlign="center">
-                  🏸 {playerStatus.courtName || `You're on Court #${playerStatus.currentCourtId}`}
+                  🏸{' '}
+                  {playerStatus.courtName ||
+                    `You're on Court #${playerStatus.currentCourtId}`}
                 </Text>
               </Box>
             )}

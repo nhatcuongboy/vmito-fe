@@ -20,7 +20,14 @@ import {
   Card,
   CardBody,
 } from '@/components/ui/chakra-v3-compat';
-import { Sparkles, RefreshCw, Smartphone, Users, MonitorPlay, X } from 'lucide-react';
+import {
+  Sparkles,
+  RefreshCw,
+  Smartphone,
+  Users,
+  MonitorPlay,
+  X,
+} from 'lucide-react';
 import { api, ApiResponse } from '@/lib/api/base';
 import { toaster } from '@/components/ui/toaster';
 
@@ -40,7 +47,9 @@ export default function AiAssistant({ sessionId }: { sessionId: string }) {
   const fetchSuggestions = async () => {
     setLoading(true);
     try {
-      const response = await api.post<ApiResponse<TaskSuggestion[]>>(`/sessions/${sessionId}/tasks/suggest`);
+      const response = await api.post<ApiResponse<TaskSuggestion[]>>(
+        `/sessions/${sessionId}/tasks/suggest`
+      );
       if (response.data.data) {
         setTasks(response.data.data);
       }
@@ -135,14 +144,30 @@ export default function AiAssistant({ sessionId }: { sessionId: string }) {
 
             <DrawerBody bg="gray.50" p={4}>
               {loading ? (
-                <Flex direction="column" align="center" justify="center" h="200px" gap={4}>
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  h="200px"
+                  gap={4}
+                >
                   <Spinner size="xl" color="purple.500" />
                   <Text color="gray.500">Analyzing session...</Text>
                 </Flex>
               ) : tasks.length === 0 ? (
-                <Flex direction="column" align="center" justify="center" h="200px" gap={4}>
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  h="200px"
+                  gap={4}
+                >
                   <Text color="gray.500">No suggestions at the moment.</Text>
-                  <Button size="sm" onClick={fetchSuggestions} variant="outline">
+                  <Button
+                    size="sm"
+                    onClick={fetchSuggestions}
+                    variant="outline"
+                  >
                     Analyze Again
                   </Button>
                 </Flex>
@@ -162,7 +187,13 @@ export default function AiAssistant({ sessionId }: { sessionId: string }) {
                         <Text fontSize="sm" color="gray.600" mb={3}>
                           {task.description}
                         </Text>
-                        <Box bg="purple.50" p={2} rounded="md" fontSize="xs" color="purple.700">
+                        <Box
+                          bg="purple.50"
+                          p={2}
+                          rounded="md"
+                          fontSize="xs"
+                          color="purple.700"
+                        >
                           <strong>Why:</strong> {task.reason}
                         </Box>
                       </CardBody>
@@ -176,7 +207,11 @@ export default function AiAssistant({ sessionId }: { sessionId: string }) {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Close
               </Button>
-              <Button colorPalette="purple" onClick={fetchSuggestions} loading={loading}>
+              <Button
+                colorPalette="purple"
+                onClick={fetchSuggestions}
+                loading={loading}
+              >
                 <RefreshCw size={16} style={{ marginRight: '8px' }} />
                 Refresh
               </Button>

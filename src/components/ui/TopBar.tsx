@@ -39,7 +39,6 @@ export default function TopBar({
   const handleLogout = () => {
     const userRole = user?.role;
 
-
     const callbackUrl =
       userRole === UserRole.HOST || userRole === UserRole.ADMIN
         ? `/${locale}/auth/signin`
@@ -121,7 +120,7 @@ export default function TopBar({
               gap={2}
             >
               {isAuthenticated && <NotificationBell />}
-              
+
               <IconButton
                 aria-label="Open menu"
                 onClick={onMenuOpen}

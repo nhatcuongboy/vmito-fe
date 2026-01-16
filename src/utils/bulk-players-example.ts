@@ -27,7 +27,7 @@ export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
         case 'level':
           const parsedLevel = parseInt(value);
           if (!isNaN(parsedLevel)) {
-             player.level = parsedLevel;
+            player.level = parsedLevel;
           }
           break;
         case 'leveldescription':
@@ -90,10 +90,7 @@ export function validateBulkPlayerData(
     }
 
     // Validate level if provided
-    if (
-      player.level !== undefined &&
-      !VALID_LEVELS.includes(player.level)
-    ) {
+    if (player.level !== undefined && !VALID_LEVELS.includes(player.level)) {
       errors.push(`Player ${index + 1}: invalid level "${player.level}"`);
     }
   });

@@ -65,7 +65,11 @@ interface PlayerListItemProps {
   onEdit: (player: Player) => void;
   onCancelEdit: (playerId: string) => void;
   onSave: (playerId: string) => void;
-  onUpdateEditing: (playerId: string, field: string, value: string | boolean) => void;
+  onUpdateEditing: (
+    playerId: string,
+    field: string,
+    value: string | boolean
+  ) => void;
   onDelete: (playerId: string) => void;
   onShowQR: (player: Player) => void;
 }
@@ -108,11 +112,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                 >
                   #{player.playerNumber}
                 </Badge>
-                <Text
-                  fontSize="sm"
-                  color="blue.600"
-                  fontWeight="medium"
-                >
+                <Text fontSize="sm" color="blue.600" fontWeight="medium">
                   {t('editingPlayer')}
                 </Text>
               </HStack>
@@ -138,12 +138,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
 
             {/* Player name */}
             <Box>
-              <Text
-                fontSize="sm"
-                mb={2}
-                color="gray.600"
-                fontWeight="medium"
-              >
+              <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
                 {t('playerName')}
               </Text>
               <Input
@@ -157,17 +152,9 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
             </Box>
 
             {/* Gender and Level */}
-            <Grid
-              templateColumns={{ base: '1fr', md: '1fr 1fr' }}
-              gap={4}
-            >
+            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
               <Box>
-                <Text
-                  fontSize="sm"
-                  mb={2}
-                  color="gray.600"
-                  fontWeight="medium"
-                >
+                <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
                   {t('gender')}
                 </Text>
                 <select
@@ -193,12 +180,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                 </select>
               </Box>
               <Box>
-                <Text
-                  fontSize="sm"
-                  mb={2}
-                  color="gray.600"
-                  fontWeight="medium"
-                >
+                <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
                   {t('level')}
                 </Text>
                 <select
@@ -227,12 +209,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
 
             {/* Level description */}
             <Box>
-              <Text
-                fontSize="sm"
-                mb={2}
-                color="gray.600"
-                fontWeight="medium"
-              >
+              <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
                 {t('levelDescription')}
               </Text>
               <Textarea
@@ -240,11 +217,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                 size="md"
                 value={isEditing.levelDescription || ''}
                 onChange={(e) =>
-                  onUpdateEditing(
-                    player.id,
-                    'levelDescription',
-                    e.target.value
-                  )
+                  onUpdateEditing(player.id, 'levelDescription', e.target.value)
                 }
                 rows={3}
               />
@@ -319,13 +292,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
 
   // Display mode
   return (
-    <Card
-      width="100%"
-      variant="outline"
-      bg="white"
-      boxShadow="md"
-      mb={4}
-    >
+    <Card width="100%" variant="outline" bg="white" boxShadow="md" mb={4}>
       <CardBody p={{ base: 4, md: 5 }}>
         <VStack spacing={3} align="stretch">
           {/* Main info row */}
@@ -360,10 +327,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
               </HStack>
 
               {/* Status badges - desktop only */}
-              <HStack
-                spacing={2}
-                display={{ base: 'none', md: 'flex' }}
-              >
+              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
                 {/* Gender badge */}
                 <Badge
                   colorScheme={getGenderColor(player.gender)}
@@ -373,13 +337,8 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   py={1}
                 >
                   <HStack spacing={1}>
-                    <Box
-                      as={getGenderIcon(player.gender)}
-                      boxSize="12px"
-                    />
-                    <Text fontSize="xs">
-                      {getGenderLabel(player.gender)}
-                    </Text>
+                    <Box as={getGenderIcon(player.gender)} boxSize="12px" />
+                    <Text fontSize="xs">{getGenderLabel(player.gender)}</Text>
                   </HStack>
                 </Badge>
 
@@ -462,13 +421,8 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
               py={1}
             >
               <HStack spacing={1}>
-                <Box
-                  as={getGenderIcon(player.gender)}
-                  boxSize="12px"
-                />
-                <Text fontSize="xs">
-                  {player.gender || 'Unknown'}
-                </Text>
+                <Box as={getGenderIcon(player.gender)} boxSize="12px" />
+                <Text fontSize="xs">{player.gender || 'Unknown'}</Text>
               </HStack>
             </Badge>
 
@@ -507,11 +461,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
           {(player.levelDescription ||
             player.requireConfirmInfo ||
             player.confirmedByPlayer) && (
-            <Card
-              variant="outline"
-              bg="gray.50"
-              borderColor="gray.200"
-            >
+            <Card variant="outline" bg="gray.50" borderColor="gray.200">
               <CardBody p={3}>
                 <VStack align="stretch" spacing={3}>
                   {player.levelDescription && (
@@ -528,11 +478,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   )}
                   {player.requireConfirmInfo && (
                     <HStack spacing={2} align="center">
-                      <Box
-                        as={AlertCircle}
-                        boxSize={3}
-                        color="orange.500"
-                      />
+                      <Box as={AlertCircle} boxSize={3} color="orange.500" />
                       <Text
                         fontSize="xs"
                         color="orange.600"
@@ -544,16 +490,8 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   )}
                   {player.confirmedByPlayer && (
                     <HStack spacing={2} align="center">
-                      <Box
-                        as={UserCheck}
-                        boxSize={3}
-                        color="green.500"
-                      />
-                      <Text
-                        fontSize="xs"
-                        color="green.600"
-                        fontWeight="medium"
-                      >
+                      <Box as={UserCheck} boxSize={3} color="green.500" />
+                      <Text fontSize="xs" color="green.600" fontWeight="medium">
                         {t('confirmedByPlayer')}
                       </Text>
                     </HStack>

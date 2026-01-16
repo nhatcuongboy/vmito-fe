@@ -206,7 +206,30 @@
     "noPlayersAdded": "Chưa thêm người chơi nào. Nhấn 'Thêm người chơi' để bắt đầu.",
     "skipAddPlayers": "Bỏ qua & Tiếp tục",
     "saveAndContinue": "Lưu & Tiếp tục",
-    "savingPlayers": "Đang lưu người chơi..."
+    "savingPlayers": "Đang lưu người chơi...",
+    "findSession": "Tìm kèo",
+    "date": "Ngày",
+    "allLevels": "Tất cả trình độ",
+    "levels": {
+      "1": "Mới chơi",
+      "2": "Trung bình yếu",
+      "3": "Trung bình-",
+      "4": "Trung bình",
+      "5": "Trung bình+",
+      "6": "Khá",
+      "7": "Bán chuyên",
+      "8": "Chuyên nghiệp"
+    },
+    "search": "Tìm kiếm",
+    "noSessionsFound": "Không tìm thấy kèo nào",
+    "tryAdjustingFilters": "Thử điều chỉnh bộ lọc của bạn",
+    "submitRegistration": "Gửi đăng ký",
+    "joinSessionDescription": "Bạn đang tham gia kèo do {hostName} tổ chức",
+    "myName": "Tên tôi",
+    "guestName": "Tên khách",
+    "enterName": "Nhập tên",
+    "addGuest": "Thêm khách",
+    "joined": "Đã tham gia"
   },
   "court": {
     "title": "Sân",

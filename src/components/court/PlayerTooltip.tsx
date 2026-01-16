@@ -128,14 +128,18 @@ export default function PlayerTooltip({
         <Text fontWeight="bold" fontSize="lg" mb={1} color="white">
           #{player.playerNumber}
         </Text>
-        
+
         <Text fontSize="md" fontWeight="medium" color="blue.300" mb={4}>
           {player.name || `Player ${player.playerNumber}`}
         </Text>
 
         <Box display="flex" flexDirection="column" gap={2}>
           {/* Gender */}
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Text color="gray.400">{t('gender')}:</Text>
             <Text color="white" fontWeight="medium">
               {player.gender ? player.gender.toUpperCase() : 'UNKNOWN'}
@@ -144,7 +148,11 @@ export default function PlayerTooltip({
 
           {/* Level - Only show in manage mode */}
           {mode === 'manage' && (
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Text color="gray.400">{t('level')}:</Text>
               <Text color="white" fontWeight="medium">
                 {getLevelShortLabel(player.level) || 'N/A'}
@@ -157,7 +165,11 @@ export default function PlayerTooltip({
               Keeping it minimal as per provided image. */}
 
           {/* Matches Played */}
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Text color="gray.400">{t('matchesPlayed')}:</Text>
             <Text color="white" fontWeight="medium">
               {player.matchesPlayed || 0}
@@ -167,7 +179,11 @@ export default function PlayerTooltip({
           {/* Wait Time */}
           {mode === 'manage' &&
             ['WAITING', 'READY'].includes(player.status) && (
-              <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Text color="gray.400">{t('waitTime')}:</Text>
                 <Text color="white" fontWeight="medium">
                   {formatWaitTime(player.currentWaitTime)}
@@ -176,7 +192,11 @@ export default function PlayerTooltip({
             )}
 
           {/* Pair */}
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Text color="gray.400">{t('pair')}:</Text>
             <Text color={pairColors.border} fontWeight="bold">
               {t('pair')} {pairNumber}

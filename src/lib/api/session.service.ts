@@ -65,6 +65,23 @@ export const SessionService = {
     return response.data.data || [];
   },
 
+  // Get available sessions
+  getAvailableSessions: async (filters?: {
+    date?: string;
+    level?: number;
+  }): Promise<ISession[]> => {
+    const params = new URLSearchParams();
+    if (filters?.date) params.append('date', filters.date);
+    if (filters?.level) params.append('level', filters.level.toString());
+
+    const url = params.toString()
+      ? `/sessions/available?${params.toString()}`
+      : `/sessions/available`;
+
+    const response = await api.get<ApiResponse<ISession[]>>(url);
+    return response.data.data || [];
+  },
+
   // Get session by ID
   /**
    * Get a session by ID
@@ -265,8 +282,14 @@ export const SessionService = {
   },
 
   // Update match details
-  updateMatch: async (id: string, data: Partial<Match> & { playerIds?: string[] }): Promise<Match> => {
-    const response = await api.patch<ApiResponse<Match>>(`/matches/${id}`, data);
+  updateMatch: async (
+    id: string,
+    data: Partial<Match> & { playerIds?: string[] }
+  ): Promise<Match> => {
+    const response = await api.patch<ApiResponse<Match>>(
+      `/matches/${id}`,
+      data
+    );
     return response.data.data!;
   },
 };

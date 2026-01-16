@@ -103,7 +103,8 @@ export default function TournamentDetailPage() {
   const handleLogout = () => {
     const userRole = user?.role;
     AuthService.logout();
-    const callbackUrl = userRole === UserRole.HOST ? '/auth/signin' : '/join-by-code';
+    const callbackUrl =
+      userRole === UserRole.HOST ? '/auth/signin' : '/join-by-code';
     nextIntlRouter.push(callbackUrl);
     onMenuClose();
   };

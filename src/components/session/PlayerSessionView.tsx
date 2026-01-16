@@ -10,7 +10,12 @@ import TopBar from '@/components/ui/TopBar';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
-import { type Court, type Player, ISession, type Match as ApiMatch } from '@/lib/api/types';
+import {
+  type Court,
+  type Player,
+  ISession,
+  type Match as ApiMatch,
+} from '@/lib/api/types';
 import { type Match } from '@/types/session';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
@@ -71,7 +76,7 @@ export default function PlayerSessionView({
 }: PlayerSessionViewProps) {
   const t = useTranslations('pages.join.status');
   const common = useTranslations('common');
-  
+
   const { socket, joinSession, leaveSession } = useSocket();
 
   const [refreshInterval, setRefreshInterval] = useState(60); // seconds
@@ -87,7 +92,7 @@ export default function PlayerSessionView({
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0); // 0: Status, 1: Courts, 2: Players
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
-  
+
   // Court call modal state
   const [courtCallModalOpen, setCourtCallModalOpen] = useState(false);
   const [courtCallCourtName, setCourtCallCourtName] = useState<string>('');
@@ -97,13 +102,17 @@ export default function PlayerSessionView({
     id: apiMatch.id,
     status: apiMatch.status,
     courtId: apiMatch.courtId,
-    startTime: apiMatch.startTime instanceof Date 
-      ? apiMatch.startTime.toISOString() 
-      : String(apiMatch.startTime),
-    endTime: apiMatch.endTime instanceof Date 
-      ? apiMatch.endTime.toISOString() 
-      : apiMatch.endTime ? String(apiMatch.endTime) : undefined,
-    players: (apiMatch.players || []).map(mp => ({
+    startTime:
+      apiMatch.startTime instanceof Date
+        ? apiMatch.startTime.toISOString()
+        : String(apiMatch.startTime),
+    endTime:
+      apiMatch.endTime instanceof Date
+        ? apiMatch.endTime.toISOString()
+        : apiMatch.endTime
+          ? String(apiMatch.endTime)
+          : undefined,
+    players: (apiMatch.players || []).map((mp) => ({
       id: mp.id,
       matchId: mp.matchId,
       playerId: mp.playerId,
@@ -195,15 +204,15 @@ export default function PlayerSessionView({
           setError('MISSING_PLAYER_ID');
           return;
         }
-        
+
         // Get player to retrieve sessionId
         const basicPlayerData = await PlayerService.getPlayer(propPlayerId);
-        
+
         if (!basicPlayerData?.sessionId) {
           setError('PLAYER_NOT_FOUND');
           return;
         }
-        
+
         sessionId = basicPlayerData.sessionId;
       } else {
         // PLAYER mode: use provided sessionId
@@ -215,13 +224,13 @@ export default function PlayerSessionView({
           setError('MISSING_USER_ID');
           return;
         }
-        
+
         sessionId = propSessionId;
       }
 
       // Fetch full session data (includes all players with complete info)
       sessionData = await SessionService.getSession(sessionId);
-      
+
       if (!sessionData) {
         setError('SESSION_NOT_FOUND');
         return;
@@ -230,16 +239,18 @@ export default function PlayerSessionView({
       // Find player from session data for consistency
       // This ensures we have the same data structure as other players
       if (mode === 'guest') {
-        playerData = sessionData.players?.find((p) => p.id === propPlayerId) || null;
-        
+        playerData =
+          sessionData.players?.find((p) => p.id === propPlayerId) || null;
+
         if (!playerData) {
           setError('PLAYER_NOT_FOUND');
           return;
         }
       } else {
         // PLAYER mode: find player by userId
-        playerData = sessionData.players?.find((p) => p.userId === userId) || null;
-        
+        playerData =
+          sessionData.players?.find((p) => p.userId === userId) || null;
+
         if (!playerData) {
           setError('PLAYER_NOT_IN_SESSION');
           return;
@@ -249,7 +260,6 @@ export default function PlayerSessionView({
       // Update player state
       setPlayer(playerData);
       setSession(sessionData);
-
 
       // Get match and court info if player is playing or ready
       if (
@@ -297,7 +307,7 @@ export default function PlayerSessionView({
         // Only show toast for background refresh errors
         if (isBackgroundRefresh) {
           toaster.error({
-            title: t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu'
+            title: t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu',
           });
         } else {
           setError('GENERAL_ERROR');
@@ -329,15 +339,21 @@ export default function PlayerSessionView({
     // Helper to get fresh session data (ref) if needed, but for now we use the dependency
     // Note: session in dependency might cause re-registrations, but it ensures we have latest data for lookup
 
-    const handlePlayerCreated = (data: { sessionId: string; playerId: string }) => {
+    const handlePlayerCreated = (data: {
+      sessionId: string;
+      playerId: string;
+    }) => {
       if (data.sessionId !== session.id) return;
       // Don't show toast for player joined - not relevant to current player
       fetchPlayerData(true);
     };
 
-    const handlePlayerUpdated = (data: { sessionId: string; playerId: string }) => {
+    const handlePlayerUpdated = (data: {
+      sessionId: string;
+      playerId: string;
+    }) => {
       if (data.sessionId !== session.id) return;
-      
+
       // Only show toast if it's the current player being updated
       if (data.playerId === player?.id) {
         toaster.create({
@@ -348,9 +364,12 @@ export default function PlayerSessionView({
       fetchPlayerData(true);
     };
 
-    const handlePlayerRemoved = (data: { sessionId: string; playerId: string }) => {
+    const handlePlayerRemoved = (data: {
+      sessionId: string;
+      playerId: string;
+    }) => {
       if (data.sessionId !== session.id) return;
-      
+
       // Only show toast if it's the current player being removed
       if (data.playerId === player?.id) {
         toaster.create({
@@ -361,16 +380,24 @@ export default function PlayerSessionView({
       fetchPlayerData(true);
     };
 
-    const handlePlayersSelected = (data: { sessionId: string; courtId: string; playerIds?: string[] }) => {
+    const handlePlayersSelected = (data: {
+      sessionId: string;
+      courtId: string;
+      playerIds?: string[];
+    }) => {
       if (data.sessionId !== session.id) return;
-      
+
       // Only show modal if current player is one of the selected players
-      const isCurrentPlayerSelected = data.playerIds?.includes(player?.id || '');
-      
+      const isCurrentPlayerSelected = data.playerIds?.includes(
+        player?.id || ''
+      );
+
       if (isCurrentPlayerSelected) {
-        const court = session.courts?.find(c => c.id === data.courtId);
-        const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
-        
+        const court = session.courts?.find((c) => c.id === data.courtId);
+        const courtName = court
+          ? court.courtName || `Court ${court.courtNumber}`
+          : 'Court';
+
         // Show modal to call player to court
         setCourtCallCourtName(courtName);
         setCourtCallModalOpen(true);
@@ -378,16 +405,24 @@ export default function PlayerSessionView({
       fetchPlayerData(true);
     };
 
-    const handlePlayersDeselected = (data: { sessionId: string; courtId: string; playerIds?: string[] }) => {
+    const handlePlayersDeselected = (data: {
+      sessionId: string;
+      courtId: string;
+      playerIds?: string[];
+    }) => {
       if (data.sessionId !== session.id) return;
-      
+
       // Only show toast if current player is one of the deselected players
-      const isCurrentPlayerDeselected = data.playerIds?.includes(player?.id || '');
-      
+      const isCurrentPlayerDeselected = data.playerIds?.includes(
+        player?.id || ''
+      );
+
       if (isCurrentPlayerDeselected) {
-        const court = session.courts?.find(c => c.id === data.courtId);
-        const courtName = court ? (court.courtName || `Court ${court.courtNumber}`) : 'Court';
-        
+        const court = session.courts?.find((c) => c.id === data.courtId);
+        const courtName = court
+          ? court.courtName || `Court ${court.courtNumber}`
+          : 'Court';
+
         toaster.create({
           title: t('events.youWereDeselected', { court: courtName }),
           type: 'info',
@@ -397,9 +432,9 @@ export default function PlayerSessionView({
     };
 
     const handleGenericEvent = (data: { sessionId: string }) => {
-       if (data.sessionId === session.id) {
+      if (data.sessionId === session.id) {
         fetchPlayerData(true);
-       }
+      }
     };
 
     socket.on('player_created', handlePlayerCreated);
@@ -407,7 +442,7 @@ export default function PlayerSessionView({
     socket.on('player_removed', handlePlayerRemoved);
     socket.on('players_selected', handlePlayersSelected);
     socket.on('players_deselected', handlePlayersDeselected);
-    
+
     // Other events that just trigger refresh without specific toast logic yet
     socket.on('session_updated', handleGenericEvent);
     socket.on('match_started', handleGenericEvent);
@@ -489,7 +524,8 @@ export default function PlayerSessionView({
       case 'PLAYER_NOT_IN_SESSION':
         return {
           title: 'Bạn chưa tham gia session này',
-          description: 'Bạn cần được thêm vào session bởi Host để xem thông tin.',
+          description:
+            'Bạn cần được thêm vào session bởi Host để xem thông tin.',
         };
       default:
         return {
@@ -546,7 +582,9 @@ export default function PlayerSessionView({
             </Box>
             <Flex gap={3}>
               <NextLinkButton href={errorRedirectPath} colorScheme="blue">
-                {mode === 'guest' ? t('errors.returnToJoin') : 'Quay lại Dashboard'}
+                {mode === 'guest'
+                  ? t('errors.returnToJoin')
+                  : 'Quay lại Dashboard'}
               </NextLinkButton>
               {error === 'GENERAL_ERROR' && (
                 <NextLinkButton
@@ -567,11 +605,11 @@ export default function PlayerSessionView({
       </>
     );
   }
-  
+
   return (
     <>
       <TopBar title={t('title')} />
-      
+
       {session && (
         <SessionStatusHeader
           session={{
@@ -943,8 +981,6 @@ export default function PlayerSessionView({
                         </Text>
                       </Box>
                     </Flex>
-
-
                   </Stack>
                 </Box>
 
@@ -1066,21 +1102,35 @@ export default function PlayerSessionView({
           >
             <Box as={MapPin} boxSize={12} color="green.500" />
           </Box>
-          
+
           {/* Message */}
           <Box textAlign="center">
-            <Heading size="lg" color="green.600" _dark={{ color: 'green.400' }} mb={2}>
+            <Heading
+              size="lg"
+              color="green.600"
+              _dark={{ color: 'green.400' }}
+              mb={2}
+            >
               {t('courtCall.goToCourt')}
             </Heading>
-            <Text fontSize="2xl" fontWeight="bold" color="blue.600" _dark={{ color: 'blue.400' }}>
+            <Text
+              fontSize="2xl"
+              fontWeight="bold"
+              color="blue.600"
+              _dark={{ color: 'blue.400' }}
+            >
               {courtCallCourtName}
             </Text>
           </Box>
-          
-          <Text color="gray.600" _dark={{ color: 'gray.400' }} textAlign="center">
+
+          <Text
+            color="gray.600"
+            _dark={{ color: 'gray.400' }}
+            textAlign="center"
+          >
             {t('courtCall.description')}
           </Text>
-          
+
           {/* Action button */}
           <Button
             colorScheme="green"
@@ -1097,7 +1147,8 @@ export default function PlayerSessionView({
       {/* CSS animation for pulse effect */}
       <style jsx global>{`
         @keyframes pulse {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
             opacity: 1;
           }

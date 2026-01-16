@@ -86,9 +86,11 @@ function NewSessionPageContent() {
     const error = searchParams.get('error');
     const details = searchParams.get('details');
     if (error) {
-      toaster.error({ title: 
-        decodeURIComponent(details || t('validation.sessionCreateFailed'))
-       });
+      toaster.error({
+        title: decodeURIComponent(
+          details || t('validation.sessionCreateFailed')
+        ),
+      });
     }
   }, [searchParams, t]);
 
@@ -325,7 +327,7 @@ function NewSessionPageContent() {
               <Text fontSize="sm" color="gray.600" mb={4}>
                 Select the color for your courts.
               </Text>
-              
+
               <Wrap gap={4}>
                 {COURT_COLORS.map((color) => {
                   const isSelected = courtColor === color.value;
@@ -352,10 +354,19 @@ function NewSessionPageContent() {
                           alignItems="center"
                           justifyContent="center"
                         >
-                           {/* White lines representation - smaller version */}
-                           <Box w="40px" h="30px" border="1px solid white" position="absolute" opacity={0.7} />
+                          {/* White lines representation - smaller version */}
+                          <Box
+                            w="40px"
+                            h="30px"
+                            border="1px solid white"
+                            position="absolute"
+                            opacity={0.7}
+                          />
                         </Box>
-                        <Text fontSize="xs" fontWeight={isSelected ? 'bold' : 'normal'}>
+                        <Text
+                          fontSize="xs"
+                          fontWeight={isSelected ? 'bold' : 'normal'}
+                        >
                           {color.name}
                         </Text>
                       </VStack>
@@ -364,7 +375,6 @@ function NewSessionPageContent() {
                 })}
               </Wrap>
             </Box>
-
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Flex align="center" justify="space-between" mb={4}>

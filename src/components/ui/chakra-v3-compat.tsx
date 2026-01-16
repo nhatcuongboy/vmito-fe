@@ -266,4 +266,3 @@ export const DrawerFooter = ({
     {children}
   </Box>
 );
-

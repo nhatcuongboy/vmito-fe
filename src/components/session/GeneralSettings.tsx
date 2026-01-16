@@ -43,7 +43,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const t = useTranslations('session.generalSettings');
   const tValidation = useTranslations('session.validation');
   const { getLevelLabel } = useLevelLabel();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingRequiredLevels, setPendingRequiredLevels] = useState<number[]>(
@@ -129,7 +129,11 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       );
 
       if (invalidLevels.length > 0) {
-        toaster.error({ title: tValidation('invalidLevels', { levels: invalidLevels.join(', ') }) });
+        toaster.error({
+          title: tValidation('invalidLevels', {
+            levels: invalidLevels.join(', '),
+          }),
+        });
         return;
       }
     }
@@ -478,13 +482,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
                   {formData.requiredLevels?.length > 0 && (
                     <Text fontSize="xs" color="blue.600" mt={2}>
-                      {t('levelsSelected', { count: formData.requiredLevels.length })}
+                      {t('levelsSelected', {
+                        count: formData.requiredLevels.length,
+                      })}
                     </Text>
                   )}
                   {formData.requiredLevels &&
                     formData.requiredLevels.length > 0 &&
-                    formData.requiredLevels.length ===
-                    VALID_LEVELS.length && (
+                    formData.requiredLevels.length === VALID_LEVELS.length && (
                       <Text fontSize="xs" color="orange.600" mt={2}>
                         {t('allLevelsSelected')}
                       </Text>
@@ -514,7 +519,13 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   <Text color="gray.600" lineHeight="1.6">
                     {t('changeLevelWarning')}
                   </Text>
-                  <VStack align="start" gap={2} p={4} bg="gray.50" borderRadius="md">
+                  <VStack
+                    align="start"
+                    gap={2}
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="md"
+                  >
                     <Text fontSize="sm" color="gray.700">
                       <strong>{t('currentLevels')}</strong>{' '}
                       {(session.requiredLevels || []).length > 0
@@ -528,11 +539,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                         : t('allLevelsAllowed')}
                     </Text>
                   </VStack>
-                  <Text
-                    fontSize="sm"
-                    color="red.600"
-                    fontStyle="italic"
-                  >
+                  <Text fontSize="sm" color="red.600" fontStyle="italic">
                     {t('playerImpactWarning')}
                   </Text>
                 </VStack>

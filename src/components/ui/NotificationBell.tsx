@@ -52,16 +52,15 @@ const MOCK_NOTIFICATIONS: Notification[] = [
 ];
 
 export default function NotificationBell() {
-//   const tCommon = useTranslations('common');
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+  //   const tCommon = useTranslations('common');
+  const [notifications, setNotifications] =
+    useState<Notification[]>(MOCK_NOTIFICATIONS);
   const [isOpen, setIsOpen] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleMarkAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, isRead: true }))
-    );
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
   };
 
   const handleNotificationClick = (id: string) => {
@@ -75,7 +74,9 @@ export default function NotificationBell() {
       case 'success':
         return <CheckCircle size={16} color="var(--chakra-colors-green-500)" />;
       case 'warning':
-        return <AlertTriangle size={16} color="var(--chakra-colors-orange-500)" />;
+        return (
+          <AlertTriangle size={16} color="var(--chakra-colors-orange-500)" />
+        );
       case 'info':
       default:
         return <Info size={16} color="var(--chakra-colors-blue-500)" />;
@@ -96,7 +97,7 @@ export default function NotificationBell() {
           onClick={() => setIsOpen(false)}
         />
       )}
-      
+
       <Box position="relative" display="inline-block" zIndex={1301}>
         <IconButton
           aria-label="Notifications"
@@ -106,9 +107,9 @@ export default function NotificationBell() {
           _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
           onClick={() => setIsOpen(!isOpen)}
         >
-            <Bell size={20} />
+          <Bell size={20} />
         </IconButton>
-        
+
         {unreadCount > 0 && (
           <Box
             position="absolute"
@@ -143,28 +144,30 @@ export default function NotificationBell() {
             animation="fade-in 0.2s"
           >
             {/* Header */}
-            <Flex 
-              justify="space-between" 
-              align="center" 
-              p={3} 
-              borderBottomWidth="1px" 
+            <Flex
+              justify="space-between"
+              align="center"
+              p={3}
+              borderBottomWidth="1px"
               borderColor="gray.100"
               _dark={{ borderColor: 'gray.700' }}
             >
-              <Heading size="sm" fontSize="sm">Notifications</Heading>
+              <Heading size="sm" fontSize="sm">
+                Notifications
+              </Heading>
               <Flex gap={2}>
                 {unreadCount > 0 && (
-                    <Button
+                  <Button
                     size="xs"
                     variant="ghost"
                     colorScheme="blue"
                     onClick={handleMarkAllAsRead}
                     fontSize="xs"
                     h="24px"
-                    >
+                  >
                     <Check size={14} style={{ marginRight: '4px' }} />
                     Mark all read
-                    </Button>
+                  </Button>
                 )}
               </Flex>
             </Flex>
@@ -186,9 +189,11 @@ export default function NotificationBell() {
                       textAlign="left"
                       p={3}
                       bg={notification.isRead ? 'transparent' : 'blue.50'}
-                      _dark={{ 
-                        bg: notification.isRead ? 'transparent' : 'whiteAlpha.100',
-                        borderColor: 'gray.700' 
+                      _dark={{
+                        bg: notification.isRead
+                          ? 'transparent'
+                          : 'whiteAlpha.100',
+                        borderColor: 'gray.700',
                       }}
                       borderBottomWidth="1px"
                       borderColor="gray.50"
@@ -197,7 +202,9 @@ export default function NotificationBell() {
                       _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
                     >
                       <Flex gap={3} align="start">
-                        <Box mt={1} minW="16px">{getIcon(notification.type)}</Box>
+                        <Box mt={1} minW="16px">
+                          {getIcon(notification.type)}
+                        </Box>
                         <Box flex={1}>
                           <Text
                             fontSize="sm"

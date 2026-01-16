@@ -258,7 +258,10 @@ export const PlayerDetailModal = ({
         {/* Join Session Section - Show More */}
         {sessionId && (
           <Box pt={4} borderTopWidth="1px" borderColor="gray.100">
-            <Collapsible.Root open={showJoinMore} onOpenChange={(e) => setShowJoinMore(e.open)}>
+            <Collapsible.Root
+              open={showJoinMore}
+              onOpenChange={(e) => setShowJoinMore(e.open)}
+            >
               <Collapsible.Trigger asChild>
                 <Button
                   variant="ghost"
@@ -274,15 +277,20 @@ export const PlayerDetailModal = ({
                     <QrCode size={18} />
                     <Text fontWeight="bold">Join Session Information</Text>
                   </HStack>
-                  {showJoinMore ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  {showJoinMore ? (
+                    <ChevronUp size={18} />
+                  ) : (
+                    <ChevronDown size={18} />
+                  )}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
                 <VStack gap={4} py={4} px={2}>
                   <Text fontSize="sm" color="gray.500" textAlign="center">
-                    Players can scan this QR code or use the link to join directly.
+                    Players can scan this QR code or use the link to join
+                    directly.
                   </Text>
-                  
+
                   {qrCodeUrl && (
                     <Box
                       p={3}
@@ -343,7 +351,13 @@ const InfoRow = ({
   label: string;
   value: React.ReactNode;
 }) => (
-  <HStack justifyContent="space-between" py={2} px={2} borderRadius="md" _hover={{ bg: 'gray.50' }}>
+  <HStack
+    justifyContent="space-between"
+    py={2}
+    px={2}
+    borderRadius="md"
+    _hover={{ bg: 'gray.50' }}
+  >
     <HStack gap={3} color="gray.500">
       <Box color="blue.500">{icon}</Box>
       <Text fontWeight="medium" fontSize="sm">

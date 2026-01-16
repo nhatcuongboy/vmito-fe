@@ -152,7 +152,7 @@ const HistoryMatchCard = ({
         </Flex>
 
         {/* ... (rest of the card content) */}
-        
+
         <Stack gap={2}>
           <Flex align="center" gap={2}>
             <Icon as={Clock} boxSize={5} color="gray.500" />
@@ -280,7 +280,7 @@ export default function SessionHistoryList({
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
   const [players, setPlayers] = useState<any[]>(sessionData?.players || []);
   const [courts, setCourts] = useState<any[]>(sessionData?.courts || []);
-  
+
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<HistoryMatch | null>(null);
@@ -290,205 +290,201 @@ export default function SessionHistoryList({
   sessionDataRef.current = sessionData;
 
   const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Step 1: Load players and courts
-        const currentSessionData = sessionDataRef.current;
-        let currentPlayers = currentSessionData?.players || [];
-        let currentCourts = currentSessionData?.courts || [];
+      // Step 1: Load players and courts
+      const currentSessionData = sessionDataRef.current;
+      let currentPlayers = currentSessionData?.players || [];
+      let currentCourts = currentSessionData?.courts || [];
 
-        if (!currentSessionData) {
-          const [playersData, courtsData] = await Promise.all([
-            SessionService.getSessionPlayers(sessionId),
-            SessionService.getSessionCourts(sessionId),
-          ]);
-          currentPlayers = playersData;
-          currentCourts = courtsData;
+      if (!currentSessionData) {
+        const [playersData, courtsData] = await Promise.all([
+          SessionService.getSessionPlayers(sessionId),
+          SessionService.getSessionCourts(sessionId),
+        ]);
+        currentPlayers = playersData;
+        currentCourts = courtsData;
+      }
+
+      setPlayers(currentPlayers);
+      setCourts(currentCourts);
+
+      // Step 2: Load matches
+      const filters: { playerId?: string; courtId?: string } = {};
+      if (selectedPlayerId) filters.playerId = selectedPlayerId;
+      if (selectedCourtId) filters.courtId = selectedCourtId;
+
+      const result = await SessionService.getSessionMatchesWithFilters(
+        sessionId,
+        Object.keys(filters).length > 0 ? filters : undefined
+      );
+
+      const sessionMatches = result.matches;
+      const completedMatches = sessionMatches.filter(
+        (m: any) => m.status === 'COMPLETED' || m.status === 'FINISHED'
+      );
+
+      const allMatches: HistoryMatch[] = [];
+      for (const match of completedMatches) {
+        const matchData = match as any;
+
+        // ... (existing courtName logic)
+        let courtName = 'Court ?';
+        if (
+          matchData.court &&
+          matchData.court.courtName &&
+          matchData.court.courtNumber
+        ) {
+          courtName = `Court ${matchData.court.courtNumber} (${matchData.court.courtName})`;
+        } else if (matchData.court && matchData.court.courtName) {
+          courtName = matchData.court.courtName;
+        } else if (matchData.court && matchData.court.courtNumber) {
+          courtName = `Court ${matchData.court.courtNumber}`;
+        } else if (matchData.courtId) {
+          courtName = `Court ${matchData.courtId}`;
         }
 
-        setPlayers(currentPlayers);
-        setCourts(currentCourts);
+        // Get player names and IDs sorted by courtPosition
+        let playerNames: string[] = [];
+        let playerIds: string[] = [];
+        if (Array.isArray(matchData.players)) {
+          // Sort by courtPosition (actual visual position) for correct pairing
+          const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
+            const posA = a.player?.courtPosition ?? a.position ?? 0;
+            const posB = b.player?.courtPosition ?? b.position ?? 0;
+            return posA - posB;
+          });
+          playerNames = sortedMatchPlayers.map(
+            (mp: any) => mp.player?.name || '?'
+          );
+          playerIds = sortedMatchPlayers.map(
+            (mp: any) => mp.player?.id || mp.playerId
+          );
+        }
 
-        // Step 2: Load matches
-        const filters: { playerId?: string; courtId?: string } = {};
-        if (selectedPlayerId) filters.playerId = selectedPlayerId;
-        if (selectedCourtId) filters.courtId = selectedCourtId;
+        // ... (existing score parsing logic)
+        let scores;
+        let winningPair;
 
-        const result = await SessionService.getSessionMatchesWithFilters(
-          sessionId,
-          Object.keys(filters).length > 0 ? filters : undefined
-        );
-
-        const sessionMatches = result.matches;
-        const completedMatches = sessionMatches.filter(
-          (m: any) => m.status === 'COMPLETED' || m.status === 'FINISHED'
-        );
-
-        const allMatches: HistoryMatch[] = [];
-        for (const match of completedMatches) {
-          const matchData = match as any;
-
-          // ... (existing courtName logic)
-          let courtName = 'Court ?';
-          if (
-            matchData.court &&
-            matchData.court.courtName &&
-            matchData.court.courtNumber
-          ) {
-            courtName = `Court ${matchData.court.courtNumber} (${matchData.court.courtName})`;
-          } else if (matchData.court && matchData.court.courtName) {
-            courtName = matchData.court.courtName;
-          } else if (matchData.court && matchData.court.courtNumber) {
-            courtName = `Court ${matchData.court.courtNumber}`;
-          } else if (matchData.courtId) {
-            courtName = `Court ${matchData.courtId}`;
+        // Ensure score is parsed if it arrives as a string (handling potential API inconsistencies)
+        if (typeof matchData.score === 'string') {
+          try {
+            matchData.score = JSON.parse(matchData.score);
+          } catch (e) {
+            // ignore error, will fail gracefully later
           }
+        }
 
-          // Get player names and IDs sorted by courtPosition
-          let playerNames: string[] = [];
-          let playerIds: string[] = [];
-          if (Array.isArray(matchData.players)) {
-            // Sort by courtPosition (actual visual position) for correct pairing
-            const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
-              const posA = a.player?.courtPosition ?? a.position ?? 0;
-              const posB = b.player?.courtPosition ?? b.position ?? 0;
-              return posA - posB;
-            });
-            playerNames = sortedMatchPlayers.map(
-              (mp: any) => mp.player?.name || '?'
-            );
-            playerIds = sortedMatchPlayers.map((mp: any) => mp.player?.id || mp.playerId);
+        // Ensure winnerIds is parsed if it arrives as a string
+        if (typeof matchData.winnerIds === 'string') {
+          try {
+            matchData.winnerIds = JSON.parse(matchData.winnerIds);
+          } catch (e) {
+            // ignore error
           }
+        }
 
-          // ... (existing score parsing logic)
-          let scores;
-          let winningPair;
+        // Use courtPosition for pair calculation to match visual layout
+        const playersWithPosition = Array.isArray(matchData.players)
+          ? matchData.players.map((mp: any, index: number) => ({
+              playerId: mp.player?.id || mp.playerId,
+              position: mp.player?.courtPosition ?? mp.position ?? index,
+            }))
+          : [];
 
-          // Ensure score is parsed if it arrives as a string (handling potential API inconsistencies)
-          if (typeof matchData.score === 'string') {
+        const matchResult = parseScoreData(matchData, playersWithPosition);
+        if (matchResult) {
+          scores = matchResult.scores;
+          winningPair = matchResult.winningPair;
+        } else {
+          // ... (legacy parsing fallback)
+          const scoreData =
+            matchData.score ||
+            matchData.result ||
+            matchData.scores ||
+            matchData.matchResult;
+
+          if (scoreData) {
             try {
-              matchData.score = JSON.parse(matchData.score);
-            } catch (e) {
-              // ignore error, will fail gracefully later
-            }
-          }
-
-          // Ensure winnerIds is parsed if it arrives as a string
-          if (typeof matchData.winnerIds === 'string') {
-            try {
-              matchData.winnerIds = JSON.parse(matchData.winnerIds);
-            } catch (e) {
-              // ignore error
-            }
-          }
-
-          // Use courtPosition for pair calculation to match visual layout
-          const playersWithPosition = Array.isArray(matchData.players)
-            ? matchData.players.map((mp: any, index: number) => ({
-                playerId: mp.player?.id || mp.playerId,
-                position: mp.player?.courtPosition ?? mp.position ?? index,
-              }))
-            : [];
-
-          const matchResult = parseScoreData(matchData, playersWithPosition);
-          if (matchResult) {
-            scores = matchResult.scores;
-            winningPair = matchResult.winningPair;
-          } else {
-             // ... (legacy parsing fallback)
-             const scoreData =
-              matchData.score ||
-              matchData.result ||
-              matchData.scores ||
-              matchData.matchResult;
-
-            if (scoreData) {
-              try {
-                if (
-                  typeof scoreData === 'string' &&
-                  scoreData.startsWith('[') &&
-                  scoreData.endsWith(']')
-                ) {
-                  const scoreArray = JSON.parse(scoreData);
-                  if (Array.isArray(scoreArray) && scoreArray.length === 2) {
-                    scores = {
-                      pair1Score: scoreArray[0],
-                      pair2Score: scoreArray[1],
-                    };
-                    if (scores.pair1Score > scores.pair2Score) {
-                      winningPair = 1 as const;
-                    } else if (scores.pair2Score > scores.pair1Score) {
-                      winningPair = 2 as const;
-                    }
-                  }
-                } else {
-                  const parsedScore =
-                    typeof scoreData === 'string'
-                      ? JSON.parse(scoreData)
-                      : scoreData;
-
-                  if (parsedScore && typeof parsedScore === 'object') {
-                    const scoresObj = parsedScore.scores || parsedScore;
-                    const pair1Score =
-                      scoresObj.pair1 ||
-                      scoresObj.team1 ||
-                      scoresObj.score1 ||
-                      0;
-                    const pair2Score =
-                      scoresObj.pair2 ||
-                      scoresObj.team2 ||
-                      scoresObj.score2 ||
-                      0;
-
-                    scores = {
-                      pair1Score: Number(pair1Score),
-                      pair2Score: Number(pair2Score),
-                    };
-
-                    if (scores.pair1Score > scores.pair2Score) {
-                      winningPair = 1 as const;
-                    } else if (scores.pair2Score > scores.pair1Score) {
-                      winningPair = 2 as const;
-                    }
+              if (
+                typeof scoreData === 'string' &&
+                scoreData.startsWith('[') &&
+                scoreData.endsWith(']')
+              ) {
+                const scoreArray = JSON.parse(scoreData);
+                if (Array.isArray(scoreArray) && scoreArray.length === 2) {
+                  scores = {
+                    pair1Score: scoreArray[0],
+                    pair2Score: scoreArray[1],
+                  };
+                  if (scores.pair1Score > scores.pair2Score) {
+                    winningPair = 1 as const;
+                  } else if (scores.pair2Score > scores.pair1Score) {
+                    winningPair = 2 as const;
                   }
                 }
-              } catch (e) {
-                console.warn('Failed to parse match score:', e);
+              } else {
+                const parsedScore =
+                  typeof scoreData === 'string'
+                    ? JSON.parse(scoreData)
+                    : scoreData;
+
+                if (parsedScore && typeof parsedScore === 'object') {
+                  const scoresObj = parsedScore.scores || parsedScore;
+                  const pair1Score =
+                    scoresObj.pair1 || scoresObj.team1 || scoresObj.score1 || 0;
+                  const pair2Score =
+                    scoresObj.pair2 || scoresObj.team2 || scoresObj.score2 || 0;
+
+                  scores = {
+                    pair1Score: Number(pair1Score),
+                    pair2Score: Number(pair2Score),
+                  };
+
+                  if (scores.pair1Score > scores.pair2Score) {
+                    winningPair = 1 as const;
+                  } else if (scores.pair2Score > scores.pair1Score) {
+                    winningPair = 2 as const;
+                  }
+                }
               }
+            } catch (e) {
+              console.warn('Failed to parse match score:', e);
             }
           }
-
-          allMatches.push({
-            id: matchData.id,
-            sessionId,
-            court: courtName,
-            players: playerNames,
-            playerIds,
-            startTime: matchData.startTime,
-            endTime: matchData.endTime,
-            winner: matchData.winner,
-            scores,
-            winningPair,
-            isExtra: Boolean(matchData.isExtra),
-          });
         }
 
-        // Sort by startTime descending
-        allMatches.sort((a, b) => {
-          const aDate = a.startTime ? new Date(a.startTime).getTime() : 0;
-          const bDate = b.startTime ? new Date(b.startTime).getTime() : 0;
-          return bDate - aDate;
+        allMatches.push({
+          id: matchData.id,
+          sessionId,
+          court: courtName,
+          players: playerNames,
+          playerIds,
+          startTime: matchData.startTime,
+          endTime: matchData.endTime,
+          winner: matchData.winner,
+          scores,
+          winningPair,
+          isExtra: Boolean(matchData.isExtra),
         });
-
-        setMatches(allMatches);
-      } catch (err) {
-        setError('Failed to load match history. Please try again later.');
-        console.error('Error fetching match history:', err);
-      } finally {
-        setLoading(false);
       }
+
+      // Sort by startTime descending
+      allMatches.sort((a, b) => {
+        const aDate = a.startTime ? new Date(a.startTime).getTime() : 0;
+        const bDate = b.startTime ? new Date(b.startTime).getTime() : 0;
+        return bDate - aDate;
+      });
+
+      setMatches(allMatches);
+    } catch (err) {
+      setError('Failed to load match history. Please try again later.');
+      console.error('Error fetching match history:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -514,7 +510,7 @@ export default function SessionHistoryList({
       <Text fontWeight="semibold" mb={3}>
         Matches
       </Text>
-      
+
       {/* ... (Filters) */}
       <Box
         mb={6}
@@ -648,7 +644,7 @@ export default function SessionHistoryList({
           ))}
         </Grid>
       )}
-      
+
       {/* Edit Match Modal */}
       {selectedMatch && (
         <EditMatchModal

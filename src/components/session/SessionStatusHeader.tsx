@@ -110,7 +110,13 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
 
         {/* Action Button & Dropdown - Hidden in readOnly mode */}
         {!readOnly ? (
-          <Box width="40px" display="flex" justifyContent="flex-end" position="relative" ref={menuRef}>
+          <Box
+            width="40px"
+            display="flex"
+            justifyContent="flex-end"
+            position="relative"
+            ref={menuRef}
+          >
             <IconButton
               aria-label="Actions"
               icon={<MoreVertical size={20} />}
@@ -147,10 +153,20 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                   justifyContent="flex-start"
                   gap={3}
                   _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-                  disabled={session.status === 'FINISHED' || isToggleStatusLoading}
+                  disabled={
+                    session.status === 'FINISHED' || isToggleStatusLoading
+                  }
                   onClick={handleToggleStatus}
-                  opacity={(session.status === 'FINISHED' || isToggleStatusLoading) ? 0.5 : 1}
-                  cursor={(session.status === 'FINISHED' || isToggleStatusLoading) ? 'not-allowed' : 'pointer'}
+                  opacity={
+                    session.status === 'FINISHED' || isToggleStatusLoading
+                      ? 0.5
+                      : 1
+                  }
+                  cursor={
+                    session.status === 'FINISHED' || isToggleStatusLoading
+                      ? 'not-allowed'
+                      : 'pointer'
+                  }
                   fontWeight="normal"
                   borderRadius="0"
                 >
@@ -184,7 +200,9 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                     borderRadius="0"
                   >
                     <Box as={RefreshCw} boxSize={4} color="blue.500" />
-                    <Text fontSize="sm" fontWeight="medium">{t('refresh')}</Text>
+                    <Text fontSize="sm" fontWeight="medium">
+                      {t('refresh')}
+                    </Text>
                   </Button>
                 )}
               </Box>
@@ -196,7 +214,6 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
         )}
       </Flex>
     </Box>
-
   );
 };
 

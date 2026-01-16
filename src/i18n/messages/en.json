@@ -206,7 +206,30 @@
     "noPlayersAdded": "No players added yet. Click 'Add Player' to get started.",
     "skipAddPlayers": "Skip & Continue",
     "saveAndContinue": "Save & Continue",
-    "savingPlayers": "Saving players..."
+    "savingPlayers": "Saving players...",
+    "findSession": "Find Session",
+    "date": "Date",
+    "allLevels": "All Levels",
+    "levels": {
+      "1": "Beginner",
+      "2": "Advanced Beginner",
+      "3": "Low Intermediate",
+      "4": "Intermediate",
+      "5": "High Intermediate",
+      "6": "Advanced",
+      "7": "Semi-Pro",
+      "8": "Pro"
+    },
+    "search": "Search",
+    "noSessionsFound": "No sessions found",
+    "tryAdjustingFilters": "Try adjusting your filters",
+    "submitRegistration": "Submit Registration",
+    "joinSessionDescription": "You are joining the session hosted by {hostName}",
+    "myName": "My Name",
+    "guestName": "Guest Name",
+    "enterName": "Enter name",
+    "addGuest": "Add Guest",
+    "joined": "Joined"
   },
   "court": {
     "title": "Court",
