@@ -21,7 +21,8 @@ import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryType } from '@/lib/api/types';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 import { useState } from 'react';
 import { Plus, Minus, X } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -109,7 +110,7 @@ export default function NewTournamentPage() {
         courts,
       });
 
-      router.push(`/${locale}/tournaments/${tournament.id}/manage`);
+      router.push(`/${locale}/host/tournaments/${tournament.id}`);
     } catch (error: any) {
       console.error('Error creating tournament:', error);
       toaster.error({
@@ -202,7 +203,7 @@ export default function NewTournamentPage() {
       <Box minH="100vh" pb="80px">
         <TopBar
           showBackButton={true}
-          backHref="/tournaments"
+          backHref="/browse/tournaments"
           title={t('title')}
         />
 

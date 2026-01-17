@@ -59,11 +59,16 @@ export default function SlideOutMenu({
         <Flex
           justify="space-between"
           align="center"
-          p={4}
+          px={4}
+          paddingTop="env(safe-area-inset-top)"
           borderBottomWidth="1px"
           borderColor="gray.200"
           _dark={{ borderColor: 'gray.600' }}
-          height={'65px'}
+          height={{
+            base: 'calc(44px + env(safe-area-inset-top))',
+            md: 'calc(56px + env(safe-area-inset-top))',
+          }}
+          minHeight={{ base: '44px', md: '56px' }}
         >
           <Text fontSize="xl" fontWeight="bold">
             Menu
@@ -84,16 +89,16 @@ export default function SlideOutMenu({
             {/* Settings Section */}
             <Box>
               <Text fontSize="sm" fontWeight="semibold" color="gray.500" mb={3}>
-                Settings
+                Main
               </Text>
               <Stack gap={2}>
                 <NextLinkButton
                   href={
                     user?.role === UserRole.HOST ||
                     user?.role === UserRole.ADMIN
-                      ? '/host/sessions'
+                      ? '/host/dashboard'
                       : user?.role === UserRole.PLAYER
-                        ? `/my-session`
+                        ? `/player/dashboard`
                         : '/'
                   }
                   variant="ghost"
@@ -106,7 +111,7 @@ export default function SlideOutMenu({
                     <Text>{nav('home')}</Text>
                   </Flex>
                 </NextLinkButton>
-                <NextLinkButton
+                {/* <NextLinkButton
                   href="/settings"
                   variant="ghost"
                   justifyContent="flex-start"
@@ -117,7 +122,7 @@ export default function SlideOutMenu({
                     <Settings size={18} />
                     <Text>{common('settings')}</Text>
                   </Flex>
-                </NextLinkButton>
+                </NextLinkButton> */}
                 <NextLinkButton
                   href="/about"
                   variant="ghost"
@@ -130,8 +135,8 @@ export default function SlideOutMenu({
                     <Text>{common('about')}</Text>
                   </Flex>
                 </NextLinkButton>
-                <NextLinkButton
-                  href="/tournaments"
+                {/* <NextLinkButton
+                  href="/browse/tournaments"
                   variant="ghost"
                   justifyContent="flex-start"
                   onClick={onClose}
@@ -141,7 +146,7 @@ export default function SlideOutMenu({
                     <Trophy size={18} />
                     <Text>{nav('tournaments')}</Text>
                   </Flex>
-                </NextLinkButton>
+                </NextLinkButton> */}
               </Stack>
             </Box>
 

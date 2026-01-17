@@ -45,7 +45,8 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 

@@ -1,77 +1,75 @@
 'use client';
 
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Spinner,
-  Input,
-  Badge,
-  Field,
-  useDisclosure,
-} from '@chakra-ui/react';
-import {
+  Button,
   Card,
   CardBody,
-  SimpleGrid,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Divider,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Button,
   IconButton,
+  SimpleGrid,
+  Tab,
+  Table,
+  TableContainer,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr
 } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
-import TopBar from '@/components/ui/TopBar';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import TopBar from '@/components/ui/TopBar';
+import { useRouter } from '@/i18n/config';
 import { CategoryService } from '@/lib/api/category.service';
-import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentPairService } from '@/lib/api/tournament-pair.service';
+import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import {
   Category,
-  CategoryRegistration,
-  CategoryMatch,
   CategoryGroup,
-  CategoryGroupRegistration,
-  TournamentPlayer,
-  TournamentPair,
-  TournamentUmpire,
-  TournamentCourt,
-  TournamentScoringDevice,
-  MatchFormat,
+  CategoryMatch,
+  CategoryRegistration,
   CategoryType,
+  MatchFormat,
   MatchStatus,
+  TournamentCourt,
+  TournamentPair,
+  TournamentPlayer,
+  TournamentScoringDevice,
+  TournamentUmpire,
+  UserRole
 } from '@/lib/api/types';
-import { useEffect, useState, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { useParams, useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
-  Save,
-  Plus,
-  X,
+  Badge,
+  Box,
+  Container,
+  Field,
+  Flex,
+  Heading,
+  HStack,
+  Input,
+  Spinner,
+  Text,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react';
+import { format } from 'date-fns';
+import {
   Play,
-  Square,
+  Plus,
+  Save,
+  Settings,
   Trophy,
   Users,
-  Settings,
+  X
 } from 'lucide-react';
-import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import { UserRole } from '@/lib/api/types';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { format } from 'date-fns';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function CategoryManagePage() {
   const t = useTranslations('pages.tournaments.categoryManage');

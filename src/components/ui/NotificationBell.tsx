@@ -51,7 +51,17 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   },
 ];
 
-export default function NotificationBell() {
+// ... imports
+
+interface NotificationBellProps {
+  color?: string;
+  _hover?: any;
+}
+
+export default function NotificationBell({
+  color,
+  _hover,
+}: NotificationBellProps) {
   //   const tCommon = useTranslations('common');
   const [notifications, setNotifications] =
     useState<Notification[]>(MOCK_NOTIFICATIONS);
@@ -104,7 +114,10 @@ export default function NotificationBell() {
           variant="ghost"
           size="md"
           borderRadius="full"
-          _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+          color={color}
+          _hover={
+            _hover || { bg: 'gray.100', _dark: { bg: 'gray.700' } }
+          }
           onClick={() => setIsOpen(!isOpen)}
         >
           <Bell size={20} />

@@ -60,19 +60,24 @@ export default function TopBar({
         left={0}
         right={0}
         zIndex={999}
-        bg="rgba(255, 255, 255, 0.95)"
+        bg="#0068FF"
         backdropFilter="blur(10px)"
         borderBottom="1px solid"
-        borderColor="gray.200"
-        height="64px"
-        minHeight="64px"
+        borderColor="whiteAlpha.300"
+        height={{
+          base: 'calc(44px + env(safe-area-inset-top))',
+          md: 'calc(56px + env(safe-area-inset-top))',
+        }}
+        minHeight={{ base: '44px', md: '56px' }}
+        paddingTop="env(safe-area-inset-top)"
+        color="white"
         _dark={{
-          bg: 'rgba(26, 32, 44, 0.95)',
-          borderColor: 'gray.600',
+          bg: '#0068FF',
+          borderColor: 'whiteAlpha.300',
         }}
       >
         <Container maxW="container.xl" height="100%">
-          <Flex justify="space-between" align="center" height="64px" py={0}>
+          <Flex justify="space-between" align="center" height="100%" py={0}>
             {/* Left side - Back button or spacer */}
             <Box minW="120px" height="100%" display="flex" alignItems="center">
               {showBackButton ? (
@@ -80,11 +85,11 @@ export default function TopBar({
                   href={backHref}
                   variant="ghost"
                   size="sm"
-                  color="gray.600"
-                  _hover={{ color: 'blue.500' }}
+                  color="white"
+                  _hover={{ bg: 'whiteAlpha.200' }}
                 >
                   <ArrowLeft size={16} />
-                  {common('back')}
+                  {/* {common('back')} */}
                 </NextLinkButton>
               ) : (
                 <Box />
@@ -94,10 +99,9 @@ export default function TopBar({
             {/* Center - App title */}
             <Heading
               size="lg"
-              // color="blue.600"
+              color="white"
               fontWeight="bold"
               textAlign="center"
-              _dark={{ color: 'blue.400' }}
               maxWidth={{ base: '60vw', md: '500px' }}
               whiteSpace="nowrap"
               overflow="hidden"
@@ -119,17 +123,21 @@ export default function TopBar({
               justifyContent="flex-end"
               gap={2}
             >
-              {isAuthenticated && <NotificationBell />}
+              {isAuthenticated && (
+                <NotificationBell
+                  color="white"
+                  _hover={{ bg: 'whiteAlpha.200' }}
+                />
+              )}
 
               <IconButton
                 aria-label="Open menu"
                 onClick={onMenuOpen}
-                bg="white"
-                _dark={{ bg: 'gray.800' }}
-                shadow="md"
+                variant="ghost"
+                color="white"
+                _hover={{ bg: 'whiteAlpha.200' }}
                 borderRadius="full"
                 size="md"
-                variant="outline"
               >
                 <Menu size={20} />
               </IconButton>

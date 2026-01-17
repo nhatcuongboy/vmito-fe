@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { User } from '@/types/auth';
+import { UserRole } from '@/lib/api/types';
 
 interface AuthState {
   // State
@@ -14,6 +15,7 @@ interface AuthState {
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
   setUser: (user: User) => void;
+  setGuestAuth: (playerId: string, sessionId: string, joinCode: string) => void;
   setLoading: (loading: boolean) => void;
   updateToken: (token: string) => void;
   setHydrated: (hydrated: boolean) => void;
@@ -56,6 +58,26 @@ export const useAuthStore = create<AuthState>()(
           ),
 
         setUser: (user) => set({ user }, false, 'setUser'),
+
+        setGuestAuth: (playerId, sessionId, joinCode) =>
+          set(
+            {
+              user: {
+                id: `guest-${playerId}`,
+                name: 'Guest Player',
+                email: '',
+                role: UserRole.GUEST,
+                playerId,
+                sessionId,
+                joinCode,
+              },
+              accessToken: null, // No real token for guest
+              isAuthenticated: true, // Treated as authenticated
+              isLoading: false,
+            },
+            false,
+            'setGuestAuth'
+          ),
 
         setLoading: (loading) =>
           set({ isLoading: loading }, false, 'setLoading'),

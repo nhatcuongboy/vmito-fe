@@ -28,8 +28,14 @@ export default function MainLayout({
         backHref={backHref}
       />
       <Box
-        mt={`${TOP_BAR_HEIGHT}px`}
-        height={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
+        mt={{
+          base: 'calc(44px + env(safe-area-inset-top))',
+          md: 'calc(56px + env(safe-area-inset-top))',
+        }}
+        height={{
+          base: 'calc(100vh - 44px - env(safe-area-inset-top))',
+          md: 'calc(100vh - 56px - env(safe-area-inset-top))',
+        }}
         overflowY="auto"
         p={contentPadding}
       >

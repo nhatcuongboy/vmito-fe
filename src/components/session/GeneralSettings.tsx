@@ -26,6 +26,7 @@ import {
   FileText,
   MapPin,
   Shield,
+  Palette,
   UserCheck,
   UserPlus,
   Users,
@@ -64,7 +65,15 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
     endTime: session.endTime
       ? new Date(session.endTime).toISOString().slice(0, 16)
       : '',
+    courtColor: session.courtColor || '#179a3b',
   });
+
+  const COURT_COLORS = [
+    { name: 'Green', value: '#179a3b' },
+    { name: 'Grey', value: '#808080' },
+    { name: 'Royal', value: '#364D63' },
+    { name: 'Red', value: '#B24233' },
+  ];
 
   const handleInputChange = (
     field: string,
@@ -494,6 +503,76 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                         {t('allLevelsSelected')}
                       </Text>
                     )}
+                </Box>
+              </VStack>
+
+              <VStack gap={4} align="stretch" mt={6}>
+                <Heading size="sm" color="gray.700">
+                  <HStack>
+                    <Palette size={16} />
+                    <Text>Court Appearance</Text>
+                  </HStack>
+                </Heading>
+
+                <Box p={4} bg="gray.50" borderRadius="lg">
+                  <Text fontSize="xs" color="gray.600" mb={3}>
+                    Select a color theme for your courts
+                  </Text>
+                  <Wrap gap={4}>
+                    {COURT_COLORS.map((color) => {
+                      const isSelected = formData.courtColor === color.value;
+                      return (
+                        <WrapItem key={color.value}>
+                          <VStack>
+                            <Box
+                              w="60px"
+                              h="60px"
+                              borderRadius="md"
+                              bg={color.value}
+                              cursor="pointer"
+                              position="relative"
+                              onClick={() =>
+                                handleInputChange('courtColor', color.value)
+                              }
+                              border="4px solid"
+                              borderColor={
+                                isSelected ? 'blue.500' : 'transparent'
+                              }
+                              boxShadow={isSelected ? 'lg' : 'sm'}
+                              transition="all 0.2s"
+                              _hover={{
+                                transform: 'scale(1.05)',
+                                boxShadow: 'md',
+                              }}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              {/* White lines representation */}
+                              <Box
+                                w="40px"
+                                h="30px"
+                                border="1px solid white"
+                                position="absolute"
+                              />
+                              <Box
+                                w="0px"
+                                h="30px"
+                                borderLeft="1px solid white"
+                                position="absolute"
+                              />
+                            </Box>
+                            <Text
+                              fontSize="xs"
+                              fontWeight={isSelected ? 'bold' : 'normal'}
+                            >
+                              {color.name}
+                            </Text>
+                          </VStack>
+                        </WrapItem>
+                      );
+                    })}
+                  </Wrap>
                 </Box>
               </VStack>
 

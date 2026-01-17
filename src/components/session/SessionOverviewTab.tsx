@@ -18,6 +18,12 @@ import {
   Square,
   User,
   CheckCircle,
+  Tag,
+  LayoutGrid,
+  Shield,
+  DoorOpen,
+  UserPlus,
+  FileText,
 } from 'lucide-react';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
 import { useTranslations } from 'next-intl';
@@ -25,6 +31,32 @@ import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { formatTime } from '@/utils/session-helpers';
 import dayjs from '@/lib/dayjs';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+
+const InfoRow = ({ icon, label, children, ...props }: any) => (
+  <Flex align="start" mb={3} {...props}>
+    <Box
+      as={icon}
+      boxSize={5}
+      mr={3}
+      mt={0.5}
+      color="gray.400"
+      flexShrink={0}
+    />
+    <Text
+      fontSize="md"
+      color="gray.600"
+      _dark={{ color: 'gray.400' }}
+      mr={2}
+      minW="fit-content"
+      fontWeight="normal"
+    >
+      {label}:
+    </Text>
+    <Box flex={1} color="gray.800" _dark={{ color: 'gray.100' }} fontWeight="medium">
+      {children}
+    </Box>
+  </Flex>
+);
 
 interface SessionOverviewTabProps {
   session: any;
@@ -102,146 +134,90 @@ export default function SessionOverviewTab({
             borderColor="gray.100"
             h="full"
           >
-            <VStack spacing={6} align="stretch" h="full">
-              <Box>
-                <Heading
-                  size="lg"
-                  mb={2}
-                  color="gray.800"
-                  _dark={{ color: 'white' }}
-                >
-                  {session.name}
-                </Heading>
+            <VStack spacing={2} align="stretch" h="full">
+              <InfoRow icon={Tag} label={t('sessionName')}>
+                <Text fontWeight="bold">{session.name}</Text>
+              </InfoRow>
 
-                {session.host?.name && (
-                  <Flex align="center" mb={4} color="gray.500">
-                    <Icon as={User} boxSize={4} mr={2} />
-                    <Text fontSize="sm">{session.host.name}</Text>
-                  </Flex>
-                )}
+              <InfoRow icon={User} label={t('host')}>
+                {session.host?.name || 'Unknown'}
+              </InfoRow>
 
-                <Flex
-                  align="center"
-                  mb={3}
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
+              <InfoRow icon={Info} label={t('status')}>
+                <Badge
+                  colorScheme={getStatusColor(session.status)}
+                  variant="subtle"
+                  px={2}
+                  borderRadius="md"
                 >
-                  <Box
-                    as={Info}
-                    boxSize={5}
-                    mr={3}
-                    color={`${statusColor}.500`}
-                  />
-                  <Text
-                    fontSize="md"
-                    fontWeight="medium"
-                    color={`${statusColor}.600`}
-                  >
-                    {session.status === 'PREPARING'
-                      ? t('notStarted')
-                      : session.status === 'IN_PROGRESS'
-                        ? t('inProgress')
-                        : t('finished')}
-                  </Text>
+                  {session.status === 'PREPARING'
+                    ? t('notStarted')
+                    : session.status === 'IN_PROGRESS'
+                      ? t('inProgress')
+                      : t('finished')}
+                </Badge>
+              </InfoRow>
+
+              <InfoRow icon={MapPin} label={t('location')}>
+                {session.location || t('noLocation')}
+              </InfoRow>
+
+              <InfoRow icon={Calendar} label={t('date')}>
+                <Text textTransform="capitalize">
+                  {session.startTime
+                    ? dayjs(session.startTime).format('dddd, DD MMMM YYYY')
+                    : t('notScheduled')}
+                </Text>
+              </InfoRow>
+
+              <InfoRow icon={Clock} label={t('sessionTime')}>
+                {session.startTime
+                  ? formatTime(session.startTime)
+                  : '--:--'}{' '}
+                - {session.endTime ? formatTime(session.endTime) : '--:--'}
+              </InfoRow>
+
+              <InfoRow icon={LayoutGrid} label={t('numberOfCourts')}>
+                {session.numberOfCourts}
+              </InfoRow>
+
+              <InfoRow icon={Users} label={t('maxPlayersPerCourt')}>
+                {session.maxPlayersPerCourt}
+              </InfoRow>
+
+              <InfoRow icon={Award} label={t('requiredLevels')}>
+                <Flex gap={2} flexWrap="wrap">
+                  {session.requiredLevels &&
+                  session.requiredLevels.length > 0 ? (
+                    session.requiredLevels.map((level: number) => (
+                      <Box
+                        key={level}
+                        px={2.5}
+                        py={0.5}
+                        bg="orange.50"
+                        color="orange.700"
+                        borderRadius="full"
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        border="1px solid"
+                        borderColor="orange.100"
+                      >
+                        {getLevelShortLabel(level)}
+                      </Box>
+                    ))
+                  ) : (
+                    <Text>{t('allLevels')}</Text>
+                  )}
                 </Flex>
+              </InfoRow>
 
-                <Flex
-                  align="center"
-                  mb={3}
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  <Box as={MapPin} boxSize={5} mr={3} color="blue.500" />
-                  <Text fontSize="md" fontWeight="medium">
-                    {session.location || t('noLocation')}
-                  </Text>
-                </Flex>
 
-                <Flex
-                  align="center"
-                  mb={3}
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  <Box as={Calendar} boxSize={5} mr={3} color="purple.500" />
-                  <Text fontSize="md" textTransform="capitalize">
-                    {session.startTime
-                      ? dayjs(session.startTime).format('dddd, DD MMMM YYYY')
-                      : t('notScheduled')}
-                  </Text>
-                </Flex>
 
-                <Flex
-                  align="center"
-                  mb={4}
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  <Box as={Clock} boxSize={5} mr={3} color="green.500" />
-                  <Text fontSize="md">
-                    {session.startTime
-                      ? formatTime(session.startTime)
-                      : '--:--'}{' '}
-                    - {session.endTime ? formatTime(session.endTime) : '--:--'}
-                  </Text>
-                </Flex>
-
-                <Flex
-                  align="start"
-                  mb={3}
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  <Box
-                    as={Award}
-                    boxSize={5}
-                    mr={3}
-                    color="orange.500"
-                    mt={1}
-                  />
-                  <Box>
-                    <Text fontSize="md" fontWeight="medium" mb={1}>
-                      {t('requiredLevels')}:
-                    </Text>
-                    <Flex gap={2} flexWrap="wrap">
-                      {session.requiredLevels &&
-                      session.requiredLevels.length > 0 ? (
-                        session.requiredLevels.map((level: number) => (
-                          <Box
-                            key={level}
-                            px={2.5}
-                            py={0.5}
-                            bg="orange.50"
-                            color="orange.700"
-                            borderRadius="full"
-                            fontSize="sm"
-                            fontWeight="semibold"
-                            border="1px solid"
-                            borderColor="orange.100"
-                          >
-                            {getLevelShortLabel(level)}
-                          </Box>
-                        ))
-                      ) : (
-                        <Text>{t('allLevels')}</Text>
-                      )}
-                    </Flex>
-                  </Box>
-                </Flex>
-                {session.description && (
-                  <Flex align="center">
-                    <Box as={Info} boxSize={5} mr={3} mt={1} color="gray.400" />
-                    <Text
-                      color="gray.600"
-                      _dark={{ color: 'gray.400' }}
-                      fontSize="sm"
-                      lineHeight="tall"
-                    >
-                      {session.description}
-                    </Text>
-                  </Flex>
-                )}
-              </Box>
+              {session.description && (
+                <InfoRow icon={FileText} label={t('description')}>
+                  <Text lineHeight="tall">{session.description}</Text>
+                </InfoRow>
+              )}
 
               {onToggleSessionStatus && session.status !== 'FINISHED' && (
                 <Flex mt={6} justify="center">
@@ -272,9 +248,9 @@ export default function SessionOverviewTab({
         </Box>
 
         {/* Right Column: Join Session Card */}
-        <Box as="section">
+        <Box as="section" h="full">
           <Box
-            p={8}
+            p={6}
             bg="white"
             _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
             borderRadius="xl"
@@ -284,27 +260,53 @@ export default function SessionOverviewTab({
             display="flex"
             flexDirection="column"
             alignItems="center"
-            justifyContent="center"
-            textAlign="center"
             h="full"
           >
-            <Heading
-              size="md"
-              mb={2}
-              color="gray.800"
-              _dark={{ color: 'white' }}
-            >
-              QR Code
-            </Heading>
+            <Box w="full" mb={6}>
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color="gray.500"
+                mb={4}
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
+                {t('settings')}
+              </Text>
+              <VStack align="start" spacing={3}>
+                <InfoRow icon={Shield} label={t('requirePlayerInfo')}>
+                  <Badge
+                    colorScheme={session.requirePlayerInfo ? 'green' : 'gray'}
+                  >
+                    {session.requirePlayerInfo ? t('yes') : t('no')}
+                  </Badge>
+                </InfoRow>
+
+                <InfoRow icon={UserPlus} label={t('allowGuestJoin')}>
+                  <Badge colorScheme={session.allowGuestJoin ? 'green' : 'gray'}>
+                    {session.allowGuestJoin ? t('yes') : t('no')}
+                  </Badge>
+                </InfoRow>
+
+                <InfoRow icon={DoorOpen} label={t('allowNewPlayers')}>
+                  <Badge
+                    colorScheme={session.allowNewPlayers ? 'green' : 'gray'}
+                  >
+                    {session.allowNewPlayers ? t('yes') : t('no')}
+                  </Badge>
+                </InfoRow>
+              </VStack>
+            </Box>
 
             <Box
-              p={4}
-              bg="white"
-              borderRadius="2xl"
-              shadow="sm"
-              border="1px solid"
-              borderColor="gray.100"
-            >
+              w="full"
+              h="1px"
+              bg="gray.100"
+              _dark={{ bg: 'gray.700' }}
+              mb={6}
+            />
+
+            <Box flex={1} display="flex" flexDirection="column" justifyContent="center">
               <QRCodeGenerator joinCode={joinCode} size={200} />
             </Box>
           </Box>

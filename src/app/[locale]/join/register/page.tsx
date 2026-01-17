@@ -54,9 +54,10 @@ function RegisterContent() {
         phone,
       });
 
-      // Successfully registered and joined - redirect to my-session
+      // Successfully registered and joined - redirect to player status page
       if (playerResult.data?.player) {
-        router.push(`/my-session`);
+        const { id, joinCode } = playerResult.data.player;
+        router.push(`/player/${id}?code=${joinCode}`);
       } else {
         toaster.error({ title: t('joinFailed') });
       }

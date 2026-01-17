@@ -24,7 +24,8 @@ import { Button } from '@/components/ui/chakra-compat';
 import { Plus, Minus, Save, Shield } from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
 import { useTranslations } from 'next-intl';
-import { useRouter, useSearchParams, useParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 

@@ -27,7 +27,7 @@ export default function HostSessionsPage() {
         {/* Top Bar */}
         <TopBar
           showBackButton={true}
-          backHref="/dashboard"
+          backHref="/host/dashboard"
           title={t('title')}
         />
 

@@ -8,6 +8,10 @@ export interface User {
   name: string | null;
   role: UserRole;
   image?: string | null;
+  // Guest-specific fields
+  playerId?: string;
+  sessionId?: string;
+  joinCode?: string;
 }
 
 export interface AuthTokens {

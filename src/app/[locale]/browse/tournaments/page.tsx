@@ -18,7 +18,7 @@ import {
   SimpleGrid,
   Button,
 } from '@/components/ui/chakra-compat';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
@@ -65,7 +65,7 @@ export default function TournamentsPage() {
       // Reload tournaments
       await loadTournaments();
       // Navigate to the new tournament
-      router.push(`/tournaments/${result.tournament.id}`);
+      router.push(`/host/tournaments/${result.tournament.id}`);
     } catch (error: any) {
       console.error('Error creating sample tournament:', error);
       toaster.error({
@@ -141,7 +141,7 @@ export default function TournamentsPage() {
                 {creatingSample ? t('creating') : t('createSample')}
               </Button>
               <NextLinkButton
-                href="/tournaments/new"
+                href="/host/tournaments/new"
                 colorScheme="blue"
                 leftIcon={<Plus size={16} />}
               >
@@ -199,7 +199,7 @@ export default function TournamentsPage() {
                     <Card
                       key={tournament.id}
                       as={NextLinkButton}
-                      href={`/tournaments/${tournament.id}`}
+                      href={`/browse/tournaments/${tournament.id}`}
                       bg="white"
                       borderWidth="1px"
                       borderColor="gray.200"

@@ -93,10 +93,12 @@ export const AuthService = {
   /**
    * Check code validation (for guest join)
    */
-  checkCode: async (code: string): Promise<{ isPlayerCode: boolean }> => {
-    const response = await api.get<ApiResponse<{ isPlayerCode: boolean }>>(
-      `/players/check-code?code=${code}`
-    );
+  checkCode: async (
+    code: string
+  ): Promise<{ isPlayerCode: boolean; playerId: string | null; sessionId: string | null }> => {
+    const response = await api.get<
+      ApiResponse<{ isPlayerCode: boolean; playerId: string | null; sessionId: string | null }>
+    >(`/players/check-code?code=${code}`);
     return response.data.data!;
   },
 
@@ -113,7 +115,7 @@ export const AuthService = {
     }
   ): Promise<ApiResponse<JoinByCodeResponse>> => {
     const response = await api.post<ApiResponse<JoinByCodeResponse>>(
-      '/join-by-code',
+      '/players/join-by-code',
       {
         sessionCode: sessionCode.trim().toUpperCase(),
         ...playerInfo,

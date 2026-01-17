@@ -8,6 +8,7 @@ import { CommonModal } from '@/components/ui/CommonModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
 import {
@@ -41,6 +42,11 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { useSocket } from '@/contexts/SocketContext';
+import { useRouter } from '@/i18n/config';
+import {
+  requestNotificationPermission,
+  sendSystemNotification,
+} from '@/utils/notifications';
 
 export interface PlayerSessionViewProps {
   /**
@@ -53,6 +59,10 @@ export interface PlayerSessionViewProps {
    * Player ID - required when mode is 'guest'
    */
   playerId?: string;
+  /**
+   * Join code - required when mode is 'guest' for verification
+   */
+  joinCode?: string;
   /**
    * Session ID - required when mode is 'player'
    */
@@ -70,17 +80,33 @@ export interface PlayerSessionViewProps {
 export default function PlayerSessionView({
   mode,
   playerId: propPlayerId,
+  joinCode: propJoinCode,
   sessionId: propSessionId,
   userId,
   errorRedirectPath = '/join',
 }: PlayerSessionViewProps) {
   const t = useTranslations('pages.join.status');
   const common = useTranslations('common');
+  const router = useRouter();
 
   const { socket, joinSession, leaveSession } = useSocket();
 
   const [refreshInterval, setRefreshInterval] = useState(60); // seconds
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
+
+  // Leave session handler for guest mode
+  const handleLeaveSession = () => {
+    localStorage.removeItem('guestJoinCode');
+    localStorage.removeItem('guestPlayerId');
+    useAuthStore.getState().clearAuth();
+    router.push('/');
+  };
+
+
+  // Request notification permission on mount
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // For background refresh
@@ -199,21 +225,51 @@ export default function PlayerSessionView({
       let sessionId: string | null = null;
 
       if (mode === 'guest') {
-        // GUEST mode: first get sessionId from player, then fetch full session
+        // GUEST mode: verify joinCode and get session data in one call
         if (!propPlayerId) {
           setError('MISSING_PLAYER_ID');
           return;
         }
 
-        // Get player to retrieve sessionId
-        const basicPlayerData = await PlayerService.getPlayer(propPlayerId);
+        if (!propJoinCode) {
+          setError('MISSING_JOIN_CODE');
+          return;
+        }
 
-        if (!basicPlayerData?.sessionId) {
+        // Verify joinCode and get session data
+        const verification = await PlayerService.verifyPlayer(
+          propPlayerId,
+          propJoinCode
+        );
+
+        if (!verification.verified || !verification.session) {
+          setError('INVALID_JOIN_CODE');
+          return;
+        }
+
+        sessionId = verification.sessionId;
+        sessionData = verification.session;
+
+        // Set guest auth in store to simulate logged-in user
+        useAuthStore
+          .getState()
+          .setGuestAuth(propPlayerId, sessionId, propJoinCode);
+
+        // Find player from session data
+        playerData =
+          sessionData.players?.find((p) => p.id === propPlayerId) || null;
+
+        if (!playerData) {
           setError('PLAYER_NOT_FOUND');
           return;
         }
 
-        sessionId = basicPlayerData.sessionId;
+        // Check if player has confirmed their information
+        if (!playerData.confirmedByPlayer && playerData.requireConfirmInfo) {
+          // Redirect to confirm page
+          router.push(`/join/confirm?playerId=${propPlayerId}`);
+          return;
+        }
       } else {
         // PLAYER mode: use provided sessionId
         if (!propSessionId) {
@@ -226,28 +282,16 @@ export default function PlayerSessionView({
         }
 
         sessionId = propSessionId;
-      }
 
-      // Fetch full session data (includes all players with complete info)
-      sessionData = await SessionService.getSession(sessionId);
+        // Fetch full session data (includes all players with complete info)
+        sessionData = await SessionService.getSession(sessionId);
 
-      if (!sessionData) {
-        setError('SESSION_NOT_FOUND');
-        return;
-      }
-
-      // Find player from session data for consistency
-      // This ensures we have the same data structure as other players
-      if (mode === 'guest') {
-        playerData =
-          sessionData.players?.find((p) => p.id === propPlayerId) || null;
-
-        if (!playerData) {
-          setError('PLAYER_NOT_FOUND');
+        if (!sessionData) {
+          setError('SESSION_NOT_FOUND');
           return;
         }
-      } else {
-        // PLAYER mode: find player by userId
+
+        // Find player by userId
         playerData =
           sessionData.players?.find((p) => p.userId === userId) || null;
 
@@ -355,11 +399,14 @@ export default function PlayerSessionView({
       if (data.sessionId !== session.id) return;
 
       // Only show toast if it's the current player being updated
+
       if (data.playerId === player?.id) {
+        const title = t('events.yourInfoUpdated');
         toaster.create({
-          title: t('events.yourInfoUpdated'),
+          title,
           type: 'info',
         });
+        sendSystemNotification(title);
       }
       fetchPlayerData(true);
     };
@@ -371,11 +418,14 @@ export default function PlayerSessionView({
       if (data.sessionId !== session.id) return;
 
       // Only show toast if it's the current player being removed
+
       if (data.playerId === player?.id) {
+        const title = t('events.youWereRemoved');
         toaster.create({
-          title: t('events.youWereRemoved'),
+          title,
           type: 'warning',
         });
+        sendSystemNotification(title);
       }
       fetchPlayerData(true);
     };
@@ -399,8 +449,15 @@ export default function PlayerSessionView({
           : 'Court';
 
         // Show modal to call player to court
+
+        // Show modal to call player to court
         setCourtCallCourtName(courtName);
         setCourtCallModalOpen(true);
+
+        sendSystemNotification(
+          t('events.youWereSelected', { court: courtName }),
+          t('courtCall.goToCourt') + ' ' + courtName
+        );
       }
       fetchPlayerData(true);
     };
@@ -423,10 +480,13 @@ export default function PlayerSessionView({
           ? court.courtName || `Court ${court.courtNumber}`
           : 'Court';
 
+
+        const title = t('events.youWereDeselected', { court: courtName });
         toaster.create({
-          title: t('events.youWereDeselected', { court: courtName }),
+          title,
           type: 'info',
         });
+        sendSystemNotification(title);
       }
       fetchPlayerData(true);
     };
@@ -491,7 +551,7 @@ export default function PlayerSessionView({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [propPlayerId, propSessionId, userId, mode]);
+  }, [propPlayerId, propJoinCode, propSessionId, userId, mode]);
 
   // Get error message based on error type
   const getErrorMessage = () => {
@@ -500,6 +560,16 @@ export default function PlayerSessionView({
         return {
           title: t('errors.missingPlayerId'),
           description: t('errors.missingPlayerIdDescription'),
+        };
+      case 'MISSING_JOIN_CODE':
+        return {
+          title: t('errors.missingJoinCode'),
+          description: t('errors.missingJoinCodeDescription'),
+        };
+      case 'INVALID_JOIN_CODE':
+        return {
+          title: t('errors.invalidJoinCode'),
+          description: t('errors.invalidJoinCodeDescription'),
         };
       case 'MISSING_SESSION_ID':
         return {
@@ -608,7 +678,7 @@ export default function PlayerSessionView({
 
   return (
     <>
-      <TopBar title={t('title')} />
+      <TopBar title={t('title')} showBackButton={mode !== 'guest'} />
 
       {session && (
         <SessionStatusHeader
@@ -617,11 +687,21 @@ export default function PlayerSessionView({
             status: session.status,
           }}
           readOnly
-          stickyTop="64px"
+          stickyTop={{
+            base: 'calc(44px + env(safe-area-inset-top))',
+            md: 'calc(56px + env(safe-area-inset-top))',
+          }}
+          mt={{
+            base: 'calc(44px + env(safe-area-inset-top))',
+            md: 'calc(56px + env(safe-area-inset-top))',
+          }}
         />
       )}
 
-      <Container pt={'110px'} pb={'80px'}>
+      <Container
+        pt={4}
+        pb={'calc(90px + env(safe-area-inset-bottom))'}
+      >
         {/* Tab Content */}
         {!player || !session ? (
           <Center>
@@ -1034,48 +1114,52 @@ export default function PlayerSessionView({
           display="flex"
           justifyContent="space-around"
           alignItems="center"
-          height="64px"
+          height="calc(64px + env(safe-area-inset-bottom) + 12px)"
+          paddingBottom="calc(env(safe-area-inset-bottom) + 12px)"
         >
           <Box
             as="button"
             flex={1}
-            py={2}
+            py={{ base: 1, md: 2 }}
             onClick={() => setActiveTab(0)}
             display="flex"
             flexDirection="column"
             alignItems="center"
             color={activeTab === 0 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 0 ? 'bold' : 'normal'}
+            fontSize={{ base: '10px', md: 'sm' }}
           >
-            <Box as={User} boxSize={6} mb={1} />
+            <Box as={User} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
             Status
           </Box>
           <Box
             as="button"
             flex={1}
-            py={2}
+            py={{ base: 1, md: 2 }}
             onClick={() => setActiveTab(1)}
             display="flex"
             flexDirection="column"
             alignItems="center"
             color={activeTab === 1 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 1 ? 'bold' : 'normal'}
+            fontSize={{ base: '10px', md: 'sm' }}
           >
-            <Box as={Activity} boxSize={6} mb={1} />
+            <Box as={Activity} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
             Courts
           </Box>
           <Box
             as="button"
             flex={1}
-            py={2}
+            py={{ base: 1, md: 2 }}
             onClick={() => setActiveTab(2)}
             display="flex"
             flexDirection="column"
             alignItems="center"
             color={activeTab === 2 ? 'blue.500' : 'gray.500'}
             fontWeight={activeTab === 2 ? 'bold' : 'normal'}
+            fontSize={{ base: '10px', md: 'sm' }}
           >
-            <Box as={Users} boxSize={6} mb={1} />
+            <Box as={Users} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
             Players
           </Box>
         </Box>

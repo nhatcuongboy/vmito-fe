@@ -35,6 +35,8 @@ export interface ISession {
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
   requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
+  allowGuestJoin?: boolean;
+  allowNewPlayers?: boolean;
   courtColor?: string;
   status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
   startTime?: Date;

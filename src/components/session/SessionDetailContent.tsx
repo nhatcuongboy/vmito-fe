@@ -87,6 +87,8 @@ interface SessionData {
   requirePlayerInfo: boolean;
   players: Player[];
   courts: Court[];
+  allowGuestJoin?: boolean;
+  allowNewPlayers?: boolean;
   waitingQueue?: Player[];
 }
 
@@ -122,11 +124,13 @@ export default function SessionDetailContent({
   // Define navigation tabs
   const navigationTabs: NavigationTab[] = [
     { id: 0, label: t('overview'), icon: Info },
-    { id: 1, label: t('courts'), icon: Square },
-    { id: 2, label: t('players'), icon: Users },
+    { id: 1, label: t('players'), icon: Users },
+    { id: 2, label: t('courts'), icon: Square },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('settings'), icon: RefreshCw },
   ];
+
+
 
   // Function to update URL with current tab
   const updateTabInURL = (tabIndex: number) => {
@@ -395,6 +399,17 @@ export default function SessionDetailContent({
           )}
 
           {activeTab === 1 && (
+            <PlayersTab
+              sessionPlayers={session.players}
+              playerFilter={playerFilter}
+              setPlayerFilter={setPlayerFilter}
+              formatWaitTime={formatWaitTime}
+              sessionId={session.id}
+              onPlayerUpdate={refreshSessionData}
+            />
+          )}
+
+          {activeTab === 2 && (
             <CourtsTab
               session={session}
               waitingPlayers={waitingPlayers}
@@ -405,17 +420,6 @@ export default function SessionDetailContent({
               isRefreshing={isRefreshing}
               formatWaitTime={formatWaitTime}
               selectedPlayers={selectedPlayers}
-            />
-          )}
-
-          {activeTab === 2 && (
-            <PlayersTab
-              sessionPlayers={session.players}
-              playerFilter={playerFilter}
-              setPlayerFilter={setPlayerFilter}
-              formatWaitTime={formatWaitTime}
-              sessionId={session.id}
-              onPlayerUpdate={refreshSessionData}
             />
           )}
 

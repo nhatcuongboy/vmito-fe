@@ -4,6 +4,7 @@ import LocaleValidator from '../../components/LocaleValidator';
 import { PWAStatus } from '../../components/PWAComponents';
 import '../globals.css';
 import { Providers } from '../providers';
+import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,6 +15,15 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: '#ffffff',
+};
 
 export async function generateStaticParams() {
   return [{ locale: 'vi' }, { locale: 'en' }];
@@ -61,6 +71,7 @@ export default async function LocaleLayout({
           <Providers>
             <PWAStatus />
             {children}
+            <GlobalBottomNav />
             {/* <PWAInstallPrompt /> */}
           </Providers>
         </IntlClientProvider>

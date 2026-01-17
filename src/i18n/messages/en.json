@@ -3,7 +3,10 @@
     "host": "Host",
     "join": "Join",
     "home": "Home",
-    "tournaments": "Tournaments"
+    "tournaments": "Tournaments",
+    "browse": "Browse",
+    "users": "Users",
+    "mySessions": "My Sessions"
   },
   "common": {
     "save": "Save",
@@ -856,6 +859,7 @@
         "alreadyHaveAccount": "Already have an account?",
         "enterCodeError": "Please enter a join code",
         "invalidCodeError": "Invalid join code or session not available",
+        "useSessionCodeHint": "Please enter a session code, not a player code. Ask the host for the session code.",
         "joinFailedError": "Failed to join session",
         "qrScanSuccess": "QR code scanned successfully!"
       },
@@ -982,9 +986,14 @@
           "autoRefresh": "Auto-refreshes in {seconds} seconds"
         },
         "footer": "Please keep this page open to maintain your place in the queue",
+        "leaveSession": "Leave Session",
         "errors": {
           "missingPlayerId": "Player ID is missing",
           "missingPlayerIdDescription": "No player ID was provided in the URL. Please join a session first.",
+          "missingJoinCode": "Join code is missing",
+          "missingJoinCodeDescription": "No join code was provided. Please use the link you received after joining.",
+          "invalidJoinCode": "Invalid join code",
+          "invalidJoinCodeDescription": "The join code is invalid. Please check your link and try again.",
           "loadFailed": "Failed to load player status",
           "generalErrorDescription": "There was an error loading your player information. Please try again.",
           "playerNotFound": "Player Not Found",
@@ -1178,7 +1187,19 @@
     "copyCode": "Copy Code",
     "copyJoinLink": "Copy Join Link",
     "noLocation": "No location",
-    "notScheduled": "Not scheduled"
+    "notScheduled": "Not scheduled",
+    "sessionName": "Name",
+    "host": "Host",
+    "date":"Date",
+    "location": "Location",
+    "numberOfCourts": "Number of Courts",
+    "maxPlayersPerCourt": "Max Players/Court",
+    "requirePlayerInfo": "Require Player Info",
+    "allowGuestJoin": "Allow Guest Join",
+    "allowNewPlayers": "Allow New Players",
+    "yes": "Yes",
+    "no": "No",
+    "description": "Description"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Failed to load player statistics.",

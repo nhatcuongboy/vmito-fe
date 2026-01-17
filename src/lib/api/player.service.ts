@@ -15,6 +15,33 @@ export const PlayerService = {
     return response.data.data!;
   },
 
+  // Get player by ID for guest (public endpoint)
+  getPlayerForGuest: async (id: string): Promise<Player> => {
+    const response = await api.get<ApiResponse<Player>>(`/players/guest/${id}`);
+    return response.data.data!;
+  },
+
+  // Verify player with joinCode and get session data (public endpoint for guest status)
+  verifyPlayer: async (
+    id: string,
+    code: string
+  ): Promise<{
+    playerId: string;
+    sessionId: string;
+    verified: boolean;
+    session: ISession;
+  }> => {
+    const response = await api.get<
+      ApiResponse<{
+        playerId: string;
+        sessionId: string;
+        verified: boolean;
+        session: ISession;
+      }>
+    >(`/players/guest/${id}/status?code=${code}`);
+    return response.data.data!;
+  },
+
   // Create player
   createPlayer: async (
     sessionId: string,

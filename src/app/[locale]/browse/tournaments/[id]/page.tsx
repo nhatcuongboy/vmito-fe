@@ -3,10 +3,18 @@
 import {
   Card,
   CardBody,
-  Divider,
-  SimpleGrid,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr
 } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import SlideOutMenu from '@/components/ui/SlideOutMenu';
+import { useRouter as useNextIntlRouter } from '@/i18n/config';
+import { AuthService } from '@/lib/api/auth.service';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentService } from '@/lib/api/tournament.service';
 import {
@@ -15,8 +23,8 @@ import {
   TournamentStatus,
   UserRole,
 } from '@/lib/api/types';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
-  Badge,
   Box,
   Button,
   Container,
@@ -27,38 +35,20 @@ import {
   IconButton,
   Spinner,
   Text,
-  VStack,
+  VStack
 } from '@chakra-ui/react';
-import {
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from '@/components/ui/chakra-compat';
 import { format } from 'date-fns';
 import {
-  Calendar,
-  Flag,
-  MapPin,
-  Trophy,
-  Users,
-  Building2,
-  Mail,
-  Phone,
-  Menu,
   ChevronDown,
+  Flag,
+  Mail,
+  MapPin,
+  Menu
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { AuthService } from '@/lib/api/auth.service';
-import { useRouter as useNextIntlRouter } from '@/i18n/config';
-import { useParams, useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
-import SlideOutMenu from '@/components/ui/SlideOutMenu';
+import { useParams, usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 // Helper function to format date in UTC (extract date part only)
 const formatDateUTC = (dateString: string | Date): string => {
@@ -179,7 +169,6 @@ export default function TournamentDetailPage() {
   };
 
   const pathname = usePathname();
-  const router = useRouter();
 
   // More menu state - must be declared before any early returns
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);

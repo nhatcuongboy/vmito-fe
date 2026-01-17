@@ -90,12 +90,14 @@ function SignInForm() {
         // Default redirect based on role
         if (
           loginResponse.user.role === UserRole.HOST ||
-          loginResponse.user.role === UserRole.PLAYER
+          loginResponse.user.role === UserRole.ADMIN
         ) {
-          redirectPath = '/dashboard';
+          redirectPath = '/host/dashboard';
+        } else if (loginResponse.user.role === UserRole.PLAYER) {
+          redirectPath = '/player/dashboard';
         } else {
           // GUEST role
-          redirectPath = '/my-session';
+          redirectPath = '/guest/session';
         }
       }
 

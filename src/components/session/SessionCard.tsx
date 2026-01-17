@@ -227,7 +227,7 @@ const SessionCard = ({
             </NextLinkButton>
           ) : (
             <NextLinkButton
-              href={`/my-session/${session.id}`}
+              href={`/player/sessions/${session.id}`}
               colorScheme="blue"
             >
               {t('viewSession')}

@@ -52,6 +52,7 @@ interface Player {
   };
   preFilledByHost: boolean;
   confirmedByPlayer: boolean;
+  joinCode?: string;
 }
 
 interface IPlayerDetailModalProps {
@@ -75,29 +76,32 @@ export const PlayerDetailModal = ({
   const [showJoinMore, setShowJoinMore] = useState(false);
 
   useEffect(() => {
-    if (isOpen && sessionId) {
-      // Generate join code (simplified - you might want to get this from API)
-      const code = `${sessionId}-${player.playerNumber}`;
-      setJoinCode(code);
+    if (isOpen && player.joinCode) {
+      // Use player's joinCode
+      setJoinCode(player.joinCode);
 
-      // Generate QR code URL (using a QR code service)
-      const joinUrl = `${window.location.origin}/join/${sessionId}?player=${player.playerNumber}`;
+      // Generate QR code URL with new guest player URL format
+      const joinUrl = `${window.location.origin}/player/${player.id}?code=${player.joinCode}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
         joinUrl
       )}`;
       setQrCodeUrl(qrUrl);
     }
-  }, [isOpen, sessionId, player.playerNumber]);
+  }, [isOpen, player.id, player.joinCode]);
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(joinCode);
-    toaster.success({ title: 'Join code copied to clipboard!' });
+    if (player.joinCode) {
+      navigator.clipboard.writeText(player.joinCode);
+      toaster.success({ title: 'Join code copied to clipboard!' });
+    }
   };
 
   const handleCopyUrl = () => {
-    const joinUrl = `${window.location.origin}/join/${sessionId}?player=${player.playerNumber}`;
-    navigator.clipboard.writeText(joinUrl);
-    toaster.success({ title: 'Join URL copied to clipboard!' });
+    if (player.joinCode) {
+      const joinUrl = `${window.location.origin}/player/${player.id}?code=${player.joinCode}`;
+      navigator.clipboard.writeText(joinUrl);
+      toaster.success({ title: 'Join URL copied to clipboard!' });
+    }
   };
 
   if (!isOpen) return null;

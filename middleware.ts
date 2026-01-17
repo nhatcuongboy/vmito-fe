@@ -14,6 +14,67 @@ export function middleware(request: NextRequest) {
 
   // If the first segment is a valid locale, let it pass
   if (locales.includes(firstSegment)) {
+    // Check for redirects
+    const pathWithoutLocale = pathname.replace(`/${firstSegment}`, '') || '/';
+
+    // 1. Exact redirects
+    const exactRedirects: Record<string, string> = {
+      '/my-session': '/guest/session',
+      '/join/confirm': '/player/sessions/join/confirm',
+      '/join/status': '/guest/join/status',
+      '/sessions/find': '/browse/sessions',
+      '/tournaments': '/browse/tournaments',
+      '/tournaments/new': '/host/tournaments/new',
+    };
+
+    if (exactRedirects[pathWithoutLocale]) {
+      const newPath = exactRedirects[pathWithoutLocale];
+      console.log(`Redirecting ${pathWithoutLocale} to ${newPath}`);
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}${newPath}`, request.url)
+      );
+    }
+
+    // 2. Dynamic redirects
+    // /my-session/[id] -> /player/sessions/[id]
+    if (pathWithoutLocale.match(/^\/my-session\/[^/]+$/)) {
+      const newPath = pathWithoutLocale.replace(
+        '/my-session',
+        '/player/sessions'
+      );
+      console.log(`Redirecting ${pathWithoutLocale} to ${newPath}`);
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}${newPath}`, request.url)
+      );
+    }
+
+    // /tournaments/[id] -> /browse/tournaments/[id]
+    const tournamentDetailMatch = pathWithoutLocale.match(
+      /^\/tournaments\/([^/]+)$/
+    );
+    if (tournamentDetailMatch) {
+      const id = tournamentDetailMatch[1];
+      const newPath = `/browse/tournaments/${id}`;
+      console.log(`Redirecting ${pathWithoutLocale} to ${newPath}`);
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}${newPath}`, request.url)
+      );
+    }
+
+    // /tournaments/[id]/manage -> /host/tournaments/[id]
+    const tournamentManageMatch = pathWithoutLocale.match(
+      /^\/tournaments\/([^/]+)\/manage(.*)$/
+    );
+    if (tournamentManageMatch) {
+      const id = tournamentManageMatch[1];
+      const rest = tournamentManageMatch[2] || '';
+      const newPath = `/host/tournaments/${id}${rest}`;
+      console.log(`Redirecting ${pathWithoutLocale} to ${newPath}`);
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}${newPath}`, request.url)
+      );
+    }
+
     console.log('Valid locale, passing through');
     return NextResponse.next();
   }

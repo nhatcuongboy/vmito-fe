@@ -25,6 +25,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
 
 // Helper functions for formatting with locale support
 const formatDate = (dateString: string | Date, locale: string): string => {
@@ -47,7 +48,7 @@ const statusColors = {
   PREPARING: 'blue',
   IN_PROGRESS: 'green',
   FINISHED: 'gray',
-};
+} as const;
 
 // Helper function to get localized status labels
 const getStatusLabel = (status: string, t: any) => {
@@ -75,7 +76,7 @@ const FindSessionCard = ({
   isJoined = false,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
-  const tCommon = useTranslations('common');
+  // const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -96,7 +97,7 @@ const FindSessionCard = ({
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
     maxPlayers,
-    status: session.status,
+    status: session.status as keyof typeof statusColors,
     hostName: session.host?.name || '',
   };
 
@@ -121,7 +122,7 @@ const FindSessionCard = ({
         <Heading size="md" mb={2}>
           {convertedSession.title}
         </Heading>
-        <Badge colorScheme={statusColors[convertedSession.status]}>
+        <Badge colorScheme={statusColors[convertedSession.status] || 'gray'}>
           {getStatusLabel(convertedSession.status, t)}
         </Badge>
       </Flex>
@@ -174,14 +175,19 @@ const FindSessionCard = ({
       </Stack>
 
       <Flex mt={4} gap={2} justify="flex-end">
-        <Button
-          colorScheme={isJoined ? 'gray' : 'blue'}
-          onClick={onJoin}
-          width="full"
-          disabled={isJoined}
-        >
-          {isJoined ? t('joined') : t('joinSession')}
-        </Button>
+        {isJoined ? (
+          <NextLinkButton
+            href={`/player/sessions/${session.id}`}
+            colorScheme="green"
+            width="full"
+          >
+            {t('viewSession')}
+          </NextLinkButton>
+        ) : (
+          <Button colorScheme="blue" onClick={onJoin} width="full">
+            {t('joinSession')}
+          </Button>
+        )}
       </Flex>
     </Flex>
   );

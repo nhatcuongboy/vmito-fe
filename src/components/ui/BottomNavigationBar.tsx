@@ -7,6 +7,7 @@ export interface NavigationTab {
   id: number;
   label: string;
   icon: LucideIcon;
+  href?: string;
 }
 
 interface BottomNavigationBarProps {
@@ -33,7 +34,8 @@ export default function BottomNavigationBar({
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      height="64px"
+      height="calc(64px + env(safe-area-inset-bottom) + 12px)"
+      paddingBottom="calc(env(safe-area-inset-bottom) + 12px)"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -44,13 +46,14 @@ export default function BottomNavigationBar({
             key={tab.id}
             as="button"
             flex={1}
-            py={2}
+            py={{ base: 1, md: 2 }}
             onClick={() => onTabChange(tab.id)}
             display="flex"
             flexDirection="column"
             alignItems="center"
             color={isActive ? 'blue.500' : 'gray.500'}
             fontWeight={isActive ? 'bold' : 'normal'}
+            fontSize={{ base: '10px', md: 'sm' }}
             transition="all 0.2s"
             _hover={{
               color: 'blue.400',
@@ -60,7 +63,7 @@ export default function BottomNavigationBar({
               transform: 'scale(0.95)',
             }}
           >
-            <Box as={Icon} boxSize={6} mb={1} />
+            <Box as={Icon} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
             {tab.label}
           </Box>
         );

@@ -21,7 +21,8 @@ interface SessionStatusHeaderProps {
   onToggleSessionStatus?: () => void;
   onRefreshData?: () => void;
   /** Top offset for sticky positioning */
-  stickyTop?: string | number;
+  stickyTop?: any;
+  mt?: any;
 }
 
 const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
@@ -32,6 +33,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   onToggleSessionStatus,
   onRefreshData,
   stickyTop = 0,
+  mt,
 }) => {
   const t = useTranslations('SessionDetail');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -83,30 +85,48 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
       zIndex={50}
       bg="white"
       _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+      mt={mt}
       borderBottomWidth="1px"
       borderColor="gray.200"
-      py={2}
+      shadow="sm"
+      py={1}
       px={4}
+      minH={{ base: '40px', md: '48px' }}
+      display="flex"
+      alignItems="center"
     >
-      <Flex align="center" justify="space-between" position="relative">
+      <Flex align="center" justify="space-between" position="relative" w="100%">
         {/* Left spacer for centering title */}
         <Box width="40px" />
 
-        {/* Session Name - Centered */}
-        <Text
-          fontSize="md"
-          fontWeight="semibold"
-          color="gray.800"
-          _dark={{ color: 'white' }}
-          textAlign="center"
-          whiteSpace="nowrap"
-          overflow="hidden"
-          textOverflow="ellipsis"
+        {/* Session Name & Status - Centered */}
+        <Flex
+          align="center"
+          justify="center"
+          gap={2}
           flex={1}
+          overflow="hidden"
           px={2}
         >
-          {session.name}
-        </Text>
+          <Box
+            w="8px"
+            h="8px"
+            borderRadius="full"
+            bg={getStatusBg(session.status)}
+            boxShadow={`0 0 6px var(--chakra-colors-${getStatusBg(session.status).split('.')[0]}-400)`}
+          />
+          <Text
+            fontSize="sm"
+            fontWeight="bold"
+            color="gray.800"
+            _dark={{ color: 'white' }}
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+          >
+            {session.name}
+          </Text>
+        </Flex>
 
         {/* Action Button & Dropdown - Hidden in readOnly mode */}
         {!readOnly ? (

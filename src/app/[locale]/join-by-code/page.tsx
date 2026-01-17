@@ -78,26 +78,17 @@ function JoinByCodeContent() {
 
     try {
       // Check code type first
-      const codeType = await checkCodeType(joinCode);
+      const result = await AuthService.checkCode(joinCode);
 
-      if (codeType === 'session') {
-        // Redirect to register page for session codes
-        router.push(`/join/register?code=${joinCode}`);
+      if (result.isPlayerCode && result.playerId) {
+        // Player code - redirect to confirm page to complete registration
+        router.push(`/join/confirm?playerId=${result.playerId}`);
         return;
       }
 
-      // For player codes, proceed with join by code via backend API
-      try {
-        const joinResult = await AuthService.joinByCode(joinCode);
-        if (joinResult.data?.player) {
-          // Successfully joined - redirect to my-session
-          router.push(`/my-session`);
-        }
-      } catch (joinError) {
-        toaster.error({ title: t('invalidCodeError') });
-        return;
-      }
-    } catch (error: any) {
+      // For session codes, redirect to register page to fill player info
+      router.push(`/join/register?code=${joinCode}`);
+    } catch (error: unknown) {
       toaster.error({ title: t('joinFailedError') });
       console.error('Join error:', error);
     } finally {

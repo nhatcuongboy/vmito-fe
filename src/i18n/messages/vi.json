@@ -3,7 +3,10 @@
     "host": "Tổ chức",
     "join": "Tham gia",
     "home": "Trang chủ",
-    "tournaments": "Giải đấu"
+    "tournaments": "Giải đấu",
+    "browse": "Khám phá",
+    "users": "Người dùng",
+    "mySessions": "Kèo của tôi"
   },
   "common": {
     "save": "Lưu",
@@ -550,6 +553,7 @@
         "alreadyHaveAccount": "Đã có tài khoản?",
         "enterCodeError": "Vui lòng nhập mã tham gia",
         "invalidCodeError": "Mã tham gia không hợp lệ hoặc kèo không khả dụng",
+        "useSessionCodeHint": "Vui lòng nhập mã kèo, không phải mã người chơi. Hãy hỏi người tổ chức để lấy mã kèo.",
         "joinFailedError": "Không thể tham gia kèo",
         "qrScanSuccess": "Quét mã QR thành công!"
       },
@@ -676,9 +680,14 @@
           "autoRefresh": "Tự động làm mới sau {seconds} giây"
         },
         "footer": "Vui lòng giữ trang này mở để duy trì vị trí trong hàng chờ",
+        "leaveSession": "Rời khỏi kèo",
         "errors": {
           "missingPlayerId": "Thiếu ID người chơi",
           "missingPlayerIdDescription": "Không có ID người chơi trong URL. Vui lòng tham gia phiên trước.",
+          "missingJoinCode": "Thiếu mã tham gia",
+          "missingJoinCodeDescription": "Không có mã tham gia. Vui lòng sử dụng đường link bạn nhận được sau khi tham gia.",
+          "invalidJoinCode": "Mã tham gia không hợp lệ",
+          "invalidJoinCodeDescription": "Mã tham gia không đúng. Vui lòng kiểm tra lại đường link và thử lại.",
           "loadFailed": "Không thể tải trạng thái người chơi",
           "generalErrorDescription": "Có lỗi khi tải thông tin người chơi. Vui lòng thử lại.",
           "playerNotFound": "Không tìm thấy người chơi",
@@ -1178,7 +1187,19 @@
     "copyCode": "Sao chép mã",
     "copyJoinLink": "Sao chép link tham gia",
     "noLocation": "Chưa có địa điểm",
-    "notScheduled": "Chưa có lịch"
+    "notScheduled": "Chưa có lịch",
+    "sessionName": "Tên",
+    "host": "Host",
+    "date":"Ngày",
+    "location": "Địa điểm",
+    "numberOfCourts": "Số lượng sân",
+    "maxPlayersPerCourt": "Số người chơi tối đa / sân",
+    "requirePlayerInfo": "Yêu cầu thông tin người chơi",
+    "allowGuestJoin": "Cho phép khách tham gia",
+    "allowNewPlayers": "Cho phép người chơi mới",
+    "yes": "Có",
+    "no": "Không",
+    "description": "Mô tả"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",

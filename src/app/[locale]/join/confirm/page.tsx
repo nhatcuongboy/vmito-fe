@@ -2,10 +2,9 @@
 
 import { Button } from '@/components/ui/chakra-compat';
 import TopBar from '@/components/ui/TopBar';
-import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { useRouter } from '@/i18n/config';
 import { PlayerService } from '@/lib/api/player.service';
-import { type Player, UserRole } from '@/lib/api/types';
+import { type Player } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -54,7 +53,7 @@ function ConfirmPageContent() {
         }
 
         setIsLoading(true);
-        const playerData = await PlayerService.getPlayer(playerId);
+        const playerData = await PlayerService.getPlayerForGuest(playerId);
         setPlayer(playerData);
 
         // Pre-populate form with existing data
@@ -116,10 +115,17 @@ function ConfirmPageContent() {
       };
 
       // Call the API to confirm the player
-      await PlayerService.confirmPlayer(player.id, playerData);
+      const confirmedPlayer = await PlayerService.confirmPlayer(
+        player.id,
+        playerData
+      );
 
-      // Redirect to status page with player ID
-      router.push(`/my-session`);
+      // Redirect to player status page with joinCode
+      // Get joinCode from the player data we fetched earlier
+      const playerForGuest = await PlayerService.getPlayerForGuest(player.id);
+      router.push(
+        `/player/${player.id}?code=${(playerForGuest as { joinCode?: string }).joinCode || ''}`
+      );
     } catch (error) {
       console.error('Error confirming player:', error);
       toaster.error({ title: t('confirm.errors.confirmFailed') });
@@ -352,10 +358,8 @@ function ConfirmPageContent() {
 
 export default function ConfirmPage() {
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
-      <Suspense fallback={<Spinner />}>
-        <ConfirmPageContent />
-      </Suspense>
-    </ProtectedRouteGuard>
+    <Suspense fallback={<Spinner />}>
+      <ConfirmPageContent />
+    </Suspense>
   );
 }

@@ -41,10 +41,15 @@ function AuthCallbackContent() {
         toaster.success({ title: t('loginSuccessful') });
 
         // Redirect based on role
-        const redirectPath =
-          role === UserRole.HOST || role === UserRole.PLAYER
-            ? '/dashboard'
-            : '/my-session';
+        // Redirect based on role
+        let redirectPath = '/guest/session';
+        
+        if (role === UserRole.HOST || role === UserRole.ADMIN) {
+          redirectPath = '/host/dashboard';
+        } else if (role === UserRole.PLAYER) {
+          redirectPath = '/player/dashboard';
+        }
+        
         router.replace(redirectPath);
       }, 0);
     } else {
