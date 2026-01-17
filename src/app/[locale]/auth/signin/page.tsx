@@ -43,10 +43,6 @@ function SignInForm() {
   const isHydrated = useAuthHydration();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Get callbackUrl from query params, strip locale prefix if present
-  const rawCallbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  // Remove leading locale prefix if exists (e.g., /en/host -> /host)
-  const callbackUrl = rawCallbackUrl.replace(/^\/(vi|en)/, '') || '/dashboard';
 
   // Handle redirect for already authenticated users (e.g., direct URL access)
   useEffect(() => {
@@ -85,32 +81,17 @@ function SignInForm() {
       });
 
       toaster.success({ title: t('loginSuccessful') });
-
-      // Redirect based on user role if no specific callbackUrl
-      const hasCustomCallback = searchParams.get('callbackUrl');
-      let redirectPath = callbackUrl;
+      
+      let redirectPath = '/dashboard';
 
       if (loginResponse.user) {
         const userRole = loginResponse.user.role;
-        
-        // If no custom callback, or callback is a default/generic one, redirect by role
-        const isGenericCallback = !hasCustomCallback || callbackUrl === '/dashboard' || callbackUrl === '/' || callbackUrl === '/host';
-        
-        if (isGenericCallback) {
-          if (userRole === UserRole.HOST || userRole === UserRole.ADMIN) {
-            redirectPath = '/host/dashboard';
-          } else if (userRole === UserRole.PLAYER) {
-            redirectPath = '/player/dashboard';
-          } else {
-            redirectPath = '/guest/session';
-          }
+        if (userRole === UserRole.HOST || userRole === UserRole.ADMIN) {
+          redirectPath = '/host/dashboard';
+        } else if (userRole === UserRole.PLAYER) {
+          redirectPath = '/player/dashboard';
         } else {
-          // If we have a specific callbackUrl, but the user is an ADMIN/HOST 
-          // and the callback is for a PLAYER dashboard, override it
-          if ((userRole === UserRole.HOST || userRole === UserRole.ADMIN) && 
-              callbackUrl.includes('/player/dashboard')) {
-            redirectPath = '/host/dashboard';
-          }
+          redirectPath = '/guest/session';
         }
       }
 

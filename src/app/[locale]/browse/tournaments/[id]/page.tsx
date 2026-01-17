@@ -93,9 +93,9 @@ export default function TournamentDetailPage() {
   const handleLogout = () => {
     const userRole = user?.role;
     AuthService.logout();
-    const callbackUrl =
+    const redirectPath =
       userRole === UserRole.HOST ? '/auth/signin' : '/join-by-code';
-    nextIntlRouter.push(callbackUrl);
+    nextIntlRouter.push(redirectPath);
     onMenuClose();
   };
 

@@ -31,12 +31,8 @@ export default function ProtectedRouteGuard({
 
     // If not logged in, redirect to signin
     if (!isAuthenticated) {
-      const currentPath = window.location.pathname;
       // next-intl router automatically handles locale prefix
-      const redirectUrl = `${redirectTo}?callbackUrl=${encodeURIComponent(
-        currentPath
-      )}`;
-      router.push(redirectUrl);
+      router.push(redirectTo);
     }
   }, [isHydrated, isAuthenticated, router, redirectTo]);
 

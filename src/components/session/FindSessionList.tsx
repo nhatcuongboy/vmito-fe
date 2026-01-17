@@ -81,8 +81,7 @@ export default function FindSessionList() {
 
   const handleJoinClick = (session: ISession) => {
     if (!user) {
-      const returnUrl = encodeURIComponent(pathname || '/browse/sessions');
-      router.push(`/auth/signin?callbackUrl=${returnUrl}`);
+      router.push('/auth/signin');
       return;
     }
     setSelectedSession(session);

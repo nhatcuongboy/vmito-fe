@@ -39,7 +39,7 @@ export default function TopBar({
   const handleLogout = () => {
     const userRole = user?.role;
 
-    const callbackUrl =
+    const redirectPath =
       userRole === UserRole.HOST || userRole === UserRole.ADMIN
         ? `/${locale}/auth/signin`
         : `/${locale}/join-by-code`;
@@ -49,7 +49,7 @@ export default function TopBar({
     onMenuClose();
 
     // Redirect
-    router.push(callbackUrl);
+    router.push(redirectPath);
   };
 
   return (
