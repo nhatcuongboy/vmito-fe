@@ -1,8 +1,14 @@
 import React from 'react';
-import { VStack, Flex, Heading, HStack, Button, Text } from '@chakra-ui/react';
+import { VStack, Flex, Heading, HStack, Text, IconButton, Box } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat'; // Use compat Button for leftIcon support or consistency
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
-
+import PlayerManagement from '@/components/session/PlayerManagement';
+import {
+  LayoutGrid,
+  LayoutList,
+  Settings,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface Player {
@@ -31,7 +37,9 @@ interface PlayersTabProps {
   mode?: 'view' | 'manage'; // Optional mode prop to control UI
   sessionId: string; // Add sessionId prop
   onPlayerUpdate?: () => void;
+  session?: any; // Add session prop
 }
+
 const PlayersTab: React.FC<PlayersTabProps> = ({
   sessionPlayers,
   playerFilter,
@@ -40,17 +48,54 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   mode = 'manage', // Default to manage mode
   sessionId, // Destructure sessionId from props
   onPlayerUpdate,
+  session,
 }) => {
   const t = useTranslations('SessionDetail');
+  // View mode state: 'grid' or 'manage'
+  // Default to 'grid' unless explicitly set otherwise
+  const [viewMode, setViewMode] = React.useState<'grid' | 'manage'>('grid');
 
   const [isStatisticsSectionOpen, setIsStatisticsSectionOpen] =
     React.useState(true);
+
+  // If in manage view and we have session data, show PlayerManagement
+  if (viewMode === 'manage' && session) {
+    return (
+      <VStack gap={4} align="stretch">
+        <Flex justify="space-between" align="center">
+          <Heading size="md">{t('playersTab.managePlayers')}</Heading>
+          <Button
+            size="sm"
+            onClick={() => setViewMode('grid')}
+            leftIcon={<LayoutGrid size={16} />}
+            variant="outline"
+          >
+            {t('playersTab.gridView')}
+          </Button>
+        </Flex>
+        <PlayerManagement session={session} onDataRefresh={onPlayerUpdate} />
+      </VStack>
+    );
+  }
 
   return (
     <VStack gap={6} align="stretch">
       {/* Players Section Header */}
       <Flex justify="space-between" align="center">
         <Heading size="md">{t('playersTab.players')}</Heading>
+        
+        {/* View Toggle / Manage Button */}
+        {session && (
+           <Button
+             size="sm"
+             onClick={() => setViewMode('manage')}
+             leftIcon={<Settings size={16} />}
+             variant="outline"
+             colorScheme="gray"
+           >
+             {t('playersTab.managePlayers')}
+           </Button>
+        )}
       </Flex>
 
       {/* Filter Buttons */}

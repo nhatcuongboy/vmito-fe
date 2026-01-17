@@ -16,10 +16,6 @@ import {
   Box,
   Button,
   Container,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogRoot,
-  DialogTitle,
   Field,
   Flex,
   Heading,
@@ -31,11 +27,32 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { PasswordInput } from '@/components/ui/password-input';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback } from 'react';
 import { Pencil, Trash2, Plus, Search, RefreshCcw } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 
 import CommonModal from '@/components/ui/CommonModal';
+import { useDebounce } from '@/hooks/useDebounce';
+
+// Schema definitions
+const createUserSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.nativeEnum(UserRole),
+});
+
+const updateUserSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  role: z.nativeEnum(UserRole),
+});
+
+type CreateUserFormValues = z.infer<typeof createUserSchema>;
+type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
 
 export default function AdminUsersPage() {
   const t = useTranslations('admin');
@@ -45,6 +62,7 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [roleFilter, setRoleFilter] = useState('');
 
   // Modal states
@@ -52,19 +70,31 @@ export default function AdminUsersPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [formData, setFormData] = useState<CreateUserData>({
-    email: '',
-    name: '',
-    password: '',
-    role: UserRole.PLAYER,
+
+  // Forms
+  const createForm = useForm<CreateUserFormValues>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      email: '',
+      name: '',
+      password: '',
+      role: UserRole.PLAYER,
+    },
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateForm = useForm<UpdateUserFormValues>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      name: '',
+      role: UserRole.PLAYER,
+    },
+  });
 
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await AdminService.getUsers({
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
         role: roleFilter || undefined,
       });
       setUsers(data);
@@ -74,7 +104,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, roleFilter]);
+  }, [debouncedSearchQuery, roleFilter]);
 
   useEffect(() => {
     // Wait for auth store to be hydrated from localStorage
@@ -103,29 +133,25 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, [isHydrated, isAuthenticated, currentUser, router, fetchUsers]);
 
-  const handleCreate = async () => {
+  const handleCreate = async (data: CreateUserFormValues) => {
     try {
-      setIsSubmitting(true);
-      await AdminService.createUser(formData);
+      await AdminService.createUser(data);
       toaster.success({ title: 'User created successfully' });
       setIsCreateOpen(false);
-      setFormData({ email: '', name: '', password: '', role: UserRole.PLAYER });
+      createForm.reset();
       fetchUsers();
     } catch (error) {
       console.error('Failed to create user:', error);
       toaster.error({ title: 'Failed to create user' });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (data: UpdateUserFormValues) => {
     if (!selectedUser) return;
     try {
-      setIsSubmitting(true);
       const updateData: UpdateUserData = {
-        name: formData.name,
-        role: formData.role,
+        name: data.name,
+        role: data.role,
       };
       await AdminService.updateUser(selectedUser.id, updateData);
       toaster.success({ title: 'User updated successfully' });
@@ -134,15 +160,12 @@ export default function AdminUsersPage() {
     } catch (error) {
       console.error('Failed to update user:', error);
       toaster.error({ title: 'Failed to update user' });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
     if (!selectedUser) return;
     try {
-      setIsSubmitting(true);
       await AdminService.deleteUser(selectedUser.id);
       toaster.success({ title: 'User deleted successfully' });
       setIsDeleteOpen(false);
@@ -150,14 +173,15 @@ export default function AdminUsersPage() {
     } catch (error) {
       console.error('Failed to delete user:', error);
       toaster.error({ title: 'Failed to delete user' });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
-    setFormData({ email: user.email, name: user.name, role: user.role });
+    updateForm.reset({
+      name: user.name,
+      role: user.role,
+    });
     setIsEditOpen(true);
   };
 
@@ -202,12 +226,7 @@ export default function AdminUsersPage() {
             <Button
               colorScheme="blue"
               onClick={() => {
-                setFormData({
-                  email: '',
-                  name: '',
-                  password: '',
-                  role: UserRole.PLAYER,
-                });
+                createForm.reset();
                 setIsCreateOpen(true);
               }}
             >
@@ -330,68 +349,71 @@ export default function AdminUsersPage() {
           onClose={() => setIsCreateOpen(false)}
           title={t('createUser')}
           primaryActionText={tCommon('create') || 'Create'}
-          onPrimaryAction={handleCreate}
-          isPrimaryLoading={isSubmitting}
+          onPrimaryAction={createForm.handleSubmit(handleCreate)}
+          isPrimaryLoading={createForm.formState.isSubmitting}
           secondaryActionText={tCommon('cancel')}
         >
-          <VStack gap={4}>
-            <Field.Root>
-              <Field.Label htmlFor="create-email">{t('email')}</Field.Label>
-              <Input
-                id="create-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-              />
-            </Field.Root>
-            <Field.Root>
-              <Field.Label htmlFor="create-name">{t('name')}</Field.Label>
-              <Input
-                id="create-name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-            </Field.Root>
-            <Field.Root>
-              <Field.Label htmlFor="create-password">
-                {t('password')}
-              </Field.Label>
-              <Input
-                id="create-password"
-                type="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-              />
-            </Field.Root>
-            <Field.Root>
-              <Field.Label htmlFor="create-role">{t('role')}</Field.Label>
-              <select
-                id="create-role"
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    role: e.target.value as UserRole,
-                  })
-                }
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
-                <option value="PLAYER">Player</option>
-                <option value="HOST">Host</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-            </Field.Root>
+          <VStack gap={4} as="form" onSubmit={createForm.handleSubmit(handleCreate)}>
+            <Controller
+              control={createForm.control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Field.Root invalid={!!fieldState.error}>
+                  <Field.Label htmlFor="create-email">{t('email')}</Field.Label>
+                  <Input id="create-email" type="email" {...field} />
+                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
+            
+            <Controller
+              control={createForm.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field.Root invalid={!!fieldState.error}>
+                  <Field.Label htmlFor="create-name">{t('name')}</Field.Label>
+                  <Input id="create-name" {...field} />
+                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
+            
+            <Controller
+              control={createForm.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field.Root invalid={!!fieldState.error}>
+                  <Field.Label htmlFor="create-password">{t('password')}</Field.Label>
+                  <PasswordInput id="create-password" {...field} />
+                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
+            
+            <Controller
+              control={createForm.control}
+              name="role"
+              render={({ field, fieldState }) => (
+                <Field.Root invalid={!!fieldState.error}>
+                  <Field.Label htmlFor="create-role">{t('role')}</Field.Label>
+                  <select
+                    id="create-role"
+                    {...field}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <option value="PLAYER">Player</option>
+                    <option value="HOST">Host</option>
+                    <option value={UserRole.ADMIN}>Admin</option>
+                  </select>
+                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
           </VStack>
         </CommonModal>
 
@@ -401,48 +423,52 @@ export default function AdminUsersPage() {
           onClose={() => setIsEditOpen(false)}
           title={t('editUser')}
           primaryActionText={tCommon('save')}
-          onPrimaryAction={handleUpdate}
-          isPrimaryLoading={isSubmitting}
+          onPrimaryAction={updateForm.handleSubmit(handleUpdate)}
+          isPrimaryLoading={updateForm.formState.isSubmitting}
           secondaryActionText={tCommon('cancel')}
         >
-          <VStack gap={4}>
+          <VStack gap={4} as="form" onSubmit={updateForm.handleSubmit(handleUpdate)}>
             <Field.Root>
               <Field.Label htmlFor="edit-email">{t('email')}</Field.Label>
-              <Input id="edit-email" value={formData.email} disabled />
+              <Input id="edit-email" value={selectedUser?.email || ''} disabled />
             </Field.Root>
-            <Field.Root>
-              <Field.Label htmlFor="edit-name">{t('name')}</Field.Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-            </Field.Root>
-            <Field.Root>
-              <Field.Label htmlFor="edit-role">{t('role')}</Field.Label>
-              <select
-                id="edit-role"
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    role: e.target.value as UserRole,
-                  })
-                }
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
-                <option value={UserRole.PLAYER}>Player</option>
-                <option value={UserRole.HOST}>Host</option>
-                <option value={UserRole.ADMIN}>Admin</option>
-              </select>
-            </Field.Root>
+
+            <Controller
+              control={updateForm.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field.Root invalid={!!fieldState.error}>
+                  <Field.Label htmlFor="edit-name">{t('name')}</Field.Label>
+                  <Input id="edit-name" {...field} />
+                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
+            
+            <Controller
+              control={updateForm.control}
+              name="role"
+              render={({ field, fieldState }) => (
+                <Field.Root invalid={!!fieldState.error}>
+                  <Field.Label htmlFor="edit-role">{t('role')}</Field.Label>
+                  <select
+                    id="edit-role"
+                    {...field}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <option value={UserRole.PLAYER}>Player</option>
+                    <option value={UserRole.HOST}>Host</option>
+                    <option value={UserRole.ADMIN}>Admin</option>
+                  </select>
+                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
           </VStack>
         </CommonModal>
 
@@ -453,7 +479,7 @@ export default function AdminUsersPage() {
           title={t('deleteUser')}
           primaryActionText={tCommon('delete')}
           onPrimaryAction={handleDelete}
-          isPrimaryLoading={isSubmitting}
+          isPrimaryLoading={false}
           primaryColorScheme="red"
           secondaryActionText={tCommon('cancel')}
         >

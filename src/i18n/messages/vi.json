@@ -1176,6 +1176,8 @@
       "ready": "Sẵn sàng",
       "inactive": "Tạm dừng",
       "playerStatistics": "Thống kê người chơi",
+      "managePlayers": "Quản lý người chơi",
+      "gridView": "Xem dạng lưới",
       "noPlayersFound": "Không tìm thấy người chơi nào có trạng thái {status}"
     },
     "matchs": {

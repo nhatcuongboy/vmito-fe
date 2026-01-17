@@ -1176,6 +1176,8 @@
       "ready": "Ready",
       "inactive": "Inactive",
       "playerStatistics": "Player Statistics",
+      "managePlayers": "Manage Players",
+      "gridView": "Grid View",
       "noPlayersFound": "No players found for {status} status"
     },
     "matchs": {

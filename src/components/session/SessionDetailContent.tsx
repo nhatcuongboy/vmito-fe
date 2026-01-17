@@ -400,13 +400,14 @@ export default function SessionDetailContent({
 
           {activeTab === 1 && (
             <PlayersTab
-              sessionPlayers={session.players}
-              playerFilter={playerFilter}
-              setPlayerFilter={setPlayerFilter}
-              formatWaitTime={formatWaitTime}
-              sessionId={session.id}
-              onPlayerUpdate={refreshSessionData}
-            />
+                session={session}
+                sessionPlayers={session.players}
+                playerFilter={playerFilter}
+                setPlayerFilter={setPlayerFilter}
+                formatWaitTime={formatWaitTime}
+                sessionId={session.id}
+                onPlayerUpdate={refreshSessionData}
+              />
           )}
 
           {activeTab === 2 && (
