@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@chakra-ui/react';
+import { Box, Spinner } from '@chakra-ui/react';
 import { LucideIcon } from 'lucide-react';
 
 export interface NavigationTab {
@@ -13,12 +13,14 @@ export interface NavigationTab {
 interface BottomNavigationBarProps {
   tabs: NavigationTab[];
   activeTab: number;
+  loadingTabId?: number | null;
   onTabChange: (tabIndex: number) => void;
 }
 
 export default function BottomNavigationBar({
   tabs,
   activeTab,
+  loadingTabId,
   onTabChange,
 }: BottomNavigationBarProps) {
   return (
@@ -34,12 +36,13 @@ export default function BottomNavigationBar({
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      height="calc(64px + env(safe-area-inset-bottom) + 12px)"
-      paddingBottom="calc(env(safe-area-inset-bottom) + 12px)"
+      height="calc(64px + env(safe-area-inset-bottom) + 8px)"
+      paddingBottom="calc(env(safe-area-inset-bottom) + 8px)"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
+        const isLoading = loadingTabId === tab.id;
 
         return (
           <Box
@@ -47,23 +50,37 @@ export default function BottomNavigationBar({
             as="button"
             flex={1}
             py={{ base: 1, md: 2 }}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => !isLoading && onTabChange(tab.id)}
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={isActive ? 'blue.500' : 'gray.500'}
+            color={isActive ? 'blue.600' : 'gray.500'}
             fontWeight={isActive ? 'bold' : 'normal'}
-            fontSize={{ base: '10px', md: 'sm' }}
+            fontSize={{ base: '10px', md: 'xs' }}
             transition="all 0.2s"
             _hover={{
-              color: 'blue.400',
-              transform: 'scale(1.05)',
+              color: isActive ? 'blue.700' : 'blue.400',
+              transform: !isLoading ? 'scale(1.05)' : 'none',
             }}
             _active={{
-              transform: 'scale(0.95)',
+              transform: !isLoading ? 'scale(0.95)' : 'none',
             }}
+            cursor={isLoading ? 'not-allowed' : 'pointer'}
+            opacity={isLoading ? 0.7 : 1}
           >
-            <Box as={Icon} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
+            {isLoading ? (
+              <Spinner
+                size="sm"
+                color="blue.500"
+                mb={{ base: 0.5, md: 1 }}
+              />
+            ) : (
+              <Box
+                as={Icon}
+                boxSize={{ base: 5, md: 6 }}
+                mb={{ base: 0.5, md: 1 }}
+              />
+            )}
             {tab.label}
           </Box>
         );

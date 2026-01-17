@@ -44,9 +44,9 @@ function SignInForm() {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Get callbackUrl from query params, strip locale prefix if present
-  const rawCallbackUrl = searchParams.get('callbackUrl') || '/host';
+  const rawCallbackUrl = searchParams.get('callbackUrl') || '/dashboard';
   // Remove leading locale prefix if exists (e.g., /en/host -> /host)
-  const callbackUrl = rawCallbackUrl.replace(/^\/(vi|en)/, '') || '/host';
+  const callbackUrl = rawCallbackUrl.replace(/^\/(vi|en)/, '') || '/dashboard';
 
   // Handle redirect for already authenticated users (e.g., direct URL access)
   useEffect(() => {
@@ -56,7 +56,11 @@ function SignInForm() {
     if (isAuthenticated && user && !isRedirecting) {
       setIsRedirecting(true);
       const targetPath =
-        user.role !== UserRole.GUEST ? '/dashboard' : '/join-by-code';
+        user.role === UserRole.ADMIN || user.role === UserRole.HOST
+          ? '/host/dashboard'
+          : user.role === UserRole.PLAYER
+            ? '/player/dashboard'
+            : '/join-by-code';
       router.replace(targetPath);
     }
   }, [isHydrated, isAuthenticated, user, router, isRedirecting]);
@@ -86,18 +90,27 @@ function SignInForm() {
       const hasCustomCallback = searchParams.get('callbackUrl');
       let redirectPath = callbackUrl;
 
-      if (!hasCustomCallback && loginResponse.user) {
-        // Default redirect based on role
-        if (
-          loginResponse.user.role === UserRole.HOST ||
-          loginResponse.user.role === UserRole.ADMIN
-        ) {
-          redirectPath = '/host/dashboard';
-        } else if (loginResponse.user.role === UserRole.PLAYER) {
-          redirectPath = '/player/dashboard';
+      if (loginResponse.user) {
+        const userRole = loginResponse.user.role;
+        
+        // If no custom callback, or callback is a default/generic one, redirect by role
+        const isGenericCallback = !hasCustomCallback || callbackUrl === '/dashboard' || callbackUrl === '/' || callbackUrl === '/host';
+        
+        if (isGenericCallback) {
+          if (userRole === UserRole.HOST || userRole === UserRole.ADMIN) {
+            redirectPath = '/host/dashboard';
+          } else if (userRole === UserRole.PLAYER) {
+            redirectPath = '/player/dashboard';
+          } else {
+            redirectPath = '/guest/session';
+          }
         } else {
-          // GUEST role
-          redirectPath = '/guest/session';
+          // If we have a specific callbackUrl, but the user is an ADMIN/HOST 
+          // and the callback is for a PLAYER dashboard, override it
+          if ((userRole === UserRole.HOST || userRole === UserRole.ADMIN) && 
+              callbackUrl.includes('/player/dashboard')) {
+            redirectPath = '/host/dashboard';
+          }
         }
       }
 

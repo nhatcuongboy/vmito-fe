@@ -1,21 +1,23 @@
 'use client';
 
 import { useAuthStore } from '@/stores/useAuthStore';
-import { usePathname } from 'next/navigation';
-import { useRouter } from '@/i18n/config';
+import { usePathname, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { UserRole } from '@/lib/api/types';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
 import { Home, Search, Trophy, Users, LayoutDashboard } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState, useTransition, useEffect } from 'react';
 
 export default function GlobalBottomNav() {
   const { user, isAuthenticated } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('navigation');
+  
+  const [isPending, startTransition] = useTransition();
+  const [pendingTabId, setPendingTabId] = useState<number | null>(null);
 
   // Check if current path is an excluded path (Session Details or Tournament Management)
   const isExcluded = useMemo(() => {
@@ -74,9 +76,21 @@ export default function GlobalBottomNav() {
   const handleTabChange = (tabId: number) => {
     const tab = tabs.find((t) => t.id === tabId);
     if (tab && tab.href) {
-      router.push(tab.href);
+      if (pathname === tab.href) return; // Already on this page
+      
+      setPendingTabId(tabId);
+      startTransition(() => {
+        router.push(tab.href!);
+      });
     }
   };
+
+  // Reset pending state when navigation is complete or path changes
+  useEffect(() => {
+    if (!isPending) {
+      setPendingTabId(null);
+    }
+  }, [isPending, pathname]);
 
   // Determine current active tab
   const activeTab = useMemo(() => {
@@ -98,6 +112,7 @@ export default function GlobalBottomNav() {
     <BottomNavigationBar
       tabs={tabs.map(t => ({ id: t.id, label: t.label, icon: t.icon }))}
       activeTab={activeTab}
+      loadingTabId={pendingTabId}
       onTabChange={handleTabChange}
     />
   );

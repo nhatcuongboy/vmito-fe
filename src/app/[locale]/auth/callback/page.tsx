@@ -41,8 +41,7 @@ function AuthCallbackContent() {
         toaster.success({ title: t('loginSuccessful') });
 
         // Redirect based on role
-        // Redirect based on role
-        let redirectPath = '/guest/session';
+        let redirectPath = '/join-by-code';
         
         if (role === UserRole.HOST || role === UserRole.ADMIN) {
           redirectPath = '/host/dashboard';

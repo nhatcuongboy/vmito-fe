@@ -32,8 +32,10 @@ export default function PublicRouteGuard({
       let targetPath = redirectTo;
 
       // Override redirectTo based on user role
-      if (user.role !== 'GUEST') {
-        targetPath = '/dashboard';
+      if (user.role === 'ADMIN' || user.role === 'HOST') {
+        targetPath = '/host/dashboard';
+      } else if (user.role === 'PLAYER') {
+        targetPath = '/player/dashboard';
       } else {
         targetPath = '/join-by-code';
       }
