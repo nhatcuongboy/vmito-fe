@@ -213,7 +213,10 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         court={modals.selectedManualCourt}
         waitingPlayers={waitingPlayers}
         selectedPlayers={modals.manualSelectedPlayers}
+        currentPosition={modals.manualCurrentPosition}
         onPlayerToggle={modals.toggleManualPlayer}
+        onPositionSelect={modals.setManualCurrentPosition}
+        onPlayerRemove={modals.clearManualPlayerAtPosition}
         onConfirm={(playersWithPosition) => {
           if (modals.selectedManualCourt) {
             handleChoosePlayersForCourt(
@@ -240,7 +243,10 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         court={modals.selectedPreSelectCourt}
         waitingPlayers={waitingPlayers}
         selectedPlayers={modals.preSelectPlayers}
+        currentPosition={modals.preSelectCurrentPosition}
         onPlayerToggle={modals.togglePreSelectPlayer}
+        onPositionSelect={modals.setPreSelectCurrentPosition}
+        onPlayerRemove={modals.clearPreSelectPlayerAtPosition}
         onConfirm={handleConfirmPreSelect}
         onCancel={modals.closePreSelectModal}
         isLoading={modals.confirmingPreSelect}

@@ -21,6 +21,7 @@ interface BadmintonCourtProps {
   // Selection mode props
   onPlayerSelect?: (player: BadmintonCourtPlayer, position: number) => void;
   onPlayerRemove?: (position: number) => void;
+  onPositionSelect?: (position: number) => void; // New: click on empty position
   currentPlayerPosition?: number; // 0-3, which position is currently being selected
   selectedPositions?: (BadmintonCourtPlayer | undefined)[]; // For selection mode
   direction?: CourtDirection; // Layout direction from API
@@ -45,6 +46,7 @@ export default function BadmintonCourt({
   courtColor = '#179a3b',
   onPlayerSelect,
   onPlayerRemove,
+  onPositionSelect,
   currentPlayerPosition = 0,
   selectedPositions = [],
   direction = CourtDirection.HORIZONTAL,
@@ -299,41 +301,44 @@ export default function BadmintonCourt({
       {/* Player positions: center of each doubles service box */}
       {mode === 'selection'
         ? // Selection mode: Show placeholders and highlight current position
-          displayPlayers.map((player, index) => {
+          displayPlayers.map((player, visualIndex) => {
+            // Calculate selection index from visual index based on direction
+            let reverseMapping: number[];
+            if (direction === CourtDirection.HORIZONTAL) {
+              // HORIZONTAL: visual [0,1,2,3] -> selection [0,2,1,3]
+              // Reverse: visual 0->selection 0, visual 1->selection 2, visual 2->selection 1, visual 3->selection 3
+              reverseMapping = [0, 2, 1, 3];
+            } else {
+              // VERTICAL: visual positions map directly to selection
+              reverseMapping = [0, 1, 2, 3];
+            }
+            const selectionIndex = reverseMapping[visualIndex];
+
             if (player) {
               // Render actual player
               return (
                 <CourtPlayer
-                  key={`player-${index}-${player.id}`}
+                  key={`player-${visualIndex}-${player.id}`}
                   player={{
                     ...player,
-                    isCurrentPlayer: index === currentPlayerPosition,
+                    isCurrentPlayer: selectionIndex === currentPlayerPosition,
                   }}
-                  index={index}
+                  index={visualIndex}
                   players={
                     displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
                   }
                   mode={mode}
                   isClicked={clickedPlayer === player.id}
                   onPlayerClick={setClickedPlayer}
-                  onRemovePlayer={handlePlayerRemove}
+                  onRemovePlayer={() => handlePlayerRemove(selectionIndex)}
                 />
               );
             } else {
               // Render placeholder for empty position
-              // Map index back to selection order for correct number
-              let reverseMapping: number[];
-              if (direction === CourtDirection.HORIZONTAL) {
-                reverseMapping = [0, 2, 1, 3];
-              } else {
-                reverseMapping = [0, 1, 2, 3];
-              }
-              const selectionOrder = reverseMapping.findIndex(
-                (v) => v === index
-              );
+              // Use the same selectionIndex calculated above
               return (
                 <Box
-                  key={`placeholder-${index}`}
+                  key={`placeholder-${visualIndex}`}
                   position="absolute"
                   {...(() => {
                     const positions = [
@@ -342,22 +347,28 @@ export default function BadmintonCourt({
                       { top: '72%', left: '25%' }, // Bottom-left
                       { top: '72%', left: '75%' }, // Bottom-right
                     ];
-                    return positions[index];
+                    return positions[visualIndex];
                   })()}
                   transform="translate(-50%, -50%)"
                   zIndex={3}
+                  cursor="pointer"
+                  onClick={() => {
+                    if (onPositionSelect) {
+                      onPositionSelect(selectionIndex);
+                    }
+                  }}
                 >
                   <Box
                     position="relative"
                     bg={
-                      selectionOrder === currentPlayerPosition
+                      selectionIndex === currentPlayerPosition
                         ? 'yellow.100'
                         : 'gray.100'
                     }
                     borderRadius="full"
                     border="3px dashed"
                     borderColor={
-                      selectionOrder === currentPlayerPosition
+                      selectionIndex === currentPlayerPosition
                         ? 'yellow.500'
                         : 'gray.400'
                     }
@@ -367,17 +378,18 @@ export default function BadmintonCourt({
                     alignItems="center"
                     justifyContent="center"
                     boxShadow={
-                      selectionOrder === currentPlayerPosition ? 'lg' : 'sm'
+                      selectionIndex === currentPlayerPosition ? 'lg' : 'sm'
                     }
                     transition="all 0.3s"
                     _hover={{
                       transform:
-                        selectionOrder === currentPlayerPosition
+                        selectionIndex === currentPlayerPosition
                           ? 'scale(1.1)'
                           : 'scale(1.05)',
+                      borderColor: 'yellow.400',
                     }}
                   >
-                    {selectionOrder === currentPlayerPosition && (
+                    {selectionIndex === currentPlayerPosition && (
                       <>
                         {/* Pulsing effect for current position */}
                         <Box
@@ -414,12 +426,12 @@ export default function BadmintonCourt({
                       fontSize="lg"
                       fontWeight="bold"
                       color={
-                        index === currentPlayerPosition
+                        selectionIndex === currentPlayerPosition
                           ? 'yellow.700'
                           : 'gray.500'
                       }
                     >
-                      {selectionOrder + 1}
+                      {selectionIndex + 1}
                     </Box>
                   </Box>
                 </Box>
