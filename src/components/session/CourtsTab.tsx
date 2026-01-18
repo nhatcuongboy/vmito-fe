@@ -115,6 +115,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
     isDraw?: boolean;
     notes?: string;
   }) => {
+    if (!modals.selectedMatch) return;
+    
     actions.handleMatchResultSubmit(
       result,
       modals.selectedMatch,
@@ -267,7 +269,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         onCancel={modals.closeMatchResultModal}
         isLoading={modals.loadingEndMatchId === modals.selectedMatch?.id}
         direction={
-          modals.selectedMatch?.court?.direction || CourtDirection.HORIZONTAL
+          session.courts.find((c: Court) => c.id === modals.selectedMatch?.courtId)
+            ?.direction || CourtDirection.HORIZONTAL
         }
       />
 

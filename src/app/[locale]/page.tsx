@@ -55,7 +55,13 @@ export default function Home() {
         <TopBar showBackButton={false} />
 
         {/* Hero Section with Gradient */}
-        <Box bgGradient={bgGradient} py={20} px={4} textAlign="center" pt="calc(80px + env(safe-area-inset-top))">
+        <Box
+          bgGradient={bgGradient}
+          py={20}
+          px={4}
+          textAlign="center"
+          pt="calc(80px + env(safe-area-inset-top))"
+        >
           <Container maxW="container.xl">
             <Heading
               as="h1"

@@ -130,8 +130,6 @@ export default function SessionDetailContent({
     { id: 4, label: t('settings'), icon: RefreshCw },
   ];
 
-
-
   // Function to update URL with current tab
   const updateTabInURL = (tabIndex: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -400,14 +398,14 @@ export default function SessionDetailContent({
 
           {activeTab === 1 && (
             <PlayersTab
-                session={session}
-                sessionPlayers={session.players}
-                playerFilter={playerFilter}
-                setPlayerFilter={setPlayerFilter}
-                formatWaitTime={formatWaitTime}
-                sessionId={session.id}
-                onPlayerUpdate={refreshSessionData}
-              />
+              session={session}
+              sessionPlayers={session.players}
+              playerFilter={playerFilter}
+              setPlayerFilter={setPlayerFilter}
+              formatWaitTime={formatWaitTime}
+              sessionId={session.id}
+              onPlayerUpdate={refreshSessionData}
+            />
           )}
 
           {activeTab === 2 && (

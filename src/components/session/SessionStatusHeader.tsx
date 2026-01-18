@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { IconButton, Button } from '@/components/ui/chakra-compat';
 import { Play, RefreshCw, Square, MoreVertical } from 'lucide-react';

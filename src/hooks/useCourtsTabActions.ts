@@ -1,7 +1,11 @@
 import { toaster } from '@/components/ui/toaster';
 import { CourtService } from '@/lib/api/court.service';
-import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
-import { Court, Player } from '@/types/session';
+import {
+  CourtDirection,
+  SuggestedPlayersResponse,
+  ISession,
+} from '@/lib/api/types';
+import { Court, Player, Match } from '@/types/session';
 import { useTranslations } from 'next-intl';
 
 interface UseCourtsTabActionsProps {
@@ -224,8 +228,8 @@ export const useCourtsTabActions = ({
       isDraw?: boolean;
       notes?: string;
     },
-    selectedMatch: any,
-    session: any,
+    selectedMatch: Match,
+    session: ISession,
     setLoadingEndMatchId: (matchId: string | null) => void,
     closeModal: () => void
   ) => {
@@ -234,9 +238,7 @@ export const useCourtsTabActions = ({
     try {
       setLoadingEndMatchId(selectedMatch.id);
 
-      const court = session.courts.find(
-        (c: Court) => c.id === selectedMatch.courtId
-      );
+      const court = session.courts?.find((c) => c.id === selectedMatch.courtId);
       if (!court) return;
 
       await CourtService.endMatch(court.id, result);

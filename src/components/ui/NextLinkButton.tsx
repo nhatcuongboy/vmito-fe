@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React from 'react';
 import { Link, useRouter } from '../../i18n/config';
 import { Button, ButtonProps } from './chakra-compat';

@@ -16,7 +16,6 @@ import {
   IconButton,
   VStack,
 } from '@/components/ui/chakra-compat';
-import { VALID_LEVELS } from '@/constants/levels';
 import { UserOption } from '@/lib/api/user.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Plus, Save, Trash2, UserCheck } from 'lucide-react';

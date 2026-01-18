@@ -13,10 +13,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
 }) => {
   return (
     <Box maxW="4xl" mx="auto">
-      <GeneralSettings
-        session={session}
-        onDataRefresh={refreshSessionData}
-      />
+      <GeneralSettings session={session} onDataRefresh={refreshSessionData} />
     </Box>
   );
 };

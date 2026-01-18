@@ -43,7 +43,6 @@ function SignInForm() {
   const isHydrated = useAuthHydration();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-
   // Handle redirect for already authenticated users (e.g., direct URL access)
   useEffect(() => {
     if (!isHydrated) return;
@@ -81,7 +80,7 @@ function SignInForm() {
       });
 
       toaster.success({ title: t('loginSuccessful') });
-      
+
       let redirectPath = '/dashboard';
 
       if (loginResponse.user) {

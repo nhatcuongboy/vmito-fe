@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
@@ -131,10 +132,10 @@ export const SessionService = {
 
   // Start session
   startSession: async (id: string): Promise<ISession> => {
-    const response = await api.post<ApiResponse<ISession>>(
+    const response = await api.post<ApiResponse<unknown>>(
       `/sessions/${id}/start`
     );
-    return response.data.data!;
+    return response.data.data as ISession;
   },
 
   // End session

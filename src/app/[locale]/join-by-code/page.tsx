@@ -197,10 +197,21 @@ function JoinByCodeContent() {
 
 export default function JoinByCodePage() {
   return (
-    <Suspense fallback={<Spinner />}>
-      <PublicRouteGuard redirectTo="/host">
+    <PublicRouteGuard redirectTo="/host">
+      <Suspense
+        fallback={
+          <Box
+            minH="100vh"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Spinner size="xl" color="blue.500" />
+          </Box>
+        }
+      >
         <JoinByCodeContent />
-      </PublicRouteGuard>
-    </Suspense>
+      </Suspense>
+    </PublicRouteGuard>
   );
 }

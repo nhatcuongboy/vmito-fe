@@ -9,9 +9,9 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Bell, Check, Info, AlertTriangle, CheckCircle, X } from 'lucide-react';
+import { Bell, Check, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 
 // Mock data type
 interface Notification {
@@ -115,9 +115,7 @@ export default function NotificationBell({
           size="md"
           borderRadius="full"
           color={color}
-          _hover={
-            _hover || { bg: 'gray.100', _dark: { bg: 'gray.700' } }
-          }
+          _hover={_hover || { bg: 'gray.100', _dark: { bg: 'gray.700' } }}
           onClick={() => setIsOpen(!isOpen)}
         >
           <Bell size={20} />

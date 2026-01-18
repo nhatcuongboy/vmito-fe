@@ -353,7 +353,11 @@ export default function AdminUsersPage() {
           isPrimaryLoading={createForm.formState.isSubmitting}
           secondaryActionText={tCommon('cancel')}
         >
-          <VStack gap={4} as="form" onSubmit={createForm.handleSubmit(handleCreate)}>
+          <VStack
+            gap={4}
+            as="form"
+            onSubmit={createForm.handleSubmit(handleCreate)}
+          >
             <Controller
               control={createForm.control}
               name="email"
@@ -365,7 +369,7 @@ export default function AdminUsersPage() {
                 </Field.Root>
               )}
             />
-            
+
             <Controller
               control={createForm.control}
               name="name"
@@ -377,19 +381,21 @@ export default function AdminUsersPage() {
                 </Field.Root>
               )}
             />
-            
+
             <Controller
               control={createForm.control}
               name="password"
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label htmlFor="create-password">{t('password')}</Field.Label>
+                  <Field.Label htmlFor="create-password">
+                    {t('password')}
+                  </Field.Label>
                   <PasswordInput id="create-password" {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
               )}
             />
-            
+
             <Controller
               control={createForm.control}
               name="role"
@@ -427,10 +433,18 @@ export default function AdminUsersPage() {
           isPrimaryLoading={updateForm.formState.isSubmitting}
           secondaryActionText={tCommon('cancel')}
         >
-          <VStack gap={4} as="form" onSubmit={updateForm.handleSubmit(handleUpdate)}>
+          <VStack
+            gap={4}
+            as="form"
+            onSubmit={updateForm.handleSubmit(handleUpdate)}
+          >
             <Field.Root>
               <Field.Label htmlFor="edit-email">{t('email')}</Field.Label>
-              <Input id="edit-email" value={selectedUser?.email || ''} disabled />
+              <Input
+                id="edit-email"
+                value={selectedUser?.email || ''}
+                disabled
+              />
             </Field.Root>
 
             <Controller
@@ -444,7 +458,7 @@ export default function AdminUsersPage() {
                 </Field.Root>
               )}
             />
-            
+
             <Controller
               control={updateForm.control}
               name="role"

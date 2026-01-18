@@ -71,9 +71,9 @@ export default function SessionsList({
         setInternalLoading(true);
         const sessionData = await SessionService.getAllSessions();
         setInternalSessions(sessionData);
-      } catch (err) {
+      } catch (_err) {
         setError(t('loadingError'));
-        console.error(err);
+        console.error(_err);
       } finally {
         setInternalLoading(false);
       }

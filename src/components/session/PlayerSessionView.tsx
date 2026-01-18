@@ -102,7 +102,6 @@ export default function PlayerSessionView({
     router.push('/');
   };
 
-
   // Request notification permission on mount
   useEffect(() => {
     requestNotificationPermission();
@@ -480,7 +479,6 @@ export default function PlayerSessionView({
           ? court.courtName || `Court ${court.courtNumber}`
           : 'Court';
 
-
         const title = t('events.youWereDeselected', { court: courtName });
         toaster.create({
           title,
@@ -698,10 +696,7 @@ export default function PlayerSessionView({
         />
       )}
 
-      <Container
-        pt={4}
-        pb={'calc(90px + env(safe-area-inset-bottom))'}
-      >
+      <Container pt={4} pb={'calc(90px + env(safe-area-inset-bottom))'}>
         {/* Tab Content */}
         {!player || !session ? (
           <Center>
@@ -1129,7 +1124,11 @@ export default function PlayerSessionView({
             fontWeight={activeTab === 0 ? 'bold' : 'normal'}
             fontSize={{ base: '10px', md: 'sm' }}
           >
-            <Box as={User} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
+            <Box
+              as={User}
+              boxSize={{ base: 5, md: 6 }}
+              mb={{ base: 0.5, md: 1 }}
+            />
             Status
           </Box>
           <Box
@@ -1144,7 +1143,11 @@ export default function PlayerSessionView({
             fontWeight={activeTab === 1 ? 'bold' : 'normal'}
             fontSize={{ base: '10px', md: 'sm' }}
           >
-            <Box as={Activity} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
+            <Box
+              as={Activity}
+              boxSize={{ base: 5, md: 6 }}
+              mb={{ base: 0.5, md: 1 }}
+            />
             Courts
           </Box>
           <Box
@@ -1159,7 +1162,11 @@ export default function PlayerSessionView({
             fontWeight={activeTab === 2 ? 'bold' : 'normal'}
             fontSize={{ base: '10px', md: 'sm' }}
           >
-            <Box as={Users} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
+            <Box
+              as={Users}
+              boxSize={{ base: 5, md: 6 }}
+              mb={{ base: 0.5, md: 1 }}
+            />
             Players
           </Box>
         </Box>

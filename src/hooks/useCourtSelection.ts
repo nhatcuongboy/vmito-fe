@@ -68,7 +68,7 @@ export function useCourtSelection(options: UseCourtSelectionOptions = {}) {
   const removePlayer = useCallback(
     (position: number) => {
       const newPlayers = [...selectedPlayers];
-      newPlayers[position] = undefined as any; // Remove player at position
+      newPlayers[position] = undefined as unknown as BadmintonCourtPlayer; // Remove player at position
 
       setSelectedPlayers(newPlayers);
 

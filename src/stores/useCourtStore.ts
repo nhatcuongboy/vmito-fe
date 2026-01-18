@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { Court, Match } from '@/types/session';
 
 interface CourtState {
   // Court modals state
@@ -9,10 +10,10 @@ interface CourtState {
   matchResultModalOpen: boolean;
 
   // Selected entities
-  selectedAutoAssignCourt: any | null;
-  selectedManualCourt: any | null;
-  selectedPreSelectCourt: any | null;
-  selectedMatch: any | null;
+  selectedAutoAssignCourt: Court | null;
+  selectedManualCourt: Court | null;
+  selectedPreSelectCourt: Court | null;
+  selectedMatch: Match | null;
 
   // Manual selection
   manualSelectedPlayers: string[];
@@ -28,13 +29,13 @@ interface CourtState {
   loadingCancelPreSelect: string | null;
 
   // Actions for modals
-  openAutoAssignModal: (court: any) => void;
+  openAutoAssignModal: (court: Court) => void;
   closeAutoAssignModal: () => void;
-  openManualSelectionModal: (court: any) => void;
+  openManualSelectionModal: (court: Court) => void;
   closeManualSelectionModal: () => void;
-  openPreSelectModal: (court: any) => void;
+  openPreSelectModal: (court: Court) => void;
   closePreSelectModal: () => void;
-  openMatchResultModal: (match: any) => void;
+  openMatchResultModal: (match: Match) => void;
   closeMatchResultModal: () => void;
 
   // Player selection actions

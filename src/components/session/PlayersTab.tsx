@@ -1,14 +1,18 @@
 import React from 'react';
-import { VStack, Flex, Heading, HStack, Text, IconButton, Box } from '@chakra-ui/react';
+import {
+  VStack,
+  Flex,
+  Heading,
+  HStack,
+  Text,
+  IconButton,
+  Box,
+} from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat'; // Use compat Button for leftIcon support or consistency
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
 import PlayerManagement from '@/components/session/PlayerManagement';
-import {
-  LayoutGrid,
-  LayoutList,
-  Settings,
-} from 'lucide-react';
+import { LayoutGrid, LayoutList, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface Player {
@@ -83,18 +87,18 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
       {/* Players Section Header */}
       <Flex justify="space-between" align="center">
         <Heading size="md">{t('playersTab.players')}</Heading>
-        
+
         {/* View Toggle / Manage Button */}
         {session && (
-           <Button
-             size="sm"
-             onClick={() => setViewMode('manage')}
-             leftIcon={<Settings size={16} />}
-             variant="outline"
-             colorScheme="gray"
-           >
-             {t('playersTab.managePlayers')}
-           </Button>
+          <Button
+            size="sm"
+            onClick={() => setViewMode('manage')}
+            leftIcon={<Settings size={16} />}
+            variant="outline"
+            colorScheme="gray"
+          >
+            {t('playersTab.managePlayers')}
+          </Button>
         )}
       </Flex>
 

@@ -22,7 +22,16 @@ export const WaitTimeService = {
   }> => {
     const response = await api.get<
       ApiResponse<{
-        stats: any;
+        stats: {
+          totalPlayers: number;
+          waitingPlayers: number;
+          playingPlayers: number;
+          averageWaitTime: number;
+          maxWaitTime: number;
+          minWaitTime: number;
+          totalWaitTime: number;
+          averageTotalWaitTime: number;
+        };
         waitingPlayers: Player[];
         playingPlayers: Player[];
         lastUpdated: string;

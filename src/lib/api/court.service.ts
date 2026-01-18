@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {

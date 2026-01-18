@@ -7,23 +7,20 @@ import {
   Award,
   Calendar,
   Clock,
-  Copy,
   Info,
   MapPin,
-  QrCode,
-  Share2,
   Users,
-  Activity,
-  Play,
-  Square,
   User,
-  CheckCircle,
   Tag,
   LayoutGrid,
   Shield,
   DoorOpen,
   UserPlus,
   FileText,
+  Play,
+  Square,
+  Activity,
+  CheckCircle,
 } from 'lucide-react';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
 import { useTranslations } from 'next-intl';
@@ -52,7 +49,12 @@ const InfoRow = ({ icon, label, children, ...props }: any) => (
     >
       {label}:
     </Text>
-    <Box flex={1} color="gray.800" _dark={{ color: 'gray.100' }} fontWeight="medium">
+    <Box
+      flex={1}
+      color="gray.800"
+      _dark={{ color: 'gray.100' }}
+      fontWeight="medium"
+    >
       {children}
     </Box>
   </Flex>
@@ -171,10 +173,8 @@ export default function SessionOverviewTab({
               </InfoRow>
 
               <InfoRow icon={Clock} label={t('sessionTime')}>
-                {session.startTime
-                  ? formatTime(session.startTime)
-                  : '--:--'}{' '}
-                - {session.endTime ? formatTime(session.endTime) : '--:--'}
+                {session.startTime ? formatTime(session.startTime) : '--:--'} -{' '}
+                {session.endTime ? formatTime(session.endTime) : '--:--'}
               </InfoRow>
 
               <InfoRow icon={LayoutGrid} label={t('numberOfCourts')}>
@@ -210,8 +210,6 @@ export default function SessionOverviewTab({
                   )}
                 </Flex>
               </InfoRow>
-
-
 
               {session.description && (
                 <InfoRow icon={FileText} label={t('description')}>
@@ -283,7 +281,9 @@ export default function SessionOverviewTab({
                 </InfoRow>
 
                 <InfoRow icon={UserPlus} label={t('allowGuestJoin')}>
-                  <Badge colorScheme={session.allowGuestJoin ? 'green' : 'gray'}>
+                  <Badge
+                    colorScheme={session.allowGuestJoin ? 'green' : 'gray'}
+                  >
                     {session.allowGuestJoin ? t('yes') : t('no')}
                   </Badge>
                 </InfoRow>
@@ -306,7 +306,12 @@ export default function SessionOverviewTab({
               mb={6}
             />
 
-            <Box flex={1} display="flex" flexDirection="column" justifyContent="center">
+            <Box
+              flex={1}
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+            >
               <QRCodeGenerator joinCode={joinCode} size={200} />
             </Box>
           </Box>

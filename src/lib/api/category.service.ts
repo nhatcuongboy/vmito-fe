@@ -191,8 +191,8 @@ export const CategoryService = {
   getGroupWinners: async (
     categoryId: string,
     groupId: string
-  ): Promise<any[]> => {
-    const response = await api.get<ApiResponse<any[]>>(
+  ): Promise<unknown[]> => {
+    const response = await api.get<ApiResponse<unknown[]>>(
       `/categories/${categoryId}/groups/${groupId}/winners`
     );
     return response.data.data || [];
@@ -308,8 +308,8 @@ export const CategoryService = {
   },
 
   // Complete group stage
-  completeGroupStage: async (categoryId: string): Promise<any> => {
-    const response = await api.post<ApiResponse<any>>(
+  completeGroupStage: async (categoryId: string): Promise<unknown> => {
+    const response = await api.post<ApiResponse<unknown>>(
       `/categories/${categoryId}/complete-group-stage`
     );
     toaster.success({ title: 'Group stage completed successfully' });

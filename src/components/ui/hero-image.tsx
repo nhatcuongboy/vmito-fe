@@ -2,6 +2,7 @@
 
 export function HeroImage() {
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/badminton-illustration.svg"
       alt="Badminton Session Management"

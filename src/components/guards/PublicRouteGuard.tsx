@@ -29,19 +29,42 @@ export default function PublicRouteGuard({
 
     // If already logged in, redirect to functional pages
     if (isAuthenticated && user) {
-      let targetPath = redirectTo;
+      let targetPath = '';
 
       // Override redirectTo based on user role
       if (user.role === 'ADMIN' || user.role === 'HOST') {
         targetPath = '/host/dashboard';
       } else if (user.role === 'PLAYER') {
         targetPath = '/player/dashboard';
+      } else if (user.role === 'GUEST') {
+        // Guests are allowed on public pages like /join-by-code
+        // Only redirect if they are on a page they shouldn't be (like signup/signin)
+        const isPublicPage =
+          typeof window !== 'undefined' &&
+          (window.location.pathname.includes('/auth/signin') ||
+            window.location.pathname.includes('/auth/signup'));
+
+        if (isPublicPage) {
+          targetPath = '/join-by-code';
+        } else {
+          return; // Stay on current page
+        }
       } else {
-        targetPath = '/join-by-code';
+        targetPath = redirectTo;
+      }
+
+      // Avoid infinite redirect if already at target
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname.includes(targetPath)
+      ) {
+        return;
       }
 
       // next-intl router automatically handles locale prefix
-      router.push(targetPath);
+      if (targetPath) {
+        router.push(targetPath);
+      }
     }
   }, [user, isAuthenticated, isHydrated, router, redirectTo]);
 
@@ -63,8 +86,41 @@ export default function PublicRouteGuard({
     );
   }
 
-  // If already logged in, show loading while redirecting
-  if (isAuthenticated) {
+  // If already logged in, determine if we show children or loading
+  if (isAuthenticated && user) {
+    const isHostOrAdmin = user.role === 'ADMIN' || user.role === 'HOST';
+    const isPlayer = user.role === 'PLAYER';
+    const isGuest = user.role === 'GUEST';
+
+    // Current path check
+    const currentPath =
+      typeof window !== 'undefined' ? window.location.pathname : '';
+    const isOnJoinPage = currentPath.includes('/join-by-code');
+
+    // If it's a role that MUST redirect, show redirecting state
+    if (isHostOrAdmin || isPlayer) {
+      return (
+        <Box
+          minH="100vh"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          bg="gray.50"
+        >
+          <VStack gap={4}>
+            <Spinner size="lg" color="blue.500" />
+            <Text color="gray.600">Redirecting...</Text>
+          </VStack>
+        </Box>
+      );
+    }
+
+    // If it's a GUEST and they are ALREADY on join page, allow access
+    if (isGuest && isOnJoinPage) {
+      return <>{children}</>;
+    }
+
+    // Default for authenticated on other pages
     return (
       <Box
         minH="100vh"

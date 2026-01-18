@@ -168,7 +168,7 @@ export function convertBadmintonMatchToUI(
  * Returns null if no valid score data is found, allowing UI to show "..."
  */
 export function parseScoreData(
-  scoreData: any,
+  scoreData: unknown,
   players?: Array<{ playerId: string; position: number }>
 ): UIMatchResult | null {
   // Return null if no score data provided
@@ -203,11 +203,14 @@ export function parseScoreData(
       return parseScoreData(parsed, players);
     }
 
-    // Handle object format
-    if (typeof scoreData === 'object') {
+    if (typeof scoreData === 'object' && scoreData !== null) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = scoreData as Record<string, any>;
       // Check if it's the new Match interface format
-      if (scoreData.score && Array.isArray(scoreData.score) && players) {
-        const result = convertBadmintonMatchToUI(scoreData, players);
+      if (data.score && Array.isArray(data.score) && players) {
+        // We need to cast data to MatchResult to satisfy the type,
+        // assuming it matches structure if data.score exists
+        const result = convertBadmintonMatchToUI(data as MatchResult, players);
         // Return null if no valid scores found
         if (result.scores.pair1Score === 0 && result.scores.pair2Score === 0) {
           return null;
@@ -216,7 +219,7 @@ export function parseScoreData(
       }
 
       // Handle legacy formats
-      const scoresObj = scoreData.scores || scoreData;
+      const scoresObj = data.scores || data;
       const pair1Score = Number(
         scoresObj.pair1 || scoresObj.team1 || scoresObj.score1 || 0
       );

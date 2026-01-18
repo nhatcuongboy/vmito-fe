@@ -18,7 +18,7 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
 } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
@@ -39,7 +39,7 @@ import {
   TournamentPlayer,
   TournamentScoringDevice,
   TournamentUmpire,
-  UserRole
+  UserRole,
 } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -57,15 +57,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import {
-  Play,
-  Plus,
-  Save,
-  Settings,
-  Trophy,
-  Users,
-  X
-} from 'lucide-react';
+import { Play, Plus, Save, Settings, Trophy, Users, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';

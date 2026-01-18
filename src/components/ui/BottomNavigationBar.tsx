@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Spinner } from '@chakra-ui/react';
+import { Box, Spinner, Button, Text } from '@chakra-ui/react';
 import { LucideIcon } from 'lucide-react';
 
 export interface NavigationTab {
@@ -45,44 +45,41 @@ export default function BottomNavigationBar({
         const isLoading = loadingTabId === tab.id;
 
         return (
-          <Box
+          <Button
             key={tab.id}
-            as="button"
-            flex={1}
-            py={{ base: 1, md: 2 }}
             onClick={() => !isLoading && onTabChange(tab.id)}
-            display="flex"
+            variant="ghost"
+            width="100%"
+            height="100%"
+            py={2}
+            borderRadius={0}
             flexDirection="column"
+            gap={1}
+            color={isActive ? 'blue.500' : 'gray.500'}
+            _active={{ bg: 'transparent' }}
+            _hover={{ bg: 'transparent', color: 'blue.500' }}
+            flex={1}
+            display="flex"
             alignItems="center"
-            color={isActive ? 'blue.600' : 'gray.500'}
-            fontWeight={isActive ? 'bold' : 'normal'}
-            fontSize={{ base: '10px', md: 'xs' }}
-            transition="all 0.2s"
-            _hover={{
-              color: isActive ? 'blue.700' : 'blue.400',
-              transform: !isLoading ? 'scale(1.05)' : 'none',
-            }}
-            _active={{
-              transform: !isLoading ? 'scale(0.95)' : 'none',
-            }}
             cursor={isLoading ? 'not-allowed' : 'pointer'}
             opacity={isLoading ? 0.7 : 1}
           >
             {isLoading ? (
-              <Spinner
-                size="sm"
-                color="blue.500"
-                mb={{ base: 0.5, md: 1 }}
-              />
+              <Spinner size="sm" color="blue.500" mb={{ base: 0.5, md: 1 }} />
             ) : (
-              <Box
-                as={Icon}
-                boxSize={{ base: 5, md: 6 }}
-                mb={{ base: 0.5, md: 1 }}
+              <Icon
+                size={20}
+                style={{
+                  color: isActive
+                    ? 'var(--chakra-colors-blue-500)'
+                    : 'currentColor',
+                }}
               />
             )}
-            {tab.label}
-          </Box>
+            <Text fontSize="xs" fontWeight={isActive ? 'semibold' : 'medium'}>
+              {tab.label}
+            </Text>
+          </Button>
         );
       })}
     </Box>

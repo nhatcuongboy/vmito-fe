@@ -36,7 +36,12 @@ export default function HostDashboard() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       {/* Main Content */}
-      <Container maxW="container.xl" pt={16} pb="calc(92px + env(safe-area-inset-bottom))" mt="calc(40px + 56px + env(safe-area-inset-top))">
+      <Container
+        maxW="container.xl"
+        pt={16}
+        pb="calc(92px + env(safe-area-inset-bottom))"
+        mt="calc(40px + 56px + env(safe-area-inset-top))"
+      >
         {/* Overview Stats */}
         <Box mb={8}>
           <OverviewStats sessions={sessions} />

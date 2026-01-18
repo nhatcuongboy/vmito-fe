@@ -9,7 +9,7 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
 } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import SlideOutMenu from '@/components/ui/SlideOutMenu';
@@ -35,16 +35,10 @@ import {
   IconButton,
   Spinner,
   Text,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import {
-  ChevronDown,
-  Flag,
-  Mail,
-  MapPin,
-  Menu
-} from 'lucide-react';
+import { ChevronDown, Flag, Mail, MapPin, Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';

@@ -20,7 +20,7 @@ export function parseQRData(qrData: string): { joinCode?: string } {
     return {
       joinCode: url.searchParams.get('code') || undefined,
     };
-  } catch (error) {
+  } catch {
     return {};
   }
 }

@@ -3,7 +3,8 @@ import { PlayerService } from '@/lib/api/player.service';
 import { LEVELS } from '@/constants/levels';
 import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { NewPlayer, Player } from './types';
 
 export const usePlayerManagement = (

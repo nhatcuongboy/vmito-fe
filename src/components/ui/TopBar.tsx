@@ -3,11 +3,10 @@
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Container, Flex, Heading, IconButton } from '@chakra-ui/react';
 import { ArrowLeft, Menu } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AuthService } from '@/lib/api/auth.service';
-import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SlideOutMenu from './SlideOutMenu';
 import NotificationBell from './NotificationBell';
@@ -24,7 +23,6 @@ export default function TopBar({
   backHref = '/',
   title,
 }: TopBarProps) {
-  const common = useTranslations('common');
   const appName = '🏸';
   const { user, isAuthenticated } = useAuthStore();
   const locale = useLocale();

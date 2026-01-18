@@ -14,7 +14,9 @@ export function usePWA() {
       const isInStandaloneMode = window.matchMedia(
         '(display-mode: standalone)'
       ).matches;
-      const isIOSStandalone = (window.navigator as any).standalone === true;
+      const isIOSStandalone =
+        (window.navigator as unknown as { standalone?: boolean }).standalone ===
+        true;
       setIsInstalled(isInStandaloneMode || isIOSStandalone);
     };
 

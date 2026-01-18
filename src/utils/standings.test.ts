@@ -4,6 +4,8 @@
  * Run with: npm test standings.test.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   calculateStandings,
   determineWinners,
@@ -165,10 +167,10 @@ describe('Standings Calculation', () => {
   describe('determineWinners', () => {
     it('should select top N winners', () => {
       const standings = [
-        { teamId: 'team1', rank: 1 } as any,
-        { teamId: 'team2', rank: 2 } as any,
-        { teamId: 'team3', rank: 3 } as any,
-        { teamId: 'team4', rank: 4 } as any,
+        { teamId: 'team1', rank: 1 } as unknown as any,
+        { teamId: 'team2', rank: 2 } as unknown as any,
+        { teamId: 'team3', rank: 3 } as unknown as any,
+        { teamId: 'team4', rank: 4 } as unknown as any,
       ];
 
       const winners = determineWinners(standings, 2);
@@ -176,7 +178,7 @@ describe('Standings Calculation', () => {
     });
 
     it('should handle winnersCount = 0', () => {
-      const standings = [{ teamId: 'team1', rank: 1 } as any];
+      const standings = [{ teamId: 'team1', rank: 1 } as unknown as any];
       const winners = determineWinners(standings, 0);
       expect(winners).toEqual([]);
     });
@@ -185,10 +187,10 @@ describe('Standings Calculation', () => {
   describe('getTeamsWithRank', () => {
     it('should return teams with specific rank', () => {
       const standings = [
-        { teamId: 'team1', rank: 1 } as any,
-        { teamId: 'team2', rank: 2 } as any,
-        { teamId: 'team3', rank: 2 } as any,
-        { teamId: 'team4', rank: 4 } as any,
+        { teamId: 'team1', rank: 1 } as unknown as any,
+        { teamId: 'team2', rank: 2 } as unknown as any,
+        { teamId: 'team3', rank: 2 } as unknown as any,
+        { teamId: 'team4', rank: 4 } as unknown as any,
       ];
 
       const rank2Teams = getTeamsWithRank(standings, 2);
@@ -199,10 +201,10 @@ describe('Standings Calculation', () => {
   describe('isStandingsComplete', () => {
     it('should return true when all teams played all matches', () => {
       const standings = [
-        { teamId: 'team1', matchesPlayed: 3 } as any,
-        { teamId: 'team2', matchesPlayed: 3 } as any,
-        { teamId: 'team3', matchesPlayed: 3 } as any,
-        { teamId: 'team4', matchesPlayed: 3 } as any,
+        { teamId: 'team1', matchesPlayed: 3 } as unknown as any,
+        { teamId: 'team2', matchesPlayed: 3 } as unknown as any,
+        { teamId: 'team3', matchesPlayed: 3 } as unknown as any,
+        { teamId: 'team4', matchesPlayed: 3 } as unknown as any,
       ];
 
       expect(isStandingsComplete(standings, 4)).toBe(true);
@@ -210,10 +212,10 @@ describe('Standings Calculation', () => {
 
     it('should return false when not all matches played', () => {
       const standings = [
-        { teamId: 'team1', matchesPlayed: 2 } as any,
-        { teamId: 'team2', matchesPlayed: 3 } as any,
-        { teamId: 'team3', matchesPlayed: 3 } as any,
-        { teamId: 'team4', matchesPlayed: 3 } as any,
+        { teamId: 'team1', matchesPlayed: 2 } as unknown as any,
+        { teamId: 'team2', matchesPlayed: 3 } as unknown as any,
+        { teamId: 'team3', matchesPlayed: 3 } as unknown as any,
+        { teamId: 'team4', matchesPlayed: 3 } as unknown as any,
       ];
 
       expect(isStandingsComplete(standings, 4)).toBe(false);
@@ -225,7 +227,7 @@ describe('Standings Calculation', () => {
       const standing = {
         matchesPlayed: 10,
         matchesWon: 7,
-      } as any;
+      } as unknown as any;
 
       expect(calculateWinPercentage(standing)).toBe(70);
     });
@@ -234,7 +236,7 @@ describe('Standings Calculation', () => {
       const standing = {
         matchesPlayed: 0,
         matchesWon: 0,
-      } as any;
+      } as unknown as any;
 
       expect(calculateWinPercentage(standing)).toBe(0);
     });
@@ -251,7 +253,7 @@ describe('Standings Calculation', () => {
           matchesDrawn: 1,
           points: 11,
           pointDifference: 15,
-        } as any,
+        } as unknown as any,
       ];
 
       const formatted = formatStandings(standings);

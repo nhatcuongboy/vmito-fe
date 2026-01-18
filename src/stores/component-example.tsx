@@ -7,26 +7,12 @@
 
 import React from 'react';
 import { useSessionStore, useCourtStore } from '@/stores';
-
-// Before: Component with many props
-interface OldComponentProps {
-  selectedPlayers: string[];
-  setSelectedPlayers: (players: string[]) => void;
-  matchMode: 'auto' | 'manual';
-  setMatchMode: (mode: 'auto' | 'manual') => void;
-  selectedCourt: string | null;
-  setSelectedCourt: (court: string | null) => void;
-  showMatchCreation: boolean;
-  setShowMatchCreation: (show: boolean) => void;
-  autoAssignModalOpen: boolean;
-  openAutoAssignModal: (court: any) => void;
-  closeAutoAssignModal: () => void;
-}
+import { ISession, Player } from '@/lib/api/types';
 
 // After: Component with minimal props (only essential data)
 interface NewComponentProps {
-  session: any; // Essential data that comes from parent
-  waitingPlayers: any[]; // Data that might be fetched by parent
+  session: ISession; // Essential data that comes from parent
+  waitingPlayers: Player[]; // Data that might be fetched by parent
 }
 
 export function ExampleComponentWithZustand({
@@ -39,23 +25,12 @@ export function ExampleComponentWithZustand({
     matchMode,
     selectedCourt,
     showMatchCreation,
-    addSelectedPlayer,
-    removeSelectedPlayer,
-    setMatchMode,
-    setSelectedCourt,
-    setShowMatchCreation,
     togglePlayerSelection,
     startManualMatchCreation,
     cancelMatchCreation,
   } = useSessionStore();
 
-  const {
-    autoAssignModalOpen,
-    openAutoAssignModal,
-    closeAutoAssignModal,
-    manualSelectedPlayers,
-    toggleManualPlayer,
-  } = useCourtStore();
+  const { autoAssignModalOpen, closeAutoAssignModal } = useCourtStore();
 
   // Component logic stays the same
   const handlePlayerClick = (playerId: string) => {
@@ -93,7 +68,7 @@ export function ExampleComponentWithZustand({
 
       {/* Court selection */}
       <div>
-        {session.courts.map((court: any) => (
+        {session.courts?.map((court) => (
           <button
             key={court.id}
             onClick={() => handleStartManualMatch(court.id)}
@@ -125,8 +100,8 @@ export function ExampleComponentWithZustand({
 // Usage in parent component:
 export function ParentComponent() {
   // Assume these are fetched/provided by parent
-  const session = {}; // Your session data
-  const waitingPlayers: any[] = []; // Your waiting players data
+  const session = {} as ISession; // Your session data
+  const waitingPlayers: Player[] = []; // Your waiting players data
 
   // Parent only needs to provide essential data
   // No need to manage and pass down all the state

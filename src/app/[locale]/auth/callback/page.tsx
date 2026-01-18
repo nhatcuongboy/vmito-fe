@@ -42,13 +42,13 @@ function AuthCallbackContent() {
 
         // Redirect based on role
         let redirectPath = '/join-by-code';
-        
+
         if (role === UserRole.HOST || role === UserRole.ADMIN) {
           redirectPath = '/host/dashboard';
         } else if (role === UserRole.PLAYER) {
           redirectPath = '/player/dashboard';
         }
-        
+
         router.replace(redirectPath);
       }, 0);
     } else {

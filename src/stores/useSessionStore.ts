@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { Player } from '@/types/session';
+import { Player, Court } from '@/types/session';
 
 interface SessionState {
   // Current session data
@@ -15,7 +15,7 @@ interface SessionState {
   playingPlayers: Player[];
 
   // Court management
-  activeCourts: any[];
+  activeCourts: Court[];
 
   // UI state for session
   activeTab: number;
@@ -32,7 +32,7 @@ interface SessionState {
   setShowMatchCreation: (show: boolean) => void;
   setWaitingPlayers: (players: Player[]) => void;
   setPlayingPlayers: (players: Player[]) => void;
-  setActiveCourts: (courts: any[]) => void;
+  setActiveCourts: (courts: Court[]) => void;
   setActiveTab: (tab: number) => void;
   setRefreshing: (refreshing: boolean) => void;
 

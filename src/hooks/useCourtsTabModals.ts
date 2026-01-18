@@ -21,7 +21,7 @@ export const useCourtsTabModals = () => {
 
   // Match result modal state
   const [matchResultModalOpen, setMatchResultModalOpen] = useState(false);
-  const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
   // Pre-select modal state
   const [preSelectModalOpen, setPreSelectModalOpen] = useState(false);

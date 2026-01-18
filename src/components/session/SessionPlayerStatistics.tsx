@@ -1,3 +1,5 @@
+'use client';
+
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerStatistics } from '@/lib/api/types';
 import {
@@ -18,6 +20,9 @@ import {
 import { Archive, Filter, RotateCcw, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
 import { PlayerService } from '@/lib/api/player.service';

@@ -95,9 +95,17 @@ export const AuthService = {
    */
   checkCode: async (
     code: string
-  ): Promise<{ isPlayerCode: boolean; playerId: string | null; sessionId: string | null }> => {
+  ): Promise<{
+    isPlayerCode: boolean;
+    playerId: string | null;
+    sessionId: string | null;
+  }> => {
     const response = await api.get<
-      ApiResponse<{ isPlayerCode: boolean; playerId: string | null; sessionId: string | null }>
+      ApiResponse<{
+        isPlayerCode: boolean;
+        playerId: string | null;
+        sessionId: string | null;
+      }>
     >(`/players/check-code?code=${code}`);
     return response.data.data!;
   },
