@@ -36,8 +36,8 @@ export default function BottomNavigationBar({
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      height="calc(64px + env(safe-area-inset-bottom) + 8px)"
-      paddingBottom="calc(env(safe-area-inset-bottom) + 8px)"
+      height="calc(64px + env(safe-area-inset-bottom))"
+      paddingBottom="env(safe-area-inset-bottom)"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;

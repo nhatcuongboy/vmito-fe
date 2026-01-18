@@ -85,12 +85,12 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
       position="sticky"
       top={stickyTop}
       zIndex={50}
-      bg="white"
-      _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+      bg="#0068FF"
+      _dark={{ bg: '#0052CC' }}
       mt={mt}
       borderBottomWidth="1px"
-      borderColor="gray.200"
-      shadow="sm"
+      borderColor="blue.600"
+      shadow="md"
       py={1}
       px={4}
       minH={{ base: '40px', md: '48px' }}
@@ -120,8 +120,8 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
           <Text
             fontSize="sm"
             fontWeight="bold"
-            color="gray.800"
-            _dark={{ color: 'white' }}
+            color="white"
+            textShadow="0 1px 2px rgba(0,0,0,0.2)"
             whiteSpace="nowrap"
             overflow="hidden"
             textOverflow="ellipsis"
@@ -145,6 +145,8 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
               variant="ghost"
               size="sm"
               borderRadius="full"
+              color="white"
+              _hover={{ bg: 'whiteAlpha.200' }}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             />
 

@@ -2,7 +2,7 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Info, X, LogOut } from 'lucide-react';
+import { Home, Info, X, LogOut, LogIn } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -238,6 +238,24 @@ export default function SlideOutMenu({
                       <Text>{common('logout')}</Text>
                     </Flex>
                   </Button>
+                </Box>
+              )}
+
+              {/* Login Button - Only show when NOT logged in */}
+              {!isAuthenticated && (
+                <Box mb={4}>
+                  <NextLinkButton
+                    href="/auth/signin"
+                    variant="outline"
+                    colorScheme="blue"
+                    w="full"
+                    onClick={onClose}
+                  >
+                    <Flex align="center" gap={2}>
+                      <LogIn size={16} />
+                      <Text>Login</Text>
+                    </Flex>
+                  </NextLinkButton>
                 </Box>
               )}
 

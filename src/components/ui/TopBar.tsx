@@ -58,20 +58,20 @@ export default function TopBar({
         left={0}
         right={0}
         zIndex={999}
-        bg="#0068FF"
+        bg="white"
         backdropFilter="blur(10px)"
         borderBottom="1px solid"
-        borderColor="whiteAlpha.300"
+        borderColor="gray.200"
         height={{
           base: 'calc(44px + env(safe-area-inset-top))',
           md: 'calc(56px + env(safe-area-inset-top))',
         }}
         minHeight={{ base: '44px', md: '56px' }}
         paddingTop="env(safe-area-inset-top)"
-        color="white"
+        color="black"
         _dark={{
-          bg: '#0068FF',
-          borderColor: 'whiteAlpha.300',
+          bg: 'gray.800',
+          borderColor: 'gray.700',
         }}
       >
         <Container maxW="container.xl" height="100%">
@@ -83,8 +83,8 @@ export default function TopBar({
                   href={backHref}
                   variant="ghost"
                   size="sm"
-                  color="white"
-                  _hover={{ bg: 'whiteAlpha.200' }}
+                  color="black"
+                  _hover={{ bg: 'gray.100' }}
                 >
                   <ArrowLeft size={16} />
                   {/* {common('back')} */}
@@ -97,7 +97,7 @@ export default function TopBar({
             {/* Center - App title */}
             <Heading
               size="lg"
-              color="white"
+              color="black"
               fontWeight="bold"
               textAlign="center"
               maxWidth={{ base: '60vw', md: '500px' }}
@@ -123,8 +123,8 @@ export default function TopBar({
             >
               {isAuthenticated && (
                 <NotificationBell
-                  color="white"
-                  _hover={{ bg: 'whiteAlpha.200' }}
+                  color="black"
+                  _hover={{ bg: 'gray.100' }}
                 />
               )}
 
@@ -132,8 +132,8 @@ export default function TopBar({
                 aria-label="Open menu"
                 onClick={onMenuOpen}
                 variant="ghost"
-                color="white"
-                _hover={{ bg: 'whiteAlpha.200' }}
+                color="black"
+                _hover={{ bg: 'gray.100' }}
                 borderRadius="full"
                 size="md"
               >
