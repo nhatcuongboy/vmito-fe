@@ -26,7 +26,7 @@ export const viewport = {
 };
 
 export async function generateStaticParams() {
-  return [{ locale: 'vi' }, { locale: 'en' }];
+  return [{ locale: 'vi' }, { locale: 'en' }, { locale: 'cn' }];
 }
 
 export default async function LocaleLayout({
@@ -37,7 +37,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validLocales = ['vi', 'en'];
+  const validLocales = ['vi', 'en', 'cn'];
 
   // Load messages directly
   let messages = {};
@@ -46,6 +46,8 @@ export default async function LocaleLayout({
       messages = (await import('../../i18n/messages/en.json')).default;
     } else if (locale === 'vi') {
       messages = (await import('../../i18n/messages/vi.json')).default;
+    } else if (locale === 'cn') {
+      messages = (await import('../../i18n/messages/cn.json')).default;
     } else {
       // Fallback to English
       messages = (await import('../../i18n/messages/en.json')).default;
