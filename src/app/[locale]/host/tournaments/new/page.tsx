@@ -110,7 +110,7 @@ export default function NewTournamentPage() {
         courts,
       });
 
-      router.push(`/${locale}/host/tournaments/${tournament.id}`);
+      router.push(`/host/tournaments/${tournament.id}`);
     } catch (error: any) {
       console.error('Error creating tournament:', error);
       toaster.error({

@@ -38,8 +38,6 @@ function AuthCallbackContent() {
 
       // Defer toaster and redirect to next tick to avoid flushSync error
       setTimeout(() => {
-        toaster.success({ title: t('loginSuccessful') });
-
         // Redirect based on role
         let redirectPath = '/join-by-code';
 

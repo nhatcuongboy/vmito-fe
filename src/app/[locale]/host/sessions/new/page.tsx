@@ -148,8 +148,7 @@ function NewSessionPageContent() {
         })),
       });
 
-      toaster.success({ title: t('validation.sessionCreatedSuccessfully') });
-      router.push(`/${locale}/host/sessions/${session.id}`);
+      router.push(`/host/sessions/${session.id}`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : t('validation.unknownError');

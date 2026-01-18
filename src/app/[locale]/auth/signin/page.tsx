@@ -79,8 +79,6 @@ function SignInForm() {
         password: data.password,
       });
 
-      toaster.success({ title: t('loginSuccessful') });
-
       let redirectPath = '/dashboard';
 
       if (loginResponse.user) {

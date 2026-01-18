@@ -70,7 +70,7 @@ export default function SignUpPage() {
       });
 
       toaster.success({ title: t('accountCreated') });
-      router.push(`/${locale}/auth/signin`);
+      router.push(`/auth/signin`);
     } catch (error: unknown) {
       // Error toast is handled by axios interceptor
       console.error('Registration error:', error);
