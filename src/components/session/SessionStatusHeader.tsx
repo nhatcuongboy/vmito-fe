@@ -12,9 +12,6 @@ interface SessionStatusHeaderProps {
   session: {
     name: string;
     status: string;
-    startTime?: string | null;
-    endTime?: string | null;
-    players?: Array<{ status: string }>;
   };
   /** Read-only mode for player view - hides action menu */
   readOnly?: boolean;

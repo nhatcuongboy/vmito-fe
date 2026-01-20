@@ -215,7 +215,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                         </Text>
                         <select
                           value={player.gender}
-                          onChange={(e: any) =>
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                             onUpdatePlayer(index, 'gender', e.target.value)
                           }
                           style={{
@@ -251,7 +251,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                         </Text>
                         <select
                           value={player.level}
-                          onChange={(e: any) =>
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                             onUpdatePlayer(index, 'level', e.target.value)
                           }
                           style={{

@@ -5,6 +5,7 @@ import NewPlayerList from '@/components/session/player-management/NewPlayerList'
 import PlayerList from '@/components/session/player-management/PlayerList';
 import PlayerStatsHeader from '@/components/session/player-management/PlayerStatsHeader';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
+import { ISession, Player } from '@/lib/api/types';
 import { Box, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
@@ -13,7 +14,7 @@ import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
 interface PlayerManagementProps {
-  session: any;
+  session: ISession;
   onDataRefresh?: () => void;
 }
 
@@ -35,8 +36,6 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     availableLevels,
     maxPlayers,
     currentPlayerCount,
-    isMaxPlayersReached, // Not used in this file but available if needed
-    addNewPlayerRow, // Not used directly, specific handler used
     removeNewPlayerRow,
     clearAllNewPlayers,
     handleUserSelection,
@@ -58,9 +57,11 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
   // QR Modal State (UI specific)
   const [showQRModal, setShowQRModal] = useState<boolean>(false);
-  const [selectedPlayerForQR, setSelectedPlayerForQR] = useState<any>(null);
+  const [selectedPlayerForQR, setSelectedPlayerForQR] = useState<Player | null>(
+    null
+  );
 
-  const showPlayerQR = (player: any) => {
+  const showPlayerQR = (player: Player) => {
     setSelectedPlayerForQR(player);
     setShowQRModal(true);
   };
@@ -144,7 +145,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
       {/* Player List */}
       <PlayerList
-        players={session.players}
+        players={session.players || []}
         editingPlayers={editingPlayers}
         availableLevels={availableLevels}
         isSaving={isSaving}

@@ -23,9 +23,6 @@ import {
 import {
   Sparkles,
   RefreshCw,
-  Smartphone,
-  Users,
-  MonitorPlay,
   X,
 } from 'lucide-react';
 import { api, ApiResponse } from '@/lib/api/base';
@@ -69,17 +66,6 @@ export default function AiAssistant({ sessionId }: { sessionId: string }) {
     onOpen();
     if (!hasFetched) {
       fetchSuggestions();
-    }
-  };
-
-  const getIconForType = (type: string) => {
-    switch (type) {
-      case 'CREATE_MATCH':
-        return <MonitorPlay size={18} />;
-      case 'MOVE_PLAYER':
-        return <Users size={18} />;
-      default:
-        return <Smartphone size={18} />;
     }
   };
 

@@ -1,5 +1,4 @@
 import { Box, Heading, Text, VStack, Wrap, WrapItem } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 import React from 'react';
 import { Card, CardBody } from '@/components/ui/chakra-compat';
 
@@ -11,7 +10,9 @@ export const COURT_COLORS = [
 ];
 
 interface CourtSettingsProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateSettings: (key: string, value: any) => Promise<void>;
 }
 
@@ -19,8 +20,6 @@ const CourtSettings: React.FC<CourtSettingsProps> = ({
   session,
   onUpdateSettings,
 }) => {
-  const t = useTranslations('SessionDetail');
-
   // Use passed session color or default green
   const currentColor = session.courtColor || '#179a3b';
 

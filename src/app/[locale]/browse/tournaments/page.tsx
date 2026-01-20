@@ -66,11 +66,12 @@ export default function TournamentsPage() {
       await loadTournaments();
       // Navigate to the new tournament
       router.push(`/host/tournaments/${result.tournament.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating sample tournament:', error);
+      const err = error as { response?: { data?: { error?: string } } };
       toaster.error({
         title:
-          error.response?.data?.error || 'Failed to create sample tournament',
+          err.response?.data?.error || 'Failed to create sample tournament',
       });
     } finally {
       setCreatingSample(false);

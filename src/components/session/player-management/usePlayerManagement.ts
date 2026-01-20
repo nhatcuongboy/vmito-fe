@@ -3,8 +3,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { LEVELS } from '@/constants/levels';
 import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NewPlayer, Player } from './types';
 
 export const usePlayerManagement = (
@@ -415,6 +414,7 @@ export const usePlayerManagement = (
       }
     }
     lastPlayerCount.current = newPlayers.length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newPlayers.length]);
 
   return {

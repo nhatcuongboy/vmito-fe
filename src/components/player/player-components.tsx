@@ -17,7 +17,7 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VALID_LEVELS } from '@/constants/levels';
 
 export function AddPlayerForm({
-  sessionId,
+  sessionId: _sessionId,
   onSuccess,
 }: {
   sessionId: string;

@@ -97,6 +97,7 @@ export default function BulkPlayersForm({
   const updatePlayer = (
     index: number,
     field: keyof BulkPlayerData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any
   ) => {
     const newPlayers = [...players];
@@ -311,13 +312,7 @@ export default function BulkPlayersForm({
     }
   };
 
-  // Show example CSV
-  const showExampleCSV = () => {
-    setCsvData(EXAMPLE_CSV);
-    setSuccessMessage(
-      'Example CSV loaded. You can edit it or copy this format for your own data.'
-    );
-  };
+
 
   // Clear the form
   const clearForm = () => {

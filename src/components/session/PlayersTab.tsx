@@ -1,34 +1,11 @@
 import React from 'react';
-import {
-  VStack,
-  Flex,
-  Heading,
-  HStack,
-  Text,
-  IconButton,
-  Box,
-} from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat'; // Use compat Button for leftIcon support or consistency
+import { VStack, Flex, Heading, HStack, Text } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
-import SessionPlayerStatistics from './SessionPlayerStatistics';
 import PlayerManagement from '@/components/session/PlayerManagement';
-import { LayoutGrid, LayoutList, Settings } from 'lucide-react';
+import { LayoutGrid, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-
-interface Player {
-  id: string;
-  playerNumber: number;
-  name?: string; // Optional to match API
-  gender?: string;
-  level?: number;
-  status: string;
-  currentWaitTime: number;
-  totalWaitTime: number;
-  matchesPlayed: number;
-  currentCourtId?: string;
-  preFilledByHost: boolean;
-  confirmedByPlayer: boolean;
-}
+import { ISession, Player } from '@/lib/api/types';
 
 // Ensure PlayerFilter type includes 'READY' and 'INACTIVE'
 export type PlayerFilter = 'ALL' | 'PLAYING' | 'WAITING' | 'READY' | 'INACTIVE';
@@ -41,7 +18,7 @@ interface PlayersTabProps {
   mode?: 'view' | 'manage'; // Optional mode prop to control UI
   sessionId: string; // Add sessionId prop
   onPlayerUpdate?: () => void;
-  session?: any; // Add session prop
+  session?: ISession; // Add session prop
 }
 
 const PlayersTab: React.FC<PlayersTabProps> = ({
@@ -58,9 +35,6 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   // View mode state: 'grid' or 'manage'
   // Default to 'grid' unless explicitly set otherwise
   const [viewMode, setViewMode] = React.useState<'grid' | 'manage'>('grid');
-
-  const [isStatisticsSectionOpen, setIsStatisticsSectionOpen] =
-    React.useState(true);
 
   // If in manage view and we have session data, show PlayerManagement
   if (viewMode === 'manage' && session) {

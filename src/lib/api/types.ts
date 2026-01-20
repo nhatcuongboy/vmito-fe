@@ -43,6 +43,8 @@ export interface ISession {
   endTime?: Date;
   createdAt: Date;
   updatedAt: Date;
+  location?: string;
+  description?: string;
   courts?: Court[];
   players?: Player[];
   _count?: {
@@ -75,6 +77,7 @@ export interface Player {
   desire?: string;
   position?: number;
   courtPosition?: number;
+  joinCode?: string;
 }
 
 // Court types

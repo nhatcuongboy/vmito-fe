@@ -7,7 +7,6 @@ import { useRouter } from '@/i18n/config';
 import {
   AdminService,
   User,
-  CreateUserData,
   UpdateUserData,
 } from '@/lib/api/admin.service';
 import { UserRole } from '@/lib/api/types';

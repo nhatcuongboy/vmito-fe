@@ -1,18 +1,8 @@
-import { Button as CompatButton } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { CourtDirection } from '@/lib/api/types';
 import { Match } from '@/types/session';
-import {
-  Box,
-  Flex,
-  Heading,
-  HStack,
-  Input,
-  Text,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react';
-import { Trophy, Users, X } from 'lucide-react';
+import { Box, HStack, Input, Text, Textarea, VStack } from '@chakra-ui/react';
+import { Trophy, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
@@ -91,7 +81,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   // Group players into pairs using same logic as BadmintonCourt
   // Apply visual mapping based on direction prop, then determine pairs by column
 
-  const playersWithPair = match.players.map((matchPlayer) => {
+  const playersWithPair = (match.players ?? []).map((matchPlayer) => {
     // Use courtPosition to determine the actual visual position on the court
     // courtPosition 0 = top-left, 1 = top-right (or bottom-left in horizontal), etc.
     const courtPosition =
@@ -380,7 +370,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             <input
               type="checkbox"
               checked={isDraw}
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setIsDraw(e.target.checked);
                 if (e.target.checked) {
                   setSelectedWinnerPair(null);

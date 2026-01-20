@@ -8,7 +8,6 @@ import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { toaster } from '@/components/ui/toaster';
 
 function AuthCallbackContent() {
   const router = useRouter();

@@ -42,7 +42,7 @@ function NewSessionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
-  const locale = params.locale as string;
+  const _locale = params.locale as string;
   const t = useTranslations('session');
   const { getLevelLabel } = useLevelLabel();
 
@@ -70,7 +70,7 @@ function NewSessionPageContent() {
         (end.getTime() - start.getTime()) / (60 * 1000)
       );
       return durationMinutes > 0 ? durationMinutes : 120;
-    } catch (e) {
+    } catch (_e) {
       return 120;
     }
   }, [startTime, endTime]);
@@ -78,7 +78,7 @@ function NewSessionPageContent() {
   const isEndTimeValid = useMemo(() => {
     try {
       return new Date(endTime) > new Date(startTime);
-    } catch (e) {
+    } catch (_e) {
       return true;
     }
   }, [startTime, endTime]);

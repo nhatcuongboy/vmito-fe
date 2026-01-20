@@ -8,10 +8,10 @@ import {
   IconButton,
   Stack,
   Text,
+  SystemStyleObject,
 } from '@chakra-ui/react';
 import { Bell, Check, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 // Mock data type
 interface Notification {
@@ -55,7 +55,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
 
 interface NotificationBellProps {
   color?: string;
-  _hover?: any;
+  _hover?: SystemStyleObject;
 }
 
 export default function NotificationBell({

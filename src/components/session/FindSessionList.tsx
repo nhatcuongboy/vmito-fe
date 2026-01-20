@@ -18,7 +18,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState, ChangeEvent } from 'react';
 import JoinSessionModal from './JoinSessionModal';
 import FindSessionCard from './FindSessionCard';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function FindSessionList() {
   const [sessions, setSessions] = useState<ISession[]>([]);
@@ -35,7 +35,6 @@ export default function FindSessionList() {
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
 
   const t = useTranslations('session');
   const { user } = useAuthStore();

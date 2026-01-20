@@ -53,7 +53,7 @@ export default function SessionsList({
       } else {
         setInternalSessions((prev) => prev.filter((s) => s.id !== id));
       }
-    } catch (err) {
+    } catch {
       setError('Failed to delete session');
     } finally {
       if (!isExternalControl) {

@@ -1,9 +1,10 @@
 import { Box } from '@chakra-ui/react';
 import React from 'react';
 import GeneralSettings from './GeneralSettings';
+import { ISession } from '@/lib/api/types';
 
 interface SettingsTabProps {
-  session: any;
+  session: ISession;
   refreshSessionData: () => void;
 }
 

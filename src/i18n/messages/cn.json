@@ -1032,6 +1032,15 @@
     "validationError": "验证错误"
   },
   "SessionDetail": {
+    "playerStatsTitle": "个人统计",
+    "stats": {
+      "wins": "胜",
+      "losses": "负",
+      "winRate": "胜率",
+      "totalMatches": "总场次",
+      "noData": "无统计数据"
+    },
+    "information": "信息",
     "requiredLevels": "要求等级",
     "allLevels": "所有等级",
     "sessionTime": "时间",
@@ -1181,27 +1190,44 @@
       "noPlayersFound": "未找到状态为 {status} 的玩家"
     },
     "matchs": {
-      "tabTitle": "比赛"
+      "tabTitle": "结果"
     },
-    "title": "场次",
+    "results": {
+      "filter": {
+        "court": "场地",
+        "result": "结果"
+      },
+      "allCourts": "所有场地",
+      "allResults": "所有结果",
+      "win": "胜",
+      "loss": "负",
+      "draw": "平",
+      "noMatchesFound": "未找到比赛",
+      "noMatchesDescription": "未找到符合条件的比赛。"
+    },
     "overview": "概览",
+    "information": "信息",
+    "sessionName": "场次名称",
+    "host": "主办方",
+    "requiredLevels": "等级要求",
+    "allLevels": "所有等级",
+    "location": "地点",
+    "date": "日期",
+    "time": "时间",
+    "sessionTime": "时间",
+    "numberOfCourts": "场地数量",
+    "maxPlayersPerCourt": "每场最大人数",
+    "description": "描述",
     "quickActions": "快速操作",
     "copyCode": "复制代码",
     "copyJoinLink": "复制加入链接",
     "noLocation": "无地点",
     "notScheduled": "未安排",
-    "sessionName": "名称",
-    "host": "主办方",
-    "date": "日期",
-    "location": "地点",
-    "numberOfCourts": "场地数量",
-    "maxPlayersPerCourt": "每场最大玩家数",
     "requirePlayerInfo": "需要玩家信息",
     "allowGuestJoin": "允许访客加入",
     "allowNewPlayers": "允许新玩家",
     "yes": "是",
-    "no": "否",
-    "description": "描述"
+    "no": "否"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "加载玩家统计数据失败。",

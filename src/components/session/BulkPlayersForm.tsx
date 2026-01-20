@@ -41,7 +41,7 @@ export default function BulkPlayersForm({
       const info = await PlayerService.getBulkPlayersInfo(sessionId);
       setSessionInfo(info);
       setLoading(false);
-    } catch (err) {
+    } catch {
       setError('Failed to load session info');
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function BulkPlayersForm({
   const updatePlayer = (
     index: number,
     field: keyof BulkPlayerData,
-    value: any
+    value: string | number | undefined
   ) => {
     const updated = [...players];
     updated[index] = { ...updated[index], [field]: value };
@@ -85,8 +85,10 @@ export default function BulkPlayersForm({
         `${response.createdPlayers.length} players created successfully`
       );
       onSuccess?.();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create players');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to create players';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -153,7 +155,7 @@ export default function BulkPlayersForm({
                   type="number"
                   placeholder="Player #"
                   value={player.playerNumber}
-                  onChange={(e: any) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     updatePlayer(
                       index,
                       'playerNumber',
@@ -165,13 +167,13 @@ export default function BulkPlayersForm({
                 <Input
                   placeholder="Name (optional)"
                   value={player.name || ''}
-                  onChange={(e: any) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     updatePlayer(index, 'name', e.target.value || undefined)
                   }
                 />
                 <select
                   value={player.gender || ''}
-                  onChange={(e: any) =>
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     updatePlayer(index, 'gender', e.target.value || undefined)
                   }
                   style={{
@@ -189,7 +191,7 @@ export default function BulkPlayersForm({
                 </select>
                 <select
                   value={player.level || ''}
-                  onChange={(e: any) =>
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     updatePlayer(index, 'level', e.target.value || undefined)
                   }
                   style={{
@@ -210,7 +212,7 @@ export default function BulkPlayersForm({
                 <Input
                   placeholder="Phone (optional)"
                   value={player.phone || ''}
-                  onChange={(e: any) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     updatePlayer(index, 'phone', e.target.value || undefined)
                   }
                   width="150px"

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/chakra-compat';
 import { MatchService } from '@/lib/api/match.service';
 import { RealTimeService } from '@/lib/api/real-time.service';
-import { ISession } from '@/lib/api/types';
+import { ISession, Player, Court } from '@/lib/api/types';
 import { WaitTimeService } from '@/lib/api/wait-time.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -15,7 +15,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { RefreshCw, RotateCcw, Square, Target } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toaster } from '@/components/ui/toaster';
 
 interface SessionManagementProps {
@@ -24,23 +24,60 @@ interface SessionManagementProps {
   onSessionUpdate?: (session: ISession) => void;
 }
 
+interface RealTimeData {
+  session: ISession;
+  stats: {
+    totalPlayers: number;
+    confirmedPlayers: number;
+    waitingPlayers: number;
+    playingPlayers: number;
+    activeMatches: number;
+    availableCourts: number;
+    activeCourts: number;
+  };
+  waitStats: {
+    averageWaitTime: number;
+    maxWaitTime: number;
+    minWaitTime: number;
+  };
+  waitingQueue: (Player & { currentWaitTime: number })[];
+  activeMatches: {
+    matchId: string;
+    courtNumber: number;
+    duration: number;
+    players: { playerId: string; playerNumber: number; name: string }[];
+  }[];
+  courts: {
+    id: string;
+    courtNumber: number;
+    status: string;
+    currentMatch: {
+      id: string;
+      startTime: Date;
+      duration: number;
+      playerCount: number;
+    } | null;
+  }[];
+  lastUpdated: string | Date;
+}
+
 export default function SessionManagement({
   sessionId,
-  session,
-  onSessionUpdate,
+  session: _session,
+  onSessionUpdate: _onSessionUpdate,
 }: SessionManagementProps) {
-  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
-  const [realTimeData, setRealTimeData] = useState<any>(null);
+  const { getLevelShortLabel } = useLevelLabel();
+  const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState(60000); // milliseconds
+  const [refreshInterval] = useState(60000); // milliseconds
   const [autoAssignStrategy, setAutoAssignStrategy] = useState<
     'fairness' | 'speed' | 'level_balance'
   >('fairness');
 
   // Fetch real-time data
-  const fetchRealTimeData = async () => {
+  const fetchRealTimeData = useCallback(async () => {
     try {
       if (!loading) setLoading(true);
       const data = await RealTimeService.getSessionStatus(sessionId);
@@ -51,12 +88,12 @@ export default function SessionManagement({
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionId, loading]);
 
   // Auto-refresh effect
   useEffect(() => {
     fetchRealTimeData();
-  }, [sessionId]);
+  }, [fetchRealTimeData, sessionId]);
 
   // Auto-refresh interval
   useEffect(() => {
@@ -64,13 +101,13 @@ export default function SessionManagement({
       const interval = setInterval(fetchRealTimeData, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval]);
+  }, [autoRefresh, refreshInterval, fetchRealTimeData]);
 
   // Auto-assign players
   const handleAutoAssign = async () => {
     try {
       setActionLoading('auto-assign');
-      const result = await MatchService.autoAssignPlayers(sessionId, {
+      const _result = await MatchService.autoAssignPlayers(sessionId, {
         strategy: autoAssignStrategy,
         maxPlayersPerCourt: 4,
       });
@@ -102,8 +139,8 @@ export default function SessionManagement({
 
     try {
       setActionLoading('reset-wait-times');
-      const playerIds = realTimeData.waitingQueue.map((p: any) => p.id);
-      const result = await WaitTimeService.resetWaitTimes(
+      const playerIds = realTimeData.waitingQueue.map((p) => p.id);
+      const _result = await WaitTimeService.resetWaitTimes(
         sessionId,
         playerIds,
         'current'
@@ -234,7 +271,11 @@ export default function SessionManagement({
             </Text>
             <select
               value={autoAssignStrategy}
-              onChange={(e) => setAutoAssignStrategy(e.target.value as any)}
+              onChange={(e) =>
+                setAutoAssignStrategy(
+                  e.target.value as 'fairness' | 'speed' | 'level_balance'
+                )
+              }
               style={{
                 width: '100%',
                 padding: '8px',
@@ -297,7 +338,7 @@ export default function SessionManagement({
               </Text>
             ) : (
               <Stack gap={2}>
-                {waitingQueue.map((player: any, index: number) => (
+                {waitingQueue.map((player) => (
                   <Box
                     key={player.id}
                     p={3}
@@ -347,7 +388,7 @@ export default function SessionManagement({
               </Text>
             ) : (
               <Stack gap={3}>
-                {activeMatches.map((match: any) => (
+                {activeMatches.map((match) => (
                   <Box
                     key={match.matchId}
                     p={4}
@@ -375,7 +416,7 @@ export default function SessionManagement({
                       </Flex>
                     </Flex>
                     <Grid templateColumns="repeat(2, 1fr)" gap={2}>
-                      {match.players.map((player: any) => (
+                      {match.players.map((player) => (
                         <Text key={player.playerId} fontSize="sm">
                           #{player.playerNumber} {player.name}
                         </Text>
@@ -395,7 +436,7 @@ export default function SessionManagement({
           Court Status
         </Heading>
         <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4}>
-          {courts.map((court: any) => (
+          {courts.map((court) => (
             <Box
               key={court.id}
               p={4}

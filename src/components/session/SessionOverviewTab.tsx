@@ -1,8 +1,7 @@
 'use client';
 
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
-import { toaster } from '@/components/ui/toaster';
-import { Box, Flex, Heading, Text, Icon, Badge } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Badge } from '@chakra-ui/react';
 import {
   Award,
   Calendar,
@@ -23,13 +22,22 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import SessionPlayerStatistics from './SessionPlayerStatistics';
+import { ISession, Player } from '@/lib/api/types';
+import { FlexProps } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { formatTime } from '@/utils/session-helpers';
 import dayjs from '@/lib/dayjs';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import SessionInfo from './SessionInfo';
 
-const InfoRow = ({ icon, label, children, ...props }: any) => (
+interface InfoRowProps extends FlexProps {
+  icon: React.ElementType;
+  label: string;
+  children: React.ReactNode;
+}
+
+const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
   <Flex align="start" mb={3} {...props}>
     <Box
       as={icon}
@@ -61,7 +69,7 @@ const InfoRow = ({ icon, label, children, ...props }: any) => (
 );
 
 interface SessionOverviewTabProps {
-  session: any;
+  session: ISession;
   onToggleSessionStatus?: () => void;
   isToggleStatusLoading?: boolean;
 }
@@ -72,54 +80,16 @@ export default function SessionOverviewTab({
   isToggleStatusLoading,
 }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
-  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
-
-  const handleCopyLink = () => {
-    // Construct the join link (adjust based on your actual route structure)
-    // Assuming /join/[code] or /sessions/[code]
-    const joinLink = `${window.location.origin}/join`;
-    navigator.clipboard.writeText(joinLink);
-    toaster.create({
-      title: 'Link copied to clipboard',
-      type: 'success',
-      duration: 2000,
-    });
-  };
-
-  const handleCopyCode = () => {
-    const joinCode = session.id.slice(-8).toUpperCase();
-    navigator.clipboard.writeText(joinCode);
-    toaster.create({
-      title: 'Code copied to clipboard',
-      type: 'success',
-      duration: 2000,
-    });
-  };
 
   const joinCode = session.id.slice(-8).toUpperCase();
 
   const totalPlayers = session.players?.length || 0;
   const waitingPlayers =
-    session.players?.filter((p: any) => p.status === 'WAITING').length || 0;
+    session.players?.filter((p: Player) => p.status === 'WAITING').length || 0;
   const playingPlayers =
-    session.players?.filter((p: any) => p.status === 'PLAYING').length || 0;
+    session.players?.filter((p: Player) => p.status === 'PLAYING').length || 0;
   const readyPlayers =
-    session.players?.filter((p: any) => p.status === 'READY').length || 0;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PREPARING':
-        return 'blue';
-      case 'IN_PROGRESS':
-        return 'green';
-      case 'FINISHED':
-        return 'gray';
-      default:
-        return 'gray';
-    }
-  };
-
-  const statusColor = getStatusColor(session.status);
+    session.players?.filter((p: Player) => p.status === 'READY').length || 0;
 
   return (
     <Box>
@@ -136,112 +106,43 @@ export default function SessionOverviewTab({
             borderColor="gray.100"
             h="full"
           >
-            <VStack spacing={2} align="stretch" h="full">
-              <InfoRow icon={Tag} label={t('sessionName')}>
-                <Text fontWeight="bold">{session.name}</Text>
-              </InfoRow>
+            <Text
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.500"
+              mb={4}
+              textTransform="uppercase"
+              letterSpacing="wider"
+            >
+              {t('information')}
+            </Text>
+            
+            <SessionInfo session={session} />
 
-              <InfoRow icon={User} label={t('host')}>
-                {session.host?.name || 'Unknown'}
-              </InfoRow>
-
-              <InfoRow icon={Info} label={t('status')}>
-                <Badge
-                  colorScheme={getStatusColor(session.status)}
-                  variant="subtle"
-                  px={2}
-                  borderRadius="md"
+            {onToggleSessionStatus && session.status !== 'FINISHED' && (
+              <Flex mt={6} justify="center">
+                <Button
+                  colorScheme={
+                    session.status === 'PREPARING' ? 'blue' : 'red'
+                  }
+                  size="lg"
+                  px={8}
+                  onClick={onToggleSessionStatus}
+                  loading={isToggleStatusLoading}
+                  leftIcon={
+                    session.status === 'PREPARING' ? (
+                      <Play size={20} />
+                    ) : (
+                      <Square size={20} />
+                    )
+                  }
                 >
                   {session.status === 'PREPARING'
-                    ? t('notStarted')
-                    : session.status === 'IN_PROGRESS'
-                      ? t('inProgress')
-                      : t('finished')}
-                </Badge>
-              </InfoRow>
-
-              <InfoRow icon={MapPin} label={t('location')}>
-                {session.location || t('noLocation')}
-              </InfoRow>
-
-              <InfoRow icon={Calendar} label={t('date')}>
-                <Text textTransform="capitalize">
-                  {session.startTime
-                    ? dayjs(session.startTime).format('dddd, DD MMMM YYYY')
-                    : t('notScheduled')}
-                </Text>
-              </InfoRow>
-
-              <InfoRow icon={Clock} label={t('sessionTime')}>
-                {session.startTime ? formatTime(session.startTime) : '--:--'} -{' '}
-                {session.endTime ? formatTime(session.endTime) : '--:--'}
-              </InfoRow>
-
-              <InfoRow icon={LayoutGrid} label={t('numberOfCourts')}>
-                {session.numberOfCourts}
-              </InfoRow>
-
-              <InfoRow icon={Users} label={t('maxPlayersPerCourt')}>
-                {session.maxPlayersPerCourt}
-              </InfoRow>
-
-              <InfoRow icon={Award} label={t('requiredLevels')}>
-                <Flex gap={2} flexWrap="wrap">
-                  {session.requiredLevels &&
-                  session.requiredLevels.length > 0 ? (
-                    session.requiredLevels.map((level: number) => (
-                      <Box
-                        key={level}
-                        px={2.5}
-                        py={0.5}
-                        bg="orange.50"
-                        color="orange.700"
-                        borderRadius="full"
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        border="1px solid"
-                        borderColor="orange.100"
-                      >
-                        {getLevelShortLabel(level)}
-                      </Box>
-                    ))
-                  ) : (
-                    <Text>{t('allLevels')}</Text>
-                  )}
-                </Flex>
-              </InfoRow>
-
-              {session.description && (
-                <InfoRow icon={FileText} label={t('description')}>
-                  <Text lineHeight="tall">{session.description}</Text>
-                </InfoRow>
-              )}
-
-              {onToggleSessionStatus && session.status !== 'FINISHED' && (
-                <Flex mt={6} justify="center">
-                  <Button
-                    colorScheme={
-                      session.status === 'PREPARING' ? 'blue' : 'red'
-                    }
-                    size="lg"
-                    px={8}
-                    onClick={onToggleSessionStatus}
-                    loading={isToggleStatusLoading}
-                    leftIcon={
-                      session.status === 'PREPARING' ? (
-                        <Play size={20} />
-                      ) : (
-                        <Square size={20} />
-                      )
-                    }
-                  >
-                    {session.status === 'PREPARING'
-                      ? `${t('start')} ${t('title')}`
-                      : t('endSession')}
-                  </Button>
-                </Flex>
-              )}
-            </VStack>
+                    ? `${t('start')} ${t('title')}`
+                    : t('endSession')}
+                </Button>
+              </Flex>
+            )}
           </Box>
         </Box>
 

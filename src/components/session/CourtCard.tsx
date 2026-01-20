@@ -5,7 +5,7 @@ import {
   CardHeader,
   Button as CompatButton,
 } from '@/components/ui/chakra-compat';
-import { CourtDirection } from '@/lib/api/types';
+import { CourtDirection, ISession, Player } from '@/lib/api/types';
 import { Court, Match } from '@/types/session';
 import {
   Badge,
@@ -23,10 +23,10 @@ import BadmintonCourt from '../court/BadmintonCourt';
 interface CourtCardProps {
   court: Court;
   currentMatch: Match | null;
-  session: any;
+  session: ISession;
   mode: 'manage' | 'view';
   isRefreshing: boolean;
-  waitingPlayers: any[];
+  waitingPlayers: Player[];
 
   // Handlers
   onAutoAssignClick: (court: Court) => void;
@@ -87,7 +87,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
     if (currentMatch) {
       // Construct players from court.currentPlayers to ensure consistency with visual display
       // MatchResultModal expects MatchPlayer[] structure
-      const matchPlayers = court.currentPlayers.map((player) => ({
+      const matchPlayers = (court.currentPlayers || []).map((player) => ({
         id: `mp-${player.id}`,
         matchId: currentMatch.id,
         playerId: player.id,
@@ -103,7 +103,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
           direction: court.direction || CourtDirection.HORIZONTAL,
         },
       };
-      onEndMatch(matchWithCourt as any);
+      onEndMatch(matchWithCourt as Match);
     }
   };
 
@@ -184,7 +184,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               >
                 <Box as={Clock} boxSize={3} />
                 {currentMatch.startTime
-                  ? elapsedTimeFormatter(currentMatch.startTime)
+                  ? elapsedTimeFormatter(new Date(currentMatch.startTime).toISOString())
                   : '-'}
               </Badge>
             )}
@@ -231,14 +231,14 @@ const CourtCard: React.FC<CourtCardProps> = ({
       </CardHeader>
 
       <CardBody pt={0} pb={0} px={0}>
-        {isActive && court.currentPlayers.length > 0 ? (
+        {isActive && (court.currentPlayers?.length ?? 0) > 0 ? (
           <VStack gap={4}>
             <BadmintonCourt
-              players={court.currentPlayers}
+              players={court.currentPlayers || []}
               isActive={isActive}
               elapsedTime={
                 currentMatch
-                  ? elapsedTimeFormatter(currentMatch.startTime)
+                  ? elapsedTimeFormatter(new Date(currentMatch.startTime).toISOString())
                   : t('courtsTab.playing')
               }
               courtName={getCourtDisplayName(
@@ -277,7 +277,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               {session.status === 'IN_PROGRESS' &&
                 mode === 'manage' &&
                 court.status === 'READY' &&
-                court.currentPlayers.length > 0 && (
+                (court.currentPlayers?.length ?? 0) > 0 && (
                   <CompatButton
                     size="sm"
                     colorScheme="red"

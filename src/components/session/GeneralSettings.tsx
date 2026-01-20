@@ -36,6 +36,7 @@ import { useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 
 interface GeneralSettingsProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
   onDataRefresh: () => void;
 }
@@ -168,11 +169,15 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       toaster.success({ title: tValidation('sessionUpdatedSuccessfully') });
       setShowConfirmDialog(false);
       onDataRefresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update session:', error);
+      const err = error as {
+        response?: { data?: { error?: string } };
+        message?: string;
+      };
       const errorMessage =
-        error?.response?.data?.error ||
-        error?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
         tValidation('failedToUpdateSession');
       toaster.error({ title: errorMessage });
     } finally {

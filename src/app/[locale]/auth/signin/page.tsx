@@ -23,7 +23,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toaster } from '@/components/ui/toaster';
 import { z } from 'zod';
 
 // Define zod schema for form validation

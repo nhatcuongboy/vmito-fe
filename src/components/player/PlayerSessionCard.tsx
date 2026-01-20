@@ -49,36 +49,6 @@ const formatTime = (dateString: string | Date, locale: string): string => {
   return date.format('HH:mm');
 };
 
-interface PlayerSessionData {
-  id: string;
-  name: string;
-  status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
-  startTime: string | null;
-  endTime: string | null;
-  numberOfCourts: number;
-  maxPlayersPerCourt: number;
-  createdAt: string;
-  host: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  _count: {
-    players: number;
-  };
-  playerData: {
-    id: string;
-    playerNumber: number;
-    name: string;
-    gender: string | null;
-    level: string | null;
-    status: string;
-    joinedAt: string | null;
-    matchesPlayed: number;
-    totalWaitTime: number;
-  };
-}
-
 interface PlayerSessionCardProps {
   session: ISession;
 }
@@ -90,7 +60,10 @@ const statusColors = {
 };
 
 // Helper function to get localized status labels
-const getStatusLabel = (status: string, t: any) => {
+const getStatusLabel = (
+  status: string,
+  t: (key: string) => string
+) => {
   switch (status) {
     case 'PREPARING':
       return t('status.preparing');
@@ -108,8 +81,7 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
 
-  // Calculate max players and format date/time
-  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+  // Format date/time
   const displayDate = session.startTime
     ? formatDate(session.startTime, locale)
     : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`;

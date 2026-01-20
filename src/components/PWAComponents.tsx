@@ -22,6 +22,7 @@ export function PWAInstallPrompt() {
     const isInStandaloneMode = window.matchMedia(
       '(display-mode: standalone)'
     ).matches;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isIOSStandalone = (window.navigator as any).standalone === true;
 
     if (isInStandaloneMode || isIOSStandalone) {

@@ -35,7 +35,7 @@ interface PlayerWithMatches extends TournamentPlayer {
 
 export default function TournamentPlayerDetailPage() {
   const params = useParams();
-  const locale = useLocale();
+  const _locale = useLocale();
   const tournamentId = params.id as string;
   const playerId = params.playerId as string;
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -43,12 +43,7 @@ export default function TournamentPlayerDetailPage() {
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (tournamentId && playerId) {
-      loadData();
-    }
-  }, [tournamentId, playerId]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadData = async () => {
     try {
       setLoading(true);
@@ -67,6 +62,12 @@ export default function TournamentPlayerDetailPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (tournamentId && playerId) {
+      loadData();
+    }
+  }, [tournamentId, playerId]);
 
   // Calculate win-loss record
   const winLossRecord = useMemo(() => {
@@ -164,6 +165,7 @@ export default function TournamentPlayerDetailPage() {
 
     // If sets are available, use them
     if (match.sets && Array.isArray(match.sets)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return match.sets
         .map((set: any) => {
           if (position === 0) return set.player1Score;
@@ -172,6 +174,7 @@ export default function TournamentPlayerDetailPage() {
           if (position === 3) return set.player4Score;
           return null;
         })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .filter((s: any) => s !== null && s !== undefined);
     }
 
@@ -206,7 +209,7 @@ export default function TournamentPlayerDetailPage() {
 
     if (!playerParticipant) return [];
 
-    const playerPosition = playerParticipant.position;
+    const _playerPosition = playerParticipant.position;
     const opponentParticipant = match.participants?.find(
       (p) => p !== playerParticipant
     );
@@ -217,6 +220,7 @@ export default function TournamentPlayerDetailPage() {
 
     // If sets are available, use them
     if (match.sets && Array.isArray(match.sets)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return match.sets
         .map((set: any) => {
           if (opponentPosition === 0) return set.player1Score;
@@ -225,6 +229,7 @@ export default function TournamentPlayerDetailPage() {
           if (opponentPosition === 3) return set.player4Score;
           return null;
         })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .filter((s: any) => s !== null && s !== undefined);
     }
 
@@ -268,10 +273,10 @@ export default function TournamentPlayerDetailPage() {
     );
   }
 
-  const winRate =
+  /* const winRate =
     winLossRecord.total > 0
       ? ((winLossRecord.wins / winLossRecord.total) * 100).toFixed(0)
-      : '0';
+      : '0'; */
 
   return (
     <TournamentLayout tournament={tournament}>

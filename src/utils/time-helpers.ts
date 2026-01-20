@@ -19,7 +19,7 @@ export interface CourtElapsedTimeTranslations {
 export const formatCourtElapsedTime = (
   startTime: string | Date,
   currentTime: Date = new Date(),
-  t: (key: string, params?: any) => string,
+  t: (key: string, params?: Record<string, string | number | Date>) => string,
   keyPrefix: string = ''
 ): string => {
   const start = new Date(startTime);
@@ -43,7 +43,7 @@ export const formatCourtElapsedTime = (
  * @returns A bound formatCourtElapsedTime function
  */
 export const createCourtElapsedTimeFormatter = (
-  t: (key: string, params?: any) => string,
+  t: (key: string, params?: Record<string, string | number | Date>) => string,
   keyPrefix: string = ''
 ) => {
   return (startTime: string | Date, currentTime: Date = new Date()): string => {

@@ -4,15 +4,7 @@ import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import {
-  Badge,
-  Box,
-  Flex,
-  Heading,
-  HStack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Badge, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import {
   ArrowLeft,
   HelpCircle,
@@ -21,7 +13,6 @@ import {
   Sparkles,
   User,
   Venus,
-  X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -82,7 +73,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   courtColor,
 }) => {
   const t = useTranslations('SessionDetail');
-  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
 
   // Calculate default topCount: 4 * numberOfCourts, but not more than waitingPlayersCount
   const defaultTopCount = useMemo(() => {
@@ -101,9 +92,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
     useState<SuggestedPlayersResponse | null>(null);
   const [isLoadingConfirm, setIsLoading] = useState(false);
   const [topCount, setTopCount] = useState(initialTopCount);
-  const [direction, setDirection] = useState<CourtDirection>(
-    CourtDirection.HORIZONTAL
-  );
+  const [direction] = useState<CourtDirection>(CourtDirection.HORIZONTAL);
   const [useAi, setUseAi] = useState(false);
 
   // Use external loading state for confirming

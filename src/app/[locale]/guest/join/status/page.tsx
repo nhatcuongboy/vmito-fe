@@ -43,8 +43,9 @@ function StatusPageContent() {
   const common = useTranslations('common');
   // const { data: sessionData } = useSession();
   // console.log(sessionData);
-  const [refreshInterval, setRefreshInterval] = useState(60); // seconds
-  const [lastRefreshed, setLastRefreshed] = useState(new Date());
+  // const [refreshInterval, setRefreshInterval] = useState(60); // seconds
+  const [_refreshInterval, setRefreshInterval] = useState(60); // seconds
+  const [_lastRefreshed, setLastRefreshed] = useState(new Date());
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // For background refresh
@@ -73,7 +74,7 @@ function StatusPageContent() {
   };
 
   // Helper function to get current match for a court
-  const getCurrentMatch = (courtId: string): any => {
+  const getCurrentMatch = (courtId: string): Match | null => {
     // For player status page, we'll get match info from court data
     const courtData = session?.courts?.find((c) => c.id === courtId);
     return courtData?.currentMatch || null;
@@ -96,19 +97,10 @@ function StatusPageContent() {
     return session?.players?.filter((p) => p.status === 'WAITING') || [];
   };
 
-  // Helper function to get active courts
-  const getActiveCourts = () => {
-    return (
-      session?.courts
-        ?.filter((court) => court.currentMatch)
-        .map((court) => ({
-          ...court,
-          currentPlayers: court.currentPlayers || [],
-        })) || []
-    );
-  };
+
 
   // Function to fetch player data
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchPlayerData = async (isBackgroundRefresh = false) => {
     if (!playerId) return;
 
@@ -171,7 +163,9 @@ function StatusPageContent() {
 
       // Clear error state after successful fetch
       setError(null);
-    } catch (error: any) {
+    } catch (error: 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any) {
       console.error('Error fetching player data:', error);
 
       // Handle different types of errors
@@ -211,6 +205,7 @@ function StatusPageContent() {
     }
 
     fetchPlayerData(false); // Initial load, not background refresh
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerId, t]);
 
   // Set up auto-refresh

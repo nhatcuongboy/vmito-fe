@@ -1,0 +1,263 @@
+'use client';
+
+import { Box, Flex, Text, Badge, FlexProps, SimpleGrid, Spinner } from '@chakra-ui/react';
+import { VStack } from '@/components/ui/chakra-compat';
+import {
+  Award,
+  Calendar,
+  Clock,
+  Info,
+  MapPin,
+  Users,
+  User,
+  Tag,
+  LayoutGrid,
+  FileText,
+} from 'lucide-react';
+import { ISession, Player, PlayerStatistics } from '@/lib/api/types';
+import { useTranslations } from 'next-intl';
+import { formatTime } from '@/utils/session-helpers';
+import dayjs from '@/lib/dayjs';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { useState, useEffect } from 'react';
+import { SessionService } from '@/lib/api/session.service';
+
+interface InfoRowProps extends FlexProps {
+  icon: React.ElementType;
+  label: string;
+  children: React.ReactNode;
+}
+
+const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
+  <Flex align="start" mb={3} {...props}>
+    <Box
+      as={icon}
+      boxSize={5}
+      mr={3}
+      mt={0.5}
+      color="gray.400"
+      flexShrink={0}
+    />
+    <Text
+      fontSize="md"
+      color="gray.600"
+      _dark={{ color: 'gray.400' }}
+      mr={2}
+      minW="fit-content"
+      fontWeight="normal"
+    >
+      {label}:
+    </Text>
+    <Box
+      flex={1}
+      color="gray.800"
+      _dark={{ color: 'gray.100' }}
+      fontWeight="medium"
+    >
+      {children}
+    </Box>
+  </Flex>
+);
+
+interface SessionInfoProps {
+  session: ISession;
+  player?: Player | null;
+}
+
+export default function SessionInfo({ session, player }: SessionInfoProps) {
+  const t = useTranslations('SessionDetail');
+  const { getLevelShortLabel } = useLevelLabel();
+  const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const targetSessionId = session.id;
+      if (!targetSessionId || !player?.id) return;
+      
+      try {
+        setIsLoadingStats(true);
+        const response = await SessionService.getPlayerStatistics(targetSessionId);
+        const myStats = response.playerStats.find(s => s.playerId === player.id);
+        if (myStats) {
+          setPlayerStats(myStats);
+        }
+      } catch (error) {
+        console.error('Failed to fetch player stats:', error);
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [session.id, player?.id]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'PREPARING':
+        return 'blue';
+      case 'IN_PROGRESS':
+        return 'green';
+      case 'FINISHED':
+        return 'gray';
+      default:
+        return 'gray';
+    }
+  };
+
+  return (
+    <VStack spacing={2} align="stretch">
+      <InfoRow icon={Tag} label={t('sessionName')}>
+        <Text fontWeight="bold">{session.name}</Text>
+      </InfoRow>
+
+      <InfoRow icon={User} label={t('host')}>
+        {session.host?.name || 'Unknown'}
+      </InfoRow>
+
+      <InfoRow icon={Info} label={t('status')}>
+        <Badge
+          colorScheme={getStatusColor(session.status)}
+          variant="subtle"
+          px={2}
+          borderRadius="md"
+        >
+          {session.status === 'PREPARING'
+            ? t('notStarted')
+            : session.status === 'IN_PROGRESS'
+              ? t('inProgress')
+              : t('finished')}
+        </Badge>
+      </InfoRow>
+
+      <InfoRow icon={MapPin} label={t('location')}>
+        {session.location || t('noLocation')}
+      </InfoRow>
+
+      <InfoRow icon={Calendar} label={t('date')}>
+        <Text textTransform="capitalize">
+          {session.startTime
+            ? dayjs(session.startTime).format('dddd, DD MMMM YYYY')
+            : t('notScheduled')}
+        </Text>
+      </InfoRow>
+
+      <InfoRow icon={Clock} label={t('sessionTime')}>
+        {session.startTime ? formatTime(session.startTime) : '--:--'} -{' '}
+        {session.endTime ? formatTime(session.endTime) : '--:--'}
+      </InfoRow>
+
+      <InfoRow icon={LayoutGrid} label={t('numberOfCourts')}>
+        {session.numberOfCourts}
+      </InfoRow>
+
+      <InfoRow icon={Users} label={t('maxPlayersPerCourt')}>
+        {session.maxPlayersPerCourt}
+      </InfoRow>
+
+      <InfoRow icon={Award} label={t('requiredLevels')}>
+        <Flex gap={2} flexWrap="wrap">
+          {session.requiredLevels && session.requiredLevels.length > 0 ? (
+            session.requiredLevels.map((level: number) => (
+              <Box
+                key={level}
+                px={2.5}
+                py={0.5}
+                bg="orange.50"
+                color="orange.700"
+                borderRadius="full"
+                fontSize="sm"
+                fontWeight="semibold"
+                border="1px solid"
+                borderColor="orange.100"
+              >
+                {getLevelShortLabel(level)}
+              </Box>
+            ))
+          ) : (
+            <Text>{t('allLevels')}</Text>
+          )}
+        </Flex>
+      </InfoRow>
+
+      {session.description && (
+        <InfoRow icon={FileText} label={t('description')}>
+          <Text lineHeight="tall">{session.description}</Text>
+        </InfoRow>
+      )}
+
+      {/* Player Statistics Section */}
+      {player && player.status !== 'INACTIVE' && (
+        <Box 
+          mt={4} 
+          pt={4} 
+          borderTopWidth="1px" 
+          borderColor="gray.100" 
+          _dark={{ borderColor: 'gray.700' }}
+        >
+          <Flex align="center" mb={3}>
+            <Box as={Award} boxSize={5} color="yellow.500" mr={2} />
+            <Text fontWeight="bold" fontSize="md" color="gray.700" _dark={{ color: 'gray.200' }}>
+              {t('playerStatsTitle')}
+            </Text>
+          </Flex>
+
+          {isLoadingStats ? (
+            <Flex justify="center" py={4}>
+              <Spinner size="sm" color="blue.500" />
+            </Flex>
+          ) : playerStats ? (
+            <SimpleGrid columns={2} gap={3}>
+              <Box
+                p={2}
+                bg="gray.50"
+                _dark={{ bg: 'gray.700' }}
+                borderRadius="md"
+                textAlign="center"
+              >
+                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.wins')}</Text>
+                <Text fontWeight="bold" color="green.500">{playerStats.wins}</Text>
+              </Box>
+              <Box
+                p={2}
+                bg="gray.50"
+                _dark={{ bg: 'gray.700' }}
+                borderRadius="md"
+                textAlign="center"
+              >
+                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.losses')}</Text>
+                <Text fontWeight="bold" color="red.500">{playerStats.losses}</Text>
+              </Box>
+              <Box
+                p={2}
+                bg="gray.50"
+                _dark={{ bg: 'gray.700' }}
+                borderRadius="md"
+                textAlign="center"
+              >
+                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.winRate')}</Text>
+                <Text fontWeight="bold" color={playerStats.winRate >= 50 ? 'green.500' : 'orange.500'}>
+                  {playerStats.winRate}%
+                </Text>
+              </Box>
+              <Box
+                p={2}
+                bg="gray.50"
+                _dark={{ bg: 'gray.700' }}
+                borderRadius="md"
+                textAlign="center"
+              >
+                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.totalMatches')}</Text>
+                <Text fontWeight="bold">{playerStats.totalMatches}</Text>
+              </Box>
+            </SimpleGrid>
+          ) : (
+            <Text fontSize="sm" color="gray.500" textAlign="center">
+              {t('stats.noData')}
+            </Text>
+          )}
+        </Box>
+      )}
+    </VStack>
+  );
+}

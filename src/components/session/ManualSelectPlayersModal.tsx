@@ -1,9 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import { X, Check } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Box, Text } from '@chakra-ui/react';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import { CommonModal } from '@/components/ui/CommonModal';
-import { Button as CompatButton } from '@/components/ui/chakra-compat';
 import { Player, Court } from '@/types/session';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { useTranslations } from 'next-intl';

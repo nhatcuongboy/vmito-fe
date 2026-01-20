@@ -22,8 +22,10 @@ import { toaster } from '@/components/ui/toaster';
 interface EditMatchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   match: any; // Using any for now to avoid strict type issues with history match vs full match
   sessionId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   players: any[]; // List of available players
   onUpdate: () => void;
 }
@@ -32,7 +34,7 @@ export function EditMatchModal({
   isOpen,
   onClose,
   match,
-  sessionId,
+  sessionId: _sessionId,
   players,
   onUpdate,
 }: EditMatchModalProps) {
@@ -79,6 +81,7 @@ export function EditMatchModal({
     try {
       setIsSubmitting(true);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const payload: any = {
         score: JSON.stringify({
           pair1: parseInt(pair1Score) || 0,
@@ -105,7 +108,7 @@ export function EditMatchModal({
 
       onUpdate();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       toaster.create({
         title: 'Error updating match',
         description: 'Failed to update match details',
@@ -257,6 +260,7 @@ export function EditMatchModal({
           <Button
             colorScheme="blue"
             onClick={handleSubmit}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {...({ isLoading: isSubmitting } as any)}
           >
             Save Changes

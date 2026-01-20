@@ -86,7 +86,7 @@ export const PlayerGrid = ({
   sessionId,
   onPlayerUpdate,
 }: PlayerGridProps) => {
-  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     playerId: string;
@@ -128,9 +128,9 @@ export const PlayerGrid = ({
   return (
     <>
       <SimpleGrid columns={{ base: 2, md: 4, lg: 6 }} spacing={4}>
-        {players.map((player, index) => {
+        {players.map((player) => {
           // Color scheme based on status and filter
-          let bgColor, borderColor, colorScheme;
+          let bgColor, borderColor;
           const isSelected =
             selectionMode && selectedPlayers.includes(player.id);
 
@@ -138,7 +138,6 @@ export const PlayerGrid = ({
             // Blue color for selected players
             bgColor = PLAYER_COLORS.SELECTED.bg;
             borderColor = PLAYER_COLORS.SELECTED.border;
-            colorScheme = PLAYER_COLORS.SELECTED.scheme;
           } else if (
             playerFilter === 'READY' ||
             (playerFilter === 'ALL' && player.status === 'READY')
@@ -146,7 +145,6 @@ export const PlayerGrid = ({
             // Green for ready players
             bgColor = PLAYER_COLORS.READY.bg;
             borderColor = PLAYER_COLORS.READY.border;
-            colorScheme = PLAYER_COLORS.READY.scheme;
           } else if (
             playerFilter === 'WAITING' ||
             (playerFilter === 'ALL' && player.status === 'WAITING')
@@ -154,31 +152,18 @@ export const PlayerGrid = ({
             // Orange color for waiting players (increased intensity)
             bgColor = PLAYER_COLORS.WAITING.bg;
             borderColor = PLAYER_COLORS.WAITING.border;
-            colorScheme = PLAYER_COLORS.WAITING.scheme;
           } else if (player.status === 'PLAYING') {
             // Blue for playing players
             bgColor = PLAYER_COLORS.PLAYING.bg;
             borderColor = PLAYER_COLORS.PLAYING.border;
-            colorScheme = PLAYER_COLORS.PLAYING.scheme;
           } else if (player.status === 'INACTIVE') {
             // Gray for inactive players
             bgColor = PLAYER_COLORS.INACTIVE.bg;
             borderColor = PLAYER_COLORS.INACTIVE.border;
-            colorScheme = PLAYER_COLORS.INACTIVE.scheme;
           } else {
             // Default color for other statuses
             bgColor = PLAYER_COLORS.DEFAULT.bg;
             borderColor = PLAYER_COLORS.DEFAULT.border;
-            colorScheme = PLAYER_COLORS.DEFAULT.scheme;
-          }
-
-          // Priority indicator color (for waiting queue)
-          let priorityColor = 'gray.300';
-          if (
-            playerFilter === 'WAITING' ||
-            (playerFilter === 'ALL' && player.status === 'WAITING')
-          ) {
-            if (index < 4) priorityColor = 'red.400';
           }
 
           return (

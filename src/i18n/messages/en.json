@@ -978,7 +978,13 @@
         "stats": {
           "minutes": "min",
           "currentWait": "Current Wait",
-          "matchesPlayed": "Matches Played"
+          "matchesPlayed": "Matches Played",
+          "title": "Your Statistics",
+          "wins": "Wins",
+          "losses": "Losses",
+          "winRate": "Win Rate",
+          "totalMatches": "Total Matches",
+          "noData": "No stats available"
         },
         "queue": {
           "title": "Queue Position",
@@ -1032,9 +1038,27 @@
     "validationError": "Validation error"
   },
   "SessionDetail": {
+    "playerStatsTitle": "Personal Statistics",
+    "stats": {
+      "wins": "Wins",
+      "losses": "Losses",
+      "winRate": "Win Rate",
+      "totalMatches": "Total Matches",
+      "noData": "No data available"
+    },
+    "overview": "Overview",
+    "information": "Information",
+    "sessionName": "Name",
+    "host": "Host",
     "requiredLevels": "Required Levels",
     "allLevels": "All Levels",
+    "location": "Location",
+    "date": "Date",
+    "time": "Time",
     "sessionTime": "Time",
+    "numberOfCourts": "Number of Courts",
+    "maxPlayersPerCourt": "Max Players/Court",
+    "description": "Description",
     "status": "Status",
     "notStartedYet": "Not started yet",
     "startTime": "Start Time",
@@ -1181,27 +1205,32 @@
       "noPlayersFound": "No players found for {status} status"
     },
     "matchs": {
-      "tabTitle": "Matches"
+      "tabTitle": "Results"
+    },
+    "results": {
+      "filter": {
+        "court": "Court",
+        "result": "Result"
+      },
+      "allCourts": "All courts",
+      "allResults": "All results",
+      "win": "Win",
+      "loss": "Loss",
+      "draw": "Draw",
+      "noMatchesFound": "No matches found",
+      "noMatchesDescription": "No matches found matching your filters."
     },
     "title": "Session",
-    "overview": "Overview",
     "quickActions": "Quick Actions",
     "copyCode": "Copy Code",
     "copyJoinLink": "Copy Join Link",
     "noLocation": "No location",
     "notScheduled": "Not scheduled",
-    "sessionName": "Name",
-    "host": "Host",
-    "date":"Date",
-    "location": "Location",
-    "numberOfCourts": "Number of Courts",
-    "maxPlayersPerCourt": "Max Players/Court",
     "requirePlayerInfo": "Require Player Info",
     "allowGuestJoin": "Allow Guest Join",
     "allowNewPlayers": "Allow New Players",
     "yes": "Yes",
-    "no": "No",
-    "description": "Description"
+    "no": "No"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Failed to load player statistics.",

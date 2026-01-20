@@ -672,7 +672,13 @@
         "stats": {
           "minutes": "phút",
           "currentWait": "Thời gian chờ",
-          "matchesPlayed": "Trận đã chơi"
+          "matchesPlayed": "Trận đã chơi",
+          "title": "Thống kê của bạn",
+          "wins": "Thắng",
+          "losses": "Thua",
+          "winRate": "Tỷ lệ thắng",
+          "totalMatches": "Tổng trận",
+          "noData": "Chưa có thống kê"
         },
         "queue": {
           "title": "Vị trí trong hàng chờ",
@@ -1032,9 +1038,27 @@
     "validationError": "Lỗi xác thực"
   },
   "SessionDetail": {
+    "playerStatsTitle": "Thống kê cá nhân",
+    "stats": {
+      "wins": "Thắng",
+      "losses": "Thua",
+      "winRate": "Tỷ lệ thắng",
+      "totalMatches": "Tổng số trận",
+      "noData": "Chưa có thống kê"
+    },
+    "overview": "Tổng quan",
+    "information": "Thông tin",
+    "sessionName": "Tên kèo",
+    "host": "Chủ kèo",
     "requiredLevels": "Trình độ yêu cầu",
     "allLevels": "Tất cả trình độ",
+    "location": "Địa điểm",
+    "date": "Ngày",
+    "time": "Giờ",
     "sessionTime": "Thời gian",
+    "numberOfCourts": "Số lượng sân",
+    "maxPlayersPerCourt": "Số người/sân",
+    "description": "Mô tả",
     "status": "Trạng thái",
     "notStartedYet": "Chưa bắt đầu",
     "startTime": "Thời gian bắt đầu",
@@ -1181,27 +1205,32 @@
       "noPlayersFound": "Không tìm thấy người chơi nào có trạng thái {status}"
     },
     "matchs": {
-      "tabTitle": "Trận đấu"
+      "tabTitle": "Kết quả"
+    },
+    "results": {
+      "filter": {
+        "court": "Sân",
+        "result": "Kết quả"
+      },
+      "allCourts": "Tất cả sân",
+      "allResults": "Tất cả kết quả",
+      "win": "Thắng",
+      "loss": "Thua",
+      "draw": "Hòa",
+      "noMatchesFound": "Không tìm thấy trận đấu",
+      "noMatchesDescription": "Không tìm thấy trận đấu nào phù hợp với bộ lọc."
     },
     "title": "Kèo",
-    "overview": "Tổng quan",
     "quickActions": "Thao tác nhanh",
     "copyCode": "Sao chép mã",
     "copyJoinLink": "Sao chép link tham gia",
     "noLocation": "Chưa có địa điểm",
     "notScheduled": "Chưa có lịch",
-    "sessionName": "Tên",
-    "host": "Host",
-    "date":"Ngày",
-    "location": "Địa điểm",
-    "numberOfCourts": "Số lượng sân",
-    "maxPlayersPerCourt": "Số người chơi tối đa / sân",
     "requirePlayerInfo": "Yêu cầu thông tin người chơi",
     "allowGuestJoin": "Cho phép khách tham gia",
     "allowNewPlayers": "Cho phép người chơi mới",
     "yes": "Có",
-    "no": "Không",
-    "description": "Mô tả"
+    "no": "Không"
   },
   "SessionPlayerStatistics": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",
