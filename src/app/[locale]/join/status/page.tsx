@@ -2,7 +2,7 @@
 
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import { UserRole } from '@/lib/api/types';
+import { UserRole, PlayerStatus } from '@/lib/api/types';
 import CourtsTab from '@/components/session/CourtsTab';
 import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
 import { IconButton } from '@/components/ui/chakra-compat';
@@ -36,6 +36,23 @@ import { Suspense, useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { ISession } from '@/lib/api/types';
 
+// Constants
+const REFRESH_INTERVAL_SECONDS = 60;
+const BACKGROUND_REFRESH_MS = 1000;
+
+// Enums
+enum PageError {
+  MISSING_PLAYER_ID = 'MISSING_PLAYER_ID',
+  PLAYER_NOT_FOUND = 'PLAYER_NOT_FOUND',
+  GENERAL_ERROR = 'GENERAL_ERROR',
+}
+
+enum StatusPageTab {
+  STATUS = 0,
+  COURTS = 1,
+  PLAYERS = 2,
+}
+
 function StatusPageContent() {
   const searchParams = useSearchParams();
   const playerId = searchParams.get('playerId');
@@ -43,19 +60,19 @@ function StatusPageContent() {
   const common = useTranslations('common');
   // const { data: sessionData } = useSession();
   // console.log(sessionData);
-  const [refreshInterval, setRefreshInterval] = useState(60); // seconds
+  const [refreshInterval, setRefreshInterval] = useState(REFRESH_INTERVAL_SECONDS);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // For background refresh
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PageError | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
   const [session, setSession] = useState<ISession | null>(null);
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
-  const [activeTab, setActiveTab] = useState<number>(0); // 0: Status, 1: Courts, 2: Players
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
+  const [activeTab, setActiveTab] = useState<StatusPageTab>(StatusPageTab.STATUS);
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>([]);
 
   // Helper function to format elapsed time for match display
   const formatMatchElapsedTime = (startTime: Date): string => {
@@ -93,7 +110,7 @@ function StatusPageContent() {
 
   // Helper function to get waiting players
   const getWaitingPlayers = () => {
-    return session?.players?.filter((p) => p.status === 'WAITING') || [];
+    return session?.players?.filter((p) => p.status === PlayerStatus.WAITING) || [];
   };
 
   // Helper function to get active courts
@@ -144,8 +161,8 @@ function StatusPageContent() {
 
           // Get match and court info if player is playing or ready
           if (
-            (playerData.status === 'PLAYING' ||
-              playerData.status === 'READY') &&
+            (playerData.status === PlayerStatus.PLAYING ||
+              playerData.status === PlayerStatus.READY) &&
             playerData.currentCourtId
           ) {
             const court = sessionData.courts?.find(
@@ -178,7 +195,7 @@ function StatusPageContent() {
       if (error.response?.status === 404) {
         // Only set error for initial load, not background refresh
         if (!isBackgroundRefresh) {
-          setError('PLAYER_NOT_FOUND');
+          setError(PageError.PLAYER_NOT_FOUND);
         }
       } else {
         // Only show toast for background refresh errors
@@ -188,7 +205,7 @@ function StatusPageContent() {
           });
           // Don't set error state for background refresh failures
         } else {
-          setError('GENERAL_ERROR');
+          setError(PageError.GENERAL_ERROR);
           toaster.error({ title: t('errors.loadFailed') });
         }
       }
@@ -205,7 +222,7 @@ function StatusPageContent() {
   // Initial data fetch
   useEffect(() => {
     if (!playerId) {
-      setError('MISSING_PLAYER_ID');
+      setError(PageError.MISSING_PLAYER_ID);
       setLoading(false);
       return;
     }
@@ -219,11 +236,11 @@ function StatusPageContent() {
       setRefreshInterval((prev) => {
         if (prev <= 1) {
           fetchPlayerData(true); // Background refresh to prevent white screen
-          return 60;
+          return REFRESH_INTERVAL_SECONDS;
         }
         return prev - 1;
       });
-    }, 1000);
+    }, BACKGROUND_REFRESH_MS);
 
     return () => clearInterval(timer);
   }, [playerId]);
@@ -268,16 +285,16 @@ function StatusPageContent() {
               textAlign="center"
             >
               <Heading size="md" mb={2}>
-                {error === 'MISSING_PLAYER_ID'
+                {error === PageError.MISSING_PLAYER_ID
                   ? t('errors.missingPlayerId')
-                  : error === 'PLAYER_NOT_FOUND'
+                  : error === PageError.PLAYER_NOT_FOUND
                     ? t('errors.playerNotFound')
                     : t('errors.loadFailed')}
               </Heading>
               <Text>
-                {error === 'MISSING_PLAYER_ID'
+                {error === PageError.MISSING_PLAYER_ID
                   ? t('errors.missingPlayerIdDescription')
-                  : error === 'PLAYER_NOT_FOUND'
+                  : error === PageError.PLAYER_NOT_FOUND
                     ? t('errors.playerNotFoundDescription')
                     : t('errors.generalErrorDescription')}
               </Text>
@@ -286,7 +303,7 @@ function StatusPageContent() {
               <NextLinkButton href="/join" colorScheme="blue">
                 {t('errors.returnToJoin')}
               </NextLinkButton>
-              {error === 'GENERAL_ERROR' && (
+              {error === PageError.GENERAL_ERROR && (
                 <NextLinkButton
                   href="#"
                   variant="outline"
@@ -331,7 +348,7 @@ function StatusPageContent() {
             </Box>
 
             {/* Status Tab */}
-            {activeTab === 0 && (
+            {activeTab === StatusPageTab.STATUS && (
               <Box
                 borderWidth="1px"
                 borderRadius="lg"
@@ -382,10 +399,10 @@ function StatusPageContent() {
                           name: player.name || `Player ${player.playerNumber}`,
                         })}
                       </Text>
-                      {player.status === 'PLAYING' ? (
+                      {player.status === PlayerStatus.PLAYING ? (
                         <>
                           <Box mb={1}>
-                            <CheckCircle2 size={28} color="#38A169" />
+                            <CheckCircle2 size={28} color="var(--chakra-colors-green-500)" />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('playing.title')}
@@ -399,10 +416,10 @@ function StatusPageContent() {
                             {` - Enjoy your match!`}
                           </Text>
                         </>
-                      ) : player.status === 'WAITING' ? (
+                      ) : player.status === PlayerStatus.WAITING ? (
                         <>
                           <Box mb={1}>
-                            <Clock size={28} color="#3182CE" />
+                            <Clock size={28} color="var(--chakra-colors-blue-500)" />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('waiting.title')}
@@ -411,7 +428,7 @@ function StatusPageContent() {
                             {t('waiting.description')}
                           </Text>
                         </>
-                      ) : player.status === 'READY' ? (
+                      ) : player.status === PlayerStatus.READY ? (
                         <>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('ready.title')}
@@ -423,7 +440,7 @@ function StatusPageContent() {
                       ) : (
                         <>
                           <Box mb={1}>
-                            <CheckCircle2 size={28} color="#A0AEC0" />
+                            <CheckCircle2 size={28} color="var(--chakra-colors-gray-400)" />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('finished.title')}
@@ -436,8 +453,8 @@ function StatusPageContent() {
                     </Box>
 
                     {/* Court Visual - Show when player is playing or ready */}
-                    {(player.status === 'PLAYING' ||
-                      player.status === 'READY') &&
+                    {(player.status === PlayerStatus.PLAYING ||
+                      player.status === PlayerStatus.READY) &&
                       currentCourt &&
                       courtPlayers.length > 0 && (
                         <Box
@@ -624,7 +641,7 @@ function StatusPageContent() {
                           _hover: { bg: 'blue.900', borderColor: 'blue.700' },
                         }}
                       >
-                        <Center mb={1}>
+                      <Center mb={1}>
                           <Clock
                             size={16}
                             color="var(--chakra-colors-gray-500)"
@@ -681,7 +698,7 @@ function StatusPageContent() {
             )}
 
             {/* Courts Tab */}
-            {activeTab === 1 && (
+            {activeTab === StatusPageTab.COURTS && (
               <CourtsTab
                 session={session}
                 waitingPlayers={getWaitingPlayers()}
@@ -695,7 +712,7 @@ function StatusPageContent() {
             )}
 
             {/* Players Tab */}
-            {activeTab === 2 && (
+            {activeTab === StatusPageTab.PLAYERS && (
               <PlayersTab
                 sessionPlayers={session.players || []}
                 playerFilter={playerFilter}
@@ -727,12 +744,12 @@ function StatusPageContent() {
             as="button"
             flex={1}
             py={2}
-            onClick={() => setActiveTab(0)}
+            onClick={() => setActiveTab(StatusPageTab.STATUS)}
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 0 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 0 ? 'bold' : 'normal'}
+            color={activeTab === StatusPageTab.STATUS ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === StatusPageTab.STATUS ? 'bold' : 'normal'}
           >
             <Box as={User} boxSize={6} mb={1} />
             Status
@@ -741,12 +758,12 @@ function StatusPageContent() {
             as="button"
             flex={1}
             py={2}
-            onClick={() => setActiveTab(1)}
+            onClick={() => setActiveTab(StatusPageTab.COURTS)}
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 1 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 1 ? 'bold' : 'normal'}
+            color={activeTab === StatusPageTab.COURTS ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === StatusPageTab.COURTS ? 'bold' : 'normal'}
           >
             <Box as={Activity} boxSize={6} mb={1} />
             Courts
@@ -755,12 +772,12 @@ function StatusPageContent() {
             as="button"
             flex={1}
             py={2}
-            onClick={() => setActiveTab(2)}
+            onClick={() => setActiveTab(StatusPageTab.PLAYERS)}
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === 2 ? 'blue.500' : 'gray.500'}
-            fontWeight={activeTab === 2 ? 'bold' : 'normal'}
+            color={activeTab === StatusPageTab.PLAYERS ? 'blue.500' : 'gray.500'}
+            fontWeight={activeTab === StatusPageTab.PLAYERS ? 'bold' : 'normal'}
           >
             <Box as={Users} boxSize={6} mb={1} />
             Players

@@ -304,11 +304,11 @@ export const usePlayerManagement = (
         onDataRefresh();
       }
 
-      toaster.create({
-        title: t('playerUpdatedSuccess'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('playerUpdatedSuccess'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error updating player:', error);
       toaster.create({
@@ -341,11 +341,11 @@ export const usePlayerManagement = (
       if (onDataRefresh) {
         onDataRefresh();
       }
-      toaster.create({
-        title: t('playerDeletedSuccess', { name: playerName }),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('playerDeletedSuccess', { name: playerName }),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error deleting player:', error);
       toaster.create({

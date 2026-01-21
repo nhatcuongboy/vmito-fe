@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import { SessionData } from './useSessionData';
+import { SessionStatus } from '@/lib/api/types';
 
 interface UseSessionManagementProps {
   session: SessionData;
@@ -48,7 +49,7 @@ export function useSessionManagement({
     try {
       setIsToggleStatusLoading(true);
 
-      if (nextStatus === 'FINISHED') {
+      if (nextStatus === SessionStatus.FINISHED) {
         // Use endSession API for comprehensive cleanup
         const result = await SessionService.endSession(session.id);
 
@@ -84,14 +85,14 @@ export function useSessionManagement({
         });
       }
 
-      toaster.create({
-        title:
-          nextStatus === 'IN_PROGRESS'
-            ? t('sessionStarted')
-            : t('sessionEnded'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title:
+      //     nextStatus === SessionStatus.IN_PROGRESS
+      //       ? t('sessionStarted')
+      //       : t('sessionEnded'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error updating session status:', error);
       toaster.create({
@@ -108,16 +109,16 @@ export function useSessionManagement({
   const toggleSessionStatus = async () => {
     // Determine the next status
     let nextStatus = session.status;
-    if (session.status === 'PREPARING') {
-      nextStatus = 'IN_PROGRESS';
-    } else if (session.status === 'IN_PROGRESS') {
-      nextStatus = 'FINISHED';
+    if (session.status === SessionStatus.PREPARING) {
+      nextStatus = SessionStatus.IN_PROGRESS;
+    } else if (session.status === SessionStatus.IN_PROGRESS) {
+      nextStatus = SessionStatus.FINISHED;
     } else {
       return; // No change if already FINISHED
     }
 
     // Show confirmation dialog for ending session
-    if (nextStatus === 'FINISHED') {
+    if (nextStatus === SessionStatus.FINISHED) {
       setPendingAction('end');
       setShowConfirmDialog(true);
       return;
@@ -131,7 +132,7 @@ export function useSessionManagement({
   const handleConfirmAction = async () => {
     setShowConfirmDialog(false);
     if (pendingAction === 'end') {
-      await executeStatusChange('FINISHED');
+      await executeStatusChange(SessionStatus.FINISHED);
     }
     setPendingAction('');
   };

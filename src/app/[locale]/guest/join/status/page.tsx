@@ -2,7 +2,15 @@
 
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import { UserRole } from '@/lib/api/types';
+import {
+  UserRole,
+  type Court,
+  type Match,
+  type Player,
+  type ISession,
+  type PlayerStatistics,
+  PlayerStatus,
+} from '@/lib/api/types';
 import CourtsTab from '@/components/session/CourtsTab';
 import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
 import { IconButton } from '@/components/ui/chakra-compat';
@@ -10,7 +18,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
-import { type Court, type Match, type Player } from '@/lib/api/types';
+
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
   Box,
@@ -34,7 +42,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { ISession } from '@/lib/api/types';
+
 
 function StatusPageContent() {
   const searchParams = useSearchParams();
@@ -56,7 +64,7 @@ function StatusPageContent() {
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0); // 0: Status, 1: Courts, 2: Players
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL' as unknown as PlayerFilter);
 
   // Helper function to format elapsed time for match display
   const formatMatchElapsedTime = (startTime: Date): string => {
@@ -94,7 +102,7 @@ function StatusPageContent() {
 
   // Helper function to get waiting players
   const getWaitingPlayers = () => {
-    return session?.players?.filter((p) => p.status === 'WAITING') || [];
+    return session?.players?.filter((p) => p.status === PlayerStatus.WAITING) || [];
   };
 
 
@@ -136,8 +144,8 @@ function StatusPageContent() {
 
           // Get match and court info if player is playing or ready
           if (
-            (playerData.status === 'PLAYING' ||
-              playerData.status === 'READY') &&
+            (playerData.status === PlayerStatus.PLAYING ||
+              playerData.status === PlayerStatus.READY) &&
             playerData.currentCourtId
           ) {
             const court = sessionData.courts?.find(
@@ -377,7 +385,7 @@ function StatusPageContent() {
                           name: player.name || `Player ${player.playerNumber}`,
                         })}
                       </Text>
-                      {player.status === 'PLAYING' ? (
+                      {player.status === PlayerStatus.PLAYING ? (
                         <>
                           <Box mb={1}>
                             <CheckCircle2 size={28} color="#38A169" />
@@ -394,7 +402,7 @@ function StatusPageContent() {
                             {` - Enjoy your match!`}
                           </Text>
                         </>
-                      ) : player.status === 'WAITING' ? (
+                      ) : player.status === PlayerStatus.WAITING ? (
                         <>
                           <Box mb={1}>
                             <Clock size={28} color="#3182CE" />
@@ -406,7 +414,7 @@ function StatusPageContent() {
                             {t('waiting.description')}
                           </Text>
                         </>
-                      ) : player.status === 'READY' ? (
+                      ) : player.status === PlayerStatus.READY ? (
                         <>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('ready.title')}
@@ -431,8 +439,8 @@ function StatusPageContent() {
                     </Box>
 
                     {/* Court Visual - Show when player is playing or ready */}
-                    {(player.status === 'PLAYING' ||
-                      player.status === 'READY') &&
+                    {(player.status === PlayerStatus.PLAYING ||
+                      player.status === PlayerStatus.READY) &&
                       currentCourt &&
                       courtPlayers.length > 0 && (
                         <Box

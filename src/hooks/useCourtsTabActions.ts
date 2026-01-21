@@ -69,12 +69,12 @@ export const useCourtsTabActions = ({
         onDataRefresh();
       }
 
-      toaster.create({
-        title: t('courtsTab.playersAssignedToCourt'),
-        description: t('courtsTab.pleaseStartMatchManually'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('courtsTab.playersAssignedToCourt'),
+      //   description: t('courtsTab.pleaseStartMatchManually'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error selecting players for court:', error);
       toaster.create({
@@ -134,12 +134,12 @@ export const useCourtsTabActions = ({
         onDataRefresh();
       }
 
-      toaster.create({
-        title: t('courtsTab.playersAssignedToCourt'),
-        description: t('courtsTab.pleaseStartMatchManually'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('courtsTab.playersAssignedToCourt'),
+      //   description: t('courtsTab.pleaseStartMatchManually'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error selecting players for court:', error);
       toaster.create({
@@ -201,12 +201,12 @@ export const useCourtsTabActions = ({
         onDataRefresh();
       }
 
-      toaster.create({
-        title: t('courtsTab.preSelectCancelled'),
-        description: t('courtsTab.preSelectCancelledDesc'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('courtsTab.preSelectCancelled'),
+      //   description: t('courtsTab.preSelectCancelledDesc'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error cancelling pre-selection:', error);
       toaster.create({
@@ -275,12 +275,12 @@ export const useCourtsTabActions = ({
     try {
       await CourtService.startMatch(courtId);
       if (onDataRefresh) onDataRefresh();
-      toaster.create({
-        title: t('courtsTab.matchStartedSuccessfully'),
-        description: t('courtsTab.matchHasStarted'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('courtsTab.matchStartedSuccessfully'),
+      //   description: t('courtsTab.matchHasStarted'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } finally {
       setLoadingStartMatchCourtId(null);
     }
@@ -295,12 +295,12 @@ export const useCourtsTabActions = ({
     try {
       await CourtService.deselectPlayers(courtId);
       if (onDataRefresh) onDataRefresh();
-      toaster.create({
-        title: t('courtsTab.playersDeselected'),
-        description: t('courtsTab.courtAvailableForPlay'),
-        type: 'success',
-        duration: 3000,
-      });
+      // toaster.create({
+      //   title: t('courtsTab.playersDeselected'),
+      //   description: t('courtsTab.courtAvailableForPlay'),
+      //   type: 'success',
+      //   duration: 3000,
+      // });
     } catch (error) {
       console.error('Error deselecting players:', error);
     } finally {

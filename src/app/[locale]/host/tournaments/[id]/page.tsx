@@ -89,13 +89,13 @@ export default function TournamentManagePage() {
 
   const getStatusColor = (status: TournamentStatus) => {
     switch (status) {
-      case 'PREPARING':
+      case TournamentStatus.PREPARING:
         return 'yellow';
-      case 'IN_PROGRESS':
+      case TournamentStatus.IN_PROGRESS:
         return 'green';
-      case 'FINISHED':
+      case TournamentStatus.FINISHED:
         return 'gray';
-      case 'CANCELLED':
+      case TournamentStatus.CANCELLED:
         return 'red';
       default:
         return 'gray';
@@ -107,13 +107,13 @@ export default function TournamentManagePage() {
 
   const getStatusLabel = (status: TournamentStatus) => {
     switch (status) {
-      case 'PREPARING':
+      case TournamentStatus.PREPARING:
         return tStatus('preparing');
-      case 'IN_PROGRESS':
+      case TournamentStatus.IN_PROGRESS:
         return tStatus('inProgress');
-      case 'FINISHED':
+      case TournamentStatus.FINISHED:
         return tStatus('finished');
-      case 'CANCELLED':
+      case TournamentStatus.CANCELLED:
         return tStatus('cancelled');
       default:
         return status;

@@ -166,7 +166,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
         endTime: formData.endTime ? new Date(formData.endTime) : undefined,
       };
       await SessionService.updateSession(session.id, updateData);
-      toaster.success({ title: tValidation('sessionUpdatedSuccessfully') });
+      // toaster.success({ title: tValidation('sessionUpdatedSuccessfully') });
       setShowConfirmDialog(false);
       onDataRefresh();
     } catch (error: unknown) {

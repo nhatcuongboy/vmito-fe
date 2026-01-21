@@ -1387,6 +1387,10 @@
   },
   "PlayerDetailModal": {
     "status": "状态",
+    "playerDetails": "玩家详情",
+    "levelDescription": "水平描述",
+    "phone": "电话",
+    "desire": "期望",
     "level": "等级",
     "gender": "性别",
     "matchesPlayed": "已赛场次",
@@ -1404,7 +1408,9 @@
       "playing": "进行中",
       "waiting": "等待中",
       "ready": "准备就绪",
-      "idle": "空闲"
+      "idle": "空闲",
+      "finished": "已完成",
+      "inactive": "不活跃"
     },
     "genderValues": {
       "male": "男",

@@ -1,5 +1,5 @@
 'use client';
-import { UserRole } from '@/lib/api/types';
+import { UserRole, SessionStatus } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import SessionsList from '@/components/session/SessionsList';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
@@ -16,9 +16,9 @@ export default function HostSessionsPage() {
 
   const statusOptions = [
     { value: 'ALL', label: t('sessionStatus.all') },
-    { value: 'PREPARING', label: t('sessionStatus.preparing') },
-    { value: 'IN_PROGRESS', label: t('sessionStatus.inProgress') },
-    { value: 'FINISHED', label: t('sessionStatus.finished') },
+    { value: SessionStatus.PREPARING, label: t('sessionStatus.preparing') },
+    { value: SessionStatus.IN_PROGRESS, label: t('sessionStatus.inProgress') },
+    { value: SessionStatus.FINISHED, label: t('sessionStatus.finished') },
   ];
 
   return (

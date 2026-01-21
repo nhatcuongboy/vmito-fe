@@ -11,6 +11,7 @@ import {
   Image,
   Separator,
   Collapsible,
+  Avatar,
 } from '@chakra-ui/react';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { CommonModal } from '@/components/ui/CommonModal';
@@ -35,26 +36,7 @@ import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
 
-interface Player {
-  id: string;
-  playerNumber: number;
-  name?: string;
-  gender?: string;
-  level?: number;
-  status: string;
-  currentWaitTime: number;
-  totalWaitTime: number;
-  matchesPlayed: number;
-  currentCourtId?: string;
-  currentCourt?: {
-    id: string;
-    courtNumber: number;
-    courtName?: string | null;
-  };
-  preFilledByHost: boolean;
-  confirmedByPlayer: boolean;
-  joinCode?: string;
-}
+import { Player } from '@/lib/api/types';
 
 interface IPlayerDetailModalProps {
   isOpen: boolean;
@@ -126,7 +108,7 @@ export const PlayerDetailModal = ({
             #{player.playerNumber}
           </Box>
           <Text fontSize="xl" fontWeight="bold" letterSpacing="tight">
-            {player.name || `Player ${player.playerNumber}`}
+            {t('playerDetails')}
           </Text>
         </HStack>
       }
@@ -134,6 +116,26 @@ export const PlayerDetailModal = ({
       showCloseButton={true}
     >
       <VStack gap={0} align="stretch">
+        {/* Player Header Avatar & Name */}
+        <VStack gap={4} mb={6} align="center">
+          <Box position="relative">
+            <Avatar.Root
+              boxSize="80px"
+              borderRadius="full"
+              borderWidth="2px"
+              borderColor="blue.500"
+            >
+              <Avatar.Fallback name={player.name || `Player ${player.playerNumber}`}>
+                <User size={40} />
+              </Avatar.Fallback>
+              <Avatar.Image src={player.user?.image || ''} />
+            </Avatar.Root>
+          </Box>
+          <Text fontSize="2xl" fontWeight="bold" textAlign="center">
+            {player.name || `Player ${player.playerNumber}`}
+          </Text>
+        </VStack>
+
         {/* Player Info Stats Grid */}
         <VStack gap={1} align="stretch" mb={4}>
           <InfoRow
@@ -156,16 +158,6 @@ export const PlayerDetailModal = ({
                 px={3}
               >
                 {t(`statusValues.${player.status.toLowerCase()}`)}
-              </Badge>
-            }
-          />
-
-          <InfoRow
-            icon={<Trophy size={16} />}
-            label={t('level')}
-            value={
-              <Badge variant="subtle" colorPalette="purple" size="sm">
-                {getLevelLabel(player.level)}
               </Badge>
             }
           />
@@ -200,6 +192,52 @@ export const PlayerDetailModal = ({
               </Badge>
             }
           />
+
+           <InfoRow
+            icon={<Trophy size={16} />}
+            label={t('level')}
+            value={
+              <Badge variant="subtle" colorPalette="purple" size="sm">
+                {getLevelLabel(player.level)}
+              </Badge>
+            }
+          />
+
+          {player.phone && (
+            <InfoRow
+              icon={<Users size={16} />}
+              label={t('phone')}
+              value={
+                <Text fontWeight="medium" color="gray.800">
+                  {player.phone}
+                </Text>
+              }
+            />
+          )}
+
+          {player.levelDescription && (
+            <InfoRow
+              icon={<Activity size={16} />}
+              label={t('levelDescription')}
+              value={
+                <Text fontWeight="medium" color="gray.800">
+                  {player.levelDescription}
+                </Text>
+              }
+            />
+          )}
+
+           {player.desire && (
+            <InfoRow
+              icon={<Trophy size={16} />}
+              label={t('desire')}
+              value={
+                <Text fontWeight="medium" color="gray.800">
+                  {player.desire}
+                </Text>
+              }
+            />
+          )}
 
           <Separator my={2} opacity={0.5} />
 

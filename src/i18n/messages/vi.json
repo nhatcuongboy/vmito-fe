@@ -1390,6 +1390,10 @@
   },
   "PlayerDetailModal": {
     "status": "Trạng thái",
+    "playerDetails": "Chi tiết người chơi",
+    "levelDescription": "Mô tả trình độ",
+    "phone": "Số điện thoại",
+    "desire": "Mong muốn",
     "level": "Trình độ",
     "gender": "Giới tính",
     "matchesPlayed": "Trận đã chơi",
@@ -1407,7 +1411,9 @@
       "playing": "Đang chơi",
       "waiting": "Đang chờ",
       "ready": "Sẵn sàng",
-      "idle": "Nghỉ"
+      "idle": "Nghỉ",
+      "finished": "Đã xong",
+      "inactive": "Không hoạt động"
     },
     "genderValues": {
       "male": "Nam",

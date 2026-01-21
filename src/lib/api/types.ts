@@ -30,6 +30,38 @@ export enum Gender {
 
 export type GenderType = 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
 
+// Enums synced with Backend
+export enum SessionStatus {
+  PREPARING = 'PREPARING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+}
+
+export enum CourtStatus {
+  EMPTY = 'EMPTY',
+  IN_USE = 'IN_USE',
+  READY = 'READY',
+}
+
+export enum PlayerStatus {
+  WAITING = 'WAITING',
+  PLAYING = 'PLAYING',
+  FINISHED = 'FINISHED',
+  READY = 'READY',
+  INACTIVE = 'INACTIVE',
+}
+
+export enum PlayerLevel {
+  BEGINNER = 1,
+  ADVANCED_BEGINNER = 2,
+  LOW_INTERMEDIATE = 3,
+  INTERMEDIATE = 4,
+  HIGH_INTERMEDIATE = 5,
+  ADVANCED = 6,
+  SEMI_PRO = 7,
+  PRO = 8,
+}
+
 // Session types
 export interface ISession {
   id: string;
@@ -48,7 +80,7 @@ export interface ISession {
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
   courtColor?: string;
-  status: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
+  status: SessionStatus;
   startTime?: Date;
   endTime?: Date;
   createdAt: Date;
@@ -76,7 +108,7 @@ export interface Player {
   currentWaitTime: number;
   totalWaitTime: number;
   matchesPlayed: number;
-  status: 'WAITING' | 'PLAYING' | 'FINISHED' | 'READY' | 'INACTIVE';
+  status: PlayerStatus;
   registrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   currentCourtId?: string;
   currentCourt?: Court;
@@ -102,7 +134,7 @@ export interface Court {
   courtNumber: number;
   courtName?: string;
   direction: CourtDirection;
-  status: 'EMPTY' | 'IN_USE' | 'READY';
+  status: CourtStatus;
   currentPlayers?: Player[];
   currentMatchId?: string;
   currentMatch?: Match;
@@ -139,6 +171,7 @@ export interface MatchPlayer {
   playerId: string;
   player: Player;
   position: number;
+  match?: Match;
 }
 
 // Player statistics response type
@@ -157,7 +190,7 @@ export interface PlayerStatistics {
   averageScore: number;
   totalPlayTime: number;
   totalWaitTime: number;
-  status: string;
+  status: PlayerStatus;
 }
 
 // Bulk Player types

@@ -27,7 +27,7 @@ import BottomNavigationBar, {
 import { CommonModal } from '@/components/ui/CommonModal';
 
 // Types and Utils
-import { UserRole } from '@/lib/api/types';
+import { UserRole, SessionStatus } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
@@ -74,7 +74,7 @@ export default function HostSessionPage({
 
   const { refreshSessionData, isRefreshing } = useSessionRefresh({
     sessionId: session?.id || sessionId,
-    sessionStatus: session?.status || 'PREPARING',
+    sessionStatus: session?.status || SessionStatus.PREPARING,
     onSessionUpdate: setSession,
   });
 
@@ -194,9 +194,9 @@ export default function HostSessionPage({
         <Container maxW="7xl" py={2}>
           {/* Tab Content Area */}
           <Box minH="60vh" pb="80px">
-            {session.status !== 'IN_PROGRESS' && activeTab !== 0 && (
+            {session.status !== SessionStatus.IN_PROGRESS && activeTab !== 0 && (
               <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
-                {session.status === 'PREPARING'
+                {session.status === SessionStatus.PREPARING
                   ? t('courtsTab.startSessionToBeginMatches')
                   : t('courtsTab.sessionHasEnded')}
               </Text>
