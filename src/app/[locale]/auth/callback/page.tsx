@@ -22,6 +22,7 @@ function AuthCallbackContent() {
     const email = searchParams.get('email');
     const name = searchParams.get('name');
     const role = searchParams.get('role');
+    const image = searchParams.get('image');
 
     if (token && userId && email && role) {
       // Store auth data
@@ -31,6 +32,7 @@ function AuthCallbackContent() {
           email: email,
           name: name || '',
           role: role as UserRole,
+          image: image,
         },
         token
       );

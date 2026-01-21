@@ -57,10 +57,16 @@
       "8": "职业"
     },
     "gender": "性别",
+    "male": "男",
+    "female": "女",
+    "other": "其他",
+    "preferNotToSay": "不愿透露",
     "level": "等级",
     "matchesPlayed": "已赛场次",
     "pair": "搭档",
-    "waitTime": "等待时间"
+    "waitTime": "等待时间",
+    "playerName": "玩家姓名",
+    "status": "状态"
   },
   "session": {
     "title": "羽毛球场次",
@@ -370,6 +376,7 @@
       "saveAll": "保存所有 ({count})",
       "existingPlayers": "现有玩家 ({count})",
       "newPlayersTitle": "新玩家 ({count})",
+      "addPlayerModalTitle": "添加玩家 ({count})",
       "newPlayers": "新玩家 ({count})",
       "newPlayer": "新玩家",
       "existing": "现有",
@@ -401,10 +408,19 @@
       "saveChanges": "保存更改",
       "cancelEditing": "取消编辑",
       "editingPlayer": "正在编辑玩家",
+      "editPlayerModalTitle": "编辑玩家 #{number}",
       "addNewPlayer": "添加新玩家",
       "noPlayersYet": "此场次中尚未有玩家",
       "noPlayersYetDescription": "使用上方的“添加玩家”按钮添加一些玩家以开始！",
       "noPlayersDescription": "使用上方的“添加玩家”按钮添加一些玩家以开始！",
+      "noPlayersWithFilter": "没有符合此状态的玩家",
+      "noPlayersWithFilterDescription": "此场次中没有状态为\"{status}\"的玩家。",
+      "filter": {
+        "playing": "进行中",
+        "waiting": "等待中",
+        "ready": "准备就绪",
+        "inactive": "不活跃"
+      },
       "addYourFirstPlayer": "添加您的第一个玩家",
       "clickEditToModify": "点击编辑以修改玩家信息",
       "limitWarning": "已达到建议的玩家上限",
@@ -1032,6 +1048,13 @@
     "validationError": "验证错误"
   },
   "SessionDetail": {
+    "common": {
+      "cancel": "取消"
+    },
+    "tabOverview": "概览",
+    "tabStatus": "我的状态",
+    "tabCourts": "场地",
+    "tabResults": "结果",
     "playerStatsTitle": "个人统计",
     "stats": {
       "wins": "胜",
@@ -1098,8 +1121,9 @@
     "failedToUpdatePlayer": "更新玩家失败",
     "unknownError": "未知错误",
     "failedToDeletePlayer": "删除玩家失败",
+    "noPlayersAvailable": "没有可用玩家",
     "courtsTab": {
-      "activeCourts": "场地状态",
+      "activeCourts": "场地",
       "startSessionToBeginMatches": "开始场次以开始比赛",
       "sessionHasEnded": "场次已结束",
       "courtNumber": "场地 {number}",
@@ -1126,8 +1150,8 @@
       "back": "返回",
       "cancel": "取消",
       "confirmAndStartMatch": "确认并开始比赛",
-      "confirmMatch": "确认比赛",
-      "confirmMatchManual": "确认比赛 ({count}/4)",
+      "confirmMatch": "确认",
+      "confirmMatchManual": "确认 ({count}/4)",
       "manualPlayerSelectionTitle": "手动选择玩家 - 场地 {courtNumber}",
       "selectedPlayersCount": "已选玩家 ({count}/4)：",
       "pairNumber": "组合 {number}",
@@ -1187,6 +1211,11 @@
       "playerStatistics": "玩家统计数据",
       "managePlayers": "管理玩家",
       "gridView": "网格视图",
+      "grid": "网格",
+      "list": "列表",
+      "backToPlayers": "返回玩家",
+      "filter": "筛选",
+      "clearFilter": "清除筛选",
       "noPlayersFound": "未找到状态为 {status} 的玩家"
     },
     "matchs": {
@@ -1229,12 +1258,16 @@
     "yes": "是",
     "no": "否"
   },
-  "SessionPlayerStatistics": {
+  "SessionPlayers": {
     "errorLoadingStats": "加载玩家统计数据失败。",
     "noDataAvailable": "没有可用的玩家统计数据。",
     "tableCaption": "此场次的玩家统计数据",
     "columnNo": "序号",
     "columnName": "姓名",
+    "columnGender": "性别",
+    "columnLevel": "等级",
+    "columnAction": "操作",
+    "actionPlaceholder": "...",
     "columnTotalMatches": "总比赛数",
     "columnRegularMatches": "正赛",
     "columnExtraMatches": "加赛",
@@ -1313,6 +1346,16 @@
       "passwordTooShort": "密码至少需要 6 个字符",
       "accountCreated": "账户创建成功！请登录。",
       "registrationFailed": "注册失败"
+    },
+    "guard": {
+      "authenticating": "正在验证...",
+      "redirectingToSignIn": "正在重定向到登录...",
+      "accessDenied": "访问被拒绝",
+      "permissionDenied": "您没有权限访问此页面。",
+      "requiredRole": "所需角色：",
+      "yourRole": "您的角色：",
+      "unknown": "未知",
+      "goHome": "返回首页"
     }
   },
   "admin": {
@@ -1341,5 +1384,32 @@
     "failedToUpdateUser": "更新用户失败",
     "failedToDeleteUser": "删除用户失败",
     "accessDenied": "拒绝访问。仅限管理员。"
+  },
+  "PlayerDetailModal": {
+    "status": "状态",
+    "level": "等级",
+    "gender": "性别",
+    "matchesPlayed": "已赛场次",
+    "waitTime": "等待时间",
+    "totalWaitTime": "总等待时间",
+    "currentCourt": "当前场地",
+    "joinSessionInfo": "加入场次信息",
+    "qrCodeDescription": "玩家可以扫描此二维码或使用链接直接加入。",
+    "copyUrl": "复制链接",
+    "copyId": "复制代码",
+    "joinCodeCopied": "已复制加入代码!",
+    "joinUrlCopied": "已复制加入链接!",
+    "unknown": "未知",
+    "statusValues": {
+      "playing": "进行中",
+      "waiting": "等待中",
+      "ready": "准备就绪",
+      "idle": "空闲"
+    },
+    "genderValues": {
+      "male": "男",
+      "female": "女",
+      "other": "其他"
+    }
   }
 }

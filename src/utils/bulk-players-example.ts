@@ -1,5 +1,7 @@
-import { BulkPlayerData } from '@/lib/api/types';
+import { BulkPlayerData, GenderType } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
+
+const VALID_GENDERS: GenderType[] = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'];
 
 // Function to create players from CSV data
 export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
@@ -22,7 +24,7 @@ export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {
           player.name = value;
           break;
         case 'gender':
-          player.gender = value.toUpperCase() as 'MALE' | 'FEMALE';
+          player.gender = value.toUpperCase() as GenderType;
           break;
         case 'level':
           const parsedLevel = parseInt(value);
@@ -85,7 +87,7 @@ export function validateBulkPlayerData(
     }
 
     // Validate gender if provided
-    if (player.gender && !['MALE', 'FEMALE'].includes(player.gender)) {
+    if (player.gender && !VALID_GENDERS.includes(player.gender)) {
       errors.push(`Player ${index + 1}: invalid gender "${player.gender}"`);
     }
 

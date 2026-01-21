@@ -6,6 +6,7 @@ import PlayerSessionBottomNav from '@/components/session/PlayerSessionBottomNav'
 import PlayerStatusTab from '@/components/session/PlayerStatusTab';
 import PlayerMatchHistory from '@/components/session/PlayerMatchHistory';
 import SessionInfo from '@/components/session/SessionInfo';
+import OverviewPlayerTable from '@/components/session/OverviewPlayerTable';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
@@ -283,27 +284,30 @@ export default function PlayerSessionView({
           <Box minH="60vh">
             {/* Overview Tab */}
             {activeTab === 0 && (
-              <Box
-                p={6}
-                bg="white"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                borderRadius="xl"
-                shadow="sm"
-                border="1px solid"
-                borderColor="gray.100"
-              >
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  mb={4}
-                  textTransform="uppercase"
-                  letterSpacing="wider"
+              <>
+                <Box
+                  p={6}
+                  bg="white"
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                  borderRadius="xl"
+                  shadow="sm"
+                  border="1px solid"
+                  borderColor="gray.100"
                 >
-                  {sessionT('information')}
-                </Text>
-                <SessionInfo session={session} player={player} />
-              </Box>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={4}
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    {sessionT('information')}
+                  </Text>
+                  <SessionInfo session={session} player={player} />
+                </Box>
+                <OverviewPlayerTable players={session.players || []} />
+              </>
             )}
 
             {/* Status Tab */}

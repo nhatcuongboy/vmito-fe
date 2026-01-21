@@ -193,8 +193,23 @@ export default function SlideOutMenu({
                       color="white"
                       fontSize="sm"
                       fontWeight="bold"
+                      overflow="hidden"
                     >
-                      {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                      {user.image ? (
+                        <Box
+                          as="img"
+                          // @ts-expect-error - src and alt are valid for as="img"
+                          src={user.image}
+                          alt={user.name || 'User'}
+                          width="100%"
+                          height="100%"
+                          objectFit="cover"
+                        />
+                      ) : (
+                        (user.name || user.email || 'U')
+                          .charAt(0)
+                          .toUpperCase()
+                      )}
                     </Box>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium">

@@ -1,7 +1,5 @@
 import { api } from './base';
-import { ApiResponse } from './types';
-
-import { UserRole } from './types';
+import { ApiResponse, UserRole, GenderType } from './types';
 
 export interface User {
   id: string;
@@ -9,7 +7,7 @@ export interface User {
   name: string;
   role: UserRole;
   image?: string;
-  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+  gender?: GenderType;
   level?: number;
   levelDescription?: string;
   phone?: string;
@@ -23,14 +21,14 @@ export interface CreateUserData {
   name: string;
   password?: string;
   role: UserRole;
-  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+  gender?: GenderType;
   phone?: string;
 }
 
 export interface UpdateUserData {
   name?: string;
   phone?: string;
-  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+  gender?: GenderType;
   level?: number;
   levelDescription?: string;
   image?: string;

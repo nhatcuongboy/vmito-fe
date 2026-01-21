@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
+import { useTranslations } from 'next-intl';
 
 interface Player {
   id: string;
@@ -70,6 +71,7 @@ export const PlayerDetailModal = ({
   sessionId,
   formatWaitTime,
 }: IPlayerDetailModalProps) => {
+  const t = useTranslations('PlayerDetailModal');
   const { getLevelLabel } = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [joinCode, setJoinCode] = useState<string>('');
@@ -92,7 +94,7 @@ export const PlayerDetailModal = ({
   const handleCopyCode = () => {
     if (player.joinCode) {
       navigator.clipboard.writeText(player.joinCode);
-      toaster.success({ title: 'Join code copied to clipboard!' });
+      toaster.success({ title: t('joinCodeCopied') });
     }
   };
 
@@ -100,7 +102,7 @@ export const PlayerDetailModal = ({
     if (player.joinCode) {
       const joinUrl = `${window.location.origin}/player/${player.id}?code=${player.joinCode}`;
       navigator.clipboard.writeText(joinUrl);
-      toaster.success({ title: 'Join URL copied to clipboard!' });
+      toaster.success({ title: t('joinUrlCopied') });
     }
   };
 
@@ -136,7 +138,7 @@ export const PlayerDetailModal = ({
         <VStack gap={1} align="stretch" mb={4}>
           <InfoRow
             icon={<Activity size={16} />}
-            label="Status"
+            label={t('status')}
             value={
               <Badge
                 colorPalette={
@@ -153,14 +155,14 @@ export const PlayerDetailModal = ({
                 borderRadius="full"
                 px={3}
               >
-                {player.status}
+                {t(`statusValues.${player.status.toLowerCase()}`)}
               </Badge>
             }
           />
 
           <InfoRow
             icon={<Trophy size={16} />}
-            label="Level"
+            label={t('level')}
             value={
               <Badge variant="subtle" colorPalette="purple" size="sm">
                 {getLevelLabel(player.level)}
@@ -170,7 +172,7 @@ export const PlayerDetailModal = ({
 
           <InfoRow
             icon={<Users size={16} />}
-            label="Gender"
+            label={t('gender')}
             value={
               <Badge
                 variant="subtle"
@@ -194,7 +196,7 @@ export const PlayerDetailModal = ({
                 ) : (
                   <User size={12} />
                 )}
-                {player.gender || 'Unknown'}
+                {player.gender ? t(`genderValues.${player.gender.toLowerCase()}`) : t('unknown')}
               </Badge>
             }
           />
@@ -203,7 +205,7 @@ export const PlayerDetailModal = ({
 
           <InfoRow
             icon={<History size={16} />}
-            label="Matches Played"
+            label={t('matchesPlayed')}
             value={
               <Text fontWeight="bold" color="gray.800">
                 {player.matchesPlayed}
@@ -214,7 +216,7 @@ export const PlayerDetailModal = ({
           {(player.status === 'WAITING' || player.status === 'READY') && (
             <InfoRow
               icon={<Clock size={16} />}
-              label="Wait Time"
+              label={t('waitTime')}
               value={
                 <Badge
                   colorPalette={
@@ -235,7 +237,7 @@ export const PlayerDetailModal = ({
 
           <InfoRow
             icon={<Clock size={16} />}
-            label="Total Wait Time"
+            label={t('totalWaitTime')}
             value={
               <Text fontWeight="bold" color="gray.700">
                 {formatWaitTime(player.totalWaitTime)}
@@ -246,7 +248,7 @@ export const PlayerDetailModal = ({
           {(player.currentCourtId || player.currentCourt) && (
             <InfoRow
               icon={<Layout size={16} />}
-              label="Current Court"
+              label={t('currentCourt')}
               value={
                 <Badge variant="solid" colorPalette="green" px={3}>
                   {player.currentCourt?.courtName ||
@@ -279,7 +281,7 @@ export const PlayerDetailModal = ({
                 >
                   <HStack gap={2}>
                     <QrCode size={18} />
-                    <Text fontWeight="bold">Join Session Information</Text>
+                    <Text fontWeight="bold">{t('joinSessionInfo')}</Text>
                   </HStack>
                   {showJoinMore ? (
                     <ChevronUp size={18} />
@@ -291,8 +293,7 @@ export const PlayerDetailModal = ({
               <Collapsible.Content>
                 <VStack gap={4} py={4} px={2}>
                   <Text fontSize="sm" color="gray.500" textAlign="center">
-                    Players can scan this QR code or use the link to join
-                    directly.
+                    {t('qrCodeDescription')}
                   </Text>
 
                   {qrCodeUrl && (
@@ -322,7 +323,7 @@ export const PlayerDetailModal = ({
                       size="sm"
                     >
                       <Link size={14} />
-                      Copy URL
+                      {t('copyUrl')}
                     </Button>
                     <Button
                       variant="subtle"
@@ -332,7 +333,7 @@ export const PlayerDetailModal = ({
                       size="sm"
                     >
                       <Copy size={14} />
-                      Copy ID
+                      {t('copyId')}
                     </Button>
                   </HStack>
                 </VStack>

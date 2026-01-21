@@ -4,6 +4,7 @@ import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { useEffect } from 'react';
 import { Box, Spinner, Text, VStack, Button } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
 
 interface ProtectedRouteGuardProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export default function ProtectedRouteGuard({
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const isHydrated = useAuthHydration();
   const router = useRouter();
+  const t = useTranslations('auth.guard');
 
   useEffect(() => {
     // Wait for hydration before checking auth
@@ -54,7 +56,7 @@ export default function ProtectedRouteGuard({
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">Authenticating...</Text>
+          <Text color="gray.600">{t('authenticating')}</Text>
         </VStack>
       </Box>
     );
@@ -72,7 +74,7 @@ export default function ProtectedRouteGuard({
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">Redirecting to sign in...</Text>
+          <Text color="gray.600">{t('redirectingToSignIn')}</Text>
         </VStack>
       </Box>
     );
@@ -91,19 +93,19 @@ export default function ProtectedRouteGuard({
       >
         <VStack gap={6} textAlign="center">
           <Text fontSize="2xl" fontWeight="bold" color="red.500">
-            Access Denied
+            {t('accessDenied')}
           </Text>
           <Text color="gray.600">
-            You don&apos;t have permission to access this page.
+            {t('permissionDenied')}
           </Text>
           <Text fontSize="sm" color="gray.500">
-            Required role: {requiredRole.join(', ')}
+            {t('requiredRole')} {requiredRole.join(', ')}
           </Text>
           <Text fontSize="sm" color="gray.500">
-            Your role: {user?.role || 'Unknown'}
+            {t('yourRole')} {user?.role || t('unknown')}
           </Text>
           <Button colorScheme="blue" onClick={() => router.push(`/`)}>
-            Go Home
+            {t('goHome')}
           </Button>
         </VStack>
       </Box>

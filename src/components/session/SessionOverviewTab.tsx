@@ -1,35 +1,23 @@
 'use client';
 
+import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
-import { Box, Flex, Heading, Text, Badge } from '@chakra-ui/react';
+import { ISession, Player } from '@/lib/api/types';
+import { Badge, Box, Flex, FlexProps, Heading, Text } from '@chakra-ui/react';
 import {
-  Award,
-  Calendar,
-  Clock,
-  Info,
-  MapPin,
-  Users,
-  User,
-  Tag,
-  LayoutGrid,
-  Shield,
-  DoorOpen,
-  UserPlus,
-  FileText,
-  Play,
-  Square,
   Activity,
   CheckCircle,
+  Clock,
+  DoorOpen,
+  Play,
+  Shield,
+  Square,
+  UserPlus,
+  Users
 } from 'lucide-react';
-import SessionPlayerStatistics from './SessionPlayerStatistics';
-import { ISession, Player } from '@/lib/api/types';
-import { FlexProps } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { formatTime } from '@/utils/session-helpers';
-import dayjs from '@/lib/dayjs';
-import { useLevelLabel } from '@/hooks/useLevelLabel';
 import SessionInfo from './SessionInfo';
+import SessionPlayers from './SessionPlayers';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
@@ -355,7 +343,7 @@ export default function SessionOverviewTab({
         <Heading size="md" mb={4}>
           {t('playersTab.playerStatistics')}
         </Heading>
-        <SessionPlayerStatistics sessionId={session.id} />
+        <SessionPlayers sessionId={session.id} />
       </Box>
     </Box>
   );

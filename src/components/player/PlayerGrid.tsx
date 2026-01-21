@@ -65,7 +65,7 @@ interface Player {
 
 interface PlayerGridProps {
   players: Player[];
-  playerFilter: 'ALL' | 'PLAYING' | 'WAITING' | 'READY' | 'INACTIVE';
+  playerFilter: string[]; // Changed to array of strings
   formatWaitTime: (waitTimeInMinutes: number) => string;
   selectedPlayers?: string[];
   onPlayerToggle?: (playerId: string) => void;
@@ -73,6 +73,7 @@ interface PlayerGridProps {
   mode?: 'view' | 'manage';
   sessionId?: string;
   onPlayerUpdate?: () => void;
+  isShowWaitTime?: boolean;
 }
 
 export const PlayerGrid = ({
@@ -85,6 +86,7 @@ export const PlayerGrid = ({
   mode = 'manage',
   sessionId,
   onPlayerUpdate,
+  isShowWaitTime = true,
 }: PlayerGridProps) => {
   const { getLevelShortLabel } = useLevelLabel();
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -134,34 +136,30 @@ export const PlayerGrid = ({
           const isSelected =
             selectionMode && selectedPlayers.includes(player.id);
 
+          const isStatusHighlighted = playerFilter.length === 0 || playerFilter.includes(player.status);
+
           if (isSelected) {
             // Blue color for selected players
             bgColor = PLAYER_COLORS.SELECTED.bg;
             borderColor = PLAYER_COLORS.SELECTED.border;
-          } else if (
-            playerFilter === 'READY' ||
-            (playerFilter === 'ALL' && player.status === 'READY')
-          ) {
+          } else if (isStatusHighlighted && player.status === 'READY') {
             // Green for ready players
             bgColor = PLAYER_COLORS.READY.bg;
             borderColor = PLAYER_COLORS.READY.border;
-          } else if (
-            playerFilter === 'WAITING' ||
-            (playerFilter === 'ALL' && player.status === 'WAITING')
-          ) {
+          } else if (isStatusHighlighted && player.status === 'WAITING') {
             // Orange color for waiting players (increased intensity)
             bgColor = PLAYER_COLORS.WAITING.bg;
             borderColor = PLAYER_COLORS.WAITING.border;
-          } else if (player.status === 'PLAYING') {
+          } else if (isStatusHighlighted && player.status === 'PLAYING') {
             // Blue for playing players
             bgColor = PLAYER_COLORS.PLAYING.bg;
             borderColor = PLAYER_COLORS.PLAYING.border;
-          } else if (player.status === 'INACTIVE') {
+          } else if (isStatusHighlighted && player.status === 'INACTIVE') {
             // Gray for inactive players
             bgColor = PLAYER_COLORS.INACTIVE.bg;
             borderColor = PLAYER_COLORS.INACTIVE.border;
           } else {
-            // Default color for other statuses
+            // Default color for other statuses or filtered out
             bgColor = PLAYER_COLORS.DEFAULT.bg;
             borderColor = PLAYER_COLORS.DEFAULT.border;
           }
@@ -228,7 +226,7 @@ export const PlayerGrid = ({
                     <Text fontWeight="bold" color="orange.700" fontSize="md">
                       #{player.playerNumber}
                     </Text>
-                    {(player.status === 'WAITING' ||
+                    {isShowWaitTime && (player.status === 'WAITING' ||
                       player.status === 'READY') && (
                       <Badge
                         colorPalette={

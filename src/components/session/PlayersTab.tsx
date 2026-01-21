@@ -1,14 +1,23 @@
 import React from 'react';
-import { VStack, Flex, Heading, HStack, Text } from '@chakra-ui/react';
+import { VStack, Flex, Heading, HStack, Text, Box } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import PlayerManagement from '@/components/session/PlayerManagement';
-import { LayoutGrid, Settings } from 'lucide-react';
+import { LayoutGrid, List } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, Player } from '@/lib/api/types';
+import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
+import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
+import { CommonModal } from '@/components/ui/CommonModal';
+import { AlertCircle, Plus } from 'lucide-react';
 
-// Ensure PlayerFilter type includes 'READY' and 'INACTIVE'
-export type PlayerFilter = 'ALL' | 'PLAYING' | 'WAITING' | 'READY' | 'INACTIVE';
+import PlayerStatusFilter, { PlayerStatus } from './PlayerStatusFilter';
+
+// Updated PlayerFilter type to be an array of statuses
+export type PlayerFilter = PlayerStatus[];
+
+// Sub-tab type for Grid/List views
+export type PlayersSubTab = 'grid' | 'list';
 
 interface PlayersTabProps {
   sessionPlayers: Player[];
@@ -19,6 +28,8 @@ interface PlayersTabProps {
   sessionId: string; // Add sessionId prop
   onPlayerUpdate?: () => void;
   session?: ISession; // Add session prop
+  subTab?: PlayersSubTab; // Sub-tab state from parent
+  onSubTabChange?: (subTab: PlayersSubTab) => void; // Callback to change sub-tab
 }
 
 const PlayersTab: React.FC<PlayersTabProps> = ({
@@ -30,131 +41,255 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   sessionId, // Destructure sessionId from props
   onPlayerUpdate,
   session,
+  subTab: externalSubTab,
+  onSubTabChange,
 }) => {
   const t = useTranslations('SessionDetail');
-  // View mode state: 'grid' or 'manage'
-  // Default to 'grid' unless explicitly set otherwise
-  const [viewMode, setViewMode] = React.useState<'grid' | 'manage'>('grid');
+  const tPlayer = useTranslations('pages.playerManagement');
+  const tCommon = useTranslations('common');
+  const [showAddPlayerModal, setShowAddPlayerModal] = React.useState(false);
 
-  // If in manage view and we have session data, show PlayerManagement
-  if (viewMode === 'manage' && session) {
-    return (
-      <VStack gap={4} align="stretch">
-        <Flex justify="space-between" align="center">
-          <Heading size="md">{t('playersTab.managePlayers')}</Heading>
-          <Button
-            size="sm"
-            onClick={() => setViewMode('grid')}
-            leftIcon={<LayoutGrid size={16} />}
-            variant="outline"
-          >
-            {t('playersTab.gridView')}
-          </Button>
-        </Flex>
-        <PlayerManagement session={session} onDataRefresh={onPlayerUpdate} />
-      </VStack>
-    );
-  }
+  // Safe session object for hook
+  const safeSession = session || { 
+    id: sessionId,
+    players: sessionPlayers, 
+    numberOfCourts: 0, 
+    maxPlayersPerCourt: 0,
+    requiredLevels: [],
+  };
+
+  const {
+    newPlayers,
+    availableUsers,
+    isLoadingUsers,
+    newPlayerErrors,
+    availableLevels,
+    isSaving,
+    showMaxPlayersWarning,
+    currentPlayerCount,
+    maxPlayers,
+    removeNewPlayerRow,
+    clearAllNewPlayers,
+    handleUserSelection,
+    updateNewPlayer,
+    savePlayerChanges,
+    handleAddNewPlayer,
+    confirmAddPlayerDespiteWarning,
+    cancelAddPlayer,
+    isUserAlreadyUsed,
+  } = usePlayerManagement(safeSession, onPlayerUpdate);
+
+  const openAddPlayerModal = () => {
+    handleAddNewPlayer();
+    setShowAddPlayerModal(true);
+  };
+
+  const closeAddPlayerModal = () => {
+    clearAllNewPlayers();
+    setShowAddPlayerModal(false);
+  };
+
+  const handleSaveAndClose = async () => {
+    await savePlayerChanges();
+    setShowAddPlayerModal(false);
+  };
+
+  const handleCancelWarning = () => {
+    cancelAddPlayer();
+    setShowAddPlayerModal(false);
+  };
+  
+  // Internal sub-tab state (used when no external control is provided)
+  const [internalSubTab, setInternalSubTab] = React.useState<PlayersSubTab>('grid');
+  
+  // Use external sub-tab if provided, otherwise use internal state
+  const subTab = externalSubTab ?? internalSubTab;
+  const setSubTab = onSubTabChange ?? setInternalSubTab;
+
+  const counts = {
+    PLAYING: sessionPlayers.filter((p) => p.status === 'PLAYING').length,
+    WAITING: sessionPlayers.filter((p) => p.status === 'WAITING').length,
+    READY: sessionPlayers.filter((p) => p.status === 'READY').length,
+    INACTIVE: sessionPlayers.filter((p) => p.status === 'INACTIVE').length,
+  };
 
   return (
     <VStack gap={6} align="stretch">
-      {/* Players Section Header */}
-      <Flex justify="space-between" align="center">
-        <Heading size="md">{t('playersTab.players')}</Heading>
-
-        {/* View Toggle / Manage Button */}
-        {session && (
+      {/* Players Section Header with Sub-tabs */}
+      <Flex justify="space-between" align="center" wrap="wrap" gap={3}>
+        <HStack gap={4}>
+          <Heading size="md">
+            {t('playersTab.players')}
+            {session && ` (${sessionPlayers.length}/${maxPlayers})`}
+          </Heading>
+        </HStack>
+        
+        {/* Sub-tabs: Grid / List */}
+        <HStack 
+          bg="gray.100" 
+          _dark={{ bg: 'gray.700' }} 
+          borderRadius="lg" 
+          p={1}
+          gap={0}
+        >
           <Button
             size="sm"
-            onClick={() => setViewMode('manage')}
-            leftIcon={<Settings size={16} />}
-            variant="outline"
-            colorScheme="gray"
+            onClick={() => setSubTab('grid')}
+            leftIcon={<LayoutGrid size={14} />}
+            variant={subTab === 'grid' ? 'solid' : 'ghost'}
+            colorScheme={subTab === 'grid' ? 'blue' : 'gray'}
+            borderRadius="md"
           >
-            {t('playersTab.managePlayers')}
-          </Button>
-        )}
-      </Flex>
-
-      {/* Filter Buttons */}
-      <Flex justify="flex-end" align="center" mb={4}>
-        <HStack gap={2}>
-          <Button
-            size="sm"
-            onClick={() => setPlayerFilter('ALL')}
-            colorScheme={playerFilter === 'ALL' ? 'orange' : 'gray'}
-            variant={playerFilter === 'ALL' ? 'solid' : 'outline'}
-          >
-            {t('playersTab.all')} ({sessionPlayers.length})
+            {t('playersTab.grid')}
           </Button>
           <Button
             size="sm"
-            onClick={() => setPlayerFilter('PLAYING')}
-            colorScheme={playerFilter === 'PLAYING' ? 'blue' : 'gray'}
-            variant={playerFilter === 'PLAYING' ? 'solid' : 'outline'}
+            onClick={() => setSubTab('list')}
+            leftIcon={<List size={14} />}
+            variant={subTab === 'list' ? 'solid' : 'ghost'}
+            colorScheme={subTab === 'list' ? 'blue' : 'gray'}
+            borderRadius="md"
           >
-            {t('playersTab.playing')} (
-            {sessionPlayers.filter((p) => p.status === 'PLAYING').length})
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => setPlayerFilter('WAITING')}
-            colorScheme={playerFilter === 'WAITING' ? 'orange' : 'gray'}
-            variant={playerFilter === 'WAITING' ? 'solid' : 'outline'}
-          >
-            {t('playersTab.waiting')} (
-            {sessionPlayers.filter((p) => p.status === 'WAITING').length})
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              setPlayerFilter('READY');
-            }}
-            colorScheme={playerFilter === 'READY' ? 'green' : 'gray'}
-            variant={playerFilter === 'READY' ? 'solid' : 'outline'}
-          >
-            {t('playersTab.ready')} (
-            {sessionPlayers.filter((p) => p.status === 'READY').length})
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => setPlayerFilter('INACTIVE')}
-            colorScheme={playerFilter === 'INACTIVE' ? 'red' : 'gray'}
-            variant={playerFilter === 'INACTIVE' ? 'solid' : 'outline'}
-          >
-            {t('playersTab.inactive')} (
-            {sessionPlayers.filter((p) => p.status === 'INACTIVE').length})
+            {t('playersTab.list')}
           </Button>
         </HStack>
       </Flex>
-      {/* Filtered Players Grid */}
-      {(() => {
-        const filteredPlayers = sessionPlayers.filter((player) => {
-          if (playerFilter === 'ALL') return true;
-          return player.status === playerFilter;
-        });
-        if (filteredPlayers.length === 0) {
-          return (
-            <Text fontSize="lg" color="gray.500" textAlign="center" py={8}>
-              {t('playersTab.noPlayersFound', {
-                status: t(`playersTab.${playerFilter.toLowerCase()}`),
-              })}
-            </Text>
-          );
+
+      {/* Filter and Add Player row */}
+      <Flex justify="space-between" align="center" mb={2}>
+        <PlayerStatusFilter
+          selected={playerFilter}
+          onChange={setPlayerFilter}
+          counts={counts}
+          totalCount={sessionPlayers.length}
+        />
+        <Button
+          size="sm"
+          colorScheme="green"
+          onClick={openAddPlayerModal}
+          leftIcon={<Box as={Plus} boxSize={4} />}
+        >
+          {tPlayer('addPlayer')}
+        </Button>
+      </Flex>
+
+      {/* Grid View Content */}
+      {subTab === 'grid' && (
+        <>
+          {/* Filtered Players Grid */}
+          {(() => {
+            const filteredPlayers = sessionPlayers.filter((player) => {
+              if (playerFilter.length === 0) return true;
+              return playerFilter.includes(player.status as PlayerStatus);
+            });
+            if (filteredPlayers.length === 0) {
+              return (
+                <Text fontSize="lg" color="gray.500" textAlign="center" py={8}>
+                  {t('playersTab.noPlayersFound', {
+                    status: playerFilter.length > 0 ? playerFilter.map(s => t(`playersTab.${s.toLowerCase()}`)).join(', ') : t('playersTab.all'),
+                  })}
+                </Text>
+              );
+            }
+            return (
+              <PlayerGrid
+                players={filteredPlayers}
+                playerFilter={playerFilter}
+                formatWaitTime={formatWaitTime}
+                mode={mode}
+                sessionId={sessionId}
+                onPlayerUpdate={onPlayerUpdate}
+                isShowWaitTime={false}
+              />
+            );
+          })()}
+        </>
+      )}
+
+      {/* List View Content - Player Management with shared filter */}
+      {subTab === 'list' && session && (
+        <PlayerManagement 
+          session={session} 
+          onDataRefresh={onPlayerUpdate} 
+          playerFilter={playerFilter}
+        />
+      )}
+
+      
+      {/* Add Player Modal */}
+      <AddPlayerModal
+        isOpen={showAddPlayerModal && !showMaxPlayersWarning}
+        onClose={closeAddPlayerModal}
+        newPlayers={newPlayers}
+        availableUsers={availableUsers}
+        isLoadingUsers={isLoadingUsers}
+        errors={newPlayerErrors}
+        availableLevels={availableLevels}
+        isSaving={isSaving}
+        onUpdatePlayer={updateNewPlayer}
+        onRemovePlayer={removeNewPlayerRow}
+        onUserSelect={handleUserSelection}
+        onAddPlayer={handleAddNewPlayer}
+        onSaveAll={handleSaveAndClose}
+        onCancelAll={clearAllNewPlayers}
+        isUserAlreadyUsed={isUserAlreadyUsed}
+      />
+
+      {/* Warning popup for exceeding recommended player limit */}
+      <CommonModal
+        isOpen={showMaxPlayersWarning}
+        onClose={handleCancelWarning}
+        title={
+          <HStack gap={3}>
+            <Box as={AlertCircle} boxSize={6} color="orange.500" />
+            <Text>{tPlayer('limitWarningModal.title')}</Text>
+          </HStack>
         }
-        return (
-          <PlayerGrid
-            players={filteredPlayers}
-            playerFilter={playerFilter}
-            formatWaitTime={formatWaitTime}
-            mode={mode}
-            sessionId={sessionId}
-            onPlayerUpdate={onPlayerUpdate}
-          />
-        );
-      })()}
+        size="md"
+        primaryActionText={tPlayer('limitWarningModal.addAnyway')}
+        onPrimaryAction={confirmAddPlayerDespiteWarning}
+        primaryColorScheme="orange"
+        secondaryActionText={tCommon('cancel')}
+      >
+        <VStack gap={4} align="stretch" py={2}>
+          <Text color="gray.600" lineHeight="1.6">
+            {tPlayer('limitWarningModal.description', {
+              currentPlayerCount,
+              numberOfCourts: session?.numberOfCourts || 0,
+              maxPlayersPerCourt: session?.maxPlayersPerCourt || 0,
+            })}
+          </Text>
+
+          <VStack
+            align="start"
+            gap={2}
+            pl={4}
+            bg="gray.50"
+            p={4}
+            borderRadius="md"
+          >
+            <Text fontSize="sm" color="gray.600" fontWeight="medium">
+              Adding more players may result in:
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              • {tPlayer('limitWarningModal.longerWaitingTimes')}
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              • {tPlayer('limitWarningModal.complexScheduling')}
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              • {tPlayer('limitWarningModal.potentialDissatisfaction')}
+            </Text>
+          </VStack>
+
+          <Text fontSize="sm" color="gray.600" fontStyle="italic">
+            {tPlayer('limitWarningModal.confirmQuestion')}
+          </Text>
+        </VStack>
+      </CommonModal>
     </VStack>
   );
 };
 
 export default PlayersTab;
+

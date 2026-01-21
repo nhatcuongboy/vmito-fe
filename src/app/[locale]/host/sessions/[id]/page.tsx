@@ -66,7 +66,8 @@ export default function HostSessionPage({
 
   // State for match creation and player selection
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL');
+  // Store filter as array of statuses. Empty array means 'ALL'
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>([]);
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();

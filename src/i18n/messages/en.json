@@ -57,10 +57,16 @@
       "8": "CN"
     },
     "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "preferNotToSay": "Prefer not to say",
     "level": "Level",
     "matchesPlayed": "Matches Played",
     "pair": "Pair",
-    "waitTime": "Wait Time"
+    "waitTime": "Wait Time",
+    "playerName": "Player Name",
+    "status": "Status"
   },
   "session": {
     "title": "Badminton Session",
@@ -370,6 +376,7 @@
       "saveAll": "Save All ({count})",
       "existingPlayers": "Existing Players ({count})",
       "newPlayersTitle": "New Players ({count})",
+      "addPlayerModalTitle": "Add Players ({count})",
       "newPlayers": "New Players ({count})",
       "newPlayer": "New Player",
       "existing": "existing",
@@ -401,9 +408,18 @@
       "saveChanges": "Save changes",
       "cancelEditing": "Cancel editing",
       "editingPlayer": "Editing Player",
+      "editPlayerModalTitle": "Edit Player #{number}",
       "addNewPlayer": "Add new player",
       "noPlayersYet": "No players in this session yet",
       "noPlayersYetDescription": "Add some players using the \"Add Player\" button above to get started!",
+      "noPlayersWithFilter": "No players with this status",
+      "noPlayersWithFilterDescription": "There are no players with \"{status}\" status in this session.",
+      "filter": {
+        "playing": "Playing",
+        "waiting": "Waiting",
+        "ready": "Ready",
+        "inactive": "Inactive"
+      },
       "noPlayersDescription": "Add some players using the \"Add Player\" button above to get started!",
       "addYourFirstPlayer": "Add Your First Player",
       "clickEditToModify": "Click Edit to modify player information",
@@ -1038,6 +1054,13 @@
     "validationError": "Validation error"
   },
   "SessionDetail": {
+    "common": {
+      "cancel": "Cancel"
+    },
+    "tabOverview": "Overview",
+    "tabStatus": "My Status",
+    "tabCourts": "Courts",
+    "tabResults": "Results",
     "playerStatsTitle": "Personal Statistics",
     "stats": {
       "wins": "Wins",
@@ -1113,8 +1136,9 @@
     "failedToUpdatePlayer": "Failed to update player",
     "unknownError": "Unknown error",
     "failedToDeletePlayer": "Failed to delete player",
+    "noPlayersAvailable": "No players available",
     "courtsTab": {
-      "activeCourts": "Courts Status",
+      "activeCourts": "Courts",
       "startSessionToBeginMatches": "Start the session to begin matches",
       "sessionHasEnded": "Session has ended",
       "courtNumber": "Court {number}",
@@ -1141,8 +1165,8 @@
       "back": "Back",
       "cancel": "Cancel",
       "confirmAndStartMatch": "Confirm & Start Match",
-      "confirmMatch": "Confirm Match",
-      "confirmMatchManual": "Confirm Match ({count}/4)",
+      "confirmMatch": "Confirm",
+      "confirmMatchManual": "Confirm ({count}/4)",
       "manualPlayerSelectionTitle": "Manual Player Selection - Court {courtNumber}",
       "selectedPlayersCount": "Selected Players ({count}/4):",
       "pairNumber": "Pair {number}",
@@ -1202,6 +1226,11 @@
       "playerStatistics": "Player Statistics",
       "managePlayers": "Manage Players",
       "gridView": "Grid View",
+      "grid": "Grid",
+      "list": "List",
+      "backToPlayers": "Back to Players",
+      "filter": "Filter",
+      "clearFilter": "Clear Filter",
       "noPlayersFound": "No players found for {status} status"
     },
     "matchs": {
@@ -1232,12 +1261,16 @@
     "yes": "Yes",
     "no": "No"
   },
-  "SessionPlayerStatistics": {
+  "SessionPlayers": {
     "errorLoadingStats": "Failed to load player statistics.",
     "noDataAvailable": "No player statistics available.",
     "tableCaption": "Player statistics for this session",
     "columnNo": "No.",
     "columnName": "Name",
+    "columnGender": "Gender",
+    "columnLevel": "Level",
+    "columnAction": "Action",
+    "actionPlaceholder": "...",
     "columnTotalMatches": "Total Matches",
     "columnRegularMatches": "Main Matches",
     "columnExtraMatches": "Extra Matches",
@@ -1316,6 +1349,16 @@
       "passwordTooShort": "Password must be at least 6 characters",
       "accountCreated": "Account created successfully! Please sign in.",
       "registrationFailed": "Registration failed"
+    },
+    "guard": {
+      "authenticating": "Authenticating...",
+      "redirectingToSignIn": "Redirecting to sign in...",
+      "accessDenied": "Access Denied",
+      "permissionDenied": "You don't have permission to access this page.",
+      "requiredRole": "Required role:",
+      "yourRole": "Your role:",
+      "unknown": "Unknown",
+      "goHome": "Go Home"
     }
   },
   "admin": {
@@ -1344,5 +1387,32 @@
     "failedToUpdateUser": "Failed to update user",
     "failedToDeleteUser": "Failed to delete user",
     "accessDenied": "Access denied. Admin only."
+  },
+  "PlayerDetailModal": {
+    "status": "Status",
+    "level": "Level",
+    "gender": "Gender",
+    "matchesPlayed": "Matches Played",
+    "waitTime": "Wait Time",
+    "totalWaitTime": "Total Wait Time",
+    "currentCourt": "Current Court",
+    "joinSessionInfo": "Join Session Information",
+    "qrCodeDescription": "Players can scan this QR code or use the link to join directly.",
+    "copyUrl": "Copy URL",
+    "copyId": "Copy ID",
+    "joinCodeCopied": "Join code copied to clipboard!",
+    "joinUrlCopied": "Join URL copied to clipboard!",
+    "unknown": "Unknown",
+    "statusValues": {
+      "playing": "Playing",
+      "waiting": "Waiting",
+      "ready": "Ready",
+      "idle": "Idle"
+    },
+    "genderValues": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    }
   }
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import NewPlayerList from '@/components/session/player-management/NewPlayerList';
+import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
+import EditPlayerModal from '@/components/session/player-management/EditPlayerModal';
 import PlayerList from '@/components/session/player-management/PlayerList';
 import PlayerStatsHeader from '@/components/session/player-management/PlayerStatsHeader';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
@@ -13,14 +14,19 @@ import { AlertCircle, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
+// Import PlayerFilter type from PlayersTab
+import { PlayerFilter } from './PlayersTab';
+
 interface PlayerManagementProps {
   session: ISession;
   onDataRefresh?: () => void;
+  playerFilter?: PlayerFilter;
 }
 
 const PlayerManagement: React.FC<PlayerManagementProps> = ({
   session,
   onDataRefresh,
+  playerFilter = [],
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
@@ -61,6 +67,13 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     null
   );
 
+  // Add Player Modal State
+  const [showAddPlayerModal, setShowAddPlayerModal] = useState<boolean>(false);
+
+  // Edit Player Modal State
+  const [showEditPlayerModal, setShowEditPlayerModal] = useState<boolean>(false);
+  const [selectedPlayerForEdit, setSelectedPlayerForEdit] = useState<Player | null>(null);
+
   const showPlayerQR = (player: Player) => {
     setSelectedPlayerForQR(player);
     setShowQRModal(true);
@@ -71,97 +84,133 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     setSelectedPlayerForQR(null);
   };
 
+  const openAddPlayerModal = () => {
+    handleAddNewPlayer(); // This adds the first empty player row
+    setShowAddPlayerModal(true);
+  };
+
+  const closeAddPlayerModal = () => {
+    clearAllNewPlayers();
+    setShowAddPlayerModal(false);
+  };
+
+  const handleSaveAndClose = async () => {
+    await savePlayerChanges();
+    setShowAddPlayerModal(false);
+  };
+
+  // Handle cancel from warning modal - also close Add Player modal
+  const handleCancelWarning = () => {
+    cancelAddPlayer();
+    setShowAddPlayerModal(false);
+  };
+
+  // Edit Player Modal handlers
+  const openEditPlayerModal = (player: Player) => {
+    startEditingPlayer(player);
+    setSelectedPlayerForEdit(player);
+    setShowEditPlayerModal(true);
+  };
+
+  const closeEditPlayerModal = () => {
+    if (selectedPlayerForEdit) {
+      cancelEditingPlayer(selectedPlayerForEdit.id);
+    }
+    setSelectedPlayerForEdit(null);
+    setShowEditPlayerModal(false);
+  };
+
+  const handleSaveEditAndClose = async (playerId: string) => {
+    await saveIndividualPlayer(playerId);
+    setSelectedPlayerForEdit(null);
+    setShowEditPlayerModal(false);
+  };
+
   return (
     <VStack spacing={8} align="stretch" p={{ base: 2, md: 4 }}>
       {/* Header section with stats */}
-      <PlayerStatsHeader
+      {/* <PlayerStatsHeader
         session={session}
         newPlayersCount={newPlayers.length}
         maxPlayers={maxPlayers}
-      />
+      /> */}
 
-      {/* Add Player button when no new players (handled inside NewPlayerList but needed here if list empty) */}
-      {/* Actually, PlayerStatsHeader doesn't have the button. The original code had it below header. */}
-      {newPlayers.length === 0 && (
-        <NewPlayerList
-          newPlayers={newPlayers}
-          availableUsers={availableUsers}
-          isLoadingUsers={isLoadingUsers}
-          errors={newPlayerErrors}
-          availableLevels={availableLevels}
-          isSaving={isSaving}
-          onUpdatePlayer={updateNewPlayer}
-          onRemovePlayer={removeNewPlayerRow}
-          onUserSelect={handleUserSelection}
-          onAddPlayer={handleAddNewPlayer}
-          onSaveAll={savePlayerChanges}
-          onCancelAll={clearAllNewPlayers}
-          isUserAlreadyUsed={isUserAlreadyUsed}
-        />
-      )}
+      {/* Add Player Button */}
 
-      {newPlayers.length > 0 && (
-        <NewPlayerList
-          newPlayers={newPlayers}
-          availableUsers={availableUsers}
-          isLoadingUsers={isLoadingUsers}
-          errors={newPlayerErrors}
-          availableLevels={availableLevels}
-          isSaving={isSaving}
-          onUpdatePlayer={updateNewPlayer}
-          onRemovePlayer={removeNewPlayerRow}
-          onUserSelect={handleUserSelection}
-          onAddPlayer={handleAddNewPlayer}
-          onSaveAll={savePlayerChanges}
-          onCancelAll={clearAllNewPlayers}
-          isUserAlreadyUsed={isUserAlreadyUsed}
-        />
-      )}
 
-      {/* Logic correction: NewPlayerList renders nothing if newPlayers.length === 0.
-          But we need the "Add Player" button initially.
-          The original code had:
-          {newPlayers.length === 0 && ( <Button ... onClick={handleAddNewPlayer} ... /> )}
-          NewPlayerList only renders if items exist.
-          I should expose the "Empty State Add Button" or add it here.
-      */}
-
-      {newPlayers.length === 0 && (
-        <HStack justify="flex-end" w="100%">
-          <Button
-            leftIcon={<Box as={Plus} boxSize={4} />}
-            colorScheme="green"
-            onClick={handleAddNewPlayer}
-          >
-            {t('addPlayer')}
-          </Button>
-        </HStack>
-      )}
-
-      {/* Re-evaluating NewPlayerList. 
-          NewPlayerList returns null if length is 0.
-          So we need to render the "Add Player" button explicitly when length is 0.
-      */}
-
-      {/* Player List */}
-      <PlayerList
-        players={session.players || []}
-        editingPlayers={editingPlayers}
+      {/* Add Player Modal */}
+      <AddPlayerModal
+        isOpen={showAddPlayerModal && !showMaxPlayersWarning}
+        onClose={closeAddPlayerModal}
+        newPlayers={newPlayers}
+        availableUsers={availableUsers}
+        isLoadingUsers={isLoadingUsers}
+        errors={newPlayerErrors}
         availableLevels={availableLevels}
         isSaving={isSaving}
-        onAddNewPlayer={handleAddNewPlayer}
-        onEditPlayer={startEditingPlayer}
-        onCancelEditPlayer={cancelEditingPlayer}
-        onSavePlayer={saveIndividualPlayer}
-        onUpdateEditingPlayer={updateEditingPlayer}
-        onDeletePlayer={deletePlayer}
-        onShowQR={showPlayerQR}
+        onUpdatePlayer={updateNewPlayer}
+        onRemovePlayer={removeNewPlayerRow}
+        onUserSelect={handleUserSelection}
+        onAddPlayer={handleAddNewPlayer}
+        onSaveAll={handleSaveAndClose}
+        onCancelAll={clearAllNewPlayers}
+        isUserAlreadyUsed={isUserAlreadyUsed}
+      />
+
+      {/* Player List - apply filter */}
+      {/* Player List - apply filter */}
+      {(() => {
+        const allPlayers = session.players || [];
+        const filteredPlayers = playerFilter.length === 0 
+          ? allPlayers 
+          : allPlayers.filter(p => playerFilter.includes(p.status as any));
+        
+        // Get translated filter name for empty state
+        const filterName = playerFilter.map(status => {
+           switch(status) {
+              case 'PLAYING': return t('filter.playing');
+              case 'WAITING': return t('filter.waiting');
+              case 'READY': return t('filter.ready');
+              case 'INACTIVE': return t('filter.inactive');
+              default: return status;
+           }
+        }).join(', ');
+        
+        return (
+          <PlayerList
+            players={filteredPlayers}
+            editingPlayers={editingPlayers}
+            availableLevels={availableLevels}
+            isSaving={isSaving}
+            onAddNewPlayer={handleAddNewPlayer}
+            onEditPlayer={openEditPlayerModal}
+            onCancelEditPlayer={cancelEditingPlayer}
+            onSavePlayer={saveIndividualPlayer}
+            onUpdateEditingPlayer={updateEditingPlayer}
+            onDeletePlayer={deletePlayer}
+            onShowQR={showPlayerQR}
+            isFiltered={playerFilter.length > 0}
+            filterName={filterName}
+          />
+        );
+      })()}
+
+      {/* Edit Player Modal */}
+      <EditPlayerModal
+        isOpen={showEditPlayerModal}
+        onClose={closeEditPlayerModal}
+        player={selectedPlayerForEdit}
+        editingData={selectedPlayerForEdit ? editingPlayers[selectedPlayerForEdit.id] : null}
+        availableLevels={availableLevels}
+        isSaving={isSaving}
+        onUpdateEditing={updateEditingPlayer}
+        onSave={handleSaveEditAndClose}
       />
 
       {/* Warning popup for exceeding recommended player limit */}
       <CommonModal
         isOpen={showMaxPlayersWarning}
-        onClose={cancelAddPlayer}
+        onClose={handleCancelWarning}
         title={
           <HStack spacing={3}>
             <Box as={AlertCircle} boxSize={6} color="orange.500" />

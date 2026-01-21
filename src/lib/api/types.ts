@@ -20,6 +20,16 @@ export enum CourtDirection {
   VERTICAL = 'VERTICAL',
 }
 
+// Gender enum - synced with Backend (Prisma schema)
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
+  PREFER_NOT_TO_SAY = 'PREFER_NOT_TO_SAY',
+}
+
+export type GenderType = 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+
 // Session types
 export interface ISession {
   id: string;
@@ -60,7 +70,7 @@ export interface Player {
   userId?: string;
   playerNumber: number;
   name?: string;
-  gender?: 'MALE' | 'FEMALE';
+  gender?: GenderType;
   level?: number;
   levelDescription?: string;
   currentWaitTime: number;
@@ -78,6 +88,11 @@ export interface Player {
   position?: number;
   courtPosition?: number;
   joinCode?: string;
+  user?: {
+    image?: string | null;
+    name?: string;
+    email?: string;
+  };
 }
 
 // Court types
@@ -131,7 +146,7 @@ export interface PlayerStatistics {
   playerId: string;
   playerNumber: number;
   name?: string;
-  gender?: string;
+  gender?: GenderType;
   level?: string;
   totalMatches: number;
   regularMatches: number;
@@ -149,7 +164,7 @@ export interface PlayerStatistics {
 export interface BulkPlayerData {
   playerNumber: number;
   name?: string;
-  gender?: 'MALE' | 'FEMALE';
+  gender?: GenderType;
   level?: number;
   levelDescription?: string;
   phone?: string;
@@ -426,7 +441,7 @@ export interface TournamentPlayer {
   name: string;
   email?: string;
   phone?: string;
-  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+  gender?: GenderType;
   level?: number;
   levelDescription?: string;
   notes?: string;

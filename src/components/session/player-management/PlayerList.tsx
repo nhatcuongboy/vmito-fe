@@ -6,7 +6,7 @@ import {
   VStack,
   HStack,
 } from '@/components/ui/chakra-compat';
-import { Plus, Users } from 'lucide-react';
+import { Plus, Users, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import PlayerListItem from './PlayerListItem';
@@ -28,6 +28,8 @@ interface PlayerListProps {
   ) => void;
   onDeletePlayer: (playerId: string) => void;
   onShowQR: (player: Player) => void;
+  isFiltered?: boolean; // true when filter is applied (not 'ALL')
+  filterName?: string; // translated name of current filter for empty state message
 }
 
 const PlayerList: React.FC<PlayerListProps> = ({
@@ -42,77 +44,108 @@ const PlayerList: React.FC<PlayerListProps> = ({
   onUpdateEditingPlayer,
   onDeletePlayer,
   onShowQR,
+  isFiltered = false,
+  filterName,
 }) => {
   const t = useTranslations('pages.playerManagement');
 
   return (
-    <Card variant="outline">
-      <CardBody p={1}>
-        <VStack spacing={6} align="stretch">
-          {/* Header */}
-          <Flex justify="space-between" align="center">
-            <HStack spacing={3}>
-              <Box as={Users} boxSize={5} color="blue.600" />
-              <VStack align="start" spacing={1}>
-                <Heading size="sm" color="gray.800">
-                  {t('existingPlayers', { count: players.length })}
-                </Heading>
-                <Text fontSize="xs" color="gray.500">
-                  {t('clickEditToModify')}
-                </Text>
-              </VStack>
-            </HStack>
-          </Flex>
-
-          {/* Player list or empty state */}
-          {players.length === 0 ? (
-            <Card variant="outline" bg="gray.50" borderStyle="dashed">
-              <CardBody p={8}>
-                <VStack spacing={4}>
-                  <Box fontSize="4xl">👥</Box>
-                  <VStack spacing={2}>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.600">
-                      {t('noPlayersYet')}
-                    </Text>
-                    <Text fontSize="sm" color="gray.500" textAlign="center">
-                      {t('noPlayersYetDescription')}
-                    </Text>
-                  </VStack>
+    <Box>
+      <VStack spacing={5} align="stretch">
+        {/* Player list or empty state */}
+        {players.length === 0 ? (
+          <Card 
+            variant="outline" 
+            bg="linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)" 
+            borderStyle="dashed"
+            borderWidth="2px"
+            borderColor="gray.200"
+            borderRadius="2xl"
+          >
+            <CardBody p={{ base: 8, md: 12 }}>
+              <VStack spacing={6}>
+                {/* Empty state icon */}
+                <Flex
+                  width="80px"
+                  height="80px"
+                  borderRadius="2xl"
+                  bg="white"
+                  align="center"
+                  justify="center"
+                  boxShadow="0 4px 20px rgba(0,0,0,0.08)"
+                  border="1px solid"
+                  borderColor="gray.100"
+                >
+                  <Box as={Users} boxSize={10} color="gray.400" />
+                </Flex>
+                
+                <VStack spacing={2}>
+                  <Text 
+                    fontSize="xl" 
+                    fontWeight="bold" 
+                    color="gray.700"
+                    letterSpacing="-0.01em"
+                  >
+                    {isFiltered ? t('noPlayersWithFilter') : t('noPlayersYet')}
+                  </Text>
+                  <Text 
+                    fontSize="sm" 
+                    color="gray.500" 
+                    textAlign="center"
+                    maxW="300px"
+                    lineHeight="1.6"
+                  >
+                    {isFiltered 
+                      ? t('noPlayersWithFilterDescription', { status: filterName || '' })
+                      : t('noPlayersYetDescription')}
+                  </Text>
+                </VStack>
+                
+                {/* Only show Add Player button when not filtered */}
+                {!isFiltered && (
                   <Button
-                    size="md"
-                    leftIcon={<Box as={Plus} boxSize={4} />}
+                    size="lg"
+                    leftIcon={<Box as={UserPlus} boxSize={5} />}
                     onClick={onAddNewPlayer}
                     colorScheme="green"
+                    borderRadius="xl"
+                    px={8}
+                    boxShadow="0 4px 14px rgba(72, 187, 120, 0.3)"
+                    _hover={{
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 20px rgba(72, 187, 120, 0.4)',
+                    }}
+                    transition="all 0.2s"
                   >
                     {t('addFirstPlayer')}
                   </Button>
-                </VStack>
-              </CardBody>
-            </Card>
-          ) : (
-            <VStack spacing={3}>
-              {players
-                .sort((a, b) => a.playerNumber - b.playerNumber)
-                .map((player) => (
-                  <PlayerListItem
-                    key={player.id}
-                    player={player}
-                    isEditing={editingPlayers[player.id]}
-                    availableLevels={availableLevels}
-                    isSaving={isSaving}
-                    onEdit={onEditPlayer}
-                    onCancelEdit={onCancelEditPlayer}
-                    onSave={onSavePlayer}
-                    onUpdateEditing={onUpdateEditingPlayer}
-                    onDelete={onDeletePlayer}
-                    onShowQR={onShowQR}
-                  />
-                ))}
-            </VStack>
-          )}
-        </VStack>
-      </CardBody>
-    </Card>
+                )}
+              </VStack>
+            </CardBody>
+          </Card>
+        ) : (
+          <VStack spacing={0} align="stretch">
+            {players
+              .sort((a, b) => a.playerNumber - b.playerNumber)
+              .map((player) => (
+                <PlayerListItem
+                  key={player.id}
+                  player={player}
+                  isEditing={editingPlayers[player.id]}
+                  availableLevels={availableLevels}
+                  isSaving={isSaving}
+                  onEdit={onEditPlayer}
+                  onCancelEdit={onCancelEditPlayer}
+                  onSave={onSavePlayer}
+                  onUpdateEditing={onUpdateEditingPlayer}
+                  onDelete={onDeletePlayer}
+                  onShowQR={onShowQR}
+                />
+              ))}
+          </VStack>
+        )}
+      </VStack>
+    </Box>
   );
 };
 

@@ -11,7 +11,7 @@ import {
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
-import { TournamentPlayer, UserRole } from '@/lib/api/types';
+import { TournamentPlayer, UserRole, GenderType } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -60,7 +60,7 @@ export default function TournamentPlayersPage() {
     name: '',
     email: '',
     phone: '',
-    gender: '' as 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY' | '',
+    gender: '' as GenderType | '',
     level: '' as number | '',
     levelDescription: '',
   });
@@ -332,12 +332,7 @@ export default function TournamentPlayersPage() {
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                       setFormData({
                         ...formData,
-                        gender: e.target.value as
-                          | 'MALE'
-                          | 'FEMALE'
-                          | 'OTHER'
-                          | 'PREFER_NOT_TO_SAY'
-                          | '',
+                        gender: e.target.value as GenderType | '',
                       })
                     }
                     style={{

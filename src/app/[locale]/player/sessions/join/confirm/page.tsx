@@ -5,7 +5,7 @@ import TopBar from '@/components/ui/TopBar';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { useRouter } from '@/i18n/config';
 import { PlayerService } from '@/lib/api/player.service';
-import { type Player, UserRole } from '@/lib/api/types';
+import { type Player, UserRole, GenderType } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -37,7 +37,7 @@ function ConfirmPageContent() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    gender: '' as '' | 'MALE' | 'FEMALE',
+    gender: '' as '' | GenderType,
     level: '' as '' | number,
     levelDescription: '',
     phone: '',
@@ -60,7 +60,7 @@ function ConfirmPageContent() {
         // Pre-populate form with existing data
         setFormData({
           name: playerData.name || '',
-          gender: (playerData.gender as 'MALE' | 'FEMALE' | '') || '', // Cast to expected type
+          gender: (playerData.gender as GenderType | '') || '', // Cast to expected type
           level: playerData.level || '',
           levelDescription: playerData.levelDescription || '',
           phone: playerData.phone || '',
@@ -107,7 +107,7 @@ function ConfirmPageContent() {
       // Prepare data with proper types
       const playerData: Partial<Player> = {
         name: formData.name,
-        gender: formData.gender as 'MALE' | 'FEMALE',
+        gender: formData.gender as GenderType,
         level: Number(formData.level),
         levelDescription: formData.levelDescription || undefined,
         desire: formData.desire || undefined,
@@ -233,6 +233,12 @@ function ConfirmPageContent() {
                         <option value="MALE">{t('confirm.form.male')}</option>
                         <option value="FEMALE">
                           {t('confirm.form.female')}
+                        </option>
+                        <option value="OTHER">
+                          {tCommon('other')}
+                        </option>
+                        <option value="PREFER_NOT_TO_SAY">
+                          {tCommon('preferNotToSay')}
                         </option>
                       </select>
                     </Box>

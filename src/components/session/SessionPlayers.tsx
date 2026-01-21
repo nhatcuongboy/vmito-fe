@@ -28,14 +28,14 @@ import { PlayerDetailModal } from '../player/PlayerDetailModal';
 import { PlayerService } from '@/lib/api/player.service';
 import { Player } from '@/lib/api/types';
 
-interface SessionPlayerStatisticsProps {
+interface SessionPlayersProps {
   sessionId: string;
 }
 
-const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
+const SessionPlayers: React.FC<SessionPlayersProps> = ({
   sessionId,
 }) => {
-  const t = useTranslations('SessionPlayerStatistics');
+  const t = useTranslations('SessionPlayers');
   const [stats, setStats] = useState<PlayerStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,15 +100,13 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
   const sortOptions = [
     { value: 'playerNumber', label: t('columnNo') },
     { value: 'name', label: t('columnName') },
+    { value: 'gender', label: t('columnGender') },
+    { value: 'level', label: t('columnLevel') },
     { value: 'totalMatches', label: t('columnTotalMatches') },
-    { value: 'regularMatches', label: t('columnRegularMatches') },
     { value: 'extraMatches', label: t('columnExtraMatches') },
     { value: 'wins', label: t('columnWins') },
     { value: 'losses', label: t('columnLosses') },
     { value: 'winRate', label: t('columnWinRate') },
-    { value: 'averageScore', label: t('columnAvgScore') },
-    { value: 'totalPlayTime', label: t('columnTotalPlayTime') },
-    { value: 'totalWaitTime', label: t('columnTotalWaitTime') },
   ];
 
   const selectStyles = {
@@ -267,13 +265,13 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
                     {t('columnName')}
                   </Table.ColumnHeader>
                   <Table.ColumnHeader py={3} textAlign="center">
-                    {t('columnTotalMatches')}
+                    {t('columnGender')}
                   </Table.ColumnHeader>
                   <Table.ColumnHeader py={3} textAlign="center">
-                    <HStack justify="center" gap={1}>
-                      <Text>{t('columnRegularMatches')}</Text>
-                      <Icon as={Archive} boxSize={3} color="gray.400" />
-                    </HStack>
+                    {t('columnLevel')}
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader py={3} textAlign="center">
+                    {t('columnTotalMatches')}
                   </Table.ColumnHeader>
                   <Table.ColumnHeader py={3} textAlign="center">
                     {t('columnExtraMatches')}
@@ -290,14 +288,8 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
                       <Text>{t('columnWinRate')}</Text>
                     </HStack>
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader py={3} textAlign="center">
-                    {t('columnAvgScore')}
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader py={3} textAlign="center">
-                    {t('columnTotalPlayTime')}
-                  </Table.ColumnHeader>
                   <Table.ColumnHeader py={3} textAlign="center" pe={4}>
-                    {t('columnTotalWaitTime')}
+                    {t('columnAction')}
                   </Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
@@ -323,10 +315,13 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
                       {p.name || t('unnamed')}
                     </Table.Cell>
                     <Table.Cell py={2.5} textAlign="center">
-                      {p.totalMatches}
+                      {p.gender ? t(p.gender.toLowerCase()) : '-'}
                     </Table.Cell>
-                    <Table.Cell py={2.5} textAlign="center" color="gray.500">
-                      {p.regularMatches || 0}
+                    <Table.Cell py={2.5} textAlign="center">
+                      {p.level || '-'}
+                    </Table.Cell>
+                    <Table.Cell py={2.5} textAlign="center">
+                      {p.totalMatches}
                     </Table.Cell>
                     <Table.Cell py={2.5} textAlign="center" color="gray.500">
                       {p.extraMatches || 0}
@@ -355,14 +350,10 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
                         {p.winRate}%
                       </Text>
                     </Table.Cell>
-                    <Table.Cell py={2.5} textAlign="center">
-                      {p.averageScore}
-                    </Table.Cell>
-                    <Table.Cell py={2.5} textAlign="center">
-                      {p.totalPlayTime || 0}m
-                    </Table.Cell>
                     <Table.Cell py={2.5} textAlign="center" pe={4}>
-                      {p.totalWaitTime || 0}m
+                      <Button size="xs" variant="ghost" disabled>
+                        {t('actionPlaceholder') || '...'}
+                      </Button>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -415,4 +406,4 @@ const SessionPlayerStatistics: React.FC<SessionPlayerStatisticsProps> = ({
   );
 };
 
-export default SessionPlayerStatistics;
+export default SessionPlayers;

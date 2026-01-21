@@ -57,10 +57,16 @@
       "8": "CN"
     },
     "gender": "Giới tính",
+    "male": "Nam",
+    "female": "Nữ",
+    "other": "Khác",
+    "preferNotToSay": "Không muốn tiết lộ",
     "level": "Trình độ",
     "matchesPlayed": "Trận đã chơi",
     "pair": "Cặp",
-    "waitTime": "Thời gian chờ"
+    "waitTime": "Thời gian chờ",
+    "playerName": "Tên người chơi",
+    "status": "Trạng thái"
   },
   "session": {
     "title": "Kèo cầu lông",
@@ -370,6 +376,7 @@
       "saveAll": "Lưu tất cả ({count})",
       "existingPlayers": "Người chơi hiện có ({count})",
       "newPlayersTitle": "Người chơi mới ({count})",
+      "addPlayerModalTitle": "Thêm người chơi ({count})",
       "newPlayers": "Người chơi mới ({count})",
       "newPlayer": "Người chơi mới",
       "existing": "hiện có",
@@ -401,9 +408,18 @@
       "saveChanges": "Lưu thay đổi",
       "cancelEditing": "Hủy chỉnh sửa",
       "editingPlayer": "Đang chỉnh sửa người chơi",
+      "editPlayerModalTitle": "Chỉnh sửa người chơi #{number}",
       "addNewPlayer": "Thêm người chơi mới",
       "noPlayersYet": "Chưa có người chơi trong kèo này",
       "noPlayersYetDescription": "Thêm người chơi bằng nút \"Thêm người chơi\" ở trên để bắt đầu!",
+      "noPlayersWithFilter": "Không có người chơi với trạng thái này",
+      "noPlayersWithFilterDescription": "Không có người chơi nào có trạng thái \"{status}\" trong kèo này.",
+      "filter": {
+        "playing": "Đang chơi",
+        "waiting": "Đang chờ",
+        "ready": "Sẵn sàng",
+        "inactive": "Không hoạt động"
+      },
       "noPlayersDescription": "Thêm người chơi bằng nút \"Thêm người chơi\" ở trên để bắt đầu!",
       "addYourFirstPlayer": "Thêm người chơi đầu tiên",
       "clickEditToModify": "Nhấn Sửa để thay đổi thông tin người chơi",
@@ -1038,6 +1054,13 @@
     "validationError": "Lỗi xác thực"
   },
   "SessionDetail": {
+    "common": {
+      "cancel": "Hủy"
+    },
+    "tabOverview": "Tổng quan",
+    "tabStatus": "Cá nhân",
+    "tabCourts": "Sân đấu",
+    "tabResults": "Kết quả",
     "playerStatsTitle": "Thống kê cá nhân",
     "stats": {
       "wins": "Thắng",
@@ -1113,8 +1136,9 @@
     "failedToUpdatePlayer": "Không thể cập nhật người chơi",
     "unknownError": "Lỗi không xác định",
     "failedToDeletePlayer": "Không thể xóa người chơi",
+    "noPlayersAvailable": "Chưa có người chơi nào",
     "courtsTab": {
-      "activeCourts": "Trạng thái sân",
+      "activeCourts": "Sân",
       "startSessionToBeginMatches": "Bắt đầu kèo để bắt đầu các trận đấu",
       "sessionHasEnded": "Kèo đã kết thúc",
       "courtNumber": "Sân {number}",
@@ -1141,8 +1165,8 @@
       "back": "Quay lại",
       "cancel": "Hủy",
       "confirmAndStartMatch": "Xác nhận & Bắt đầu trận đấu",
-      "confirmMatch": "Xác nhận trận đấu",
-      "confirmMatchManual": "Xác nhận trận đấu ({count}/4)",
+      "confirmMatch": "Xác nhận",
+      "confirmMatchManual": "Xác nhận ({count}/4)",
       "manualPlayerSelectionTitle": "Chọn người chơi thủ công - Sân {courtNumber}",
       "selectedPlayersCount": "Người chơi đã chọn ({count}/4):",
       "pairNumber": "Cặp {number}",
@@ -1202,6 +1226,11 @@
       "playerStatistics": "Thống kê người chơi",
       "managePlayers": "Quản lý người chơi",
       "gridView": "Xem dạng lưới",
+      "grid": "Lưới",
+      "list": "Danh sách",
+      "backToPlayers": "Quay lại",
+      "filter": "Bộ lọc",
+      "clearFilter": "Xóa bộ lọc",
       "noPlayersFound": "Không tìm thấy người chơi nào có trạng thái {status}"
     },
     "matchs": {
@@ -1232,12 +1261,16 @@
     "yes": "Có",
     "no": "Không"
   },
-  "SessionPlayerStatistics": {
+  "SessionPlayers": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",
     "noDataAvailable": "Không có thống kê người chơi.",
     "tableCaption": "Thống kê người chơi trong phiên này",
     "columnNo": "STT",
     "columnName": "Tên",
+    "columnGender": "Giới tính",
+    "columnLevel": "Trình độ",
+    "columnAction": "Tác vụ",
+    "actionPlaceholder": "...",
     "columnTotalMatches": "Tổng trận",
     "columnRegularMatches": "Trận chính",
     "columnExtraMatches": "Trận thêm",
@@ -1316,6 +1349,16 @@
       "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
       "accountCreated": "Tạo tài khoản thành công! Vui lòng đăng nhập.",
       "registrationFailed": "Đăng ký thất bại"
+    },
+    "guard": {
+      "authenticating": "Đang xác thực...",
+      "redirectingToSignIn": "Đang chuyển hướng đến đăng nhập...",
+      "accessDenied": "Truy cập bị từ chối",
+      "permissionDenied": "Bạn không có quyền truy cập trang này.",
+      "requiredRole": "Vai trò yêu cầu:",
+      "yourRole": "Vai trò của bạn:",
+      "unknown": "Không xác định",
+      "goHome": "Về trang chủ"
     }
   },
   "admin": {
@@ -1344,5 +1387,32 @@
     "failedToUpdateUser": "Không thể cập nhật người dùng",
     "failedToDeleteUser": "Không thể xóa người dùng",
     "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên."
+  },
+  "PlayerDetailModal": {
+    "status": "Trạng thái",
+    "level": "Trình độ",
+    "gender": "Giới tính",
+    "matchesPlayed": "Trận đã chơi",
+    "waitTime": "Thời gian chờ",
+    "totalWaitTime": "Tổng thời gian chờ",
+    "currentCourt": "Sân hiện tại",
+    "joinSessionInfo": "Thông tin tham gia kèo",
+    "qrCodeDescription": "Người chơi có thể quét mã QR hoặc sử dụng đường link để tham gia trực tiếp.",
+    "copyUrl": "Sao chép URL",
+    "copyId": "Sao chép mã",
+    "joinCodeCopied": "Đã sao chép mã tham gia!",
+    "joinUrlCopied": "Đã sao chép URL tham gia!",
+    "unknown": "Không xác định",
+    "statusValues": {
+      "playing": "Đang chơi",
+      "waiting": "Đang chờ",
+      "ready": "Sẵn sàng",
+      "idle": "Nghỉ"
+    },
+    "genderValues": {
+      "male": "Nam",
+      "female": "Nữ",
+      "other": "Khác"
+    }
   }
 }
