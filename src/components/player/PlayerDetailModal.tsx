@@ -128,7 +128,7 @@ export const PlayerDetailModal = ({
               <Avatar.Fallback name={player.name || `Player ${player.playerNumber}`}>
                 <User size={40} />
               </Avatar.Fallback>
-              <Avatar.Image src={player.user?.image || ''} />
+              {player.user?.image && <Avatar.Image src={player.user.image} />}
             </Avatar.Root>
           </Box>
           <Text fontSize="2xl" fontWeight="bold" textAlign="center">
