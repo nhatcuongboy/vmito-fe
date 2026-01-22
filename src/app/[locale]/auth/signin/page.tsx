@@ -169,6 +169,7 @@ function SignInForm() {
                   <Field.Label>{t('email')}</Field.Label>
                   <Input
                     {...register('email')}
+                    data-testid="email-input"
                     type="email"
                     placeholder={t('emailPlaceholder')}
                   />
@@ -179,6 +180,7 @@ function SignInForm() {
                   <Field.Label>{t('password')}</Field.Label>
                   <PasswordInput
                     {...register('password')}
+                    data-testid="password-input"
                     placeholder={t('passwordPlaceholder')}
                   />
                   <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
@@ -186,6 +188,7 @@ function SignInForm() {
 
                 <Button
                   type="submit"
+                  data-testid="login-button"
                   colorScheme="blue"
                   width="full"
                   size="lg"

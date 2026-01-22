@@ -1,85 +1,144 @@
-# Badminton Session Management UI - Phase 1
+# Frontend UI Components Guide
 
-This document provides an overview of the UI implementation for Phase 1 of the Badminton Session Management system.
+**Last Updated**: January 22, 2026  
+**Framework**: Next.js 15 with App Router  
+**UI Library**: Chakra UI v3
 
-## Pages Implemented
+---
 
-### Home Page
+## Route Structure
 
-- Modern landing page with hero section, features, and getting started guides
-- Navigation to host and player interfaces
-- Path: `/src/app/page.tsx`
+See [PAGES_BY_ROLE.md](./PAGES_BY_ROLE.md) for complete route documentation.
 
-### Host Interface
+```
+/[locale]/
+├── auth/signin, auth/signup       # Authentication
+├── host/                          # Host management
+│   ├── dashboard                  # Host dashboard
+│   ├── sessions/                  # Session list, create, manage
+│   └── tournaments/               # Tournament management
+├── player/                        # Player views
+│   └── sessions/[id]              # Player session view
+├── guest/                         # Guest flow
+│   └── join/status                # Guest status page
+└── browse/                        # Public browsing
+    └── sessions, tournaments
+```
 
-1. **Host Dashboard**
-   - Overview of active sessions
-   - Ability to create new sessions
-   - Session history view
-   - Path: `/src/app/host/page.tsx`
+---
 
-2. **Create Session**
-   - Form to configure a new badminton session
-   - Fields for session name, courts, duration, player limits, etc.
-   - Path: `/src/app/host/new/page.tsx`
+## Core Components
 
-3. **Session Management**
-   - Session details and status
-   - Tabs for Players, Courts, Waiting Queue, and Match History
-   - Controls for starting/ending the session
-   - Path: `/src/app/host/sessions/[id]/page.tsx`
+### Layout Components
 
-### Player Interface
+| Component | Path | Description |
+|-----------|------|-------------|
+| `MainLayout` | `components/layout/MainLayout.tsx` | Main page wrapper |
+| `TopBar` | `components/layout/TopBar.tsx` | Navigation header |
+| `SidebarMenu` | `components/layout/SidebarMenu.tsx` | Side navigation |
 
-1. **Join Session**
-   - Form to join a session using session ID and player number
-   - Path: `/src/app/join/page.tsx`
+### UI Components (`components/ui/`)
 
-2. **Confirm Details**
-   - Form to confirm personal details
-   - Fields for name, gender, skill level, phone
-   - Path: `/src/app/join/confirm/page.tsx`
+| Component | Description |
+|-----------|-------------|
+| `CommonModal` | Standardized modal with animations |
+| `Avatar` | User avatar with fallback |
+| `LanguageSwitcher` | i18n language selector |
+| `PasswordInput` | Password with visibility toggle |
 
-3. **Player Status**
-   - Live view of player's status (waiting, playing, finished)
-   - Queue position and wait time
-   - Auto-refreshing interface
-   - Path: `/src/app/join/status/page.tsx`
+### Session Components (`components/session/`)
 
-## Components
+| Component | Description |
+|-----------|-------------|
+| `PlayersTab` | Player grid/list views |
+| `CourtsTab` | Court management |
+| `MatchesTab` | Match history |
+| `SessionStatusHeader` | Session status display |
 
-### Player Components
+### Player Components (`components/player/`)
 
-- `AddPlayerForm`: Form for adding players to a session
-- `PlayerCard`: Card displaying player details
-- `PlayerList`: Grid layout of player cards
-- Path: `/src/components/player/player-components.tsx`
+| Component | Description |
+|-----------|-------------|
+| `PlayerGrid` | Grid view of players |
+| `PlayerList` | List view of players |
+| `PlayerDetailModal` | Player info modal |
+| `PlayerManagement` | Add/edit players |
+| `AddPlayerModal` | Add new player |
+| `EditPlayerModal` | Edit existing player |
 
-### Court Components
+### Court Components (`components/court/`)
 
-- `CourtCard`: Card displaying court status and current match
-- `CourtList`: Grid layout of court cards
-- `SelectPlayersModal`: Modal for selecting players for a court
-- Path: `/src/components/court/court-components.tsx`
+| Component | Description |
+|-----------|-------------|
+| `CourtCard` | Court status card |
+| `ManualSelectPlayersModal` | Manual player selection |
+| `MatchPreviewModal` | Match preview before start |
+| `MatchResultModal` | End match with score |
 
-## UI Features
+### Guards (`components/guards/`)
 
-1. Responsive design for all screen sizes
-2. Tab-based navigation for complex interfaces
-3. Real-time status indicators for players and courts
-4. Form validation for data entry
-5. Visual feedback for waiting times and queue positions
+| Component | Description |
+|-----------|-------------|
+| `ProtectedRouteGuard` | Requires authentication |
+| `PublicRouteGuard` | Redirects if authenticated |
 
-## Integration with API
+---
 
-The UI components are designed to integrate with the existing API endpoints defined in `/src/lib/api.ts`.
+## State Management
 
-Current implementation uses mock data for demonstration, but the components are structured to easily connect to the real API when ready.
+### Zustand Stores (`stores/`)
 
-## Next Steps
+| Store | Purpose |
+|-------|---------|
+| `useAuthStore` | Authentication state |
+| `useSessionStore` | Current session data |
 
-1. Connect UI components to actual API endpoints
-2. Implement authentication for host
-3. Add real-time updates using websockets (Phase 2)
-4. Enhance error handling and loading states
-5. Add animations and transitions for better UX
+---
+
+## Internationalization
+
+See [README-I18N.md](./README-I18N.md) for i18n documentation.
+
+- **Locales**: English (en), Vietnamese (vi), Chinese (cn)
+- **Hook**: `useTranslations('scope')`
+- **Files**: `src/i18n/messages/*.json`
+
+---
+
+## Styling
+
+- **Chakra UI v3**: Component library
+- **CSS**: Custom styles in `src/app/globals.css`
+- **Theme**: Extended in `src/theme/`
+
+---
+
+## Key Patterns
+
+### Modal Pattern
+```tsx
+import { CommonModal } from '@/components/ui/CommonModal';
+
+<CommonModal
+  isOpen={isOpen}
+  onClose={onClose}
+  title="Modal Title"
+  primaryLabel="Confirm"
+  onPrimaryClick={handleConfirm}
+/>
+```
+
+### Translation Pattern
+```tsx
+import { useTranslations } from 'next-intl';
+
+const t = useTranslations('SessionDetail');
+return <h1>{t('title')}</h1>;
+```
+
+### Protected Route Pattern
+```tsx
+<ProtectedRouteGuard requiredRole={['HOST', 'ADMIN']}>
+  <HostDashboard />
+</ProtectedRouteGuard>
+```

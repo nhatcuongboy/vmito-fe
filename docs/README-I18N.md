@@ -1,11 +1,14 @@
-# Hệ thống Đa ngôn ngữ (i18n) - Badminton App
+# Internationalization (i18n) - Badminton App
 
-## Tổng quan
+**Last Updated**: January 22, 2026
 
-Ứng dụng Badminton đã được cài đặt hệ thống đa ngôn ngữ (internationalization - i18n) hỗ trợ:
+## Overview
 
-- **Tiếng Anh (English)** - Ngôn ngữ mặc định (`en`)
-- **Tiếng Việt (Vietnamese)** - (`vi`)
+The Badminton App supports multi-language (internationalization - i18n):
+
+- **English** - Default language (`en`)
+- **Vietnamese / Tiếng Việt** - (`vi`)
+- **Chinese / 中文** - (`cn`)
 
 ## Cấu trúc i18n
 
@@ -15,10 +18,11 @@
 - **`src/i18n/request.ts`**: Xử lý request và load messages
 - **`middleware.ts`**: Middleware xử lý routing với locale
 
-### 2. File messages
+### 2. Message Files
 
-- **`src/i18n/messages/en.json`**: Bản dịch tiếng Anh
-- **`src/i18n/messages/vi.json`**: Bản dịch tiếng Việt
+- **`src/i18n/messages/en.json`**: English translations
+- **`src/i18n/messages/vi.json`**: Vietnamese translations
+- **`src/i18n/messages/cn.json`**: Chinese translations
 
 ### 3. Cấu trúc URL
 
