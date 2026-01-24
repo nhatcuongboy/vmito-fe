@@ -28,9 +28,9 @@ export const AuthService = {
     console.log('Login data:', loginData);
 
     // Save to auth store
-    const { user, accessToken } = loginData;
+    const { user, accessToken, refreshToken } = loginData;
     console.log('User from response:', user);
-    useAuthStore.getState().setAuth(user, accessToken);
+    useAuthStore.getState().setAuth(user, accessToken, refreshToken);
 
     return loginData;
   },
@@ -54,11 +54,20 @@ export const AuthService = {
    * Get new token (refresh)
    */
   refreshToken: async (): Promise<LoginResponse> => {
-    const response = await api.get<LoginResponse>('/auth/token');
+    // Get current refresh token from store
+    const currentRefreshToken = useAuthStore.getState().refreshToken;
+
+    if (!currentRefreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await api.post<LoginResponse>('/auth/refresh', {
+      refreshToken: currentRefreshToken,
+    });
 
     // Update token in store
-    const { accessToken } = response.data;
-    useAuthStore.getState().updateToken(accessToken);
+    const { accessToken, refreshToken } = response.data;
+    useAuthStore.getState().updateToken(accessToken, refreshToken);
 
     return response.data;
   },

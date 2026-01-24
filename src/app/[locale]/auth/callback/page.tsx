@@ -18,13 +18,14 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const token = searchParams.get('token');
+    const refreshToken = searchParams.get('refreshToken');
     const userId = searchParams.get('userId');
     const email = searchParams.get('email');
     const name = searchParams.get('name');
     const role = searchParams.get('role');
     const image = searchParams.get('image');
 
-    if (token && userId && email && role) {
+    if (token && refreshToken && userId && email && role) {
       // Store auth data
       setAuth(
         {
@@ -34,7 +35,8 @@ function AuthCallbackContent() {
           role: role as UserRole,
           image: image,
         },
-        token
+        token,
+        refreshToken
       );
 
       // Defer toaster and redirect to next tick to avoid flushSync error

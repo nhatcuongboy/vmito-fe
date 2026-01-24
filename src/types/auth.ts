@@ -16,6 +16,7 @@ export interface User {
 
 export interface AuthTokens {
   accessToken: string;
+  refreshToken: string;
   tokenType: string;
   expiresIn: string | number;
 }
@@ -23,6 +24,7 @@ export interface AuthTokens {
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -40,6 +42,7 @@ export interface RegisterRequest {
 
 export interface LoginResponse {
   accessToken: string;
+  refreshToken: string;
   tokenType: string;
   expiresIn: string | number;
   user: User;

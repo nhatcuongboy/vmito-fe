@@ -7,17 +7,18 @@ interface AuthState {
   // State
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrated: boolean;
 
   // Actions
-  setAuth: (user: User, token: string) => void;
+  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   clearAuth: () => void;
   setUser: (user: User) => void;
   setGuestAuth: (playerId: string, sessionId: string, joinCode: string) => void;
   setLoading: (loading: boolean) => void;
-  updateToken: (token: string) => void;
+  updateToken: (accessToken: string, refreshToken?: string) => void;
   setHydrated: (hydrated: boolean) => void;
 }
 
@@ -28,16 +29,18 @@ export const useAuthStore = create<AuthState>()(
         // Initial state
         user: null,
         accessToken: null,
+        refreshToken: null,
         isAuthenticated: false,
         isLoading: true,
         isHydrated: false,
 
         // Actions
-        setAuth: (user, token) =>
+        setAuth: (user, accessToken, refreshToken) =>
           set(
             {
               user,
-              accessToken: token,
+              accessToken,
+              refreshToken,
               isAuthenticated: true,
               isLoading: false,
             },
@@ -50,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
             {
               user: null,
               accessToken: null,
+              refreshToken: null,
               isAuthenticated: false,
               isLoading: false,
             },
@@ -72,6 +76,7 @@ export const useAuthStore = create<AuthState>()(
                 joinCode,
               },
               accessToken: null, // No real token for guest
+              refreshToken: null,
               isAuthenticated: true, // Treated as authenticated
               isLoading: false,
             },
@@ -82,8 +87,15 @@ export const useAuthStore = create<AuthState>()(
         setLoading: (loading) =>
           set({ isLoading: loading }, false, 'setLoading'),
 
-        updateToken: (token) =>
-          set({ accessToken: token }, false, 'updateToken'),
+        updateToken: (accessToken, refreshToken) =>
+          set(
+            (state) => ({
+              accessToken,
+              refreshToken: refreshToken || state.refreshToken,
+            }),
+            false,
+            'updateToken'
+          ),
 
         setHydrated: (hydrated) =>
           set({ isHydrated: hydrated, isLoading: false }, false, 'setHydrated'),
@@ -94,6 +106,7 @@ export const useAuthStore = create<AuthState>()(
         partialize: (state) => ({
           user: state.user,
           accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
           isAuthenticated: state.isAuthenticated,
         }),
         onRehydrateStorage: () => (state) => {

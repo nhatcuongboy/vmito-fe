@@ -1,10 +1,10 @@
 {
   "navigation": {
-    "host": "Tổ chức",
+    "host": "Host",
     "join": "Tham gia",
     "home": "Trang chủ",
     "tournaments": "Giải đấu",
-    "browse": "Khám phá",
+    "browse": "Tìm kèo",
     "users": "Người dùng",
     "mySessions": "Kèo của tôi"
   },
@@ -96,7 +96,7 @@
     "courtsAvailable": "sân có sẵn",
     "players": "người chơi",
     "manageSession": "Quản lý kèo",
-    "host": "Tổ chức",
+    "host": "Host",
     "deleteSession": "Xóa",
     "viewSession": "Xem kèo",
     "deleteConfirmation": "Bạn có chắc chắn muốn xóa kèo này không?",
