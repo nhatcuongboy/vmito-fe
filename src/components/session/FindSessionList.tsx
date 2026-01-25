@@ -36,9 +36,15 @@ const TIME_RANGES = [
 
 type TimeRangeKey = (typeof TIME_RANGES)[number]['key'];
 
-export default function FindSessionList() {
-  const [sessions, setSessions] = useState<ISession[]>([]);
-  const [loading, setLoading] = useState(true);
+interface FindSessionListProps {
+  initialSessions?: ISession[];
+}
+
+export default function FindSessionList({
+  initialSessions = [],
+}: FindSessionListProps) {
+  const [sessions, setSessions] = useState<ISession[]>(initialSessions);
+  const [loading, setLoading] = useState(initialSessions.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [joinedSessionIds, setJoinedSessionIds] = useState<Set<string>>(
     new Set()
@@ -84,7 +90,10 @@ export default function FindSessionList() {
   };
 
   useEffect(() => {
-    fetchSessions();
+    // Only fetch if no initial data was provided
+    if (initialSessions.length === 0) {
+      fetchSessions();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

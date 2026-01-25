@@ -1,26 +1,41 @@
-'use client';
+import BrowseSessionsClient from './BrowseSessionsClient';
 
-import { Box, Container } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
-import TopBar from '@/components/ui/TopBar';
-import FindSessionList from '@/components/session/FindSessionList';
+// Enable ISR with 30 second revalidation
+export const revalidate = 30;
 
-export default function FindSessionPage() {
-  const t = useTranslations('session');
+// Server-side data fetching
+async function getInitialSessions() {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const response = await fetch(`${apiUrl}/sessions/available`, {
+      next: { revalidate: 30 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch sessions:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('SSR fetch error:', error);
+    return [];
+  }
+}
+
+export default async function FindSessionPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const initialSessions = await getInitialSessions();
 
   return (
-    <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar title={t('findSession')} />
-      <Container
-        maxW="container.xl"
-        pt={{
-          base: 'calc(44px + env(safe-area-inset-top) + 1rem)',
-          md: 'calc(56px + env(safe-area-inset-top) + 2rem)',
-        }}
-        pb={8}
-      >
-        <FindSessionList />
-      </Container>
-    </Box>
+    <BrowseSessionsClient locale={locale} initialSessions={initialSessions} />
   );
 }
