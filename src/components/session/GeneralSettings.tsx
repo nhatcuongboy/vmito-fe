@@ -1,14 +1,15 @@
 'use client';
 
-import { Card, CardBody } from '@/components/ui/chakra-compat';
+import { Card, CardBody, Button, Select } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { SessionService } from '@/lib/api/session.service';
+import { VenueService } from '@/lib/api/venue.service';
+import { Venue } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
   Box,
-  Button,
   Flex,
   Grid,
   Heading,
@@ -32,7 +33,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
 
 interface GeneralSettingsProps {
@@ -51,6 +52,10 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const [pendingRequiredLevels, setPendingRequiredLevels] = useState<number[]>(
     []
   );
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [selectedVenueId, setSelectedVenueId] = useState<string>(
+    session.venue?.id || ''
+  );
   const [formData, setFormData] = useState({
     name: session.name || '',
     description: session.description || '',
@@ -68,6 +73,19 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       : '',
     courtColor: session.courtColor || '#179a3b',
   });
+
+  // Fetch venues on component mount
+  useEffect(() => {
+    const fetchVenues = async () => {
+      try {
+        const venueData = await VenueService.getAllVenues();
+        setVenues(venueData);
+      } catch (error) {
+        console.error('Error fetching venues:', error);
+      }
+    };
+    fetchVenues();
+  }, []);
 
   const COURT_COLORS = [
     { name: 'Green', value: '#179a3b' },
@@ -158,12 +176,28 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
     setIsLoading(true);
     try {
-      const updateData = {
+      // Find selected venue and prepare inline venue object
+      const selectedVenue = venues.find((v) => v.id === selectedVenueId);
+      const venueData = selectedVenue
+        ? {
+            placeId: selectedVenue.placeId,
+            name: selectedVenue.name,
+            address: selectedVenue.address,
+            lat: selectedVenue.lat,
+            lng: selectedVenue.lng,
+            district: selectedVenue.district,
+            city: selectedVenue.city,
+          }
+        : undefined;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = {
         ...formData,
         startTime: formData.startTime
           ? new Date(formData.startTime)
           : undefined,
         endTime: formData.endTime ? new Date(formData.endTime) : undefined,
+        venue: venueData,
       };
       await SessionService.updateSession(session.id, updateData);
       // toaster.success({ title: tValidation('sessionUpdatedSuccessfully') });
@@ -257,20 +291,23 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       {t('location')}
                     </Text>
                   </HStack>
-                  <Input
-                    value={formData.location}
-                    onChange={(e) =>
-                      handleInputChange('location', e.target.value)
+                  <Select
+                    value={selectedVenueId}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setSelectedVenueId(e.target.value)
                     }
-                    placeholder={t('enterLocation')}
-                    size="lg"
-                    borderRadius="lg"
-                    borderColor="gray.300"
-                    _focus={{
-                      borderColor: 'blue.400',
-                      boxShadow: '0 0 0 1px #3182ce',
-                    }}
-                  />
+                  >
+                    <option value="">
+                      {t('selectVenue', {
+                        defaultValue: 'Select a venue...',
+                      })}
+                    </option>
+                    {venues.map((venue) => (
+                      <option key={venue.id} value={venue.id}>
+                        {venue.name} - {venue.address}
+                      </option>
+                    ))}
+                  </Select>
                 </Box>
 
                 <Box>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Heading } from '@chakra-ui/react';
+import { Box, Container } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import FindSessionList from '@/components/session/FindSessionList';
@@ -10,11 +10,12 @@ export default function FindSessionPage() {
 
   return (
     <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar />
-      <Container maxW="container.xl" py={8}>
-        <Heading size="lg" mb={6}>
-          {t('findSession')}
-        </Heading>
+      <TopBar title={t('findSession')} />
+      <Container
+        maxW="container.xl"
+        pt={{ base: 'calc(44px + env(safe-area-inset-top) + 1rem)', md: 'calc(56px + env(safe-area-inset-top) + 2rem)' }}
+        pb={8}
+      >
         <FindSessionList />
       </Container>
     </Box>

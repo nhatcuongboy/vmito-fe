@@ -62,6 +62,17 @@ export enum PlayerLevel {
   PRO = 8,
 }
 
+export interface Venue {
+  id: string;
+  placeId: string;
+  name: string;
+  address: string;
+  lat?: number;
+  lng?: number;
+  district?: string;
+  city?: string;
+}
+
 // Session types
 export interface ISession {
   id: string;
@@ -72,6 +83,8 @@ export interface ISession {
     name: string;
     email: string;
   };
+  hostName?: string;
+  hostPhone?: string;
   numberOfCourts: number;
   sessionDuration: number;
   maxPlayersPerCourt: number;
@@ -86,6 +99,7 @@ export interface ISession {
   createdAt: Date;
   updatedAt: Date;
   location?: string;
+  venue?: Venue;
   description?: string;
   courts?: Court[];
   players?: Player[];
@@ -231,6 +245,9 @@ export interface CourtConfig {
 // Session creation interface
 export interface CreateSessionRequest {
   name: string;
+  description?: string;
+  hostName?: string;
+  hostPhone?: string;
   numberOfCourts: number;
   sessionDuration: number;
   maxPlayersPerCourt: number;
@@ -240,6 +257,7 @@ export interface CreateSessionRequest {
   endTime?: Date;
   courtColor?: string;
   courts?: CourtConfig[];
+  venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
 }
 
 // Suggested players response types

@@ -16,10 +16,12 @@ import {
   Input,
   Stack,
   Text,
+  Textarea,
   VStack,
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/chakra-compat';
 import { Plus, Minus, Save, Shield } from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
@@ -28,6 +30,9 @@ import { useSearchParams, useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
+import { Select } from '@/components/ui/chakra-compat';
+import { Venue } from '@/lib/api/types';
+import { VenueService } from '@/lib/api/venue.service';
 
 function formatDateTimeLocal(date: Date): string {
   const year = date.getFullYear();
@@ -44,9 +49,15 @@ function NewSessionPageContent() {
   const params = useParams();
   const _locale = params.locale as string;
   const t = useTranslations('session');
+  const tc = useTranslations('common');
   const { getLevelLabel } = useLevelLabel();
+  const { user } = useAuthStore();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [description, setDescription] = useState('');
+  const [hostName, setHostName] = useState(user?.name || '');
+  const [hostPhone, setHostPhone] = useState('');
+  const [allLevelsSelected, setAllLevelsSelected] = useState(true);
   const [courts, setCourts] = useState([
     {
       courtNumber: 1,
@@ -56,6 +67,8 @@ function NewSessionPageContent() {
   ]);
   const [requiredLevels, setRequiredLevels] = useState<number[]>([]);
   const [courtColor, setCourtColor] = useState(COURT_COLORS[0].value);
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [selectedVenueId, setSelectedVenueId] = useState<string>('');
 
   const now = new Date();
   const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
@@ -84,13 +97,21 @@ function NewSessionPageContent() {
   }, [startTime, endTime]);
 
   useEffect(() => {
+    const fetchVenues = async () => {
+      try {
+        const venueData = await VenueService.getAllVenues();
+        setVenues(venueData);
+      } catch (error) {
+        console.error('Error fetching venues:', error);
+      }
+    };
+    fetchVenues();
+
     const error = searchParams.get('error');
     const details = searchParams.get('details');
     if (error) {
       toaster.error({
-        title: decodeURIComponent(
-          details || t('validation.sessionCreateFailed')
-        ),
+        title: decodeURIComponent(details || t('validation.sessionCreateFailed')),
       });
     }
   }, [searchParams, t]);
@@ -115,6 +136,32 @@ function NewSessionPageContent() {
     setIsLoading(true);
 
     try {
+      // Validate required fields
+      if (!selectedVenueId) {
+        toaster.error({ title: t('validation.locationRequired') });
+        return;
+      }
+
+      if (!startTime) {
+        toaster.error({ title: t('validation.startTimeRequired') });
+        return;
+      }
+
+      if (!endTime) {
+        toaster.error({ title: t('validation.endTimeRequired') });
+        return;
+      }
+
+      if (!hostName.trim()) {
+        toaster.error({ title: t('validation.hostNameRequired') });
+        return;
+      }
+
+      if (!hostPhone.trim()) {
+        toaster.error({ title: t('validation.hostPhoneRequired') });
+        return;
+      }
+
       if (!isEndTimeValid) {
         toaster.error({ title: t('endTimeMustBeAfterStartTime') });
         return;
@@ -131,16 +178,34 @@ function NewSessionPageContent() {
         formData.get('maxPlayersPerCourt') as string
       );
 
+      // Find selected venue and prepare inline venue object
+      const selectedVenue = venues.find((v) => v.id === selectedVenueId);
+      const venueData = selectedVenue
+        ? {
+            placeId: selectedVenue.placeId,
+            name: selectedVenue.name,
+            address: selectedVenue.address,
+            lat: selectedVenue.lat,
+            lng: selectedVenue.lng,
+            district: selectedVenue.district,
+            city: selectedVenue.city,
+          }
+        : undefined;
+
       const session = await SessionService.createSession({
         name,
+        description: description.trim() || undefined,
+        hostName: hostName.trim(),
+        hostPhone: hostPhone.trim(),
         numberOfCourts: courts.length,
         sessionDuration,
         maxPlayersPerCourt,
         requirePlayerInfo: false,
-        requiredLevels: requiredLevels.length > 0 ? requiredLevels : undefined,
+        requiredLevels: allLevelsSelected ? undefined : (requiredLevels.length > 0 ? requiredLevels : undefined),
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         courtColor,
+        venue: venueData,
         courts: courts.map((court) => ({
           courtNumber: court.courtNumber,
           courtName: court.courtName || undefined,
@@ -189,11 +254,29 @@ function NewSessionPageContent() {
     value: string | number | CourtDirection
   ) => {
     const newCourts = [...courts];
-    newCourts[index] = { ...newCourts[index], [field]: value };
+    let newValue = value;
+    if (field === 'courtNumber') {
+      // Always store as number
+      newValue = typeof value === 'string' ? parseInt(value) || 1 : value;
+    }
+    newCourts[index] = { ...newCourts[index], [field]: newValue };
     setCourts(newCourts);
   };
 
+  const handleAllLevelsToggle = () => {
+    if (allLevelsSelected) {
+      setAllLevelsSelected(false);
+      setRequiredLevels([]);
+    } else {
+      setAllLevelsSelected(true);
+      setRequiredLevels([]);
+    }
+  };
+
   const handleLevelToggle = (level: number) => {
+    if (allLevelsSelected) {
+      setAllLevelsSelected(false);
+    }
     setRequiredLevels((prev) => {
       const isSelected = prev.includes(level);
       return isSelected ? prev.filter((l) => l !== level) : [...prev, level];
@@ -213,23 +296,90 @@ function NewSessionPageContent() {
           <Stack gap={6}>
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Heading size="md" mb={4}>
-                {t('sessionName')}
+                {t('basicInfo')}
               </Heading>
-              <Input
-                name="name"
-                placeholder={t('sessionNamePlaceholder')}
-                required
-                size="lg"
-              />
+              <Stack gap={4}>
+                <Box>
+                  <Text mb={2} fontWeight="medium">
+                    {t('name')} *
+                  </Text>
+                  <Input
+                    name="name"
+                    placeholder={t('sessionNamePlaceholder')}
+                    required
+                    size="lg"
+                  />
+                </Box>
+                <Box>
+                  <Text mb={2} fontWeight="medium">
+                    {t('description')} ({tc('optional')})
+                  </Text>
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={t('descriptionPlaceholder')}
+                    rows={3}
+                  />
+                </Box>
+                <Box>
+                  <Text mb={2} fontWeight="medium">
+                    {t('location')} *
+                  </Text>
+                  <Select
+                    value={selectedVenueId}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setSelectedVenueId(e.target.value)
+                    }
+                  >
+                    <option value="">{t('generalSettings.selectVenue')}</option>
+                    {venues.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.name} - {v.address}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
+              </Stack>
             </Box>
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Heading size="md" mb={4}>
-                {t('startTime')} & {t('endTime')}
+                {t('hostInfo')}
               </Heading>
               <Flex gap={4}>
                 <Box flex={1}>
-                  <Text mb={2}>{t('startTime')}</Text>
+                  <Text mb={2} fontWeight="medium">
+                    {t('hostName')} *
+                  </Text>
+                  <Input
+                    value={hostName}
+                    onChange={(e) => setHostName(e.target.value)}
+                    placeholder={t('hostNamePlaceholder')}
+                    size="lg"
+                  />
+                </Box>
+                <Box flex={1}>
+                  <Text mb={2} fontWeight="medium">
+                    {t('hostPhone')} *
+                  </Text>
+                  <Input
+                    value={hostPhone}
+                    onChange={(e) => setHostPhone(e.target.value)}
+                    placeholder={t('hostPhonePlaceholder')}
+                    size="lg"
+                    type="tel"
+                  />
+                </Box>
+              </Flex>
+            </Box>
+
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <Heading size="md" mb={4}>
+                {t('time')}
+              </Heading>
+              <Flex gap={4}>
+                <Box flex={1}>
+                  <Text mb={2} fontWeight="medium">{t('start')} *</Text>
                   <Input
                     type="datetime-local"
                     value={startTime}
@@ -238,7 +388,7 @@ function NewSessionPageContent() {
                   />
                 </Box>
                 <Box flex={1}>
-                  <Text mb={2}>{t('endTime')}</Text>
+                  <Text mb={2} fontWeight="medium">{t('end')} *</Text>
                   <Input
                     type="datetime-local"
                     value={endTime}
@@ -249,7 +399,7 @@ function NewSessionPageContent() {
                 </Box>
               </Flex>
               <Text fontSize="sm" color="gray.500" mt={2}>
-                {t('sessionDuration')}: {Math.floor(sessionDuration / 60)}h{' '}
+                {t('duration')}: {Math.floor(sessionDuration / 60)}h{' '}
                 {sessionDuration % 60}m
               </Text>
             </Box>
@@ -273,19 +423,43 @@ function NewSessionPageContent() {
                 <Heading size="md">
                   <HStack>
                     <Shield size={16} />
-                    <Text>Required Player Levels</Text>
+                    <Text>{t('levelsLabel')}</Text>
                   </HStack>
                 </Heading>
 
                 <Box p={4} bg="gray.50" borderRadius="lg">
                   <Text fontSize="sm" color="gray.600" mb={3}>
-                    Select required levels for this session. Leave empty to
-                    allow all levels.
+                    {t('generalSettings.selectRequiredLevels')}
                   </Text>
 
                   <Wrap gap={2}>
+                    <WrapItem>
+                      <Badge
+                        px={3}
+                        py={2}
+                        borderRadius="md"
+                        cursor="pointer"
+                        bg={allLevelsSelected ? 'green.500' : 'gray.200'}
+                        color={allLevelsSelected ? 'white' : 'gray.700'}
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        onClick={handleAllLevelsToggle}
+                        _hover={{
+                          transform: 'translateY(-1px)',
+                          boxShadow: 'sm',
+                        }}
+                        transition="all 0.2s"
+                      >
+                        {t('allLevels')}
+                      </Badge>
+                    </WrapItem>
+
+                    <WrapItem alignItems="center">
+                      <Text color="gray.400" fontSize="sm">|</Text>
+                    </WrapItem>
+
                     {VALID_LEVELS.map((level) => {
-                      const isSelected = requiredLevels.includes(level);
+                      const isSelected = !allLevelsSelected && requiredLevels.includes(level);
                       return (
                         <WrapItem key={level}>
                           <Badge
@@ -298,9 +472,10 @@ function NewSessionPageContent() {
                             fontSize="sm"
                             fontWeight="semibold"
                             onClick={() => handleLevelToggle(level)}
+                            opacity={allLevelsSelected ? 0.5 : 1}
                             _hover={{
-                              transform: 'translateY(-1px)',
-                              boxShadow: 'sm',
+                              transform: allLevelsSelected ? 'none' : 'translateY(-1px)',
+                              boxShadow: allLevelsSelected ? 'none' : 'sm',
                             }}
                             transition="all 0.2s"
                           >
@@ -311,9 +486,15 @@ function NewSessionPageContent() {
                     })}
                   </Wrap>
 
-                  {requiredLevels.length > 0 && (
+                  {!allLevelsSelected && requiredLevels.length > 0 && (
                     <Text fontSize="xs" color="blue.600" mt={2}>
                       ✓ {requiredLevels.length} level(s) selected
+                    </Text>
+                  )}
+
+                  {allLevelsSelected && (
+                    <Text fontSize="xs" color="green.600" mt={2}>
+                      {t('allLevelsAllowedMessage')}
                     </Text>
                   )}
                 </Box>
@@ -322,10 +503,10 @@ function NewSessionPageContent() {
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Heading size="md" mb={4}>
-                Court Appearance
+                {t('courtAppearance')}
               </Heading>
               <Text fontSize="sm" color="gray.600" mb={4}>
-                Select the color for your courts.
+                {t('selectCourtColor')}
               </Text>
 
               <Wrap gap={4}>
@@ -395,12 +576,12 @@ function NewSessionPageContent() {
                     borderRadius="md"
                   >
                     <Text fontWeight="semibold" mb={3}>
-                      Court {index + 1}
+                      {t('court')} {index + 1}
                     </Text>
                     <Flex gap={3} align="start">
                       <Box flex={1}>
                         <Text mb={2} fontSize="sm" fontWeight="medium">
-                          Court Number *
+                          {t('courtNumber')} *
                         </Text>
                         <Input
                           type="number"
@@ -417,10 +598,10 @@ function NewSessionPageContent() {
                       </Box>
                       <Box flex={2}>
                         <Text mb={2} fontSize="sm" fontWeight="medium">
-                          Court Name (Optional)
+                          {t('courtName')} ({tc('optional')})
                         </Text>
                         <Input
-                          placeholder="Enter court name"
+                          placeholder={t('courtNamePlaceholder')}
                           value={court.courtName}
                           onChange={(e) =>
                             handleCourtChange(
@@ -431,12 +612,12 @@ function NewSessionPageContent() {
                           }
                         />
                         <Text fontSize="xs" color="gray.500" mt={1}>
-                          Custom name to help identify this court
+                          {t('courtNameDescription')}
                         </Text>
                       </Box>
                       <Box flex={1}>
                         <Text mb={2} fontSize="sm" fontWeight="medium">
-                          Court Direction *
+                          {t('courtDirection')} *
                         </Text>
                         <select
                           value={court.direction}
@@ -458,14 +639,14 @@ function NewSessionPageContent() {
                           }}
                         >
                           <option value={CourtDirection.HORIZONTAL}>
-                            Horizontal
+                            {t('horizontal')}
                           </option>
                           <option value={CourtDirection.VERTICAL}>
-                            Vertical
+                            {t('vertical')}
                           </option>
                         </select>
                         <Text fontSize="xs" color="gray.500" mt={1}>
-                          Court orientation for better gameplay
+                          {t('courtDirectionDescription')}
                         </Text>
                       </Box>
                       {courts.length > 1 && (
@@ -509,24 +690,21 @@ function NewSessionPageContent() {
               <Flex align="center" gap={2} mb={4}>
                 <Text fontSize="lg">💡</Text>
                 <Heading size="md" color="blue.700">
-                  Pro Tips for Your Session
+                  {t('proTipsForYourSession')}
                 </Heading>
               </Flex>
               <Stack gap={2} fontSize="sm" color="blue.600">
                 <Text>
-                  • Set up court rotation every 15-20 minutes for optimal game
-                  flow
+                  • {t('optimalCourtRotation')}
                 </Text>
                 <Text>
-                  • 2-3 hours is ideal for most recreational badminton sessions
+                  • {t('sessionDurationTip')}
                 </Text>
                 <Text>
-                  • Player information helps with skill-based matching and
-                  communication
+                  • {t('playerInfoHelps')}
                 </Text>
                 <Text>
-                  • Court direction helps optimize player placement and lighting
-                  conditions
+                  • {t('courtDirectionTip')}
                 </Text>
               </Stack>
             </Box>

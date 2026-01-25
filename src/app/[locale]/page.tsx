@@ -19,6 +19,7 @@ import {
   Calendar,
   Check,
   Plus,
+  Search,
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -125,6 +126,20 @@ export default function Home() {
               >
                 {t('joinButton')}
                 <Users className="ml-2" size={18} />
+              </NextLinkButton>
+              <NextLinkButton
+                href="/browse/sessions"
+                size="lg"
+                variant="outline"
+                colorScheme="green"
+                px={8}
+                py={7}
+                fontSize="lg"
+                _hover={{ transform: 'translateY(-3px)' }}
+                transition="all 0.2s"
+              >
+                {t('browseButton')}
+                <Search className="ml-2" size={18} />
               </NextLinkButton>
             </Flex>
           </Container>

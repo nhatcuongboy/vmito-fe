@@ -98,15 +98,15 @@ api.interceptors.response.use(
         // Dynamically import AuthService to avoid circular dependency
         const { AuthService } = await import('./auth.service');
         const { accessToken } = await AuthService.refreshToken();
-        
+
         processQueue(null, accessToken);
-        
+
         // Update authorization header with new token
         originalRequest.headers['Authorization'] = 'Bearer ' + accessToken;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        
+
         // If refresh fails, clear auth and redirect
         const clearAuth = useAuthStore.getState().clearAuth;
         clearAuth();
@@ -119,7 +119,7 @@ api.interceptors.response.use(
             window.location.href = '/auth/signin';
           }, 1000);
         }
-        
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

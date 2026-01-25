@@ -2,7 +2,7 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Info, X, LogOut, LogIn } from 'lucide-react';
+import { Home, Info, X, LogOut, LogIn, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -109,6 +109,18 @@ export default function SlideOutMenu({
                   <Flex align="center" gap={3} w="full">
                     <Home size={18} />
                     <Text>{nav('home')}</Text>
+                  </Flex>
+                </NextLinkButton>
+                <NextLinkButton
+                  href="/browse/sessions"
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={onClose}
+                  w="full"
+                >
+                  <Flex align="center" gap={3} w="full">
+                    <Search size={18} />
+                    <Text>{nav('browse')}</Text>
                   </Flex>
                 </NextLinkButton>
                 {/* <NextLinkButton

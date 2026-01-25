@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl';
 export function useLevelLabel() {
   const t = useTranslations('common.levels');
   const ts = useTranslations('common.levelShorts');
+  const tCommon = useTranslations('common');
 
   /**
    * Get the translated label for a numeric level.
@@ -10,7 +11,8 @@ export function useLevelLabel() {
    * @returns The translated label string
    */
   const getLevelLabel = (level?: number | string | null) => {
-    if (level === undefined || level === null || level === '') return '';
+    if (level === undefined || level === null || level === '')
+      return tCommon('notAvailable');
     return t(`${level}`);
   };
 
@@ -20,7 +22,8 @@ export function useLevelLabel() {
    * @returns The abbreviated translated label string
    */
   const getLevelShortLabel = (level?: number | string | null) => {
-    if (level === undefined || level === null || level === '') return '';
+    if (level === undefined || level === null || level === '')
+      return tCommon('notAvailable');
     return ts(`${level}`);
   };
 

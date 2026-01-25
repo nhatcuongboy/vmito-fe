@@ -1,0 +1,243 @@
+'use client';
+
+import { ISession } from '@/lib/api/types';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import dayjs from '@/lib/dayjs';
+import {
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  Icon,
+  Stack,
+  Text,
+  Wrap,
+} from '@chakra-ui/react';
+import 'dayjs/locale/en';
+import 'dayjs/locale/vi';
+import {
+  Calendar,
+  Clock,
+  Shield,
+  SquareAsterisk,
+  User,
+  Users,
+} from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+
+// Helper functions for formatting with locale support
+export const formatDate = (dateString: string | Date, locale: string): string => {
+  const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
+
+  let formattedDate: string;
+
+  if (locale === 'vi') {
+    formattedDate = date.format('dddd, DD MMMM, YYYY');
+  } else {
+    formattedDate = date.format('ddd, MMM DD, YYYY');
+  }
+
+  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+};
+
+export const formatTime = (dateString: string | Date, locale: string): string => {
+  const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
+  return date.format('HH:mm');
+};
+
+export const statusColors: Record<string, string> = {
+  PREPARING: 'blue',
+  IN_PROGRESS: 'green',
+  FINISHED: 'gray',
+};
+
+export const getStatusLabel = (status: string, t: (key: string) => string) => {
+  switch (status) {
+    case 'PREPARING':
+      return t('status.preparing');
+    case 'IN_PROGRESS':
+      return t('status.inProgress');
+    case 'FINISHED':
+      return t('status.finished');
+    default:
+      return status;
+  }
+};
+
+interface BaseSessionCardProps {
+  session: ISession;
+
+  // Customization slots
+  statusBadgeContent?: React.ReactNode;
+  afterStatusContent?: React.ReactNode; // For registration warnings
+  extraInfoRows?: React.ReactNode; // For location/venue display
+  actionButtons: React.ReactNode; // Required: join/view/delete buttons
+
+  // Optional modal
+  modalContent?: React.ReactNode;
+}
+
+const BaseSessionCard = ({
+  session,
+  statusBadgeContent,
+  afterStatusContent,
+  extraInfoRows,
+  actionButtons,
+  modalContent,
+  hostActions, // New prop
+}: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
+  const t = useTranslations('session');
+  const { getLevelShortLabel } = useLevelLabel();
+  const locale = useLocale();
+
+  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+
+  // Use session.hostName if available, fallback to host.name
+  const displayHostName = session.hostName || session.host?.name || '';
+
+  const convertedSession = {
+    id: session.id,
+    title: session.name,
+    date: session.startTime
+      ? formatDate(session.startTime, locale)
+      : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
+    time: session.startTime
+      ? `${formatTime(session.startTime, locale)} - ${
+          session.endTime
+            ? formatTime(session.endTime, locale)
+            : t('inProgress')
+        }`
+      : t('notStartedYet'),
+    numberOfCourts: session.numberOfCourts,
+    totalPlayers: session._count?.players || 0,
+    maxPlayers,
+    status: session.status,
+    hostName: displayHostName,
+  };
+
+  return (
+    <>
+      <Flex
+        direction="column"
+        h="100%"
+        gap={4}
+        borderWidth="1px"
+        borderRadius="lg"
+        overflow="hidden"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        p={6}
+        transition="transform 0.2s, box-shadow 0.2s"
+        _hover={{
+          transform: 'translateY(-4px)',
+          boxShadow: 'lg',
+        }}
+      >
+        <Flex justify="space-between" align="flex-start">
+          <Heading size="md" mb={2}>
+            {convertedSession.title}
+          </Heading>
+          {statusBadgeContent || (
+            <Badge colorScheme={statusColors[convertedSession.status] || 'gray'}>
+              {getStatusLabel(convertedSession.status, t)}
+            </Badge>
+          )}
+        </Flex>
+
+
+
+        {afterStatusContent}
+
+        <Stack gap={3} flex={1}>
+          <Flex align="center">
+            <Icon as={User} boxSize={5} mr={2} color="blue.500" />
+            <Text>
+              {t('host')}: <strong>{convertedSession.hostName}</strong>
+            </Text>
+            {hostActions && <Box ml={2}>{hostActions}</Box>}
+          </Flex>
+
+          {extraInfoRows}
+
+          <Flex align="center">
+            <Icon as={Calendar} boxSize={5} mr={2} color="blue.500" />
+            <Text>{convertedSession.date}</Text>
+          </Flex>
+          <Flex align="center">
+            <Icon as={Clock} boxSize={5} mr={2} color="blue.500" />
+            <Text>{convertedSession.time}</Text>
+          </Flex>
+          <Flex align="center">
+            <Icon as={SquareAsterisk} boxSize={5} mr={2} color="blue.500" />
+            <Text>
+              {convertedSession.numberOfCourts} {t('courtsAvailable')}
+            </Text>
+          </Flex>
+          <Flex align="center">
+            <Icon as={Users} boxSize={5} mr={2} color="blue.500" />
+            <Text>
+              {convertedSession.totalPlayers} / {convertedSession.maxPlayers}{' '}
+              {t('players')}
+            </Text>
+          </Flex>
+          <Flex align="center"> {/* Changed from align-items: flex-start to center */}
+            <Icon as={Shield} boxSize={5} mr={2} color="blue.500" />
+            <Wrap gap={1}>
+              {session.requiredLevels && session.requiredLevels.length > 0 ? (
+                session.requiredLevels.map((level) => (
+                  <Badge
+                    key={level}
+                    colorScheme="teal"
+                    fontSize="sm"
+                    variant="solid"
+                    px={2}
+                    py={0.5}
+                    borderRadius="md"
+                  >
+                    {getLevelShortLabel(level)}
+                  </Badge>
+                ))
+              ) : (
+                <Badge
+                  colorScheme="teal"
+                  fontSize="sm"
+                  variant="solid"
+                  px={2}
+                  py={0.5}
+                  borderRadius="md"
+                >
+                  {t('allLevels')}
+                </Badge>
+              )}
+            </Wrap>
+          </Flex>
+
+
+          {session.description && (
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              _dark={{ color: 'gray.300' }}
+              overflow="hidden"
+              display="-webkit-box"
+              style={{
+                WebkitLineClamp: '2',
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {session.description}
+            </Text>
+          )}
+        </Stack>
+
+        <Flex mt={4} gap={2} justify="flex-end">
+          {actionButtons}
+        </Flex>
+      </Flex>
+
+      {modalContent}
+    </>
+  );
+};
+
+export default BaseSessionCard;
