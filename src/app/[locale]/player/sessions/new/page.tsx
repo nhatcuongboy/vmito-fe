@@ -670,7 +670,7 @@ function NewSessionPageContent() {
                             onClick={() => handleRemoveCourt(court.courtNumber)}
                             size="sm"
                             variant="outline"
-                            colorScheme="red"
+                            colorPalette="red"
                             minW="auto"
                             px={2}
                           >
@@ -686,7 +686,7 @@ function NewSessionPageContent() {
 
             <Button
               type="submit"
-              colorScheme="blue"
+              colorPalette="blue"
               size="lg"
               disabled={isLoading}
               loading={isLoading}

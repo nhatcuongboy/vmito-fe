@@ -293,7 +293,7 @@ export default function SessionManagement({
               onClick={handleAutoAssign}
               loading={actionLoading === 'auto-assign'}
               disabled={stats.availableCourts === 0 || stats.waitingPlayers < 4}
-              colorScheme="blue"
+              colorPalette="blue"
               size="sm"
               width="full"
             >
@@ -401,10 +401,10 @@ export default function SessionManagement({
                     <Flex justify="space-between" align="center" mb={2}>
                       <Text fontWeight="medium">Court {match.courtNumber}</Text>
                       <Flex gap={2} align="center">
-                        <Badge colorScheme="green">{match.duration}min</Badge>
+                        <Badge colorPalette="green">{match.duration}min</Badge>
                         <Button
                           size="xs"
-                          colorScheme="red"
+                          colorPalette="red"
                           onClick={() => handleEndMatch(match.matchId)}
                           loading={
                             actionLoading === `end-match-${match.matchId}`
@@ -451,7 +451,7 @@ export default function SessionManagement({
               <Flex justify="space-between" align="center" mb={2}>
                 <Text fontWeight="medium">Court {court.courtNumber}</Text>
                 <Badge
-                  colorScheme={court.status === 'IN_USE' ? 'green' : 'gray'}
+                  colorPalette={court.status === 'IN_USE' ? 'green' : 'gray'}
                 >
                   {court.status === 'IN_USE' ? 'In Use' : 'Available'}
                 </Badge>

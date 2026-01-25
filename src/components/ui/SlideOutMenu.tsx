@@ -254,7 +254,7 @@ export default function SlideOutMenu({
 
                   <Button
                     variant="outline"
-                    colorScheme="red"
+                    colorPalette="red"
                     w="full"
                     onClick={onLogout}
                   >
@@ -272,7 +272,7 @@ export default function SlideOutMenu({
                   <NextLinkButton
                     href="/auth/signin"
                     variant="outline"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     w="full"
                     onClick={onClose}
                   >

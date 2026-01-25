@@ -292,7 +292,7 @@ export default function JoinPage() {
                               {selectedSession.requiredLevels.map((level) => (
                                 <Badge
                                   key={level}
-                                  colorScheme="orange"
+                                  colorPalette="orange"
                                   fontSize="xs"
                                 >
                                   {getLevelShortLabel(level)}
@@ -542,7 +542,7 @@ export default function JoinPage() {
 
                 <Button
                   type="submit"
-                  colorScheme="blue"
+                  colorPalette="blue"
                   size="lg"
                   width="full"
                   mt={4}

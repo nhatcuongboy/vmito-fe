@@ -76,7 +76,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
       <VStack spacing={4} align="stretch">
         {/* Header with player number */}
         <HStack spacing={3}>
-          <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3}>
+          <Badge colorPalette="blue" variant="solid" borderRadius="full" px={3}>
             #{player.playerNumber}
           </Badge>
           <Text fontSize="sm" color="blue.600" fontWeight="medium">

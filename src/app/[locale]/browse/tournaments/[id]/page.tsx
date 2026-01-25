@@ -721,7 +721,7 @@ export default function TournamentDetailPage() {
                 {canManage && (
                   <NextLinkButton
                     href={`/tournaments/${tournamentId}/manage`}
-                    colorScheme="blue"
+                    colorPalette="blue"
                     size="md"
                   >
                     {t('tournamentDetail.manageTournament')}

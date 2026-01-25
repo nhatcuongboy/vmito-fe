@@ -224,7 +224,7 @@ export default function BulkPlayersForm({
                 />
                 <Button
                   size="sm"
-                  colorScheme="red"
+                  colorPalette="red"
                   onClick={() => removePlayer(index)}
                   disabled={players.length === 1}
                 >
@@ -236,7 +236,7 @@ export default function BulkPlayersForm({
 
           <HStack gap={2}>
             <Button onClick={addPlayer}>Add Player</Button>
-            <Button colorScheme="blue" onClick={handleSubmit} loading={loading}>
+            <Button colorPalette="blue" onClick={handleSubmit} loading={loading}>
               {loading ? 'Creating...' : 'Create Players'}
             </Button>
           </HStack>

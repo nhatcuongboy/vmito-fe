@@ -396,7 +396,7 @@ export default function TournamentPlayerDetailPage() {
                             </Text>
                             <HStack gap={2}>
                               <Badge
-                                colorScheme={
+                                colorPalette={
                                   match.status === 'FINISHED'
                                     ? 'green'
                                     : match.status === 'IN_PROGRESS'

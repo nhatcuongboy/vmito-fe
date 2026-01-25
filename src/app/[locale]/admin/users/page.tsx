@@ -219,7 +219,7 @@ export default function AdminUsersPage() {
           <Flex justify="space-between" align="center">
             <Heading size="lg">User Management</Heading>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               onClick={() => {
                 createForm.reset();
                 setIsCreateOpen(true);

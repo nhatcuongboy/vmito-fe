@@ -197,7 +197,7 @@ function PlayerStatusContent() {
                   <Text fontWeight="bold" color="blue.700">
                     {playerStatus.name || `Player ${playerStatus.playerNumber}`}
                   </Text>
-                  <Badge colorScheme={getStatusColor(playerStatus.status)}>
+                  <Badge colorPalette={getStatusColor(playerStatus.status)}>
                     {getStatusText(playerStatus.status)}
                   </Badge>
                 </HStack>

@@ -258,7 +258,7 @@ export function EditMatchModal({
             Cancel
           </Button>
           <Button
-            colorScheme="blue"
+            colorPalette="blue"
             onClick={handleSubmit}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {...({ isLoading: isSubmitting } as any)}

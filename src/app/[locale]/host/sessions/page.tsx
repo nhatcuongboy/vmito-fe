@@ -31,7 +31,15 @@ export default function HostSessionsPage() {
           title={t('title')}
         />
 
-        <Container maxW="7xl" p={4} pt={24}>
+        <Container
+          maxW="7xl"
+          p={4}
+          pt={{
+            base: 'calc(44px + env(safe-area-inset-top) + 24px)',
+            md: 'calc(56px + env(safe-area-inset-top) + 24px)',
+          }}
+          pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
+        >
           {/* Filter */}
           <Flex mb={4} justify="flex-end">
             <select
@@ -56,7 +64,7 @@ export default function HostSessionsPage() {
             <Heading as="h2" size="xl" textAlign="left">
               {t('header')}
             </Heading>
-            <NextLinkButton href="/host/sessions/new">
+            <NextLinkButton href="/host/sessions/new" colorPalette="blue">
               <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
             </NextLinkButton>
           </Flex>

@@ -16,7 +16,7 @@ interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
  *
  * Cách sử dụng:
  * ```tsx
- * <NextLinkButton href="/route" colorScheme="blue">Go to route</NextLinkButton>
+ * <NextLinkButton href="/route" colorPalette="blue">Go to route</NextLinkButton>
  * ```
  *
  * Giải quyết vấn đề hydration error với việc sử dụng đúng cách Next.js Link

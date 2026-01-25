@@ -59,7 +59,7 @@ export default function PlayerDashboard() {
               {t('mySessions')}
             </Heading>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               size="sm"
               onClick={() => router.push('/player/sessions/new')}
             >

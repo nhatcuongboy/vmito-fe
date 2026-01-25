@@ -212,7 +212,7 @@ export default function TournamentManagePage() {
                     <VStack align="start" gap={2}>
                       <Heading size="lg">{tournament.name}</Heading>
                       <HStack>
-                        <Badge colorScheme={getStatusColor(tournament.status)}>
+                        <Badge colorPalette={getStatusColor(tournament.status)}>
                           {getStatusLabel(tournament.status)}
                         </Badge>
                       </HStack>
@@ -280,7 +280,7 @@ export default function TournamentManagePage() {
             </Card>
 
             {/* Tabs */}
-            <Tabs variant="enclosed" colorScheme="blue">
+            <Tabs variant="enclosed" colorPalette="blue">
               <TabList flexWrap="wrap">
                 <Tab>
                   <HStack gap={2}>
@@ -365,7 +365,7 @@ export default function TournamentManagePage() {
                                   alignItems="start"
                                 >
                                   <Heading size="sm">{category.name}</Heading>
-                                  <Badge colorScheme="blue">
+                                  <Badge colorPalette="blue">
                                     {getCategoryTypeLabel(category.type)}
                                   </Badge>
                                 </Flex>

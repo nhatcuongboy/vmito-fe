@@ -63,7 +63,7 @@ export default function CourtCallModal({
         </Text>
 
         {/* Action button */}
-        <Button colorScheme="green" size="lg" w="full" onClick={onClose} mt={2}>
+        <Button colorPalette="green" size="lg" w="full" onClick={onClose} mt={2}>
           {t('courtCall.understood')}
         </Button>
       </Flex>

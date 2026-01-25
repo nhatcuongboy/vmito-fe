@@ -99,7 +99,7 @@ export default function OverviewPlayerTable({
       </Flex>
 
       <Box overflowX="auto">
-        <Table.Root size="sm" variant="outline" colorScheme="gray">
+        <Table.Root size="sm" variant="outline" colorPalette="gray">
           <Table.Header bg="gray.50" _dark={{ bg: 'gray.700' }}>
             <Table.Row>
               <Table.ColumnHeader width="60px" py={3} ps={4}>
@@ -147,7 +147,7 @@ export default function OverviewPlayerTable({
                   <Table.Cell py={3} textAlign="center">
                     {player.level ? (
                       <Badge
-                        colorScheme="blue"
+                        colorPalette="blue"
                         variant="subtle"
                         px={2}
                         borderRadius="full"
@@ -162,7 +162,7 @@ export default function OverviewPlayerTable({
                   </Table.Cell>
                   <Table.Cell py={3} textAlign="center">
                     <Badge
-                      colorScheme={getStatusColorScheme(player.status)}
+                      colorPalette={getStatusColorScheme(player.status)}
                       variant="subtle"
                       px={2}
                       borderRadius="md"

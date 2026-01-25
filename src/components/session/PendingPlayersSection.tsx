@@ -133,7 +133,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
               {t('pendingRequestsCount', { count: pendingPlayers.length })}
             </Heading>
             <Badge
-              colorScheme="purple"
+              colorPalette="purple"
               variant="solid"
               borderRadius="full"
               fontSize="xs"
@@ -148,7 +148,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
           <HStack gap={2}>
             <Button
               size="sm"
-              colorScheme="green"
+              colorPalette="green"
               variant="outline"
               leftIcon={<Check size={14} />}
               onClick={() => handleBulkAction('APPROVED')}
@@ -160,7 +160,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
             </Button>
             <Button
               size="sm"
-              colorScheme="red"
+              colorPalette="red"
               variant="outline"
               leftIcon={<X size={14} />}
               onClick={() => handleBulkAction('REJECTED')}
@@ -236,7 +236,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                       </Text>
                       {player.gender && (
                         <Badge
-                          colorScheme={
+                          colorPalette={
                             player.gender === 'MALE'
                               ? 'blue'
                               : player.gender === 'FEMALE'
@@ -258,7 +258,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                     </HStack>
                     <HStack gap={2}>
                       <Badge
-                        colorScheme="purple"
+                        colorPalette="purple"
                         fontSize="10px"
                         variant="outline"
                       >
@@ -274,7 +274,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                 <HStack gap={2} w="full">
                   <Button
                     size="sm"
-                    colorScheme="green"
+                    colorPalette="green"
                     variant="solid"
                     flex={1}
                     h="32px"
@@ -290,7 +290,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                   </Button>
                   <Button
                     size="sm"
-                    colorScheme="red"
+                    colorPalette="red"
                     variant="ghost"
                     flex={1}
                     h="32px"

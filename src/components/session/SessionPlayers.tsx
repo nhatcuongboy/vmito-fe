@@ -220,7 +220,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
                 setGenderFilter('');
               }}
               variant="outline"
-              colorScheme="gray"
+              colorPalette="gray"
             >
               <Icon as={RotateCcw} mr={2} boxSize={4} />
               {t('resetFilters')}
@@ -253,7 +253,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
           </Center>
         ) : (
           <Box overflowX="auto">
-            <Table.Root size="sm" variant="outline" colorScheme="gray">
+            <Table.Root size="sm" variant="outline" colorPalette="gray">
               <Table.Header bg="gray.50" _dark={{ bg: 'gray.700' }}>
                 <Table.Row>
                   <Table.ColumnHeader py={3} ps={4}>

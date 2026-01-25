@@ -59,14 +59,14 @@ export default function HostDashboard() {
             <Flex gap={4}>
               <NextLinkButton
                 href="/host/sessions/new"
-                colorScheme="blue"
+                colorPalette="blue"
                 size="lg"
               >
                 <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
               </NextLinkButton>
               <NextLinkButton
                 href="/host/sessions"
-                colorScheme="purple"
+                colorPalette="purple"
                 variant="outline"
                 size="lg"
               >

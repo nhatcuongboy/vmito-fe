@@ -209,7 +209,7 @@ export default function TournamentPairsPage() {
               <Button
                 leftIcon={<Plus size={16} />}
                 onClick={handleCreate}
-                colorScheme="blue"
+                colorPalette="blue"
               >
                 {t('addPair')}
               </Button>
@@ -278,7 +278,7 @@ export default function TournamentPairsPage() {
                                   icon={<Trash2 size={16} />}
                                   size="sm"
                                   variant="ghost"
-                                  colorScheme="red"
+                                  colorPalette="red"
                                   onClick={() => handleDelete(pair.id)}
                                 />
                               </HStack>
@@ -393,7 +393,7 @@ export default function TournamentPairsPage() {
               <Button variant="ghost" mr={3} onClick={onClose}>
                 {t('cancel')}
               </Button>
-              <Button colorScheme="blue" onClick={handleSave}>
+              <Button colorPalette="blue" onClick={handleSave}>
                 {editingPair ? t('update') : t('create')}
               </Button>
             </ModalFooter>

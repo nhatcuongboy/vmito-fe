@@ -324,7 +324,7 @@ function ConfirmPageContent() {
 
                 <Button
                   type="submit"
-                  colorScheme="blue"
+                  colorPalette="blue"
                   size="lg"
                   width="full"
                   mt={4}

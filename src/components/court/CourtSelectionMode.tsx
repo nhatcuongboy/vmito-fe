@@ -156,7 +156,7 @@ export default function CourtSelectionMode({
       {/* Action Buttons */}
       <HStack gap={3}>
         <Button
-          colorScheme="blue"
+          colorPalette="blue"
           onClick={handleConfirm}
           disabled={!isSelectionComplete}
         >

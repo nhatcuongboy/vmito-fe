@@ -9,6 +9,7 @@ import BottomNavigationBar, {
 } from '@/components/ui/BottomNavigationBar';
 import { Home, Search, Trophy, Users, LayoutDashboard, Ticket } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
+import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
 export default function GlobalBottomNav() {
   const { user, isAuthenticated } = useAuthStore();
@@ -19,29 +20,8 @@ export default function GlobalBottomNav() {
   const [isPending, startTransition] = useTransition();
   const [pendingTabId, setPendingTabId] = useState<number | null>(null);
 
-  // Check if current path is an excluded path (Session Details or Tournament Management)
-  const isExcluded = useMemo(() => {
-    if (!pathname) return false;
-
-    // Explicitly exclude /host/tournaments/[id] which has its own tabs
-    if (pathname.match(/\/host\/tournaments\/[^/]+$/)) return true;
-
-    return (
-      // Exclude session detail pages
-      pathname.includes('/host/sessions/') ||
-      pathname.includes('/player/sessions/') ||
-      // Exclude tournament sub-pages management that might need full screen or have their own nav
-      // But keep bottom nav for main lists if desired. For now based on requirements:
-      // "Except session detail content" -> We only definitely exclude session details.
-      // However, host tournament management usually has many tabs (Overview, Categories, etc)
-      // so we might want to exclude it to avoid double bottom bars if they use bottom bars too.
-      // The requirement only mentioned SessionDetailContent.
-      // Let's stick to excluding Session Details for now.
-
-      // Also potentially exclude specific full-screen flows like /join/confirm if needed
-      pathname.includes('/join/confirm')
-    );
-  }, [pathname]);
+  // Check visibility using the hook
+  const isBottomNavVisible = useBottomNavVisibility();
 
   const tabs = useMemo<NavigationTab[]>(() => {
     if (!isAuthenticated || !user) return [];
@@ -55,6 +35,7 @@ export default function GlobalBottomNav() {
           icon: LayoutDashboard,
           href: '/host/sessions',
         },
+        { id: 6, label: t('joined'), icon: Ticket, href: '/player/sessions' },
         { id: 3, label: t('browse'), icon: Search, href: '/browse/sessions' },
         { id: 4, label: t('users'), icon: Users, href: '/admin/users' },
       ];
@@ -69,6 +50,7 @@ export default function GlobalBottomNav() {
           icon: LayoutDashboard,
           href: '/host/sessions',
         },
+        { id: 6, label: t('joined'), icon: Ticket, href: '/player/sessions' },
         { id: 3, label: t('browse'), icon: Search, href: '/browse/sessions' },
       ];
     }
@@ -118,12 +100,7 @@ export default function GlobalBottomNav() {
     return matched ? matched.id : 0;
   }, [pathname, tabs]);
 
-  if (
-    !isAuthenticated ||
-    isExcluded ||
-    tabs.length === 0 ||
-    user?.role === UserRole.GUEST
-  ) {
+  if (!isBottomNavVisible || tabs.length === 0) {
     return null;
   }
 

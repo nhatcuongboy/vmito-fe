@@ -256,7 +256,7 @@ export default function FindSessionList({
               }
             />
           </Box>
-          <Button colorScheme="blue" onClick={handleSearch} size="sm" px={6}>
+          <Button colorPalette="blue" onClick={handleSearch} size="sm" px={6}>
             {t('search')}
           </Button>
           {hasActiveFilters && (

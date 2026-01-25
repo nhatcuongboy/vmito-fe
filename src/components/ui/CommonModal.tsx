@@ -305,7 +305,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
                 )}
                 {primaryActionText && (
                   <Button
-                    colorScheme={primaryColorScheme}
+                    colorPalette={primaryColorScheme}
                     onClick={onPrimaryAction}
                     loading={isPrimaryLoading}
                     disabled={isPrimaryDisabled || isPrimaryLoading}

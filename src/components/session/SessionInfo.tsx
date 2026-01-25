@@ -128,7 +128,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
 
       <InfoRow icon={Info} label={t('status')}>
         <Badge
-          colorScheme={getStatusColor(session.status)}
+          colorPalette={getStatusColor(session.status)}
           variant="subtle"
           px={2}
           borderRadius="md"

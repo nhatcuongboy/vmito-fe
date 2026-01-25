@@ -83,7 +83,7 @@ export default function QRCodeGenerator({
         onClick={copyLink}
         variant="outline"
         size="sm"
-        colorScheme={copied ? 'green' : 'blue'}
+        colorPalette={copied ? 'green' : 'blue'}
       >
         <HStack gap={2}>
           {copied ? <Check size={16} /> : <Copy size={16} />}

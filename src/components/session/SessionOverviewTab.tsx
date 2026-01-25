@@ -110,7 +110,7 @@ export default function SessionOverviewTab({
             {onToggleSessionStatus && session.status !== 'FINISHED' && (
               <Flex mt={6} justify="center">
                 <Button
-                  colorScheme={session.status === 'PREPARING' ? 'blue' : 'red'}
+                  colorPalette={session.status === 'PREPARING' ? 'blue' : 'red'}
                   size="lg"
                   px={8}
                   onClick={onToggleSessionStatus}
@@ -161,7 +161,7 @@ export default function SessionOverviewTab({
               <VStack align="start" spacing={3}>
                 <InfoRow icon={Shield} label={t('requirePlayerInfo')}>
                   <Badge
-                    colorScheme={session.requirePlayerInfo ? 'green' : 'gray'}
+                    colorPalette={session.requirePlayerInfo ? 'green' : 'gray'}
                   >
                     {session.requirePlayerInfo ? t('yes') : t('no')}
                   </Badge>
@@ -169,7 +169,7 @@ export default function SessionOverviewTab({
 
                 <InfoRow icon={UserPlus} label={t('allowGuestJoin')}>
                   <Badge
-                    colorScheme={session.allowGuestJoin ? 'green' : 'gray'}
+                    colorPalette={session.allowGuestJoin ? 'green' : 'gray'}
                   >
                     {session.allowGuestJoin ? t('yes') : t('no')}
                   </Badge>
@@ -177,7 +177,7 @@ export default function SessionOverviewTab({
 
                 <InfoRow icon={DoorOpen} label={t('allowNewPlayers')}>
                   <Badge
-                    colorScheme={session.allowNewPlayers ? 'green' : 'gray'}
+                    colorPalette={session.allowNewPlayers ? 'green' : 'gray'}
                   >
                     {session.allowNewPlayers ? t('yes') : t('no')}
                   </Badge>

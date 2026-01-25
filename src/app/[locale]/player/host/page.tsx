@@ -50,16 +50,23 @@ export default function PlayerHostPage() {
 
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
-      <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }} pb="80px">
+      <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <TopBar showBackButton={false} title={tNav('host')} />
         
-        <Container maxW="container.xl" py={6} mt="64px">
+        <Container
+          maxW="container.xl"
+          pt={{
+            base: 'calc(44px + env(safe-area-inset-top) + 24px)',
+            md: 'calc(56px + env(safe-area-inset-top) + 24px)',
+          }}
+          pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
+        >
           <Flex mb={6} justify="space-between" align="center">
             <Heading as="h2" size="lg">
               {t('hostedSessions')}
             </Heading>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               size="sm"
               onClick={() => router.push('/player/sessions/new')}
             >
@@ -88,7 +95,7 @@ export default function PlayerHostPage() {
                 {t('noSessionsFound')}
               </Text>
               <Button
-                colorScheme="blue"
+                colorPalette="blue"
                 size="sm"
                 onClick={() => router.push('/player/sessions/new')}
               >

@@ -108,7 +108,7 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
           <Heading size="md" mb={2}>
             {session.name}
           </Heading>
-          <Badge colorScheme={statusColors[session.status]}>
+          <Badge colorPalette={statusColors[session.status]}>
             {getStatusLabel(session.status, t)}
           </Badge>
         </Flex>
@@ -143,7 +143,7 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
                 </Text>
                 <Wrap gap={1}>
                   {session.requiredLevels.map((level) => (
-                    <Badge key={level} colorScheme="blue" fontSize="xs">
+                    <Badge key={level} colorPalette="blue" fontSize="xs">
                       {getLevelShortLabel(level)}
                     </Badge>
                   ))}
@@ -184,7 +184,7 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
         </Stack>
 
         <Flex mt={4} gap={2} justify="flex-end">
-          <NextLinkButton href={`/my-session`} colorScheme="green" size="md">
+          <NextLinkButton href={`/my-session`} colorPalette="green" size="md">
             <Eye className="mr-2 h-4 w-4" /> {t('viewSession')}
           </NextLinkButton>
         </Flex>

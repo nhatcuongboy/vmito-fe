@@ -667,7 +667,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               </CommonModal>
 
               <Button
-                colorScheme="blue"
+                colorPalette="blue"
                 size="lg"
                 borderRadius="lg"
                 loading={isLoading}

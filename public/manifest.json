@@ -1,6 +1,6 @@
 {
-  "name": "Badminton Session Management",
-  "short_name": "CS Badminton",
+  "name": "LenKeo24h",
+  "short_name": "LenKeo24h",
   "description": "Manage badminton sessions, players, and courts efficiently",
   "start_url": "/",
   "display": "standalone",

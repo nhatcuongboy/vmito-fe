@@ -145,7 +145,7 @@ const BaseSessionCard = ({
           </Heading>
           {statusBadgeContent || (
             <Badge
-              colorScheme={statusColors[convertedSession.status] || 'gray'}
+              colorPalette={statusColors[convertedSession.status] || 'gray'}
             >
               {getStatusLabel(convertedSession.status, t)}
             </Badge>
@@ -195,7 +195,7 @@ const BaseSessionCard = ({
                 session.requiredLevels.map((level) => (
                   <Badge
                     key={level}
-                    colorScheme="teal"
+                    colorPalette="teal"
                     fontSize="sm"
                     variant="solid"
                     px={2}
@@ -207,7 +207,7 @@ const BaseSessionCard = ({
                 ))
               ) : (
                 <Badge
-                  colorScheme="teal"
+                  colorPalette="teal"
                   fontSize="sm"
                   variant="solid"
                   px={2}

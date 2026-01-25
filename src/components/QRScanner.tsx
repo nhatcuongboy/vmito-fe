@@ -141,12 +141,12 @@ export default function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
 
           <VStack gap={2} w="full">
             {!isScanning ? (
-              <Button onClick={startScanning} colorScheme="blue" width="full">
+              <Button onClick={startScanning} colorPalette="blue" width="full">
                 <Camera size={16} style={{ marginRight: '8px' }} />
                 Start Scanning
               </Button>
             ) : (
-              <Button onClick={stopScanning} colorScheme="red" width="full">
+              <Button onClick={stopScanning} colorPalette="red" width="full">
                 <X size={16} style={{ marginRight: '8px' }} />
                 Stop Scanning
               </Button>

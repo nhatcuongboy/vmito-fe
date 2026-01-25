@@ -118,7 +118,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 <Flex justify="space-between" align="center">
                   <HStack spacing={3}>
                     <Badge
-                      colorScheme="green"
+                      colorPalette="green"
                       variant="solid"
                       borderRadius="full"
                       px={3}
@@ -133,7 +133,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     aria-label="Remove player"
                     icon={<Box as={Trash2} boxSize={4} />}
                     size="sm"
-                    colorScheme="red"
+                    colorPalette="red"
                     variant="ghost"
                     onClick={() => onRemovePlayer(index)}
                   />
@@ -359,7 +359,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           size="sm"
           leftIcon={<Box as={Plus} boxSize={4} />}
           onClick={onAddPlayer}
-          colorScheme="green"
+          colorPalette="green"
           variant="outline"
           w="fit-content"
         >

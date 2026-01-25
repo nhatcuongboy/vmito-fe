@@ -95,14 +95,14 @@ export default function PendingRequestsList() {
                     {dayjs(request.session.startTime).format('MMM D, HH:mm')}
                   </Text>
                   <Flex gap={2} mt={1}>
-                    <Badge colorScheme="purple">Level {request.level}</Badge>
+                    <Badge colorPalette="purple">Level {request.level}</Badge>
                     <Badge>Player #{request.playerNumber}</Badge>
                   </Flex>
                 </Box>
                 <Flex gap={2}>
                   <Button
                     size="sm"
-                    colorScheme="red"
+                    colorPalette="red"
                     variant="outline"
                     onClick={() =>
                       handleAction(request.id, request.sessionId, 'REJECTED')
@@ -113,7 +113,7 @@ export default function PendingRequestsList() {
                   </Button>
                   <Button
                     size="sm"
-                    colorScheme="green"
+                    colorPalette="green"
                     onClick={() =>
                       handleAction(request.id, request.sessionId, 'APPROVED')
                     }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
         : 'https://csbadminton.vercel.app/'
       : 'http://localhost:3000'
   ),
-  title: 'Badminton Session Management',
+  title: 'LenKeo24h',
   description: 'Manage badminton sessions, players, and courts efficiently',
   manifest: '/manifest.json',
   keywords: [
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     'court',
     'players',
   ],
-  authors: [{ name: 'Badminton App Team' }],
-  creator: 'Badminton App Team',
-  publisher: 'Badminton App Team',
+  authors: [{ name: 'LenKeo24h' }],
+  creator: 'LenKeo24h',
+  publisher: 'LenKeo24h',
   formatDetection: {
     email: false,
     address: false,
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'Badminton Session Management',
-    title: 'Badminton Session Management',
+    siteName: 'LenKeo24h',
+    title: 'LenKeo24h',
     description: 'Manage badminton sessions, players, and courts efficiently',
     images: [
       {
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'Badminton Session Management',
+    title: 'LenKeo24h',
     description: 'Manage badminton sessions, players, and courts efficiently',
     images: ['/icons/icon-512x512.png'],
   },

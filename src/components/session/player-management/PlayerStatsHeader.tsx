@@ -30,7 +30,7 @@ const PlayerStatsHeader: React.FC<PlayerStatsHeaderProps> = ({
           </Heading>
         </HStack>
         <Badge
-          colorScheme={isMaxPlayersReached ? 'red' : 'green'}
+          colorPalette={isMaxPlayersReached ? 'red' : 'green'}
           variant="subtle"
           px={3}
           py={1}

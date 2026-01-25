@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import SessionCard from '@/components/session/SessionCard';
 import { useAuthStore } from '@/stores/useAuthStore';
 import TopBar from '@/components/ui/TopBar';
+import { Flex } from '@chakra-ui/react';
 
 export default function PlayerSessionsPage() {
   const t = useTranslations('navigation');
@@ -40,10 +41,17 @@ export default function PlayerSessionsPage() {
     <ProtectedRouteGuard
       requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
     >
-      <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }} pb="80px">
+      <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <TopBar showBackButton={false} title={t('joined')} />
 
-        <Container maxW="container.xl" py={6} mt="64px">
+        <Container
+          maxW="container.xl"
+          pt={{
+            base: 'calc(44px + env(safe-area-inset-top) + 24px)',
+            md: 'calc(56px + env(safe-area-inset-top) + 24px)',
+          }}
+          pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
+        >
           {loading ? (
             <Flex justify="center" align="center" minH="200px">
               <Spinner size="xl" color="blue.500" />
@@ -75,5 +83,3 @@ export default function PlayerSessionsPage() {
   );
 }
 
-// Helper component for Flex which was missing in imports
-import { Flex } from '@chakra-ui/react';

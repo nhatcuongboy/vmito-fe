@@ -95,17 +95,17 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
   // Custom Checkbox Component
   const CustomCheckbox = ({
     checked,
-    colorScheme,
+    colorPalette,
   }: {
     checked: boolean;
-    colorScheme: string;
+    colorPalette: string;
   }) => (
     <Box
       w="16px"
       h="16px"
       border="1px solid"
-      borderColor={checked ? `${colorScheme}.500` : 'gray.300'}
-      bg={checked ? `${colorScheme}.500` : 'white'}
+      borderColor={checked ? `${colorPalette}.500` : 'gray.300'}
+      bg={checked ? `${colorPalette}.500` : 'white'}
       borderRadius="sm"
       display="flex"
       alignItems="center"
@@ -122,7 +122,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
         size="sm"
         variant="outline"
         onClick={() => setIsOpen(!isOpen)}
-        colorScheme={!isAllSelected ? 'blue' : 'gray'}
+        colorPalette={!isAllSelected ? 'blue' : 'gray'}
         bg={!isAllSelected ? 'blue.50' : 'transparent'}
         borderColor={!isAllSelected ? 'blue.200' : 'gray.200'}
       >
@@ -190,7 +190,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
             <Divider />
             {allStatuses.map((status) => {
               const checked = selected.includes(status);
-              const colorScheme = getColorScheme(status);
+              const colorPalette = getColorScheme(status);
               return (
                 <Box
                   key={status}
@@ -207,15 +207,15 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                     <HStack gap={2}>
                       <CustomCheckbox
                         checked={checked}
-                        colorScheme={colorScheme}
+                        colorPalette={colorPalette}
                       />
                       <Text fontSize="sm">{getLabel(status)}</Text>
                     </HStack>
                     <Badge
                       variant="subtle"
-                      colorPalette={colorScheme}
-                      bg={`${colorScheme}.100`}
-                      color={`${colorScheme}.700`}
+                      colorPalette={colorPalette}
+                      bg={`${colorPalette}.100`}
+                      color={`${colorPalette}.700`}
                     >
                       {counts[status]}
                     </Badge>
@@ -231,7 +231,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                     size="xs"
                     width="full"
                     variant="ghost"
-                    colorScheme="red"
+                    colorPalette="red"
                     onClick={handleSelectAll}
                   >
                     <HStack gap={1} justify="center">

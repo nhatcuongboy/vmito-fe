@@ -92,7 +92,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                     <Flex justify="space-between" align="center">
                       <HStack spacing={3}>
                         <Badge
-                          colorScheme="green"
+                          colorPalette="green"
                           variant="solid"
                           borderRadius="full"
                           px={3}
@@ -111,7 +111,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                         aria-label="Remove player"
                         icon={<Box as={Trash2} boxSize={4} />}
                         size="sm"
-                        colorScheme="red"
+                        colorPalette="red"
                         variant="ghost"
                         onClick={() => onRemovePlayer(index)}
                       />
@@ -358,7 +358,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
               size="sm"
               leftIcon={<Box as={Plus} boxSize={4} />}
               onClick={onAddPlayer}
-              colorScheme="green"
+              colorPalette="green"
               variant="outline"
               title="Add another player"
             >
@@ -369,7 +369,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
               <Button
                 size="sm"
                 leftIcon={<Box as={Save} boxSize={4} />}
-                colorScheme="green"
+                colorPalette="green"
                 onClick={onSaveAll}
                 loading={isSaving}
                 disabled={Object.keys(errors).length > 0}
@@ -379,7 +379,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
               <Button
                 size="sm"
                 leftIcon={<Box as={Trash2} boxSize={4} />}
-                colorScheme="red"
+                colorPalette="red"
                 variant="outline"
                 onClick={onCancelAll}
               >

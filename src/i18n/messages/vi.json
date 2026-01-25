@@ -50,12 +50,12 @@
       "8": "Chuyên nghiệp"
     },
     "levelShorts": {
-      "1": "NEW",
+      "1": "Mới",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
       "5": "TB+",
-      "6": "K",
+      "6": "Khá",
       "7": "BC",
       "8": "CN"
     },
@@ -124,7 +124,7 @@
     "manageSession": "Quản lý kèo",
     "host": "Host",
     "deleteSession": "Xóa",
-    "viewSession": "Xem kèo",
+    "viewSession": "Xem",
     "deleteConfirmation": "Bạn có chắc chắn muốn xóa kèo này không?",
     "notStarted": "Chưa bắt đầu",
     "notStartedYet": "Chưa bắt đầu",

@@ -178,7 +178,7 @@ export default function TournamentPlayersPage() {
               <Button
                 leftIcon={<Plus size={16} />}
                 onClick={handleCreate}
-                colorScheme="blue"
+                colorPalette="blue"
               >
                 {t('addPlayer')}
               </Button>
@@ -227,7 +227,7 @@ export default function TournamentPlayersPage() {
                               <VStack align="start" gap={1}>
                                 <Heading size="sm">{player.name}</Heading>
                                 {player.level && (
-                                  <Badge colorScheme="blue">
+                                  <Badge colorPalette="blue">
                                     {getLevelLabel(player.level)}
                                   </Badge>
                                 )}
@@ -245,7 +245,7 @@ export default function TournamentPlayersPage() {
                                   icon={<Trash2 size={16} />}
                                   size="sm"
                                   variant="ghost"
-                                  colorScheme="red"
+                                  colorPalette="red"
                                   onClick={() => handleDelete(player.id)}
                                 />
                               </HStack>
@@ -425,7 +425,7 @@ export default function TournamentPlayersPage() {
               <Button variant="ghost" onClick={onClose}>
                 {t('cancel')}
               </Button>
-              <Button colorScheme="blue" onClick={handleSave}>
+              <Button colorPalette="blue" onClick={handleSave}>
                 {editingPlayer ? t('update') : t('create')}
               </Button>
             </Flex>

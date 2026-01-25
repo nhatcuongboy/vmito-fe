@@ -227,7 +227,7 @@ export default function PlayerSessionView({
               <Text>{errorMessage.description}</Text>
             </Box>
             <Flex gap={3}>
-              <NextLinkButton href={errorRedirectPath} colorScheme="blue">
+              <NextLinkButton href={errorRedirectPath} colorPalette="blue">
                 {mode === 'guest'
                   ? t('errors.returnToJoin')
                   : 'Quay lại Dashboard'}
@@ -236,7 +236,7 @@ export default function PlayerSessionView({
                 <NextLinkButton
                   href="#"
                   variant="outline"
-                  colorScheme="blue"
+                  colorPalette="blue"
                   onClick={(e) => {
                     e.preventDefault();
                     fetchPlayerData(false);

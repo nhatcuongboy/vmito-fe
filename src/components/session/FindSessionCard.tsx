@@ -44,13 +44,13 @@ const FindSessionCard = ({
   const actions = isJoined ? (
     <NextLinkButton
       href={`/player/sessions/${session.id}`}
-      colorScheme="green"
+      colorPalette="green"
       size="sm"
     >
       {t('viewSession')}
     </NextLinkButton>
   ) : (
-    <Button colorScheme="blue" onClick={onJoin} size="sm">
+    <Button colorPalette="blue" onClick={onJoin} size="sm">
       {t('register')}
     </Button>
   );
@@ -59,7 +59,7 @@ const FindSessionCard = ({
     <Button
       size="sm"
       leftIcon={<Icon as={Phone} />}
-      colorScheme="green"
+      colorPalette="green"
       variant="outline"
       onClick={() => window.open(`tel:${session.hostPhone}`)}
     >

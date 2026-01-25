@@ -156,7 +156,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
 
                   <Button
                     type="submit"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     width="full"
                     size="lg"
                     loading={isSubmitting}

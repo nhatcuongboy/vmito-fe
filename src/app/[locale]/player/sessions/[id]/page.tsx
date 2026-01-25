@@ -119,7 +119,7 @@ export default function PlayerSessionManagePage({
   // Loading state
   if (loading) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
         <Center minH="50vh">
           <Spinner size="xl" color="blue.500" />
         </Center>
@@ -130,7 +130,7 @@ export default function PlayerSessionManagePage({
   // Error state
   if (error) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
         <Box
           p={6}
           bg="red.50"
@@ -153,7 +153,7 @@ export default function PlayerSessionManagePage({
   // No session found
   if (!session) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
         <Box
           p={6}
           bg="blue.50"
@@ -177,7 +177,7 @@ export default function PlayerSessionManagePage({
   // Check ownership: if not owner, render view mode
   if (session.hostId !== user?.id) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
         <PlayerSessionView
           mode="player"
           sessionId={sessionId}
@@ -190,7 +190,7 @@ export default function PlayerSessionManagePage({
 
   // Render session detail content for owner
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
+    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
       <MainLayout
         title={t('title')}
         showBackButton={true}

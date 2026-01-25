@@ -251,7 +251,7 @@ export const TabList = ({
 interface TabsComponentProps {
   children: React.ReactNode;
   variant?: string;
-  colorScheme?: string;
+  colorPalette?: string;
   index?: number;
   onChange?: (index: number) => void;
 }

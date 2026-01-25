@@ -109,7 +109,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                     size="lg"
                     leftIcon={<Box as={UserPlus} boxSize={5} />}
                     onClick={onAddNewPlayer}
-                    colorScheme="green"
+                    colorPalette="green"
                     borderRadius="xl"
                     px={8}
                     boxShadow="0 4px 14px rgba(72, 187, 120, 0.3)"

@@ -318,7 +318,7 @@ function ConfirmPageContent() {
 
                 <Button
                   type="submit"
-                  colorScheme="blue"
+                  colorPalette="blue"
                   size="lg"
                   width="full"
                   mt={4}
@@ -356,7 +356,7 @@ function ConfirmPageContent() {
 
 export default function ConfirmPage() {
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
+    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
       <Suspense fallback={<Spinner />}>
         <ConfirmPageContent />
       </Suspense>

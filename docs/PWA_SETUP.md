@@ -1,6 +1,6 @@
 # Progressive Web App (PWA) Setup
 
-This document outlines the PWA implementation for the Badminton Session Management app.
+This document outlines the PWA implementation for the LenKeo24h app.
 
 ## Overview
 

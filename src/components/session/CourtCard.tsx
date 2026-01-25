@@ -267,7 +267,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 !court.currentMatchId && (
                   <CompatButton
                     size="sm"
-                    colorScheme="green"
+                    colorPalette="green"
                     loading={loadingStartMatchCourtId === court.id}
                     onClick={() => onStartMatch(court.id)}
                     disabled={isRefreshing}
@@ -284,7 +284,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 (court.currentPlayers?.length ?? 0) > 0 && (
                   <CompatButton
                     size="sm"
-                    colorScheme="red"
+                    colorPalette="red"
                     variant="outline"
                     loading={loadingCancelCourtId === court.id}
                     onClick={() => onDeselectPlayers(court.id)}
@@ -303,7 +303,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 !hasPreSelectedPlayers(court) && (
                   <CompatButton
                     size="sm"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     variant="outline"
                     onClick={() => onPreSelectClick(court)}
                     disabled={isRefreshing || waitingPlayers.length < 4}
@@ -321,7 +321,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 hasPreSelectedPlayers(court) && (
                   <CompatButton
                     size="sm"
-                    colorScheme="orange"
+                    colorPalette="orange"
                     variant="outline"
                     loading={loadingCancelPreSelect === court.id}
                     onClick={() => onCancelPreSelect(court.id)}
@@ -339,7 +339,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 court.status !== 'READY' && (
                   <CompatButton
                     size="sm"
-                    colorScheme="red"
+                    colorPalette="red"
                     onClick={handleEndMatchClick}
                     loading={loadingEndMatchId === court.currentMatchId}
                     disabled={isRefreshing}
@@ -368,7 +368,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
             {session.status === 'IN_PROGRESS' && mode === 'manage' ? (
               <VStack gap={2}>
                 <CompatButton
-                  colorScheme="green"
+                  colorPalette="green"
                   onClick={() => onAutoAssignClick(court)}
                   size="sm"
                   width="full"
@@ -379,7 +379,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 </CompatButton>
                 {startManualMatchCreation && (
                   <CompatButton
-                    colorScheme="blue"
+                    colorPalette="blue"
                     onClick={() => onManualSelectionClick(court)}
                     size="sm"
                     width="full"

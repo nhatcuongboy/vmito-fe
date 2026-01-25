@@ -175,7 +175,7 @@ function RegisterContent() {
 
                 <Button
                   type="submit"
-                  colorScheme="green"
+                  colorPalette="green"
                   width="full"
                   size="lg"
                   loading={loading}

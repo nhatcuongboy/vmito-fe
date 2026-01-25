@@ -181,17 +181,17 @@ export default function CategoryDetailPage() {
                   <VStack align="start" gap={2}>
                     <Heading size="lg">{category.name}</Heading>
                     <HStack>
-                      <Badge colorScheme="blue">
+                      <Badge colorPalette="blue">
                         {getCategoryTypeLabel(category.type)}
                       </Badge>
                       {category.hasGroupStage && (
-                        <Badge colorScheme="purple">{t('groupStage')}</Badge>
+                        <Badge colorPalette="purple">{t('groupStage')}</Badge>
                       )}
                       {category.matchFormat === 'BEST_OF_3' && (
-                        <Badge colorScheme="green">{t('bestOf3')}</Badge>
+                        <Badge colorPalette="green">{t('bestOf3')}</Badge>
                       )}
                       {category.matchFormat === 'BEST_OF_1' && (
-                        <Badge colorScheme="orange">{t('bestOf1')}</Badge>
+                        <Badge colorPalette="orange">{t('bestOf1')}</Badge>
                       )}
                     </HStack>
                   </VStack>
@@ -345,7 +345,7 @@ export default function CategoryDetailPage() {
                                     <Td>{match.score || '-'}</Td>
                                     <Td>
                                       <Badge
-                                        colorScheme={getMatchStatusColor(
+                                        colorPalette={getMatchStatusColor(
                                           match.status
                                         )}
                                       >

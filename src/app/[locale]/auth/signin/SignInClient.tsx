@@ -193,7 +193,7 @@ function SignInForm() {
                 <Button
                   type="submit"
                   data-testid="login-button"
-                  colorScheme="blue"
+                  colorPalette="blue"
                   width="full"
                   size="lg"
                   loading={isSubmitting}

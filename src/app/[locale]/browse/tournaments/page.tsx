@@ -134,7 +134,7 @@ export default function TournamentsPage() {
             <HStack gap={2}>
               <Button
                 onClick={handleCreateSample}
-                colorScheme="purple"
+                colorPalette="purple"
                 variant="outline"
                 leftIcon={<Sparkles size={16} />}
                 loading={creatingSample}
@@ -143,7 +143,7 @@ export default function TournamentsPage() {
               </Button>
               <NextLinkButton
                 href="/host/tournaments/new"
-                colorScheme="blue"
+                colorPalette="blue"
                 leftIcon={<Plus size={16} />}
               >
                 {t('createTournament')}
@@ -231,7 +231,7 @@ export default function TournamentsPage() {
                               {tournament.name}
                             </Heading>
                             <Badge
-                              colorScheme={getStatusColor(tournament.status)}
+                              colorPalette={getStatusColor(tournament.status)}
                               fontSize="xs"
                               px={2}
                               py={1}

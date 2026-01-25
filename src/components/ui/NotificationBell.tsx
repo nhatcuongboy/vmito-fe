@@ -171,7 +171,7 @@ export default function NotificationBell({
                   <Button
                     size="xs"
                     variant="ghost"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     onClick={handleMarkAllAsRead}
                     fontSize="xs"
                     h="24px"
@@ -185,7 +185,7 @@ export default function NotificationBell({
 
             {/* List */}
             <Box maxH="400px" overflowY="auto">
-              {notifications.length === 0 ? (
+              {/* {notifications.length === 0 ? (
                 <Box p={6} textAlign="center" color="gray.500">
                   <Text fontSize="sm">No notifications</Text>
                 </Box>
@@ -252,7 +252,7 @@ export default function NotificationBell({
                     </Box>
                   ))}
                 </Stack>
-              )}
+              )} */}
             </Box>
           </Box>
         )}

@@ -2,7 +2,7 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
-import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
+
 import {
   Box,
   Container,
@@ -55,7 +55,6 @@ export default function AboutClient({ locale }: AboutClientProps) {
   const accentColor = 'blue.500';
 
   return (
-    <PublicRouteGuard redirectTo="/host">
       <Box minH="100vh" pb="80px">
         {/* Top Bar */}
         <TopBar showBackButton={true} />
@@ -108,7 +107,7 @@ export default function AboutClient({ locale }: AboutClientProps) {
               <NextLinkButton
                 href="/auth/signin"
                 size="lg"
-                colorScheme="blue"
+                colorPalette="blue"
                 px={8}
                 py={7}
                 fontSize="lg"
@@ -136,7 +135,7 @@ export default function AboutClient({ locale }: AboutClientProps) {
                 href="/browse/sessions"
                 size="lg"
                 variant="outline"
-                colorScheme="green"
+                colorPalette="green"
                 px={8}
                 py={7}
                 fontSize="lg"
@@ -180,7 +179,7 @@ export default function AboutClient({ locale }: AboutClientProps) {
                 <Flex gap={4} flexDir={{ base: 'column', sm: 'row' }}>
                   <NextLinkButton
                     href="/auth/signin"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     size="lg"
                     fontWeight="bold"
                   >
@@ -309,7 +308,6 @@ export default function AboutClient({ locale }: AboutClientProps) {
           </Container>
         </Box>
       </Box>
-    </PublicRouteGuard>
   );
 }
 
@@ -356,7 +354,7 @@ function FeatureCard({
         <NextLinkButton
           href={buttonLink}
           variant="outline"
-          colorScheme="blue"
+          colorPalette="blue"
           width="full"
         >
           {buttonText}
@@ -392,7 +390,7 @@ function StartGuide({
       </Stack>
       <NextLinkButton
         href={buttonLink}
-        colorScheme={primary ? 'blue' : 'gray'}
+        colorPalette={primary ? 'blue' : 'gray'}
         mt={4}
         alignSelf="flex-start"
       >

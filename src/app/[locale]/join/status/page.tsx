@@ -306,14 +306,14 @@ function StatusPageContent() {
               </Text>
             </Box>
             <Flex gap={3}>
-              <NextLinkButton href="/join" colorScheme="blue">
+              <NextLinkButton href="/join" colorPalette="blue">
                 {t('errors.returnToJoin')}
               </NextLinkButton>
               {error === PageError.GENERAL_ERROR && (
                 <NextLinkButton
                   href="#"
                   variant="outline"
-                  colorScheme="blue"
+                  colorPalette="blue"
                   onClick={(e) => {
                     e.preventDefault();
                     fetchPlayerData(false); // Initial load for retry

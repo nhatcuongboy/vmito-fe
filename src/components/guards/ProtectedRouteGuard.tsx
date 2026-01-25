@@ -102,7 +102,7 @@ export default function ProtectedRouteGuard({
           <Text fontSize="sm" color="gray.500">
             {t('yourRole')} {user?.role || t('unknown')}
           </Text>
-          <Button colorScheme="blue" onClick={() => router.push(`/`)}>
+          <Button colorPalette="blue" onClick={() => router.push(`/`)}>
             {t('goHome')}
           </Button>
         </VStack>

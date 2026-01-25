@@ -69,7 +69,7 @@ const SessionCard = ({
       {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
         <NextLinkButton
           href={`/host/sessions/${session.id}`}
-          colorScheme="blue"
+          colorPalette="blue"
           size="sm"
         >
           {t('host')}
@@ -77,7 +77,7 @@ const SessionCard = ({
       ) : (
         <NextLinkButton
           href={`/player/sessions/${session.id}`}
-          colorScheme={isOwner && user?.role === 'PLAYER' ? 'blue' : 'blue'}
+          colorPalette={isOwner && user?.role === 'PLAYER' ? 'blue' : 'blue'}
           size="sm"
         >
           {isOwner && user?.role === 'PLAYER' ? t('manageSession') : t('viewSession')}
@@ -85,7 +85,7 @@ const SessionCard = ({
       )}
       {mode === 'manage' && onDelete && (
         <Button
-          colorScheme="red"
+          colorPalette="red"
           variant="outline"
           size="sm"
           onClick={onOpen}

@@ -23,10 +23,10 @@ export default function BrowseSessionsClient({
       <Container
         maxW="container.xl"
         pt={{
-          base: 'calc(44px + env(safe-area-inset-top) + 1rem)',
-          md: 'calc(56px + env(safe-area-inset-top) + 2rem)',
+          base: 'calc(44px + env(safe-area-inset-top) + 24px)',
+          md: 'calc(56px + env(safe-area-inset-top) + 24px)',
         }}
-        pb={8}
+        pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
       >
         <FindSessionList initialSessions={initialSessions} />
       </Container>

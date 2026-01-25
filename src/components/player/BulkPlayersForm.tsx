@@ -531,7 +531,7 @@ export default function BulkPlayersForm({
                   <Td>
                     <Button
                       size="sm"
-                      colorScheme="red"
+                      colorPalette="red"
                       variant="ghost"
                       onClick={() => removePlayer(index)}
                       disabled={players.length === 1}
@@ -549,7 +549,7 @@ export default function BulkPlayersForm({
       <Flex mt={4} gap={4} wrap="wrap">
         <Button
           onClick={addPlayer}
-          colorScheme="blue"
+          colorPalette="blue"
           disabled={!sessionInfo || sessionInfo.availableSlots === 0}
           size="md"
         >
@@ -557,7 +557,7 @@ export default function BulkPlayersForm({
         </Button>
         <Button
           onClick={handleSubmit}
-          colorScheme="green"
+          colorPalette="green"
           disabled={players.length === 0 || isLoading}
           size="md"
         >
