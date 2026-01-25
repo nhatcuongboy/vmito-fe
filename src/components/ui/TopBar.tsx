@@ -16,12 +16,14 @@ interface TopBarProps {
   showBackButton?: boolean;
   backHref?: string;
   title?: string;
+  rightContent?: React.ReactNode;
 }
 
 export default function TopBar({
   showBackButton = false,
   backHref = '/',
   title,
+  rightContent,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -122,6 +124,8 @@ export default function TopBar({
               justifyContent="flex-end"
               gap={2}
             >
+              {rightContent}
+
               {isAuthenticated && (
                 <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
               )}

@@ -192,7 +192,7 @@ const BaseSessionCard = ({
             <Icon as={Shield} boxSize={5} mr={2} color="blue.500" />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                session.requiredLevels.map((level) => (
+                Array.from(new Set(session.requiredLevels)).map((level) => (
                   <Badge
                     key={level}
                     colorPalette="teal"

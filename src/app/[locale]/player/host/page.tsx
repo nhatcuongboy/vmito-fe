@@ -69,6 +69,7 @@ export default function PlayerHostPage() {
               colorPalette="blue"
               size="sm"
               onClick={() => router.push('/player/sessions/new')}
+              loading={loading}
             >
               <Plus size={16} style={{ marginRight: 4 }} />
               {t('createSession')}

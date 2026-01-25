@@ -111,7 +111,7 @@
     "courtNumber": "Court Number",
     "courtName": "Court Name",
     "courtNamePlaceholder": "Enter court name",
-    "createNewSession": "Create New Session",
+    "createNewSession": "New Session",
     "setUpYourBadmintonSession": "Set up your badminton session",
     "startYourBadmintonJourney": "Start Your Badminton Journey",
     "status": {
@@ -153,6 +153,7 @@
     "remove": "Remove",
     "addAnotherCourt": "Add Another Court",
     "creatingSession": "Creating Session...",
+    "creating": "Creating...",
     "proTipsForYourSession": "Pro Tips for Your Session",
     "optimalCourtRotation": "Set up court rotation every 15-20 minutes for optimal game flow",
     "sessionDurationTip": "2-3 hours is ideal for most recreational badminton sessions",
@@ -282,7 +283,21 @@
     "addGuest": "Add Guest",
     "joined": "Joined",
     "registrationPending": "Registration Pending",
-    "registrationRejected": "Registration Rejected"
+    "registrationRejected": "Registration Rejected",
+    "createByAI": "Create by AI",
+    "aiModal": {
+      "title": "Create Session from Article",
+      "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
+      "placeholder": "Paste article content here...\n\nExample:\nLooking for 2 players for badminton at ABC Court, District 1, HCM. Time: 6pm-8pm on Jan 27, 2026. Contact: Minh 0912345678. Level: Intermediate-Advanced.",
+      "generate": "Create Session",
+      "generating": "Processing...",
+      "cancel": "Cancel",
+      "success": "Session information created successfully!",
+      "error": "Failed to analyze article content",
+      "emptyContent": "Please enter article content",
+      "hint": "AI will extract: session name, location, time, levels, host info...",
+      "venueMatched": "Venue matched: {venueName}"
+    }
   },
   "court": {
     "title": "Court",
