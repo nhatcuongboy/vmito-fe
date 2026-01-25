@@ -111,7 +111,7 @@ export default function SlideOutMenu({
                     <Text>{nav('home')}</Text>
                   </Flex>
                 </NextLinkButton>
-                <NextLinkButton
+                {isAuthenticated && (<NextLinkButton
                   href="/browse/sessions"
                   variant="ghost"
                   justifyContent="flex-start"
@@ -123,6 +123,7 @@ export default function SlideOutMenu({
                     <Text>{nav('browse')}</Text>
                   </Flex>
                 </NextLinkButton>
+                )}
                 {/* <NextLinkButton
                   href="/settings"
                   variant="ghost"

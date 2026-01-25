@@ -6,6 +6,8 @@ import TopBar from '@/components/ui/TopBar';
 import FindSessionList from '@/components/session/FindSessionList';
 import Footer from '@/components/layout/Footer';
 
+import PageHeader from '@/components/ui/PageHeader';
+
 export default function HomePage() {
   const t = useTranslations('session');
   const common = useTranslations('common');
@@ -22,6 +24,7 @@ export default function HomePage() {
         pb={8}
         flex="1"
       >
+        <PageHeader title={t('findSession')} />
         <FindSessionList />
       </Container>
       <Footer />

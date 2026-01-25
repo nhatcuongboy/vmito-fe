@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const locales = ['vi', 'en', 'cn'];
 const defaultLocale =
-  (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as 'vi' | 'en') || 'en';
+  (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as 'vi' | 'en') || 'vi';
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
