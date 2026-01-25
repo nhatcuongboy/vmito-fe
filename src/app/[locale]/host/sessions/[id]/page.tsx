@@ -10,6 +10,7 @@ import { useSessionData } from '@/hooks/useSessionData';
 import { useTabNavigation } from '@/hooks/useTabNavigation';
 import { useSessionRefresh } from '@/hooks/useSessionRefresh';
 import { useSessionManagement } from '@/hooks/useSessionManagement';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 // Components
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -46,6 +47,7 @@ export default function HostSessionPage({
   params: Promise<{ id: string }>;
 }) {
   const t = useTranslations('SessionDetail');
+  const { user } = useAuthStore();
 
   // Unwrap the params Promise to get session ID
   const unwrappedParams = use(params);
@@ -94,13 +96,21 @@ export default function HostSessionPage({
   });
 
   // Define navigation tabs
-  const navigationTabs: NavigationTab[] = [
+  const allNavigationTabs: NavigationTab[] = [
     { id: 0, label: t('overview'), icon: Info },
     { id: 1, label: t('players'), icon: Users },
     { id: 2, label: t('courts'), icon: Square },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('settings'), icon: RefreshCw },
   ];
+
+  const navigationTabs = allNavigationTabs.filter((tab) => {
+    if (user?.role === UserRole.PLAYER) {
+      // Disable Courts (2) and Matches (3) for PLAYER
+      return tab.id !== 2 && tab.id !== 3;
+    }
+    return true;
+  });
 
   // Computed values using utility functions
   const waitingPlayers = session ? getWaitingPlayers(session.players) : [];
@@ -116,7 +126,7 @@ export default function HostSessionPage({
   // Loading state
   if (loading) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
         <Center minH="50vh">
           <Spinner size="xl" color="blue.500" />
         </Center>
@@ -127,7 +137,7 @@ export default function HostSessionPage({
   // Error state
   if (error) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
         <Box
           p={6}
           bg="red.50"
@@ -150,7 +160,7 @@ export default function HostSessionPage({
   // No session found
   if (!session) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
         <Box
           p={6}
           bg="blue.50"
@@ -173,11 +183,11 @@ export default function HostSessionPage({
 
   // Render session detail content
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
       <MainLayout
         title={t('title')}
         showBackButton={true}
-        backHref="/host/sessions"
+        backHref={user?.role === UserRole.PLAYER ? '/player/host' : '/host/sessions'}
         contentPadding={0}
       >
         {/* Auto-update wait times for IN_PROGRESS sessions */}
@@ -227,7 +237,7 @@ export default function HostSessionPage({
               />
             )}
 
-            {activeTab === 2 && (
+            {activeTab === 2 && user?.role !== UserRole.PLAYER && (
               <CourtsTab
                 session={session}
                 waitingPlayers={waitingPlayers}
@@ -241,7 +251,7 @@ export default function HostSessionPage({
               />
             )}
 
-            {activeTab === 3 && (
+            {activeTab === 3 && user?.role !== UserRole.PLAYER && (
               <SessionHistoryList
                 sessionId={session.id}
                 sessionData={{

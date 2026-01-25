@@ -11,13 +11,8 @@ import {
   Heading,
   Text,
 } from '@chakra-ui/react';
-import {
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from '@/components/ui/chakra-compat';
+
+
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -50,7 +45,7 @@ export default function PlayerDashboard() {
     fetchPlayerSessions();
   }, []);
 
-  const hostedSessions = sessions.filter((s) => s.hostId === user?.id);
+
   const joinedSessions = sessions.filter((s) => s.hostId !== user?.id);
 
   return (
@@ -73,98 +68,41 @@ export default function PlayerDashboard() {
             </Button>
           </Flex>
 
-          <Tabs variant="enclosed" colorScheme="blue">
-            <TabList>
-              <Tab>
-                {t('joinedSessions')} ({joinedSessions.length})
-              </Tab>
-              <Tab>
-                {t('hostedSessions')} ({hostedSessions.length})
-              </Tab>
-            </TabList>
-
-            <TabPanels>
-              {/* Joined Sessions Tab */}
-              <TabPanel px={0} py={4}>
-                {joinedSessions.length === 0 ? (
-                  <Box
-                    textAlign="center"
-                    py={10}
-                    px={6}
-                    borderWidth={1}
-                    borderRadius="lg"
-                    borderStyle="dashed"
-                    borderColor="gray.200"
-                  >
-                    <Text color="gray.500" fontSize="lg">
-                      {t('noSessionsFound')}
-                    </Text>
-                  </Box>
-                ) : (
-                  <Grid
-                    templateColumns={{
-                      base: '1fr',
-                      md: 'repeat(2, 1fr)',
-                      lg: 'repeat(3, 1fr)',
-                    }}
-                    gap={6}
-                  >
-                    {joinedSessions.map((session) => (
-                      <SessionCard
-                        key={session.id}
-                        session={session}
-                        mode={'view'}
-                      />
-                    ))}
-                  </Grid>
-                )}
-              </TabPanel>
-
-              {/* Hosted Sessions Tab */}
-              <TabPanel px={0} py={4}>
-                {hostedSessions.length === 0 ? (
-                  <Box
-                    textAlign="center"
-                    py={10}
-                    px={6}
-                    borderWidth={1}
-                    borderRadius="lg"
-                    borderStyle="dashed"
-                    borderColor="gray.200"
-                  >
-                    <Text color="gray.500" fontSize="lg" mb={4}>
-                      {t('noSessionsFound')}
-                    </Text>
-                    <Button
-                      colorScheme="blue"
-                      size="sm"
-                      onClick={() => router.push('/player/sessions/new')}
-                    >
-                      <Plus size={16} style={{ marginRight: 4 }} />
-                      {t('createSession')}
-                    </Button>
-                  </Box>
-                ) : (
-                  <Grid
-                    templateColumns={{
-                      base: '1fr',
-                      md: 'repeat(2, 1fr)',
-                      lg: 'repeat(3, 1fr)',
-                    }}
-                    gap={6}
-                  >
-                    {hostedSessions.map((session) => (
-                      <SessionCard
-                        key={session.id}
-                        session={session}
-                        mode={'manage'}
-                      />
-                    ))}
-                  </Grid>
-                )}
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+          {/* Joined Sessions Grid */}
+          <Box>
+            {joinedSessions.length === 0 ? (
+              <Box
+                textAlign="center"
+                py={10}
+                px={6}
+                borderWidth={1}
+                borderRadius="lg"
+                borderStyle="dashed"
+                borderColor="gray.200"
+              >
+                <Text color="gray.500" fontSize="lg">
+                  {t('noSessionsFound')}
+                </Text>
+              </Box>
+            ) : (
+              <Grid
+                templateColumns={{
+                  base: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                }}
+                gap={6}
+              >
+                {joinedSessions.map((session) => (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    mode={'view'}
+                  />
+                ))}
+              </Grid>
+            )}
+          </Box>
         </Box>
       </Container>
     </ProtectedRouteGuard>

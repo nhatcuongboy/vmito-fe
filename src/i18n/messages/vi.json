@@ -6,7 +6,8 @@
     "tournaments": "Giải đấu",
     "browse": "Tìm kèo",
     "users": "Người dùng",
-    "mySessions": "Kèo của tôi"
+    "mySessions": "Kèo của tôi",
+    "joined": "Đã tham gia"
   },
   "common": {
     "appName": "LenKeo24h",
@@ -279,7 +280,9 @@
     "guestName": "Tên khách",
     "enterName": "Nhập tên",
     "addGuest": "Thêm khách",
-    "joined": "Đã tham gia"
+    "joined": "Đã tham gia",
+    "registrationPending": "Đang chờ duyệt",
+    "registrationRejected": "Đăng ký bị từ chối"
   },
   "court": {
     "title": "Sân",
@@ -1276,7 +1279,27 @@
       "backToPlayers": "Quay lại",
       "filter": "Bộ lọc",
       "clearFilter": "Xóa bộ lọc",
-      "noPlayersFound": "Không tìm thấy người chơi nào có trạng thái {status}"
+      "noPlayersFound": "Không tìm thấy người chơi nào có trạng thái {status}",
+      "pendingRequests": "Yêu cầu tham gia chờ duyệt",
+      "pendingRequestsCount": "Yêu cầu chờ duyệt ({count})",
+      "approve": "Duyệt",
+      "reject": "Từ chối",
+      "approveAll": "Duyệt tất cả",
+      "rejectAll": "Từ chối tất cả",
+      "approveAllShort": "Duyệt hết",
+      "rejectAllShort": "Từ chối hết",
+      "noPendingRequests": "Không có yêu cầu nào đang chờ",
+      "approvingPlayer": "Đang duyệt người chơi...",
+      "rejectingPlayer": "Đang từ chối người chơi...",
+      "approvingAll": "Đang duyệt tất cả...",
+      "rejectingAll": "Đang từ chối tất cả...",
+      "playerApproved": "Đã duyệt người chơi thành công",
+      "playerRejected": "Đã từ chối người chơi thành công",
+      "allPlayersApproved": "Đã duyệt tất cả người chơi thành công",
+      "allPlayersRejected": "Đã từ chối tất cả người chơi thành công",
+      "actionFailed": "Thao tác thất bại. Vui lòng thử lại.",
+      "expandPendingRequests": "Mở rộng danh sách chờ",
+      "collapsePendingRequests": "Thu gọn danh sách chờ"
     },
     "matchs": {
       "tabTitle": "Kết quả"

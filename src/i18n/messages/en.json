@@ -6,7 +6,8 @@
     "tournaments": "Tournaments",
     "browse": "Browse",
     "users": "Users",
-    "mySessions": "My Sessions"
+    "mySessions": "My Sessions",
+    "joined": "Joined"
   },
   "common": {
     "appName": "LenKeo24h",
@@ -279,7 +280,9 @@
     "guestName": "Guest Name",
     "enterName": "Enter name",
     "addGuest": "Add Guest",
-    "joined": "Joined"
+    "joined": "Joined",
+    "registrationPending": "Registration Pending",
+    "registrationRejected": "Registration Rejected"
   },
   "court": {
     "title": "Court",
@@ -1276,7 +1279,27 @@
       "backToPlayers": "Back to Players",
       "filter": "Filter",
       "clearFilter": "Clear Filter",
-      "noPlayersFound": "No players found for {status} status"
+      "noPlayersFound": "No players found for {status} status",
+      "pendingRequests": "Pending Join Requests",
+      "pendingRequestsCount": "Pending Join Requests ({count})",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approveAll": "Approve All",
+      "rejectAll": "Reject All",
+      "noPendingRequests": "No pending requests",
+      "approvingPlayer": "Approving player...",
+      "rejectingPlayer": "Rejecting player...",
+      "approvingAll": "Approving all players...",
+      "rejectingAll": "Rejecting all players...",
+      "playerApproved": "Player approved successfully",
+      "playerRejected": "Player rejected successfully",
+      "allPlayersApproved": "All players approved successfully",
+      "allPlayersRejected": "All players rejected successfully",
+      "actionFailed": "Action failed. Please try again.",
+      "expandPendingRequests": "Expand pending requests",
+      "collapsePendingRequests": "Collapse pending requests",
+      "approveAllShort": "Approve All",
+      "rejectAllShort": "Reject All"
     },
     "matchs": {
       "tabTitle": "Results"

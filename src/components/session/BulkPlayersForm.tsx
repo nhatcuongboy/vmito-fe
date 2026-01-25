@@ -50,7 +50,7 @@ export default function BulkPlayersForm({
   // Add new player row
   const addPlayer = () => {
     const nextPlayerNumber =
-      Math.max(...players.map((p) => p.playerNumber), 0) + 1;
+      Math.max(...players.map((p) => p.playerNumber || 0), 0) + 1;
     setPlayers([...players, { playerNumber: nextPlayerNumber }]);
   };
 
@@ -77,9 +77,14 @@ export default function BulkPlayersForm({
     setSuccess(null);
 
     try {
+      const playersToSubmit = players.map(({ playerNumber, ...rest }) => ({
+        ...rest,
+        // We omit playerNumber so backend assigns it
+      }));
+
       const response = await PlayerService.createBulkPlayers(
         sessionId,
-        players
+        playersToSubmit
       );
       setSuccess(
         `${response.createdPlayers.length} players created successfully`

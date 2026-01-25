@@ -257,9 +257,13 @@ export const usePlayerManagement = (
       }
 
       if (playersToCreate.length > 0) {
+        const playersToCreateSubmitted = playersToCreate.map(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ({ playerNumber, ...rest }: any) => rest
+        );
         await PlayerService.createBulkPlayers(
           session.id,
-          playersToCreate as any
+          playersToCreateSubmitted
         );
       }
 

@@ -7,6 +7,7 @@ import { Box, Container, Grid, Heading, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import SessionCard from '@/components/session/SessionCard';
+import { useAuthStore } from '@/stores/useAuthStore';
 import TopBar from '@/components/ui/TopBar';
 
 export default function PlayerSessionsPage() {
@@ -14,6 +15,7 @@ export default function PlayerSessionsPage() {
   const tCommon = useTranslations('common');
   const tSession = useTranslations('session');
 
+  const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,19 +34,21 @@ export default function PlayerSessionsPage() {
     fetchPlayerSessions();
   }, []);
 
+  const joinedSessions = sessions.filter((session) => session.hostId !== user?.id);
+
   return (
     <ProtectedRouteGuard
       requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
     >
       <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }} pb="80px">
-        <TopBar showBackButton={false} title={t('mySessions')} />
+        <TopBar showBackButton={false} title={t('joined')} />
 
         <Container maxW="container.xl" py={6} mt="64px">
           {loading ? (
             <Flex justify="center" align="center" minH="200px">
               <Spinner size="xl" color="blue.500" />
             </Flex>
-          ) : sessions.length === 0 ? (
+          ) : joinedSessions.length === 0 ? (
             <Box textAlign="center" py={10}>
               <Heading size="md" mb={2}>
                 {tSession('noSessionsFound')}
@@ -60,7 +64,7 @@ export default function PlayerSessionsPage() {
               }}
               gap={6}
             >
-              {sessions.map((session) => (
+              {joinedSessions.map((session) => (
                 <SessionCard key={session.id} session={session} mode="view" />
               ))}
             </Grid>

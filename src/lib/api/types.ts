@@ -103,6 +103,7 @@ export interface ISession {
   description?: string;
   courts?: Court[];
   players?: Player[];
+  pendingPlayers?: Player[];
   _count?: {
     players: number;
     courts: number;
@@ -209,7 +210,7 @@ export interface PlayerStatistics {
 
 // Bulk Player types
 export interface BulkPlayerData {
-  playerNumber: number;
+  playerNumber?: number;
   name?: string;
   gender?: GenderType;
   level?: number;

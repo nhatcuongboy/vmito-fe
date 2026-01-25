@@ -6,7 +6,8 @@
     "tournaments": "锦标赛",
     "browse": "浏览",
     "users": "用户",
-    "mySessions": "我的场次"
+    "mySessions": "我的场次",
+    "joined": "已加入"
   },
   "common": {
     "appName": "LenKeo24h",
@@ -279,7 +280,9 @@
     "guestName": "访客姓名",
     "enterName": "输入姓名",
     "addGuest": "添加访客",
-    "joined": "已加入"
+    "joined": "已加入",
+    "registrationPending": "等待批准",
+    "registrationRejected": "注册被拒绝"
   },
   "court": {
     "title": "场地",

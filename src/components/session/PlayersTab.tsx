@@ -10,6 +10,7 @@ import AddPlayerModal from '@/components/session/player-management/AddPlayerModa
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { AlertCircle, Plus } from 'lucide-react';
+import PendingPlayersSection from './PendingPlayersSection';
 
 import PlayerStatusFilter, { PlayerStatus } from './PlayerStatusFilter';
 
@@ -107,11 +108,21 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   const subTab = externalSubTab ?? internalSubTab;
   const setSubTab = onSubTabChange ?? setInternalSubTab;
 
+  // Separate pending players from approved players
+  const pendingPlayers =
+    session?.pendingPlayers ||
+    sessionPlayers.filter((player) => player.registrationStatus === 'PENDING');
+
+  // Filter only approved players for display
+  const approvedPlayers = sessionPlayers.filter(
+    (player) => player.registrationStatus !== 'PENDING'
+  );
+
   const counts = {
-    PLAYING: sessionPlayers.filter((p) => p.status === 'PLAYING').length,
-    WAITING: sessionPlayers.filter((p) => p.status === 'WAITING').length,
-    READY: sessionPlayers.filter((p) => p.status === 'READY').length,
-    INACTIVE: sessionPlayers.filter((p) => p.status === 'INACTIVE').length,
+    PLAYING: approvedPlayers.filter((p) => p.status === 'PLAYING').length,
+    WAITING: approvedPlayers.filter((p) => p.status === 'WAITING').length,
+    READY: approvedPlayers.filter((p) => p.status === 'READY').length,
+    INACTIVE: approvedPlayers.filter((p) => p.status === 'INACTIVE').length,
   };
 
   return (
@@ -121,7 +132,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         <HStack gap={4}>
           <Heading size="md">
             {t('playersTab.players')}
-            {session && ` (${sessionPlayers.length}/${maxPlayers})`}
+            {session && ` (${approvedPlayers.length}/${maxPlayers})`}
           </Heading>
         </HStack>
 
@@ -156,13 +167,22 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         </HStack>
       </Flex>
 
+      {/* Pending Players Section */}
+      {pendingPlayers.length > 0 && (
+        <PendingPlayersSection
+          sessionId={sessionId}
+          pendingPlayers={pendingPlayers}
+          onPlayerUpdate={onPlayerUpdate || (() => {})}
+        />
+      )}
+
       {/* Filter and Add Player row */}
       <Flex justify="space-between" align="center" mb={2}>
         <PlayerStatusFilter
           selected={playerFilter}
           onChange={setPlayerFilter}
           counts={counts}
-          totalCount={sessionPlayers.length}
+          totalCount={approvedPlayers.length}
         />
         <Button
           size="sm"
@@ -179,7 +199,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         <>
           {/* Filtered Players Grid */}
           {(() => {
-            const filteredPlayers = sessionPlayers.filter((player) => {
+            const filteredPlayers = approvedPlayers.filter((player) => {
               if (playerFilter.length === 0) return true;
               return playerFilter.includes(player.status as PlayerStatus);
             });

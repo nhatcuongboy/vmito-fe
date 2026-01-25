@@ -7,7 +7,7 @@ import { UserRole } from '@/lib/api/types';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import { Home, Search, Trophy, Users, LayoutDashboard } from 'lucide-react';
+import { Home, Search, Trophy, Users, LayoutDashboard, Ticket } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 
 export default function GlobalBottomNav() {
@@ -76,7 +76,8 @@ export default function GlobalBottomNav() {
     // Default to Player view (including Guest if they are authenticated via some mechanism)
     return [
       { id: 1, label: t('home'), icon: Home, href: '/player/dashboard' },
-      { id: 2, label: t('mySessions'), icon: Trophy, href: '/player/sessions' }, // Or whatever list page players have
+      { id: 4, label: t('host'), icon: LayoutDashboard, href: '/player/host' },
+      { id: 2, label: t('joined'), icon: Ticket, href: '/player/sessions' },
       { id: 3, label: t('browse'), icon: Search, href: '/browse/sessions' },
     ];
   }, [isAuthenticated, user, t]);

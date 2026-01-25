@@ -6,9 +6,10 @@ import { ISession, Player, Court, Match } from '@/lib/api/types';
  * Transformed session data that includes computed properties
  * and properly formatted dates for components
  */
-export interface SessionData extends Omit<ISession, 'players' | 'courts'> {
+export interface SessionData extends Omit<ISession, 'players' | 'courts' | 'pendingPlayers'> {
   players: Player[];
   courts: Court[];
+  pendingPlayers: Player[];
   waitingQueue?: Player[];
 }
 
@@ -73,9 +74,11 @@ export function useSessionData(sessionId: string): UseSessionDataReturn {
             return transformedCourt;
           }),
           players: sessionData.players || [],
+          pendingPlayers: sessionData.pendingPlayers || [],
           // Compute waiting queue from players with WAITING status
           waitingQueue:
-            sessionData.players?.filter((p) => p.status === 'WAITING') || [],
+            (sessionData.players || []).filter((p) => p.status === 'WAITING') ||
+            [],
         };
 
         setSession(formattedSession);
