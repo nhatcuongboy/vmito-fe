@@ -1,4 +1,5 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
+import Footer from './Footer';
 import TopBar from '@/components/ui/TopBar';
 import { TOP_BAR_HEIGHT } from '@/constants';
 import { ReactNode } from 'react';
@@ -45,9 +46,14 @@ export default function MainLayout({
           md: 'calc(100% - 56px - env(safe-area-inset-top))',
         }}
         overflowY="auto"
-        p={contentPadding}
+        bg={backgroundColor}
       >
-        {children}
+        <Flex direction="column" minH="100%">
+          <Box flex="1" p={contentPadding}>
+            {children}
+          </Box>
+          <Footer />
+        </Flex>
       </Box>
     </Box>
   );

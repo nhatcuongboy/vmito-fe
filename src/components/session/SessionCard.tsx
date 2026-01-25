@@ -3,9 +3,11 @@
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
 import { Box, Text } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface SessionCardProps {
   session: ISession;
@@ -20,8 +22,12 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
+  const { user } = useAuthStore();
 
   const { isOpen, onOpen, onClose } = useModal();
+
+  // Check if current user is the session owner
+  const isOwner = session.hostId === user?.id;
 
   // Registration status warnings (unique to SessionCard)
   const statusWarnings = (
@@ -57,40 +63,35 @@ const SessionCard = ({
     </>
   );
 
-  // Action buttons (unique to SessionCard)
+  // Action buttons - route owners to manage page, others to view page
   const actions = (
     <>
-      {mode === 'manage' ? (
+      {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
         <NextLinkButton
           href={`/host/sessions/${session.id}`}
           colorScheme="blue"
+          size="sm"
         >
           {t('host')}
         </NextLinkButton>
       ) : (
         <NextLinkButton
           href={`/player/sessions/${session.id}`}
-          colorScheme="blue"
+          colorScheme={isOwner && user?.role === 'PLAYER' ? 'blue' : 'blue'}
+          size="sm"
         >
-          {t('viewSession')}
+          {isOwner && user?.role === 'PLAYER' ? t('manageSession') : t('viewSession')}
         </NextLinkButton>
       )}
       {mode === 'manage' && onDelete && (
-        <button
-          style={{
-            background: '#fff',
-            color: '#e53e3e',
-            border: '1px solid #e53e3e',
-            borderRadius: 6,
-            padding: '8px 16px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-          }}
+        <Button
+          colorScheme="red"
+          variant="outline"
+          size="sm"
           onClick={onOpen}
         >
           {t('deleteSession')}
-        </button>
+        </Button>
       )}
     </>
   );
@@ -124,3 +125,4 @@ const SessionCard = ({
 };
 
 export default SessionCard;
+

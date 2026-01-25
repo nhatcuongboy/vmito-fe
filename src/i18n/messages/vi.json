@@ -9,6 +9,7 @@
     "mySessions": "Kèo của tôi"
   },
   "common": {
+    "appName": "LenKeo24h",
     "save": "Lưu",
     "cancel": "Hủy",
     "delete": "Xóa",
@@ -95,6 +96,7 @@
     "courtDirectionTip": "Hướng sân giúp tối ưu hóa việc sắp xếp người chơi và điều kiện ánh sáng",
     "createSession": "Tạo kèo",
     "joinSession": "Tham gia kèo",
+    "register": "Đăng ký",
     "sessionName": "Tên kèo",
     "sessionCode": "Mã kèo",
     "maxPlayersPerCourt": "Số người chơi tối đa mỗi sân",
@@ -549,6 +551,9 @@
       "waitTime": "Thời gian chờ",
       "playerNumber": "Người chơi số",
       "viewSession": "Xem kèo",
+      "createSession": "Tạo kèo",
+      "joinedSessions": "Kèo đã tham gia",
+      "hostedSessions": "Kèo của tôi (Host)",
       "stats": {
         "totalSessions": "Tổng số phiên",
         "activeSessions": "Đang diễn ra",

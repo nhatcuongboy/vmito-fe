@@ -285,7 +285,7 @@ export default function SlideOutMenu({
               )}
 
               <Text fontSize="xs" color="gray.500" textAlign="center">
-                Badminton Session Manager
+                {common('appName')}
               </Text>
               <Text fontSize="xs" color="gray.400" textAlign="center">
                 © {new Date().getFullYear()}

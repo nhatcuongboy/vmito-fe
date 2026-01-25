@@ -9,6 +9,7 @@
     "mySessions": "My Sessions"
   },
   "common": {
+    "appName": "LenKeo24h",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -550,6 +551,9 @@
       "waitTime": "Wait Time",
       "playerNumber": "Player #",
       "viewSession": "View Session",
+      "createSession": "Create Session",
+      "joinedSessions": "Joined Sessions",
+      "hostedSessions": "Hosted Sessions",
       "stats": {
         "totalSessions": "Total Sessions",
         "activeSessions": "Active Sessions",

@@ -9,6 +9,7 @@
     "mySessions": "我的场次"
   },
   "common": {
+    "appName": "LenKeo24h",
     "save": "保存",
     "cancel": "取消",
     "delete": "删除",
@@ -95,6 +96,7 @@
     "courtDirectionTip": "场地朝向有助于优化玩家位置和照明条件",
     "createSession": "创建场次",
     "joinSession": "加入场次",
+    "register": "注册",
     "sessionName": "场次名称",
     "sessionCode": "场次代码",
     "maxPlayersPerCourt": "每块场地最大人数",
@@ -549,6 +551,9 @@
       "waitTime": "等待时间",
       "playerNumber": "玩家编号",
       "viewSession": "查看场次",
+      "createSession": "创建场次",
+      "joinedSessions": "已加入的场次",
+      "hostedSessions": "主持的场次",
       "stats": {
         "totalSessions": "总场次",
         "activeSessions": "活动场次",
