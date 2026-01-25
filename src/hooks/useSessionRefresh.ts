@@ -48,6 +48,7 @@ export function useSessionRefresh({
           ...p,
           name: p.name || '',
         })),
+        pendingPlayers: data.pendingPlayers || [],
         courts: (data.courts || []).map((c) => {
           const court: Court = {
             ...c,

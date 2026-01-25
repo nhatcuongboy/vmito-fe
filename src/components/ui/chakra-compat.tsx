@@ -680,35 +680,13 @@ export const FormLabel = ({ children, ...props }: FormLabelProps & any) => (
   </Box>
 );
 
-// Create Select component wrapper
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  isDisabled?: boolean;
-  children: React.ReactNode;
-}
+// Export Select component from dedicated file
+export { Select, LegacySelect } from './Select';
+export type { SelectProps, LegacySelectProps, SelectOption } from './Select';
 
-export const Select = ({ isDisabled, children, ...props }: SelectProps) => (
-  <Box
-    as="select"
-    width="100%"
-    p={2}
-    borderWidth="1px"
-    borderColor="gray.300"
-    borderRadius="md"
-    bg="white"
-    disabled={isDisabled}
-    _disabled={{
-      opacity: 0.6,
-      cursor: 'not-allowed',
-    }}
-    _focus={{
-      borderColor: 'blue.500',
-      boxShadow: '0 0 0 1px blue.500',
-    }}
-    {...(props as any)}
-  >
-    {children}
-  </Box>
-);
+
+
+
 
 // Create enhanced Input with leftElement support
 interface InputProps extends ChakraInputProps {
