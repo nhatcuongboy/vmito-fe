@@ -20,7 +20,7 @@ interface UseSessionRefreshReturn {
 /**
  * Custom hook for managing session data refresh
  * Handles auto-refresh for IN_PROGRESS sessions
- * 
+ *
  * @param sessionId - The ID of the session to refresh
  * @param sessionStatus - Current session status
  * @param onSessionUpdate - Callback to update session data

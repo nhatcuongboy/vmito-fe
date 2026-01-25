@@ -95,7 +95,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       primaryActionText={t('saveAll', { count: newPlayers.length })}
       onPrimaryAction={handleSave}
       isPrimaryLoading={isSaving}
-      isPrimaryDisabled={Object.keys(errors).length > 0 || newPlayers.length === 0}
+      isPrimaryDisabled={
+        Object.keys(errors).length > 0 || newPlayers.length === 0
+      }
       primaryColorScheme="green"
       secondaryActionText={tCommon('cancel')}
       onSecondaryAction={handleClose}
@@ -123,11 +125,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     >
                       #{player.playerNumber}
                     </Badge>
-                    <Text
-                      fontSize="sm"
-                      color="gray.600"
-                      fontWeight="medium"
-                    >
+                    <Text fontSize="sm" color="gray.600" fontWeight="medium">
                       {t('newPlayer')}
                     </Text>
                   </HStack>
@@ -204,9 +202,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     size="md"
                     bg="white"
                     borderColor={errors[index] ? 'red.400' : undefined}
-                    boxShadow={
-                      errors[index] ? '0 0 0 1px #F56565' : undefined
-                    }
+                    boxShadow={errors[index] ? '0 0 0 1px #F56565' : undefined}
                     _focus={{
                       borderColor: errors[index] ? 'red.400' : 'blue.500',
                       boxShadow: errors[index]
@@ -225,10 +221,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 </Box>
 
                 {/* Gender and Level - responsive grid */}
-                <Grid
-                  templateColumns={{ base: '1fr', md: '1fr 1fr' }}
-                  gap={4}
-                >
+                <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
                   <Box>
                     <Text
                       fontSize="sm"
@@ -248,9 +241,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         padding: '12px',
                         borderRadius: '6px',
                         border: '1px solid #E2E8F0',
-                        backgroundColor: player.userId
-                          ? '#F7FAFC'
-                          : 'white',
+                        backgroundColor: player.userId ? '#F7FAFC' : 'white',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
                         cursor: player.userId ? 'not-allowed' : 'pointer',
@@ -284,9 +275,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         padding: '12px',
                         borderRadius: '6px',
                         border: '1px solid #E2E8F0',
-                        backgroundColor: player.userId
-                          ? '#F7FAFC'
-                          : 'white',
+                        backgroundColor: player.userId ? '#F7FAFC' : 'white',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
                         cursor: player.userId ? 'not-allowed' : 'pointer',
@@ -319,11 +308,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     bg="white"
                     value={player.levelDescription || ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      onUpdatePlayer(
-                        index,
-                        'levelDescription',
-                        e.target.value
-                      )
+                      onUpdatePlayer(index, 'levelDescription', e.target.value)
                     }
                     rows={2}
                     disabled={!!player.userId}

@@ -20,7 +20,7 @@ interface UseSessionDataReturn {
 
 /**
  * Custom hook to fetch and manage session data
- * 
+ *
  * @param sessionId - The ID of the session to fetch
  * @returns Object containing session data, loading state, and error message
  */
@@ -59,7 +59,7 @@ export function useSessionData(sessionId: string): UseSessionDataReturn {
               ...court,
               currentPlayers: court.currentPlayers || [],
               currentMatch: court.currentMatch
-                ? {
+                ? ({
                     ...court.currentMatch,
                     startTime: court.currentMatch.startTime
                       ? new Date(court.currentMatch.startTime)
@@ -67,7 +67,7 @@ export function useSessionData(sessionId: string): UseSessionDataReturn {
                     endTime: court.currentMatch.endTime
                       ? new Date(court.currentMatch.endTime)
                       : undefined,
-                  } as Match
+                  } as Match)
                 : undefined,
             };
             return transformedCourt;

@@ -4,11 +4,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
-import {
-  AdminService,
-  User,
-  UpdateUserData,
-} from '@/lib/api/admin.service';
+import { AdminService, User, UpdateUserData } from '@/lib/api/admin.service';
 import { UserRole } from '@/lib/api/types';
 import {
   Badge,

@@ -5,9 +5,17 @@ import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
-import { sendSystemNotification, requestNotificationPermission } from '@/utils/notifications';
+import {
+  sendSystemNotification,
+  requestNotificationPermission,
+} from '@/utils/notifications';
 import { toaster } from '@/components/ui/toaster';
-import { type Court, type Player, type ISession, type Match } from '@/lib/api/types';
+import {
+  type Court,
+  type Player,
+  type ISession,
+  type Match,
+} from '@/lib/api/types';
 
 interface UsePlayerSessionProps {
   mode: 'guest' | 'player';
@@ -40,7 +48,7 @@ export function usePlayerSession({
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
-  
+
   // Court call modal state
   const [courtCallModalOpen, setCourtCallModalOpen] = useState(false);
   const [courtCallCourtName, setCourtCallCourtName] = useState<string>('');
@@ -190,12 +198,18 @@ export function usePlayerSession({
   useEffect(() => {
     if (!socket || !session?.id) return;
 
-    const handlePlayerCreated = (data: { sessionId: string; playerId: string }) => {
+    const handlePlayerCreated = (data: {
+      sessionId: string;
+      playerId: string;
+    }) => {
       if (data.sessionId !== session.id) return;
       fetchPlayerData(true);
     };
 
-    const handlePlayerUpdated = (data: { sessionId: string; playerId: string }) => {
+    const handlePlayerUpdated = (data: {
+      sessionId: string;
+      playerId: string;
+    }) => {
       if (data.sessionId !== session.id) return;
       if (data.playerId === player?.id) {
         const title = t('events.yourInfoUpdated');
@@ -205,7 +219,10 @@ export function usePlayerSession({
       fetchPlayerData(true);
     };
 
-    const handlePlayerRemoved = (data: { sessionId: string; playerId: string }) => {
+    const handlePlayerRemoved = (data: {
+      sessionId: string;
+      playerId: string;
+    }) => {
       if (data.sessionId !== session.id) return;
       if (data.playerId === player?.id) {
         const title = t('events.youWereRemoved');
@@ -215,17 +232,25 @@ export function usePlayerSession({
       fetchPlayerData(true);
     };
 
-    const handlePlayersSelected = (data: { sessionId: string; courtId: string; playerIds?: string[] }) => {
+    const handlePlayersSelected = (data: {
+      sessionId: string;
+      courtId: string;
+      playerIds?: string[];
+    }) => {
       if (data.sessionId !== session.id) return;
-      const isCurrentPlayerSelected = data.playerIds?.includes(player?.id || '');
+      const isCurrentPlayerSelected = data.playerIds?.includes(
+        player?.id || ''
+      );
 
       if (isCurrentPlayerSelected) {
         const court = session.courts?.find((c) => c.id === data.courtId);
-        const courtName = court ? court.courtName || `Court ${court.courtNumber}` : 'Court';
-        
+        const courtName = court
+          ? court.courtName || `Court ${court.courtNumber}`
+          : 'Court';
+
         setCourtCallCourtName(courtName);
         setCourtCallModalOpen(true);
-        
+
         sendSystemNotification(
           t('events.youWereSelected', { court: courtName }),
           t('courtCall.goToCourt') + ' ' + courtName
@@ -234,14 +259,22 @@ export function usePlayerSession({
       fetchPlayerData(true);
     };
 
-    const handlePlayersDeselected = (data: { sessionId: string; courtId: string; playerIds?: string[] }) => {
+    const handlePlayersDeselected = (data: {
+      sessionId: string;
+      courtId: string;
+      playerIds?: string[];
+    }) => {
       if (data.sessionId !== session.id) return;
-      const isCurrentPlayerDeselected = data.playerIds?.includes(player?.id || '');
+      const isCurrentPlayerDeselected = data.playerIds?.includes(
+        player?.id || ''
+      );
 
       if (isCurrentPlayerDeselected) {
         const court = session.courts?.find((c) => c.id === data.courtId);
-        const courtName = court ? court.courtName || `Court ${court.courtNumber}` : 'Court';
-        
+        const courtName = court
+          ? court.courtName || `Court ${court.courtNumber}`
+          : 'Court';
+
         const title = t('events.youWereDeselected', { court: courtName });
         toaster.create({ title, type: 'info' });
         sendSystemNotification(title);

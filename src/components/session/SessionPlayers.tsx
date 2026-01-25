@@ -32,9 +32,7 @@ interface SessionPlayersProps {
   sessionId: string;
 }
 
-const SessionPlayers: React.FC<SessionPlayersProps> = ({
-  sessionId,
-}) => {
+const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
   const t = useTranslations('SessionPlayers');
   const [stats, setStats] = useState<PlayerStatistics[]>([]);
   const [loading, setLoading] = useState(true);

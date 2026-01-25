@@ -20,11 +20,7 @@ import {
   Card,
   CardBody,
 } from '@/components/ui/chakra-v3-compat';
-import {
-  Sparkles,
-  RefreshCw,
-  X,
-} from 'lucide-react';
+import { Sparkles, RefreshCw, X } from 'lucide-react';
 import { api, ApiResponse } from '@/lib/api/base';
 import { toaster } from '@/components/ui/toaster';
 

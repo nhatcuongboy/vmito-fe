@@ -13,7 +13,7 @@ import {
   Shield,
   Square,
   UserPlus,
-  Users
+  Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
@@ -104,15 +104,13 @@ export default function SessionOverviewTab({
             >
               {t('information')}
             </Text>
-            
+
             <SessionInfo session={session} />
 
             {onToggleSessionStatus && session.status !== 'FINISHED' && (
               <Flex mt={6} justify="center">
                 <Button
-                  colorScheme={
-                    session.status === 'PREPARING' ? 'blue' : 'red'
-                  }
+                  colorScheme={session.status === 'PREPARING' ? 'blue' : 'red'}
                   size="lg"
                   px={8}
                   onClick={onToggleSessionStatus}

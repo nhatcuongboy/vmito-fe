@@ -312,8 +312,6 @@ export default function BulkPlayersForm({
     }
   };
 
-
-
   // Clear the form
   const clearForm = () => {
     setErrorMessage(null);

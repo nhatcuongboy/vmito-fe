@@ -240,9 +240,7 @@ function ConfirmPageContent() {
                         <option value="FEMALE">
                           {t('confirm.form.female')}
                         </option>
-                        <option value="OTHER">
-                          {tCommon('other')}
-                        </option>
+                        <option value="OTHER">{tCommon('other')}</option>
                         <option value="PREFER_NOT_TO_SAY">
                           {tCommon('preferNotToSay')}
                         </option>

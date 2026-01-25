@@ -86,7 +86,8 @@ export default function HostSessionPage({
     handleCancelAction,
   } = useSessionManagement({
     session: session!,
-    onSessionUpdate: (updates) => setSession((prev) => ({ ...prev!, ...updates })),
+    onSessionUpdate: (updates) =>
+      setSession((prev) => ({ ...prev!, ...updates })),
     onRefreshData: refreshSessionData,
     t,
     toaster,
@@ -180,7 +181,10 @@ export default function HostSessionPage({
         contentPadding={0}
       >
         {/* Auto-update wait times for IN_PROGRESS sessions */}
-        <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
+        <WaitTimeUpdater
+          sessionId={session.id}
+          sessionStatus={session.status}
+        />
 
         {/* Session Status Header */}
         <SessionStatusHeader
@@ -194,13 +198,14 @@ export default function HostSessionPage({
         <Container maxW="7xl" py={2}>
           {/* Tab Content Area */}
           <Box minH="60vh" pb="80px">
-            {session.status !== SessionStatus.IN_PROGRESS && activeTab !== 0 && (
-              <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
-                {session.status === SessionStatus.PREPARING
-                  ? t('courtsTab.startSessionToBeginMatches')
-                  : t('courtsTab.sessionHasEnded')}
-              </Text>
-            )}
+            {session.status !== SessionStatus.IN_PROGRESS &&
+              activeTab !== 0 && (
+                <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
+                  {session.status === SessionStatus.PREPARING
+                    ? t('courtsTab.startSessionToBeginMatches')
+                    : t('courtsTab.sessionHasEnded')}
+                </Text>
+              )}
 
             {activeTab === 0 && (
               <SessionOverviewTab
@@ -281,4 +286,3 @@ export default function HostSessionPage({
     </ProtectedRouteGuard>
   );
 }
-

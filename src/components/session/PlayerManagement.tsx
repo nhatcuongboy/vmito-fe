@@ -71,8 +71,10 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   const [showAddPlayerModal, setShowAddPlayerModal] = useState<boolean>(false);
 
   // Edit Player Modal State
-  const [showEditPlayerModal, setShowEditPlayerModal] = useState<boolean>(false);
-  const [selectedPlayerForEdit, setSelectedPlayerForEdit] = useState<Player | null>(null);
+  const [showEditPlayerModal, setShowEditPlayerModal] =
+    useState<boolean>(false);
+  const [selectedPlayerForEdit, setSelectedPlayerForEdit] =
+    useState<Player | null>(null);
 
   const showPlayerQR = (player: Player) => {
     setSelectedPlayerForQR(player);
@@ -137,7 +139,6 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
       {/* Add Player Button */}
 
-
       {/* Add Player Modal */}
       <AddPlayerModal
         isOpen={showAddPlayerModal && !showMaxPlayersWarning}
@@ -161,21 +162,29 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       {/* Player List - apply filter */}
       {(() => {
         const allPlayers = session.players || [];
-        const filteredPlayers = playerFilter.length === 0 
-          ? allPlayers 
-          : allPlayers.filter(p => playerFilter.includes(p.status as any));
-        
+        const filteredPlayers =
+          playerFilter.length === 0
+            ? allPlayers
+            : allPlayers.filter((p) => playerFilter.includes(p.status as any));
+
         // Get translated filter name for empty state
-        const filterName = playerFilter.map(status => {
-           switch(status) {
-              case 'PLAYING': return t('filter.playing');
-              case 'WAITING': return t('filter.waiting');
-              case 'READY': return t('filter.ready');
-              case 'INACTIVE': return t('filter.inactive');
-              default: return status;
-           }
-        }).join(', ');
-        
+        const filterName = playerFilter
+          .map((status) => {
+            switch (status) {
+              case 'PLAYING':
+                return t('filter.playing');
+              case 'WAITING':
+                return t('filter.waiting');
+              case 'READY':
+                return t('filter.ready');
+              case 'INACTIVE':
+                return t('filter.inactive');
+              default:
+                return status;
+            }
+          })
+          .join(', ');
+
         return (
           <PlayerList
             players={filteredPlayers}
@@ -200,7 +209,11 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         isOpen={showEditPlayerModal}
         onClose={closeEditPlayerModal}
         player={selectedPlayerForEdit}
-        editingData={selectedPlayerForEdit ? editingPlayers[selectedPlayerForEdit.id] : null}
+        editingData={
+          selectedPlayerForEdit
+            ? editingPlayers[selectedPlayerForEdit.id]
+            : null
+        }
         availableLevels={availableLevels}
         isSaving={isSaving}
         onUpdateEditing={updateEditingPlayer}

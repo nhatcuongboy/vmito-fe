@@ -1,11 +1,11 @@
-import { Player, Court, Match } from '@/lib/api/types';
+import { Player, Court, Match, CourtStatus, PlayerStatus } from '@/lib/api/types';
 
 /**
  * Get waiting players filtered and sorted by wait time
  */
 export function getWaitingPlayers(players: Player[]): Player[] {
   return players
-    .filter((player) => player.status === 'WAITING')
+    .filter((player) => player.status === PlayerStatus.WAITING)
     .sort((a, b) => b.currentWaitTime - a.currentWaitTime);
 }
 
@@ -13,12 +13,7 @@ export function getWaitingPlayers(players: Player[]): Player[] {
  * Get active courts (courts that are currently in use)
  */
 export function getActiveCourts(courts: Court[]): Court[] {
-  return courts
-    .filter((court) => court.status === 'IN_USE')
-    .map((court) => ({
-      ...court,
-      status: court.status as 'READY' | 'IN_USE' | 'EMPTY',
-    }));
+  return courts.filter((court) => court.status === CourtStatus.IN_USE);
 }
 
 /**

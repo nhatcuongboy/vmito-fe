@@ -54,9 +54,9 @@ const PlayerList: React.FC<PlayerListProps> = ({
       <VStack spacing={5} align="stretch">
         {/* Player list or empty state */}
         {players.length === 0 ? (
-          <Card 
-            variant="outline" 
-            bg="linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)" 
+          <Card
+            variant="outline"
+            bg="linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)"
             borderStyle="dashed"
             borderWidth="2px"
             borderColor="gray.200"
@@ -78,29 +78,31 @@ const PlayerList: React.FC<PlayerListProps> = ({
                 >
                   <Box as={Users} boxSize={10} color="gray.400" />
                 </Flex>
-                
+
                 <VStack spacing={2}>
-                  <Text 
-                    fontSize="xl" 
-                    fontWeight="bold" 
+                  <Text
+                    fontSize="xl"
+                    fontWeight="bold"
                     color="gray.700"
                     letterSpacing="-0.01em"
                   >
                     {isFiltered ? t('noPlayersWithFilter') : t('noPlayersYet')}
                   </Text>
-                  <Text 
-                    fontSize="sm" 
-                    color="gray.500" 
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
                     textAlign="center"
                     maxW="300px"
                     lineHeight="1.6"
                   >
-                    {isFiltered 
-                      ? t('noPlayersWithFilterDescription', { status: filterName || '' })
+                    {isFiltered
+                      ? t('noPlayersWithFilterDescription', {
+                          status: filterName || '',
+                        })
                       : t('noPlayersYetDescription')}
                   </Text>
                 </VStack>
-                
+
                 {/* Only show Add Player button when not filtered */}
                 {!isFiltered && (
                   <Button

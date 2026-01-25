@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
 import { MapPin } from 'lucide-react';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { useTranslations } from 'next-intl';
@@ -64,22 +58,12 @@ export default function CourtCallModal({
           </Text>
         </Box>
 
-        <Text
-          color="gray.600"
-          _dark={{ color: 'gray.400' }}
-          textAlign="center"
-        >
+        <Text color="gray.600" _dark={{ color: 'gray.400' }} textAlign="center">
           {t('courtCall.description')}
         </Text>
 
         {/* Action button */}
-        <Button
-          colorScheme="green"
-          size="lg"
-          w="full"
-          onClick={onClose}
-          mt={2}
-        >
+        <Button colorScheme="green" size="lg" w="full" onClick={onClose} mt={2}>
           {t('courtCall.understood')}
         </Button>
       </Flex>

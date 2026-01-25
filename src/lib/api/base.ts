@@ -77,7 +77,11 @@ api.interceptors.response.use(
     }
 
     // Handle 401 Unauthorized - Token expired or invalid
-    if (status === 401 && typeof window !== 'undefined' && !originalRequest._retry) {
+    if (
+      status === 401 &&
+      typeof window !== 'undefined' &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
@@ -125,8 +129,8 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     } else if (status === 401) {
-       // If 401 happens again (after retry) or during refresh, just reject
-       return Promise.reject(error);
+      // If 401 happens again (after retry) or during refresh, just reject
+      return Promise.reject(error);
     } else {
       // Don't show toast for 401 errors (handled above)
       const method = error.config?.method?.toUpperCase();

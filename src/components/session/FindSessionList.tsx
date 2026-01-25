@@ -212,7 +212,11 @@ export default function FindSessionList() {
       >
         {/* Search Bar & Date Row */}
         <Flex gap={2} wrap="wrap" align="end">
-          <Box flex="1" minW={{ base: '100%', md: '200px' }} position="relative">
+          <Box
+            flex="1"
+            minW={{ base: '100%', md: '200px' }}
+            position="relative"
+          >
             <Box
               position="absolute"
               left={3}
@@ -313,7 +317,9 @@ export default function FindSessionList() {
                     bg={
                       filters.levels.includes(level) ? 'blue.500' : 'gray.200'
                     }
-                    color={filters.levels.includes(level) ? 'white' : 'gray.700'}
+                    color={
+                      filters.levels.includes(level) ? 'white' : 'gray.700'
+                    }
                     fontSize="xs"
                     fontWeight="semibold"
                     onClick={() => toggleLevel(level)}

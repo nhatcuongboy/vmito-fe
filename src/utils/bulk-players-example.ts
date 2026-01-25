@@ -1,7 +1,12 @@
 import { BulkPlayerData, GenderType } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 
-const VALID_GENDERS: GenderType[] = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'];
+const VALID_GENDERS: GenderType[] = [
+  'MALE',
+  'FEMALE',
+  'OTHER',
+  'PREFER_NOT_TO_SAY',
+];
 
 // Function to create players from CSV data
 export function parseCSVToBulkPlayers(csvData: string): BulkPlayerData[] {

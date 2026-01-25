@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Flex, Text, Badge, FlexProps, SimpleGrid, Spinner } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Text,
+  Badge,
+  FlexProps,
+  SimpleGrid,
+  Spinner,
+} from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
 import {
   Award,
@@ -74,11 +82,14 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
     const fetchStats = async () => {
       const targetSessionId = session.id;
       if (!targetSessionId || !player?.id) return;
-      
+
       try {
         setIsLoadingStats(true);
-        const response = await SessionService.getPlayerStatistics(targetSessionId);
-        const myStats = response.playerStats.find(s => s.playerId === player.id);
+        const response =
+          await SessionService.getPlayerStatistics(targetSessionId);
+        const myStats = response.playerStats.find(
+          (s) => s.playerId === player.id
+        );
         if (myStats) {
           setPlayerStats(myStats);
         }
@@ -188,16 +199,21 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
 
       {/* Player Statistics Section */}
       {player && player.status !== 'INACTIVE' && (
-        <Box 
-          mt={4} 
-          pt={4} 
-          borderTopWidth="1px" 
-          borderColor="gray.100" 
+        <Box
+          mt={4}
+          pt={4}
+          borderTopWidth="1px"
+          borderColor="gray.100"
           _dark={{ borderColor: 'gray.700' }}
         >
           <Flex align="center" mb={3}>
             <Box as={Award} boxSize={5} color="yellow.500" mr={2} />
-            <Text fontWeight="bold" fontSize="md" color="gray.700" _dark={{ color: 'gray.200' }}>
+            <Text
+              fontWeight="bold"
+              fontSize="md"
+              color="gray.700"
+              _dark={{ color: 'gray.200' }}
+            >
               {t('playerStatsTitle')}
             </Text>
           </Flex>
@@ -215,8 +231,12 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
                 borderRadius="md"
                 textAlign="center"
               >
-                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.wins')}</Text>
-                <Text fontWeight="bold" color="green.500">{playerStats.wins}</Text>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  {t('stats.wins')}
+                </Text>
+                <Text fontWeight="bold" color="green.500">
+                  {playerStats.wins}
+                </Text>
               </Box>
               <Box
                 p={2}
@@ -225,8 +245,12 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
                 borderRadius="md"
                 textAlign="center"
               >
-                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.losses')}</Text>
-                <Text fontWeight="bold" color="red.500">{playerStats.losses}</Text>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  {t('stats.losses')}
+                </Text>
+                <Text fontWeight="bold" color="red.500">
+                  {playerStats.losses}
+                </Text>
               </Box>
               <Box
                 p={2}
@@ -235,8 +259,13 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
                 borderRadius="md"
                 textAlign="center"
               >
-                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.winRate')}</Text>
-                <Text fontWeight="bold" color={playerStats.winRate >= 50 ? 'green.500' : 'orange.500'}>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  {t('stats.winRate')}
+                </Text>
+                <Text
+                  fontWeight="bold"
+                  color={playerStats.winRate >= 50 ? 'green.500' : 'orange.500'}
+                >
                   {playerStats.winRate}%
                 </Text>
               </Box>
@@ -247,7 +276,9 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
                 borderRadius="md"
                 textAlign="center"
               >
-                <Text fontSize="xs" color="gray.500" mb={1}>{t('stats.totalMatches')}</Text>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  {t('stats.totalMatches')}
+                </Text>
                 <Text fontWeight="bold">{playerStats.totalMatches}</Text>
               </Box>
             </SimpleGrid>

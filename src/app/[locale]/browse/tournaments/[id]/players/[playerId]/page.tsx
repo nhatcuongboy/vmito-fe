@@ -166,16 +166,18 @@ export default function TournamentPlayerDetailPage() {
     // If sets are available, use them
     if (match.sets && Array.isArray(match.sets)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return match.sets
-        .map((set: any) => {
-          if (position === 0) return set.player1Score;
-          if (position === 1) return set.player2Score;
-          if (position === 2) return set.player3Score;
-          if (position === 3) return set.player4Score;
-          return null;
-        })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((s: any) => s !== null && s !== undefined);
+      return (
+        match.sets
+          .map((set: any) => {
+            if (position === 0) return set.player1Score;
+            if (position === 1) return set.player2Score;
+            if (position === 2) return set.player3Score;
+            if (position === 3) return set.player4Score;
+            return null;
+          })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((s: any) => s !== null && s !== undefined)
+      );
     }
 
     // Fallback to total scores
@@ -221,16 +223,18 @@ export default function TournamentPlayerDetailPage() {
     // If sets are available, use them
     if (match.sets && Array.isArray(match.sets)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return match.sets
-        .map((set: any) => {
-          if (opponentPosition === 0) return set.player1Score;
-          if (opponentPosition === 1) return set.player2Score;
-          if (opponentPosition === 2) return set.player3Score;
-          if (opponentPosition === 3) return set.player4Score;
-          return null;
-        })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((s: any) => s !== null && s !== undefined);
+      return (
+        match.sets
+          .map((set: any) => {
+            if (opponentPosition === 0) return set.player1Score;
+            if (opponentPosition === 1) return set.player2Score;
+            if (opponentPosition === 2) return set.player3Score;
+            if (opponentPosition === 3) return set.player4Score;
+            return null;
+          })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((s: any) => s !== null && s !== undefined)
+      );
     }
 
     // Fallback to total scores

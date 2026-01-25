@@ -184,7 +184,9 @@ const CourtCard: React.FC<CourtCardProps> = ({
               >
                 <Box as={Clock} boxSize={3} />
                 {currentMatch.startTime
-                  ? elapsedTimeFormatter(new Date(currentMatch.startTime).toISOString())
+                  ? elapsedTimeFormatter(
+                      new Date(currentMatch.startTime).toISOString()
+                    )
                   : '-'}
               </Badge>
             )}
@@ -238,7 +240,9 @@ const CourtCard: React.FC<CourtCardProps> = ({
               isActive={isActive}
               elapsedTime={
                 currentMatch
-                  ? elapsedTimeFormatter(new Date(currentMatch.startTime).toISOString())
+                  ? elapsedTimeFormatter(
+                      new Date(currentMatch.startTime).toISOString()
+                    )
                   : t('courtsTab.playing')
               }
               courtName={getCourtDisplayName(

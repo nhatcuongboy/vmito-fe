@@ -50,10 +50,10 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   const [showAddPlayerModal, setShowAddPlayerModal] = React.useState(false);
 
   // Safe session object for hook
-  const safeSession = session || { 
+  const safeSession = session || {
     id: sessionId,
-    players: sessionPlayers, 
-    numberOfCourts: 0, 
+    players: sessionPlayers,
+    numberOfCourts: 0,
     maxPlayersPerCourt: 0,
     requiredLevels: [],
   };
@@ -98,10 +98,11 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
     cancelAddPlayer();
     setShowAddPlayerModal(false);
   };
-  
+
   // Internal sub-tab state (used when no external control is provided)
-  const [internalSubTab, setInternalSubTab] = React.useState<PlayersSubTab>('grid');
-  
+  const [internalSubTab, setInternalSubTab] =
+    React.useState<PlayersSubTab>('grid');
+
   // Use external sub-tab if provided, otherwise use internal state
   const subTab = externalSubTab ?? internalSubTab;
   const setSubTab = onSubTabChange ?? setInternalSubTab;
@@ -123,12 +124,12 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             {session && ` (${sessionPlayers.length}/${maxPlayers})`}
           </Heading>
         </HStack>
-        
+
         {/* Sub-tabs: Grid / List */}
-        <HStack 
-          bg="gray.100" 
-          _dark={{ bg: 'gray.700' }} 
-          borderRadius="lg" 
+        <HStack
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          borderRadius="lg"
           p={1}
           gap={0}
         >
@@ -186,7 +187,12 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
               return (
                 <Text fontSize="lg" color="gray.500" textAlign="center" py={8}>
                   {t('playersTab.noPlayersFound', {
-                    status: playerFilter.length > 0 ? playerFilter.map(s => t(`playersTab.${s.toLowerCase()}`)).join(', ') : t('playersTab.all'),
+                    status:
+                      playerFilter.length > 0
+                        ? playerFilter
+                            .map((s) => t(`playersTab.${s.toLowerCase()}`))
+                            .join(', ')
+                        : t('playersTab.all'),
                   })}
                 </Text>
               );
@@ -208,14 +214,13 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
 
       {/* List View Content - Player Management with shared filter */}
       {subTab === 'list' && session && (
-        <PlayerManagement 
-          session={session} 
-          onDataRefresh={onPlayerUpdate} 
+        <PlayerManagement
+          session={session}
+          onDataRefresh={onPlayerUpdate}
           playerFilter={playerFilter}
         />
       )}
 
-      
       {/* Add Player Modal */}
       <AddPlayerModal
         isOpen={showAddPlayerModal && !showMaxPlayersWarning}
@@ -292,4 +297,3 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
 };
 
 export default PlayersTab;
-

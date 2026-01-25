@@ -60,7 +60,9 @@ function StatusPageContent() {
   const common = useTranslations('common');
   // const { data: sessionData } = useSession();
   // console.log(sessionData);
-  const [refreshInterval, setRefreshInterval] = useState(REFRESH_INTERVAL_SECONDS);
+  const [refreshInterval, setRefreshInterval] = useState(
+    REFRESH_INTERVAL_SECONDS
+  );
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,9 @@ function StatusPageContent() {
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
-  const [activeTab, setActiveTab] = useState<StatusPageTab>(StatusPageTab.STATUS);
+  const [activeTab, setActiveTab] = useState<StatusPageTab>(
+    StatusPageTab.STATUS
+  );
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>([]);
 
   // Helper function to format elapsed time for match display
@@ -110,7 +114,9 @@ function StatusPageContent() {
 
   // Helper function to get waiting players
   const getWaitingPlayers = () => {
-    return session?.players?.filter((p) => p.status === PlayerStatus.WAITING) || [];
+    return (
+      session?.players?.filter((p) => p.status === PlayerStatus.WAITING) || []
+    );
   };
 
   // Helper function to get active courts
@@ -402,7 +408,10 @@ function StatusPageContent() {
                       {player.status === PlayerStatus.PLAYING ? (
                         <>
                           <Box mb={1}>
-                            <CheckCircle2 size={28} color="var(--chakra-colors-green-500)" />
+                            <CheckCircle2
+                              size={28}
+                              color="var(--chakra-colors-green-500)"
+                            />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('playing.title')}
@@ -419,7 +428,10 @@ function StatusPageContent() {
                       ) : player.status === PlayerStatus.WAITING ? (
                         <>
                           <Box mb={1}>
-                            <Clock size={28} color="var(--chakra-colors-blue-500)" />
+                            <Clock
+                              size={28}
+                              color="var(--chakra-colors-blue-500)"
+                            />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('waiting.title')}
@@ -440,7 +452,10 @@ function StatusPageContent() {
                       ) : (
                         <>
                           <Box mb={1}>
-                            <CheckCircle2 size={28} color="var(--chakra-colors-gray-400)" />
+                            <CheckCircle2
+                              size={28}
+                              color="var(--chakra-colors-gray-400)"
+                            />
                           </Box>
                           <Text fontWeight="bold" fontSize="md" mb={0.5}>
                             {t('finished.title')}
@@ -641,7 +656,7 @@ function StatusPageContent() {
                           _hover: { bg: 'blue.900', borderColor: 'blue.700' },
                         }}
                       >
-                      <Center mb={1}>
+                        <Center mb={1}>
                           <Clock
                             size={16}
                             color="var(--chakra-colors-gray-500)"
@@ -776,7 +791,9 @@ function StatusPageContent() {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            color={activeTab === StatusPageTab.PLAYERS ? 'blue.500' : 'gray.500'}
+            color={
+              activeTab === StatusPageTab.PLAYERS ? 'blue.500' : 'gray.500'
+            }
             fontWeight={activeTab === StatusPageTab.PLAYERS ? 'bold' : 'normal'}
           >
             <Box as={Users} boxSize={6} mb={1} />

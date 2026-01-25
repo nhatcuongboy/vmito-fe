@@ -43,7 +43,6 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 
-
 function StatusPageContent() {
   const searchParams = useSearchParams();
   const playerId = searchParams.get('playerId');
@@ -64,7 +63,9 @@ function StatusPageContent() {
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0); // 0: Status, 1: Courts, 2: Players
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('ALL' as unknown as PlayerFilter);
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>(
+    'ALL' as unknown as PlayerFilter
+  );
 
   // Helper function to format elapsed time for match display
   const formatMatchElapsedTime = (startTime: Date): string => {
@@ -102,10 +103,10 @@ function StatusPageContent() {
 
   // Helper function to get waiting players
   const getWaitingPlayers = () => {
-    return session?.players?.filter((p) => p.status === PlayerStatus.WAITING) || [];
+    return (
+      session?.players?.filter((p) => p.status === PlayerStatus.WAITING) || []
+    );
   };
-
-
 
   // Function to fetch player data
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -171,8 +172,7 @@ function StatusPageContent() {
 
       // Clear error state after successful fetch
       setError(null);
-    } catch (error: 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any) {
       console.error('Error fetching player data:', error);
 

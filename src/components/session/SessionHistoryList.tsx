@@ -19,9 +19,10 @@ import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { Edit, Clock, MapPin } from 'lucide-react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { EditMatchModal } from './EditMatchModal';
-import { HistoryMatchCard, HistoryMatch } from '@/components/session/HistoryMatchCard';
-
-
+import {
+  HistoryMatchCard,
+  HistoryMatch,
+} from '@/components/session/HistoryMatchCard';
 
 // ... (rest of the file)
 

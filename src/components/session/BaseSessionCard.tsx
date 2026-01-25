@@ -26,7 +26,10 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 
 // Helper functions for formatting with locale support
-export const formatDate = (dateString: string | Date, locale: string): string => {
+export const formatDate = (
+  dateString: string | Date,
+  locale: string
+): string => {
   const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
 
   let formattedDate: string;
@@ -40,7 +43,10 @@ export const formatDate = (dateString: string | Date, locale: string): string =>
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 };
 
-export const formatTime = (dateString: string | Date, locale: string): string => {
+export const formatTime = (
+  dateString: string | Date,
+  locale: string
+): string => {
   const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
   return date.format('HH:mm');
 };
@@ -138,13 +144,13 @@ const BaseSessionCard = ({
             {convertedSession.title}
           </Heading>
           {statusBadgeContent || (
-            <Badge colorScheme={statusColors[convertedSession.status] || 'gray'}>
+            <Badge
+              colorScheme={statusColors[convertedSession.status] || 'gray'}
+            >
               {getStatusLabel(convertedSession.status, t)}
             </Badge>
           )}
         </Flex>
-
-
 
         {afterStatusContent}
 
@@ -180,7 +186,9 @@ const BaseSessionCard = ({
               {t('players')}
             </Text>
           </Flex>
-          <Flex align="center"> {/* Changed from align-items: flex-start to center */}
+          <Flex align="center">
+            {' '}
+            {/* Changed from align-items: flex-start to center */}
             <Icon as={Shield} boxSize={5} mr={2} color="blue.500" />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
@@ -211,7 +219,6 @@ const BaseSessionCard = ({
               )}
             </Wrap>
           </Flex>
-
 
           {session.description && (
             <Text

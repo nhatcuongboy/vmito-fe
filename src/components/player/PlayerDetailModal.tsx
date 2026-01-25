@@ -125,7 +125,9 @@ export const PlayerDetailModal = ({
               borderWidth="2px"
               borderColor="blue.500"
             >
-              <Avatar.Fallback name={player.name || `Player ${player.playerNumber}`}>
+              <Avatar.Fallback
+                name={player.name || `Player ${player.playerNumber}`}
+              >
                 <User size={40} />
               </Avatar.Fallback>
               {player.user?.image && <Avatar.Image src={player.user.image} />}
@@ -188,12 +190,14 @@ export const PlayerDetailModal = ({
                 ) : (
                   <User size={12} />
                 )}
-                {player.gender ? t(`genderValues.${player.gender.toLowerCase()}`) : t('unknown')}
+                {player.gender
+                  ? t(`genderValues.${player.gender.toLowerCase()}`)
+                  : t('unknown')}
               </Badge>
             }
           />
 
-           <InfoRow
+          <InfoRow
             icon={<Trophy size={16} />}
             label={t('level')}
             value={
@@ -227,7 +231,7 @@ export const PlayerDetailModal = ({
             />
           )}
 
-           {player.desire && (
+          {player.desire && (
             <InfoRow
               icon={<Trophy size={16} />}
               label={t('desire')}

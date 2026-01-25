@@ -29,7 +29,7 @@ interface UseSessionManagementReturn {
 /**
  * Custom hook for managing session status transitions
  * Handles start/end session logic with confirmation dialogs
- * 
+ *
  * @param props - Configuration including session, callbacks, and utilities
  * @returns Object containing status management functions and state
  */
@@ -40,7 +40,8 @@ export function useSessionManagement({
   t,
   toaster,
 }: UseSessionManagementProps): UseSessionManagementReturn {
-  const [isToggleStatusLoading, setIsToggleStatusLoading] = useState<boolean>(false);
+  const [isToggleStatusLoading, setIsToggleStatusLoading] =
+    useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [pendingAction, setPendingAction] = useState<string>('');
 

@@ -32,7 +32,7 @@ const WaitingPlayers: React.FC<WaitingPlayersProps> = ({
       </Flex>
       <PlayerGrid
         players={waitingPlayers}
-        playerFilter="WAITING"
+        playerFilter={['WAITING']}
         formatWaitTime={formatWaitTime}
         selectedPlayers={selectedPlayers}
         mode={mode}

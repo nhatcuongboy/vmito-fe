@@ -122,10 +122,7 @@ export default function TopBar({
               gap={2}
             >
               {isAuthenticated && (
-                <NotificationBell
-                  color="black"
-                  _hover={{ bg: 'gray.100' }}
-                />
+                <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
               )}
 
               <IconButton

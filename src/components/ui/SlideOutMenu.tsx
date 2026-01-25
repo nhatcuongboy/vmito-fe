@@ -218,9 +218,7 @@ export default function SlideOutMenu({
                           objectFit="cover"
                         />
                       ) : (
-                        (user.name || user.email || 'U')
-                          .charAt(0)
-                          .toUpperCase()
+                        (user.name || user.email || 'U').charAt(0).toUpperCase()
                       )}
                     </Box>
                     <Box flex={1}>

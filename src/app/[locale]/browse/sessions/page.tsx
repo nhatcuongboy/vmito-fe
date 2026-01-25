@@ -13,7 +13,10 @@ export default function FindSessionPage() {
       <TopBar title={t('findSession')} />
       <Container
         maxW="container.xl"
-        pt={{ base: 'calc(44px + env(safe-area-inset-top) + 1rem)', md: 'calc(56px + env(safe-area-inset-top) + 2rem)' }}
+        pt={{
+          base: 'calc(44px + env(safe-area-inset-top) + 1rem)',
+          md: 'calc(56px + env(safe-area-inset-top) + 2rem)',
+        }}
         pb={8}
       >
         <FindSessionList />

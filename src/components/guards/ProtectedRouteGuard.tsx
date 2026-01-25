@@ -95,9 +95,7 @@ export default function ProtectedRouteGuard({
           <Text fontSize="2xl" fontWeight="bold" color="red.500">
             {t('accessDenied')}
           </Text>
-          <Text color="gray.600">
-            {t('permissionDenied')}
-          </Text>
+          <Text color="gray.600">{t('permissionDenied')}</Text>
           <Text fontSize="sm" color="gray.500">
             {t('requiredRole')} {requiredRole.join(', ')}
           </Text>

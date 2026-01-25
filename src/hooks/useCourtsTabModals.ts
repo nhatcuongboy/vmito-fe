@@ -120,7 +120,9 @@ export const useCourtsTabModals = () => {
     });
     // Auto-advance to next empty position after adding
     setManualSelectedPlayers((prev) => {
-      const nextEmpty = prev.findIndex((p, i) => p === null && i !== manualCurrentPosition);
+      const nextEmpty = prev.findIndex(
+        (p, i) => p === null && i !== manualCurrentPosition
+      );
       if (nextEmpty !== -1) {
         setManualCurrentPosition(nextEmpty);
       } else {
@@ -135,7 +137,10 @@ export const useCourtsTabModals = () => {
   };
 
   // Set player to specific position
-  const setManualPlayerAtPosition = (playerId: string | null, position: number) => {
+  const setManualPlayerAtPosition = (
+    playerId: string | null,
+    position: number
+  ) => {
     setManualSelectedPlayers((prev) => {
       const newArr = [...prev];
       // If setting a player, first remove them from any existing position
@@ -177,7 +182,9 @@ export const useCourtsTabModals = () => {
     });
     // Auto-advance to next empty position after adding
     setPreSelectPlayers((prev) => {
-      const nextEmpty = prev.findIndex((p, i) => p === null && i !== preSelectCurrentPosition);
+      const nextEmpty = prev.findIndex(
+        (p, i) => p === null && i !== preSelectCurrentPosition
+      );
       if (nextEmpty !== -1) {
         setPreSelectCurrentPosition(nextEmpty);
       } else {
@@ -192,7 +199,10 @@ export const useCourtsTabModals = () => {
   };
 
   // Set pre-select player to specific position
-  const setPreSelectPlayerAtPosition = (playerId: string | null, position: number) => {
+  const setPreSelectPlayerAtPosition = (
+    playerId: string | null,
+    position: number
+  ) => {
     setPreSelectPlayers((prev) => {
       const newArr = [...prev];
       // If setting a player, first remove them from any existing position

@@ -111,7 +111,9 @@ function NewSessionPageContent() {
     const details = searchParams.get('details');
     if (error) {
       toaster.error({
-        title: decodeURIComponent(details || t('validation.sessionCreateFailed')),
+        title: decodeURIComponent(
+          details || t('validation.sessionCreateFailed')
+        ),
       });
     }
   }, [searchParams, t]);
@@ -201,7 +203,11 @@ function NewSessionPageContent() {
         sessionDuration,
         maxPlayersPerCourt,
         requirePlayerInfo: false,
-        requiredLevels: allLevelsSelected ? undefined : (requiredLevels.length > 0 ? requiredLevels : undefined),
+        requiredLevels: allLevelsSelected
+          ? undefined
+          : requiredLevels.length > 0
+            ? requiredLevels
+            : undefined,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         courtColor,
@@ -379,7 +385,9 @@ function NewSessionPageContent() {
               </Heading>
               <Flex gap={4}>
                 <Box flex={1}>
-                  <Text mb={2} fontWeight="medium">{t('start')} *</Text>
+                  <Text mb={2} fontWeight="medium">
+                    {t('start')} *
+                  </Text>
                   <Input
                     type="datetime-local"
                     value={startTime}
@@ -388,7 +396,9 @@ function NewSessionPageContent() {
                   />
                 </Box>
                 <Box flex={1}>
-                  <Text mb={2} fontWeight="medium">{t('end')} *</Text>
+                  <Text mb={2} fontWeight="medium">
+                    {t('end')} *
+                  </Text>
                   <Input
                     type="datetime-local"
                     value={endTime}
@@ -455,11 +465,14 @@ function NewSessionPageContent() {
                     </WrapItem>
 
                     <WrapItem alignItems="center">
-                      <Text color="gray.400" fontSize="sm">|</Text>
+                      <Text color="gray.400" fontSize="sm">
+                        |
+                      </Text>
                     </WrapItem>
 
                     {VALID_LEVELS.map((level) => {
-                      const isSelected = !allLevelsSelected && requiredLevels.includes(level);
+                      const isSelected =
+                        !allLevelsSelected && requiredLevels.includes(level);
                       return (
                         <WrapItem key={level}>
                           <Badge
@@ -474,7 +487,9 @@ function NewSessionPageContent() {
                             onClick={() => handleLevelToggle(level)}
                             opacity={allLevelsSelected ? 0.5 : 1}
                             _hover={{
-                              transform: allLevelsSelected ? 'none' : 'translateY(-1px)',
+                              transform: allLevelsSelected
+                                ? 'none'
+                                : 'translateY(-1px)',
                               boxShadow: allLevelsSelected ? 'none' : 'sm',
                             }}
                             transition="all 0.2s"
@@ -694,18 +709,10 @@ function NewSessionPageContent() {
                 </Heading>
               </Flex>
               <Stack gap={2} fontSize="sm" color="blue.600">
-                <Text>
-                  • {t('optimalCourtRotation')}
-                </Text>
-                <Text>
-                  • {t('sessionDurationTip')}
-                </Text>
-                <Text>
-                  • {t('playerInfoHelps')}
-                </Text>
-                <Text>
-                  • {t('courtDirectionTip')}
-                </Text>
+                <Text>• {t('optimalCourtRotation')}</Text>
+                <Text>• {t('sessionDurationTip')}</Text>
+                <Text>• {t('playerInfoHelps')}</Text>
+                <Text>• {t('courtDirectionTip')}</Text>
               </Stack>
             </Box>
           </Stack>

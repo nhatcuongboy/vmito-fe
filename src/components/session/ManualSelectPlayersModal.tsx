@@ -143,9 +143,11 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
           ) : (
             <PlayerGrid
               players={waitingPlayers}
-              playerFilter="WAITING"
+              playerFilter={['WAITING']}
               formatWaitTime={formatWaitTime}
-              selectedPlayers={selectedPlayers.filter((p): p is string => p !== null)}
+              selectedPlayers={selectedPlayers.filter(
+                (p): p is string => p !== null
+              )}
               onPlayerToggle={onPlayerToggle}
               selectionMode={true}
             />

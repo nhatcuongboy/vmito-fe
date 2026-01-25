@@ -13,7 +13,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import React, { useState, useEffect, ChangeEvent, useMemo } from 'react';
-import { HistoryMatchCard, HistoryMatch } from '@/components/session/HistoryMatchCard';
+import {
+  HistoryMatchCard,
+  HistoryMatch,
+} from '@/components/session/HistoryMatchCard';
 import { useTranslations } from 'next-intl';
 
 interface PlayerMatchHistoryProps {
@@ -31,7 +34,7 @@ export default function PlayerMatchHistory({
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filters
   const [selectedCourt, setSelectedCourt] = useState<string>('ALL');
   const [resultFilter, setResultFilter] = useState<ResultFilter>('ALL');
@@ -53,7 +56,7 @@ export default function PlayerMatchHistory({
       );
 
       const allMatches: HistoryMatch[] = [];
-      
+
       for (const match of completedMatches) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const matchData = match as unknown as Record<string, any>;
@@ -93,30 +96,30 @@ export default function PlayerMatchHistory({
         let scores;
         let winningPair;
 
-         // Ensure score is parsed if it arrives as a string
-         if (typeof matchData.score === 'string') {
+        // Ensure score is parsed if it arrives as a string
+        if (typeof matchData.score === 'string') {
           try {
             matchData.score = JSON.parse(matchData.score);
           } catch (_e) {
             // ignore error
           }
         }
-         // Ensure winnerIds is parsed if it arrives as a string
-         if (typeof matchData.winnerIds === 'string') {
-           try {
-             matchData.winnerIds = JSON.parse(matchData.winnerIds);
-           } catch (_e) {
-             // ignore error
-           }
-         }
+        // Ensure winnerIds is parsed if it arrives as a string
+        if (typeof matchData.winnerIds === 'string') {
+          try {
+            matchData.winnerIds = JSON.parse(matchData.winnerIds);
+          } catch (_e) {
+            // ignore error
+          }
+        }
 
         const playersWithPosition = Array.isArray(matchData.players)
-        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          matchData.players.map((mp: any, index: number) => ({
-            playerId: mp.player?.id || mp.playerId,
-            position: mp.player?.courtPosition ?? mp.position ?? index,
-          }))
-        : [];
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            matchData.players.map((mp: any, index: number) => ({
+              playerId: mp.player?.id || mp.playerId,
+              position: mp.player?.courtPosition ?? mp.position ?? index,
+            }))
+          : [];
 
         const matchResult = parseScoreData(matchData, playersWithPosition);
         if (matchResult) {
@@ -176,26 +179,29 @@ export default function PlayerMatchHistory({
         // P1 & P2 = Pair 1, P3 & P4 = Pair 2
         // Indices: 0, 1 -> Pair 1; 2, 3 -> Pair 2
         // match.playerIds is sorted by position [P1, P2, P3, P4]
-        
+
         const playerIndex = match.playerIds?.indexOf(playerId) ?? -1;
         if (playerIndex === -1) return false; // Should not happen given API filter
 
         const playerPair = playerIndex <= 1 ? 1 : 2;
 
         if (resultFilter === 'DRAW') {
-             // Check if it's a draw
-             // scores: { pair1Score: number, pair2Score: number }
-             return match.scores && match.scores.pair1Score === match.scores.pair2Score;
+          // Check if it's a draw
+          // scores: { pair1Score: number, pair2Score: number }
+          return (
+            match.scores && match.scores.pair1Score === match.scores.pair2Score
+          );
         }
 
         if (resultFilter === 'WIN') {
-            return match.winningPair === playerPair;
+          return match.winningPair === playerPair;
         }
 
         if (resultFilter === 'LOSS') {
-            // Not draw AND Not winner
-            const isDraw = match.scores && match.scores.pair1Score === match.scores.pair2Score;
-            return !isDraw && match.winningPair !== playerPair;
+          // Not draw AND Not winner
+          const isDraw =
+            match.scores && match.scores.pair1Score === match.scores.pair2Score;
+          return !isDraw && match.winningPair !== playerPair;
         }
       }
 
@@ -205,7 +211,7 @@ export default function PlayerMatchHistory({
 
   // Get unique courts for filter
   const uniqueCourts = useMemo(() => {
-    const courts = new Set(matches.map(m => m.court));
+    const courts = new Set(matches.map((m) => m.court));
     return Array.from(courts).sort();
   }, [matches]);
 
@@ -228,7 +234,7 @@ export default function PlayerMatchHistory({
   return (
     <Box>
       <Text fontWeight="semibold" mb={3} fontSize="lg">
-         {/* Using translation key defined in step 1 */}
+        {/* Using translation key defined in step 1 */}
       </Text>
 
       {/* Filters */}
@@ -248,7 +254,7 @@ export default function PlayerMatchHistory({
               _dark={{ color: 'gray.400' }}
               mb={1}
             >
-               {t('filter.court')}
+              {t('filter.court')}
             </Text>
             <select
               value={selectedCourt}
@@ -281,7 +287,7 @@ export default function PlayerMatchHistory({
               _dark={{ color: 'gray.400' }}
               mb={1}
             >
-               {t('filter.result')}
+              {t('filter.result')}
             </Text>
             <select
               value={resultFilter}
@@ -309,20 +315,18 @@ export default function PlayerMatchHistory({
       {/* List */}
       {filteredMatches.length === 0 ? (
         <Box
-            textAlign="center"
-            py={10}
-            px={6}
-            borderWidth="1px"
-            borderRadius="lg"
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
+          textAlign="center"
+          py={10}
+          px={6}
+          borderWidth="1px"
+          borderRadius="lg"
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
         >
-            <Heading size="md" mb={2}>
+          <Heading size="md" mb={2}>
             {t('noMatchesFound')}
-            </Heading>
-            <Text color="gray.500">
-             {t('noMatchesDescription')}
-            </Text>
+          </Heading>
+          <Text color="gray.500">{t('noMatchesDescription')}</Text>
         </Box>
       ) : (
         <Grid

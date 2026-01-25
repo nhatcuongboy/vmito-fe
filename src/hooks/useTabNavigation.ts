@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 /**
  * Custom hook for managing tab navigation with URL synchronization
- * 
+ *
  * @returns Object containing activeTab state and handlers
  */
 export function useTabNavigation() {

@@ -20,7 +20,7 @@ import {
   Flex,
   Heading,
   Spinner,
-  Text
+  Text,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -338,10 +338,7 @@ export default function PlayerSessionView({
 
             {/* Results Tab */}
             {activeTab === 3 && (
-              <PlayerMatchHistory
-                sessionId={session.id}
-                playerId={player.id}
-              />
+              <PlayerMatchHistory sessionId={session.id} playerId={player.id} />
             )}
           </Box>
         )}

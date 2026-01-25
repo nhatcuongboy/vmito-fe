@@ -1,9 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  Box,
-  Badge,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Badge, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack, Divider } from '@/components/ui/chakra-compat';
 import { ChevronDown, Filter, X, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -27,11 +23,19 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const allStatuses: PlayerStatus[] = ['PLAYING', 'WAITING', 'READY', 'INACTIVE'];
+  const allStatuses: PlayerStatus[] = [
+    'PLAYING',
+    'WAITING',
+    'READY',
+    'INACTIVE',
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -60,32 +64,48 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
 
   const getLabel = (status: PlayerStatus) => {
     switch (status) {
-      case 'PLAYING': return t('playing');
-      case 'WAITING': return t('waiting');
-      case 'READY': return t('ready');
-      case 'INACTIVE': return t('inactive');
-      default: return status;
+      case 'PLAYING':
+        return t('playing');
+      case 'WAITING':
+        return t('waiting');
+      case 'READY':
+        return t('ready');
+      case 'INACTIVE':
+        return t('inactive');
+      default:
+        return status;
     }
   };
 
   const getColorScheme = (status: PlayerStatus) => {
     switch (status) {
-      case 'PLAYING': return 'blue';
-      case 'WAITING': return 'orange';
-      case 'READY': return 'green';
-      case 'INACTIVE': return 'red';
-      default: return 'gray';
+      case 'PLAYING':
+        return 'blue';
+      case 'WAITING':
+        return 'orange';
+      case 'READY':
+        return 'green';
+      case 'INACTIVE':
+        return 'red';
+      default:
+        return 'gray';
     }
   };
 
   // Custom Checkbox Component
-  const CustomCheckbox = ({ checked, colorScheme }: { checked: boolean, colorScheme: string }) => (
+  const CustomCheckbox = ({
+    checked,
+    colorScheme,
+  }: {
+    checked: boolean;
+    colorScheme: string;
+  }) => (
     <Box
       w="16px"
       h="16px"
       border="1px solid"
-      borderColor={checked ? `${colorScheme}.500` : "gray.300"}
-      bg={checked ? `${colorScheme}.500` : "white"}
+      borderColor={checked ? `${colorScheme}.500` : 'gray.300'}
+      bg={checked ? `${colorScheme}.500` : 'white'}
       borderRadius="sm"
       display="flex"
       alignItems="center"
@@ -107,20 +127,20 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
         borderColor={!isAllSelected ? 'blue.200' : 'gray.200'}
       >
         <HStack gap={2}>
-            <Filter size={16} />
+          <Filter size={16} />
           <Text>{t('filter')}</Text>
           {!isAllSelected && (
-             <Badge 
-               colorPalette="blue"
-               bg="blue.500"
-               color="white"
-               borderRadius="full" 
-               variant="solid" 
-               fontSize="xs"
-               px={2}
-             >
-               {selectedCount}
-             </Badge>
+            <Badge
+              colorPalette="blue"
+              bg="blue.500"
+              color="white"
+              borderRadius="full"
+              variant="solid"
+              fontSize="xs"
+              px={2}
+            >
+              {selectedCount}
+            </Badge>
           )}
           <ChevronDown size={16} />
         </HStack>
@@ -142,19 +162,29 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
           width="240px"
           overflow="hidden"
         >
-            <VStack align="stretch" spacing={0}>
-            <Box 
-              px={3} 
-              py={2} 
-              cursor="pointer" 
+          <VStack align="stretch" spacing={0}>
+            <Box
+              px={3}
+              py={2}
+              cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
               onClick={handleSelectAll}
             >
               <HStack justify="space-between">
-                <Text fontWeight={isAllSelected ? "bold" : "normal"} fontSize="sm">
+                <Text
+                  fontWeight={isAllSelected ? 'bold' : 'normal'}
+                  fontSize="sm"
+                >
                   {t('all')}
                 </Text>
-                <Badge variant="subtle" colorPalette="gray" bg="gray.100" color="gray.600">{totalCount}</Badge>
+                <Badge
+                  variant="subtle"
+                  colorPalette="gray"
+                  bg="gray.100"
+                  color="gray.600"
+                >
+                  {totalCount}
+                </Badge>
               </HStack>
             </Box>
             <Divider />
@@ -162,10 +192,10 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
               const checked = selected.includes(status);
               const colorScheme = getColorScheme(status);
               return (
-                <Box 
+                <Box
                   key={status}
-                  px={3} 
-                  py={2} 
+                  px={3}
+                  py={2}
                   cursor="pointer"
                   _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
                   onClick={(e) => {
@@ -175,32 +205,40 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                 >
                   <HStack justify="space-between" width="100%">
                     <HStack gap={2}>
-                        <CustomCheckbox checked={checked} colorScheme={colorScheme} />
-                        <Text fontSize="sm">{getLabel(status)}</Text>
+                      <CustomCheckbox
+                        checked={checked}
+                        colorScheme={colorScheme}
+                      />
+                      <Text fontSize="sm">{getLabel(status)}</Text>
                     </HStack>
-                    <Badge variant="subtle" colorPalette={colorScheme} bg={`${colorScheme}.100`} color={`${colorScheme}.700`}>
+                    <Badge
+                      variant="subtle"
+                      colorPalette={colorScheme}
+                      bg={`${colorScheme}.100`}
+                      color={`${colorScheme}.700`}
+                    >
                       {counts[status]}
                     </Badge>
                   </HStack>
                 </Box>
               );
             })}
-             {!isAllSelected && (
+            {!isAllSelected && (
               <>
                 <Divider />
                 <Box p={2}>
-                   <Button 
-                     size="xs" 
-                     width="full" 
-                     variant="ghost" 
-                     colorScheme="red" 
-                     onClick={handleSelectAll}
-                   >
-                     <HStack gap={1} justify="center">
-                        <X size={12} />
-                        <Text>{t('clearFilter')}</Text>
-                     </HStack>
-                   </Button>
+                  <Button
+                    size="xs"
+                    width="full"
+                    variant="ghost"
+                    colorScheme="red"
+                    onClick={handleSelectAll}
+                  >
+                    <HStack gap={1} justify="center">
+                      <X size={12} />
+                      <Text>{t('clearFilter')}</Text>
+                    </HStack>
+                  </Button>
                 </Box>
               </>
             )}

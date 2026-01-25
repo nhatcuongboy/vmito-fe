@@ -1,17 +1,5 @@
-import {
-  Box,
-  Center,
-  Flex,
-  Heading,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import {
-  CheckCircle2,
-  Clock,
-  User,
-  Users,
-} from 'lucide-react';
+import { Box, Center, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { CheckCircle2, Clock, User, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { getCourtDisplayName } from '@/utils/session-helpers';
@@ -184,12 +172,7 @@ export default function PlayerStatusTab({
                   status={currentCourt.status}
                   mode="view"
                 />
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                  mt={2}
-                  textAlign="center"
-                >
+                <Text fontSize="xs" color="gray.500" mt={2} textAlign="center">
                   {t('court.playerHighlight')}
                 </Text>
 

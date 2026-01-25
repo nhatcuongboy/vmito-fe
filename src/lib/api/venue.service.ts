@@ -15,9 +15,7 @@ export const VenueService = {
   },
 
   // Create new venue
-  createVenue: async (
-    venue: Omit<Venue, 'id'>
-  ): Promise<Venue> => {
+  createVenue: async (venue: Omit<Venue, 'id'>): Promise<Venue> => {
     const response = await api.post<ApiResponse<Venue>>('/venues', venue);
     return response.data.data!;
   },

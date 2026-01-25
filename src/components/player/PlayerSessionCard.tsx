@@ -60,10 +60,7 @@ const statusColors = {
 };
 
 // Helper function to get localized status labels
-const getStatusLabel = (
-  status: string,
-  t: (key: string) => string
-) => {
+const getStatusLabel = (status: string, t: (key: string) => string) => {
   switch (status) {
     case 'PREPARING':
       return t('status.preparing');

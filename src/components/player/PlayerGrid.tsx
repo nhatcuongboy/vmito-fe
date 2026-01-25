@@ -2,6 +2,7 @@
 
 import { Card, CardBody, SimpleGrid } from '@/components/ui/chakra-compat';
 import { SessionService } from '@/lib/api/session.service';
+import { Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import { Mars, Pause, Play, User, Users, Venus } from 'lucide-react';
@@ -42,26 +43,6 @@ const PLAYER_COLORS = {
     scheme: 'orange',
   },
 };
-
-interface Player {
-  id: string;
-  playerNumber: number;
-  name?: string; // Optional to match API
-  gender?: string;
-  level?: number;
-  status: string;
-  currentWaitTime: number;
-  totalWaitTime: number;
-  matchesPlayed: number;
-  currentCourtId?: string;
-  currentCourt?: {
-    id: string;
-    courtNumber: number;
-    courtName?: string | null;
-  };
-  preFilledByHost: boolean;
-  confirmedByPlayer: boolean;
-}
 
 interface PlayerGridProps {
   players: Player[];
@@ -136,7 +117,8 @@ export const PlayerGrid = ({
           const isSelected =
             selectionMode && selectedPlayers.includes(player.id);
 
-          const isStatusHighlighted = playerFilter.length === 0 || playerFilter.includes(player.status);
+          const isStatusHighlighted =
+            playerFilter.length === 0 || playerFilter.includes(player.status);
 
           if (isSelected) {
             // Blue color for selected players
@@ -226,23 +208,24 @@ export const PlayerGrid = ({
                     <Text fontWeight="bold" color="orange.700" fontSize="md">
                       #{player.playerNumber}
                     </Text>
-                    {isShowWaitTime && (player.status === 'WAITING' ||
-                      player.status === 'READY') && (
-                      <Badge
-                        colorPalette={
-                          player.currentWaitTime > 15
-                            ? 'red'
-                            : player.currentWaitTime > 10
-                              ? 'yellow'
-                              : 'gray'
-                        }
-                        variant="solid"
-                        fontSize="xs"
-                        borderRadius="md"
-                      >
-                        {formatWaitTime(player.currentWaitTime)}
-                      </Badge>
-                    )}
+                    {isShowWaitTime &&
+                      (player.status === 'WAITING' ||
+                        player.status === 'READY') && (
+                        <Badge
+                          colorPalette={
+                            player.currentWaitTime > 15
+                              ? 'red'
+                              : player.currentWaitTime > 10
+                                ? 'yellow'
+                                : 'gray'
+                          }
+                          variant="solid"
+                          fontSize="xs"
+                          borderRadius="md"
+                        >
+                          {formatWaitTime(player.currentWaitTime)}
+                        </Badge>
+                      )}
                   </Flex>
 
                   <Text

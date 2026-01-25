@@ -1,9 +1,4 @@
-import {
-  Badge,
-  Box,
-  Flex,
-  Text,
-} from '@chakra-ui/react';
+import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import {
   Card,
@@ -11,7 +6,7 @@ import {
   HStack,
   VStack,
   IconButton,
-  Button
+  Button,
 } from '@/components/ui/chakra-compat';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -97,9 +92,12 @@ function getStatusBadge(status: string) {
 // Enhanced Gender gradient backgrounds
 function getGenderGradient(gender?: string): string {
   if (gender === Gender.MALE) return 'linear(135deg, #3182ce 0%, #63b3ed 100%)';
-  if (gender === Gender.FEMALE) return 'linear(135deg, #d53f8c 0%, #f687b3 100%)';
-  if (gender === Gender.OTHER) return 'linear(135deg, #805ad5 0%, #b794f4 100%)';
-  if (gender === Gender.PREFER_NOT_TO_SAY) return 'linear(135deg, #718096 0%, #a0aec0 100%)';
+  if (gender === Gender.FEMALE)
+    return 'linear(135deg, #d53f8c 0%, #f687b3 100%)';
+  if (gender === Gender.OTHER)
+    return 'linear(135deg, #805ad5 0%, #b794f4 100%)';
+  if (gender === Gender.PREFER_NOT_TO_SAY)
+    return 'linear(135deg, #718096 0%, #a0aec0 100%)';
   return 'linear(135deg, #718096 0%, #a0aec0 100%)';
 }
 
@@ -111,22 +109,44 @@ function getGenderColor(gender?: string): string {
   return 'gray';
 }
 
-
-
 // Enhanced Avatar with gradient and better styling
-const EnhancedAvatar = ({ name, gender, status, image }: { name: string, gender?: string, status: string, image?: string | null }) => {
+const EnhancedAvatar = ({
+  name,
+  gender,
+  status,
+  image,
+}: {
+  name: string;
+  gender?: string;
+  status: string;
+  image?: string | null;
+}) => {
   const isPlaying = status === 'PLAYING';
-  
+
   // Gradient colors based on gender
   const gradientColors = {
-    [Gender.MALE]: { bg: 'linear-gradient(135deg, #4299e1 0%, #667eea 100%)', ring: 'blue.300' },
-    [Gender.FEMALE]: { bg: 'linear-gradient(135deg, #ed64a6 0%, #f687b3 100%)', ring: 'pink.300' },
-    [Gender.OTHER]: { bg: 'linear-gradient(135deg, #9f7aea 0%, #b794f4 100%)', ring: 'purple.300' },
-    [Gender.PREFER_NOT_TO_SAY]: { bg: 'linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%)', ring: 'gray.300' },
+    [Gender.MALE]: {
+      bg: 'linear-gradient(135deg, #4299e1 0%, #667eea 100%)',
+      ring: 'blue.300',
+    },
+    [Gender.FEMALE]: {
+      bg: 'linear-gradient(135deg, #ed64a6 0%, #f687b3 100%)',
+      ring: 'pink.300',
+    },
+    [Gender.OTHER]: {
+      bg: 'linear-gradient(135deg, #9f7aea 0%, #b794f4 100%)',
+      ring: 'purple.300',
+    },
+    [Gender.PREFER_NOT_TO_SAY]: {
+      bg: 'linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%)',
+      ring: 'gray.300',
+    },
   };
-  
-  const colors = gradientColors[gender as keyof typeof gradientColors] || gradientColors[Gender.PREFER_NOT_TO_SAY];
-  
+
+  const colors =
+    gradientColors[gender as keyof typeof gradientColors] ||
+    gradientColors[Gender.PREFER_NOT_TO_SAY];
+
   return (
     <Box position="relative">
       {/* Outer glow ring for playing status */}
@@ -144,7 +164,7 @@ const EnhancedAvatar = ({ name, gender, status, image }: { name: string, gender?
           animation={`${pulseRing} 2s ease-in-out infinite`}
         />
       )}
-      
+
       {/* Avatar */}
       <Flex
         width="56px"
@@ -157,9 +177,10 @@ const EnhancedAvatar = ({ name, gender, status, image }: { name: string, gender?
         fontWeight="bold"
         fontSize="lg"
         letterSpacing="0.5px"
-        boxShadow={isPlaying 
-          ? '0 4px 14px rgba(72, 187, 120, 0.4)' 
-          : '0 4px 12px rgba(0, 0, 0, 0.15)'
+        boxShadow={
+          isPlaying
+            ? '0 4px 14px rgba(72, 187, 120, 0.4)'
+            : '0 4px 12px rgba(0, 0, 0, 0.15)'
         }
         border="3px solid"
         borderColor={isPlaying ? 'green.400' : 'white'}
@@ -183,7 +204,7 @@ const EnhancedAvatar = ({ name, gender, status, image }: { name: string, gender?
           getInitials(name)
         )}
       </Flex>
-      
+
       {/* Status indicator dot */}
       <Box
         position="absolute"
@@ -203,18 +224,18 @@ const EnhancedAvatar = ({ name, gender, status, image }: { name: string, gender?
   );
 };
 
-const PlayerActionMenu = ({ 
-  player, 
-  onShowQR, 
-  onEdit, 
-  onDelete, 
-  t 
-}: { 
-  player: Player, 
-  onShowQR: (p: Player) => void, 
-  onEdit: (p: Player) => void, 
-  onDelete: (id: string) => void,
-  t: (key: string) => string 
+const PlayerActionMenu = ({
+  player,
+  onShowQR,
+  onEdit,
+  onDelete,
+  t,
+}: {
+  player: Player;
+  onShowQR: (p: Player) => void;
+  onEdit: (p: Player) => void;
+  onDelete: (id: string) => void;
+  t: (key: string) => string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -242,8 +263,8 @@ const PlayerActionMenu = ({
         size="sm"
         color="gray.400"
         borderRadius="full"
-        _hover={{ 
-          bg: 'gray.100', 
+        _hover={{
+          bg: 'gray.100',
           color: 'gray.600',
           transform: 'scale(1.1)',
         }}
@@ -273,7 +294,10 @@ const PlayerActionMenu = ({
             px={4}
             py={3}
             height="auto"
-            onClick={() => { onShowQR(player); setIsOpen(false); }}
+            onClick={() => {
+              onShowQR(player);
+              setIsOpen(false);
+            }}
             borderRadius={0}
             _hover={{ bg: 'blue.50', color: 'blue.600' }}
             transition="all 0.2s"
@@ -282,7 +306,9 @@ const PlayerActionMenu = ({
               <Box p={1.5} bg="blue.100" borderRadius="md">
                 <QrCode size={14} color="#3182ce" />
               </Box>
-              <Text fontSize="sm" fontWeight="medium">{t('showQRCode')}</Text>
+              <Text fontSize="sm" fontWeight="medium">
+                {t('showQRCode')}
+              </Text>
             </HStack>
           </Button>
           <Button
@@ -292,7 +318,10 @@ const PlayerActionMenu = ({
             px={4}
             py={3}
             height="auto"
-            onClick={() => { onEdit(player); setIsOpen(false); }}
+            onClick={() => {
+              onEdit(player);
+              setIsOpen(false);
+            }}
             borderRadius={0}
             _hover={{ bg: 'purple.50', color: 'purple.600' }}
             transition="all 0.2s"
@@ -301,7 +330,9 @@ const PlayerActionMenu = ({
               <Box p={1.5} bg="purple.100" borderRadius="md">
                 <Edit size={14} color="#805ad5" />
               </Box>
-              <Text fontSize="sm" fontWeight="medium">{t('editPlayer')}</Text>
+              <Text fontSize="sm" fontWeight="medium">
+                {t('editPlayer')}
+              </Text>
             </HStack>
           </Button>
           <Box mx={3} my={2} borderTop="1px solid" borderColor="gray.100" />
@@ -312,7 +343,10 @@ const PlayerActionMenu = ({
             px={4}
             py={3}
             height="auto"
-            onClick={() => { onDelete(player.id); setIsOpen(false); }}
+            onClick={() => {
+              onDelete(player.id);
+              setIsOpen(false);
+            }}
             borderRadius={0}
             _hover={{ bg: 'red.50' }}
             transition="all 0.2s"
@@ -321,7 +355,9 @@ const PlayerActionMenu = ({
               <Box p={1.5} bg="red.100" borderRadius="md">
                 <Trash2 size={14} color="#e53e3e" />
               </Box>
-              <Text fontSize="sm" fontWeight="medium" color="red.500">{t('deletePlayer')}</Text>
+              <Text fontSize="sm" fontWeight="medium" color="red.500">
+                {t('deletePlayer')}
+              </Text>
             </HStack>
           </Button>
         </Box>
@@ -338,7 +374,11 @@ interface PlayerListItemProps {
   onEdit: (player: Player) => void;
   onCancelEdit: (playerId: string) => void;
   onSave: (playerId: string) => void;
-  onUpdateEditing: (playerId: string, field: string, value: string | boolean) => void;
+  onUpdateEditing: (
+    playerId: string,
+    field: string,
+    value: string | boolean
+  ) => void;
   onDelete: (playerId: string) => void;
   onShowQR: (player: Player) => void;
 }
@@ -352,17 +392,22 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
-  
+
   const getGenderLabel = (gender?: string) => {
     switch (gender) {
-      case Gender.MALE: return tCommon('male');
-      case Gender.FEMALE: return tCommon('female');
-      case Gender.OTHER: return tCommon('other');
-      case Gender.PREFER_NOT_TO_SAY: return tCommon('preferNotToSay');
-      default: return '?';
+      case Gender.MALE:
+        return tCommon('male');
+      case Gender.FEMALE:
+        return tCommon('female');
+      case Gender.OTHER:
+        return tCommon('other');
+      case Gender.PREFER_NOT_TO_SAY:
+        return tCommon('preferNotToSay');
+      default:
+        return '?';
     }
   };
-  
+
   const statusColor = getStatusColor(player.status);
   const statusInfo = getStatusBadge(player.status);
   const isPlaying = player.status === 'PLAYING';
@@ -380,7 +425,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
       position="relative"
       overflow="visible"
       transition="box-shadow 0.2s ease, border-color 0.2s ease"
-      _hover={{ 
+      _hover={{
         boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
         borderColor: 'gray.200',
       }}
@@ -398,12 +443,11 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
       <CardBody p={{ base: 4, md: 5 }}>
         <Flex justify="space-between" align="center" gap={4}>
           <Flex flex="1" gap={{ base: 3, md: 4 }} align="center">
-            
             {/* Enhanced Avatar */}
-            <EnhancedAvatar 
-              name={player.name || ''} 
-              gender={player.gender} 
-              status={player.status} 
+            <EnhancedAvatar
+              name={player.name || ''}
+              gender={player.gender}
+              status={player.status}
               image={player.user?.image}
             />
 
@@ -495,31 +539,35 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   {player.status}
                 </Badge> */}
               </HStack>
-              
+
               {/* Confirmation Status - Enhanced */}
               {(player.requireConfirmInfo || player.confirmedByPlayer) && (
-                <HStack 
-                  spacing={2} 
+                <HStack
+                  spacing={2}
                   mt={1}
                   bg={player.requireConfirmInfo ? 'orange.50' : 'green.50'}
                   px={3}
                   py={1.5}
                   borderRadius="lg"
                   border="1px solid"
-                  borderColor={player.requireConfirmInfo ? 'orange.100' : 'green.100'}
+                  borderColor={
+                    player.requireConfirmInfo ? 'orange.100' : 'green.100'
+                  }
                 >
                   {player.requireConfirmInfo ? (
                     <Box as={AlertCircle} boxSize="14px" color="orange.500" />
                   ) : (
                     <Box as={UserCheck} boxSize="14px" color="green.500" />
                   )}
-                  <Text 
-                    fontSize="xs" 
-                    color={player.requireConfirmInfo ? 'orange.700' : 'green.700'}
+                  <Text
+                    fontSize="xs"
+                    color={
+                      player.requireConfirmInfo ? 'orange.700' : 'green.700'
+                    }
                     fontWeight="medium"
                   >
-                    {player.requireConfirmInfo 
-                      ? t('awaitingPlayerConfirmation') 
+                    {player.requireConfirmInfo
+                      ? t('awaitingPlayerConfirmation')
                       : t('confirmedByPlayer')}
                   </Text>
                 </HStack>
@@ -528,7 +576,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
           </Flex>
 
           {/* Action Menu */}
-          <PlayerActionMenu 
+          <PlayerActionMenu
             player={player}
             onShowQR={onShowQR}
             onEdit={onEdit}

@@ -76,12 +76,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
       <VStack spacing={4} align="stretch">
         {/* Header with player number */}
         <HStack spacing={3}>
-          <Badge
-            colorScheme="blue"
-            variant="solid"
-            borderRadius="full"
-            px={3}
-          >
+          <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3}>
             #{player.playerNumber}
           </Badge>
           <Text fontSize="sm" color="blue.600" fontWeight="medium">
@@ -96,9 +91,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           </Text>
           <Input
             value={editingData.name}
-            onChange={(e) =>
-              onUpdateEditing(player.id, 'name', e.target.value)
-            }
+            onChange={(e) => onUpdateEditing(player.id, 'name', e.target.value)}
             size="md"
             bg="white"
             placeholder={t('enterPlayerName')}
@@ -128,9 +121,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               <option value="MALE">{t('male')}</option>
               <option value="FEMALE">{t('female')}</option>
               <option value="OTHER">{t('other')}</option>
-              <option value="PREFER_NOT_TO_SAY">
-                {t('preferNotToSay')}
-              </option>
+              <option value="PREFER_NOT_TO_SAY">{t('preferNotToSay')}</option>
             </select>
           </Box>
           <Box>
