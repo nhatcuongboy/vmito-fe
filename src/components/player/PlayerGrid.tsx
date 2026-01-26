@@ -5,10 +5,12 @@ import { SessionService } from '@/lib/api/session.service';
 import { Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
-import { Mars, Pause, Play, User, Users, Venus } from 'lucide-react';
+import { Mars, User, Users, Venus } from 'lucide-react';
 import { useState } from 'react';
 import { PlayerDetailModal } from './PlayerDetailModal';
 import { CommonModal } from '@/components/ui/CommonModal';
+import { PlayerActionMenu } from '@/components/session/player-management/PlayerActionMenu';
+import { useTranslations } from 'next-intl';
 
 // Color constants for different player states
 const PLAYER_COLORS = {
@@ -55,6 +57,10 @@ interface PlayerGridProps {
   sessionId?: string;
   onPlayerUpdate?: () => void;
   isShowWaitTime?: boolean;
+  onEdit?: (player: Player) => void;
+  onDelete?: (playerId: string) => void;
+  onToggleStatus?: (playerId: string) => void;
+  onShowQR?: (player: Player) => void;
 }
 
 export const PlayerGrid = ({
@@ -68,45 +74,23 @@ export const PlayerGrid = ({
   sessionId,
   onPlayerUpdate,
   isShowWaitTime = true,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  onShowQR,
 }: PlayerGridProps) => {
+  const t = useTranslations('pages.playerManagement');
   const { getLevelShortLabel } = useLevelLabel();
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    playerId: string;
-    playerName: string;
-    action: string;
-  }>({ isOpen: false, playerId: '', playerName: '', action: '' });
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedPlayerForDetail, setSelectedPlayerForDetail] =
     useState<Player | null>(null);
+  const [openPlayerId, setOpenPlayerId] = useState<string | null>(null);
 
-  const handleToggleInactive = async (playerId: string) => {
-    if (!sessionId) return;
-    setIsLoading(true);
-    try {
-      await SessionService.togglePlayerInactive(sessionId, playerId);
-      onPlayerUpdate?.();
-      setConfirmDialog({
-        isOpen: false,
-        playerId: '',
-        playerName: '',
-        action: '',
-      });
-    } catch (error) {
-      console.error('Failed to toggle player inactive status:', error);
-    } finally {
-      setIsLoading(false);
+  const handleShowDetail = (player: Player) => {
+    if (onShowQR) {
+      onShowQR(player);
+    } else {
+      setSelectedPlayerForDetail(player);
     }
-  };
-
-  const showConfirmDialog = (player: Player) => {
-    const action = player.status === 'WAITING' ? 'pause' : 'continue';
-    setConfirmDialog({
-      isOpen: true,
-      playerId: player.id,
-      playerName: player.name || `Player ${player.playerNumber}`,
-      action,
-    });
   };
   return (
     <>
@@ -158,11 +142,13 @@ export const PlayerGrid = ({
               transition="all 0.2s"
               minH="140px"
               position="relative"
+              overflow="visible"
+              zIndex={openPlayerId === player.id ? 1000 : 1}
               cursor="pointer"
               onClick={
                 selectionMode
                   ? () => onPlayerToggle?.(player.id)
-                  : () => setSelectedPlayerForDetail(player)
+                  : () => handleShowDetail(player)
               }
               _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
             >
@@ -291,60 +277,39 @@ export const PlayerGrid = ({
                   </Text>
                 </VStack>
 
-                {/* Pause/Continue Button */}
-                {mode === 'manage' &&
-                  sessionId &&
-                  (player.status === 'WAITING' ||
-                    player.status === 'INACTIVE') && (
-                    <Box position="absolute" bottom={2} right={2}>
-                      <Button
-                        size="xs"
-                        colorPalette={
-                          player.status === 'WAITING' ? 'red' : 'gray'
+                {/* Action Menu */}
+                {mode === 'manage' && sessionId && (
+                  <Box
+                    position="absolute"
+                    bottom={1}
+                    right={1}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PlayerActionMenu
+                      player={player}
+                      onShowQR={onShowQR || handleShowDetail}
+                      onEdit={onEdit || (() => {})}
+                      onDelete={onDelete || (() => {})}
+                      onToggleStatus={onToggleStatus || (() => {})}
+                      t={t}
+                      buttonVariant="solid"
+                      buttonSize="xs"
+                      onOpenChange={(isOpen) => {
+                        if (isOpen) {
+                          setOpenPlayerId(player.id);
+                        } else if (openPlayerId === player.id) {
+                          setOpenPlayerId(null);
                         }
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showConfirmDialog(player);
-                        }}
-                      >
-                        {player.status === 'WAITING' ? <Pause /> : <Play />}
-                      </Button>
-                    </Box>
-                  )}
+                      }}
+                    />
+                  </Box>
+                )}
               </CardBody>
             </Card>
           );
         })}
       </SimpleGrid>
 
-      {/* Confirmation Dialog */}
-      <CommonModal
-        isOpen={confirmDialog.isOpen}
-        onClose={() =>
-          setConfirmDialog({
-            isOpen: false,
-            playerId: '',
-            playerName: '',
-            action: '',
-          })
-        }
-        title={
-          confirmDialog.action === 'pause' ? 'Pause Player' : 'Continue Player'
-        }
-        size="sm"
-        primaryActionText={
-          confirmDialog.action === 'pause' ? 'Pause' : 'Continue'
-        }
-        primaryColorScheme={confirmDialog.action === 'pause' ? 'red' : 'green'}
-        onPrimaryAction={() => handleToggleInactive(confirmDialog.playerId)}
-        isPrimaryLoading={isLoading}
-        secondaryActionText="Cancel"
-      >
-        <Text color="gray.600">
-          Are you sure you want to {confirmDialog.action}{' '}
-          {confirmDialog.playerName}?
-        </Text>
-      </CommonModal>
 
       {/* Player Detail Modal */}
       {selectedPlayerForDetail && (
@@ -354,6 +319,7 @@ export const PlayerGrid = ({
           player={selectedPlayerForDetail}
           sessionId={sessionId}
           formatWaitTime={formatWaitTime}
+          onPlayerUpdate={onPlayerUpdate}
         />
       )}
     </>

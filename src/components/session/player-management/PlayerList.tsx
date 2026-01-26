@@ -9,6 +9,7 @@ import {
 import { Plus, Users, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
+import PlayerEmptyState from './PlayerEmptyState';
 import PlayerListItem from './PlayerListItem';
 import { Player } from './types';
 
@@ -27,6 +28,7 @@ interface PlayerListProps {
     value: string | boolean
   ) => void;
   onDeletePlayer: (playerId: string) => void;
+  onTogglePlayerStatus: (playerId: string) => void;
   onShowQR: (player: Player) => void;
   isFiltered?: boolean; // true when filter is applied (not 'ALL')
   filterName?: string; // translated name of current filter for empty state message
@@ -43,6 +45,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
   onSavePlayer,
   onUpdateEditingPlayer,
   onDeletePlayer,
+  onTogglePlayerStatus,
   onShowQR,
   isFiltered = false,
   filterName,
@@ -54,77 +57,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
       <VStack spacing={5} align="stretch">
         {/* Player list or empty state */}
         {players.length === 0 ? (
-          <Card
-            variant="outline"
-            bg="linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)"
-            borderStyle="dashed"
-            borderWidth="2px"
-            borderColor="gray.200"
-            borderRadius="2xl"
-          >
-            <CardBody p={{ base: 8, md: 12 }}>
-              <VStack spacing={6}>
-                {/* Empty state icon */}
-                <Flex
-                  width="80px"
-                  height="80px"
-                  borderRadius="2xl"
-                  bg="white"
-                  align="center"
-                  justify="center"
-                  boxShadow="0 4px 20px rgba(0,0,0,0.08)"
-                  border="1px solid"
-                  borderColor="gray.100"
-                >
-                  <Box as={Users} boxSize={10} color="gray.400" />
-                </Flex>
-
-                <VStack spacing={2}>
-                  <Text
-                    fontSize="xl"
-                    fontWeight="bold"
-                    color="gray.700"
-                    letterSpacing="-0.01em"
-                  >
-                    {isFiltered ? t('noPlayersWithFilter') : t('noPlayersYet')}
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color="gray.500"
-                    textAlign="center"
-                    maxW="300px"
-                    lineHeight="1.6"
-                  >
-                    {isFiltered
-                      ? t('noPlayersWithFilterDescription', {
-                          status: filterName || '',
-                        })
-                      : t('noPlayersYetDescription')}
-                  </Text>
-                </VStack>
-
-                {/* Only show Add Player button when not filtered */}
-                {!isFiltered && (
-                  <Button
-                    size="lg"
-                    leftIcon={<Box as={UserPlus} boxSize={5} />}
-                    onClick={onAddNewPlayer}
-                    colorPalette="green"
-                    borderRadius="xl"
-                    px={8}
-                    boxShadow="0 4px 14px rgba(72, 187, 120, 0.3)"
-                    _hover={{
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 20px rgba(72, 187, 120, 0.4)',
-                    }}
-                    transition="all 0.2s"
-                  >
-                    {t('addFirstPlayer')}
-                  </Button>
-                )}
-              </VStack>
-            </CardBody>
-          </Card>
+          <PlayerEmptyState
+            isFiltered={isFiltered}
+            filterName={filterName}
+          />
         ) : (
           <VStack spacing={0} align="stretch">
             {players
@@ -141,6 +77,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                   onSave={onSavePlayer}
                   onUpdateEditing={onUpdateEditingPlayer}
                   onDelete={onDeletePlayer}
+                  onToggleStatus={onTogglePlayerStatus}
                   onShowQR={onShowQR}
                 />
               ))}

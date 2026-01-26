@@ -1207,7 +1207,7 @@
       "courtNumber": "场地 {number}",
       "inUse": "使用中",
       "ready": "准备就绪",
-      "empty": "空闲",
+      "empty": "N/A",
       "playing": "正在比赛...",
       "endMatch": "结束比赛",
       "autoAssignMatch": "自动分配比赛",

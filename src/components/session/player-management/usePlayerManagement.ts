@@ -454,5 +454,35 @@ export const usePlayerManagement = (
     cancelAddPlayer,
     isUserAlreadyUsed,
     setPlayerToDelete, // Needed to clear modal
+
+    /**
+     * Toggles player status between INACTIVE and WAITING
+     */
+    togglePlayerStatus: async (playerId: string) => {
+      const player = session.players.find((p: any) => p.id === playerId);
+      if (!player) return;
+
+      const newStatus =
+        player.status === 'INACTIVE' ? 'WAITING' : 'INACTIVE';
+
+      try {
+        setIsSaving(true);
+        await PlayerService.updatePlayerBySession(session.id, playerId, {
+          status: newStatus as any,
+        });
+        if (onDataRefresh) {
+          onDataRefresh();
+        }
+      } catch (error) {
+        console.error('Error toggling player status:', error);
+        toaster.create({
+          title: t('failedToUpdatePlayer'),
+          type: 'error',
+          duration: 3000,
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    },
   };
 };

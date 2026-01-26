@@ -35,6 +35,8 @@ import {
 import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
+import { SessionService } from '@/lib/api/session.service';
+import { Pause, Play } from 'lucide-react';
 
 import { Player } from '@/lib/api/types';
 
@@ -44,6 +46,7 @@ interface IPlayerDetailModalProps {
   player: Player;
   sessionId?: string;
   formatWaitTime: (waitTimeInMinutes: number) => string;
+  onPlayerUpdate?: () => void;
 }
 
 export const PlayerDetailModal = ({
@@ -52,12 +55,34 @@ export const PlayerDetailModal = ({
   player,
   sessionId,
   formatWaitTime,
+  onPlayerUpdate,
 }: IPlayerDetailModalProps) => {
   const t = useTranslations('PlayerDetailModal');
   const { getLevelLabel } = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [joinCode, setJoinCode] = useState<string>('');
   const [showJoinMore, setShowJoinMore] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+
+  const handleToggleStatus = async () => {
+    if (!sessionId) return;
+    setIsToggling(true);
+    try {
+      await SessionService.togglePlayerInactive(sessionId, player.id);
+      onPlayerUpdate?.();
+      toaster.success({
+        title:
+          player.status === 'INACTIVE'
+            ? 'Player status set to Waiting'
+            : 'Player status set to Inactive',
+      });
+    } catch (error) {
+      console.error('Failed to toggle player status:', error);
+      toaster.error({ title: 'Failed to update player status' });
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen && player.joinCode) {
@@ -114,6 +139,37 @@ export const PlayerDetailModal = ({
       }
       size="md"
       showCloseButton={true}
+      footer={
+        <Flex justify="space-between" width="full" align="center">
+          <Box>
+            {sessionId &&
+              (player.status === 'WAITING' ||
+                player.status === 'INACTIVE') && (
+                <Button
+                  size="sm"
+                  colorPalette={player.status === 'WAITING' ? 'red' : 'gray'}
+                  onClick={handleToggleStatus}
+                  loading={isToggling}
+                >
+                  {player.status === 'WAITING' ? (
+                    <>
+                      <Pause size={16} style={{ marginRight: '8px' }} />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play size={16} style={{ marginRight: '8px' }} />
+                      Continue
+                    </>
+                  )}
+                </Button>
+              )}
+          </Box>
+          <Button variant="outline" onClick={onClose} size="sm">
+            Cancel
+          </Button>
+        </Flex>
+      }
     >
       <VStack gap={0} align="stretch">
         {/* Player Header Avatar & Name */}

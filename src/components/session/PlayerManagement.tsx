@@ -1,8 +1,8 @@
 'use client';
 
-import QRCodeGenerator from '@/components/QRCodeGenerator';
 import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
 import EditPlayerModal from '@/components/session/player-management/EditPlayerModal';
+import { PlayerDetailModal } from '@/components/player/PlayerDetailModal';
 import PlayerList from '@/components/session/player-management/PlayerList';
 import PlayerStatsHeader from '@/components/session/player-management/PlayerStatsHeader';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
@@ -29,7 +29,17 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   playerFilter = [],
 }) => {
   const t = useTranslations('pages.playerManagement');
+  const tDetail = useTranslations('SessionDetail');
   const tCommon = useTranslations('common');
+
+  const formatWaitTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return tDetail('hoursMinutes', { hours, minutes: mins });
+    }
+    return tDetail('minutesShort', { minutes: mins });
+  };
 
   const {
     newPlayers,
@@ -59,11 +69,12 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     cancelAddPlayer,
     isUserAlreadyUsed,
     setPlayerToDelete,
+    togglePlayerStatus,
   } = usePlayerManagement(session, onDataRefresh);
 
-  // QR Modal State (UI specific)
-  const [showQRModal, setShowQRModal] = useState<boolean>(false);
-  const [selectedPlayerForQR, setSelectedPlayerForQR] = useState<Player | null>(
+  // Detail Modal State (UI specific)
+  const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
+  const [selectedPlayerForDetail, setSelectedPlayerForDetail] = useState<Player | null>(
     null
   );
 
@@ -76,14 +87,14 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   const [selectedPlayerForEdit, setSelectedPlayerForEdit] =
     useState<Player | null>(null);
 
-  const showPlayerQR = (player: Player) => {
-    setSelectedPlayerForQR(player);
-    setShowQRModal(true);
+  const showPlayerDetail = (player: Player) => {
+    setSelectedPlayerForDetail(player);
+    setShowDetailModal(true);
   };
 
-  const closeQRModal = () => {
-    setShowQRModal(false);
-    setSelectedPlayerForQR(null);
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedPlayerForDetail(null);
   };
 
   const openAddPlayerModal = () => {
@@ -197,7 +208,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             onSavePlayer={saveIndividualPlayer}
             onUpdateEditingPlayer={updateEditingPlayer}
             onDeletePlayer={deletePlayer}
-            onShowQR={showPlayerQR}
+            onTogglePlayerStatus={togglePlayerStatus}
+            onShowQR={showPlayerDetail}
             isFiltered={playerFilter.length > 0}
             filterName={filterName}
           />
@@ -273,61 +285,17 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         </VStack>
       </CommonModal>
 
-      {/* QR Code Modal */}
-      <CommonModal
-        isOpen={showQRModal && !!selectedPlayerForQR}
-        onClose={closeQRModal}
-        title={
-          selectedPlayerForQR &&
-          t('qrCodeModal.title', {
-            number: selectedPlayerForQR.playerNumber,
-          })
-        }
-        size="sm"
-        showCloseButton={true}
-        primaryActionText={tCommon('close')}
-        onPrimaryAction={closeQRModal}
-      >
-        {selectedPlayerForQR && (
-          <VStack gap={6} py={4}>
-            <Text
-              textAlign="center"
-              color="gray.800"
-              fontWeight="semibold"
-              fontSize="lg"
-            >
-              {selectedPlayerForQR.name ||
-                `Player ${selectedPlayerForQR.playerNumber}`}
-            </Text>
-
-            <Box
-              p={4}
-              bg="gray.50"
-              borderRadius="xl"
-              border="1px solid"
-              borderColor="gray.100"
-            >
-              {selectedPlayerForQR.joinCode ? (
-                <QRCodeGenerator
-                  joinCode={selectedPlayerForQR.joinCode}
-                  size={200}
-                />
-              ) : (
-                <VStack p={10} justify="center" align="center">
-                  <Box as={AlertCircle} boxSize={10} color="red.400" mb={2} />
-                  <Text color="red.500" textAlign="center" fontWeight="medium">
-                    {t('qrCodeModal.joinCodeNotAvailable')}
-                  </Text>
-                </VStack>
-              )}
-            </Box>
-
-            <Text fontSize="sm" color="gray.500" textAlign="center" px={4}>
-              {t('qrCodeModal.shareInstructions')}
-            </Text>
-          </VStack>
-        )}
-      </CommonModal>
+      {/* Player Detail Modal */}
+      {selectedPlayerForDetail && (
+        <PlayerDetailModal
+          isOpen={showDetailModal}
+          onClose={closeDetailModal}
+          player={selectedPlayerForDetail}
+          sessionId={session.id}
+          formatWaitTime={formatWaitTime}
+          onPlayerUpdate={onDataRefresh}
+        />
+      )}
 
       {/* Delete Player Confirmation Modal */}
       <CommonModal

@@ -17,6 +17,7 @@ import {
   Trash2,
   UserCheck,
   PlayCircle,
+  PauseCircle,
   Clock,
   CheckCircle2,
   Zap,
@@ -24,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState, useRef, useEffect } from 'react';
+import { PlayerActionMenu } from './PlayerActionMenu';
 import { Player } from './types';
 import { Gender } from '@/lib/api/types';
 
@@ -224,147 +226,6 @@ const EnhancedAvatar = ({
   );
 };
 
-const PlayerActionMenu = ({
-  player,
-  onShowQR,
-  onEdit,
-  onDelete,
-  t,
-}: {
-  player: Player;
-  onShowQR: (p: Player) => void;
-  onEdit: (p: Player) => void;
-  onDelete: (id: string) => void;
-  t: (key: string) => string;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
-  return (
-    <Box position="relative" ref={menuRef}>
-      <IconButton
-        aria-label="Options"
-        icon={<MoreVertical size={18} />}
-        variant="ghost"
-        size="sm"
-        color="gray.400"
-        borderRadius="full"
-        _hover={{
-          bg: 'gray.100',
-          color: 'gray.600',
-          transform: 'scale(1.1)',
-        }}
-        transition="all 0.2s"
-        onClick={() => setIsOpen(!isOpen)}
-      />
-      {isOpen && (
-        <Box
-          position="absolute"
-          top="100%"
-          right={0}
-          mt={2}
-          bg="white"
-          boxShadow="0 10px 40px rgba(0,0,0,0.15)"
-          borderRadius="xl"
-          border="1px solid"
-          borderColor="gray.100"
-          zIndex={10}
-          minW="180px"
-          overflow="hidden"
-          py={2}
-        >
-          <Button
-            variant="ghost"
-            width="100%"
-            justifyContent="flex-start"
-            px={4}
-            py={3}
-            height="auto"
-            onClick={() => {
-              onShowQR(player);
-              setIsOpen(false);
-            }}
-            borderRadius={0}
-            _hover={{ bg: 'blue.50', color: 'blue.600' }}
-            transition="all 0.2s"
-          >
-            <HStack spacing={3}>
-              <Box p={1.5} bg="blue.100" borderRadius="md">
-                <QrCode size={14} color="#3182ce" />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium">
-                {t('showQRCode')}
-              </Text>
-            </HStack>
-          </Button>
-          <Button
-            variant="ghost"
-            width="100%"
-            justifyContent="flex-start"
-            px={4}
-            py={3}
-            height="auto"
-            onClick={() => {
-              onEdit(player);
-              setIsOpen(false);
-            }}
-            borderRadius={0}
-            _hover={{ bg: 'purple.50', color: 'purple.600' }}
-            transition="all 0.2s"
-          >
-            <HStack spacing={3}>
-              <Box p={1.5} bg="purple.100" borderRadius="md">
-                <Edit size={14} color="#805ad5" />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium">
-                {t('editPlayer')}
-              </Text>
-            </HStack>
-          </Button>
-          <Box mx={3} my={2} borderTop="1px solid" borderColor="gray.100" />
-          <Button
-            variant="ghost"
-            width="100%"
-            justifyContent="flex-start"
-            px={4}
-            py={3}
-            height="auto"
-            onClick={() => {
-              onDelete(player.id);
-              setIsOpen(false);
-            }}
-            borderRadius={0}
-            _hover={{ bg: 'red.50' }}
-            transition="all 0.2s"
-          >
-            <HStack spacing={3}>
-              <Box p={1.5} bg="red.100" borderRadius="md">
-                <Trash2 size={14} color="#e53e3e" />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium" color="red.500">
-                {t('deletePlayer')}
-              </Text>
-            </HStack>
-          </Button>
-        </Box>
-      )}
-    </Box>
-  );
-};
 
 interface PlayerListItemProps {
   player: Player;
@@ -380,6 +241,7 @@ interface PlayerListItemProps {
     value: string | boolean
   ) => void;
   onDelete: (playerId: string) => void;
+  onToggleStatus: (playerId: string) => void;
   onShowQR: (player: Player) => void;
 }
 
@@ -387,6 +249,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
   player,
   onEdit,
   onDelete,
+  onToggleStatus,
   onShowQR,
 }) => {
   const t = useTranslations('pages.playerManagement');
@@ -581,6 +444,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
             onShowQR={onShowQR}
             onEdit={onEdit}
             onDelete={onDelete}
+            onToggleStatus={onToggleStatus}
             t={t}
           />
         </Flex>

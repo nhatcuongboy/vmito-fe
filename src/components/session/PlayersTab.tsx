@@ -11,8 +11,10 @@ import { usePlayerManagement } from '@/components/session/player-management/useP
 import { CommonModal } from '@/components/ui/CommonModal';
 import { AlertCircle, Plus } from 'lucide-react';
 import PendingPlayersSection from './PendingPlayersSection';
-
 import PlayerStatusFilter, { PlayerStatus } from './PlayerStatusFilter';
+import PlayerEmptyState from './player-management/PlayerEmptyState';
+import EditPlayerModal from './player-management/EditPlayerModal';
+import { PlayerDetailModal } from '../player/PlayerDetailModal';
 
 // Updated PlayerFilter type to be an array of statuses
 export type PlayerFilter = PlayerStatus[];
@@ -78,6 +80,17 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
     confirmAddPlayerDespiteWarning,
     cancelAddPlayer,
     isUserAlreadyUsed,
+    // Add missing from hook for Grid view
+    startEditingPlayer,
+    cancelEditingPlayer,
+    updateEditingPlayer,
+    saveIndividualPlayer,
+    deletePlayer,
+    confirmDeletePlayer,
+    playerToDelete,
+    setPlayerToDelete,
+    togglePlayerStatus,
+    editingPlayers,
   } = usePlayerManagement(safeSession, onPlayerUpdate);
 
   const openAddPlayerModal = () => {
@@ -98,6 +111,46 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   const handleCancelWarning = () => {
     cancelAddPlayer();
     setShowAddPlayerModal(false);
+  };
+
+  // State for modals in Grid view
+  const [showEditPlayerModal, setShowEditPlayerModal] = React.useState(false);
+  const [selectedPlayerForEdit, setSelectedPlayerForEdit] = React.useState<Player | null>(null);
+  const [showDetailModal, setShowDetailModal] = React.useState(false);
+  const [selectedPlayerForDetail, setSelectedPlayerForDetail] = React.useState<Player | null>(null);
+
+  const openEditPlayerModal = (player: Player) => {
+    startEditingPlayer(player);
+    setSelectedPlayerForEdit(player);
+    setShowEditPlayerModal(true);
+  };
+
+  const closeEditPlayerModal = () => {
+    if (selectedPlayerForEdit) {
+      cancelEditingPlayer(selectedPlayerForEdit.id);
+    }
+    setSelectedPlayerForEdit(null);
+    setShowEditPlayerModal(false);
+  };
+
+  const handleSaveEditAndClose = async (playerId: string) => {
+    await saveIndividualPlayer(playerId);
+    setSelectedPlayerForEdit(null);
+    setShowEditPlayerModal(false);
+  };
+
+  const openDetailModal = (player: Player) => {
+    setSelectedPlayerForDetail(player);
+    setShowDetailModal(true);
+  };
+
+  const formatWaitTimeGrid = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return t('hoursMinutes', { hours, minutes: mins });
+    }
+    return t('minutesShort', { minutes: mins });
   };
 
   // Internal sub-tab state (used when no external control is provided)
@@ -204,17 +257,15 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
               return playerFilter.includes(player.status as PlayerStatus);
             });
             if (filteredPlayers.length === 0) {
+              const filterName = playerFilter
+                .map((s) => t(`playersTab.${s.toLowerCase()}`))
+                .join(', ');
+
               return (
-                <Text fontSize="lg" color="gray.500" textAlign="center" py={8}>
-                  {t('playersTab.noPlayersFound', {
-                    status:
-                      playerFilter.length > 0
-                        ? playerFilter
-                            .map((s) => t(`playersTab.${s.toLowerCase()}`))
-                            .join(', ')
-                        : t('playersTab.all'),
-                  })}
-                </Text>
+                <PlayerEmptyState
+                  isFiltered={playerFilter.length > 0}
+                  filterName={filterName}
+                />
               );
             }
             return (
@@ -226,6 +277,10 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
                 sessionId={sessionId}
                 onPlayerUpdate={onPlayerUpdate}
                 isShowWaitTime={false}
+                onEdit={openEditPlayerModal}
+                onDelete={deletePlayer}
+                onToggleStatus={togglePlayerStatus}
+                onShowQR={openDetailModal}
               />
             );
           })()}
@@ -311,6 +366,58 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             {tPlayer('limitWarningModal.confirmQuestion')}
           </Text>
         </VStack>
+      </CommonModal>
+
+      {/* Edit Player Modal (Grid View) */}
+      <EditPlayerModal
+        isOpen={showEditPlayerModal}
+        onClose={closeEditPlayerModal}
+        player={selectedPlayerForEdit}
+        editingData={
+          selectedPlayerForEdit
+            ? editingPlayers[selectedPlayerForEdit.id]
+            : null
+        }
+        availableLevels={availableLevels}
+        isSaving={isSaving}
+        onUpdateEditing={updateEditingPlayer}
+        onSave={handleSaveEditAndClose}
+      />
+
+      {/* Player Detail Modal (Grid View) */}
+      {selectedPlayerForDetail && (
+        <PlayerDetailModal
+          isOpen={showDetailModal}
+          onClose={() => {
+            setShowDetailModal(false);
+            setSelectedPlayerForDetail(null);
+          }}
+          player={selectedPlayerForDetail}
+          sessionId={sessionId}
+          formatWaitTime={formatWaitTimeGrid}
+          onPlayerUpdate={onPlayerUpdate}
+        />
+      )}
+
+      {/* Delete Player Confirmation Modal (Grid View) */}
+      <CommonModal
+        isOpen={!!playerToDelete}
+        onClose={() => setPlayerToDelete(null)}
+        title={tCommon('delete')}
+        primaryActionText={tCommon('delete')}
+        secondaryActionText={tCommon('cancel')}
+        onPrimaryAction={confirmDeletePlayer}
+        isPrimaryLoading={isSaving}
+        primaryColorScheme="red"
+      >
+        <Text>
+          {playerToDelete &&
+            tPlayer('deleteConfirmation', {
+              name:
+                playerToDelete.name ||
+                `Player ${playerToDelete.playerNumber || ''}`,
+            })}
+        </Text>
       </CommonModal>
     </VStack>
   );
