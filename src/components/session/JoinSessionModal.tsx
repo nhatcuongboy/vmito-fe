@@ -25,6 +25,7 @@ export default function JoinSessionModal({
   const {
     players,
     loading,
+    errors,
     handleAddPlayer,
     handleRemovePlayer,
     handleUpdatePlayer,
@@ -52,6 +53,7 @@ export default function JoinSessionModal({
       <JoinSessionForm
         session={session}
         players={players}
+        errors={errors}
         onAddPlayer={handleAddPlayer}
         onRemovePlayer={handleRemovePlayer}
         onUpdatePlayer={handleUpdatePlayer}

@@ -108,12 +108,26 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
           px={2}
         >
           <Box
-            w="8px"
-            h="8px"
+            w="16px"
+            h="16px"
             borderRadius="full"
             bg={getStatusBg(session.status)}
-            boxShadow={`0 0 6px var(--chakra-colors-${getStatusBg(session.status).split('.')[0]}-400)`}
-          />
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            boxShadow={`0 0 12px var(--chakra-colors-${getStatusBg(session.status).split('.')[0]}-400)`}
+            border="1.5px solid"
+            borderColor="whiteAlpha.400"
+            flexShrink={0}
+          >
+            <Box
+              w="6px"
+              h="6px"
+              borderRadius="full"
+              bg="white"
+              boxShadow="0 0 4px white"
+            />
+          </Box>
           <Text
             fontSize="sm"
             fontWeight="bold"

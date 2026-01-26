@@ -57,7 +57,7 @@ export default function PlayerSessionBottomNav({
         fontWeight={activeTab === 1 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >
-        <Box as={User} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
+        <Box as={Activity} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
         {t('tabStatus')}
       </Box>
       <Box

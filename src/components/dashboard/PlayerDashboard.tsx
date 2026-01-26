@@ -16,13 +16,16 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useRouter } from '@/i18n/config';
+import FindSessionList from '../session/FindSessionList';
 import SessionCard from '../session/SessionCard';
 import { Button } from '@/components/ui/chakra-compat';
 import { Plus } from 'lucide-react';
-import { useRouter } from '@/i18n/config';
+
 
 export default function PlayerDashboard() {
   const t = useTranslations('pages.dashboard');
+  const tSession = useTranslations('session');
   const router = useRouter();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
@@ -52,10 +55,20 @@ export default function PlayerDashboard() {
     <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
       {/* Main Content */}
       <Container maxW="container.xl" py={16} mt={10}>
-        {/* Sessions Section */}
-        <Box mb={10}>
-          <Flex mb={4} justify="space-between" align="center">
+        {/* Available Sessions Section */}
+        <Box mb={16}>
+          <Flex mb={6} justify="space-between" align="center">
             <Heading as="h2" size="xl" textAlign="left">
+              {tSession('findSession')}
+            </Heading>
+          </Flex>
+          <FindSessionList />
+        </Box>
+
+        {/* Sessions Section */}
+        {/* <Box mb={10}> */}
+        {/* <Flex mb={4} justify="space-between" align="center">
+            <Heading as="h2" size="lg" textAlign="left">
               {t('mySessions')}
             </Heading>
             <Button
@@ -66,10 +79,10 @@ export default function PlayerDashboard() {
               <Plus size={16} style={{ marginRight: 4 }} />
               {t('createSession')}
             </Button>
-          </Flex>
+          </Flex> */}
 
-          {/* Joined Sessions Grid */}
-          <Box>
+        {/* Joined Sessions Grid */}
+        {/* <Box> 
             {joinedSessions.length === 0 ? (
               <Box
                 textAlign="center"
@@ -102,8 +115,8 @@ export default function PlayerDashboard() {
                 ))}
               </Grid>
             )}
-          </Box>
-        </Box>
+          </Box> */}
+        {/* </Box> */}
       </Container>
     </ProtectedRouteGuard>
   );

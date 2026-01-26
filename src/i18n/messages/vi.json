@@ -7,7 +7,7 @@
     "browse": "Tìm kèo",
     "users": "Người dùng",
     "mySessions": "Kèo của tôi",
-    "joined": "Đã tham gia"
+    "joined": "Kèo tham gia"
   },
   "common": {
     "appName": "LenKeo24h",
@@ -193,7 +193,8 @@
       "sessionNotFound": "Không tìm thấy kèo",
       "sessionNotFoundDescription": "Kèo bạn đang tìm có thể đã bị xóa hoặc không tồn tại.",
       "cannotEditCourtsWithPlayers": "Không thể chỉnh sửa cấu hình sân khi đã có người chơi tham gia",
-      "cannotEditTimeWhenActive": "Không thể chỉnh sửa thời gian khi kèo đang diễn ra"
+      "cannotEditTimeWhenActive": "Không thể chỉnh sửa thời gian khi kèo đang diễn ra",
+      "levelRequired": "Vui lòng chọn trình độ"
     },
     "generalSettings": {
       "selectVenue": "Chọn địa điểm...",
@@ -279,6 +280,9 @@
     },
     "clearFilters": "Xóa bộ lọc",
     "noSessionsFound": "Không tìm thấy kèo nào",
+    "noSessionsDescription": "Bạn chưa tham gia kèo cầu lông nào. Tham gia một kèo để xem ở đây!",
+    "activeSessions": "Kèo đang hoạt động",
+    "pastSessions": "Kèo đã qua",
     "tryAdjustingFilters": "Thử điều chỉnh bộ lọc của bạn",
     "submitRegistration": "Gửi đăng ký",
     "joinSessionDescription": "Bạn đang tham gia kèo do {hostName} tổ chức",
@@ -286,6 +290,8 @@
     "guestName": "Tên khách",
     "enterName": "Nhập tên",
     "addGuest": "Thêm khách",
+    "you": "Bạn",
+    "guest": "Khách",
     "joined": "Đã tham gia",
     "registrationPending": "Đang chờ duyệt",
     "registrationRejected": "Đăng ký bị từ chối",
@@ -1131,8 +1137,8 @@
       "notAvailable": "N/A"
     },
     "tabOverview": "Tổng quan",
-    "tabStatus": "Cá nhân",
-    "tabCourts": "Sân đấu",
+    "tabStatus": "Hoạt động",
+    "tabCourts": "Sân",
     "tabResults": "Kết quả",
     "playerStatsTitle": "Thống kê cá nhân",
     "stats": {

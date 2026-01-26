@@ -2,11 +2,12 @@
 
 import { ISession } from '@/lib/api/types';
 import { Box, Flex, Icon, Text } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import BaseSessionCard from './BaseSessionCard';
+import React from 'react';
 
 interface FindSessionCardProps {
   session: ISession;
@@ -40,39 +41,48 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
-  // Action buttons (unique to FindSessionCard)
-  const actions = isJoined ? (
-    <NextLinkButton
-      href={`/player/sessions/${session.id}`}
-      colorPalette="green"
-      size="sm"
-    >
-      {t('viewSession')}
-    </NextLinkButton>
-  ) : (
-    <Button colorPalette="blue" onClick={onJoin} size="sm">
-      {t('register')}
-    </Button>
-  );
-
   const callButton = session.hostPhone ? (
-    <Button
+    <IconButton
       size="sm"
-      leftIcon={<Icon as={Phone} />}
-      colorPalette="green"
+      colorPalette="blue"
       variant="outline"
-      onClick={() => window.open(`tel:${session.hostPhone}`)}
-    >
-      Call
-    </Button>
+      aria-label="Call host"
+      icon={<Icon as={Phone} />}
+      onClick={(e: React.MouseEvent) => {
+        e.stopPropagation();
+        window.location.href = `tel:${session.hostPhone}`;
+      }}
+    />
   ) : null;
+
+  // Action buttons (unique to FindSessionCard)
+  const actions = (
+    <Flex gap={2}>
+      {callButton}
+      {!isJoined && (<Button colorPalette="blue" onClick={onJoin} size="sm">
+        {t('register')}
+      </Button>)}
+      {/* {isJoined ? (
+        <NextLinkButton
+          href={`/player/sessions/${session.id}`}
+          colorPalette="green"
+          size="sm"
+        >
+          {t('viewSession')}
+        </NextLinkButton>
+      ) : (
+        <Button colorPalette="blue" onClick={onJoin} size="sm">
+          {t('register')}
+        </Button>
+      )} */}
+    </Flex>
+  );
 
   return (
     <BaseSessionCard
       session={session}
       extraInfoRows={locationRow}
       actionButtons={actions}
-      hostActions={callButton}
     />
   );
 };

@@ -1,12 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { PlayerService } from '@/lib/api/player.service';
-import { ISession, Player } from '@/lib/api/types';
+import { GenderType, ISession, Player } from '@/lib/api/types';
 
 export interface RegisterPlayerInput {
   name: string;
+  gender: GenderType;
   level: number;
+  levelDescription: string;
   isMe: boolean;
+}
+
+export interface ValidationErrors {
+  [index: number]: {
+    name?: string;
+    level?: string;
+  };
 }
 
 interface UseJoinSessionProps {
@@ -19,6 +28,15 @@ export function useJoinSession({ session, isOpen = true, onSuccess }: UseJoinSes
   const { user } = useAuthStore();
   const [players, setPlayers] = useState<RegisterPlayerInput[]>([]);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
+  // Get default level based on session's required levels
+  const getDefaultLevel = useCallback((): number => {
+    if (session?.requiredLevels && session.requiredLevels.length > 0) {
+      return session.requiredLevels[0];
+    }
+    return 0; // 0 means not selected
+  }, [session?.requiredLevels]);
 
   // Initialize with "Me" when session/user/isOpen changes
   useEffect(() => {
@@ -26,24 +44,52 @@ export function useJoinSession({ session, isOpen = true, onSuccess }: UseJoinSes
       setPlayers([
         {
           name: user?.name || '',
-          level: 1, // Default level
+          gender: 'MALE',
+          level: getDefaultLevel(),
+          levelDescription: '',
           isMe: true,
         },
       ]);
+      setErrors({});
     }
-  }, [isOpen, user, session]);
+  }, [isOpen, user, session, getDefaultLevel]);
 
   const handleAddPlayer = () => {
-    setPlayers((prev) => [...prev, { name: '', level: 1, isMe: false }]);
+    setPlayers((prev) => [
+      ...prev,
+      {
+        name: '',
+        gender: 'MALE',
+        level: getDefaultLevel(),
+        levelDescription: '',
+        isMe: false,
+      },
+    ]);
   };
 
   const handleRemovePlayer = (index: number) => {
     setPlayers((prev) => prev.filter((_, i) => i !== index));
+    // Clear errors for removed player
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[index];
+      // Re-index remaining errors
+      const reindexed: ValidationErrors = {};
+      Object.entries(newErrors).forEach(([key, value]) => {
+        const numKey = parseInt(key);
+        if (numKey > index) {
+          reindexed[numKey - 1] = value;
+        } else {
+          reindexed[numKey] = value;
+        }
+      });
+      return reindexed;
+    });
   };
 
   const handleUpdatePlayer = (
     index: number,
-    field: 'name' | 'level',
+    field: keyof Omit<RegisterPlayerInput, 'isMe'>,
     value: string | number
   ) => {
     setPlayers((prev) => {
@@ -51,18 +97,66 @@ export function useJoinSession({ session, isOpen = true, onSuccess }: UseJoinSes
       newPlayers[index] = { ...newPlayers[index], [field]: value };
       return newPlayers;
     });
+    // Clear error for this field
+    if (errors[index]?.[field as 'name' | 'level']) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        if (newErrors[index]) {
+          delete newErrors[index][field as 'name' | 'level'];
+          if (Object.keys(newErrors[index]).length === 0) {
+            delete newErrors[index];
+          }
+        }
+        return newErrors;
+      });
+    }
+  };
+
+  const validate = (): boolean => {
+    const newErrors: ValidationErrors = {};
+    let isValid = true;
+
+    players.forEach((player, index) => {
+      const playerErrors: { name?: string; level?: string } = {};
+
+      // Validate name
+      if (!player.name.trim()) {
+        playerErrors.name = 'required';
+        isValid = false;
+      }
+
+      // Validate level
+      if (!player.level || player.level === 0) {
+        playerErrors.level = 'required';
+        isValid = false;
+      }
+
+      if (Object.keys(playerErrors).length > 0) {
+        newErrors[index] = playerErrors;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleSubmit = async () => {
     if (!session) return;
-    
+
+    // Validate before submit
+    if (!validate()) {
+      return;
+    }
+
     try {
       setLoading(true);
 
       const playersDto: Partial<Player>[] = players.map((p, index) => ({
         playerNumber: (session._count?.players || 0) + 1 + index,
-        name: p.name,
+        name: p.name.trim(),
+        gender: p.gender,
         level: p.level,
+        levelDescription: p.levelDescription.trim() || undefined,
         userId: p.isMe ? user?.id : undefined,
       }));
 
@@ -80,10 +174,12 @@ export function useJoinSession({ session, isOpen = true, onSuccess }: UseJoinSes
   return {
     players,
     loading,
+    errors,
     setPlayers, // Exposed if needed
     handleAddPlayer,
     handleRemovePlayer,
     handleUpdatePlayer,
     handleSubmit,
+    validate,
   };
 }

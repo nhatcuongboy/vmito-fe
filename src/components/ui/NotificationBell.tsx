@@ -185,6 +185,9 @@ export default function NotificationBell({
 
             {/* List */}
             <Box maxH="400px" overflowY="auto">
+              <Box p={6} textAlign="center" color="gray.500">
+                <Text fontSize="sm">No notifications</Text>
+              </Box>
               {/* {notifications.length === 0 ? (
                 <Box p={6} textAlign="center" color="gray.500">
                   <Text fontSize="sm">No notifications</Text>

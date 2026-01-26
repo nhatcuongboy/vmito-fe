@@ -60,7 +60,6 @@ export default function GlobalBottomNav() {
       { id: 1, label: t('home'), icon: Home, href: '/player/dashboard' },
       { id: 4, label: t('host'), icon: LayoutDashboard, href: '/player/host' },
       { id: 2, label: t('joined'), icon: Ticket, href: '/player/sessions' },
-      { id: 3, label: t('browse'), icon: Search, href: '/browse/sessions' },
     ];
   }, [isAuthenticated, user, t]);
 

@@ -1,28 +1,51 @@
-import { Button, Divider, FormControl, FormLabel, IconButton, Input, Select, VStack } from '@/components/ui/chakra-compat';
+import {
+  Button,
+  Divider,
+  FormControl,
+  FormLabel,
+  IconButton,
+  VStack,
+} from '@/components/ui/chakra-compat';
 import { VALID_LEVELS } from '@/constants/levels';
-import { ISession } from '@/lib/api/types';
-import { Box, Text } from '@chakra-ui/react';
-import { Plus, Trash2 } from 'lucide-react';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { GenderType, ISession } from '@/lib/api/types';
+import { Badge, Box, Flex, Grid, Input, Text, Textarea } from '@chakra-ui/react';
+import { Plus, Trash2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useMemo } from 'react';
-import { RegisterPlayerInput } from './useJoinSession';
+import { RegisterPlayerInput, ValidationErrors } from './useJoinSession';
 
 interface JoinSessionFormProps {
   session: ISession;
   players: RegisterPlayerInput[];
+  errors: ValidationErrors;
   onAddPlayer: () => void;
   onRemovePlayer: (index: number) => void;
-  onUpdatePlayer: (index: number, field: 'name' | 'level', value: string | number) => void;
+  onUpdatePlayer: (
+    index: number,
+    field: keyof Omit<RegisterPlayerInput, 'isMe'>,
+    value: string | number
+  ) => void;
 }
+
+const GENDER_OPTIONS: { value: GenderType; labelKey: string }[] = [
+  { value: 'MALE', labelKey: 'male' },
+  { value: 'FEMALE', labelKey: 'female' },
+  { value: 'OTHER', labelKey: 'other' },
+  { value: 'PREFER_NOT_TO_SAY', labelKey: 'preferNotToSay' },
+];
 
 export default function JoinSessionForm({
   session,
   players,
+  errors,
   onAddPlayer,
   onRemovePlayer,
   onUpdatePlayer,
 }: JoinSessionFormProps) {
   const t = useTranslations('session');
+  const tPlayer = useTranslations('pages.playerManagement');
+  const { getLevelLabel } = useLevelLabel();
 
   const availableLevels = useMemo(() => {
     if (session.requiredLevels && session.requiredLevels.length > 0) {
@@ -38,7 +61,7 @@ export default function JoinSessionForm({
       </Text>
 
       {session.requiredLevels && session.requiredLevels.length > 0 && (
-        <Box bg="blue.50" p={2} borderRadius="md">
+        <Box bg="blue.50" p={3} borderRadius="md">
           <Text fontSize="sm" color="blue.700">
             {t('requiredLevels')}:{' '}
             {session.requiredLevels.map((l) => t(`levels.${l}`)).join(', ')}
@@ -51,26 +74,49 @@ export default function JoinSessionForm({
       {players.map((player, index) => (
         <Box
           key={index}
-          p={3}
+          p={4}
           borderWidth="1px"
-          borderRadius="md"
+          borderRadius="lg"
           position="relative"
+          bg="gray.50"
+          shadow="sm"
         >
-          {/* Remove button for guests */}
-          {!player.isMe && (
-            <Box position="absolute" top={2} right={2}>
+          {/* Header with badge and delete button */}
+          <Flex justify="space-between" align="center" mb={4}>
+            <Flex align="center" gap={2}>
+              <Box
+                bg={player.isMe ? 'blue.500' : 'green.500'}
+                p={1.5}
+                borderRadius="full"
+              >
+                <User size={14} color="white" />
+              </Box>
+              <Badge
+                colorPalette={player.isMe ? 'blue' : 'green'}
+                variant="subtle"
+                borderRadius="full"
+                px={2}
+              >
+                {player.isMe ? t('you') : t('guest')}
+              </Badge>
+            </Flex>
+
+            {!player.isMe && (
               <IconButton
                 aria-label="Remove"
                 icon={<Trash2 size={16} />}
-                size="xs"
+                size="sm"
+                colorPalette="red"
+                variant="ghost"
                 onClick={() => onRemovePlayer(index)}
               />
-            </Box>
-          )}
+            )}
+          </Flex>
 
-          <VStack spacing={3}>
-            <FormControl isRequired>
-              <FormLabel fontSize="sm">
+          <VStack spacing={4} align="stretch">
+            {/* Player name */}
+            <FormControl isRequired isInvalid={!!errors[index]?.name}>
+              <FormLabel fontSize="sm" fontWeight="medium" color="gray.600">
                 {player.isMe ? t('myName') : t('guestName')}
               </FormLabel>
               <Input
@@ -79,24 +125,118 @@ export default function JoinSessionForm({
                   onUpdatePlayer(index, 'name', e.target.value)
                 }
                 placeholder={t('enterName')}
+                bg="white"
+                size="md"
+                borderColor={errors[index]?.name ? 'red.400' : undefined}
+                _focus={{
+                  borderColor: errors[index]?.name ? 'red.400' : 'blue.500',
+                  boxShadow: errors[index]?.name
+                    ? '0 0 0 1px #F56565'
+                    : '0 0 0 1px #3182ce',
+                }}
               />
+              {errors[index]?.name && (
+                <Text fontSize="xs" color="red.500" mt={1}>
+                  {tPlayer('playerNameRequired')}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl isRequired>
-              <FormLabel fontSize="sm">{t('level')}</FormLabel>
-              <Select
-                value={player.level}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                  onUpdatePlayer(index, 'level', parseInt(e.target.value))
-                }
+            {/* Gender and Level - responsive grid */}
+            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+              <Box>
+                <Text
+                  fontSize="sm"
+                  mb={2}
+                  color="gray.600"
+                  fontWeight="medium"
+                >
+                  {tPlayer('gender')}
+                </Text>
+                <select
+                  value={player.gender}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    onUpdatePlayer(index, 'gender', e.target.value)
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #E2E8F0',
+                    backgroundColor: 'white',
+                    fontSize: '14px',
+                  }}
+                >
+                  {GENDER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {tPlayer(option.labelKey)}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+
+              <FormControl isRequired isInvalid={!!errors[index]?.level}>
+                <Text
+                  fontSize="sm"
+                  mb={2}
+                  color="gray.600"
+                  fontWeight="medium"
+                >
+                  {t('level')} <Text as="span" color="red.500">*</Text>
+                </Text>
+                <select
+                  value={player.level}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    onUpdatePlayer(index, 'level', parseInt(e.target.value))
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: errors[index]?.level
+                      ? '1px solid #F56565'
+                      : '1px solid #E2E8F0',
+                    backgroundColor: 'white',
+                    fontSize: '14px',
+                  }}
+                >
+                  <option value={0}>{tPlayer('selectLevel')}</option>
+                  {availableLevels.map((l) => (
+                    <option key={l} value={l}>
+                      {getLevelLabel(l)}
+                    </option>
+                  ))}
+                </select>
+                {errors[index]?.level && (
+                  <Text fontSize="xs" color="red.500" mt={1}>
+                    {t('validation.levelRequired')}
+                  </Text>
+                )}
+              </FormControl>
+            </Grid>
+
+            {/* Level description */}
+            <Box>
+              <Text
+                fontSize="sm"
+                mb={2}
+                color="gray.600"
+                fontWeight="medium"
               >
-                {availableLevels.map((l) => (
-                  <option key={l} value={l}>
-                    {t(`levels.${l}`)}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+                {tPlayer('levelDescription')}
+              </Text>
+              <Textarea
+                placeholder={tPlayer('levelDescriptionPlaceholder')}
+                size="md"
+                bg="white"
+                value={player.levelDescription}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                  onUpdatePlayer(index, 'levelDescription', e.target.value)
+                }
+                rows={2}
+                resize="none"
+              />
+            </Box>
           </VStack>
         </Box>
       ))}
@@ -106,6 +246,7 @@ export default function JoinSessionForm({
         variant="outline"
         size="sm"
         onClick={onAddPlayer}
+        colorPalette="green"
       >
         {t('addGuest')}
       </Button>

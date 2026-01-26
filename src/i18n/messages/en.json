@@ -193,7 +193,8 @@
       "sessionNotFound": "Session not found",
       "sessionNotFoundDescription": "The session you're looking for might have been deleted or doesn't exist.",
       "cannotEditCourtsWithPlayers": "Cannot edit courts configuration when players have joined",
-      "cannotEditTimeWhenActive": "Cannot edit session time when session is in progress"
+      "cannotEditTimeWhenActive": "Cannot edit session time when session is in progress",
+      "levelRequired": "Please select a level"
     },
     "generalSettings": {
       "selectVenue": "Select a venue...",
@@ -279,6 +280,9 @@
     },
     "clearFilters": "Clear Filters",
     "noSessionsFound": "No sessions found",
+    "noSessionsDescription": "You haven't joined any badminton sessions yet. Join a session to see it here!",
+    "activeSessions": "Active Sessions",
+    "pastSessions": "Past Sessions",
     "tryAdjustingFilters": "Try adjusting your filters",
     "submitRegistration": "Submit Registration",
     "joinSessionDescription": "You are joining the session hosted by {hostName}",
@@ -286,6 +290,8 @@
     "guestName": "Guest Name",
     "enterName": "Enter name",
     "addGuest": "Add Guest",
+    "you": "You",
+    "guest": "Guest",
     "joined": "Joined",
     "registrationPending": "Registration Pending",
     "registrationRejected": "Registration Rejected",
@@ -1131,7 +1137,7 @@
       "notAvailable": "N/A"
     },
     "tabOverview": "Overview",
-    "tabStatus": "My Status",
+    "tabStatus": "Activity",
     "tabCourts": "Courts",
     "tabResults": "Results",
     "playerStatsTitle": "Personal Statistics",

@@ -26,6 +26,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
   const {
     players,
     loading: submitting,
+    errors,
     handleAddPlayer,
     handleRemovePlayer,
     handleUpdatePlayer,
@@ -109,6 +110,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
           <JoinSessionForm
             session={session}
             players={players}
+            errors={errors}
             onAddPlayer={handleAddPlayer}
             onRemovePlayer={handleRemovePlayer}
             onUpdatePlayer={handleUpdatePlayer}
