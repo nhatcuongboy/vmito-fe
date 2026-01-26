@@ -744,7 +744,7 @@ export default function SessionForm({
                                                                 type="number"
                                                                 min={1}
                                                                 value={field.value}
-                                                                onChange={(e) =>
+                                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                                     field.onChange(parseInt(e.target.value) || 1)
                                                                 }
                                                                 disabled={!canEditCourts}
@@ -898,7 +898,7 @@ export default function SessionForm({
                                             min={2}
                                             max={12}
                                             value={field.value}
-                                            onChange={(e) =>
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                 field.onChange(parseInt(e.target.value) || 8)
                                             }
                                         />

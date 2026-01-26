@@ -219,7 +219,7 @@ export default function TournamentPairsPage() {
               <Input
                 placeholder={t('searchPlaceholder')}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 leftElement={<Search size={16} />}
                 maxW="300px"
               />
@@ -308,7 +308,7 @@ export default function TournamentPairsPage() {
                   <FormLabel>{t('pairNameOptional')}</FormLabel>
                   <Input
                     value={formData.name}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder={t('pairName')}
@@ -381,7 +381,7 @@ export default function TournamentPairsPage() {
                   <FormLabel>{t('notes')}</FormLabel>
                   <Input
                     value={formData.notes}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, notes: e.target.value })
                     }
                     placeholder={t('notesPlaceholder')}
