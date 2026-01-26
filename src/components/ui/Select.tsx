@@ -8,6 +8,8 @@ import {
   SelectItem,
   SelectValueText,
   createListCollection,
+  Portal,
+  SelectPositioner,
 } from '@chakra-ui/react';
 
 /**
@@ -152,21 +154,21 @@ export interface SelectProps
  */
 function extractOptionsFromChildren(children: React.ReactNode): SelectOption[] {
   const options: SelectOption[] = [];
-  
+
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child) && child.type === 'option') {
       const props = child.props as { value?: string | number; children?: React.ReactNode; disabled?: boolean };
       const value = String(props.value ?? '');
       const label = props.children as string;
       const disabled = props.disabled;
-      
+
       // Skip empty placeholder options
       if (value !== '' || label) {
         options.push({ value, label, disabled });
       }
     }
   });
-  
+
   return options;
 }
 
@@ -205,11 +207,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
     // Extract options from children
     const items = useMemo(() => extractOptionsFromChildren(children), [children]);
-    
+
     // Find placeholder from children if not explicitly provided
     const derivedPlaceholder = useMemo(() => {
       if (placeholder) return placeholder;
-      
+
       let foundPlaceholder = 'Select...';
       React.Children.forEach(children, (child) => {
         if (React.isValidElement(child) && child.type === 'option') {
@@ -243,7 +245,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             name: props.name,
           },
         } as React.ChangeEvent<HTMLSelectElement>;
-        
+
         onChange(syntheticEvent);
       }
     };
@@ -257,17 +259,44 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         value={selectedValues}
         onValueChange={handleValueChange}
         name={props.name}
+        positioning={{ strategy: 'fixed' }}
       >
         <SelectTrigger>
           <SelectValueText placeholder={derivedPlaceholder} />
         </SelectTrigger>
-        <SelectContent>
-          {items.map((item) => (
-            <SelectItem key={item.value} item={item.value}>
-              {item.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
+        <Portal>
+          <SelectPositioner zIndex="popover">
+            <SelectContent
+              bg="white"
+              boxShadow="lg"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="gray.200"
+              p="1"
+              minW="var(--reference-width)"
+              maxH="300px"
+              overflowY="auto"
+              zIndex="popover"
+            >
+              {items.map((item) => (
+                <SelectItem
+                  key={item.value}
+                  item={item.value}
+                  _hover={{ bg: 'gray.50' }}
+                  _selected={{ bg: 'blue.50', color: 'blue.600' }}
+                  p="2"
+                  borderRadius="sm"
+                  cursor="pointer"
+                  display="flex"
+                  alignItems="center"
+                  fontSize="sm"
+                >
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectPositioner>
+        </Portal>
       </SelectRoot>
     );
   }

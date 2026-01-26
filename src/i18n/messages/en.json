@@ -83,8 +83,8 @@
     "hostPhone": "Host Phone",
     "hostPhonePlaceholder": "Enter phone number",
     "time": "Time",
-    "start": "Start",
-    "end": "End",
+    "start": "Start Time",
+    "end": "End Time",
     "duration": "Duration",
     "allLevelsAllowedMessage": "All skill levels are welcome",
     "location": "Location",
@@ -1122,7 +1122,8 @@
   },
   "SessionDetail": {
     "common": {
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "notAvailable": "N/A"
     },
     "tabOverview": "Overview",
     "tabStatus": "My Status",
@@ -1140,9 +1141,10 @@
     "information": "Information",
     "sessionName": "Name",
     "host": "Host",
-    "requiredLevels": "Required Levels",
+    "requiredLevels": "Levels",
     "allLevels": "All Levels",
-    "location": "Location",
+    "location": "Address",
+    "venue": "Venue",
     "date": "Date",
     "time": "Time",
     "sessionTime": "Time",

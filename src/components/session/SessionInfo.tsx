@@ -16,6 +16,7 @@ import {
   Clock,
   Info,
   MapPin,
+  Map,
   Users,
   User,
   Tag,
@@ -141,8 +142,12 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         </Badge>
       </InfoRow>
 
+      <InfoRow icon={Map} label={t('venue')}>
+        {session.venue?.name || t('common.notAvailable')}
+      </InfoRow>
+
       <InfoRow icon={MapPin} label={t('location')}>
-        {session.location || t('noLocation')}
+        {session.venue?.address || session.location || t('noLocation')}
       </InfoRow>
 
       <InfoRow icon={Calendar} label={t('date')}>

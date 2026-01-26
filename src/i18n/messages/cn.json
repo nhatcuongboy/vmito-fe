@@ -1118,7 +1118,8 @@
   },
   "SessionDetail": {
     "common": {
-      "cancel": "取消"
+      "cancel": "取消",
+      "notAvailable": "N/A"
     },
     "tabOverview": "概览",
     "tabStatus": "我的状态",

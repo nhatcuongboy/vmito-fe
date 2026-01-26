@@ -1,7 +1,7 @@
 import { SimpleGrid } from '@/components/ui/chakra-compat';
-import { CourtDirection } from '@/lib/api/types';
+import { CourtDirection, SessionStatus } from '@/lib/api/types';
 import { Court, Match, Player } from '@/types/session';
-import { Box, Flex, Heading, HStack } from '@chakra-ui/react';
+import { Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
@@ -151,6 +151,12 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
             </HStack>
           </Flex>
         </Box>
+        {session.status !== SessionStatus.IN_PROGRESS && (
+          <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
+            {session.status === SessionStatus.PREPARING
+              ? t('courtsTab.startSessionToBeginMatches')
+              : t('courtsTab.sessionHasEnded')}
+          </Text>)}
         <Box>
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={4} p={1}>
             {session.courts.map((court: Court) => {
@@ -199,8 +205,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         title={
           modals.selectedAutoAssignCourt
             ? t('courtsTab.autoAssignMatchTitle', {
-                courtNumber: modals.selectedAutoAssignCourt.courtNumber,
-              })
+              courtNumber: modals.selectedAutoAssignCourt.courtNumber,
+            })
             : undefined
         }
         description={t('courtsTab.autoAssignMatchDescription')}
@@ -253,8 +259,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         title={
           modals.selectedPreSelectCourt
             ? t('courtsTab.preSelectTitle', {
-                courtNumber: modals.selectedPreSelectCourt.courtNumber,
-              })
+              courtNumber: modals.selectedPreSelectCourt.courtNumber,
+            })
             : undefined
         }
         formatWaitTime={(minutes) => {

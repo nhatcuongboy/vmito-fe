@@ -254,6 +254,8 @@ export interface CreateSessionRequest {
   maxPlayersPerCourt: number;
   requirePlayerInfo: boolean;
   requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
+  allowGuestJoin?: boolean;
+  allowNewPlayers?: boolean;
   startTime?: Date;
   endTime?: Date;
   courtColor?: string;

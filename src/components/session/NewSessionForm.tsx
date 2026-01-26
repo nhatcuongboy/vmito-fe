@@ -19,9 +19,46 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { Check } from 'lucide-react';
+
+const CustomCheckbox = ({ isChecked, onChange, size = 'md' }: { isChecked: boolean; onChange: (e: any) => void; size?: string }) => {
+  const boxSize = size === 'lg' ? '24px' : '20px';
+  const iconSize = size === 'lg' ? 16 : 12;
+
+  return (
+    <Box
+      as="label"
+      cursor="pointer"
+      display="inline-flex"
+      alignItems="center"
+    >
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={onChange}
+        style={{ display: 'none' }}
+      />
+      <Box
+        w={boxSize}
+        h={boxSize}
+        border="2px solid"
+        borderColor={isChecked ? 'blue.500' : 'gray.300'}
+        bg={isChecked ? 'blue.500' : 'white'}
+        borderRadius="md"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        transition="all 0.2s"
+        _hover={{ borderColor: 'blue.600' }}
+      >
+        {isChecked && <Check size={iconSize} color="white" strokeWidth={3} />}
+      </Box>
+    </Box>
+  );
+};
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/chakra-compat';
-import { Plus, Minus, Shield, Sparkles } from 'lucide-react';
+import { Plus, Minus, Shield, Sparkles, User, Users, UserPlus } from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -61,6 +98,9 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
   const [hostName, setHostName] = useState(user?.name || '');
   const [hostPhone, setHostPhone] = useState('');
   const [allLevelsSelected, setAllLevelsSelected] = useState(true);
+  const [requirePlayerInfo, setRequirePlayerInfo] = useState(false);
+  const [allowGuestJoin, setAllowGuestJoin] = useState(true);
+  const [allowNewPlayers, setAllowNewPlayers] = useState(true);
   const [courts, setCourts] = useState([
     {
       courtNumber: 1,
@@ -190,14 +230,14 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
       const selectedVenue = venues.find((v) => v.id === selectedVenueId);
       const venueData = selectedVenue
         ? {
-            placeId: selectedVenue.placeId,
-            name: selectedVenue.name,
-            address: selectedVenue.address,
-            lat: selectedVenue.lat,
-            lng: selectedVenue.lng,
-            district: selectedVenue.district,
-            city: selectedVenue.city,
-          }
+          placeId: selectedVenue.placeId,
+          name: selectedVenue.name,
+          address: selectedVenue.address,
+          lat: selectedVenue.lat,
+          lng: selectedVenue.lng,
+          district: selectedVenue.district,
+          city: selectedVenue.city,
+        }
         : undefined;
 
       const session = await SessionService.createSession({
@@ -208,7 +248,9 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
         numberOfCourts: courts.length,
         sessionDuration,
         maxPlayersPerCourt,
-        requirePlayerInfo: false,
+        requirePlayerInfo,
+        allowGuestJoin,
+        allowNewPlayers,
         requiredLevels: allLevelsSelected
           ? undefined
           : requiredLevels.length > 0
@@ -312,8 +354,8 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
       try {
         const startDate = new Date(data.startTime);
         if (!isNaN(startDate.getTime())) {
-             setStartTime(formatDateTimeLocal(startDate));
-             // If duration is implied by end time, we don't need to explicity set it
+          setStartTime(formatDateTimeLocal(startDate));
+          // If duration is implied by end time, we don't need to explicity set it
         }
       } catch (e) {
         console.error('Invalid start time from AI:', e);
@@ -324,7 +366,7 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
       try {
         const endDate = new Date(data.endTime);
         if (!isNaN(endDate.getTime())) {
-            setEndTime(formatDateTimeLocal(endDate));
+          setEndTime(formatDateTimeLocal(endDate));
         }
       } catch (e) {
         console.error('Invalid end time from AI:', e);
@@ -347,29 +389,29 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
 
     // Attempt to match venue
     if (data.venue && (data.venue.name || data.venue.address) && venues.length > 0) {
-        const venueName = data.venue.name?.toLowerCase() || '';
-        const venueAddress = data.venue.address?.toLowerCase() || '';
+      const venueName = data.venue.name?.toLowerCase() || '';
+      const venueAddress = data.venue.address?.toLowerCase() || '';
 
-        // Try to find a venue that matches name or address
-        const matchedVenue = venues.find(v => {
-            const vName = v.name.toLowerCase();
-            const vAddress = v.address.toLowerCase();
+      // Try to find a venue that matches name or address
+      const matchedVenue = venues.find(v => {
+        const vName = v.name.toLowerCase();
+        const vAddress = v.address.toLowerCase();
 
-            // Exact name match or contained in address
-            if (venueName && (vName.includes(venueName) || venueName.includes(vName))) return true;
-            if (venueAddress && (vAddress.includes(venueAddress) || venueAddress.includes(vAddress))) return true;
+        // Exact name match or contained in address
+        if (venueName && (vName.includes(venueName) || venueName.includes(vName))) return true;
+        if (venueAddress && (vAddress.includes(venueAddress) || venueAddress.includes(vAddress))) return true;
 
-            return false;
-        });
+        return false;
+      });
 
-        if (matchedVenue) {
-            setSelectedVenueId(matchedVenue.id);
-            // toaster.success({ title: t('aiModal.venueMatched', { venueName: matchedVenue.name }) });
-        } else {
-             // If no exact match, we could notify user or just leave it empty
-             // For now, let's just log it
-             console.log('No matching venue found for:', data.venue);
-        }
+      if (matchedVenue) {
+        setSelectedVenueId(matchedVenue.id);
+        // toaster.success({ title: t('aiModal.venueMatched', { venueName: matchedVenue.name }) });
+      } else {
+        // If no exact match, we could notify user or just leave it empty
+        // For now, let's just log it
+        console.log('No matching venue found for:', data.venue);
+      }
     }
   };
 
@@ -525,165 +567,6 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
             </Box>
 
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              <Heading size="md" mb={4}>
-                {t('maxPlayersPerCourt')}
-              </Heading>
-              <Input
-                name="maxPlayersPerCourt"
-                type="number"
-                value={maxPlayersPerCourt}
-                onChange={(e) => setMaxPlayersPerCourt(parseInt(e.target.value) || 8)}
-                min={2}
-                max={12}
-                size="lg"
-              />
-            </Box>
-
-            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              <VStack gap={4} align="stretch">
-                <Heading size="md">
-                  <HStack>
-                    <Shield size={16} />
-                    <Text>{t('levelsLabel')}</Text>
-                  </HStack>
-                </Heading>
-
-                <Box p={4} bg="gray.50" borderRadius="lg">
-                  <Text fontSize="sm" color="gray.600" mb={3}>
-                    {t('generalSettings.selectRequiredLevels')}
-                  </Text>
-
-                  <Wrap gap={2}>
-                    <WrapItem>
-                      <Badge
-                        px={3}
-                        py={2}
-                        borderRadius="md"
-                        cursor="pointer"
-                        bg={allLevelsSelected ? 'green.500' : 'gray.200'}
-                        color={allLevelsSelected ? 'white' : 'gray.700'}
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        onClick={handleAllLevelsToggle}
-                        _hover={{
-                          transform: 'translateY(-1px)',
-                          boxShadow: 'sm',
-                        }}
-                        transition="all 0.2s"
-                      >
-                        {t('allLevels')}
-                      </Badge>
-                    </WrapItem>
-
-                    <WrapItem alignItems="center">
-                      <Text color="gray.400" fontSize="sm">
-                        |
-                      </Text>
-                    </WrapItem>
-
-                    {VALID_LEVELS.map((level) => {
-                      const isSelected =
-                        !allLevelsSelected && requiredLevels.includes(level);
-                      return (
-                        <WrapItem key={level}>
-                          <Badge
-                            px={3}
-                            py={2}
-                            borderRadius="md"
-                            cursor="pointer"
-                            bg={isSelected ? 'blue.500' : 'gray.200'}
-                            color={isSelected ? 'white' : 'gray.700'}
-                            fontSize="sm"
-                            fontWeight="semibold"
-                            onClick={() => handleLevelToggle(level)}
-                            opacity={allLevelsSelected ? 0.5 : 1}
-                            _hover={{
-                              transform: allLevelsSelected
-                                ? 'none'
-                                : 'translateY(-1px)',
-                              boxShadow: allLevelsSelected ? 'none' : 'sm',
-                            }}
-                            transition="all 0.2s"
-                          >
-                            {getLevelLabel(level)}
-                          </Badge>
-                        </WrapItem>
-                      );
-                    })}
-                  </Wrap>
-
-                  {!allLevelsSelected && requiredLevels.length > 0 && (
-                    <Text fontSize="xs" color="blue.600" mt={2}>
-                      ✓ {requiredLevels.length} level(s) selected
-                    </Text>
-                  )}
-
-                  {allLevelsSelected && (
-                    <Text fontSize="xs" color="green.600" mt={2}>
-                      {t('allLevelsAllowedMessage')}
-                    </Text>
-                  )}
-                </Box>
-              </VStack>
-            </Box>
-
-            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              <Heading size="md" mb={4}>
-                {t('courtAppearance')}
-              </Heading>
-              <Text fontSize="sm" color="gray.600" mb={4}>
-                {t('selectCourtColor')}
-              </Text>
-
-              <Wrap gap={4}>
-                {COURT_COLORS.map((color) => {
-                  const isSelected = courtColor === color.value;
-                  return (
-                    <WrapItem key={color.value}>
-                      <VStack>
-                        <Box
-                          w="60px"
-                          h="60px"
-                          borderRadius="md"
-                          bg={color.value}
-                          cursor="pointer"
-                          position="relative"
-                          onClick={() => setCourtColor(color.value)}
-                          border="3px solid"
-                          borderColor={isSelected ? 'blue.500' : 'transparent'}
-                          boxShadow={isSelected ? 'lg' : 'sm'}
-                          transition="all 0.2s"
-                          _hover={{
-                            transform: 'scale(1.05)',
-                            boxShadow: 'md',
-                          }}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          {/* White lines representation - smaller version */}
-                          <Box
-                            w="40px"
-                            h="30px"
-                            border="1px solid white"
-                            position="absolute"
-                            opacity={0.7}
-                          />
-                        </Box>
-                        <Text
-                          fontSize="xs"
-                          fontWeight={isSelected ? 'bold' : 'normal'}
-                        >
-                          {color.name}
-                        </Text>
-                      </VStack>
-                    </WrapItem>
-                  );
-                })}
-              </Wrap>
-            </Box>
-
-            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               <Flex align="center" justify="space-between" mb={4}>
                 <Heading size="md">{t('courtsConfiguration')}</Heading>
                 <Button onClick={handleAddCourt} size="sm">
@@ -777,6 +660,148 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
                     </Flex>
                   </Box>
                 ))}
+              </Stack>
+            </Box>
+
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <Heading size="md" mb={4}>
+                {t('courtAppearance')}
+              </Heading>
+              <Text fontSize="sm" color="gray.600" mb={4}>
+                {t('selectCourtColor')}
+              </Text>
+
+              <Wrap gap={4}>
+                {COURT_COLORS.map((color) => {
+                  const isSelected = courtColor === color.value;
+                  return (
+                    <WrapItem key={color.value}>
+                      <VStack>
+                        <Box
+                          w="60px"
+                          h="60px"
+                          borderRadius="md"
+                          bg={color.value}
+                          cursor="pointer"
+                          position="relative"
+                          onClick={() => setCourtColor(color.value)}
+                          border="3px solid"
+                          borderColor={isSelected ? 'blue.500' : 'transparent'}
+                          boxShadow={isSelected ? 'lg' : 'sm'}
+                          transition="all 0.2s"
+                          _hover={{
+                            transform: 'scale(1.05)',
+                            boxShadow: 'md',
+                          }}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          {/* White lines representation - smaller version */}
+                          <Box
+                            w="40px"
+                            h="30px"
+                            border="1px solid white"
+                            position="absolute"
+                            opacity={0.7}
+                          />
+                        </Box>
+                        <Text
+                          fontSize="xs"
+                          fontWeight={isSelected ? 'bold' : 'normal'}
+                        >
+                          {color.name}
+                        </Text>
+                      </VStack>
+                    </WrapItem>
+                  );
+                })}
+              </Wrap>
+            </Box>
+
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <Heading size="md" mb={4}>
+                {t('maxPlayersPerCourt')}
+              </Heading>
+              <Input
+                name="maxPlayersPerCourt"
+                type="number"
+                value={maxPlayersPerCourt}
+                onChange={(e) => setMaxPlayersPerCourt(parseInt(e.target.value) || 8)}
+                min={2}
+                max={12}
+                size="lg"
+              />
+            </Box>
+
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <Heading size="md" mb={4}>
+                {t('generalSettings.sessionSettings')}
+              </Heading>
+
+              <Stack gap={4}>
+                <Box p={4} bg="gray.50" borderRadius="md">
+                  <Flex align="center" justify="space-between">
+                    <Box>
+                      <HStack mb={1}>
+                        <User size={18} />
+                        <Text fontWeight="medium">
+                          {t('generalSettings.requirePlayerInfo')}
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="gray.500">
+                        {t('generalSettings.requirePlayerInfoDesc')}
+                      </Text>
+                    </Box>
+                    <CustomCheckbox
+                      isChecked={requirePlayerInfo}
+                      onChange={(e) => setRequirePlayerInfo(e.target.checked)}
+                      size="lg"
+                    />
+                  </Flex>
+                </Box>
+
+                <Box p={4} bg="gray.50" borderRadius="md">
+                  <Flex align="center" justify="space-between">
+                    <Box>
+                      <HStack mb={1}>
+                        <Users size={18} />
+                        <Text fontWeight="medium">
+                          {t('generalSettings.allowGuestJoin')}
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="gray.500">
+                        {t('generalSettings.allowGuestJoinDesc')}
+                      </Text>
+                    </Box>
+                    <CustomCheckbox
+                      isChecked={allowGuestJoin}
+                      onChange={(e) => setAllowGuestJoin(e.target.checked)}
+                      size="lg"
+                    />
+                  </Flex>
+                </Box>
+
+                <Box p={4} bg="gray.50" borderRadius="md">
+                  <Flex align="center" justify="space-between">
+                    <Box>
+                      <HStack mb={1}>
+                        <UserPlus size={18} />
+                        <Text fontWeight="medium">
+                          {t('generalSettings.allowNewPlayers')}
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="gray.500">
+                        {t('generalSettings.allowNewPlayersDesc')}
+                      </Text>
+                    </Box>
+                    <CustomCheckbox
+                      isChecked={allowNewPlayers}
+                      onChange={(e) => setAllowNewPlayers(e.target.checked)}
+                      size="lg"
+                    />
+                  </Flex>
+                </Box>
               </Stack>
             </Box>
 

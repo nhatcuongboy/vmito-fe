@@ -1122,7 +1122,8 @@
   },
   "SessionDetail": {
     "common": {
-      "cancel": "Hủy"
+      "cancel": "Hủy",
+      "notAvailable": "N/A"
     },
     "tabOverview": "Tổng quan",
     "tabStatus": "Cá nhân",
@@ -1140,9 +1141,10 @@
     "information": "Thông tin",
     "sessionName": "Tên kèo",
     "host": "Chủ kèo",
-    "requiredLevels": "Trình độ yêu cầu",
+    "requiredLevels": "Trình độ",
     "allLevels": "Tất cả trình độ",
-    "location": "Địa điểm",
+    "location": "Địa chỉ",
+    "venue": "Tên sân",
     "date": "Ngày",
     "time": "Giờ",
     "sessionTime": "Thời gian",
