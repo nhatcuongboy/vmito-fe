@@ -38,7 +38,6 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validLocales = SUPPORTED_LOCALES as readonly string[];
 
   // Load messages directly
   let messages = {};
@@ -47,13 +46,15 @@ export default async function LocaleLayout({
       messages = (await import(`../../i18n/messages/${locale}.json`)).default;
     } else {
       // Fallback to English
-      messages = (await import(`../../i18n/messages/${Locale.EN}.json`)).default;
+      messages = (await import(`../../i18n/messages/${Locale.EN}.json`))
+        .default;
     }
   } catch (error) {
     console.error('Error loading messages:', error);
     // Fallback to English
     try {
-      messages = (await import(`../../i18n/messages/${Locale.EN}.json`)).default;
+      messages = (await import(`../../i18n/messages/${Locale.EN}.json`))
+        .default;
     } catch (fallbackError) {
       console.error('Error loading fallback messages:', fallbackError);
       messages = {};
@@ -65,7 +66,7 @@ export default async function LocaleLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LocaleValidator locale={locale} validLocales={validLocales} />
+        <LocaleValidator locale={locale} validLocales={SUPPORTED_LOCALES} />
         <IntlClientProvider messages={messages} locale={locale}>
           <Providers>
             <PWAStatus />

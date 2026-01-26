@@ -3,15 +3,15 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-interface LocaleValidatorProps {
+interface ILocaleValidatorProps {
   locale: string;
-  validLocales: string[];
+  validLocales: readonly string[];
 }
 
 export default function LocaleValidator({
   locale,
   validLocales,
-}: LocaleValidatorProps) {
+}: ILocaleValidatorProps) {
   const router = useRouter();
   const pathname = usePathname();
 
