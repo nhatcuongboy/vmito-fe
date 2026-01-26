@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Code Conventions
 
 ## General Guidelines
@@ -86,6 +90,7 @@
 - Use `zod` for schema validation.
 - Use `Field` from `@chakra-ui/react` to add labels, help text, and error messages to form fields.
 - Use `PasswordInput` from `@chakra-ui/react` for password fields.
+- Use an asterisk for required fields; optional fields will not display an asterisk.
 
 ## State Management
 

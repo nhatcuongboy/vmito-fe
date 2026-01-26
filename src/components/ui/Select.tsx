@@ -10,6 +10,7 @@ import {
   createListCollection,
   Portal,
   SelectPositioner,
+  Box,
 } from '@chakra-ui/react';
 
 /**
@@ -144,6 +145,14 @@ export interface SelectProps
    */
   value?: string | number;
   /**
+   * leftElement support matching Input
+   */
+  leftElement?: React.ReactNode;
+  /**
+   * rightElement support (default is usually Chevron but can be custom)
+   */
+  rightElement?: React.ReactNode;
+  /**
    * onChange handler - compatible with native select onChange
    */
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -250,6 +259,16 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       }
     };
 
+    const triggerProps = {
+      _focusVisible: {
+        borderColor: 'blue.500',
+        boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+      },
+      paddingStart: props.leftElement ? '10' : undefined,
+      paddingEnd: props.rightElement ? '10' : undefined,
+      width: '100%',
+    };
+
     return (
       <SelectRoot
         collection={collection}
@@ -261,9 +280,43 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         name={props.name}
         positioning={{ strategy: 'fixed' }}
       >
-        <SelectTrigger>
-          <SelectValueText placeholder={derivedPlaceholder} />
-        </SelectTrigger>
+        <Box position="relative" width="100%">
+          {props.leftElement && (
+            <Box
+              position="absolute"
+              left="3"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex="1"
+              pointerEvents="none"
+              display="flex"
+              alignItems="center"
+              color="gray.400"
+            >
+              {props.leftElement}
+            </Box>
+          )}
+
+          <SelectTrigger {...triggerProps}>
+            <SelectValueText placeholder={derivedPlaceholder} />
+          </SelectTrigger>
+
+          {props.rightElement && (
+            <Box
+              position="absolute"
+              right="3"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex="1"
+              pointerEvents="none"
+              display="flex"
+              alignItems="center"
+              color="gray.400"
+            >
+              {props.rightElement}
+            </Box>
+          )}
+        </Box>
         <Portal>
           <SelectPositioner zIndex="popover">
             <SelectContent

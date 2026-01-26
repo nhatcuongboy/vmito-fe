@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/Input';
 import { Player } from '@/lib/api/types';
 import { UserPlus, User, Edit, Trash } from 'lucide-react';
 import { Button } from '@chakra-ui/react';

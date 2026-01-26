@@ -116,7 +116,7 @@ export const SessionService = {
    */
   updateSession: async (
     id: string,
-    data: Partial<ISession>
+    data: Partial<CreateSessionRequest>
   ): Promise<ISession> => {
     const response = await api.put<ApiResponse<ISession>>(
       `/sessions/${id}`,

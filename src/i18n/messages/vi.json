@@ -111,6 +111,9 @@
     "courtNumber": "Số sân",
     "courtName": "Tên sân",
     "courtNamePlaceholder": "Nhập tên sân",
+    "editSession": "Chỉnh sửa kèo",
+    "saveChanges": "Lưu thay đổi",
+    "saving": "Đang lưu...",
     "createNewSession": "Tạo kèo",
     "setUpYourBadmintonSession": "Thiết lập kèo cầu lông của bạn",
     "startYourBadmintonJourney": "Bắt đầu hành trình cầu lông của bạn",
@@ -188,7 +191,9 @@
       "loadSessionFailed": "Có lỗi xảy ra khi tải dữ liệu kèo",
       "tryAgainOrContactSupport": "Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục.",
       "sessionNotFound": "Không tìm thấy kèo",
-      "sessionNotFoundDescription": "Kèo bạn đang tìm có thể đã bị xóa hoặc không tồn tại."
+      "sessionNotFoundDescription": "Kèo bạn đang tìm có thể đã bị xóa hoặc không tồn tại.",
+      "cannotEditCourtsWithPlayers": "Không thể chỉnh sửa cấu hình sân khi đã có người chơi tham gia",
+      "cannotEditTimeWhenActive": "Không thể chỉnh sửa thời gian khi kèo đang diễn ra"
     },
     "generalSettings": {
       "selectVenue": "Chọn địa điểm...",

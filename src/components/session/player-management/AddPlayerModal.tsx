@@ -283,7 +283,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       disabled={!!player.userId}
                     >
                       <option value="">{t('selectLevel')}</option>
-                      {availableLevels.map((level) => (
+                      {Array.from(new Set(availableLevels)).map((level) => (
                         <option key={level} value={level}>
                           {getLevelLabel(level)}
                         </option>

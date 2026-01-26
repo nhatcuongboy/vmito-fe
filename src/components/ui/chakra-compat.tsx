@@ -58,7 +58,7 @@ export {
 export { FormControl, FormLabel } from './ChakraForm';
 
 // Export Input component
-export { Input } from './ChakraInput';
+export { Input } from './Input';
 
 // Export Hooks
 export { useColorModeValue, useDisclosure } from './ChakraHooks';

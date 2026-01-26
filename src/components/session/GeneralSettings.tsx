@@ -4,7 +4,8 @@ import { Card, CardBody, Button, Select } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { SessionService } from '@/lib/api/session.service';
 import { VenueService } from '@/lib/api/venue.service';
-import { Venue } from '@/lib/api/types';
+import { Venue, UserRole } from '@/lib/api/types';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -46,6 +47,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const t = useTranslations('session.generalSettings');
   const tValidation = useTranslations('session.validation');
   const { getLevelLabel } = useLevelLabel();
+  const { user } = useAuthStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -180,14 +182,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       const selectedVenue = venues.find((v) => v.id === selectedVenueId);
       const venueData = selectedVenue
         ? {
-            placeId: selectedVenue.placeId,
-            name: selectedVenue.name,
-            address: selectedVenue.address,
-            lat: selectedVenue.lat,
-            lng: selectedVenue.lng,
-            district: selectedVenue.district,
-            city: selectedVenue.city,
-          }
+          placeId: selectedVenue.placeId,
+          name: selectedVenue.name,
+          address: selectedVenue.address,
+          lat: selectedVenue.lat,
+          lng: selectedVenue.lng,
+          district: selectedVenue.district,
+          city: selectedVenue.city,
+        }
         : undefined;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -387,107 +389,109 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 </Box>
               </Grid>
 
-              <VStack gap={4} align="stretch">
-                <Heading size="sm" color="gray.700">
-                  {t('sessionSettings')}
-                </Heading>
+              {user?.role !== UserRole.PLAYER && (
+                <VStack gap={4} align="stretch">
+                  <Heading size="sm" color="gray.700">
+                    {t('sessionSettings')}
+                  </Heading>
 
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  p={4}
-                  bg="gray.50"
-                  borderRadius="lg"
-                >
-                  <HStack>
-                    <UserCheck size={16} color="#4a5568" />
-                    <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.700"
-                      >
-                        {t('requirePlayerInfo')}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('requirePlayerInfoDesc')}
-                      </Text>
-                    </Box>
-                  </HStack>
-                  <input
-                    type="checkbox"
-                    checked={formData.requirePlayerInfo}
-                    onChange={(e) =>
-                      handleInputChange('requirePlayerInfo', e.target.checked)
-                    }
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                </Flex>
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="lg"
+                  >
+                    <HStack>
+                      <UserCheck size={16} color="#4a5568" />
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.700"
+                        >
+                          {t('requirePlayerInfo')}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {t('requirePlayerInfoDesc')}
+                        </Text>
+                      </Box>
+                    </HStack>
+                    <input
+                      type="checkbox"
+                      checked={formData.requirePlayerInfo}
+                      onChange={(e) =>
+                        handleInputChange('requirePlayerInfo', e.target.checked)
+                      }
+                      style={{ width: '20px', height: '20px' }}
+                    />
+                  </Flex>
 
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  p={4}
-                  bg="gray.50"
-                  borderRadius="lg"
-                >
-                  <HStack>
-                    <Users size={16} color="#4a5568" />
-                    <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.700"
-                      >
-                        {t('allowGuestJoin')}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('allowGuestJoinDesc')}
-                      </Text>
-                    </Box>
-                  </HStack>
-                  <input
-                    type="checkbox"
-                    checked={formData.allowGuestJoin}
-                    onChange={(e) =>
-                      handleInputChange('allowGuestJoin', e.target.checked)
-                    }
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                </Flex>
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="lg"
+                  >
+                    <HStack>
+                      <Users size={16} color="#4a5568" />
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.700"
+                        >
+                          {t('allowGuestJoin')}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {t('allowGuestJoinDesc')}
+                        </Text>
+                      </Box>
+                    </HStack>
+                    <input
+                      type="checkbox"
+                      checked={formData.allowGuestJoin}
+                      onChange={(e) =>
+                        handleInputChange('allowGuestJoin', e.target.checked)
+                      }
+                      style={{ width: '20px', height: '20px' }}
+                    />
+                  </Flex>
 
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  p={4}
-                  bg="gray.50"
-                  borderRadius="lg"
-                >
-                  <HStack>
-                    <UserPlus size={16} color="#4a5568" />
-                    <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.700"
-                      >
-                        {t('allowNewPlayers')}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('allowNewPlayersDesc')}
-                      </Text>
-                    </Box>
-                  </HStack>
-                  <input
-                    type="checkbox"
-                    checked={formData.allowNewPlayers}
-                    onChange={(e) =>
-                      handleInputChange('allowNewPlayers', e.target.checked)
-                    }
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                </Flex>
-              </VStack>
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="lg"
+                  >
+                    <HStack>
+                      <UserPlus size={16} color="#4a5568" />
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.700"
+                        >
+                          {t('allowNewPlayers')}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {t('allowNewPlayersDesc')}
+                        </Text>
+                      </Box>
+                    </HStack>
+                    <input
+                      type="checkbox"
+                      checked={formData.allowNewPlayers}
+                      onChange={(e) =>
+                        handleInputChange('allowNewPlayers', e.target.checked)
+                      }
+                      style={{ width: '20px', height: '20px' }}
+                    />
+                  </Flex>
+                </VStack>
+              )}
 
               <VStack gap={4} align="stretch" mt={6}>
                 <Heading size="sm" color="gray.700">

@@ -111,6 +111,9 @@
     "courtNumber": "Court Number",
     "courtName": "Court Name",
     "courtNamePlaceholder": "Enter court name",
+    "editSession": "Edit Session",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
     "createNewSession": "New Session",
     "setUpYourBadmintonSession": "Set up your badminton session",
     "startYourBadmintonJourney": "Start Your Badminton Journey",
@@ -188,7 +191,9 @@
       "loadSessionFailed": "An error occurred while loading session data",
       "tryAgainOrContactSupport": "Please try again or contact support if the problem persists.",
       "sessionNotFound": "Session not found",
-      "sessionNotFoundDescription": "The session you're looking for might have been deleted or doesn't exist."
+      "sessionNotFoundDescription": "The session you're looking for might have been deleted or doesn't exist.",
+      "cannotEditCourtsWithPlayers": "Cannot edit courts configuration when players have joined",
+      "cannotEditTimeWhenActive": "Cannot edit session time when session is in progress"
     },
     "generalSettings": {
       "selectVenue": "Select a venue...",

@@ -1,23 +1,81 @@
+'use client';
+
 import * as React from 'react';
-import { cn } from '@/lib/utils';
+import {
+  Input as ChakraInput,
+  InputProps as ChakraInputProps,
+  Box,
+} from '@chakra-ui/react';
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
+export interface InputProps extends ChakraInputProps {
+  leftElement?: React.ReactNode;
+  rightElement?: React.ReactNode;
+}
 
+/**
+ * Custom Input component based on Chakra UI's Input
+ * Provides a consistent styling and support for custom icons/elements
+ */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    );
+  ({ variant = 'outline', size = 'md', leftElement, rightElement, ...props }, ref) => {
+    const inputProps = {
+      variant,
+      size,
+      ref,
+      ...props,
+      _focusVisible: {
+        borderColor: 'blue.500',
+        boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+      },
+      // Adjust padding if elements are present
+      paddingStart: leftElement ? '10' : props.paddingStart,
+      paddingEnd: rightElement ? '10' : props.paddingEnd,
+    };
+
+    if (leftElement || rightElement) {
+      return (
+        <Box position="relative" width="100%">
+          {leftElement && (
+            <Box
+              position="absolute"
+              left="3"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex="1"
+              pointerEvents="none"
+              display="flex"
+              alignItems="center"
+              color="gray.400"
+            >
+              {leftElement}
+            </Box>
+          )}
+
+          <ChakraInput {...inputProps} />
+
+          {rightElement && (
+            <Box
+              position="absolute"
+              right="3"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex="1"
+              pointerEvents="none"
+              display="flex"
+              alignItems="center"
+              color="gray.400"
+            >
+              {rightElement}
+            </Box>
+          )}
+        </Box>
+      );
+    }
+
+    return <ChakraInput {...inputProps} />;
   }
 );
+
 Input.displayName = 'Input';
 
 export { Input };

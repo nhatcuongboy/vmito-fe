@@ -174,7 +174,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
       <InfoRow icon={Award} label={t('requiredLevels')}>
         <Flex gap={2} flexWrap="wrap">
           {session.requiredLevels && session.requiredLevels.length > 0 ? (
-            session.requiredLevels.map((level: number) => (
+            Array.from(new Set(session.requiredLevels)).map((level: number) => (
               <Box
                 key={level}
                 px={2.5}

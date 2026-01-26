@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import React from 'react';
-import GeneralSettings from './GeneralSettings';
+import SessionEditForm from './SessionEditForm';
 import { ISession } from '@/lib/api/types';
 
 interface SettingsTabProps {
@@ -14,7 +14,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
 }) => {
   return (
     <Box maxW="4xl" mx="auto">
-      <GeneralSettings session={session} onDataRefresh={refreshSessionData} />
+      <SessionEditForm
+        sessionId={session.id}
+        onSuccess={(updatedSession: ISession) => {
+          refreshSessionData();
+        }}
+      />
     </Box>
   );
 };

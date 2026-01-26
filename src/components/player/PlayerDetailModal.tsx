@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { SessionService } from '@/lib/api/session.service';
 import { Pause, Play } from 'lucide-react';
 
@@ -58,6 +58,7 @@ export const PlayerDetailModal = ({
   onPlayerUpdate,
 }: IPlayerDetailModalProps) => {
   const t = useTranslations('PlayerDetailModal');
+  const locale = useLocale();
   const { getLevelLabel } = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [joinCode, setJoinCode] = useState<string>('');
@@ -90,7 +91,7 @@ export const PlayerDetailModal = ({
       setJoinCode(player.joinCode);
 
       // Generate QR code URL with new guest player URL format
-      const joinUrl = `${window.location.origin}/player/${player.id}?code=${player.joinCode}`;
+      const joinUrl = `${window.location.origin}/${locale}/player/${player.id}?code=${player.joinCode}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
         joinUrl
       )}`;
@@ -107,7 +108,7 @@ export const PlayerDetailModal = ({
 
   const handleCopyUrl = () => {
     if (player.joinCode) {
-      const joinUrl = `${window.location.origin}/player/${player.id}?code=${player.joinCode}`;
+      const joinUrl = `${window.location.origin}/${locale}/player/${player.id}?code=${player.joinCode}`;
       navigator.clipboard.writeText(joinUrl);
       toaster.success({ title: t('joinUrlCopied') });
     }
