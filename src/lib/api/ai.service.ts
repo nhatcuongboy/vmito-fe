@@ -1,4 +1,5 @@
 import { api, ApiResponse } from './base';
+import { Locale } from '@/i18n/locales';
 
 export interface ExtractedVenue {
   name?: string;
@@ -22,10 +23,12 @@ export interface ExtractedSessionData {
 
 export const AIService = {
   async extractSessionFromArticle(
-    articleContent: string
+    articleContent: string,
+    language?: Locale
   ): Promise<ExtractedSessionData> {
     const response = await api.post<ApiResponse<ExtractedSessionData>>('/ai/extract-session', {
       articleContent,
+      language,
     });
     
     // Check if the response follows ApiResponse structure

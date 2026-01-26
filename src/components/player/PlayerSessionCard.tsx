@@ -25,14 +25,15 @@ import 'dayjs/locale/vi';
 import 'dayjs/locale/en';
 import { ISession } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { Locale } from '@/i18n/locales';
 
 // Helper functions for formatting with locale support
 const formatDate = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
+  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
 
   let formattedDate: string;
 
-  if (locale === 'vi') {
+  if (locale === Locale.VI) {
     // Vietnamese format: "Thứ 2, 04 tháng 7, 2025"
     formattedDate = date.format('dddd, DD MMMM, YYYY');
   } else {
@@ -45,7 +46,7 @@ const formatDate = (dateString: string | Date, locale: string): string => {
 };
 
 const formatTime = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
+  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
   return date.format('HH:mm');
 };
 

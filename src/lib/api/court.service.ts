@@ -8,6 +8,7 @@ import {
   CourtDirection,
   SuggestedPlayersResponse,
 } from './types';
+import { Locale } from '@/i18n/locales';
 
 export const CourtService = {
   // Get court details
@@ -20,11 +21,13 @@ export const CourtService = {
   getSuggestedPlayersForCourt: async (
     courtId: string,
     topCount?: number,
-    useAi?: boolean
+    useAi?: boolean,
+    language?: Locale
   ): Promise<SuggestedPlayersResponse> => {
     const params: Record<string, string> = {};
     if (topCount) params.topCount = topCount.toString();
     if (useAi) params.useAi = 'true';
+    if (language) params.language = language;
 
     const response = await api.get<ApiResponse<SuggestedPlayersResponse>>(
       `/courts/${courtId}/suggested-players`,

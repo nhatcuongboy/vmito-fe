@@ -364,7 +364,7 @@ export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormPr
 
         if (matchedVenue) {
             setSelectedVenueId(matchedVenue.id);
-            toaster.success({ title: t('aiModal.venueMatched', { venueName: matchedVenue.name }) });
+            // toaster.success({ title: t('aiModal.venueMatched', { venueName: matchedVenue.name }) });
         } else {
              // If no exact match, we could notify user or just leave it empty
              // For now, let's just log it

@@ -1,6 +1,7 @@
 // src/lib/dayjs.ts
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
+import { Locale } from '@/i18n/locales';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import timezone from 'dayjs/plugin/timezone';
@@ -15,7 +16,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 
 // Set default locale to Vietnamese
-dayjs.locale('vi');
+dayjs.locale(Locale.VI);
 
 // (Optional) Set default timezone, example: Asia/Ho_Chi_Minh
 dayjs.tz.setDefault('Asia/Ho_Chi_Minh');

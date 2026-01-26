@@ -5,7 +5,7 @@ import { PWAStatus } from '../../components/PWAComponents';
 import '../globals.css';
 import { Providers } from '../providers';
 import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
-import Footer from '../../components/layout/Footer';
+import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,7 +27,7 @@ export const viewport = {
 };
 
 export async function generateStaticParams() {
-  return [{ locale: 'vi' }, { locale: 'en' }, { locale: 'cn' }];
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
 export default async function LocaleLayout({
@@ -38,26 +38,22 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validLocales = ['vi', 'en', 'cn'];
+  const validLocales = SUPPORTED_LOCALES as readonly string[];
 
   // Load messages directly
   let messages = {};
   try {
-    if (locale === 'en') {
-      messages = (await import('../../i18n/messages/en.json')).default;
-    } else if (locale === 'vi') {
-      messages = (await import('../../i18n/messages/vi.json')).default;
-    } else if (locale === 'cn') {
-      messages = (await import('../../i18n/messages/cn.json')).default;
+    if (SUPPORTED_LOCALES.includes(locale as Locale)) {
+      messages = (await import(`../../i18n/messages/${locale}.json`)).default;
     } else {
       // Fallback to English
-      messages = (await import('../../i18n/messages/en.json')).default;
+      messages = (await import(`../../i18n/messages/${Locale.EN}.json`)).default;
     }
   } catch (error) {
     console.error('Error loading messages:', error);
     // Fallback to English
     try {
-      messages = (await import('../../i18n/messages/en.json')).default;
+      messages = (await import(`../../i18n/messages/${Locale.EN}.json`)).default;
     } catch (fallbackError) {
       console.error('Error loading fallback messages:', fallbackError);
       messages = {};

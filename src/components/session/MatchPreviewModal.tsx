@@ -14,8 +14,9 @@ import {
   User,
   Venus,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Locale } from '@/i18n/locales';
 import BadmintonCourt from '../court/BadmintonCourt';
 
 interface MatchPreviewModalProps {
@@ -73,6 +74,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
   courtColor,
 }) => {
   const t = useTranslations('SessionDetail');
+  const locale = useLocale() as Locale;
   const { getLevelShortLabel } = useLevelLabel();
 
   // Calculate default topCount: 4 * numberOfCourts, but not more than waitingPlayersCount
@@ -106,7 +108,8 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
         const response = await CourtService.getSuggestedPlayersForCourt(
           courtId,
           count,
-          enableAi
+          enableAi,
+          locale
         );
         setSuggestedPlayers(response);
       } catch (error) {
@@ -116,7 +119,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
         setIsLoading(false);
       }
     },
-    []
+    [locale]
   );
 
   // Combine players from both pairs

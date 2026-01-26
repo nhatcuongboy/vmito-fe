@@ -24,17 +24,18 @@ import {
   Users,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Locale } from '@/i18n/locales';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
+  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
 
   let formattedDate: string;
 
-  if (locale === 'vi') {
+  if (locale === Locale.VI) {
     formattedDate = date.format('dddd, DD MMMM, YYYY');
   } else {
     formattedDate = date.format('ddd, MMM DD, YYYY');
@@ -47,7 +48,7 @@ export const formatTime = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs(dateString).locale(locale === 'vi' ? 'vi' : 'en');
+  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
   return date.format('HH:mm');
 };
 

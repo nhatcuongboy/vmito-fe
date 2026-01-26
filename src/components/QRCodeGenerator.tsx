@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { Box, Text, VStack, Button, HStack } from '@chakra-ui/react';
 import { Copy, Check } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
+import { Locale } from '@/i18n/locales';
 
 interface QRCodeGeneratorProps {
   joinCode: string;
@@ -24,9 +25,9 @@ export default function QRCodeGenerator({
 
     const generateQR = async () => {
       try {
-        // Get current locale from pathname or default to 'en'
+        // Get current locale from pathname or default to Locale.EN
         const currentPath = window.location.pathname;
-        const locale = currentPath.split('/')[1] || 'en';
+        const locale = (currentPath.split('/')[1] as Locale) || Locale.EN;
         const url = `${window.location.origin}/${locale}/join-by-code?code=${joinCode}`;
         setShareUrl(url);
         await QRCode.toCanvas(canvasRef.current, url, {

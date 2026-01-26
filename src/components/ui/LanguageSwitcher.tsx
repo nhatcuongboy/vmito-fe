@@ -3,14 +3,15 @@
 import { useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { Locale } from '@/i18n/locales';
 import { Button, Box, Text, Flex } from '@chakra-ui/react';
 import { ChevronDown, Languages } from 'lucide-react';
 import { useState } from 'react';
 
 const locales = [
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'cn', label: '中文', flag: '🇨🇳' },
+  { code: Locale.EN, label: 'English', flag: '🇺🇸' },
+  { code: Locale.VI, label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: Locale.CN, label: '中文', flag: '🇨🇳' },
 ];
 
 type LanguageSwitcherProps = {

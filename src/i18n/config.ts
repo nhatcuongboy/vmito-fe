@@ -1,13 +1,14 @@
 import { createNavigation } from 'next-intl/navigation';
 import { defineRouting } from 'next-intl/routing';
+import { Locale, SUPPORTED_LOCALES } from './locales';
 
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: ['vi', 'en', 'cn'],
+  locales: [...SUPPORTED_LOCALES],
 
   // Used when no locale matches
   defaultLocale:
-    (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as 'vi' | 'en') || 'vi',
+    (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as Locale) || Locale.VI,
 
   // The locale prefix strategy - always show locale in URL
   localePrefix: 'always',

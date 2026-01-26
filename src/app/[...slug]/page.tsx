@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { notFound } from 'next/navigation';
+import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 
 export default async function CatchAllPage({
   params,
@@ -7,8 +8,8 @@ export default async function CatchAllPage({
   params: Promise<{ slug: string[] }>;
 }) {
   const resolvedParams = await params;
-  const supportedLocales = ['vi', 'en'];
-  const defaultLocale = 'vi';
+  const supportedLocales = SUPPORTED_LOCALES as readonly string[];
+  const defaultLocale = Locale.VI;
 
   if (!resolvedParams.slug || resolvedParams.slug.length === 0) {
     redirect(`/${defaultLocale}`);

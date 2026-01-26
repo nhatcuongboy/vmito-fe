@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { Box, Text, Textarea } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { AIService, ExtractedSessionData } from '@/lib/api/ai.service';
 import { toaster } from '@/components/ui/toaster';
+import { Locale } from '@/i18n/locales';
 
 export interface AISessionModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
   onSuccess,
 }) => {
   const t = useTranslations('session');
+  const locale = useLocale() as Locale;
   const [articleContent, setArticleContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,7 +34,8 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
     setIsLoading(true);
     try {
       const extracted = await AIService.extractSessionFromArticle(
-        articleContent
+        articleContent,
+        locale
       );
       toaster.success({ title: t('aiModal.success') });
       onSuccess(extracted);
