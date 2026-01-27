@@ -41,7 +41,14 @@ function AuthCallbackContent() {
 
       // Defer toaster and redirect to next tick to avoid flushSync error
       setTimeout(() => {
-        // Redirect based on role
+        // Check for returnUrl first (passed from backend OAuth callback)
+        const returnUrl = searchParams.get('returnUrl');
+        if (returnUrl) {
+          router.replace(returnUrl);
+          return;
+        }
+
+        // Otherwise redirect based on role
         let redirectPath = '/join-by-code';
 
         if (role === UserRole.HOST || role === UserRole.ADMIN) {

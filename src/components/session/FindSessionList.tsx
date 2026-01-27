@@ -21,10 +21,11 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState, useMemo, ChangeEvent } from 'react';
 import JoinSessionModal from './JoinSessionModal';
 import FindSessionCard from './FindSessionCard';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/config';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Search, X } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -49,6 +50,9 @@ export default function FindSessionList({
   const [joinedSessionIds, setJoinedSessionIds] = useState<Set<string>>(
     new Set()
   );
+  const [registrationStatusMap, setRegistrationStatusMap] = useState<
+    Record<string, 'PENDING' | 'APPROVED' | 'REJECTED'>
+  >({});
   const [filters, setFilters] = useState({
     date: '',
     levels: [] as number[],
@@ -59,6 +63,8 @@ export default function FindSessionList({
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const t = useTranslations('session');
   const { user } = useAuthStore();
@@ -77,6 +83,14 @@ export default function FindSessionList({
         try {
           const mySessions = await PlayerService.getMySessions();
           setJoinedSessionIds(new Set(mySessions.map((s) => s.id)));
+
+          // Fetch user's registration status for all sessions
+          const registrations = await PlayerService.getMyRegistrations();
+          const statusMap: Record<string, 'PENDING' | 'APPROVED' | 'REJECTED'> = {};
+          registrations.forEach((reg) => {
+            statusMap[reg.sessionId] = reg.status as 'PENDING' | 'APPROVED' | 'REJECTED';
+          });
+          setRegistrationStatusMap(statusMap);
         } catch (err) {
           console.error('Failed to fetch joined sessions', err);
         }
@@ -96,6 +110,30 @@ export default function FindSessionList({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  // Handle post-login redirect with sessionId parameter
+  useEffect(() => {
+    const sessionIdFromUrl = searchParams.get('sessionId');
+
+    if (sessionIdFromUrl && user && sessions.length > 0) {
+      // Find the session from the list
+      const targetSession = sessions.find((s) => s.id === sessionIdFromUrl);
+
+      if (targetSession) {
+        // Open the join modal for this session
+        setSelectedSession(targetSession);
+        setIsJoinModalOpen(true);
+
+        // Clean up URL parameter (remove sessionId from query string)
+        // Use pathname from i18n which doesn't include locale prefix
+        // and manually build new search params
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('sessionId');
+        const newSearch = params.toString();
+        router.replace(pathname + (newSearch ? `?${newSearch}` : ''));
+      }
+    }
+  }, [searchParams, user, sessions, router, pathname]);
 
   // Client-side filtering
   const filteredSessions = useMemo(() => {
@@ -393,6 +431,8 @@ export default function FindSessionList({
               session={session}
               onJoin={() => handleJoinClick(session)}
               isJoined={joinedSessionIds.has(session.id)}
+              userRegistrationStatus={registrationStatusMap[session.id] || null}
+              onRegistrationUpdate={fetchSessions}
             />
           ))}
         </Grid>

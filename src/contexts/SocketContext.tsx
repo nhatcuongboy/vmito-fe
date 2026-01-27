@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+import { toaster } from '@/components/ui/toaster';
+import { useAuthStore } from '@/stores/useAuthStore';
+
 // Event types matching backend SessionEventType
 export enum SessionEventType {
   SESSION_UPDATED = 'session_updated',
@@ -14,6 +17,8 @@ export enum SessionEventType {
   MATCH_ENDED = 'match_ended',
   PLAYERS_SELECTED = 'players_selected',
   PLAYERS_DESELECTED = 'players_deselected',
+  REGISTRATION_REQUEST = 'registration_request',
+  REGISTRATION_STATUS_UPDATED = 'registration_status_updated',
 }
 
 // All session-related event types for listening
@@ -31,8 +36,8 @@ const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
   connectionError: null,
-  joinSession: () => {},
-  leaveSession: () => {},
+  joinSession: () => { },
+  leaveSession: () => { },
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -41,6 +46,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<Error | null>(null);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     // Initialize socket connection
@@ -83,6 +89,48 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socketInstance.disconnect();
     };
   }, []);
+
+  // Join user room when user is authenticated
+  useEffect(() => {
+    if (socket && isConnected && user?.id) {
+      // Join user specific room
+      socket.emit('join_user_room', { userId: user.id });
+      console.log(`Joined user room: user-${user.id}`);
+    }
+  }, [socket, isConnected, user?.id]);
+
+  // Global event listeners for notifications
+  useEffect(() => {
+    if (!socket) return;
+
+    // Listener for Registration Requests (Host)
+    const handleRegistrationRequest = (data: any) => {
+      toaster.success({
+        title: 'New Registration Request',
+        description: `${data.playerName} requested to join ${data.sessionName}`,
+        duration: 5000,
+      });
+    };
+
+    // Listener for Registration Status Updates (User)
+    const handleStatusUpdate = (data: any) => {
+      const isApproved = data.status === 'APPROVED';
+      toaster.create({
+        title: `Registration ${data.status}`,
+        description: `Your registration for ${data.sessionName} has been ${data.status.toLowerCase()}`,
+        type: isApproved ? 'success' : 'error',
+        duration: 5000,
+      });
+    };
+
+    socket.on(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
+    socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
+
+    return () => {
+      socket.off(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
+      socket.off(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
+    };
+  }, [socket]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

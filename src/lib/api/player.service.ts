@@ -193,6 +193,27 @@ export const PlayerService = {
     return response.data.data!;
   },
 
+
+  // Get user's registration status across all sessions
+  getMyRegistrations: async (): Promise<
+    { sessionId: string; playerId: string; status: 'PENDING' | 'APPROVED' | 'REJECTED' }[]
+  > => {
+    const response = await api.get<
+      ApiResponse<
+        { sessionId: string; playerId: string; status: 'PENDING' | 'APPROVED' | 'REJECTED' }[]
+      >
+    >('/players/me/registrations');
+    return response.data.data || [];
+  },
+
+  // Get user's registered players for a specific session
+  getMyPlayersForSession: async (sessionId: string): Promise<Player[]> => {
+    const response = await api.get<ApiResponse<Player[]>>(
+      `/sessions/${sessionId}/players/me`
+    );
+    return response.data.data || [];
+  },
+
   // Get pending requests for host
   getPendingRequests: async (): Promise<Player[]> => {
     const response = await api.get<ApiResponse<Player[]>>(

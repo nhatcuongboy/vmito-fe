@@ -95,3 +95,9 @@ trigger: always_on
 ## State Management
 
 - Use `zustand` for state management.
+
+## Common
+- Do not run build after generating code unless asked to run.
+- Use useRouter from "@/i18n/config".
+- On FE side, always call API from services in `@/lib/api`.
+- Always generate documents in /docs by English.

@@ -53,6 +53,15 @@ function SignInForm() {
     // If already authenticated before form submission, redirect
     if (isAuthenticated && user && !isRedirecting) {
       setIsRedirecting(true);
+
+      // Check for returnUrl in query params first
+      const returnUrl = searchParams.get('returnUrl');
+      if (returnUrl) {
+        router.replace(returnUrl);
+        return;
+      }
+
+      // Otherwise use role-based default
       const targetPath =
         user.role === UserRole.ADMIN || user.role === UserRole.HOST
           ? '/host/dashboard'
@@ -61,7 +70,7 @@ function SignInForm() {
             : '/join-by-code';
       router.replace(targetPath);
     }
-  }, [isHydrated, isAuthenticated, user, router, isRedirecting]);
+  }, [isHydrated, isAuthenticated, user, router, isRedirecting, searchParams]);
 
   const {
     register,
@@ -82,6 +91,15 @@ function SignInForm() {
         password: data.password,
       });
 
+      // Check for returnUrl in query params first
+      const returnUrl = searchParams.get('returnUrl');
+      if (returnUrl) {
+        setIsRedirecting(true);
+        router.replace(returnUrl);
+        return;
+      }
+
+      // Otherwise use role-based default redirect
       let redirectPath = '/dashboard';
 
       if (loginResponse.user) {
@@ -207,7 +225,7 @@ function SignInForm() {
 
             {/* Google Login Button */}
             <Link
-              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google?locale=${locale}`}
+              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google?locale=${locale}${searchParams.get('returnUrl') ? `&returnUrl=${encodeURIComponent(searchParams.get('returnUrl')!)}` : ''}`}
               display="flex"
               alignItems="center"
               justifyContent="center"

@@ -29,11 +29,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/app-logo.png?v=1', type: 'image/png' },
+      { url: '/icons/app-favicon.png?v=1', type: 'image/png' },
     ],
-    shortcut: ['/icons/app-logo.png?v=1'],
+    shortcut: ['/icons/app-favicon.png?v=1'],
     apple: [
-      { url: '/icons/app-logo.png?v=1', type: 'image/png' },
+      { url: '/icons/app-favicon.png?v=1', type: 'image/png' },
     ],
   },
   appleWebApp: {

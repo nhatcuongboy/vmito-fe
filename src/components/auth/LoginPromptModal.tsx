@@ -1,0 +1,43 @@
+'use client';
+
+import { CommonModal } from '@/components/ui/CommonModal';
+import { Text } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/config';
+
+interface LoginPromptModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    returnUrl?: string;
+}
+
+const LoginPromptModal = ({
+    isOpen,
+    onClose,
+    returnUrl,
+}: LoginPromptModalProps) => {
+    const t = useTranslations('session');
+    const tCommon = useTranslations('common');
+    const router = useRouter();
+
+    const handleLogin = () => {
+        const redirectUrl = returnUrl || '/browse/sessions';
+        router.push(`/auth/signin?returnUrl=${encodeURIComponent(redirectUrl)}`);
+    };
+
+    return (
+        <CommonModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={t('loginRequired')}
+            primaryActionText={tCommon('login')}
+            secondaryActionText={tCommon('cancel')}
+            onPrimaryAction={handleLogin}
+            primaryColorScheme="blue"
+        >
+            <Text>{t('loginRequiredDescription')}</Text>
+        </CommonModal>
+    );
+};
+
+export default LoginPromptModal;
