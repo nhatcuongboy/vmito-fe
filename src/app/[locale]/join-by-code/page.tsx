@@ -1,5 +1,6 @@
 import JoinByCodeClient from './JoinByCodeClient';
 import { SUPPORTED_LOCALES } from '@/i18n/locales';
+import { Suspense } from 'react';
 
 // Generate static pages for all supported locales
 export async function generateStaticParams() {
@@ -13,5 +14,9 @@ export default async function JoinByCodePage({
 }) {
   const { locale } = await params;
 
-  return <JoinByCodeClient locale={locale} />;
+  return (
+    <Suspense>
+      <JoinByCodeClient locale={locale} />
+    </Suspense>
+  );
 }

@@ -7,9 +7,9 @@ import TopBar from '@/components/ui/TopBar';
 import { Box, Container, Flex, Heading, VStack } from '@chakra-ui/react';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
-export default function HostSessionsPage() {
+function HostSessionsContent() {
   const t = useTranslations('pages.host');
   // const common = useTranslations('common');
   const [status, setStatus] = useState<string>('ALL');
@@ -73,6 +73,16 @@ export default function HostSessionsPage() {
           </VStack>
         </Container>
       </Box>
+    </ProtectedRouteGuard>
+  );
+}
+
+export default function HostSessionsPage() {
+  return (
+    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+      <Suspense>
+        <HostSessionsContent />
+      </Suspense>
     </ProtectedRouteGuard>
   );
 }

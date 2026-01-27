@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Container, Flex } from '@chakra-ui/react';
+import React, { Suspense } from 'react';
+import { Box, Container, Flex, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import FindSessionList from '@/components/session/FindSessionList';
@@ -8,7 +9,7 @@ import Footer from '@/components/layout/Footer';
 import { Image } from "@chakra-ui/react"
 import PageHeader from '@/components/ui/PageHeader';
 
-export default function HomePage() {
+function HomeContent() {
   const t = useTranslations('session');
   const common = useTranslations('common');
 
@@ -32,5 +33,12 @@ export default function HomePage() {
       </Container>
       <Footer />
     </Flex>
+  );
+}
+export default function HomePage() {
+  return (
+    <Suspense fallback={<Flex justify="center" align="center" minH="100vh"><Spinner size="xl" color="blue.500" /></Flex>}>
+      <HomeContent />
+    </Suspense>
   );
 }

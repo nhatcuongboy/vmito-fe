@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, Suspense } from 'react';
 import { Spinner, Center, Box, Text, Container } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Info, RefreshCw, Square, Trophy, Users } from 'lucide-react';
@@ -42,17 +42,14 @@ import {
  * Player session management page - displays detailed session management interface for PLAYER role
  * Protected route requiring PLAYER role
  */
-export default function PlayerSessionManagePage({
+function PlayerSessionManageContent({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
   const t = useTranslations('SessionDetail');
   const { user } = useAuthStore();
-
-  // Unwrap the params Promise to get session ID
-  const unwrappedParams = use(params);
-  const sessionId = unwrappedParams.id;
+  const sessionId = params.id;
 
   // Fetch session data using custom hook
   const { session: initialSession, loading, error } = useSessionData(sessionId);
@@ -190,107 +187,122 @@ export default function PlayerSessionManagePage({
 
   // Render session detail content for owner
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
-      <MainLayout
-        title={t('title')}
-        showBackButton={true}
-        backHref="/player/sessions"
-        contentPadding={0}
+    <MainLayout
+      title={t('title')}
+      showBackButton={true}
+      backHref="/player/sessions"
+      contentPadding={0}
+    >
+      {/* Auto-update wait times for IN_PROGRESS sessions */}
+      <WaitTimeUpdater
+        sessionId={session.id}
+        sessionStatus={session.status}
+      />
+
+      {/* Session Status Header */}
+      <SessionStatusHeader
+        session={session}
+        isRefreshing={isRefreshing}
+        isToggleStatusLoading={isToggleStatusLoading}
+        onToggleSessionStatus={toggleSessionStatus}
+        onRefreshData={refreshSessionData}
+      />
+
+      <Container maxW="7xl" py={2}>
+        {/* Tab Content Area */}
+        <Box minH="60vh" pb="80px">
+          {activeTab === 0 && (
+            <SessionOverviewTab
+              session={session}
+              onToggleSessionStatus={toggleSessionStatus}
+              isToggleStatusLoading={isToggleStatusLoading}
+            />
+          )}
+
+          {activeTab === 1 && (
+            <PlayersTab
+              session={session}
+              sessionPlayers={session.players}
+              playerFilter={playerFilter}
+              setPlayerFilter={setPlayerFilter}
+              formatWaitTime={formatWaitTime}
+              sessionId={session.id}
+              onPlayerUpdate={refreshSessionData}
+            />
+          )}
+
+          {activeTab === 2 && (
+            <CourtsTab
+              session={session}
+              waitingPlayers={waitingPlayers}
+              getCurrentMatch={getCurrentMatch}
+              getCourtDisplayName={getCourtDisplayName}
+              startManualMatchCreation={startManualMatchCreation}
+              onDataRefresh={refreshSessionData}
+              isRefreshing={isRefreshing}
+              formatWaitTime={formatWaitTime}
+              selectedPlayers={selectedPlayers}
+            />
+          )}
+
+          {activeTab === 3 && (
+            <SessionHistoryList
+              sessionId={session.id}
+              sessionData={{
+                players: session.players,
+                courts: session.courts,
+              }}
+            />
+          )}
+
+          {activeTab === 4 && (
+            <SettingsTab
+              session={session}
+              refreshSessionData={refreshSessionData}
+            />
+          )}
+        </Box>
+
+        {/* Bottom Navigation Bar */}
+        <BottomNavigationBar
+          tabs={navigationTabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
+      </Container>
+
+      {/* Confirmation Dialog */}
+      <CommonModal
+        isOpen={showConfirmDialog}
+        onClose={handleCancelAction}
+        title={t('confirmEndSession')}
+        primaryActionText={t('endSession')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleConfirmAction}
+        isPrimaryLoading={isToggleStatusLoading}
+        secondaryActionText={t('cancel')}
       >
-        {/* Auto-update wait times for IN_PROGRESS sessions */}
-        <WaitTimeUpdater
-          sessionId={session.id}
-          sessionStatus={session.status}
-        />
+        <Text color="gray.600" _dark={{ color: 'gray.300' }}>
+          {t('confirmEndSessionMessage')}
+        </Text>
+      </CommonModal>
+    </MainLayout>
+  );
+}
 
-        {/* Session Status Header */}
-        <SessionStatusHeader
-          session={session}
-          isRefreshing={isRefreshing}
-          isToggleStatusLoading={isToggleStatusLoading}
-          onToggleSessionStatus={toggleSessionStatus}
-          onRefreshData={refreshSessionData}
-        />
+export default function PlayerSessionManagePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const unwrappedParams = use(params);
 
-        <Container maxW="7xl" py={2}>
-          {/* Tab Content Area */}
-          <Box minH="60vh" pb="80px">
-            {activeTab === 0 && (
-              <SessionOverviewTab
-                session={session}
-                onToggleSessionStatus={toggleSessionStatus}
-                isToggleStatusLoading={isToggleStatusLoading}
-              />
-            )}
-
-            {activeTab === 1 && (
-              <PlayersTab
-                session={session}
-                sessionPlayers={session.players}
-                playerFilter={playerFilter}
-                setPlayerFilter={setPlayerFilter}
-                formatWaitTime={formatWaitTime}
-                sessionId={session.id}
-                onPlayerUpdate={refreshSessionData}
-              />
-            )}
-
-            {activeTab === 2 && (
-              <CourtsTab
-                session={session}
-                waitingPlayers={waitingPlayers}
-                getCurrentMatch={getCurrentMatch}
-                getCourtDisplayName={getCourtDisplayName}
-                startManualMatchCreation={startManualMatchCreation}
-                onDataRefresh={refreshSessionData}
-                isRefreshing={isRefreshing}
-                formatWaitTime={formatWaitTime}
-                selectedPlayers={selectedPlayers}
-              />
-            )}
-
-            {activeTab === 3 && (
-              <SessionHistoryList
-                sessionId={session.id}
-                sessionData={{
-                  players: session.players,
-                  courts: session.courts,
-                }}
-              />
-            )}
-
-            {activeTab === 4 && (
-              <SettingsTab
-                session={session}
-                refreshSessionData={refreshSessionData}
-              />
-            )}
-          </Box>
-
-          {/* Bottom Navigation Bar */}
-          <BottomNavigationBar
-            tabs={navigationTabs}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-          />
-        </Container>
-
-        {/* Confirmation Dialog */}
-        <CommonModal
-          isOpen={showConfirmDialog}
-          onClose={handleCancelAction}
-          title={t('confirmEndSession')}
-          primaryActionText={t('endSession')}
-          primaryColorScheme="red"
-          onPrimaryAction={handleConfirmAction}
-          isPrimaryLoading={isToggleStatusLoading}
-          secondaryActionText={t('cancel')}
-        >
-          <Text color="gray.600" _dark={{ color: 'gray.300' }}>
-            {t('confirmEndSessionMessage')}
-          </Text>
-        </CommonModal>
-      </MainLayout>
+  return (
+    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+      <Suspense fallback={<Center minH="50vh"><Spinner size="xl" color="blue.500" /></Center>}>
+        <PlayerSessionManageContent params={unwrappedParams} />
+      </Suspense>
     </ProtectedRouteGuard>
   );
 }
+

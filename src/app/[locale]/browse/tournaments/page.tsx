@@ -24,13 +24,13 @@ import TopBar from '@/components/ui/TopBar';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Calendar, Users, Trophy, Plus, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { toaster } from '@/components/ui/toaster';
 import { api } from '@/lib/api/base';
 
-export default function TournamentsPage() {
+function TournamentsContent() {
   const t = useTranslations('pages.tournaments');
   const router = useRouter();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -335,5 +335,13 @@ export default function TournamentsPage() {
         </VStack>
       </Container>
     </Box>
+  );
+}
+
+export default function TournamentsPage() {
+  return (
+    <Suspense fallback={<Flex justify="center" py={10}><Spinner size="lg" /></Flex>}>
+      <TournamentsContent />
+    </Suspense>
   );
 }

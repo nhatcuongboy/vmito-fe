@@ -27,6 +27,8 @@ async function getInitialSessions() {
   }
 }
 
+import { Suspense } from 'react';
+
 export default async function FindSessionPage({
   params,
 }: {
@@ -36,6 +38,8 @@ export default async function FindSessionPage({
   const initialSessions = await getInitialSessions();
 
   return (
-    <BrowseSessionsClient locale={locale} initialSessions={initialSessions} />
+    <Suspense>
+      <BrowseSessionsClient locale={locale} initialSessions={initialSessions} />
+    </Suspense>
   );
 }

@@ -1,4 +1,5 @@
 import JoinSessionClient from './JoinSessionClient';
+import { Suspense } from 'react';
 
 interface PageProps {
   params: Promise<{
@@ -9,6 +10,10 @@ interface PageProps {
 
 export default async function JoinSessionPage({ params }: PageProps) {
   const { id } = await params;
-  
-  return <JoinSessionClient id={id} />;
+
+  return (
+    <Suspense>
+      <JoinSessionClient id={id} />
+    </Suspense>
+  );
 }

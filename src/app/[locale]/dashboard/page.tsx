@@ -1,5 +1,7 @@
 'use client';
 
+import { Suspense } from 'react';
+
 import HostDashboard from '@/components/dashboard/HostDashboard';
 import PlayerDashboard from '@/components/dashboard/PlayerDashboard';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -9,21 +11,28 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { Box } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const t = useTranslations('pages.dashboard');
   const { user } = useAuthStore();
 
   return (
+    <Box minH="100vh">
+      {/* Top Bar */}
+      <TopBar title={t('title')} />
+      {user?.role === UserRole.HOST || user?.role === UserRole.ADMIN ? (
+        <HostDashboard />
+      ) : (
+        <PlayerDashboard />
+      )}
+    </Box>
+  );
+}
+export default function DashboardPage() {
+  return (
     <ProtectedRouteGuard>
-      <Box minH="100vh">
-        {/* Top Bar */}
-        <TopBar title={t('title')} />
-        {user?.role === UserRole.HOST || user?.role === UserRole.ADMIN ? (
-          <HostDashboard />
-        ) : (
-          <PlayerDashboard />
-        )}
-      </Box>
+      <Suspense>
+        <DashboardContent />
+      </Suspense>
     </ProtectedRouteGuard>
   );
 }
