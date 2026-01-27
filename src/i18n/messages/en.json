@@ -118,7 +118,7 @@
     "setUpYourBadmintonSession": "Set up your badminton session",
     "startYourBadmintonJourney": "Start Your Badminton Journey",
     "status": {
-      "preparing": "Preparing",
+      "preparing": "Upcoming",
       "inProgress": "In Progress",
       "finished": "Finished"
     },
@@ -417,7 +417,7 @@
       "hostFeatures": "Host Features",
       "sessionStatus": {
         "all": "All",
-        "preparing": "Preparing",
+        "preparing": "Upcoming",
         "inProgress": "In Progress",
         "finished": "Finished"
       },
@@ -569,7 +569,7 @@
       "hostFeatures": "Host Features",
       "sessionStatus": {
         "all": "All",
-        "preparing": "Preparing",
+        "preparing": "Upcoming",
         "inProgress": "In Progress",
         "finished": "Finished"
       },
@@ -604,7 +604,7 @@
       "searchPlaceholder": "Search tournaments...",
       "allStatus": "All Status",
       "status": {
-        "preparing": "Preparing",
+        "preparing": "Upcoming",
         "inProgress": "In Progress",
         "finished": "Finished",
         "cancelled": "Cancelled"

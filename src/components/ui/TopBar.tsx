@@ -16,6 +16,7 @@ interface TopBarProps {
   showBackButton?: boolean;
   backHref?: string;
   title?: string;
+  icon?: React.ReactNode;
   rightContent?: React.ReactNode;
 }
 
@@ -23,6 +24,7 @@ export default function TopBar({
   showBackButton = false,
   backHref = '/',
   title,
+  icon,
   rightContent,
 }: TopBarProps) {
   const common = useTranslations('common');
@@ -81,7 +83,9 @@ export default function TopBar({
           <Flex justify="space-between" align="center" height="100%" py={0}>
             {/* Left side - Back button or spacer */}
             <Box minW="120px" height="100%" display="flex" alignItems="center">
-              {showBackButton ? (
+              {icon ? (
+                icon
+              ) : showBackButton ? (
                 <NextLinkButton
                   href={backHref}
                   variant="ghost"

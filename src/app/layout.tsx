@@ -29,11 +29,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icons/app-logo.png?v=1', type: 'image/png' },
     ],
+    shortcut: ['/icons/app-logo.png?v=1'],
     apple: [
-      { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icons/app-logo.png?v=1', type: 'image/png' },
     ],
   },
   appleWebApp: {
@@ -48,10 +48,10 @@ export const metadata: Metadata = {
     description: 'Manage badminton sessions, players, and courts efficiently',
     images: [
       {
-        url: '/icons/icon-512x512.png',
+        url: '/icons/app-logo.png',
         width: 512,
         height: 512,
-        alt: 'Badminton App',
+        alt: 'LenKeo24h',
       },
     ],
   },
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'LenKeo24h',
     description: 'Manage badminton sessions, players, and courts efficiently',
-    images: ['/icons/icon-512x512.png'],
+    images: ['/icons/app-logo.png'],
   },
 };
 

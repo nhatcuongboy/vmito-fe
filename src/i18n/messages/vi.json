@@ -10,7 +10,7 @@
     "joined": "Kèo tham gia"
   },
   "common": {
-    "appName": "LenKeo24h",
+    "appName": "Lên Kèo 24h",
     "save": "Lưu",
     "cancel": "Hủy",
     "delete": "Xóa",
@@ -118,7 +118,7 @@
     "setUpYourBadmintonSession": "Thiết lập kèo cầu lông của bạn",
     "startYourBadmintonJourney": "Bắt đầu hành trình cầu lông của bạn",
     "status": {
-      "preparing": "Đang chuẩn bị",
+      "preparing": "Sắp diễn ra",
       "inProgress": "Đang diễn ra",
       "finished": "Đã kết thúc"
     },
@@ -417,7 +417,7 @@
       "hostFeatures": "Tính năng cho người tổ chức",
       "sessionStatus": {
         "all": "Tất cả",
-        "preparing": "Đang chuẩn bị",
+        "preparing": "Sắp diễn ra",
         "inProgress": "Đang diễn ra",
         "finished": "Đã kết thúc"
       },
@@ -569,7 +569,7 @@
       "hostFeatures": "Tính năng cho host",
       "sessionStatus": {
         "all": "Tất cả",
-        "preparing": "Đang chuẩn bị",
+        "preparing": "Sắp diễn ra",
         "inProgress": "Đang diễn ra",
         "finished": "Đã kết thúc"
       },
@@ -604,7 +604,7 @@
       "searchPlaceholder": "Tìm kiếm giải đấu...",
       "allStatus": "Tất cả trạng thái",
       "status": {
-        "preparing": "Đang chuẩn bị",
+        "preparing": "Sắp diễn ra",
         "inProgress": "Đang diễn ra",
         "finished": "Đã kết thúc",
         "cancelled": "Đã hủy"
