@@ -8,8 +8,8 @@ export const metadata: Metadata = {
         : 'https://csbadminton.vercel.app/'
       : 'http://localhost:3000'
   ),
-  title: 'LenKeo24h',
-  description: 'Manage badminton sessions, players, and courts efficiently',
+  title: 'Lên Kèo 24h',
+  description: 'Quản lý kèo cầu lông tiện lợi, hiệu quả',
   manifest: '/manifest.json',
   keywords: [
     'badminton',
