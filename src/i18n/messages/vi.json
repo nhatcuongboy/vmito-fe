@@ -284,6 +284,29 @@
       "evening": "Tối",
       "night": "Đêm"
     },
+    "filters": {
+      "title": "Bộ lọc",
+      "area": "Khu vực",
+      "allCities": "Tất cả thành phố",
+      "allDistricts": "Tất cả quận/huyện",
+      "selectAll": "Chọn tất cả",
+      "selectedCities": "{count} thành phố",
+      "selectedDistricts": "{count} quận/huyện",
+      "sessionStatus": "Trạng thái",
+      "availableSlots": "Còn chỗ",
+      "nearMe": "Gần tôi",
+      "sortByDistance": "Sắp xếp theo khoảng cách",
+      "cost": "Chi phí",
+      "splitEvenly": "Chia đều",
+      "allDays": "Tất cả ngày",
+      "locationPermissionDenied": "Quyền truy cập vị trí bị từ chối",
+      "skillLevel": {
+        "beginner": "Mới học",
+        "intermediate": "Trung bình",
+        "advanced": "Nâng cao",
+        "allLevels": "Tất cả trình độ"
+      }
+    },
     "clearFilters": "Xóa bộ lọc",
     "noSessionsFound": "Không tìm thấy kèo nào",
     "noSessionsDescription": "Bạn chưa tham gia kèo cầu lông nào. Tham gia một kèo để xem ở đây!",

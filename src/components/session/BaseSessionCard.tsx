@@ -29,6 +29,7 @@ import { FeeType } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -84,6 +85,9 @@ interface BaseSessionCardProps {
   extraInfoRows?: React.ReactNode; // For location/venue display
   actionButtons: React.ReactNode; // Required: join/view/delete buttons
 
+  // New props
+  sessionDistance?: number;
+
   // Optional modal
   modalContent?: React.ReactNode;
 }
@@ -96,6 +100,7 @@ const BaseSessionCard = ({
   actionButtons,
   modalContent,
   hostActions, // New prop
+  sessionDistance,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
@@ -113,10 +118,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${session.endTime
-        ? formatTime(session.endTime, locale)
-        : t('inProgress')
-      }`
+      ? `${formatTime(session.startTime, locale)} - ${
+          session.endTime
+            ? formatTime(session.endTime, locale)
+            : t('inProgress')
+        }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -125,6 +131,9 @@ const BaseSessionCard = ({
     hostName: displayHostName,
   };
 
+  // Get skill level color for left border
+  const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+
   return (
     <>
       <Flex
@@ -132,6 +141,8 @@ const BaseSessionCard = ({
         h="100%"
         gap={4}
         borderWidth="1px"
+        borderLeftWidth="4px"
+        borderLeftColor={skillLevelColor.borderColor}
         borderRadius="lg"
         overflow="hidden"
         bg="white"
@@ -191,27 +202,28 @@ const BaseSessionCard = ({
             </Text>
           </Flex>
           <Flex align="center">
-            {' '}
-            {/* Changed from align-items: flex-start to center */}
-            <Icon as={Shield} boxSize={5} mr={2} color="blue.500" />
+            <Icon as={Shield} boxSize={5} mr={2} color={skillLevelColor.color} />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels)).map((level) => (
-                  <Badge
-                    key={level}
-                    colorPalette="teal"
-                    fontSize="sm"
-                    variant="solid"
-                    px={2}
-                    py={0.5}
-                    borderRadius="md"
-                  >
-                    {getLevelShortLabel(level)}
-                  </Badge>
-                ))
+                Array.from(new Set(session.requiredLevels)).map((level) => {
+                  const levelColor = getSkillLevelColor([level]);
+                  return (
+                    <Badge
+                      key={level}
+                      colorPalette={levelColor.colorPalette}
+                      fontSize="sm"
+                      variant="solid"
+                      px={2}
+                      py={0.5}
+                      borderRadius="md"
+                    >
+                      {getLevelShortLabel(level)}
+                    </Badge>
+                  );
+                })
               ) : (
                 <Badge
-                  colorPalette="teal"
+                  colorPalette={skillLevelColor.colorPalette}
                   fontSize="sm"
                   variant="solid"
                   px={2}

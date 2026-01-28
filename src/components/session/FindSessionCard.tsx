@@ -21,6 +21,7 @@ interface FindSessionCardProps {
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void;
+  distance?: number | null;
 }
 
 const FindSessionCard = ({
@@ -29,6 +30,7 @@ const FindSessionCard = ({
   isJoined = false,
   userRegistrationStatus = null,
   onRegistrationUpdate,
+  distance,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -273,6 +275,7 @@ const FindSessionCard = ({
         session={session}
         extraInfoRows={locationRow}
         actionButtons={actions}
+        sessionDistance={distance || undefined}
       />
 
       {/* Login prompt modal */}

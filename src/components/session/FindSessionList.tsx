@@ -4,6 +4,7 @@ import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import {
   Box,
   Center,
@@ -15,17 +16,33 @@ import {
   Badge,
   Wrap,
   WrapItem,
+  VStack,
+  HStack,
+  SimpleGrid,
+  Icon,
 } from '@chakra-ui/react';
 import { Button, Input } from '@/components/ui/chakra-compat';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState, useMemo, ChangeEvent } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import JoinSessionModal from './JoinSessionModal';
 import FindSessionCard from './FindSessionCard';
-import { useRouter, usePathname } from '@/i18n/config';
+import { useRouter } from '@/i18n/config';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Search, X } from 'lucide-react';
+import {
+  Search,
+  X,
+  MapPin,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import { getUserLocation } from '@/lib/utils/geolocation.utils';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { toaster } from '@/components/ui/toaster';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -53,46 +70,162 @@ export default function FindSessionList({
   const [registrationStatusMap, setRegistrationStatusMap] = useState<
     Record<string, 'PENDING' | 'APPROVED' | 'REJECTED'>
   >({});
-  const [filters, setFilters] = useState({
-    date: '',
-    levels: [] as number[],
-    timeRanges: [] as TimeRangeKey[],
-    searchQuery: '',
-  });
+
+  // Use Zustand store for filters
+  const {
+    filters,
+    setFilters,
+    clearFilters: clearStoreFilters,
+    sortByDistance,
+    setSortByDistance,
+    userLocation,
+    setUserLocation,
+    toggleCity,
+    toggleDistrict,
+    clearLocation,
+  } = useSessionFilterStore();
+
+  const [isLocating, setIsLocating] = useState(false);
+
+  const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(true);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname();
 
   const t = useTranslations('session');
   const { user } = useAuthStore();
   const { getLevelShortLabel } = useLevelLabel();
 
+  // Load initial date from URL or today
+  useEffect(() => {
+    const dateParam = searchParams.get('date');
+    if (dateParam) {
+      setFilters({ date: dateParam });
+    }
+  }, [searchParams, setFilters]);
+
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      // Only use date for server-side filtering; levels, time ranges, and search are client-side
-      const data = await SessionService.getAvailableSessions({
-        date: filters.date,
-      });
-      setSessions(data);
+      setError(null);
 
+      // Prepare filters for API
+      const apiFilters: any = {
+        date: filters.date,
+        searchQuery: filters.searchQuery,
+        // Pass first city if only one selected, otherwise filter on client
+        city: filters.cities.length === 1 ? filters.cities[0] : undefined,
+        // Pass first district if only one selected, otherwise filter on client
+        district: filters.districts.length === 1 ? filters.districts[0] : undefined,
+        hasSlots: filters.hasSlots ? true : undefined,
+        minAvailableSlots:
+          filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
+      };
+
+      // Fee filter (only if changed from defaults or split evenly is selected)
+      if (filters.minFee > 0 || filters.maxFee < 200000 || filters.splitEvenly) {
+        apiFilters.minFee = filters.minFee;
+        apiFilters.maxFee = filters.maxFee;
+        // Note: splitEvenly is a frontend-only filter for now
+      }
+
+      // Geospatial filter
+      if (sortByDistance && userLocation) {
+        apiFilters.lat = userLocation.lat;
+        apiFilters.lng = userLocation.lng;
+        apiFilters.sortByDistance = true;
+      }
+
+      // Add level filter (basic logic: pass first selected level or handle in client)
+      if (filters.levels.length === 1) {
+        apiFilters.level = filters.levels[0];
+      }
+
+      const data = await SessionService.getAvailableSessions(apiFilters);
+
+      // Client-side post-filtering for complex logic (multiple levels, time ranges, multi-city/district)
+      let filteredData = data;
+
+      // 1. Multi-city filter (if multiple cities selected)
+      if (filters.cities.length > 1) {
+        filteredData = filteredData.filter((session) => {
+          const sessionCity = session.venue?.city || session.location;
+          return filters.cities.some(
+            (city) =>
+              sessionCity?.includes(city) ||
+              VIETNAM_CITIES.find((c) => c.code === city)?.name === sessionCity
+          );
+        });
+      }
+
+      // 2. Multi-district filter (if multiple districts selected)
+      if (filters.districts.length > 1) {
+        filteredData = filteredData.filter((session) => {
+          const sessionDistrict = session.venue?.district;
+          return filters.districts.some((district) =>
+            sessionDistrict?.includes(district)
+          );
+        });
+      }
+
+      // 3. Time range filter
+      if (filters.timeRanges.length > 0) {
+        filteredData = filteredData.filter((session) => {
+          if (!session.startTime) return false;
+          const hour = new Date(session.startTime).getHours();
+          return filters.timeRanges.some((rangeKey) => {
+            const rangeDef = TIME_RANGES.find((r) => r.key === rangeKey);
+            if (!rangeDef) return false;
+            if (rangeDef.start < rangeDef.end) {
+              return hour >= rangeDef.start && hour < rangeDef.end;
+            } else {
+              // Night wraps around midnight
+              return hour >= rangeDef.start || hour < rangeDef.end;
+            }
+          });
+        });
+      }
+
+      // 4. Multi-level filter (if backend didn't handle it or multiple selected)
+      if (filters.levels.length > 0) {
+        filteredData = filteredData.filter((session) => {
+          const sessionLevels = session.requiredLevels || [];
+          if (sessionLevels.length === 0) return true; // Open to all
+          return filters.levels.some((l) => sessionLevels.includes(l));
+        });
+      }
+
+      // 5. Split evenly filter (filter sessions with split evenly fee type)
+      if (filters.splitEvenly) {
+        filteredData = filteredData.filter((session) => {
+          return session.feeConfig?.feeType === 'SPLIT_EVENLY';
+        });
+      }
+
+      setSessions(filteredData);
+
+      // Fetch user specific data
       if (user) {
         try {
           const mySessions = await PlayerService.getMySessions();
           setJoinedSessionIds(new Set(mySessions.map((s) => s.id)));
 
-          // Fetch user's registration status for all sessions
           const registrations = await PlayerService.getMyRegistrations();
-          const statusMap: Record<string, 'PENDING' | 'APPROVED' | 'REJECTED'> = {};
+          const statusMap: Record<
+            string,
+            'PENDING' | 'APPROVED' | 'REJECTED'
+          > = {};
           registrations.forEach((reg) => {
-            statusMap[reg.sessionId] = reg.status as 'PENDING' | 'APPROVED' | 'REJECTED';
+            statusMap[reg.sessionId] = reg.status as
+              | 'PENDING'
+              | 'APPROVED'
+              | 'REJECTED';
           });
           setRegistrationStatusMap(statusMap);
         } catch (err) {
-          console.error('Failed to fetch joined sessions', err);
+          console.error('Failed to fetch user session data', err);
         }
       }
     } catch (err) {
@@ -104,132 +237,101 @@ export default function FindSessionList({
   };
 
   useEffect(() => {
-    // Only fetch if no initial data was provided
-    if (initialSessions.length === 0) {
+    // Debounce fetch for search query, but immediate for others if needed.
+    const timer = setTimeout(() => {
       fetchSessions();
-    }
+    }, 500);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [
+    filters.date,
+    filters.cities,
+    filters.districts,
+    filters.hasSlots,
+    filters.minAvailableSlots,
+    filters.minFee,
+    filters.maxFee,
+    filters.levels,
+    filters.timeRanges,
+    filters.splitEvenly,
+    sortByDistance,
+    userLocation,
+    filters.searchQuery,
+  ]);
 
-  // Handle post-login redirect with sessionId parameter
-  useEffect(() => {
-    const sessionIdFromUrl = searchParams.get('sessionId');
-
-    if (sessionIdFromUrl && user && sessions.length > 0) {
-      // Find the session from the list
-      const targetSession = sessions.find((s) => s.id === sessionIdFromUrl);
-
-      if (targetSession) {
-        // Open the join modal for this session
-        setSelectedSession(targetSession);
-        setIsJoinModalOpen(true);
-
-        // Clean up URL parameter (remove sessionId from query string)
-        // Use pathname from i18n which doesn't include locale prefix
-        // and manually build new search params
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete('sessionId');
-        const newSearch = params.toString();
-        router.replace(pathname + (newSearch ? `?${newSearch}` : ''));
-      }
+  // Handle Location
+  const handleNearMe = async () => {
+    if (sortByDistance) {
+      // Toggle off
+      setSortByDistance(false);
+      return;
     }
-  }, [searchParams, user, sessions, router, pathname]);
 
-  // Client-side filtering
-  const filteredSessions = useMemo(() => {
-    return sessions.filter((session) => {
-      // 1. Time range filter
-      if (filters.timeRanges.length > 0 && session.startTime) {
-        const hour = new Date(session.startTime).getHours();
-        const matchesTimeRange = filters.timeRanges.some((rangeKey) => {
-          const rangeDef = TIME_RANGES.find((r) => r.key === rangeKey);
-          if (!rangeDef) return false;
-          if (rangeDef.start < rangeDef.end) {
-            return hour >= rangeDef.start && hour < rangeDef.end;
-          } else {
-            // Night wraps around midnight
-            return hour >= rangeDef.start || hour < rangeDef.end;
-          }
-        });
-        if (!matchesTimeRange) return false;
-      }
-
-      // 2. Level filter (multi-select)
-      if (filters.levels.length > 0) {
-        const sessionLevels = session.requiredLevels || [];
-        if (sessionLevels.length > 0) {
-          const hasMatchingLevel = filters.levels.some((level) =>
-            sessionLevels.includes(level)
-          );
-          if (!hasMatchingLevel) return false;
-        }
-        // Sessions with no level restriction match any level filter
-      }
-
-      // 3. Search filter
-      if (filters.searchQuery.trim()) {
-        const query = filters.searchQuery.toLowerCase();
-        const searchFields = [
-          session.venue?.name,
-          session.venue?.address,
-          session.location,
-          session.host?.name,
-          session.name,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-        if (!searchFields.includes(query)) return false;
-      }
-
-      return true;
-    });
-  }, [sessions, filters]);
-
-  const handleDateChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, date: value }));
+    try {
+      setIsLocating(true);
+      const location = await getUserLocation();
+      setUserLocation(location);
+      setSortByDistance(true);
+      // Clear city/district when using Near Me?
+      // Optional: keep them as filters within the radius/sorted list
+      // For now, let's keep them independent but maybe clear specifically if it conflicts logic?
+      // Actually, sorting by distance inside a specific city makes sense.
+    } catch (error: any) {
+      toaster.error({
+        title: t('filters.locationPermissionDenied'),
+        description: error.message,
+      });
+      setSortByDistance(false);
+    } finally {
+      setIsLocating(false);
+    }
   };
 
-  const handleSearchQueryChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, searchQuery: value }));
+  // Handlers
+  const handleSearchQueryChange = (val: string) => {
+    setFilters({ searchQuery: val });
   };
 
   const toggleLevel = (level: number) => {
-    setFilters((prev) => ({
-      ...prev,
-      levels: prev.levels.includes(level)
-        ? prev.levels.filter((l) => l !== level)
-        : [...prev.levels, level],
-    }));
+    const newLevels = filters.levels.includes(level)
+      ? filters.levels.filter((l) => l !== level)
+      : [...filters.levels, level];
+    setFilters({ levels: newLevels });
   };
 
   const toggleTimeRange = (rangeKey: TimeRangeKey) => {
-    setFilters((prev) => ({
-      ...prev,
-      timeRanges: prev.timeRanges.includes(rangeKey)
-        ? prev.timeRanges.filter((r) => r !== rangeKey)
-        : [...prev.timeRanges, rangeKey],
-    }));
+    const newTimeRanges = filters.timeRanges.includes(rangeKey)
+      ? filters.timeRanges.filter((r) => r !== rangeKey)
+      : [...filters.timeRanges, rangeKey];
+    setFilters({ timeRanges: newTimeRanges });
   };
 
   const clearFilters = () => {
-    setFilters({
-      date: '',
-      levels: [],
-      timeRanges: [],
-      searchQuery: '',
-    });
+    clearStoreFilters();
   };
 
-  const hasActiveFilters =
-    filters.levels.length > 0 ||
-    filters.timeRanges.length > 0 ||
-    filters.searchQuery.trim() !== '';
+  const activeFilterCount =
+    (filters.searchQuery ? 1 : 0) +
+    (filters.date ? 1 : 0) +
+    filters.levels.length +
+    filters.timeRanges.length +
+    filters.cities.length +
+    filters.districts.length +
+    (filters.hasSlots ? 1 : 0) +
+    (filters.minAvailableSlots > 0 ? 1 : 0) +
+    (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
+    (filters.splitEvenly ? 1 : 0) +
+    (sortByDistance ? 1 : 0);
 
-  const handleSearch = () => {
-    fetchSessions();
-  };
+  // Derived data for display
+  const availableDistricts = useMemo(() => {
+    if (filters.cities.length === 0) return [];
+    return VIETNAM_CITIES.filter((city) =>
+      filters.cities.includes(city.code)
+    ).flatMap((city) => city.districts);
+  }, [filters.cities]);
 
+  // Handle Join Actions
   const handleJoinClick = (session: ISession) => {
     if (!user) {
       router.push('/auth/signin');
@@ -239,153 +341,359 @@ export default function FindSessionList({
     setIsJoinModalOpen(true);
   };
 
-  const handleJoinSuccess = () => {
-    fetchSessions();
-  };
-
   return (
     <Box>
-      {/* Filters */}
-      <Flex
-        gap={3}
-        mb={6}
-        wrap="wrap"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        p={3}
-        borderRadius="lg"
-        borderWidth="1px"
-        direction="column"
-      >
-        {/* Search Bar & Date Row */}
-        <Flex gap={2} wrap="wrap" align="end">
+      {/* Search Bar & Main Controls - Always Visible */}
+      <Flex gap={2} mb={4} wrap="wrap">
+        <Box flex="1" position="relative" minW="200px">
+          <Input
+            pl={10}
+            placeholder={t('searchPlaceholder')}
+            value={filters.searchQuery}
+            onChange={(e) => handleSearchQueryChange(e.target.value)}
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+          />
           <Box
-            flex="1"
-            minW={{ base: '100%', md: '200px' }}
-            position="relative"
+            position="absolute"
+            left={3}
+            top="50%"
+            transform="translateY(-50%)"
+            color="gray.400"
           >
-            <Box
-              position="absolute"
-              left={3}
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex={1}
-              color="gray.400"
-            >
-              <Search size={16} />
-            </Box>
-            <Input
-              pl={9}
-              size="sm"
-              placeholder={t('searchPlaceholder')}
-              value={filters.searchQuery}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleSearchQueryChange(e.target.value)
-              }
-            />
+            <Search size={18} />
           </Box>
-          <Box width={{ base: '100%', md: '160px' }}>
-            <Input
-              type="date"
-              size="sm"
-              value={filters.date}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleDateChange(e.target.value)
-              }
-            />
-          </Box>
-          <Button colorPalette="blue" onClick={handleSearch} size="sm" px={6}>
-            {t('search')}
-          </Button>
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              onClick={clearFilters}
-              size="sm"
-              leftIcon={<X size={14} />}
-            >
-              {t('clearFilters')}
-            </Button>
+        </Box>
+
+        <Button
+          variant={showFilters ? 'solid' : 'outline'}
+          colorPalette="blue"
+          onClick={toggleFilters}
+          leftIcon={<Filter size={16} />}
+        >
+          {t('filters.title')}
+          {activeFilterCount > 0 && (
+            <Badge ml={2} colorScheme="whiteAlpha" variant="solid">
+              {activeFilterCount}
+            </Badge>
           )}
-        </Flex>
-
-        {/* Time Range & Level Badges */}
-        <Flex gap={4} wrap="wrap" direction={{ base: 'column', md: 'row' }}>
-          <Box flex={{ base: '1', md: '0 0 auto' }}>
-            <Text mb={1.5} fontWeight="medium" fontSize="sm" color="gray.600">
-              {t('timeRange')}
-            </Text>
-            <Wrap gap={1.5}>
-              {TIME_RANGES.map((range) => (
-                <WrapItem key={range.key}>
-                  <Badge
-                    px={2.5}
-                    py={1.5}
-                    borderRadius="md"
-                    cursor="pointer"
-                    bg={
-                      filters.timeRanges.includes(range.key)
-                        ? 'blue.500'
-                        : 'gray.200'
-                    }
-                    color={
-                      filters.timeRanges.includes(range.key)
-                        ? 'white'
-                        : 'gray.700'
-                    }
-                    fontSize="xs"
-                    fontWeight="semibold"
-                    onClick={() => toggleTimeRange(range.key)}
-                    _hover={{
-                      transform: 'translateY(-1px)',
-                      boxShadow: 'sm',
-                    }}
-                    transition="all 0.2s"
-                  >
-                    {t(`timeRanges.${range.key}`)}
-                  </Badge>
-                </WrapItem>
-              ))}
-            </Wrap>
-          </Box>
-
-          <Box flex={{ base: '1', md: '1' }}>
-            <Text mb={1.5} fontWeight="medium" fontSize="sm" color="gray.600">
-              {t('level')}
-            </Text>
-            <Wrap gap={1.5}>
-              {VALID_LEVELS.map((level) => (
-                <WrapItem key={level}>
-                  <Badge
-                    px={2.5}
-                    py={1.5}
-                    borderRadius="md"
-                    cursor="pointer"
-                    bg={
-                      filters.levels.includes(level) ? 'blue.500' : 'gray.200'
-                    }
-                    color={
-                      filters.levels.includes(level) ? 'white' : 'gray.700'
-                    }
-                    fontSize="xs"
-                    fontWeight="semibold"
-                    onClick={() => toggleLevel(level)}
-                    _hover={{
-                      transform: 'translateY(-1px)',
-                      boxShadow: 'sm',
-                    }}
-                    transition="all 0.2s"
-                  >
-                    {getLevelShortLabel(level)}
-                  </Badge>
-                </WrapItem>
-              ))}
-            </Wrap>
-          </Box>
-        </Flex>
+          {showFilters ? (
+            <ChevronUp size={16} style={{ marginLeft: 4 }} />
+          ) : (
+            <ChevronDown size={16} style={{ marginLeft: 4 }} />
+          )}
+        </Button>
       </Flex>
 
-      {/* List */}
+      {/* Collapsible Filter Panel */}
+      {showFilters && (
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          p={4}
+          borderRadius="lg"
+          borderWidth="1px"
+          mb={6}
+          shadow="sm"
+        >
+          <VStack align="stretch" gap={5}>
+            {/* Row 1: Area & Date & Status */}
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4}>
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                  {t('filters.area')}
+                </Text>
+                <VStack gap={3} align="stretch">
+                  {/* City Selection */}
+                  <Box>
+                    <Flex justify="space-between" align="center" mb={1}>
+                      <Text fontSize="xs" color="gray.600">
+                        {filters.cities.length === 0
+                          ? t('filters.allCities')
+                          : t('filters.selectedCities', {
+                              count: filters.cities.length,
+                            })}
+                      </Text>
+                      {filters.cities.length > 0 && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          onClick={clearLocation}
+                        >
+                          <X size={12} />
+                        </Button>
+                      )}
+                    </Flex>
+                    <Wrap gap={1}>
+                      {VIETNAM_CITIES.map((city) => (
+                        <WrapItem key={city.code}>
+                          <Badge
+                            px={2}
+                            py={1}
+                            borderRadius="md"
+                            cursor="pointer"
+                            variant={
+                              filters.cities.includes(city.code)
+                                ? 'solid'
+                                : 'outline'
+                            }
+                            colorPalette={
+                              filters.cities.includes(city.code) ? 'blue' : 'gray'
+                            }
+                            onClick={() => toggleCity(city.code)}
+                            fontSize="xs"
+                          >
+                            {city.name}
+                          </Badge>
+                        </WrapItem>
+                      ))}
+                    </Wrap>
+                  </Box>
+
+                  {/* District Selection - Only show if cities selected */}
+                  {filters.cities.length > 0 && (
+                    <Box>
+                      <Flex justify="space-between" align="center" mb={1}>
+                        <Text fontSize="xs" color="gray.600">
+                          {filters.districts.length === 0
+                            ? t('filters.allDistricts')
+                            : t('filters.selectedDistricts', {
+                                count: filters.districts.length,
+                              })}
+                        </Text>
+                        {filters.districts.length > 0 && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            onClick={() => setFilters({ districts: [] })}
+                          >
+                            <X size={12} />
+                          </Button>
+                        )}
+                      </Flex>
+                      <Wrap gap={1} maxH="120px" overflowY="auto">
+                        {availableDistricts.map((district) => (
+                          <WrapItem key={district.code}>
+                            <Badge
+                              px={2}
+                              py={1}
+                              borderRadius="md"
+                              cursor="pointer"
+                              variant={
+                                filters.districts.includes(district.name)
+                                  ? 'solid'
+                                  : 'outline'
+                              }
+                              colorPalette={
+                                filters.districts.includes(district.name)
+                                  ? 'blue'
+                                  : 'gray'
+                              }
+                              onClick={() => toggleDistrict(district.name)}
+                              fontSize="xs"
+                            >
+                              {district.name}
+                            </Badge>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Box>
+                  )}
+                </VStack>
+              </Box>
+
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>
+                  {t('date')}
+                </Text>
+                <VStack gap={1} align="stretch">
+                  <Input
+                    type="date"
+                    size="sm"
+                    value={filters.date}
+                    onChange={(e) => setFilters({ date: e.target.value })}
+                  />
+                  {!filters.date && (
+                    <Text fontSize="xs" color="gray.500">
+                      {t('filters.allDays')}
+                    </Text>
+                  )}
+                </VStack>
+              </Box>
+
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>
+                  {t('filters.sessionStatus')}
+                </Text>
+                <HStack gap={2}>
+                  <Button
+                    size="sm"
+                    variant={filters.hasSlots ? 'solid' : 'outline'}
+                    colorPalette={filters.hasSlots ? 'green' : 'gray'}
+                    onClick={() => setFilters({ hasSlots: !filters.hasSlots })}
+                    flex={1}
+                  >
+                    {t('filters.availableSlots')}
+                  </Button>
+                </HStack>
+              </Box>
+
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>
+                  {t('filters.nearMe')}
+                </Text>
+                <Button
+                  size="sm"
+                  width="full"
+                  variant={sortByDistance ? 'solid' : 'outline'}
+                  colorPalette={sortByDistance ? 'blue' : 'gray'}
+                  onClick={handleNearMe}
+                  loading={isLocating}
+                  leftIcon={<MapPin size={14} />}
+                >
+                  {sortByDistance ? t('filters.sortByDistance') : t('filters.nearMe')}
+                </Button>
+              </Box>
+            </SimpleGrid>
+
+            {/* Row 2: Levels & Time */}
+            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4}>
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                  {t('level')}
+                </Text>
+                <Wrap gap={2}>
+                  {VALID_LEVELS.map((level) => {
+                    const skillColor = getSkillLevelColor([level]);
+                    return (
+                      <WrapItem key={level}>
+                        <Badge
+                          px={2.5}
+                          py={1}
+                          borderRadius="full"
+                          cursor="pointer"
+                          variant={
+                            filters.levels.includes(level) ? 'solid' : 'outline'
+                          }
+                          colorPalette={
+                            filters.levels.includes(level)
+                              ? skillColor.colorPalette
+                              : 'gray'
+                          }
+                          onClick={() => toggleLevel(level)}
+                        >
+                          {getLevelShortLabel(level)}
+                        </Badge>
+                      </WrapItem>
+                    );
+                  })}
+                </Wrap>
+              </Box>
+
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                  {t('timeRange')}
+                </Text>
+                <Wrap gap={2}>
+                  {TIME_RANGES.map((range) => (
+                    <WrapItem key={range.key}>
+                      <Badge
+                        px={2.5}
+                        py={1}
+                        borderRadius="full"
+                        cursor="pointer"
+                        variant={filters.timeRanges.includes(range.key) ? 'solid' : 'outline'}
+                        colorPalette={filters.timeRanges.includes(range.key) ? 'purple' : 'gray'}
+                        onClick={() => toggleTimeRange(range.key)}
+                      >
+                        {t(`timeRanges.${range.key}`)}
+                      </Badge>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+              </Box>
+            </SimpleGrid>
+
+            {/* Row 3: Fee Range */}
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                {t('filters.cost')}: {filters.minFee.toLocaleString()} -{' '}
+                {filters.maxFee >= 200000
+                  ? '200k+'
+                  : filters.maxFee.toLocaleString()}{' '}
+                VND
+              </Text>
+              <VStack gap={2} align="stretch">
+                <HStack gap={4}>
+                  <HStack>
+                    <Text fontSize="xs">Min</Text>
+                    <Input
+                      size="sm"
+                      type="number"
+                      width="100px"
+                      value={filters.minFee}
+                      onChange={(e) =>
+                        setFilters({ minFee: Number(e.target.value) })
+                      }
+                      step={5000}
+                      min={0}
+                    />
+                  </HStack>
+                  <HStack>
+                    <Text fontSize="xs">Max</Text>
+                    <Input
+                      size="sm"
+                      type="number"
+                      width="100px"
+                      value={filters.maxFee}
+                      onChange={(e) =>
+                        setFilters({ maxFee: Number(e.target.value) })
+                      }
+                      step={5000}
+                      min={0}
+                    />
+                  </HStack>
+                </HStack>
+                <HStack>
+                  <Box
+                    as="label"
+                    cursor="pointer"
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.splitEvenly}
+                      onChange={(e) =>
+                        setFilters({ splitEvenly: e.target.checked })
+                      }
+                    />
+                    <Text fontSize="sm">{t('filters.splitEvenly')}</Text>
+                  </Box>
+                </HStack>
+              </VStack>
+            </Box>
+
+            {/* Clear Filters */}
+            {activeFilterCount > 0 && (
+              <Flex justify="flex-end">
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  colorPalette="red"
+                  onClick={clearFilters}
+                  leftIcon={<X size={12} />}
+                >
+                  {t('clearFilters')}
+                </Button>
+              </Flex>
+            )}
+          </VStack>
+        </Box>
+      )}
+
+      {/* Results List */}
       {loading ? (
         <Center py={10}>
           <Spinner size="xl" color="blue.500" />
@@ -401,7 +709,7 @@ export default function FindSessionList({
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
-      ) : filteredSessions.length === 0 ? (
+      ) : sessions.length === 0 ? (
         <Box
           textAlign="center"
           py={10}
@@ -415,6 +723,9 @@ export default function FindSessionList({
             {t('noSessionsFound')}
           </Heading>
           <Text color="gray.500">{t('tryAdjustingFilters')}</Text>
+          <Button mt={4} onClick={clearFilters} variant="outline" size="sm">
+            {t('clearFilters')}
+          </Button>
         </Box>
       ) : (
         <Grid
@@ -425,7 +736,7 @@ export default function FindSessionList({
           }}
           gap={6}
         >
-          {filteredSessions.map((session) => (
+          {sessions.map((session) => (
             <FindSessionCard
               key={session.id}
               session={session}
@@ -443,7 +754,7 @@ export default function FindSessionList({
           isOpen={isJoinModalOpen}
           onClose={() => setIsJoinModalOpen(false)}
           session={selectedSession}
-          onSuccess={handleJoinSuccess}
+          onSuccess={fetchSessions}
         />
       )}
     </Box>

@@ -284,6 +284,29 @@
       "evening": "傍晚",
       "night": "晚上"
     },
+    "filters": {
+      "title": "筛选",
+      "area": "区域",
+      "allCities": "所有城市",
+      "allDistricts": "所有区/县",
+      "selectAll": "全选",
+      "selectedCities": "{count} 个城市",
+      "selectedDistricts": "{count} 个地区",
+      "sessionStatus": "状态",
+      "availableSlots": "有空位",
+      "nearMe": "附近",
+      "sortByDistance": "按距离排序",
+      "cost": "费用",
+      "splitEvenly": "平均分摊",
+      "allDays": "所有日期",
+      "locationPermissionDenied": "位置权限被拒绝",
+      "skillLevel": {
+        "beginner": "初学者",
+        "intermediate": "中级",
+        "advanced": "高级",
+        "allLevels": "所有级别"
+      }
+    },
     "clearFilters": "清除筛选",
     "noSessionsFound": "未找到场次",
     "noSessionsDescription": "您尚未加入任何羽毛球场次。加入一个场次即可在此处查看！",

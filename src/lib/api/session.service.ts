@@ -70,10 +70,35 @@ export const SessionService = {
   getAvailableSessions: async (filters?: {
     date?: string;
     level?: number;
+    city?: string;
+    district?: string;
+    minFee?: number;
+    maxFee?: number;
+    hasSlots?: boolean;
+    minAvailableSlots?: number;
+    searchQuery?: string;
+    lat?: number;
+    lng?: number;
+    sortByDistance?: boolean;
   }): Promise<ISession[]> => {
     const params = new URLSearchParams();
     if (filters?.date) params.append('date', filters.date);
     if (filters?.level) params.append('level', filters.level.toString());
+    if (filters?.city) params.append('city', filters.city);
+    if (filters?.district) params.append('district', filters.district);
+    if (filters?.minFee !== undefined)
+      params.append('minFee', filters.minFee.toString());
+    if (filters?.maxFee !== undefined)
+      params.append('maxFee', filters.maxFee.toString());
+    if (filters?.hasSlots !== undefined)
+      params.append('hasSlots', filters.hasSlots.toString());
+    if (filters?.minAvailableSlots !== undefined)
+      params.append('minAvailableSlots', filters.minAvailableSlots.toString());
+    if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
+    if (filters?.lat !== undefined) params.append('lat', filters.lat.toString());
+    if (filters?.lng !== undefined) params.append('lng', filters.lng.toString());
+    if (filters?.sortByDistance !== undefined)
+      params.append('sortByDistance', filters.sortByDistance.toString());
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

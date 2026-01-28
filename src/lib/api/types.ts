@@ -248,6 +248,7 @@ export interface ISession {
   players?: Player[];
   pendingPlayers?: Player[];
   feeConfig?: SessionFeeConfig; // Fee configuration for the session
+  distance?: number; // Distance from user location in kilometers (calculated when sorted by distance)
   _count?: {
     players: number;
     courts: number;

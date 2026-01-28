@@ -284,6 +284,29 @@
       "evening": "Evening",
       "night": "Night"
     },
+    "filters": {
+      "title": "Filters",
+      "area": "Area",
+      "allCities": "All Cities",
+      "allDistricts": "All Districts",
+      "selectAll": "Select All",
+      "selectedCities": "{count} cities",
+      "selectedDistricts": "{count} districts",
+      "sessionStatus": "Session Status",
+      "availableSlots": "Available Slots",
+      "nearMe": "Near Me",
+      "sortByDistance": "Sort by Distance",
+      "cost": "Cost",
+      "splitEvenly": "Split Evenly",
+      "allDays": "All Days",
+      "locationPermissionDenied": "Location permission denied",
+      "skillLevel": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "allLevels": "All Levels"
+      }
+    },
     "clearFilters": "Clear Filters",
     "noSessionsFound": "No sessions found",
     "noSessionsDescription": "You haven't joined any badminton sessions yet. Join a session to see it here!",
