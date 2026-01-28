@@ -5,7 +5,7 @@ export function HeroImage() {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/badminton-illustration.svg"
-      alt="LenKeo24h"
+      alt="Vmito"
       className="max-w-full h-auto"
       onError={(e) => {
         e.currentTarget.onerror = null;

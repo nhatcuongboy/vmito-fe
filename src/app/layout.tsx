@@ -8,8 +8,8 @@ export const metadata: Metadata = {
         : 'https://csbadminton.vercel.app/'
       : 'http://localhost:3000'
   ),
-  title: 'Lên Kèo 24h',
-  description: 'Quản lý kèo cầu lông tiện lợi, hiệu quả',
+  title: 'Vmito',
+  description: 'Quản lý kèo, giải đấu cầu lông chuyên nghiệp',
   manifest: '/manifest.json',
   keywords: [
     'badminton',
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     'court',
     'players',
   ],
-  authors: [{ name: 'LenKeo24h' }],
-  creator: 'LenKeo24h',
-  publisher: 'LenKeo24h',
+  authors: [{ name: 'Vmito' }],
+  creator: 'Vmito',
+  publisher: 'Vmito',
   formatDetection: {
     email: false,
     address: false,
@@ -43,21 +43,21 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'LenKeo24h',
-    title: 'LenKeo24h',
+    siteName: 'Vmito',
+    title: 'Vmito',
     description: 'Manage badminton sessions, players, and courts efficiently',
     images: [
       {
         url: '/icons/app-logo.png',
         width: 512,
         height: 512,
-        alt: 'LenKeo24h',
+        alt: 'Vmito',
       },
     ],
   },
   twitter: {
     card: 'summary',
-    title: 'LenKeo24h',
+    title: 'Vmito',
     description: 'Manage badminton sessions, players, and courts efficiently',
     images: ['/icons/app-logo.png'],
   },

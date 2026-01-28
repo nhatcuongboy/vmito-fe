@@ -1,7 +1,7 @@
 {
-  "name": "Lên Kèo 24h",
-  "short_name": "LenKeo24h",
-  "description": "Manage badminton sessions, players, and courts efficiently",
+  "name": "Vmito",
+  "short_name": "Vmito",
+  "description": "Quản lý kèo, giải đấu cầu lông chuyên nghiệp",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
