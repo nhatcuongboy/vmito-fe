@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import SlideOutMenu from './SlideOutMenu';
 import NotificationBell from './NotificationBell';
 import { UserRole } from '@/lib/api/types';
+import Link from 'next/link';
+
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -84,7 +86,9 @@ export default function TopBar({
             {/* Left side - Back button or spacer */}
             <Box minW="120px" height="100%" display="flex" alignItems="center">
               {icon ? (
-                icon
+                <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center' }}>
+                  {icon}
+                </Link>
               ) : showBackButton ? (
                 <NextLinkButton
                   href={backHref}

@@ -68,8 +68,9 @@ const CustomCheckbox = ({
 
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/chakra-compat';
-import { Plus, Minus, Sparkles, User, Users, UserPlus } from 'lucide-react';
+import { Plus, Minus, Sparkles, User, Users, UserPlus, BarChart } from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
+import { VALID_LEVELS } from '@/constants/levels';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -1028,6 +1029,61 @@ export default function SessionForm({
                                             </Box>
                                         )}
                                     />
+
+                                    {/* Required Levels */}
+                                    <Box p={4} bg="gray.50" borderRadius="md">
+                                        <Flex align="center" justify="space-between" mb={watch('allLevelsSelected') ? 0 : 3}>
+                                            <Box>
+                                                <HStack mb={1}>
+                                                    <BarChart size={18} />
+                                                    <Text fontWeight="medium">
+                                                        {t('generalSettings.requiredPlayerLevels')}
+                                                    </Text>
+                                                </HStack>
+                                                <Text fontSize="sm" color="gray.500">
+                                                    {watch('allLevelsSelected')
+                                                        ? t('generalSettings.allLevelsAllowed')
+                                                        : t('generalSettings.selectRequiredLevels')}
+                                                </Text>
+                                            </Box>
+                                            <CustomCheckbox
+                                                isChecked={watch('allLevelsSelected')}
+                                                onChange={(e) => {
+                                                    setValue('allLevelsSelected', e.target.checked);
+                                                    if (e.target.checked) {
+                                                        setValue('requiredLevels', []);
+                                                    }
+                                                }}
+                                            />
+                                        </Flex>
+
+                                        {!watch('allLevelsSelected') && (
+                                            <Wrap gap={2} mt={3}>
+                                                {VALID_LEVELS.map((level) => {
+                                                    const currentLevels = watch('requiredLevels') || [];
+                                                    const isSelected = currentLevels.includes(level);
+                                                    return (
+                                                        <WrapItem key={level}>
+                                                            <Button
+                                                                size="sm"
+                                                                type="button"
+                                                                variant={isSelected ? 'solid' : 'outline'}
+                                                                colorPalette={isSelected ? 'blue' : 'gray'}
+                                                                onClick={() => {
+                                                                    const newLevels = isSelected
+                                                                        ? currentLevels.filter((l) => l !== level)
+                                                                        : [...currentLevels, level];
+                                                                    setValue('requiredLevels', newLevels);
+                                                                }}
+                                                            >
+                                                                {t(`levels.${level}`)}
+                                                            </Button>
+                                                        </WrapItem>
+                                                    );
+                                                })}
+                                            </Wrap>
+                                        )}
+                                    </Box>
                                 </Stack>
                             </Box>
                         )}

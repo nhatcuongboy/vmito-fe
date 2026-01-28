@@ -138,11 +138,10 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? `${formatTime(session.startTime, locale)} - ${session.endTime
+        ? formatTime(session.endTime, locale)
+        : t('inProgress')
+      }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -235,22 +234,24 @@ const BaseSessionCard = ({
             <Icon as={Shield} boxSize={5} mr={2} color={skillLevelColor.color} />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels)).map((level) => {
-                  const levelColor = getSkillLevelColor([level]);
-                  return (
-                    <Badge
-                      key={level}
-                      colorPalette={levelColor.colorPalette}
-                      fontSize="sm"
-                      variant="solid"
-                      px={2}
-                      py={0.5}
-                      borderRadius="md"
-                    >
-                      {getLevelShortLabel(level)}
-                    </Badge>
-                  );
-                })
+                Array.from(new Set(session.requiredLevels))
+                  .sort((a, b) => a - b)
+                  .map((level) => {
+                    const levelColor = getSkillLevelColor([level]);
+                    return (
+                      <Badge
+                        key={level}
+                        colorPalette={levelColor.colorPalette}
+                        fontSize="sm"
+                        variant="solid"
+                        px={2}
+                        py={0.5}
+                        borderRadius="md"
+                      >
+                        {getLevelShortLabel(level)}
+                      </Badge>
+                    );
+                  })
               ) : (
                 <Badge
                   colorPalette={skillLevelColor.colorPalette}

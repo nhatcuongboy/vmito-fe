@@ -2,12 +2,13 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
-import { Box, Center, Grid, Heading, Spinner, Text } from '@chakra-ui/react';
+import { Box, Grid, Heading, Text } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import SessionCard from './SessionCard';
+import { SessionCardSkeleton } from './SessionCardSkeleton';
 
 interface SessionsListProps {
   status?: string;
@@ -94,9 +95,18 @@ export default function SessionsList({
 
   if (loading) {
     return (
-      <Center py={10}>
-        <Spinner size="xl" color="blue.500" />
-      </Center>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        }}
+        gap={6}
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <SessionCardSkeleton key={index} />
+        ))}
+      </Grid>
     );
   }
 

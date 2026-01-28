@@ -177,22 +177,24 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
       <InfoRow icon={Award} label={t('requiredLevels')}>
         <Flex gap={2} flexWrap="wrap">
           {session.requiredLevels && session.requiredLevels.length > 0 ? (
-            Array.from(new Set(session.requiredLevels)).map((level: number) => (
-              <Box
-                key={level}
-                px={2.5}
-                py={0.5}
-                bg="orange.50"
-                color="orange.700"
-                borderRadius="full"
-                fontSize="sm"
-                fontWeight="semibold"
-                border="1px solid"
-                borderColor="orange.100"
-              >
-                {getLevelShortLabel(level)}
-              </Box>
-            ))
+            Array.from(new Set(session.requiredLevels))
+              .sort((a, b) => a - b)
+              .map((level: number) => (
+                <Box
+                  key={level}
+                  px={2.5}
+                  py={0.5}
+                  bg="orange.50"
+                  color="orange.700"
+                  borderRadius="full"
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  border="1px solid"
+                  borderColor="orange.100"
+                >
+                  {getLevelShortLabel(level)}
+                </Box>
+              ))
           ) : (
             <Text>{t('allLevels')}</Text>
           )}

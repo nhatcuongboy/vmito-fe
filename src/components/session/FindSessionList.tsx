@@ -7,19 +7,13 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import {
   Box,
-  Center,
   Grid,
   Heading,
-  Spinner,
   Text,
   Flex,
   Badge,
-  Wrap,
-  WrapItem,
   VStack,
   HStack,
-  SimpleGrid,
-  Icon,
 } from '@chakra-ui/react';
 import { Button, Input } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
@@ -27,6 +21,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState, useMemo } from 'react';
 import JoinSessionModal from './JoinSessionModal';
 import FindSessionCard from './FindSessionCard';
+import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { useRouter } from '@/i18n/config';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -87,7 +82,7 @@ export default function FindSessionList({
 
   const [isLocating, setIsLocating] = useState(false);
 
-  const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(true);
+  const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -373,7 +368,7 @@ export default function FindSessionList({
         >
           {t('filters.title')}
           {activeFilterCount > 0 && (
-            <Badge ml={2} colorScheme="whiteAlpha" variant="solid">
+            <Badge ml={2} colorPalette="whiteAlpha" variant="solid">
               {activeFilterCount}
             </Badge>
           )}
@@ -385,319 +380,255 @@ export default function FindSessionList({
         </Button>
       </Flex>
 
-      {/* Collapsible Filter Panel */}
+      {/* Collapsible Filter Panel - Compact Design */}
       {showFilters && (
         <Box
           bg="white"
           _dark={{ bg: 'gray.800' }}
-          p={4}
+          p={3}
           borderRadius="lg"
           borderWidth="1px"
-          mb={6}
+          mb={4}
           shadow="sm"
         >
-          <VStack align="stretch" gap={5}>
-            {/* Row 1: Area & Date & Status */}
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4}>
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={2}>
+          <VStack align="stretch" gap={3}>
+            {/* Quick Actions Row: Date, Status, Near Me */}
+            <Flex gap={2} wrap="wrap" align="center">
+              <Input
+                type="date"
+                size="sm"
+                width="auto"
+                minW="140px"
+                value={filters.date}
+                onChange={(e) => setFilters({ date: e.target.value })}
+              />
+              <Badge
+                px={4}
+                py={1.5}
+                borderRadius="full"
+                cursor="pointer"
+                variant={filters.hasSlots ? 'solid' : 'outline'}
+                colorPalette={filters.hasSlots ? 'green' : 'gray'}
+                onClick={() => setFilters({ hasSlots: !filters.hasSlots })}
+                fontSize="md"
+                fontWeight="medium"
+              >
+                {t('filters.availableSlots')}
+              </Badge>
+              <Badge
+                px={4}
+                py={1.5}
+                borderRadius="full"
+                cursor="pointer"
+                variant={sortByDistance ? 'solid' : 'outline'}
+                colorPalette={sortByDistance ? 'blue' : 'gray'}
+                onClick={handleNearMe}
+                fontSize="md"
+                fontWeight="medium"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                <MapPin size={16} />
+                {sortByDistance ? t('filters.sortByDistance') : t('filters.nearMe')}
+              </Badge>
+            </Flex>
+
+            {/* City Selection - Horizontal Scroll */}
+            <Box>
+              <Flex justify="space-between" align="center" mb={1}>
+                <Text fontSize="sm" fontWeight="medium" color="gray.600">
                   {t('filters.area')}
-                </Text>
-                <VStack gap={3} align="stretch">
-                  {/* City Selection */}
-                  <Box>
-                    <Flex justify="space-between" align="center" mb={1}>
-                      <Text fontSize="xs" color="gray.600">
-                        {filters.cities.length === 0
-                          ? t('filters.allCities')
-                          : t('filters.selectedCities', {
-                              count: filters.cities.length,
-                            })}
-                      </Text>
-                      {filters.cities.length > 0 && (
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          onClick={clearLocation}
-                        >
-                          <X size={12} />
-                        </Button>
-                      )}
-                    </Flex>
-                    <Wrap gap={1}>
-                      {VIETNAM_CITIES.map((city) => (
-                        <WrapItem key={city.code}>
-                          <Badge
-                            px={2}
-                            py={1}
-                            borderRadius="md"
-                            cursor="pointer"
-                            variant={
-                              filters.cities.includes(city.code)
-                                ? 'solid'
-                                : 'outline'
-                            }
-                            colorPalette={
-                              filters.cities.includes(city.code) ? 'blue' : 'gray'
-                            }
-                            onClick={() => toggleCity(city.code)}
-                            fontSize="xs"
-                          >
-                            {city.name}
-                          </Badge>
-                        </WrapItem>
-                      ))}
-                    </Wrap>
-                  </Box>
-
-                  {/* District Selection - Only show if cities selected */}
                   {filters.cities.length > 0 && (
-                    <Box>
-                      <Flex justify="space-between" align="center" mb={1}>
-                        <Text fontSize="xs" color="gray.600">
-                          {filters.districts.length === 0
-                            ? t('filters.allDistricts')
-                            : t('filters.selectedDistricts', {
-                                count: filters.districts.length,
-                              })}
-                        </Text>
-                        {filters.districts.length > 0 && (
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => setFilters({ districts: [] })}
-                          >
-                            <X size={12} />
-                          </Button>
-                        )}
-                      </Flex>
-                      <Wrap gap={1} maxH="120px" overflowY="auto">
-                        {availableDistricts.map((district) => (
-                          <WrapItem key={district.code}>
-                            <Badge
-                              px={2}
-                              py={1}
-                              borderRadius="md"
-                              cursor="pointer"
-                              variant={
-                                filters.districts.includes(district.name)
-                                  ? 'solid'
-                                  : 'outline'
-                              }
-                              colorPalette={
-                                filters.districts.includes(district.name)
-                                  ? 'blue'
-                                  : 'gray'
-                              }
-                              onClick={() => toggleDistrict(district.name)}
-                              fontSize="xs"
-                            >
-                              {district.name}
-                            </Badge>
-                          </WrapItem>
-                        ))}
-                      </Wrap>
-                    </Box>
+                    <Badge ml={1} size="sm" colorPalette="blue" variant="subtle">
+                      {filters.cities.length}
+                    </Badge>
                   )}
-                </VStack>
-              </Box>
-
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={1}>
-                  {t('date')}
                 </Text>
-                <VStack gap={1} align="stretch">
-                  <Input
-                    type="date"
-                    size="sm"
-                    value={filters.date}
-                    onChange={(e) => setFilters({ date: e.target.value })}
-                  />
-                  {!filters.date && (
-                    <Text fontSize="xs" color="gray.500">
-                      {t('filters.allDays')}
-                    </Text>
-                  )}
-                </VStack>
-              </Box>
-
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={1}>
-                  {t('filters.sessionStatus')}
-                </Text>
-                <HStack gap={2}>
-                  <Button
-                    size="sm"
-                    variant={filters.hasSlots ? 'solid' : 'outline'}
-                    colorPalette={filters.hasSlots ? 'green' : 'gray'}
-                    onClick={() => setFilters({ hasSlots: !filters.hasSlots })}
-                    flex={1}
-                  >
-                    {t('filters.availableSlots')}
+                {filters.cities.length > 0 && (
+                  <Button size="xs" variant="ghost" onClick={clearLocation} p={0} h="auto" minW="auto">
+                    <X size={14} />
                   </Button>
-                </HStack>
-              </Box>
+                )}
+              </Flex>
+              <Flex gap={1.5} flexWrap="wrap">
+                {VIETNAM_CITIES.map((city) => (
+                  <Badge
+                    key={city.code}
+                    px={2.5}
+                    py={1}
+                    borderRadius="md"
+                    cursor="pointer"
+                    variant={filters.cities.includes(city.code) ? 'solid' : 'outline'}
+                    colorPalette={filters.cities.includes(city.code) ? 'blue' : 'gray'}
+                    onClick={() => toggleCity(city.code)}
+                    fontSize="sm"
+                  >
+                    {city.name}
+                  </Badge>
+                ))}
+              </Flex>
+            </Box>
 
+            {/* District Selection - Only show if cities selected */}
+            {filters.cities.length > 0 && availableDistricts.length > 0 && (
               <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={1}>
-                  {t('filters.nearMe')}
-                </Text>
-                <Button
-                  size="sm"
-                  width="full"
-                  variant={sortByDistance ? 'solid' : 'outline'}
-                  colorPalette={sortByDistance ? 'blue' : 'gray'}
-                  onClick={handleNearMe}
-                  loading={isLocating}
-                  leftIcon={<MapPin size={14} />}
-                >
-                  {sortByDistance ? t('filters.sortByDistance') : t('filters.nearMe')}
-                </Button>
+                <Flex justify="space-between" align="center" mb={1}>
+                  <Text fontSize="sm" fontWeight="medium" color="gray.600">
+                    {t('filters.allDistricts')}
+                    {filters.districts.length > 0 && (
+                      <Badge ml={1} size="sm" colorPalette="blue" variant="subtle">
+                        {filters.districts.length}
+                      </Badge>
+                    )}
+                  </Text>
+                  {filters.districts.length > 0 && (
+                    <Button size="xs" variant="ghost" onClick={() => setFilters({ districts: [] })} p={0} h="auto" minW="auto">
+                      <X size={14} />
+                    </Button>
+                  )}
+                </Flex>
+                <Flex gap={1.5} flexWrap="wrap" maxH="100px" overflowY="auto">
+                  {availableDistricts.map((district) => (
+                    <Badge
+                      key={district.code}
+                      px={2.5}
+                      py={1}
+                      borderRadius="md"
+                      cursor="pointer"
+                      variant={filters.districts.includes(district.name) ? 'solid' : 'outline'}
+                      colorPalette={filters.districts.includes(district.name) ? 'blue' : 'gray'}
+                      onClick={() => toggleDistrict(district.name)}
+                      fontSize="sm"
+                    >
+                      {district.name}
+                    </Badge>
+                  ))}
+                </Flex>
               </Box>
-            </SimpleGrid>
+            )}
 
-            {/* Row 2: Levels & Time */}
-            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4}>
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={2}>
+            {/* Levels & Time Row */}
+            <Flex gap={4} wrap="wrap">
+              <Box flex="1" minW="200px">
+                <Text fontSize="sm" fontWeight="medium" color="gray.600" mb={1}>
                   {t('level')}
                 </Text>
-                <Wrap gap={2}>
+                <Flex gap={1.5} flexWrap="wrap">
                   {VALID_LEVELS.map((level) => {
                     const skillColor = getSkillLevelColor([level]);
                     return (
-                      <WrapItem key={level}>
-                        <Badge
-                          px={2.5}
-                          py={1}
-                          borderRadius="full"
-                          cursor="pointer"
-                          variant={
-                            filters.levels.includes(level) ? 'solid' : 'outline'
-                          }
-                          colorPalette={
-                            filters.levels.includes(level)
-                              ? skillColor.colorPalette
-                              : 'gray'
-                          }
-                          onClick={() => toggleLevel(level)}
-                        >
-                          {getLevelShortLabel(level)}
-                        </Badge>
-                      </WrapItem>
-                    );
-                  })}
-                </Wrap>
-              </Box>
-
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={2}>
-                  {t('timeRange')}
-                </Text>
-                <Wrap gap={2}>
-                  {TIME_RANGES.map((range) => (
-                    <WrapItem key={range.key}>
                       <Badge
+                        key={level}
                         px={2.5}
                         py={1}
                         borderRadius="full"
                         cursor="pointer"
-                        variant={filters.timeRanges.includes(range.key) ? 'solid' : 'outline'}
-                        colorPalette={filters.timeRanges.includes(range.key) ? 'purple' : 'gray'}
-                        onClick={() => toggleTimeRange(range.key)}
+                        variant={filters.levels.includes(level) ? 'solid' : 'outline'}
+                        colorPalette={filters.levels.includes(level) ? skillColor.colorPalette : 'gray'}
+                        onClick={() => toggleLevel(level)}
+                        fontSize="sm"
                       >
-                        {t(`timeRanges.${range.key}`)}
+                        {getLevelShortLabel(level)}
                       </Badge>
-                    </WrapItem>
-                  ))}
-                </Wrap>
+                    );
+                  })}
+                </Flex>
               </Box>
-            </SimpleGrid>
 
-            {/* Row 3: Fee Range */}
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                {t('filters.cost')}: {filters.minFee.toLocaleString()} -{' '}
-                {filters.maxFee >= 200000
-                  ? '200k+'
-                  : filters.maxFee.toLocaleString()}{' '}
-                VND
+              <Box minW="180px">
+                <Text fontSize="sm" fontWeight="medium" color="gray.600" mb={1}>
+                  {t('timeRange')}
+                </Text>
+                <Flex gap={1.5} flexWrap="wrap">
+                  {TIME_RANGES.map((range) => (
+                    <Badge
+                      key={range.key}
+                      px={2.5}
+                      py={1}
+                      borderRadius="full"
+                      cursor="pointer"
+                      variant={filters.timeRanges.includes(range.key) ? 'solid' : 'outline'}
+                      colorPalette={filters.timeRanges.includes(range.key) ? 'purple' : 'gray'}
+                      onClick={() => toggleTimeRange(range.key)}
+                      fontSize="sm"
+                    >
+                      {t(`timeRanges.${range.key}`)}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+            </Flex>
+
+            {/* Fee Range - Compact Inline */}
+            <Flex gap={3} align="center" wrap="wrap">
+              <Text fontSize="sm" fontWeight="medium" color="gray.600">
+                {t('filters.cost')}:
               </Text>
-              <VStack gap={2} align="stretch">
-                <HStack gap={4}>
-                  <HStack>
-                    <Text fontSize="xs">Min</Text>
-                    <Input
-                      size="sm"
-                      type="number"
-                      width="100px"
-                      value={filters.minFee}
-                      onChange={(e) =>
-                        setFilters({ minFee: Number(e.target.value) })
-                      }
-                      step={5000}
-                      min={0}
-                    />
-                  </HStack>
-                  <HStack>
-                    <Text fontSize="xs">Max</Text>
-                    <Input
-                      size="sm"
-                      type="number"
-                      width="100px"
-                      value={filters.maxFee}
-                      onChange={(e) =>
-                        setFilters({ maxFee: Number(e.target.value) })
-                      }
-                      step={5000}
-                      min={0}
-                    />
-                  </HStack>
-                </HStack>
-                <HStack>
-                  <Box
-                    as="label"
-                    cursor="pointer"
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={filters.splitEvenly}
-                      onChange={(e) =>
-                        setFilters({ splitEvenly: e.target.checked })
-                      }
-                    />
-                    <Text fontSize="sm">{t('filters.splitEvenly')}</Text>
-                  </Box>
-                </HStack>
-              </VStack>
-            </Box>
+              <HStack gap={2}>
+                <Input
+                  size="sm"
+                  type="number"
+                  width="90px"
+                  value={filters.minFee}
+                  onChange={(e) => setFilters({ minFee: Number(e.target.value) })}
+                  step={5000}
+                  min={0}
+                />
+                <Text fontSize="sm">-</Text>
+                <Input
+                  size="sm"
+                  type="number"
+                  width="90px"
+                  value={filters.maxFee}
+                  onChange={(e) => setFilters({ maxFee: Number(e.target.value) })}
+                  step={5000}
+                  min={0}
+                />
+                <Text fontSize="sm" color="gray.500">VND</Text>
+              </HStack>
+              <Box as="label" cursor="pointer" display="flex" alignItems="center" gap={2}>
+                <input
+                  type="checkbox"
+                  checked={filters.splitEvenly}
+                  onChange={(e) => setFilters({ splitEvenly: e.target.checked })}
+                />
+                <Text fontSize="sm">{t('filters.splitEvenly')}</Text>
+              </Box>
 
-            {/* Clear Filters */}
-            {activeFilterCount > 0 && (
-              <Flex justify="flex-end">
+              {/* Clear Filters - Inline */}
+              {activeFilterCount > 0 && (
                 <Button
-                  size="xs"
-                  variant="ghost"
+                  size="sm"
+                  variant="solid"
                   colorPalette="red"
                   onClick={clearFilters}
-                  leftIcon={<X size={12} />}
+                  ml="auto"
+                  leftIcon={<X size={16} />}
+                  fontWeight="semibold"
                 >
                   {t('clearFilters')}
                 </Button>
-              </Flex>
-            )}
+              )}
+            </Flex>
           </VStack>
         </Box>
       )}
 
       {/* Results List */}
       {loading ? (
-        <Center py={10}>
-          <Spinner size="xl" color="blue.500" />
-        </Center>
+        <Grid
+          templateColumns={{
+            base: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          }}
+          gap={6}
+        >
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SessionCardSkeleton key={index} />
+          ))}
+        </Grid>
       ) : error ? (
         <Box
           p={4}

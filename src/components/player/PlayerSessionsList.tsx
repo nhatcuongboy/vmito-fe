@@ -6,8 +6,6 @@ import {
   Grid,
   Heading,
   Text,
-  Spinner,
-  Center,
   Stack,
   Flex,
 } from '@chakra-ui/react';
@@ -15,6 +13,7 @@ import { AlertTriangle } from 'lucide-react';
 import { PlayerService } from '@/lib/api/player.service';
 import { useTranslations } from 'next-intl';
 import PlayerSessionCard from './PlayerSessionCard';
+import { SessionCardSkeleton } from '../session/SessionCardSkeleton';
 import { ISession } from '@/lib/api/types';
 
 export default function PlayerSessionsList() {
@@ -42,9 +41,18 @@ export default function PlayerSessionsList() {
 
   if (loading) {
     return (
-      <Center py={8}>
-        <Spinner size="xl" color="blue.500" />
-      </Center>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        }}
+        gap={6}
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <SessionCardSkeleton key={index} />
+        ))}
+      </Grid>
     );
   }
 

@@ -35,8 +35,8 @@ export const getSkillLevelColor = (
     requiredLevels.reduce((sum, level) => sum + level, 0) /
     requiredLevels.length;
 
-  // Beginner: Levels 1-3 (Green)
-  if (avgLevel <= 3) {
+  // Beginner: Levels 1-2 (Green)
+  if (avgLevel <= 2) {
     return {
       color: 'green.600',
       colorPalette: 'green',
@@ -46,7 +46,7 @@ export const getSkillLevelColor = (
     };
   }
 
-  // Intermediate: Levels 4-5 (Yellow)
+  // Intermediate: Levels 3-5 (Yellow) - includes TB-, TB, TB+
   if (avgLevel <= 5) {
     return {
       color: 'yellow.600',

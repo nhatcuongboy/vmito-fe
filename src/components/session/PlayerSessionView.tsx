@@ -553,7 +553,7 @@ export default function PlayerSessionView({
                     {paymentError.type !== 'not_implemented' && (
                       <Button
                         size="sm"
-                        colorScheme="blue"
+                        colorPalette="blue"
                         onClick={() => fetchPaymentData()}
                       >
                         Retry
