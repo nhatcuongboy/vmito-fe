@@ -13,6 +13,10 @@ import TopBar from '@/components/ui/TopBar';
 import { usePlayerSession } from '@/hooks/usePlayerSession';
 import { type Match } from '@/lib/api/types';
 import { getCourtDisplayName } from '@/utils/session-helpers';
+import { PaymentInfoTab } from '@/components/payment';
+import { PaymentService } from '@/lib/api/payment.service';
+import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
+import type { PaymentRecord, HostPaymentSettings, PaymentMethod } from '@/lib/api/types';
 import {
   Box,
   Center,
@@ -21,9 +25,10 @@ import {
   Heading,
   Spinner,
   Text,
+  Button,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface PlayerSessionViewProps {
   /**
@@ -87,7 +92,88 @@ export default function PlayerSessionView({
     userId,
   });
 
-  const [activeTab, setActiveTab] = useState<number>(0); // 0: Overview, 1: Status, 2: Courts, 3: Results
+  const [activeTab, setActiveTab] = useState<number>(0); // 0: Overview, 1: Status, 2: Courts, 3: Results, 4: Payment
+
+  // Payment state
+  const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
+  const [hostPaymentSettings, setHostPaymentSettings] = useState<HostPaymentSettings | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState<{
+    type: 'not_implemented' | 'network_error' | 'unknown';
+    message: string;
+  } | null>(null);
+
+  // Fetch payment data
+  const fetchPaymentData = async () => {
+    if (!session?.id) return;
+
+    setPaymentLoading(true);
+    setPaymentError(null);
+    try {
+      const [payments, settings] = await Promise.all([
+        PaymentService.getMySessionPayments(session.id),
+        session.hostId ? PaymentSettingsService.getHostPaymentSettings(session.hostId) : Promise.resolve(null)
+      ]);
+      setPaymentRecords(payments);
+      setHostPaymentSettings(settings);
+    } catch (error: unknown) {
+      console.error('Failed to fetch payment data:', error);
+
+      const err = error as {
+        response?: { status?: number };
+        statusCode?: number;
+        message?: string;
+      };
+
+      // Detect 404 - backend not implemented
+      if (err?.response?.status === 404 || err?.statusCode === 404) {
+        setPaymentError({
+          type: 'not_implemented',
+          message:
+            'Payment feature is not yet available on the backend. Please contact the administrator.',
+        });
+      } else if (
+        err?.message?.includes('Network') ||
+        err?.message?.includes('fetch')
+      ) {
+        setPaymentError({
+          type: 'network_error',
+          message: 'Network error. Please check your connection and try again.',
+        });
+      } else {
+        setPaymentError({
+          type: 'unknown',
+          message: err?.message || 'Failed to load payment information.',
+        });
+      }
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  // Fetch payment data when session changes or tab 4 is accessed
+  useEffect(() => {
+    if (session && activeTab === 4) {
+      fetchPaymentData();
+    }
+  }, [session, activeTab]);
+
+  // Payment handlers
+  const handleSubmitPayment = async (
+    paymentId: string,
+    data: {
+      paymentMethod: PaymentMethod;
+      proofImageUrl?: string;
+      proofNotes?: string;
+    }
+  ) => {
+    await PaymentService.submitPayment(paymentId, data);
+    await fetchPaymentData(); // Refresh after submission
+  };
+
+  const handleUploadProof = async (file: File): Promise<string> => {
+    return await PaymentService.uploadPaymentProof(file);
+  };
 
   // Helper function to format elapsed time for match display
   const formatMatchElapsedTime = (startTime: Date | string): string => {
@@ -339,6 +425,60 @@ export default function PlayerSessionView({
             {/* Results Tab */}
             {activeTab === 3 && (
               <PlayerMatchHistory sessionId={session.id} playerId={player.id} />
+            )}
+
+            {/* Payment Tab */}
+            {activeTab === 4 && (
+              <>
+                {!session.feeConfig ? (
+                  <Box
+                    p={6}
+                    bg="gray.50"
+                    borderRadius="lg"
+                    textAlign="center"
+                  >
+                    <Text color="gray.600">
+                      {sessionT('noFeeConfigured')}
+                    </Text>
+                  </Box>
+                ) : paymentLoading ? (
+                  <Center py={8}>
+                    <Spinner size="lg" color="blue.500" />
+                  </Center>
+                ) : paymentError ? (
+                  <Box
+                    p={6}
+                    bg={paymentError.type === 'not_implemented' ? 'orange.50' : 'red.50'}
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor={paymentError.type === 'not_implemented' ? 'orange.200' : 'red.200'}
+                  >
+                    <Heading size="sm" mb={2} color={paymentError.type === 'not_implemented' ? 'orange.700' : 'red.700'}>
+                      {paymentError.type === 'not_implemented' ? '⚠️ Feature Not Available' : '❌ Error Loading Payment'}
+                    </Heading>
+                    <Text color="gray.700" mb={3}>
+                      {paymentError.message}
+                    </Text>
+                    {paymentError.type !== 'not_implemented' && (
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        onClick={() => fetchPaymentData()}
+                      >
+                        Retry
+                      </Button>
+                    )}
+                  </Box>
+                ) : (
+                  <PaymentInfoTab
+                    session={session}
+                    paymentRecords={paymentRecords}
+                    hostPaymentSettings={hostPaymentSettings}
+                    onSubmitPayment={handleSubmitPayment}
+                    onUploadProof={handleUploadProof}
+                  />
+                )}
+              </>
             )}
           </Box>
         )}

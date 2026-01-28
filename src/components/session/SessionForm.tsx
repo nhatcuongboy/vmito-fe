@@ -1,7 +1,8 @@
 'use client';
 
 import { SessionService } from '@/lib/api/session.service';
-import { CourtDirection, ISession, SessionStatus, Venue, UserRole } from '@/lib/api/types';
+import { CourtDirection, ISession, SessionStatus, Venue, UserRole, FeeType } from '@/lib/api/types';
+import SessionFeeConfigForm from '@/components/fee/SessionFeeConfigForm';
 import {
     Alert,
     Box,
@@ -257,6 +258,23 @@ export default function SessionForm({
     const [venues, setVenues] = useState<Venue[]>([]);
     const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
+    // Fee configuration state
+    const [feeEnabled, setFeeEnabled] = useState(
+        isEditMode && initialData?.feeConfig ? true : false
+    );
+    const [feeType, setFeeType] = useState<FeeType>(
+        initialData?.feeConfig?.feeType || FeeType.FIXED
+    );
+    const [maleFee, setMaleFee] = useState<number | undefined>(
+        initialData?.feeConfig?.maleFee
+    );
+    const [femaleFee, setFemaleFee] = useState<number | undefined>(
+        initialData?.feeConfig?.femaleFee
+    );
+    const [feeNotes, setFeeNotes] = useState(
+        initialData?.feeConfig?.notes || ''
+    );
+
     // Computed session duration
     const sessionDuration = useMemo(() => {
         try {
@@ -427,6 +445,16 @@ export default function SessionForm({
 
             let session: ISession;
 
+            // Prepare fee config
+            const feeConfigData = feeEnabled
+                ? {
+                    feeType,
+                    maleFee: feeType === FeeType.FIXED ? maleFee : undefined,
+                    femaleFee: feeType === FeeType.FIXED ? femaleFee : undefined,
+                    notes: feeNotes.trim() || undefined,
+                }
+                : undefined;
+
             if (isEditMode && sessionId) {
                 // Update logic
                 session = await SessionService.updateSession(sessionId, {
@@ -445,6 +473,7 @@ export default function SessionForm({
                             : undefined,
                     courtColor: data.courtColor,
                     venue: venueData,
+                    feeConfig: feeConfigData,
 
                     // Only update courts if allowed
                     ...(canEditCourts && {
@@ -490,6 +519,7 @@ export default function SessionForm({
                         courtName: court.courtName || undefined,
                         direction: court.direction,
                     })),
+                    feeConfig: feeConfigData,
                 });
             }
 
@@ -1000,6 +1030,22 @@ export default function SessionForm({
                                     />
                                 </Stack>
                             </Box>
+                        )}
+
+                        {/* Fee Configuration Section */}
+                        {user?.role !== UserRole.PLAYER && (
+                            <SessionFeeConfigForm
+                                enabled={feeEnabled}
+                                onEnabledChange={setFeeEnabled}
+                                feeType={feeType}
+                                onFeeTypeChange={setFeeType}
+                                maleFee={maleFee}
+                                onMaleFeeChange={setMaleFee}
+                                femaleFee={femaleFee}
+                                onFemaleFeeChange={setFemaleFee}
+                                notes={feeNotes}
+                                onNotesChange={setFeeNotes}
+                            />
                         )}
 
                         {/* Buttons */}

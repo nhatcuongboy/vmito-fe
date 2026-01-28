@@ -22,6 +22,7 @@ import {
   Tag,
   LayoutGrid,
   FileText,
+  DollarSign,
 } from 'lucide-react';
 import { ISession, Player, PlayerStatistics } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
@@ -30,6 +31,8 @@ import dayjs from '@/lib/dayjs';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { useState, useEffect } from 'react';
 import { SessionService } from '@/lib/api/session.service';
+import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
+import { FeeService } from '@/lib/api/fee.service';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
@@ -195,6 +198,22 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
           )}
         </Flex>
       </InfoRow>
+
+      {session.feeConfig && (
+        <InfoRow icon={DollarSign} label={t('fee')}>
+          <Flex align="center">
+            <Text color="green.600" fontWeight="bold">
+              {FeeService.getFeeDisplayText(session.feeConfig)}
+            </Text>
+            {session.feeConfig.feeType === 'FIXED' && (
+              <Text ml={1} color="gray.500" fontSize="sm">
+                /slot
+              </Text>
+            )}
+            <FeeDetailPopover feeConfig={session.feeConfig} />
+          </Flex>
+        </InfoRow>
+      )}
 
       {session.description && (
         <InfoRow icon={FileText} label={t('description')}>

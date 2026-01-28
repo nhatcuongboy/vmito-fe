@@ -62,6 +62,149 @@ export enum PlayerLevel {
   PRO = 8,
 }
 
+// ============================================
+// Fee and Payment Management Types
+// ============================================
+
+// Fee type enum - Fixed or Split evenly
+export enum FeeType {
+  FIXED = 'FIXED', // Giá cố định theo giới tính
+  SPLIT_EVENLY = 'SPLIT_EVENLY', // Chia đều sau session
+}
+
+// Payment method enum
+export enum PaymentMethod {
+  CASH = 'CASH',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+}
+
+// Payment status enum
+export enum PaymentStatus {
+  PENDING = 'PENDING', // Chưa thanh toán
+  SUBMITTED = 'SUBMITTED', // Đã đánh dấu, chờ duyệt
+  APPROVED = 'APPROVED', // Host đã duyệt
+  REJECTED = 'REJECTED', // Host từ chối
+}
+
+// Session fee configuration
+export interface SessionFeeConfig {
+  id: string;
+  sessionId: string;
+  feeType: FeeType;
+  maleFee?: number; // VND - null nếu SPLIT_EVENLY
+  femaleFee?: number; // VND - null nếu SPLIT_EVENLY
+  splitTotal?: number; // Tổng tiền để chia (chỉ cho SPLIT_EVENLY)
+  splitPerPlayer?: number; // = splitTotal / số người chơi (calculated)
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Host payment settings
+export interface HostPaymentSettings {
+  id: string;
+  userId: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  accountHolderName?: string;
+  qrCodeUrl?: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Payment record (per player per session)
+export interface PaymentRecord {
+  id: string;
+  sessionId: string;
+  playerId: string;
+  registeredByUserId?: string; // User đăng ký (cho multi-slot)
+  hostId: string;
+  amount: number; // VND
+  paymentMethod?: PaymentMethod;
+  status: PaymentStatus;
+  proofImageUrl?: string;
+  proofNotes?: string;
+  hostNotes?: string;
+  submittedAt?: Date;
+  approvedAt?: Date;
+  rejectedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  player?: Player;
+  session?: ISession;
+}
+
+// Transaction summary (player xem theo host)
+export interface TransactionSummary {
+  hostId: string;
+  hostName: string;
+  hostImage?: string;
+  totalSessions: number;
+  totalAmount: number; // VND
+  paidAmount: number; // VND
+  pendingAmount: number; // VND
+}
+
+// Host transaction summary (host xem theo player)
+export interface HostTransactionSummary {
+  userId: string;
+  userName: string;
+  userImage?: string;
+  totalSessions: number;
+  totalAmount: number; // VND
+  paidAmount: number; // VND
+  pendingAmount: number; // VND
+}
+
+// Request types for fee configuration
+export interface CreateSessionFeeConfigRequest {
+  feeType: FeeType;
+  maleFee?: number;
+  femaleFee?: number;
+  notes?: string;
+}
+
+export interface UpdateSessionFeeConfigRequest {
+  feeType?: FeeType;
+  maleFee?: number;
+  femaleFee?: number;
+  splitTotal?: number; // Only for SPLIT_EVENLY after session ends
+  notes?: string;
+}
+
+// Request types for payment settings
+export interface CreateHostPaymentSettingsRequest {
+  bankName?: string;
+  bankAccountNumber?: string;
+  accountHolderName?: string;
+  qrCodeUrl?: string;
+  isDefault?: boolean;
+}
+
+export interface UpdateHostPaymentSettingsRequest {
+  bankName?: string;
+  bankAccountNumber?: string;
+  accountHolderName?: string;
+  qrCodeUrl?: string;
+  isDefault?: boolean;
+}
+
+// Request types for payment actions
+export interface SubmitPaymentRequest {
+  paymentMethod: PaymentMethod;
+  proofImageUrl?: string; // Required for BANK_TRANSFER
+  proofNotes?: string;
+}
+
+export interface ApprovePaymentRequest {
+  hostNotes?: string;
+}
+
+export interface RejectPaymentRequest {
+  hostNotes: string; // Required - reason for rejection
+}
+
 export interface Venue {
   id: string;
   placeId: string;
@@ -104,6 +247,7 @@ export interface ISession {
   courts?: Court[];
   players?: Player[];
   pendingPlayers?: Player[];
+  feeConfig?: SessionFeeConfig; // Fee configuration for the session
   _count?: {
     players: number;
     courts: number;
@@ -140,6 +284,7 @@ export interface Player {
     name?: string;
     email?: string;
   };
+  paymentRecord?: PaymentRecord; // Payment record for this player
 }
 
 // Court types
@@ -261,6 +406,7 @@ export interface CreateSessionRequest {
   courtColor?: string;
   courts?: CourtConfig[];
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
+  feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration
 }
 
 // Suggested players response types

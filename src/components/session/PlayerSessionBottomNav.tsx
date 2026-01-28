@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { Activity, User, Users, Trophy, Info, Square } from 'lucide-react';
+import { Activity, User, Users, Trophy, Info, Square, DollarSign } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface PlayerSessionBottomNavProps {
@@ -97,6 +97,25 @@ export default function PlayerSessionBottomNav({
           mb={{ base: 0.5, md: 1 }}
         />
         {t('tabResults')}
+      </Box>
+      <Box
+        as="button"
+        flex={1}
+        py={{ base: 1, md: 2 }}
+        onClick={() => setActiveTab(4)}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        color={activeTab === 4 ? 'blue.500' : 'gray.500'}
+        fontWeight={activeTab === 4 ? 'bold' : 'normal'}
+        fontSize={{ base: '10px', md: 'sm' }}
+      >
+        <Box
+          as={DollarSign}
+          boxSize={{ base: 5, md: 6 }}
+          mb={{ base: 0.5, md: 1 }}
+        />
+        {t('tabPayment')}
       </Box>
     </Box>
   );

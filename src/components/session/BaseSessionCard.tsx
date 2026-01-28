@@ -18,13 +18,17 @@ import 'dayjs/locale/vi';
 import {
   Calendar,
   Clock,
+  DollarSign,
   Shield,
   SquareAsterisk,
   User,
   Users,
 } from 'lucide-react';
+import { FeeService } from '@/lib/api/fee.service';
+import { FeeType } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
+import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -109,11 +113,10 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? `${formatTime(session.startTime, locale)} - ${session.endTime
+        ? formatTime(session.endTime, locale)
+        : t('inProgress')
+      }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -220,6 +223,25 @@ const BaseSessionCard = ({
               )}
             </Wrap>
           </Flex>
+
+
+          {/* Fee Display */}
+          {session.feeConfig && (
+            <Flex align="center">
+              <Icon as={DollarSign} boxSize={5} mr={2} color="blue.500" />
+              <Text>
+                <Text as="span" fontWeight="bold" color="green.600">
+                  {FeeService.getFeeDisplayText(session.feeConfig)}
+                </Text>
+                {session.feeConfig.feeType === FeeType.FIXED && (
+                  <Text as="span" fontSize="sm" color="gray.500" ml={1}>
+                    /slot
+                  </Text>
+                )}
+              </Text>
+              <FeeDetailPopover feeConfig={session.feeConfig} />
+            </Flex>
+          )}
 
           {session.description && (
             <Text

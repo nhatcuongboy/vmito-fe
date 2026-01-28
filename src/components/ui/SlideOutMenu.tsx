@@ -2,7 +2,7 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Info, X, LogOut, LogIn, Search } from 'lucide-react';
+import { Home, Info, X, LogOut, LogIn, Search, Receipt, CreditCard } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -111,18 +111,51 @@ export default function SlideOutMenu({
                     <Text>{nav('home')}</Text>
                   </Flex>
                 </NextLinkButton>
-                {isAuthenticated && (<NextLinkButton
-                  href="/browse/sessions"
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  onClick={onClose}
-                  w="full"
-                >
-                  <Flex align="center" gap={3} w="full">
-                    <Search size={18} />
-                    <Text>{nav('browse')}</Text>
-                  </Flex>
-                </NextLinkButton>
+                {isAuthenticated && (
+                  <NextLinkButton
+                    href="/browse/sessions"
+                    variant="ghost"
+                    justifyContent="flex-start"
+                    onClick={onClose}
+                    w="full"
+                  >
+                    <Flex align="center" gap={3} w="full">
+                      <Search size={18} />
+                      <Text>{nav('browse')}</Text>
+                    </Flex>
+                  </NextLinkButton>
+                )}
+                {isAuthenticated && (
+                  <NextLinkButton
+                    href={
+                      user?.role === UserRole.HOST || user?.role === UserRole.ADMIN
+                        ? '/host/transactions'
+                        : '/player/transactions'
+                    }
+                    variant="ghost"
+                    justifyContent="flex-start"
+                    onClick={onClose}
+                    w="full"
+                  >
+                    <Flex align="center" gap={3} w="full">
+                      <Receipt size={18} />
+                      <Text>{nav('transactions')}</Text>
+                    </Flex>
+                  </NextLinkButton>
+                )}
+                {isAuthenticated && (user?.role === UserRole.HOST || user?.role === UserRole.ADMIN) && (
+                  <NextLinkButton
+                    href="/host/payment-settings"
+                    variant="ghost"
+                    justifyContent="flex-start"
+                    onClick={onClose}
+                    w="full"
+                  >
+                    <Flex align="center" gap={3} w="full">
+                      <CreditCard size={18} />
+                      <Text>{nav('paymentSettings')}</Text>
+                    </Flex>
+                  </NextLinkButton>
                 )}
                 {/* <NextLinkButton
                   href="/settings"

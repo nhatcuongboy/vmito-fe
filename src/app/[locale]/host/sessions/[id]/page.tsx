@@ -3,7 +3,7 @@
 import { use, useState, useEffect, Suspense } from 'react';
 import { Spinner, Center, Box, Text, Container } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Info, RefreshCw, Square, Trophy, Users } from 'lucide-react';
+import { Info, RefreshCw, Square, Trophy, Users, DollarSign } from 'lucide-react';
 
 // Hooks
 import { useSessionData } from '@/hooks/useSessionData';
@@ -21,6 +21,7 @@ import SessionHistoryList from '@/components/session/SessionHistoryList';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import SettingsTab from '@/components/session/SettingsTab';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
+import PaymentTab from '@/components/session/PaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import BottomNavigationBar, {
   NavigationTab,
@@ -98,13 +99,14 @@ function HostSessionContent({
     { id: 1, label: t('players'), icon: Users },
     { id: 2, label: t('courts'), icon: Square },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
-    { id: 4, label: t('settings'), icon: RefreshCw },
+    { id: 4, label: t('payment'), icon: DollarSign },
+    { id: 5, label: t('settings'), icon: RefreshCw },
   ];
 
   const navigationTabs = allNavigationTabs.filter((tab) => {
     if (user?.role === UserRole.PLAYER) {
-      // Disable Courts (2) and Matches (3) for PLAYER
-      return tab.id !== 2 && tab.id !== 3;
+      // Disable Courts (2), Matches (3), and Payment (4) for PLAYER
+      return tab.id !== 2 && tab.id !== 3 && tab.id !== 4;
     }
     return true;
   });
@@ -248,7 +250,11 @@ function HostSessionContent({
             />
           )}
 
-          {activeTab === 4 && (
+          {activeTab === 4 && user?.role !== UserRole.PLAYER && (
+            <PaymentTab session={session} />
+          )}
+
+          {activeTab === 5 && (
             <SettingsTab
               session={session}
               refreshSessionData={refreshSessionData}

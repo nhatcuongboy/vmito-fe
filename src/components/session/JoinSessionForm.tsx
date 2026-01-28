@@ -28,11 +28,17 @@ interface JoinSessionFormProps {
   ) => void;
 }
 
-const GENDER_OPTIONS: { value: GenderType; labelKey: string }[] = [
+const ALL_GENDER_OPTIONS: { value: GenderType; labelKey: string }[] = [
   { value: 'MALE', labelKey: 'male' },
   { value: 'FEMALE', labelKey: 'female' },
   { value: 'OTHER', labelKey: 'other' },
   { value: 'PREFER_NOT_TO_SAY', labelKey: 'preferNotToSay' },
+];
+
+// Gender options for sessions with fee config (only Male/Female supported for fee calculation)
+const FEE_GENDER_OPTIONS: { value: GenderType; labelKey: string }[] = [
+  { value: 'MALE', labelKey: 'male' },
+  { value: 'FEMALE', labelKey: 'female' },
 ];
 
 export default function JoinSessionForm({
@@ -53,6 +59,11 @@ export default function JoinSessionForm({
     }
     return VALID_LEVELS;
   }, [session.requiredLevels]);
+
+  // Use restricted gender options if session has fee config
+  const genderOptions = useMemo(() => {
+    return session.feeConfig ? FEE_GENDER_OPTIONS : ALL_GENDER_OPTIONS;
+  }, [session.feeConfig]);
 
   return (
     <VStack spacing={4} align="stretch">
@@ -167,7 +178,7 @@ export default function JoinSessionForm({
                     fontSize: '14px',
                   }}
                 >
-                  {GENDER_OPTIONS.map((option) => (
+                  {genderOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {tPlayer(option.labelKey)}
                     </option>
