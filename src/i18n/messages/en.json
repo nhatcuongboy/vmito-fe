@@ -388,45 +388,51 @@
       "hero": {
         "title": "Badminton Made Simple",
         "subtitle": "Join. Play. Track. Experience the future of badminton session management.",
-        "cta": "Get Started"
+        "cta": "Get Started",
+        "secondaryCta": "Learn More"
       },
-      "tabs": {
-        "players": "For Players",
-        "hosts": "For Hosts"
+      "stats": {
+        "users": "Active Users",
+        "matches": "Matches Played",
+        "courts": "Partner Courts",
+        "sessions": "Sessions Hosted"
       },
-      "players": {
-        "title": "Elevate Your Game",
-        "description": "Focus on playing, not organizing. We handle the logistics so you can handle the shuttle.",
-        "features": {
-          "find": {
-            "title": "Find Sessions",
-            "description": "Discover sessions that match your skill level and schedule."
-          },
-          "fairPlay": {
-            "title": "Fair Play System",
-            "description": "Our automated rotation system ensures everyone gets equal court time."
-          },
-          "track": {
-            "title": "Track Progress",
-            "description": "Keep track of your match history, win rates, and improvement over time."
+      "useCases": {
+        "title": "Tailored for Everyone",
+        "players": {
+          "title": "For Players",
+          "description": "Focus on playing, not organizing. We handle the logistics so you can handle the shuttle.",
+          "features": {
+            "find": {
+              "title": "Find Sessions Instantly",
+              "description": "Discover sessions that match your skill level and schedule."
+            },
+            "fairPlay": {
+              "title": "Fair Play Rotation",
+              "description": "Our automated rotation system ensures everyone gets equal court time."
+            },
+            "track": {
+              "title": "Track Your Stats",
+              "description": "Keep track of your match history, win rates, and improvement over time."
+            }
           }
-        }
-      },
-      "hosts": {
-        "title": "Host Like a Pro",
-        "description": "Powerful tools to manage your sessions efficiently and keep players coming back.",
-        "features": {
-          "manage": {
-            "title": "Easy Management",
-            "description": "Create recurring sessions, manage courts, and handle fees in one place."
-          },
-          "tools": {
-            "title": "Smart Tools",
-            "description": "QR code check-in, automated court assignment, and real-time waiting lists."
-          },
-          "community": {
-            "title": "Build Community",
-            "description": "Manage your player base, track attendance, and build a loyal community."
+        },
+        "hosts": {
+          "title": "For Hosts",
+          "description": "Powerful tools to manage your sessions efficiently and keep players coming back.",
+          "features": {
+            "manage": {
+              "title": "Effortless Management",
+              "description": "Create recurring sessions, manage courts, and handle fees in one place."
+            },
+            "tools": {
+              "title": "Smart Tools",
+              "description": "QR code check-in, automated court assignment, and real-time waiting lists."
+            },
+            "community": {
+              "title": "Build Community",
+              "description": "Manage your player base, track attendance, and build a loyal community."
+            }
           }
         }
       },
@@ -438,14 +444,29 @@
             "description": "Create your free account in seconds."
           },
           "step2": {
-            "title": "Join or Host",
-            "description": "Find a session to join or create your own."
+            "title": "Find or Create",
+            "description": "Join an existing session or host your own."
           },
           "step3": {
-            "title": "Play & Enjoy",
-            "description": "Show up, check in, and let us handle the rest."
+            "title": "Play",
+            "description": "Head to the court and enjoy the game!"
           }
         }
+      },
+      "testimonials": {
+        "title": "Trusted by Players",
+        "review1": {
+          "text": "Vmito has completely changed how we organize our weekly games. No more spreadsheets!",
+          "author": "Minh, Host"
+        },
+        "review2": {
+          "text": "I love the fair play rotation system. It ensures everyone gets equal court time.",
+          "author": "Sarah, Player"
+        }
+      },
+      "cta": {
+        "title": "Ready to hit the court?",
+        "button": "Join Vmito Now"
       },
       "faq": {
         "title": "Common Questions",
@@ -1804,6 +1825,22 @@
     "noPaymentSettings": "No Payment Settings Configured",
     "noPaymentSettingsDescription": "Please add your bank information and QR code so players can pay you",
     "currentSettings": "Current Payment Settings",
-    "paymentTabTip": "Configure your payment information here. Players will see this when they need to pay for the session."
+    "paymentTabTip": "Configure your payment information here. Players will see this when they need to pay for the session.",
+    "paymentManagement": "Payment Management",
+    "paymentStatistics": "Payment Statistics",
+    "totalPlayers": "Total Players",
+    "totalAmount": "Total Amount",
+    "waiting": "Waiting",
+    "splitAmountCalculator": "Split Amount Calculator",
+    "splitAmountDescription": "Set the total amount to be split equally among all players",
+    "totalAmountPlaceholder": "Enter total amount",
+    "calculateAndUpdate": "Calculate & Update",
+    "splitAmountSuccess": "Split amount set successfully",
+    "loadPaymentsFailed": "Failed to load payments",
+    "approvePaymentFailed": "Failed to approve payment",
+    "rejectPaymentFailed": "Failed to reject payment",
+    "bulkApprovePaymentsFailed": "Failed to bulk approve payments",
+    "invalidAmount": "Invalid amount",
+    "setSplitAmountFailed": "Failed to set split amount"
   }
 }

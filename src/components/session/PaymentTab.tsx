@@ -11,6 +11,8 @@ import {
   Center,
   Image,
   Flex,
+  SimpleGrid,
+  Input,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
@@ -22,10 +24,15 @@ import {
   Plus,
   ExternalLink,
   AlertCircle,
+  Users,
+  DollarSign,
+  CheckCircle,
+  Clock,
 } from 'lucide-react';
-import { ISession, HostPaymentSettings } from '@/lib/api/types';
+import { ISession, HostPaymentSettings, PaymentRecord, FeeType } from '@/lib/api/types';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
-import { PaymentSettingsForm } from '@/components/payment';
+import { PaymentService } from '@/lib/api/payment.service';
+import { PaymentSettingsForm, SessionPaymentList } from '@/components/payment';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from 'next/navigation';
 
@@ -43,6 +50,24 @@ export default function PaymentTab({ session }: PaymentTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Payment management state
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
+  const [stats, setStats] = useState<{
+    totalPlayers: number;
+    totalAmount: number;
+    paidAmount: number;
+    pendingAmount: number;
+    submittedCount: number;
+    approvedCount: number;
+    pendingCount: number;
+    rejectedCount: number;
+  } | null>(null);
+
+  // Split amount state
+  const [splitAmount, setSplitAmount] = useState('');
+  const [isSettingSplit, setIsSettingSplit] = useState(false);
+
   const loadPaymentSettings = useCallback(async () => {
     if (!session.hostId) return;
 
@@ -57,9 +82,42 @@ export default function PaymentTab({ session }: PaymentTabProps) {
     }
   }, [session.hostId]);
 
+  const loadStats = useCallback(async () => {
+    if (!session.id) return;
+
+    try {
+      const data = await PaymentService.getSessionPaymentStats(session.id);
+      setStats(data);
+    } catch (error) {
+      console.error('Failed to load payment stats:', error);
+    }
+  }, [session.id]);
+
+  const loadPayments = useCallback(async () => {
+    if (!session.id) return;
+
+    setIsLoadingPayments(true);
+    try {
+      const data = await PaymentService.getSessionPayments(session.id);
+      console.log('Loaded payments:', data);
+      setPayments(data);
+      // Load stats after payments are loaded
+      await loadStats();
+    } catch (error) {
+      console.error('Failed to load payments:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('loadPaymentsFailed'),
+      });
+    } finally {
+      setIsLoadingPayments(false);
+    }
+  }, [session.id, t, tCommon, loadStats]);
+
   useEffect(() => {
     loadPaymentSettings();
-  }, [loadPaymentSettings]);
+    loadPayments();
+  }, [loadPaymentSettings, loadPayments]);
 
   const handleSave = async (
     data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
@@ -102,6 +160,78 @@ export default function PaymentTab({ session }: PaymentTabProps) {
 
   const goToPaymentSettingsPage = () => {
     router.push('/host/payment-settings');
+  };
+
+  // Payment management handlers
+  const handleApprove = async (paymentId: string, notes?: string) => {
+    try {
+      await PaymentService.approvePayment(paymentId, { hostNotes: notes });
+      await loadPayments(); // Refresh payment list
+    } catch (error) {
+      console.error('Failed to approve payment:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('approvePaymentFailed'),
+      });
+    }
+  };
+
+  const handleReject = async (paymentId: string, notes?: string) => {
+    try {
+      await PaymentService.rejectPayment(paymentId, {
+        hostNotes: notes || 'Rejected',
+      });
+      await loadPayments(); // Refresh payment list
+    } catch (error) {
+      console.error('Failed to reject payment:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('rejectPaymentFailed'),
+      });
+    }
+  };
+
+  const handleBulkApprove = async (paymentIds: string[]) => {
+    try {
+      await PaymentService.bulkApprovePayments(paymentIds);
+      await loadPayments(); // Refresh payment list
+    } catch (error) {
+      console.error('Failed to bulk approve payments:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('bulkApprovePaymentsFailed'),
+      });
+    }
+  };
+
+  const handleSetSplitAmount = async () => {
+    const amount = parseFloat(splitAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toaster.error({
+        title: tCommon('error'),
+        description: t('invalidAmount'),
+      });
+      return;
+    }
+
+    setIsSettingSplit(true);
+    try {
+      await PaymentService.setSplitAmount(session.id, amount);
+      await loadPayments(); // Refresh to show updated amounts
+      setSplitAmount(''); // Clear input
+      toaster.success({
+        title: tCommon('success'),
+        description: t('splitAmountSuccess'),
+      });
+    } catch (error) {
+      console.error('Failed to set split amount:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('setSplitAmountFailed'),
+      });
+    } finally {
+      setIsSettingSplit(false);
+    }
   };
 
   if (isLoading) {
@@ -314,6 +444,44 @@ export default function PaymentTab({ session }: PaymentTabProps) {
         </Box>
       )}
 
+      {/* Split Amount Calculator - Only for SPLIT_EVENLY sessions */}
+      {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
+        <Box
+          bg="purple.50"
+          _dark={{ bg: 'purple.900' }}
+          borderRadius="lg"
+          p={4}
+          border="1px solid"
+          borderColor="purple.200"
+        >
+          <Heading size="sm" mb={2}>
+            {t('splitAmountCalculator')}
+          </Heading>
+          <Text fontSize="sm" color="purple.600" _dark={{ color: 'purple.300' }} mb={3}>
+            {t('splitAmountDescription')}
+          </Text>
+          <HStack>
+            <Input
+              type="number"
+              placeholder={t('totalAmountPlaceholder')}
+              value={splitAmount}
+              onChange={(e) => setSplitAmount(e.target.value)}
+              disabled={isSettingSplit}
+              bg="white"
+              _dark={{ bg: 'gray.700' }}
+            />
+            <Button
+              colorPalette="purple"
+              onClick={handleSetSplitAmount}
+              loading={isSettingSplit}
+              disabled={!splitAmount || isSettingSplit}
+            >
+              {t('calculateAndUpdate')}
+            </Button>
+          </HStack>
+        </Box>
+      )}
+
       {/* Info Box */}
       <Box
         bg="gray.50"
@@ -326,6 +494,133 @@ export default function PaymentTab({ session }: PaymentTabProps) {
         <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
           💡 {t('paymentTabTip')}
         </Text>
+      </Box>
+
+      {/* Payment Statistics */}
+      {stats && (
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="lg"
+          p={6}
+          shadow="sm"
+          border="1px solid"
+          borderColor="gray.100"
+        >
+          <Heading size="md" mb={4}>
+            {t('paymentStatistics')}
+          </Heading>
+          <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
+            <Box
+              bg="blue.50"
+              _dark={{ bg: 'blue.900' }}
+              p={4}
+              borderRadius="md"
+              border="1px solid"
+              borderColor="blue.200"
+            >
+              <HStack mb={2}>
+                <Users size={16} color="#3182ce" />
+                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                  {t('totalPlayers')}
+                </Text>
+              </HStack>
+              <Text fontSize="2xl" fontWeight="bold" color="blue.600" _dark={{ color: 'blue.300' }}>
+                {stats.totalPlayers}
+              </Text>
+            </Box>
+            <Box
+              bg="blue.50"
+              _dark={{ bg: 'blue.900' }}
+              p={4}
+              borderRadius="md"
+              border="1px solid"
+              borderColor="blue.200"
+            >
+              <HStack mb={2}>
+                <DollarSign size={16} color="#3182ce" />
+                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                  {t('totalAmount')}
+                </Text>
+              </HStack>
+              <Text fontSize="2xl" fontWeight="bold" color="blue.600" _dark={{ color: 'blue.300' }}>
+                {stats.totalAmount.toLocaleString('vi-VN')}
+              </Text>
+              <Text fontSize="xs" color="gray.500">VND</Text>
+            </Box>
+            <Box
+              bg="green.50"
+              _dark={{ bg: 'green.900' }}
+              p={4}
+              borderRadius="md"
+              border="1px solid"
+              borderColor="green.200"
+            >
+              <HStack mb={2}>
+                <CheckCircle size={16} color="#38a169" />
+                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                  {t('paidAmount')}
+                </Text>
+              </HStack>
+              <Text fontSize="2xl" fontWeight="bold" color="green.600" _dark={{ color: 'green.300' }}>
+                {stats.paidAmount.toLocaleString('vi-VN')}
+              </Text>
+              <Text fontSize="xs" color="gray.500">
+                {stats.approvedCount} {t('approvedPayments')}
+              </Text>
+            </Box>
+            <Box
+              bg="orange.50"
+              _dark={{ bg: 'orange.900' }}
+              p={4}
+              borderRadius="md"
+              border="1px solid"
+              borderColor="orange.200"
+            >
+              <HStack mb={2}>
+                <Clock size={16} color="#d69e2e" />
+                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                  {t('pendingAmount')}
+                </Text>
+              </HStack>
+              <Text fontSize="2xl" fontWeight="bold" color="orange.600" _dark={{ color: 'orange.300' }}>
+                {stats.pendingAmount.toLocaleString('vi-VN')}
+              </Text>
+              <Text fontSize="xs" color="gray.500">
+                {stats.pendingCount + stats.submittedCount} {t('waiting')}
+              </Text>
+            </Box>
+          </SimpleGrid>
+        </Box>
+      )}
+
+      {/* Payment Management Section */}
+      <Box
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        borderRadius="lg"
+        p={6}
+        shadow="sm"
+        border="1px solid"
+        borderColor="gray.100"
+      >
+        <Heading size="md" mb={4}>
+          {t('paymentManagement')}
+        </Heading>
+        {isLoadingPayments ? (
+          <Center py={10}>
+            <Spinner size="lg" color="blue.500" />
+          </Center>
+        ) : (
+          <SessionPaymentList
+            session={session}
+            payments={payments}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onBulkApprove={handleBulkApprove}
+            isLoading={false}
+          />
+        )}
       </Box>
     </VStack>
   );

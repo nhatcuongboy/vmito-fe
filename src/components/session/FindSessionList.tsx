@@ -29,10 +29,10 @@ import { useSearchParams } from 'next/navigation';
 
 // Time range definitions
 const TIME_RANGES = [
-  { key: 'morning', start: 6, end: 12 },
-  { key: 'afternoon', start: 12, end: 17 },
-  { key: 'evening', start: 17, end: 21 },
-  { key: 'night', start: 21, end: 6 },
+  { key: 'morning', start: 5, end: 12 },
+  { key: 'afternoon', start: 12, end: 18 },
+  { key: 'evening', start: 18, end: 22 },
+  { key: 'night', start: 22, end: 5 },
 ] as const;
 
 type TimeRangeKey = (typeof TIME_RANGES)[number]['key'];

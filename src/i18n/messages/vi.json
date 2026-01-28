@@ -388,45 +388,51 @@
       "hero": {
         "title": "Cầu Lông Đơn Giản Hóa",
         "subtitle": "Tham gia. Chơi. Theo dõi. Trải nghiệm tương lai của quản lý giao lưu cầu lông.",
-        "cta": "Bắt đầu ngay"
+        "cta": "Bắt đầu ngay",
+        "secondaryCta": "Tìm hiểu thêm"
       },
-      "tabs": {
-        "players": "Cho Người Chơi",
-        "hosts": "Cho Chủ Sân/Host"
+      "stats": {
+        "users": "Người dùng hoạt động",
+        "matches": "Trận đã chơi",
+        "courts": "Sân đối tác",
+        "sessions": "Kèo đã tổ chức"
       },
-      "players": {
-        "title": "Nâng Tầm Trải Nghiệm",
-        "description": "Tập trung vào thi đấu, không phải lo việc tổ chức. Chúng tôi lo hậu cần, bạn lo cầu.",
-        "features": {
-          "find": {
-            "title": "Tìm Kèo",
-            "description": "Khám phá các buổi chơi phù hợp với trình độ và lịch trình của bạn."
-          },
-          "fairPlay": {
-            "title": "Hệ Thống Công Bằng",
-            "description": "Hệ thống xoay tua tự động đảm bảo mọi người đều có thời gian ra sân công bằng."
-          },
-          "track": {
-            "title": "Theo Dõi Tiến Bộ",
-            "description": "Ghi lại lịch sử trận đấu, tỷ lệ thắng/thua và sự tiến bộ theo thời gian."
+      "useCases": {
+        "title": "Dành cho mọi người",
+        "players": {
+          "title": "Cho Người Chơi",
+          "description": "Tập trung vào thi đấu, không phải lo việc tổ chức. Chúng tôi lo hậu cần, bạn lo cầu.",
+          "features": {
+            "find": {
+              "title": "Tìm Kèo Tức Thì",
+              "description": "Khám phá các buổi chơi phù hợp với trình độ và lịch trình của bạn."
+            },
+            "fairPlay": {
+              "title": "Xoay Tua Công Bằng",
+              "description": "Hệ thống xoay tua tự động đảm bảo mọi người đều có thời gian ra sân công bằng."
+            },
+            "track": {
+              "title": "Theo Dõi Chỉ Số",
+              "description": "Ghi lại lịch sử trận đấu, tỷ lệ thắng/thua và sự tiến bộ theo thời gian."
+            }
           }
-        }
-      },
-      "hosts": {
-        "title": "Tổ Chức Chuyên Nghiệp",
-        "description": "Công cụ mạnh mẽ để quản lý buổi chơi hiệu quả và giữ chân người chơi.",
-        "features": {
-          "manage": {
-            "title": "Quản Lý Dễ Dàng",
-            "description": "Tạo các buổi chơi định kỳ, quản lý sân và xử lý phí tham gia tại một nơi."
-          },
-          "tools": {
-            "title": "Công Cụ Thông Minh",
-            "description": "Check-in bằng mã QR, tự động xếp sân và danh sách chờ thời gian thực."
-          },
-          "community": {
-            "title": "Xây Dựng Cộng Đồng",
-            "description": "Quản lý danh sách người chơi, theo dõi người tham gia và xây dựng cộng đồng trung thành."
+        },
+        "hosts": {
+          "title": "Cho Chủ Sân/Host",
+          "description": "Công cụ mạnh mẽ để quản lý buổi chơi hiệu quả và giữ chân người chơi.",
+          "features": {
+            "manage": {
+              "title": "Quản Lý Dễ Dàng",
+              "description": "Tạo các buổi chơi định kỳ, quản lý sân và xử lý phí tham gia tại một nơi."
+            },
+            "tools": {
+              "title": "Công Cụ Thông Minh",
+              "description": "Check-in bằng mã QR, tự động xếp sân và danh sách chờ thời gian thực."
+            },
+            "community": {
+              "title": "Xây Dựng Cộng Đồng",
+              "description": "Quản lý danh sách người chơi, theo dõi người tham gia và xây dựng cộng đồng trung thành."
+            }
           }
         }
       },
@@ -438,7 +444,7 @@
             "description": "Tạo tài khoản miễn phí trong vài giây."
           },
           "step2": {
-            "title": "Tham Gia hoặc Tạo Kèo",
+            "title": "Tìm hoặc Tạo",
             "description": "Tìm kèo để tham gia hoặc tự tạo kèo của riêng bạn."
           },
           "step3": {
@@ -446,6 +452,21 @@
             "description": "Đến sân, check-in và để chúng tôi lo phần còn lại."
           }
         }
+      },
+      "testimonials": {
+        "title": "Được tin dùng bởi người chơi",
+        "review1": {
+          "text": "Vmito đã thay đổi hoàn toàn cách chúng tôi tổ chức kèo hàng tuần. Không còn phải dùng Excel nữa!",
+          "author": "Minh, Host"
+        },
+        "review2": {
+          "text": "Tôi thích hệ thống xoay tua công bằng. Nó đảm bảo ai cũng được chơi như nhau.",
+          "author": "Lan, Player"
+        }
+      },
+      "cta": {
+        "title": "Sẵn sàng ra sân chưa?",
+        "button": "Tham gia Vmito ngay"
       },
       "faq": {
         "title": "Câu Hỏi Thường Gặp",
@@ -1804,6 +1825,22 @@
     "noPaymentSettings": "Chưa cấu hình thông tin thanh toán",
     "noPaymentSettingsDescription": "Vui lòng thêm thông tin ngân hàng và mã QR để người chơi có thể thanh toán",
     "currentSettings": "Cài đặt thanh toán hiện tại",
-    "paymentTabTip": "Cấu hình thông tin thanh toán tại đây. Người chơi sẽ thấy thông tin này khi cần thanh toán cho kèo."
+    "paymentTabTip": "Cấu hình thông tin thanh toán tại đây. Người chơi sẽ thấy thông tin này khi cần thanh toán cho kèo.",
+    "paymentManagement": "Quản lý thanh toán",
+    "paymentStatistics": "Thống kê thanh toán",
+    "totalPlayers": "Tổng số người chơi",
+    "totalAmount": "Tổng số tiền",
+    "waiting": "Đang chờ",
+    "splitAmountCalculator": "Tính phí chia đều",
+    "splitAmountDescription": "Nhập tổng số tiền để chia đều cho tất cả người chơi",
+    "totalAmountPlaceholder": "Nhập tổng số tiền",
+    "calculateAndUpdate": "Tính toán & Cập nhật",
+    "splitAmountSuccess": "Đã thiết lập phí chia đều thành công",
+    "loadPaymentsFailed": "Không thể tải danh sách thanh toán",
+    "approvePaymentFailed": "Không thể duyệt thanh toán",
+    "rejectPaymentFailed": "Không thể từ chối thanh toán",
+    "bulkApprovePaymentsFailed": "Không thể duyệt hàng loạt",
+    "invalidAmount": "Số tiền không hợp lệ",
+    "setSplitAmountFailed": "Không thể thiết lập phí chia đều"
   }
 }

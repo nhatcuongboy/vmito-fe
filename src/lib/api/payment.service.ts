@@ -38,7 +38,7 @@ export const PaymentService = {
   // Get my transaction summary across all hosts
   getMyTransactionSummary: async (): Promise<TransactionSummary[]> => {
     const response = await api.get<ApiResponse<TransactionSummary[]>>(
-      '/transactions/summary'
+      '/payments/me/summary'
     );
     return response.data.data || [];
   },
@@ -46,7 +46,7 @@ export const PaymentService = {
   // Get my transactions with a specific host
   getMyTransactionsWithHost: async (hostId: string): Promise<PaymentRecord[]> => {
     const response = await api.get<ApiResponse<PaymentRecord[]>>(
-      `/transactions/with-host/${hostId}`
+      `/payments/me/host/${hostId}`
     );
     return response.data.data || [];
   },
@@ -73,10 +73,11 @@ export const PaymentService = {
 
   // Get all payments for a session (host only)
   getSessionPayments: async (sessionId: string): Promise<PaymentRecord[]> => {
-    const response = await api.get<ApiResponse<PaymentRecord[]>>(
+    const response = await api.get<any>(
       `/sessions/${sessionId}/payments`
     );
-    return response.data.data || [];
+    // API returns { payments: [...], stats: {...} }
+    return response.data.data?.payments || response.data.payments || [];
   },
 
   // Get payments with filters
@@ -139,7 +140,7 @@ export const PaymentService = {
   // Get host's transaction summary per player
   getHostTransactionSummary: async (): Promise<HostTransactionSummary[]> => {
     const response = await api.get<ApiResponse<HostTransactionSummary[]>>(
-      '/host/transactions/summary'
+      '/payments/host/summary'
     );
     return response.data.data || [];
   },
@@ -149,7 +150,7 @@ export const PaymentService = {
     userId: string
   ): Promise<PaymentRecord[]> => {
     const response = await api.get<ApiResponse<PaymentRecord[]>>(
-      `/host/transactions/with-user/${userId}`
+      `/payments/host/user/${userId}`
     );
     return response.data.data || [];
   },
@@ -180,29 +181,23 @@ export const PaymentService = {
     pendingCount: number;
     rejectedCount: number;
   }> => {
-    const response = await api.get<
-      ApiResponse<{
-        totalPlayers: number;
-        totalAmount: number;
-        paidAmount: number;
-        pendingAmount: number;
-        submittedCount: number;
-        approvedCount: number;
-        pendingCount: number;
-        rejectedCount: number;
-      }>
-    >(`/sessions/${sessionId}/payments/stats`);
-    return (
-      response.data.data || {
-        totalPlayers: 0,
-        totalAmount: 0,
-        paidAmount: 0,
-        pendingAmount: 0,
-        submittedCount: 0,
-        approvedCount: 0,
-        pendingCount: 0,
-        rejectedCount: 0,
-      }
-    );
+    const response = await api.get<any>(`/sessions/${sessionId}/payments/stats`);
+    const stats = response.data.data?.stats || response.data.stats || response.data.data || {};
+
+    // Map API response format to frontend type
+    // API returns: { total, pending, submitted, approved, rejected, totalAmount, paidAmount }
+    // Frontend expects: { totalPlayers, totalAmount, paidAmount, pendingAmount, submittedCount, approvedCount, pendingCount, rejectedCount }
+    const pendingAmount = (stats.totalAmount || 0) - (stats.paidAmount || 0);
+
+    return {
+      totalPlayers: stats.total || 0,
+      totalAmount: stats.totalAmount || 0,
+      paidAmount: stats.paidAmount || 0,
+      pendingAmount: pendingAmount,
+      submittedCount: stats.submitted || 0,
+      approvedCount: stats.approved || 0,
+      pendingCount: stats.pending || 0,
+      rejectedCount: stats.rejected || 0,
+    };
   },
 };

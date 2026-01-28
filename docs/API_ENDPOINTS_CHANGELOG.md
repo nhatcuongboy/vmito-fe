@@ -1,5 +1,75 @@
 # API Endpoints - Changelog
 
+## 2026-01-28 (Update 4): Transaction Endpoints URL Fix 🐛 CRITICAL
+
+### Overview
+
+Fixed incorrect API paths for transaction endpoints. Frontend was calling wrong URLs causing 404 errors.
+
+### Issue
+
+Frontend was calling transaction endpoints with wrong paths:
+- ❌ `/transactions/summary` → 404 Not Found
+- ❌ `/transactions/with-host/:id` → 404 Not Found
+- ❌ `/host/transactions/summary` → 404 Not Found
+- ❌ `/host/transactions/with-user/:id` → 404 Not Found
+
+**Root Cause:** Misalignment between frontend and backend API paths. Backend has all transaction endpoints under `/payments/*` prefix, not `/transactions/*` or `/host/*`.
+
+### Solution
+
+Updated `payment.service.ts` to use correct backend paths:
+
+```typescript
+// Before (WRONG)
+getMyTransactionSummary: () => api.get('/transactions/summary')
+getMyTransactionsWithHost: (id) => api.get(`/transactions/with-host/${id}`)
+getHostTransactionSummary: () => api.get('/host/transactions/summary')
+getHostTransactionsWithUser: (id) => api.get(`/host/transactions/with-user/${id}`)
+
+// After (CORRECT)
+getMyTransactionSummary: () => api.get('/payments/me/summary')
+getMyTransactionsWithHost: (id) => api.get(`/payments/me/host/${id}`)
+getHostTransactionSummary: () => api.get('/payments/host/summary')
+getHostTransactionsWithUser: (id) => api.get(`/payments/host/user/${id}`)
+```
+
+### Impact
+
+✅ **Resolved:**
+- Players can now view transaction history across all hosts
+- Players can view detailed transactions with specific host
+- Hosts can view transaction summary per player
+- Hosts can view detailed transactions with specific user
+- Transaction history features fully functional
+
+### Backend Endpoints (Confirmed Working)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/payments/me/summary` | GET | Player transaction summary |
+| `/payments/me/host/:hostId` | GET | Player transactions with host |
+| `/payments/host/summary` | GET | Host transaction summary |
+| `/payments/host/user/:userId` | GET | Host transactions with user |
+
+**Note:** All transaction endpoints are under `/payments/*` prefix, consistent with other payment endpoints.
+
+### Files Changed
+
+- `src/lib/api/payment.service.ts` (Lines 41, 49, 142, 152)
+
+### Testing
+
+To verify the fix:
+1. As player: Navigate to transaction history page
+2. Should see list of transactions grouped by host ✅
+3. Click on a host to see detailed transactions ✅
+4. As host: Navigate to transaction summary page
+5. Should see list of players and amounts ✅
+6. Click on a player to see detailed transactions ✅
+
+---
+
 ## 2026-01-28 (Update 3): Payment Settings Validation Fix
 
 ### Overview

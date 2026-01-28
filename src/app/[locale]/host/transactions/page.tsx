@@ -61,7 +61,7 @@ function HostTransactionsContent() {
   }
 
   return (
-    <Container maxW="container.md" py={6}>
+    <Container maxW="container.md" py={6} pt={20}>
       <HStack mb={6}>
         <Receipt size={24} color="#3182ce" />
         <Heading size="lg">{t('transactionHistory')}</Heading>

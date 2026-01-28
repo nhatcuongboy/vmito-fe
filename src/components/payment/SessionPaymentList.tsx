@@ -42,22 +42,23 @@ export default function SessionPaymentList({
   const [filter, setFilter] = useState<FilterType>('all');
   const [isBulkApproving, setIsBulkApproving] = useState(false);
 
+  const paymentsArray = Array.isArray(payments) ? payments : [];
   const filteredPayments =
     filter === 'all'
-      ? payments
-      : payments.filter((p) => p.status === filter);
+      ? paymentsArray
+      : paymentsArray.filter((p) => p.status === filter);
 
-  const pendingCount = payments.filter(
+  const pendingCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.PENDING
   ).length;
-  const submittedCount = payments.filter(
+  const submittedCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.SUBMITTED
   ).length;
-  const approvedCount = payments.filter(
+  const approvedCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.APPROVED
   ).length;
 
-  const submittedPaymentIds = payments
+  const submittedPaymentIds = paymentsArray
     .filter((p) => p.status === PaymentStatus.SUBMITTED)
     .map((p) => p.id);
 
@@ -85,8 +86,8 @@ export default function SessionPaymentList({
   };
 
   // Calculate totals
-  const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
-  const approvedAmount = payments
+  const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
+  const approvedAmount = paymentsArray
     .filter((p) => p.status === PaymentStatus.APPROVED)
     .reduce((sum, p) => sum + p.amount, 0);
 
