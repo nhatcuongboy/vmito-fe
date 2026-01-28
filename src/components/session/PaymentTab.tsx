@@ -34,7 +34,7 @@ import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { PaymentService } from '@/lib/api/payment.service';
 import { PaymentSettingsForm, SessionPaymentList } from '@/components/payment';
 import { toaster } from '@/components/ui/toaster';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 
 interface PaymentTabProps {
   session: ISession;

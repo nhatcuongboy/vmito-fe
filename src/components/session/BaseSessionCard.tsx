@@ -33,6 +33,7 @@ import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { StarRatingDisplay } from '@/components/rating';
 import { RatingService } from '@/lib/api/rating.service';
 import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -108,6 +109,7 @@ const BaseSessionCard = ({
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
+  const { isAuthenticated } = useAuthStore();
 
   // Host rating state
   const [hostRatingStats, setHostRatingStats] = useState<UserRatingStats | null>(null);
@@ -115,7 +117,7 @@ const BaseSessionCard = ({
   // Fetch host rating stats
   useEffect(() => {
     const fetchHostRating = async () => {
-      if (!session.hostId) return;
+      if (!session.hostId || !isAuthenticated) return;
       try {
         const stats = await RatingService.getUserRatingStats(session.hostId);
         setHostRatingStats(stats);
@@ -124,7 +126,7 @@ const BaseSessionCard = ({
       }
     };
     fetchHostRating();
-  }, [session.hostId]);
+  }, [session.hostId, isAuthenticated]);
 
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
 

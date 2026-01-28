@@ -1,17 +1,16 @@
 'use client';
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Box, Container, Flex, Heading, IconButton } from '@chakra-ui/react';
+import { Box, Container, Flex, Heading, IconButton, Image } from '@chakra-ui/react';
 import { ArrowLeft, Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AuthService } from '@/lib/api/auth.service';
-import { useRouter } from 'next/navigation';
 import SlideOutMenu from './SlideOutMenu';
 import NotificationBell from './NotificationBell';
-import { UserRole } from '@/lib/api/types';
 import Link from 'next/link';
+import { useRouter } from '@/i18n/config';
 
 
 interface TopBarProps {
@@ -31,7 +30,7 @@ export default function TopBar({
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const locale = useLocale();
   const router = useRouter();
 
@@ -42,19 +41,12 @@ export default function TopBar({
   const onMenuClose = () => setIsMenuOpen(false);
 
   const handleLogout = () => {
-    const userRole = user?.role;
-
-    const redirectPath =
-      userRole === UserRole.HOST || userRole === UserRole.ADMIN
-        ? `/${locale}/auth/signin`
-        : `/${locale}/join-by-code`;
-
     // Clear auth state
     AuthService.logout();
     onMenuClose();
 
     // Redirect
-    router.push(redirectPath);
+    router.push(`/auth/signin`);
   };
 
   return (
@@ -83,27 +75,25 @@ export default function TopBar({
       >
         <Container maxW="container.xl" height="100%">
           <Flex justify="space-between" align="center" height="100%" py={0}>
-            {/* Left side - Back button or spacer */}
-            <Box minW="120px" height="100%" display="flex" alignItems="center">
-              {icon ? (
-                <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center' }}>
-                  {icon}
-                </Link>
-              ) : showBackButton ? (
+            {/* Left side - Logo & Back button */}
+            <Flex minW="120px" height="100%" alignItems="center" gap={2}>
+              <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center' }}>
+                {icon || <Image src="/icons/app-logo.png" h="32px" w="auto" alt={appName} />}
+              </Link>
+
+              {showBackButton && (
                 <NextLinkButton
                   href={backHref}
                   variant="ghost"
                   size="sm"
                   color="black"
                   _hover={{ bg: 'gray.100' }}
+                  aria-label={common('back')}
                 >
-                  <ArrowLeft size={16} />
-                  {/* {common('back')} */}
+                  <ArrowLeft size={20} />
                 </NextLinkButton>
-              ) : (
-                <Box />
               )}
-            </Box>
+            </Flex>
 
             {/* Center - App title */}
             <Heading
