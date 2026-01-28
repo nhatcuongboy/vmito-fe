@@ -3,8 +3,8 @@
 import { ISession } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Phone } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { MapPin, Phone, Share2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import BaseSessionCard from './BaseSessionCard';
 import React, { useState } from 'react';
@@ -13,7 +13,6 @@ import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import { PlayerService } from '@/lib/api/player.service';
 import { toaster } from '@/components/ui/toaster';
-import { useRouter } from '@/i18n/config';
 import MyRegistrationModal from './MyRegistrationModal';
 
 interface FindSessionCardProps {
@@ -34,7 +33,6 @@ const FindSessionCard = ({
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
-  const router = useRouter();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const {
@@ -62,6 +60,33 @@ const FindSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const approvedPlayersCount = session._count?.players || 0;
   const isFull = approvedPlayersCount >= maxPlayers;
+
+  // Handle share
+  const handleShare = async () => {
+    const url = `${window.location.origin}/sessions/${session.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: session.name,
+          text: session.description || `Join ${session.name}`,
+          url: url,
+        });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      // Fallback to copy to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        toaster.success({
+          title: t('linkCopied') || 'Link copied to clipboard',
+        });
+      } catch {
+        toaster.error({ title: tCommon('error') });
+      }
+    }
+  };
 
   // Handle withdraw request
   const handleWithdrawRequest = async () => {
@@ -121,6 +146,20 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
+  const shareButton = (
+    <IconButton
+      size="sm"
+      colorPalette="gray"
+      variant="outline"
+      aria-label="Share session"
+      icon={<Icon as={Share2} />}
+      onClick={(e: React.MouseEvent) => {
+        e.stopPropagation();
+        handleShare();
+      }}
+    />
+  );
+
   const callButton = session.hostPhone ? (
     <IconButton
       size="sm"
@@ -167,6 +206,7 @@ const FindSessionCard = ({
 
       {/* Action buttons row */}
       <Flex gap={2} flexWrap="wrap" justify="flex-end">
+        {shareButton}
         {callButton}
 
         {/* If user owns the session, show Host button */}

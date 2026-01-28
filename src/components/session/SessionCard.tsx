@@ -2,12 +2,14 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
-import { Box, Text } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Box, Text, Icon } from '@chakra-ui/react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { toaster } from '@/components/ui/toaster';
 
 interface SessionCardProps {
   session: ISession;
@@ -28,6 +30,33 @@ const SessionCard = ({
 
   // Check if current user is the session owner
   const isOwner = session.hostId === user?.id;
+
+  // Handle share
+  const handleShare = async () => {
+    const url = `${window.location.origin}/sessions/${session.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: session.name,
+          text: session.description || `Join ${session.name}`,
+          url: url,
+        });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      // Fallback to copy to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        toaster.success({
+          title: t('linkCopied') || 'Link copied to clipboard',
+        });
+      } catch {
+        toaster.error({ title: tCommon('error') });
+      }
+    }
+  };
 
   // Registration status warnings (unique to SessionCard)
   const statusWarnings = (
@@ -66,6 +95,14 @@ const SessionCard = ({
   // Action buttons - route owners to manage page, others to view page
   const actions = (
     <>
+      <IconButton
+        size="sm"
+        colorPalette="gray"
+        variant="outline"
+        aria-label="Share session"
+        icon={<Icon as={Share2} />}
+        onClick={handleShare}
+      />
       {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
         <NextLinkButton
           href={`/host/sessions/${session.id}`}

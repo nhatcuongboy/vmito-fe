@@ -12,6 +12,7 @@
     "paymentSettings": "Cài đặt thanh toán"
   },
   "common": {
+    "browse": "Tìm kèo",
     "appName": "Vmito",
     "save": "Lưu",
     "cancel": "Hủy",
@@ -28,6 +29,7 @@
     "back": "Quay lại",
     "backToHome": "Quay lại trang chủ",
     "backToDashboard": "Quay lại bảng điều khiển",
+    "backToSessions": "Quay lại danh sách kèo",
     "next": "Tiếp theo",
     "submit": "Gửi",
     "close": "Đóng",
@@ -329,7 +331,12 @@
       "emptyContent": "Vui lòng nhập nội dung bài viết",
       "hint": "AI sẽ trích xuất: tên session, địa điểm, thời gian, trình độ, thông tin host...",
       "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}"
-    }
+    },
+    "linkCopied": "Đã sao chép link",
+    "hostedBy": "Được tổ chức bởi",
+    "dateNotSet": "Chưa đặt ngày",
+    "timeNotSet": "Chưa đặt giờ",
+    "courts": "sân"
   },
   "court": {
     "title": "Sân",
@@ -371,6 +378,91 @@
     "score": "Điểm số"
   },
   "pages": {
+    "about": {
+      "title": "Về Vmito",
+      "subtitle": "Nền tảng hiện đại cho người yêu cầu lông",
+      "mission": {
+        "title": "Sứ mệnh của chúng tôi",
+        "description": "Đơn giản hóa việc quản lý các buổi chơi cầu lông và kết nối người chơi với những sân chơi tốt nhất."
+      },
+      "hero": {
+        "title": "Cầu Lông Đơn Giản Hóa",
+        "subtitle": "Tham gia. Chơi. Theo dõi. Trải nghiệm tương lai của quản lý giao lưu cầu lông.",
+        "cta": "Bắt đầu ngay"
+      },
+      "tabs": {
+        "players": "Cho Người Chơi",
+        "hosts": "Cho Chủ Sân/Host"
+      },
+      "players": {
+        "title": "Nâng Tầm Trải Nghiệm",
+        "description": "Tập trung vào thi đấu, không phải lo việc tổ chức. Chúng tôi lo hậu cần, bạn lo cầu.",
+        "features": {
+          "find": {
+            "title": "Tìm Kèo",
+            "description": "Khám phá các buổi chơi phù hợp với trình độ và lịch trình của bạn."
+          },
+          "fairPlay": {
+            "title": "Hệ Thống Công Bằng",
+            "description": "Hệ thống xoay tua tự động đảm bảo mọi người đều có thời gian ra sân công bằng."
+          },
+          "track": {
+            "title": "Theo Dõi Tiến Bộ",
+            "description": "Ghi lại lịch sử trận đấu, tỷ lệ thắng/thua và sự tiến bộ theo thời gian."
+          }
+        }
+      },
+      "hosts": {
+        "title": "Tổ Chức Chuyên Nghiệp",
+        "description": "Công cụ mạnh mẽ để quản lý buổi chơi hiệu quả và giữ chân người chơi.",
+        "features": {
+          "manage": {
+            "title": "Quản Lý Dễ Dàng",
+            "description": "Tạo các buổi chơi định kỳ, quản lý sân và xử lý phí tham gia tại một nơi."
+          },
+          "tools": {
+            "title": "Công Cụ Thông Minh",
+            "description": "Check-in bằng mã QR, tự động xếp sân và danh sách chờ thời gian thực."
+          },
+          "community": {
+            "title": "Xây Dựng Cộng Đồng",
+            "description": "Quản lý danh sách người chơi, theo dõi người tham gia và xây dựng cộng đồng trung thành."
+          }
+        }
+      },
+      "howItWorks": {
+        "title": "Cách Hoạt Động",
+        "steps": {
+          "step1": {
+            "title": "Đăng Ký",
+            "description": "Tạo tài khoản miễn phí trong vài giây."
+          },
+          "step2": {
+            "title": "Tham Gia hoặc Tạo Kèo",
+            "description": "Tìm kèo để tham gia hoặc tự tạo kèo của riêng bạn."
+          },
+          "step3": {
+            "title": "Chơi & Tận Hưởng",
+            "description": "Đến sân, check-in và để chúng tôi lo phần còn lại."
+          }
+        }
+      },
+      "faq": {
+        "title": "Câu Hỏi Thường Gặp",
+        "q1": {
+          "question": "Sử dụng có miễn phí không?",
+          "answer": "Có, Vmito miễn phí cho người chơi. Host sẽ có quyền truy cập các tính năng cao cấp với một khoản phí nhỏ."
+        },
+        "q2": {
+          "question": "Trình độ được xác định như thế nào?",
+          "answer": "Chúng tôi sử dụng hệ thống tự đánh giá kết hợp với lịch sử trận đấu để đảm bảo các trận đấu cân bằng."
+        },
+        "q3": {
+          "question": "Tôi có thể đặt sân qua ứng dụng không?",
+          "answer": "Hiện tại, chúng tôi tập trung vào quản lý buổi chơi. Tính năng đặt sân sẽ sớm ra mắt."
+        }
+      }
+    },
     "home": {
       "title": "Quản lý kèo cầu lông",
       "description": "Quản lý các kèo cầu lông, theo dõi luân phiên người chơi và tối ưu hóa việc sử dụng sân",

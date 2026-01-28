@@ -12,6 +12,7 @@
     "paymentSettings": "Payment Settings"
   },
   "common": {
+    "browse": "Browse",
     "appName": "Vmito",
     "save": "Save",
     "cancel": "Cancel",
@@ -28,6 +29,7 @@
     "back": "Back",
     "backToHome": "Back to Home",
     "backToDashboard": "Back to Dashboard",
+    "backToSessions": "Back to Sessions",
     "next": "Next",
     "submit": "Submit",
     "close": "Close",
@@ -329,7 +331,12 @@
       "emptyContent": "Please enter article content",
       "hint": "AI will extract: session name, location, time, levels, host info...",
       "venueMatched": "Venue matched: {venueName}"
-    }
+    },
+    "linkCopied": "Link copied to clipboard",
+    "hostedBy": "Hosted by",
+    "dateNotSet": "Date not set",
+    "timeNotSet": "Time not set",
+    "courts": "courts"
   },
   "court": {
     "title": "Court",
@@ -371,6 +378,91 @@
     "score": "Score"
   },
   "pages": {
+    "about": {
+      "title": "About Vmito",
+      "subtitle": "The modern platform for badminton enthusiasts",
+      "mission": {
+        "title": "Our Mission",
+        "description": "To simplify badminton session management and connect players with the best games in town."
+      },
+      "hero": {
+        "title": "Badminton Made Simple",
+        "subtitle": "Join. Play. Track. Experience the future of badminton session management.",
+        "cta": "Get Started"
+      },
+      "tabs": {
+        "players": "For Players",
+        "hosts": "For Hosts"
+      },
+      "players": {
+        "title": "Elevate Your Game",
+        "description": "Focus on playing, not organizing. We handle the logistics so you can handle the shuttle.",
+        "features": {
+          "find": {
+            "title": "Find Sessions",
+            "description": "Discover sessions that match your skill level and schedule."
+          },
+          "fairPlay": {
+            "title": "Fair Play System",
+            "description": "Our automated rotation system ensures everyone gets equal court time."
+          },
+          "track": {
+            "title": "Track Progress",
+            "description": "Keep track of your match history, win rates, and improvement over time."
+          }
+        }
+      },
+      "hosts": {
+        "title": "Host Like a Pro",
+        "description": "Powerful tools to manage your sessions efficiently and keep players coming back.",
+        "features": {
+          "manage": {
+            "title": "Easy Management",
+            "description": "Create recurring sessions, manage courts, and handle fees in one place."
+          },
+          "tools": {
+            "title": "Smart Tools",
+            "description": "QR code check-in, automated court assignment, and real-time waiting lists."
+          },
+          "community": {
+            "title": "Build Community",
+            "description": "Manage your player base, track attendance, and build a loyal community."
+          }
+        }
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "steps": {
+          "step1": {
+            "title": "Sign Up",
+            "description": "Create your free account in seconds."
+          },
+          "step2": {
+            "title": "Join or Host",
+            "description": "Find a session to join or create your own."
+          },
+          "step3": {
+            "title": "Play & Enjoy",
+            "description": "Show up, check in, and let us handle the rest."
+          }
+        }
+      },
+      "faq": {
+        "title": "Common Questions",
+        "q1": {
+          "question": "Is it free to use?",
+          "answer": "Yes, Vmito is free for players. Hosts have access to premium features for a small fee."
+        },
+        "q2": {
+          "question": "How are skill levels determined?",
+          "answer": "We use a self-rating system combined with match history to ensure balanced games."
+        },
+        "q3": {
+          "question": "Can I book courts through the app?",
+          "answer": "Currently, we focus on session management. Court booking features are coming soon."
+        }
+      }
+    },
     "home": {
       "title": "Badminton Session Manager",
       "description": "Manage your badminton sessions, track player rotation, and optimize court usage",

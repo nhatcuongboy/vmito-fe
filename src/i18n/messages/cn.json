@@ -12,6 +12,7 @@
     "paymentSettings": "支付设置"
   },
   "common": {
+    "browse": "浏览",
     "appName": "Vmito",
     "save": "保存",
     "cancel": "取消",
@@ -28,6 +29,7 @@
     "back": "返回",
     "backToHome": "返回首页",
     "backToDashboard": "返回控制台",
+    "backToSessions": "返回赛事列表",
     "next": "下一步",
     "submit": "提交",
     "close": "关闭",
@@ -100,6 +102,7 @@
     "courtDirectionTip": "场地朝向有助于优化玩家位置和照明条件",
     "createSession": "创建场次",
     "joinSession": "加入场次",
+    "fee": "费用",
     "register": "注册",
     "sessionName": "场次名称",
     "sessionCode": "场次代码",
@@ -114,6 +117,9 @@
     "courtNumber": "场地编号",
     "courtName": "场地名称",
     "courtNamePlaceholder": "输入场地名称",
+    "editSession": "编辑场次",
+    "saveChanges": "保存修改",
+    "saving": "保存中...",
     "createNewSession": "新场次",
     "setUpYourBadmintonSession": "设置您的羽毛球场次",
     "startYourBadmintonJourney": "开始您的羽毛球之旅",
@@ -191,7 +197,10 @@
       "loadSessionFailed": "加载场次数据时发生错误",
       "tryAgainOrContactSupport": "请重试，如果问题仍然存在，请联系支持部门。",
       "sessionNotFound": "未找到场次",
-      "sessionNotFoundDescription": "您正在寻找的场次可能已被删除或不存在。"
+      "sessionNotFoundDescription": "您正在寻找的场次可能已被删除或不存在。",
+      "cannotEditCourtsWithPlayers": "已有玩家加入，无法编辑场地配置",
+      "cannotEditTimeWhenActive": "场次进行中，无法编辑时间",
+      "levelRequired": "请选择等级"
     },
     "generalSettings": {
       "selectVenue": "选择场地...",
@@ -287,6 +296,8 @@
     "guestName": "访客姓名",
     "enterName": "输入姓名",
     "addGuest": "添加访客",
+    "you": "你",
+    "guest": "访客",
     "joined": "已加入",
     "registrationPending": "等待批准",
     "registrationRejected": "注册被拒绝",
@@ -320,7 +331,12 @@
       "emptyContent": "Please enter article content",
       "hint": "AI will extract: session name, location, time, levels, host info...",
       "venueMatched": "Venue matched: {venueName}"
-    }
+    },
+    "linkCopied": "链接已复制",
+    "hostedBy": "主办方",
+    "dateNotSet": "未设定日期",
+    "timeNotSet": "未设定时间",
+    "courts": "场地"
   },
   "court": {
     "title": "场地",
@@ -362,6 +378,91 @@
     "score": "比分"
   },
   "pages": {
+    "about": {
+      "title": "关于 Vmito",
+      "subtitle": "羽毛球爱好者的现代平台",
+      "mission": {
+        "title": "我们的使命",
+        "description": "简化羽毛球场次管理，连接球员与优质场次。"
+      },
+      "hero": {
+        "title": "让羽毛球更简单",
+        "subtitle": "加入。比赛。追踪。体验未来的羽毛球场次管理。",
+        "cta": "立即开始"
+      },
+      "tabs": {
+        "players": "致球员",
+        "hosts": "致主办方"
+      },
+      "players": {
+        "title": "提升您的比赛体验",
+        "description": "专注比赛，而非协调。我们处理后勤，您只需挥拍。",
+        "features": {
+          "find": {
+            "title": "发现场次",
+            "description": "寻找符合您技能水平和时间安排的场次。"
+          },
+          "fairPlay": {
+            "title": "公平竞赛系统",
+            "description": "我们的自动轮换系统确保每个人都有平等的上场时间。"
+          },
+          "track": {
+            "title": "追踪进度",
+            "description": "记录您的比赛历史、胜率和个人进步。"
+          }
+        }
+      },
+      "hosts": {
+        "title": "专业主办场次",
+        "description": "强大的工具帮助您高效管理场次，留住球员。",
+        "features": {
+          "manage": {
+            "title": "轻松管理",
+            "description": "在一处创建常规场次、管理场地和处理费用。"
+          },
+          "tools": {
+            "title": "智能工具",
+            "description": "二维码签到、自动场地分配和实时候补名单。"
+          },
+          "community": {
+            "title": "建立社区",
+            "description": "管理球员群体，追踪出勤，建立忠诚社区。"
+          }
+        }
+      },
+      "howItWorks": {
+        "title": "运作方式",
+        "steps": {
+          "step1": {
+            "title": "注册",
+            "description": "几秒钟内创建您的免费账户。"
+          },
+          "step2": {
+            "title": "加入或举办",
+            "description": "寻找场次加入或创建您自己的场次。"
+          },
+          "step3": {
+            "title": "享受比赛",
+            "description": "到场签到，剩下的交给我们。"
+          }
+        }
+      },
+      "faq": {
+        "title": "常见问题",
+        "q1": {
+          "question": "使用是免费的吗？",
+          "answer": "是的，球员使用 Vmito 是免费的。主办方支付少量费用即可使用高级功能。"
+        },
+        "q2": {
+          "question": "如何确定技能等级？",
+          "answer": "我们采用自评系统结合比赛历史，以确保比赛的均衡。"
+        },
+        "q3": {
+          "question": "我可以通过 App 订场吗？",
+          "answer": "目前我们专注于场次管理。订场功能即将推出。"
+        }
+      }
+    },
     "home": {
       "title": "羽毛球场次管理器",
       "description": "管理您的羽毛球场次，跟踪玩家轮换，并优化场地使用",
@@ -484,6 +585,10 @@
       "requireConfirmation": "要求玩家确认信息",
       "awaitingPlayerConfirmation": "等待玩家确认",
       "confirmedByPlayer": "玩家已确认",
+      "viewPlayer": "查看玩家",
+      "pausePlayer": "暂停",
+      "continuePlayer": "继续",
+      "pauseContinue": "暂停/继续",
       "editPlayer": "编辑玩家",
       "deletePlayer": "删除玩家",
       "showQRCode": "显示二维码",
@@ -1162,9 +1267,11 @@
     "information": "信息",
     "sessionName": "场次名称",
     "host": "主办方",
+    "fee": "费用",
     "requiredLevels": "等级要求",
     "allLevels": "所有等级",
     "location": "地点",
+    "venue": "场馆",
     "date": "日期",
     "time": "时间",
     "sessionTime": "时间",
