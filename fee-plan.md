@@ -6,3 +6,4 @@ Triển khai tính năng quản lý phí session cho các slot cầu lông của
 - Quản lý phí các slot theo từng user. user có thể thấy danh sách các phiên giao dịch theo từng host (trên nhiều session chung host). Host cũng có thể danh sách các phiên giao dịch theo từng người chơi (user đã tham gia session của host).
 - Đối với user đăng ký nhiều slot trên 1 session, phí của tất cả những người này sẽ tính cho user đăng ký
 - Triển khai tính năng đảm bảo tính mở rộng
+UPDATED
