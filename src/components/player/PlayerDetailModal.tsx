@@ -31,14 +31,17 @@ import {
   ChevronDown,
   ChevronUp,
   Link,
+  Star,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations, useLocale } from 'next-intl';
 import { SessionService } from '@/lib/api/session.service';
+import { RatingService } from '@/lib/api/rating.service';
 import { Pause, Play } from 'lucide-react';
+import { StarRatingDisplay, RatingList } from '@/components/rating';
 
-import { Player } from '@/lib/api/types';
+import { Player, UserRatingStats, Rating } from '@/lib/api/types';
 
 interface IPlayerDetailModalProps {
   isOpen: boolean;
@@ -58,12 +61,17 @@ export const PlayerDetailModal = ({
   onPlayerUpdate,
 }: IPlayerDetailModalProps) => {
   const t = useTranslations('PlayerDetailModal');
+  const ratingT = useTranslations('rating');
   const locale = useLocale();
   const { getLevelLabel } = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [joinCode, setJoinCode] = useState<string>('');
   const [showJoinMore, setShowJoinMore] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
+  const [ratingStats, setRatingStats] = useState<UserRatingStats | null>(null);
+  const [ratings, setRatings] = useState<Rating[]>([]);
+  const [ratingLoading, setRatingLoading] = useState(false);
 
   const handleToggleStatus = async () => {
     if (!sessionId) return;
@@ -98,6 +106,29 @@ export const PlayerDetailModal = ({
       setQrCodeUrl(qrUrl);
     }
   }, [isOpen, player.id, player.joinCode]);
+
+  // Fetch rating stats when modal opens and player has userId
+  useEffect(() => {
+    const fetchRatingData = async () => {
+      if (!isOpen || !player.userId) return;
+
+      setRatingLoading(true);
+      try {
+        const [stats, receivedRatings] = await Promise.all([
+          RatingService.getUserRatingStats(player.userId),
+          RatingService.getUserReceivedRatings(player.userId),
+        ]);
+        setRatingStats(stats);
+        setRatings(receivedRatings);
+      } catch (error) {
+        console.error('Failed to fetch rating data:', error);
+      } finally {
+        setRatingLoading(false);
+      }
+    };
+
+    fetchRatingData();
+  }, [isOpen, player.userId]);
 
   const handleCopyCode = () => {
     if (player.joinCode) {
@@ -358,7 +389,79 @@ export const PlayerDetailModal = ({
               }
             />
           )}
+
+          {/* Rating Section - Show if player has userId */}
+          {player.userId && (
+            <>
+              <Separator my={2} opacity={0.5} />
+              <InfoRow
+                icon={<Star size={16} />}
+                label={ratingT('averageRating')}
+                value={
+                  ratingLoading ? (
+                    <Text fontSize="sm" color="gray.400">...</Text>
+                  ) : ratingStats && ratingStats.totalRatings > 0 ? (
+                    <StarRatingDisplay
+                      rating={ratingStats.averageRating}
+                      count={ratingStats.totalRatings}
+                      size="sm"
+                      variant="compact"
+                    />
+                  ) : (
+                    <Text fontSize="sm" color="gray.400">
+                      {ratingT('noRatingsYet')}
+                    </Text>
+                  )
+                }
+              />
+            </>
+          )}
         </VStack>
+
+        {/* View Reviews Section */}
+        {player.userId && ratings.length > 0 && (
+          <Box pt={4} borderTopWidth="1px" borderColor="gray.100">
+            <Collapsible.Root
+              open={showReviews}
+              onOpenChange={(e) => setShowReviews(e.open)}
+            >
+              <Collapsible.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  width="full"
+                  justifyContent="space-between"
+                  px={4}
+                  py={2}
+                  height="auto"
+                  _hover={{ bg: 'orange.50' }}
+                  color="orange.600"
+                >
+                  <HStack gap={2}>
+                    <Star size={18} />
+                    <Text fontWeight="bold">
+                      {ratingT('viewReviews')} ({ratings.length})
+                    </Text>
+                  </HStack>
+                  {showReviews ? (
+                    <ChevronUp size={18} />
+                  ) : (
+                    <ChevronDown size={18} />
+                  )}
+                </Button>
+              </Collapsible.Trigger>
+              <Collapsible.Content>
+                <Box py={4} px={2}>
+                  <RatingList
+                    ratings={ratings.slice(0, 5)}
+                    isLoading={ratingLoading}
+                    showRater={true}
+                    showRated={false}
+                  />
+                </Box>
+              </Collapsible.Content>
+            </Collapsible.Root>
+          </Box>
+        )}
 
         {/* Join Session Section - Show More */}
         {sessionId && (

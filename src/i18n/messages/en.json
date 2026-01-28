@@ -1865,5 +1865,32 @@
     "bulkApprovePaymentsFailed": "Failed to bulk approve payments",
     "invalidAmount": "Invalid amount",
     "setSplitAmountFailed": "Failed to set split amount"
+  },
+  "rating": {
+    "loading": "Loading...",
+    "rateHost": "Rate Host",
+    "ratePlayer": "Rate Player",
+    "submitRating": "Submit Rating",
+    "selectRating": "Select your rating",
+    "addComment": "Add a comment",
+    "optional": "optional",
+    "commentPlaceholder": "Share your experience...",
+    "charactersRemaining": "characters remaining",
+    "ratingRequired": "Please select a rating",
+    "ratingSubmitted": "Rating submitted successfully",
+    "averageRating": "Average Rating",
+    "noRatingsYet": "No ratings yet",
+    "yourRating": "Your Rating",
+    "alreadyRated": "Already rated",
+    "cannotRate": "Cannot rate",
+    "sessionMustBeFinished": "Session must be finished to rate",
+    "asHost": "As Host",
+    "asPlayer": "As Player",
+    "ratedBy": "Rated by",
+    "ratedOn": "Rated on",
+    "viewReviews": "View Reviews",
+    "reviews": "Reviews",
+    "cancel": "Cancel",
+    "rated": "Rated"
   }
 }

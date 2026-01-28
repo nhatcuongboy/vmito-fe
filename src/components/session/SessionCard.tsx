@@ -5,7 +5,7 @@ import { ISession } from '@/lib/api/types';
 import { Box, Text, Icon } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { Share2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -24,6 +24,7 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { user } = useAuthStore();
 
   const { isOpen, onOpen, onClose } = useModal();
@@ -33,7 +34,7 @@ const SessionCard = ({
 
   // Handle share
   const handleShare = async () => {
-    const url = `${window.location.origin}/sessions/${session.id}`;
+    const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
 
     if (navigator.share) {
       try {

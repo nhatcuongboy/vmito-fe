@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { TransactionSummary, HostTransactionSummary } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import { User, ChevronRight, Calendar, TrendingUp } from 'lucide-react';
+import { StarRatingDisplay } from '@/components/rating';
 
 interface TransactionSummaryListProps {
   summaries: (TransactionSummary | HostTransactionSummary)[];
@@ -129,6 +130,16 @@ export default function TransactionSummaryList({
                         {summary.totalSessions} {t('sessions')}
                       </Text>
                     </HStack>
+                    {summary.averageRating !== undefined && (
+                      <Box mt={1}>
+                        <StarRatingDisplay
+                          rating={summary.averageRating}
+                          count={summary.totalRatings}
+                          size="xs"
+                          variant="compact"
+                        />
+                      </Box>
+                    )}
                   </Box>
                 </HStack>
 

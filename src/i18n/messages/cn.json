@@ -1865,5 +1865,32 @@
     "bulkApprovePaymentsFailed": "批量批准失败",
     "invalidAmount": "无效金额",
     "setSplitAmountFailed": "设置均分金额失败"
+  },
+  "rating": {
+    "loading": "加载中...",
+    "rateHost": "评价主持人",
+    "ratePlayer": "评价玩家",
+    "submitRating": "提交评价",
+    "selectRating": "选择评分",
+    "addComment": "添加评论",
+    "optional": "可选",
+    "commentPlaceholder": "分享您的体验...",
+    "charactersRemaining": "剩余字符",
+    "ratingRequired": "请选择评分",
+    "ratingSubmitted": "评价提交成功",
+    "averageRating": "平均评分",
+    "noRatingsYet": "暂无评价",
+    "yourRating": "您的评价",
+    "alreadyRated": "已评价",
+    "cannotRate": "无法评价",
+    "sessionMustBeFinished": "场次结束后才能评价",
+    "asHost": "作为主持人",
+    "asPlayer": "作为玩家",
+    "ratedBy": "评价者",
+    "ratedOn": "评价时间",
+    "viewReviews": "查看评价",
+    "reviews": "评价",
+    "cancel": "取消",
+    "rated": "已评价"
   }
 }

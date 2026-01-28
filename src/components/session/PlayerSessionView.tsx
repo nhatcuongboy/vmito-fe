@@ -11,12 +11,15 @@ import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
 import { usePlayerSession } from '@/hooks/usePlayerSession';
-import { type Match } from '@/lib/api/types';
+import { type Match, SessionStatus, RatingType, SessionRatingEligibility } from '@/lib/api/types';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import { PaymentInfoTab } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
+import { RatingService } from '@/lib/api/rating.service';
+import { SubmitRatingModal, StarRatingDisplay } from '@/components/rating';
 import type { PaymentRecord, HostPaymentSettings, PaymentMethod } from '@/lib/api/types';
+import { Star, CheckCircle } from 'lucide-react';
 import {
   Box,
   Center,
@@ -103,6 +106,12 @@ export default function PlayerSessionView({
     message: string;
   } | null>(null);
 
+  // Rating state
+  const [ratingEligibility, setRatingEligibility] = useState<SessionRatingEligibility | null>(null);
+  const [ratingLoading, setRatingLoading] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const ratingT = useTranslations('rating');
+
   // Fetch payment data
   const fetchPaymentData = async () => {
     if (!session?.id) return;
@@ -157,6 +166,31 @@ export default function PlayerSessionView({
       fetchPaymentData();
     }
   }, [session, activeTab]);
+
+  // Fetch rating eligibility when session is finished
+  const fetchRatingEligibility = async () => {
+    if (!session?.id || session.status !== SessionStatus.FINISHED) return;
+
+    setRatingLoading(true);
+    try {
+      const eligibility = await RatingService.getSessionRatingEligibility(session.id);
+      setRatingEligibility(eligibility);
+    } catch (error) {
+      console.error('Failed to fetch rating eligibility:', error);
+    } finally {
+      setRatingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.status === SessionStatus.FINISHED) {
+      fetchRatingEligibility();
+    }
+  }, [session?.id, session?.status]);
+
+  const handleRatingSuccess = () => {
+    fetchRatingEligibility();
+  };
 
   // Payment handlers
   const handleSubmitPayment = async (
@@ -392,6 +426,63 @@ export default function PlayerSessionView({
                   </Text>
                   <SessionInfo session={session} player={player} />
                 </Box>
+
+                {/* Rate Host Section - Show when session is FINISHED */}
+                {session.status === SessionStatus.FINISHED && (
+                  <Box
+                    mt={4}
+                    p={6}
+                    bg="white"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                    borderRadius="xl"
+                    shadow="sm"
+                    border="1px solid"
+                    borderColor="gray.100"
+                  >
+                    <Flex align="center" justify="space-between">
+                      <Flex align="center" gap={2}>
+                        <Star size={20} color="#F6AD55" />
+                        <Text fontWeight="semibold" color="gray.700">
+                          {ratingT('rateHost')}
+                        </Text>
+                      </Flex>
+
+                      {ratingLoading ? (
+                        <Spinner size="sm" />
+                      ) : ratingEligibility?.hasRatedHost && ratingEligibility?.hostRating ? (
+                        <Flex align="center" gap={2}>
+                          <CheckCircle size={16} color="#48BB78" />
+                          <StarRatingDisplay
+                            rating={ratingEligibility.hostRating.rating}
+                            showCount={false}
+                            size="sm"
+                            variant="compact"
+                          />
+                        </Flex>
+                      ) : ratingEligibility?.canRateHost ? (
+                        <Button
+                          size="sm"
+                          colorPalette="orange"
+                          onClick={() => setShowRatingModal(true)}
+                        >
+                          <Star size={14} />
+                          {ratingT('rateHost')}
+                        </Button>
+                      ) : (
+                        <Text fontSize="sm" color="gray.400">
+                          {ratingT('cannotRate')}
+                        </Text>
+                      )}
+                    </Flex>
+
+                    {ratingEligibility?.hasRatedHost && ratingEligibility?.hostRating?.comment && (
+                      <Text fontSize="sm" color="gray.500" mt={3} pl={7}>
+                        "{ratingEligibility.hostRating.comment}"
+                      </Text>
+                    )}
+                  </Box>
+                )}
+
                 <OverviewPlayerTable players={session.players || []} />
               </>
             )}
@@ -496,6 +587,20 @@ export default function PlayerSessionView({
         onClose={() => setCourtCallModalOpen(false)}
         courtName={courtCallCourtName}
       />
+
+      {/* Rate Host Modal */}
+      {session && (
+        <SubmitRatingModal
+          isOpen={showRatingModal}
+          onClose={() => setShowRatingModal(false)}
+          sessionId={session.id}
+          ratedUserId={session.hostId}
+          ratedUserName={session.host?.name || session.hostName || 'Host'}
+          ratedUserImage={undefined}
+          type={RatingType.PLAYER_TO_HOST}
+          onSuccess={handleRatingSuccess}
+        />
+      )}
     </>
   );
 }

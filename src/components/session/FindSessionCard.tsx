@@ -4,7 +4,7 @@ import { ISession } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Phone, Share2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import BaseSessionCard from './BaseSessionCard';
 import React, { useState } from 'react';
@@ -35,6 +35,7 @@ const FindSessionCard = ({
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
+  const locale = useLocale();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const {
@@ -65,7 +66,7 @@ const FindSessionCard = ({
 
   // Handle share
   const handleShare = async () => {
-    const url = `${window.location.origin}/sessions/${session.id}`;
+    const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
 
     if (navigator.share) {
       try {

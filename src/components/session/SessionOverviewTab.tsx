@@ -2,7 +2,7 @@
 
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
-import { ISession, Player } from '@/lib/api/types';
+import { ISession, Player, SessionStatus } from '@/lib/api/types';
 import { Badge, Box, Flex, FlexProps, Heading, Text } from '@chakra-ui/react';
 import {
   Activity,
@@ -18,6 +18,7 @@ import {
 import { useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
 import SessionPlayers from './SessionPlayers';
+import { RatePlayersSection } from '@/components/rating';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
@@ -336,6 +337,16 @@ export default function SessionOverviewTab({
           </Text>
         </Box>
       </SimpleGrid>
+
+      {/* Rate Players Section - Show when session is FINISHED */}
+      {session.status === SessionStatus.FINISHED && session.players && (
+        <Box mt={8}>
+          <RatePlayersSection
+            sessionId={session.id}
+            players={session.players}
+          />
+        </Box>
+      )}
 
       <Box mt={8}>
         <Heading size="md" mb={4}>

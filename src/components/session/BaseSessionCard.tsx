@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRatingStats } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import dayjs from '@/lib/dayjs';
 import {
@@ -30,6 +30,9 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { StarRatingDisplay } from '@/components/rating';
+import { RatingService } from '@/lib/api/rating.service';
+import { useState, useEffect } from 'react';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -106,6 +109,23 @@ const BaseSessionCard = ({
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
 
+  // Host rating state
+  const [hostRatingStats, setHostRatingStats] = useState<UserRatingStats | null>(null);
+
+  // Fetch host rating stats
+  useEffect(() => {
+    const fetchHostRating = async () => {
+      if (!session.hostId) return;
+      try {
+        const stats = await RatingService.getUserRatingStats(session.hostId);
+        setHostRatingStats(stats);
+      } catch (error) {
+        // Silently fail - rating is optional display
+      }
+    };
+    fetchHostRating();
+  }, [session.hostId]);
+
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
 
   // Use session.hostName if available, fallback to host.name
@@ -170,11 +190,21 @@ const BaseSessionCard = ({
         {afterStatusContent}
 
         <Stack gap={3} flex={1}>
-          <Flex align="center">
-            <Icon as={User} boxSize={5} mr={2} color="blue.500" />
-            <Text>
-              {t('host')}: <strong>{convertedSession.hostName}</strong>
-            </Text>
+          <Flex align="center" flexWrap="wrap" gap={2}>
+            <Flex align="center">
+              <Icon as={User} boxSize={5} mr={2} color="blue.500" />
+              <Text>
+                {t('host')}: <strong>{convertedSession.hostName}</strong>
+              </Text>
+            </Flex>
+            {hostRatingStats && hostRatingStats.totalRatings > 0 && (
+              <StarRatingDisplay
+                rating={hostRatingStats.averageRating}
+                count={hostRatingStats.totalRatings}
+                size="xs"
+                variant="compact"
+              />
+            )}
             {hostActions && <Box ml={2}>{hostActions}</Box>}
           </Flex>
 

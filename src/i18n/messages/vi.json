@@ -1865,5 +1865,32 @@
     "bulkApprovePaymentsFailed": "Không thể duyệt hàng loạt",
     "invalidAmount": "Số tiền không hợp lệ",
     "setSplitAmountFailed": "Không thể thiết lập phí chia đều"
+  },
+  "rating": {
+    "loading": "Đang tải...",
+    "rateHost": "Đánh giá Host",
+    "ratePlayer": "Đánh giá người chơi",
+    "submitRating": "Gửi đánh giá",
+    "selectRating": "Chọn số sao đánh giá",
+    "addComment": "Thêm bình luận",
+    "optional": "tùy chọn",
+    "commentPlaceholder": "Chia sẻ trải nghiệm của bạn...",
+    "charactersRemaining": "ký tự còn lại",
+    "ratingRequired": "Vui lòng chọn số sao đánh giá",
+    "ratingSubmitted": "Đã gửi đánh giá thành công",
+    "averageRating": "Đánh giá trung bình",
+    "noRatingsYet": "Chưa có đánh giá",
+    "yourRating": "Đánh giá của bạn",
+    "alreadyRated": "Đã đánh giá",
+    "cannotRate": "Không thể đánh giá",
+    "sessionMustBeFinished": "Kèo phải kết thúc để đánh giá",
+    "asHost": "Là Host",
+    "asPlayer": "Là người chơi",
+    "ratedBy": "Được đánh giá bởi",
+    "ratedOn": "Đánh giá vào",
+    "viewReviews": "Xem đánh giá",
+    "reviews": "Đánh giá",
+    "cancel": "Hủy",
+    "rated": "Đã đánh giá"
   }
 }

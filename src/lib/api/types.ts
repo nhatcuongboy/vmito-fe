@@ -144,6 +144,8 @@ export interface TransactionSummary {
   totalAmount: number; // VND
   paidAmount: number; // VND
   pendingAmount: number; // VND
+  averageRating?: number; // Host's average rating
+  totalRatings?: number; // Host's total ratings count
 }
 
 // Host transaction summary (host xem theo player)
@@ -155,6 +157,8 @@ export interface HostTransactionSummary {
   totalAmount: number; // VND
   paidAmount: number; // VND
   pendingAmount: number; // VND
+  averageRating?: number; // Player's average rating
+  totalRatings?: number; // Player's total ratings count
 }
 
 // Request types for fee configuration
@@ -762,3 +766,62 @@ export type CategoryStandingsResponse = Array<{
   group: CategoryGroup;
   standings: GroupStanding[];
 }>;
+
+// ============================================
+// Rating & Review System Types
+// ============================================
+
+export enum RatingType {
+  PLAYER_TO_HOST = 'PLAYER_TO_HOST',
+  HOST_TO_PLAYER = 'HOST_TO_PLAYER',
+}
+
+export interface Rating {
+  id: string;
+  sessionId: string;
+  raterUserId: string; // User giving rating
+  ratedUserId: string; // User receiving rating
+  type: RatingType; // Direction (player→host or host→player)
+  rating: number; // 1-5 stars
+  comment?: string; // Optional review (max 500 chars)
+  createdAt: Date;
+  updatedAt: Date;
+  rater?: { id: string; name: string; image?: string };
+  rated?: { id: string; name: string; image?: string };
+  session?: { id: string; name: string };
+}
+
+export interface UserRatingStats {
+  userId: string;
+  averageRating: number; // Overall average
+  totalRatings: number; // Total count
+  asHostAverage?: number; // Average when acting as host
+  asHostCount?: number;
+  asPlayerAverage?: number; // Average when acting as player
+  asPlayerCount?: number;
+}
+
+export interface SessionRatingEligibility {
+  canRateHost: boolean;
+  hasRatedHost: boolean;
+  hostRating?: Rating;
+  canRatePlayers: string[]; // Player IDs host can rate
+  ratedPlayerIds: string[]; // Player IDs already rated by host
+  playerRatings: Rating[];
+}
+
+export interface CreateRatingRequest {
+  sessionId: string;
+  ratedUserId: string;
+  type: RatingType;
+  rating: number; // 1-5 required
+  comment?: string; // Max 500 chars
+}
+
+export interface GetRatingsRequest {
+  userId?: string;
+  sessionId?: string;
+  type?: RatingType;
+  raterUserId?: string;
+  ratedUserId?: string;
+}
