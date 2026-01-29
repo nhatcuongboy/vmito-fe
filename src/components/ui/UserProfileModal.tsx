@@ -92,7 +92,7 @@ export default function UserProfileModal({
           reset({
             name: fullUser.name || '',
             phone: fullUser.phone || '',
-            gender: (fullUser.gender as GenderType) || '',
+            gender: (fullUser.gender as Gender) || '',
             level: fullUser.level ? String(fullUser.level) : '',
             levelDescription: fullUser.levelDescription || '',
             password: '',
@@ -123,7 +123,7 @@ export default function UserProfileModal({
 
       if (data.name && typeof data.name === 'string') updateData.name = data.name;
       if (data.phone && typeof data.phone === 'string') updateData.phone = data.phone;
-      if (data.gender && data.gender !== '' && typeof data.gender === 'string') {
+      if (data.gender) {
         updateData.gender = data.gender as GenderType;
       }
       if (data.level && typeof data.level === 'string') updateData.level = Number(data.level);
