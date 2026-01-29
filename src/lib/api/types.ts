@@ -240,6 +240,8 @@ export interface ISession {
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
   courtColor?: string;
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
   status: SessionStatus;
   startTime?: Date;
   endTime?: Date;

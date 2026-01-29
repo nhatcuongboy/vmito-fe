@@ -30,6 +30,7 @@ import { CommonModal } from '@/components/ui/CommonModal';
 
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 import { toaster } from '@/components/ui/toaster';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
@@ -76,6 +77,7 @@ function HostSessionContent({
     sessionId: session?.id || sessionId,
     sessionStatus: session?.status || SessionStatus.PREPARING,
     onSessionUpdate: setSession,
+    initialInterval: REFRESH_INTERVALS.HOST,
   });
 
   const {
@@ -122,21 +124,21 @@ function HostSessionContent({
     setSelectedPlayers([]);
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
+  // Render session detail content
+  return (
+    <MainLayout
+      title={t('title')}
+      showBackButton={true}
+      backHref={
+        user?.role === UserRole.PLAYER ? '/player/host' : '/host/sessions'
+      }
+      contentPadding={0}
+    >
+      {loading && !session ? (
         <Center minH="50vh">
           <Spinner size="xl" color="blue.500" />
         </Center>
-      </ProtectedRouteGuard>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
+      ) : error ? (
         <Box
           p={6}
           bg="red.50"
@@ -152,14 +154,7 @@ function HostSessionContent({
             Please try again or contact support if the problem persists.
           </Text>
         </Box>
-      </ProtectedRouteGuard>
-    );
-  }
-
-  // No session found
-  if (!session) {
-    return (
-      <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
+      ) : !session ? (
         <Box
           p={6}
           bg="blue.50"
@@ -176,115 +171,104 @@ function HostSessionContent({
             exist.
           </Text>
         </Box>
-      </ProtectedRouteGuard>
-    );
-  }
+      ) : (
+        <>
+          {/* Auto-update wait times for IN_PROGRESS sessions */}
+          <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
 
-  // Render session detail content
-  return (
-    <MainLayout
-      title={t('title')}
-      showBackButton={true}
-      backHref={user?.role === UserRole.PLAYER ? '/player/host' : '/host/sessions'}
-      contentPadding={0}
-    >
-      {/* Auto-update wait times for IN_PROGRESS sessions */}
-      <WaitTimeUpdater
-        sessionId={session.id}
-        sessionStatus={session.status}
-      />
+          {/* Session Status Header */}
+          <SessionStatusHeader
+            session={session}
+            isRefreshing={isRefreshing}
+            isToggleStatusLoading={isToggleStatusLoading}
+            onToggleSessionStatus={toggleSessionStatus}
+            onRefreshData={refreshSessionData}
+          />
 
-      {/* Session Status Header */}
-      <SessionStatusHeader
-        session={session}
-        isRefreshing={isRefreshing}
-        isToggleStatusLoading={isToggleStatusLoading}
-        onToggleSessionStatus={toggleSessionStatus}
-        onRefreshData={refreshSessionData}
-      />
+          <Container maxW="7xl" py={2}>
+            {/* Tab Content Area */}
+            <Box minH="60vh" pb="80px">
+              {activeTab === 0 && (
+                <SessionOverviewTab
+                  session={session}
+                  onToggleSessionStatus={toggleSessionStatus}
+                  isToggleStatusLoading={isToggleStatusLoading}
+                />
+              )}
 
-      <Container maxW="7xl" py={2}>
-        {/* Tab Content Area */}
-        <Box minH="60vh" pb="80px">
-          {activeTab === 0 && (
-            <SessionOverviewTab
-              session={session}
-              onToggleSessionStatus={toggleSessionStatus}
-              isToggleStatusLoading={isToggleStatusLoading}
+              {activeTab === 1 && (
+                <PlayersTab
+                  session={session}
+                  sessionPlayers={session.players}
+                  playerFilter={playerFilter}
+                  setPlayerFilter={setPlayerFilter}
+                  formatWaitTime={formatWaitTime}
+                  sessionId={session.id}
+                  onPlayerUpdate={refreshSessionData}
+                />
+              )}
+
+              {activeTab === 2 && user?.role !== UserRole.PLAYER && (
+                <CourtsTab
+                  session={session}
+                  waitingPlayers={waitingPlayers}
+                  getCurrentMatch={getCurrentMatch}
+                  getCourtDisplayName={getCourtDisplayName}
+                  startManualMatchCreation={startManualMatchCreation}
+                  onDataRefresh={refreshSessionData}
+                  isRefreshing={isRefreshing}
+                  formatWaitTime={formatWaitTime}
+                  selectedPlayers={selectedPlayers}
+                />
+              )}
+
+              {activeTab === 3 && user?.role !== UserRole.PLAYER && (
+                <SessionHistoryList
+                  sessionId={session.id}
+                  sessionData={{
+                    players: session.players,
+                    courts: session.courts,
+                  }}
+                />
+              )}
+
+              {activeTab === 4 && user?.role !== UserRole.PLAYER && (
+                <PaymentTab session={session} />
+              )}
+
+              {activeTab === 5 && (
+                <SettingsTab
+                  session={session}
+                  refreshSessionData={refreshSessionData}
+                />
+              )}
+            </Box>
+
+            {/* Bottom Navigation Bar */}
+            <BottomNavigationBar
+              tabs={navigationTabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
             />
-          )}
+          </Container>
 
-          {activeTab === 1 && (
-            <PlayersTab
-              session={session}
-              sessionPlayers={session.players}
-              playerFilter={playerFilter}
-              setPlayerFilter={setPlayerFilter}
-              formatWaitTime={formatWaitTime}
-              sessionId={session.id}
-              onPlayerUpdate={refreshSessionData}
-            />
-          )}
-
-          {activeTab === 2 && user?.role !== UserRole.PLAYER && (
-            <CourtsTab
-              session={session}
-              waitingPlayers={waitingPlayers}
-              getCurrentMatch={getCurrentMatch}
-              getCourtDisplayName={getCourtDisplayName}
-              startManualMatchCreation={startManualMatchCreation}
-              onDataRefresh={refreshSessionData}
-              isRefreshing={isRefreshing}
-              formatWaitTime={formatWaitTime}
-              selectedPlayers={selectedPlayers}
-            />
-          )}
-
-          {activeTab === 3 && user?.role !== UserRole.PLAYER && (
-            <SessionHistoryList
-              sessionId={session.id}
-              sessionData={{
-                players: session.players,
-                courts: session.courts,
-              }}
-            />
-          )}
-
-          {activeTab === 4 && user?.role !== UserRole.PLAYER && (
-            <PaymentTab session={session} />
-          )}
-
-          {activeTab === 5 && (
-            <SettingsTab
-              session={session}
-              refreshSessionData={refreshSessionData}
-            />
-          )}
-        </Box>
-
-        {/* Bottom Navigation Bar */}
-        <BottomNavigationBar
-          tabs={navigationTabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
-      </Container>
-
-      {/* Confirmation Dialog */}
-      <CommonModal
-        isOpen={showConfirmDialog}
-        onClose={handleCancelAction}
-        title={t('confirmEndSession')}
-        primaryActionText={t('endSession')}
-        primaryColorScheme="red"
-        onPrimaryAction={handleConfirmAction}
-        isPrimaryLoading={isToggleStatusLoading}
-        secondaryActionText={t('cancel')}
-      >
-        <Text color="gray.600" _dark={{ color: 'gray.300' }}>
-          {t('confirmEndSessionMessage')}
-        </Text>
-      </CommonModal>
+          {/* Confirmation Dialog */}
+          <CommonModal
+            isOpen={showConfirmDialog}
+            onClose={handleCancelAction}
+            title={t('confirmEndSession')}
+            primaryActionText={t('endSession')}
+            primaryColorScheme="red"
+            onPrimaryAction={handleConfirmAction}
+            isPrimaryLoading={isToggleStatusLoading}
+            secondaryActionText={t('cancel')}
+          >
+            <Text color="gray.600" _dark={{ color: 'gray.300' }}>
+              {t('confirmEndSessionMessage')}
+            </Text>
+          </CommonModal>
+        </>
+      )}
     </MainLayout>
   );
 }

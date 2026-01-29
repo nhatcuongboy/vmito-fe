@@ -6,9 +6,10 @@ import { Box, Grid, Heading, Text } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import SessionCard from './SessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
+import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 
 interface SessionsListProps {
   status?: string;
@@ -93,6 +94,14 @@ export default function SessionsList({
           )
         : sessions.filter((s) => s.status === status);
 
+  // Extract unique host IDs for batch rating stats loading
+  const hostIds = useMemo(() => {
+    const ids = filteredSessions
+      .map((s) => s.hostId)
+      .filter((id): id is string => id !== null && id !== undefined);
+    return [...new Set(ids)];
+  }, [filteredSessions]);
+
   if (loading) {
     return (
       <Grid
@@ -146,22 +155,24 @@ export default function SessionsList({
   }
 
   return (
-    <Grid
-      templateColumns={{
-        base: '1fr',
-        md: 'repeat(2, 1fr)',
-        lg: 'repeat(3, 1fr)',
-      }}
-      gap={6}
-    >
-      {filteredSessions.map((session) => (
-        <SessionCard
-          key={session.id}
-          session={session}
-          onDelete={mode === 'manage' ? handleDelete : undefined}
-          mode={mode}
-        />
-      ))}
-    </Grid>
+    <RatingStatsProvider userIds={hostIds}>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        }}
+        gap={6}
+      >
+        {filteredSessions.map((session) => (
+          <SessionCard
+            key={session.id}
+            session={session}
+            onDelete={mode === 'manage' ? handleDelete : undefined}
+            mode={mode}
+          />
+        ))}
+      </Grid>
+    </RatingStatsProvider>
   );
 }

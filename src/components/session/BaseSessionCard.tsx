@@ -4,11 +4,14 @@ import { ISession, UserRatingStats } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import dayjs from '@/lib/dayjs';
 import {
+  Avatar,
   Badge,
   Box,
   Flex,
+  Grid,
   Heading,
   Icon,
+  Image,
   Stack,
   Text,
   Wrap,
@@ -18,11 +21,12 @@ import 'dayjs/locale/vi';
 import {
   Calendar,
   Clock,
-  DollarSign,
-  Shield,
   SquareAsterisk,
-  User,
   Users,
+  Shield,
+  Star,
+  MapPin,
+  Banknote,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -31,8 +35,7 @@ import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { StarRatingDisplay } from '@/components/rating';
-import { RatingService } from '@/lib/api/rating.service';
-import { useState, useEffect } from 'react';
+import { useRatingStats } from '@/contexts/RatingStatsContext';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 // Helper functions for formatting with locale support
@@ -85,6 +88,7 @@ interface BaseSessionCardProps {
 
   // Customization slots
   statusBadgeContent?: React.ReactNode;
+  registrationBadgeContent?: React.ReactNode; // New prop for registration status overlay
   afterStatusContent?: React.ReactNode; // For registration warnings
   extraInfoRows?: React.ReactNode; // For location/venue display
   actionButtons: React.ReactNode; // Required: join/view/delete buttons
@@ -99,38 +103,26 @@ interface BaseSessionCardProps {
 const BaseSessionCard = ({
   session,
   statusBadgeContent,
+  registrationBadgeContent,
   afterStatusContent,
   extraInfoRows,
   actionButtons,
   modalContent,
-  hostActions, // New prop
+  hostActions,
   sessionDistance,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   const { isAuthenticated } = useAuthStore();
+  const { getRatingStats } = useRatingStats();
 
-  // Host rating state
-  const [hostRatingStats, setHostRatingStats] = useState<UserRatingStats | null>(null);
-
-  // Fetch host rating stats
-  useEffect(() => {
-    const fetchHostRating = async () => {
-      if (!session.hostId || !isAuthenticated) return;
-      try {
-        const stats = await RatingService.getUserRatingStats(session.hostId);
-        setHostRatingStats(stats);
-      } catch (error) {
-        // Silently fail - rating is optional display
-      }
-    };
-    fetchHostRating();
-  }, [session.hostId, isAuthenticated]);
+  // Get rating stats from context (batch loaded)
+  const hostRatingStats = session.hostId && isAuthenticated
+    ? getRatingStats(session.hostId)
+    : null;
 
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
-
-  // Use session.hostName if available, fallback to host.name
   const displayHostName = session.hostName || session.host?.name || '';
 
   const convertedSession = {
@@ -152,163 +144,265 @@ const BaseSessionCard = ({
     hostName: displayHostName,
   };
 
-  // Get skill level color for left border
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+
+  // Format date and time for compact display
+  const formatCompactDate = (dateString: string | Date): string => {
+    const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+    const formattedDate = locale === Locale.VI
+      ? date.format('dddd, DD/MM')
+      : date.format('ddd, MM/DD');
+    return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  };
+
+  const compactDate = session.startTime
+    ? formatCompactDate(session.startTime)
+    : formatCompactDate(session.createdAt);
+
+  const compactTime = session.startTime
+    ? `${formatTime(session.startTime, locale)} - ${session.endTime ? formatTime(session.endTime, locale) : ''}`
+    : '';
+
+  // Calculate level segments for the side strip
+  const getLevelSegments = () => {
+    if (!session.requiredLevels || session.requiredLevels.length === 0) {
+      return ['gray.300']; // Light gray for all levels
+    }
+
+    const uniqueLevels = Array.from(new Set(session.requiredLevels)).sort((a, b) => a - b);
+    return uniqueLevels.map(level => getSkillLevelColor([level]).color);
+  };
+
+  const levelSegments = getLevelSegments();
 
   return (
     <>
-      <Flex
-        direction="column"
-        h="100%"
-        gap={4}
+      <Box
+        position="relative"
         borderWidth="1px"
-        borderLeftWidth="4px"
-        borderLeftColor={skillLevelColor.borderColor}
-        borderRadius="lg"
+        borderRadius="xl"
         overflow="hidden"
         bg="white"
         _dark={{ bg: 'gray.800' }}
-        p={6}
         transition="transform 0.2s, box-shadow 0.2s"
         _hover={{
           transform: 'translateY(-4px)',
-          boxShadow: 'lg',
+          boxShadow: 'xl',
         }}
+        maxW="400px"
+        w="100%"
       >
-        <Flex justify="space-between" align="flex-start">
-          <Heading size="md" mb={2}>
-            {convertedSession.title}
-          </Heading>
-          {statusBadgeContent || (
-            <Badge
-              colorPalette={statusColors[convertedSession.status] || 'gray'}
-            >
-              {getStatusLabel(convertedSession.status, t)}
-            </Badge>
-          )}
+        {/* Level Color Strip */}
+        <Flex
+          position="absolute"
+          left={0}
+          top={0}
+          bottom={0}
+          w="6px"
+          direction="column"
+          zIndex={2}
+        >
+          {levelSegments.map((color, index) => (
+            <Box
+              key={index}
+              flex={1}
+              bg={color}
+            />
+          ))}
         </Flex>
 
-        {afterStatusContent}
-
-        <Stack gap={3} flex={1}>
-          <Flex align="center" flexWrap="wrap" gap={2}>
-            <Flex align="center">
-              <Icon as={User} boxSize={5} mr={2} color="blue.500" />
-              <Text>
-                {t('host')}: <strong>{convertedSession.hostName}</strong>
-              </Text>
-            </Flex>
-            {hostRatingStats && hostRatingStats.totalRatings > 0 && (
-              <StarRatingDisplay
-                rating={hostRatingStats.averageRating}
-                count={hostRatingStats.totalRatings}
-                size="xs"
-                variant="compact"
-              />
+        {/* Cover Image Section */}
+        <Box position="relative" h="180px" overflow="hidden">
+          <Image
+            src={session.coverPhoto || "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&h=400&fit=crop"}
+            alt={session.name}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+          {/* Status Badge Overlay */}
+          <Box position="absolute" top={3} right={3}>
+            {statusBadgeContent || (
+              <Badge
+                colorPalette={statusColors[convertedSession.status] || 'gray'}
+                fontSize="sm"
+                px={3}
+                py={1}
+                borderRadius="md"
+              >
+                {getStatusLabel(convertedSession.status, t)}
+              </Badge>
             )}
-            {hostActions && <Box ml={2}>{hostActions}</Box>}
-          </Flex>
+          </Box>
+          {/* Registration Status Overlay */}
+          {registrationBadgeContent && (
+            <Box position="absolute" top={3} left={3}>
+              {registrationBadgeContent}
+            </Box>
+          )}
+        </Box>
 
-          {extraInfoRows}
+        {/* Content Section */}
+        <Box p={5}>
+          <Stack gap={4}>
+            {/* Title */}
+            <Heading size="lg" fontWeight="bold">
+              {convertedSession.title}
+            </Heading>
 
-          <Flex align="center">
-            <Icon as={Calendar} boxSize={5} mr={2} color="blue.500" />
-            <Text>{convertedSession.date}</Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={Clock} boxSize={5} mr={2} color="blue.500" />
-            <Text>{convertedSession.time}</Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={SquareAsterisk} boxSize={5} mr={2} color="blue.500" />
-            <Text>
-              {convertedSession.numberOfCourts} {t('courtsAvailable')}
-            </Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={Users} boxSize={5} mr={2} color="blue.500" />
-            <Text>
-              {convertedSession.totalPlayers} / {convertedSession.maxPlayers}{' '}
-              {t('players')}
-            </Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={Shield} boxSize={5} mr={2} color={skillLevelColor.color} />
-            <Wrap gap={1}>
-              {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels))
-                  .sort((a, b) => a - b)
-                  .map((level) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        fontSize="sm"
-                        variant="solid"
-                        px={2}
-                        py={0.5}
-                        borderRadius="md"
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })
-              ) : (
-                <Badge
-                  colorPalette={skillLevelColor.colorPalette}
-                  fontSize="sm"
-                  variant="solid"
-                  px={2}
-                  py={0.5}
-                  borderRadius="md"
-                >
-                  {t('allLevels')}
-                </Badge>
-              )}
-            </Wrap>
-          </Flex>
-
-
-          {/* Fee Display */}
-          {session.feeConfig && (
-            <Flex align="center">
-              <Icon as={DollarSign} boxSize={5} mr={2} color="blue.500" />
-              <Text>
-                <Text as="span" fontWeight="bold" color="green.600">
-                  {FeeService.getFeeDisplayText(session.feeConfig)}
-                </Text>
-                {session.feeConfig.feeType === FeeType.FIXED && (
-                  <Text as="span" fontSize="sm" color="gray.500" ml={1}>
-                    /slot
-                  </Text>
-                )}
+            {/* Host Info with Avatar and Rating */}
+            <Flex align="center" gap={3}>
+              <Avatar.Root size="sm" borderRadius="full">
+                <Avatar.Fallback name={displayHostName} />
+              </Avatar.Root>
+              <Text fontSize="sm" fontWeight="medium">
+                {displayHostName}
               </Text>
-              <FeeDetailPopover feeConfig={session.feeConfig} />
+              {hostRatingStats && hostRatingStats.totalRatings > 0 && (
+                <Flex align="center" gap={1}>
+                  <Text fontSize="sm" color="gray.500">•</Text>
+                  <Icon as={Star} boxSize={4} color="yellow.500" fill="yellow.500" />
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {hostRatingStats.averageRating.toFixed(1)}
+                  </Text>
+                </Flex>
+              )}
+              {hostActions}
             </Flex>
-          )}
 
-          {session.description && (
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              _dark={{ color: 'gray.300' }}
-              overflow="hidden"
-              display="-webkit-box"
-              style={{
-                WebkitLineClamp: '2',
-                WebkitBoxOrient: 'vertical',
-              }}
+            {afterStatusContent}
+
+            {/* Location */}
+            {extraInfoRows && <Box>{extraInfoRows}</Box>}
+
+            {/* Date & Time + Courts & Players Grid */}
+            <Grid templateColumns="1fr 1fr" gap={4}>
+              {/* Left Column: Date & Time */}
+              <Stack gap={2}>
+                <Flex align="center" gap={2}>
+                  <Icon as={Calendar} boxSize={5} color="blue.500" />
+                  <Text fontSize="sm">{compactDate}</Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={Clock} boxSize={5} color="blue.500" />
+                  <Text fontSize="sm">{compactTime}</Text>
+                </Flex>
+              </Stack>
+
+              {/* Right Column: Courts & Players */}
+              <Stack gap={2}>
+                <Flex align="center" gap={2}>
+                  <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
+                  <Text fontSize="sm">
+                    {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={Users} boxSize={5} color="blue.500" />
+                  <Text fontSize="sm">
+                    {convertedSession.totalPlayers}/{convertedSession.maxPlayers} {t('players')}
+                  </Text>
+                </Flex>
+              </Stack>
+            </Grid>
+
+            {/* Skill Levels */}
+            <Flex align="center" gap={3}>
+              <Icon as={Shield} boxSize={5} color={skillLevelColor.color} />
+              <Wrap gap={2}>
+                {session.requiredLevels && session.requiredLevels.length > 0 ? (
+                  Array.from(new Set(session.requiredLevels))
+                    .sort((a, b) => a - b)
+                    .map((level) => {
+                      const levelColor = getSkillLevelColor([level]);
+                      return (
+                        <Badge
+                          key={level}
+                          colorPalette={levelColor.colorPalette}
+                          variant="solid"
+                          size="md"
+                          fontSize="xs"
+                          fontWeight="bold"
+                          px={2.5}
+                          py={0.5}
+                          borderRadius="md"
+                        >
+                          {getLevelShortLabel(level)}
+                        </Badge>
+                      );
+                    })
+                ) : (
+                  <Badge
+                    colorPalette="gray"
+                    variant="subtle"
+                    size="md"
+                    fontSize="xs"
+                    fontWeight="bold"
+                    px={2.5}
+                    py={0.5}
+                    borderRadius="md"
+                  >
+                    {t('allLevels')}
+                  </Badge>
+                )}
+              </Wrap>
+            </Flex>
+
+            {/* Description/Notes */}
+            {session.description && (
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                overflow="hidden"
+                display="-webkit-box"
+                style={{
+                  WebkitLineClamp: '2',
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                {session.description}
+              </Text>
+            )}
+
+            {/* Footer: Price + Actions */}
+            <Flex
+              align="flex-start"
+              justify="space-between"
+              pt={4}
+              borderTopWidth="1px"
+              borderTopColor="gray.200"
+              _dark={{ borderTopColor: 'gray.700' }}
+              gap={3}
             >
-              {session.description}
-            </Text>
-          )}
-        </Stack>
+              {/* Price Section - Aligned to top-left */}
+              <Box flexShrink={0}>
+                {session.feeConfig && (
+                  <Flex align="flex-start" gap={1.5} pt={0.5}>
+                    <Icon as={Banknote} boxSize={5} color="red.600" mt={1} />
+                    <Flex align="center" gap={1.5}>
+                      <Text fontSize="lg" fontWeight="bold" color="red.600" whiteSpace="nowrap">
+                        {FeeService.getFeeDisplayText(session.feeConfig)}
+                      </Text>
+                      {session.feeConfig.feeType === FeeType.FIXED && (
+                        <Text fontSize="sm" color="gray.500" fontWeight="normal" whiteSpace="nowrap">
+                          /slot
+                        </Text>
+                      )}
+                      <FeeDetailPopover feeConfig={session.feeConfig} />
+                    </Flex>
+                  </Flex>
+                )}
+              </Box>
 
-        <Flex mt={4} gap={2} justify="flex-end">
-          {actionButtons}
-        </Flex>
-      </Flex>
+              {/* Action Buttons Section - Vertically stacked rows */}
+              <Box flex="1">
+                {actionButtons}
+              </Box>
+            </Flex>
+          </Stack>
+        </Box>
+      </Box>
 
       {modalContent}
     </>

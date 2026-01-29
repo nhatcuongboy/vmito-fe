@@ -3,7 +3,7 @@
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
-import { Badge, Box, Flex, FlexProps, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, FlexProps, Heading, Text, Image } from '@chakra-ui/react';
 import {
   Activity,
   CheckCircle,
@@ -82,6 +82,19 @@ export default function SessionOverviewTab({
 
   return (
     <Box>
+      {/* Cover Photo Section */}
+      {session.coverPhoto && (
+        <Box mb={8} borderRadius="xl" overflow="hidden" boxShadow="md">
+          <Image
+            src={session.coverPhoto}
+            alt={session.name}
+            w="100%"
+            h={{ base: '200px', md: '300px' }}
+            objectFit="cover"
+          />
+        </Box>
+      )}
+
       <SimpleGrid spacing={8} columns={{ base: 1, md: 2 }} mb={8}>
         {/* Left Column: Session Info */}
         <Box as="section" h="full">

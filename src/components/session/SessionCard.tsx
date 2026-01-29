@@ -2,9 +2,9 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
-import { Box, Text, Icon } from '@chakra-ui/react';
+import { Box, Text, Icon, Flex, Badge, Stack } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { Share2 } from 'lucide-react';
+import { Share2, MapPin } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
@@ -59,79 +59,98 @@ const SessionCard = ({
     }
   };
 
-  // Registration status warnings (unique to SessionCard)
-  const statusWarnings = (
-    <>
-      {session.players?.[0]?.registrationStatus === 'PENDING' && (
-        <Box
-          bg="yellow.100"
-          color="yellow.800"
-          px={3}
-          py={2}
-          borderRadius="md"
-          mb={2}
-        >
-          <Text fontSize="sm" fontWeight="bold">
-            ⏳ {t('registrationPending')}
+  // Registration status badge (owner/player view of their status)
+  const registrationBadge = (() => {
+    const status = session.players?.[0]?.registrationStatus;
+    if (status === 'PENDING') {
+      return (
+        <Badge colorPalette="yellow" variant="solid">
+          {t('registrationPending')}
+        </Badge>
+      );
+    }
+    if (status === 'REJECTED') {
+      return (
+        <Badge colorPalette="red" variant="solid">
+          {t('registrationRejected')}
+        </Badge>
+      );
+    }
+    if (status === 'APPROVED') {
+      return (
+        <Badge colorPalette="green" variant="solid">
+          {t('registrationApproved')}
+        </Badge>
+      );
+    }
+    return null;
+  })();
+
+  // Location/venue display
+  const locationRow =
+    session.venue?.name || session.location ? (
+      <Flex align="flex-start">
+        <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
+        <Box flex="1" overflow="hidden">
+          <Text fontWeight="medium" lineClamp={1}>
+            {session.venue?.name || session.location}
           </Text>
+          {session.venue?.address &&
+            session.venue.address !== session.venue.name && (
+              <Text fontSize="xs" color="gray.500" lineClamp={1}>
+                {session.venue.address}
+              </Text>
+            )}
         </Box>
-      )}
-      {session.players?.[0]?.registrationStatus === 'REJECTED' && (
-        <Box
-          bg="red.100"
-          color="red.800"
-          px={3}
-          py={2}
-          borderRadius="md"
-          mb={2}
-        >
-          <Text fontSize="sm" fontWeight="bold">
-            ❌ {t('registrationRejected')}
-          </Text>
-        </Box>
-      )}
-    </>
-  );
+      </Flex>
+    ) : null;
 
   // Action buttons - route owners to manage page, others to view page
   const actions = (
-    <>
-      <IconButton
-        size="sm"
-        colorPalette="gray"
-        variant="outline"
-        aria-label="Share session"
-        icon={<Icon as={Share2} />}
-        onClick={handleShare}
-      />
-      {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
-        <NextLinkButton
-          href={`/host/sessions/${session.id}`}
-          colorPalette="blue"
+    <Stack gap={2} align="flex-end">
+      {/* Row 1: Share */}
+      <Flex justify="flex-end">
+        <IconButton
           size="sm"
-        >
-          {t('host')}
-        </NextLinkButton>
-      ) : (
-        <NextLinkButton
-          href={`/player/sessions/${session.id}`}
-          colorPalette={isOwner && user?.role === 'PLAYER' ? 'blue' : 'blue'}
-          size="sm"
-        >
-          {isOwner && user?.role === 'PLAYER' ? t('manageSession') : t('viewSession')}
-        </NextLinkButton>
-      )}
-      {mode === 'manage' && onDelete && (
-        <Button
-          colorPalette="red"
+          colorPalette="gray"
           variant="outline"
-          size="sm"
-          onClick={onOpen}
-        >
-          {t('deleteSession')}
-        </Button>
-      )}
-    </>
+          aria-label="Share session"
+          icon={<Icon as={Share2} />}
+          onClick={handleShare}
+        />
+      </Flex>
+
+      {/* Row 2: Management/View */}
+      <Flex gap={2} flexWrap="wrap" justify="flex-end">
+        {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
+          <NextLinkButton
+            href={`/host/sessions/${session.id}`}
+            colorPalette="blue"
+            size="sm"
+          >
+            {t('manageSession')}
+          </NextLinkButton>
+        ) : (
+          <NextLinkButton
+            href={`/player/sessions/${session.id}`}
+            colorPalette={isOwner && user?.role === 'PLAYER' ? 'blue' : 'blue'}
+            size="sm"
+          >
+            {isOwner && user?.role === 'PLAYER' ? t('manageSession') : t('viewSession')}
+          </NextLinkButton>
+        )}
+        {mode === 'manage' && onDelete && (
+          <Button
+            colorPalette="red"
+            variant="outline"
+            size="sm"
+            onClick={onOpen}
+          >
+            {t('deleteSession')}
+          </Button>
+        )}
+      </Flex>
+    </Stack>
   );
 
   // Delete modal (unique to SessionCard)
@@ -155,7 +174,8 @@ const SessionCard = ({
   return (
     <BaseSessionCard
       session={session}
-      afterStatusContent={statusWarnings}
+      registrationBadgeContent={registrationBadge}
+      extraInfoRows={locationRow}
       actionButtons={actions}
       modalContent={modal}
     />

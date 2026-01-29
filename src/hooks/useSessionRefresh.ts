@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { SessionService } from '@/lib/api/session.service';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 import { SessionData } from './useSessionData';
 import { Court, Match } from '@/lib/api/types';
 
@@ -7,6 +8,7 @@ interface UseSessionRefreshProps {
   sessionId: string;
   sessionStatus: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
   onSessionUpdate: (session: SessionData) => void;
+  initialInterval?: number;
 }
 
 interface UseSessionRefreshReturn {
@@ -30,8 +32,9 @@ export function useSessionRefresh({
   sessionId,
   sessionStatus,
   onSessionUpdate,
+  initialInterval = REFRESH_INTERVALS.PLAYER,
 }: UseSessionRefreshProps): UseSessionRefreshReturn {
-  const [refreshInterval, setRefreshInterval] = useState<number>(60);
+  const [refreshInterval, setRefreshInterval] = useState<number>(initialInterval);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
@@ -87,7 +90,11 @@ export function useSessionRefresh({
     let intervalId: NodeJS.Timeout | null = null;
 
     if (sessionStatus === 'IN_PROGRESS' && refreshInterval > 0) {
-      intervalId = setInterval(refreshSessionData, refreshInterval * 1000);
+      intervalId = setInterval(() => {
+        if (!document.hidden) {
+          refreshSessionData();
+        }
+      }, refreshInterval * 1000);
     }
 
     return () => {

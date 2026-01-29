@@ -30,6 +30,7 @@ import PlayerSessionView from '@/components/session/PlayerSessionView';
 
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 import { toaster } from '@/components/ui/toaster';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
@@ -76,6 +77,7 @@ function PlayerSessionManageContent({
     sessionId: session?.id || sessionId,
     sessionStatus: session?.status || SessionStatus.PREPARING,
     onSessionUpdate: setSession,
+    initialInterval: REFRESH_INTERVALS.PLAYER,
   });
 
   const {

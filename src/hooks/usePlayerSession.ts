@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 import {
   sendSystemNotification,
   requestNotificationPermission,
@@ -325,7 +326,12 @@ export function usePlayerSession({
   }, [propPlayerId, propSessionId, userId, mode, fetchPlayerData]);
 
   useEffect(() => {
-    const timer = setInterval(() => fetchPlayerData(true), 60000);
+    const timer = setInterval(() => {
+      // Only refresh if tab is active
+      if (!document.hidden) {
+        fetchPlayerData(true);
+      }
+    }, REFRESH_INTERVALS.PLAYER * 1000); // Increased from 60s to 180s (3 minutes)
     return () => clearInterval(timer);
   }, [fetchPlayerData]);
 

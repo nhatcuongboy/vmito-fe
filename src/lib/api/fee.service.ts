@@ -107,6 +107,6 @@ export const FeeService = {
     const minFee = Math.min(maleFee, femaleFee);
     const maxFee = Math.max(maleFee, femaleFee);
 
-    return `${FeeService.formatFee(minFee)} - ${FeeService.formatFee(maxFee)}`;
+    return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
   },
 };

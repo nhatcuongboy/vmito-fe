@@ -80,6 +80,7 @@ import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import TopBar from '@/components/ui/TopBar';
+import CoverPhotoUpload from '@/components/session/CoverPhotoUpload';
 
 function formatDateTimeLocal(date: Date): string {
     if (!date) return '';
@@ -274,6 +275,13 @@ export default function SessionForm({
     );
     const [feeNotes, setFeeNotes] = useState(
         initialData?.feeConfig?.notes || ''
+    );
+
+    // Cover photo state
+    const [coverPhotoFile, setCoverPhotoFile] = useState<File | null>(null);
+    const [isUploadingCover, setIsUploadingCover] = useState(false);
+    const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | undefined>(
+        initialData?.coverPhoto
     );
 
     // Computed session duration
@@ -617,6 +625,42 @@ export default function SessionForm({
                                     />
                                     <Field.ErrorText>{errors.description?.message}</Field.ErrorText>
                                 </Field.Root>
+
+                                {/* Cover Photo - Only in edit mode */}
+                                {isEditMode && sessionId && (
+                                    <Box>
+                                        <CoverPhotoUpload
+                                            currentPhotoUrl={coverPhotoUrl}
+                                            onPhotoSelect={async (file) => {
+                                                setCoverPhotoFile(file);
+                                                setIsUploadingCover(true);
+                                                try {
+                                                    const updatedSession = await SessionService.uploadCoverPhoto(sessionId, file);
+                                                    setCoverPhotoUrl(updatedSession.coverPhoto);
+                                                    toaster.success({ title: t('coverPhotoUploaded') || 'Cover photo uploaded successfully' });
+                                                } catch (error) {
+                                                    toaster.error({ title: t('coverPhotoUploadFailed') || 'Failed to upload cover photo' });
+                                                } finally {
+                                                    setIsUploadingCover(false);
+                                                    setCoverPhotoFile(null);
+                                                }
+                                            }}
+                                            onPhotoRemove={async () => {
+                                                setIsUploadingCover(true);
+                                                try {
+                                                    await SessionService.deleteCoverPhoto(sessionId);
+                                                    setCoverPhotoUrl(undefined);
+                                                    toaster.success({ title: t('coverPhotoRemoved') || 'Cover photo removed successfully' });
+                                                } catch (error) {
+                                                    toaster.error({ title: t('coverPhotoRemoveFailed') || 'Failed to remove cover photo' });
+                                                } finally {
+                                                    setIsUploadingCover(false);
+                                                }
+                                            }}
+                                            isUploading={isUploadingCover}
+                                        />
+                                    </Box>
+                                )}
 
                                 {/* Location */}
                                 <Field.Root invalid={!!errors.selectedVenueId}>

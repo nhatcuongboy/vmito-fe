@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text, Badge, Stack } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Phone, Share2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
@@ -135,13 +135,13 @@ const FindSessionCard = ({
     session.venue?.name || session.location ? (
       <Flex align="flex-start">
         <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
-        <Box>
-          <Text fontWeight="medium">
+        <Box flex="1" overflow="hidden">
+          <Text fontWeight="medium" lineClamp={1}>
             {session.venue?.name || session.location}
           </Text>
           {session.venue?.address &&
             session.venue.address !== session.venue.name && (
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="gray.500" lineClamp={1}>
                 {session.venue.address}
               </Text>
             )}
@@ -199,19 +199,15 @@ const FindSessionCard = ({
 
   // Action buttons
   const actions = (
-    <Flex direction="column" gap={2} width="full">
-      {/* Registration status badge - right-aligned above buttons */}
-      {userRegistrationStatus && (
-        <Flex justify="flex-end">
-          {registrationStatusBadge}
-        </Flex>
-      )}
-
-      {/* Action buttons row */}
-      <Flex gap={2} flexWrap="wrap" justify="flex-end">
+    <Stack gap={2} align="flex-end">
+      {/* Row 1: Share and Call */}
+      <Flex gap={2} justify="flex-end">
         {shareButton}
         {callButton}
+      </Flex>
 
+      {/* Row 2: Primary Actions */}
+      <Flex gap={2} flexWrap="wrap" justify="flex-end">
         {/* If user owns the session, show Host button */}
         {isOwner ? (
           <NextLinkButton
@@ -223,7 +219,7 @@ const FindSessionCard = ({
             colorPalette="blue"
             size="sm"
           >
-            {t('host')}
+            {t('manageSession')}
           </NextLinkButton>
         ) : (
           /* Otherwise show registration buttons based on status */
@@ -267,7 +263,7 @@ const FindSessionCard = ({
           </>
         )}
       </Flex>
-    </Flex>
+    </Stack>
   );
 
   return (
@@ -275,6 +271,7 @@ const FindSessionCard = ({
       <BaseSessionCard
         session={session}
         extraInfoRows={locationRow}
+        registrationBadgeContent={registrationStatusBadge}
         actionButtons={actions}
         sessionDistance={distance || undefined}
       />

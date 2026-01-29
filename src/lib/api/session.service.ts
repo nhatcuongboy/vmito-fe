@@ -318,4 +318,32 @@ export const SessionService = {
     );
     return response.data.data!;
   },
+
+  // Upload cover photo for session
+  uploadCoverPhoto: async (
+    sessionId: string,
+    file: File
+  ): Promise<ISession> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post<ApiResponse<ISession>>(
+      `/sessions/${sessionId}/cover-photo`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data.data!;
+  },
+
+  // Delete cover photo for session
+  deleteCoverPhoto: async (sessionId: string): Promise<ISession> => {
+    const response = await api.delete<ApiResponse<ISession>>(
+      `/sessions/${sessionId}/cover-photo`
+    );
+    return response.data.data!;
+  },
 };

@@ -60,6 +60,18 @@ export const RatingService = {
   // User Rating Statistics
   // ==========================================
 
+  // Get rating statistics for multiple users (batch)
+  getBatchUserRatingStats: async (userIds: string[]): Promise<UserRatingStats[]> => {
+    if (!userIds || userIds.length === 0) {
+      return [];
+    }
+    const response = await api.post<ApiResponse<UserRatingStats[]>>(
+      '/ratings/users/batch-stats',
+      { userIds }
+    );
+    return response.data.data || [];
+  },
+
   // Get user's rating statistics
   getUserRatingStats: async (userId: string): Promise<UserRatingStats> => {
     const response = await api.get<ApiResponse<UserRatingStats>>(
