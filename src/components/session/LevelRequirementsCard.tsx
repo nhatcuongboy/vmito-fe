@@ -1,7 +1,8 @@
 'use client';
 
-import { Control, useController, useWatch } from 'react-hook-form';
+import { Control, useController, useWatch, UseFormSetValue } from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
+import { CourtDirection } from '@/lib/api/types';
 import {
   Box,
   Button,
@@ -62,7 +63,28 @@ const CustomCheckbox = ({
 
 interface LevelRequirementsCardProps {
   control: Control<any>;
-  setValue: (name: string, value: any) => void;
+  setValue: UseFormSetValue<{
+    allLevelsSelected: boolean;
+    requiredLevels?: number[];
+    name: string;
+    selectedVenueId: string;
+    hostName: string;
+    hostPhone: string;
+    startTime: string;
+    endTime: string;
+    courts: {
+      direction: CourtDirection;
+      courtNumber: number;
+      courtName?: string;
+    }[];
+    courtColor: string;
+    maxPlayersPerCourt: number;
+    description?: string;
+    requirePlayerInfo: boolean;
+    allowGuestJoin: boolean;
+    allowNewPlayers: boolean;
+    shuttlecock?: string;
+  }>;
 }
 
 export default function LevelRequirementsCard({ control, setValue }: LevelRequirementsCardProps) {
