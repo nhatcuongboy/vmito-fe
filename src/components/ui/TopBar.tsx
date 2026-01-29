@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { AuthService } from '@/lib/api/auth.service';
 import SlideOutMenu from './SlideOutMenu';
 import NotificationBell from './NotificationBell';
+import UserMenu from './UserMenu';
 import Link from 'next/link';
 import { useRouter } from '@/i18n/config';
 
@@ -125,7 +126,10 @@ export default function TopBar({
               {rightContent}
 
               {isAuthenticated && (
-                <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
+                <>
+                  <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
+                  <UserMenu onLogout={handleLogout} />
+                </>
               )}
 
               <IconButton

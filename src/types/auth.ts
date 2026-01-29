@@ -8,6 +8,7 @@ export interface User {
   name: string | null;
   role: UserRole;
   image?: string | null;
+  imagePublicId?: string | null;
   // Guest-specific fields
   playerId?: string;
   sessionId?: string;

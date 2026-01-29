@@ -7,6 +7,7 @@ export interface User {
   name: string;
   role: UserRole;
   image?: string;
+  imagePublicId?: string;
   gender?: GenderType;
   level?: number;
   levelDescription?: string;
@@ -32,6 +33,7 @@ export interface UpdateUserData {
   level?: number;
   levelDescription?: string;
   image?: string;
+  imagePublicId?: string;
   password?: string;
   role?: UserRole;
 }
@@ -76,6 +78,21 @@ export const AdminService = {
    */
   updateUser: async (id: string, data: UpdateUserData): Promise<User> => {
     const response = await api.put<ApiResponse<User>>(`/users/${id}`, data);
+    return response.data.data!;
+  },
+
+  uploadAvatar: async (file: File): Promise<{ url: string; publicId: string }> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const response = await api.post<ApiResponse<{ url: string; publicId: string }>>(
+      '/upload/avatar',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
     return response.data.data!;
   },
 
