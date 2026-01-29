@@ -26,11 +26,11 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
     const router = useRouter();
     const { user } = useAuthStore();
 
-    const bgColor = useColorModeValue('white', 'gray.800');
-    const borderColor = useColorModeValue('gray.200', 'gray.700');
-    const inputBg = useColorModeValue('gray.50', 'gray.700');
-    const inputHoverBg = useColorModeValue('gray.100', 'gray.600');
-    const placeholderColor = useColorModeValue('gray.500', 'gray.400');
+    const bgColor = useColorModeValue('white');
+    const borderColor = useColorModeValue('gray.200');
+    const inputBg = useColorModeValue('gray.50');
+    const inputHoverBg = useColorModeValue('gray.100');
+    const placeholderColor = useColorModeValue('gray.500');
 
     if (!user) return null;
 
@@ -74,7 +74,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
                     transition="background 0.2s"
                     align="center"
                 >
-                    <Text color={placeholderColor} fontSize="sm" noOfLines={1}>
+                    <Text color={placeholderColor} fontSize="sm">
                         {t('quickCreate.placeholder', { name: user.name || 'bạn' })}
                     </Text>
                 </Flex>
@@ -82,20 +82,20 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
                 {/* Create Button */}
                 <Button
                     onClick={handleCreateClick}
-                    colorScheme="blue"
+                    colorPalette="blue"
                     borderRadius="full"
-                    leftIcon={<Icon as={Plus} />}
                     size="sm"
                     px={4}
                     display={{ base: 'none', sm: 'flex' }}
                 >
+                    <Plus size={16} style={{ marginRight: '8px' }} />
                     {t('quickCreate.createButton')}
                 </Button>
 
                 {/* Mobile Create Button */}
                 <Button
                     onClick={handleCreateClick}
-                    colorScheme="blue"
+                    colorPalette="blue"
                     borderRadius="full"
                     size="sm"
                     display={{ base: 'flex', sm: 'none' }}
