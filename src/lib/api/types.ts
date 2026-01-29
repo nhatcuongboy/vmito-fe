@@ -243,6 +243,7 @@ export interface ISession {
   courtColor?: string;
   coverPhoto?: string;
   coverPhotoPublicId?: string;
+  shuttlecock?: string;
   status: SessionStatus;
   startTime?: Date;
   endTime?: Date;
@@ -412,6 +413,7 @@ export interface CreateSessionRequest {
   startTime?: Date;
   endTime?: Date;
   courtColor?: string;
+  shuttlecock?: string;
   courts?: CourtConfig[];
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration

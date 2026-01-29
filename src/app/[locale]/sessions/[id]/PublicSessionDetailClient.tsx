@@ -15,6 +15,7 @@ import { SessionService } from '@/lib/api/session.service';
 import { Spinner } from '@chakra-ui/react';
 import BaseSessionCard from '@/components/session/BaseSessionCard';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 const PublicSessionDetailClient = () => {
   const t = useTranslations('session');
@@ -39,7 +40,7 @@ const PublicSessionDetailClient = () => {
           setError('Session ID not found');
           return;
         }
-        
+
         const sessionData = await SessionService.getSession(sessionId);
         setSession(sessionData);
       } catch (err) {
@@ -68,7 +69,7 @@ const PublicSessionDetailClient = () => {
       return;
     }
     // Redirect to browse sessions page with this session ID
-    window.location.href = `/browse/sessions?sessionId=${session?.id}`;
+    window.location.href = `/?sessionId=${session?.id}`;
   };
 
   // Handle call action
@@ -84,8 +85,13 @@ const PublicSessionDetailClient = () => {
         <TopBar
           icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
         />
-        <Box pt={{ base: 'calc(44px + env(safe-area-inset-top))', md: 'calc(56px + env(safe-area-inset-top))' }}>
-          <Container maxW="4xl" py={8}>
+        <Box
+          pt={{
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          }}
+        >
+          <Container maxW="4xl" px={CONTAINER_PX} pb={8}>
             <Flex justify="center" align="center" minH="400px">
               <Spinner size="xl" />
             </Flex>
@@ -101,8 +107,13 @@ const PublicSessionDetailClient = () => {
         <TopBar
           icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
         />
-        <Box pt={{ base: 'calc(44px + env(safe-area-inset-top))', md: 'calc(56px + env(safe-area-inset-top))' }}>
-          <Container maxW="4xl" py={8}>
+        <Box
+          pt={{
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          }}
+        >
+          <Container maxW="4xl" px={CONTAINER_PX} pb={8}>
             <Flex justify="center" align="center" minH="400px">
               <Box fontSize="xl" color="red.500">
                 {error || 'Session not found'}
@@ -181,8 +192,13 @@ const PublicSessionDetailClient = () => {
       <TopBar
         icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
       />
-      <Box pt={{ base: 'calc(44px + env(safe-area-inset-top))', md: 'calc(56px + env(safe-area-inset-top))' }}>
-        <Container maxW="4xl" py={8}>
+      <Box
+        pt={{
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+        }}
+      >
+        <Container maxW="4xl" px={CONTAINER_PX} pb={8}>
           <Flex justify="center">
             <BaseSessionCard
               session={session}
@@ -190,7 +206,7 @@ const PublicSessionDetailClient = () => {
               actionButtons={customActionButtons}
             />
           </Flex>
-          
+
           {/* View More Sessions Button */}
           <Flex justify="center" mt={8}>
             <NextLinkButton

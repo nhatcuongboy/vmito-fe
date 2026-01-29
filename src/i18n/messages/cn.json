@@ -25,7 +25,7 @@
     "loading": "加载中...",
     "error": "错误",
     "success": "成功",
-    "notAvailable": "暂无",
+    "notAvailable": "N/A",
     "back": "返回",
     "backToHome": "返回首页",
     "backToDashboard": "返回控制台",
@@ -81,7 +81,17 @@
     "pair": "搭档",
     "waitTime": "等待时间",
     "playerName": "玩家姓名",
-    "status": "状态"
+    "status": "状态",
+    "appearance": "外观",
+    "deviceTheme": "自动",
+    "darkTheme": "深色",
+    "lightTheme": "浅色",
+    "useDeviceTheme": "自动",
+    "displayOptionsSubtitle": "设置选项仅适用于此浏览器",
+    "displayLanguage": "语言",
+    "vietnamese": "越南语",
+    "english": "英语",
+    "chinese": "中文"
   },
   "session": {
     "title": "羽毛球场次",
@@ -98,6 +108,7 @@
     "start": "开始",
     "end": "结束",
     "duration": "时长",
+    "shuttlecock": "用球",
     "allLevelsAllowedMessage": "欢迎所有等级",
     "location": "地点",
     "courtAppearance": "场地外观",
@@ -237,6 +248,8 @@
       "currentLevels": "当前等级：",
       "newLevels": "新等级：",
       "allLevelsAllowed": "允许所有等级",
+      "allLevels": "所有等级",
+      "selectedLevels": "已选等级",
       "playerImpactWarning": "⚠️ 等级不在新列表中的玩家可能需要更新他们的个人资料，或者可能会被限制未来的操作。",
       "confirmChange": "确认更改",
       "cancel": "取消"
@@ -366,7 +379,12 @@
     "hostedBy": "主办方",
     "dateNotSet": "未设定日期",
     "timeNotSet": "未设定时间",
-    "courts": "场地"
+    "courts": "场地",
+    "quickCreate": {
+      "placeholder": "{name}，你想创建什么？",
+      "aiPlaceholder": "使用 AI 快速创建场次...",
+      "createButton": "创建场次"
+    }
   },
   "court": {
     "title": "场地",
@@ -1328,6 +1346,7 @@
     "sessionTime": "时间",
     "numberOfCourts": "场地数量",
     "maxPlayersPerCourt": "每场最大人数",
+    "shuttlecock": "用球",
     "description": "描述",
     "status": "状态",
     "notStartedYet": "尚未开始",

@@ -68,12 +68,11 @@ const CustomCheckbox = ({
 
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/chakra-compat';
-import { Plus, Minus, Sparkles, User, Users, UserPlus, BarChart } from 'lucide-react';
+import { Plus, Minus, Sparkles, User, Users, UserPlus } from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
-import { VALID_LEVELS } from '@/constants/levels';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { Select } from '@/components/ui/Select';
 import { VenueService } from '@/lib/api/venue.service';
@@ -81,6 +80,7 @@ import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import TopBar from '@/components/ui/TopBar';
 import CoverPhotoUpload from '@/components/session/CoverPhotoUpload';
+import LevelRequirementsCard from '@/components/session/LevelRequirementsCard';
 
 function formatDateTimeLocal(date: Date): string {
     if (!date) return '';
@@ -127,6 +127,7 @@ const sessionFormSchema = z
         allowNewPlayers: z.boolean(),
         allLevelsSelected: z.boolean(),
         requiredLevels: z.array(z.number()).optional(),
+        shuttlecock: z.string().optional(),
     })
     .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
         message: 'End time must be after start time',
@@ -204,7 +205,8 @@ export default function SessionForm({
                 allowGuestJoin: initialData.allowGuestJoin ?? true,
                 allowNewPlayers: initialData.allowNewPlayers ?? true,
                 allLevelsSelected: !initialData.requiredLevels || initialData.requiredLevels.length === 0,
-                requiredLevels: initialData.requiredLevels || []
+                requiredLevels: initialData.requiredLevels || [],
+                shuttlecock: initialData.shuttlecock || '',
             };
         }
 
@@ -230,6 +232,7 @@ export default function SessionForm({
             allowNewPlayers: true,
             allLevelsSelected: true,
             requiredLevels: [],
+            shuttlecock: '',
         };
     }, [isEditMode, initialData, user, now, twoHoursLater]);
 
@@ -346,7 +349,7 @@ export default function SessionForm({
     };
 
     // AI Success handler using setValue
-    const handleAISuccess = (inputData: ExtractedSessionData | any) => {
+    const handleAISuccess = useCallback((inputData: ExtractedSessionData | any) => {
         const data =
             inputData && inputData.success && inputData.data
                 ? inputData.data
@@ -360,6 +363,7 @@ export default function SessionForm({
         if (data.hostPhone) setValue('hostPhone', data.hostPhone);
         if (data.maxPlayersPerCourt)
             setValue('maxPlayersPerCourt', data.maxPlayersPerCourt);
+        if (data.shuttlecock) setValue('shuttlecock', data.shuttlecock);
 
         if (data.startTime) {
             try {
@@ -434,7 +438,26 @@ export default function SessionForm({
                 console.log('No matching venue found for:', data.venue);
             }
         }
-    };
+    }, [setValue, venues]);
+
+    // Check for pending session data from quick create
+    const hasCheckedSessionStorage = useRef(false);
+    useEffect(() => {
+        if (!isEditMode && venues.length > 0 && !hasCheckedSessionStorage.current) {
+            const pendingData = sessionStorage.getItem('vmito_pending_session_data');
+            if (pendingData) {
+                try {
+                    const parsedData = JSON.parse(pendingData);
+                    handleAISuccess(parsedData);
+                    hasCheckedSessionStorage.current = true;
+                    sessionStorage.removeItem('vmito_pending_session_data');
+                } catch (e) {
+                    console.error('Failed to parse pending session data', e);
+                    sessionStorage.removeItem('vmito_pending_session_data');
+                }
+            }
+        }
+    }, [isEditMode, venues, handleAISuccess]);
 
     // Form submission handler
     const onSubmit = async (data: SessionFormData) => {
@@ -481,6 +504,7 @@ export default function SessionForm({
                             ? data.requiredLevels
                             : undefined,
                     courtColor: data.courtColor,
+                    shuttlecock: data.shuttlecock?.trim() || undefined,
                     venue: venueData,
                     feeConfig: feeConfigData,
 
@@ -522,6 +546,7 @@ export default function SessionForm({
                     startTime: new Date(data.startTime),
                     endTime: new Date(data.endTime),
                     courtColor: data.courtColor,
+                    shuttlecock: data.shuttlecock?.trim() || undefined,
                     venue: venueData,
                     courts: data.courts.map((court) => ({
                         courtNumber: court.courtNumber,
@@ -532,7 +557,20 @@ export default function SessionForm({
                 });
             }
 
-            onSuccess(session);
+            // Handle default cover photo upload for new session
+            if (coverPhotoFile) {
+                try {
+                    const updatedSession = await SessionService.uploadCoverPhoto(session!.id, coverPhotoFile);
+                    session = updatedSession;
+                } catch (photoError) {
+                    console.error('Failed to upload cover photo for new session:', photoError);
+                    toaster.error({
+                        title: t('sessionCreatedButPhotoFailed') || 'Session created but cover photo upload failed'
+                    });
+                }
+            }
+
+            onSuccess(session!);
         } catch (error) {
             const errorMessage =
                 error instanceof Error ? error.message : t('validation.unknownError');
@@ -626,12 +664,25 @@ export default function SessionForm({
                                     <Field.ErrorText>{errors.description?.message}</Field.ErrorText>
                                 </Field.Root>
 
-                                {/* Cover Photo - Only in edit mode */}
-                                {isEditMode && sessionId && (
-                                    <Box>
-                                        <CoverPhotoUpload
-                                            currentPhotoUrl={coverPhotoUrl}
-                                            onPhotoSelect={async (file) => {
+                                {/* Shuttlecock */}
+                                <Field.Root invalid={!!errors.shuttlecock}>
+                                    <Field.Label>
+                                        {t('shuttlecock')} ({tc('optional')})
+                                    </Field.Label>
+                                    <Input
+                                        {...register('shuttlecock')}
+                                        placeholder={t('shuttlecock')}
+                                    />
+                                    <Field.ErrorText>{errors.shuttlecock?.message}</Field.ErrorText>
+                                </Field.Root>
+
+                                {/* Cover Photo */}
+                                <Box>
+                                    <CoverPhotoUpload
+                                        currentPhotoUrl={coverPhotoUrl}
+                                        onPhotoSelect={async (file) => {
+                                            if (isEditMode && sessionId) {
+                                                // Edit mode: Upload immediately
                                                 setCoverPhotoFile(file);
                                                 setIsUploadingCover(true);
                                                 try {
@@ -644,8 +695,20 @@ export default function SessionForm({
                                                     setIsUploadingCover(false);
                                                     setCoverPhotoFile(null);
                                                 }
-                                            }}
-                                            onPhotoRemove={async () => {
+                                            } else {
+                                                // Create mode: Store locally
+                                                setCoverPhotoFile(file);
+                                                // Create a local preview URL
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setCoverPhotoUrl(reader.result as string);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        onPhotoRemove={async () => {
+                                            if (isEditMode && sessionId) {
+                                                // Edit mode: Delete immediately
                                                 setIsUploadingCover(true);
                                                 try {
                                                     await SessionService.deleteCoverPhoto(sessionId);
@@ -656,11 +719,15 @@ export default function SessionForm({
                                                 } finally {
                                                     setIsUploadingCover(false);
                                                 }
-                                            }}
-                                            isUploading={isUploadingCover}
-                                        />
-                                    </Box>
-                                )}
+                                            } else {
+                                                // Create mode: Clear local state
+                                                setCoverPhotoFile(null);
+                                                setCoverPhotoUrl(undefined);
+                                            }
+                                        }}
+                                        isUploading={isUploadingCover}
+                                    />
+                                </Box>
 
                                 {/* Location */}
                                 <Field.Root invalid={!!errors.selectedVenueId}>
@@ -985,6 +1052,14 @@ export default function SessionForm({
                             </Field.Root>
                         </Box>
 
+                        {/* Level Requirements Section */}
+                        {user?.role !== UserRole.PLAYER && (
+                            <LevelRequirementsCard
+                                control={control}
+                                setValue={setValue}
+                            />
+                        )}
+
                         {/* Session Settings Section */}
                         {user?.role !== UserRole.PLAYER && (
                             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
@@ -1073,61 +1148,6 @@ export default function SessionForm({
                                             </Box>
                                         )}
                                     />
-
-                                    {/* Required Levels */}
-                                    <Box p={4} bg="gray.50" borderRadius="md">
-                                        <Flex align="center" justify="space-between" mb={watch('allLevelsSelected') ? 0 : 3}>
-                                            <Box>
-                                                <HStack mb={1}>
-                                                    <BarChart size={18} />
-                                                    <Text fontWeight="medium">
-                                                        {t('generalSettings.requiredPlayerLevels')}
-                                                    </Text>
-                                                </HStack>
-                                                <Text fontSize="sm" color="gray.500">
-                                                    {watch('allLevelsSelected')
-                                                        ? t('generalSettings.allLevelsAllowed')
-                                                        : t('generalSettings.selectRequiredLevels')}
-                                                </Text>
-                                            </Box>
-                                            <CustomCheckbox
-                                                isChecked={watch('allLevelsSelected')}
-                                                onChange={(e) => {
-                                                    setValue('allLevelsSelected', e.target.checked);
-                                                    if (e.target.checked) {
-                                                        setValue('requiredLevels', []);
-                                                    }
-                                                }}
-                                            />
-                                        </Flex>
-
-                                        {!watch('allLevelsSelected') && (
-                                            <Wrap gap={2} mt={3}>
-                                                {VALID_LEVELS.map((level) => {
-                                                    const currentLevels = watch('requiredLevels') || [];
-                                                    const isSelected = currentLevels.includes(level);
-                                                    return (
-                                                        <WrapItem key={level}>
-                                                            <Button
-                                                                size="sm"
-                                                                type="button"
-                                                                variant={isSelected ? 'solid' : 'outline'}
-                                                                colorPalette={isSelected ? 'blue' : 'gray'}
-                                                                onClick={() => {
-                                                                    const newLevels = isSelected
-                                                                        ? currentLevels.filter((l) => l !== level)
-                                                                        : [...currentLevels, level];
-                                                                    setValue('requiredLevels', newLevels);
-                                                                }}
-                                                            >
-                                                                {t(`levels.${level}`)}
-                                                            </Button>
-                                                        </WrapItem>
-                                                    );
-                                                })}
-                                            </Wrap>
-                                        )}
-                                    </Box>
                                 </Stack>
                             </Box>
                         )}

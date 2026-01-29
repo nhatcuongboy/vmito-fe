@@ -21,7 +21,7 @@ export default function NotFound() {
         <Text mb={8} color="gray.600">
           {t('sessionNotFoundDescription')}
         </Text>
-        <Link href="/browse/sessions">
+        <Link href="/">
           <Button colorPalette="blue">{tCommon('backToSessions') || 'Back to Sessions'}</Button>
         </Link>
       </Box>

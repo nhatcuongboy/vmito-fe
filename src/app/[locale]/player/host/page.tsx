@@ -20,6 +20,7 @@ import SessionCard from '@/components/session/SessionCard';
 import TopBar from '@/components/ui/TopBar';
 import { Plus } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
+import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 function PlayerHostContent() {
   const t = useTranslations('pages.dashboard');
@@ -54,9 +55,10 @@ function PlayerHostContent() {
 
       <Container
         maxW="container.xl"
+        px={CONTAINER_PX}
         pt={{
-          base: 'calc(44px + env(safe-area-inset-top) + 24px)',
-          md: 'calc(56px + env(safe-area-inset-top) + 24px)',
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
       >

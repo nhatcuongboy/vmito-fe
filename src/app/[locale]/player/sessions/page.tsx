@@ -10,6 +10,7 @@ import SessionCard from '@/components/session/SessionCard';
 import { useAuthStore } from '@/stores/useAuthStore';
 import TopBar from '@/components/ui/TopBar';
 import { Flex } from '@chakra-ui/react';
+import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
@@ -43,9 +44,10 @@ function PlayerSessionsContent() {
 
       <Container
         maxW="container.xl"
+        px={CONTAINER_PX}
         pt={{
-          base: 'calc(44px + env(safe-area-inset-top) + 24px)',
-          md: 'calc(56px + env(safe-area-inset-top) + 24px)',
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
       >

@@ -4,7 +4,7 @@
     "join": "Join",
     "home": "Home",
     "tournaments": "Tournaments",
-    "browse": "Browse",
+    "browse": "Dashboard",
     "users": "Users",
     "mySessions": "My Sessions",
     "joined": "Joined",
@@ -12,7 +12,7 @@
     "paymentSettings": "Payment Settings"
   },
   "common": {
-    "browse": "Browse",
+    "browse": "Dashboard",
     "appName": "Vmito",
     "save": "Save",
     "cancel": "Cancel",
@@ -86,7 +86,17 @@
     "uploading": "Uploading...",
     "pleaseSelectImageFile": "Please select an image file",
     "fileSizeTooLarge": "File size must be less than 5MB",
-    "imageProcessingFailed": "Failed to process image. Please try another file."
+    "imageProcessingFailed": "Failed to process image. Please try another file.",
+    "appearance": "Appearance",
+    "deviceTheme": "Auto",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
+    "useDeviceTheme": "Auto",
+    "displayOptionsSubtitle": "Setting options apply to this browser only",
+    "displayLanguage": "Language",
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "chinese": "Chinese"
   },
   "session": {
     "title": "Badminton Session",
@@ -104,6 +114,7 @@
     "start": "Start Time",
     "end": "End Time",
     "duration": "Duration",
+    "shuttlecock": "Shuttlecock",
     "allLevelsAllowedMessage": "All skill levels are welcome",
     "location": "Location",
     "courtAppearance": "Court Appearance",
@@ -243,6 +254,8 @@
       "currentLevels": "Current levels:",
       "newLevels": "New levels:",
       "allLevelsAllowed": "All levels allowed",
+      "allLevels": "All levels",
+      "selectedLevels": "Selected levels",
       "playerImpactWarning": "⚠️ Players with levels not in the new list may need to update their profiles or may be restricted from future actions.",
       "confirmChange": "Confirm Change",
       "cancel": "Cancel"
@@ -253,7 +266,7 @@
     "youCanSkipAndAddLater": "You can skip this step and add players later.",
     "addNewPlayers": "Add New Players",
     "addPlayer": "Add Player",
-    "maxPlayers": "Max Players",
+    "maxPlayers": "Max {count} players",
     "availableSlots": "Available Slots",
     "currentPlayers": "Current Players",
     "playerNumber": "Player Number",
@@ -381,7 +394,12 @@
     "dateNotSet": "Date not set",
     "timeNotSet": "Time not set",
     "courts": "courts",
-    "viewMoreSessions": "View more sessions"
+    "viewMoreSessions": "View more sessions",
+    "quickCreate": {
+      "placeholder": "What do you want to create, {name}?",
+      "aiPlaceholder": "Quick create by AI...",
+      "createButton": "Create"
+    }
   },
   "court": {
     "title": "Court",
@@ -1343,6 +1361,10 @@
     "sessionTime": "Time",
     "numberOfCourts": "Number of Courts",
     "maxPlayersPerCourt": "Max Players/Court",
+    "shuttlecock": "Shuttlecock",
+    "maxPlayers": "Max {count} players",
+    "distance": "Distance",
+    "km": "km",
     "description": "Description",
     "status": "Status",
     "notStartedYet": "Not started yet",

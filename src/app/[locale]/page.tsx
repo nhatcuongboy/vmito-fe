@@ -7,7 +7,7 @@ import TopBar from '@/components/ui/TopBar';
 import FindSessionList from '@/components/session/FindSessionList';
 import Footer from '@/components/layout/Footer';
 import { Image } from "@chakra-ui/react"
-import PageHeader from '@/components/ui/PageHeader';
+import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 function HomeContent() {
   const t = useTranslations('session');
@@ -16,19 +16,20 @@ function HomeContent() {
   return (
     <Flex direction="column" minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
       <TopBar
-        title={common('appName')}
+        title={t('findSession')}
         icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
       />
       <Container
         maxW="container.xl"
+        px={CONTAINER_PX}
         pt={{
-          base: 'calc(44px + env(safe-area-inset-top) + 1rem)',
-          md: 'calc(56px + env(safe-area-inset-top) + 2rem)',
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
         }}
         pb={8}
         flex="1"
       >
-        <PageHeader title={t('findSession')} />
+        {/* <PageHeader title={t('findSession')} /> */}
         <FindSessionList />
       </Container>
       <Footer />

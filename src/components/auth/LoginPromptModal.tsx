@@ -21,7 +21,7 @@ const LoginPromptModal = ({
     const router = useRouter();
 
     const handleLogin = () => {
-        const redirectUrl = returnUrl || '/browse/sessions';
+        const redirectUrl = returnUrl || '/';
         router.push(`/auth/signin?returnUrl=${encodeURIComponent(redirectUrl)}`);
     };
 

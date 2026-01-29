@@ -27,6 +27,7 @@ import {
   Star,
   MapPin,
   Banknote,
+  Timer,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -118,6 +119,7 @@ const BaseSessionCard = ({
   bottomActionButtons,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
+  const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   const { isAuthenticated } = useAuthStore();
@@ -175,8 +177,18 @@ const BaseSessionCard = ({
       return ['gray.300']; // Light gray for all levels
     }
 
-    const uniqueLevels = Array.from(new Set(session.requiredLevels)).sort((a, b) => a - b);
-    return uniqueLevels.map(level => getSkillLevelColor([level]).color);
+    // Check if all levels (1-7) are present
+    const allLevels = [1, 2, 3, 4, 5, 6, 7];
+    const hasAllLevels = allLevels.every(level => session.requiredLevels!.includes(level));
+
+    if (hasAllLevels) {
+      return ['gray.300']; // Keep gray for all levels
+    }
+
+    // For multiple levels, show only the highest level color
+    const highestLevel = Math.max(...session.requiredLevels);
+    const highestLevelColor = getSkillLevelColor([highestLevel]).color;
+    return [highestLevelColor];
   };
 
   const levelSegments = getLevelSegments();
@@ -207,6 +219,7 @@ const BaseSessionCard = ({
           w="6px"
           direction="column"
           zIndex={2}
+          opacity={0.9}
         >
           {levelSegments.map((color, index) => (
             <Box
@@ -258,8 +271,10 @@ const BaseSessionCard = ({
 
             {/* Host Info with Avatar and Rating */}
             <Flex align="center" gap={3}>
-              <Avatar.Root size="sm" borderRadius="full">
-                <Avatar.Fallback name={displayHostName} />
+              <Avatar.Root size="sm" bg="blue.500">
+                <Avatar.Fallback name={displayHostName}>
+                  {displayHostName ? displayHostName.charAt(0).toUpperCase() : ''}
+                </Avatar.Fallback>
                 {session.host?.image && <Avatar.Image src={session.host.image} />}
               </Avatar.Root>
               <Text fontSize="sm" fontWeight="medium">
@@ -294,6 +309,12 @@ const BaseSessionCard = ({
                   <Icon as={Clock} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">{compactTime}</Text>
                 </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
+                  <Text fontSize="sm">
+                    {session.shuttlecock || (t('shuttlecock') + ': ' + '')}
+                  </Text>
+                </Flex>
               </Stack>
 
               {/* Right Column: Courts & Players */}
@@ -302,6 +323,12 @@ const BaseSessionCard = ({
                   <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={Users} boxSize={5} color="blue.500" />
+                  <Text fontSize="sm">
+                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
                   </Text>
                 </Flex>
                 <Flex align="center" gap={2}>
@@ -316,7 +343,7 @@ const BaseSessionCard = ({
             {/* Skill Levels */}
             <Flex align="center" gap={3}>
               <Icon as={Shield} boxSize={5} color={skillLevelColor.color} />
-              <Wrap gap={2}>
+              <Wrap gap={1}>
                 {session.requiredLevels && session.requiredLevels.length > 0 ? (
                   Array.from(new Set(session.requiredLevels))
                     .sort((a, b) => a - b)

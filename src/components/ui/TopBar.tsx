@@ -1,17 +1,17 @@
 'use client';
 
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Box, Container, Flex, Heading, IconButton, Image } from '@chakra-ui/react';
-import { ArrowLeft, Menu } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useState } from 'react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { AuthService } from '@/lib/api/auth.service';
-import SlideOutMenu from './SlideOutMenu';
-import NotificationBell from './NotificationBell';
-import UserMenu from './UserMenu';
-import Link from 'next/link';
+import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { useRouter } from '@/i18n/config';
+import { AuthService } from '@/lib/api/auth.service';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { Box, Container, Flex, Heading, IconButton, Image, Text } from '@chakra-ui/react';
+import { Menu } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useState } from 'react';
+import NotificationBell from './NotificationBell';
+import SlideOutMenu from './SlideOutMenu';
+import UserMenu from './UserMenu';
 
 
 interface TopBarProps {
@@ -63,10 +63,10 @@ export default function TopBar({
         borderBottom="1px solid"
         borderColor="gray.200"
         height={{
-          base: 'calc(44px + env(safe-area-inset-top))',
-          md: 'calc(56px + env(safe-area-inset-top))',
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
-        minHeight={{ base: '44px', md: '56px' }}
+        minHeight={{ base: `${TOP_BAR_HEIGHT_MOBILE}px`, md: `${TOP_BAR_HEIGHT_DESKTOP}px` }}
         paddingTop="env(safe-area-inset-top)"
         color="black"
         _dark={{
@@ -74,15 +74,28 @@ export default function TopBar({
           borderColor: 'gray.700',
         }}
       >
-        <Container maxW="container.xl" height="100%">
+        <Container maxW="container.xl" height="100%" px="16px">
           <Flex justify="space-between" align="center" height="100%" py={0}>
-            {/* Left side - Logo & Back button */}
-            <Flex minW="120px" height="100%" alignItems="center" gap={2}>
-              <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center' }}>
+            {/* Left side - Menu, Logo & Back button */}
+            <Flex minW="160px" height="100%" alignItems="center" gap={2}>
+              <IconButton
+                aria-label="Open menu"
+                onClick={onMenuOpen}
+                variant="ghost"
+                color="black"
+                _hover={{ bg: 'gray.100' }}
+                borderRadius="full"
+                size="md"
+              >
+                <Menu size={20} />
+              </IconButton>
+
+              <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {icon || <Image src="/icons/app-logo.png" h="32px" w="auto" alt={appName} />}
+                <Text fontSize="lg" fontWeight="bold" color="blue.600">Vmito</Text>
               </Link>
 
-              {showBackButton && (
+              {/* {showBackButton && (
                 <NextLinkButton
                   href={backHref}
                   variant="ghost"
@@ -93,7 +106,7 @@ export default function TopBar({
                 >
                   <ArrowLeft size={20} />
                 </NextLinkButton>
-              )}
+              )} */}
             </Flex>
 
             {/* Center - App title */}
@@ -114,9 +127,9 @@ export default function TopBar({
               {title || appName}
             </Heading>
 
-            {/* Right side - Menu button */}
+            {/* Right side - Actions */}
             <Box
-              minW="120px"
+              minW="160px"
               height="100%"
               display="flex"
               alignItems="center"
@@ -131,18 +144,6 @@ export default function TopBar({
                   <UserMenu onLogout={handleLogout} />
                 </>
               )}
-
-              <IconButton
-                aria-label="Open menu"
-                onClick={onMenuOpen}
-                variant="ghost"
-                color="black"
-                _hover={{ bg: 'gray.100' }}
-                borderRadius="full"
-                size="md"
-              >
-                <Menu size={20} />
-              </IconButton>
             </Box>
           </Flex>
         </Container>
@@ -151,7 +152,6 @@ export default function TopBar({
       <SlideOutMenu
         isOpen={isMenuOpen}
         onClose={onMenuClose}
-        onLogout={handleLogout}
       />
     </>
   );

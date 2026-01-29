@@ -32,6 +32,7 @@ import {
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
+import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 export interface PlayerSessionViewProps {
   /**
@@ -305,7 +306,15 @@ export default function PlayerSessionView({
     return (
       <>
         <TopBar title={t('title')} />
-        <Container maxW="md" py={12} pt="70px">
+        <Container
+          maxW="md"
+          py={12}
+          px={CONTAINER_PX}
+          pt={{
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          }}
+        >
           <Flex
             justify="center"
             align="center"
@@ -325,7 +334,15 @@ export default function PlayerSessionView({
     return (
       <>
         <TopBar title={t('title')} />
-        <Container maxW="md" py={12} pt="70px">
+        <Container
+          maxW="md"
+          py={12}
+          px={CONTAINER_PX}
+          pt={{
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          }}
+        >
           <Flex
             justify="center"
             align="center"
@@ -384,17 +401,17 @@ export default function PlayerSessionView({
           }}
           readOnly
           stickyTop={{
-            base: 'calc(44px + env(safe-area-inset-top))',
-            md: 'calc(56px + env(safe-area-inset-top))',
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
           }}
           mt={{
-            base: 'calc(44px + env(safe-area-inset-top))',
-            md: 'calc(56px + env(safe-area-inset-top))',
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
           }}
         />
       )}
 
-      <Container pt={4} pb={'calc(90px + env(safe-area-inset-bottom))'}>
+      <Container px={CONTAINER_PX} pt={4} pb={'calc(90px + env(safe-area-inset-bottom))'}>
         {/* Tab Content */}
         {!player || !session ? (
           <Center>

@@ -15,10 +15,9 @@ import { Menu as MenuIcon, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { Tournament, UserRole } from '@/lib/api/types';
+import { Tournament } from '@/lib/api/types';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { AuthService } from '@/lib/api/auth.service';
 import { useRouter } from '@/i18n/config';
 import SlideOutMenu from '@/components/ui/SlideOutMenu';
 
@@ -45,14 +44,7 @@ export default function TournamentLayout({
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-  const handleLogout = () => {
-    const userRole = user?.role;
-    AuthService.logout();
-    const redirectPath =
-      userRole === UserRole.HOST ? '/auth/signin' : '/join-by-code';
-    router.push(redirectPath);
-    onMenuClose();
-  };
+
 
   // Get active tab from pathname
   const getActiveTab = () => {
@@ -304,7 +296,6 @@ export default function TournamentLayout({
       <SlideOutMenu
         isOpen={isMenuOpen}
         onClose={onMenuClose}
-        onLogout={handleLogout}
       />
     </>
   );

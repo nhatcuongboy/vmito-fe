@@ -40,6 +40,10 @@ import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { toaster } from '@/components/ui/toaster';
+import { QuickCreateSessionBar } from './QuickCreateSessionBar';
+import { AISessionModal } from './AISessionModal';
+import { UserRole } from '@/lib/api/types';
+import { ExtractedSessionData } from '@/lib/api/ai.service';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -88,6 +92,7 @@ export default function FindSessionList({
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -345,6 +350,18 @@ export default function FindSessionList({
       .filter((id): id is string => id !== null && id !== undefined);
     return [...new Set(ids)];
   }, [sessions]);
+
+  const handleAISuccess = (data: ExtractedSessionData) => {
+    // Save data to session storage to be picked up by the form
+    sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
+
+    // Redirect based on role
+    if (user?.role === UserRole.HOST) {
+      router.push('/host/sessions/new');
+    } else {
+      router.push('/player/sessions/new');
+    }
+  };
 
   return (
     <Box>
@@ -625,6 +642,11 @@ export default function FindSessionList({
         </Box>
       )}
 
+      {/* Quick Create Bar */}
+      {user && (
+        <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+      )}
+
       {/* Results List */}
       {loading ? (
         <Grid
@@ -701,6 +723,12 @@ export default function FindSessionList({
           onSuccess={fetchSessions}
         />
       )}
+
+      <AISessionModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onSuccess={handleAISuccess}
+      />
     </Box>
   );
 }

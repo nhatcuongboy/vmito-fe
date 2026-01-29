@@ -278,7 +278,7 @@ const FindSessionCard = ({
       <LoginPromptModal
         isOpen={isLoginModalOpen}
         onClose={onCloseLoginModal}
-        returnUrl={`/browse/sessions?sessionId=${session.id}`}
+        returnUrl={`/?sessionId=${session.id}`}
       />
 
       {/* Withdraw confirmation modal */}

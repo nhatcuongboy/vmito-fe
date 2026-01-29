@@ -14,7 +14,7 @@ import {
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import SlideOutMenu from '@/components/ui/SlideOutMenu';
 import { useRouter as useNextIntlRouter } from '@/i18n/config';
-import { AuthService } from '@/lib/api/auth.service';
+
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentService } from '@/lib/api/tournament.service';
 import {
@@ -84,14 +84,7 @@ export default function TournamentDetailPage() {
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-  const handleLogout = () => {
-    const userRole = user?.role;
-    AuthService.logout();
-    const redirectPath =
-      userRole === UserRole.HOST ? '/auth/signin' : '/join-by-code';
-    nextIntlRouter.push(redirectPath);
-    onMenuClose();
-  };
+
 
   useEffect(() => {
     if (tournamentId) {
@@ -211,22 +204,22 @@ export default function TournamentDetailPage() {
     : '';
   const endDateDisplay = tournament
     ? (() => {
-        const endDate = new Date(tournament.endDate);
-        const dateStr = endDate.toISOString().split('T')[0];
-        const [year, month, day] = dateStr.split('-');
-        let displayDay = parseInt(day);
-        if (
-          endDate.getUTCHours() === 0 &&
-          endDate.getUTCMinutes() === 0 &&
-          endDate.getUTCSeconds() === 0
-        ) {
-          displayDay = parseInt(day) - 1;
-        }
-        return format(
-          new Date(parseInt(year), parseInt(month) - 1, displayDay),
-          'MMM d'
-        );
-      })()
+      const endDate = new Date(tournament.endDate);
+      const dateStr = endDate.toISOString().split('T')[0];
+      const [year, month, day] = dateStr.split('-');
+      let displayDay = parseInt(day);
+      if (
+        endDate.getUTCHours() === 0 &&
+        endDate.getUTCMinutes() === 0 &&
+        endDate.getUTCSeconds() === 0
+      ) {
+        displayDay = parseInt(day) - 1;
+      }
+      return format(
+        new Date(parseInt(year), parseInt(month) - 1, displayDay),
+        'MMM d'
+      );
+    })()
     : '';
 
   if (loading) {
@@ -736,7 +729,6 @@ export default function TournamentDetailPage() {
       <SlideOutMenu
         isOpen={isMenuOpen}
         onClose={onMenuClose}
-        onLogout={handleLogout}
       />
     </>
   );

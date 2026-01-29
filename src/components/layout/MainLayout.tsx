@@ -1,7 +1,7 @@
 import { Box, Flex } from '@chakra-ui/react';
 import Footer from './Footer';
 import TopBar from '@/components/ui/TopBar';
-import { TOP_BAR_HEIGHT } from '@/constants';
+import { TOP_BAR_HEIGHT, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { ReactNode } from 'react';
 
 interface MainLayoutProps {
@@ -38,12 +38,12 @@ export default function MainLayout({
       />
       <Box
         mt={{
-          base: 'calc(44px + env(safe-area-inset-top))',
-          md: 'calc(56px + env(safe-area-inset-top))',
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         height={{
-          base: 'calc(100% - 44px - env(safe-area-inset-top))',
-          md: 'calc(100% - 56px - env(safe-area-inset-top))',
+          base: `calc(100% - ${TOP_BAR_HEIGHT_MOBILE}px - env(safe-area-inset-top))`,
+          md: `calc(100% - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top))`,
         }}
         overflowY="auto"
         bg={backgroundColor}

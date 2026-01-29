@@ -10,6 +10,7 @@ import { ISession } from '@/lib/api/types';
 import JoinSessionForm from '@/components/session/JoinSessionForm';
 import { useJoinSession } from '@/components/session/useJoinSession';
 import { useRouter } from '@/i18n/config';
+import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 interface JoinSessionClientProps {
   id: string;
@@ -38,7 +39,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
       // Refresh or redirect
       // Assuming we want to go back to session details or the list?
       // For now, let's go back to the browse list
-      router.push('/browse/sessions');
+      router.push('/');
     },
   });
 
@@ -63,7 +64,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
   if (fetching) {
     return (
       <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-         <TopBar showBackButton={true} backHref="/browse/sessions" title={t('joinSession')} />
+        <TopBar showBackButton={true} backHref="/" title={t('joinSession')} />
         <Center pt={20}>
           <Spinner size="xl" color="blue.500" />
         </Center>
@@ -74,11 +75,11 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
   if (!session) {
     return (
       <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-        <TopBar showBackButton={true} backHref="/browse/sessions" title={t('joinSession')} />
-        <Container maxW="container.md" pt={24}>
+        <TopBar showBackButton={true} backHref="/" title={t('joinSession')} />
+        <Container maxW="container.md" px={CONTAINER_PX} pt={24}>
           <Box p={6} bg="white" borderRadius="lg" shadow="sm" textAlign="center">
             <Heading size="md" mb={2}>{t('loadingError')}</Heading>
-             <Button onClick={() => router.push('/browse/sessions')}>
+            <Button onClick={() => router.push('/')}>
               {tCommon('back')}
             </Button>
           </Box>
@@ -89,13 +90,14 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
 
   return (
     <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar showBackButton={true} backHref="/browse/sessions" title={`${t('joinSession')}: ${session.name}`} />
-      
+      <TopBar showBackButton={true} backHref="/" title={`${t('joinSession')}: ${session.name}`} />
+
       <Container
         maxW="container.md"
+        px={CONTAINER_PX}
         pt={{
-          base: 'calc(44px + env(safe-area-inset-top) + 1rem)',
-          md: 'calc(56px + env(safe-area-inset-top) + 2rem)',
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
         }}
         pb={8}
       >
@@ -115,17 +117,17 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
             onRemovePlayer={handleRemovePlayer}
             onUpdatePlayer={handleUpdatePlayer}
           />
-          
+
           <Box mt={6} pt={6} borderTopWidth="1px" borderColor="gray.100">
-             <Button
-                colorPalette="blue"
-                width="full"
-                size="lg"
-                onClick={handleSubmit}
-                loading={submitting}
-              >
-                {t('submitRegistration')}
-              </Button>
+            <Button
+              colorPalette="blue"
+              width="full"
+              size="lg"
+              onClick={handleSubmit}
+              loading={submitting}
+            >
+              {t('submitRegistration')}
+            </Button>
           </Box>
         </Box>
       </Container>

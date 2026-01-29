@@ -4,7 +4,7 @@
     "join": "Tham gia",
     "home": "Trang chủ",
     "tournaments": "Giải đấu",
-    "browse": "Tìm kèo",
+    "browse": "Dashboard",
     "users": "Người dùng",
     "mySessions": "Kèo của tôi",
     "joined": "Kèo tham gia",
@@ -12,7 +12,7 @@
     "paymentSettings": "Cài đặt thanh toán"
   },
   "common": {
-    "browse": "Tìm kèo",
+    "browse": "Dashboard",
     "appName": "Vmito",
     "save": "Lưu",
     "cancel": "Hủy",
@@ -25,7 +25,7 @@
     "loading": "Đang tải...",
     "error": "Lỗi",
     "success": "Thành công",
-    "notAvailable": "Trống",
+    "notAvailable": "N/A",
     "back": "Quay lại",
     "backToHome": "Quay lại trang chủ",
     "backToDashboard": "Quay lại bảng điều khiển",
@@ -86,7 +86,17 @@
     "uploading": "Đang tải lên...",
     "pleaseSelectImageFile": "Vui lòng chọn file ảnh",
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
-    "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác."
+    "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
+    "appearance": "Giao diện",
+    "deviceTheme": "Tự động",
+    "darkTheme": "Giao diện tối",
+    "lightTheme": "Giao diện sáng",
+    "useDeviceTheme": "Tự động",
+    "displayOptionsSubtitle": "Tùy chọn cài đặt chỉ áp dụng cho trình duyệt này",
+    "displayLanguage": "Ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "chinese": "Tiếng Trung"
   },
   "session": {
     "title": "Kèo cầu lông",
@@ -104,6 +114,7 @@
     "start": "Bắt đầu",
     "end": "Kết thúc",
     "duration": "Thời lượng",
+    "shuttlecock": "Cầu",
     "allLevelsAllowedMessage": "Chào đón mọi trình độ",
     "location": "Địa điểm",
     "courtAppearance": "Giao diện sân",
@@ -243,6 +254,8 @@
       "currentLevels": "Trình độ hiện tại:",
       "newLevels": "Trình độ mới:",
       "allLevelsAllowed": "Cho phép mọi trình độ",
+      "allLevels": "Tất cả trình độ",
+      "selectedLevels": "Trình độ đã chọn",
       "playerImpactWarning": "⚠️ Người chơi có trình độ không nằm trong danh sách mới có thể cần cập nhật hồ sơ hoặc bị hạn chế các hành động trong tương lai.",
       "confirmChange": "Xác nhận thay đổi",
       "cancel": "Hủy"
@@ -253,7 +266,7 @@
     "youCanSkipAndAddLater": "Bạn có thể bỏ qua bước này và thêm người chơi sau.",
     "addNewPlayers": "Thêm người chơi mới",
     "addPlayer": "Thêm người chơi",
-    "maxPlayers": "Số người chơi tối đa",
+    "maxPlayers": "Tối đa {count} người",
     "availableSlots": "Vị trí có sẵn",
     "currentPlayers": "Người chơi hiện tại",
     "playerNumber": "Số người chơi",
@@ -381,7 +394,12 @@
     "dateNotSet": "Chưa đặt ngày",
     "timeNotSet": "Chưa đặt giờ",
     "courts": "sân",
-    "viewMoreSessions": "Xem thêm kèo"
+    "viewMoreSessions": "Xem thêm kèo",
+    "quickCreate": {
+      "placeholder": "Bạn đang muốn tạo kèo gì, {name}?",
+      "aiPlaceholder": "Tạo kèo nhanh bằng AI...",
+      "createButton": "Tạo kèo"
+    }
   },
   "court": {
     "title": "Sân",
@@ -1343,6 +1361,10 @@
     "sessionTime": "Thời gian",
     "numberOfCourts": "Số lượng sân",
     "maxPlayersPerCourt": "Số người/sân",
+    "shuttlecock": "Cầu",
+    "maxPlayers": "Tối đa {count} người",
+    "distance": "Khoảng cách",
+    "km": "km",
     "description": "Mô tả",
     "status": "Trạng thái",
     "notStartedYet": "Chưa bắt đầu",
