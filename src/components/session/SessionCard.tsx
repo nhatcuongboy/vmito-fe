@@ -39,8 +39,6 @@ const SessionCard = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: session.name,
-          text: session.description || `Join ${session.name}`,
           url: url,
         });
       } catch {

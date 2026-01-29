@@ -71,8 +71,6 @@ const FindSessionCard = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: session.name,
-          text: session.description || `Join ${session.name}`,
           url: url,
         });
       } catch {
@@ -197,73 +195,72 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
-  // Action buttons
-  const actions = (
-    <Stack gap={2} align="flex-end">
-      {/* Row 1: Share and Call */}
-      <Flex gap={2} justify="flex-end">
-        {shareButton}
-        {callButton}
-      </Flex>
+  // Top actions (Phone and Share)
+  const topActions = (
+    <>
+      {callButton}
+      {shareButton}
+    </>
+  );
 
-      {/* Row 2: Primary Actions */}
-      <Flex gap={2} flexWrap="wrap" justify="flex-end">
-        {/* If user owns the session, show Host button */}
-        {isOwner ? (
-          <NextLinkButton
-            href={
-              user.role === 'PLAYER'
-                ? `/player/sessions/${session.id}`
-                : `/host/sessions/${session.id}`
-            }
-            colorPalette="blue"
-            size="sm"
-          >
-            {t('manageSession')}
-          </NextLinkButton>
-        ) : (
-          /* Otherwise show registration buttons based on status */
-          <>
-            {/* View Registration button - show for all registration statuses */}
-            {userRegistrationStatus && (
-              <Button
-                colorPalette="blue"
-                variant="outline"
-                onClick={onOpenViewRegistrationModal}
-                size="sm"
-              >
-                {t('viewMyRegistration')}
-              </Button>
-            )}
-            {userRegistrationStatus === 'APPROVED' && (
-              <NextLinkButton
-                href={`/player/sessions/${session.id}`}
-                colorPalette="green"
-                size="sm"
-              >
-                {t('viewSession')}
-              </NextLinkButton>
-            )}
-            {!userRegistrationStatus && !isJoined && (
-              <Button
-                colorPalette="blue"
-                onClick={() => {
-                  if (!user) {
-                    onOpenLoginModal();
-                    return;
-                  }
-                  onJoin();
-                }}
-                size="sm"
-                disabled={isFull}
-              >
-                {isFull ? t('sessionFull') : t('register')}
-              </Button>
-            )}
-          </>
-        )}
-      </Flex>
-    </Stack>
+  // Main actions (Register, View, Manage)
+  const bottomActions = (
+    <>
+      {/* If user owns the session, show Host button */}
+      {isOwner ? (
+        <NextLinkButton
+          href={
+            user?.role === 'PLAYER'
+              ? `/player/sessions/${session.id}`
+              : `/host/sessions/${session.id}`
+          }
+          colorPalette="blue"
+          size="sm"
+        >
+          {t('manageSession')}
+        </NextLinkButton>
+      ) : (
+        /* Otherwise show registration buttons based on status */
+        <>
+          {/* View Registration button - show for all registration statuses */}
+          {userRegistrationStatus && (
+            <Button
+              colorPalette="blue"
+              variant="outline"
+              onClick={onOpenViewRegistrationModal}
+              size="sm"
+            >
+              {t('viewMyRegistration')}
+            </Button>
+          )}
+          {userRegistrationStatus === 'APPROVED' && (
+            <NextLinkButton
+              href={`/player/sessions/${session.id}`}
+              colorPalette="green"
+              size="sm"
+            >
+              {t('viewSession')}
+            </NextLinkButton>
+          )}
+          {!userRegistrationStatus && !isJoined && (
+            <Button
+              colorPalette="blue"
+              onClick={() => {
+                if (!user) {
+                  onOpenLoginModal();
+                  return;
+                }
+                onJoin();
+              }}
+              size="sm"
+              disabled={isFull}
+            >
+              {isFull ? t('sessionFull') : t('register')}
+            </Button>
+          )}
+        </>
+      )}
+    </>
   );
 
   return (
@@ -272,7 +269,8 @@ const FindSessionCard = ({
         session={session}
         extraInfoRows={locationRow}
         registrationBadgeContent={registrationStatusBadge}
-        actionButtons={actions}
+        topActionButtons={topActions}
+        bottomActionButtons={bottomActions}
         sessionDistance={distance || undefined}
       />
 

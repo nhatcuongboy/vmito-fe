@@ -380,7 +380,8 @@
     "hostedBy": "Hosted by",
     "dateNotSet": "Date not set",
     "timeNotSet": "Time not set",
-    "courts": "courts"
+    "courts": "courts",
+    "viewMoreSessions": "View more sessions"
   },
   "court": {
     "title": "Court",

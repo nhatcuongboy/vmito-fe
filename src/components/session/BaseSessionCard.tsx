@@ -88,16 +88,20 @@ interface BaseSessionCardProps {
 
   // Customization slots
   statusBadgeContent?: React.ReactNode;
-  registrationBadgeContent?: React.ReactNode; // New prop for registration status overlay
-  afterStatusContent?: React.ReactNode; // For registration warnings
-  extraInfoRows?: React.ReactNode; // For location/venue display
-  actionButtons: React.ReactNode; // Required: join/view/delete buttons
+  registrationBadgeContent?: React.ReactNode;
+  afterStatusContent?: React.ReactNode;
+  extraInfoRows?: React.ReactNode;
+  actionButtons?: React.ReactNode;
 
   // New props
   sessionDistance?: number;
 
   // Optional modal
   modalContent?: React.ReactNode;
+
+  // New action slots
+  topActionButtons?: React.ReactNode;
+  bottomActionButtons?: React.ReactNode;
 }
 
 const BaseSessionCard = ({
@@ -110,6 +114,8 @@ const BaseSessionCard = ({
   modalContent,
   hostActions,
   sessionDistance,
+  topActionButtons,
+  bottomActionButtons,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
@@ -118,7 +124,7 @@ const BaseSessionCard = ({
   const { getRatingStats } = useRatingStats();
 
   // Get rating stats from context (batch loaded)
-  const hostRatingStats = session.hostId && isAuthenticated
+  const hostRatingStats = session.hostId
     ? getRatingStats(session.hostId)
     : null;
 
@@ -254,6 +260,7 @@ const BaseSessionCard = ({
             <Flex align="center" gap={3}>
               <Avatar.Root size="sm" borderRadius="full">
                 <Avatar.Fallback name={displayHostName} />
+                {session.host?.image && <Avatar.Image src={session.host.image} />}
               </Avatar.Root>
               <Text fontSize="sm" fontWeight="medium">
                 {displayHostName}
@@ -366,40 +373,52 @@ const BaseSessionCard = ({
             )}
 
             {/* Footer: Price + Actions */}
-            <Flex
-              align="flex-start"
-              justify="space-between"
+            <Stack
+              gap={3}
               pt={4}
               borderTopWidth="1px"
               borderTopColor="gray.200"
               _dark={{ borderTopColor: 'gray.700' }}
-              gap={3}
             >
-              {/* Price Section - Aligned to top-left */}
-              <Box flexShrink={0}>
-                {session.feeConfig && (
-                  <Flex align="flex-start" gap={1.5} pt={0.5}>
-                    <Icon as={Banknote} boxSize={5} color="red.600" mt={1} />
+              {/* Row 1: Price and Top Actions */}
+              <Flex align="flex-start" justify="space-between" gap={3}>
+                {/* Price Section */}
+                <Box flexShrink={0} pt={0.5}>
+                  {session.feeConfig && (
                     <Flex align="center" gap={1.5}>
-                      <Text fontSize="lg" fontWeight="bold" color="red.600" whiteSpace="nowrap">
-                        {FeeService.getFeeDisplayText(session.feeConfig)}
-                      </Text>
-                      {session.feeConfig.feeType === FeeType.FIXED && (
-                        <Text fontSize="sm" color="gray.500" fontWeight="normal" whiteSpace="nowrap">
-                          /slot
+                      <Icon as={Banknote} boxSize={5} color="red.600" />
+                      <Flex align="center" gap={1.5}>
+                        <Text fontSize="lg" fontWeight="bold" color="red.600" whiteSpace="nowrap">
+                          {FeeService.getFeeDisplayText(session.feeConfig)}
                         </Text>
-                      )}
-                      <FeeDetailPopover feeConfig={session.feeConfig} />
+                        {session.feeConfig.feeType === FeeType.FIXED && (
+                          <Text fontSize="sm" color="gray.500" fontWeight="normal" whiteSpace="nowrap">
+                            /slot
+                          </Text>
+                        )}
+                        <FeeDetailPopover feeConfig={session.feeConfig} />
+                      </Flex>
                     </Flex>
-                  </Flex>
-                )}
-              </Box>
+                  )}
+                </Box>
 
-              {/* Action Buttons Section - Vertically stacked rows */}
-              <Box flex="1">
-                {actionButtons}
-              </Box>
-            </Flex>
+                {/* Top Action Buttons (e.g. Call, Share) */}
+                {(topActionButtons || (actionButtons && !bottomActionButtons)) && (
+                  <Box flex="1" textAlign="right">
+                    <Flex justify="flex-end" gap={2}>
+                      {topActionButtons || actionButtons}
+                    </Flex>
+                  </Box>
+                )}
+              </Flex>
+
+              {/* Row 2: Bottom Action Buttons */}
+              {bottomActionButtons && (
+                <Flex justify="flex-end" gap={2}>
+                  {bottomActionButtons}
+                </Flex>
+              )}
+            </Stack>
           </Stack>
         </Box>
       </Box>

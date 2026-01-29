@@ -380,7 +380,8 @@
     "hostedBy": "Được tổ chức bởi",
     "dateNotSet": "Chưa đặt ngày",
     "timeNotSet": "Chưa đặt giờ",
-    "courts": "sân"
+    "courts": "sân",
+    "viewMoreSessions": "Xem thêm kèo"
   },
   "court": {
     "title": "Sân",

@@ -14,6 +14,7 @@ import {
   Badge,
   VStack,
   HStack,
+  Spinner,
 } from '@chakra-ui/react';
 import { Button, Input } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
@@ -23,6 +24,7 @@ import JoinSessionModal from './JoinSessionModal';
 import FindSessionCard from './FindSessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { useRouter } from '@/i18n/config';
+import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
@@ -335,6 +337,14 @@ export default function FindSessionList({
     setSelectedSession(session);
     setIsJoinModalOpen(true);
   };
+
+  // Extract unique host IDs for batch rating stats loading
+  const hostIds = useMemo(() => {
+    const ids = sessions
+      .map((s) => s.hostId)
+      .filter((id): id is string => id !== null && id !== undefined);
+    return [...new Set(ids)];
+  }, [sessions]);
 
   return (
     <Box>
@@ -659,25 +669,28 @@ export default function FindSessionList({
           </Button>
         </Box>
       ) : (
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
-          }}
-          gap={6}
-        >
-          {sessions.map((session) => (
-            <FindSessionCard
-              key={session.id}
-              session={session}
-              onJoin={() => handleJoinClick(session)}
-              isJoined={joinedSessionIds.has(session.id)}
-              userRegistrationStatus={registrationStatusMap[session.id] || null}
-              onRegistrationUpdate={fetchSessions}
-            />
-          ))}
-        </Grid>
+        <RatingStatsProvider userIds={hostIds}>
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            }}
+            gap={6}
+          >
+            {sessions.map((session) => (
+              <FindSessionCard
+                key={session.id}
+                session={session}
+                onJoin={() => handleJoinClick(session)}
+                isJoined={joinedSessionIds.has(session.id)}
+                userRegistrationStatus={registrationStatusMap[session.id] || null}
+                onRegistrationUpdate={fetchSessions}
+                distance={session.distance}
+              />
+            ))}
+          </Grid>
+        </RatingStatsProvider>
       )}
 
       {selectedSession && (

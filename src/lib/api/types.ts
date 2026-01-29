@@ -229,6 +229,7 @@ export interface ISession {
     id: string;
     name: string;
     email: string;
+    image?: string | null;
   };
   hostName?: string;
   hostPhone?: string;
