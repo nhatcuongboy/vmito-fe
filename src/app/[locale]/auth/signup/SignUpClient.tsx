@@ -82,7 +82,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
   };
 
   return (
-    <PublicRouteGuard redirectTo="/host">
+    <PublicRouteGuard redirectTo="/">
       <Box minH="100vh" bg="gray.50">
         <TopBar title={t('title')} />
         <Box

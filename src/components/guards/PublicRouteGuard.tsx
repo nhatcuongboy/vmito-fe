@@ -17,7 +17,7 @@ interface PublicRouteGuardProps {
  */
 export default function PublicRouteGuard({
   children,
-  redirectTo = '/dashboard',
+  redirectTo = '/',
 }: PublicRouteGuardProps) {
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const isHydrated = useAuthHydration();
@@ -29,16 +29,10 @@ export default function PublicRouteGuard({
 
     // If already logged in, redirect to functional pages
     if (isAuthenticated && user) {
-      let targetPath = '';
+      let targetPath = '/';
 
-      // Override redirectTo based on user role
-      if (user.role === 'ADMIN' || user.role === 'HOST') {
-        targetPath = '/host/dashboard';
-      } else if (user.role === 'PLAYER') {
-        targetPath = '/player/dashboard';
-      } else if (user.role === 'GUEST') {
-        // Guests are allowed on public pages like /join-by-code
-        // Only redirect if they are on a page they shouldn't be (like signup/signin)
+      // Special case for GUEST role - they are allowed on some public pages
+      if (user.role === 'GUEST') {
         const isPublicPage =
           typeof window !== 'undefined' &&
           (window.location.pathname.includes('/auth/signin') ||
@@ -49,8 +43,6 @@ export default function PublicRouteGuard({
         } else {
           return; // Stay on current page
         }
-      } else {
-        targetPath = redirectTo;
       }
 
       // Avoid infinite redirect if already at target
@@ -62,9 +54,7 @@ export default function PublicRouteGuard({
       }
 
       // next-intl router automatically handles locale prefix
-      if (targetPath) {
-        router.push(targetPath);
-      }
+      router.push(targetPath);
     }
   }, [user, isAuthenticated, isHydrated, router, redirectTo]);
 

@@ -77,12 +77,17 @@ api.interceptors.response.use(
       } else {
         // Handle common backend error formats (NestJS, etc.)
         const rawMessage =
-          errorData.message || errorData.error || errorData.errors;
+          errorData.message ||
+          errorData.error?.message ||
+          errorData.error ||
+          errorData.errors;
 
         if (Array.isArray(rawMessage)) {
           message = rawMessage.join('\n');
         } else if (typeof rawMessage === 'string') {
           message = rawMessage;
+        } else if (rawMessage && typeof rawMessage === 'object') {
+          message = rawMessage.message || JSON.stringify(rawMessage);
         } else {
           message = JSON.stringify(errorData);
         }
@@ -91,11 +96,17 @@ api.interceptors.response.use(
       message = error.message;
     }
 
+    // Check if this is an authentication request (login/register)
+    const isAuthRequest =
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/register');
+
     // Handle 401 Unauthorized - Token expired or invalid
     if (
       status === 401 &&
       typeof window !== 'undefined' &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      !isAuthRequest // Don't try to refresh for login/register
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -143,11 +154,8 @@ api.interceptors.response.use(
       } finally {
         isRefreshing = false;
       }
-    } else if (status === 401) {
-      // If 401 happens again (after retry) or during refresh, just reject
-      return Promise.reject(error);
     } else {
-      // Don't show toast for 401 errors (handled above)
+      // For all other errors (or 401s that weren't caught as refreshable)
       const method = error.config?.method?.toUpperCase();
 
       // Only handle UI interactions on the client side
@@ -156,15 +164,24 @@ api.interceptors.response.use(
         if (method === 'GET') {
           toaster.error({ title: message });
         } else {
-          // For mutations (POST, PUT, DELETE), show modal to ensure user sees the error
-          useAppStore.getState().setError(message);
+          // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error
+          // If it's a 401 on login, use toaster instead of global modal for better UX
+          if (status === 401 && isAuthRequest) {
+            toaster.error({ title: message });
+          } else {
+            useAppStore.getState().setError(message);
+          }
         }
       } else {
         // Log to server console during SSR
         if (error.code === 'ECONNABORTED') {
-          console.error(`[SSR API TIMEOUT] ${method} ${API_URL}${error.config?.url} exceeded ${error.config?.timeout}ms`);
+          console.error(
+            `[SSR API TIMEOUT] ${method} ${API_URL}${error.config?.url} exceeded ${error.config?.timeout}ms`
+          );
         } else {
-          console.error(`[SSR API Error] ${method} ${API_URL}${error.config?.url}: ${message}`);
+          console.error(
+            `[SSR API Error] ${method} ${API_URL}${error.config?.url}: ${message}`
+          );
         }
       }
     }

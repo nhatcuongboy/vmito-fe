@@ -58,7 +58,6 @@ export default function GlobalBottomNav() {
     // Default to Player view (including Guest if they are authenticated via some mechanism)
     return [
       { id: 1, label: t('home'), icon: Home, href: '/' },
-      { id: 3, label: t('browse'), icon: LayoutDashboard, href: '/player/dashboard' },
       { id: 4, label: t('host'), icon: Calendar, href: '/player/host' },
       { id: 2, label: t('joined'), icon: Ticket, href: '/player/sessions' },
     ];

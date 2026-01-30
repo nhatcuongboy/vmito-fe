@@ -45,6 +45,7 @@ function SignInForm() {
   const { user, isAuthenticated } = useAuthStore();
   const isHydrated = useAuthHydration();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Handle redirect for already authenticated users (e.g., direct URL access)
   useEffect(() => {
@@ -61,13 +62,8 @@ function SignInForm() {
         return;
       }
 
-      // Otherwise use role-based default
-      const targetPath =
-        user.role === UserRole.ADMIN || user.role === UserRole.HOST
-          ? '/host/dashboard'
-          : user.role === UserRole.PLAYER
-            ? '/player/dashboard'
-            : '/join-by-code';
+      // Otherwise use role-based default - now all go to Home
+      const targetPath = '/';
       router.replace(targetPath);
     }
   }, [isHydrated, isAuthenticated, user, router, isRedirecting, searchParams]);
@@ -75,6 +71,7 @@ function SignInForm() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -85,6 +82,7 @@ function SignInForm() {
   });
 
   const onSubmit = async (data: SignInFormData) => {
+    setFormError(null);
     try {
       const loginResponse = await AuthService.login({
         email: data.email,
@@ -99,26 +97,28 @@ function SignInForm() {
         return;
       }
 
-      // Otherwise use role-based default redirect
-      let redirectPath = '/dashboard';
-
-      if (loginResponse.user) {
-        const userRole = loginResponse.user.role;
-        if (userRole === UserRole.HOST || userRole === UserRole.ADMIN) {
-          redirectPath = '/host/dashboard';
-        } else if (userRole === UserRole.PLAYER) {
-          redirectPath = '/player/dashboard';
-        } else {
-          redirectPath = '/guest/session';
-        }
-      }
+      // Otherwise redirect to Home
+      let redirectPath = '/';
 
       // Set redirecting state and navigate
       setIsRedirecting(true);
       router.replace(redirectPath);
-    } catch (error: unknown) {
-      // Error toast is handled by axios interceptor
+    } catch (error: any) {
+      // General login error handling
       console.error('Login error:', error);
+
+      // Extract error message
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error?.message ||
+        t('invalidCredentials');
+      setFormError(errorMessage);
+
+      // If it's a 401 (Invalid credentials), highlight the fields
+      if (error.response?.status === 401) {
+        setError('email', { type: 'manual', message: '' });
+        setError('password', { type: 'manual', message: '' });
+      }
     }
   };
 
@@ -170,25 +170,32 @@ function SignInForm() {
               </Text>
             </Box>
 
-            {searchParams.get('error') && (
+            {(formError || searchParams.get('error')) && (
               <Box
                 bg="red.50"
                 color="red.700"
                 p={3}
+                width="100%"
                 borderRadius="md"
                 border="1px solid"
                 borderColor="red.200"
               >
-                {searchParams.get('error') === 'CredentialsSignin'
-                  ? t('invalidEmailOrPassword')
-                  : t('authenticationFailed')}
+                {formError ||
+                  (searchParams.get('error') === 'CredentialsSignin'
+                    ? t('invalidEmailOrPassword')
+                    : t('authenticationFailed'))}
               </Box>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
               <VStack gap={4}>
                 <Field.Root invalid={!!errors.email}>
-                  <Field.Label>{t('email')}</Field.Label>
+                  <Field.Label>
+                    {t('email')}{' '}
+                    <Box as="span" color="red.500">
+                      *
+                    </Box>
+                  </Field.Label>
                   <Input
                     {...register('email')}
                     data-testid="email-input"
@@ -199,7 +206,12 @@ function SignInForm() {
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.password}>
-                  <Field.Label>{t('password')}</Field.Label>
+                  <Field.Label>
+                    {t('password')}{' '}
+                    <Box as="span" color="red.500">
+                      *
+                    </Box>
+                  </Field.Label>
                   <PasswordInput
                     {...register('password')}
                     data-testid="password-input"
