@@ -10,15 +10,17 @@ interface PageProps {
   }>;
 }
 
-// Helper to fetch session safely on server
-async function getSession(id: string): Promise<ISession | null> {
+import { cache } from 'react';
+
+// Helper to fetch session safely on server - cached to deduplicate calls
+const getSession = cache(async (id: string): Promise<ISession | null> => {
   try {
     return await SessionService.getSession(id);
   } catch (error) {
     console.error('Failed to fetch session for metadata:', error);
     return null;
   }
-}
+});
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;

@@ -6,9 +6,14 @@ import { useAppStore } from '@/stores/useAppStore';
 // Get API URL from environment - use backend URL if set, otherwise fallback to /api for local
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
+if (typeof window === 'undefined') {
+  console.log('[SSR] Using API Base URL:', API_URL);
+}
+
 // Axios instance with base configuration
 export const api = axios.create({
   baseURL: API_URL,
+  timeout: 10000, // 10 seconds timeout for SSR stability
   headers: {
     'Content-Type': 'application/json',
   },
@@ -145,12 +150,18 @@ api.interceptors.response.use(
       // Don't show toast for 401 errors (handled above)
       const method = error.config?.method?.toUpperCase();
 
-      // For GET requests, show toaster to avoid interrupting user flow
-      if (method === 'GET') {
-        toaster.error({ title: message });
+      // Only handle UI interactions on the client side
+      if (typeof window !== 'undefined') {
+        // For GET requests, show toaster to avoid interrupting user flow
+        if (method === 'GET') {
+          toaster.error({ title: message });
+        } else {
+          // For mutations (POST, PUT, DELETE), show modal to ensure user sees the error
+          useAppStore.getState().setError(message);
+        }
       } else {
-        // For mutations (POST, PUT, DELETE), show modal to ensure user sees the error
-        useAppStore.getState().setError(message);
+        // Log to server console during SSR
+        console.error(`[API Error] ${method} ${error.config?.url}: ${message}`);
       }
     }
 
