@@ -161,7 +161,11 @@ api.interceptors.response.use(
         }
       } else {
         // Log to server console during SSR
-        console.error(`[API Error] ${method} ${error.config?.url}: ${message}`);
+        if (error.code === 'ECONNABORTED') {
+          console.error(`[SSR API TIMEOUT] ${method} ${API_URL}${error.config?.url} exceeded ${error.config?.timeout}ms`);
+        } else {
+          console.error(`[SSR API Error] ${method} ${API_URL}${error.config?.url}: ${message}`);
+        }
       }
     }
 

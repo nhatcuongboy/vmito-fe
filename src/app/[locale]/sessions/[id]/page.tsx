@@ -24,23 +24,37 @@ const getSession = cache(async (id: string): Promise<ISession | null> => {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
+
+  // Attempt to get session. Use a slightly shorter timeout for metadata if possible, 
+  // but here we rely on the global axios timeout.
   const session = await getSession(id);
 
+  const defaultMetadata: Metadata = {
+    title: 'Vmito | Quản lý kèo cầu lông chuyên nghiệp',
+    description: 'Tham gia giao lưu, quản lý kèo và giải đấu cầu lông cùng Vmito.',
+    openGraph: {
+      images: ['/og-image.png'],
+    }
+  };
+
+  // If session is null, it could be a 404 OR a timeout.
+  // In SSR, we'd rather show generic brand info than "Not Found" if it was just a technical glitch.
   if (!session) {
+    // We can't easily check the error type here since getSession swallows it, 
+    // but we can assume if it's null, we show default brand info which is better for SEO than "Not Found"
     return {
-      title: 'Không tìm thấy kèo | Vmito',
-      description: 'Kèo cầu lông bạn tìm kiếm không tồn tại hoặc đã bị xóa.',
+      ...defaultMetadata,
+      title: 'Chi tiết kèo cầu lông | Vmito',
     };
   }
 
   const title = `${session.name || 'Kèo cầu lông'} | Vmito`;
   const locationName = session.venue?.name || session.location || 'Địa điểm chưa xác định';
-  // Strip HTML or keep simple
   const description = `Tham gia giao lưu cầu lông cùng ${session.host?.name || 'host'} tại ${locationName}. Chi tiết: ${session.description || 'Bấm để xem chi tiết.'}`;
 
   const images = session.coverPhoto
     ? [session.coverPhoto]
-    : ['/og-image.png']; // Fallback image
+    : ['/og-image.png'];
 
   return {
     title,
