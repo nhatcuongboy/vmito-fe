@@ -113,14 +113,22 @@ export default function FindSessionList({
       setLoading(true);
       setError(null);
 
+      // Helper to clean district/city names for searching (remove "Quận", "Huyện", etc.)
+      const normalizeLocation = (name: string) =>
+        name.replace(/^(Quận|Huyện|Thành phố|Thị xã)\s+/i, '').trim();
+
       // Prepare filters for API
       const apiFilters: any = {
         date: filters.date,
         searchQuery: filters.searchQuery,
-        // Pass first city if only one selected, otherwise filter on client
-        city: filters.cities.length === 1 ? filters.cities[0] : undefined,
-        // Pass first district if only one selected, otherwise filter on client
-        district: filters.districts.length === 1 ? filters.districts[0] : undefined,
+        // Send City NAME instead of CODE
+        city: filters.cities.length === 1
+          ? VIETNAM_CITIES.find(c => c.code === filters.cities[0])?.name
+          : undefined,
+        // Send cleaned District name
+        district: filters.districts.length === 1
+          ? normalizeLocation(filters.districts[0])
+          : undefined,
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
@@ -153,22 +161,26 @@ export default function FindSessionList({
       // 1. Multi-city filter (if multiple cities selected)
       if (filters.cities.length > 1) {
         filteredData = filteredData.filter((session) => {
-          const sessionCity = session.venue?.city || session.location;
-          return filters.cities.some(
-            (city) =>
-              sessionCity?.includes(city) ||
-              VIETNAM_CITIES.find((c) => c.code === city)?.name === sessionCity
-          );
+          const sessionCity = session.venue?.city || session.location || '';
+          return filters.cities.some((cityCode) => {
+            const cityName = VIETNAM_CITIES.find((c) => c.code === cityCode)?.name;
+            return (
+              sessionCity.includes(cityCode) ||
+              (cityName && sessionCity.includes(cityName))
+            );
+          });
         });
       }
 
       // 2. Multi-district filter (if multiple districts selected)
       if (filters.districts.length > 1) {
         filteredData = filteredData.filter((session) => {
-          const sessionDistrict = session.venue?.district;
-          return filters.districts.some((district) =>
-            sessionDistrict?.includes(district)
-          );
+          const sessionDistrict = session.venue?.district || '';
+          return filters.districts.some((districtFilter) => {
+            const cleanFilter = normalizeLocation(districtFilter);
+            const cleanSession = normalizeLocation(sessionDistrict);
+            return cleanSession.includes(cleanFilter);
+          });
         });
       }
 
