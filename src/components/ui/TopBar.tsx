@@ -4,7 +4,7 @@ import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { Box, Container, Flex, Heading, IconButton, Image, Text } from '@chakra-ui/react';
+import { Box, Button, Container, Flex, Heading, IconButton, Image, Text } from '@chakra-ui/react';
 import { Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -137,11 +137,21 @@ export default function TopBar({
             >
               {rightContent}
 
-              {isAuthenticated && (
+              {isAuthenticated ? (
                 <>
                   <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
                   <UserMenu onLogout={handleLogout} />
                 </>
+              ) : (
+                <Button
+                  onClick={() => router.push('/auth/signin')}
+                  // variant="ghost"
+                  colorPalette="blue"
+                  size="sm"
+                  fontWeight="bold"
+                >
+                  {common('login')}
+                </Button>
               )}
             </Box>
           </Flex>

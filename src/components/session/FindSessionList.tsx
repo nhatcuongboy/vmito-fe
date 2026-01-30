@@ -16,7 +16,7 @@ import {
   HStack,
   Spinner,
 } from '@chakra-ui/react';
-import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
+import { Button, Input, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useMemo } from 'react';
@@ -100,19 +100,13 @@ export default function FindSessionList({
   const { user } = useAuthStore();
   const { getLevelShortLabel } = useLevelLabel();
 
-
+  // Load initial date from URL or today
   useEffect(() => {
     const dateParam = searchParams.get('date');
     if (dateParam) {
       setFilters({ date: dateParam });
     }
-
-    // Temporarily only allow HCM
-    const hasOnlyHCM = filters.cities.length === 1 && filters.cities[0] === 'HCM';
-    if (!hasOnlyHCM) {
-      setFilters({ cities: ['HCM'] });
-    }
-  }, [searchParams, setFilters, filters.cities]);
+  }, [searchParams, setFilters]);
 
   const fetchSessions = async () => {
     try {
@@ -124,8 +118,7 @@ export default function FindSessionList({
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Pass first city if only one selected, otherwise filter on client
-        // Temporarily default to HCM if no city selected
-        city: filters.cities.length === 1 ? filters.cities[0] : (filters.cities.length === 0 ? 'HCM' : undefined),
+        city: filters.cities.length === 1 ? filters.cities[0] : undefined,
         // Pass first district if only one selected, otherwise filter on client
         district: filters.districts.length === 1 ? filters.districts[0] : undefined,
         hasSlots: filters.hasSlots ? true : undefined,
@@ -499,7 +492,7 @@ export default function FindSessionList({
                 )}
               </Flex>
               <Flex gap={1.5} flexWrap="wrap">
-                {VIETNAM_CITIES.filter((city) => city.code === 'HCM').map((city) => (
+                {VIETNAM_CITIES.map((city) => (
                   <Badge
                     key={city.code}
                     px={2.5}
