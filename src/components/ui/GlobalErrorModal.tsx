@@ -26,12 +26,8 @@ export function GlobalErrorModal() {
       isCentered
       size="sm"
     >
-      <Text color="red.500">
-        {typeof error === 'string'
-          ? error
-          : (error as any)?.message ||
-            (error as any)?.error ||
-            JSON.stringify(error)}
+      <Text color="red.500" whiteSpace="pre-wrap">
+        {error}
       </Text>
     </CommonModal>
   );

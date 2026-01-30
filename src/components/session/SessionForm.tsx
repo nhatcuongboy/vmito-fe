@@ -9,6 +9,7 @@ import {
     Container,
     Field,
     Flex,
+    Grid,
     Heading,
     HStack,
     Stack,
@@ -491,7 +492,7 @@ export default function SessionForm({
                 // Update logic
                 session = await SessionService.updateSession(sessionId, {
                     name: data.name,
-                    description: data.description?.trim() || undefined,
+                    description: data.description?.trim() || "",
                     hostName: data.hostName.trim(),
                     hostPhone: data.hostPhone.trim(),
                     maxPlayersPerCourt: data.maxPlayersPerCourt,
@@ -504,7 +505,7 @@ export default function SessionForm({
                             ? data.requiredLevels
                             : undefined,
                     courtColor: data.courtColor,
-                    shuttlecock: data.shuttlecock?.trim() || undefined,
+                    shuttlecock: data.shuttlecock?.trim() || "",
                     venue: venueData,
                     feeConfig: feeConfigData,
 
@@ -514,7 +515,7 @@ export default function SessionForm({
                         courts: data.courts.map((court) => ({
                             courtNumber: court.courtNumber,
                             courtName: court.courtName || undefined,
-                            direction: court.direction,
+                            direction: CourtDirection.HORIZONTAL,
                         })),
                     }),
 
@@ -529,7 +530,7 @@ export default function SessionForm({
                 // Create logic
                 session = await SessionService.createSession({
                     name: data.name,
-                    description: data.description?.trim() || undefined,
+                    description: data.description?.trim() || "",
                     hostName: data.hostName.trim(),
                     hostPhone: data.hostPhone.trim(),
                     numberOfCourts: data.courts.length,
@@ -546,12 +547,12 @@ export default function SessionForm({
                     startTime: new Date(data.startTime),
                     endTime: new Date(data.endTime),
                     courtColor: data.courtColor,
-                    shuttlecock: data.shuttlecock?.trim() || undefined,
+                    shuttlecock: data.shuttlecock?.trim() || "",
                     venue: venueData,
                     courts: data.courts.map((court) => ({
                         courtNumber: court.courtNumber,
                         courtName: court.courtName || undefined,
-                        direction: court.direction,
+                        direction: CourtDirection.HORIZONTAL,
                     })),
                     feeConfig: feeConfigData,
                 });
@@ -654,7 +655,7 @@ export default function SessionForm({
                                 {/* Description */}
                                 <Field.Root invalid={!!errors.description}>
                                     <Field.Label>
-                                        {t('description')} ({tc('optional')})
+                                        {t('description')}
                                     </Field.Label>
                                     <Textarea
                                         {...register('description')}
@@ -664,17 +665,7 @@ export default function SessionForm({
                                     <Field.ErrorText>{errors.description?.message}</Field.ErrorText>
                                 </Field.Root>
 
-                                {/* Shuttlecock */}
-                                <Field.Root invalid={!!errors.shuttlecock}>
-                                    <Field.Label>
-                                        {t('shuttlecock')} ({tc('optional')})
-                                    </Field.Label>
-                                    <Input
-                                        {...register('shuttlecock')}
-                                        placeholder={t('shuttlecock')}
-                                    />
-                                    <Field.ErrorText>{errors.shuttlecock?.message}</Field.ErrorText>
-                                </Field.Root>
+
 
                                 {/* Cover Photo */}
                                 <Box>
@@ -906,7 +897,7 @@ export default function SessionForm({
                                                     disabled={!canEditCourts}
                                                 >
                                                     <Field.Label fontSize="sm">
-                                                        {t('courtName')} ({tc('optional')})
+                                                        {t('courtName')}
                                                     </Field.Label>
                                                     <Input
                                                         {...register(`courts.${index}.courtName`)}
@@ -916,8 +907,8 @@ export default function SessionForm({
                                                 </Field.Root>
                                             </Box>
 
-                                            {/* Court Direction */}
-                                            <Box flex={{ base: '1', md: '0 0 180px' }}>
+                                            {/* Court Direction - Hidden as per request */}
+                                            <Box flex={{ base: '1', md: '0 0 180px' }} display="none">
                                                 <Field.Root
                                                     invalid={!!errors.courts?.[index]?.direction}
                                                     disabled={!canEditCourts}
@@ -1025,31 +1016,44 @@ export default function SessionForm({
                             />
                         </Box>
 
-                        {/* Max Players Per Court Section */}
+                        {/* Max Players & Shuttlecock Section */}
                         <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-                            <Field.Root invalid={!!errors.maxPlayersPerCourt}>
-                                <Field.Label>
-                                    <Heading size="md">{t('maxPlayersPerCourt')}</Heading>
-                                </Field.Label>
-                                <Controller
-                                    control={control}
-                                    name="maxPlayersPerCourt"
-                                    render={({ field }) => (
-                                        <Input
-                                            type="number"
-                                            min={2}
-                                            max={12}
-                                            value={field.value}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                                field.onChange(parseInt(e.target.value) || 8)
-                                            }
-                                        />
-                                    )}
-                                />
-                                <Field.ErrorText>
-                                    {errors.maxPlayersPerCourt?.message}
-                                </Field.ErrorText>
-                            </Field.Root>
+                            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
+                                <Field.Root invalid={!!errors.maxPlayersPerCourt}>
+                                    <Field.Label>
+                                        <Heading size="md">{t('maxPlayersPerCourt')}</Heading>
+                                    </Field.Label>
+                                    <Controller
+                                        control={control}
+                                        name="maxPlayersPerCourt"
+                                        render={({ field }) => (
+                                            <Input
+                                                type="number"
+                                                min={2}
+                                                max={12}
+                                                value={field.value}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                    field.onChange(parseInt(e.target.value) || 8)
+                                                }
+                                            />
+                                        )}
+                                    />
+                                    <Field.ErrorText>
+                                        {errors.maxPlayersPerCourt?.message}
+                                    </Field.ErrorText>
+                                </Field.Root>
+
+                                <Field.Root invalid={!!errors.shuttlecock}>
+                                    <Field.Label>
+                                        <Heading size="md">{t('shuttlecock')}</Heading>
+                                    </Field.Label>
+                                    <Input
+                                        {...register('shuttlecock')}
+                                        placeholder={t('shuttlecock')}
+                                    />
+                                    <Field.ErrorText>{errors.shuttlecock?.message}</Field.ErrorText>
+                                </Field.Root>
+                            </Grid>
                         </Box>
 
                         {/* Level Requirements Section */}
@@ -1060,8 +1064,8 @@ export default function SessionForm({
                             />
                         )}
 
-                        {/* Session Settings Section */}
-                        {user?.role !== UserRole.PLAYER && (
+                        {/* Session Settings Section - Temporarily hidden */}
+                        {false && user?.role !== UserRole.PLAYER && (
                             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
                                 <Heading size="md" mb={4}>
                                     {t('generalSettings.sessionSettings')}

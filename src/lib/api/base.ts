@@ -63,17 +63,27 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
-    let message =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      'Something went wrong';
+    const errorData = error.response?.data;
+    let message = 'Something went wrong';
 
-    if (typeof message !== 'string') {
-      if (Array.isArray(message)) {
-        message = message.join(', ');
+    if (errorData) {
+      if (typeof errorData === 'string') {
+        message = errorData;
       } else {
-        message = JSON.stringify(message);
+        // Handle common backend error formats (NestJS, etc.)
+        const rawMessage =
+          errorData.message || errorData.error || errorData.errors;
+
+        if (Array.isArray(rawMessage)) {
+          message = rawMessage.join('\n');
+        } else if (typeof rawMessage === 'string') {
+          message = rawMessage;
+        } else {
+          message = JSON.stringify(errorData);
+        }
       }
+    } else if (error.message) {
+      message = error.message;
     }
 
     // Handle 401 Unauthorized - Token expired or invalid

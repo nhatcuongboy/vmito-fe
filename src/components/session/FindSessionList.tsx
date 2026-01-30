@@ -16,7 +16,7 @@ import {
   HStack,
   Spinner,
 } from '@chakra-ui/react';
-import { Button, Input } from '@/components/ui/chakra-compat';
+import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useMemo } from 'react';
@@ -100,13 +100,19 @@ export default function FindSessionList({
   const { user } = useAuthStore();
   const { getLevelShortLabel } = useLevelLabel();
 
-  // Load initial date from URL or today
+
   useEffect(() => {
     const dateParam = searchParams.get('date');
     if (dateParam) {
       setFilters({ date: dateParam });
     }
-  }, [searchParams, setFilters]);
+
+    // Temporarily only allow HCM
+    const hasOnlyHCM = filters.cities.length === 1 && filters.cities[0] === 'HCM';
+    if (!hasOnlyHCM) {
+      setFilters({ cities: ['HCM'] });
+    }
+  }, [searchParams, setFilters, filters.cities]);
 
   const fetchSessions = async () => {
     try {
@@ -118,7 +124,8 @@ export default function FindSessionList({
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Pass first city if only one selected, otherwise filter on client
-        city: filters.cities.length === 1 ? filters.cities[0] : undefined,
+        // Temporarily default to HCM if no city selected
+        city: filters.cities.length === 1 ? filters.cities[0] : (filters.cities.length === 0 ? 'HCM' : undefined),
         // Pass first district if only one selected, otherwise filter on client
         district: filters.districts.length === 1 ? filters.districts[0] : undefined,
         hasSlots: filters.hasSlots ? true : undefined,
@@ -387,24 +394,37 @@ export default function FindSessionList({
           </Box>
         </Box>
 
-        <Button
-          variant={showFilters ? 'solid' : 'outline'}
-          colorPalette="blue"
-          onClick={toggleFilters}
-          leftIcon={<Filter size={16} />}
-        >
-          {t('filters.title')}
+        <Box position="relative">
+          <IconButton
+            variant={showFilters ? 'solid' : 'outline'}
+            colorPalette="blue"
+            onClick={toggleFilters}
+            aria-label={t('filters.title')}
+            icon={<Filter size={18} />}
+          />
           {activeFilterCount > 0 && (
-            <Badge ml={2} colorPalette="whiteAlpha" variant="solid">
+            <Badge
+              position="absolute"
+              top="-2"
+              right="-2"
+              borderRadius="full"
+              colorPalette="red"
+              variant="solid"
+              px={1}
+              minW="18px"
+              h="18px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              fontSize="xs"
+              border="2px solid"
+              borderColor="white"
+              zIndex={1}
+            >
               {activeFilterCount}
             </Badge>
           )}
-          {showFilters ? (
-            <ChevronUp size={16} style={{ marginLeft: 4 }} />
-          ) : (
-            <ChevronDown size={16} style={{ marginLeft: 4 }} />
-          )}
-        </Button>
+        </Box>
       </Flex>
 
       {/* Collapsible Filter Panel - Compact Design */}
@@ -479,7 +499,7 @@ export default function FindSessionList({
                 )}
               </Flex>
               <Flex gap={1.5} flexWrap="wrap">
-                {VIETNAM_CITIES.map((city) => (
+                {VIETNAM_CITIES.filter((city) => city.code === 'HCM').map((city) => (
                   <Badge
                     key={city.code}
                     px={2.5}

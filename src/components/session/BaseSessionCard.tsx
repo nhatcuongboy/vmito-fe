@@ -312,7 +312,7 @@ const BaseSessionCard = ({
                 <Flex align="center" gap={2}>
                   <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">
-                    {session.shuttlecock || (t('shuttlecock') + ': ' + '')}
+                    {(t('shuttlecock') + ': ' + (session.shuttlecock || ''))}
                   </Text>
                 </Flex>
               </Stack>

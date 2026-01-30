@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     process.env.NODE_ENV === 'production'
       ? process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : 'https://csbadminton.vercel.app/'
+        : 'https://vmito.com/'
       : 'http://localhost:3000'
   ),
   title: 'Vmito',
@@ -18,6 +18,8 @@ export const metadata: Metadata = {
     'sports',
     'court',
     'players',
+    'tournament',
+    'match'
   ],
   authors: [{ name: 'Vmito' }],
   creator: 'Vmito',
@@ -29,37 +31,37 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/app-favicon.png?v=1', type: 'image/png' },
+      { url: '/icons/app-logo.png?v=1', type: 'image/png' },
     ],
-    shortcut: ['/icons/app-favicon.png?v=1'],
+    shortcut: ['/icons/app-logo.png?v=1'],
     apple: [
-      { url: '/icons/app-favicon.png?v=1', type: 'image/png', sizes: '180x180' },
+      { url: '/icons/app-logo.png?v=1', type: 'image/png', sizes: '180x180' },
     ],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Badminton App',
+    title: 'Vmito',
   },
   openGraph: {
     type: 'website',
     siteName: 'Vmito',
     title: 'Vmito',
-    description: 'Manage badminton sessions, players, and courts efficiently',
+    description: 'Quản lý kèo, giải đấu cầu lông chuyên nghiệp',
     images: [
       {
-        url: '/icons/app-logo.png',
-        width: 512,
-        height: 512,
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
         alt: 'Vmito',
       },
     ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Vmito',
-    description: 'Manage badminton sessions, players, and courts efficiently',
-    images: ['/icons/app-logo.png'],
+    description: 'Quản lý kèo, giải đấu cầu lông chuyên nghiệp',
+    images: ['/og-image.png'],
   },
 };
 

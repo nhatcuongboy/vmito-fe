@@ -53,9 +53,9 @@ export const usePlayerManagement = (
    */
   const getDefaultLevel = (): number => {
     if (session.requiredLevels && session.requiredLevels.length > 0) {
-      return session.requiredLevels[0] as number;
+      return Math.min(...session.requiredLevels) as number;
     }
-    return LEVELS.INTERMEDIATE;
+    return LEVELS.BEGINNER;
   };
 
   /**
@@ -93,7 +93,7 @@ export const usePlayerManagement = (
         gender: 'MALE',
         level: getDefaultLevel(),
         levelDescription: '',
-        requireConfirmInfo: true,
+        requireConfirmInfo: false,
       },
     ]);
   };
@@ -114,7 +114,7 @@ export const usePlayerManagement = (
   const updateNewPlayer = (
     index: number,
     field: string,
-    value: string | boolean | number
+    value: string | boolean | number | null
   ) => {
     setNewPlayers((prev) =>
       prev.map((player, i) =>
@@ -217,7 +217,7 @@ export const usePlayerManagement = (
   const updateEditingPlayer = (
     playerId: string,
     field: string,
-    value: string | boolean | number
+    value: string | boolean | number | null
   ) => {
     setEditingPlayers((prev) => ({
       ...prev,

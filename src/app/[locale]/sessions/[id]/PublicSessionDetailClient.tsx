@@ -17,13 +17,18 @@ import BaseSessionCard from '@/components/session/BaseSessionCard';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
-const PublicSessionDetailClient = () => {
+interface PublicSessionDetailClientProps {
+  initialSession?: ISession | null;
+}
+
+const PublicSessionDetailClient = ({ initialSession }: PublicSessionDetailClientProps) => {
   const t = useTranslations('session');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
   const params = useParams();
-  const [session, setSession] = useState<ISession | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<ISession | null>(initialSession || null);
+  const [loading, setLoading] = useState(!initialSession);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -33,9 +38,19 @@ const PublicSessionDetailClient = () => {
   } = useModal();
 
   useEffect(() => {
+    // If we already have session (from properties / server), don't fetch again unless ID changes significantly or we need to revalidate
+    // Ideally, if initialSession.id matches params.id, we skip.
+    // For simplicity, if we have initialSession and it matches the param ID, we skip.
+    const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+    if (initialSession && initialSession.id === sessionId) {
+      setLoading(false);
+      return;
+    }
+
     const fetchSession = async () => {
       try {
-        const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+        setLoading(true);
         if (!sessionId) {
           setError('Session ID not found');
           return;
@@ -52,7 +67,7 @@ const PublicSessionDetailClient = () => {
     };
 
     fetchSession();
-  }, [params.id]);
+  }, [params.id, initialSession]);
 
   // Check if current user is the session owner/host
   const isOwner = session?.hostId === user?.id;

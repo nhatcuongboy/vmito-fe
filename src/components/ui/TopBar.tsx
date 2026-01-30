@@ -77,7 +77,7 @@ export default function TopBar({
         <Container maxW="container.xl" height="100%" px="16px">
           <Flex justify="space-between" align="center" height="100%" py={0}>
             {/* Left side - Menu, Logo & Back button */}
-            <Flex minW="160px" height="100%" alignItems="center" gap={2}>
+            <Flex height="100%" alignItems="center" gap={2}>
               <IconButton
                 aria-label="Open menu"
                 onClick={onMenuOpen}
@@ -92,7 +92,7 @@ export default function TopBar({
 
               <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {icon || <Image src="/icons/app-logo.png" h="32px" w="auto" alt={appName} />}
-                <Text fontSize="lg" fontWeight="bold" color="blue.600">Vmito</Text>
+                <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold" color="blue.600">Vmito</Text>
               </Link>
 
               {/* {showBackButton && (
@@ -110,8 +110,8 @@ export default function TopBar({
             </Flex>
 
             {/* Center - App title */}
-            <Heading
-              size="lg"
+            {title && (<Heading
+              size={{ base: "md", md: "lg" }}
               color="black"
               fontWeight="bold"
               textAlign="center"
@@ -124,12 +124,11 @@ export default function TopBar({
               display="flex"
               alignItems="center"
             >
-              {title || appName}
-            </Heading>
+              {title}
+            </Heading>)}
 
             {/* Right side - Actions */}
             <Box
-              minW="160px"
               height="100%"
               display="flex"
               alignItems="center"

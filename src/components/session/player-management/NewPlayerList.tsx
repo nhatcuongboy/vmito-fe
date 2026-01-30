@@ -33,7 +33,7 @@ interface NewPlayerListProps {
   onUpdatePlayer: (
     index: number,
     field: string,
-    value: string | boolean
+    value: string | boolean | number | null
   ) => void;
   onRemovePlayer: (index: number) => void;
   onUserSelect: (index: number, userId: string) => void;
@@ -250,9 +250,13 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                           {t('level')}
                         </Text>
                         <select
-                          value={player.level}
+                          value={player.level === null ? '' : player.level}
                           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                            onUpdatePlayer(index, 'level', e.target.value)
+                            onUpdatePlayer(
+                              index,
+                              'level',
+                              e.target.value ? parseInt(e.target.value, 10) : null
+                            )
                           }
                           style={{
                             width: '100%',

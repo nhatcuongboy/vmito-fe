@@ -277,7 +277,7 @@ export default function UserProfileModal({
         {/* Phone */}
         <Field.Root invalid={!!errors.phone}>
           <Field.Label>
-            {common('phone')} ({common('optional')})
+            {common('phone')}
           </Field.Label>
           <Input
             {...register('phone')}
@@ -290,7 +290,7 @@ export default function UserProfileModal({
         {/* Gender */}
         <Field.Root invalid={!!errors.gender}>
           <Field.Label>
-            {common('gender')} ({common('optional')})
+            {common('gender')}
           </Field.Label>
           <Controller
             control={control}
@@ -313,7 +313,7 @@ export default function UserProfileModal({
         {/* Level */}
         <Field.Root invalid={!!errors.level}>
           <Field.Label>
-            {common('level')} ({common('optional')})
+            {common('level')}
           </Field.Label>
           <Controller
             control={control}
@@ -341,7 +341,7 @@ export default function UserProfileModal({
         {/* Level Description */}
         <Field.Root invalid={!!errors.levelDescription}>
           <Field.Label>
-            Level Description ({common('optional')})
+            Level Description
           </Field.Label>
           <Textarea
             {...register('levelDescription')}
@@ -364,7 +364,7 @@ export default function UserProfileModal({
           <VStack gap={4} align="stretch">
             <Field.Root invalid={!!errors.password}>
               <Field.Label>
-                New Password ({common('optional')})
+                New Password
               </Field.Label>
               <PasswordInput
                 {...register('password')}
@@ -376,7 +376,7 @@ export default function UserProfileModal({
 
             <Field.Root invalid={!!errors.confirmPassword}>
               <Field.Label>
-                Confirm Password ({common('optional')})
+                Confirm Password
               </Field.Label>
               <PasswordInput
                 {...register('confirmPassword')}

@@ -154,7 +154,7 @@
     },
     "courtsAvailable": "courts available",
     "players": "players",
-    "manageSession": "Manage",
+    "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Delete",
     "viewSession": "Enter",
@@ -228,6 +228,7 @@
     },
     "generalSettings": {
       "selectVenue": "Select a venue...",
+      "searchVenue": "Search for a venue...",
       "sessionName": "Session Name",
       "enterSessionName": "Enter session name",
       "description": "Description",
@@ -396,7 +397,7 @@
     "courts": "courts",
     "viewMoreSessions": "View more sessions",
     "quickCreate": {
-      "placeholder": "What do you want to create, {name}?",
+      "placeholder": "Do you want to create a new session, {name}?",
       "aiPlaceholder": "Quick create by AI...",
       "createButton": "Create"
     }

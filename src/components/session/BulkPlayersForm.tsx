@@ -170,7 +170,7 @@ export default function BulkPlayersForm({
                   width="80px"
                 />
                 <Input
-                  placeholder="Name (optional)"
+                  placeholder="Name"
                   value={player.name || ''}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     updatePlayer(index, 'name', e.target.value || undefined)
@@ -215,7 +215,7 @@ export default function BulkPlayersForm({
                   <option value="TB_PLUS">TB+</option>
                 </select>
                 <Input
-                  placeholder="Phone (optional)"
+                  placeholder="Phone"
                   value={player.phone || ''}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     updatePlayer(index, 'phone', e.target.value || undefined)

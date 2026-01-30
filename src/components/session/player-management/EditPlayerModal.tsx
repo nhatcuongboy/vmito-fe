@@ -27,7 +27,7 @@ interface EditPlayerModalProps {
   onUpdateEditing: (
     playerId: string,
     field: string,
-    value: string | boolean
+    value: string | boolean | number | null
   ) => void;
   onSave: (playerId: string) => void;
 }
@@ -129,9 +129,13 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               {t('level')}
             </Text>
             <select
-              value={editingData.level}
+              value={editingData.level === null ? '' : editingData.level}
               onChange={(e) =>
-                onUpdateEditing(player.id, 'level', e.target.value)
+                onUpdateEditing(
+                  player.id,
+                  'level',
+                  e.target.value ? parseInt(e.target.value, 10) : null
+                )
               }
               style={{
                 width: '100%',

@@ -74,6 +74,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       ? new Date(session.endTime).toISOString().slice(0, 16)
       : '',
     courtColor: session.courtColor || '#179a3b',
+    shuttlecock: session.shuttlecock || '',
   });
 
   // Fetch venues on component mount
@@ -285,33 +286,33 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 />
               </Box>
 
-              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
-                <Box>
-                  <HStack mb={3}>
-                    <MapPin size={16} color="#4a5568" />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                      {t('location')}
-                    </Text>
-                  </HStack>
-                  <Select
-                    value={selectedVenueId}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                      setSelectedVenueId(e.target.value)
-                    }
-                  >
-                    <option value="">
-                      {t('selectVenue', {
-                        defaultValue: 'Select a venue...',
-                      })}
+              <Box>
+                <HStack mb={3}>
+                  <MapPin size={16} color="#4a5568" />
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    {t('location')}
+                  </Text>
+                </HStack>
+                <Select
+                  value={selectedVenueId}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSelectedVenueId(e.target.value)
+                  }
+                >
+                  <option value="">
+                    {t('selectVenue', {
+                      defaultValue: 'Select a venue...',
+                    })}
+                  </option>
+                  {venues.map((venue) => (
+                    <option key={venue.id} value={venue.id}>
+                      {venue.name} - {venue.address}
                     </option>
-                    {venues.map((venue) => (
-                      <option key={venue.id} value={venue.id}>
-                        {venue.name} - {venue.address}
-                      </option>
-                    ))}
-                  </Select>
-                </Box>
+                  ))}
+                </Select>
+              </Box>
 
+              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
                 <Box>
                   <HStack mb={3}>
                     <Users size={16} color="#4a5568" />
@@ -330,6 +331,27 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     }
                     min={2}
                     max={8}
+                    size="lg"
+                    borderRadius="lg"
+                    borderColor="gray.300"
+                    _focus={{
+                      borderColor: 'blue.400',
+                      boxShadow: '0 0 0 1px #3182ce',
+                    }}
+                  />
+                </Box>
+
+                <Box>
+                  <HStack mb={3}>
+                    <FileText size={16} color="#4a5568" />
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                      {t('shuttlecock', { defaultValue: 'Cầu' })}
+                    </Text>
+                  </HStack>
+                  <Input
+                    value={formData.shuttlecock || ''}
+                    onChange={(e) => handleInputChange('shuttlecock', e.target.value)}
+                    placeholder={t('shuttlecock', { defaultValue: 'Nhập loại cầu' })}
                     size="lg"
                     borderRadius="lg"
                     borderColor="gray.300"
@@ -389,7 +411,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 </Box>
               </Grid>
 
-              {user?.role !== UserRole.PLAYER && (
+              {/* Temporarily hidden */}
+              {false && user?.role !== UserRole.PLAYER && (
                 <VStack gap={4} align="stretch">
                   <Heading size="sm" color="gray.700">
                     {t('sessionSettings')}

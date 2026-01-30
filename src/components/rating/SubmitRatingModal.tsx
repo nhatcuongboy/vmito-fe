@@ -130,7 +130,7 @@ export const SubmitRatingModal = ({
         {/* Comment Textarea */}
         <Box>
           <Text fontSize="sm" color="gray.600" mb={2}>
-            {t('addComment')} ({t('optional')})
+            {t('addComment')}
           </Text>
           <Textarea
             value={comment}
