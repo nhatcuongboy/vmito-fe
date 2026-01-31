@@ -82,6 +82,8 @@ const PublicSessionDetailClient = ({
     onClose: onCloseViewRegistrationModal,
   } = useModal();
 
+  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+
   useEffect(() => {
     // If we already have session (from properties / server), don't fetch again unless ID changes significantly or we need to revalidate
     // Ideally, if initialSession.id matches params.id, we skip.
@@ -269,7 +271,7 @@ const PublicSessionDetailClient = ({
     </Badge>
   ) : null;
 
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+
 
   // Top actions (Phone, Google Maps, Share)
   const topActions = (
