@@ -103,28 +103,28 @@ export default function SlideOutMenu({
                     <Text>{nav('home')}</Text>
                   </Flex>
                 </NextLinkButton>
+                {isAuthenticated && user?.role !== UserRole.PLAYER && (
+                  <NextLinkButton
+                    href={
+                      user?.role === UserRole.HOST ||
+                        user?.role === UserRole.ADMIN
+                        ? '/host/dashboard'
+                        : '/'
+                    }
+                    variant="ghost"
+                    justifyContent="flex-start"
+                    onClick={onClose}
+                    w="full"
+                  >
+                    <Flex align="center" gap={3} w="full">
+                      <LayoutDashboard size={18} />
+                      <Text>{nav('browse')}</Text>
+                    </Flex>
+                  </NextLinkButton>
+                )}
+
                 {isAuthenticated && (
                   <>
-                    <NextLinkButton
-                      href={
-                        user?.role === UserRole.HOST ||
-                          user?.role === UserRole.ADMIN
-                          ? '/host/dashboard'
-                          : user?.role === UserRole.PLAYER
-                            ? `/player/dashboard`
-                            : '/'
-                      }
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={onClose}
-                      w="full"
-                    >
-                      <Flex align="center" gap={3} w="full">
-                        <LayoutDashboard size={18} />
-                        <Text>{nav('browse')}</Text>
-                      </Flex>
-                    </NextLinkButton>
-
                     <NextLinkButton
                       href={
                         user?.role === UserRole.HOST || user?.role === UserRole.ADMIN

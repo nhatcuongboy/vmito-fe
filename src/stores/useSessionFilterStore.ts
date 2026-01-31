@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -30,7 +30,6 @@ interface SessionFilterState {
   filters: SessionFilters;
   sortByDistance: boolean;
   userLocation: { lat: number; lng: number } | null;
-  isHydrated: boolean;
 
   // Actions
   setFilter: <K extends keyof SessionFilters>(key: K, value: SessionFilters[K]) => void;
@@ -38,7 +37,6 @@ interface SessionFilterState {
   clearFilters: () => void;
   setSortByDistance: (sort: boolean) => void;
   setUserLocation: (location: { lat: number; lng: number } | null) => void;
-  setHydrated: (hydrated: boolean) => void;
 
   // Multi-select helpers
   toggleCity: (city: string) => void;
@@ -62,118 +60,96 @@ const defaultFilters: SessionFilters = {
 
 export const useSessionFilterStore = create<SessionFilterState>()(
   devtools(
-    persist(
-      (set) => ({
-        // Initial state
-        filters: defaultFilters,
-        sortByDistance: false,
-        userLocation: null,
-        isHydrated: false,
+    (set) => ({
+      // Initial state
+      filters: defaultFilters,
+      sortByDistance: false,
+      userLocation: null,
 
-        // Actions
-        setFilter: (key, value) =>
-          set(
-            (state) => ({
-              filters: { ...state.filters, [key]: value },
-            }),
-            false,
-            `setFilter:${key}`
-          ),
+      // Actions
+      setFilter: (key, value) =>
+        set(
+          (state) => ({
+            filters: { ...state.filters, [key]: value },
+          }),
+          false,
+          `setFilter:${key}`
+        ),
 
-        setFilters: (newFilters) =>
-          set(
-            (state) => ({
-              filters: { ...state.filters, ...newFilters },
-            }),
-            false,
-            'setFilters'
-          ),
+      setFilters: (newFilters) =>
+        set(
+          (state) => ({
+            filters: { ...state.filters, ...newFilters },
+          }),
+          false,
+          'setFilters'
+        ),
 
-        clearFilters: () =>
-          set(
-            {
-              filters: defaultFilters,
-              sortByDistance: false,
-            },
-            false,
-            'clearFilters'
-          ),
+      clearFilters: () =>
+        set(
+          {
+            filters: defaultFilters,
+            sortByDistance: false,
+          },
+          false,
+          'clearFilters'
+        ),
 
-        setSortByDistance: (sort) =>
-          set({ sortByDistance: sort }, false, 'setSortByDistance'),
+      setSortByDistance: (sort) =>
+        set({ sortByDistance: sort }, false, 'setSortByDistance'),
 
-        setUserLocation: (location) =>
-          set({ userLocation: location }, false, 'setUserLocation'),
+      setUserLocation: (location) =>
+        set({ userLocation: location }, false, 'setUserLocation'),
 
-        setHydrated: (hydrated) =>
-          set({ isHydrated: hydrated }, false, 'setHydrated'),
+      // Multi-select helpers
+      toggleCity: (city) =>
+        set(
+          (state) => {
+            const cities = state.filters.cities.includes(city)
+              ? state.filters.cities.filter((c) => c !== city)
+              : [...state.filters.cities, city];
 
-        // Multi-select helpers
-        toggleCity: (city) =>
-          set(
-            (state) => {
-              const cities = state.filters.cities.includes(city)
-                ? state.filters.cities.filter((c) => c !== city)
-                : [...state.filters.cities, city];
-
-              // Clear districts when toggling cities
-              return {
-                filters: {
-                  ...state.filters,
-                  cities,
-                  districts: [],
-                },
-              };
-            },
-            false,
-            'toggleCity'
-          ),
-
-        toggleDistrict: (district) =>
-          set(
-            (state) => {
-              const districts = state.filters.districts.includes(district)
-                ? state.filters.districts.filter((d) => d !== district)
-                : [...state.filters.districts, district];
-
-              return {
-                filters: { ...state.filters, districts },
-              };
-            },
-            false,
-            'toggleDistrict'
-          ),
-
-        clearLocation: () =>
-          set(
-            (state) => ({
+            // Clear districts when toggling cities
+            return {
               filters: {
                 ...state.filters,
-                cities: [],
+                cities,
                 districts: [],
               },
-            }),
-            false,
-            'clearLocation'
-          ),
-      }),
-      {
-        name: 'session-filter-storage',
-        // Persist filters but not location state
-        partialize: (state) => ({
-          filters: state.filters,
-        }),
-        onRehydrateStorage: () => (state) => {
-          state?.setHydrated(true);
-        },
-      }
-    ),
+            };
+          },
+          false,
+          'toggleCity'
+        ),
+
+      toggleDistrict: (district) =>
+        set(
+          (state) => {
+            const districts = state.filters.districts.includes(district)
+              ? state.filters.districts.filter((d) => d !== district)
+              : [...state.filters.districts, district];
+
+            return {
+              filters: { ...state.filters, districts },
+            };
+          },
+          false,
+          'toggleDistrict'
+        ),
+
+      clearLocation: () =>
+        set(
+          (state) => ({
+            filters: {
+              ...state.filters,
+              cities: [],
+              districts: [],
+            },
+          }),
+          false,
+          'clearLocation'
+        ),
+    }),
     { name: 'session-filter-store' }
   )
 );
-
-// Helper hook to wait for hydration
-export const useFilterHydration = () => {
-  const isHydrated = useSessionFilterStore((state) => state.isHydrated);
-  return isHydrated;
-};

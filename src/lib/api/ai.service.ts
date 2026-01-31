@@ -19,6 +19,14 @@ export interface ExtractedSessionData {
   requiredLevels?: number[];
   venue?: ExtractedVenue;
   numberOfCourts?: number;
+  courtNames?: string[];
+  shuttlecock?: string;
+  feeConfig?: {
+    feeType: 'FIXED' | 'SPLIT_EVENLY';
+    maleFee?: number;
+    femaleFee?: number;
+    notes?: string;
+  };
 }
 
 export const AIService = {

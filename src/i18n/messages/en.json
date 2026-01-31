@@ -60,12 +60,12 @@
       "8": "Pro"
     },
     "levelShorts": {
-      "1": "NEW",
+      "1": "Mới chơi",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
       "5": "TB+",
-      "6": "K",
+      "6": "Khá",
       "7": "BC",
       "8": "CN"
     },
@@ -322,6 +322,7 @@
       "sessionStatus": "Status",
       "availableSlots": "Available",
       "date": "Date",
+      "quickFilters": "Quick Filters",
       "nearMe": "Near Me",
       "sortByDistance": "Sort by Distance",
       "cost": "Cost",

@@ -1,49 +1,45 @@
 'use client';
 
-import { SessionService } from '@/lib/api/session.service';
+import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
+import { toaster } from '@/components/ui/toaster';
+import { VALID_LEVELS } from '@/constants/levels';
+import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { useRouter } from '@/i18n/config';
+import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { PlayerService } from '@/lib/api/player.service';
-import { ISession } from '@/lib/api/types';
+import { SessionService } from '@/lib/api/session.service';
+import { ISession, UserRole } from '@/lib/api/types';
+import { getUserLocation } from '@/lib/utils/geolocation.utils';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import {
+  Badge,
   Box,
+  Flex,
   Grid,
   Heading,
-  Text,
-  Flex,
-  Badge,
-  VStack,
   HStack,
-  Spinner,
+  Text,
+  VStack
 } from '@chakra-ui/react';
-import { Button, Input, IconButton } from '@/components/ui/chakra-compat';
-import { useDisclosure } from '@/components/ui/ChakraHooks';
-import { useTranslations } from 'next-intl';
-import { useEffect, useState, useMemo } from 'react';
-import JoinSessionModal from './JoinSessionModal';
-import FindSessionCard from './FindSessionCard';
-import { SessionCardSkeleton } from './SessionCardSkeleton';
-import { useRouter } from '@/i18n/config';
-import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
-import { VALID_LEVELS } from '@/constants/levels';
-import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
-  Search,
-  X,
-  MapPin,
   Filter,
-  ChevronDown,
-  ChevronUp,
+  MapPin,
+  Search,
+  X
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
-import { getUserLocation } from '@/lib/utils/geolocation.utils';
-import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import { toaster } from '@/components/ui/toaster';
-import { QuickCreateSessionBar } from './QuickCreateSessionBar';
+import { useEffect, useMemo, useState } from 'react';
 import { AISessionModal } from './AISessionModal';
-import { UserRole } from '@/lib/api/types';
-import { ExtractedSessionData } from '@/lib/api/ai.service';
+import FindSessionCard from './FindSessionCard';
+import JoinSessionModal from './JoinSessionModal';
+import { QuickCreateSessionBar } from './QuickCreateSessionBar';
+import { SessionCardSkeleton } from './SessionCardSkeleton';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -432,89 +428,170 @@ export default function FindSessionList({
         </Box>
       </Flex>
 
-      {/* Collapsible Filter Panel - Compact Design */}
+      {/* Enhanced Filter Panel */}
       {showFilters && (
         <Box
           bg="white"
           _dark={{ bg: 'gray.800' }}
-          p={3}
-          borderRadius="lg"
+          p={5}
+          borderRadius="xl"
           borderWidth="1px"
+          borderColor="gray.200"
           mb={4}
-          shadow="sm"
+          shadow="md"
         >
-          <VStack align="stretch" gap={3}>
-            {/* Quick Actions Row: Date, Status, Near Me */}
-            <Flex gap={2} wrap="wrap" align="center">
-              <Input
-                type="date"
-                size="sm"
-                width="auto"
-                minW="140px"
-                value={filters.date}
-                onChange={(e) => setFilters({ date: e.target.value })}
-              />
-              <Badge
-                px={4}
-                py={1.5}
-                borderRadius="full"
-                cursor="pointer"
-                variant={filters.hasSlots ? 'solid' : 'outline'}
-                colorPalette={filters.hasSlots ? 'green' : 'gray'}
-                onClick={() => setFilters({ hasSlots: !filters.hasSlots })}
-                fontSize="md"
-                fontWeight="medium"
-              >
-                {t('filters.availableSlots')}
-              </Badge>
-              <Badge
-                px={4}
-                py={1.5}
-                borderRadius="full"
-                cursor="pointer"
-                variant={sortByDistance ? 'solid' : 'outline'}
-                colorPalette={sortByDistance ? 'blue' : 'gray'}
-                onClick={handleNearMe}
-                fontSize="md"
-                fontWeight="medium"
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-              >
-                <MapPin size={16} />
-                {sortByDistance ? t('filters.sortByDistance') : t('filters.nearMe')}
-              </Badge>
-            </Flex>
-
-            {/* City Selection - Horizontal Scroll */}
+          <VStack align="stretch" gap={5}>
+            {/* Date & Time Range Section */}
             <Box>
-              <Flex justify="space-between" align="center" mb={1}>
-                <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                  {t('filters.area')}
+              <Flex gap={3} wrap="wrap" align="flex-end">
+                <Box>
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
+                    {t('filters.date') || 'Ngày'}
+                  </Text>
+                  <Input
+                    type="date"
+                    size="md"
+                    width="auto"
+                    minW="160px"
+                    value={filters.date}
+                    onChange={(e) => setFilters({ date: e.target.value })}
+                    borderRadius="lg"
+                    borderWidth="2px"
+                    borderColor="gray.300"
+                    _hover={{ borderColor: 'blue.400' }}
+                    _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                    _dark={{ borderColor: 'gray.600', _hover: { borderColor: 'blue.400' } }}
+                  />
+                </Box>
+
+                <Box minW="250px">
+                  <HStack gap={2} mb={1.5}>
+                    <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase">
+                      ⏰ {t('timeRange')}
+                    </Text>
+                    {filters.timeRanges.length > 0 && (
+                      <Badge size="sm" colorPalette="orange" variant="solid" borderRadius="full" px={2}>
+                        {filters.timeRanges.length}
+                      </Badge>
+                    )}
+                  </HStack>
+                  <Flex gap={2} flexWrap="wrap">
+                    {TIME_RANGES.map((range) => {
+                      const isSelected = filters.timeRanges.includes(range.key);
+                      return (
+                        <Badge
+                          key={range.key}
+                          px={4}
+                          py={1.5}
+                          borderRadius="full"
+                          cursor="pointer"
+                          variant={isSelected ? 'solid' : 'outline'}
+                          colorPalette={isSelected ? 'orange' : 'gray'}
+                          onClick={() => toggleTimeRange(range.key)}
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          transition="all 0.2s"
+                          _hover={{ transform: 'scale(1.05)' }}
+                          borderWidth={isSelected ? '0' : '2px'}
+                        >
+                          {t(`timeRanges.${range.key}`)}
+                        </Badge>
+                      );
+                    })}
+                  </Flex>
+                </Box>
+
+                <Box>
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
+                    🚀 {t('filters.quickFilters') || 'Lọc nhanh'}
+                  </Text>
+                  <Flex gap={2} wrap="wrap">
+                    <Badge
+                      px={5}
+                      py={2}
+                      borderRadius="full"
+                      cursor="pointer"
+                      variant={filters.hasSlots ? 'solid' : 'outline'}
+                      colorPalette={filters.hasSlots ? 'green' : 'gray'}
+                      onClick={() => setFilters({ hasSlots: !filters.hasSlots })}
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
+                      borderWidth={filters.hasSlots ? '0' : '2px'}
+                    >
+                      {t('filters.availableSlots')}
+                    </Badge>
+                    <Badge
+                      px={5}
+                      py={2}
+                      borderRadius="full"
+                      cursor="pointer"
+                      variant={sortByDistance ? 'solid' : 'outline'}
+                      colorPalette={sortByDistance ? 'blue' : 'gray'}
+                      onClick={handleNearMe}
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                      transition="all 0.2s"
+                      _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
+                      borderWidth={sortByDistance ? '0' : '2px'}
+                    >
+                      <MapPin size={16} />
+                      {sortByDistance ? t('filters.sortByDistance') : t('filters.nearMe')}
+                    </Badge>
+                  </Flex>
+                </Box>
+              </Flex>
+
+            </Box>
+
+            {/* Divider */}
+            <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
+            {/* Location Section */}
+            <Box>
+              <Flex justify="space-between" align="center" mb={3}>
+                <HStack gap={2}>
+                  <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }}>
+                    📍 {t('filters.area')}
+                  </Text>
                   {filters.cities.length > 0 && (
-                    <Badge ml={1} size="sm" colorPalette="blue" variant="subtle">
+                    <Badge size="sm" colorPalette="blue" variant="solid" borderRadius="full" px={2}>
                       {filters.cities.length}
                     </Badge>
                   )}
-                </Text>
+                </HStack>
                 {filters.cities.length > 0 && (
-                  <Button size="xs" variant="ghost" onClick={clearLocation} p={0} h="auto" minW="auto">
-                    <X size={14} />
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={clearLocation}
+                    colorPalette="red"
+                    fontWeight="semibold"
+                  >
+                    <X size={14} /> <Text ml={1}>Xóa</Text>
                   </Button>
                 )}
               </Flex>
-              <Flex gap={1.5} flexWrap="wrap">
+              <Flex gap={2} flexWrap="wrap">
                 {VIETNAM_CITIES.map((city) => (
                   <Badge
                     key={city.code}
-                    px={2.5}
-                    py={1}
-                    borderRadius="md"
+                    px={4}
+                    py={2}
+                    borderRadius="lg"
                     cursor="pointer"
                     variant={filters.cities.includes(city.code) ? 'solid' : 'outline'}
                     colorPalette={filters.cities.includes(city.code) ? 'blue' : 'gray'}
                     onClick={() => toggleCity(city.code)}
                     fontSize="sm"
+                    fontWeight="medium"
+                    transition="all 0.2s"
+                    _hover={{ transform: 'scale(1.05)' }}
+                    borderWidth={filters.cities.includes(city.code) ? '0' : '2px'}
                   >
                     {city.name}
                   </Badge>
@@ -522,36 +599,59 @@ export default function FindSessionList({
               </Flex>
             </Box>
 
-            {/* District Selection - Only show if cities selected */}
+            {/* District Selection */}
             {filters.cities.length > 0 && availableDistricts.length > 0 && (
               <Box>
-                <Flex justify="space-between" align="center" mb={1}>
-                  <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                    {t('filters.allDistricts')}
+                <Flex justify="space-between" align="center" mb={3}>
+                  <HStack gap={2}>
+                    <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }}>
+                      🏘️ {t('filters.allDistricts')}
+                    </Text>
                     {filters.districts.length > 0 && (
-                      <Badge ml={1} size="sm" colorPalette="blue" variant="subtle">
+                      <Badge size="sm" colorPalette="blue" variant="solid" borderRadius="full" px={2}>
                         {filters.districts.length}
                       </Badge>
                     )}
-                  </Text>
+                  </HStack>
                   {filters.districts.length > 0 && (
-                    <Button size="xs" variant="ghost" onClick={() => setFilters({ districts: [] })} p={0} h="auto" minW="auto">
-                      <X size={14} />
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => setFilters({ districts: [] })}
+                      colorPalette="red"
+                      fontWeight="semibold"
+                    >
+                      <X size={14} /> <Text ml={1}>Xóa</Text>
                     </Button>
                   )}
                 </Flex>
-                <Flex gap={1.5} flexWrap="wrap" maxH="100px" overflowY="auto">
+                <Flex
+                  gap={2}
+                  flexWrap="wrap"
+                  maxH="120px"
+                  overflowY="auto"
+                  css={{
+                    '&::-webkit-scrollbar': { width: '6px' },
+                    '&::-webkit-scrollbar-track': { background: '#f1f1f1', borderRadius: '10px' },
+                    '&::-webkit-scrollbar-thumb': { background: '#888', borderRadius: '10px' },
+                    '&::-webkit-scrollbar-thumb:hover': { background: '#555' }
+                  }}
+                >
                   {availableDistricts.map((district) => (
                     <Badge
                       key={district.code}
-                      px={2.5}
-                      py={1}
-                      borderRadius="md"
+                      px={3}
+                      py={1.5}
+                      borderRadius="lg"
                       cursor="pointer"
                       variant={filters.districts.includes(district.name) ? 'solid' : 'outline'}
                       colorPalette={filters.districts.includes(district.name) ? 'blue' : 'gray'}
                       onClick={() => toggleDistrict(district.name)}
                       fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={filters.districts.includes(district.name) ? '0' : '2px'}
                     >
                       {district.name}
                     </Badge>
@@ -560,109 +660,142 @@ export default function FindSessionList({
               </Box>
             )}
 
-            {/* Levels & Time Row */}
-            <Flex gap={4} wrap="wrap">
-              <Box flex="1" minW="200px">
-                <Text fontSize="sm" fontWeight="medium" color="gray.600" mb={1}>
-                  {t('level')}
-                </Text>
-                <Flex gap={1.5} flexWrap="wrap">
-                  {VALID_LEVELS.map((level) => {
-                    const skillColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        px={2.5}
-                        py={1}
-                        borderRadius="full"
-                        cursor="pointer"
-                        variant={filters.levels.includes(level) ? 'solid' : 'outline'}
-                        colorPalette={filters.levels.includes(level) ? skillColor.colorPalette : 'gray'}
-                        onClick={() => toggleLevel(level)}
-                        fontSize="sm"
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })}
-                </Flex>
-              </Box>
+            {/* Divider */}
+            <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
 
-              <Box minW="180px">
-                <Text fontSize="sm" fontWeight="medium" color="gray.600" mb={1}>
-                  {t('timeRange')}
+            {/* Skill Level Section */}
+            <Box>
+              <HStack gap={2} mb={3}>
+                <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }}>
+                  🏸 {t('level')}
                 </Text>
-                <Flex gap={1.5} flexWrap="wrap">
-                  {TIME_RANGES.map((range) => (
+                {filters.levels.length > 0 && (
+                  <Badge size="sm" colorPalette="purple" variant="solid" borderRadius="full" px={2}>
+                    {filters.levels.length}
+                  </Badge>
+                )}
+              </HStack>
+              <Flex gap={2} flexWrap="wrap">
+                {VALID_LEVELS.map((level) => {
+                  const skillColor = getSkillLevelColor([level]);
+                  const isSelected = filters.levels.includes(level);
+                  return (
                     <Badge
-                      key={range.key}
-                      px={2.5}
-                      py={1}
+                      key={level}
+                      px={3.5}
+                      py={1.5}
                       borderRadius="full"
                       cursor="pointer"
-                      variant={filters.timeRanges.includes(range.key) ? 'solid' : 'outline'}
-                      colorPalette={filters.timeRanges.includes(range.key) ? 'purple' : 'gray'}
-                      onClick={() => toggleTimeRange(range.key)}
+                      variant={isSelected ? 'solid' : 'outline'}
+                      colorPalette={isSelected ? skillColor.colorPalette : 'gray'}
+                      onClick={() => toggleLevel(level)}
                       fontSize="sm"
+                      fontWeight="bold"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.1)' }}
+                      borderWidth={isSelected ? '0' : '2px'}
                     >
-                      {t(`timeRanges.${range.key}`)}
+                      {getLevelShortLabel(level)}
                     </Badge>
-                  ))}
-                </Flex>
-              </Box>
-            </Flex>
+                  );
+                })}
+              </Flex>
+            </Box>
 
-            {/* Fee Range - Compact Inline */}
-            <Flex gap={3} align="center" wrap="wrap">
-              <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                {t('filters.cost')}:
+            {/* Divider */}
+            <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
+            {/* Fee Section */}
+            <Box>
+              <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }} mb={3}>
+                💰 {t('filters.cost')}
               </Text>
-              <HStack gap={2}>
-                <Input
-                  size="sm"
-                  type="number"
-                  width="90px"
-                  value={filters.minFee}
-                  onChange={(e) => setFilters({ minFee: Number(e.target.value) })}
-                  step={5000}
-                  min={0}
-                />
-                <Text fontSize="sm">-</Text>
-                <Input
-                  size="sm"
-                  type="number"
-                  width="90px"
-                  value={filters.maxFee}
-                  onChange={(e) => setFilters({ maxFee: Number(e.target.value) })}
-                  step={5000}
-                  min={0}
-                />
-                <Text fontSize="sm" color="gray.500">VND</Text>
-              </HStack>
-              <Box as="label" cursor="pointer" display="flex" alignItems="center" gap={2}>
-                <input
-                  type="checkbox"
-                  checked={filters.splitEvenly}
-                  onChange={(e) => setFilters({ splitEvenly: e.target.checked })}
-                />
-                <Text fontSize="sm">{t('filters.splitEvenly')}</Text>
-              </Box>
-
-              {/* Clear Filters - Inline */}
-              {activeFilterCount > 0 && (
-                <Button
-                  size="sm"
-                  variant="solid"
-                  colorPalette="red"
-                  onClick={clearFilters}
-                  ml="auto"
-                  leftIcon={<X size={16} />}
-                  fontWeight="semibold"
+              <Flex gap={4} align="center" wrap="wrap">
+                <HStack gap={2}>
+                  <Input
+                    size="md"
+                    type="number"
+                    width="110px"
+                    value={filters.minFee}
+                    onChange={(e) => setFilters({ minFee: Number(e.target.value) })}
+                    step={5000}
+                    min={0}
+                    borderRadius="lg"
+                    borderWidth="2px"
+                    borderColor="gray.300"
+                    _hover={{ borderColor: 'blue.400' }}
+                    _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                    _dark={{ borderColor: 'gray.600' }}
+                  />
+                  <Text fontSize="md" fontWeight="bold" color="gray.500">→</Text>
+                  <Input
+                    size="md"
+                    type="number"
+                    width="110px"
+                    value={filters.maxFee}
+                    onChange={(e) => setFilters({ maxFee: Number(e.target.value) })}
+                    step={5000}
+                    min={0}
+                    borderRadius="lg"
+                    borderWidth="2px"
+                    borderColor="gray.300"
+                    _hover={{ borderColor: 'blue.400' }}
+                    _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                    _dark={{ borderColor: 'gray.600' }}
+                  />
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.600">VND</Text>
+                </HStack>
+                <Box
+                  as="label"
+                  cursor="pointer"
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  px={3}
+                  py={2}
+                  borderRadius="lg"
+                  bg={filters.splitEvenly ? 'blue.50' : 'transparent'}
+                  _dark={{ bg: filters.splitEvenly ? 'blue.900' : 'transparent' }}
+                  borderWidth="2px"
+                  borderColor={filters.splitEvenly ? 'blue.400' : 'gray.300'}
+                  transition="all 0.2s"
+                  _hover={{ borderColor: 'blue.400' }}
                 >
-                  {t('clearFilters')}
-                </Button>
-              )}
-            </Flex>
+                  <input
+                    type="checkbox"
+                    checked={filters.splitEvenly}
+                    onChange={(e) => setFilters({ splitEvenly: e.target.checked })}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <Text fontSize="sm" fontWeight="semibold" color={filters.splitEvenly ? 'blue.700' : 'gray.700'} _dark={{ color: filters.splitEvenly ? 'blue.200' : 'gray.200' }}>
+                    {t('filters.splitEvenly')}
+                  </Text>
+                </Box>
+              </Flex>
+            </Box>
+
+            {/* Clear Filters Button */}
+            {activeFilterCount > 0 && (
+              <>
+                <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+                <Flex justify="center">
+                  <Button
+                    size="md"
+                    variant="solid"
+                    colorPalette="red"
+                    onClick={clearFilters}
+                    leftIcon={<X size={18} />}
+                    fontWeight="bold"
+                    px={6}
+                    borderRadius="full"
+                    transition="all 0.2s"
+                    _hover={{ transform: 'scale(1.05)', shadow: 'lg' }}
+                  >
+                    {t('clearFilters')} ({activeFilterCount})
+                  </Button>
+                </Flex>
+              </>
+            )}
           </VStack>
         </Box>
       )}

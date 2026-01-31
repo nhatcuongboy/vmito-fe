@@ -76,6 +76,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { Select } from '@/components/ui/Select';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
@@ -396,16 +397,27 @@ export default function SessionForm({
             );
         }
 
-        if (data.numberOfCourts && data.numberOfCourts > 1) {
+        if (data.numberOfCourts && data.numberOfCourts > 0) {
+            const numCourts = data.numberOfCourts;
+            const courtNames = data.courtNames || [];
+
             const newCourts = Array.from(
-                { length: data.numberOfCourts },
+                { length: numCourts },
                 (_, i) => ({
                     courtNumber: i + 1,
-                    courtName: '',
+                    courtName: courtNames[i] || '',
                     direction: CourtDirection.HORIZONTAL,
                 })
             );
             setValue('courts', newCourts);
+        }
+
+        if (data.feeConfig) {
+            setFeeEnabled(true);
+            if (data.feeConfig.feeType) setFeeType(data.feeConfig.feeType as FeeType);
+            if (data.feeConfig.maleFee !== undefined) setMaleFee(data.feeConfig.maleFee);
+            if (data.feeConfig.femaleFee !== undefined) setFemaleFee(data.feeConfig.femaleFee);
+            if (data.feeConfig.notes) setFeeNotes(data.feeConfig.notes);
         }
 
         // Venue matching
@@ -439,7 +451,7 @@ export default function SessionForm({
                 console.log('No matching venue found for:', data.venue);
             }
         }
-    }, [setValue, venues]);
+    }, [setValue, venues, setFeeEnabled, setFeeType, setMaleFee, setFemaleFee, setFeeNotes]);
 
     // Check for pending session data from quick create
     const hasCheckedSessionStorage = useRef(false);
@@ -729,21 +741,16 @@ export default function SessionForm({
                                         control={control}
                                         name="selectedVenueId"
                                         render={({ field }) => (
-                                            <Select
+                                            <SearchableSelect
                                                 value={field.value}
-                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                                    field.onChange(e.target.value)
-                                                }
-                                            >
-                                                <option value="">
-                                                    {t('generalSettings.selectVenue')}
-                                                </option>
-                                                {venues.map((v) => (
-                                                    <option key={v.id} value={v.id}>
-                                                        {v.name} - {v.address}
-                                                    </option>
-                                                ))}
-                                            </Select>
+                                                onChange={(value) => field.onChange(value)}
+                                                options={venues.map((v) => ({
+                                                    value: v.id,
+                                                    label: `${v.name} - ${v.address}`,
+                                                }))}
+                                                placeholder={t('generalSettings.selectVenue')}
+                                                searchPlaceholder={t('generalSettings.searchVenue')}
+                                            />
                                         )}
                                     />
                                     <Field.ErrorText>
