@@ -19,11 +19,11 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
   const router = useRouter();
   const { user } = useAuthStore();
 
-  const bgColor = useColorModeValue('white');
-  const borderColor = useColorModeValue('gray.200');
-  const inputBg = useColorModeValue('gray.50');
-  const inputHoverBg = useColorModeValue('gray.100');
-  const placeholderColor = useColorModeValue('gray.500');
+  const bgColor: string = useColorModeValue('white', 'gray.800');
+  const borderColor: string = useColorModeValue('gray.200', 'gray.700');
+  const inputBg: string = useColorModeValue('gray.50', 'gray.700');
+  const inputHoverBg: string = useColorModeValue('gray.100', 'gray.600');
+  const placeholderColor: string = useColorModeValue('gray.500', 'gray.400');
 
   if (!user) return null;
 
