@@ -160,7 +160,7 @@ export default function BadmintonCourt({
       }
       borderRadius="md"
       overflow="visible"
-    // boxShadow={status === "READY" ? "0 0 0 4px #fef08a" : undefined}
+      // boxShadow={status === "READY" ? "0 0 0 4px #fef08a" : undefined}
     >
       {/* Outer boundary */}
       <Box
@@ -301,110 +301,110 @@ export default function BadmintonCourt({
       {/* Player positions: center of each doubles service box */}
       {mode === 'selection'
         ? // Selection mode: Show placeholders and highlight current position
-        displayPlayers.map((player, visualIndex) => {
-          // Calculate selection index from visual index based on direction
-          let reverseMapping: number[];
-          if (direction === CourtDirection.HORIZONTAL) {
-            // HORIZONTAL: visual [0,1,2,3] -> selection [0,2,1,3]
-            // Reverse: visual 0->selection 0, visual 1->selection 2, visual 2->selection 1, visual 3->selection 3
-            reverseMapping = [0, 2, 1, 3];
-          } else {
-            // VERTICAL: visual positions map directly to selection
-            reverseMapping = [0, 1, 2, 3];
-          }
-          const selectionIndex = reverseMapping[visualIndex];
+          displayPlayers.map((player, visualIndex) => {
+            // Calculate selection index from visual index based on direction
+            let reverseMapping: number[];
+            if (direction === CourtDirection.HORIZONTAL) {
+              // HORIZONTAL: visual [0,1,2,3] -> selection [0,2,1,3]
+              // Reverse: visual 0->selection 0, visual 1->selection 2, visual 2->selection 1, visual 3->selection 3
+              reverseMapping = [0, 2, 1, 3];
+            } else {
+              // VERTICAL: visual positions map directly to selection
+              reverseMapping = [0, 1, 2, 3];
+            }
+            const selectionIndex = reverseMapping[visualIndex];
 
-          if (player) {
-            // Render actual player
-            return (
-              <CourtPlayer
-                key={`player-${visualIndex}-${player.id}`}
-                player={{
-                  ...player,
-                  isCurrentPlayer: selectionIndex === currentPlayerPosition,
-                }}
-                index={visualIndex}
-                players={
-                  displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
-                }
-                mode={mode}
-                isClicked={clickedPlayer === player.id}
-                onPlayerClick={setClickedPlayer}
-                onRemovePlayer={() => handlePlayerRemove(selectionIndex)}
-              />
-            );
-          } else {
-            // Render placeholder for empty position
-            // Use the same selectionIndex calculated above
-            return (
-              <Box
-                key={`placeholder-${visualIndex}`}
-                position="absolute"
-                {...(() => {
-                  const positions = [
-                    { top: '30%', left: '25%' }, // Top-left
-                    { top: '30%', left: '75%' }, // Top-right
-                    { top: '72%', left: '25%' }, // Bottom-left
-                    { top: '72%', left: '75%' }, // Bottom-right
-                  ];
-                  return positions[visualIndex];
-                })()}
-                transform="translate(-50%, -50%)"
-                zIndex={3}
-                cursor="pointer"
-                onClick={() => {
-                  if (onPositionSelect) {
-                    onPositionSelect(selectionIndex);
+            if (player) {
+              // Render actual player
+              return (
+                <CourtPlayer
+                  key={`player-${visualIndex}-${player.id}`}
+                  player={{
+                    ...player,
+                    isCurrentPlayer: selectionIndex === currentPlayerPosition,
+                  }}
+                  index={visualIndex}
+                  players={
+                    displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
                   }
-                }}
-              >
+                  mode={mode}
+                  isClicked={clickedPlayer === player.id}
+                  onPlayerClick={setClickedPlayer}
+                  onRemovePlayer={() => handlePlayerRemove(selectionIndex)}
+                />
+              );
+            } else {
+              // Render placeholder for empty position
+              // Use the same selectionIndex calculated above
+              return (
                 <Box
-                  position="relative"
-                  bg={
-                    selectionIndex === currentPlayerPosition
-                      ? { base: 'yellow.100', _dark: 'yellow.900/40' }
-                      : { base: 'gray.100', _dark: 'whiteAlpha.100' }
-                  }
-                  borderRadius="full"
-                  border="3px dashed"
-                  borderColor={
-                    selectionIndex === currentPlayerPosition
-                      ? 'yellow.500'
-                      : { base: 'gray.400', _dark: 'whiteAlpha.400' }
-                  }
-                  w="50px"
-                  h="50px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  boxShadow={
-                    selectionIndex === currentPlayerPosition ? 'lg' : 'sm'
-                  }
-                  transition="all 0.3s"
-                  _hover={{
-                    transform:
-                      selectionIndex === currentPlayerPosition
-                        ? 'scale(1.1)'
-                        : 'scale(1.05)',
-                    borderColor: 'yellow.400',
+                  key={`placeholder-${visualIndex}`}
+                  position="absolute"
+                  {...(() => {
+                    const positions = [
+                      { top: '30%', left: '25%' }, // Top-left
+                      { top: '30%', left: '75%' }, // Top-right
+                      { top: '72%', left: '25%' }, // Bottom-left
+                      { top: '72%', left: '75%' }, // Bottom-right
+                    ];
+                    return positions[visualIndex];
+                  })()}
+                  transform="translate(-50%, -50%)"
+                  zIndex={3}
+                  cursor="pointer"
+                  onClick={() => {
+                    if (onPositionSelect) {
+                      onPositionSelect(selectionIndex);
+                    }
                   }}
                 >
-                  {selectionIndex === currentPlayerPosition && (
-                    <>
-                      {/* Pulsing effect for current position */}
-                      <Box
-                        position="absolute"
-                        top="-4px"
-                        left="-4px"
-                        right="-4px"
-                        bottom="-4px"
-                        borderRadius="full"
-                        border="2px solid"
-                        borderColor="yellow.500"
-                        animation="currentPositionPulse 2s infinite"
-                        pointerEvents="none"
-                      />
-                      <style jsx>{`
+                  <Box
+                    position="relative"
+                    bg={
+                      selectionIndex === currentPlayerPosition
+                        ? { base: 'yellow.100', _dark: 'yellow.900/40' }
+                        : { base: 'gray.100', _dark: 'whiteAlpha.100' }
+                    }
+                    borderRadius="full"
+                    border="3px dashed"
+                    borderColor={
+                      selectionIndex === currentPlayerPosition
+                        ? 'yellow.500'
+                        : { base: 'gray.400', _dark: 'whiteAlpha.400' }
+                    }
+                    w="50px"
+                    h="50px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    boxShadow={
+                      selectionIndex === currentPlayerPosition ? 'lg' : 'sm'
+                    }
+                    transition="all 0.3s"
+                    _hover={{
+                      transform:
+                        selectionIndex === currentPlayerPosition
+                          ? 'scale(1.1)'
+                          : 'scale(1.05)',
+                      borderColor: 'yellow.400',
+                    }}
+                  >
+                    {selectionIndex === currentPlayerPosition && (
+                      <>
+                        {/* Pulsing effect for current position */}
+                        <Box
+                          position="absolute"
+                          top="-4px"
+                          left="-4px"
+                          right="-4px"
+                          bottom="-4px"
+                          borderRadius="full"
+                          border="2px solid"
+                          borderColor="yellow.500"
+                          animation="currentPositionPulse 2s infinite"
+                          pointerEvents="none"
+                        />
+                        <style jsx>{`
                           @keyframes currentPositionPulse {
                             0% {
                               transform: scale(1);
@@ -420,42 +420,42 @@ export default function BadmintonCourt({
                             }
                           }
                         `}</style>
-                    </>
-                  )}
-                  <Box
-                    fontSize="lg"
-                    fontWeight="bold"
-                    color={
-                      selectionIndex === currentPlayerPosition
-                        ? { base: 'yellow.700', _dark: 'yellow.400' }
-                        : 'fg.muted'
-                    }
-                  >
-                    {selectionIndex + 1}
+                      </>
+                    )}
+                    <Box
+                      fontSize="lg"
+                      fontWeight="bold"
+                      color={
+                        selectionIndex === currentPlayerPosition
+                          ? { base: 'yellow.700', _dark: 'yellow.400' }
+                          : 'fg.muted'
+                      }
+                    >
+                      {selectionIndex + 1}
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            );
-          }
-        })
+              );
+            }
+          })
         : // Normal mode: Render actual players from displayPlayers (sorted by courtPosition)
-        displayPlayers &&
-        displayPlayers.length > 0 &&
-        (displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]).map(
-          (player, index) => (
-            <CourtPlayer
-              key={player.id}
-              player={player}
-              index={index}
-              players={
-                displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
-              }
-              mode={mode}
-              isClicked={clickedPlayer === player.id}
-              onPlayerClick={setClickedPlayer}
-            />
-          )
-        )}
+          displayPlayers &&
+          displayPlayers.length > 0 &&
+          (displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]).map(
+            (player, index) => (
+              <CourtPlayer
+                key={player.id}
+                player={player}
+                index={index}
+                players={
+                  displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
+                }
+                mode={mode}
+                isClicked={clickedPlayer === player.id}
+                onPlayerClick={setClickedPlayer}
+              />
+            )
+          )}
       )
       {isLoading && (
         <Box

@@ -4,7 +4,16 @@ import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { Box, Button, Container, Flex, Heading, IconButton, Image, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  IconButton,
+  Image,
+  Text,
+} from '@chakra-ui/react';
 import { Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -12,7 +21,6 @@ import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import SlideOutMenu from './SlideOutMenu';
 import UserMenu from './UserMenu';
-
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -66,7 +74,10 @@ export default function TopBar({
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
-        minHeight={{ base: `${TOP_BAR_HEIGHT_MOBILE}px`, md: `${TOP_BAR_HEIGHT_DESKTOP}px` }}
+        minHeight={{
+          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+        }}
         paddingTop="env(safe-area-inset-top)"
         color="fg"
       >
@@ -86,9 +97,25 @@ export default function TopBar({
                 <Menu size={20} />
               </IconButton>
 
-              <Link href={`/${locale}`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {icon || <Image src="/icons/app-logo.png" h="32px" w="auto" alt={appName} />}
-                <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold" color="blue.600">Vmito</Text>
+              <Link
+                href={`/${locale}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                {icon || (
+                  <Image
+                    src="/icons/app-logo.png"
+                    h="32px"
+                    w="auto"
+                    alt={appName}
+                  />
+                )}
+                <Text
+                  fontSize={{ base: 'md', md: 'lg' }}
+                  fontWeight="bold"
+                  color="blue.600"
+                >
+                  Vmito
+                </Text>
               </Link>
 
               {/* {showBackButton && (
@@ -106,22 +133,24 @@ export default function TopBar({
             </Flex>
 
             {/* Center - App title */}
-            {title && (<Heading
-              size={{ base: "md", md: "lg" }}
-              color="fg"
-              fontWeight="bold"
-              textAlign="center"
-              maxWidth={{ base: '60vw', md: '500px' }}
-              whiteSpace="nowrap"
-              overflow="hidden"
-              textOverflow="ellipsis"
-              px={2}
-              height="100%"
-              display="flex"
-              alignItems="center"
-            >
-              {title}
-            </Heading>)}
+            {title && (
+              <Heading
+                size={{ base: 'md', md: 'lg' }}
+                color="fg"
+                fontWeight="bold"
+                textAlign="center"
+                maxWidth={{ base: '60vw', md: '500px' }}
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                px={2}
+                height="100%"
+                display="flex"
+                alignItems="center"
+              >
+                {title}
+              </Heading>
+            )}
 
             {/* Right side - Actions */}
             <Box
@@ -133,7 +162,7 @@ export default function TopBar({
             >
               {rightContent}
 
-              {(!isHydrated || isLoading) ? null : isAuthenticated ? (
+              {!isHydrated || isLoading ? null : isAuthenticated ? (
                 <>
                   <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
                   <UserMenu onLogout={handleLogout} />
@@ -154,10 +183,7 @@ export default function TopBar({
         </Container>
       </Box>
 
-      <SlideOutMenu
-        isOpen={isMenuOpen}
-        onClose={onMenuClose}
-      />
+      <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
     </>
   );
 }

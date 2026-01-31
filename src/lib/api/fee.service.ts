@@ -83,7 +83,9 @@ export const FeeService = {
   },
 
   // Get fee display text for session card
-  getFeeDisplayText: (feeConfig: SessionFeeConfig | null | undefined): string => {
+  getFeeDisplayText: (
+    feeConfig: SessionFeeConfig | null | undefined
+  ): string => {
     if (!feeConfig) return '';
 
     if (feeConfig.feeType === FeeType.SPLIT_EVENLY) {

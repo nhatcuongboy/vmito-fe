@@ -15,7 +15,11 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import TopBar from '@/components/ui/TopBar';
 import { TransactionSummaryList } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
-import { HostTransactionSummary, TransactionSummary, UserRole } from '@/lib/api/types';
+import {
+  HostTransactionSummary,
+  TransactionSummary,
+  UserRole,
+} from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 
 function HostTransactionsContent() {
@@ -44,7 +48,9 @@ function HostTransactionsContent() {
     loadTransactions();
   }, [loadTransactions]);
 
-  const handleSelectSummary = (summary: HostTransactionSummary | TransactionSummary) => {
+  const handleSelectSummary = (
+    summary: HostTransactionSummary | TransactionSummary
+  ) => {
     // TODO: Navigate to detailed view or open modal
     console.log('Selected summary:', summary);
   };

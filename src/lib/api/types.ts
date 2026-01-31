@@ -836,10 +836,10 @@ export interface GetRatingsRequest {
 // ============================================
 
 export enum NotificationType {
-  SYSTEM = 'SYSTEM',           // Admin broadcast notifications
-  SESSION = 'SESSION',         // Session-related notifications
+  SYSTEM = 'SYSTEM', // Admin broadcast notifications
+  SESSION = 'SESSION', // Session-related notifications
   REGISTRATION = 'REGISTRATION', // Registration status updates
-  PAYMENT = 'PAYMENT',         // Payment-related notifications
+  PAYMENT = 'PAYMENT', // Payment-related notifications
 }
 
 export interface INotification {

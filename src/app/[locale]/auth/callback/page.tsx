@@ -49,7 +49,7 @@ function AuthCallbackContent() {
         }
 
         // Otherwise redirect to Home
-        let redirectPath = '/';
+        const redirectPath = '/';
 
         router.replace(redirectPath);
       }, 0);

@@ -44,8 +44,6 @@ export default function TournamentLayout({
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-
-
   // Get active tab from pathname
   const getActiveTab = () => {
     if (pathname?.includes('/matches')) return 'matches';
@@ -293,10 +291,7 @@ export default function TournamentLayout({
         <Box pt={headerHeight}>{children}</Box>
       </Box>
 
-      <SlideOutMenu
-        isOpen={isMenuOpen}
-        onClose={onMenuClose}
-      />
+      <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
     </>
   );
 }

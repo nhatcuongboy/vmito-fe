@@ -174,7 +174,12 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         {session.maxPlayersPerCourt}
       </InfoRow>
 
-      <InfoRow icon={Users} label={t('maxPlayers', { count: session.numberOfCourts * session.maxPlayersPerCourt })}>
+      <InfoRow
+        icon={Users}
+        label={t('maxPlayers', {
+          count: session.numberOfCourts * session.maxPlayersPerCourt,
+        })}
+      >
         {session.numberOfCourts * session.maxPlayersPerCourt}
       </InfoRow>
 

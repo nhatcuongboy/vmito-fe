@@ -1,5 +1,13 @@
 import { Box } from '@chakra-ui/react';
-import { Activity, User, Users, Trophy, Info, Square, DollarSign } from 'lucide-react';
+import {
+  Activity,
+  User,
+  Users,
+  Trophy,
+  Info,
+  Square,
+  DollarSign,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface PlayerSessionBottomNavProps {
@@ -57,7 +65,11 @@ export default function PlayerSessionBottomNav({
         fontWeight={activeTab === 1 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >
-        <Box as={Activity} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
+        <Box
+          as={Activity}
+          boxSize={{ base: 5, md: 6 }}
+          mb={{ base: 0.5, md: 1 }}
+        />
         {t('tabStatus')}
       </Box>
       <Box

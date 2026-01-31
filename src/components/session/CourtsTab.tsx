@@ -156,7 +156,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
             {session.status === SessionStatus.PREPARING
               ? t('courtsTab.startSessionToBeginMatches')
               : t('courtsTab.sessionHasEnded')}
-          </Text>)}
+          </Text>
+        )}
         <Box>
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={4} p={1}>
             {session.courts.map((court: Court) => {
@@ -205,8 +206,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         title={
           modals.selectedAutoAssignCourt
             ? t('courtsTab.autoAssignMatchTitle', {
-              courtNumber: modals.selectedAutoAssignCourt.courtNumber,
-            })
+                courtNumber: modals.selectedAutoAssignCourt.courtNumber,
+              })
             : undefined
         }
         description={t('courtsTab.autoAssignMatchDescription')}
@@ -259,8 +260,8 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
         title={
           modals.selectedPreSelectCourt
             ? t('courtsTab.preSelectTitle', {
-              courtNumber: modals.selectedPreSelectCourt.courtNumber,
-            })
+                courtNumber: modals.selectedPreSelectCourt.courtNumber,
+              })
             : undefined
         }
         formatWaitTime={(minutes) => {

@@ -255,7 +255,9 @@ export default function BulkPlayersForm({
       // Validate player numbers against available ones
       if (sessionInfo) {
         const invalidNumbers = parsedPlayers.filter(
-          (p) => p.playerNumber !== undefined && !sessionInfo.availablePlayerNumbers.includes(p.playerNumber)
+          (p) =>
+            p.playerNumber !== undefined &&
+            !sessionInfo.availablePlayerNumbers.includes(p.playerNumber)
         );
 
         if (invalidNumbers.length > 0) {

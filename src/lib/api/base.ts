@@ -8,12 +8,17 @@ import { useAppStore } from '@/stores/useAppStore';
 const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL;
 
-const API_URL = (typeof window === 'undefined' && INTERNAL_API_URL) ? INTERNAL_API_URL : PUBLIC_API_URL;
+const API_URL =
+  typeof window === 'undefined' && INTERNAL_API_URL
+    ? INTERNAL_API_URL
+    : PUBLIC_API_URL;
 
 if (typeof window === 'undefined') {
   console.log('[SSR] Using API Base URL:', API_URL);
   if (API_URL.includes('vmito.com')) {
-    console.warn('[SSR Warning] Server is calling a public URL. This often causes timeouts. Please set INTERNAL_API_URL environment variable to http://localhost:PORT/api');
+    console.warn(
+      '[SSR Warning] Server is calling a public URL. This often causes timeouts. Please set INTERNAL_API_URL environment variable to http://localhost:PORT/api'
+    );
   }
 }
 

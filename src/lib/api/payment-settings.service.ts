@@ -9,9 +9,8 @@ import {
 export const PaymentSettingsService = {
   // Get current user's payment settings
   getMyPaymentSettings: async (): Promise<HostPaymentSettings[]> => {
-    const response = await api.get<ApiResponse<HostPaymentSettings[]>>(
-      '/payment-settings'
-    );
+    const response =
+      await api.get<ApiResponse<HostPaymentSettings[]>>('/payment-settings');
     return response.data.data || [];
   },
 
@@ -73,7 +72,9 @@ export const PaymentSettingsService = {
   },
 
   // Set as default payment settings
-  setDefaultPaymentSettings: async (id: string): Promise<HostPaymentSettings> => {
+  setDefaultPaymentSettings: async (
+    id: string
+  ): Promise<HostPaymentSettings> => {
     const response = await api.post<ApiResponse<HostPaymentSettings>>(
       `/payment-settings/${id}/set-default`,
       {}

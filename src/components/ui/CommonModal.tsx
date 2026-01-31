@@ -195,7 +195,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
       }}
     >
       <Box
-        bg={{ base: "white", _dark: "gray.800" }}
+        bg={{ base: 'white', _dark: 'gray.800' }}
         borderRadius="lg"
         boxShadow="xl"
         maxW={sizeConfig[size]}

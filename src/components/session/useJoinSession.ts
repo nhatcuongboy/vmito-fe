@@ -24,7 +24,11 @@ interface UseJoinSessionProps {
   onSuccess?: () => void;
 }
 
-export function useJoinSession({ session, isOpen = true, onSuccess }: UseJoinSessionProps) {
+export function useJoinSession({
+  session,
+  isOpen = true,
+  onSuccess,
+}: UseJoinSessionProps) {
   const { user } = useAuthStore();
   const [players, setPlayers] = useState<RegisterPlayerInput[]>([]);
   const [loading, setLoading] = useState(false);

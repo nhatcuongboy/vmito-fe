@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Box, Flex, Text, Avatar, Portal, IconButton, Icon } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Text,
+  Avatar,
+  Portal,
+  IconButton,
+  Icon,
+} from '@chakra-ui/react';
 import {
   ChevronDown,
   User as UserIcon,
@@ -13,7 +21,7 @@ import {
   Check,
   Languages,
   Moon,
-  Sun
+  Sun,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations, useLocale } from 'next-intl';
@@ -82,18 +90,25 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const getThemeLabel = (theme: 'light' | 'dark') => {
     switch (theme) {
-      case 'dark': return common('darkTheme');
-      case 'light': return common('lightTheme');
-      default: return common('lightTheme');
+      case 'dark':
+        return common('darkTheme');
+      case 'light':
+        return common('lightTheme');
+      default:
+        return common('lightTheme');
     }
   };
 
   const getLanguageLabel = (l: string) => {
     switch (l) {
-      case Locale.VI: return common('vietnamese');
-      case Locale.EN: return common('english');
-      case Locale.CN: return common('chinese');
-      default: return l;
+      case Locale.VI:
+        return common('vietnamese');
+      case Locale.EN:
+        return common('english');
+      case Locale.CN:
+        return common('chinese');
+      default:
+        return l;
     }
   };
 
@@ -201,7 +216,13 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const renderAppearanceMenu = () => (
     <Box>
-      <Flex align="center" p={2} borderBottom="1px solid" borderColor="gray.100" _dark={{ borderColor: 'gray.700' }}>
+      <Flex
+        align="center"
+        p={2}
+        borderBottom="1px solid"
+        borderColor="gray.100"
+        _dark={{ borderColor: 'gray.700' }}
+      >
         <IconButton
           variant="ghost"
           aria-label="Back"
@@ -236,9 +257,14 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               borderRadius="md"
             >
               <Box w={6}>
-                {currentTheme === theme.id && <Check size={20} color="var(--chakra-colors-blue-500)" />}
+                {currentTheme === theme.id && (
+                  <Check size={20} color="var(--chakra-colors-blue-500)" />
+                )}
               </Box>
-              <Text flex={1} fontWeight={currentTheme === theme.id ? 'semibold' : 'normal'}>
+              <Text
+                flex={1}
+                fontWeight={currentTheme === theme.id ? 'semibold' : 'normal'}
+              >
                 {theme.label}
               </Text>
             </Flex>
@@ -250,7 +276,13 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const renderLanguageMenu = () => (
     <Box>
-      <Flex align="center" p={2} borderBottom="1px solid" borderColor="gray.100" _dark={{ borderColor: 'gray.700' }}>
+      <Flex
+        align="center"
+        p={2}
+        borderBottom="1px solid"
+        borderColor="gray.100"
+        _dark={{ borderColor: 'gray.700' }}
+      >
         <IconButton
           variant="ghost"
           aria-label="Back"
@@ -279,7 +311,9 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               borderRadius="md"
             >
               <Box w={6}>
-                {locale === l && <Check size={20} color="var(--chakra-colors-blue-500)" />}
+                {locale === l && (
+                  <Check size={20} color="var(--chakra-colors-blue-500)" />
+                )}
               </Box>
               <Text flex={1} fontWeight={locale === l ? 'semibold' : 'normal'}>
                 {getLanguageLabel(l)}
@@ -362,7 +396,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                       <Text fontSize="md" fontWeight="semibold">
                         {user.name || 'User'}
                       </Text>
-                      <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        _dark={{ color: 'gray.400' }}
+                      >
                         {user.email}
                       </Text>
                     </Box>

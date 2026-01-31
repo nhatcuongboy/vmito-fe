@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     'court',
     'players',
     'tournament',
-    'match'
+    'match',
   ],
   authors: [{ name: 'Vmito' }],
   creator: 'Vmito',
@@ -30,9 +30,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: [
-      { url: '/icons/app-logo.png?v=1', type: 'image/png' },
-    ],
+    icon: [{ url: '/icons/app-logo.png?v=1', type: 'image/png' }],
     shortcut: ['/icons/app-logo.png?v=1'],
     apple: [
       { url: '/icons/app-logo.png?v=1', type: 'image/png', sizes: '180x180' },

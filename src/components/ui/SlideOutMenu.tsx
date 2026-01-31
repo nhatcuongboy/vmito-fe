@@ -2,7 +2,20 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Info, X, LogIn, Search, Receipt, CreditCard, LayoutDashboard, Calendar, Ticket, Moon, Sun } from 'lucide-react';
+import {
+  Home,
+  Info,
+  X,
+  LogIn,
+  Search,
+  Receipt,
+  CreditCard,
+  LayoutDashboard,
+  Calendar,
+  Ticket,
+  Moon,
+  Sun,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -16,10 +29,7 @@ interface SlideOutMenuProps {
   onClose: () => void;
 }
 
-export default function SlideOutMenu({
-  isOpen,
-  onClose,
-}: SlideOutMenuProps) {
+export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const common = useTranslations('common');
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
@@ -67,7 +77,10 @@ export default function SlideOutMenu({
             base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
             md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
           }}
-          minHeight={{ base: `${TOP_BAR_HEIGHT_MOBILE}px`, md: `${TOP_BAR_HEIGHT_DESKTOP}px` }}
+          minHeight={{
+            base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+            md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+          }}
         >
           <Text fontSize="xl" fontWeight="bold">
             Menu
@@ -107,7 +120,7 @@ export default function SlideOutMenu({
                   <NextLinkButton
                     href={
                       user?.role === UserRole.HOST ||
-                        user?.role === UserRole.ADMIN
+                      user?.role === UserRole.ADMIN
                         ? '/host/dashboard'
                         : '/'
                     }
@@ -127,7 +140,8 @@ export default function SlideOutMenu({
                   <>
                     <NextLinkButton
                       href={
-                        user?.role === UserRole.HOST || user?.role === UserRole.ADMIN
+                        user?.role === UserRole.HOST ||
+                        user?.role === UserRole.ADMIN
                           ? '/host/sessions'
                           : '/player/host'
                       }
@@ -157,7 +171,8 @@ export default function SlideOutMenu({
 
                     <NextLinkButton
                       href={
-                        user?.role === UserRole.HOST || user?.role === UserRole.ADMIN
+                        user?.role === UserRole.HOST ||
+                        user?.role === UserRole.ADMIN
                           ? '/host/transactions'
                           : '/player/transactions'
                       }
@@ -173,20 +188,22 @@ export default function SlideOutMenu({
                     </NextLinkButton>
                   </>
                 )}
-                {isAuthenticated && (user?.role === UserRole.HOST || user?.role === UserRole.ADMIN) && (
-                  <NextLinkButton
-                    href="/host/payment-settings"
-                    variant="ghost"
-                    justifyContent="flex-start"
-                    onClick={onClose}
-                    w="full"
-                  >
-                    <Flex align="center" gap={3} w="full">
-                      <CreditCard size={18} />
-                      <Text>{nav('paymentSettings')}</Text>
-                    </Flex>
-                  </NextLinkButton>
-                )}
+                {isAuthenticated &&
+                  (user?.role === UserRole.HOST ||
+                    user?.role === UserRole.ADMIN) && (
+                    <NextLinkButton
+                      href="/host/payment-settings"
+                      variant="ghost"
+                      justifyContent="flex-start"
+                      onClick={onClose}
+                      w="full"
+                    >
+                      <Flex align="center" gap={3} w="full">
+                        <CreditCard size={18} />
+                        <Text>{nav('paymentSettings')}</Text>
+                      </Flex>
+                    </NextLinkButton>
+                  )}
                 {/* <NextLinkButton
                   href="/settings"
                   variant="ghost"
@@ -248,8 +265,16 @@ export default function SlideOutMenu({
                 onClick={toggleColorMode}
               >
                 <Flex align="center" gap={3} w="full">
-                  {colorMode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                  <Text>{colorMode === 'dark' ? common('lightMode') : common('darkMode')}</Text>
+                  {colorMode === 'dark' ? (
+                    <Sun size={18} />
+                  ) : (
+                    <Moon size={18} />
+                  )}
+                  <Text>
+                    {colorMode === 'dark'
+                      ? common('lightMode')
+                      : common('darkMode')}
+                  </Text>
                 </Flex>
               </Button>
             </Box>

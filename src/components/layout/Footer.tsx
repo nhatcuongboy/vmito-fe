@@ -7,7 +7,7 @@ import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 export default function Footer() {
   const t = useTranslations('common');
   const isBottomNavVisible = useBottomNavVisibility();
-  
+
   return (
     <Box
       bg="white"
@@ -21,7 +21,11 @@ export default function Footer() {
         borderColor: 'gray.700',
       }}
       mt={'auto'}
-      pb={isBottomNavVisible ? 'calc(64px + env(safe-area-inset-bottom) + 16px)' : 'env(safe-area-inset-bottom)'}
+      pb={
+        isBottomNavVisible
+          ? 'calc(64px + env(safe-area-inset-bottom) + 16px)'
+          : 'env(safe-area-inset-bottom)'
+      }
     >
       <Container maxW={'6xl'} py={4}>
         <Stack
@@ -30,7 +34,9 @@ export default function Footer() {
           justify="center"
           align="center"
         >
-          <Text>© {new Date().getFullYear()} {t('appName')}. All rights reserved</Text>
+          <Text>
+            © {new Date().getFullYear()} {t('appName')}. All rights reserved
+          </Text>
         </Stack>
       </Container>
     </Box>

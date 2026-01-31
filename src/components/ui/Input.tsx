@@ -17,7 +17,10 @@ export interface InputProps extends ChakraInputProps {
  * Provides a consistent styling and support for custom icons/elements
  */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant = 'outline', size = 'md', leftElement, rightElement, ...props }, ref) => {
+  (
+    { variant = 'outline', size = 'md', leftElement, rightElement, ...props },
+    ref
+  ) => {
     const inputProps = {
       variant,
       size,

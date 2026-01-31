@@ -11,14 +11,23 @@ import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
 import { usePlayerSession } from '@/hooks/usePlayerSession';
-import { type Match, SessionStatus, RatingType, SessionRatingEligibility } from '@/lib/api/types';
+import {
+  type Match,
+  SessionStatus,
+  RatingType,
+  SessionRatingEligibility,
+} from '@/lib/api/types';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import { PaymentInfoTab } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { RatingService } from '@/lib/api/rating.service';
 import { SubmitRatingModal, StarRatingDisplay } from '@/components/rating';
-import type { PaymentRecord, HostPaymentSettings, PaymentMethod } from '@/lib/api/types';
+import type {
+  PaymentRecord,
+  HostPaymentSettings,
+  PaymentMethod,
+} from '@/lib/api/types';
 import { Star, CheckCircle } from 'lucide-react';
 import {
   Box,
@@ -32,7 +41,12 @@ import {
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 export interface PlayerSessionViewProps {
   /**
@@ -100,7 +114,8 @@ export default function PlayerSessionView({
 
   // Payment state
   const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
-  const [hostPaymentSettings, setHostPaymentSettings] = useState<HostPaymentSettings | null>(null);
+  const [hostPaymentSettings, setHostPaymentSettings] =
+    useState<HostPaymentSettings | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<{
     type: 'not_implemented' | 'network_error' | 'unknown';
@@ -108,7 +123,8 @@ export default function PlayerSessionView({
   } | null>(null);
 
   // Rating state
-  const [ratingEligibility, setRatingEligibility] = useState<SessionRatingEligibility | null>(null);
+  const [ratingEligibility, setRatingEligibility] =
+    useState<SessionRatingEligibility | null>(null);
   const [ratingLoading, setRatingLoading] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const ratingT = useTranslations('rating');
@@ -122,7 +138,9 @@ export default function PlayerSessionView({
     try {
       const [payments, settings] = await Promise.all([
         PaymentService.getMySessionPayments(session.id),
-        session.hostId ? PaymentSettingsService.getHostPaymentSettings(session.hostId) : Promise.resolve(null)
+        session.hostId
+          ? PaymentSettingsService.getHostPaymentSettings(session.hostId)
+          : Promise.resolve(null),
       ]);
       setPaymentRecords(payments);
       setHostPaymentSettings(settings);
@@ -174,7 +192,9 @@ export default function PlayerSessionView({
 
     setRatingLoading(true);
     try {
-      const eligibility = await RatingService.getSessionRatingEligibility(session.id);
+      const eligibility = await RatingService.getSessionRatingEligibility(
+        session.id
+      );
       setRatingEligibility(eligibility);
     } catch (error) {
       console.error('Failed to fetch rating eligibility:', error);
@@ -411,7 +431,11 @@ export default function PlayerSessionView({
         />
       )}
 
-      <Container px={CONTAINER_PX} pt={4} pb={'calc(90px + env(safe-area-inset-bottom))'}>
+      <Container
+        px={CONTAINER_PX}
+        pt={4}
+        pb={'calc(90px + env(safe-area-inset-bottom))'}
+      >
         {/* Tab Content */}
         {!player || !session ? (
           <Center>
@@ -466,7 +490,8 @@ export default function PlayerSessionView({
 
                       {ratingLoading ? (
                         <Spinner size="sm" />
-                      ) : ratingEligibility?.hasRatedHost && ratingEligibility?.hostRating ? (
+                      ) : ratingEligibility?.hasRatedHost &&
+                        ratingEligibility?.hostRating ? (
                         <Flex align="center" gap={2}>
                           <CheckCircle size={16} color="#48BB78" />
                           <StarRatingDisplay
@@ -492,11 +517,12 @@ export default function PlayerSessionView({
                       )}
                     </Flex>
 
-                    {ratingEligibility?.hasRatedHost && ratingEligibility?.hostRating?.comment && (
-                      <Text fontSize="sm" color="gray.500" mt={3} pl={7}>
-                        "{ratingEligibility.hostRating.comment}"
-                      </Text>
-                    )}
+                    {ratingEligibility?.hasRatedHost &&
+                      ratingEligibility?.hostRating?.comment && (
+                        <Text fontSize="sm" color="gray.500" mt={3} pl={7}>
+                          "{ratingEligibility.hostRating.comment}"
+                        </Text>
+                      )}
                   </Box>
                 )}
 
@@ -539,15 +565,8 @@ export default function PlayerSessionView({
             {activeTab === 4 && (
               <>
                 {!session.feeConfig ? (
-                  <Box
-                    p={6}
-                    bg="gray.50"
-                    borderRadius="lg"
-                    textAlign="center"
-                  >
-                    <Text color="gray.600">
-                      {sessionT('noFeeConfigured')}
-                    </Text>
+                  <Box p={6} bg="gray.50" borderRadius="lg" textAlign="center">
+                    <Text color="gray.600">{sessionT('noFeeConfigured')}</Text>
                   </Box>
                 ) : paymentLoading ? (
                   <Center py={8}>
@@ -556,13 +575,31 @@ export default function PlayerSessionView({
                 ) : paymentError ? (
                   <Box
                     p={6}
-                    bg={paymentError.type === 'not_implemented' ? 'orange.50' : 'red.50'}
+                    bg={
+                      paymentError.type === 'not_implemented'
+                        ? 'orange.50'
+                        : 'red.50'
+                    }
                     borderRadius="lg"
                     border="1px solid"
-                    borderColor={paymentError.type === 'not_implemented' ? 'orange.200' : 'red.200'}
+                    borderColor={
+                      paymentError.type === 'not_implemented'
+                        ? 'orange.200'
+                        : 'red.200'
+                    }
                   >
-                    <Heading size="sm" mb={2} color={paymentError.type === 'not_implemented' ? 'orange.700' : 'red.700'}>
-                      {paymentError.type === 'not_implemented' ? '⚠️ Feature Not Available' : '❌ Error Loading Payment'}
+                    <Heading
+                      size="sm"
+                      mb={2}
+                      color={
+                        paymentError.type === 'not_implemented'
+                          ? 'orange.700'
+                          : 'red.700'
+                      }
+                    >
+                      {paymentError.type === 'not_implemented'
+                        ? '⚠️ Feature Not Available'
+                        : '❌ Error Loading Payment'}
                     </Heading>
                     <Text color="gray.700" mb={3}>
                       {paymentError.message}

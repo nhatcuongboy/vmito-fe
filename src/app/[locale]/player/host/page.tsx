@@ -20,7 +20,12 @@ import SessionCard from '@/components/session/SessionCard';
 import TopBar from '@/components/ui/TopBar';
 import { Plus } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 function PlayerHostContent() {
   const t = useTranslations('pages.dashboard');
@@ -115,11 +120,7 @@ function PlayerHostContent() {
             gap={6}
           >
             {hostedSessions.map((session) => (
-              <SessionCard
-                key={session.id}
-                session={session}
-                mode={'manage'}
-              />
+              <SessionCard key={session.id} session={session} mode={'manage'} />
             ))}
           </Grid>
         )}
@@ -131,7 +132,13 @@ function PlayerHostContent() {
 export default function PlayerHostPage() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.PLAYER]}>
-      <Suspense fallback={<Flex justify="center" align="center" minH="100vh"><Spinner size="xl" /></Flex>}>
+      <Suspense
+        fallback={
+          <Flex justify="center" align="center" minH="100vh">
+            <Spinner size="xl" />
+          </Flex>
+        }
+      >
         <PlayerHostContent />
       </Suspense>
     </ProtectedRouteGuard>

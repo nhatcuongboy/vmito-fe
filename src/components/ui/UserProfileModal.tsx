@@ -121,20 +121,30 @@ export default function UserProfileModal({
     try {
       const updateData: Partial<UpdateUserData> = {};
 
-      if (data.name && typeof data.name === 'string') updateData.name = data.name;
-      if (data.phone && typeof data.phone === 'string') updateData.phone = data.phone;
+      if (data.name && typeof data.name === 'string')
+        updateData.name = data.name;
+      if (data.phone && typeof data.phone === 'string')
+        updateData.phone = data.phone;
       if (data.gender) {
         updateData.gender = data.gender as GenderType;
       }
-      if (data.level && typeof data.level === 'string') updateData.level = Number(data.level);
+      if (data.level && typeof data.level === 'string')
+        updateData.level = Number(data.level);
       if (data.levelDescription && typeof data.levelDescription === 'string') {
         updateData.levelDescription = data.levelDescription;
       }
-      if (data.password && typeof data.password === 'string' && data.password.trim() !== '') {
+      if (
+        data.password &&
+        typeof data.password === 'string' &&
+        data.password.trim() !== ''
+      ) {
         updateData.password = data.password;
       }
 
-      const updatedUser = await AdminService.updateUser(user.id, updateData as UpdateUserData);
+      const updatedUser = await AdminService.updateUser(
+        user.id,
+        updateData as UpdateUserData
+      );
 
       if (updatedUser) {
         setUser({
@@ -168,7 +178,9 @@ export default function UserProfileModal({
     avatarInputRef.current?.click();
   };
 
-  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
@@ -259,26 +271,28 @@ export default function UserProfileModal({
         {/* Name */}
         <Field.Root invalid={!!errors.name} required>
           <Field.Label>
-            {common('name')} <Text as="span" color="red.500">*</Text>
+            {common('name')}{' '}
+            <Text as="span" color="red.500">
+              *
+            </Text>
           </Field.Label>
-          <Input
-            {...register('name')}
-            placeholder="Enter your name"
-          />
+          <Input {...register('name')} placeholder="Enter your name" />
           <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Email (Read-only) */}
         <Field.Root>
           <Field.Label>Email</Field.Label>
-          <Input value={user.email} disabled bg={{ base: "gray.50", _dark: "whiteAlpha.100" }} />
+          <Input
+            value={user.email}
+            disabled
+            bg={{ base: 'gray.50', _dark: 'whiteAlpha.100' }}
+          />
         </Field.Root>
 
         {/* Phone */}
         <Field.Root invalid={!!errors.phone}>
-          <Field.Label>
-            {common('phone')}
-          </Field.Label>
+          <Field.Label>{common('phone')}</Field.Label>
           <Input
             {...register('phone')}
             placeholder="Enter your phone number"
@@ -289,9 +303,7 @@ export default function UserProfileModal({
 
         {/* Gender */}
         <Field.Root invalid={!!errors.gender}>
-          <Field.Label>
-            {common('gender')}
-          </Field.Label>
+          <Field.Label>{common('gender')}</Field.Label>
           <Controller
             control={control}
             name="gender"
@@ -312,9 +324,7 @@ export default function UserProfileModal({
 
         {/* Level */}
         <Field.Root invalid={!!errors.level}>
-          <Field.Label>
-            {common('level')}
-          </Field.Label>
+          <Field.Label>{common('level')}</Field.Label>
           <Controller
             control={control}
             name="level"
@@ -324,14 +334,30 @@ export default function UserProfileModal({
                 onChange={(e) => field.onChange(e.target.value)}
               >
                 <option value="">{common('selectLevel')}</option>
-                <option value={String(PlayerLevel.BEGINNER)}>{common('levels.1')}</option>
-                <option value={String(PlayerLevel.ADVANCED_BEGINNER)}>{common('levels.2')}</option>
-                <option value={String(PlayerLevel.LOW_INTERMEDIATE)}>{common('levels.3')}</option>
-                <option value={String(PlayerLevel.INTERMEDIATE)}>{common('levels.4')}</option>
-                <option value={String(PlayerLevel.HIGH_INTERMEDIATE)}>{common('levels.5')}</option>
-                <option value={String(PlayerLevel.ADVANCED)}>{common('levels.6')}</option>
-                <option value={String(PlayerLevel.SEMI_PRO)}>{common('levels.7')}</option>
-                <option value={String(PlayerLevel.PRO)}>{common('levels.8')}</option>
+                <option value={String(PlayerLevel.BEGINNER)}>
+                  {common('levels.1')}
+                </option>
+                <option value={String(PlayerLevel.ADVANCED_BEGINNER)}>
+                  {common('levels.2')}
+                </option>
+                <option value={String(PlayerLevel.LOW_INTERMEDIATE)}>
+                  {common('levels.3')}
+                </option>
+                <option value={String(PlayerLevel.INTERMEDIATE)}>
+                  {common('levels.4')}
+                </option>
+                <option value={String(PlayerLevel.HIGH_INTERMEDIATE)}>
+                  {common('levels.5')}
+                </option>
+                <option value={String(PlayerLevel.ADVANCED)}>
+                  {common('levels.6')}
+                </option>
+                <option value={String(PlayerLevel.SEMI_PRO)}>
+                  {common('levels.7')}
+                </option>
+                <option value={String(PlayerLevel.PRO)}>
+                  {common('levels.8')}
+                </option>
               </Select>
             )}
           />
@@ -340,9 +366,7 @@ export default function UserProfileModal({
 
         {/* Level Description */}
         <Field.Root invalid={!!errors.levelDescription}>
-          <Field.Label>
-            Level Description
-          </Field.Label>
+          <Field.Label>Level Description</Field.Label>
           <Textarea
             {...register('levelDescription')}
             placeholder="Describe your skill level"
@@ -352,37 +376,33 @@ export default function UserProfileModal({
         </Field.Root>
 
         {/* Password Section */}
-        <Box
-          borderTop="1px solid"
-          borderColor="border"
-          pt={4}
-        >
+        <Box borderTop="1px solid" borderColor="border" pt={4}>
           <Text fontSize="md" fontWeight="semibold" mb={4}>
             Change Password
           </Text>
 
           <VStack gap={4} align="stretch">
             <Field.Root invalid={!!errors.password}>
-              <Field.Label>
-                New Password
-              </Field.Label>
+              <Field.Label>New Password</Field.Label>
               <PasswordInput
                 {...register('password')}
                 placeholder="Enter new password (leave blank to keep current)"
               />
               <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-              <Field.HelperText>Leave blank to keep current password</Field.HelperText>
+              <Field.HelperText>
+                Leave blank to keep current password
+              </Field.HelperText>
             </Field.Root>
 
             <Field.Root invalid={!!errors.confirmPassword}>
-              <Field.Label>
-                Confirm Password
-              </Field.Label>
+              <Field.Label>Confirm Password</Field.Label>
               <PasswordInput
                 {...register('confirmPassword')}
                 placeholder="Confirm new password"
               />
-              <Field.ErrorText>{errors.confirmPassword?.message}</Field.ErrorText>
+              <Field.ErrorText>
+                {errors.confirmPassword?.message}
+              </Field.ErrorText>
             </Field.Root>
           </VStack>
         </Box>

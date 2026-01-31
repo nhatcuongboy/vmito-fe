@@ -109,9 +109,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             key={index}
             width="100%"
             variant="subtle"
-            bg={{ base: "gray.50", _dark: "whiteAlpha.50" }}
+            bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
             border="1px solid"
-            borderColor={{ base: "gray.100", _dark: "whiteAlpha.100" }}
+            borderColor={{ base: 'gray.100', _dark: 'whiteAlpha.100' }}
           >
             <CardBody p={{ base: 4, md: 5 }}>
               <VStack spacing={4} align="stretch">

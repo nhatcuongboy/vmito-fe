@@ -51,7 +51,10 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       }));
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to fetch notifications',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch notifications',
         isLoading: false,
       });
     }

@@ -73,7 +73,8 @@ export const SubmitRatingModal = ({
     onClose();
   };
 
-  const title = type === RatingType.PLAYER_TO_HOST ? t('rateHost') : t('ratePlayer');
+  const title =
+    type === RatingType.PLAYER_TO_HOST ? t('rateHost') : t('ratePlayer');
   const remainingChars = MAX_COMMENT_LENGTH - comment.length;
 
   return (
@@ -134,7 +135,9 @@ export const SubmitRatingModal = ({
           </Text>
           <Textarea
             value={comment}
-            onChange={(e) => setComment(e.target.value.slice(0, MAX_COMMENT_LENGTH))}
+            onChange={(e) =>
+              setComment(e.target.value.slice(0, MAX_COMMENT_LENGTH))
+            }
             placeholder={t('commentPlaceholder')}
             rows={3}
             resize="none"

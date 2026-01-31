@@ -161,9 +161,19 @@ export default function SessionFeeConfigForm({
                   py={2}
                   borderRadius="md"
                   border="2px solid"
-                  borderColor={feeType === FeeType.FIXED ? 'blue.500' : 'border'}
-                  bg={feeType === FeeType.FIXED ? { base: 'blue.50', _dark: 'blue.900/40' } : 'transparent'}
-                  color={feeType === FeeType.FIXED ? { base: 'blue.700', _dark: 'blue.300' } : 'fg'}
+                  borderColor={
+                    feeType === FeeType.FIXED ? 'blue.500' : 'border'
+                  }
+                  bg={
+                    feeType === FeeType.FIXED
+                      ? { base: 'blue.50', _dark: 'blue.900/40' }
+                      : 'transparent'
+                  }
+                  color={
+                    feeType === FeeType.FIXED
+                      ? { base: 'blue.700', _dark: 'blue.300' }
+                      : 'fg'
+                  }
                   fontWeight={feeType === FeeType.FIXED ? 'semibold' : 'normal'}
                   cursor={disabled ? 'not-allowed' : 'pointer'}
                   opacity={disabled ? 0.6 : 1}
@@ -175,7 +185,9 @@ export default function SessionFeeConfigForm({
               </button>
               <button
                 type="button"
-                onClick={() => !disabled && onFeeTypeChange(FeeType.SPLIT_EVENLY)}
+                onClick={() =>
+                  !disabled && onFeeTypeChange(FeeType.SPLIT_EVENLY)
+                }
                 disabled={disabled}
                 style={{ all: 'unset' }}
               >
@@ -187,8 +199,16 @@ export default function SessionFeeConfigForm({
                   borderColor={
                     feeType === FeeType.SPLIT_EVENLY ? 'blue.500' : 'border'
                   }
-                  bg={feeType === FeeType.SPLIT_EVENLY ? { base: 'blue.50', _dark: 'blue.900/40' } : 'transparent'}
-                  color={feeType === FeeType.SPLIT_EVENLY ? { base: 'blue.700', _dark: 'blue.300' } : 'fg'}
+                  bg={
+                    feeType === FeeType.SPLIT_EVENLY
+                      ? { base: 'blue.50', _dark: 'blue.900/40' }
+                      : 'transparent'
+                  }
+                  color={
+                    feeType === FeeType.SPLIT_EVENLY
+                      ? { base: 'blue.700', _dark: 'blue.300' }
+                      : 'fg'
+                  }
                   fontWeight={
                     feeType === FeeType.SPLIT_EVENLY ? 'semibold' : 'normal'
                   }
@@ -258,7 +278,10 @@ export default function SessionFeeConfigForm({
               border="1px solid"
               borderColor={{ base: 'blue.200', _dark: 'blue.800' }}
             >
-              <Text fontSize="sm" color={{ base: 'blue.700', _dark: 'blue.300' }}>
+              <Text
+                fontSize="sm"
+                color={{ base: 'blue.700', _dark: 'blue.300' }}
+              >
                 {t('splitDescription')}
               </Text>
             </Box>

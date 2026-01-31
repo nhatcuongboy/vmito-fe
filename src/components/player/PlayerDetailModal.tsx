@@ -175,8 +175,7 @@ export const PlayerDetailModal = ({
         <Flex justify="space-between" width="full" align="center">
           <Box>
             {sessionId &&
-              (player.status === 'WAITING' ||
-                player.status === 'INACTIVE') && (
+              (player.status === 'WAITING' || player.status === 'INACTIVE') && (
                 <Button
                   size="sm"
                   colorPalette={player.status === 'WAITING' ? 'red' : 'gray'}
@@ -399,7 +398,9 @@ export const PlayerDetailModal = ({
                 label={ratingT('averageRating')}
                 value={
                   ratingLoading ? (
-                    <Text fontSize="sm" color="gray.400">...</Text>
+                    <Text fontSize="sm" color="gray.400">
+                      ...
+                    </Text>
                   ) : ratingStats && ratingStats.totalRatings > 0 ? (
                     <StarRatingDisplay
                       rating={ratingStats.averageRating}

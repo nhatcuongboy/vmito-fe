@@ -41,7 +41,7 @@ export interface LegacySelectProps
 
 /**
  * LegacySelect - Native HTML select with Chakra UI styling
- * 
+ *
  * This is the old implementation using native HTML select element.
  * Use this only if you need the native select behavior for specific cases.
  *
@@ -53,7 +53,10 @@ export interface LegacySelectProps
  * </LegacySelect>
  * ```
  */
-export const LegacySelect = React.forwardRef<HTMLSelectElement, LegacySelectProps>(
+export const LegacySelect = React.forwardRef<
+  HTMLSelectElement,
+  LegacySelectProps
+>(
   (
     {
       isDisabled,
@@ -82,13 +85,35 @@ export const LegacySelect = React.forwardRef<HTMLSelectElement, LegacySelectProp
         data-variant={variant}
         style={{
           width: '100%',
-          padding: size === 'lg' ? '0.75rem 1rem' : size === 'sm' ? '0.375rem 0.625rem' : size === 'xs' ? '0.25rem 0.5rem' : '0.5rem 0.75rem',
-          fontSize: size === 'lg' ? '1rem' : size === 'sm' ? '0.875rem' : size === 'xs' ? '0.75rem' : '0.875rem',
+          padding:
+            size === 'lg'
+              ? '0.75rem 1rem'
+              : size === 'sm'
+                ? '0.375rem 0.625rem'
+                : size === 'xs'
+                  ? '0.25rem 0.5rem'
+                  : '0.5rem 0.75rem',
+          fontSize:
+            size === 'lg'
+              ? '1rem'
+              : size === 'sm'
+                ? '0.875rem'
+                : size === 'xs'
+                  ? '0.75rem'
+                  : '0.875rem',
           lineHeight: '1.5',
           borderRadius: 'var(--chakra-radii-md)',
           borderWidth: variant === 'plain' ? '0' : '1px',
-          borderColor: variant === 'subtle' ? 'var(--chakra-colors-border-subtle)' : 'var(--chakra-colors-border)',
-          backgroundColor: variant === 'subtle' ? 'var(--chakra-colors-bg-subtle)' : variant === 'plain' ? 'transparent' : 'var(--chakra-colors-bg)',
+          borderColor:
+            variant === 'subtle'
+              ? 'var(--chakra-colors-border-subtle)'
+              : 'var(--chakra-colors-border)',
+          backgroundColor:
+            variant === 'subtle'
+              ? 'var(--chakra-colors-bg-subtle)'
+              : variant === 'plain'
+                ? 'transparent'
+                : 'var(--chakra-colors-bg)',
           color: 'var(--chakra-colors-fg)',
           opacity: isSelectDisabled ? 0.5 : 1,
           cursor: isSelectDisabled ? 'not-allowed' : 'pointer',
@@ -99,14 +124,19 @@ export const LegacySelect = React.forwardRef<HTMLSelectElement, LegacySelectProp
         }}
         onFocus={(e) => {
           if (!isSelectDisabled && variant !== 'plain') {
-            e.currentTarget.style.borderColor = 'var(--chakra-colors-color-palette-500)';
-            e.currentTarget.style.boxShadow = '0 0 0 1px var(--chakra-colors-color-palette-500)';
+            e.currentTarget.style.borderColor =
+              'var(--chakra-colors-color-palette-500)';
+            e.currentTarget.style.boxShadow =
+              '0 0 0 1px var(--chakra-colors-color-palette-500)';
           }
           props.onFocus?.(e);
         }}
         onBlur={(e) => {
           if (variant !== 'plain') {
-            e.currentTarget.style.borderColor = variant === 'subtle' ? 'var(--chakra-colors-border-subtle)' : 'var(--chakra-colors-border)';
+            e.currentTarget.style.borderColor =
+              variant === 'subtle'
+                ? 'var(--chakra-colors-border-subtle)'
+                : 'var(--chakra-colors-border)';
           }
           e.currentTarget.style.boxShadow = 'none';
           props.onBlur?.(e);
@@ -125,7 +155,10 @@ LegacySelect.displayName = 'LegacySelect';
  * Props for the new Select component using Chakra UI
  */
 export interface SelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'> {
+  extends Omit<
+    React.SelectHTMLAttributes<HTMLSelectElement>,
+    'size' | 'onChange'
+  > {
   isDisabled?: boolean;
   children?: React.ReactNode;
   /**
@@ -166,7 +199,11 @@ function extractOptionsFromChildren(children: React.ReactNode): SelectOption[] {
 
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child) && child.type === 'option') {
-      const props = child.props as { value?: string | number; children?: React.ReactNode; disabled?: boolean };
+      const props = child.props as {
+        value?: string | number;
+        children?: React.ReactNode;
+        disabled?: boolean;
+      };
       const value = String(props.value ?? '');
       const label = props.children as string;
       const disabled = props.disabled;
@@ -215,7 +252,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const isSelectDisabled = isDisabled || disabled;
 
     // Extract options from children
-    const items = useMemo(() => extractOptionsFromChildren(children), [children]);
+    const items = useMemo(
+      () => extractOptionsFromChildren(children),
+      [children]
+    );
 
     // Find placeholder from children if not explicitly provided
     const derivedPlaceholder = useMemo(() => {
@@ -224,7 +264,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       let foundPlaceholder = 'Select...';
       React.Children.forEach(children, (child) => {
         if (React.isValidElement(child) && child.type === 'option') {
-          const props = child.props as { value?: string | number; children?: React.ReactNode };
+          const props = child.props as {
+            value?: string | number;
+            children?: React.ReactNode;
+          };
           if (props.value === '' || props.value === undefined) {
             foundPlaceholder = props.children as string;
           }
@@ -238,7 +281,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     });
 
     // Convert value to string array format for Chakra UI
-    const selectedValues = value !== undefined && value !== '' ? [String(value)] : [];
+    const selectedValues =
+      value !== undefined && value !== '' ? [String(value)] : [];
 
     // Handle value change and convert to native onChange format
     const handleValueChange = (details: { value: string[] }) => {
@@ -336,7 +380,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                   key={item.value}
                   item={item.value}
                   _hover={{ bg: { base: 'gray.50', _dark: 'whiteAlpha.50' } }}
-                  _selected={{ bg: { base: 'blue.50', _dark: 'blue.900/40' }, color: { base: 'blue.600', _dark: 'blue.300' } }}
+                  _selected={{
+                    bg: { base: 'blue.50', _dark: 'blue.900/40' },
+                    color: { base: 'blue.600', _dark: 'blue.300' },
+                  }}
                   p="2"
                   borderRadius="sm"
                   cursor="pointer"

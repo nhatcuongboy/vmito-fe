@@ -29,7 +29,12 @@ import {
   CheckCircle,
   Clock,
 } from 'lucide-react';
-import { ISession, HostPaymentSettings, PaymentRecord, FeeType } from '@/lib/api/types';
+import {
+  ISession,
+  HostPaymentSettings,
+  PaymentRecord,
+  FeeType,
+} from '@/lib/api/types';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { PaymentService } from '@/lib/api/payment.service';
 import { PaymentSettingsForm, SessionPaymentList } from '@/components/payment';
@@ -45,7 +50,8 @@ export default function PaymentTab({ session }: PaymentTabProps) {
   const tCommon = useTranslations('common');
   const router = useRouter();
 
-  const [paymentSettings, setPaymentSettings] = useState<HostPaymentSettings | null>(null);
+  const [paymentSettings, setPaymentSettings] =
+    useState<HostPaymentSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -73,7 +79,9 @@ export default function PaymentTab({ session }: PaymentTabProps) {
 
     setIsLoading(true);
     try {
-      const settings = await PaymentSettingsService.getHostPaymentSettings(session.hostId);
+      const settings = await PaymentSettingsService.getHostPaymentSettings(
+        session.hostId
+      );
       setPaymentSettings(settings);
     } catch (error) {
       console.error('Failed to load payment settings:', error);
@@ -133,13 +141,16 @@ export default function PaymentTab({ session }: PaymentTabProps) {
         setPaymentSettings(updated);
       } else {
         // Create new
-        const created = await PaymentSettingsService.createPaymentSettings(data);
+        const created =
+          await PaymentSettingsService.createPaymentSettings(data);
         setPaymentSettings(created);
       }
       setIsEditing(false);
       toaster.success({
         title: tCommon('success'),
-        description: paymentSettings?.id ? t('settingsUpdated') : t('settingsCreated'),
+        description: paymentSettings?.id
+          ? t('settingsUpdated')
+          : t('settingsCreated'),
       });
     } catch (error) {
       console.error('Failed to save payment settings:', error);
@@ -285,30 +296,51 @@ export default function PaymentTab({ session }: PaymentTabProps) {
           borderColor="blue.200"
         >
           <HStack mb={2}>
-            <Text fontWeight="semibold" color="blue.700" _dark={{ color: 'blue.200' }}>
+            <Text
+              fontWeight="semibold"
+              color="blue.700"
+              _dark={{ color: 'blue.200' }}
+            >
               {t('sessionFeeConfig')}
             </Text>
           </HStack>
           <VStack align="stretch" gap={1}>
             <Text fontSize="sm" color="blue.600" _dark={{ color: 'blue.300' }}>
-              {t('feeType')}: {session.feeConfig.feeType === 'FIXED' ? t('fixed') : t('splitEvenly')}
+              {t('feeType')}:{' '}
+              {session.feeConfig.feeType === 'FIXED'
+                ? t('fixed')
+                : t('splitEvenly')}
             </Text>
             {session.feeConfig.feeType === 'FIXED' && (
               <>
                 {session.feeConfig.maleFee && (
-                  <Text fontSize="sm" color="blue.600" _dark={{ color: 'blue.300' }}>
-                    {t('maleFee')}: {session.feeConfig.maleFee.toLocaleString('vi-VN')} VND
+                  <Text
+                    fontSize="sm"
+                    color="blue.600"
+                    _dark={{ color: 'blue.300' }}
+                  >
+                    {t('maleFee')}:{' '}
+                    {session.feeConfig.maleFee.toLocaleString('vi-VN')} VND
                   </Text>
                 )}
                 {session.feeConfig.femaleFee && (
-                  <Text fontSize="sm" color="blue.600" _dark={{ color: 'blue.300' }}>
-                    {t('femaleFee')}: {session.feeConfig.femaleFee.toLocaleString('vi-VN')} VND
+                  <Text
+                    fontSize="sm"
+                    color="blue.600"
+                    _dark={{ color: 'blue.300' }}
+                  >
+                    {t('femaleFee')}:{' '}
+                    {session.feeConfig.femaleFee.toLocaleString('vi-VN')} VND
                   </Text>
                 )}
               </>
             )}
             {session.feeConfig.notes && (
-              <Text fontSize="sm" color="blue.600" _dark={{ color: 'blue.300' }}>
+              <Text
+                fontSize="sm"
+                color="blue.600"
+                _dark={{ color: 'blue.300' }}
+              >
                 {t('notes')}: {session.feeConfig.notes}
               </Text>
             )}
@@ -328,11 +360,25 @@ export default function PaymentTab({ session }: PaymentTabProps) {
           borderColor="orange.200"
           textAlign="center"
         >
-          <AlertCircle size={48} color="#F97316" style={{ margin: '0 auto 16px' }} />
-          <Heading size="sm" mb={2} color="orange.700" _dark={{ color: 'orange.200' }}>
+          <AlertCircle
+            size={48}
+            color="#F97316"
+            style={{ margin: '0 auto 16px' }}
+          />
+          <Heading
+            size="sm"
+            mb={2}
+            color="orange.700"
+            _dark={{ color: 'orange.200' }}
+          >
             {t('noPaymentSettings')}
           </Heading>
-          <Text fontSize="sm" color="orange.600" _dark={{ color: 'orange.300' }} mb={4}>
+          <Text
+            fontSize="sm"
+            color="orange.600"
+            _dark={{ color: 'orange.300' }}
+            mb={4}
+          >
             {t('noPaymentSettingsDescription')}
           </Text>
           <Button colorPalette="orange" onClick={() => setIsEditing(true)}>
@@ -388,7 +434,11 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             <Box mb={4} textAlign="center">
               <HStack justify="center" mb={2}>
                 <QrCode size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('qrCode')}
                 </Text>
               </HStack>
@@ -408,7 +458,12 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             {paymentSettings?.bankName && (
               <HStack>
                 <Building2 size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} minW="120px">
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                  minW="120px"
+                >
                   {t('bankName')}:
                 </Text>
                 <Text fontSize="sm" fontWeight="medium">
@@ -420,7 +475,12 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             {paymentSettings?.bankAccountNumber && (
               <HStack>
                 <CreditCard size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} minW="120px">
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                  minW="120px"
+                >
                   {t('accountNumber')}:
                 </Text>
                 <Text fontSize="sm" fontWeight="medium" fontFamily="mono">
@@ -432,7 +492,12 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             {paymentSettings?.accountHolderName && (
               <HStack>
                 <User size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} minW="120px">
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                  minW="120px"
+                >
                   {t('accountHolderName')}:
                 </Text>
                 <Text fontSize="sm" fontWeight="medium">
@@ -457,7 +522,12 @@ export default function PaymentTab({ session }: PaymentTabProps) {
           <Heading size="sm" mb={2}>
             {t('splitAmountCalculator')}
           </Heading>
-          <Text fontSize="sm" color="purple.600" _dark={{ color: 'purple.300' }} mb={3}>
+          <Text
+            fontSize="sm"
+            color="purple.600"
+            _dark={{ color: 'purple.300' }}
+            mb={3}
+          >
             {t('splitAmountDescription')}
           </Text>
           <HStack>
@@ -521,11 +591,21 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             >
               <HStack mb={2}>
                 <Users size={16} color="#3182ce" />
-                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('totalPlayers')}
                 </Text>
               </HStack>
-              <Text fontSize="2xl" fontWeight="bold" color="blue.600" _dark={{ color: 'blue.300' }}>
+              <Text
+                fontSize="2xl"
+                fontWeight="bold"
+                color="blue.600"
+                _dark={{ color: 'blue.300' }}
+              >
                 {stats.totalPlayers}
               </Text>
             </Box>
@@ -539,14 +619,26 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             >
               <HStack mb={2}>
                 <DollarSign size={16} color="#3182ce" />
-                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('totalAmount')}
                 </Text>
               </HStack>
-              <Text fontSize="2xl" fontWeight="bold" color="blue.600" _dark={{ color: 'blue.300' }}>
+              <Text
+                fontSize="2xl"
+                fontWeight="bold"
+                color="blue.600"
+                _dark={{ color: 'blue.300' }}
+              >
                 {stats.totalAmount.toLocaleString('vi-VN')}
               </Text>
-              <Text fontSize="xs" color="gray.500">VND</Text>
+              <Text fontSize="xs" color="gray.500">
+                VND
+              </Text>
             </Box>
             <Box
               bg="green.50"
@@ -558,11 +650,21 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             >
               <HStack mb={2}>
                 <CheckCircle size={16} color="#38a169" />
-                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('paidAmount')}
                 </Text>
               </HStack>
-              <Text fontSize="2xl" fontWeight="bold" color="green.600" _dark={{ color: 'green.300' }}>
+              <Text
+                fontSize="2xl"
+                fontWeight="bold"
+                color="green.600"
+                _dark={{ color: 'green.300' }}
+              >
                 {stats.paidAmount.toLocaleString('vi-VN')}
               </Text>
               <Text fontSize="xs" color="gray.500">
@@ -579,11 +681,21 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             >
               <HStack mb={2}>
                 <Clock size={16} color="#d69e2e" />
-                <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: 'gray.300' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('pendingAmount')}
                 </Text>
               </HStack>
-              <Text fontSize="2xl" fontWeight="bold" color="orange.600" _dark={{ color: 'orange.300' }}>
+              <Text
+                fontSize="2xl"
+                fontWeight="bold"
+                color="orange.600"
+                _dark={{ color: 'orange.300' }}
+              >
                 {stats.pendingAmount.toLocaleString('vi-VN')}
               </Text>
               <Text fontSize="xs" color="gray.500">

@@ -9,7 +9,10 @@ interface NewSessionFormProps {
   onSuccess: (session: ISession) => void;
 }
 
-export default function NewSessionForm({ backHref, onSuccess }: NewSessionFormProps) {
+export default function NewSessionForm({
+  backHref,
+  onSuccess,
+}: NewSessionFormProps) {
   return (
     <Box>
       <SessionForm

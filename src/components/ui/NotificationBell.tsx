@@ -22,7 +22,7 @@ import {
   LuInbox,
   LuShield,
   LuMail,
-  LuCreditCard
+  LuCreditCard,
 } from 'react-icons/lu';
 import {
   PopoverRoot,
@@ -147,7 +147,9 @@ export default function NotificationBell({
             size="md"
             borderRadius="full"
             color={color}
-            _hover={_hover || { bg: 'blackAlpha.50', _dark: { bg: 'whiteAlpha.100' } }}
+            _hover={
+              _hover || { bg: 'blackAlpha.50', _dark: { bg: 'whiteAlpha.100' } }
+            }
           >
             <LuBell size={22} />
           </IconButton>
@@ -186,7 +188,12 @@ export default function NotificationBell({
         _dark={{ bg: 'gray.900', borderColor: 'gray.800' }}
         p={0}
       >
-        <PopoverHeader borderBottomWidth="1px" borderColor="gray.100" _dark={{ borderColor: 'gray.800' }} p={4}>
+        <PopoverHeader
+          borderBottomWidth="1px"
+          borderColor="gray.100"
+          _dark={{ borderColor: 'gray.800' }}
+          p={4}
+        >
           <Flex justify="space-between" align="center">
             <Heading size="xs" fontSize="md" fontWeight="bold">
               {t('notifications')}
@@ -216,7 +223,9 @@ export default function NotificationBell({
             ) : notifications.length === 0 ? (
               <VStack gap={3} p={10} color="gray.400">
                 <LuInbox size={48} strokeWidth={1} />
-                <Text fontSize="sm" fontWeight="medium">{t('noNotifications')}</Text>
+                <Text fontSize="sm" fontWeight="medium">
+                  {t('noNotifications')}
+                </Text>
               </VStack>
             ) : (
               <Stack gap={0}>
@@ -243,7 +252,7 @@ export default function NotificationBell({
                       _hover={{
                         bg: 'gray.50',
                         _dark: { bg: 'whiteAlpha.50' },
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                       position="relative"
                       role="group"
@@ -273,12 +282,24 @@ export default function NotificationBell({
                         </Box>
 
                         <VStack align="start" gap={0.5} flex={1}>
-                          <HStack justify="space-between" w="100%" align="center">
+                          <HStack
+                            justify="space-between"
+                            w="100%"
+                            align="center"
+                          >
                             <Text
                               fontSize="sm"
-                              fontWeight={notification.isRead ? 'medium' : 'bold'}
-                              color={notification.isRead ? 'gray.600' : 'gray.900'}
-                              _dark={{ color: notification.isRead ? 'gray.400' : 'white' }}
+                              fontWeight={
+                                notification.isRead ? 'medium' : 'bold'
+                              }
+                              color={
+                                notification.isRead ? 'gray.600' : 'gray.900'
+                              }
+                              _dark={{
+                                color: notification.isRead
+                                  ? 'gray.400'
+                                  : 'white',
+                              }}
                               lineHeight="short"
                             >
                               {notification.title}
@@ -290,7 +311,10 @@ export default function NotificationBell({
                                 bg="blue.500"
                                 borderRadius="full"
                                 boxShadow="0 0 0 2px white"
-                                _dark={{ boxShadow: '0 0 0 2px var(--chakra-colors-gray-900)' }}
+                                _dark={{
+                                  boxShadow:
+                                    '0 0 0 2px var(--chakra-colors-gray-900)',
+                                }}
                               />
                             )}
                           </HStack>
@@ -306,7 +330,11 @@ export default function NotificationBell({
                           </Text>
 
                           <HStack justify="space-between" w="100%" mt={1}>
-                            <Text fontSize="10px" fontWeight="medium" color="gray.400">
+                            <Text
+                              fontSize="10px"
+                              fontWeight="medium"
+                              color="gray.400"
+                            >
                               {formatTimeAgo(notification.createdAt)}
                             </Text>
 
@@ -317,7 +345,9 @@ export default function NotificationBell({
                               colorPalette="red"
                               opacity={0}
                               _groupHover={{ opacity: 1 }}
-                              onClick={(e) => handleDeleteNotification(e, notification.id)}
+                              onClick={(e) =>
+                                handleDeleteNotification(e, notification.id)
+                              }
                               h="24px"
                               w="24px"
                               borderRadius="md"

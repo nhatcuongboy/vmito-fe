@@ -20,4 +20,3 @@ export const useDisclosure = (defaultIsOpen = false) => {
     setOpen,
   };
 };
-

@@ -3,7 +3,15 @@
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
-import { Badge, Box, Flex, FlexProps, Heading, Text, Image } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  FlexProps,
+  Heading,
+  Text,
+  Image,
+} from '@chakra-ui/react';
 import {
   Activity,
   CheckCircle,
@@ -230,18 +238,20 @@ export default function SessionOverviewTab({
           borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
         >
           <Flex align="center" mb={2}>
-            <Box p={2} bg={{ base: 'blue.50', _dark: 'blue.900/30' }} color="blue.500" borderRadius="lg" mr={3}>
+            <Box
+              p={2}
+              bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+              color="blue.500"
+              borderRadius="lg"
+              mr={3}
+            >
               <Users size={20} />
             </Box>
             <Text fontSize="sm" color="fg.muted" fontWeight="medium">
               {t('players')}
             </Text>
           </Flex>
-          <Text
-            fontSize="2xl"
-            fontWeight="bold"
-            color="fg"
-          >
+          <Text fontSize="2xl" fontWeight="bold" color="fg">
             {totalPlayers}
           </Text>
         </Box>
@@ -274,11 +284,7 @@ export default function SessionOverviewTab({
               {t('waiting')}
             </Text>
           </Flex>
-          <Text
-            fontSize="2xl"
-            fontWeight="bold"
-            color="fg"
-          >
+          <Text fontSize="2xl" fontWeight="bold" color="fg">
             {waitingPlayers}
           </Text>
         </Box>
@@ -293,7 +299,13 @@ export default function SessionOverviewTab({
           borderColor="gray.100"
         >
           <Flex align="center" mb={2}>
-            <Box p={2} bg={{ base: 'green.50', _dark: 'green.900/30' }} color="green.500" borderRadius="lg" mr={3}>
+            <Box
+              p={2}
+              bg={{ base: 'green.50', _dark: 'green.900/30' }}
+              color="green.500"
+              borderRadius="lg"
+              mr={3}
+            >
               <Activity size={20} />
             </Box>
             <Text
@@ -305,11 +317,7 @@ export default function SessionOverviewTab({
               {t('playing')}
             </Text>
           </Flex>
-          <Text
-            fontSize="2xl"
-            fontWeight="bold"
-            color="fg"
-          >
+          <Text fontSize="2xl" fontWeight="bold" color="fg">
             {playingPlayers}
           </Text>
         </Box>
@@ -324,7 +332,13 @@ export default function SessionOverviewTab({
           borderColor="gray.100"
         >
           <Flex align="center" mb={2}>
-            <Box p={2} bg={{ base: 'teal.50', _dark: 'teal.900/30' }} color="teal.500" borderRadius="lg" mr={3}>
+            <Box
+              p={2}
+              bg={{ base: 'teal.50', _dark: 'teal.900/30' }}
+              color="teal.500"
+              borderRadius="lg"
+              mr={3}
+            >
               <CheckCircle size={20} />
             </Box>
             <Text
@@ -336,11 +350,7 @@ export default function SessionOverviewTab({
               {t('playersTab.ready')}
             </Text>
           </Flex>
-          <Text
-            fontSize="2xl"
-            fontWeight="bold"
-            color="fg"
-          >
+          <Text fontSize="2xl" fontWeight="bold" color="fg">
             {readyPlayers}
           </Text>
         </Box>

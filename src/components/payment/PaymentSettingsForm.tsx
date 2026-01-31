@@ -10,7 +10,9 @@ import QRCodeUploader from './QRCodeUploader';
 
 interface PaymentSettingsFormProps {
   initialData?: Partial<HostPaymentSettings>;
-  onSubmit: (data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onSubmit: (
+    data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+  ) => Promise<void>;
   onDelete?: () => Promise<void>;
   onUploadQR: (file: File) => Promise<string>;
   isLoading?: boolean;
@@ -44,7 +46,10 @@ export default function PaymentSettingsForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
+    const data: Omit<
+      HostPaymentSettings,
+      'id' | 'userId' | 'createdAt' | 'updatedAt'
+    > = {
       bankName: bankName || undefined,
       bankAccountNumber: bankAccountNumber || undefined,
       accountHolderName: accountHolderName || undefined,

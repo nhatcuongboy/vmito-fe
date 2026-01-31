@@ -58,17 +58,17 @@ function extractPublicId(url: string): string {
   try {
     const urlParts = url.split('/upload/');
     if (urlParts.length < 2) return url;
-    
+
     const afterUpload = urlParts[1];
     const parts = afterUpload.split('/');
-    
+
     if (parts.length < 2) return url;
-    
+
     parts.shift();
-    
+
     const publicIdWithExt = parts.join('/');
     const publicId = publicIdWithExt.replace(/\.[^/.]+$/, '');
-    
+
     return publicId;
   } catch (error) {
     console.error('Failed to extract public ID:', error);

@@ -255,13 +255,14 @@ export default function PaymentInfoTab({
                 </Text>
               )}
 
-              {payment.status === PaymentStatus.REJECTED && payment.hostNotes && (
-                <Box mt={2} p={2} bg="red.50" borderRadius="md">
-                  <Text fontSize="sm" color="red.600">
-                    {t('rejectionReason')}: {payment.hostNotes}
-                  </Text>
-                </Box>
-              )}
+              {payment.status === PaymentStatus.REJECTED &&
+                payment.hostNotes && (
+                  <Box mt={2} p={2} bg="red.50" borderRadius="md">
+                    <Text fontSize="sm" color="red.600">
+                      {t('rejectionReason')}: {payment.hostNotes}
+                    </Text>
+                  </Box>
+                )}
             </Box>
           ))}
         </VStack>

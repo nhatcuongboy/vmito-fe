@@ -6,38 +6,38 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
 
 interface LoginPromptModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    returnUrl?: string;
+  isOpen: boolean;
+  onClose: () => void;
+  returnUrl?: string;
 }
 
 const LoginPromptModal = ({
-    isOpen,
-    onClose,
-    returnUrl,
+  isOpen,
+  onClose,
+  returnUrl,
 }: LoginPromptModalProps) => {
-    const t = useTranslations('session');
-    const tCommon = useTranslations('common');
-    const router = useRouter();
+  const t = useTranslations('session');
+  const tCommon = useTranslations('common');
+  const router = useRouter();
 
-    const handleLogin = () => {
-        const redirectUrl = returnUrl || '/';
-        router.push(`/auth/signin?returnUrl=${encodeURIComponent(redirectUrl)}`);
-    };
+  const handleLogin = () => {
+    const redirectUrl = returnUrl || '/';
+    router.push(`/auth/signin?returnUrl=${encodeURIComponent(redirectUrl)}`);
+  };
 
-    return (
-        <CommonModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={t('loginRequired')}
-            primaryActionText={tCommon('login')}
-            secondaryActionText={tCommon('cancel')}
-            onPrimaryAction={handleLogin}
-            primaryColorScheme="blue"
-        >
-            <Text>{t('loginRequiredDescription')}</Text>
-        </CommonModal>
-    );
+  return (
+    <CommonModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('loginRequired')}
+      primaryActionText={tCommon('login')}
+      secondaryActionText={tCommon('cancel')}
+      onPrimaryAction={handleLogin}
+      primaryColorScheme="blue"
+    >
+      <Text>{t('loginRequiredDescription')}</Text>
+    </CommonModal>
+  );
 };
 
 export default LoginPromptModal;

@@ -34,7 +34,8 @@ export function useSessionRefresh({
   onSessionUpdate,
   initialInterval = REFRESH_INTERVALS.PLAYER,
 }: UseSessionRefreshProps): UseSessionRefreshReturn {
-  const [refreshInterval, setRefreshInterval] = useState<number>(initialInterval);
+  const [refreshInterval, setRefreshInterval] =
+    useState<number>(initialInterval);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 

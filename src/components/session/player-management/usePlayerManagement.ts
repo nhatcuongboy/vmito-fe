@@ -462,8 +462,7 @@ export const usePlayerManagement = (
       const player = session.players.find((p: any) => p.id === playerId);
       if (!player) return;
 
-      const newStatus =
-        player.status === 'INACTIVE' ? 'WAITING' : 'INACTIVE';
+      const newStatus = player.status === 'INACTIVE' ? 'WAITING' : 'INACTIVE';
 
       try {
         setIsSaving(true);

@@ -34,7 +34,8 @@ export const RatePlayersSection = ({
   players,
 }: RatePlayersSectionProps) => {
   const t = useTranslations('rating');
-  const [eligibility, setEligibility] = useState<SessionRatingEligibility | null>(null);
+  const [eligibility, setEligibility] =
+    useState<SessionRatingEligibility | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);

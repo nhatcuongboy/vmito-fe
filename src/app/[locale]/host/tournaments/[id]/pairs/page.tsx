@@ -219,7 +219,9 @@ export default function TournamentPairsPage() {
               <Input
                 placeholder={t('searchPlaceholder')}
                 value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearchTerm(e.target.value)
+                }
                 leftElement={<Search size={16} />}
                 maxW="300px"
               />

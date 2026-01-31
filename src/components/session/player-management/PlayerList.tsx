@@ -57,10 +57,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
       <VStack spacing={5} align="stretch">
         {/* Player list or empty state */}
         {players.length === 0 ? (
-          <PlayerEmptyState
-            isFiltered={isFiltered}
-            filterName={filterName}
-          />
+          <PlayerEmptyState isFiltered={isFiltered} filterName={filterName} />
         ) : (
           <VStack spacing={0} align="stretch">
             {players

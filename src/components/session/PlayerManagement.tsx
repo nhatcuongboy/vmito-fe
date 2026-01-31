@@ -74,9 +74,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
   // Detail Modal State (UI specific)
   const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
-  const [selectedPlayerForDetail, setSelectedPlayerForDetail] = useState<Player | null>(
-    null
-  );
+  const [selectedPlayerForDetail, setSelectedPlayerForDetail] =
+    useState<Player | null>(null);
 
   // Add Player Modal State
   const [showAddPlayerModal, setShowAddPlayerModal] = useState<boolean>(false);

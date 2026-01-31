@@ -24,7 +24,7 @@ export function useBottomNavVisibility() {
       // so we might want to exclude it to avoid double bottom bars if they use bottom bars too.
       // The requirement only mentioned SessionDetailContent.
       // Let's stick to excluding Session Details for now.
-      
+
       // Also potentially exclude specific full-screen flows like /join/confirm if needed
       pathname.includes('/join/confirm')
     );
@@ -34,13 +34,12 @@ export function useBottomNavVisibility() {
     if (!isAuthenticated || isExcluded || user?.role === UserRole.GUEST) {
       return false;
     }
-    
+
     // Check if role has tabs defined (mimicking the logic in GlobalBottomNav)
     if (!user) return false;
-    
+
     // All roles seem to have tabs in the original logic except GUEST (handled above)
     return true;
-
   }, [isAuthenticated, isExcluded, user]);
 
   return isVisible;

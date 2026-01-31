@@ -15,7 +15,11 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import TopBar from '@/components/ui/TopBar';
 import { TransactionSummaryList } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
-import { TransactionSummary, HostTransactionSummary, UserRole } from '@/lib/api/types';
+import {
+  TransactionSummary,
+  HostTransactionSummary,
+  UserRole,
+} from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 
 function PlayerTransactionsContent() {
@@ -44,7 +48,9 @@ function PlayerTransactionsContent() {
     loadTransactions();
   }, [loadTransactions]);
 
-  const handleSelectSummary = (summary: TransactionSummary | HostTransactionSummary) => {
+  const handleSelectSummary = (
+    summary: TransactionSummary | HostTransactionSummary
+  ) => {
     // TODO: Navigate to detailed view or open modal
     console.log('Selected summary:', summary);
   };
@@ -85,7 +91,9 @@ export default function PlayerTransactionsPage() {
   const t = useTranslations('payment');
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+    <ProtectedRouteGuard
+      requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+    >
       <Suspense>
         <Box minH="100vh">
           <TopBar title={t('transactionHistory')} />

@@ -98,7 +98,7 @@ function SignInForm() {
       }
 
       // Otherwise redirect to Home
-      let redirectPath = '/';
+      const redirectPath = '/';
 
       // Set redirecting state and navigate
       setIsRedirecting(true);
@@ -253,8 +253,10 @@ function SignInForm() {
               fontWeight="semibold"
               color="fg"
               bg={{ base: 'white', _dark: 'gray.700' }}
-              _hover={{ bg: { base: 'gray.50', _dark: 'gray.600' }, textDecoration: 'none' }}
-
+              _hover={{
+                bg: { base: 'gray.50', _dark: 'gray.600' },
+                textDecoration: 'none',
+              }}
             >
               <svg
                 width="18"

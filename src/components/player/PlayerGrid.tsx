@@ -191,7 +191,11 @@ export const PlayerGrid = ({
                     width="100%"
                     alignItems="start"
                   >
-                    <Text fontWeight="bold" color={{ base: "orange.700", _dark: "orange.400" }} fontSize="md">
+                    <Text
+                      fontWeight="bold"
+                      color={{ base: 'orange.700', _dark: 'orange.400' }}
+                      fontSize="md"
+                    >
                       #{player.playerNumber}
                     </Text>
                     {isShowWaitTime &&
@@ -287,9 +291,9 @@ export const PlayerGrid = ({
                     <PlayerActionMenu
                       player={player}
                       onShowQR={onShowQR || handleShowDetail}
-                      onEdit={onEdit || (() => { })}
-                      onDelete={onDelete || (() => { })}
-                      onToggleStatus={onToggleStatus || (() => { })}
+                      onEdit={onEdit || (() => {})}
+                      onDelete={onDelete || (() => {})}
+                      onToggleStatus={onToggleStatus || (() => {})}
                       t={t}
                       buttonVariant="solid"
                       buttonSize="xs"
@@ -308,7 +312,6 @@ export const PlayerGrid = ({
           );
         })}
       </SimpleGrid>
-
 
       {/* Player Detail Modal */}
       {selectedPlayerForDetail && (

@@ -43,11 +43,7 @@ import {
  * Player session management page - displays detailed session management interface for PLAYER role
  * Protected route requiring PLAYER role
  */
-function PlayerSessionManageContent({
-  params,
-}: {
-  params: { id: string };
-}) {
+function PlayerSessionManageContent({ params }: { params: { id: string } }) {
   const t = useTranslations('SessionDetail');
   const { user } = useAuthStore();
   const sessionId = params.id;
@@ -118,7 +114,9 @@ function PlayerSessionManageContent({
   // Loading state
   if (loading) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard
+        requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+      >
         <Center minH="50vh">
           <Spinner size="xl" color="blue.500" />
         </Center>
@@ -129,7 +127,9 @@ function PlayerSessionManageContent({
   // Error state
   if (error) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard
+        requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+      >
         <Box
           p={6}
           bg="red.50"
@@ -152,7 +152,9 @@ function PlayerSessionManageContent({
   // No session found
   if (!session) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard
+        requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+      >
         <Box
           p={6}
           bg="blue.50"
@@ -176,7 +178,9 @@ function PlayerSessionManageContent({
   // Check ownership: if not owner, render view mode
   if (session.hostId !== user?.id) {
     return (
-      <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+      <ProtectedRouteGuard
+        requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+      >
         <PlayerSessionView
           mode="player"
           sessionId={sessionId}
@@ -196,10 +200,7 @@ function PlayerSessionManageContent({
       contentPadding={0}
     >
       {/* Auto-update wait times for IN_PROGRESS sessions */}
-      <WaitTimeUpdater
-        sessionId={session.id}
-        sessionStatus={session.status}
-      />
+      <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
 
       {/* Session Status Header */}
       <SessionStatusHeader
@@ -300,11 +301,18 @@ export default function PlayerSessionManagePage({
   const unwrappedParams = use(params);
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
-      <Suspense fallback={<Center minH="50vh"><Spinner size="xl" color="blue.500" /></Center>}>
+    <ProtectedRouteGuard
+      requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+    >
+      <Suspense
+        fallback={
+          <Center minH="50vh">
+            <Spinner size="xl" color="blue.500" />
+          </Center>
+        }
+      >
         <PlayerSessionManageContent params={unwrappedParams} />
       </Suspense>
     </ProtectedRouteGuard>
   );
 }
-

@@ -7,7 +7,15 @@ import { UserRole } from '@/lib/api/types';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import { Home, Search, Trophy, Users, LayoutDashboard, Ticket, Calendar } from 'lucide-react';
+import {
+  Home,
+  Search,
+  Trophy,
+  Users,
+  LayoutDashboard,
+  Ticket,
+  Calendar,
+} from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
@@ -29,7 +37,12 @@ export default function GlobalBottomNav() {
     if (user.role === UserRole.ADMIN) {
       return [
         { id: 1, label: t('home'), icon: Home, href: '/' },
-        { id: 3, label: t('browse'), icon: LayoutDashboard, href: '/host/dashboard' },
+        {
+          id: 3,
+          label: t('browse'),
+          icon: LayoutDashboard,
+          href: '/host/dashboard',
+        },
         {
           id: 2,
           label: t('host'),
@@ -44,7 +57,12 @@ export default function GlobalBottomNav() {
     if (user.role === UserRole.HOST) {
       return [
         { id: 1, label: t('home'), icon: Home, href: '/' },
-        { id: 3, label: t('browse'), icon: LayoutDashboard, href: '/host/dashboard' },
+        {
+          id: 3,
+          label: t('browse'),
+          icon: LayoutDashboard,
+          href: '/host/dashboard',
+        },
         {
           id: 2,
           label: t('host'),

@@ -104,7 +104,11 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
       w="16px"
       h="16px"
       border="1px solid"
-      borderColor={checked ? `${colorPalette}.500` : { base: 'gray.300', _dark: 'whiteAlpha.300' }}
+      borderColor={
+        checked
+          ? `${colorPalette}.500`
+          : { base: 'gray.300', _dark: 'whiteAlpha.300' }
+      }
       bg={checked ? `${colorPalette}.500` : 'transparent'}
       borderRadius="sm"
       display="flex"
@@ -152,12 +156,12 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
           top="100%"
           left={0} // Aligned to left like popover bottom-start
           mt={2}
-          bg={{ base: "white", _dark: "gray.800" }}
+          bg={{ base: 'white', _dark: 'gray.800' }}
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           boxShadow="lg"
           borderRadius="md"
           border="1px solid"
-          borderColor={{ base: "gray.200", _dark: "gray.700" }}
+          borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
           zIndex={10}
           width="240px"
           overflow="hidden"
@@ -180,7 +184,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                 <Badge
                   variant="subtle"
                   colorPalette="gray"
-                  bg={{ base: "gray.100", _dark: "gray.700" }}
+                  bg={{ base: 'gray.100', _dark: 'gray.700' }}
                   color="fg.muted"
                 >
                   {totalCount}
@@ -214,8 +218,14 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                     <Badge
                       variant="subtle"
                       colorPalette={colorPalette}
-                      bg={{ base: `${colorPalette}.100`, _dark: `${colorPalette}.900/40` }}
-                      color={{ base: `${colorPalette}.700`, _dark: `${colorPalette}.200` }}
+                      bg={{
+                        base: `${colorPalette}.100`,
+                        _dark: `${colorPalette}.900/40`,
+                      }}
+                      color={{
+                        base: `${colorPalette}.700`,
+                        _dark: `${colorPalette}.200`,
+                      }}
                     >
                       {counts[status]}
                     </Badge>

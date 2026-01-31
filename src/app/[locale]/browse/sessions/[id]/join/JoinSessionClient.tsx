@@ -10,7 +10,12 @@ import { ISession } from '@/lib/api/types';
 import JoinSessionForm from '@/components/session/JoinSessionForm';
 import { useJoinSession } from '@/components/session/useJoinSession';
 import { useRouter } from '@/i18n/config';
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 interface JoinSessionClientProps {
   id: string;
@@ -77,11 +82,17 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
       <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <TopBar showBackButton={true} backHref="/" title={t('joinSession')} />
         <Container maxW="container.md" px={CONTAINER_PX} pt={24}>
-          <Box p={6} bg={{ base: 'white', _dark: 'gray.800' }} borderRadius="lg" shadow="sm" textAlign="center">
-            <Heading size="md" mb={2}>{t('loadingError')}</Heading>
-            <Button onClick={() => router.push('/')}>
-              {tCommon('back')}
-            </Button>
+          <Box
+            p={6}
+            bg={{ base: 'white', _dark: 'gray.800' }}
+            borderRadius="lg"
+            shadow="sm"
+            textAlign="center"
+          >
+            <Heading size="md" mb={2}>
+              {t('loadingError')}
+            </Heading>
+            <Button onClick={() => router.push('/')}>{tCommon('back')}</Button>
           </Box>
         </Container>
       </Box>
@@ -90,7 +101,11 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
 
   return (
     <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar showBackButton={true} backHref="/" title={`${t('joinSession')}: ${session.name}`} />
+      <TopBar
+        showBackButton={true}
+        backHref="/"
+        title={`${t('joinSession')}: ${session.name}`}
+      />
 
       <Container
         maxW="container.md"

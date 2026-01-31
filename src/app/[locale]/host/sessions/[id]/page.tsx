@@ -3,7 +3,14 @@
 import { use, useState, useEffect, Suspense } from 'react';
 import { Spinner, Center, Box, Text, Container } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Info, RefreshCw, Square, Trophy, Users, DollarSign } from 'lucide-react';
+import {
+  Info,
+  RefreshCw,
+  Square,
+  Trophy,
+  Users,
+  DollarSign,
+} from 'lucide-react';
 
 // Hooks
 import { useSessionData } from '@/hooks/useSessionData';
@@ -43,11 +50,7 @@ import {
  * Host session page - displays detailed session management interface
  * Protected route requiring HOST or ADMIN role
  */
-function HostSessionContent({
-  params,
-}: {
-  params: { id: string };
-}) {
+function HostSessionContent({ params }: { params: { id: string } }) {
   const t = useTranslations('SessionDetail');
   const { user } = useAuthStore();
   const sessionId = params.id;
@@ -174,7 +177,10 @@ function HostSessionContent({
       ) : (
         <>
           {/* Auto-update wait times for IN_PROGRESS sessions */}
-          <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
+          <WaitTimeUpdater
+            sessionId={session.id}
+            sessionStatus={session.status}
+          />
 
           {/* Session Status Header */}
           <SessionStatusHeader
@@ -281,8 +287,16 @@ export default function HostSessionPage({
   const unwrappedParams = use(params);
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}>
-      <Suspense fallback={<Center minH="50vh"><Spinner size="xl" color="blue.500" /></Center>}>
+    <ProtectedRouteGuard
+      requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.PLAYER]}
+    >
+      <Suspense
+        fallback={
+          <Center minH="50vh">
+            <Spinner size="xl" color="blue.500" />
+          </Center>
+        }
+      >
         <HostSessionContent params={unwrappedParams} />
       </Suspense>
     </ProtectedRouteGuard>

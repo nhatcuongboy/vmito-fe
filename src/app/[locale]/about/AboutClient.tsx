@@ -35,11 +35,17 @@ function AboutContent({ locale }: AboutClientProps) {
       </Box>
 
       {/* Footer */}
-      <Box bg="gray.100" _dark={{ bg: 'gray.900' }} py={10} borderTopWidth="1px">
+      <Box
+        bg="gray.100"
+        _dark={{ bg: 'gray.900' }}
+        py={10}
+        borderTopWidth="1px"
+      >
         <Container maxW="container.xl">
           <Flex direction="column" align="center">
             <Text color="gray.500" fontSize="sm" suppressHydrationWarning>
-              © {new Date().getFullYear()} {common('appName')}. {t('copyright')}
+              © {new Date().getFullYear()} {common('appName')}.{' '}
+              {t('copyright')}
             </Text>
           </Flex>
         </Container>

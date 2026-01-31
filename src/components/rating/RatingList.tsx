@@ -110,9 +110,7 @@ export const RatingList = ({
                 <Avatar.Fallback name={displayUser?.name || 'User'}>
                   <User size={16} />
                 </Avatar.Fallback>
-                {displayUser?.image && (
-                  <Avatar.Image src={displayUser.image} />
-                )}
+                {displayUser?.image && <Avatar.Image src={displayUser.image} />}
               </Avatar.Root>
               <VStack align="start" gap={0} flex={1}>
                 <HStack justify="space-between" width="full">

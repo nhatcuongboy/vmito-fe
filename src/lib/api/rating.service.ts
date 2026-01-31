@@ -29,7 +29,9 @@ export const RatingService = {
     if (filters?.raterUserId) params.append('raterUserId', filters.raterUserId);
     if (filters?.ratedUserId) params.append('ratedUserId', filters.ratedUserId);
 
-    const url = params.toString() ? `/ratings?${params.toString()}` : '/ratings';
+    const url = params.toString()
+      ? `/ratings?${params.toString()}`
+      : '/ratings';
     const response = await api.get<ApiResponse<Rating[]>>(url);
     return response.data.data || [];
   },
@@ -61,7 +63,9 @@ export const RatingService = {
   // ==========================================
 
   // Get rating statistics for multiple users (batch)
-  getBatchUserRatingStats: async (userIds: string[]): Promise<UserRatingStats[]> => {
+  getBatchUserRatingStats: async (
+    userIds: string[]
+  ): Promise<UserRatingStats[]> => {
     if (!userIds || userIds.length === 0) {
       return [];
     }

@@ -45,7 +45,9 @@ export const formatDate = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const date = dayjs(dateString).locale(
+    locale === Locale.VI ? Locale.VI : Locale.EN
+  );
 
   let formattedDate: string;
 
@@ -62,7 +64,9 @@ export const formatTime = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const date = dayjs(dateString).locale(
+    locale === Locale.VI ? Locale.VI : Locale.EN
+  );
   return date.format('HH:mm');
 };
 
@@ -141,10 +145,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${session.endTime
-        ? formatTime(session.endTime, locale)
-        : t('inProgress')
-      }`
+      ? `${formatTime(session.startTime, locale)} - ${
+          session.endTime
+            ? formatTime(session.endTime, locale)
+            : t('inProgress')
+        }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -157,10 +162,13 @@ const BaseSessionCard = ({
 
   // Format date and time for compact display
   const formatCompactDate = (dateString: string | Date): string => {
-    const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
-    const formattedDate = locale === Locale.VI
-      ? date.format('dddd, DD/MM')
-      : date.format('ddd, MM/DD');
+    const date = dayjs(dateString).locale(
+      locale === Locale.VI ? Locale.VI : Locale.EN
+    );
+    const formattedDate =
+      locale === Locale.VI
+        ? date.format('dddd, DD/MM')
+        : date.format('ddd, MM/DD');
     return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
   };
 
@@ -180,7 +188,9 @@ const BaseSessionCard = ({
 
     // Check if all levels (1-7) are present
     const allLevels = [1, 2, 3, 4, 5, 6, 7];
-    const hasAllLevels = allLevels.every(level => session.requiredLevels!.includes(level));
+    const hasAllLevels = allLevels.every((level) =>
+      session.requiredLevels!.includes(level)
+    );
 
     if (hasAllLevels) {
       return ['gray.300']; // Keep gray for all levels
@@ -223,11 +233,7 @@ const BaseSessionCard = ({
           opacity={0.9}
         >
           {levelSegments.map((color, index) => (
-            <Box
-              key={index}
-              flex={1}
-              bg={color}
-            />
+            <Box key={index} flex={1} bg={color} />
           ))}
         </Flex>
 
@@ -274,17 +280,28 @@ const BaseSessionCard = ({
             <Flex align="center" gap={3}>
               <Avatar.Root size="sm" bg="blue.500">
                 <Avatar.Fallback name={displayHostName}>
-                  {displayHostName ? displayHostName.charAt(0).toUpperCase() : ''}
+                  {displayHostName
+                    ? displayHostName.charAt(0).toUpperCase()
+                    : ''}
                 </Avatar.Fallback>
-                {session.host?.image && <Avatar.Image src={session.host.image} />}
+                {session.host?.image && (
+                  <Avatar.Image src={session.host.image} />
+                )}
               </Avatar.Root>
               <Text fontSize="sm" fontWeight="medium">
                 {displayHostName}
               </Text>
               {hostRatingStats && hostRatingStats.totalRatings > 0 && (
                 <Flex align="center" gap={1}>
-                  <Text fontSize="sm" color="gray.500">•</Text>
-                  <Icon as={Star} boxSize={4} color="yellow.500" fill="yellow.500" />
+                  <Text fontSize="sm" color="gray.500">
+                    •
+                  </Text>
+                  <Icon
+                    as={Star}
+                    boxSize={4}
+                    color="yellow.500"
+                    fill="yellow.500"
+                  />
                   <Text fontSize="sm" fontWeight="semibold">
                     {hostRatingStats.averageRating.toFixed(1)}
                   </Text>
@@ -313,7 +330,7 @@ const BaseSessionCard = ({
                 <Flex align="center" gap={2}>
                   <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">
-                    {(t('shuttlecock') + ': ' + (session.shuttlecock || ''))}
+                    {t('shuttlecock') + ': ' + (session.shuttlecock || '')}
                   </Text>
                 </Flex>
               </Stack>
@@ -335,7 +352,8 @@ const BaseSessionCard = ({
                 <Flex align="center" gap={2}>
                   <Icon as={Users} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">
-                    {convertedSession.totalPlayers}/{convertedSession.maxPlayers} {t('players')}
+                    {convertedSession.totalPlayers}/
+                    {convertedSession.maxPlayers} {t('players')}
                   </Text>
                 </Flex>
               </Stack>
@@ -416,11 +434,21 @@ const BaseSessionCard = ({
                     <Flex align="center" gap={1.5}>
                       <Icon as={Banknote} boxSize={5} color="red.600" />
                       <Flex align="center" gap={1.5}>
-                        <Text fontSize="lg" fontWeight="bold" color="red.600" whiteSpace="nowrap">
+                        <Text
+                          fontSize="lg"
+                          fontWeight="bold"
+                          color="red.600"
+                          whiteSpace="nowrap"
+                        >
                           {FeeService.getFeeDisplayText(session.feeConfig)}
                         </Text>
                         {session.feeConfig.feeType === FeeType.FIXED && (
-                          <Text fontSize="sm" color="gray.500" fontWeight="normal" whiteSpace="nowrap">
+                          <Text
+                            fontSize="sm"
+                            color="gray.500"
+                            fontWeight="normal"
+                            whiteSpace="nowrap"
+                          >
                             /slot
                           </Text>
                         )}
@@ -431,7 +459,8 @@ const BaseSessionCard = ({
                 </Box>
 
                 {/* Top Action Buttons (e.g. Call, Share) */}
-                {(topActionButtons || (actionButtons && !bottomActionButtons)) && (
+                {(topActionButtons ||
+                  (actionButtons && !bottomActionButtons)) && (
                   <Box flex="1" textAlign="right">
                     <Flex justify="flex-end" gap={2}>
                       {topActionButtons || actionButtons}

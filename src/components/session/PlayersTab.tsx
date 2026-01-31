@@ -115,9 +115,11 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
 
   // State for modals in Grid view
   const [showEditPlayerModal, setShowEditPlayerModal] = React.useState(false);
-  const [selectedPlayerForEdit, setSelectedPlayerForEdit] = React.useState<Player | null>(null);
+  const [selectedPlayerForEdit, setSelectedPlayerForEdit] =
+    React.useState<Player | null>(null);
   const [showDetailModal, setShowDetailModal] = React.useState(false);
-  const [selectedPlayerForDetail, setSelectedPlayerForDetail] = React.useState<Player | null>(null);
+  const [selectedPlayerForDetail, setSelectedPlayerForDetail] =
+    React.useState<Player | null>(null);
 
   const openEditPlayerModal = (player: Player) => {
     startEditingPlayer(player);

@@ -8,14 +8,17 @@ import TopBar from '@/components/ui/TopBar';
 import { UserRole } from '@/lib/api/types';
 import { Box } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Image } from "@chakra-ui/react"
+import { Image } from '@chakra-ui/react';
 
 function PlayerDashboardContent() {
   const t = useTranslations('pages.dashboard');
 
   return (
     <Box minH="100vh">
-      <TopBar title={t('title')} icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />} />
+      <TopBar
+        title={t('title')}
+        icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
+      />
       <PlayerDashboard />
     </Box>
   );

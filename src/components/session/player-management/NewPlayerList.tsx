@@ -255,7 +255,9 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                             onUpdatePlayer(
                               index,
                               'level',
-                              e.target.value ? parseInt(e.target.value, 10) : null
+                              e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : null
                             )
                           }
                           style={{

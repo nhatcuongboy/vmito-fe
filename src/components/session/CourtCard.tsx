@@ -110,7 +110,13 @@ const CourtCard: React.FC<CourtCardProps> = ({
   return (
     <Card key={court.id} variant="outline" boxShadow="md">
       <CardHeader
-        bg={isCourtReady ? { base: 'yellow.50', _dark: 'yellow.900/20' } : isActive ? { base: 'green.50', _dark: 'green.900/20' } : { base: 'gray.50', _dark: 'whiteAlpha.50' }}
+        bg={
+          isCourtReady
+            ? { base: 'yellow.50', _dark: 'yellow.900/20' }
+            : isActive
+              ? { base: 'green.50', _dark: 'green.900/20' }
+              : { base: 'gray.50', _dark: 'whiteAlpha.50' }
+        }
         p={4}
         boxShadow="md"
         transition="all 0.2s ease-in-out"
@@ -185,8 +191,8 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 <Box as={Clock} boxSize={3} />
                 {currentMatch.startTime
                   ? elapsedTimeFormatter(
-                    new Date(currentMatch.startTime).toISOString()
-                  )
+                      new Date(currentMatch.startTime).toISOString()
+                    )
                   : '-'}
               </Badge>
             )}
@@ -241,8 +247,8 @@ const CourtCard: React.FC<CourtCardProps> = ({
               elapsedTime={
                 currentMatch
                   ? elapsedTimeFormatter(
-                    new Date(currentMatch.startTime).toISOString()
-                  )
+                      new Date(currentMatch.startTime).toISOString()
+                    )
                   : t('courtsTab.playing')
               }
               courtName={getCourtDisplayName(

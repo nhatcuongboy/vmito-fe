@@ -3,15 +3,7 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { PlayerService } from '@/lib/api/player.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import {
-  Box,
-  Container,
-  Flex,
-  Grid,
-  Heading,
-  Text,
-} from '@chakra-ui/react';
-
+import { Box, Container, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
@@ -21,7 +13,6 @@ import FindSessionList from '../session/FindSessionList';
 import SessionCard from '../session/SessionCard';
 import { Button } from '@/components/ui/chakra-compat';
 import { Plus } from 'lucide-react';
-
 
 export default function PlayerDashboard() {
   const t = useTranslations('pages.dashboard');
@@ -47,7 +38,6 @@ export default function PlayerDashboard() {
     }
     fetchPlayerSessions();
   }, []);
-
 
   const joinedSessions = sessions.filter((s) => s.hostId !== user?.id);
 
@@ -121,4 +111,3 @@ export default function PlayerDashboard() {
     </ProtectedRouteGuard>
   );
 }
-

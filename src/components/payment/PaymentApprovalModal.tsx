@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Image, Textarea, Avatar } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Image,
+  Textarea,
+  Avatar,
+} from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { CommonModal } from '@/components/ui/CommonModal';
@@ -71,11 +79,7 @@ export default function PaymentApprovalModal({
       footer={
         canApproveOrReject ? (
           <HStack gap={2} w="full" justify="flex-end">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={onClose} disabled={isLoading}>
               {t('cancel')}
             </Button>
             <Button

@@ -15,19 +15,28 @@ import { SessionService } from '@/lib/api/session.service';
 import { Spinner } from '@chakra-ui/react';
 import BaseSessionCard from '@/components/session/BaseSessionCard';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 interface PublicSessionDetailClientProps {
   initialSession?: ISession | null;
 }
 
-const PublicSessionDetailClient = ({ initialSession }: PublicSessionDetailClientProps) => {
+const PublicSessionDetailClient = ({
+  initialSession,
+}: PublicSessionDetailClientProps) => {
   const t = useTranslations('session');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
   const params = useParams();
-  const [session, setSession] = useState<ISession | null>(initialSession || null);
+  const [session, setSession] = useState<ISession | null>(
+    initialSession || null
+  );
   const [loading, setLoading] = useState(!initialSession);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +82,9 @@ const PublicSessionDetailClient = ({ initialSession }: PublicSessionDetailClient
   const isOwner = session?.hostId === user?.id;
 
   // Calculate if session is full (only count approved players)
-  const maxPlayers = session?.numberOfCourts ? session.numberOfCourts * (session?.maxPlayersPerCourt || 4) : 0;
+  const maxPlayers = session?.numberOfCourts
+    ? session.numberOfCourts * (session?.maxPlayersPerCourt || 4)
+    : 0;
   const approvedPlayersCount = session?._count?.players || 0;
   const isFull = approvedPlayersCount >= maxPlayers;
 
@@ -226,9 +237,7 @@ const PublicSessionDetailClient = ({ initialSession }: PublicSessionDetailClient
 
   return (
     <>
-      <TopBar
-        icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
-      />
+      <TopBar icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />} />
       <Box
         pt={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,

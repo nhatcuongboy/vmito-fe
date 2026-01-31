@@ -226,7 +226,6 @@ const EnhancedAvatar = ({
   );
 };
 
-
 interface PlayerListItemProps {
   player: Player;
   isEditing: Player | undefined;

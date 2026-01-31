@@ -29,7 +29,9 @@ import { Locale } from '@/i18n/locales';
 
 // Helper functions for formatting with locale support
 const formatDate = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const date = dayjs(dateString).locale(
+    locale === Locale.VI ? Locale.VI : Locale.EN
+  );
 
   let formattedDate: string;
 
@@ -46,7 +48,9 @@ const formatDate = (dateString: string | Date, locale: string): string => {
 };
 
 const formatTime = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const date = dayjs(dateString).locale(
+    locale === Locale.VI ? Locale.VI : Locale.EN
+  );
   return date.format('HH:mm');
 };
 

@@ -8,7 +8,12 @@ import { Box, Container, Flex, Heading, VStack } from '@chakra-ui/react';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useState } from 'react';
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 function HostSessionsContent() {
   const t = useTranslations('pages.host');

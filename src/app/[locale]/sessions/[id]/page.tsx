@@ -25,25 +25,28 @@ const getSession = cache(async (id: string): Promise<ISession | null> => {
   }
 });
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
 
-  // Attempt to get session. Use a slightly shorter timeout for metadata if possible, 
+  // Attempt to get session. Use a slightly shorter timeout for metadata if possible,
   // but here we rely on the global axios timeout.
   const session = await getSession(id);
 
   const defaultMetadata: Metadata = {
     title: 'Vmito | Quản lý kèo cầu lông chuyên nghiệp',
-    description: 'Tham gia giao lưu, quản lý kèo và giải đấu cầu lông cùng Vmito.',
+    description:
+      'Tham gia giao lưu, quản lý kèo và giải đấu cầu lông cùng Vmito.',
     openGraph: {
       images: ['/og-image.png'],
-    }
+    },
   };
 
   // If session is null, it could be a 404 OR a timeout.
   // In SSR, we'd rather show generic brand info than "Not Found" if it was just a technical glitch.
   if (!session) {
-    // We can't easily check the error type here since getSession swallows it, 
+    // We can't easily check the error type here since getSession swallows it,
     // but we can assume if it's null, we show default brand info which is better for SEO than "Not Found"
     return {
       ...defaultMetadata,
@@ -52,7 +55,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${session.name || 'Kèo cầu lông'}`;
-  const locationName = session.venue?.name || session.location || 'Địa điểm chưa xác định';
+  const locationName =
+    session.venue?.name || session.location || 'Địa điểm chưa xác định';
   const description = `Tham gia giao lưu cầu lông cùng ${session.host?.name || 'host'} tại ${locationName}. Chi tiết: ${session.description || 'Bấm để xem chi tiết.'}`;
 
   const images = session.coverPhoto
@@ -87,8 +91,12 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
   let jsonLd = null;
 
   if (session) {
-    const startTime = session.startTime ? new Date(session.startTime).toISOString() : undefined;
-    const endTime = session.endTime ? new Date(session.endTime).toISOString() : undefined;
+    const startTime = session.startTime
+      ? new Date(session.startTime).toISOString()
+      : undefined;
+    const endTime = session.endTime
+      ? new Date(session.endTime).toISOString()
+      : undefined;
 
     // Estimate price for schema
     let price = 0;
@@ -97,17 +105,22 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
     }
 
     // Determine availability
-    const maxPlayers = session.numberOfCourts ? session.numberOfCourts * (session.maxPlayersPerCourt || 4) : 0;
+    const maxPlayers = session.numberOfCourts
+      ? session.numberOfCourts * (session.maxPlayersPerCourt || 4)
+      : 0;
     const currentPlayers = session._count?.players || 0;
-    const availability = (maxPlayers > 0 && currentPlayers >= maxPlayers)
-      ? 'https://schema.org/SoldOut'
-      : 'https://schema.org/InStock';
+    const availability =
+      maxPlayers > 0 && currentPlayers >= maxPlayers
+        ? 'https://schema.org/SoldOut'
+        : 'https://schema.org/InStock';
 
     jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'SportsEvent',
       name: session.name,
-      description: session.description || `Giao lưu cầu lông tại ${session.venue?.name || session.location}`,
+      description:
+        session.description ||
+        `Giao lưu cầu lông tại ${session.venue?.name || session.location}`,
       startDate: startTime,
       endDate: endTime,
       image: session.coverPhoto ? [session.coverPhoto] : [DEFAULT_COVER_PHOTO],
@@ -119,25 +132,27 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
         address: {
           '@type': 'PostalAddress',
           streetAddress: session.venue?.address || session.location,
-          addressCountry: 'VN'
-        }
+          addressCountry: 'VN',
+        },
       },
       organizer: {
         '@type': 'Person',
         name: session.host?.name,
-        image: session.host?.image
+        image: session.host?.image,
       },
       offers: {
         '@type': 'Offer',
         price: price,
         priceCurrency: 'VND',
         availability: availability,
-        validFrom: session.createdAt ? new Date(session.createdAt).toISOString() : undefined,
+        validFrom: session.createdAt
+          ? new Date(session.createdAt).toISOString()
+          : undefined,
       },
       performer: {
         '@type': 'Person',
-        name: session.host?.name
-      }
+        name: session.host?.name,
+      },
     };
   }
 

@@ -39,8 +39,8 @@ const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
   connectionError: null,
-  joinSession: () => { },
-  leaveSession: () => { },
+  joinSession: () => {},
+  leaveSession: () => {},
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -130,7 +130,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const handleNotificationReceived = (data: INotification) => {
       // Security check: only process if it's for the current user
       if (data.userId !== user?.id) {
-        console.warn(`[Socket] Received notification meant for user ${data.userId}, but current user is ${user?.id}`);
+        console.warn(
+          `[Socket] Received notification meant for user ${data.userId}, but current user is ${user?.id}`
+        );
         return;
       }
 
@@ -147,12 +149,24 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
     socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
-    socket.on(SessionEventType.NOTIFICATION_RECEIVED, handleNotificationReceived);
+    socket.on(
+      SessionEventType.NOTIFICATION_RECEIVED,
+      handleNotificationReceived
+    );
 
     return () => {
-      socket.off(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
-      socket.off(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
-      socket.off(SessionEventType.NOTIFICATION_RECEIVED, handleNotificationReceived);
+      socket.off(
+        SessionEventType.REGISTRATION_REQUEST,
+        handleRegistrationRequest
+      );
+      socket.off(
+        SessionEventType.REGISTRATION_STATUS_UPDATED,
+        handleStatusUpdate
+      );
+      socket.off(
+        SessionEventType.NOTIFICATION_RECEIVED,
+        handleNotificationReceived
+      );
     };
   }, [socket]);
 

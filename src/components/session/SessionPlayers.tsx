@@ -339,7 +339,11 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
                         px={2}
                         py={0.5}
                         borderRadius="full"
-                        bg={p.winRate >= 50 ? { base: 'green.50', _dark: 'green.900/30' } : { base: 'orange.50', _dark: 'orange.900/30' }}
+                        bg={
+                          p.winRate >= 50
+                            ? { base: 'green.50', _dark: 'green.900/30' }
+                            : { base: 'orange.50', _dark: 'orange.900/30' }
+                        }
                         color={p.winRate >= 50 ? 'green.500' : 'orange.500'}
                         fontSize="xs"
                       >

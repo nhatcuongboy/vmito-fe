@@ -24,14 +24,9 @@ import {
   Heading,
   HStack,
   Text,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
-import {
-  Filter,
-  MapPin,
-  Search,
-  X
-} from 'lucide-react';
+import { Filter, MapPin, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -118,20 +113,26 @@ export default function FindSessionList({
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME instead of CODE
-        city: filters.cities.length === 1
-          ? VIETNAM_CITIES.find(c => c.code === filters.cities[0])?.name
-          : undefined,
+        city:
+          filters.cities.length === 1
+            ? VIETNAM_CITIES.find((c) => c.code === filters.cities[0])?.name
+            : undefined,
         // Send cleaned District name
-        district: filters.districts.length === 1
-          ? normalizeLocation(filters.districts[0])
-          : undefined,
+        district:
+          filters.districts.length === 1
+            ? normalizeLocation(filters.districts[0])
+            : undefined,
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
       };
 
       // Fee filter (only if changed from defaults or split evenly is selected)
-      if (filters.minFee > 0 || filters.maxFee < 200000 || filters.splitEvenly) {
+      if (
+        filters.minFee > 0 ||
+        filters.maxFee < 200000 ||
+        filters.splitEvenly
+      ) {
         apiFilters.minFee = filters.minFee;
         apiFilters.maxFee = filters.maxFee;
         // Note: splitEvenly is a frontend-only filter for now
@@ -159,7 +160,9 @@ export default function FindSessionList({
         filteredData = filteredData.filter((session) => {
           const sessionCity = session.venue?.city || session.location || '';
           return filters.cities.some((cityCode) => {
-            const cityName = VIETNAM_CITIES.find((c) => c.code === cityCode)?.name;
+            const cityName = VIETNAM_CITIES.find(
+              (c) => c.code === cityCode
+            )?.name;
             return (
               sessionCity.includes(cityCode) ||
               (cityName && sessionCity.includes(cityName))
@@ -223,10 +226,8 @@ export default function FindSessionList({
           setJoinedSessionIds(new Set(mySessions.map((s) => s.id)));
 
           const registrations = await PlayerService.getMyRegistrations();
-          const statusMap: Record<
-            string,
-            'PENDING' | 'APPROVED' | 'REJECTED'
-          > = {};
+          const statusMap: Record<string, 'PENDING' | 'APPROVED' | 'REJECTED'> =
+            {};
           registrations.forEach((reg) => {
             statusMap[reg.sessionId] = reg.status as
               | 'PENDING'
@@ -445,7 +446,13 @@ export default function FindSessionList({
             <Box>
               <Flex gap={3} wrap="wrap" align="flex-end">
                 <Box>
-                  <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
+                  <Text
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={1.5}
+                    textTransform="uppercase"
+                  >
                     {t('filters.date') || 'Ngày'}
                   </Text>
                   <Input
@@ -460,17 +467,31 @@ export default function FindSessionList({
                     borderColor="gray.300"
                     _hover={{ borderColor: 'blue.400' }}
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
-                    _dark={{ borderColor: 'gray.600', _hover: { borderColor: 'blue.400' } }}
+                    _dark={{
+                      borderColor: 'gray.600',
+                      _hover: { borderColor: 'blue.400' },
+                    }}
                   />
                 </Box>
 
                 <Box minW="250px">
                   <HStack gap={2} mb={1.5}>
-                    <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase">
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.500"
+                      textTransform="uppercase"
+                    >
                       ⏰ {t('timeRange')}
                     </Text>
                     {filters.timeRanges.length > 0 && (
-                      <Badge size="sm" colorPalette="orange" variant="solid" borderRadius="full" px={2}>
+                      <Badge
+                        size="sm"
+                        colorPalette="orange"
+                        variant="solid"
+                        borderRadius="full"
+                        px={2}
+                      >
                         {filters.timeRanges.length}
                       </Badge>
                     )}
@@ -502,7 +523,13 @@ export default function FindSessionList({
                 </Box>
 
                 <Box>
-                  <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1.5} textTransform="uppercase">
+                  <Text
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={1.5}
+                    textTransform="uppercase"
+                  >
                     🚀 {t('filters.quickFilters') || 'Lọc nhanh'}
                   </Text>
                   <Flex gap={2} wrap="wrap">
@@ -513,7 +540,9 @@ export default function FindSessionList({
                       cursor="pointer"
                       variant={filters.hasSlots ? 'solid' : 'outline'}
                       colorPalette={filters.hasSlots ? 'green' : 'gray'}
-                      onClick={() => setFilters({ hasSlots: !filters.hasSlots })}
+                      onClick={() =>
+                        setFilters({ hasSlots: !filters.hasSlots })
+                      }
                       fontSize="sm"
                       fontWeight="semibold"
                       transition="all 0.2s"
@@ -540,12 +569,13 @@ export default function FindSessionList({
                       borderWidth={sortByDistance ? '0' : '2px'}
                     >
                       <MapPin size={16} />
-                      {sortByDistance ? t('filters.sortByDistance') : t('filters.nearMe')}
+                      {sortByDistance
+                        ? t('filters.sortByDistance')
+                        : t('filters.nearMe')}
                     </Badge>
                   </Flex>
                 </Box>
               </Flex>
-
             </Box>
 
             {/* Divider */}
@@ -555,11 +585,22 @@ export default function FindSessionList({
             <Box>
               <Flex justify="space-between" align="center" mb={3}>
                 <HStack gap={2}>
-                  <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }}>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="bold"
+                    color="gray.700"
+                    _dark={{ color: 'gray.200' }}
+                  >
                     📍 {t('filters.area')}
                   </Text>
                   {filters.cities.length > 0 && (
-                    <Badge size="sm" colorPalette="blue" variant="solid" borderRadius="full" px={2}>
+                    <Badge
+                      size="sm"
+                      colorPalette="blue"
+                      variant="solid"
+                      borderRadius="full"
+                      px={2}
+                    >
                       {filters.cities.length}
                     </Badge>
                   )}
@@ -584,14 +625,20 @@ export default function FindSessionList({
                     py={2}
                     borderRadius="lg"
                     cursor="pointer"
-                    variant={filters.cities.includes(city.code) ? 'solid' : 'outline'}
-                    colorPalette={filters.cities.includes(city.code) ? 'blue' : 'gray'}
+                    variant={
+                      filters.cities.includes(city.code) ? 'solid' : 'outline'
+                    }
+                    colorPalette={
+                      filters.cities.includes(city.code) ? 'blue' : 'gray'
+                    }
                     onClick={() => toggleCity(city.code)}
                     fontSize="sm"
                     fontWeight="medium"
                     transition="all 0.2s"
                     _hover={{ transform: 'scale(1.05)' }}
-                    borderWidth={filters.cities.includes(city.code) ? '0' : '2px'}
+                    borderWidth={
+                      filters.cities.includes(city.code) ? '0' : '2px'
+                    }
                   >
                     {city.name}
                   </Badge>
@@ -604,11 +651,22 @@ export default function FindSessionList({
               <Box>
                 <Flex justify="space-between" align="center" mb={3}>
                   <HStack gap={2}>
-                    <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color="gray.700"
+                      _dark={{ color: 'gray.200' }}
+                    >
                       🏘️ {t('filters.allDistricts')}
                     </Text>
                     {filters.districts.length > 0 && (
-                      <Badge size="sm" colorPalette="blue" variant="solid" borderRadius="full" px={2}>
+                      <Badge
+                        size="sm"
+                        colorPalette="blue"
+                        variant="solid"
+                        borderRadius="full"
+                        px={2}
+                      >
                         {filters.districts.length}
                       </Badge>
                     )}
@@ -632,9 +690,15 @@ export default function FindSessionList({
                   overflowY="auto"
                   css={{
                     '&::-webkit-scrollbar': { width: '6px' },
-                    '&::-webkit-scrollbar-track': { background: '#f1f1f1', borderRadius: '10px' },
-                    '&::-webkit-scrollbar-thumb': { background: '#888', borderRadius: '10px' },
-                    '&::-webkit-scrollbar-thumb:hover': { background: '#555' }
+                    '&::-webkit-scrollbar-track': {
+                      background: '#f1f1f1',
+                      borderRadius: '10px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: '#888',
+                      borderRadius: '10px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover': { background: '#555' },
                   }}
                 >
                   {availableDistricts.map((district) => (
@@ -644,14 +708,24 @@ export default function FindSessionList({
                       py={1.5}
                       borderRadius="lg"
                       cursor="pointer"
-                      variant={filters.districts.includes(district.name) ? 'solid' : 'outline'}
-                      colorPalette={filters.districts.includes(district.name) ? 'blue' : 'gray'}
+                      variant={
+                        filters.districts.includes(district.name)
+                          ? 'solid'
+                          : 'outline'
+                      }
+                      colorPalette={
+                        filters.districts.includes(district.name)
+                          ? 'blue'
+                          : 'gray'
+                      }
                       onClick={() => toggleDistrict(district.name)}
                       fontSize="sm"
                       fontWeight="medium"
                       transition="all 0.2s"
                       _hover={{ transform: 'scale(1.05)' }}
-                      borderWidth={filters.districts.includes(district.name) ? '0' : '2px'}
+                      borderWidth={
+                        filters.districts.includes(district.name) ? '0' : '2px'
+                      }
                     >
                       {district.name}
                     </Badge>
@@ -666,11 +740,22 @@ export default function FindSessionList({
             {/* Skill Level Section */}
             <Box>
               <HStack gap={2} mb={3}>
-                <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                >
                   🏸 {t('level')}
                 </Text>
                 {filters.levels.length > 0 && (
-                  <Badge size="sm" colorPalette="purple" variant="solid" borderRadius="full" px={2}>
+                  <Badge
+                    size="sm"
+                    colorPalette="purple"
+                    variant="solid"
+                    borderRadius="full"
+                    px={2}
+                  >
                     {filters.levels.length}
                   </Badge>
                 )}
@@ -687,7 +772,9 @@ export default function FindSessionList({
                       borderRadius="full"
                       cursor="pointer"
                       variant={isSelected ? 'solid' : 'outline'}
-                      colorPalette={isSelected ? skillColor.colorPalette : 'gray'}
+                      colorPalette={
+                        isSelected ? skillColor.colorPalette : 'gray'
+                      }
                       onClick={() => toggleLevel(level)}
                       fontSize="sm"
                       fontWeight="bold"
@@ -707,7 +794,13 @@ export default function FindSessionList({
 
             {/* Fee Section */}
             <Box>
-              <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.200' }} mb={3}>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+                mb={3}
+              >
                 💰 {t('filters.cost')}
               </Text>
               <Flex gap={4} align="center" wrap="wrap">
@@ -717,7 +810,9 @@ export default function FindSessionList({
                     type="number"
                     width="110px"
                     value={filters.minFee}
-                    onChange={(e) => setFilters({ minFee: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setFilters({ minFee: Number(e.target.value) })
+                    }
                     step={5000}
                     min={0}
                     borderRadius="lg"
@@ -727,13 +822,17 @@ export default function FindSessionList({
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
                     _dark={{ borderColor: 'gray.600' }}
                   />
-                  <Text fontSize="md" fontWeight="bold" color="gray.500">→</Text>
+                  <Text fontSize="md" fontWeight="bold" color="gray.500">
+                    →
+                  </Text>
                   <Input
                     size="md"
                     type="number"
                     width="110px"
                     value={filters.maxFee}
-                    onChange={(e) => setFilters({ maxFee: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setFilters({ maxFee: Number(e.target.value) })
+                    }
                     step={5000}
                     min={0}
                     borderRadius="lg"
@@ -743,7 +842,9 @@ export default function FindSessionList({
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
                     _dark={{ borderColor: 'gray.600' }}
                   />
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.600">VND</Text>
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                    VND
+                  </Text>
                 </HStack>
                 <Box
                   as="label"
@@ -755,7 +856,9 @@ export default function FindSessionList({
                   py={2}
                   borderRadius="lg"
                   bg={filters.splitEvenly ? 'blue.50' : 'transparent'}
-                  _dark={{ bg: filters.splitEvenly ? 'blue.900' : 'transparent' }}
+                  _dark={{
+                    bg: filters.splitEvenly ? 'blue.900' : 'transparent',
+                  }}
                   borderWidth="2px"
                   borderColor={filters.splitEvenly ? 'blue.400' : 'gray.300'}
                   transition="all 0.2s"
@@ -764,10 +867,19 @@ export default function FindSessionList({
                   <input
                     type="checkbox"
                     checked={filters.splitEvenly}
-                    onChange={(e) => setFilters({ splitEvenly: e.target.checked })}
+                    onChange={(e) =>
+                      setFilters({ splitEvenly: e.target.checked })
+                    }
                     style={{ cursor: 'pointer' }}
                   />
-                  <Text fontSize="sm" fontWeight="semibold" color={filters.splitEvenly ? 'blue.700' : 'gray.700'} _dark={{ color: filters.splitEvenly ? 'blue.200' : 'gray.200' }}>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color={filters.splitEvenly ? 'blue.700' : 'gray.700'}
+                    _dark={{
+                      color: filters.splitEvenly ? 'blue.200' : 'gray.200',
+                    }}
+                  >
                     {t('filters.splitEvenly')}
                   </Text>
                 </Box>
@@ -864,7 +976,9 @@ export default function FindSessionList({
                 session={session}
                 onJoin={() => handleJoinClick(session)}
                 isJoined={joinedSessionIds.has(session.id)}
-                userRegistrationStatus={registrationStatusMap[session.id] || null}
+                userRegistrationStatus={
+                  registrationStatusMap[session.id] || null
+                }
                 onRegistrationUpdate={fetchSessions}
                 distance={session.distance}
               />

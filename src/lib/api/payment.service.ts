@@ -44,7 +44,9 @@ export const PaymentService = {
   },
 
   // Get my transactions with a specific host
-  getMyTransactionsWithHost: async (hostId: string): Promise<PaymentRecord[]> => {
+  getMyTransactionsWithHost: async (
+    hostId: string
+  ): Promise<PaymentRecord[]> => {
     const response = await api.get<ApiResponse<PaymentRecord[]>>(
       `/payments/me/host/${hostId}`
     );
@@ -73,9 +75,7 @@ export const PaymentService = {
 
   // Get all payments for a session (host only)
   getSessionPayments: async (sessionId: string): Promise<PaymentRecord[]> => {
-    const response = await api.get<any>(
-      `/sessions/${sessionId}/payments`
-    );
+    const response = await api.get<any>(`/sessions/${sessionId}/payments`);
     // API returns { payments: [...], stats: {...} }
     return response.data.data?.payments || response.data.payments || [];
   },
@@ -128,7 +128,9 @@ export const PaymentService = {
   },
 
   // Bulk approve payments
-  bulkApprovePayments: async (paymentIds: string[]): Promise<PaymentRecord[]> => {
+  bulkApprovePayments: async (
+    paymentIds: string[]
+  ): Promise<PaymentRecord[]> => {
     const response = await api.post<ApiResponse<PaymentRecord[]>>(
       '/payments/bulk-approve',
       { paymentIds }
@@ -181,8 +183,14 @@ export const PaymentService = {
     pendingCount: number;
     rejectedCount: number;
   }> => {
-    const response = await api.get<any>(`/sessions/${sessionId}/payments/stats`);
-    const stats = response.data.data?.stats || response.data.stats || response.data.data || {};
+    const response = await api.get<any>(
+      `/sessions/${sessionId}/payments/stats`
+    );
+    const stats =
+      response.data.data?.stats ||
+      response.data.stats ||
+      response.data.data ||
+      {};
 
     // Map API response format to frontend type
     // API returns: { total, pending, submitted, approved, rejected, totalAmount, paidAmount }

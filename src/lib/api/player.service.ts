@@ -193,14 +193,21 @@ export const PlayerService = {
     return response.data.data!;
   },
 
-
   // Get user's registration status across all sessions
   getMyRegistrations: async (): Promise<
-    { sessionId: string; playerId: string; status: 'PENDING' | 'APPROVED' | 'REJECTED' }[]
+    {
+      sessionId: string;
+      playerId: string;
+      status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    }[]
   > => {
     const response = await api.get<
       ApiResponse<
-        { sessionId: string; playerId: string; status: 'PENDING' | 'APPROVED' | 'REJECTED' }[]
+        {
+          sessionId: string;
+          playerId: string;
+          status: 'PENDING' | 'APPROVED' | 'REJECTED';
+        }[]
       >
     >('/players/me/registrations');
     return response.data.data || [];

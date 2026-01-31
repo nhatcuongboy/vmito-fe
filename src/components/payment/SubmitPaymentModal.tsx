@@ -5,7 +5,11 @@ import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { Button } from '@/components/ui/chakra-compat';
-import { PaymentMethod, PaymentRecord, HostPaymentSettings } from '@/lib/api/types';
+import {
+  PaymentMethod,
+  PaymentRecord,
+  HostPaymentSettings,
+} from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import { Banknote, CreditCard, Upload, QrCode } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
@@ -120,7 +124,12 @@ export default function SubmitPaymentModal({
 
         {/* Host Payment Info */}
         {hostPaymentSettings && (
-          <Box border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
+          <Box
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="lg"
+            p={4}
+          >
             <Text fontWeight="medium" mb={3}>
               {t('paymentInfo')}
             </Text>
@@ -186,8 +195,14 @@ export default function SubmitPaymentModal({
           <HStack gap={2}>
             <Button
               flex={1}
-              variant={paymentMethod === PaymentMethod.BANK_TRANSFER ? 'solid' : 'outline'}
-              colorPalette={paymentMethod === PaymentMethod.BANK_TRANSFER ? 'blue' : 'gray'}
+              variant={
+                paymentMethod === PaymentMethod.BANK_TRANSFER
+                  ? 'solid'
+                  : 'outline'
+              }
+              colorPalette={
+                paymentMethod === PaymentMethod.BANK_TRANSFER ? 'blue' : 'gray'
+              }
               onClick={() => setPaymentMethod(PaymentMethod.BANK_TRANSFER)}
             >
               <CreditCard size={16} />
@@ -195,8 +210,12 @@ export default function SubmitPaymentModal({
             </Button>
             <Button
               flex={1}
-              variant={paymentMethod === PaymentMethod.CASH ? 'solid' : 'outline'}
-              colorPalette={paymentMethod === PaymentMethod.CASH ? 'blue' : 'gray'}
+              variant={
+                paymentMethod === PaymentMethod.CASH ? 'solid' : 'outline'
+              }
+              colorPalette={
+                paymentMethod === PaymentMethod.CASH ? 'blue' : 'gray'
+              }
               onClick={() => setPaymentMethod(PaymentMethod.CASH)}
             >
               <Banknote size={16} />

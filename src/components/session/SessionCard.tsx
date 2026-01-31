@@ -142,7 +142,9 @@ const SessionCard = ({
             colorPalette={isOwner && user?.role === 'PLAYER' ? 'blue' : 'blue'}
             size="sm"
           >
-            {isOwner && user?.role === 'PLAYER' ? t('manageSession') : t('viewSession')}
+            {isOwner && user?.role === 'PLAYER'
+              ? t('manageSession')
+              : t('viewSession')}
           </NextLinkButton>
         )}
         {mode === 'manage' && onDelete && (
@@ -189,4 +191,3 @@ const SessionCard = ({
 };
 
 export default SessionCard;
-

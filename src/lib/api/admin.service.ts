@@ -81,18 +81,18 @@ export const AdminService = {
     return response.data.data!;
   },
 
-  uploadAvatar: async (file: File): Promise<{ url: string; publicId: string }> => {
+  uploadAvatar: async (
+    file: File
+  ): Promise<{ url: string; publicId: string }> => {
     const formData = new FormData();
     formData.append('avatar', file);
-    const response = await api.post<ApiResponse<{ url: string; publicId: string }>>(
-      '/upload/avatar',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+    const response = await api.post<
+      ApiResponse<{ url: string; publicId: string }>
+    >('/upload/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
-    );
+    });
     return response.data.data!;
   },
 

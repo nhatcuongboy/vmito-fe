@@ -95,8 +95,10 @@ export const SessionService = {
     if (filters?.minAvailableSlots !== undefined)
       params.append('minAvailableSlots', filters.minAvailableSlots.toString());
     if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
-    if (filters?.lat !== undefined) params.append('lat', filters.lat.toString());
-    if (filters?.lng !== undefined) params.append('lng', filters.lng.toString());
+    if (filters?.lat !== undefined)
+      params.append('lat', filters.lat.toString());
+    if (filters?.lng !== undefined)
+      params.append('lng', filters.lng.toString());
     if (filters?.sortByDistance !== undefined)
       params.append('sortByDistance', filters.sortByDistance.toString());
 

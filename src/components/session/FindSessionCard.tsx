@@ -143,7 +143,9 @@ const FindSessionCard = ({
     try {
       setIsDeleting(true);
       await SessionService.deleteSession(session.id);
-      toaster.success({ title: tCommon('success') || 'Session deleted successfully' });
+      toaster.success({
+        title: tCommon('success') || 'Session deleted successfully',
+      });
       onCloseDeleteModal();
       onDeleteSuccess?.();
       onRegistrationUpdate?.(); // Fallback to refresh list

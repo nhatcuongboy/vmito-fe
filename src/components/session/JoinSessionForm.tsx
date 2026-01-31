@@ -9,7 +9,15 @@ import {
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { GenderType, ISession } from '@/lib/api/types';
-import { Badge, Box, Flex, Grid, Input, Text, Textarea } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Grid,
+  Input,
+  Text,
+  Textarea,
+} from '@chakra-ui/react';
 import { Plus, Trash2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useMemo } from 'react';
@@ -72,7 +80,11 @@ export default function JoinSessionForm({
       </Text>
 
       {session.requiredLevels && session.requiredLevels.length > 0 && (
-        <Box bg={{ base: 'blue.50', _dark: 'blue.900/30' }} p={3} borderRadius="md">
+        <Box
+          bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+          p={3}
+          borderRadius="md"
+        >
           <Text fontSize="sm" color={{ base: 'blue.700', _dark: 'blue.300' }}>
             {t('requiredLevels')}:{' '}
             {session.requiredLevels.map((l) => t(`levels.${l}`)).join(', ')}
@@ -157,12 +169,7 @@ export default function JoinSessionForm({
             {/* Gender and Level - responsive grid */}
             <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
               <Box>
-                <Text
-                  fontSize="sm"
-                  mb={2}
-                  color="fg.muted"
-                  fontWeight="medium"
-                >
+                <Text fontSize="sm" mb={2} color="fg.muted" fontWeight="medium">
                   {tPlayer('gender')}
                 </Text>
                 <select
@@ -189,13 +196,11 @@ export default function JoinSessionForm({
               </Box>
 
               <FormControl isRequired isInvalid={!!errors[index]?.level}>
-                <Text
-                  fontSize="sm"
-                  mb={2}
-                  color="fg.muted"
-                  fontWeight="medium"
-                >
-                  {t('level')} <Text as="span" color="red.500">*</Text>
+                <Text fontSize="sm" mb={2} color="fg.muted" fontWeight="medium">
+                  {t('level')}{' '}
+                  <Text as="span" color="red.500">
+                    *
+                  </Text>
                 </Text>
                 <select
                   value={player.level}
@@ -231,12 +236,7 @@ export default function JoinSessionForm({
 
             {/* Level description */}
             <Box>
-              <Text
-                fontSize="sm"
-                mb={2}
-                color="fg.muted"
-                fontWeight="medium"
-              >
+              <Text fontSize="sm" mb={2} color="fg.muted" fontWeight="medium">
                 {tPlayer('levelDescription')}
               </Text>
               <Textarea

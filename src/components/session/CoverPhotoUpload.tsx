@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Box, Flex, Text, Image as ChakraImage, IconButton } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Text,
+  Image as ChakraImage,
+  IconButton,
+} from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -106,7 +112,9 @@ export default function CoverPhotoUpload({
     });
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -131,7 +139,10 @@ export default function CoverPhotoUpload({
       onPhotoSelect(resizedFile);
     } catch (error) {
       console.error('Error processing image:', error);
-      alert(tc('imageProcessingFailed') || 'Failed to process image. Please try another file.');
+      alert(
+        tc('imageProcessingFailed') ||
+          'Failed to process image. Please try another file.'
+      );
     }
   };
 
@@ -175,12 +186,7 @@ export default function CoverPhotoUpload({
             borderRadius="lg"
           />
           {!disabled && !isUploading && (
-            <Flex
-              position="absolute"
-              top={2}
-              right={2}
-              gap={2}
-            >
+            <Flex position="absolute" top={2} right={2} gap={2}>
               <IconButton
                 aria-label="Remove photo"
                 type="button"
@@ -240,7 +246,12 @@ export default function CoverPhotoUpload({
           transition="all 0.2s"
         >
           <ImageIcon size={48} color="gray" />
-          <Text mt={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+          <Text
+            mt={2}
+            fontSize="sm"
+            color="gray.600"
+            _dark={{ color: 'gray.400' }}
+          >
             {t('clickToUploadCoverPhoto')}
           </Text>
           <Text fontSize="xs" color="gray.500" mt={1}>

@@ -34,16 +34,23 @@ export const AIService = {
     articleContent: string,
     language?: Locale
   ): Promise<ExtractedSessionData> {
-    const response = await api.post<ApiResponse<ExtractedSessionData>>('/ai/extract-session', {
-      articleContent,
-      language,
-    });
-    
+    const response = await api.post<ApiResponse<ExtractedSessionData>>(
+      '/ai/extract-session',
+      {
+        articleContent,
+        language,
+      }
+    );
+
     // Check if the response follows ApiResponse structure
-    if (response.data && 'success' in response.data && 'data' in response.data) {
+    if (
+      response.data &&
+      'success' in response.data &&
+      'data' in response.data
+    ) {
       return response.data.data as ExtractedSessionData;
     }
-    
+
     // Fallback if data is returned directly or differently
     return response.data as unknown as ExtractedSessionData;
   },

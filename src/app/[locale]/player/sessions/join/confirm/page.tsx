@@ -356,7 +356,9 @@ function ConfirmPageContent() {
 
 export default function ConfirmPage() {
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}>
+    <ProtectedRouteGuard
+      requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+    >
       <Suspense fallback={<Spinner />}>
         <ConfirmPageContent />
       </Suspense>

@@ -1,7 +1,11 @@
 import { Box, Flex } from '@chakra-ui/react';
 import Footer from './Footer';
 import TopBar from '@/components/ui/TopBar';
-import { TOP_BAR_HEIGHT, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  TOP_BAR_HEIGHT,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 import { ReactNode } from 'react';
 
 interface MainLayoutProps {

@@ -88,7 +88,6 @@ export const SessionCardSkeleton = () => {
         <Skeleton height="32px" width="80px" borderRadius="md" />
         <Skeleton height="32px" width="100px" borderRadius="md" />
       </Flex>
-
     </Flex>
   );
 };

@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import { UserRatingStats } from '@/lib/api/types';
 import { RatingService } from '@/lib/api/rating.service';
 
@@ -9,15 +15,22 @@ interface RatingStatsContextType {
   isLoading: boolean;
 }
 
-const RatingStatsContext = createContext<RatingStatsContextType | undefined>(undefined);
+const RatingStatsContext = createContext<RatingStatsContextType | undefined>(
+  undefined
+);
 
 interface RatingStatsProviderProps {
   children: React.ReactNode;
   userIds: string[];
 }
 
-export const RatingStatsProvider: React.FC<RatingStatsProviderProps> = ({ children, userIds }) => {
-  const [statsMap, setStatsMap] = useState<Map<string, UserRatingStats>>(new Map());
+export const RatingStatsProvider: React.FC<RatingStatsProviderProps> = ({
+  children,
+  userIds,
+}) => {
+  const [statsMap, setStatsMap] = useState<Map<string, UserRatingStats>>(
+    new Map()
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,12 +43,12 @@ export const RatingStatsProvider: React.FC<RatingStatsProviderProps> = ({ childr
       try {
         setIsLoading(true);
         const stats = await RatingService.getBatchUserRatingStats(userIds);
-        
+
         const newMap = new Map<string, UserRatingStats>();
         stats.forEach((stat) => {
           newMap.set(stat.userId, stat);
         });
-        
+
         setStatsMap(newMap);
       } catch (error) {
         console.error('Failed to fetch batch rating stats:', error);

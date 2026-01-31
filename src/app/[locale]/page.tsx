@@ -6,15 +6,25 @@ import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import FindSessionList from '@/components/session/FindSessionList';
 import Footer from '@/components/layout/Footer';
-import { Image } from "@chakra-ui/react"
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import { Image } from '@chakra-ui/react';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 function HomeContent() {
   const t = useTranslations('session');
   const common = useTranslations('common');
 
   return (
-    <Flex direction="column" minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
+    <Flex
+      direction="column"
+      minH="100vh"
+      bg="gray.50"
+      _dark={{ bg: 'gray.900' }}
+    >
       <TopBar
         title={t('findSession')}
         icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
@@ -38,7 +48,13 @@ function HomeContent() {
 }
 export default function HomePage() {
   return (
-    <Suspense fallback={<Flex justify="center" align="center" minH="100vh"><Spinner size="xl" color="blue.500" /></Flex>}>
+    <Suspense
+      fallback={
+        <Flex justify="center" align="center" minH="100vh">
+          <Spinner size="xl" color="blue.500" />
+        </Flex>
+      }
+    >
       <HomeContent />
     </Suspense>
   );

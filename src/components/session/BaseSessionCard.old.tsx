@@ -40,7 +40,9 @@ export const formatDate = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const date = dayjs(dateString).locale(
+    locale === Locale.VI ? Locale.VI : Locale.EN
+  );
 
   let formattedDate: string;
 
@@ -57,7 +59,9 @@ export const formatTime = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs(dateString).locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const date = dayjs(dateString).locale(
+    locale === Locale.VI ? Locale.VI : Locale.EN
+  );
   return date.format('HH:mm');
 };
 
@@ -112,7 +116,8 @@ const BaseSessionCard = ({
   const { isAuthenticated } = useAuthStore();
 
   // Host rating state
-  const [hostRatingStats, setHostRatingStats] = useState<UserRatingStats | null>(null);
+  const [hostRatingStats, setHostRatingStats] =
+    useState<UserRatingStats | null>(null);
 
   // Fetch host rating stats
   useEffect(() => {
@@ -140,10 +145,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${session.endTime
-        ? formatTime(session.endTime, locale)
-        : t('inProgress')
-      }`
+      ? `${formatTime(session.startTime, locale)} - ${
+          session.endTime
+            ? formatTime(session.endTime, locale)
+            : t('inProgress')
+        }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -233,7 +239,12 @@ const BaseSessionCard = ({
             </Text>
           </Flex>
           <Flex align="center">
-            <Icon as={Shield} boxSize={5} mr={2} color={skillLevelColor.color} />
+            <Icon
+              as={Shield}
+              boxSize={5}
+              mr={2}
+              color={skillLevelColor.color}
+            />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
                 Array.from(new Set(session.requiredLevels))
@@ -268,7 +279,6 @@ const BaseSessionCard = ({
               )}
             </Wrap>
           </Flex>
-
 
           {/* Fee Display */}
           {session.feeConfig && (

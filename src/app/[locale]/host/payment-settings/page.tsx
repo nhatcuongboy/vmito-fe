@@ -54,7 +54,8 @@ function PaymentSettingsContent() {
     data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
   ) => {
     try {
-      const newSettings = await PaymentSettingsService.createPaymentSettings(data);
+      const newSettings =
+        await PaymentSettingsService.createPaymentSettings(data);
       setSettings((prev) => [...prev, newSettings]);
       setIsCreating(false);
       toaster.success({
@@ -76,10 +77,11 @@ function PaymentSettingsContent() {
   ) => {
     setSavingId(id);
     try {
-      const updated = await PaymentSettingsService.updatePaymentSettings(id, data);
-      setSettings((prev) =>
-        prev.map((s) => (s.id === id ? updated : s))
+      const updated = await PaymentSettingsService.updatePaymentSettings(
+        id,
+        data
       );
+      setSettings((prev) => prev.map((s) => (s.id === id ? updated : s)));
       setEditingId(null);
       toaster.success({
         title: tCommon('success'),
@@ -140,19 +142,14 @@ function PaymentSettingsContent() {
             <Heading size="lg">{t('settings')}</Heading>
           </HStack>
           {!isCreating && settings.length > 0 && (
-            <Button
-              colorPalette="blue"
-              onClick={() => setIsCreating(true)}
-            >
+            <Button colorPalette="blue" onClick={() => setIsCreating(true)}>
               <Plus size={16} />
               <Text ml={1}>{t('addSettings')}</Text>
             </Button>
           )}
         </HStack>
 
-        <Text color="gray.600">
-          {t('settingsDescription')}
-        </Text>
+        <Text color="gray.600">{t('settingsDescription')}</Text>
 
         {/* Existing Settings */}
         {settings.map((setting) => (
@@ -254,14 +251,15 @@ function PaymentSettingsContent() {
             borderColor="gray.200"
             borderRadius="lg"
           >
-            <CreditCard size={48} color="#A0AEC0" style={{ margin: '0 auto' }} />
+            <CreditCard
+              size={48}
+              color="#A0AEC0"
+              style={{ margin: '0 auto' }}
+            />
             <Text mt={4} mb={4} color="gray.500">
               {t('noSettings')}
             </Text>
-            <Button
-              colorPalette="blue"
-              onClick={() => setIsCreating(true)}
-            >
+            <Button colorPalette="blue" onClick={() => setIsCreating(true)}>
               <Plus size={16} />
               <Text ml={1}>{t('addSettings')}</Text>
             </Button>

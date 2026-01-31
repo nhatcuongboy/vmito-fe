@@ -10,7 +10,12 @@ import SessionCard from '@/components/session/SessionCard';
 import { useAuthStore } from '@/stores/useAuthStore';
 import TopBar from '@/components/ui/TopBar';
 import { Flex } from '@chakra-ui/react';
-import { CONTAINER_PX, CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
@@ -36,7 +41,9 @@ function PlayerSessionsContent() {
     fetchPlayerSessions();
   }, []);
 
-  const joinedSessions = sessions.filter((session) => session.hostId !== user?.id);
+  const joinedSessions = sessions.filter(
+    (session) => session.hostId !== user?.id
+  );
 
   return (
     <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
@@ -86,10 +93,15 @@ export default function PlayerSessionsPage() {
     <ProtectedRouteGuard
       requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
     >
-      <Suspense fallback={<Flex justify="center" align="center" minH="100vh"><Spinner size="xl" /></Flex>}>
+      <Suspense
+        fallback={
+          <Flex justify="center" align="center" minH="100vh">
+            <Spinner size="xl" />
+          </Flex>
+        }
+      >
         <PlayerSessionsContent />
       </Suspense>
     </ProtectedRouteGuard>
   );
 }
-

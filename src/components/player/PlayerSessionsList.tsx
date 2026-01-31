@@ -1,14 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Grid,
-  Heading,
-  Text,
-  Stack,
-  Flex,
-} from '@chakra-ui/react';
+import { Box, Grid, Heading, Text, Stack, Flex } from '@chakra-ui/react';
 import { AlertTriangle } from 'lucide-react';
 import { PlayerService } from '@/lib/api/player.service';
 import { useTranslations } from 'next-intl';

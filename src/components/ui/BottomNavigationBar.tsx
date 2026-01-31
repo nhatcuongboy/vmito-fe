@@ -30,7 +30,7 @@ export default function BottomNavigationBar({
       right={0}
       bottom={0}
       zIndex={100}
-      bg={{ base: "white", _dark: "gray.800" }}
+      bg={{ base: 'white', _dark: 'gray.800' }}
       borderTopWidth="1px"
       borderTopColor="border"
       boxShadow="sm"
@@ -58,7 +58,10 @@ export default function BottomNavigationBar({
             gap={1}
             color={isActive ? 'blue.500' : 'fg.muted'}
             _active={{ bg: 'transparent' }}
-            _hover={{ bg: 'transparent', color: { base: 'blue.600', _dark: 'blue.400' } }}
+            _hover={{
+              bg: 'transparent',
+              color: { base: 'blue.600', _dark: 'blue.400' },
+            }}
             flex={1}
             display="flex"
             alignItems="center"

@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Text } from '@chakra-ui/react';
-import { IconButton, Button, HStack, VStack } from '@/components/ui/chakra-compat';
+import {
+  IconButton,
+  Button,
+  HStack,
+  VStack,
+} from '@/components/ui/chakra-compat';
 import {
   MoreVertical,
   User,
@@ -30,8 +35,8 @@ export const PlayerActionMenu: React.FC<PlayerActionMenuProps> = ({
   onDelete,
   onToggleStatus,
   t,
-  buttonVariant = "ghost",
-  buttonSize = "sm",
+  buttonVariant = 'ghost',
+  buttonSize = 'sm',
   onOpenChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -78,13 +83,17 @@ export const PlayerActionMenu: React.FC<PlayerActionMenuProps> = ({
           size={buttonSize}
           color={buttonVariant === 'solid' ? 'white' : 'gray.400'}
           borderRadius="full"
-          _hover={buttonVariant === 'solid' ? {
-             transform: 'scale(1.1)',
-          } : {
-            bg: 'gray.100',
-            color: 'gray.600',
-            transform: 'scale(1.1)',
-          }}
+          _hover={
+            buttonVariant === 'solid'
+              ? {
+                  transform: 'scale(1.1)',
+                }
+              : {
+                  bg: 'gray.100',
+                  color: 'gray.600',
+                  transform: 'scale(1.1)',
+                }
+          }
           transition="all 0.2s"
           onClick={handleToggle}
         />

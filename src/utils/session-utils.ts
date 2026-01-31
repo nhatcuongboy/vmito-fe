@@ -1,4 +1,10 @@
-import { Player, Court, Match, CourtStatus, PlayerStatus } from '@/lib/api/types';
+import {
+  Player,
+  Court,
+  Match,
+  CourtStatus,
+  PlayerStatus,
+} from '@/lib/api/types';
 
 /**
  * Get waiting players filtered and sorted by wait time

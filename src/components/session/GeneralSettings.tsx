@@ -183,14 +183,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       const selectedVenue = venues.find((v) => v.id === selectedVenueId);
       const venueData = selectedVenue
         ? {
-          placeId: selectedVenue.placeId,
-          name: selectedVenue.name,
-          address: selectedVenue.address,
-          lat: selectedVenue.lat,
-          lng: selectedVenue.lng,
-          district: selectedVenue.district,
-          city: selectedVenue.city,
-        }
+            placeId: selectedVenue.placeId,
+            name: selectedVenue.name,
+            address: selectedVenue.address,
+            lat: selectedVenue.lat,
+            lng: selectedVenue.lng,
+            district: selectedVenue.district,
+            city: selectedVenue.city,
+          }
         : undefined;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -239,7 +239,13 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   return (
     <Box maxW="6xl" mx="auto" px={4}>
       <VStack gap={8}>
-        <Card maxW="4xl" w="full" bg={{ base: 'white', _dark: 'gray.800' }} border="1px solid" borderColor="border">
+        <Card
+          maxW="4xl"
+          w="full"
+          bg={{ base: 'white', _dark: 'gray.800' }}
+          border="1px solid"
+          borderColor="border"
+        >
           <CardBody p={8}>
             <VStack gap={6} align="stretch">
               <Box>
@@ -352,8 +358,12 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   </HStack>
                   <Input
                     value={formData.shuttlecock || ''}
-                    onChange={(e) => handleInputChange('shuttlecock', e.target.value)}
-                    placeholder={t('shuttlecock', { defaultValue: 'Nhập loại cầu' })}
+                    onChange={(e) =>
+                      handleInputChange('shuttlecock', e.target.value)
+                    }
+                    placeholder={t('shuttlecock', {
+                      defaultValue: 'Nhập loại cầu',
+                    })}
                     size="lg"
                     borderRadius="lg"
                     borderColor="border"
@@ -433,11 +443,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     <HStack>
                       <UserCheck size={16} color="fg.muted" />
                       <Box>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="fg"
-                        >
+                        <Text fontSize="sm" fontWeight="semibold" color="fg">
                           {t('requirePlayerInfo')}
                         </Text>
                         <Text fontSize="xs" color="fg.muted">
@@ -465,11 +471,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     <HStack>
                       <Users size={16} color="fg.muted" />
                       <Box>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="fg"
-                        >
+                        <Text fontSize="sm" fontWeight="semibold" color="fg">
                           {t('allowGuestJoin')}
                         </Text>
                         <Text fontSize="xs" color="fg.muted">
@@ -497,11 +499,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     <HStack>
                       <UserPlus size={16} color="fg.muted" />
                       <Box>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="fg"
-                        >
+                        <Text fontSize="sm" fontWeight="semibold" color="fg">
                           {t('allowNewPlayers')}
                         </Text>
                         <Text fontSize="xs" color="fg.muted">
@@ -529,7 +527,11 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   </HStack>
                 </Heading>
 
-                <Box p={4} bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }} borderRadius="lg">
+                <Box
+                  p={4}
+                  bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
+                  borderRadius="lg"
+                >
                   <Text fontSize="xs" color="fg.muted" mb={3}>
                     {t('selectRequiredLevels')}
                   </Text>
@@ -545,7 +547,11 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                             py={2}
                             borderRadius="md"
                             cursor="pointer"
-                            bg={isSelected ? 'blue.500' : { base: 'gray.200', _dark: 'gray.700' }}
+                            bg={
+                              isSelected
+                                ? 'blue.500'
+                                : { base: 'gray.200', _dark: 'gray.700' }
+                            }
                             color={isSelected ? 'white' : 'fg'}
                             fontSize="sm"
                             fontWeight="semibold"
@@ -588,7 +594,11 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   </HStack>
                 </Heading>
 
-                <Box p={4} bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }} borderRadius="lg">
+                <Box
+                  p={4}
+                  bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
+                  borderRadius="lg"
+                >
                   <Text fontSize="xs" color="fg.muted" mb={3}>
                     Select a color theme for your courts
                   </Text>
@@ -609,9 +619,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                                 handleInputChange('courtColor', color.value)
                               }
                               border="4px solid"
-                              borderColor={
-                                isSelected ? 'blue.500' : 'border'
-                              }
+                              borderColor={isSelected ? 'blue.500' : 'border'}
                               boxShadow={isSelected ? 'lg' : 'sm'}
                               transition="all 0.2s"
                               _hover={{

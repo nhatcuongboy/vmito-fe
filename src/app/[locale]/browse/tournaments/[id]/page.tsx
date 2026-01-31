@@ -84,8 +84,6 @@ export default function TournamentDetailPage() {
   const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
 
-
-
   useEffect(() => {
     if (tournamentId) {
       loadTournament();
@@ -204,22 +202,22 @@ export default function TournamentDetailPage() {
     : '';
   const endDateDisplay = tournament
     ? (() => {
-      const endDate = new Date(tournament.endDate);
-      const dateStr = endDate.toISOString().split('T')[0];
-      const [year, month, day] = dateStr.split('-');
-      let displayDay = parseInt(day);
-      if (
-        endDate.getUTCHours() === 0 &&
-        endDate.getUTCMinutes() === 0 &&
-        endDate.getUTCSeconds() === 0
-      ) {
-        displayDay = parseInt(day) - 1;
-      }
-      return format(
-        new Date(parseInt(year), parseInt(month) - 1, displayDay),
-        'MMM d'
-      );
-    })()
+        const endDate = new Date(tournament.endDate);
+        const dateStr = endDate.toISOString().split('T')[0];
+        const [year, month, day] = dateStr.split('-');
+        let displayDay = parseInt(day);
+        if (
+          endDate.getUTCHours() === 0 &&
+          endDate.getUTCMinutes() === 0 &&
+          endDate.getUTCSeconds() === 0
+        ) {
+          displayDay = parseInt(day) - 1;
+        }
+        return format(
+          new Date(parseInt(year), parseInt(month) - 1, displayDay),
+          'MMM d'
+        );
+      })()
     : '';
 
   if (loading) {
@@ -726,10 +724,7 @@ export default function TournamentDetailPage() {
         </Box>
       </Box>
 
-      <SlideOutMenu
-        isOpen={isMenuOpen}
-        onClose={onMenuClose}
-      />
+      <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
     </>
   );
 }

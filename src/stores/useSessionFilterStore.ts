@@ -32,7 +32,10 @@ interface SessionFilterState {
   userLocation: { lat: number; lng: number } | null;
 
   // Actions
-  setFilter: <K extends keyof SessionFilters>(key: K, value: SessionFilters[K]) => void;
+  setFilter: <K extends keyof SessionFilters>(
+    key: K,
+    value: SessionFilters[K]
+  ) => void;
   setFilters: (filters: Partial<SessionFilters>) => void;
   clearFilters: () => void;
   setSortByDistance: (sort: boolean) => void;

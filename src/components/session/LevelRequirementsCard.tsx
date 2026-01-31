@@ -1,6 +1,11 @@
 'use client';
 
-import { Control, useController, useWatch, UseFormSetValue } from 'react-hook-form';
+import {
+  Control,
+  useController,
+  useWatch,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
 import { CourtDirection } from '@/lib/api/types';
 import {
@@ -30,12 +35,7 @@ const CustomCheckbox = ({
   const iconSize = 16;
 
   return (
-    <Box
-      as="label"
-      cursor="pointer"
-      display="inline-flex"
-      alignItems="center"
-    >
+    <Box as="label" cursor="pointer" display="inline-flex" alignItems="center">
       <input
         type="checkbox"
         checked={isChecked}
@@ -87,7 +87,10 @@ interface LevelRequirementsCardProps {
   }>;
 }
 
-export default function LevelRequirementsCard({ control, setValue }: LevelRequirementsCardProps) {
+export default function LevelRequirementsCard({
+  control,
+  setValue,
+}: LevelRequirementsCardProps) {
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
 
@@ -130,7 +133,14 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
   };
 
   return (
-    <Box bg={{ base: 'white', _dark: 'gray.800' }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor="border">
+    <Box
+      bg={{ base: 'white', _dark: 'gray.800' }}
+      p={6}
+      borderRadius="lg"
+      boxShadow="sm"
+      border="1px solid"
+      borderColor="border"
+    >
       <Heading size="md" mb={2}>
         {t('generalSettings.requiredPlayerLevels')}
       </Heading>
@@ -147,7 +157,11 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
             size="md"
             variant={allLevelsSelected ? 'solid' : 'outline'}
             colorPalette="blue"
-            bg={allLevelsSelected ? 'blue.600' : { base: 'gray.50', _dark: 'whiteAlpha.50' }}
+            bg={
+              allLevelsSelected
+                ? 'blue.600'
+                : { base: 'gray.50', _dark: 'whiteAlpha.50' }
+            }
             color={allLevelsSelected ? 'white' : 'fg'}
             borderColor={allLevelsSelected ? 'blue.600' : 'border'}
             onClick={handleSelectAllLevels}
@@ -164,7 +178,8 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
         {/* Level Selection */}
         <Wrap gap={3}>
           {VALID_LEVELS.map((level) => {
-            const isSelected = !allLevelsSelected && requiredLevels.includes(level);
+            const isSelected =
+              !allLevelsSelected && requiredLevels.includes(level);
             const levelColor = getSkillLevelColor([level]);
 
             return (
@@ -188,7 +203,7 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
                   _hover={{
                     transform: 'translateY(-1px)',
                     shadow: 'sm',
-                    bg: isSelected ? undefined : 'bg.muted'
+                    bg: isSelected ? undefined : 'bg.muted',
                   }}
                   transition="all 0.2s"
                 >
@@ -198,11 +213,11 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
                       h="10px"
                       borderRadius="full"
                       bg={isSelected ? 'white' : levelColor.color}
-                      boxShadow={isSelected ? "none" : "inset 0 0 0 1px rgba(0,0,0,0.1)"}
+                      boxShadow={
+                        isSelected ? 'none' : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
+                      }
                     />
-                    <Text>
-                      {getLevelShortLabel(level)}
-                    </Text>
+                    <Text>{getLevelShortLabel(level)}</Text>
                   </HStack>
                 </Button>
               </WrapItem>
@@ -212,9 +227,17 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
 
         {/* Selected Levels Summary */}
         {!allLevelsSelected && requiredLevels.length > 0 && (
-          <Box p={4} bg={{ base: 'blue.50', _dark: 'blue.900/30' }} borderRadius="md" border="1px solid" borderColor={{ base: 'blue.100', _dark: 'blue.800' }}>
+          <Box
+            p={4}
+            bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+            borderRadius="md"
+            border="1px solid"
+            borderColor={{ base: 'blue.100', _dark: 'blue.800' }}
+          >
             <Text fontSize="md" color={{ base: 'blue.800', _dark: 'blue.200' }}>
-              <Text as="span" fontWeight="medium">{t('generalSettings.selectedLevels')}: </Text>
+              <Text as="span" fontWeight="medium">
+                {t('generalSettings.selectedLevels')}:{' '}
+              </Text>
               {requiredLevels
                 .sort((a: number, b: number) => a - b)
                 .map((level: number) => getLevelShortLabel(level))

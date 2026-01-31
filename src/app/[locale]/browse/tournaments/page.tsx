@@ -340,7 +340,13 @@ function TournamentsContent() {
 
 export default function TournamentsPage() {
   return (
-    <Suspense fallback={<Flex justify="center" py={10}><Spinner size="lg" /></Flex>}>
+    <Suspense
+      fallback={
+        <Flex justify="center" py={10}>
+          <Spinner size="lg" />
+        </Flex>
+      }
+    >
       <TournamentsContent />
     </Suspense>
   );

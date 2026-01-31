@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Avatar, Flex, Badge } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Avatar,
+  Flex,
+  Badge,
+} from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/chakra-compat';
 import { TransactionSummary, HostTransactionSummary } from '@/lib/api/types';
@@ -11,7 +19,9 @@ import { StarRatingDisplay } from '@/components/rating';
 interface TransactionSummaryListProps {
   summaries: (TransactionSummary | HostTransactionSummary)[];
   viewType: 'player' | 'host'; // player sees hosts, host sees players
-  onSelectSummary: (summary: TransactionSummary | HostTransactionSummary) => void;
+  onSelectSummary: (
+    summary: TransactionSummary | HostTransactionSummary
+  ) => void;
   isLoading?: boolean;
 }
 
@@ -100,7 +110,11 @@ export default function TransactionSummaryList({
 
           return (
             <Box
-              key={isPlayerView ? (summary as TransactionSummary).hostId : (summary as HostTransactionSummary).userId}
+              key={
+                isPlayerView
+                  ? (summary as TransactionSummary).hostId
+                  : (summary as HostTransactionSummary).userId
+              }
               bg="white"
               border="1px solid"
               borderColor="gray.200"
@@ -150,7 +164,8 @@ export default function TransactionSummaryList({
                     </Text>
                     {summary.pendingAmount > 0 ? (
                       <Badge colorPalette="yellow" fontSize="xs">
-                        {t('pending')}: {FeeService.formatFee(summary.pendingAmount)}
+                        {t('pending')}:{' '}
+                        {FeeService.formatFee(summary.pendingAmount)}
                       </Badge>
                     ) : (
                       <Badge colorPalette="green" fontSize="xs">

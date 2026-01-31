@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Avatar, Flex, Badge } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Avatar,
+  Flex,
+  Badge,
+} from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
@@ -141,29 +149,34 @@ export default function SessionPaymentList({
         <HStack gap={1}>
           <Filter size={16} />
           <HStack gap={1}>
-            {(['all', PaymentStatus.PENDING, PaymentStatus.SUBMITTED, PaymentStatus.APPROVED] as FilterType[]).map(
-              (f) => (
-                <Button
-                  key={f}
-                  size="sm"
-                  variant={filter === f ? 'solid' : 'outline'}
-                  colorPalette={filter === f ? 'blue' : 'gray'}
-                  onClick={() => setFilter(f)}
-                >
-                  {f === 'all' ? t('all') : t(`status.${f.toLowerCase()}`)}
-                  {f === PaymentStatus.PENDING && pendingCount > 0 && (
-                    <Badge ml={1} colorPalette="yellow">
-                      {pendingCount}
-                    </Badge>
-                  )}
-                  {f === PaymentStatus.SUBMITTED && submittedCount > 0 && (
-                    <Badge ml={1} colorPalette="blue">
-                      {submittedCount}
-                    </Badge>
-                  )}
-                </Button>
-              )
-            )}
+            {(
+              [
+                'all',
+                PaymentStatus.PENDING,
+                PaymentStatus.SUBMITTED,
+                PaymentStatus.APPROVED,
+              ] as FilterType[]
+            ).map((f) => (
+              <Button
+                key={f}
+                size="sm"
+                variant={filter === f ? 'solid' : 'outline'}
+                colorPalette={filter === f ? 'blue' : 'gray'}
+                onClick={() => setFilter(f)}
+              >
+                {f === 'all' ? t('all') : t(`status.${f.toLowerCase()}`)}
+                {f === PaymentStatus.PENDING && pendingCount > 0 && (
+                  <Badge ml={1} colorPalette="yellow">
+                    {pendingCount}
+                  </Badge>
+                )}
+                {f === PaymentStatus.SUBMITTED && submittedCount > 0 && (
+                  <Badge ml={1} colorPalette="blue">
+                    {submittedCount}
+                  </Badge>
+                )}
+              </Button>
+            ))}
           </HStack>
         </HStack>
 
