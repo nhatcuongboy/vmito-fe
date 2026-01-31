@@ -21,15 +21,11 @@ export const AuthService = {
       credentials
     );
 
-    console.log('Login response:', response.data);
-
     // Backend wraps response in { success, data }
     const loginData = response.data.data;
-    console.log('Login data:', loginData);
 
     // Save to auth store
     const { user, accessToken, refreshToken } = loginData;
-    console.log('User from response:', user);
     useAuthStore.getState().setAuth(user, accessToken, refreshToken);
 
     return loginData;
@@ -48,6 +44,9 @@ export const AuthService = {
    */
   logout: (): void => {
     useAuthStore.getState().clearAuth();
+    // Use dynamic import or direct access if imported to reset notification state
+    const { useNotificationStore } = require('@/stores/useNotificationStore');
+    useNotificationStore.getState().reset();
   },
 
   /**

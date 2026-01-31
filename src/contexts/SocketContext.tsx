@@ -5,6 +5,8 @@ import { io, Socket } from 'socket.io-client';
 
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useNotificationStore } from '@/stores/useNotificationStore';
+import { INotification } from '@/lib/api/types';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -19,6 +21,7 @@ export enum SessionEventType {
   PLAYERS_DESELECTED = 'players_deselected',
   REGISTRATION_REQUEST = 'registration_request',
   REGISTRATION_STATUS_UPDATED = 'registration_status_updated',
+  NOTIFICATION_RECEIVED = 'notification_received',
 }
 
 // All session-related event types for listening
@@ -123,12 +126,33 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     };
 
+    // Listener for Real-time Notifications
+    const handleNotificationReceived = (data: INotification) => {
+      // Security check: only process if it's for the current user
+      if (data.userId !== user?.id) {
+        console.warn(`[Socket] Received notification meant for user ${data.userId}, but current user is ${user?.id}`);
+        return;
+      }
+
+      // Add to store
+      useNotificationStore.getState().addNotification(data);
+
+      // Show toast notification
+      toaster.info({
+        title: data.title,
+        description: data.message,
+        duration: 5000,
+      });
+    };
+
     socket.on(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
     socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
+    socket.on(SessionEventType.NOTIFICATION_RECEIVED, handleNotificationReceived);
 
     return () => {
       socket.off(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
       socket.off(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
+      socket.off(SessionEventType.NOTIFICATION_RECEIVED, handleNotificationReceived);
     };
   }, [socket]);
 

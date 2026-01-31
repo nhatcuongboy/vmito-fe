@@ -830,3 +830,40 @@ export interface GetRatingsRequest {
   raterUserId?: string;
   ratedUserId?: string;
 }
+
+// ============================================
+// Notification System Types
+// ============================================
+
+export enum NotificationType {
+  SYSTEM = 'SYSTEM',           // Admin broadcast notifications
+  SESSION = 'SESSION',         // Session-related notifications
+  REGISTRATION = 'REGISTRATION', // Registration status updates
+  PAYMENT = 'PAYMENT',         // Payment-related notifications
+}
+
+export interface INotification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  data?: Record<string, unknown>;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface IPaginatedNotifications {
+  data: INotification[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface IBroadcastNotificationRequest {
+  title: string;
+  message: string;
+}

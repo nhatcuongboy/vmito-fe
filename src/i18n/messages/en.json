@@ -1938,5 +1938,30 @@
     "reviews": "Reviews",
     "cancel": "Cancel",
     "rated": "Rated"
+  },
+  "notification": {
+    "notifications": "Notifications",
+    "noNotifications": "No notifications yet",
+    "markAsRead": "Mark as read",
+    "markAllAsRead": "Mark all as read",
+    "delete": "Delete",
+    "new": "New",
+    "broadcastNotifications": "Broadcast Notifications",
+    "broadcastDescription": "Send a notification to all users in the system",
+    "notificationTitle": "Title",
+    "notificationMessage": "Message",
+    "titlePlaceholder": "Enter notification title...",
+    "messagePlaceholder": "Enter notification message...",
+    "preview": "Preview",
+    "sendToAllUsers": "Send to All Users",
+    "broadcastSuccess": "Notification sent successfully",
+    "broadcastError": "Failed to send notification",
+    "usersNotified": "users notified",
+    "types": {
+      "SYSTEM": "System",
+      "SESSION": "Session",
+      "REGISTRATION": "Registration",
+      "PAYMENT": "Payment"
+    }
   }
 }

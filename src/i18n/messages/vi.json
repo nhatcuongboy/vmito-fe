@@ -1938,5 +1938,30 @@
     "reviews": "Đánh giá",
     "cancel": "Hủy",
     "rated": "Đã đánh giá"
+  },
+  "notification": {
+    "notifications": "Thông báo",
+    "noNotifications": "Chưa có thông báo",
+    "markAsRead": "Đánh dấu đã đọc",
+    "markAllAsRead": "Đánh dấu tất cả đã đọc",
+    "delete": "Xóa",
+    "new": "Mới",
+    "broadcastNotifications": "Gửi thông báo",
+    "broadcastDescription": "Gửi thông báo đến tất cả người dùng trong hệ thống",
+    "notificationTitle": "Tiêu đề",
+    "notificationMessage": "Nội dung",
+    "titlePlaceholder": "Nhập tiêu đề thông báo...",
+    "messagePlaceholder": "Nhập nội dung thông báo...",
+    "preview": "Xem trước",
+    "sendToAllUsers": "Gửi cho tất cả người dùng",
+    "broadcastSuccess": "Gửi thông báo thành công",
+    "broadcastError": "Không thể gửi thông báo",
+    "usersNotified": "người dùng đã nhận",
+    "types": {
+      "SYSTEM": "Hệ thống",
+      "SESSION": "Kèo",
+      "REGISTRATION": "Đăng ký",
+      "PAYMENT": "Thanh toán"
+    }
   }
 }
