@@ -465,11 +465,23 @@ export default function FindSessionList({
                     borderRadius="lg"
                     borderWidth="2px"
                     borderColor="gray.300"
+                    color="gray.800"
+                    bg="white"
+                    px={3}
                     _hover={{ borderColor: 'blue.400' }}
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
                     _dark={{
+                      color: 'white',
+                      bg: 'gray.700',
                       borderColor: 'gray.600',
                       _hover: { borderColor: 'blue.400' },
+                    }}
+                    css={{
+                      '&::-webkit-date-and-time-value': {
+                        minHeight: '1.5em',
+                        display: 'flex',
+                        alignItems: 'center',
+                      },
                     }}
                   />
                 </Box>
@@ -818,9 +830,11 @@ export default function FindSessionList({
                     borderRadius="lg"
                     borderWidth="2px"
                     borderColor="gray.300"
+                    color="gray.800"
+                    bg="white"
                     _hover={{ borderColor: 'blue.400' }}
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
-                    _dark={{ borderColor: 'gray.600' }}
+                    _dark={{ color: 'white', bg: 'gray.700', borderColor: 'gray.600' }}
                   />
                   <Text fontSize="md" fontWeight="bold" color="gray.500">
                     →
@@ -838,9 +852,11 @@ export default function FindSessionList({
                     borderRadius="lg"
                     borderWidth="2px"
                     borderColor="gray.300"
+                    color="gray.800"
+                    bg="white"
                     _hover={{ borderColor: 'blue.400' }}
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
-                    _dark={{ borderColor: 'gray.600' }}
+                    _dark={{ color: 'white', bg: 'gray.700', borderColor: 'gray.600' }}
                   />
                   <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                     VND

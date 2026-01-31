@@ -128,7 +128,7 @@
     "courtNameDescription": "Tên tùy chỉnh để giúp nhận diện sân này",
     "courtDirectionTip": "Hướng sân giúp tối ưu hóa việc sắp xếp người chơi và điều kiện ánh sáng",
     "createSession": "Tạo kèo",
-    "joinSession": "Tham gia kèo",
+    "joinSession": "Đăng ký kèo",
     "fee": "Phí",
     "register": "Đăng ký",
     "sessionName": "Tên kèo",
@@ -160,7 +160,7 @@
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Xóa",
-    "viewSession": "Vào",
+    "viewSession": "Theo dõi",
     "view": "Xem",
     "deleteConfirmation": "Bạn có chắc chắn muốn xóa kèo này không?",
     "notStarted": "Chưa bắt đầu",
@@ -179,7 +179,6 @@
     "automaticallyCalculated": "Tự động tính toán từ thời gian bắt đầu/kết thúc",
     "whenTheSessionWillBegin": "Khi kèo sẽ bắt đầu",
     "whenTheSessionWillEnd": "Khi kèo sẽ kết thúc",
-    "endTimeMustBeAfterStartTime": "Thời gian kết thúc phải sau thời gian bắt đầu",
     "maxPlayersDescription": "Số lượng người chơi tối đa cho phép mỗi sân (4-12)",
     "requirePlayerInformation": "Yêu cầu thông tin người chơi",
     "collectPlayerInformation": "Thu thập thông tin người chơi",
@@ -228,7 +227,8 @@
       "sessionNotFoundDescription": "Kèo bạn đang tìm có thể đã bị xóa hoặc không tồn tại.",
       "cannotEditCourtsWithPlayers": "Không thể chỉnh sửa cấu hình sân khi đã có người chơi tham gia",
       "cannotEditTimeWhenActive": "Không thể chỉnh sửa thời gian khi kèo đang diễn ra",
-      "levelRequired": "Vui lòng chọn trình độ"
+      "levelRequired": "Vui lòng chọn trình độ",
+      "endTimeMustBeAfterStartTime": "Thời gian kết thúc phải sau thời gian bắt đầu"
     },
     "generalSettings": {
       "selectVenue": "Chọn địa điểm...",
@@ -347,7 +347,7 @@
     "pastSessions": "Kèo đã qua",
     "tryAdjustingFilters": "Thử điều chỉnh bộ lọc của bạn",
     "submitRegistration": "Gửi đăng ký",
-    "joinSessionDescription": "Bạn đang tham gia kèo do {hostName} tổ chức",
+    "joinSessionDescription": "Bạn đang đăng ký kèo do {hostName} tổ chức",
     "myName": "Tên tôi",
     "guestName": "Tên khách",
     "enterName": "Nhập tên",
@@ -396,6 +396,10 @@
       "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}"
     },
     "linkCopied": "Đã sao chép link",
+    "shareCardHeader": "Tuyển vãng lai cầu lông",
+    "shareCardFooter": "Truy cập VMITO.COM để tìm thêm nhiều kèo hot hơn",
+    "downloadImage": "Tải ảnh",
+    "imageDownloadSuccess": "Đã tải ảnh thành công",
     "hostedBy": "Được tổ chức bởi",
     "dateNotSet": "Chưa đặt ngày",
     "timeNotSet": "Chưa đặt giờ",
@@ -1435,7 +1439,7 @@
       "courtNumber": "Sân {number}",
       "inUse": "Đang chơi",
       "ready": "Sẵn sàng",
-      "empty": "N/A",
+      "empty": "Trống",
       "playing": "Đang chơi...",
       "endMatch": "Kết thúc",
       "autoAssignMatch": "Tự động ghép đôi",
@@ -1622,7 +1626,7 @@
     "signin": {
       "title": "Đăng nhập",
       "appTitle": "Quản lý kèo cầu lông",
-      "description": "Đăng nhập để quản lý các kèo cầu lông của bạn",
+      "description": "Đăng nhập để tham gia và quản lý kèo",
       "email": "Email",
       "emailPlaceholder": "Nhập email của bạn",
       "password": "Mật khẩu",
@@ -1637,7 +1641,11 @@
       "loginSuccessful": "Đăng nhập thành công",
       "loginFailed": "Đăng nhập thất bại",
       "authenticationFailed": "Xác thực thất bại",
-      "invalidEmailOrPassword": "Email hoặc mật khẩu không hợp lệ"
+      "invalidEmailOrPassword": "Email hoặc mật khẩu không hợp lệ",
+      "emailRequired": "Vui lòng nhập email",
+      "invalidEmail": "Email không hợp lệ",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau."
     },
     "signup": {
       "title": "Đăng ký",
@@ -1659,7 +1667,14 @@
       "passwordsDoNotMatch": "Mật khẩu không khớp",
       "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
       "accountCreated": "Tạo tài khoản thành công! Vui lòng đăng nhập.",
-      "registrationFailed": "Đăng ký thất bại"
+      "registrationFailed": "Đăng ký thất bại",
+      "nameRequired": "Vui lòng nhập tên",
+      "emailRequired": "Vui lòng nhập email",
+      "invalidEmail": "Email không hợp lệ",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu",
+      "userAlreadyExists": "Email này đã được sử dụng",
+      "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau."
     },
     "guard": {
       "authenticating": "Đang xác thực...",
@@ -1670,7 +1685,8 @@
       "yourRole": "Vai trò của bạn:",
       "unknown": "Không xác định",
       "goHome": "Về trang chủ"
-    }
+    },
+    "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau."
   },
   "admin": {
     "title": "Quản trị",

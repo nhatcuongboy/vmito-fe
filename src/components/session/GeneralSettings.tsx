@@ -183,14 +183,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       const selectedVenue = venues.find((v) => v.id === selectedVenueId);
       const venueData = selectedVenue
         ? {
-            placeId: selectedVenue.placeId,
-            name: selectedVenue.name,
-            address: selectedVenue.address,
-            lat: selectedVenue.lat,
-            lng: selectedVenue.lng,
-            district: selectedVenue.district,
-            city: selectedVenue.city,
-          }
+          placeId: selectedVenue.placeId,
+          name: selectedVenue.name,
+          address: selectedVenue.address,
+          lat: selectedVenue.lat,
+          lng: selectedVenue.lng,
+          district: selectedVenue.district,
+          city: selectedVenue.city,
+        }
         : undefined;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -394,9 +394,18 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     borderRadius="lg"
                     borderColor="border"
                     bg={{ base: 'white', _dark: 'gray.700' }}
+                    color="gray.800"
+                    _dark={{ color: 'white' }}
                     _focus={{
                       borderColor: 'blue.400',
                       boxShadow: '0 0 0 1px #3182ce',
+                    }}
+                    css={{
+                      '&::-webkit-date-and-time-value': {
+                        minHeight: '1.5em',
+                        display: 'flex',
+                        alignItems: 'center',
+                      },
                     }}
                   />
                 </Box>
@@ -418,9 +427,18 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     borderRadius="lg"
                     borderColor="border"
                     bg={{ base: 'white', _dark: 'gray.700' }}
+                    color="gray.800"
+                    _dark={{ color: 'white' }}
                     _focus={{
                       borderColor: 'blue.400',
                       boxShadow: '0 0 0 1px #3182ce',
+                    }}
+                    css={{
+                      '&::-webkit-date-and-time-value': {
+                        minHeight: '1.5em',
+                        display: 'flex',
+                        alignItems: 'center',
+                      },
                     }}
                   />
                 </Box>

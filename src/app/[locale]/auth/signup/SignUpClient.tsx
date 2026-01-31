@@ -21,24 +21,24 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PasswordInput } from '@/components/ui/password-input';
+import { useMemo } from 'react';
 
-// Define zod schema for form validation
-const signUpSchema = z
-  .object({
-    name: z.string().min(1, 'Name is required'),
-    email: z
-      .string()
-      .email('Invalid email address')
-      .min(1, 'Email is required'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+// SignUp form schema creator
+function createSignUpSchema(t: any) {
+  return z
+    .object({
+      name: z.string().min(1, t('nameRequired')),
+      email: z.string().email(t('invalidEmail')).min(1, t('emailRequired')),
+      password: z.string().min(6, t('passwordTooShort')),
+      confirmPassword: z.string().min(1, t('confirmPasswordRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('passwordsDoNotMatch'),
+      path: ['confirmPassword'],
+    });
+}
 
-type SignUpFormData = z.infer<typeof signUpSchema>;
+type SignUpFormData = z.infer<ReturnType<typeof createSignUpSchema>>;
 
 interface SignUpClientProps {
   locale: string;
@@ -49,6 +49,8 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
   const params = useParams();
   const localeFromParams = params.locale as string;
   const router = useRouter();
+
+  const signUpSchema = useMemo(() => createSignUpSchema(t), [t]);
 
   const {
     register,
@@ -75,9 +77,27 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
 
       toaster.success({ title: t('accountCreated') });
       router.push(`/auth/signin`);
-    } catch (error: unknown) {
-      // Error toast is handled by axios interceptor
+    } catch (error: any) {
+      // General registration error handling
       console.error('Registration error:', error);
+
+      const rawError =
+        error.response?.data?.message || error.response?.data?.error?.message;
+
+      let errorMessage = t('registrationFailed');
+
+      if (
+        rawError?.includes('Too Many Requests') ||
+        error.response?.status === 429
+      ) {
+        errorMessage = t('tooManyRequests');
+      } else if (rawError === 'User already exists' || error.response?.status === 409) {
+        errorMessage = t('userAlreadyExists');
+      } else if (rawError) {
+        errorMessage = rawError;
+      }
+
+      toaster.error({ title: errorMessage });
     }
   };
 
@@ -119,7 +139,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                       {...register('name')}
                       placeholder={t('namePlaceholder')}
                     />
-                    <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                    <Field.ErrorText color="fg.error">{errors.name?.message}</Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.email}>
@@ -129,7 +149,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                       type="email"
                       placeholder={t('emailPlaceholder')}
                     />
-                    <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                    <Field.ErrorText color="fg.error">{errors.email?.message}</Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.password}>
@@ -138,7 +158,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                       {...register('password')}
                       placeholder={t('passwordPlaceholder')}
                     />
-                    <Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
                       {errors.password?.message}
                     </Field.ErrorText>
                   </Field.Root>
@@ -149,7 +169,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                       {...register('confirmPassword')}
                       placeholder={t('confirmPasswordPlaceholder')}
                     />
-                    <Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
                       {errors.confirmPassword?.message}
                     </Field.ErrorText>
                   </Field.Root>

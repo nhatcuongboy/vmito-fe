@@ -160,7 +160,7 @@
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Delete",
-    "viewSession": "Enter",
+    "viewSession": "Track",
     "view": "View",
     "deleteConfirmation": "Are you sure you want to delete this session?",
     "notStarted": "Not started",
@@ -179,7 +179,6 @@
     "automaticallyCalculated": "Automatically calculated from start/end time",
     "whenTheSessionWillBegin": "When the session will begin",
     "whenTheSessionWillEnd": "When the session will end",
-    "endTimeMustBeAfterStartTime": "End time must be after start time",
     "maxPlayersDescription": "Maximum players allowed per court (4-12)",
     "requirePlayerInformation": "Require Player Information",
     "collectPlayerInformation": "Collect player information",
@@ -228,7 +227,8 @@
       "sessionNotFoundDescription": "The session you're looking for might have been deleted or doesn't exist.",
       "cannotEditCourtsWithPlayers": "Cannot edit courts configuration when players have joined",
       "cannotEditTimeWhenActive": "Cannot edit session time when session is in progress",
-      "levelRequired": "Please select a level"
+      "levelRequired": "Please select a level",
+      "endTimeMustBeAfterStartTime": "End time must be after start time"
     },
     "generalSettings": {
       "selectVenue": "Select a venue...",
@@ -396,6 +396,10 @@
       "venueMatched": "Venue matched: {venueName}"
     },
     "linkCopied": "Link copied to clipboard",
+    "shareCardHeader": "Recruiting badminton players",
+    "shareCardFooter": "Connect your passion, find badminton sessions easily at VMITO.COM",
+    "downloadImage": "Download image",
+    "imageDownloadSuccess": "Image downloaded successfully",
     "hostedBy": "Hosted by",
     "dateNotSet": "Date not set",
     "timeNotSet": "Time not set",
@@ -1637,7 +1641,8 @@
       "loginSuccessful": "Login successful",
       "loginFailed": "Login failed",
       "authenticationFailed": "Authentication failed",
-      "invalidEmailOrPassword": "Invalid email or password"
+      "invalidEmailOrPassword": "Invalid email or password",
+      "tooManyRequests": "Too many requests. Please try again later."
     },
     "signup": {
       "title": "Sign Up",
@@ -1659,7 +1664,9 @@
       "passwordsDoNotMatch": "Passwords do not match",
       "passwordTooShort": "Password must be at least 6 characters",
       "accountCreated": "Account created successfully! Please sign in.",
-      "registrationFailed": "Registration failed"
+      "registrationFailed": "Registration failed",
+      "userAlreadyExists": "User already exists",
+      "tooManyRequests": "Too many requests. Please try again later."
     },
     "guard": {
       "authenticating": "Authenticating...",
@@ -1670,7 +1677,8 @@
       "yourRole": "Your role:",
       "unknown": "Unknown",
       "goHome": "Go Home"
-    }
+    },
+    "tooManyRequests": "Too many requests. Please try again later."
   },
   "admin": {
     "title": "Admin",

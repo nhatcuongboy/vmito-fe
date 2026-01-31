@@ -27,6 +27,18 @@ const system = createSystem(defaultConfig, {
           blue: { value: '#3b82f6' },
           purple: { value: '#8b5cf6' },
         },
+        error: {
+          50: { value: '#fef2f2' },
+          100: { value: '#fee2e2' },
+          200: { value: '#fecaca' },
+          300: { value: '#fca5a5' },
+          400: { value: '#f87171' },
+          500: { value: '#ef4444' },
+          600: { value: '#dc2626' },
+          700: { value: '#b91c1c' },
+          800: { value: '#991b1b' },
+          900: { value: '#7f1d1d' },
+        },
       },
       fonts: {
         heading: { value: 'var(--font-geist-sans)' },
@@ -51,10 +63,16 @@ const system = createSystem(defaultConfig, {
           value: { _light: '#718096', _dark: '#a0aec0' },
         },
         border: {
-          value: { _light: '#e2e8f0', _dark: '#4a5568' },
+          value: { _light: '#d4d4d8', _dark: '#4a5568' },
         },
         'border.subtle': {
           value: { _light: '#edf2f7', _dark: '#2d3748' },
+        },
+        'border.error': {
+          value: { _light: '{colors.error.500}', _dark: '{colors.error.400}' },
+        },
+        'fg.error': {
+          value: { _light: '{colors.error.500}', _dark: '{colors.error.400}' },
         },
       },
     },

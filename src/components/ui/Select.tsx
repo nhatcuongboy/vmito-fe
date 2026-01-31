@@ -308,6 +308,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         borderColor: 'blue.500',
         boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
       },
+      _invalid: {
+        borderColor: 'border.error',
+        boxShadow: '0 0 0 1px var(--chakra-colors-border-error)',
+      },
       paddingStart: props.leftElement ? '10' : undefined,
       paddingEnd: props.rightElement ? '10' : undefined,
       width: '100%',

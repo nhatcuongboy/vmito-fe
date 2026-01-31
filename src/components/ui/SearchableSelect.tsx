@@ -49,6 +49,10 @@ export interface SearchableSelectProps {
    * Size of the component
    */
   size?: 'sm' | 'md' | 'lg';
+  /**
+   * Whether the select is invalid
+   */
+  isInvalid?: boolean;
 }
 
 /**
@@ -64,6 +68,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   noOptionsMessage = 'No options found',
   isDisabled = false,
   size = 'md',
+  isInvalid = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,17 +166,27 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         textAlign="left"
         bg={{ base: 'white', _dark: 'gray.800' }}
         border="1px solid"
-        borderColor={isOpen ? 'blue.500' : 'border'}
+        borderColor={
+          isInvalid ? 'border.error' : isOpen ? 'blue.500' : 'border'
+        }
         borderRadius="md"
         {...sizeStyles}
         pr="10"
         cursor={isDisabled ? 'not-allowed' : 'pointer'}
         opacity={isDisabled ? 0.5 : 1}
-        _hover={{ borderColor: isDisabled ? 'border' : 'blue.500/50' }}
+        _hover={{
+          borderColor: isInvalid
+            ? 'border.error'
+            : isDisabled
+              ? 'border'
+              : 'blue.500/50',
+        }}
         _focus={{
           outline: 'none',
-          borderColor: 'blue.500',
-          boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+          borderColor: isInvalid ? 'border.error' : 'blue.500',
+          boxShadow: isInvalid
+            ? '0 0 0 1px var(--chakra-colors-border-error)'
+            : '0 0 0 1px var(--chakra-colors-blue-500)',
         }}
         transition="all 0.2s"
         display="flex"

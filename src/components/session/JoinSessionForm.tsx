@@ -160,7 +160,7 @@ export default function JoinSessionForm({
                 }}
               />
               {errors[index]?.name && (
-                <Text fontSize="xs" color="red.500" mt={1}>
+                <Text fontSize="xs" color="fg.error" mt={1}>
                   {tPlayer('playerNameRequired')}
                 </Text>
               )}
@@ -212,7 +212,7 @@ export default function JoinSessionForm({
                     padding: '10px 12px',
                     borderRadius: '6px',
                     border: errors[index]?.level
-                      ? '1px solid var(--chakra-colors-red-400)'
+                      ? '1px solid var(--chakra-colors-border-error)'
                       : '1px solid var(--chakra-colors-border)',
                     backgroundColor: 'transparent',
                     color: 'inherit',
@@ -227,7 +227,7 @@ export default function JoinSessionForm({
                   ))}
                 </select>
                 {errors[index]?.level && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
+                  <Text fontSize="xs" color="fg.error" mt={1}>
                     {t('validation.levelRequired')}
                   </Text>
                 )}

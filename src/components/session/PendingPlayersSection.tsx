@@ -9,13 +9,11 @@ import {
   Text,
   useMediaQuery,
   Image,
+  Stack,
 } from '@chakra-ui/react';
 import {
-  Card,
-  CardBody,
   Button,
   HStack,
-  SimpleGrid,
 } from '@/components/ui/chakra-compat';
 import { ChevronDown, ChevronUp, Check, X, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -174,39 +172,41 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
         )}
       </Flex>
 
-      {/* Responsive Grid for Pending Players */}
+      {/* Vertical Stack for Pending Players */}
       {isExpanded && (
-        <SimpleGrid spacing={4} minChildWidth="250px">
+        <Stack gap={3}>
           {pendingPlayers.map((player) => (
-            <Card
+            <Box
               key={player.id}
               bg="white"
               _dark={{ bg: 'gray.800' }}
-              borderColor="purple.200"
+              borderColor="purple.100"
               borderWidth="1px"
               shadow="sm"
               transition="all 0.2s"
               _hover={{
                 shadow: 'md',
-                borderColor: 'purple.400',
-                transform: 'translateY(-2px)',
+                borderColor: 'purple.300',
               }}
-              borderRadius="lg"
-              overflow="hidden"
+              borderRadius="xl"
+              p={3}
             >
-              <CardBody p={3}>
-                <Flex align="center" gap={3} mb={3}>
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                align={{ base: 'flex-start', md: 'center' }}
+                gap={4}
+                justify="space-between"
+              >
+                {/* User Info */}
+                <Flex align="center" gap={3} flex={1}>
                   <Box
-                    boxSize="40px"
+                    boxSize="48px"
                     borderRadius="full"
                     overflow="hidden"
-                    bg="gray.200"
+                    bg="gray.100"
                     flexShrink={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderColor="purple.200"
                     borderWidth="2px"
+                    borderColor="purple.100"
                   >
                     {player.user?.image ? (
                       <Image
@@ -217,20 +217,19 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                         objectFit="cover"
                       />
                     ) : (
-                      <User size={20} className="text-gray-500" color="gray" />
+                      <Flex align="center" justify="center" h="100%">
+                        <User size={24} className="text-gray-400" />
+                      </Flex>
                     )}
                   </Box>
-                  <Box flex="1" overflow="hidden">
-                    <HStack gap={1} mb={0.5}>
+
+                  <Box>
+                    <HStack gap={2} mb={1}>
                       <Text
-                        fontSize="sm"
+                        fontSize="md"
                         fontWeight="bold"
                         color="gray.800"
                         _dark={{ color: 'white' }}
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                        whiteSpace="nowrap"
-                        title={player.name}
                       >
                         {player.name || 'N/A'}
                       </Text>
@@ -243,24 +242,18 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                                 ? 'pink'
                                 : 'gray'
                           }
-                          variant="subtle"
-                          fontSize="10px"
-                          px={1}
-                          textTransform="capitalize"
+                          variant="solid"
+                          size="sm"
                         >
-                          {player.gender === 'MALE'
-                            ? 'M'
-                            : player.gender === 'FEMALE'
-                              ? 'F'
-                              : 'O'}
+                          {player.gender === 'MALE' ? 'M' : player.gender === 'FEMALE' ? 'F' : 'O'}
                         </Badge>
                       )}
                     </HStack>
                     <HStack gap={2}>
                       <Badge
                         colorPalette="purple"
-                        fontSize="10px"
-                        variant="outline"
+                        variant="subtle"
+                        size="sm"
                       >
                         Lv {player.level || '?'}
                       </Badge>
@@ -271,20 +264,26 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                   </Box>
                 </Flex>
 
-                <HStack gap={2} w="full">
+                {/* Actions */}
+                <HStack
+                  gap={3}
+                  w={{ base: '100%', md: 'auto' }}
+                  pt={{ base: 2, md: 0 }}
+                  borderTopWidth={{ base: '1px', md: '0px' }}
+                  borderTopColor="gray.100"
+                >
                   <Button
                     size="sm"
                     colorPalette="green"
                     variant="solid"
                     flex={1}
-                    h="32px"
-                    fontSize="xs"
+                    minW={{ md: "120px" }}
                     onClick={() => handleAction(player.id, 'APPROVED')}
                     loading={actionLoading === player.id}
                     disabled={
                       actionLoading !== null || bulkActionLoading !== null
                     }
-                    leftIcon={<Check size={14} />}
+                    leftIcon={<Check size={16} />}
                   >
                     {t('approve')}
                   </Button>
@@ -292,22 +291,19 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                     size="sm"
                     colorPalette="red"
                     variant="ghost"
-                    flex={1}
-                    h="32px"
-                    fontSize="xs"
                     onClick={() => handleAction(player.id, 'REJECTED')}
                     disabled={
                       actionLoading !== null || bulkActionLoading !== null
                     }
-                    leftIcon={<X size={14} />}
+                    leftIcon={<X size={16} />}
                   >
                     {t('reject')}
                   </Button>
                 </HStack>
-              </CardBody>
-            </Card>
+              </Flex>
+            </Box>
           ))}
-        </SimpleGrid>
+        </Stack>
       )}
     </Box>
   );

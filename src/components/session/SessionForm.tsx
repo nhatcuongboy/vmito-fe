@@ -97,48 +97,54 @@ function formatDateTimeLocal(date: Date): string {
 }
 
 // Zod schema for court validation
-const courtSchema = z.object({
-  courtNumber: z.number().min(1, 'Court number must be at least 1'),
-  courtName: z.string().optional(),
-  direction: z.nativeEnum(CourtDirection),
-});
+type SessionFormData = z.infer<
+  ReturnType<typeof createSessionFormSchema>
+>;
 
-// Main session form schema
-const sessionFormSchema = z
-  .object({
-    // Required fields
-    name: z.string().min(1, 'Session name is required'),
-    selectedVenueId: z.string().min(1, 'Location is required'),
-    hostName: z.string().min(1, 'Host name is required'),
-    hostPhone: z.string().min(1, 'Host phone is required'),
-    startTime: z.string().min(1, 'Start time is required'),
-    endTime: z.string().min(1, 'End time is required'),
-    courts: z
-      .array(courtSchema)
-      .min(1, 'At least one court is required')
-      .refine(
-        (courts) =>
-          new Set(courts.map((c) => c.courtNumber)).size === courts.length,
-        { message: 'Court numbers must be unique' }
-      ),
-    courtColor: z.string(),
-    maxPlayersPerCourt: z.number().min(2).max(12),
-
-    // Optional fields
-    description: z.string().optional(),
-    requirePlayerInfo: z.boolean(),
-    allowGuestJoin: z.boolean(),
-    allowNewPlayers: z.boolean(),
-    allLevelsSelected: z.boolean(),
-    requiredLevels: z.array(z.number()).optional(),
-    shuttlecock: z.string().optional(),
-  })
-  .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
-    message: 'End time must be after start time',
-    path: ['endTime'],
+function createCourtSchema(t: any) {
+  return z.object({
+    courtNumber: z.number().min(1, t('validation.courtNumberMin')),
+    courtName: z.string().optional(),
+    direction: z.nativeEnum(CourtDirection),
   });
+}
 
-type SessionFormData = z.infer<typeof sessionFormSchema>;
+function createSessionFormSchema(t: any) {
+  const courtSchema = createCourtSchema(t);
+  return z
+    .object({
+      // Required fields
+      name: z.string().min(1, t('validation.sessionNameRequired')),
+      selectedVenueId: z.string().min(1, t('validation.locationRequired')),
+      hostName: z.string().min(1, t('validation.hostNameRequired')),
+      hostPhone: z.string().min(1, t('validation.hostPhoneRequired')),
+      startTime: z.string().min(1, t('validation.startTimeRequired')),
+      endTime: z.string().min(1, t('validation.endTimeRequired')),
+      courts: z
+        .array(courtSchema)
+        .min(1, t('validation.atLeastOneCourt'))
+        .refine(
+          (courts) =>
+            new Set(courts.map((c) => c.courtNumber)).size === courts.length,
+          { message: t('validation.courtNumberUnique') }
+        ),
+      courtColor: z.string(),
+      maxPlayersPerCourt: z.number().min(2).max(12),
+
+      // Optional fields
+      description: z.string().optional(),
+      requirePlayerInfo: z.boolean(),
+      allowGuestJoin: z.boolean(),
+      allowNewPlayers: z.boolean(),
+      allLevelsSelected: z.boolean(),
+      requiredLevels: z.array(z.number()).optional(),
+      shuttlecock: z.string().optional(),
+    })
+    .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
+      message: t('validation.endTimeMustBeAfterStartTime'),
+      path: ['endTime'],
+    });
+}
 
 interface SessionFormProps {
   mode: 'create' | 'edit';
@@ -248,6 +254,8 @@ export default function SessionForm({
       shuttlecock: '',
     };
   }, [isEditMode, initialData, user, now, twoHoursLater]);
+
+  const sessionFormSchema = useMemo(() => createSessionFormSchema(t), [t]);
 
   // React Hook Form setup
   const {
@@ -499,14 +507,14 @@ export default function SessionForm({
       const selectedVenue = venues.find((v) => v.id === data.selectedVenueId);
       const venueData = selectedVenue
         ? {
-            placeId: selectedVenue.placeId,
-            name: selectedVenue.name,
-            address: selectedVenue.address,
-            lat: selectedVenue.lat,
-            lng: selectedVenue.lng,
-            district: selectedVenue.district,
-            city: selectedVenue.city,
-          }
+          placeId: selectedVenue.placeId,
+          name: selectedVenue.name,
+          address: selectedVenue.address,
+          lat: selectedVenue.lat,
+          lng: selectedVenue.lng,
+          district: selectedVenue.district,
+          city: selectedVenue.city,
+        }
         : undefined;
 
       let session: ISession;
@@ -514,11 +522,11 @@ export default function SessionForm({
       // Prepare fee config
       const feeConfigData = feeEnabled
         ? {
-            feeType,
-            maleFee: feeType === FeeType.FIXED ? maleFee : undefined,
-            femaleFee: feeType === FeeType.FIXED ? femaleFee : undefined,
-            notes: feeNotes.trim() || undefined,
-          }
+          feeType,
+          maleFee: feeType === FeeType.FIXED ? maleFee : undefined,
+          femaleFee: feeType === FeeType.FIXED ? femaleFee : undefined,
+          notes: feeNotes.trim() || undefined,
+        }
         : undefined;
 
       if (isEditMode && sessionId) {
@@ -716,7 +724,7 @@ export default function SessionForm({
                     {...register('name')}
                     placeholder={t('sessionNamePlaceholder')}
                   />
-                  <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                  <Field.ErrorText color="fg.error">{errors.name?.message}</Field.ErrorText>
                 </Field.Root>
 
                 {/* Description */}
@@ -818,6 +826,7 @@ export default function SessionForm({
                     name="selectedVenueId"
                     render={({ field }) => (
                       <SearchableSelect
+                        isInvalid={!!errors.selectedVenueId}
                         value={field.value}
                         onChange={(value) => field.onChange(value)}
                         options={venues.map((v) => ({
@@ -829,7 +838,7 @@ export default function SessionForm({
                       />
                     )}
                   />
-                  <Field.ErrorText>
+                  <Field.ErrorText color="fg.error">
                     {errors.selectedVenueId?.message}
                   </Field.ErrorText>
                 </Field.Root>
@@ -861,7 +870,7 @@ export default function SessionForm({
                       {...register('hostName')}
                       placeholder={t('hostNamePlaceholder')}
                     />
-                    <Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
                       {errors.hostName?.message}
                     </Field.ErrorText>
                   </Field.Root>
@@ -879,7 +888,7 @@ export default function SessionForm({
                       placeholder={t('hostPhonePlaceholder')}
                       type="tel"
                     />
-                    <Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
                       {errors.hostPhone?.message}
                     </Field.ErrorText>
                   </Field.Root>
@@ -915,8 +924,21 @@ export default function SessionForm({
                       type="datetime-local"
                       {...register('startTime')}
                       disabled={!canEditTime}
+                      color="gray.800"
+                      bg="white"
+                      _dark={{
+                        color: 'white',
+                        bg: 'gray.700',
+                      }}
+                      css={{
+                        '&::-webkit-date-and-time-value': {
+                          minHeight: '1.5em',
+                          display: 'flex',
+                          alignItems: 'center',
+                        },
+                      }}
                     />
-                    <Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
                       {errors.startTime?.message}
                     </Field.ErrorText>
                   </Field.Root>
@@ -936,8 +958,21 @@ export default function SessionForm({
                       type="datetime-local"
                       {...register('endTime')}
                       disabled={!canEditTime}
+                      color="gray.800"
+                      bg="white"
+                      _dark={{
+                        color: 'white',
+                        bg: 'gray.700',
+                      }}
+                      css={{
+                        '&::-webkit-date-and-time-value': {
+                          minHeight: '1.5em',
+                          display: 'flex',
+                          alignItems: 'center',
+                        },
+                      }}
                     />
-                    <Field.ErrorText>{errors.endTime?.message}</Field.ErrorText>
+                    <Field.ErrorText color="fg.error">{errors.endTime?.message}</Field.ErrorText>
                   </Field.Root>
                 </Box>
               </Stack>
@@ -1032,7 +1067,7 @@ export default function SessionForm({
                               />
                             )}
                           />
-                          <Field.ErrorText>
+                          <Field.ErrorText color="fg.error">
                             {errors.courts?.[index]?.courtNumber?.message}
                           </Field.ErrorText>
                         </Field.Root>
@@ -1095,7 +1130,7 @@ export default function SessionForm({
 
                 {/* Array-level error for unique court numbers */}
                 {errors.courts?.root && (
-                  <Text color="red.500" fontSize="sm">
+                  <Text color="fg.error" fontSize="sm">
                     {errors.courts.root.message}
                   </Text>
                 )}
@@ -1202,7 +1237,7 @@ export default function SessionForm({
                       />
                     )}
                   />
-                  <Field.ErrorText>
+                  <Field.ErrorText color="fg.error">
                     {errors.maxPlayersPerCourt?.message}
                   </Field.ErrorText>
                 </Field.Root>
@@ -1215,7 +1250,7 @@ export default function SessionForm({
                     {...register('shuttlecock')}
                     placeholder={t('shuttlecock')}
                   />
-                  <Field.ErrorText>
+                  <Field.ErrorText color="fg.error">
                     {errors.shuttlecock?.message}
                   </Field.ErrorText>
                 </Field.Root>
@@ -1223,9 +1258,7 @@ export default function SessionForm({
             </Box>
 
             {/* Level Requirements Section */}
-            {user?.role !== UserRole.PLAYER && (
-              <LevelRequirementsCard control={control} setValue={setValue} />
-            )}
+            <LevelRequirementsCard control={control} setValue={setValue} />
 
             {/* Session Settings Section - Temporarily hidden */}
             {false && user?.role !== UserRole.PLAYER && (
@@ -1320,20 +1353,18 @@ export default function SessionForm({
             )}
 
             {/* Fee Configuration Section */}
-            {user?.role !== UserRole.PLAYER && (
-              <SessionFeeConfigForm
-                enabled={feeEnabled}
-                onEnabledChange={setFeeEnabled}
-                feeType={feeType}
-                onFeeTypeChange={setFeeType}
-                maleFee={maleFee}
-                onMaleFeeChange={setMaleFee}
-                femaleFee={femaleFee}
-                onFemaleFeeChange={setFemaleFee}
-                notes={feeNotes}
-                onNotesChange={setFeeNotes}
-              />
-            )}
+            <SessionFeeConfigForm
+              enabled={feeEnabled}
+              onEnabledChange={setFeeEnabled}
+              feeType={feeType}
+              onFeeTypeChange={setFeeType}
+              maleFee={maleFee}
+              onMaleFeeChange={setMaleFee}
+              femaleFee={femaleFee}
+              onFemaleFeeChange={setFemaleFee}
+              notes={feeNotes}
+              onNotesChange={setFeeNotes}
+            />
 
             {/* Buttons */}
             <Flex gap={3} mt={4}>

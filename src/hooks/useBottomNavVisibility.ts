@@ -17,6 +17,8 @@ export function useBottomNavVisibility() {
       // Exclude session detail pages
       pathname.includes('/host/sessions/') ||
       pathname.includes('/player/sessions/') ||
+      // Public session detail
+      pathname.match(/\/sessions\/[^/]+$/) ||
       // Exclude tournament sub-pages management that might need full screen or have their own nav
       // But keep bottom nav for main lists if desired. For now based on requirements:
       // "Except session detail content" -> We only definitely exclude session details.

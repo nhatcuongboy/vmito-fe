@@ -177,10 +177,8 @@ api.interceptors.response.use(
           toaster.error({ title: message });
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error
-          // If it's a 401 on login, use toaster instead of global modal for better UX
-          if (status === 401 && isAuthRequest) {
-            toaster.error({ title: message });
-          } else {
+          // Skip automatic error reporting for auth requests as they are handled locally in pages
+          if (!isAuthRequest) {
             useAppStore.getState().setError(message);
           }
         }

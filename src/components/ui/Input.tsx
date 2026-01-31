@@ -30,6 +30,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         borderColor: 'blue.500',
         boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
       },
+      _invalid: {
+        borderColor: 'border.error',
+        boxShadow: '0 0 0 1px var(--chakra-colors-border-error)',
+      },
       // Adjust padding if elements are present
       paddingStart: leftElement ? '10' : props.paddingStart,
       paddingEnd: rightElement ? '10' : props.paddingEnd,

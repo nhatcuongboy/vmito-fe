@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Portal } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { Button } from './chakra-compat';
 
@@ -140,13 +140,12 @@ export const CommonModal: React.FC<CommonModalProps> = ({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
+      // Removed document.body.style.overflow manipulation to prevent layout shift ("giật màn hình")
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      // document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
@@ -171,157 +170,159 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   const hasTitle = title !== undefined;
 
   return (
-    <Box
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bg="blackAlpha.600"
-      zIndex={zIndex}
-      display="flex"
-      alignItems={isCentered ? 'center' : 'flex-start'}
-      justifyContent="center"
-      p={4}
-      pt={isCentered ? 4 : 16}
-      onClick={handleOverlayClick}
-      // Animation
-      animation="fadeIn 0.15s ease-out"
-      css={{
-        '@keyframes fadeIn': {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
-        },
-      }}
-    >
+    <Portal>
       <Box
-        bg={{ base: 'white', _dark: 'gray.800' }}
-        borderRadius="lg"
-        boxShadow="xl"
-        maxW={sizeConfig[size]}
-        w="full"
-        maxH="90vh"
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="blackAlpha.600"
+        zIndex={zIndex}
         display="flex"
-        flexDirection="column"
-        onClick={(e) => e.stopPropagation()}
+        alignItems={isCentered ? 'center' : 'flex-start'}
+        justifyContent="center"
+        p={4}
+        pt={isCentered ? 4 : 16}
+        onClick={handleOverlayClick}
         // Animation
-        animation="slideIn 0.15s ease-out"
+        animation="fadeIn 0.15s ease-out"
         css={{
-          '@keyframes slideIn': {
-            from: { opacity: 0, transform: 'translateY(-10px)' },
-            to: { opacity: 1, transform: 'translateY(0)' },
+          '@keyframes fadeIn': {
+            from: { opacity: 0 },
+            to: { opacity: 1 },
           },
         }}
       >
-        {/* Header */}
-        {(hasTitle || showCloseButton || headerRightContent) && (
-          <Flex
-            justify="space-between"
-            align="center"
-            p={4}
-            borderBottom={showHeaderDivider ? '1px' : 'none'}
-            borderColor="border"
-            flexShrink={0}
-          >
-            <Box flex={1}>
-              {title && (
-                <Heading size="md" color="fg">
-                  {title}
-                </Heading>
-              )}
-              {description && (
-                <Text fontSize="sm" color="fg.muted" mt={1}>
-                  {description}
-                </Text>
-              )}
-            </Box>
-            <Flex align="center" gap={2}>
-              {headerRightContent}
-              {showCloseButton && (
-                <Box
-                  as="button"
-                  {...({ type: 'button' } as any)}
-                  onClick={onClose}
-                  p={1}
-                  borderRadius="md"
-                  color="fg.muted"
-                  _hover={{ bg: 'bg.muted', color: 'fg' }}
-                  transition="all 0.2s"
-                  aria-label="Close modal"
-                >
-                  <Box as={X} boxSize={5} />
-                </Box>
-              )}
-            </Flex>
-          </Flex>
-        )}
-
-        {/* Body */}
         <Box
-          p={4}
-          flex={1}
-          overflowY="auto"
-          maxH={maxBodyHeight}
+          bg={{ base: 'white', _dark: 'gray.800' }}
+          borderRadius="lg"
+          boxShadow="xl"
+          maxW={sizeConfig[size]}
+          w="full"
+          maxH="90vh"
+          display="flex"
+          flexDirection="column"
+          onClick={(e) => e.stopPropagation()}
+          // Animation
+          animation="slideIn 0.15s ease-out"
           css={{
-            '&::-webkit-scrollbar': {
-              width: '6px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'var(--chakra-colors-border)',
-              borderRadius: '3px',
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: 'var(--chakra-colors-gray-400)',
+            '@keyframes slideIn': {
+              from: { opacity: 0, transform: 'translateY(-10px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
             },
           }}
         >
-          {children}
-        </Box>
+          {/* Header */}
+          {(hasTitle || showCloseButton || headerRightContent) && (
+            <Flex
+              justify="space-between"
+              align="center"
+              p={4}
+              borderBottom={showHeaderDivider ? '1px' : 'none'}
+              borderColor="border"
+              flexShrink={0}
+            >
+              <Box flex={1}>
+                {title && (
+                  <Heading size="md" color="fg">
+                    {title}
+                  </Heading>
+                )}
+                {description && (
+                  <Text fontSize="sm" color="fg.muted" mt={1}>
+                    {description}
+                  </Text>
+                )}
+              </Box>
+              <Flex align="center" gap={2}>
+                {headerRightContent}
+                {showCloseButton && (
+                  <Box
+                    as="button"
+                    {...({ type: 'button' } as any)}
+                    onClick={onClose}
+                    p={1}
+                    borderRadius="md"
+                    color="fg.muted"
+                    _hover={{ bg: 'bg.muted', color: 'fg' }}
+                    transition="all 0.2s"
+                    aria-label="Close modal"
+                  >
+                    <Box as={X} boxSize={5} />
+                  </Box>
+                )}
+              </Flex>
+            </Flex>
+          )}
 
-        {/* Footer */}
-        {showFooter && (
-          <Flex
-            justify="flex-end"
-            gap={3}
+          {/* Body */}
+          <Box
             p={4}
-            borderTop={showFooterDivider ? '1px' : 'none'}
-            borderColor="border"
-            flexShrink={0}
+            flex={1}
+            overflowY="auto"
+            maxH={maxBodyHeight}
+            css={{
+              '&::-webkit-scrollbar': {
+                width: '6px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: 'transparent',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'var(--chakra-colors-border)',
+                borderRadius: '3px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                background: 'var(--chakra-colors-gray-400)',
+              },
+            }}
           >
-            {footer !== undefined ? (
-              footer
-            ) : (
-              <>
-                {!hideSecondaryAction && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSecondaryClick}
-                    disabled={isSecondaryDisabled || isPrimaryLoading}
-                  >
-                    {secondaryActionText || 'Cancel'}
-                  </Button>
-                )}
-                {primaryActionText && (
-                  <Button
-                    type="button"
-                    colorPalette={primaryColorScheme}
-                    onClick={onPrimaryAction}
-                    loading={isPrimaryLoading}
-                    disabled={isPrimaryDisabled || isPrimaryLoading}
-                  >
-                    {primaryActionText}
-                  </Button>
-                )}
-              </>
-            )}
-          </Flex>
-        )}
+            {children}
+          </Box>
+
+          {/* Footer */}
+          {showFooter && (
+            <Flex
+              justify="flex-end"
+              gap={3}
+              p={4}
+              borderTop={showFooterDivider ? '1px' : 'none'}
+              borderColor="border"
+              flexShrink={0}
+            >
+              {footer !== undefined ? (
+                footer
+              ) : (
+                <>
+                  {!hideSecondaryAction && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSecondaryClick}
+                      disabled={isSecondaryDisabled || isPrimaryLoading}
+                    >
+                      {secondaryActionText || 'Cancel'}
+                    </Button>
+                  )}
+                  {primaryActionText && (
+                    <Button
+                      type="button"
+                      colorPalette={primaryColorScheme}
+                      onClick={onPrimaryAction}
+                      loading={isPrimaryLoading}
+                      disabled={isPrimaryDisabled || isPrimaryLoading}
+                    >
+                      {primaryActionText}
+                    </Button>
+                  )}
+                </>
+              )}
+            </Flex>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </Portal>
   );
 };
 

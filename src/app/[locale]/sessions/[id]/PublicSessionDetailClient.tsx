@@ -1,20 +1,24 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Flex, Image, Text, Icon } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
-import { Phone, MapPin, Map } from 'lucide-react';
+import { Container, Box, Flex, Image, Text, Icon, Badge } from '@chakra-ui/react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Phone, MapPin, Map, Share2 } from 'lucide-react';
 import TopBar from '@/components/ui/TopBar';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { useModal } from '@/components/ui/CommonModal';
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { SessionService } from '@/lib/api/session.service';
+import { PlayerService } from '@/lib/api/player.service';
 import { Spinner } from '@chakra-ui/react';
 import BaseSessionCard from '@/components/session/BaseSessionCard';
+import JoinSessionModal from '@/components/session/JoinSessionModal';
+import MyRegistrationModal from '@/components/session/MyRegistrationModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { toaster } from '@/components/ui/toaster';
 import {
   CONTAINER_PX,
   CONTENT_PT_OFFSET,
@@ -30,20 +34,33 @@ const PublicSessionDetailClient = ({
   initialSession,
 }: PublicSessionDetailClientProps) => {
   const t = useTranslations('session');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { user } = useAuthStore();
   const params = useParams();
-  const [session, setSession] = useState<ISession | null>(
-    initialSession || null
-  );
+  const searchParams = useSearchParams();
+
+  const [session, setSession] = useState<ISession | null>(initialSession || null);
   const [loading, setLoading] = useState(!initialSession);
   const [error, setError] = useState<string | null>(null);
+  const [userRegistrationStatus, setUserRegistrationStatus] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | null>(null);
 
   const {
     isOpen: isLoginModalOpen,
     onOpen: onOpenLoginModal,
     onClose: onCloseLoginModal,
+  } = useModal();
+
+  const {
+    isOpen: isJoinModalOpen,
+    onOpen: onOpenJoinModal,
+    onClose: onCloseJoinModal,
+  } = useModal();
+
+  const {
+    isOpen: isViewRegistrationModalOpen,
+    onOpen: onOpenViewRegistrationModal,
+    onClose: onCloseViewRegistrationModal,
   } = useModal();
 
   useEffect(() => {
@@ -78,6 +95,33 @@ const PublicSessionDetailClient = ({
     fetchSession();
   }, [params.id, initialSession]);
 
+  // Fetch user registration status
+  const fetchRegistrationStatus = async () => {
+    if (!user || !session) return;
+    try {
+      const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
+      if (myPlayers && myPlayers.length > 0) {
+        // Simplified: use status of their first registration
+        setUserRegistrationStatus(myPlayers[0].registrationStatus as any);
+      } else {
+        setUserRegistrationStatus(null);
+      }
+    } catch (err) {
+      console.error('Error fetching registration status:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRegistrationStatus();
+  }, [user, session]);
+
+  useEffect(() => {
+    const registerParam = searchParams.get('register');
+    if (registerParam === 'true' && user && session) {
+      onOpenJoinModal();
+    }
+  }, [searchParams, user, session, onOpenJoinModal]);
+
   // Check if current user is the session owner/host
   const isOwner = session?.hostId === user?.id;
 
@@ -94,8 +138,33 @@ const PublicSessionDetailClient = ({
       onOpenLoginModal();
       return;
     }
-    // Redirect to browse sessions page with this session ID
-    window.location.href = `/?sessionId=${session?.id}`;
+    onOpenJoinModal();
+  };
+
+  // Handle share
+  const handleShare = async () => {
+    if (!session) return;
+    const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          url: url,
+        });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      // Fallback to copy to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        toaster.success({
+          title: t('linkCopied') || 'Link copied to clipboard',
+        });
+      } catch {
+        toaster.error({ title: tCommon('error') });
+      }
+    }
   };
 
   // Handle call action
@@ -151,25 +220,41 @@ const PublicSessionDetailClient = ({
     );
   }
 
-  // Custom action buttons for the detail view
-  const customActionButtons = (
-    <Flex gap={2} flexWrap="wrap" justify="flex-end">
-      {/* Call button */}
+  // Registration status badge
+  const registrationStatusBadge = userRegistrationStatus ? (
+    <Badge
+      colorPalette={
+        userRegistrationStatus === 'APPROVED'
+          ? 'green'
+          : userRegistrationStatus === 'PENDING'
+            ? 'yellow'
+            : 'red'
+      }
+      variant="solid"
+    >
+      {userRegistrationStatus === 'APPROVED'
+        ? t('registrationApproved')
+        : userRegistrationStatus === 'PENDING'
+          ? t('registrationPending')
+          : t('registrationRejected')}
+    </Badge>
+  ) : null;
+
+  // Top actions (Phone, Google Maps, Share)
+  const topActions = (
+    <>
       {session.hostPhone && (
-        <Button
+        <IconButton
           size="sm"
           colorPalette="blue"
           variant="outline"
           aria-label="Call host"
           onClick={handleCall}
-        >
-          <Icon as={Phone} boxSize={4} />
-        </Button>
+          icon={<Icon as={Phone} />}
+        />
       )}
-
-      {/* Google Maps button */}
       {(session.venue?.address || session.venue?.name || session.location) && (
-        <Button
+        <IconButton
           size="sm"
           colorPalette="blue"
           variant="outline"
@@ -184,11 +269,23 @@ const PublicSessionDetailClient = ({
               );
             }
           }}
-        >
-          <Icon as={Map} boxSize={4} />
-        </Button>
+          icon={<Icon as={Map} />}
+        />
       )}
+      <IconButton
+        size="sm"
+        colorPalette="gray"
+        variant="outline"
+        aria-label="Share session"
+        onClick={handleShare}
+        icon={<Icon as={Share2} />}
+      />
+    </>
+  );
 
+  // Main actions
+  const bottomActions = (
+    <>
       {/* If user owns the session, show Host button */}
       {isOwner ? (
         <NextLinkButton
@@ -200,20 +297,45 @@ const PublicSessionDetailClient = ({
           colorPalette="blue"
           size="sm"
         >
-          {t('host')}
+          {t('manageSession')}
         </NextLinkButton>
       ) : (
-        /* Otherwise show register button */
-        <Button
-          colorPalette="blue"
-          onClick={handleRegister}
-          size="sm"
-          disabled={isFull}
-        >
-          {isFull ? t('sessionFull') : t('register')}
-        </Button>
+        /* Otherwise show register/view registration buttons */
+        <>
+          {userRegistrationStatus && (
+            <Button
+              colorPalette="blue"
+              variant="outline"
+              onClick={onOpenViewRegistrationModal}
+              size="sm"
+            >
+              {t('viewMyRegistration')}
+            </Button>
+          )}
+
+          {userRegistrationStatus === 'APPROVED' && (
+            <NextLinkButton
+              href={`/player/sessions/${session.id}`}
+              colorPalette="green"
+              size="sm"
+            >
+              {t('viewSession')}
+            </NextLinkButton>
+          )}
+
+          {!userRegistrationStatus && (
+            <Button
+              colorPalette="blue"
+              onClick={handleRegister}
+              size="sm"
+              disabled={isFull}
+            >
+              {isFull ? t('sessionFull') : t('register')}
+            </Button>
+          )}
+        </>
       )}
-    </Flex>
+    </>
   );
 
   // Location/venue display (reuse from SessionCard)
@@ -249,12 +371,14 @@ const PublicSessionDetailClient = ({
             <BaseSessionCard
               session={session}
               extraInfoRows={locationRow}
-              actionButtons={customActionButtons}
+              registrationBadgeContent={registrationStatusBadge}
+              topActionButtons={topActions}
+              bottomActionButtons={bottomActions}
             />
           </Flex>
 
           {/* View More Sessions Button */}
-          <Flex justify="center" mt={8}>
+          <Flex justify="center" mt={6}>
             <NextLinkButton
               href="/"
               colorPalette="gray"
@@ -270,7 +394,38 @@ const PublicSessionDetailClient = ({
         <LoginPromptModal
           isOpen={isLoginModalOpen}
           onClose={onCloseLoginModal}
-          returnUrl={`/browse/sessions?sessionId=${session.id}`}
+          returnUrl={`/sessions/${session.id}?register=true`}
+        />
+
+        {/* Join session modal */}
+        <JoinSessionModal
+          isOpen={isJoinModalOpen}
+          onClose={onCloseJoinModal}
+          session={session}
+          onSuccess={() => {
+            // Re-fetch session data to update player count
+            const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+            if (sessionId) {
+              SessionService.getSession(sessionId).then(setSession).catch(console.error);
+            }
+            fetchRegistrationStatus();
+          }}
+        />
+
+        {/* View Registration modal */}
+        <MyRegistrationModal
+          isOpen={isViewRegistrationModalOpen}
+          onClose={onCloseViewRegistrationModal}
+          session={session}
+          onWithdraw={() => {
+            onCloseViewRegistrationModal();
+            // Re-fetch everything after withdraw
+            const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+            if (sessionId) {
+              SessionService.getSession(sessionId).then(setSession).catch(console.error);
+            }
+            fetchRegistrationStatus();
+          }}
         />
       </Box>
     </>

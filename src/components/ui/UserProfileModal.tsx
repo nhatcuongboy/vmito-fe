@@ -277,7 +277,7 @@ export default function UserProfileModal({
             </Text>
           </Field.Label>
           <Input {...register('name')} placeholder="Enter your name" />
-          <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+          <Field.ErrorText color="fg.error">{errors.name?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Email (Read-only) */}
@@ -298,7 +298,7 @@ export default function UserProfileModal({
             placeholder="Enter your phone number"
             type="tel"
           />
-          <Field.ErrorText>{errors.phone?.message}</Field.ErrorText>
+          <Field.ErrorText color="fg.error">{errors.phone?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Gender */}
@@ -319,7 +319,7 @@ export default function UserProfileModal({
               </Select>
             )}
           />
-          <Field.ErrorText>{errors.gender?.message}</Field.ErrorText>
+          <Field.ErrorText color="fg.error">{errors.gender?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Level */}
@@ -361,7 +361,7 @@ export default function UserProfileModal({
               </Select>
             )}
           />
-          <Field.ErrorText>{errors.level?.message}</Field.ErrorText>
+          <Field.ErrorText color="fg.error">{errors.level?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Level Description */}
@@ -372,7 +372,7 @@ export default function UserProfileModal({
             placeholder="Describe your skill level"
             rows={3}
           />
-          <Field.ErrorText>{errors.levelDescription?.message}</Field.ErrorText>
+          <Field.ErrorText color="fg.error">{errors.levelDescription?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Password Section */}
@@ -388,7 +388,7 @@ export default function UserProfileModal({
                 {...register('password')}
                 placeholder="Enter new password (leave blank to keep current)"
               />
-              <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+              <Field.ErrorText color="fg.error">{errors.password?.message}</Field.ErrorText>
               <Field.HelperText>
                 Leave blank to keep current password
               </Field.HelperText>
@@ -400,7 +400,7 @@ export default function UserProfileModal({
                 {...register('confirmPassword')}
                 placeholder="Confirm new password"
               />
-              <Field.ErrorText>
+              <Field.ErrorText color="fg.error">
                 {errors.confirmPassword?.message}
               </Field.ErrorText>
             </Field.Root>

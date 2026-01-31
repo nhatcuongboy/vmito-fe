@@ -21,17 +21,19 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-// Define zod schema for form validation
-const signInSchema = z.object({
-  email: z.string().email('Invalid email address').min(1, 'Email is required'),
-  password: z.string().min(1, 'Password is required'),
-});
+// SignIn form schema creator
+function createSignInSchema(t: any) {
+  return z.object({
+    email: z.string().email(t('invalidEmail')).min(1, t('emailRequired')),
+    password: z.string().min(1, t('passwordRequired')),
+  });
+}
 
-type SignInFormData = z.infer<typeof signInSchema>;
+type SignInFormData = z.infer<ReturnType<typeof createSignInSchema>>;
 
 interface SignInClientProps {
   locale: string;
@@ -67,6 +69,8 @@ function SignInForm() {
       router.replace(targetPath);
     }
   }, [isHydrated, isAuthenticated, user, router, isRedirecting, searchParams]);
+
+  const signInSchema = useMemo(() => createSignInSchema(t), [t]);
 
   const {
     register,
@@ -108,10 +112,22 @@ function SignInForm() {
       console.error('Login error:', error);
 
       // Extract error message
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error?.message ||
-        t('invalidCredentials');
+      const rawError =
+        error.response?.data?.message || error.response?.data?.error?.message;
+
+      let errorMessage = t('invalidCredentials');
+
+      if (rawError === 'Invalid credentials' || error.response?.status === 401) {
+        errorMessage = t('invalidCredentials');
+      } else if (
+        rawError?.includes('Too Many Requests') ||
+        error.response?.status === 429
+      ) {
+        errorMessage = t('tooManyRequests');
+      } else if (rawError) {
+        errorMessage = rawError;
+      }
+
       setFormError(errorMessage);
 
       // If it's a 401 (Invalid credentials), highlight the fields
@@ -204,7 +220,7 @@ function SignInForm() {
                     type="email"
                     placeholder={t('emailPlaceholder')}
                   />
-                  <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                  <Field.ErrorText color="fg.error">{errors.email?.message}</Field.ErrorText>
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.password}>
@@ -219,7 +235,7 @@ function SignInForm() {
                     data-testid="password-input"
                     placeholder={t('passwordPlaceholder')}
                   />
-                  <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+                  <Field.ErrorText color="fg.error">{errors.password?.message}</Field.ErrorText>
                 </Field.Root>
 
                 <Button

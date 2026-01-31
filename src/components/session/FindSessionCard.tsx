@@ -15,6 +15,10 @@ import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import MyRegistrationModal from './MyRegistrationModal';
+import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
+import SessionShareCard from './SessionShareCard';
+import { Download } from 'lucide-react';
+import { Portal } from '@chakra-ui/react';
 
 interface FindSessionCardProps {
   session: ISession;
@@ -41,6 +45,7 @@ const FindSessionCard = ({
   const locale = useLocale();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   const {
     isOpen: isLoginModalOpen,
@@ -190,6 +195,23 @@ const FindSessionCard = ({
     />
   );
 
+  const downloadButton = isOwner ? (
+    <IconButton
+      size="sm"
+      colorPalette="blue"
+      variant="outline"
+      aria-label="Download session image"
+      loading={isDownloading}
+      icon={<Icon as={Download} />}
+      onClick={(e: React.MouseEvent) => {
+        e.stopPropagation();
+        downloadSessionImage(session, `session-share-card-portrait-${session.id}`);
+      }}
+    />
+  ) : null;
+
+
+
   const callButton = session.hostPhone ? (
     <IconButton
       size="sm"
@@ -250,6 +272,7 @@ const FindSessionCard = ({
     <>
       {callButton}
       {googleMapButton}
+      {downloadButton}
       {shareButton}
     </>
   );
@@ -355,7 +378,7 @@ const FindSessionCard = ({
       <LoginPromptModal
         isOpen={isLoginModalOpen}
         onClose={onCloseLoginModal}
-        returnUrl={`/?sessionId=${session.id}`}
+        returnUrl={`/sessions/${session.id}?register=true`}
       />
 
       {/* Withdraw confirmation modal */}
@@ -396,6 +419,23 @@ const FindSessionCard = ({
       >
         <Text>{t('deleteConfirmation')}</Text>
       </CommonModal>
+
+      {/* Hidden SessionShareCards for image generation */}
+      {isOwner && (
+        <Portal>
+          <Box
+            position="absolute"
+            left="-9999px"
+            top="-9999px"
+            zIndex={-1}
+            pointerEvents="none"
+          >
+            <Box>
+              <SessionShareCard session={session} mode="portrait" />
+            </Box>
+          </Box>
+        </Portal>
+      )}
     </>
   );
 };
