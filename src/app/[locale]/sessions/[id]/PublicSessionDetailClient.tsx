@@ -1,7 +1,16 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Flex, Image, Text, Icon, Badge, Portal } from '@chakra-ui/react';
+import {
+  Container,
+  Box,
+  Flex,
+  Image,
+  Text,
+  Icon,
+  Badge,
+  Portal,
+} from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { Phone, MapPin, Map, Share2, Download } from 'lucide-react';
 import TopBar from '@/components/ui/TopBar';
@@ -11,6 +20,7 @@ import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { useModal } from '@/components/ui/CommonModal';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { Spinner } from '@chakra-ui/react';
@@ -40,12 +50,19 @@ const PublicSessionDetailClient = ({
   const locale = useLocale();
   const { user } = useAuthStore();
   const params = useParams();
-  const searchParams = useSearchParams();
 
-  const [session, setSession] = useState<ISession | null>(initialSession || null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [session, setSession] = useState<ISession | null>(
+    initialSession || null
+  );
   const [loading, setLoading] = useState(!initialSession);
   const [error, setError] = useState<string | null>(null);
-  const [userRegistrationStatus, setUserRegistrationStatus] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | null>(null);
+  const [userRegistrationStatus, setUserRegistrationStatus] = useState<
+    'PENDING' | 'APPROVED' | 'REJECTED' | null
+  >(null);
 
   const {
     isOpen: isLoginModalOpen,
@@ -120,9 +137,19 @@ const PublicSessionDetailClient = ({
   useEffect(() => {
     const registerParam = searchParams.get('register');
     if (registerParam === 'true' && user && session) {
+      // Check if user is already registered to avoid opening modal unnecessarily
+      // However, since we clear the param immediately, it's safer to just open it 
+      // and let the modal handle the "already registered" state or the user sees it.
+      // But clearing the param is crucial.
+
       onOpenJoinModal();
+
+      // Remove the query param so it doesn't trigger again on refresh or re-render
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.delete('register');
+      router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
     }
-  }, [searchParams, user, session, onOpenJoinModal]);
+  }, [searchParams, user, session, onOpenJoinModal, pathname, router]);
 
   // Check if current user is the session owner/host
   const isOwner = session?.hostId === user?.id;
@@ -425,9 +452,13 @@ const PublicSessionDetailClient = ({
           session={session}
           onSuccess={() => {
             // Re-fetch session data to update player count
-            const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+            const sessionId = Array.isArray(params.id)
+              ? params.id[0]
+              : params.id;
             if (sessionId) {
-              SessionService.getSession(sessionId).then(setSession).catch(console.error);
+              SessionService.getSession(sessionId)
+                .then(setSession)
+                .catch(console.error);
             }
             fetchRegistrationStatus();
           }}
@@ -441,9 +472,13 @@ const PublicSessionDetailClient = ({
           onWithdraw={() => {
             onCloseViewRegistrationModal();
             // Re-fetch everything after withdraw
-            const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+            const sessionId = Array.isArray(params.id)
+              ? params.id[0]
+              : params.id;
             if (sessionId) {
-              SessionService.getSession(sessionId).then(setSession).catch(console.error);
+              SessionService.getSession(sessionId)
+                .then(setSession)
+                .catch(console.error);
             }
             fetchRegistrationStatus();
           }}

@@ -205,12 +205,13 @@ const FindSessionCard = ({
       icon={<Icon as={Download} />}
       onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
-        downloadSessionImage(session, `session-share-card-portrait-${session.id}`);
+        downloadSessionImage(
+          session,
+          `session-share-card-portrait-${session.id}`
+        );
       }}
     />
   ) : null;
-
-
 
   const callButton = session.hostPhone ? (
     <IconButton

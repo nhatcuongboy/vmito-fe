@@ -145,10 +145,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${session.endTime
-        ? formatTime(session.endTime, locale)
-        : t('inProgress')
-      }`
+      ? `${formatTime(session.startTime, locale)} - ${
+          session.endTime
+            ? formatTime(session.endTime, locale)
+            : t('inProgress')
+        }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -460,12 +461,12 @@ const BaseSessionCard = ({
                 {/* Top Action Buttons (e.g. Call, Share) */}
                 {(topActionButtons ||
                   (actionButtons && !bottomActionButtons)) && (
-                    <Box flex="1" textAlign="right">
-                      <Flex justify="flex-end" gap={2}>
-                        {topActionButtons || actionButtons}
-                      </Flex>
-                    </Box>
-                  )}
+                  <Box flex="1" textAlign="right">
+                    <Flex justify="flex-end" gap={2}>
+                      {topActionButtons || actionButtons}
+                    </Flex>
+                  </Box>
+                )}
               </Flex>
 
               {/* Row 2: Bottom Action Buttons */}

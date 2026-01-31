@@ -97,9 +97,7 @@ function formatDateTimeLocal(date: Date): string {
 }
 
 // Zod schema for court validation
-type SessionFormData = z.infer<
-  ReturnType<typeof createSessionFormSchema>
->;
+type SessionFormData = z.infer<ReturnType<typeof createSessionFormSchema>>;
 
 function createCourtSchema(t: any) {
   return z.object({
@@ -507,14 +505,14 @@ export default function SessionForm({
       const selectedVenue = venues.find((v) => v.id === data.selectedVenueId);
       const venueData = selectedVenue
         ? {
-          placeId: selectedVenue.placeId,
-          name: selectedVenue.name,
-          address: selectedVenue.address,
-          lat: selectedVenue.lat,
-          lng: selectedVenue.lng,
-          district: selectedVenue.district,
-          city: selectedVenue.city,
-        }
+            placeId: selectedVenue.placeId,
+            name: selectedVenue.name,
+            address: selectedVenue.address,
+            lat: selectedVenue.lat,
+            lng: selectedVenue.lng,
+            district: selectedVenue.district,
+            city: selectedVenue.city,
+          }
         : undefined;
 
       let session: ISession;
@@ -522,11 +520,11 @@ export default function SessionForm({
       // Prepare fee config
       const feeConfigData = feeEnabled
         ? {
-          feeType,
-          maleFee: feeType === FeeType.FIXED ? maleFee : undefined,
-          femaleFee: feeType === FeeType.FIXED ? femaleFee : undefined,
-          notes: feeNotes.trim() || undefined,
-        }
+            feeType,
+            maleFee: feeType === FeeType.FIXED ? maleFee : undefined,
+            femaleFee: feeType === FeeType.FIXED ? femaleFee : undefined,
+            notes: feeNotes.trim() || undefined,
+          }
         : undefined;
 
       if (isEditMode && sessionId) {
@@ -724,7 +722,9 @@ export default function SessionForm({
                     {...register('name')}
                     placeholder={t('sessionNamePlaceholder')}
                   />
-                  <Field.ErrorText color="fg.error">{errors.name?.message}</Field.ErrorText>
+                  <Field.ErrorText color="fg.error">
+                    {errors.name?.message}
+                  </Field.ErrorText>
                 </Field.Root>
 
                 {/* Description */}
@@ -972,7 +972,9 @@ export default function SessionForm({
                         },
                       }}
                     />
-                    <Field.ErrorText color="fg.error">{errors.endTime?.message}</Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
+                      {errors.endTime?.message}
+                    </Field.ErrorText>
                   </Field.Root>
                 </Box>
               </Stack>

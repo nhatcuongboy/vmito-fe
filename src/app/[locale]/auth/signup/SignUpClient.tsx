@@ -91,7 +91,10 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
         error.response?.status === 429
       ) {
         errorMessage = t('tooManyRequests');
-      } else if (rawError === 'User already exists' || error.response?.status === 409) {
+      } else if (
+        rawError === 'User already exists' ||
+        error.response?.status === 409
+      ) {
         errorMessage = t('userAlreadyExists');
       } else if (rawError) {
         errorMessage = rawError;
@@ -139,7 +142,9 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                       {...register('name')}
                       placeholder={t('namePlaceholder')}
                     />
-                    <Field.ErrorText color="fg.error">{errors.name?.message}</Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
+                      {errors.name?.message}
+                    </Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.email}>
@@ -149,7 +154,9 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                       type="email"
                       placeholder={t('emailPlaceholder')}
                     />
-                    <Field.ErrorText color="fg.error">{errors.email?.message}</Field.ErrorText>
+                    <Field.ErrorText color="fg.error">
+                      {errors.email?.message}
+                    </Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.password}>

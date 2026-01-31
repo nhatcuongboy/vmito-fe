@@ -183,14 +183,14 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       const selectedVenue = venues.find((v) => v.id === selectedVenueId);
       const venueData = selectedVenue
         ? {
-          placeId: selectedVenue.placeId,
-          name: selectedVenue.name,
-          address: selectedVenue.address,
-          lat: selectedVenue.lat,
-          lng: selectedVenue.lng,
-          district: selectedVenue.district,
-          city: selectedVenue.city,
-        }
+            placeId: selectedVenue.placeId,
+            name: selectedVenue.name,
+            address: selectedVenue.address,
+            lat: selectedVenue.lat,
+            lng: selectedVenue.lng,
+            district: selectedVenue.district,
+            city: selectedVenue.city,
+          }
         : undefined;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -11,10 +11,7 @@ import {
   Image,
   Stack,
 } from '@chakra-ui/react';
-import {
-  Button,
-  HStack,
-} from '@/components/ui/chakra-compat';
+import { Button, HStack } from '@/components/ui/chakra-compat';
 import { ChevronDown, ChevronUp, Check, X, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PlayerService } from '@/lib/api/player.service';
@@ -245,16 +242,16 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                           variant="solid"
                           size="sm"
                         >
-                          {player.gender === 'MALE' ? 'M' : player.gender === 'FEMALE' ? 'F' : 'O'}
+                          {player.gender === 'MALE'
+                            ? 'M'
+                            : player.gender === 'FEMALE'
+                              ? 'F'
+                              : 'O'}
                         </Badge>
                       )}
                     </HStack>
                     <HStack gap={2}>
-                      <Badge
-                        colorPalette="purple"
-                        variant="subtle"
-                        size="sm"
-                      >
+                      <Badge colorPalette="purple" variant="subtle" size="sm">
                         Lv {player.level || '?'}
                       </Badge>
                       <Text fontSize="xs" color="gray.500">
@@ -277,7 +274,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                     colorPalette="green"
                     variant="solid"
                     flex={1}
-                    minW={{ md: "120px" }}
+                    minW={{ md: '120px' }}
                     onClick={() => handleAction(player.id, 'APPROVED')}
                     loading={actionLoading === player.id}
                     disabled={

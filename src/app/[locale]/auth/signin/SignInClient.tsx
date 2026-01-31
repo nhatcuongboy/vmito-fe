@@ -5,7 +5,6 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
-import { UserRole } from '@/lib/api/types';
 import {
   Box,
   Button,
@@ -26,7 +25,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 // SignIn form schema creator
-function createSignInSchema(t: any) {
+function createSignInSchema(t: (key: string) => string) {
   return z.object({
     email: z.string().email(t('invalidEmail')).min(1, t('emailRequired')),
     password: z.string().min(1, t('passwordRequired')),
@@ -107,21 +106,36 @@ function SignInForm() {
       // Set redirecting state and navigate
       setIsRedirecting(true);
       router.replace(redirectPath);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // General login error handling
       console.error('Login error:', error);
 
+      // Cast to a shape that might match Axios error or similar
+      const apiError = error as {
+        response?: {
+          data?: {
+            message?: string;
+            error?: { message?: string };
+          };
+          status?: number;
+        };
+      };
+
       // Extract error message
       const rawError =
-        error.response?.data?.message || error.response?.data?.error?.message;
+        apiError.response?.data?.message ||
+        apiError.response?.data?.error?.message;
 
       let errorMessage = t('invalidCredentials');
 
-      if (rawError === 'Invalid credentials' || error.response?.status === 401) {
+      if (
+        rawError === 'Invalid credentials' ||
+        apiError.response?.status === 401
+      ) {
         errorMessage = t('invalidCredentials');
       } else if (
         rawError?.includes('Too Many Requests') ||
-        error.response?.status === 429
+        apiError.response?.status === 429
       ) {
         errorMessage = t('tooManyRequests');
       } else if (rawError) {
@@ -131,7 +145,7 @@ function SignInForm() {
       setFormError(errorMessage);
 
       // If it's a 401 (Invalid credentials), highlight the fields
-      if (error.response?.status === 401) {
+      if (apiError.response?.status === 401) {
         setError('email', { type: 'manual', message: '' });
         setError('password', { type: 'manual', message: '' });
       }
@@ -220,7 +234,9 @@ function SignInForm() {
                     type="email"
                     placeholder={t('emailPlaceholder')}
                   />
-                  <Field.ErrorText color="fg.error">{errors.email?.message}</Field.ErrorText>
+                  <Field.ErrorText color="fg.error">
+                    {errors.email?.message}
+                  </Field.ErrorText>
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.password}>
@@ -235,7 +251,9 @@ function SignInForm() {
                     data-testid="password-input"
                     placeholder={t('passwordPlaceholder')}
                   />
-                  <Field.ErrorText color="fg.error">{errors.password?.message}</Field.ErrorText>
+                  <Field.ErrorText color="fg.error">
+                    {errors.password?.message}
+                  </Field.ErrorText>
                 </Field.Root>
 
                 <Button

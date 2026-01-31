@@ -834,7 +834,11 @@ export default function FindSessionList({
                     bg="white"
                     _hover={{ borderColor: 'blue.400' }}
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
-                    _dark={{ color: 'white', bg: 'gray.700', borderColor: 'gray.600' }}
+                    _dark={{
+                      color: 'white',
+                      bg: 'gray.700',
+                      borderColor: 'gray.600',
+                    }}
                   />
                   <Text fontSize="md" fontWeight="bold" color="gray.500">
                     →
@@ -856,7 +860,11 @@ export default function FindSessionList({
                     bg="white"
                     _hover={{ borderColor: 'blue.400' }}
                     _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
-                    _dark={{ color: 'white', bg: 'gray.700', borderColor: 'gray.600' }}
+                    _dark={{
+                      color: 'white',
+                      bg: 'gray.700',
+                      borderColor: 'gray.600',
+                    }}
                   />
                   <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                     VND

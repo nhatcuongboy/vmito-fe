@@ -255,8 +255,7 @@ const SessionCard = ({
         >
           {t('manageSession')}
         </NextLinkButton>
-      ) : (isOwner ||
-        session.players?.[0]?.registrationStatus === 'APPROVED') ? (
+      ) : isOwner || session.players?.[0]?.registrationStatus === 'APPROVED' ? (
         <NextLinkButton
           href={`/player/sessions/${session.id}`}
           colorPalette="blue"
