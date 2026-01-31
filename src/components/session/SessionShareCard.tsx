@@ -77,7 +77,8 @@ const SessionShareCard = ({ session, mode = 'portrait' }: SessionShareCardProps)
     const skillLevelColor = getSkillLevelColor(session.requiredLevels);
 
     useEffect(() => {
-        QRCode.toDataURL('https://vmito.com', {
+        const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
+        QRCode.toDataURL(url, {
             margin: 0,
             width: mode === 'landscape' ? 120 : 100,
             color: {
@@ -87,7 +88,7 @@ const SessionShareCard = ({ session, mode = 'portrait' }: SessionShareCardProps)
         })
             .then(url => setQrDataUrl(url))
             .catch(err => console.error('Error generating QR code:', err));
-    }, [mode]);
+    }, [mode, locale, session.id]);
 
     if (mode === 'landscape') {
         return (

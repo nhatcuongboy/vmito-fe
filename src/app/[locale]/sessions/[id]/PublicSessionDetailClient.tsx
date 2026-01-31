@@ -1,9 +1,9 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Flex, Image, Text, Icon, Badge } from '@chakra-ui/react';
+import { Container, Box, Flex, Image, Text, Icon, Badge, Portal } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { Phone, MapPin, Map, Share2 } from 'lucide-react';
+import { Phone, MapPin, Map, Share2, Download } from 'lucide-react';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -19,6 +19,8 @@ import JoinSessionModal from '@/components/session/JoinSessionModal';
 import MyRegistrationModal from '@/components/session/MyRegistrationModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { toaster } from '@/components/ui/toaster';
+import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
+import SessionShareCard from '@/components/session/SessionShareCard';
 import {
   CONTAINER_PX,
   CONTENT_PT_OFFSET,
@@ -240,6 +242,8 @@ const PublicSessionDetailClient = ({
     </Badge>
   ) : null;
 
+  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+
   // Top actions (Phone, Google Maps, Share)
   const topActions = (
     <>
@@ -270,6 +274,23 @@ const PublicSessionDetailClient = ({
             }
           }}
           icon={<Icon as={Map} />}
+        />
+      )}
+      {isOwner && (
+        <IconButton
+          size="sm"
+          colorPalette="blue"
+          variant="outline"
+          aria-label="Download session image"
+          loading={isDownloading}
+          icon={<Icon as={Download} />}
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            downloadSessionImage(
+              session,
+              `session-share-card-portrait-${session.id}`
+            );
+          }}
         />
       )}
       <IconButton
@@ -427,6 +448,23 @@ const PublicSessionDetailClient = ({
             fetchRegistrationStatus();
           }}
         />
+
+        {/* Hidden SessionShareCards for image generation */}
+        {isOwner && (
+          <Portal>
+            <Box
+              position="absolute"
+              left="-9999px"
+              top="-9999px"
+              zIndex={-1}
+              pointerEvents="none"
+            >
+              <Box>
+                <SessionShareCard session={session} mode="portrait" />
+              </Box>
+            </Box>
+          </Portal>
+        )}
       </Box>
     </>
   );
