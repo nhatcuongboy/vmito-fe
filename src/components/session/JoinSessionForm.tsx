@@ -67,13 +67,13 @@ export default function JoinSessionForm({
 
   return (
     <VStack spacing={4} align="stretch">
-      <Text fontSize="sm" color="gray.500">
+      <Text fontSize="sm" color="fg.muted">
         {t('joinSessionDescription', { hostName: session.host?.name || '' })}
       </Text>
 
       {session.requiredLevels && session.requiredLevels.length > 0 && (
-        <Box bg="blue.50" p={3} borderRadius="md">
-          <Text fontSize="sm" color="blue.700">
+        <Box bg={{ base: 'blue.50', _dark: 'blue.900/30' }} p={3} borderRadius="md">
+          <Text fontSize="sm" color={{ base: 'blue.700', _dark: 'blue.300' }}>
             {t('requiredLevels')}:{' '}
             {session.requiredLevels.map((l) => t(`levels.${l}`)).join(', ')}
           </Text>
@@ -87,9 +87,10 @@ export default function JoinSessionForm({
           key={index}
           p={4}
           borderWidth="1px"
+          borderColor="border"
           borderRadius="lg"
           position="relative"
-          bg="gray.50"
+          bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
           shadow="sm"
         >
           {/* Header with badge and delete button */}
@@ -127,7 +128,7 @@ export default function JoinSessionForm({
           <VStack spacing={4} align="stretch">
             {/* Player name */}
             <FormControl isRequired isInvalid={!!errors[index]?.name}>
-              <FormLabel fontSize="sm" fontWeight="medium" color="gray.600">
+              <FormLabel fontSize="sm" fontWeight="medium" color="fg.muted">
                 {player.isMe ? t('myName') : t('guestName')}
               </FormLabel>
               <Input
@@ -136,9 +137,9 @@ export default function JoinSessionForm({
                   onUpdatePlayer(index, 'name', e.target.value)
                 }
                 placeholder={t('enterName')}
-                bg="white"
+                bg={{ base: 'white', _dark: 'gray.800' }}
                 size="md"
-                borderColor={errors[index]?.name ? 'red.400' : undefined}
+                borderColor={errors[index]?.name ? 'red.400' : 'border'}
                 _focus={{
                   borderColor: errors[index]?.name ? 'red.400' : 'blue.500',
                   boxShadow: errors[index]?.name
@@ -159,7 +160,7 @@ export default function JoinSessionForm({
                 <Text
                   fontSize="sm"
                   mb={2}
-                  color="gray.600"
+                  color="fg.muted"
                   fontWeight="medium"
                 >
                   {tPlayer('gender')}
@@ -173,8 +174,9 @@ export default function JoinSessionForm({
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: '6px',
-                    border: '1px solid #E2E8F0',
-                    backgroundColor: 'white',
+                    border: '1px solid var(--chakra-colors-border)',
+                    backgroundColor: 'transparent',
+                    color: 'inherit',
                     fontSize: '14px',
                   }}
                 >
@@ -190,7 +192,7 @@ export default function JoinSessionForm({
                 <Text
                   fontSize="sm"
                   mb={2}
-                  color="gray.600"
+                  color="fg.muted"
                   fontWeight="medium"
                 >
                   {t('level')} <Text as="span" color="red.500">*</Text>
@@ -205,9 +207,10 @@ export default function JoinSessionForm({
                     padding: '10px 12px',
                     borderRadius: '6px',
                     border: errors[index]?.level
-                      ? '1px solid #F56565'
-                      : '1px solid #E2E8F0',
-                    backgroundColor: 'white',
+                      ? '1px solid var(--chakra-colors-red-400)'
+                      : '1px solid var(--chakra-colors-border)',
+                    backgroundColor: 'transparent',
+                    color: 'inherit',
                     fontSize: '14px',
                   }}
                 >
@@ -231,7 +234,7 @@ export default function JoinSessionForm({
               <Text
                 fontSize="sm"
                 mb={2}
-                color="gray.600"
+                color="fg.muted"
                 fontWeight="medium"
               >
                 {tPlayer('levelDescription')}
@@ -239,7 +242,7 @@ export default function JoinSessionForm({
               <Textarea
                 placeholder={tPlayer('levelDescriptionPlaceholder')}
                 size="md"
-                bg="white"
+                bg={{ base: 'white', _dark: 'gray.800' }}
                 value={player.levelDescription}
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   onUpdatePlayer(index, 'levelDescription', e.target.value)

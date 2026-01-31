@@ -9,7 +9,7 @@ interface MainLayoutProps {
   title: string;
   showBackButton?: boolean;
   backHref?: string;
-  backgroundColor?: string;
+  backgroundColor?: any;
   contentPadding?: number | string;
 }
 
@@ -18,7 +18,7 @@ export default function MainLayout({
   title,
   showBackButton = false,
   backHref = '/',
-  backgroundColor = 'gray.50',
+  backgroundColor = { base: 'gray.50', _dark: 'gray.950' },
   contentPadding = 0,
 }: MainLayoutProps) {
   return (

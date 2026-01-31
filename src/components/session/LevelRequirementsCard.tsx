@@ -46,14 +46,14 @@ const CustomCheckbox = ({
         w={boxSize}
         h={boxSize}
         border="2px solid"
-        borderColor={isChecked ? 'blue.500' : 'gray.300'}
-        bg={isChecked ? 'blue.500' : 'white'}
+        borderColor={isChecked ? 'blue.500' : 'border'}
+        bg={isChecked ? 'blue.500' : 'transparent'}
         borderRadius="md"
         display="flex"
         alignItems="center"
         justifyContent="center"
         transition="all 0.2s"
-        _hover={{ borderColor: 'blue.600' }}
+        _hover={{ borderColor: isChecked ? 'blue.600' : 'blue.500/50' }}
       >
         {isChecked && <Check size={iconSize} color="white" strokeWidth={3} />}
       </Box>
@@ -130,12 +130,12 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
   };
 
   return (
-    <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+    <Box bg={{ base: 'white', _dark: 'gray.800' }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor="border">
       <Heading size="md" mb={2}>
         {t('generalSettings.requiredPlayerLevels')}
       </Heading>
 
-      <Text fontSize="sm" color="gray.600" mb={4}>
+      <Text fontSize="sm" color="fg.muted" mb={4}>
         {t('generalSettings.selectRequiredLevels')}
       </Text>
 
@@ -147,14 +147,14 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
             size="md"
             variant={allLevelsSelected ? 'solid' : 'outline'}
             colorPalette="blue"
-            bg={allLevelsSelected ? 'blue.600' : 'gray.50'}
-            color={allLevelsSelected ? 'white' : 'gray.800'}
-            borderColor={allLevelsSelected ? 'blue.600' : 'gray.200'}
+            bg={allLevelsSelected ? 'blue.600' : { base: 'gray.50', _dark: 'whiteAlpha.50' }}
+            color={allLevelsSelected ? 'white' : 'fg'}
+            borderColor={allLevelsSelected ? 'blue.600' : 'border'}
             onClick={handleSelectAllLevels}
             fontWeight={allLevelsSelected ? 'bold' : 'normal'}
             _hover={{
-              bg: allLevelsSelected ? 'blue.700' : 'gray.100',
-              borderColor: allLevelsSelected ? 'blue.700' : 'gray.300',
+              bg: allLevelsSelected ? 'blue.700' : 'bg.muted',
+              borderColor: allLevelsSelected ? 'blue.700' : 'border',
             }}
           >
             {t('generalSettings.allLevels')}
@@ -175,9 +175,9 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
                   // Using custom aesthetics to match the request
                   variant={isSelected ? 'solid' : 'outline'}
                   colorPalette={levelColor.colorPalette}
-                  bg={isSelected ? levelColor.color : 'white'}
-                  color={isSelected ? 'white' : 'gray.800'}
-                  borderColor={isSelected ? levelColor.color : 'gray.200'}
+                  bg={isSelected ? levelColor.color : 'transparent'}
+                  color={isSelected ? 'white' : 'fg'}
+                  borderColor={isSelected ? levelColor.color : 'border'}
                   borderWidth="1px"
                   onClick={() => handleLevelToggle(level)}
                   borderRadius="md"
@@ -188,7 +188,7 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
                   _hover={{
                     transform: 'translateY(-1px)',
                     shadow: 'sm',
-                    bg: isSelected ? undefined : 'gray.50'
+                    bg: isSelected ? undefined : 'bg.muted'
                   }}
                   transition="all 0.2s"
                 >
@@ -212,8 +212,8 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
 
         {/* Selected Levels Summary */}
         {!allLevelsSelected && requiredLevels.length > 0 && (
-          <Box p={4} bg="blue.50" borderRadius="md" border="1px solid" borderColor="blue.100">
-            <Text fontSize="md" color="blue.800">
+          <Box p={4} bg={{ base: 'blue.50', _dark: 'blue.900/30' }} borderRadius="md" border="1px solid" borderColor={{ base: 'blue.100', _dark: 'blue.800' }}>
+            <Text fontSize="md" color={{ base: 'blue.800', _dark: 'blue.200' }}>
               <Text as="span" fontWeight="medium">{t('generalSettings.selectedLevels')}: </Text>
               {requiredLevels
                 .sort((a: number, b: number) => a - b)

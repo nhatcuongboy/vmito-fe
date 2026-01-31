@@ -77,7 +77,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
       <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <TopBar showBackButton={true} backHref="/" title={t('joinSession')} />
         <Container maxW="container.md" px={CONTAINER_PX} pt={24}>
-          <Box p={6} bg="white" borderRadius="lg" shadow="sm" textAlign="center">
+          <Box p={6} bg={{ base: 'white', _dark: 'gray.800' }} borderRadius="lg" shadow="sm" textAlign="center">
             <Heading size="md" mb={2}>{t('loadingError')}</Heading>
             <Button onClick={() => router.push('/')}>
               {tCommon('back')}
@@ -102,12 +102,12 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
         pb={8}
       >
         <Box
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
+          bg={{ base: 'white', _dark: 'gray.800' }}
           p={6}
           borderRadius="lg"
           boxShadow="sm"
           borderWidth="1px"
+          borderColor="border"
         >
           <JoinSessionForm
             session={session}
@@ -118,7 +118,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
             onUpdatePlayer={handleUpdatePlayer}
           />
 
-          <Box mt={6} pt={6} borderTopWidth="1px" borderColor="gray.100">
+          <Box mt={6} pt={6} borderTopWidth="1px" borderColor="border">
             <Button
               colorPalette="blue"
               width="full"

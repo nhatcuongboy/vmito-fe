@@ -127,12 +127,11 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
       {/* Filter and Sort Controls */}
       <Box
         p={5}
-        bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        bg={{ base: 'white', _dark: 'gray.800' }}
         borderRadius="xl"
         shadow="sm"
         border="1px solid"
-        borderColor="gray.100"
+        borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
       >
         <Flex align="center" mb={4}>
           <Icon as={Filter} boxSize={5} mr={2} color="blue.500" />
@@ -146,7 +145,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
             <Text
               fontSize="xs"
               fontWeight="semibold"
-              color="gray.500"
+              color="fg.muted"
               mb={1.5}
               textTransform="uppercase"
             >
@@ -169,7 +168,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
             <Text
               fontSize="xs"
               fontWeight="semibold"
-              color="gray.500"
+              color="fg.muted"
               mb={1.5}
               textTransform="uppercase"
             >
@@ -191,7 +190,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
             <Text
               fontSize="xs"
               fontWeight="semibold"
-              color="gray.500"
+              color="fg.muted"
               mb={1.5}
               textTransform="uppercase"
             >
@@ -231,12 +230,11 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
 
       {/* Stats Table */}
       <Box
-        bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        bg={{ base: 'white', _dark: 'gray.800' }}
         borderRadius="xl"
         shadow="sm"
         border="1px solid"
-        borderColor="gray.100"
+        borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
         overflow="hidden"
       >
         {loading ? (
@@ -249,7 +247,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
           </Center>
         ) : stats.length === 0 ? (
           <Center py={10}>
-            <Text color="gray.500">{t('noDataAvailable')}</Text>
+            <Text color="fg.muted">{t('noDataAvailable')}</Text>
           </Center>
         ) : (
           <Box overflowX="auto">
@@ -321,7 +319,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
                     <Table.Cell py={2.5} textAlign="center">
                       {p.totalMatches}
                     </Table.Cell>
-                    <Table.Cell py={2.5} textAlign="center" color="gray.500">
+                    <Table.Cell py={2.5} textAlign="center" color="fg.muted">
                       {p.extraMatches || 0}
                     </Table.Cell>
                     <Table.Cell
@@ -341,8 +339,8 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
                         px={2}
                         py={0.5}
                         borderRadius="full"
-                        bg={p.winRate >= 50 ? 'green.50' : 'orange.50'}
-                        color={p.winRate >= 50 ? 'green.700' : 'orange.700'}
+                        bg={p.winRate >= 50 ? { base: 'green.50', _dark: 'green.900/30' } : { base: 'orange.50', _dark: 'orange.900/30' }}
+                        color={p.winRate >= 50 ? 'green.500' : 'orange.500'}
                         fontSize="xs"
                       >
                         {p.winRate}%
@@ -366,7 +364,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
           borderTop="1px solid"
           borderColor="gray.100"
         >
-          <Text fontSize="xs" color="gray.500" textAlign="right">
+          <Text fontSize="xs" color="fg.muted" textAlign="right">
             {t('lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
           </Text>
         </Box>

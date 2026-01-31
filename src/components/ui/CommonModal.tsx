@@ -195,7 +195,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
       }}
     >
       <Box
-        bg="white"
+        bg={{ base: "white", _dark: "gray.800" }}
         borderRadius="lg"
         boxShadow="xl"
         maxW={sizeConfig[size]}
@@ -220,17 +220,17 @@ export const CommonModal: React.FC<CommonModalProps> = ({
             align="center"
             p={4}
             borderBottom={showHeaderDivider ? '1px' : 'none'}
-            borderColor="gray.200"
+            borderColor="border"
             flexShrink={0}
           >
             <Box flex={1}>
               {title && (
-                <Heading size="md" color="gray.800">
+                <Heading size="md" color="fg">
                   {title}
                 </Heading>
               )}
               {description && (
-                <Text fontSize="sm" color="gray.600" mt={1}>
+                <Text fontSize="sm" color="fg.muted" mt={1}>
                   {description}
                 </Text>
               )}
@@ -244,8 +244,8 @@ export const CommonModal: React.FC<CommonModalProps> = ({
                   onClick={onClose}
                   p={1}
                   borderRadius="md"
-                  color="gray.500"
-                  _hover={{ bg: 'gray.100', color: 'gray.700' }}
+                  color="fg.muted"
+                  _hover={{ bg: 'bg.muted', color: 'fg' }}
                   transition="all 0.2s"
                   aria-label="Close modal"
                 >
@@ -270,11 +270,11 @@ export const CommonModal: React.FC<CommonModalProps> = ({
               background: 'transparent',
             },
             '&::-webkit-scrollbar-thumb': {
-              background: '#CBD5E0',
+              background: 'var(--chakra-colors-border)',
               borderRadius: '3px',
             },
             '&::-webkit-scrollbar-thumb:hover': {
-              background: '#A0AEC0',
+              background: 'var(--chakra-colors-gray-400)',
             },
           }}
         >
@@ -288,7 +288,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
             gap={3}
             p={4}
             borderTop={showFooterDivider ? '1px' : 'none'}
-            borderColor="gray.200"
+            borderColor="border"
             flexShrink={0}
           >
             {footer !== undefined ? (

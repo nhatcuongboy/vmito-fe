@@ -52,8 +52,8 @@ const CustomCheckbox = ({
         w={boxSize}
         h={boxSize}
         border="2px solid"
-        borderColor={isChecked ? 'blue.500' : 'gray.300'}
-        bg={isChecked ? 'blue.500' : 'white'}
+        borderColor={isChecked ? 'blue.500' : 'border'}
+        bg={isChecked ? 'blue.500' : 'transparent'}
         borderRadius="md"
         display="flex"
         alignItems="center"
@@ -115,10 +115,10 @@ export default function SessionFeeConfigForm({
   return (
     <Box
       border="1px solid"
-      borderColor="gray.200"
+      borderColor="border"
       borderRadius="lg"
       p={4}
-      bg="white"
+      bg={{ base: 'white', _dark: 'gray.800' }}
     >
       {/* Header with toggle */}
       <Flex justify="space-between" align="center" mb={enabled ? 4 : 0}>
@@ -136,7 +136,7 @@ export default function SessionFeeConfigForm({
             }
             disabled={disabled}
           />
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="fg.muted">
             {enabled ? t('disableFee') : t('enableFee')}
           </Text>
         </HStack>
@@ -161,9 +161,9 @@ export default function SessionFeeConfigForm({
                   py={2}
                   borderRadius="md"
                   border="2px solid"
-                  borderColor={feeType === FeeType.FIXED ? 'blue.500' : 'gray.200'}
-                  bg={feeType === FeeType.FIXED ? 'blue.50' : 'white'}
-                  color={feeType === FeeType.FIXED ? 'blue.700' : 'gray.700'}
+                  borderColor={feeType === FeeType.FIXED ? 'blue.500' : 'border'}
+                  bg={feeType === FeeType.FIXED ? { base: 'blue.50', _dark: 'blue.900/40' } : 'transparent'}
+                  color={feeType === FeeType.FIXED ? { base: 'blue.700', _dark: 'blue.300' } : 'fg'}
                   fontWeight={feeType === FeeType.FIXED ? 'semibold' : 'normal'}
                   cursor={disabled ? 'not-allowed' : 'pointer'}
                   opacity={disabled ? 0.6 : 1}
@@ -185,10 +185,10 @@ export default function SessionFeeConfigForm({
                   borderRadius="md"
                   border="2px solid"
                   borderColor={
-                    feeType === FeeType.SPLIT_EVENLY ? 'blue.500' : 'gray.200'
+                    feeType === FeeType.SPLIT_EVENLY ? 'blue.500' : 'border'
                   }
-                  bg={feeType === FeeType.SPLIT_EVENLY ? 'blue.50' : 'white'}
-                  color={feeType === FeeType.SPLIT_EVENLY ? 'blue.700' : 'gray.700'}
+                  bg={feeType === FeeType.SPLIT_EVENLY ? { base: 'blue.50', _dark: 'blue.900/40' } : 'transparent'}
+                  color={feeType === FeeType.SPLIT_EVENLY ? { base: 'blue.700', _dark: 'blue.300' } : 'fg'}
                   fontWeight={
                     feeType === FeeType.SPLIT_EVENLY ? 'semibold' : 'normal'
                   }
@@ -221,7 +221,7 @@ export default function SessionFeeConfigForm({
                     }
                     disabled={disabled}
                   />
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="sm" color="fg.muted">
                     VND
                   </Text>
                 </HStack>
@@ -241,7 +241,7 @@ export default function SessionFeeConfigForm({
                     }
                     disabled={disabled}
                   />
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="sm" color="fg.muted">
                     VND
                   </Text>
                 </HStack>
@@ -252,13 +252,13 @@ export default function SessionFeeConfigForm({
           {/* Split Evenly Description */}
           {feeType === FeeType.SPLIT_EVENLY && (
             <Box
-              bg="blue.50"
+              bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
               p={3}
               borderRadius="md"
               border="1px solid"
-              borderColor="blue.200"
+              borderColor={{ base: 'blue.200', _dark: 'blue.800' }}
             >
-              <Text fontSize="sm" color="blue.700">
+              <Text fontSize="sm" color={{ base: 'blue.700', _dark: 'blue.300' }}>
                 {t('splitDescription')}
               </Text>
             </Box>

@@ -251,7 +251,7 @@ export default function UserProfileModal({
               <Upload size={16} />
             </Box>
           </Box>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="fg.muted">
             Click to upload avatar
           </Text>
         </Flex>
@@ -271,7 +271,7 @@ export default function UserProfileModal({
         {/* Email (Read-only) */}
         <Field.Root>
           <Field.Label>Email</Field.Label>
-          <Input value={user.email} disabled bg="gray.50" />
+          <Input value={user.email} disabled bg={{ base: "gray.50", _dark: "whiteAlpha.100" }} />
         </Field.Root>
 
         {/* Phone */}
@@ -354,7 +354,7 @@ export default function UserProfileModal({
         {/* Password Section */}
         <Box
           borderTop="1px solid"
-          borderColor="gray.200"
+          borderColor="border"
           pt={4}
         >
           <Text fontSize="md" fontWeight="semibold" mb={4}>

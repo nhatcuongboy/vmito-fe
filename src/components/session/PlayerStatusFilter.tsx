@@ -104,8 +104,8 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
       w="16px"
       h="16px"
       border="1px solid"
-      borderColor={checked ? `${colorPalette}.500` : 'gray.300'}
-      bg={checked ? `${colorPalette}.500` : 'white'}
+      borderColor={checked ? `${colorPalette}.500` : { base: 'gray.300', _dark: 'whiteAlpha.300' }}
+      bg={checked ? `${colorPalette}.500` : 'transparent'}
       borderRadius="sm"
       display="flex"
       alignItems="center"
@@ -152,12 +152,12 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
           top="100%"
           left={0} // Aligned to left like popover bottom-start
           mt={2}
-          bg="white"
+          bg={{ base: "white", _dark: "gray.800" }}
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           boxShadow="lg"
           borderRadius="md"
           border="1px solid"
-          borderColor="gray.200"
+          borderColor={{ base: "gray.200", _dark: "gray.700" }}
           zIndex={10}
           width="240px"
           overflow="hidden"
@@ -180,8 +180,8 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                 <Badge
                   variant="subtle"
                   colorPalette="gray"
-                  bg="gray.100"
-                  color="gray.600"
+                  bg={{ base: "gray.100", _dark: "gray.700" }}
+                  color="fg.muted"
                 >
                   {totalCount}
                 </Badge>
@@ -214,8 +214,8 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
                     <Badge
                       variant="subtle"
                       colorPalette={colorPalette}
-                      bg={`${colorPalette}.100`}
-                      color={`${colorPalette}.700`}
+                      bg={{ base: `${colorPalette}.100`, _dark: `${colorPalette}.900/40` }}
+                      color={{ base: `${colorPalette}.700`, _dark: `${colorPalette}.200` }}
                     >
                       {counts[status]}
                     </Badge>

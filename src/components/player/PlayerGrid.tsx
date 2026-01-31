@@ -15,33 +15,33 @@ import { useTranslations } from 'next-intl';
 // Color constants for different player states
 const PLAYER_COLORS = {
   SELECTED: {
-    bg: 'rgba(59, 130, 246, 0.3)',
-    border: 'rgba(59, 130, 246, 0.8)',
+    bg: { base: 'blue.100', _dark: 'blue.900/40' },
+    border: 'blue.500',
     scheme: 'blue',
   },
   READY: {
-    bg: '#fae593',
-    border: '#fae593',
+    bg: { base: 'yellow.100', _dark: 'yellow.900/30' },
+    border: 'yellow.300',
     scheme: 'green',
   },
   WAITING: {
-    bg: 'rgba(251, 146, 60, 0.9)', // Increased opacity from 0.2 to 0.4
-    border: 'rgba(251, 146, 60, 0.9)', // Increased opacity from 0.8 to 1 (full)
+    bg: { base: 'orange.100', _dark: 'orange.900/40' },
+    border: 'orange.400',
     scheme: 'orange',
   },
   PLAYING: {
-    bg: 'rgba(72, 187, 120, 0.8)',
-    border: 'rgba(72, 187, 120, 0.8)',
+    bg: { base: 'green.100', _dark: 'green.900/30' },
+    border: 'green.400',
     scheme: 'blue',
   },
   INACTIVE: {
-    bg: 'rgb(214 216 220)',
-    border: 'rgb(214 216 220)',
+    bg: { base: 'gray.100', _dark: 'whiteAlpha.100' },
+    border: 'gray.300',
     scheme: 'gray',
   },
   DEFAULT: {
-    bg: 'rgba(251, 146, 60, 0.3)',
-    border: 'rgba(251, 146, 60, 0.5)',
+    bg: { base: 'orange.50', _dark: 'whiteAlpha.50' },
+    border: 'orange.200',
     scheme: 'orange',
   },
 };
@@ -137,8 +137,8 @@ export const PlayerGrid = ({
               size="sm"
               borderRadius="md"
               borderWidth="2px"
-              borderColor={borderColor}
-              bg={bgColor}
+              borderColor={borderColor as any}
+              bg={bgColor as any}
               transition="all 0.2s"
               minH="140px"
               position="relative"
@@ -191,7 +191,7 @@ export const PlayerGrid = ({
                     width="100%"
                     alignItems="start"
                   >
-                    <Text fontWeight="bold" color="orange.700" fontSize="md">
+                    <Text fontWeight="bold" color={{ base: "orange.700", _dark: "orange.400" }} fontSize="md">
                       #{player.playerNumber}
                     </Text>
                     {isShowWaitTime &&
@@ -220,7 +220,7 @@ export const PlayerGrid = ({
                     overflow="hidden"
                     textOverflow="ellipsis"
                     whiteSpace="nowrap"
-                    color="gray.800"
+                    color="fg"
                     title={player.name || `Player ${player.playerNumber}`}
                   >
                     {player.name || `Player ${player.playerNumber}`}
@@ -235,8 +235,7 @@ export const PlayerGrid = ({
                     {mode === 'manage' && (
                       <Badge
                         variant="outline"
-                        // colorPalette={"purple"}
-                        background={'whiteAlpha.800'}
+                        bg={{ base: 'whiteAlpha.800', _dark: 'whiteAlpha.100' }}
                         fontSize="xs"
                         borderRadius="sm"
                       >
@@ -272,7 +271,7 @@ export const PlayerGrid = ({
                     </Badge>
                   </Flex>
 
-                  <Text fontSize="xs" color="gray.600" fontWeight="medium">
+                  <Text fontSize="xs" color="fg.muted" fontWeight="medium">
                     {player.matchesPlayed} matches
                   </Text>
                 </VStack>
@@ -288,9 +287,9 @@ export const PlayerGrid = ({
                     <PlayerActionMenu
                       player={player}
                       onShowQR={onShowQR || handleShowDetail}
-                      onEdit={onEdit || (() => {})}
-                      onDelete={onDelete || (() => {})}
-                      onToggleStatus={onToggleStatus || (() => {})}
+                      onEdit={onEdit || (() => { })}
+                      onDelete={onDelete || (() => { })}
+                      onToggleStatus={onToggleStatus || (() => { })}
                       t={t}
                       buttonVariant="solid"
                       buttonSize="xs"

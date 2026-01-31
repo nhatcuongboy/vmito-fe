@@ -152,7 +152,7 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
           </Flex>
         </Box>
         {session.status !== SessionStatus.IN_PROGRESS && (
-          <Text fontSize="lg" color="gray.500" textAlign="center" mt={4}>
+          <Text fontSize="lg" color="fg.muted" textAlign="center" mt={4}>
             {session.status === SessionStatus.PREPARING
               ? t('courtsTab.startSessionToBeginMatches')
               : t('courtsTab.sessionHasEnded')}

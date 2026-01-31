@@ -165,10 +165,10 @@ export default function SessionHistoryList({
         // Use courtPosition for pair calculation to match visual layout
         const playersWithPosition = Array.isArray(matchData.players)
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            matchData.players.map((mp: any, index: number) => ({
-              playerId: mp.player?.id || mp.playerId,
-              position: mp.player?.courtPosition ?? mp.position ?? index,
-            }))
+          matchData.players.map((mp: any, index: number) => ({
+            playerId: mp.player?.id || mp.playerId,
+            position: mp.player?.courtPosition ?? mp.position ?? index,
+          }))
           : [];
 
         const matchResult = parseScoreData(matchData, playersWithPosition);
@@ -317,9 +317,10 @@ export default function SessionHistoryList({
                 width: '100%',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--chakra-colors-border)',
                 fontSize: '14px',
-                backgroundColor: 'white',
+                backgroundColor: 'transparent',
+                color: 'inherit',
               }}
             >
               <option value="">All players</option>
@@ -350,9 +351,10 @@ export default function SessionHistoryList({
                 width: '100%',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--chakra-colors-border)',
                 fontSize: '14px',
-                backgroundColor: 'white',
+                backgroundColor: 'transparent',
+                color: 'inherit',
               }}
             >
               <option value="">All courts</option>

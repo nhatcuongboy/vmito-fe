@@ -602,7 +602,7 @@ export default function SessionForm({
     };
 
     return (
-        <Box minH={isEditMode ? undefined : "100vh"} bg={isEditMode ? "transparent" : "gray.50"}>
+        <Box minH={isEditMode ? undefined : "100vh"} bg={isEditMode ? "transparent" : { base: "gray.50", _dark: "gray.950" }}>
             {showTopBar && (
                 <TopBar
                     title={title || (isEditMode ? t('editSession') : t('createNewSession'))}
@@ -658,7 +658,7 @@ export default function SessionForm({
                         )}
 
                         {/* Basic Info Section */}
-                        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                        <Box bg={{ base: "white", _dark: "gray.800" }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor={{ base: "gray.100", _dark: "gray.700" }}>
                             <Heading size="md" mb={4}>
                                 {t('basicInfo')}
                             </Heading>
@@ -772,7 +772,7 @@ export default function SessionForm({
                         </Box>
 
                         {/* Host Info Section */}
-                        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                        <Box bg={{ base: "white", _dark: "gray.800" }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor={{ base: "gray.100", _dark: "gray.700" }}>
                             <Heading size="md" mb={4}>
                                 {t('hostInfo')}
                             </Heading>
@@ -806,7 +806,7 @@ export default function SessionForm({
                         </Box>
 
                         {/* Time Section */}
-                        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                        <Box bg={{ base: "white", _dark: "gray.800" }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor={{ base: "gray.100", _dark: "gray.700" }}>
                             <Heading size="md" mb={4}>
                                 {t('time')}
                             </Heading>
@@ -830,14 +830,14 @@ export default function SessionForm({
                                     </Field.Root>
                                 </Box>
                             </Stack>
-                            <Text fontSize="sm" color="gray.500" mt={2}>
+                            <Text fontSize="sm" color="fg.muted" mt={2}>
                                 {t('duration')}: {Math.floor(sessionDuration / 60)}h{' '}
                                 {sessionDuration % 60}m
                             </Text>
                         </Box>
 
                         {/* Courts Configuration Section */}
-                        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                        <Box bg={{ base: "white", _dark: "gray.800" }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor={{ base: "gray.100", _dark: "gray.700" }}>
                             <Flex align="center" justify="space-between" mb={4}>
                                 <Heading size="md">{t('courtsConfiguration')}</Heading>
                                 <Button type="button" onClick={handleAddCourt} size="sm" disabled={!canEditCourts}>
@@ -853,7 +853,7 @@ export default function SessionForm({
                                         p={4}
                                         border="1px"
                                         borderColor={
-                                            errors.courts?.[index] ? 'red.500' : 'gray.200'
+                                            errors.courts?.[index] ? 'red.500' : { base: 'gray.200', _dark: 'gray.600' }
                                         }
                                         borderRadius="md"
                                         opacity={!canEditCourts ? 0.7 : 1}
@@ -972,11 +972,11 @@ export default function SessionForm({
                         </Box>
 
                         {/* Court Appearance Section */}
-                        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                        <Box bg={{ base: "white", _dark: "gray.800" }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor={{ base: "gray.100", _dark: "gray.700" }}>
                             <Heading size="md" mb={4}>
                                 {t('courtAppearance')}
                             </Heading>
-                            <Text fontSize="sm" color="gray.600" mb={4}>
+                            <Text fontSize="sm" color="fg.muted" mb={4}>
                                 {t('selectCourtColor')}
                             </Text>
 
@@ -1036,7 +1036,7 @@ export default function SessionForm({
                         </Box>
 
                         {/* Max Players & Shuttlecock Section */}
-                        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                        <Box bg={{ base: 'white', _dark: 'gray.800' }} p={6} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor="border">
                             <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
                                 <Field.Root invalid={!!errors.maxPlayersPerCourt}>
                                     <Field.Label>

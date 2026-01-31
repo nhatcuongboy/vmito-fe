@@ -291,7 +291,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               pointerEvents="none"
               display="flex"
               alignItems="center"
-              color="gray.400"
+              color="fg.muted"
             >
               {props.leftElement}
             </Box>
@@ -311,7 +311,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               pointerEvents="none"
               display="flex"
               alignItems="center"
-              color="gray.400"
+              color="fg.muted"
             >
               {props.rightElement}
             </Box>
@@ -320,11 +320,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         <Portal>
           <SelectPositioner zIndex="popover">
             <SelectContent
-              bg="white"
+              bg={{ base: 'white', _dark: 'gray.800' }}
               boxShadow="lg"
               borderRadius="md"
               borderWidth="1px"
-              borderColor="gray.200"
+              borderColor="border"
               p="1"
               minW="var(--reference-width)"
               maxH="300px"
@@ -335,8 +335,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 <SelectItem
                   key={item.value}
                   item={item.value}
-                  _hover={{ bg: 'gray.50' }}
-                  _selected={{ bg: 'blue.50', color: 'blue.600' }}
+                  _hover={{ bg: { base: 'gray.50', _dark: 'whiteAlpha.50' } }}
+                  _selected={{ bg: { base: 'blue.50', _dark: 'blue.900/40' }, color: { base: 'blue.600', _dark: 'blue.300' } }}
                   p="2"
                   borderRadius="sm"
                   cursor="pointer"

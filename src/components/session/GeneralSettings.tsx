@@ -239,13 +239,13 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   return (
     <Box maxW="6xl" mx="auto" px={4}>
       <VStack gap={8}>
-        <Card maxW="4xl" w="full">
+        <Card maxW="4xl" w="full" bg={{ base: 'white', _dark: 'gray.800' }} border="1px solid" borderColor="border">
           <CardBody p={8}>
             <VStack gap={6} align="stretch">
               <Box>
                 <HStack mb={3}>
-                  <FileText size={16} color="#4a5568" />
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                  <FileText size={16} color="fg.muted" />
+                  <Text fontSize="sm" fontWeight="semibold" color="fg">
                     {t('sessionName')}
                   </Text>
                 </HStack>
@@ -255,7 +255,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   placeholder={t('enterSessionName')}
                   size="lg"
                   borderRadius="lg"
-                  borderColor="gray.300"
+                  borderColor="border"
+                  bg={{ base: 'white', _dark: 'gray.700' }}
                   _focus={{
                     borderColor: 'blue.400',
                     boxShadow: '0 0 0 1px #3182ce',
@@ -265,8 +266,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
               <Box>
                 <HStack mb={3}>
-                  <FileText size={16} color="#4a5568" />
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                  <FileText size={16} color="fg.muted" />
+                  <Text fontSize="sm" fontWeight="semibold" color="fg">
                     {t('description')}
                   </Text>
                 </HStack>
@@ -288,8 +289,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
               <Box>
                 <HStack mb={3}>
-                  <MapPin size={16} color="#4a5568" />
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                  <MapPin size={16} color="fg.muted" />
+                  <Text fontSize="sm" fontWeight="semibold" color="fg">
                     {t('location')}
                   </Text>
                 </HStack>
@@ -315,8 +316,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
                 <Box>
                   <HStack mb={3}>
-                    <Users size={16} color="#4a5568" />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    <Users size={16} color="fg.muted" />
+                    <Text fontSize="sm" fontWeight="semibold" color="fg">
                       {t('maxPlayersPerCourt')}
                     </Text>
                   </HStack>
@@ -333,7 +334,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     max={8}
                     size="lg"
                     borderRadius="lg"
-                    borderColor="gray.300"
+                    borderColor="border"
+                    bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
                       borderColor: 'blue.400',
                       boxShadow: '0 0 0 1px #3182ce',
@@ -343,8 +345,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
                 <Box>
                   <HStack mb={3}>
-                    <FileText size={16} color="#4a5568" />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    <FileText size={16} color="fg.muted" />
+                    <Text fontSize="sm" fontWeight="semibold" color="fg">
                       {t('shuttlecock', { defaultValue: 'Cầu' })}
                     </Text>
                   </HStack>
@@ -354,7 +356,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     placeholder={t('shuttlecock', { defaultValue: 'Nhập loại cầu' })}
                     size="lg"
                     borderRadius="lg"
-                    borderColor="gray.300"
+                    borderColor="border"
+                    bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
                       borderColor: 'blue.400',
                       boxShadow: '0 0 0 1px #3182ce',
@@ -366,8 +369,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
                 <Box>
                   <HStack mb={3}>
-                    <Clock size={16} color="#4a5568" />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    <Clock size={16} color="fg.muted" />
+                    <Text fontSize="sm" fontWeight="semibold" color="fg">
                       {t('startTime')}
                     </Text>
                   </HStack>
@@ -379,7 +382,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     }
                     size="lg"
                     borderRadius="lg"
-                    borderColor="gray.300"
+                    borderColor="border"
+                    bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
                       borderColor: 'blue.400',
                       boxShadow: '0 0 0 1px #3182ce',
@@ -389,8 +393,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
 
                 <Box>
                   <HStack mb={3}>
-                    <Clock size={16} color="#4a5568" />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    <Clock size={16} color="fg.muted" />
+                    <Text fontSize="sm" fontWeight="semibold" color="fg">
                       {t('endTime')}
                     </Text>
                   </HStack>
@@ -402,7 +406,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     }
                     size="lg"
                     borderRadius="lg"
-                    borderColor="gray.300"
+                    borderColor="border"
+                    bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
                       borderColor: 'blue.400',
                       boxShadow: '0 0 0 1px #3182ce',
@@ -414,7 +419,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               {/* Temporarily hidden */}
               {false && user?.role !== UserRole.PLAYER && (
                 <VStack gap={4} align="stretch">
-                  <Heading size="sm" color="gray.700">
+                  <Heading size="sm" color="fg">
                     {t('sessionSettings')}
                   </Heading>
 
@@ -422,20 +427,20 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     justify="space-between"
                     align="center"
                     p={4}
-                    bg="gray.50"
+                    bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
                     borderRadius="lg"
                   >
                     <HStack>
-                      <UserCheck size={16} color="#4a5568" />
+                      <UserCheck size={16} color="fg.muted" />
                       <Box>
                         <Text
                           fontSize="sm"
                           fontWeight="semibold"
-                          color="gray.700"
+                          color="fg"
                         >
                           {t('requirePlayerInfo')}
                         </Text>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="fg.muted">
                           {t('requirePlayerInfoDesc')}
                         </Text>
                       </Box>
@@ -454,20 +459,20 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     justify="space-between"
                     align="center"
                     p={4}
-                    bg="gray.50"
+                    bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
                     borderRadius="lg"
                   >
                     <HStack>
-                      <Users size={16} color="#4a5568" />
+                      <Users size={16} color="fg.muted" />
                       <Box>
                         <Text
                           fontSize="sm"
                           fontWeight="semibold"
-                          color="gray.700"
+                          color="fg"
                         >
                           {t('allowGuestJoin')}
                         </Text>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="fg.muted">
                           {t('allowGuestJoinDesc')}
                         </Text>
                       </Box>
@@ -486,20 +491,20 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     justify="space-between"
                     align="center"
                     p={4}
-                    bg="gray.50"
+                    bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
                     borderRadius="lg"
                   >
                     <HStack>
-                      <UserPlus size={16} color="#4a5568" />
+                      <UserPlus size={16} color="fg.muted" />
                       <Box>
                         <Text
                           fontSize="sm"
                           fontWeight="semibold"
-                          color="gray.700"
+                          color="fg"
                         >
                           {t('allowNewPlayers')}
                         </Text>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="fg.muted">
                           {t('allowNewPlayersDesc')}
                         </Text>
                       </Box>
@@ -517,15 +522,15 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               )}
 
               <VStack gap={4} align="stretch" mt={6}>
-                <Heading size="sm" color="gray.700">
+                <Heading size="sm" color="fg">
                   <HStack>
                     <Shield size={16} />
                     <Text>{t('requiredPlayerLevels')}</Text>
                   </HStack>
                 </Heading>
 
-                <Box p={4} bg="gray.50" borderRadius="lg">
-                  <Text fontSize="xs" color="gray.600" mb={3}>
+                <Box p={4} bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }} borderRadius="lg">
+                  <Text fontSize="xs" color="fg.muted" mb={3}>
                     {t('selectRequiredLevels')}
                   </Text>
 
@@ -540,8 +545,8 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                             py={2}
                             borderRadius="md"
                             cursor="pointer"
-                            bg={isSelected ? 'blue.500' : 'gray.200'}
-                            color={isSelected ? 'white' : 'gray.700'}
+                            bg={isSelected ? 'blue.500' : { base: 'gray.200', _dark: 'gray.700' }}
+                            color={isSelected ? 'white' : 'fg'}
                             fontSize="sm"
                             fontWeight="semibold"
                             onClick={() => handleLevelToggle(level)}
@@ -568,7 +573,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   {formData.requiredLevels &&
                     formData.requiredLevels.length > 0 &&
                     formData.requiredLevels.length === VALID_LEVELS.length && (
-                      <Text fontSize="xs" color="orange.600" mt={2}>
+                      <Text fontSize="xs" color="orange.500" mt={2}>
                         {t('allLevelsSelected')}
                       </Text>
                     )}
@@ -576,15 +581,15 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               </VStack>
 
               <VStack gap={4} align="stretch" mt={6}>
-                <Heading size="sm" color="gray.700">
+                <Heading size="sm" color="fg">
                   <HStack>
                     <Palette size={16} />
                     <Text>Court Appearance</Text>
                   </HStack>
                 </Heading>
 
-                <Box p={4} bg="gray.50" borderRadius="lg">
-                  <Text fontSize="xs" color="gray.600" mb={3}>
+                <Box p={4} bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }} borderRadius="lg">
+                  <Text fontSize="xs" color="fg.muted" mb={3}>
                     Select a color theme for your courts
                   </Text>
                   <Wrap gap={4}>
@@ -605,7 +610,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                               }
                               border="4px solid"
                               borderColor={
-                                isSelected ? 'blue.500' : 'transparent'
+                                isSelected ? 'blue.500' : 'border'
                               }
                               boxShadow={isSelected ? 'lg' : 'sm'}
                               transition="all 0.2s"
@@ -664,23 +669,23 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                 isSecondaryDisabled={isLoading}
               >
                 <VStack align="stretch" gap={4}>
-                  <Text color="gray.600" lineHeight="1.6">
+                  <Text color="fg.muted" lineHeight="1.6">
                     {t('changeLevelWarning')}
                   </Text>
                   <VStack
                     align="start"
                     gap={2}
                     p={4}
-                    bg="gray.50"
+                    bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
                     borderRadius="md"
                   >
-                    <Text fontSize="sm" color="gray.700">
+                    <Text fontSize="sm" color="fg">
                       <strong>{t('currentLevels')}</strong>{' '}
                       {(session.requiredLevels || []).length > 0
                         ? (session.requiredLevels || []).join(', ')
                         : t('allLevelsAllowed')}
                     </Text>
-                    <Text fontSize="sm" color="gray.700">
+                    <Text fontSize="sm" color="fg">
                       <strong>{t('newLevels')}</strong>{' '}
                       {pendingRequiredLevels.length > 0
                         ? pendingRequiredLevels.join(', ')

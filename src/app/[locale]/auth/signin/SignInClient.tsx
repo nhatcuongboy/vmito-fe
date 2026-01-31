@@ -130,11 +130,11 @@ function SignInForm() {
         display="flex"
         alignItems="center"
         justifyContent="center"
-        bg="gray.50"
+        bg={{ base: 'gray.50', _dark: 'gray.950' }}
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">
+          <Text color="fg.muted">
             {isRedirecting ? 'Redirecting...' : 'Loading...'}
           </Text>
         </VStack>
@@ -155,30 +155,32 @@ function SignInForm() {
         <Box
           maxW="md"
           w="full"
-          bg="white"
+          bg={{ base: 'white', _dark: 'gray.800' }}
           p={8}
           borderRadius="lg"
           boxShadow="lg"
+          border="1px solid"
+          borderColor="border"
         >
           <VStack gap={6}>
             <Box textAlign="center">
-              <Heading size="lg" color="brand.600">
+              <Heading size="lg" color="blue.600" _dark={{ color: 'blue.400' }}>
                 {t('appTitle')}
               </Heading>
-              <Text color="gray.600" mt={2}>
+              <Text color="fg.muted" mt={2}>
                 {t('description')}
               </Text>
             </Box>
 
             {(formError || searchParams.get('error')) && (
               <Box
-                bg="red.50"
-                color="red.700"
+                bg={{ base: 'red.50', _dark: 'red.900/30' }}
+                color={{ base: 'red.700', _dark: 'red.300' }}
                 p={3}
                 width="100%"
                 borderRadius="md"
                 border="1px solid"
-                borderColor="red.200"
+                borderColor={{ base: 'red.200', _dark: 'red.800' }}
               >
                 {formError ||
                   (searchParams.get('error') === 'CredentialsSignin'
@@ -247,16 +249,12 @@ function SignInForm() {
               px={4}
               borderRadius="md"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="border"
               fontWeight="semibold"
-              color="gray.700"
-              bg="white"
-              _hover={{ bg: 'gray.50', textDecoration: 'none' }}
-              _dark={{
-                bg: 'gray.800',
-                color: 'white',
-                borderColor: 'gray.600',
-              }}
+              color="fg"
+              bg={{ base: 'white', _dark: 'gray.700' }}
+              _hover={{ bg: { base: 'gray.50', _dark: 'gray.600' }, textDecoration: 'none' }}
+
             >
               <svg
                 width="18"
@@ -285,22 +283,24 @@ function SignInForm() {
             </Link>
 
             <VStack gap={2}>
-              <Text color="gray.600">
+              <Text color="fg.muted">
                 {t('noAccount')}{' '}
                 <Link
                   href="/auth/signup"
                   color="blue.600"
+                  _dark={{ color: 'blue.400' }}
                   fontWeight="semibold"
                 >
                   {t('signUp')}
                 </Link>
               </Text>
 
-              <Text color="gray.500" fontSize="sm">
+              <Text color="fg.subtle" fontSize="sm">
                 {t('or')}{' '}
                 <Link
                   href="/join-by-code"
                   color="blue.600"
+                  _dark={{ color: 'blue.400' }}
                   fontWeight="semibold"
                 >
                   {t('joinAsGuest')}
@@ -320,7 +320,7 @@ export default function SignInClient({ locale }: SignInClientProps) {
       fallback={
         <Box
           minH="100vh"
-          bg="gray.50"
+          bg={{ base: 'gray.50', _dark: 'gray.950' }}
           display="flex"
           alignItems="center"
           justifyContent="center"

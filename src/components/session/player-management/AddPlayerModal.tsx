@@ -108,9 +108,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           <Card
             key={index}
             width="100%"
-            variant="outline"
-            bg="gray.50"
-            shadow="sm"
+            variant="subtle"
+            bg={{ base: "gray.50", _dark: "whiteAlpha.50" }}
+            border="1px solid"
+            borderColor={{ base: "gray.100", _dark: "whiteAlpha.100" }}
           >
             <CardBody p={{ base: 4, md: 5 }}>
               <VStack spacing={4} align="stretch">
@@ -125,7 +126,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     >
                       #{player.playerNumber}
                     </Badge>
-                    <Text fontSize="sm" color="gray.600" fontWeight="medium">
+                    <Text fontSize="sm" color="fg.muted" fontWeight="medium">
                       {t('newPlayer')}
                     </Text>
                   </HStack>
@@ -144,7 +145,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   <Text
                     fontSize="sm"
                     mb={2}
-                    color="gray.600"
+                    color="fg.muted"
                     fontWeight="medium"
                   >
                     {t('selectExistingPlayer')}
@@ -156,8 +157,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       width: '100%',
                       padding: '12px',
                       borderRadius: '6px',
-                      border: '1px solid #E2E8F0',
-                      backgroundColor: 'white',
+                      border: '1px solid var(--chakra-colors-border)',
+                      backgroundColor: 'transparent',
+                      color: 'inherit',
                       fontSize: '14px',
                     }}
                     disabled={isLoadingUsers}
@@ -188,7 +190,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   <Text
                     fontSize="sm"
                     mb={2}
-                    color="gray.600"
+                    color="fg.muted"
                     fontWeight="medium"
                   >
                     {t('playerName')}
@@ -226,7 +228,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     <Text
                       fontSize="sm"
                       mb={2}
-                      color="gray.600"
+                      color="fg.muted"
                       fontWeight="medium"
                     >
                       {t('gender')}
@@ -240,8 +242,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         width: '100%',
                         padding: '12px',
                         borderRadius: '6px',
-                        border: '1px solid #E2E8F0',
-                        backgroundColor: player.userId ? '#F7FAFC' : 'white',
+                        border: '1px solid var(--chakra-colors-border)',
+                        backgroundColor: 'transparent',
+                        color: 'inherit',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
                         cursor: player.userId ? 'not-allowed' : 'pointer',
@@ -260,7 +263,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     <Text
                       fontSize="sm"
                       mb={2}
-                      color="gray.600"
+                      color="fg.muted"
                       fontWeight="medium"
                     >
                       {t('level')}
@@ -278,8 +281,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         width: '100%',
                         padding: '12px',
                         borderRadius: '6px',
-                        border: '1px solid #E2E8F0',
-                        backgroundColor: player.userId ? '#F7FAFC' : 'white',
+                        border: '1px solid var(--chakra-colors-border)',
+                        backgroundColor: 'transparent',
+                        color: 'inherit',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
                         cursor: player.userId ? 'not-allowed' : 'pointer',
@@ -301,7 +305,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   <Text
                     fontSize="sm"
                     mb={2}
-                    color="gray.600"
+                    color="fg.muted"
                     fontWeight="medium"
                   >
                     {t('levelDescription')}
@@ -345,7 +349,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       htmlFor={`requireConfirm-${index}`}
                       style={{
                         fontSize: '14px',
-                        color: '#4A5568',
+                        color: 'inherit',
+                        opacity: 0.8,
                         lineHeight: '1.4',
                       }}
                     >

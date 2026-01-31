@@ -100,8 +100,8 @@ export default function SessionOverviewTab({
         <Box as="section" h="full">
           <Box
             p={6}
-            bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            bg={{ base: 'white', _dark: 'gray.800' }}
+            _dark={{ borderColor: 'gray.700' }}
             borderRadius="xl"
             shadow="sm"
             border="1px solid"
@@ -150,8 +150,8 @@ export default function SessionOverviewTab({
         <Box as="section" h="full">
           <Box
             p={6}
-            bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            bg={{ base: 'white', _dark: 'gray.800' }}
+            _dark={{ borderColor: 'gray.700' }}
             borderRadius="xl"
             shadow="sm"
             border="1px solid"
@@ -223,26 +223,24 @@ export default function SessionOverviewTab({
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
         <Box
           p={4}
-          bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          bg={{ base: 'white', _dark: 'gray.800' }}
           borderRadius="xl"
           shadow="sm"
           border="1px solid"
-          borderColor="gray.100"
+          borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
         >
           <Flex align="center" mb={2}>
-            <Box p={2} bg="blue.50" color="blue.500" borderRadius="lg" mr={3}>
+            <Box p={2} bg={{ base: 'blue.50', _dark: 'blue.900/30' }} color="blue.500" borderRadius="lg" mr={3}>
               <Users size={20} />
             </Box>
-            <Text fontSize="sm" color="gray.500" fontWeight="medium">
+            <Text fontSize="sm" color="fg.muted" fontWeight="medium">
               {t('players')}
             </Text>
           </Flex>
           <Text
             fontSize="2xl"
             fontWeight="bold"
-            color="gray.800"
-            _dark={{ color: 'white' }}
+            color="fg"
           >
             {totalPlayers}
           </Text>
@@ -260,7 +258,7 @@ export default function SessionOverviewTab({
           <Flex align="center" mb={2}>
             <Box
               p={2}
-              bg="orange.50"
+              bg={{ base: 'orange.50', _dark: 'orange.900/30' }}
               color="orange.500"
               borderRadius="lg"
               mr={3}
@@ -269,7 +267,7 @@ export default function SessionOverviewTab({
             </Box>
             <Text
               fontSize="sm"
-              color="gray.500"
+              color="fg.muted"
               fontWeight="medium"
               textTransform="capitalize"
             >
@@ -279,8 +277,7 @@ export default function SessionOverviewTab({
           <Text
             fontSize="2xl"
             fontWeight="bold"
-            color="gray.800"
-            _dark={{ color: 'white' }}
+            color="fg"
           >
             {waitingPlayers}
           </Text>
@@ -296,12 +293,12 @@ export default function SessionOverviewTab({
           borderColor="gray.100"
         >
           <Flex align="center" mb={2}>
-            <Box p={2} bg="green.50" color="green.500" borderRadius="lg" mr={3}>
+            <Box p={2} bg={{ base: 'green.50', _dark: 'green.900/30' }} color="green.500" borderRadius="lg" mr={3}>
               <Activity size={20} />
             </Box>
             <Text
               fontSize="sm"
-              color="gray.500"
+              color="fg.muted"
               fontWeight="medium"
               textTransform="capitalize"
             >
@@ -311,8 +308,7 @@ export default function SessionOverviewTab({
           <Text
             fontSize="2xl"
             fontWeight="bold"
-            color="gray.800"
-            _dark={{ color: 'white' }}
+            color="fg"
           >
             {playingPlayers}
           </Text>
@@ -328,12 +324,12 @@ export default function SessionOverviewTab({
           borderColor="gray.100"
         >
           <Flex align="center" mb={2}>
-            <Box p={2} bg="teal.50" color="teal.500" borderRadius="lg" mr={3}>
+            <Box p={2} bg={{ base: 'teal.50', _dark: 'teal.900/30' }} color="teal.500" borderRadius="lg" mr={3}>
               <CheckCircle size={20} />
             </Box>
             <Text
               fontSize="sm"
-              color="gray.500"
+              color="fg.muted"
               fontWeight="medium"
               textTransform="capitalize"
             >
@@ -343,8 +339,7 @@ export default function SessionOverviewTab({
           <Text
             fontSize="2xl"
             fontWeight="bold"
-            color="gray.800"
-            _dark={{ color: 'white' }}
+            color="fg"
           >
             {readyPlayers}
           </Text>

@@ -162,22 +162,22 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 onClick={() => !isDisabled && setIsOpen(!isOpen)}
                 width="100%"
                 textAlign="left"
-                bg="white"
+                bg={{ base: 'white', _dark: 'gray.800' }}
                 border="1px solid"
-                borderColor={isOpen ? 'blue.500' : 'gray.200'}
+                borderColor={isOpen ? 'blue.500' : 'border'}
                 borderRadius="md"
                 {...sizeStyles}
                 pr="10"
                 cursor={isDisabled ? 'not-allowed' : 'pointer'}
                 opacity={isDisabled ? 0.5 : 1}
-                _hover={{ borderColor: isDisabled ? 'gray.200' : 'gray.300' }}
+                _hover={{ borderColor: isDisabled ? 'border' : 'blue.500/50' }}
                 _focus={{ outline: 'none', borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
                 transition="all 0.2s"
                 display="flex"
                 alignItems="center"
             >
                 <Text
-                    color={selectedLabel ? 'inherit' : 'gray.500'}
+                    color={selectedLabel ? 'fg' : 'fg.muted'}
                     truncate
                     flex="1"
                 >
@@ -188,7 +188,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                     right="3"
                     top="50%"
                     transform="translateY(-50%)"
-                    color="gray.400"
+                    color="fg.muted"
                     transition="transform 0.2s"
                     style={{ transform: `translateY(-50%) rotate(${isOpen ? 180 : 0}deg)` }}
                 >
@@ -202,11 +202,11 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                     <Box
                         ref={dropdownRef}
                         position="fixed"
-                        bg="white"
+                        bg={{ base: 'white', _dark: 'gray.800' }}
                         boxShadow="lg"
                         borderRadius="md"
                         borderWidth="1px"
-                        borderColor="gray.200"
+                        borderColor="border"
                         zIndex="popover"
                         minW="200px"
                         maxH="350px"
@@ -228,10 +228,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                         <Box
                             p="2"
                             borderBottomWidth="1px"
-                            borderColor="gray.200"
+                            borderColor="border"
                             position="sticky"
                             top="0"
-                            bg="white"
+                            bg={{ base: 'white', _dark: 'gray.800' }}
                             zIndex="1"
                         >
                             <Box position="relative">
@@ -240,7 +240,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                                     left="3"
                                     top="50%"
                                     transform="translateY(-50%)"
-                                    color="gray.400"
+                                    color="fg.muted"
                                     pointerEvents="none"
                                 >
                                     <Search size={16} />
@@ -252,11 +252,11 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     size="sm"
                                     pl="9"
-                                    bg="gray.50"
+                                    bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
                                     border="1px solid"
-                                    borderColor="gray.200"
+                                    borderColor="border"
                                     _focus={{
-                                        bg: 'white',
+                                        bg: { base: 'white', _dark: 'gray.700' },
                                         borderColor: 'blue.500',
                                         boxShadow: 'none',
                                     }}
@@ -267,7 +267,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                         {/* Options List */}
                         <Box maxH="250px" overflowY="auto" p="1">
                             {filteredOptions.length === 0 ? (
-                                <Box p="3" textAlign="center" color="gray.500" fontSize="sm">
+                                <Box p="3" textAlign="center" color="fg.muted" fontSize="sm">
                                     {noOptionsMessage}
                                 </Box>
                             ) : (
@@ -285,14 +285,14 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                                             fontSize="sm"
                                             cursor={option.disabled ? 'not-allowed' : 'pointer'}
                                             opacity={option.disabled ? 0.5 : 1}
-                                            bg={option.value === value ? 'blue.50' : 'transparent'}
-                                            color={option.value === value ? 'blue.600' : 'inherit'}
+                                            bg={option.value === value ? { base: 'blue.50', _dark: 'blue.900/40' } : 'transparent'}
+                                            color={option.value === value ? { base: 'blue.600', _dark: 'blue.300' } : 'inherit'}
                                             _hover={{
                                                 bg: option.disabled
                                                     ? 'transparent'
                                                     : option.value === value
-                                                        ? 'blue.100'
-                                                        : 'gray.50',
+                                                        ? { base: 'blue.100', _dark: 'blue.900/60' }
+                                                        : 'bg.muted',
                                             }}
                                             display="flex"
                                             alignItems="center"
