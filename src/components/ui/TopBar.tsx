@@ -31,7 +31,7 @@ export default function TopBar({
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const locale = useLocale();
   const router = useRouter();
 
@@ -137,7 +137,7 @@ export default function TopBar({
             >
               {rightContent}
 
-              {isAuthenticated ? (
+              {(!isHydrated || isLoading) ? null : isAuthenticated ? (
                 <>
                   <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
                   <UserMenu onLogout={handleLogout} />

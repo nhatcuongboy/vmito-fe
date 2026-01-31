@@ -21,7 +21,7 @@ export default function SlideOutMenu({
 }: SlideOutMenuProps) {
   const common = useTranslations('common');
   const nav = useTranslations('navigation');
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
 
   return (
     <>
@@ -238,8 +238,8 @@ export default function SlideOutMenu({
 
             {/* Footer */}
             <Box pt={4}>
-              {/* Login Button - Only show when NOT logged in */}
-              {!isAuthenticated && (
+              {/* Login Button - Only show when NOT logged in and finished loading */}
+              {isHydrated && !isLoading && !isAuthenticated && (
                 <Box mb={4}>
                   <NextLinkButton
                     href="/auth/signin"
