@@ -143,7 +143,7 @@ interface SessionFormProps {
     sessionId?: string;
     initialData?: ISession;
     backHref?: string;
-    onSuccess: (session: ISession) => void;
+    onSuccess: (session: ISession) => void | Promise<void>;
     onCancel?: () => void;
     showTopBar?: boolean;
     title?: string;
@@ -264,6 +264,7 @@ export default function SessionForm({
     // State for async data and modal
     const [venues, setVenues] = useState<Venue[]>([]);
     const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
 
     // Fee configuration state
     const [feeEnabled, setFeeEnabled] = useState(
@@ -583,11 +584,20 @@ export default function SessionForm({
                 }
             }
 
-            onSuccess(session!);
+            await onSuccess(session!);
+            if (!isEditMode) {
+                setIsNavigating(true);
+            }
         } catch (error) {
             const errorMessage =
                 error instanceof Error ? error.message : t('validation.unknownError');
             toaster.error({ title: errorMessage });
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+            e.preventDefault();
         }
     };
 
@@ -611,6 +621,7 @@ export default function SessionForm({
 
                     <Box position="fixed" bottom="24px" right="24px" zIndex={1000}>
                         <Button
+                            type="button"
                             colorPalette="purple"
                             onClick={() => setIsAIModalOpen(true)}
                             boxShadow="lg"
@@ -628,7 +639,7 @@ export default function SessionForm({
             )}
 
             <Container maxW="4xl" pt={showTopBar ? "80px" : "0"} pb={8}>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
                     <Stack gap={6}>
 
                         {/* Warning messages */}
@@ -829,7 +840,7 @@ export default function SessionForm({
                         <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
                             <Flex align="center" justify="space-between" mb={4}>
                                 <Heading size="md">{t('courtsConfiguration')}</Heading>
-                                <Button onClick={handleAddCourt} size="sm" disabled={!canEditCourts}>
+                                <Button type="button" onClick={handleAddCourt} size="sm" disabled={!canEditCourts}>
                                     <Plus size={16} style={{ marginRight: '8px' }} />
                                     {t('addCourt')}
                                 </Button>
@@ -853,6 +864,7 @@ export default function SessionForm({
                                             </Text>
                                             {fields.length > 1 && canEditCourts && (
                                                 <Button
+                                                    type="button"
                                                     onClick={() => handleRemoveCourt(index)}
                                                     size="sm"
                                                     variant="outline"
@@ -1183,6 +1195,7 @@ export default function SessionForm({
                         <Flex gap={3} mt={4}>
                             {onCancel && (
                                 <Button
+                                    type="button"
                                     variant="outline"
                                     onClick={onCancel}
                                     flex={1}
@@ -1193,8 +1206,8 @@ export default function SessionForm({
                             <Button
                                 type="submit"
                                 colorPalette="blue"
-                                loading={isSubmitting}
-                                loadingText={isEditMode ? t('saving') : t('creating')}
+                                loading={isSubmitting || isNavigating}
+                                loadingText={isNavigating ? tc('loading') : (isEditMode ? t('saving') : t('creating'))}
                                 flex={onCancel ? 1 : undefined}
                                 w={onCancel ? undefined : "full"}
                             >

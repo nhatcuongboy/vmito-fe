@@ -120,6 +120,14 @@ const SessionCard = ({
 
       {/* Row 2: Management/View */}
       <Flex gap={2} flexWrap="wrap" justify="flex-end">
+        <NextLinkButton
+          href={`/sessions/${session.id}`}
+          colorPalette="gray"
+          variant="outline"
+          size="sm"
+        >
+          {t('view')}
+        </NextLinkButton>
         {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
           <NextLinkButton
             href={`/host/sessions/${session.id}`}

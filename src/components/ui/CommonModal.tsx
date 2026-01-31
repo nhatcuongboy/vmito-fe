@@ -240,6 +240,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
               {showCloseButton && (
                 <Box
                   as="button"
+                  {...({ type: 'button' } as any)}
                   onClick={onClose}
                   p={1}
                   borderRadius="md"
@@ -296,6 +297,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
               <>
                 {!hideSecondaryAction && (
                   <Button
+                    type="button"
                     variant="outline"
                     onClick={handleSecondaryClick}
                     disabled={isSecondaryDisabled || isPrimaryLoading}
@@ -305,6 +307,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
                 )}
                 {primaryActionText && (
                   <Button
+                    type="button"
                     colorPalette={primaryColorScheme}
                     onClick={onPrimaryAction}
                     loading={isPrimaryLoading}

@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import PublicSessionDetailClient from './PublicSessionDetailClient';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
+import { cache } from 'react';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
 
 interface PageProps {
   params: Promise<{
@@ -9,8 +11,6 @@ interface PageProps {
     locale: string;
   }>;
 }
-
-import { cache } from 'react';
 
 // Helper to fetch session safely on server - cached to deduplicate calls
 const getSession = cache(async (id: string): Promise<ISession | null> => {
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const images = session.coverPhoto
     ? [session.coverPhoto]
-    : ['/og-image.png'];
+    : [DEFAULT_COVER_PHOTO];
 
   return {
     title,
@@ -110,7 +110,7 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
       description: session.description || `Giao lưu cầu lông tại ${session.venue?.name || session.location}`,
       startDate: startTime,
       endDate: endTime,
-      image: session.coverPhoto ? [session.coverPhoto] : [],
+      image: session.coverPhoto ? [session.coverPhoto] : [DEFAULT_COVER_PHOTO],
       eventStatus: 'https://schema.org/EventScheduled',
       eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
       location: {

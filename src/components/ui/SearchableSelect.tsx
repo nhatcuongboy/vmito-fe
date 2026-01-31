@@ -158,6 +158,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
             {/* Trigger Button */}
             <Box
                 as="button"
+                {...({ type: 'button' } as any)}
                 onClick={() => !isDisabled && setIsOpen(!isOpen)}
                 width="100%"
                 textAlign="left"
@@ -275,6 +276,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                                         <Box
                                             key={option.value}
                                             as="button"
+                                            {...({ type: 'button' } as any)}
                                             onClick={() => !option.disabled && handleSelect(option.value)}
                                             width="100%"
                                             textAlign="left"

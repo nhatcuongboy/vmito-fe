@@ -3,7 +3,7 @@
 import { ISession } from '@/lib/api/types';
 import { Container, Box, Flex, Image, Text, Icon } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Phone, MapPin } from 'lucide-react';
+import { Phone, MapPin, Map } from 'lucide-react';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -153,6 +153,28 @@ const PublicSessionDetailClient = ({ initialSession }: PublicSessionDetailClient
           onClick={handleCall}
         >
           <Icon as={Phone} boxSize={4} />
+        </Button>
+      )}
+
+      {/* Google Maps button */}
+      {(session.venue?.address || session.venue?.name || session.location) && (
+        <Button
+          size="sm"
+          colorPalette="blue"
+          variant="outline"
+          aria-label="Google Maps"
+          onClick={() => {
+            const address =
+              session.venue?.address || session.venue?.name || session.location;
+            if (address) {
+              window.open(
+                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+                '_blank'
+              );
+            }
+          }}
+        >
+          <Icon as={Map} boxSize={4} />
         </Button>
       )}
 

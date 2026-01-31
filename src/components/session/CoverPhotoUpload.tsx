@@ -183,6 +183,7 @@ export default function CoverPhotoUpload({
             >
               <IconButton
                 aria-label="Remove photo"
+                type="button"
                 size="sm"
                 colorPalette="red"
                 onClick={handleRemove}
@@ -190,6 +191,7 @@ export default function CoverPhotoUpload({
                 <X size={16} />
               </IconButton>
               <Button
+                type="button"
                 size="sm"
                 colorPalette="blue"
                 onClick={handleClick}

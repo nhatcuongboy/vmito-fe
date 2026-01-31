@@ -158,6 +158,7 @@
     "host": "Host",
     "deleteSession": "Delete",
     "viewSession": "Enter",
+    "view": "View",
     "deleteConfirmation": "Are you sure you want to delete this session?",
     "notStarted": "Not started",
     "notStartedYet": "Not started yet",

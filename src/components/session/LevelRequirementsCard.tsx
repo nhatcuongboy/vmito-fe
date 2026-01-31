@@ -143,6 +143,7 @@ export default function LevelRequirementsCard({ control, setValue }: LevelRequir
         {/* All Levels Button */}
         <Box>
           <Button
+            type="button"
             size="md"
             variant={allLevelsSelected ? 'solid' : 'outline'}
             colorPalette="blue"

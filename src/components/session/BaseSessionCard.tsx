@@ -38,6 +38,7 @@ import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { StarRatingDisplay } from '@/components/rating';
 import { useRatingStats } from '@/contexts/RatingStatsContext';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -233,7 +234,7 @@ const BaseSessionCard = ({
         {/* Cover Image Section */}
         <Box position="relative" h="180px" overflow="hidden">
           <Image
-            src={session.coverPhoto || "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&h=400&fit=crop"}
+            src={session.coverPhoto || DEFAULT_COVER_PHOTO}
             alt={session.name}
             w="100%"
             h="100%"

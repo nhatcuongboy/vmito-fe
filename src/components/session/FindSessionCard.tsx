@@ -3,7 +3,7 @@
 import { ISession } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge, Stack } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Phone, Share2 } from 'lucide-react';
+import { Map, MapPin, Phone, Share2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import BaseSessionCard from './BaseSessionCard';
@@ -174,6 +174,27 @@ const FindSessionCard = ({
       }}
     />
   ) : null;
+  const googleMapButton =
+    session.venue?.address || session.venue?.name || session.location ? (
+      <IconButton
+        size="sm"
+        colorPalette="blue"
+        variant="outline"
+        aria-label="Google Maps"
+        icon={<Icon as={Map} />}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          const address =
+            session.venue?.address || session.venue?.name || session.location;
+          if (address) {
+            window.open(
+              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+              '_blank'
+            );
+          }
+        }}
+      />
+    ) : null;
 
   // Registration status badge
   const registrationStatusBadge = userRegistrationStatus ? (
@@ -199,6 +220,7 @@ const FindSessionCard = ({
   const topActions = (
     <>
       {callButton}
+      {googleMapButton}
       {shareButton}
     </>
   );
@@ -206,6 +228,16 @@ const FindSessionCard = ({
   // Main actions (Register, View, Manage)
   const bottomActions = (
     <>
+      {/* Public View button - always available */}
+      <NextLinkButton
+        href={`/sessions/${session.id}`}
+        colorPalette="gray"
+        variant="outline"
+        size="sm"
+      >
+        {t('view')}
+      </NextLinkButton>
+
       {/* If user owns the session, show Host button */}
       {isOwner ? (
         <NextLinkButton

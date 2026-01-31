@@ -12,7 +12,7 @@ export default function PlayerNewSessionPage() {
     <Suspense>
       <NewSessionForm
         backHref="/player/sessions"
-        onSuccess={(session) => router.push(`/player/sessions/${session.id}`)}
+        onSuccess={(session) => router.push(`/sessions/${session.id}`)}
       />
     </Suspense>
   );
