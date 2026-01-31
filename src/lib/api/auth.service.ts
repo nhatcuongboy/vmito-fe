@@ -9,6 +9,7 @@ import {
   ChangePasswordRequest,
 } from '@/types/auth';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 
 // Auth service - connects to NestJS backend
 export const AuthService = {
@@ -44,8 +45,7 @@ export const AuthService = {
    */
   logout: (): void => {
     useAuthStore.getState().clearAuth();
-    // Use dynamic import or direct access if imported to reset notification state
-    const { useNotificationStore } = require('@/stores/useNotificationStore');
+    // Use reset to clear notification state on logout
     useNotificationStore.getState().reset();
   },
 
