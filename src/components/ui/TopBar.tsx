@@ -58,21 +58,17 @@ export default function TopBar({
         left={0}
         right={0}
         zIndex={999}
-        bg="white"
+        bg="bg"
         backdropFilter="blur(10px)"
         borderBottom="1px solid"
-        borderColor="gray.200"
+        borderColor="border"
         height={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         minHeight={{ base: `${TOP_BAR_HEIGHT_MOBILE}px`, md: `${TOP_BAR_HEIGHT_DESKTOP}px` }}
         paddingTop="env(safe-area-inset-top)"
-        color="black"
-        _dark={{
-          bg: 'gray.800',
-          borderColor: 'gray.700',
-        }}
+        color="fg"
       >
         <Container maxW="container.xl" height="100%" px="16px">
           <Flex justify="space-between" align="center" height="100%" py={0}>
@@ -82,8 +78,8 @@ export default function TopBar({
                 aria-label="Open menu"
                 onClick={onMenuOpen}
                 variant="ghost"
-                color="black"
-                _hover={{ bg: 'gray.100' }}
+                color="fg"
+                _hover={{ bg: 'bg.muted' }}
                 borderRadius="full"
                 size="md"
               >
@@ -112,7 +108,7 @@ export default function TopBar({
             {/* Center - App title */}
             {title && (<Heading
               size={{ base: "md", md: "lg" }}
-              color="black"
+              color="fg"
               fontWeight="bold"
               textAlign="center"
               maxWidth={{ base: '60vw', md: '500px' }}
@@ -139,7 +135,7 @@ export default function TopBar({
 
               {(!isHydrated || isLoading) ? null : isAuthenticated ? (
                 <>
-                  <NotificationBell color="black" _hover={{ bg: 'gray.100' }} />
+                  <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
                   <UserMenu onLogout={handleLogout} />
                 </>
               ) : (

@@ -2,13 +2,14 @@
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
-import { Home, Info, X, LogIn, Search, Receipt, CreditCard, LayoutDashboard, Calendar, Ticket } from 'lucide-react';
+import { Home, Info, X, LogIn, Search, Receipt, CreditCard, LayoutDashboard, Calendar, Ticket, Moon, Sun } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LanguageSwitcher from './LanguageSwitcher';
 import { UserRole } from '@/lib/api/types';
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import { useColorMode } from './color-mode-provider';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function SlideOutMenu({
   const common = useTranslations('common');
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <>
@@ -46,8 +48,7 @@ export default function SlideOutMenu({
         left={0}
         bottom={0}
         width="320px"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
+        bg="bg"
         shadow="xl"
         zIndex={1600}
         transform={isOpen ? 'translateX(0)' : 'translateX(-100%)'}
@@ -61,8 +62,7 @@ export default function SlideOutMenu({
           px={4}
           paddingTop="env(safe-area-inset-top)"
           borderBottomWidth="1px"
-          borderColor="gray.200"
-          _dark={{ borderColor: 'gray.600' }}
+          borderColor="border"
           height={{
             base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
             md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
@@ -87,7 +87,7 @@ export default function SlideOutMenu({
           <Stack gap={6}>
             {/* Settings Section */}
             <Box>
-              <Text fontSize="sm" fontWeight="semibold" color="gray.500" mb={3}>
+              <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
                 Main
               </Text>
               <Stack gap={2}>
@@ -228,12 +228,30 @@ export default function SlideOutMenu({
 
             {/* Language Switcher */}
             <Box>
-              <Text fontSize="sm" fontWeight="semibold" color="gray.500" mb={3}>
+              <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
                 {common('language')}
               </Text>
               <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
                 <LanguageSwitcher keepDrawerOpen={false} />
               </Suspense>
+            </Box>
+
+            {/* Theme Toggle */}
+            <Box>
+              <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+                {common('theme')}
+              </Text>
+              <Button
+                variant="ghost"
+                justifyContent="flex-start"
+                w="full"
+                onClick={toggleColorMode}
+              >
+                <Flex align="center" gap={3} w="full">
+                  {colorMode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                  <Text>{colorMode === 'dark' ? common('lightMode') : common('darkMode')}</Text>
+                </Flex>
+              </Button>
             </Box>
 
             {/* Footer */}

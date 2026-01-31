@@ -20,6 +20,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import UserProfileModal from './UserProfileModal';
 import { useRouter, usePathname } from '@/i18n/config';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
+import { useColorMode } from './color-mode-provider';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -39,8 +40,9 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Mock theme state - in real implementation this would come from a theme store
-  const [currentTheme, setCurrentTheme] = useState<'device' | 'dark' | 'light'>('device');
+  // Use actual color mode from theme provider
+  const { colorMode, setColorMode } = useColorMode();
+  const currentTheme = colorMode;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -78,11 +80,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
     setCurrentMenu('MAIN');
   };
 
-  const getThemeLabel = (theme: 'device' | 'dark' | 'light') => {
+  const getThemeLabel = (theme: 'light' | 'dark') => {
     switch (theme) {
-      case 'device': return common('deviceTheme');
       case 'dark': return common('darkTheme');
       case 'light': return common('lightTheme');
+      default: return common('lightTheme');
     }
   };
 
@@ -219,7 +221,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Text>
         <Flex direction="column" gap={1}>
           {[
-            { id: 'device', label: common('useDeviceTheme'), icon: Monitor },
             { id: 'dark', label: common('darkTheme'), icon: Moon },
             { id: 'light', label: common('lightTheme'), icon: Sun },
           ].map((theme) => (
@@ -231,7 +232,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               px={2}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-              onClick={() => setCurrentTheme(theme.id as any)}
+              onClick={() => setColorMode(theme.id as 'light' | 'dark')}
               borderRadius="md"
             >
               <Box w={6}>

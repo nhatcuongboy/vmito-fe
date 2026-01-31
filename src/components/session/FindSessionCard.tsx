@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import { PlayerService } from '@/lib/api/player.service';
+import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import MyRegistrationModal from './MyRegistrationModal';
 
@@ -22,6 +23,7 @@ interface FindSessionCardProps {
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void;
   distance?: number | null;
+  onDeleteSuccess?: () => void;
 }
 
 const FindSessionCard = ({
@@ -31,12 +33,14 @@ const FindSessionCard = ({
   userRegistrationStatus = null,
   onRegistrationUpdate,
   distance,
+  onDeleteSuccess,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
   const locale = useLocale();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     isOpen: isLoginModalOpen,
@@ -54,6 +58,12 @@ const FindSessionCard = ({
     isOpen: isViewRegistrationModalOpen,
     onOpen: onOpenViewRegistrationModal,
     onClose: onCloseViewRegistrationModal,
+  } = useModal();
+
+  const {
+    isOpen: isDeleteModalOpen,
+    onOpen: onOpenDeleteModal,
+    onClose: onCloseDeleteModal,
   } = useModal();
 
   // Check if current user is the session owner/host
@@ -125,6 +135,23 @@ const FindSessionCard = ({
       toaster.error({ title: tCommon('error') });
     } finally {
       setIsWithdrawing(false);
+    }
+  };
+
+  // Handle delete session
+  const handleDeleteSession = async () => {
+    try {
+      setIsDeleting(true);
+      await SessionService.deleteSession(session.id);
+      toaster.success({ title: tCommon('success') || 'Session deleted successfully' });
+      onCloseDeleteModal();
+      onDeleteSuccess?.();
+      onRegistrationUpdate?.(); // Fallback to refresh list
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      toaster.error({ title: tCommon('error') });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -228,6 +255,21 @@ const FindSessionCard = ({
   // Main actions (Register, View, Manage)
   const bottomActions = (
     <>
+      {/* If user owns the session, show Delete button */}
+      {isOwner && (
+        <Button
+          colorPalette="red"
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenDeleteModal();
+          }}
+        >
+          {t('deleteSession')}
+        </Button>
+      )}
+
       {/* Public View button - always available */}
       <NextLinkButton
         href={`/sessions/${session.id}`}
@@ -239,7 +281,7 @@ const FindSessionCard = ({
       </NextLinkButton>
 
       {/* If user owns the session, show Host button */}
-      {isOwner ? (
+      {isOwner && (
         <NextLinkButton
           href={
             user?.role === 'PLAYER'
@@ -251,8 +293,9 @@ const FindSessionCard = ({
         >
           {t('manageSession')}
         </NextLinkButton>
-      ) : (
-        /* Otherwise show registration buttons based on status */
+      )}
+
+      {!isOwner && (
         <>
           {/* View Registration button - show for all registration statuses */}
           {userRegistrationStatus && (
@@ -337,6 +380,20 @@ const FindSessionCard = ({
           onOpenWithdrawModal(); // Then open withdraw confirmation
         }}
       />
+
+      {/* Delete confirmation modal */}
+      <CommonModal
+        isOpen={isDeleteModalOpen}
+        onClose={onCloseDeleteModal}
+        title={t('deleteSession')}
+        primaryActionText={tCommon('confirm')}
+        secondaryActionText={tCommon('cancel')}
+        onPrimaryAction={handleDeleteSession}
+        primaryColorScheme="red"
+        isPrimaryLoading={isDeleting}
+      >
+        <Text>{t('deleteConfirmation')}</Text>
+      </CommonModal>
     </>
   );
 };

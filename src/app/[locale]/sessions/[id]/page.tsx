@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const title = `${session.name || 'Kèo cầu lông'} | Vmito`;
+  const title = `${session.name || 'Kèo cầu lông'}`;
   const locationName = session.venue?.name || session.location || 'Địa điểm chưa xác định';
   const description = `Tham gia giao lưu cầu lông cùng ${session.host?.name || 'host'} tại ${locationName}. Chi tiết: ${session.description || 'Bấm để xem chi tiết.'}`;
 

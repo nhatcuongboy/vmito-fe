@@ -13,13 +13,13 @@ export const SessionCardSkeleton = () => {
       borderLeftColor="gray.200"
       borderRadius="lg"
       overflow="hidden"
-      bg="white"
-      _dark={{ bg: 'gray.800', borderLeftColor: 'gray.600' }}
+      bg="bg"
+      borderColor="border"
       p={6}
     >
       {/* Header - Title and Status Badge */}
       <Flex justify="space-between" align="flex-start">
-        <Skeleton height="28px" width="60%" />
+        <Skeleton height="28px" width="60%" borderRadius="md" />
         <Skeleton height="24px" width="80px" borderRadius="md" />
       </Flex>
 
@@ -28,37 +28,37 @@ export const SessionCardSkeleton = () => {
         {/* Host */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="150px" />
+          <Skeleton height="20px" width="150px" borderRadius="sm" />
         </Flex>
 
         {/* Venue/Location */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="200px" />
+          <Skeleton height="20px" width="200px" borderRadius="sm" />
         </Flex>
 
         {/* Date */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="180px" />
+          <Skeleton height="20px" width="180px" borderRadius="sm" />
         </Flex>
 
         {/* Time */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="120px" />
+          <Skeleton height="20px" width="120px" borderRadius="sm" />
         </Flex>
 
         {/* Courts Available */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="140px" />
+          <Skeleton height="20px" width="140px" borderRadius="sm" />
         </Flex>
 
         {/* Players */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="100px" />
+          <Skeleton height="20px" width="100px" borderRadius="sm" />
         </Flex>
 
         {/* Skill Levels */}
@@ -73,13 +73,13 @@ export const SessionCardSkeleton = () => {
         {/* Fee */}
         <Flex align="center" gap={2}>
           <SkeletonCircle size="5" />
-          <Skeleton height="20px" width="130px" />
+          <Skeleton height="20px" width="130px" borderRadius="sm" />
         </Flex>
 
         {/* Description */}
         <Box>
-          <Skeleton height="16px" width="100%" mb={1} />
-          <Skeleton height="16px" width="80%" />
+          <Skeleton height="16px" width="100%" mb={1} borderRadius="sm" />
+          <Skeleton height="16px" width="80%" borderRadius="sm" />
         </Box>
       </Stack>
 
@@ -88,6 +88,7 @@ export const SessionCardSkeleton = () => {
         <Skeleton height="32px" width="80px" borderRadius="md" />
         <Skeleton height="32px" width="100px" borderRadius="md" />
       </Flex>
+
     </Flex>
   );
 };
