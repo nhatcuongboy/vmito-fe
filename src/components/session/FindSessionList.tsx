@@ -35,6 +35,9 @@ import FindSessionCard from './FindSessionCard';
 import JoinSessionModal from './JoinSessionModal';
 import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
+import { CommonModal } from '@/components/ui/CommonModal';
+import PublicSessionDetailContent from './PublicSessionDetailContent';
+import AppHostDetail from './AppHostDetail';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -82,7 +85,9 @@ export default function FindSessionList({
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
+  const [selectedSessionForDetail, setSelectedSessionForDetail] = useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -350,6 +355,11 @@ export default function FindSessionList({
     }
     setSelectedSession(session);
     setIsJoinModalOpen(true);
+  };
+
+  const handleHostClick = (session: ISession) => {
+    setSelectedSessionForDetail(session);
+    setIsDetailModalOpen(true);
   };
 
   // Extract unique host IDs for batch rating stats loading
@@ -1062,6 +1072,7 @@ export default function FindSessionList({
                 }
                 onRegistrationUpdate={fetchSessions}
                 distance={session.distance}
+                onHostClick={() => handleHostClick(session)}
               />
             ))}
           </Grid>
@@ -1077,11 +1088,32 @@ export default function FindSessionList({
         />
       )}
 
+      {/* AI Session Creation Modal */}
       <AISessionModal
         isOpen={isAIModalOpen}
         onClose={() => setIsAIModalOpen(false)}
         onSuccess={handleAISuccess}
       />
+
+      {/* Session Host Detail Modal */}
+      <CommonModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        title={t('hostInfo') || 'Thông tin Host'}
+        size="md"
+        hideSecondaryAction={true}
+      >
+        {selectedSessionForDetail && (
+          <AppHostDetail
+            userId={selectedSessionForDetail.hostId}
+            name={selectedSessionForDetail.hostName || selectedSessionForDetail.host?.name}
+            image={selectedSessionForDetail.host?.image || undefined}
+            phone={selectedSessionForDetail.hostPhone}
+            email={selectedSessionForDetail.host?.email}
+            hideHeader={true}
+          />
+        )}
+      </CommonModal>
     </Box>
   );
 }

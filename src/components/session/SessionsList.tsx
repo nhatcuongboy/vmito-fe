@@ -10,6 +10,8 @@ import { useEffect, useState, useMemo } from 'react';
 import SessionCard from './SessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
+import { CommonModal } from '@/components/ui/CommonModal';
+import AppHostDetail from './AppHostDetail';
 
 interface SessionsListProps {
   status?: string;
@@ -17,6 +19,7 @@ interface SessionsListProps {
   sessions?: ISession[];
   isLoading?: boolean;
   onRefresh?: () => void;
+  onHostClick?: (session: ISession) => void;
 }
 
 export default function SessionsList({
@@ -25,12 +28,15 @@ export default function SessionsList({
   sessions: externalSessions,
   isLoading: externalLoading,
   onRefresh,
+  onHostClick,
 }: SessionsListProps) {
   const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
   const [internalLoading, setInternalLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('session');
   const locale = useLocale();
+  const [selectedSessionForDetail, setSelectedSessionForDetail] = useState<ISession | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const isExternalControl = externalSessions !== undefined;
   const sessions = isExternalControl
@@ -90,8 +96,8 @@ export default function SessionsList({
       ? sessions
       : status === 'UPCOMING_AND_INPROGRESS'
         ? sessions.filter(
-            (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
-          )
+          (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
+        )
         : sessions.filter((s) => s.status === status);
 
   // Extract unique host IDs for batch rating stats loading
@@ -170,9 +176,33 @@ export default function SessionsList({
             session={session}
             onDelete={mode === 'manage' ? handleDelete : undefined}
             mode={mode}
+            onHostClick={() => {
+              setSelectedSessionForDetail(session);
+              setIsDetailModalOpen(true);
+            }}
           />
         ))}
       </Grid>
+
+      {/* Session Host Detail Modal */}
+      <CommonModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        title={t('hostInfo') || 'Thông tin Host'}
+        size="md"
+        hideSecondaryAction={true}
+      >
+        {selectedSessionForDetail && (
+          <AppHostDetail
+            userId={selectedSessionForDetail.hostId}
+            name={selectedSessionForDetail.hostName || selectedSessionForDetail.host?.name}
+            image={selectedSessionForDetail.host?.image || undefined}
+            phone={selectedSessionForDetail.hostPhone}
+            email={selectedSessionForDetail.host?.email}
+            hideHeader={true}
+          />
+        )}
+      </CommonModal>
     </RatingStatsProvider>
   );
 }

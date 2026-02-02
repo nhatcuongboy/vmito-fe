@@ -2,11 +2,11 @@
 
 import { ISession } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge, Stack } from '@chakra-ui/react';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Phone, Share2, Navigation } from 'lucide-react';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import BaseSessionCard from './BaseSessionCard';
+import { SessionActionConfig } from './BaseSessionCard.types';
 import React, { useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
@@ -15,9 +15,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import MyRegistrationModal from './MyRegistrationModal';
-import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import SessionShareCard from './SessionShareCard';
-import { Download } from 'lucide-react';
 import { Portal } from '@chakra-ui/react';
 
 interface FindSessionCardProps {
@@ -28,6 +26,7 @@ interface FindSessionCardProps {
   onRegistrationUpdate?: () => void;
   distance?: number | null;
   onDeleteSuccess?: () => void;
+  onHostClick?: () => void;
 }
 
 const FindSessionCard = ({
@@ -38,6 +37,7 @@ const FindSessionCard = ({
   onRegistrationUpdate,
   distance,
   onDeleteSuccess,
+  onHostClick,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -45,7 +45,6 @@ const FindSessionCard = ({
   const locale = useLocale();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   const {
     isOpen: isLoginModalOpen,
@@ -78,31 +77,6 @@ const FindSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const approvedPlayersCount = session._count?.players || 0;
   const isFull = approvedPlayersCount >= maxPlayers;
-
-  // Handle share
-  const handleShare = async () => {
-    const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          url: url,
-        });
-      } catch {
-        // User cancelled share
-      }
-    } else {
-      // Fallback to copy to clipboard
-      try {
-        await navigator.clipboard.writeText(url);
-        toaster.success({
-          title: t('linkCopied') || 'Link copied to clipboard',
-        });
-      } catch {
-        toaster.error({ title: tCommon('error') });
-      }
-    }
-  };
 
   // Handle withdraw request
   const handleWithdrawRequest = async () => {
@@ -206,52 +180,6 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
-  const shareButton = (
-    <IconButton
-      size="sm"
-      colorPalette="gray"
-      variant="outline"
-      aria-label="Share session"
-      icon={<Icon as={Share2} />}
-      onClick={(e: React.MouseEvent) => {
-        e.stopPropagation();
-        handleShare();
-      }}
-    />
-  );
-
-  const downloadButton = isOwner ? (
-    <IconButton
-      size="sm"
-      colorPalette="blue"
-      variant="outline"
-      aria-label="Download session image"
-      loading={isDownloading}
-      icon={<Icon as={Download} />}
-      onClick={(e: React.MouseEvent) => {
-        e.stopPropagation();
-        downloadSessionImage(
-          session,
-          `session-share-card-portrait-${session.id}`
-        );
-      }}
-    />
-  ) : null;
-
-  const callButton = session.hostPhone ? (
-    <IconButton
-      size="sm"
-      colorPalette="blue"
-      variant="outline"
-      aria-label="Call host"
-      icon={<Icon as={Phone} />}
-      onClick={(e: React.MouseEvent) => {
-        e.stopPropagation();
-        window.location.href = `tel:${session.hostPhone}`;
-      }}
-    />
-  ) : null;
-
   // Registration status badge
   const registrationStatusBadge = userRegistrationStatus ? (
     <Badge
@@ -272,104 +200,48 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
-  // Top actions (Phone and Share)
-  const topActions = (
-    <>
-      {callButton}
-      {downloadButton}
-      {shareButton}
-    </>
-  );
+  // Handle register action
+  const handleRegister = () => {
+    if (!user) {
+      onOpenLoginModal();
+      return;
+    }
+    onJoin();
+  };
 
-  // Main actions (Register, View, Manage)
-  const bottomActions = (
-    <Flex w="full" justify="space-between" align="center">
-      <Box>
-        {/* If user owns the session, show Delete button on the left */}
-        {isOwner && (
-          <Button
-            colorPalette="red"
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDeleteModal();
-            }}
-          >
-            {t('deleteSession')}
-          </Button>
-        )}
-      </Box>
+  // Action configuration for find session card
+  const actions: SessionActionConfig = {
+    // Top actions
+    showCallButton: !!session.hostPhone,
+    showDownloadButton: isOwner,
+    showShareButton: true,
 
-      <Flex gap={2}>
-        {/* Secondary actions */}
-        <NextLinkButton
-          href={`/sessions/${session.id}`}
-          colorPalette="gray"
-          variant="outline"
-          size="sm"
-        >
-          {t('view')}
-        </NextLinkButton>
+    // Bottom actions - delete
+    showDeleteButton: isOwner,
+    onDelete: onOpenDeleteModal,
 
-        {isOwner ? (
-          /* Primary action for owner */
-          <NextLinkButton
-            href={
-              user?.role === 'PLAYER'
-                ? `/player/sessions/${session.id}`
-                : `/host/sessions/${session.id}`
-            }
-            colorPalette="blue"
-            size="sm"
-          >
-            {t('manageSession')}
-          </NextLinkButton>
-        ) : (
-          <>
-            {/* Action buttons for players/guests */}
-            {userRegistrationStatus && (
-              <Button
-                colorPalette="blue"
-                variant="outline"
-                onClick={onOpenViewRegistrationModal}
-                size="sm"
-              >
-                {t('viewMyRegistration')}
-              </Button>
-            )}
+    // Bottom actions - right side
+    showViewButton: true,
 
-            {userRegistrationStatus === 'APPROVED' && (
-              <NextLinkButton
-                href={`/player/sessions/${session.id}`}
-                colorPalette="green"
-                size="sm"
-              >
-                {t('viewSession')}
-              </NextLinkButton>
-            )}
+    // For owner: show manage button
+    showManageButton: isOwner,
+    manageButtonHref:
+      user?.role === 'PLAYER'
+        ? `/player/sessions/${session.id}`
+        : `/host/sessions/${session.id}`,
 
-            {!userRegistrationStatus && !isJoined && (
-              <Button
-                colorPalette="blue"
-                onClick={() => {
-                  if (!user) {
-                    onOpenLoginModal();
-                    return;
-                  }
-                  onJoin();
-                }}
-                size="sm"
-                disabled={isFull}
-              >
-                {isFull ? t('sessionFull') : t('register')}
-              </Button>
-            )}
-          </>
-        )}
-      </Flex>
-    </Flex>
-  );
+    // For players with registration: show view registration modal
+    showViewRegistrationButton: !!userRegistrationStatus && !isJoined,
+    onViewRegistration: onOpenViewRegistrationModal,
+
+    // For approved players: show view session button
+    showViewSessionButton: userRegistrationStatus === 'APPROVED',
+
+    // For non-registered users: show register button
+    showRegisterButton: !userRegistrationStatus && !isJoined && !isOwner,
+    onRegister: handleRegister,
+    registerButtonDisabled: isFull,
+  };
 
   return (
     <>
@@ -377,9 +249,9 @@ const FindSessionCard = ({
         session={session}
         extraInfoRows={locationRow}
         registrationBadgeContent={registrationStatusBadge}
-        topActionButtons={topActions}
-        bottomActionButtons={bottomActions}
+        actions={actions}
         sessionDistance={distance || undefined}
+        onHostClick={onHostClick}
       />
 
       {/* Login prompt modal */}

@@ -409,6 +409,13 @@
       "placeholder": "Bạn muốn tạo kèo mới, {name}?",
       "aiPlaceholder": "Tạo kèo nhanh bằng AI...",
       "createButton": "Tạo kèo"
+    },
+    "hostDetail": {
+      "title": "Thông tin Host",
+      "contact": "Liên hệ",
+      "rating": "Đánh giá",
+      "call": "Gọi điện",
+      "email": "Email"
     }
   },
   "court": {
@@ -1360,7 +1367,7 @@
     "overview": "Tổng quan",
     "information": "Thông tin",
     "sessionName": "Tên kèo",
-    "host": "Chủ kèo",
+    "host": "Host",
     "fee": "Phí",
     "requiredLevels": "Trình độ",
     "allLevels": "Tất cả trình độ",
@@ -1373,6 +1380,7 @@
     "maxPlayersPerCourt": "Số người/sân",
     "shuttlecock": "Cầu",
     "maxPlayers": "Tối đa {count} người",
+    "maxPlayersTitle": "Tối đa",
     "distance": "Khoảng cách",
     "km": "km",
     "description": "Mô tả",
@@ -1385,7 +1393,7 @@
     "notStarted": "Chưa bắt đầu",
     "inProgress": "Đang diễn ra",
     "finished": "Đã kết thúc",
-    "players": "Người chơi",
+    "players": "người",
     "total": "tổng",
     "playing": "đang chơi",
     "waiting": "đang chờ",

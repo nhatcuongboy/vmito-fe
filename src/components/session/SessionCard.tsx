@@ -1,16 +1,15 @@
 'use client';
 
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
 import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { Share2, MapPin, Phone, Share, Download, Navigation } from 'lucide-react';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
+import { SessionActionConfig } from './BaseSessionCard.types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { toaster } from '@/components/ui/toaster';
-import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import SessionShareCard from './SessionShareCard';
 import { Portal } from '@chakra-ui/react';
 import React, { useState } from 'react';
@@ -21,12 +20,14 @@ interface SessionCardProps {
   session: ISession;
   onDelete?: (id: string) => void;
   mode?: 'view' | 'manage';
+  onHostClick?: () => void;
 }
 
 const SessionCard = ({
   session,
   onDelete,
   mode = 'view',
+  onHostClick,
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -52,35 +53,9 @@ const SessionCard = ({
   } = useModal();
 
   const [isWithdrawing, setIsWithdrawing] = useState(false);
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   // Check if current user is the session owner
   const isOwner = session.hostId === user?.id;
-
-  // Handle share
-  const handleShare = async () => {
-    const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          url: url,
-        });
-      } catch {
-        // User cancelled share
-      }
-    } else {
-      // Fallback to copy to clipboard
-      try {
-        await navigator.clipboard.writeText(url);
-        toaster.success({
-          title: t('linkCopied') || 'Link copied to clipboard',
-        });
-      } catch {
-        toaster.error({ title: tCommon('error') });
-      }
-    }
-  };
 
   // Handle withdraw request
   const handleWithdrawRequest = async () => {
@@ -188,114 +163,33 @@ const SessionCard = ({
       </Flex>
     ) : null;
 
-  // Top Actions (Phone, Map, Download, Share)
-  const topActions = (
-    <Flex justify="flex-end" gap={2}>
-      {session.hostPhone && (
-        <IconButton
-          size="sm"
-          colorPalette="blue"
-          variant="outline"
-          aria-label="Call host"
-          icon={<Icon as={Phone} />}
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            window.location.href = `tel:${session.hostPhone}`;
-          }}
-        />
-      )}
+  // Action configuration for session card
+  const actions: SessionActionConfig = {
+    // Top actions
+    showCallButton: !!session.hostPhone,
+    showDownloadButton: isOwner,
+    showShareButton: true,
 
-      {isOwner && (
-        <IconButton
-          size="sm"
-          colorPalette="blue"
-          variant="outline"
-          aria-label="Download session image"
-          loading={isDownloading}
-          icon={<Icon as={Download} />}
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            downloadSessionImage(
-              session,
-              `session-share-card-portrait-${session.id}`
-            );
-          }}
-        />
-      )}
-      <IconButton
-        size="sm"
-        colorPalette="gray"
-        variant="outline"
-        aria-label="Share session"
-        icon={<Icon as={Share2} />}
-        onClick={(e: React.MouseEvent) => {
-          e.stopPropagation();
-          handleShare();
-        }}
-      />
-    </Flex>
-  );
+    // Bottom actions
+    showDeleteButton: (mode === 'manage' || isOwner) && !!onDelete,
+    onDelete: onDelete ? () => onOpenDeleteModal() : undefined,
 
-  // Bottom Actions (View, Manage, View Session/Follow)
-  const bottomActions = (
-    <Flex w="full" justify="space-between" align="center">
-      <Box>
-        {(mode === 'manage' || isOwner) && onDelete && (
-          <Button
-            colorPalette="red"
-            variant="outline"
-            size="sm"
-            onClick={onOpenDeleteModal}
-          >
-            {t('deleteSession')}
-          </Button>
-        )}
-      </Box>
+    // View button (always show)
+    showViewButton: true,
 
-      <Flex gap={2} flexWrap="wrap">
-        <NextLinkButton
-          href={`/sessions/${session.id}`}
-          colorPalette="gray"
-          variant="outline"
-          size="sm"
-        >
-          {t('view')}
-        </NextLinkButton>
+    // View registration button (for non-owners with registration)
+    showViewRegistrationButton: !isOwner && !!session.players?.[0],
+    onViewRegistration: onOpenViewRegistrationModal,
 
-        {!isOwner && session.players?.[0] && (
-          <Button
-            colorPalette="blue"
-            variant="outline"
-            onClick={onOpenViewRegistrationModal}
-            size="sm"
-          >
-            {t('viewMyRegistration')}
-          </Button>
-        )}
+    // Manage button (for owners in manage mode or owners)
+    showManageButton: isOwner && mode === 'manage',
+    manageButtonHref: `/host/sessions/${session.id}`,
 
-        {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
-          <NextLinkButton
-            href={`/host/sessions/${session.id}`}
-            colorPalette="blue"
-            size="sm"
-          >
-            {t('manageSession')}
-          </NextLinkButton>
-        ) : isOwner || session.players?.[0]?.registrationStatus === 'APPROVED' ? (
-          <NextLinkButton
-            href={`/player/sessions/${session.id}`}
-            colorPalette="blue"
-            size="sm"
-          >
-            {isOwner && user?.role === 'PLAYER'
-              ? t('manageSession')
-              : t('viewSession')}
-          </NextLinkButton>
-        ) : null}
-
-      </Flex>
-    </Flex>
-  );
+    // View session button (for approved players only, NOT for owners)
+    showViewSessionButton:
+      !isOwner && session.players?.[0]?.registrationStatus === 'APPROVED',
+    viewSessionHref: `/player/sessions/${session.id}`,
+  };
 
   // Delete modal
   const deleteModal = onDelete ? (
@@ -349,8 +243,8 @@ const SessionCard = ({
       session={session}
       registrationBadgeContent={registrationBadge}
       extraInfoRows={locationRow}
-      topActionButtons={topActions}
-      bottomActionButtons={bottomActions}
+      actions={actions}
+      onHostClick={onHostClick}
       modalContent={
         <>
           {deleteModal}

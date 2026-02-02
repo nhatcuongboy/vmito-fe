@@ -8,17 +8,16 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import {
-  Eye,
   MapPin,
   Navigation,
 } from 'lucide-react';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import 'dayjs/locale/vi';
 import 'dayjs/locale/en';
 import { ISession } from '@/lib/api/types';
 import BaseSessionCard from '../session/BaseSessionCard';
+import { SessionActionConfig } from '../session/BaseSessionCard.types';
 
 interface PlayerSessionCardProps {
   session: ISession;
@@ -85,21 +84,11 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
     </Box>
   );
 
-  const bottomActions = (
-    <Flex w="full" justify="flex-end" gap={2}>
-      <NextLinkButton
-        href={`/sessions/${session.id}`}
-        colorPalette="gray"
-        variant="outline"
-        size="sm"
-      >
-        {t('view')}
-      </NextLinkButton>
-      <NextLinkButton href={`/player/sessions/${session.id}`} colorPalette="green" size="sm">
-        <Eye className="mr-2 h-4 w-4" /> {t('viewSession')}
-      </NextLinkButton>
-    </Flex>
-  );
+  // Action configuration for player session card
+  const actions: SessionActionConfig = {
+    showViewButton: true,
+    showViewSessionButton: true,
+  };
 
   return (
     <BaseSessionCard
@@ -110,7 +99,7 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
           {playerStats}
         </Stack>
       }
-      bottomActionButtons={bottomActions}
+      actions={actions}
     />
   );
 }

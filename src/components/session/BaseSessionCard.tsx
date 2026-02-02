@@ -28,6 +28,9 @@ import {
   MapPin,
   Banknote,
   Timer,
+  Phone,
+  Share2,
+  Download,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -39,6 +42,11 @@ import { StarRatingDisplay } from '@/components/rating';
 import { useRatingStats } from '@/contexts/RatingStatsContext';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
+import { toaster } from '@/components/ui/toaster';
+import { SessionActionConfig } from './BaseSessionCard.types';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -105,9 +113,15 @@ interface BaseSessionCardProps {
   // Optional modal
   modalContent?: React.ReactNode;
 
-  // New action slots
+  // NEW: Action configuration (recommended)
+  actions?: SessionActionConfig;
+
+  // DEPRECATED: Action slots (backward compatible)
   topActionButtons?: React.ReactNode;
   bottomActionButtons?: React.ReactNode;
+
+  // Callback for when host info is clicked
+  onHostClick?: (e: React.MouseEvent) => void;
 }
 
 const BaseSessionCard = ({
@@ -120,22 +134,249 @@ const BaseSessionCard = ({
   modalContent,
   hostActions,
   sessionDistance,
+  actions,
   topActionButtons,
   bottomActionButtons,
+  onHostClick,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
-  const { isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { getRatingStats } = useRatingStats();
+  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+
+  // Compute derived state for action rendering
+  const isOwner = user?.id === session.hostId;
+  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+  const totalPlayers = session._count?.players || 0;
+  const isFull = totalPlayers >= maxPlayers;
+
+  // Helper function: Handle share action
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareData = {
+      title: session.name,
+      text: `${t('checkOutThisSession')}: ${session.name}`,
+      url: `${window.location.origin}/sessions/${session.id}`,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toaster.success({
+          title: t('linkCopied'),
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  // Helper function: Handle call action
+  const handleCall = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (session.hostPhone) {
+      window.location.href = `tel:${session.hostPhone}`;
+    }
+  };
+
+  // Helper function: Handle download action
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    downloadSessionImage(session, `session-share-card-portrait-${session.id}`);
+  };
+
+  // Render top action buttons (icon buttons)
+  const renderTopActions = () => {
+    if (!actions) return null;
+
+    const buttons: React.ReactNode[] = [];
+
+    // Call button (conditional on hostPhone)
+    if (actions.showCallButton && session.hostPhone) {
+      buttons.push(
+        <IconButton
+          key="call"
+          size="sm"
+          colorPalette="blue"
+          variant="outline"
+          aria-label="Call host"
+          onClick={handleCall}
+          icon={<Icon as={Phone} />}
+        />
+      );
+    }
+
+    // Download button (owner-only)
+    if (actions.showDownloadButton && isOwner) {
+      buttons.push(
+        <IconButton
+          key="download"
+          size="sm"
+          colorPalette="blue"
+          variant="outline"
+          aria-label="Download session image"
+          loading={isDownloading}
+          onClick={handleDownload}
+          icon={<Icon as={Download} />}
+        />
+      );
+    }
+
+    // Share button (always available)
+    if (actions.showShareButton) {
+      buttons.push(
+        <IconButton
+          key="share"
+          size="sm"
+          colorPalette="gray"
+          variant="outline"
+          aria-label="Share session"
+          onClick={handleShare}
+          icon={<Icon as={Share2} />}
+        />
+      );
+    }
+
+    return buttons.length > 0 ? <>{buttons}</> : null;
+  };
+
+  // Cache rendered top actions to avoid multiple calls
+  const topActionsRendered = actions ? renderTopActions() : null;
+  const oldTopActions = topActionButtons || (actionButtons && !bottomActionButtons);
+
+  // Render bottom action buttons (full-width buttons)
+  const renderBottomActions = () => {
+    if (!actions) return null;
+
+    const leftButtons: React.ReactNode[] = [];
+    const rightButtons: React.ReactNode[] = [];
+
+    // Left side: Delete button (owner-only)
+    if (actions.showDeleteButton && isOwner && actions.onDelete) {
+      leftButtons.push(
+        <Button
+          key="delete"
+          colorPalette="red"
+          variant="outline"
+          size="sm"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            actions.onDelete?.(session.id);
+          }}
+        >
+          {t('deleteSession')}
+        </Button>
+      );
+    }
+
+    // Right side: View button
+    if (actions.showViewButton) {
+      const viewHref = actions.viewButtonHref || `/sessions/${session.id}`;
+      rightButtons.push(
+        <NextLinkButton
+          key="view"
+          href={viewHref}
+          colorPalette="gray"
+          variant="outline"
+          size="sm"
+        >
+          {t('view')}
+        </NextLinkButton>
+      );
+    }
+
+    // Right side: View Registration button (modal trigger)
+    if (actions.showViewRegistrationButton && actions.onViewRegistration) {
+      rightButtons.push(
+        <Button
+          key="view-registration"
+          colorPalette="blue"
+          variant="outline"
+          size="sm"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            actions.onViewRegistration?.();
+          }}
+        >
+          {t('viewMyRegistration')}
+        </Button>
+      );
+    }
+
+    // Right side: View Session button (for approved players)
+    if (actions.showViewSessionButton) {
+      const viewSessionHref = actions.viewSessionHref || `/player/sessions/${session.id}`;
+      rightButtons.push(
+        <NextLinkButton
+          key="view-session"
+          href={viewSessionHref}
+          colorPalette="green"
+          size="sm"
+        >
+          {t('viewSession')}
+        </NextLinkButton>
+      );
+    }
+
+    // Right side: Manage button (for owners)
+    if (actions.showManageButton && isOwner) {
+      const manageHref = actions.manageButtonHref ||
+        (user?.role === 'PLAYER'
+          ? `/player/sessions/${session.id}`
+          : `/host/sessions/${session.id}`);
+      rightButtons.push(
+        <NextLinkButton
+          key="manage"
+          href={manageHref}
+          colorPalette="blue"
+          size="sm"
+        >
+          {t('manageSession')}
+        </NextLinkButton>
+      );
+    }
+
+    // Right side: Register button (for non-registered users)
+    if (actions.showRegisterButton && actions.onRegister) {
+      rightButtons.push(
+        <Button
+          key="register"
+          colorPalette="blue"
+          size="sm"
+          disabled={actions.registerButtonDisabled || isFull}
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            actions.onRegister?.();
+          }}
+        >
+          {isFull ? t('sessionFull') : t('register')}
+        </Button>
+      );
+    }
+
+    // Render layout if we have any buttons
+    if (leftButtons.length > 0 || rightButtons.length > 0) {
+      return (
+        <Flex w="full" justify="space-between" align="center">
+          <Box>{leftButtons}</Box>
+          <Flex gap={2}>{rightButtons}</Flex>
+        </Flex>
+      );
+    }
+
+    return null;
+  };
 
   // Get rating stats from context (batch loaded)
   const hostRatingStats = session.hostId
     ? getRatingStats(session.hostId)
     : null;
 
-  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const displayHostName = session.hostName || session.host?.name || '';
 
   const convertedSession = {
@@ -276,7 +517,19 @@ const BaseSessionCard = ({
             </Heading>
 
             {/* Host Info with Avatar and Rating */}
-            <Flex align="center" gap={3}>
+            <Flex
+              align="center"
+              gap={3}
+              onClick={(e) => {
+                if (onHostClick) {
+                  e.stopPropagation();
+                  onHostClick(e);
+                }
+              }}
+              cursor={onHostClick ? 'pointer' : 'default'}
+              _hover={onHostClick ? { opacity: 0.8 } : {}}
+              transition="opacity 0.2s"
+            >
               <Avatar.Root size="sm" bg="blue.500">
                 <Avatar.Fallback name={displayHostName}>
                   {displayHostName
@@ -287,7 +540,7 @@ const BaseSessionCard = ({
                   <Avatar.Image src={session.host.image} />
                 )}
               </Avatar.Root>
-              <Text fontSize="sm" fontWeight="medium">
+              <Text fontSize="sm" fontWeight="medium" textDecoration={onHostClick ? 'underline' : 'none'}>
                 {displayHostName}
               </Text>
               {hostRatingStats && hostRatingStats.totalRatings > 0 && (
@@ -466,22 +719,25 @@ const BaseSessionCard = ({
                   )}
                 </Box>
 
-                {/* Top Action Buttons (e.g. Call, Share) */}
-                {(topActionButtons ||
-                  (actionButtons && !bottomActionButtons)) && (
-                    <Box flex="1" textAlign="right">
-                      <Flex justify="flex-end" gap={2}>
-                        {topActionButtons || actionButtons}
-                      </Flex>
-                    </Box>
-                  )}
+                {/* Top Action Buttons (e.g. Call, Share, Download) */}
+                {(topActionsRendered || oldTopActions) && (
+                  <Box flex="1" textAlign="right">
+                    <Flex justify="flex-end" gap={2}>
+                      {topActionsRendered || oldTopActions || actionButtons}
+                    </Flex>
+                  </Box>
+                )}
               </Flex>
 
               {/* Row 2: Bottom Action Buttons */}
-              {bottomActionButtons && (
-                <Flex justify="flex-end" gap={2}>
-                  {bottomActionButtons}
-                </Flex>
+              {(actions ? renderBottomActions() : bottomActionButtons) && (
+                <>
+                  {actions ? renderBottomActions() : (
+                    <Flex justify="flex-end" gap={2}>
+                      {bottomActionButtons}
+                    </Flex>
+                  )}
+                </>
               )}
             </Stack>
           </Stack>

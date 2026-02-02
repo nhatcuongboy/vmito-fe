@@ -409,6 +409,13 @@
       "placeholder": "Do you want to create a new session, {name}?",
       "aiPlaceholder": "Quick create by AI...",
       "createButton": "Create"
+    },
+    "hostDetail": {
+      "title": "Host Details",
+      "contact": "Contact",
+      "rating": "Rating",
+      "call": "Call Host",
+      "email": "Email"
     }
   },
   "court": {
@@ -1373,6 +1380,7 @@
     "maxPlayersPerCourt": "Max Players/Court",
     "shuttlecock": "Shuttlecock",
     "maxPlayers": "Max {count} players",
+    "maxPlayersTitle": "Max",
     "distance": "Distance",
     "km": "km",
     "description": "Description",
@@ -1385,7 +1393,7 @@
     "notStarted": "Not started",
     "inProgress": "In Progress",
     "finished": "Finished",
-    "players": "Players",
+    "players": "players",
     "total": "total",
     "playing": "playing",
     "waiting": "waiting",
