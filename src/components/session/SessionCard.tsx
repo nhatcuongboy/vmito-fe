@@ -143,7 +143,9 @@ const SessionCard = ({
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 const address =
-                  session.venue?.address || session.venue?.name || session.location;
+                  session.venue?.address ||
+                  session.venue?.name ||
+                  session.location;
                 if (address) {
                   window.open(
                     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,

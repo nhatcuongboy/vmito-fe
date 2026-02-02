@@ -166,11 +166,9 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         {session.endTime ? formatTime(session.endTime) : '--:--'}
       </InfoRow>
 
-      <InfoRow
-        icon={Users}
-        label={t('maxPlayersTitle') || 'Tối đa'}
-      >
-        {session.numberOfCourts * (session.maxPlayersPerCourt || 4)} ({t('players') || 'người'})
+      <InfoRow icon={Users} label={t('maxPlayersTitle') || 'Tối đa'}>
+        {session.numberOfCourts * (session.maxPlayersPerCourt || 4)} (
+        {t('players') || 'người'})
       </InfoRow>
 
       <InfoRow icon={Award} label={t('requiredLevels')}>

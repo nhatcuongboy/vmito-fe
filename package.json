@@ -13,7 +13,8 @@
     "i18n:check": "node scripts/check-i18n.js",
     "i18n:fix": "node scripts/fix-i18n.js",
     "i18n:sort": "node scripts/sort-i18n.js",
-    "i18n:sync": "node scripts/i18n-sync.js"
+    "i18n:sync": "node scripts/i18n-sync.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@chakra-ui/next-js": "^2.4.2",
@@ -70,11 +71,22 @@
     "eslint-config-next": "^15.5.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.11",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,scss,md}": [
+      "prettier --write"
+    ]
   },
   "packageManager": "pnpm@10.5.2+sha512.da9dc28cd3ff40d0592188235ab25d3202add8a207afbedc682220e4a0029ffbff4562102b9e6e46b4e3f9e8bd53e6d05de48544b0c57d4b0179e22c76d1199b"
 }

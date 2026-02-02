@@ -85,7 +85,8 @@ export default function FindSessionList({
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
-  const [selectedSessionForDetail, setSelectedSessionForDetail] = useState<ISession | null>(null);
+  const [selectedSessionForDetail, setSelectedSessionForDetail] =
+    useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
@@ -1106,7 +1107,10 @@ export default function FindSessionList({
         {selectedSessionForDetail && (
           <AppHostDetail
             userId={selectedSessionForDetail.hostId}
-            name={selectedSessionForDetail.hostName || selectedSessionForDetail.host?.name}
+            name={
+              selectedSessionForDetail.hostName ||
+              selectedSessionForDetail.host?.name
+            }
             image={selectedSessionForDetail.host?.image || undefined}
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}

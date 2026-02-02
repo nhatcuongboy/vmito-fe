@@ -169,7 +169,9 @@ export default function LevelRequirementsCard({
           fontWeight="medium"
           h="44px"
           _hover={{
-            bg: allLevelsSelected ? 'blue.700' : { base: 'gray.50', _dark: 'gray.600' },
+            bg: allLevelsSelected
+              ? 'blue.700'
+              : { base: 'gray.50', _dark: 'gray.600' },
             borderColor: allLevelsSelected ? 'blue.700' : 'blue.400',
             transform: 'translateY(-1px)',
             shadow: 'sm',
@@ -203,7 +205,9 @@ export default function LevelRequirementsCard({
                     : { base: 'white', _dark: 'gray.700' }
                 }
                 color={isSelected ? 'white' : 'fg'}
-                borderColor={isSelected ? levelColor.color : levelColor.borderColor}
+                borderColor={
+                  isSelected ? levelColor.color : levelColor.borderColor
+                }
                 borderWidth="2px"
                 onClick={() => handleLevelToggle(level)}
                 borderRadius="lg"
@@ -228,7 +232,9 @@ export default function LevelRequirementsCard({
                       bg={levelColor.color}
                     />
                   )}
-                  <Text fontSize="xs" fontWeight="medium">{getLevelShortLabel(level)}</Text>
+                  <Text fontSize="xs" fontWeight="medium">
+                    {getLevelShortLabel(level)}
+                  </Text>
                 </HStack>
               </Button>
             );
@@ -245,7 +251,11 @@ export default function LevelRequirementsCard({
             borderColor={{ base: 'blue.200', _dark: 'blue.700' }}
           >
             <Flex align="center" gap={2} wrap="wrap">
-              <Text fontSize="sm" fontWeight="semibold" color={{ base: 'blue.800', _dark: 'blue.200' }}>
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color={{ base: 'blue.800', _dark: 'blue.200' }}
+              >
                 {t('generalSettings.selectedLevels')}:
               </Text>
               <Flex gap={1.5} wrap="wrap">

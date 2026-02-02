@@ -1,14 +1,7 @@
 'use client';
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import {
-  Box,
-  Flex,
-  IconButton,
-  Text,
-  Stack,
-  Button,
-} from '@chakra-ui/react';
+import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
 import {
   Home,
   Info,
@@ -82,7 +75,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
         bottom={0}
         width={{
           base: '240px',
-          md: isCollapsed ? `${SIDEBAR_WIDTH_COLLAPSED}px` : `${SIDEBAR_WIDTH_EXPANDED}px`,
+          md: isCollapsed
+            ? `${SIDEBAR_WIDTH_COLLAPSED}px`
+            : `${SIDEBAR_WIDTH_EXPANDED}px`,
         }}
         bg="bg"
         shadow="xl"
@@ -96,14 +91,19 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
         borderColor="border"
         overflowY="auto"
       >
-
         {/* Body */}
         <Box p={{ base: 4, md: isCollapsed ? 2 : 4 }}>
           <Stack gap={6}>
             {/* Main Navigation Section */}
             <Box>
               {!isCollapsed && (
-                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3} display={{ base: 'block', md: 'block' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="fg.muted"
+                  mb={3}
+                  display={{ base: 'block', md: 'block' }}
+                >
                   Main
                 </Text>
               )}
@@ -117,14 +117,29 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   <NextLinkButton
                     href="/"
                     variant="ghost"
-                    justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
                     onClick={onClose}
                     w="full"
                     px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                   >
-                    <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                    <Flex
+                      align="center"
+                      gap={3}
+                      w="full"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                    >
                       <Home size={18} />
-                      {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('home')}</Text>}
+                      {!isCollapsed && (
+                        <Text display={{ base: 'block', md: 'block' }}>
+                          {nav('home')}
+                        </Text>
+                      )}
                     </Flex>
                   </NextLinkButton>
                 </Tooltip>
@@ -139,19 +154,34 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     <NextLinkButton
                       href={
                         user?.role === UserRole.HOST ||
-                          user?.role === UserRole.ADMIN
+                        user?.role === UserRole.ADMIN
                           ? '/host/dashboard'
                           : '/'
                       }
                       variant="ghost"
-                      justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
                       onClick={onClose}
                       w="full"
                       px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                     >
-                      <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                      <Flex
+                        align="center"
+                        gap={3}
+                        w="full"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                      >
                         <LayoutDashboard size={18} />
-                        {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('browse')}</Text>}
+                        {!isCollapsed && (
+                          <Text display={{ base: 'block', md: 'block' }}>
+                            {nav('browse')}
+                          </Text>
+                        )}
                       </Flex>
                     </NextLinkButton>
                   </Tooltip>
@@ -168,19 +198,34 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       <NextLinkButton
                         href={
                           user?.role === UserRole.HOST ||
-                            user?.role === UserRole.ADMIN
+                          user?.role === UserRole.ADMIN
                             ? '/host/sessions'
                             : '/player/host'
                         }
                         variant="ghost"
-                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                       >
-                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
                           <Calendar size={18} />
-                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('host')}</Text>}
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('host')}
+                            </Text>
+                          )}
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
@@ -194,14 +239,29 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       <NextLinkButton
                         href="/player/sessions"
                         variant="ghost"
-                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                       >
-                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
                           <Ticket size={18} />
-                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('joined')}</Text>}
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('joined')}
+                            </Text>
+                          )}
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
@@ -215,19 +275,34 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       <NextLinkButton
                         href={
                           user?.role === UserRole.HOST ||
-                            user?.role === UserRole.ADMIN
+                          user?.role === UserRole.ADMIN
                             ? '/host/transactions'
                             : '/player/transactions'
                         }
                         variant="ghost"
-                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                       >
-                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
                           <Receipt size={18} />
-                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('transactions')}</Text>}
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('transactions')}
+                            </Text>
+                          )}
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
@@ -246,14 +321,29 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       <NextLinkButton
                         href="/host/payment-settings"
                         variant="ghost"
-                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                       >
-                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
                           <CreditCard size={18} />
-                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('paymentSettings')}</Text>}
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('paymentSettings')}
+                            </Text>
+                          )}
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
@@ -268,14 +358,29 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   <NextLinkButton
                     href="/about"
                     variant="ghost"
-                    justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
                     onClick={onClose}
                     w="full"
                     px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                   >
-                    <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                    <Flex
+                      align="center"
+                      gap={3}
+                      w="full"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                    >
                       <Info size={18} />
-                      {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{common('about')}</Text>}
+                      {!isCollapsed && (
+                        <Text display={{ base: 'block', md: 'block' }}>
+                          {common('about')}
+                        </Text>
+                      )}
                     </Flex>
                   </NextLinkButton>
                 </Tooltip>
@@ -285,7 +390,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
             {/* Language Switcher */}
             {!isCollapsed && (
               <Box display={{ base: 'block', md: 'block' }}>
-                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="fg.muted"
+                  mb={3}
+                >
                   {common('language')}
                 </Text>
                 <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
@@ -297,24 +407,45 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
             {/* Theme Toggle */}
             <Box>
               {!isCollapsed && (
-                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3} display={{ base: 'block', md: 'block' }}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="fg.muted"
+                  mb={3}
+                  display={{ base: 'block', md: 'block' }}
+                >
                   {common('theme')}
                 </Text>
               )}
               <Tooltip
-                content={colorMode === 'dark' ? common('lightMode') : common('darkMode')}
+                content={
+                  colorMode === 'dark'
+                    ? common('lightMode')
+                    : common('darkMode')
+                }
                 positioning={{ placement: 'right' }}
                 disabled={!isCollapsed}
                 openDelay={200}
               >
                 <Button
                   variant="ghost"
-                  justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                  justifyContent={{
+                    base: 'flex-start',
+                    md: isCollapsed ? 'center' : 'flex-start',
+                  }}
                   w="full"
                   onClick={toggleColorMode}
                   px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                 >
-                  <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                  <Flex
+                    align="center"
+                    gap={3}
+                    w="full"
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
+                  >
                     {colorMode === 'dark' ? (
                       <Sun size={18} />
                     ) : (
@@ -349,12 +480,26 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       colorPalette="blue"
                       w="full"
                       onClick={onClose}
-                      justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
                       px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                     >
-                      <Flex align="center" gap={2} justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                      <Flex
+                        align="center"
+                        gap={2}
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                      >
                         <LogIn size={16} />
-                        {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>Login</Text>}
+                        {!isCollapsed && (
+                          <Text display={{ base: 'block', md: 'block' }}>
+                            Login
+                          </Text>
+                        )}
                       </Flex>
                     </NextLinkButton>
                   </Tooltip>
@@ -363,10 +508,20 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
               {!isCollapsed && (
                 <>
-                  <Text fontSize="xs" color="gray.500" textAlign="center" display={{ base: 'block', md: 'block' }}>
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    textAlign="center"
+                    display={{ base: 'block', md: 'block' }}
+                  >
                     {common('appName')}
                   </Text>
-                  <Text fontSize="xs" color="gray.400" textAlign="center" display={{ base: 'block', md: 'block' }}>
+                  <Text
+                    fontSize="xs"
+                    color="gray.400"
+                    textAlign="center"
+                    display={{ base: 'block', md: 'block' }}
+                  >
                     © {new Date().getFullYear()}
                   </Text>
                 </>

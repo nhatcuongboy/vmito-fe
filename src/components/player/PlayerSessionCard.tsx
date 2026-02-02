@@ -1,16 +1,7 @@
 'use client';
 
-import {
-  Box,
-  Flex,
-  Icon,
-  Text,
-  Stack,
-} from '@chakra-ui/react';
-import {
-  MapPin,
-  Navigation,
-} from 'lucide-react';
+import { Box, Flex, Icon, Text, Stack } from '@chakra-ui/react';
+import { MapPin, Navigation } from 'lucide-react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import 'dayjs/locale/vi';
@@ -44,7 +35,9 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 const address =
-                  session.venue?.address || session.venue?.name || session.location;
+                  session.venue?.address ||
+                  session.venue?.name ||
+                  session.location;
                 if (address) {
                   window.open(
                     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
@@ -66,7 +59,13 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
     ) : null;
 
   const playerStats = (
-    <Box mt={2} p={3} bg="blue.50" borderRadius="md" _dark={{ bg: 'blue.900/40' }}>
+    <Box
+      mt={2}
+      p={3}
+      bg="blue.50"
+      borderRadius="md"
+      _dark={{ bg: 'blue.900/40' }}
+    >
       <Text
         fontSize="sm"
         fontWeight="medium"
@@ -76,9 +75,12 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
         {t('yourStats')}:
       </Text>
       <Flex gap={4} mt={1}>
-        <Text fontSize="sm">{/* {t("matches")}: {session.playerData.matchesPlayed} */}</Text>
         <Text fontSize="sm">
-          {t('waitTime')}: {/* {Math.round(session.playerData.totalWaitTime / 60)}m */}
+          {/* {t("matches")}: {session.playerData.matchesPlayed} */}
+        </Text>
+        <Text fontSize="sm">
+          {t('waitTime')}:{' '}
+          {/* {Math.round(session.playerData.totalWaitTime / 60)}m */}
         </Text>
       </Flex>
     </Box>

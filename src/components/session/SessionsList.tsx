@@ -35,7 +35,8 @@ export default function SessionsList({
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('session');
   const locale = useLocale();
-  const [selectedSessionForDetail, setSelectedSessionForDetail] = useState<ISession | null>(null);
+  const [selectedSessionForDetail, setSelectedSessionForDetail] =
+    useState<ISession | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const isExternalControl = externalSessions !== undefined;
@@ -92,13 +93,13 @@ export default function SessionsList({
 
   // Filter sessions by status
   const filteredSessions = useMemo(() => {
-    let result =
+    const result =
       status === 'ALL'
         ? sessions
         : status === 'UPCOMING_AND_INPROGRESS'
           ? sessions.filter(
-            (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
-          )
+              (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
+            )
           : sessions.filter((s) => s.status === status);
 
     // Default sort by date (newest first)
@@ -204,7 +205,10 @@ export default function SessionsList({
         {selectedSessionForDetail && (
           <AppHostDetail
             userId={selectedSessionForDetail.hostId}
-            name={selectedSessionForDetail.hostName || selectedSessionForDetail.host?.name}
+            name={
+              selectedSessionForDetail.hostName ||
+              selectedSessionForDetail.host?.name
+            }
             image={selectedSessionForDetail.host?.image || undefined}
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}

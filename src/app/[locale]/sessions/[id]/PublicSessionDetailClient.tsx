@@ -1,12 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import {
-  Container,
-  Box,
-  Flex,
-  Image,
-} from '@chakra-ui/react';
+import { Container, Box, Flex, Image } from '@chakra-ui/react';
 import TopBar from '@/components/ui/TopBar';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -54,7 +49,9 @@ const PublicSessionDetailClient = ({
 
       const newSearchParams = new URLSearchParams(searchParams.toString());
       newSearchParams.delete('register');
-      router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
+      router.replace(`${pathname}?${newSearchParams.toString()}`, {
+        scroll: false,
+      });
     }
   }, [searchParams, user, session, onOpenJoinModal, pathname, router]);
 

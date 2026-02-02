@@ -38,7 +38,9 @@ export default function MainLayout({
       top={0}
       left={{
         base: 0,
-        md: isCollapsed ? `${SIDEBAR_WIDTH_COLLAPSED}px` : `${SIDEBAR_WIDTH_EXPANDED}px`,
+        md: isCollapsed
+          ? `${SIDEBAR_WIDTH_COLLAPSED}px`
+          : `${SIDEBAR_WIDTH_EXPANDED}px`,
       }}
       right={0}
       bottom={0}

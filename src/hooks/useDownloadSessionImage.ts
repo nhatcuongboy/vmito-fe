@@ -37,7 +37,7 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         // Safari workaround: sometimes the first call doesn't render images correctly
         // We call it once to "warm up" and then once more for the actual data
         await toPng(element, { cacheBust: true });
-        
+
         const dataUrl = await toPng(element, {
           quality: 1,
           backgroundColor: '#ffffff',

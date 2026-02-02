@@ -35,7 +35,9 @@ function HostSessionsContent() {
         minH="100vh"
         ml={{
           base: 0,
-          md: isCollapsed ? `${SIDEBAR_WIDTH_COLLAPSED}px` : `${SIDEBAR_WIDTH_EXPANDED}px`,
+          md: isCollapsed
+            ? `${SIDEBAR_WIDTH_COLLAPSED}px`
+            : `${SIDEBAR_WIDTH_EXPANDED}px`,
         }}
         transition="margin-left 0.3s ease"
       >
@@ -74,10 +76,7 @@ function HostSessionsContent() {
           />
 
           <VStack gap={6} alignItems="stretch">
-            <SessionsList
-              status={filters.status || 'ALL'}
-              mode="manage"
-            />
+            <SessionsList status={filters.status || 'ALL'} mode="manage" />
           </VStack>
         </Container>
       </Box>

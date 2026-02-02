@@ -248,7 +248,8 @@ const BaseSessionCard = ({
 
   // Cache rendered top actions to avoid multiple calls
   const topActionsRendered = actions ? renderTopActions() : null;
-  const oldTopActions = topActionButtons || (actionButtons && !bottomActionButtons);
+  const oldTopActions =
+    topActionButtons || (actionButtons && !bottomActionButtons);
 
   // Render bottom action buttons (full-width buttons)
   const renderBottomActions = () => {
@@ -311,7 +312,8 @@ const BaseSessionCard = ({
 
     // Right side: View Session button (for approved players)
     if (actions.showViewSessionButton) {
-      const viewSessionHref = actions.viewSessionHref || `/player/sessions/${session.id}`;
+      const viewSessionHref =
+        actions.viewSessionHref || `/player/sessions/${session.id}`;
       rightButtons.push(
         <NextLinkButton
           key="view-session"
@@ -326,7 +328,8 @@ const BaseSessionCard = ({
 
     // Right side: Manage button (for owners)
     if (actions.showManageButton && isOwner) {
-      const manageHref = actions.manageButtonHref ||
+      const manageHref =
+        actions.manageButtonHref ||
         (user?.role === 'PLAYER'
           ? `/player/sessions/${session.id}`
           : `/host/sessions/${session.id}`);
@@ -387,10 +390,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${session.endTime
-        ? formatTime(session.endTime, locale)
-        : t('inProgress')
-      }`
+      ? `${formatTime(session.startTime, locale)} - ${
+          session.endTime
+            ? formatTime(session.endTime, locale)
+            : t('inProgress')
+        }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -544,7 +548,11 @@ const BaseSessionCard = ({
                   <Avatar.Image src={session.host.image} />
                 )}
               </Avatar.Root>
-              <Text fontSize="sm" fontWeight="medium" textDecoration={onHostClick ? 'underline' : 'none'}>
+              <Text
+                fontSize="sm"
+                fontWeight="medium"
+                textDecoration={onHostClick ? 'underline' : 'none'}
+              >
                 {displayHostName}
               </Text>
               {hostRatingStats && hostRatingStats.totalRatings > 0 && (
@@ -599,11 +607,13 @@ const BaseSessionCard = ({
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
                     {session.courts && session.courts.length > 0 && (
                       <Text as="span" ml={1}>
-                        ({session.courts
+                        (
+                        {session.courts
                           .slice()
                           .sort((a, b) => a.courtNumber - b.courtNumber)
                           .map((c) => c.courtName || c.courtNumber)
-                          .join(', ')})
+                          .join(', ')}
+                        )
                       </Text>
                     )}
                   </Text>
@@ -737,7 +747,9 @@ const BaseSessionCard = ({
               {/* Row 2: Bottom Action Buttons */}
               {(actions ? renderBottomActions() : bottomActionButtons) && (
                 <>
-                  {actions ? renderBottomActions() : (
+                  {actions ? (
+                    renderBottomActions()
+                  ) : (
                     <Flex justify="flex-end" gap={2}>
                       {bottomActionButtons}
                     </Flex>
