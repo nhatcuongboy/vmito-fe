@@ -455,35 +455,92 @@ export default function FindSessionList({
                   >
                     {t('filters.date') || 'Ngày'}
                   </Text>
-                  <Input
-                    type="date"
-                    size="md"
-                    width="auto"
-                    minW="160px"
-                    value={filters.date}
-                    onChange={(e) => setFilters({ date: e.target.value })}
-                    borderRadius="lg"
-                    borderWidth="2px"
-                    borderColor="gray.300"
-                    color="gray.800"
-                    bg="white"
-                    px={3}
-                    _hover={{ borderColor: 'blue.400' }}
-                    _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
-                    _dark={{
-                      color: 'white',
-                      bg: 'gray.700',
-                      borderColor: 'gray.600',
-                      _hover: { borderColor: 'blue.400' },
-                    }}
-                    css={{
-                      '&::-webkit-date-and-time-value': {
-                        minHeight: '1.5em',
-                        display: 'flex',
-                        alignItems: 'center',
-                      },
-                    }}
-                  />
+                  <Flex align="center" gap={2}>
+                    <Box position="relative" flex="1">
+                      <Input
+                        type="date"
+                        size="md"
+                        width="auto"
+                        minW="160px"
+                        value={filters.date}
+                        onChange={(e) => setFilters({ date: e.target.value })}
+                        onInput={(e) => {
+                          // Handle iOS date picker Reset button
+                          const target = e.target as HTMLInputElement;
+                          if (target.value === '') {
+                            setFilters({ date: '' });
+                          }
+                        }}
+                        borderRadius="lg"
+                        borderWidth="2px"
+                        borderColor="gray.300"
+                        color="gray.800"
+                        bg="white"
+                        px={3}
+                        _hover={{ borderColor: 'blue.400' }}
+                        _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                        _dark={{
+                          color: 'white',
+                          bg: 'gray.700',
+                          borderColor: 'gray.600',
+                          _hover: { borderColor: 'blue.400' },
+                        }}
+                        css={{
+                          '&::-webkit-date-and-time-value': {
+                            minHeight: '1.5em',
+                            display: 'flex',
+                            alignItems: 'center',
+                          },
+                          '&::-webkit-datetime-edit': {
+                            minHeight: '1.5em',
+                          },
+                          '&::-webkit-datetime-edit-fields-wrapper': {
+                            padding: '0',
+                          },
+                          // Hide native placeholder fields when empty to show custom overlay
+                          '&::-webkit-datetime-edit-text': {
+                            color: !filters.date ? 'transparent' : 'inherit',
+                            padding: '0 1px',
+                          },
+                          '&::-webkit-datetime-edit-month-field': {
+                            color: !filters.date ? 'transparent' : 'inherit',
+                          },
+                          '&::-webkit-datetime-edit-day-field': {
+                            color: !filters.date ? 'transparent' : 'inherit',
+                          },
+                          '&::-webkit-datetime-edit-year-field': {
+                            color: !filters.date ? 'transparent' : 'inherit',
+                          },
+                        }}
+                      />
+                      {/* Placeholder overlay for iOS */}
+                      {!filters.date && (
+                        <Box
+                          position="absolute"
+                          left="12px"
+                          top="50%"
+                          transform="translateY(-50%)"
+                          color="gray.400"
+                          pointerEvents="none"
+                          fontSize="md"
+                          userSelect="none"
+                        >
+                          Tất cả ngày
+                        </Box>
+                      )}
+                    </Box>
+                    {/* Clear date button */}
+                    {filters.date && (
+                      <IconButton
+                        size="sm"
+                        variant="ghost"
+                        colorPalette="gray"
+                        onClick={() => setFilters({ date: '' })}
+                        aria-label="Clear date"
+                        icon={<X size={16} />}
+                      />
+                    )}
+                  </Flex>
                 </Box>
 
                 <Box minW="250px">

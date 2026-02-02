@@ -141,7 +141,7 @@ export default function LevelRequirementsCard({
       border="1px solid"
       borderColor="border"
     >
-      <Heading size="md" mb={2}>
+      <Heading size="md" mb={1}>
         {t('generalSettings.requiredPlayerLevels')}
       </Heading>
 
@@ -149,100 +149,127 @@ export default function LevelRequirementsCard({
         {t('generalSettings.selectRequiredLevels')}
       </Text>
 
-      <Stack gap={4}>
+      <Stack gap={3}>
         {/* All Levels Button */}
-        <Box>
-          <Button
-            type="button"
-            size="md"
-            variant={allLevelsSelected ? 'solid' : 'outline'}
-            colorPalette="blue"
-            bg={
-              allLevelsSelected
-                ? 'blue.600'
-                : { base: 'gray.50', _dark: 'whiteAlpha.50' }
-            }
-            color={allLevelsSelected ? 'white' : 'fg'}
-            borderColor={allLevelsSelected ? 'blue.600' : 'border'}
-            onClick={handleSelectAllLevels}
-            fontWeight={allLevelsSelected ? 'bold' : 'normal'}
-            _hover={{
-              bg: allLevelsSelected ? 'blue.700' : 'bg.muted',
-              borderColor: allLevelsSelected ? 'blue.700' : 'border',
-            }}
-          >
-            {t('generalSettings.allLevels')}
-          </Button>
-        </Box>
+        <Button
+          type="button"
+          size="md"
+          width="full"
+          variant={allLevelsSelected ? 'solid' : 'outline'}
+          colorPalette="blue"
+          bg={
+            allLevelsSelected
+              ? 'blue.600'
+              : { base: 'white', _dark: 'gray.700' }
+          }
+          color={allLevelsSelected ? 'white' : 'fg'}
+          borderColor={allLevelsSelected ? 'blue.600' : 'border'}
+          borderWidth="2px"
+          onClick={handleSelectAllLevels}
+          fontWeight="medium"
+          h="44px"
+          _hover={{
+            bg: allLevelsSelected ? 'blue.700' : { base: 'gray.50', _dark: 'gray.600' },
+            borderColor: allLevelsSelected ? 'blue.700' : 'blue.400',
+            transform: 'translateY(-1px)',
+            shadow: 'sm',
+          }}
+          transition="all 0.15s ease"
+        >
+          <HStack gap={2}>
+            {allLevelsSelected && <Check size={18} strokeWidth={3} />}
+            <Text>{t('generalSettings.allLevels')}</Text>
+          </HStack>
+        </Button>
 
-        {/* Level Selection */}
-        <Wrap gap={3}>
+        {/* All Levels in One Row */}
+        <Flex gap={1.5} wrap="wrap">
           {VALID_LEVELS.map((level) => {
             const isSelected =
               !allLevelsSelected && requiredLevels.includes(level);
             const levelColor = getSkillLevelColor([level]);
 
             return (
-              <WrapItem key={level}>
-                <Button
-                  size="md"
-                  type="button"
-                  // Using custom aesthetics to match the request
-                  variant={isSelected ? 'solid' : 'outline'}
-                  colorPalette={levelColor.colorPalette}
-                  bg={isSelected ? levelColor.color : 'transparent'}
-                  color={isSelected ? 'white' : 'fg'}
-                  borderColor={isSelected ? levelColor.color : 'border'}
-                  borderWidth="1px"
-                  onClick={() => handleLevelToggle(level)}
-                  borderRadius="md"
-                  fontWeight={isSelected ? 'bold' : 'normal'}
-                  px={4}
-                  py={2}
-                  minW="80px"
-                  _hover={{
-                    transform: 'translateY(-1px)',
-                    shadow: 'sm',
-                    bg: isSelected ? undefined : 'bg.muted',
-                  }}
-                  transition="all 0.2s"
-                >
-                  <HStack gap={2}>
+              <Button
+                key={level}
+                size="sm"
+                type="button"
+                flex="1"
+                minW="65px"
+                variant={isSelected ? 'solid' : 'outline'}
+                bg={
+                  isSelected
+                    ? levelColor.color
+                    : { base: 'white', _dark: 'gray.700' }
+                }
+                color={isSelected ? 'white' : 'fg'}
+                borderColor={isSelected ? levelColor.color : levelColor.borderColor}
+                borderWidth="2px"
+                onClick={() => handleLevelToggle(level)}
+                borderRadius="lg"
+                fontWeight="medium"
+                h="38px"
+                px={2}
+                _hover={{
+                  transform: 'translateY(-1px)',
+                  shadow: 'sm',
+                  borderColor: levelColor.color,
+                }}
+                transition="all 0.15s ease"
+              >
+                <HStack gap={1.5}>
+                  {isSelected ? (
+                    <Check size={13} strokeWidth={3} />
+                  ) : (
                     <Box
-                      w="10px"
-                      h="10px"
+                      w="8px"
+                      h="8px"
                       borderRadius="full"
-                      bg={isSelected ? 'white' : levelColor.color}
-                      boxShadow={
-                        isSelected ? 'none' : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
-                      }
+                      bg={levelColor.color}
                     />
-                    <Text>{getLevelShortLabel(level)}</Text>
-                  </HStack>
-                </Button>
-              </WrapItem>
+                  )}
+                  <Text fontSize="xs" fontWeight="medium">{getLevelShortLabel(level)}</Text>
+                </HStack>
+              </Button>
             );
           })}
-        </Wrap>
+        </Flex>
 
         {/* Selected Levels Summary */}
         {!allLevelsSelected && requiredLevels.length > 0 && (
           <Box
-            p={4}
+            p={3}
             bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
             borderRadius="md"
             border="1px solid"
-            borderColor={{ base: 'blue.100', _dark: 'blue.800' }}
+            borderColor={{ base: 'blue.200', _dark: 'blue.700' }}
           >
-            <Text fontSize="md" color={{ base: 'blue.800', _dark: 'blue.200' }}>
-              <Text as="span" fontWeight="medium">
-                {t('generalSettings.selectedLevels')}:{' '}
+            <Flex align="center" gap={2} wrap="wrap">
+              <Text fontSize="sm" fontWeight="semibold" color={{ base: 'blue.800', _dark: 'blue.200' }}>
+                {t('generalSettings.selectedLevels')}:
               </Text>
-              {requiredLevels
-                .sort((a: number, b: number) => a - b)
-                .map((level: number) => getLevelShortLabel(level))
-                .join(', ')}
-            </Text>
+              <Flex gap={1.5} wrap="wrap">
+                {requiredLevels
+                  .sort((a: number, b: number) => a - b)
+                  .map((level: number) => {
+                    const levelColor = getSkillLevelColor([level]);
+                    return (
+                      <Box
+                        key={level}
+                        px={2.5}
+                        py={0.5}
+                        bg={levelColor.color}
+                        color="white"
+                        borderRadius="full"
+                        fontSize="xs"
+                        fontWeight="semibold"
+                      >
+                        {getLevelShortLabel(level)}
+                      </Box>
+                    );
+                  })}
+              </Flex>
+            </Flex>
           </Box>
         )}
       </Stack>

@@ -4,7 +4,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { ISession } from '@/lib/api/types';
 import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { Share2, MapPin, Phone, Map, Download } from 'lucide-react';
+import { Share2, MapPin, Phone, Share, Download, Navigation } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
@@ -155,9 +155,29 @@ const SessionCard = ({
       <Flex align="flex-start">
         <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
         <Box flex="1" overflow="hidden">
-          <Text fontWeight="medium" lineClamp={1}>
-            {session.venue?.name || session.location}
-          </Text>
+          <Flex align="center" gap={1}>
+            <Text fontWeight="medium" lineClamp={1}>
+              {session.venue?.name || session.location}
+            </Text>
+            <IconButton
+              size="xs"
+              colorPalette="blue"
+              variant="ghost"
+              aria-label="Google Maps"
+              icon={<Icon as={Navigation} />}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                const address =
+                  session.venue?.address || session.venue?.name || session.location;
+                if (address) {
+                  window.open(
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+                    '_blank'
+                  );
+                }
+              }}
+            />
+          </Flex>
           {session.venue?.address &&
             session.venue.address !== session.venue.name && (
               <Text fontSize="xs" color="gray.500" lineClamp={1}>
@@ -184,26 +204,7 @@ const SessionCard = ({
           }}
         />
       )}
-      {(session.venue?.address || session.venue?.name || session.location) && (
-        <IconButton
-          size="sm"
-          colorPalette="blue"
-          variant="outline"
-          aria-label="Google Maps"
-          icon={<Icon as={Map} />}
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            const address =
-              session.venue?.address || session.venue?.name || session.location;
-            if (address) {
-              window.open(
-                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-                '_blank'
-              );
-            }
-          }}
-        />
-      )}
+
       {isOwner && (
         <IconButton
           size="sm"
@@ -237,57 +238,62 @@ const SessionCard = ({
 
   // Bottom Actions (View, Manage, View Session/Follow)
   const bottomActions = (
-    <Flex gap={2} flexWrap="wrap" justify="flex-end">
-      <NextLinkButton
-        href={`/sessions/${session.id}`}
-        colorPalette="gray"
-        variant="outline"
-        size="sm"
-      >
-        {t('view')}
-      </NextLinkButton>
+    <Flex w="full" justify="space-between" align="center">
+      <Box>
+        {(mode === 'manage' || isOwner) && onDelete && (
+          <Button
+            colorPalette="red"
+            variant="outline"
+            size="sm"
+            onClick={onOpenDeleteModal}
+          >
+            {t('deleteSession')}
+          </Button>
+        )}
+      </Box>
 
-      {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
+      <Flex gap={2} flexWrap="wrap">
         <NextLinkButton
-          href={`/host/sessions/${session.id}`}
-          colorPalette="blue"
-          size="sm"
-        >
-          {t('manageSession')}
-        </NextLinkButton>
-      ) : isOwner || session.players?.[0]?.registrationStatus === 'APPROVED' ? (
-        <NextLinkButton
-          href={`/player/sessions/${session.id}`}
-          colorPalette="blue"
-          size="sm"
-        >
-          {isOwner && user?.role === 'PLAYER'
-            ? t('manageSession')
-            : t('viewSession')}
-        </NextLinkButton>
-      ) : null}
-
-      {!isOwner && session.players?.[0] && (
-        <Button
-          colorPalette="blue"
-          variant="outline"
-          onClick={onOpenViewRegistrationModal}
-          size="sm"
-        >
-          {t('viewMyRegistration')}
-        </Button>
-      )}
-
-      {(mode === 'manage' || isOwner) && onDelete && (
-        <Button
-          colorPalette="red"
+          href={`/sessions/${session.id}`}
+          colorPalette="gray"
           variant="outline"
           size="sm"
-          onClick={onOpenDeleteModal}
         >
-          {t('deleteSession')}
-        </Button>
-      )}
+          {t('view')}
+        </NextLinkButton>
+
+        {!isOwner && session.players?.[0] && (
+          <Button
+            colorPalette="blue"
+            variant="outline"
+            onClick={onOpenViewRegistrationModal}
+            size="sm"
+          >
+            {t('viewMyRegistration')}
+          </Button>
+        )}
+
+        {mode === 'manage' || (isOwner && user?.role !== 'PLAYER') ? (
+          <NextLinkButton
+            href={`/host/sessions/${session.id}`}
+            colorPalette="blue"
+            size="sm"
+          >
+            {t('manageSession')}
+          </NextLinkButton>
+        ) : isOwner || session.players?.[0]?.registrationStatus === 'APPROVED' ? (
+          <NextLinkButton
+            href={`/player/sessions/${session.id}`}
+            colorPalette="blue"
+            size="sm"
+          >
+            {isOwner && user?.role === 'PLAYER'
+              ? t('manageSession')
+              : t('viewSession')}
+          </NextLinkButton>
+        ) : null}
+
+      </Flex>
     </Flex>
   );
 

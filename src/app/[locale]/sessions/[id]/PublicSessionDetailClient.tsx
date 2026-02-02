@@ -12,7 +12,7 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { Phone, MapPin, Map, Share2, Download } from 'lucide-react';
+import { Phone, MapPin, Map, Share2, Download, Navigation } from 'lucide-react';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -286,25 +286,7 @@ const PublicSessionDetailClient = ({
           icon={<Icon as={Phone} />}
         />
       )}
-      {(session.venue?.address || session.venue?.name || session.location) && (
-        <IconButton
-          size="sm"
-          colorPalette="blue"
-          variant="outline"
-          aria-label="Google Maps"
-          onClick={() => {
-            const address =
-              session.venue?.address || session.venue?.name || session.location;
-            if (address) {
-              window.open(
-                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-                '_blank'
-              );
-            }
-          }}
-          icon={<Icon as={Map} />}
-        />
-      )}
+
       {isOwner && (
         <IconButton
           size="sm"
@@ -335,57 +317,68 @@ const PublicSessionDetailClient = ({
 
   // Main actions
   const bottomActions = (
-    <>
-      {/* If user owns the session, show Host button */}
-      {isOwner ? (
-        <NextLinkButton
-          href={
-            user?.role === 'PLAYER'
-              ? `/player/sessions/${session.id}`
-              : `/host/sessions/${session.id}`
-          }
-          colorPalette="blue"
-          size="sm"
-        >
-          {t('manageSession')}
-        </NextLinkButton>
-      ) : (
-        /* Otherwise show register/view registration buttons */
-        <>
-          {userRegistrationStatus && (
-            <Button
-              colorPalette="blue"
-              variant="outline"
-              onClick={onOpenViewRegistrationModal}
-              size="sm"
-            >
-              {t('viewMyRegistration')}
-            </Button>
-          )}
-
-          {userRegistrationStatus === 'APPROVED' && (
+    <Flex w="full" justify="flex-end" align="center">
+      <Flex gap={2}>
+        {/* If user owns the session, show Host button */}
+        {isOwner ? (
+          <NextLinkButton
+            href={
+              user?.role === 'PLAYER'
+                ? `/player/sessions/${session.id}`
+                : `/host/sessions/${session.id}`
+            }
+            colorPalette="blue"
+            size="sm"
+          >
+            {t('manageSession')}
+          </NextLinkButton>
+        ) : (
+          /* Otherwise show register/view registration buttons */
+          <>
             <NextLinkButton
-              href={`/player/sessions/${session.id}`}
-              colorPalette="green"
+              href={`/sessions/${session.id}`}
+              colorPalette="gray"
+              variant="outline"
               size="sm"
             >
-              {t('viewSession')}
+              {t('view')}
             </NextLinkButton>
-          )}
 
-          {!userRegistrationStatus && (
-            <Button
-              colorPalette="blue"
-              onClick={handleRegister}
-              size="sm"
-              disabled={isFull}
-            >
-              {isFull ? t('sessionFull') : t('register')}
-            </Button>
-          )}
-        </>
-      )}
-    </>
+            {userRegistrationStatus && (
+              <Button
+                colorPalette="blue"
+                variant="outline"
+                onClick={onOpenViewRegistrationModal}
+                size="sm"
+              >
+                {t('viewMyRegistration')}
+              </Button>
+            )}
+
+            {userRegistrationStatus === 'APPROVED' && (
+              <NextLinkButton
+                href={`/player/sessions/${session.id}`}
+                colorPalette="green"
+                size="sm"
+              >
+                {t('viewSession')}
+              </NextLinkButton>
+            )}
+
+            {!userRegistrationStatus && (
+              <Button
+                colorPalette="blue"
+                onClick={handleRegister}
+                size="sm"
+                disabled={isFull}
+              >
+                {isFull ? t('sessionFull') : t('register')}
+              </Button>
+            )}
+          </>
+        )}
+      </Flex>
+    </Flex>
   );
 
   // Location/venue display (reuse from SessionCard)
@@ -394,9 +387,29 @@ const PublicSessionDetailClient = ({
       <Flex align="flex-start">
         <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
         <Box flex="1" overflow="hidden">
-          <Text fontWeight="medium" lineClamp={1}>
-            {session.venue?.name || session.location}
-          </Text>
+          <Flex align="center" gap={1}>
+            <Text fontWeight="medium" lineClamp={1}>
+              {session.venue?.name || session.location}
+            </Text>
+            <IconButton
+              size="xs"
+              colorPalette="blue"
+              variant="ghost"
+              aria-label="Google Maps"
+              onClick={(e) => {
+                e.stopPropagation();
+                const address =
+                  session.venue?.address || session.venue?.name || session.location;
+                if (address) {
+                  window.open(
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+                    '_blank'
+                  );
+                }
+              }}
+              icon={<Icon as={Navigation} />}
+            />
+          </Flex>
           {session.venue?.address &&
             session.venue.address !== session.venue.name && (
               <Text fontSize="xs" color="gray.500" lineClamp={1}>

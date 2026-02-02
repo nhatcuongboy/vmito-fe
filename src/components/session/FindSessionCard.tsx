@@ -3,7 +3,7 @@
 import { ISession } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge, Stack } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { Map, MapPin, Phone, Share2 } from 'lucide-react';
+import { MapPin, Phone, Share2, Navigation } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import BaseSessionCard from './BaseSessionCard';
@@ -162,15 +162,40 @@ const FindSessionCard = ({
     }
   };
 
+  const googleMapButton =
+    session.venue?.address || session.venue?.name || session.location ? (
+      <IconButton
+        size="xs"
+        colorPalette="blue"
+        variant="ghost"
+        aria-label="Google Maps"
+        icon={<Icon as={Navigation} />}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          const address =
+            session.venue?.address || session.venue?.name || session.location;
+          if (address) {
+            window.open(
+              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+              '_blank'
+            );
+          }
+        }}
+      />
+    ) : null;
+
   // Location/venue display
   const locationRow =
     session.venue?.name || session.location ? (
       <Flex align="flex-start">
         <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
         <Box flex="1" overflow="hidden">
-          <Text fontWeight="medium" lineClamp={1}>
-            {session.venue?.name || session.location}
-          </Text>
+          <Flex align="center" gap={1}>
+            <Text fontWeight="medium" lineClamp={1}>
+              {session.venue?.name || session.location}
+            </Text>
+            {googleMapButton}
+          </Flex>
           {session.venue?.address &&
             session.venue.address !== session.venue.name && (
               <Text fontSize="xs" color="gray.500" lineClamp={1}>
@@ -226,27 +251,6 @@ const FindSessionCard = ({
       }}
     />
   ) : null;
-  const googleMapButton =
-    session.venue?.address || session.venue?.name || session.location ? (
-      <IconButton
-        size="sm"
-        colorPalette="blue"
-        variant="outline"
-        aria-label="Google Maps"
-        icon={<Icon as={Map} />}
-        onClick={(e: React.MouseEvent) => {
-          e.stopPropagation();
-          const address =
-            session.venue?.address || session.venue?.name || session.location;
-          if (address) {
-            window.open(
-              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-              '_blank'
-            );
-          }
-        }}
-      />
-    ) : null;
 
   // Registration status badge
   const registrationStatusBadge = userRegistrationStatus ? (
@@ -272,7 +276,6 @@ const FindSessionCard = ({
   const topActions = (
     <>
       {callButton}
-      {googleMapButton}
       {downloadButton}
       {shareButton}
     </>
@@ -280,88 +283,92 @@ const FindSessionCard = ({
 
   // Main actions (Register, View, Manage)
   const bottomActions = (
-    <>
-      {/* If user owns the session, show Delete button */}
-      {isOwner && (
-        <Button
-          colorPalette="red"
+    <Flex w="full" justify="space-between" align="center">
+      <Box>
+        {/* If user owns the session, show Delete button on the left */}
+        {isOwner && (
+          <Button
+            colorPalette="red"
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDeleteModal();
+            }}
+          >
+            {t('deleteSession')}
+          </Button>
+        )}
+      </Box>
+
+      <Flex gap={2}>
+        {/* Secondary actions */}
+        <NextLinkButton
+          href={`/sessions/${session.id}`}
+          colorPalette="gray"
           variant="outline"
           size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenDeleteModal();
-          }}
         >
-          {t('deleteSession')}
-        </Button>
-      )}
-
-      {/* Public View button - always available */}
-      <NextLinkButton
-        href={`/sessions/${session.id}`}
-        colorPalette="gray"
-        variant="outline"
-        size="sm"
-      >
-        {t('view')}
-      </NextLinkButton>
-
-      {/* If user owns the session, show Host button */}
-      {isOwner && (
-        <NextLinkButton
-          href={
-            user?.role === 'PLAYER'
-              ? `/player/sessions/${session.id}`
-              : `/host/sessions/${session.id}`
-          }
-          colorPalette="blue"
-          size="sm"
-        >
-          {t('manageSession')}
+          {t('view')}
         </NextLinkButton>
-      )}
 
-      {!isOwner && (
-        <>
-          {/* View Registration button - show for all registration statuses */}
-          {userRegistrationStatus && (
-            <Button
-              colorPalette="blue"
-              variant="outline"
-              onClick={onOpenViewRegistrationModal}
-              size="sm"
-            >
-              {t('viewMyRegistration')}
-            </Button>
-          )}
-          {userRegistrationStatus === 'APPROVED' && (
-            <NextLinkButton
-              href={`/player/sessions/${session.id}`}
-              colorPalette="green"
-              size="sm"
-            >
-              {t('viewSession')}
-            </NextLinkButton>
-          )}
-          {!userRegistrationStatus && !isJoined && (
-            <Button
-              colorPalette="blue"
-              onClick={() => {
-                if (!user) {
-                  onOpenLoginModal();
-                  return;
-                }
-                onJoin();
-              }}
-              size="sm"
-              disabled={isFull}
-            >
-              {isFull ? t('sessionFull') : t('register')}
-            </Button>
-          )}
-        </>
-      )}
-    </>
+        {isOwner ? (
+          /* Primary action for owner */
+          <NextLinkButton
+            href={
+              user?.role === 'PLAYER'
+                ? `/player/sessions/${session.id}`
+                : `/host/sessions/${session.id}`
+            }
+            colorPalette="blue"
+            size="sm"
+          >
+            {t('manageSession')}
+          </NextLinkButton>
+        ) : (
+          <>
+            {/* Action buttons for players/guests */}
+            {userRegistrationStatus && (
+              <Button
+                colorPalette="blue"
+                variant="outline"
+                onClick={onOpenViewRegistrationModal}
+                size="sm"
+              >
+                {t('viewMyRegistration')}
+              </Button>
+            )}
+
+            {userRegistrationStatus === 'APPROVED' && (
+              <NextLinkButton
+                href={`/player/sessions/${session.id}`}
+                colorPalette="green"
+                size="sm"
+              >
+                {t('viewSession')}
+              </NextLinkButton>
+            )}
+
+            {!userRegistrationStatus && !isJoined && (
+              <Button
+                colorPalette="blue"
+                onClick={() => {
+                  if (!user) {
+                    onOpenLoginModal();
+                    return;
+                  }
+                  onJoin();
+                }}
+                size="sm"
+                disabled={isFull}
+              >
+                {isFull ? t('sessionFull') : t('register')}
+              </Button>
+            )}
+          </>
+        )}
+      </Flex>
+    </Flex>
   );
 
   return (

@@ -23,17 +23,31 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
       try {
         setIsDownloading(true);
 
-        // Wait a bit for images to load if needed, though they should be cached
-        // html-to-image usually handles this well
+        // Wait for all images inside the element to be loaded
+        const images = element.getElementsByTagName('img');
+        const imagePromises = Array.from(images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        });
+        await Promise.all(imagePromises);
+
+        // Safari workaround: sometimes the first call doesn't render images correctly
+        // We call it once to "warm up" and then once more for the actual data
+        await toPng(element, { cacheBust: true });
+        
         const dataUrl = await toPng(element, {
-          quality: 0.95,
+          quality: 1,
           backgroundColor: '#ffffff',
-          // Ensure fonts are loaded and included
           cacheBust: true,
+          pixelRatio: 2, // Ensure good quality on mobile/high-DPI screens
         });
 
         const link = document.createElement('a');
-        link.download = `session-${session.id}.png`;
+        const shortId = session.id.slice(0, 8);
+        link.download = `TuyenVangLai-${shortId}.png`;
         link.href = dataUrl;
         link.click();
 

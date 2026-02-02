@@ -2,198 +2,115 @@
 
 import {
   Box,
-  Stack,
-  Badge,
-  Icon,
   Flex,
+  Icon,
   Text,
-  Heading,
-  Wrap,
+  Stack,
 } from '@chakra-ui/react';
 import {
-  Calendar,
-  Clock,
-  Users,
-  SquareAsterisk,
   Eye,
-  Shield,
+  MapPin,
+  Navigation,
 } from 'lucide-react';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { useTranslations, useLocale } from 'next-intl';
-import dayjs from '@/lib/dayjs';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { useTranslations } from 'next-intl';
 import 'dayjs/locale/vi';
 import 'dayjs/locale/en';
 import { ISession } from '@/lib/api/types';
-import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Locale } from '@/i18n/locales';
-
-// Helper functions for formatting with locale support
-const formatDate = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
-
-  let formattedDate: string;
-
-  if (locale === Locale.VI) {
-    // Vietnamese format: "Thứ 2, 04 tháng 7, 2025"
-    formattedDate = date.format('dddd, DD MMMM, YYYY');
-  } else {
-    // English format: "Mon, Jul 04, 2025"
-    formattedDate = date.format('ddd, MMM DD, YYYY');
-  }
-
-  // Capitalize the first letter of the day name
-  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-};
-
-const formatTime = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
-  return date.format('HH:mm');
-};
+import BaseSessionCard from '../session/BaseSessionCard';
 
 interface PlayerSessionCardProps {
   session: ISession;
 }
 
-const statusColors = {
-  PREPARING: 'blue',
-  IN_PROGRESS: 'green',
-  FINISHED: 'gray',
-};
-
-// Helper function to get localized status labels
-const getStatusLabel = (status: string, t: (key: string) => string) => {
-  switch (status) {
-    case 'PREPARING':
-      return t('status.preparing');
-    case 'IN_PROGRESS':
-      return t('status.inProgress');
-    case 'FINISHED':
-      return t('status.finished');
-    default:
-      return status;
-  }
-};
-
 export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
   const t = useTranslations('session');
-  const locale = useLocale();
-  const { getLevelShortLabel } = useLevelLabel();
 
-  // Format date/time
-  const displayDate = session.startTime
-    ? formatDate(session.startTime, locale)
-    : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`;
+  // Location row for PlayerSessionCard
+  const locationRow =
+    session.venue?.name || session.location ? (
+      <Flex align="flex-start">
+        <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
+        <Box flex="1" overflow="hidden">
+          <Flex align="center" gap={1}>
+            <Text fontWeight="medium" lineClamp={1}>
+              {session.venue?.name || session.location}
+            </Text>
+            <IconButton
+              size="xs"
+              colorPalette="blue"
+              variant="ghost"
+              aria-label="Google Maps"
+              onClick={(e) => {
+                e.stopPropagation();
+                const address =
+                  session.venue?.address || session.venue?.name || session.location;
+                if (address) {
+                  window.open(
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+                    '_blank'
+                  );
+                }
+              }}
+              icon={<Icon as={Navigation} />}
+            />
+          </Flex>
+          {session.venue?.address &&
+            session.venue.address !== session.venue.name && (
+              <Text fontSize="xs" color="gray.500" lineClamp={1}>
+                {session.venue.address}
+              </Text>
+            )}
+        </Box>
+      </Flex>
+    ) : null;
 
-  const displayTime = session.startTime
-    ? `${formatTime(session.startTime, locale)} - ${
-        session.endTime ? formatTime(session.endTime, locale) : t('inProgress')
-      }`
-    : t('notStartedYet');
+  const playerStats = (
+    <Box mt={2} p={3} bg="blue.50" borderRadius="md" _dark={{ bg: 'blue.900/40' }}>
+      <Text
+        fontSize="sm"
+        fontWeight="medium"
+        color="blue.700"
+        _dark={{ color: 'blue.200' }}
+      >
+        {t('yourStats')}:
+      </Text>
+      <Flex gap={4} mt={1}>
+        <Text fontSize="sm">{/* {t("matches")}: {session.playerData.matchesPlayed} */}</Text>
+        <Text fontSize="sm">
+          {t('waitTime')}: {/* {Math.round(session.playerData.totalWaitTime / 60)}m */}
+        </Text>
+      </Flex>
+    </Box>
+  );
+
+  const bottomActions = (
+    <Flex w="full" justify="flex-end" gap={2}>
+      <NextLinkButton
+        href={`/sessions/${session.id}`}
+        colorPalette="gray"
+        variant="outline"
+        size="sm"
+      >
+        {t('view')}
+      </NextLinkButton>
+      <NextLinkButton href={`/player/sessions/${session.id}`} colorPalette="green" size="sm">
+        <Eye className="mr-2 h-4 w-4" /> {t('viewSession')}
+      </NextLinkButton>
+    </Flex>
+  );
 
   return (
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      bg="white"
-      _dark={{ bg: 'gray.800' }}
-      p={6}
-      transition="transform 0.2s, box-shadow 0.2s"
-      _hover={{
-        transform: 'translateY(-4px)',
-        boxShadow: 'lg',
-      }}
-    >
-      <Stack gap={4}>
-        <Flex justify="space-between" align="flex-start">
-          <Heading size="md" mb={2}>
-            {session.name}
-          </Heading>
-          <Badge colorPalette={statusColors[session.status]}>
-            {getStatusLabel(session.status, t)}
-          </Badge>
-        </Flex>
-
-        <Stack gap={3}>
-          <Flex align="center">
-            <Icon as={Calendar} boxSize={5} mr={2} color="blue.500" />
-            <Text>{displayDate}</Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={Clock} boxSize={5} mr={2} color="blue.500" />
-            <Text>{displayTime}</Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={SquareAsterisk} boxSize={5} mr={2} color="blue.500" />
-            <Text>
-              {session.numberOfCourts} {t('courtsAvailable')}
-            </Text>
-          </Flex>
-          <Flex align="center">
-            <Icon as={Users} boxSize={5} mr={2} color="blue.500" />
-            {/* <Text>
-              {session._count.players} / {maxPlayers} {t("players")}
-            </Text> */}
-          </Flex>
-          {session.requiredLevels && session.requiredLevels.length > 0 && (
-            <Flex align="flex-start">
-              <Icon as={Shield} boxSize={5} mr={2} color="blue.500" mt={0.5} />
-              <Box>
-                <Text fontSize="sm" fontWeight="semibold" mb={1}>
-                  {t('requiredLevels')}:
-                </Text>
-                <Wrap gap={1}>
-                  {session.requiredLevels.map((level) => (
-                    <Badge key={level} colorPalette="blue" fontSize="xs">
-                      {getLevelShortLabel(level)}
-                    </Badge>
-                  ))}
-                </Wrap>
-              </Box>
-            </Flex>
-          )}
-
-          {/* Player-specific info */}
-          <Box
-            mt={2}
-            p={3}
-            bg="blue.50"
-            borderRadius="md"
-            _dark={{ bg: 'blue.900' }}
-          >
-            <Text
-              fontSize="sm"
-              fontWeight="medium"
-              color="blue.700"
-              _dark={{ color: 'blue.200' }}
-            >
-              {t('yourStats')}:
-            </Text>
-            <Flex gap={4} mt={1}>
-              <Text fontSize="sm">
-                {/* {t("matches")}: {session.playerData.matchesPlayed} */}
-              </Text>
-              <Text fontSize="sm">
-                {t('waitTime')}:{' '}
-                {/* {Math.round(session.playerData.totalWaitTime / 60)}m */}
-              </Text>
-              <Text fontSize="sm">
-                {/* {t("playerNumber")}: #{session.playerData.playerNumber} */}
-              </Text>
-            </Flex>
-          </Box>
+    <BaseSessionCard
+      session={session}
+      extraInfoRows={
+        <Stack gap={2}>
+          {locationRow}
+          {playerStats}
         </Stack>
-
-        <Flex mt={4} gap={2} justify="flex-end">
-          <NextLinkButton href={`/my-session`} colorPalette="green" size="md">
-            <Eye className="mr-2 h-4 w-4" /> {t('viewSession')}
-          </NextLinkButton>
-        </Flex>
-      </Stack>
-    </Box>
+      }
+      bottomActionButtons={bottomActions}
+    />
   );
 }

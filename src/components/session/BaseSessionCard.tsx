@@ -145,11 +145,10 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? `${formatTime(session.startTime, locale)} - ${session.endTime
+        ? formatTime(session.endTime, locale)
+        : t('inProgress')
+      }`
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -341,6 +340,15 @@ const BaseSessionCard = ({
                   <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                    {session.courts && session.courts.length > 0 && (
+                      <Text as="span" ml={1}>
+                        ({session.courts
+                          .slice()
+                          .sort((a, b) => a.courtNumber - b.courtNumber)
+                          .map((c) => c.courtName || c.courtNumber)
+                          .join(', ')})
+                      </Text>
+                    )}
                   </Text>
                 </Flex>
                 <Flex align="center" gap={2}>
@@ -461,12 +469,12 @@ const BaseSessionCard = ({
                 {/* Top Action Buttons (e.g. Call, Share) */}
                 {(topActionButtons ||
                   (actionButtons && !bottomActionButtons)) && (
-                  <Box flex="1" textAlign="right">
-                    <Flex justify="flex-end" gap={2}>
-                      {topActionButtons || actionButtons}
-                    </Flex>
-                  </Box>
-                )}
+                    <Box flex="1" textAlign="right">
+                      <Flex justify="flex-end" gap={2}>
+                        {topActionButtons || actionButtons}
+                      </Flex>
+                    </Box>
+                  )}
               </Flex>
 
               {/* Row 2: Bottom Action Buttons */}

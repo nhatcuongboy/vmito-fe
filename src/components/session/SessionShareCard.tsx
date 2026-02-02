@@ -121,6 +121,7 @@ const SessionShareCard = ({
                 w="100%"
                 h="100%"
                 objectFit="cover"
+                crossOrigin="anonymous"
               />
             </Box>
             <Box p={8} textAlign="center">
@@ -205,6 +206,15 @@ const SessionShareCard = ({
                         color="gray.700"
                       >
                         {session.numberOfCourts} {t('courts')}
+                        {session.courts && session.courts.length > 0 && (
+                          <Text as="span" ml={1}>
+                            ({session.courts
+                              .slice()
+                              .sort((a, b) => a.courtNumber - b.courtNumber)
+                              .map((c) => c.courtName || c.courtNumber)
+                              .join(', ')})
+                          </Text>
+                        )}
                       </Text>
                     </Flex>
                   </Stack>
@@ -274,14 +284,14 @@ const SessionShareCard = ({
                       {session.feeConfig?.feeType === 'SPLIT_EVENLY'
                         ? session.feeConfig.splitPerPlayer
                           ? FeeService.formatFee(
-                              session.feeConfig.splitPerPlayer
-                            )
+                            session.feeConfig.splitPerPlayer
+                          )
                           : 'Chia đều'
                         : session.feeConfig?.maleFee ===
-                            session.feeConfig?.femaleFee
+                          session.feeConfig?.femaleFee
                           ? FeeService.formatFee(
-                              session.feeConfig?.maleFee || 0
-                            )
+                            session.feeConfig?.maleFee || 0
+                          )
                           : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig?.maleFee || 0)}, ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig?.femaleFee || 0)}`}
                     </Text>
                   </Flex>
@@ -313,6 +323,7 @@ const SessionShareCard = ({
           w="100%"
           h="100%"
           objectFit="cover"
+          crossOrigin="anonymous"
         />
       </Box>
 
@@ -385,6 +396,15 @@ const SessionShareCard = ({
                 <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
                 <Text fontSize="sm" fontWeight="medium" color="gray.700">
                   {session.numberOfCourts} {t('courts')}
+                  {session.courts && session.courts.length > 0 && (
+                    <Text as="span" ml={1}>
+                      ({session.courts
+                        .slice()
+                        .sort((a, b) => a.courtNumber - b.courtNumber)
+                        .map((c) => c.courtName || c.courtNumber)
+                        .join(', ')})
+                    </Text>
+                  )}
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
