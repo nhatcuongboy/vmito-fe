@@ -2,6 +2,8 @@
 
 import { Box, Spinner, Button, Text } from '@chakra-ui/react';
 import { LucideIcon } from 'lucide-react';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
 
 export interface NavigationTab {
   id: number;
@@ -23,10 +25,17 @@ export default function BottomNavigationBar({
   loadingTabId,
   onTabChange,
 }: BottomNavigationBarProps) {
+  const { isCollapsed } = useSidebar();
+
   return (
     <Box
       position="fixed"
-      left={0}
+      left={{
+        base: 0,
+        md: isCollapsed
+          ? `${SIDEBAR_WIDTH_COLLAPSED}px`
+          : `${SIDEBAR_WIDTH_EXPANDED}px`,
+      }}
       right={0}
       bottom={0}
       zIndex={100}
@@ -39,6 +48,7 @@ export default function BottomNavigationBar({
       alignItems="center"
       height="calc(64px + env(safe-area-inset-bottom))"
       paddingBottom="env(safe-area-inset-bottom)"
+      transition="left 0.3s ease"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;

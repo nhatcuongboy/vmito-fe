@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import FindSessionList from '@/components/session/FindSessionList';
 import Footer from '@/components/layout/Footer';
+import PageWrapper from '@/components/layout/PageWrapper';
 import { Image } from '@chakra-ui/react';
 import {
   CONTAINER_PX,
@@ -16,12 +17,11 @@ import {
 
 function HomeContent() {
   const t = useTranslations('session');
-  const common = useTranslations('common');
 
   return (
-    <Flex
-      direction="column"
-      minH="100vh"
+    <PageWrapper
+      display="flex"
+      flexDirection="column"
       bg="gray.50"
       _dark={{ bg: 'gray.900' }}
     >
@@ -43,7 +43,7 @@ function HomeContent() {
         <FindSessionList />
       </Container>
       <Footer />
-    </Flex>
+    </PageWrapper>
   );
 }
 export default function HomePage() {

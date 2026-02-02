@@ -13,6 +13,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useRouter, usePathname } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import PublicSessionDetailContent from '@/components/session/PublicSessionDetailContent';
+import PageWrapper from '@/components/layout/PageWrapper';
 import {
   CONTAINER_PX,
   CONTENT_PT_OFFSET,
@@ -60,7 +61,7 @@ const PublicSessionDetailClient = ({
   const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   return (
-    <>
+    <PageWrapper>
       <TopBar icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />} />
       <Box
         pt={{
@@ -92,7 +93,7 @@ const PublicSessionDetailClient = ({
           }}
         />
       )}
-    </>
+    </PageWrapper>
   );
 };
 

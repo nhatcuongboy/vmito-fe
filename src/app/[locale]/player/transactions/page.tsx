@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl';
 import { Receipt } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import TopBar from '@/components/ui/TopBar';
+import PageWrapper from '@/components/layout/PageWrapper';
 import { TransactionSummaryList } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
 import {
@@ -95,10 +96,10 @@ export default function PlayerTransactionsPage() {
       requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
     >
       <Suspense>
-        <Box minH="100vh">
+        <PageWrapper>
           <TopBar title={t('transactionHistory')} />
           <PlayerTransactionsContent />
-        </Box>
+        </PageWrapper>
       </Suspense>
     </ProtectedRouteGuard>
   );

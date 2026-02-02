@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Flex } from '@chakra-ui/react';
 import Footer from './Footer';
 import TopBar from '@/components/ui/TopBar';
@@ -5,8 +7,11 @@ import {
   TOP_BAR_HEIGHT,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
+  SIDEBAR_WIDTH_EXPANDED,
+  SIDEBAR_WIDTH_COLLAPSED,
 } from '@/constants';
 import { ReactNode } from 'react';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -25,15 +30,21 @@ export default function MainLayout({
   backgroundColor = { base: 'gray.50', _dark: 'gray.950' },
   contentPadding = 0,
 }: MainLayoutProps) {
+  const { isCollapsed } = useSidebar();
+
   return (
     <Box
       position="fixed"
       top={0}
-      left={0}
+      left={{
+        base: 0,
+        md: isCollapsed ? `${SIDEBAR_WIDTH_COLLAPSED}px` : `${SIDEBAR_WIDTH_EXPANDED}px`,
+      }}
       right={0}
       bottom={0}
       bg={backgroundColor}
       overflow="hidden"
+      transition="left 0.3s ease"
     >
       <TopBar
         title={title}

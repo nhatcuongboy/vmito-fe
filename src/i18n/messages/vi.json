@@ -79,6 +79,7 @@
     "other": "Khác",
     "preferNotToSay": "Không muốn tiết lộ",
     "level": "Trình độ",
+    "allLevels": "Tất cả trình độ",
     "selectLevel": "Chọn trình độ",
     "matchesPlayed": "Trận đã chơi",
     "pair": "Cặp",
@@ -151,6 +152,7 @@
     "setUpYourBadmintonSession": "Thiết lập kèo cầu lông của bạn",
     "startYourBadmintonJourney": "Bắt đầu hành trình cầu lông của bạn",
     "status": {
+      "all": "Tất cả",
       "preparing": "Sắp diễn ra",
       "inProgress": "Đang diễn ra",
       "finished": "Đã kết thúc"
@@ -333,6 +335,11 @@
       "splitEvenly": "Chia đều",
       "allDays": "Tất cả ngày",
       "locationPermissionDenied": "Quyền truy cập vị trí bị từ chối",
+      "sortBy": "Sắp xếp theo",
+      "sortByDate": "Ngày",
+      "sortByName": "Tên",
+      "clearFilters": "Xóa bộ lọc",
+      "searchSessions": "Tìm kiếm kèo...",
       "skillLevel": {
         "beginner": "Mới học",
         "intermediate": "Trung bình",

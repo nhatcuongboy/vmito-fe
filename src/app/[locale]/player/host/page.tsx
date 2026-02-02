@@ -1,23 +1,22 @@
 'use client';
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import { PlayerService } from '@/lib/api/player.service';
+import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
 import {
   Box,
   Container,
   Flex,
-  Grid,
   Heading,
-  Text,
   Button,
   Spinner,
 } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
-import SessionCard from '@/components/session/SessionCard';
+import SessionsList from '@/components/session/SessionsList';
 import TopBar from '@/components/ui/TopBar';
+import PageWrapper from '@/components/layout/PageWrapper';
 import { Plus } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import {
@@ -27,35 +26,93 @@ import {
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
 
+import SessionFilters from '@/components/session/SessionFilters';
+import { ISessionFilterState } from '@/components/session/SessionFilters.types';
+
 function PlayerHostContent() {
   const t = useTranslations('pages.dashboard');
   const tNav = useTranslations('navigation');
   const router = useRouter();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
+  const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<ISessionFilterState>({});
+
+  const fetchPlayerSessions = async () => {
+    try {
+      setLoading(true);
+      // Use getAvailableSessions to get full session data with fee, venue, and host info
+      const sessionData = await SessionService.getAvailableSessions();
+      // Filter for sessions hosted by current user
+      const hostedSessions = sessionData.filter((s) => s.hostId === user?.id);
+      setSessions(hostedSessions);
+      setFilteredSessions(hostedSessions);
+    } catch (err) {
+      console.error('Error fetching player sessions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchPlayerSessions() {
-      try {
-        setLoading(true);
-        const sessionData = await PlayerService.getMySessions();
-        setSessions(sessionData);
-      } catch (err) {
-        setError(t('loadingError'));
-        console.error('Error fetching player sessions:', err);
-      } finally {
-        setLoading(false);
-      }
+    if (user?.id) {
+      fetchPlayerSessions();
     }
-    fetchPlayerSessions();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
-  const hostedSessions = sessions.filter((s) => s.hostId === user?.id);
+  // Apply filters whenever filters or sessions change
+  useEffect(() => {
+    let result = [...sessions];
+
+    // Status filter
+    if (filters.status) {
+      result = result.filter((session) => session.status === filters.status);
+    }
+
+    // Date filter
+    if (filters.date) {
+      const filterDate = new Date(filters.date);
+      result = result.filter((session) => {
+        if (!session.startTime) return false;
+        const sessionDate = new Date(session.startTime);
+        return (
+          sessionDate.getFullYear() === filterDate.getFullYear() &&
+          sessionDate.getMonth() === filterDate.getMonth() &&
+          sessionDate.getDate() === filterDate.getDate()
+        );
+      });
+    }
+
+    // Search filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      result = result.filter(
+        (session) =>
+          session.name?.toLowerCase().includes(query) ||
+          session.location?.toLowerCase().includes(query) ||
+          session.venue?.name?.toLowerCase().includes(query) ||
+          session.venue?.address?.toLowerCase().includes(query)
+      );
+    }
+
+    // Default sort by date (newest first)
+    result.sort((a, b) => {
+      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    setFilteredSessions(result);
+  }, [filters, sessions]);
+
+  const handleFilterChange = (newFilters: ISessionFilterState) => {
+    setFilters(newFilters);
+  };
 
   return (
-    <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
+    <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
       <TopBar showBackButton={false} title={tNav('host')} />
 
       <Container
@@ -82,50 +139,22 @@ function PlayerHostContent() {
           </Button>
         </Flex>
 
-        {loading ? (
-          <Flex justify="center" align="center" minH="200px">
-            <Spinner size="xl" color="blue.500" />
-          </Flex>
-        ) : hostedSessions.length === 0 ? (
-          <Box
-            textAlign="center"
-            py={10}
-            px={6}
-            borderWidth={1}
-            borderRadius="lg"
-            borderStyle="dashed"
-            borderColor="gray.200"
-            bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          >
-            <Text color="gray.500" fontSize="lg" mb={4}>
-              {t('noSessionsFound')}
-            </Text>
-            <Button
-              colorPalette="blue"
-              size="sm"
-              onClick={() => router.push('/player/sessions/new')}
-            >
-              <Plus size={16} style={{ marginRight: 4 }} />
-              {t('createSession')}
-            </Button>
-          </Box>
-        ) : (
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={6}
-          >
-            {hostedSessions.map((session) => (
-              <SessionCard key={session.id} session={session} mode={'manage'} />
-            ))}
-          </Grid>
-        )}
+        <SessionFilters
+          onFilterChange={handleFilterChange}
+          showStatusFilter={true}
+          showDateFilter={true}
+          showSearchFilter={true}
+          showLevelFilter={false}
+        />
+
+        <SessionsList
+          sessions={filteredSessions}
+          isLoading={loading}
+          mode="manage"
+          onRefresh={fetchPlayerSessions}
+        />
       </Container>
-    </Box>
+    </PageWrapper>
   );
 }
 

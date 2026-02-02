@@ -27,6 +27,7 @@ import JoinSessionModal from '@/components/session/JoinSessionModal';
 import MyRegistrationModal from '@/components/session/MyRegistrationModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import SessionShareCard from '@/components/session/SessionShareCard';
+import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 
 interface PublicSessionDetailContentProps {
     sessionId: string;
@@ -228,97 +229,102 @@ export const PublicSessionDetailContent = ({
             </Flex>
         ) : null;
 
+    // Get host ID for rating stats provider
+    const hostIds = session.hostId ? [session.hostId] : [];
+
     return (
-        <Box>
-            <Flex justify="center">
-                <BaseSessionCard
-                    session={session}
-                    extraInfoRows={locationRow}
-                    registrationBadgeContent={registrationStatusBadge}
-                    actions={actions}
-                    onHostClick={onOpenHostDetailModal}
-                />
-            </Flex>
-
-
-            {showViewMore && (
-                <Flex justify="center" mt={6}>
-                    <NextLinkButton
-                        href="/"
-                        colorPalette="gray"
-                        variant="outline"
-                        size="md"
-                    >
-                        {t('viewMoreSessions') || 'Xem thêm kèo'}
-                    </NextLinkButton>
+        <RatingStatsProvider userIds={hostIds}>
+            <Box>
+                <Flex justify="center">
+                    <BaseSessionCard
+                        session={session}
+                        extraInfoRows={locationRow}
+                        registrationBadgeContent={registrationStatusBadge}
+                        actions={actions}
+                        onHostClick={onOpenHostDetailModal}
+                    />
                 </Flex>
-            )}
 
-            {/* Internal Modals */}
-            <LoginPromptModal
-                isOpen={isLoginModalOpen}
-                onClose={onCloseLoginModal}
-                returnUrl={`/sessions/${session.id}?register=true`}
-            />
 
-            <JoinSessionModal
-                isOpen={isJoinModalOpen}
-                onClose={onCloseJoinModal}
-                session={session}
-                onSuccess={() => {
-                    SessionService.getSession(session.id)
-                        .then(setSession)
-                        .catch(console.error);
-                    fetchRegistrationStatus();
-                }}
-            />
+                {showViewMore && (
+                    <Flex justify="center" mt={6}>
+                        <NextLinkButton
+                            href="/"
+                            colorPalette="gray"
+                            variant="outline"
+                            size="md"
+                        >
+                            {t('viewMoreSessions') || 'Xem thêm kèo'}
+                        </NextLinkButton>
+                    </Flex>
+                )}
 
-            <MyRegistrationModal
-                isOpen={isViewRegistrationModalOpen}
-                onClose={onCloseViewRegistrationModal}
-                session={session}
-                onWithdraw={() => {
-                    onCloseViewRegistrationModal();
-                    SessionService.getSession(session.id)
-                        .then(setSession)
-                        .catch(console.error);
-                    fetchRegistrationStatus();
-                }}
-            />
-
-            <CommonModal
-                isOpen={isHostDetailModalOpen}
-                onClose={onCloseHostDetailModal}
-                title={t('hostInfo') || 'Thông tin Host'}
-                size="md"
-                hideSecondaryAction={true}
-            >
-                <AppHostDetail
-                    userId={session.hostId}
-                    name={session.hostName || session.host?.name}
-                    image={session.host?.image || undefined}
-                    phone={session.hostPhone}
-                    email={session.host?.email}
-                    hideHeader={true}
+                {/* Internal Modals */}
+                <LoginPromptModal
+                    isOpen={isLoginModalOpen}
+                    onClose={onCloseLoginModal}
+                    returnUrl={`/sessions/${session.id}?register=true`}
                 />
-            </CommonModal>
 
-            {isOwner && (
-                <Portal>
-                    <Box
-                        position="absolute"
-                        left="-9999px"
-                        top="-9999px"
-                        zIndex={-1}
-                        pointerEvents="none"
-                    >
-                        <Box>
-                            <SessionShareCard session={session} mode="portrait" />
+                <JoinSessionModal
+                    isOpen={isJoinModalOpen}
+                    onClose={onCloseJoinModal}
+                    session={session}
+                    onSuccess={() => {
+                        SessionService.getSession(session.id)
+                            .then(setSession)
+                            .catch(console.error);
+                        fetchRegistrationStatus();
+                    }}
+                />
+
+                <MyRegistrationModal
+                    isOpen={isViewRegistrationModalOpen}
+                    onClose={onCloseViewRegistrationModal}
+                    session={session}
+                    onWithdraw={() => {
+                        onCloseViewRegistrationModal();
+                        SessionService.getSession(session.id)
+                            .then(setSession)
+                            .catch(console.error);
+                        fetchRegistrationStatus();
+                    }}
+                />
+
+                <CommonModal
+                    isOpen={isHostDetailModalOpen}
+                    onClose={onCloseHostDetailModal}
+                    title={t('hostInfo') || 'Thông tin Host'}
+                    size="md"
+                    hideSecondaryAction={true}
+                >
+                    <AppHostDetail
+                        userId={session.hostId}
+                        name={session.hostName || session.host?.name}
+                        image={session.host?.image || undefined}
+                        phone={session.hostPhone}
+                        email={session.host?.email}
+                        hideHeader={true}
+                    />
+                </CommonModal>
+
+                {isOwner && (
+                    <Portal>
+                        <Box
+                            position="absolute"
+                            left="-9999px"
+                            top="-9999px"
+                            zIndex={-1}
+                            pointerEvents="none"
+                        >
+                            <Box>
+                                <SessionShareCard session={session} mode="portrait" />
+                            </Box>
                         </Box>
-                    </Box>
-                </Portal>
-            )}
-        </Box>
+                    </Portal>
+                )}
+            </Box>
+        </RatingStatsProvider>
     );
 };
 

@@ -1,14 +1,15 @@
 'use client';
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import { PlayerService } from '@/lib/api/player.service';
+import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import { Box, Container, Grid, Heading, Spinner, Text } from '@chakra-ui/react';
+import { Box, Container, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
-import SessionCard from '@/components/session/SessionCard';
+import SessionsList from '@/components/session/SessionsList';
 import { useAuthStore } from '@/stores/useAuthStore';
 import TopBar from '@/components/ui/TopBar';
+import PageWrapper from '@/components/layout/PageWrapper';
 import { Flex } from '@chakra-ui/react';
 import {
   CONTAINER_PX,
@@ -17,36 +18,94 @@ import {
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
 
+import SessionFilters from '@/components/session/SessionFilters';
+import { ISessionFilterState } from '@/components/session/SessionFilters.types';
+
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
-  const tCommon = useTranslations('common');
-  const tSession = useTranslations('session');
-
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
+  const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<ISessionFilterState>({});
+
+  const fetchPlayerSessions = async () => {
+    try {
+      setLoading(true);
+      // Use getAvailableSessions to get full session data with fee, venue, and host info
+      const sessionData = await SessionService.getAvailableSessions();
+      // Filter for sessions where user is not the host (joined sessions)
+      const joinedSessions = sessionData.filter(
+        (session) => session.hostId !== user?.id
+      );
+      setSessions(joinedSessions);
+      setFilteredSessions(joinedSessions);
+    } catch (err) {
+      console.error('Error fetching player sessions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchPlayerSessions() {
-      try {
-        setLoading(true);
-        const sessionData = await PlayerService.getMySessions();
-        setSessions(sessionData);
-      } catch (err) {
-        console.error('Error fetching player sessions:', err);
-      } finally {
-        setLoading(false);
-      }
+    if (user?.id) {
+      fetchPlayerSessions();
     }
-    fetchPlayerSessions();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
-  const joinedSessions = sessions.filter(
-    (session) => session.hostId !== user?.id
-  );
+  // Apply filters whenever filters or sessions change
+  useEffect(() => {
+    let result = [...sessions];
+
+    // Status filter
+    if (filters.status) {
+      result = result.filter((session) => session.status === filters.status);
+    }
+
+    // Date filter
+    if (filters.date) {
+      const filterDate = new Date(filters.date);
+      result = result.filter((session) => {
+        if (!session.startTime) return false;
+        const sessionDate = new Date(session.startTime);
+        return (
+          sessionDate.getFullYear() === filterDate.getFullYear() &&
+          sessionDate.getMonth() === filterDate.getMonth() &&
+          sessionDate.getDate() === filterDate.getDate()
+        );
+      });
+    }
+
+    // Search filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      result = result.filter(
+        (session) =>
+          session.name?.toLowerCase().includes(query) ||
+          session.location?.toLowerCase().includes(query) ||
+          session.venue?.name?.toLowerCase().includes(query) ||
+          session.venue?.address?.toLowerCase().includes(query) ||
+          session.host?.name?.toLowerCase().includes(query)
+      );
+    }
+
+    // Default sort by date (newest first)
+    result.sort((a, b) => {
+      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    setFilteredSessions(result);
+  }, [filters, sessions]);
+
+  const handleFilterChange = (newFilters: ISessionFilterState) => {
+    setFilters(newFilters);
+  };
 
   return (
-    <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
+    <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
       <TopBar showBackButton={false} title={t('joined')} />
 
       <Container
@@ -58,33 +117,22 @@ function PlayerSessionsContent() {
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
       >
-        {loading ? (
-          <Flex justify="center" align="center" minH="200px">
-            <Spinner size="xl" color="blue.500" />
-          </Flex>
-        ) : joinedSessions.length === 0 ? (
-          <Box textAlign="center" py={10}>
-            <Heading size="md" mb={2}>
-              {tSession('noSessionsFound')}
-            </Heading>
-            <Text color="gray.500">{tSession('noSessionsDescription')}</Text>
-          </Box>
-        ) : (
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={6}
-          >
-            {joinedSessions.map((session) => (
-              <SessionCard key={session.id} session={session} mode="view" />
-            ))}
-          </Grid>
-        )}
+        <SessionFilters
+          onFilterChange={handleFilterChange}
+          showStatusFilter={true}
+          showDateFilter={true}
+          showSearchFilter={true}
+          showLevelFilter={false}
+        />
+
+        <SessionsList
+          sessions={filteredSessions}
+          isLoading={loading}
+          mode="view"
+          onRefresh={fetchPlayerSessions}
+        />
       </Container>
-    </Box>
+    </PageWrapper>
   );
 }
 

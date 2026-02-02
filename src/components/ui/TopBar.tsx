@@ -1,9 +1,15 @@
 'use client';
 
-import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
+import {
+  TOP_BAR_HEIGHT_DESKTOP,
+  TOP_BAR_HEIGHT_MOBILE,
+  SIDEBAR_WIDTH_EXPANDED,
+  SIDEBAR_WIDTH_COLLAPSED,
+} from '@/constants';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSidebar } from '@/contexts/SidebarContext';
 import {
   Box,
   Button,
@@ -42,6 +48,7 @@ export default function TopBar({
   const { isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const locale = useLocale();
   const router = useRouter();
+  const { isCollapsed, toggleCollapse } = useSidebar();
 
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -65,7 +72,7 @@ export default function TopBar({
         top={0}
         left={0}
         right={0}
-        zIndex={999}
+        zIndex={1700}
         bg="bg"
         backdropFilter="blur(10px)"
         borderBottom="1px solid"
@@ -80,14 +87,22 @@ export default function TopBar({
         }}
         paddingTop="env(safe-area-inset-top)"
         color="fg"
+        transition="all 0.3s ease"
       >
-        <Container maxW="container.xl" height="100%" px="16px">
+        <Container maxW="full" height="100%" px="16px">
           <Flex justify="space-between" align="center" height="100%" py={0}>
             {/* Left side - Menu, Logo & Back button */}
             <Flex height="100%" alignItems="center" gap={2}>
               <IconButton
                 aria-label="Open menu"
-                onClick={onMenuOpen}
+                onClick={() => {
+                  const isMobile = window.innerWidth < 768;
+                  if (isMobile) {
+                    onMenuOpen();
+                  } else {
+                    toggleCollapse();
+                  }
+                }}
                 variant="ghost"
                 color="fg"
                 _hover={{ bg: 'bg.muted' }}

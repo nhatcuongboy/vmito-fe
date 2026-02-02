@@ -154,7 +154,8 @@
     "manageSession": "主持人",
     "host": "主办方",
     "deleteSession": "删除",
-    "viewSession": "查看",
+    "viewSession": "进入球场",
+    "view": "查看",
     "deleteConfirmation": "您确定要删除此场次吗？",
     "notStarted": "未开始",
     "notStartedYet": "尚未开始",
@@ -379,10 +380,13 @@
       "venueMatched": "Venue matched: {venueName}"
     },
     "linkCopied": "链接已复制",
+    "shareCardHeader": "招募羽毛球球友",
+    "shareCardFooter": "连接你的热爱，在 VMITO.COM 轻松找球场",
     "hostedBy": "主办方",
     "dateNotSet": "未设定日期",
     "timeNotSet": "未设定时间",
     "courts": "场地",
+    "viewMoreSessions": "查看更多场次",
     "quickCreate": {
       "placeholder": "{name}，你想创建什么？",
       "aiPlaceholder": "使用 AI 快速创建场次...",
@@ -1350,6 +1354,8 @@
     "numberOfCourts": "场地数量",
     "maxPlayersPerCourt": "每场最大人数",
     "shuttlecock": "用球",
+    "maxPlayers": "最多 {count} 人",
+    "maxPlayersTitle": "最多",
     "description": "描述",
     "status": "状态",
     "notStartedYet": "尚未开始",
@@ -1599,24 +1605,25 @@
   },
   "auth": {
     "signin": {
-      "title": "Sign In",
-      "appTitle": "Badminton Session Manager",
-      "description": "Sign in to manage your badminton sessions",
-      "email": "Email",
-      "emailPlaceholder": "Enter your email",
-      "password": "Password",
-      "passwordPlaceholder": "Enter your password",
-      "signInButton": "Sign In",
-      "continueWithGoogle": "Continue with Google",
-      "noAccount": "Don't have an account?",
-      "signUp": "Sign up",
-      "or": "Or",
-      "joinAsGuest": "join a session as guest",
-      "invalidCredentials": "Invalid credentials",
-      "loginSuccessful": "Login successful",
-      "loginFailed": "Login failed",
-      "authenticationFailed": "Authentication failed",
-      "invalidEmailOrPassword": "Invalid email or password"
+      "title": "登录",
+      "appTitle": "羽毛球场次管理器",
+      "description": "登录以管理您的羽毛球场次",
+      "email": "邮箱",
+      "emailPlaceholder": "输入您的邮箱",
+      "password": "密码",
+      "passwordPlaceholder": "输入您的密码",
+      "signInButton": "登录",
+      "continueWithGoogle": "使用 Google 继续",
+      "noAccount": "还没有账户？",
+      "signUp": "注册",
+      "or": "或",
+      "joinAsGuest": "以访客身份加入场次",
+      "invalidCredentials": "凭据无效",
+      "loginSuccessful": "登录成功",
+      "loginFailed": "登录失败",
+      "authenticationFailed": "身份验证失败",
+      "invalidEmailOrPassword": "邮箱或密码无效",
+      "tooManyRequests": "请求过多。请稍后重试。"
     },
     "signup": {
       "title": "注册",
@@ -1638,7 +1645,9 @@
       "passwordsDoNotMatch": "密码不匹配",
       "passwordTooShort": "密码至少需要 6 个字符",
       "accountCreated": "账户创建成功！请登录。",
-      "registrationFailed": "注册失败"
+      "registrationFailed": "注册失败",
+      "userAlreadyExists": "用户已存在",
+      "tooManyRequests": "请求过多。请稍后重试。"
     },
     "guard": {
       "authenticating": "正在验证...",
@@ -1649,7 +1658,8 @@
       "yourRole": "您的角色：",
       "unknown": "未知",
       "goHome": "返回首页"
-    }
+    },
+    "tooManyRequests": "请求过多。请稍后重试。"
   },
   "admin": {
     "title": "管理员",
@@ -1921,5 +1931,30 @@
     "reviews": "评价",
     "cancel": "取消",
     "rated": "已评价"
+  },
+  "notification": {
+    "notifications": "通知",
+    "noNotifications": "暂无通知",
+    "markAsRead": "标记为已读",
+    "markAllAsRead": "全部标记为已读",
+    "delete": "删除",
+    "new": "新",
+    "broadcastNotifications": "广播通知",
+    "broadcastDescription": "向系统中的所有用户发送通知",
+    "notificationTitle": "标题",
+    "notificationMessage": "消息",
+    "titlePlaceholder": "输入通知标题...",
+    "messagePlaceholder": "输入通知消息...",
+    "preview": "预览",
+    "sendToAllUsers": "发送给所有用户",
+    "broadcastSuccess": "通知发送成功",
+    "broadcastError": "发送通知失败",
+    "usersNotified": "用户已通知",
+    "types": {
+      "SYSTEM": "系统",
+      "SESSION": "场次",
+      "REGISTRATION": "注册",
+      "PAYMENT": "支付"
+    }
   }
 }

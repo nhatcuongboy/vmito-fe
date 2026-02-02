@@ -91,14 +91,23 @@ export default function SessionsList({
   }, [locale, t, isExternalControl]);
 
   // Filter sessions by status
-  const filteredSessions =
-    status === 'ALL'
-      ? sessions
-      : status === 'UPCOMING_AND_INPROGRESS'
-        ? sessions.filter(
-          (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
-        )
-        : sessions.filter((s) => s.status === status);
+  const filteredSessions = useMemo(() => {
+    let result =
+      status === 'ALL'
+        ? sessions
+        : status === 'UPCOMING_AND_INPROGRESS'
+          ? sessions.filter(
+            (s) => s.status === 'PREPARING' || s.status === 'IN_PROGRESS'
+          )
+          : sessions.filter((s) => s.status === status);
+
+    // Default sort by date (newest first)
+    return [...result].sort((a, b) => {
+      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
+      return dateB - dateA;
+    });
+  }, [sessions, status]);
 
   // Extract unique host IDs for batch rating stats loading
   const hostIds = useMemo(() => {

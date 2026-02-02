@@ -1,13 +1,19 @@
 'use client';
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  IconButton,
+  Text,
+  Stack,
+  Button,
+} from '@chakra-ui/react';
 import {
   Home,
   Info,
   X,
   LogIn,
-  Search,
   Receipt,
   CreditCard,
   LayoutDashboard,
@@ -15,14 +21,23 @@ import {
   Ticket,
   Moon,
   Sun,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LanguageSwitcher from './LanguageSwitcher';
 import { UserRole } from '@/lib/api/types';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+  SIDEBAR_WIDTH_EXPANDED,
+  SIDEBAR_WIDTH_COLLAPSED,
+} from '@/constants';
 import { useColorMode } from './color-mode-provider';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { Tooltip } from './tooltip';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -34,14 +49,19 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const { colorMode, toggleColorMode } = useColorMode();
+  const { isCollapsed, toggleCollapse } = useSidebar();
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay - Mobile only */}
       {isOpen && (
         <Box
+          display={{ base: 'block', md: 'none' }}
           position="fixed"
-          top={0}
+          top={{
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+          }}
           left={0}
           right={0}
           bottom={0}
@@ -54,229 +74,262 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
       {/* Slide-out Menu */}
       <Box
         position="fixed"
-        top={0}
+        top={{
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+        }}
         left={0}
         bottom={0}
-        width="320px"
+        width={{
+          base: '240px',
+          md: isCollapsed ? `${SIDEBAR_WIDTH_COLLAPSED}px` : `${SIDEBAR_WIDTH_EXPANDED}px`,
+        }}
         bg="bg"
         shadow="xl"
         zIndex={1600}
-        transform={isOpen ? 'translateX(0)' : 'translateX(-100%)'}
-        transition="transform 0.3s ease"
+        transform={{
+          base: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          md: 'translateX(0)',
+        }}
+        transition="width 0.3s ease, transform 0.3s ease"
+        borderRight="1px solid"
+        borderColor="border"
         overflowY="auto"
       >
-        {/* Header */}
-        <Flex
-          justify="space-between"
-          align="center"
-          px={4}
-          paddingTop="env(safe-area-inset-top)"
-          borderBottomWidth="1px"
-          borderColor="border"
-          height={{
-            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-          }}
-          minHeight={{
-            base: `${TOP_BAR_HEIGHT_MOBILE}px`,
-            md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
-          }}
-        >
-          <Text fontSize="xl" fontWeight="bold">
-            Menu
-          </Text>
-          <IconButton
-            aria-label="Close menu"
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-          >
-            <X size={20} />
-          </IconButton>
-        </Flex>
 
         {/* Body */}
-        <Box p={4}>
+        <Box p={{ base: 4, md: isCollapsed ? 2 : 4 }}>
           <Stack gap={6}>
-            {/* Settings Section */}
+            {/* Main Navigation Section */}
             <Box>
-              <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
-                Main
-              </Text>
+              {!isCollapsed && (
+                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3} display={{ base: 'block', md: 'block' }}>
+                  Main
+                </Text>
+              )}
               <Stack gap={2}>
-                <NextLinkButton
-                  href="/"
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  onClick={onClose}
-                  w="full"
+                <Tooltip
+                  content={nav('home')}
+                  positioning={{ placement: 'right' }}
+                  disabled={!isCollapsed}
+                  openDelay={200}
                 >
-                  <Flex align="center" gap={3} w="full">
-                    <Home size={18} />
-                    <Text>{nav('home')}</Text>
-                  </Flex>
-                </NextLinkButton>
-                {isAuthenticated && user?.role !== UserRole.PLAYER && (
                   <NextLinkButton
-                    href={
-                      user?.role === UserRole.HOST ||
-                      user?.role === UserRole.ADMIN
-                        ? '/host/dashboard'
-                        : '/'
-                    }
+                    href="/"
                     variant="ghost"
-                    justifyContent="flex-start"
+                    justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
                     onClick={onClose}
                     w="full"
+                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                   >
-                    <Flex align="center" gap={3} w="full">
-                      <LayoutDashboard size={18} />
-                      <Text>{nav('browse')}</Text>
+                    <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                      <Home size={18} />
+                      {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('home')}</Text>}
                     </Flex>
                   </NextLinkButton>
+                </Tooltip>
+
+                {isAuthenticated && user?.role !== UserRole.PLAYER && (
+                  <Tooltip
+                    content={nav('browse')}
+                    positioning={{ placement: 'right' }}
+                    disabled={!isCollapsed}
+                    openDelay={200}
+                  >
+                    <NextLinkButton
+                      href={
+                        user?.role === UserRole.HOST ||
+                          user?.role === UserRole.ADMIN
+                          ? '/host/dashboard'
+                          : '/'
+                      }
+                      variant="ghost"
+                      justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                      onClick={onClose}
+                      w="full"
+                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    >
+                      <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                        <LayoutDashboard size={18} />
+                        {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('browse')}</Text>}
+                      </Flex>
+                    </NextLinkButton>
+                  </Tooltip>
                 )}
 
                 {isAuthenticated && (
                   <>
-                    <NextLinkButton
-                      href={
-                        user?.role === UserRole.HOST ||
-                        user?.role === UserRole.ADMIN
-                          ? '/host/sessions'
-                          : '/player/host'
-                      }
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={onClose}
-                      w="full"
+                    <Tooltip
+                      content={nav('host')}
+                      positioning={{ placement: 'right' }}
+                      disabled={!isCollapsed}
+                      openDelay={200}
                     >
-                      <Flex align="center" gap={3} w="full">
-                        <Calendar size={18} />
-                        <Text>{nav('host')}</Text>
-                      </Flex>
-                    </NextLinkButton>
+                      <NextLinkButton
+                        href={
+                          user?.role === UserRole.HOST ||
+                            user?.role === UserRole.ADMIN
+                            ? '/host/sessions'
+                            : '/player/host'
+                        }
+                        variant="ghost"
+                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                          <Calendar size={18} />
+                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('host')}</Text>}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
 
-                    <NextLinkButton
-                      href="/player/sessions"
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={onClose}
-                      w="full"
+                    <Tooltip
+                      content={nav('joined')}
+                      positioning={{ placement: 'right' }}
+                      disabled={!isCollapsed}
+                      openDelay={200}
                     >
-                      <Flex align="center" gap={3} w="full">
-                        <Ticket size={18} />
-                        <Text>{nav('joined')}</Text>
-                      </Flex>
-                    </NextLinkButton>
+                      <NextLinkButton
+                        href="/player/sessions"
+                        variant="ghost"
+                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                          <Ticket size={18} />
+                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('joined')}</Text>}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
 
-                    <NextLinkButton
-                      href={
-                        user?.role === UserRole.HOST ||
-                        user?.role === UserRole.ADMIN
-                          ? '/host/transactions'
-                          : '/player/transactions'
-                      }
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={onClose}
-                      w="full"
+                    <Tooltip
+                      content={nav('transactions')}
+                      positioning={{ placement: 'right' }}
+                      disabled={!isCollapsed}
+                      openDelay={200}
                     >
-                      <Flex align="center" gap={3} w="full">
-                        <Receipt size={18} />
-                        <Text>{nav('transactions')}</Text>
-                      </Flex>
-                    </NextLinkButton>
+                      <NextLinkButton
+                        href={
+                          user?.role === UserRole.HOST ||
+                            user?.role === UserRole.ADMIN
+                            ? '/host/transactions'
+                            : '/player/transactions'
+                        }
+                        variant="ghost"
+                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                          <Receipt size={18} />
+                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('transactions')}</Text>}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
                   </>
                 )}
+
                 {isAuthenticated &&
                   (user?.role === UserRole.HOST ||
                     user?.role === UserRole.ADMIN) && (
-                    <NextLinkButton
-                      href="/host/payment-settings"
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={onClose}
-                      w="full"
+                    <Tooltip
+                      content={nav('paymentSettings')}
+                      positioning={{ placement: 'right' }}
+                      disabled={!isCollapsed}
+                      openDelay={200}
                     >
-                      <Flex align="center" gap={3} w="full">
-                        <CreditCard size={18} />
-                        <Text>{nav('paymentSettings')}</Text>
-                      </Flex>
-                    </NextLinkButton>
+                      <NextLinkButton
+                        href="/host/payment-settings"
+                        variant="ghost"
+                        justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                          <CreditCard size={18} />
+                          {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{nav('paymentSettings')}</Text>}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
                   )}
-                {/* <NextLinkButton
-                  href="/settings"
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  onClick={onClose}
-                  w="full"
+
+                <Tooltip
+                  content={common('about')}
+                  positioning={{ placement: 'right' }}
+                  disabled={!isCollapsed}
+                  openDelay={200}
                 >
-                  <Flex align="center" gap={3} w="full">
-                    <Settings size={18} />
-                    <Text>{common('settings')}</Text>
-                  </Flex>
-                </NextLinkButton> */}
-                <NextLinkButton
-                  href="/about"
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  onClick={onClose}
-                  w="full"
-                >
-                  <Flex align="center" gap={3} w="full">
-                    <Info size={18} />
-                    <Text>{common('about')}</Text>
-                  </Flex>
-                </NextLinkButton>
-                {/* <NextLinkButton
-                  href="/browse/tournaments"
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  onClick={onClose}
-                  w="full"
-                >
-                  <Flex align="center" gap={3} w="full">
-                    <Trophy size={18} />
-                    <Text>{nav('tournaments')}</Text>
-                  </Flex>
-                </NextLinkButton> */}
+                  <NextLinkButton
+                    href="/about"
+                    variant="ghost"
+                    justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                    onClick={onClose}
+                    w="full"
+                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                  >
+                    <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                      <Info size={18} />
+                      {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>{common('about')}</Text>}
+                    </Flex>
+                  </NextLinkButton>
+                </Tooltip>
               </Stack>
             </Box>
 
             {/* Language Switcher */}
-            <Box>
-              <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
-                {common('language')}
-              </Text>
-              <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
-                <LanguageSwitcher keepDrawerOpen={false} />
-              </Suspense>
-            </Box>
+            {!isCollapsed && (
+              <Box display={{ base: 'block', md: 'block' }}>
+                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+                  {common('language')}
+                </Text>
+                <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
+                  <LanguageSwitcher keepDrawerOpen={false} />
+                </Suspense>
+              </Box>
+            )}
 
             {/* Theme Toggle */}
             <Box>
-              <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
-                {common('theme')}
-              </Text>
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                w="full"
-                onClick={toggleColorMode}
+              {!isCollapsed && (
+                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3} display={{ base: 'block', md: 'block' }}>
+                  {common('theme')}
+                </Text>
+              )}
+              <Tooltip
+                content={colorMode === 'dark' ? common('lightMode') : common('darkMode')}
+                positioning={{ placement: 'right' }}
+                disabled={!isCollapsed}
+                openDelay={200}
               >
-                <Flex align="center" gap={3} w="full">
-                  {colorMode === 'dark' ? (
-                    <Sun size={18} />
-                  ) : (
-                    <Moon size={18} />
-                  )}
-                  <Text>
-                    {colorMode === 'dark'
-                      ? common('lightMode')
-                      : common('darkMode')}
-                  </Text>
-                </Flex>
-              </Button>
+                <Button
+                  variant="ghost"
+                  justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                  w="full"
+                  onClick={toggleColorMode}
+                  px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                >
+                  <Flex align="center" gap={3} w="full" justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                    {colorMode === 'dark' ? (
+                      <Sun size={18} />
+                    ) : (
+                      <Moon size={18} />
+                    )}
+                    {!isCollapsed && (
+                      <Text display={{ base: 'block', md: 'block' }}>
+                        {colorMode === 'dark'
+                          ? common('lightMode')
+                          : common('darkMode')}
+                      </Text>
+                    )}
+                  </Flex>
+                </Button>
+              </Tooltip>
             </Box>
 
             {/* Footer */}
@@ -284,27 +337,40 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               {/* Login Button - Only show when NOT logged in and finished loading */}
               {isHydrated && !isLoading && !isAuthenticated && (
                 <Box mb={4}>
-                  <NextLinkButton
-                    href="/auth/signin"
-                    variant="outline"
-                    colorPalette="blue"
-                    w="full"
-                    onClick={onClose}
+                  <Tooltip
+                    content="Login"
+                    positioning={{ placement: 'right' }}
+                    disabled={!isCollapsed}
+                    openDelay={200}
                   >
-                    <Flex align="center" gap={2}>
-                      <LogIn size={16} />
-                      <Text>Login</Text>
-                    </Flex>
-                  </NextLinkButton>
+                    <NextLinkButton
+                      href="/auth/signin"
+                      variant="outline"
+                      colorPalette="blue"
+                      w="full"
+                      onClick={onClose}
+                      justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}
+                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    >
+                      <Flex align="center" gap={2} justifyContent={{ base: 'flex-start', md: isCollapsed ? 'center' : 'flex-start' }}>
+                        <LogIn size={16} />
+                        {!isCollapsed && <Text display={{ base: 'block', md: 'block' }}>Login</Text>}
+                      </Flex>
+                    </NextLinkButton>
+                  </Tooltip>
                 </Box>
               )}
 
-              <Text fontSize="xs" color="gray.500" textAlign="center">
-                {common('appName')}
-              </Text>
-              <Text fontSize="xs" color="gray.400" textAlign="center">
-                © {new Date().getFullYear()}
-              </Text>
+              {!isCollapsed && (
+                <>
+                  <Text fontSize="xs" color="gray.500" textAlign="center" display={{ base: 'block', md: 'block' }}>
+                    {common('appName')}
+                  </Text>
+                  <Text fontSize="xs" color="gray.400" textAlign="center" display={{ base: 'block', md: 'block' }}>
+                    © {new Date().getFullYear()}
+                  </Text>
+                </>
+              )}
             </Box>
           </Stack>
         </Box>

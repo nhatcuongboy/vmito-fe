@@ -31,6 +31,7 @@ import {
   Phone,
   Share2,
   Download,
+  User,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -460,6 +461,9 @@ const BaseSessionCard = ({
         }}
         maxW="400px"
         w="100%"
+        display="flex"
+        flexDirection="column"
+        height="100%"
       >
         {/* Level Color Strip */}
         <Flex
@@ -509,8 +513,8 @@ const BaseSessionCard = ({
         </Box>
 
         {/* Content Section */}
-        <Box p={5}>
-          <Stack gap={4}>
+        <Box p={5} pb={2} flex="1" display="flex" flexDirection="column">
+          <Stack gap={4} flex="1">
             {/* Title */}
             <Heading size="lg" fontWeight="bold">
               {convertedSession.title}
@@ -611,7 +615,7 @@ const BaseSessionCard = ({
                   </Text>
                 </Flex>
                 <Flex align="center" gap={2}>
-                  <Icon as={Users} boxSize={5} color="blue.500" />
+                  <Icon as={User} boxSize={5} color="blue.500" />
                   <Text fontSize="sm">
                     {convertedSession.totalPlayers}/
                     {convertedSession.maxPlayers} {t('players')}
@@ -682,7 +686,8 @@ const BaseSessionCard = ({
             {/* Footer: Price + Actions */}
             <Stack
               gap={3}
-              pt={4}
+              pt={3}
+              mt="auto"
               borderTopWidth="1px"
               borderTopColor="gray.200"
               _dark={{ borderTopColor: 'gray.700' }}

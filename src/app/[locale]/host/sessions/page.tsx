@@ -1,5 +1,5 @@
 'use client';
-import { UserRole, SessionStatus } from '@/lib/api/types';
+import { UserRole } from '@/lib/api/types';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import SessionsList from '@/components/session/SessionsList';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
@@ -13,23 +13,32 @@ import {
   CONTENT_PT_OFFSET,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
+  SIDEBAR_WIDTH_EXPANDED,
+  SIDEBAR_WIDTH_COLLAPSED,
 } from '@/constants';
+import SessionFilters from '@/components/session/SessionFilters';
+import { ISessionFilterState } from '@/components/session/SessionFilters.types';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 function HostSessionsContent() {
   const t = useTranslations('pages.host');
-  // const common = useTranslations('common');
-  const [status, setStatus] = useState<string>('ALL');
+  const [filters, setFilters] = useState<ISessionFilterState>({});
+  const { isCollapsed } = useSidebar();
 
-  const statusOptions = [
-    { value: 'ALL', label: t('sessionStatus.all') },
-    { value: SessionStatus.PREPARING, label: t('sessionStatus.preparing') },
-    { value: SessionStatus.IN_PROGRESS, label: t('sessionStatus.inProgress') },
-    { value: SessionStatus.FINISHED, label: t('sessionStatus.finished') },
-  ];
+  const handleFilterChange = (newFilters: ISessionFilterState) => {
+    setFilters(newFilters);
+  };
 
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
-      <Box minH="100vh">
+      <Box
+        minH="100vh"
+        ml={{
+          base: 0,
+          md: isCollapsed ? `${SIDEBAR_WIDTH_COLLAPSED}px` : `${SIDEBAR_WIDTH_EXPANDED}px`,
+        }}
+        transition="margin-left 0.3s ease"
+      >
         {/* Top Bar */}
         <TopBar
           showBackButton={true}
@@ -46,25 +55,6 @@ function HostSessionsContent() {
           }}
           pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
         >
-          {/* Filter */}
-          <Flex mb={4} justify="flex-end">
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: '1px solid #CBD5E0',
-                minWidth: 160,
-              }}
-            >
-              {statusOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </Flex>
           {/* My Sessions Content Only */}
           <Flex mb={6} justify="space-between" alignItems="center">
             <Heading as="h2" size="xl" textAlign="left">
@@ -74,8 +64,20 @@ function HostSessionsContent() {
               <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
             </NextLinkButton>
           </Flex>
+
+          <SessionFilters
+            onFilterChange={handleFilterChange}
+            showStatusFilter={true}
+            showDateFilter={true}
+            showSearchFilter={true}
+            showLevelFilter={false}
+          />
+
           <VStack gap={6} alignItems="stretch">
-            <SessionsList status={status} mode="manage" />
+            <SessionsList
+              status={filters.status || 'ALL'}
+              mode="manage"
+            />
           </VStack>
         </Container>
       </Box>

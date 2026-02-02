@@ -1,6 +1,7 @@
 'use client';
 
 import TopBar from '@/components/ui/TopBar';
+import PageWrapper from '@/components/layout/PageWrapper';
 import { Box, Container, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import * as React from 'react';
@@ -21,7 +22,7 @@ function AboutContent({ locale }: AboutClientProps) {
   const t = useTranslations('pages.home');
 
   return (
-    <Box minH="100vh" pb="0">
+    <PageWrapper pb="0">
       {/* Top Bar */}
       <TopBar showBackButton={true} />
 
@@ -50,7 +51,7 @@ function AboutContent({ locale }: AboutClientProps) {
           </Flex>
         </Container>
       </Box>
-    </Box>
+    </PageWrapper>
   );
 }
 
