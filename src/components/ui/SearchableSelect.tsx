@@ -76,17 +76,82 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filter options based on search query
+  // Fuzzy search function with scoring
+  const fuzzyMatch = (
+    text: string,
+    query: string
+  ): { matches: boolean; score: number } => {
+    const textLower = text.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    let textIndex = 0;
+    let queryIndex = 0;
+    let score = 0;
+    let consecutiveMatches = 0;
+
+    while (textIndex < textLower.length && queryIndex < queryLower.length) {
+      if (textLower[textIndex] === queryLower[queryIndex]) {
+        // Award points for matches
+        score += 1;
+
+        // Bonus points for consecutive matches
+        consecutiveMatches++;
+        if (consecutiveMatches > 1) {
+          score += consecutiveMatches * 2;
+        }
+
+        // Bonus points for matching at the start
+        if (queryIndex === 0 && textIndex === 0) {
+          score += 10;
+        }
+
+        // Bonus points for matching after a space (word boundary)
+        if (textIndex > 0 && textLower[textIndex - 1] === ' ') {
+          score += 5;
+        }
+
+        queryIndex++;
+      } else {
+        consecutiveMatches = 0;
+      }
+      textIndex++;
+    }
+
+    // All query characters must be found in order
+    const matches = queryIndex === queryLower.length;
+
+    // Penalize based on length difference
+    if (matches) {
+      const lengthDiff = text.length - query.length;
+      score -= lengthDiff * 0.5;
+    }
+
+    return { matches, score };
+  };
+
+  // Filter and sort options based on fuzzy search query
   const filteredOptions = useMemo(() => {
     if (!searchQuery.trim()) {
       return options;
     }
-    const query = searchQuery.toLowerCase().trim();
-    return options.filter((option) =>
-      String(option.label || '')
-        .toLowerCase()
-        .includes(query)
-    );
+
+    const query = searchQuery.trim();
+
+    // Map options with their match scores
+    const scoredOptions = options
+      .map((option) => {
+        const result = fuzzyMatch(String(option.label || ''), query);
+        return {
+          option,
+          matches: result.matches,
+          score: result.score,
+        };
+      })
+      .filter((item) => item.matches)
+      .sort((a, b) => b.score - a.score) // Sort by score descending
+      .map((item) => item.option);
+
+    return scoredOptions;
   }, [options, searchQuery]);
 
   // Find selected option label
@@ -254,8 +319,12 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   left="3"
                   top="50%"
                   transform="translateY(-50%)"
-                  color="fg.muted"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
                   pointerEvents="none"
+                  zIndex="2"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
                 >
                   <Search size={16} />
                 </Box>
