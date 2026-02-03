@@ -335,10 +335,6 @@
       "splitEvenly": "Chia đều",
       "allDays": "Tất cả ngày",
       "locationPermissionDenied": "Quyền truy cập vị trí bị từ chối",
-      "sortBy": "Sắp xếp theo",
-      "sortByDate": "Ngày",
-      "sortByName": "Tên",
-      "clearFilters": "Xóa bộ lọc",
       "searchSessions": "Tìm kiếm kèo...",
       "skillLevel": {
         "beginner": "Mới học",
@@ -423,6 +419,41 @@
       "rating": "Đánh giá",
       "call": "Gọi điện",
       "email": "Email"
+    },
+    "bulkCreation": {
+      "title": "Tạo nhiều kèo",
+      "description": "Chọn cách tạo kèo: tạo một lần, clone sang nhiều ngày cụ thể, hoặc tạo theo lịch định kỳ",
+      "singleMode": "Chỉ tạo một kèo",
+      "singleModeDesc": "Tạo kèo với thông tin đã nhập",
+      "specificDatesMode": "Clone sang các ngày cụ thể",
+      "specificDatesDesc": "Chọn các ngày từ lịch để tạo kèo với cùng thông tin",
+      "recurringMode": "Lịch định kỳ theo ngày trong tuần",
+      "recurringModeDesc": "Chọn các ngày trong tuần và số tuần để tạo kèo tự động",
+      "selectWeekdays": "Chọn các ngày trong tuần:",
+      "numberOfWeeks": "Số tuần:",
+      "weeksUnit": "tuần (tối đa 52)",
+      "selectedDates": "Các ngày đã chọn ({count}):",
+      "selectedWeekdays": "Các ngày đã chọn:",
+      "totalSessions": "Tổng số kèo sẽ tạo:",
+      "sessionsPerWeek": "ngày/tuần",
+      "totalSessionsCalc": "{perWeek} ngày/tuần × {weeks} tuần = {total} kèo",
+      "weekdays": {
+        "monday": "Thứ 2",
+        "tuesday": "Thứ 3",
+        "wednesday": "Thứ 4",
+        "thursday": "Thứ 5",
+        "friday": "Thứ 6",
+        "saturday": "Thứ 7",
+        "sunday": "Chủ nhật",
+        "mon": "T2",
+        "tue": "T3",
+        "wed": "T4",
+        "thu": "T5",
+        "fri": "T6",
+        "sat": "T7",
+        "sun": "CN"
+      },
+      "addDate": "Thêm ngày"
     }
   },
   "court": {
@@ -1657,10 +1688,11 @@
       "loginFailed": "Đăng nhập thất bại",
       "authenticationFailed": "Xác thực thất bại",
       "invalidEmailOrPassword": "Email hoặc mật khẩu không hợp lệ",
-      "emailRequired": "Vui lòng nhập email",
+      "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+      "sessionConflict": "Bạn đã đăng xuất vì đã đăng nhập từ một thiết bị hoặc trình duyệt khác. Vui lòng đăng nhập lại.",
       "invalidEmail": "Email không hợp lệ",
-      "passwordRequired": "Vui lòng nhập mật khẩu",
-      "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau."
+      "emailRequired": "Vui lòng nhập email",
+      "passwordRequired": "Vui lòng nhập mật khẩu"
     },
     "signup": {
       "title": "Đăng ký",

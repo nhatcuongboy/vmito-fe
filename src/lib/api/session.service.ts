@@ -8,6 +8,8 @@ import {
   Match,
   PlayerStatistics,
   CreateSessionRequest,
+  BulkSessionCreationRequest,
+  BulkSessionCreationResponse,
 } from './types';
 
 export const SessionService = {
@@ -130,6 +132,22 @@ export const SessionService = {
    */
   createSession: async (data: CreateSessionRequest): Promise<ISession> => {
     const response = await api.post<ApiResponse<ISession>>('/sessions', data);
+    return response.data.data!;
+  },
+
+  // Create multiple sessions at once
+  /**
+   * Create multiple sessions at once (bulk creation)
+   * @param data - Bulk session creation data with mode (single, specific-dates, recurring-weekdays)
+   * @returns Response with created sessions or errors
+   */
+  createBulkSessions: async (
+    data: BulkSessionCreationRequest
+  ): Promise<BulkSessionCreationResponse> => {
+    const response = await api.post<ApiResponse<BulkSessionCreationResponse>>(
+      '/sessions/bulk',
+      data
+    );
     return response.data.data!;
   },
 

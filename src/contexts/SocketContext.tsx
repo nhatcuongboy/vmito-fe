@@ -6,7 +6,7 @@ import { io, Socket } from 'socket.io-client';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
-import { INotification, ISessionConflictData } from '@/lib/api/types';
+import { INotification } from '@/lib/api/types';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -129,36 +129,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     };
 
-    // Listener for Session Conflict (MINIMUM ESSENTIAL)
-    const handleSessionConflict = (data: ISessionConflictData) => {
-      console.warn('[Socket] Session conflict detected:', data);
-
-      // Prevent auto-reconnect
-      if (socket) {
-        socket.io.opts.reconnection = false;
-        socket.disconnect();
-      }
-
-      // Show immediate notification
-      toaster.error({
-        title: 'Session Conflict',
-        description:
-          'You have been logged in from another location. Logging out in 3 seconds...',
-        duration: 3000,
-      });
-
-      // Auto logout and redirect after delay
-      setTimeout(() => {
-        // Clear auth state
-        useAuthStore.getState().clearAuth();
-
-        // Redirect to login with reason
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login?reason=session_conflict';
-        }
-      }, 3000);
-    };
-
     // Listener for Real-time Notifications
     const handleNotificationReceived = (data: INotification) => {
       console.log('[Socket] Notification received:', {
@@ -202,7 +172,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
     socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
-    socket.on('session_conflict', handleSessionConflict);
     socket.on(
       SessionEventType.NOTIFICATION_RECEIVED,
       handleNotificationReceived
@@ -217,13 +186,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         SessionEventType.REGISTRATION_STATUS_UPDATED,
         handleStatusUpdate
       );
-      socket.off('session_conflict', handleSessionConflict);
       socket.off(
         SessionEventType.NOTIFICATION_RECEIVED,
         handleNotificationReceived
       );
     };
-  }, [socket, user]);
+  }, [socket]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

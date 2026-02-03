@@ -419,6 +419,41 @@
       "rating": "Rating",
       "call": "Call Host",
       "email": "Email"
+    },
+    "bulkCreation": {
+      "title": "Bulk Create Sessions",
+      "description": "Choose how to create sessions: single, clone to specific dates, or recurring schedule",
+      "singleMode": "Single session",
+      "singleModeDesc": "Create one session with provided details",
+      "specificDatesMode": "Clone to specific dates",
+      "specificDatesDesc": "Pick dates from calendar to create sessions with same details",
+      "recurringMode": "Recurring schedule",
+      "recurringModeDesc": "Select weekdays and number of weeks to create sessions automatically",
+      "selectWeekdays": "Select weekdays:",
+      "numberOfWeeks": "Number of weeks:",
+      "weeksUnit": "weeks (max 52)",
+      "selectedDates": "Selected dates ({count}):",
+      "selectedWeekdays": "Selected weekdays:",
+      "totalSessions": "Total sessions to be created:",
+      "sessionsPerWeek": "days/week",
+      "totalSessionsCalc": "{perWeek} days/week × {weeks} weeks = {total} sessions",
+      "weekdays": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "addDate": "Add date"
     }
   },
   "court": {
@@ -1654,7 +1689,10 @@
       "authenticationFailed": "Authentication failed",
       "invalidEmailOrPassword": "Invalid email or password",
       "tooManyRequests": "Too many requests. Please try again later.",
-      "sessionConflict": "You were logged out because you signed in from another device or browser. Please sign in again."
+      "sessionConflict": "You were logged out because you signed in from another device or browser. Please sign in again.",
+      "invalidEmail": "Invalid email address",
+      "emailRequired": "Please enter your email",
+      "passwordRequired": "Please enter your password"
     },
     "signup": {
       "title": "Sign Up",
@@ -1677,6 +1715,11 @@
       "passwordTooShort": "Password must be at least 6 characters",
       "accountCreated": "Account created successfully! Please sign in.",
       "registrationFailed": "Registration failed",
+      "nameRequired": "Please enter your name",
+      "emailRequired": "Please enter your email",
+      "invalidEmail": "Invalid email address",
+      "passwordRequired": "Please enter your password",
+      "confirmPasswordRequired": "Please confirm your password",
       "userAlreadyExists": "User already exists",
       "tooManyRequests": "Too many requests. Please try again later."
     },

@@ -36,7 +36,6 @@ import JoinSessionModal from './JoinSessionModal';
 import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { CommonModal } from '@/components/ui/CommonModal';
-import PublicSessionDetailContent from './PublicSessionDetailContent';
 import AppHostDetail from './AppHostDetail';
 
 // Time range definitions
@@ -80,8 +79,6 @@ export default function FindSessionList({
     clearLocation,
   } = useSessionFilterStore();
 
-  const [isLocating, setIsLocating] = useState(false);
-
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
@@ -115,7 +112,7 @@ export default function FindSessionList({
         name.replace(/^(Quận|Huyện|Thành phố|Thị xã)\s+/i, '').trim();
 
       // Prepare filters for API
-      const apiFilters: any = {
+      const apiFilters: Record<string, unknown> = {
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME instead of CODE
@@ -285,7 +282,7 @@ export default function FindSessionList({
     }
 
     try {
-      setIsLocating(true);
+      setLoading(true);
       const location = await getUserLocation();
       setUserLocation(location);
       setSortByDistance(true);
@@ -300,7 +297,7 @@ export default function FindSessionList({
       });
       setSortByDistance(false);
     } finally {
-      setIsLocating(false);
+      setLoading(false);
     }
   };
 

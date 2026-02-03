@@ -94,7 +94,13 @@
     "displayLanguage": "语言",
     "vietnamese": "越南语",
     "english": "英语",
-    "chinese": "中文"
+    "chinese": "中文",
+    "allLevels": "所有级别",
+    "change": "更改",
+    "uploading": "上传中...",
+    "pleaseSelectImageFile": "请选择图片文件",
+    "fileSizeTooLarge": "文件大小必须小于 5MB",
+    "imageProcessingFailed": "处理图片失败。请尝试其他文件。"
   },
   "session": {
     "title": "羽毛球场次",
@@ -147,7 +153,8 @@
     "status": {
       "preparing": "准备中",
       "inProgress": "进行中",
-      "finished": "已结束"
+      "finished": "已结束",
+      "all": "所有"
     },
     "courtsAvailable": "场地",
     "players": "玩家",
@@ -173,7 +180,6 @@
     "automaticallyCalculated": "根据开始/结束时间自动计算",
     "whenTheSessionWillBegin": "场次开始时间",
     "whenTheSessionWillEnd": "场次结束时间",
-    "endTimeMustBeAfterStartTime": "结束时间必须晚于开始时间",
     "maxPlayersDescription": "每块场地允许的最大玩家数（4-12）",
     "requirePlayerInformation": "需要玩家信息",
     "collectPlayerInformation": "收集玩家信息",
@@ -222,7 +228,8 @@
       "sessionNotFoundDescription": "您正在寻找的场次可能已被删除或不存在。",
       "cannotEditCourtsWithPlayers": "已有玩家加入，无法编辑场地配置",
       "cannotEditTimeWhenActive": "场次进行中，无法编辑时间",
-      "levelRequired": "请选择等级"
+      "levelRequired": "请选择等级",
+      "endTimeMustBeAfterStartTime": "结束时间必须晚于开始时间"
     },
     "generalSettings": {
       "selectVenue": "选择场地...",
@@ -256,7 +263,8 @@
       "selectedLevels": "已选等级",
       "playerImpactWarning": "⚠️ 等级不在新列表中的玩家可能需要更新他们的个人资料，或者可能会被限制未来的操作。",
       "confirmChange": "确认更改",
-      "cancel": "取消"
+      "cancel": "取消",
+      "searchVenue": "搜索场地..."
     },
     "addPlayers": "添加玩家",
     "addPlayersToSession": "添加玩家到场次",
@@ -329,7 +337,10 @@
         "intermediate": "中级",
         "advanced": "高级",
         "allLevels": "所有级别"
-      }
+      },
+      "searchSessions": "搜索场次...",
+      "date": "日期",
+      "quickFilters": "快速筛选"
     },
     "clearFilters": "清除筛选",
     "noSessionsFound": "未找到场次",
@@ -391,7 +402,59 @@
       "placeholder": "{name}，你想创建什么？",
       "aiPlaceholder": "使用 AI 快速创建场次...",
       "createButton": "创建场次"
-    }
+    },
+    "hostDetail": {
+      "title": "主办方信息",
+      "contact": "联系方式",
+      "rating": "评分",
+      "call": "拨打电话",
+      "email": "电子邮件"
+    },
+    "bulkCreation": {
+      "title": "批量创建场次",
+      "description": "选择创建方式：单次创建、复制到特定日期或定期日程",
+      "singleMode": "单场次",
+      "singleModeDesc": "使用提供的详细信息创建一个场次",
+      "specificDatesMode": "复制到特定日期",
+      "specificDatesDesc": "从日历中选择日期以使用相同详细信息创建场次",
+      "recurringMode": "定期日程",
+      "recurringModeDesc": "选择星期几和周数以自动创建场次",
+      "selectWeekdays": "选择星期：",
+      "numberOfWeeks": "周数：",
+      "weeksUnit": "周（最多 52）",
+      "selectedDates": "已选日期 ({count}):",
+      "selectedWeekdays": "已选星期：",
+      "totalSessions": "将创建的总场数：",
+      "sessionsPerWeek": "天/周",
+      "totalSessionsCalc": "{perWeek} 天/周 × {weeks} 周 = {total} 场",
+      "weekdays": {
+        "monday": "星期一",
+        "tuesday": "星期二",
+        "wednesday": "星期三",
+        "thursday": "星期四",
+        "friday": "星期五",
+        "saturday": "星期六",
+        "sunday": "星期日",
+        "mon": "周一",
+        "tue": "周二",
+        "wed": "周三",
+        "thu": "周四",
+        "fri": "周五",
+        "sat": "周六",
+        "sun": "周日"
+      },
+      "addDate": "添加日期"
+    },
+    "sessionDetails": "场次详情",
+    "coverPhoto": "封面图片",
+    "clickToUploadCoverPhoto": "点击上传封面图片",
+    "coverPhotoHint": "推荐：1200x630px，最大 5MB",
+    "coverPhotoUploaded": "封面图片上传成功",
+    "coverPhotoUploadFailed": "上传封面图片失败",
+    "coverPhotoRemoved": "封面图片已移除",
+    "coverPhotoRemoveFailed": "移除封面图片失败",
+    "downloadImage": "下载图片",
+    "imageDownloadSuccess": "图片下载成功"
   },
   "court": {
     "title": "场地",
@@ -1555,7 +1618,9 @@
     "allowGuestJoin": "允许访客加入",
     "allowNewPlayers": "允许新玩家",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "distance": "距离",
+    "km": "公里"
   },
   "SessionPlayers": {
     "errorLoadingStats": "加载玩家统计数据失败。",
@@ -1623,7 +1688,11 @@
       "loginFailed": "登录失败",
       "authenticationFailed": "身份验证失败",
       "invalidEmailOrPassword": "邮箱或密码无效",
-      "tooManyRequests": "请求过多。请稍后重试。"
+      "tooManyRequests": "请求过多。请稍后重试。",
+      "sessionConflict": "您已退出登录，因为您已从另一台设备或浏览器登录。请重新登录。",
+      "invalidEmail": "邮箱格式无效",
+      "emailRequired": "请填写邮箱",
+      "passwordRequired": "请填写密码"
     },
     "signup": {
       "title": "注册",
@@ -1646,6 +1715,11 @@
       "passwordTooShort": "密码至少需要 6 个字符",
       "accountCreated": "账户创建成功！请登录。",
       "registrationFailed": "注册失败",
+      "nameRequired": "请输入姓名",
+      "emailRequired": "请输入邮箱",
+      "invalidEmail": "邮箱格式不正确",
+      "passwordRequired": "请输入密码",
+      "confirmPasswordRequired": "请确认您的密码",
       "userAlreadyExists": "用户已存在",
       "tooManyRequests": "请求过多。请稍后重试。"
     },

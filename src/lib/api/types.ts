@@ -417,6 +417,41 @@ export interface CreateSessionRequest {
   courts?: CourtConfig[];
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
+}
+
+// Bulk session creation types
+export type BulkCreationMode =
+  | 'single'
+  | 'specific-dates'
+  | 'recurring-weekdays';
+
+export interface SpecificDatesConfig {
+  dates: Date[]; // Array of specific dates to clone the session to
+}
+
+export interface RecurringWeekdaysConfig {
+  weekdays: number[]; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  numberOfWeeks: number; // Number of weeks to repeat
+  startDate?: Date; // Optional start date, defaults to session startTime
+}
+
+export interface BulkSessionCreationRequest {
+  mode: BulkCreationMode;
+  baseSession: CreateSessionRequest;
+  specificDates?: SpecificDatesConfig;
+  recurringWeekdays?: RecurringWeekdaysConfig;
+}
+
+export interface BulkSessionCreationResponse {
+  success: boolean;
+  sessionsCreated: number;
+  sessions: ISession[];
+  errors?: Array<{
+    date: string;
+    error: string;
+  }>;
 }
 
 // Suggested players response types

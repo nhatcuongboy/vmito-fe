@@ -85,6 +85,12 @@ import { ExtractedSessionData } from '@/lib/api/ai.service';
 import TopBar from '@/components/ui/TopBar';
 import CoverPhotoUpload from '@/components/session/CoverPhotoUpload';
 import LevelRequirementsCard from '@/components/session/LevelRequirementsCard';
+import { BulkSessionDateSelector } from '@/components/session/BulkSessionDateSelector';
+import {
+  BulkCreationMode,
+  SpecificDatesConfig,
+  RecurringWeekdaysConfig,
+} from '@/lib/api/types';
 
 function formatDateTimeLocal(date: Date): string {
   if (!date) return '';
@@ -177,8 +183,8 @@ export default function SessionForm({
   const hasPlayers =
     isEditMode &&
     initialData &&
-    ((initialData.players?.length || 0) > 0 ||
-      (initialData.pendingPlayers?.length || 0) > 0);
+    ((initialData?.players?.length || 0) > 0 ||
+      (initialData?.pendingPlayers?.length || 0) > 0);
 
   const isSessionActive =
     isEditMode && initialData?.status === SessionStatus.IN_PROGRESS;
@@ -221,7 +227,7 @@ export default function SessionForm({
         allowNewPlayers: initialData.allowNewPlayers ?? true,
         allLevelsSelected:
           !initialData.requiredLevels ||
-          initialData.requiredLevels.length === 0,
+          initialData.requiredLevels?.length === 0,
         requiredLevels: initialData.requiredLevels || [],
         shuttlecock: initialData.shuttlecock || '',
       };
@@ -304,6 +310,18 @@ export default function SessionForm({
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | undefined>(
     initialData?.coverPhoto
   );
+  const [coverPhotoPublicId, setCoverPhotoPublicId] = useState<
+    string | undefined
+  >(initialData?.coverPhotoPublicId);
+
+  // Bulk creation state
+  const [bulkMode, setBulkMode] = useState<BulkCreationMode>('single');
+  const [specificDatesConfig, setSpecificDatesConfig] = useState<
+    SpecificDatesConfig | undefined
+  >(undefined);
+  const [recurringWeekdaysConfig, setRecurringWeekdaysConfig] = useState<
+    RecurringWeekdaysConfig | undefined
+  >(undefined);
 
   // Computed session duration
   const sessionDuration = useMemo(() => {
@@ -545,6 +563,8 @@ export default function SessionForm({
               : undefined,
           courtColor: data.courtColor,
           shuttlecock: data.shuttlecock?.trim() || '',
+          coverPhoto: !coverPhotoFile ? coverPhotoUrl : undefined,
+          coverPhotoPublicId: !coverPhotoFile ? coverPhotoPublicId : undefined,
           venue: venueData,
           feeConfig: feeConfigData,
 
@@ -566,8 +586,8 @@ export default function SessionForm({
           }),
         });
       } else {
-        // Create logic
-        session = await SessionService.createSession({
+        // Create logic - support both single and bulk creation
+        const baseSessionData = {
           name: data.name,
           description: data.description?.trim() || '',
           hostName: data.hostName.trim(),
@@ -587,6 +607,8 @@ export default function SessionForm({
           endTime: new Date(data.endTime),
           courtColor: data.courtColor,
           shuttlecock: data.shuttlecock?.trim() || '',
+          coverPhoto: !coverPhotoFile ? coverPhotoUrl : undefined,
+          coverPhotoPublicId: !coverPhotoFile ? coverPhotoPublicId : undefined,
           venue: venueData,
           courts: data.courts.map((court) => ({
             courtNumber: court.courtNumber,
@@ -594,7 +616,36 @@ export default function SessionForm({
             direction: CourtDirection.HORIZONTAL,
           })),
           feeConfig: feeConfigData,
-        });
+        };
+
+        // Check if bulk creation is enabled
+        if (bulkMode === 'single') {
+          // Single session creation
+          session = await SessionService.createSession(baseSessionData);
+        } else {
+          // Bulk session creation
+          const bulkResult = await SessionService.createBulkSessions({
+            mode: bulkMode,
+            baseSession: baseSessionData,
+            specificDates: specificDatesConfig,
+            recurringWeekdays: recurringWeekdaysConfig,
+          });
+
+          if (!bulkResult.success || bulkResult.sessions.length === 0) {
+            throw new Error(
+              t('validation.bulkCreationFailed') || 'Failed to create sessions'
+            );
+          }
+
+          // Use the first session as the main session to navigate to
+          session = bulkResult.sessions[0];
+
+          // Show success message with count
+          toaster.success({
+            title: t('bulkCreationSuccess') || 'Sessions created successfully',
+            description: `${bulkResult.sessionsCreated} ${t('sessionsCreated') || 'sessions created'}`,
+          });
+        }
       }
 
       // Handle default cover photo upload for new session
@@ -756,6 +807,9 @@ export default function SessionForm({
                               file
                             );
                           setCoverPhotoUrl(updatedSession.coverPhoto);
+                          setCoverPhotoPublicId(
+                            updatedSession.coverPhotoPublicId
+                          );
                           toaster.success({
                             title:
                               t('coverPhotoUploaded') ||
@@ -1140,75 +1194,77 @@ export default function SessionForm({
             </Box>
 
             {/* Court Appearance Section */}
-            <Box
-              bg={{ base: 'white', _dark: 'gray.800' }}
-              p={6}
-              borderRadius="lg"
-              boxShadow="sm"
-              border="1px solid"
-              borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
-            >
-              <Heading size="md" mb={4}>
-                {t('courtAppearance')}
-              </Heading>
-              <Text fontSize="sm" color="fg.muted" mb={4}>
-                {t('selectCourtColor')}
-              </Text>
+            {user?.role !== UserRole.PLAYER && (
+              <Box
+                bg={{ base: 'white', _dark: 'gray.800' }}
+                p={6}
+                borderRadius="lg"
+                boxShadow="sm"
+                border="1px solid"
+                borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
+              >
+                <Heading size="md" mb={4}>
+                  {t('courtAppearance')}
+                </Heading>
+                <Text fontSize="sm" color="fg.muted" mb={4}>
+                  {t('selectCourtColor')}
+                </Text>
 
-              <Controller
-                control={control}
-                name="courtColor"
-                render={({ field }) => (
-                  <Wrap gap={4}>
-                    {COURT_COLORS.map((color) => {
-                      const isSelected = field.value === color.value;
-                      return (
-                        <WrapItem key={color.value}>
-                          <VStack>
-                            <Box
-                              w="60px"
-                              h="60px"
-                              borderRadius="md"
-                              bg={color.value}
-                              cursor="pointer"
-                              position="relative"
-                              onClick={() => field.onChange(color.value)}
-                              border="3px solid"
-                              borderColor={
-                                isSelected ? 'blue.500' : 'transparent'
-                              }
-                              boxShadow={isSelected ? 'lg' : 'sm'}
-                              transition="all 0.2s"
-                              _hover={{
-                                transform: 'scale(1.05)',
-                                boxShadow: 'md',
-                              }}
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="center"
-                            >
+                <Controller
+                  control={control}
+                  name="courtColor"
+                  render={({ field }) => (
+                    <Wrap gap={4}>
+                      {COURT_COLORS.map((color) => {
+                        const isSelected = field.value === color.value;
+                        return (
+                          <WrapItem key={color.value}>
+                            <VStack>
                               <Box
-                                w="40px"
-                                h="30px"
-                                border="1px solid white"
-                                position="absolute"
-                                opacity={0.7}
-                              />
-                            </Box>
-                            <Text
-                              fontSize="xs"
-                              fontWeight={isSelected ? 'bold' : 'normal'}
-                            >
-                              {color.name}
-                            </Text>
-                          </VStack>
-                        </WrapItem>
-                      );
-                    })}
-                  </Wrap>
-                )}
-              />
-            </Box>
+                                w="60px"
+                                h="60px"
+                                borderRadius="md"
+                                bg={color.value}
+                                cursor="pointer"
+                                position="relative"
+                                onClick={() => field.onChange(color.value)}
+                                border="3px solid"
+                                borderColor={
+                                  isSelected ? 'blue.500' : 'transparent'
+                                }
+                                boxShadow={isSelected ? 'lg' : 'sm'}
+                                transition="all 0.2s"
+                                _hover={{
+                                  transform: 'scale(1.05)',
+                                  boxShadow: 'md',
+                                }}
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                              >
+                                <Box
+                                  w="40px"
+                                  h="30px"
+                                  border="1px solid white"
+                                  position="absolute"
+                                  opacity={0.7}
+                                />
+                              </Box>
+                              <Text
+                                fontSize="xs"
+                                fontWeight={isSelected ? 'bold' : 'normal'}
+                              >
+                                {color.name}
+                              </Text>
+                            </VStack>
+                          </WrapItem>
+                        );
+                      })}
+                    </Wrap>
+                  )}
+                />
+              </Box>
+            )}
 
             {/* Max Players & Shuttlecock Section */}
             <Box
@@ -1352,6 +1408,16 @@ export default function SessionForm({
                   />
                 </Stack>
               </Box>
+            )}
+
+            {/* Bulk Session Creation Section - Only show in create mode */}
+            {!isEditMode && user?.role !== UserRole.PLAYER && (
+              <BulkSessionDateSelector
+                baseStartTime={startTime ? new Date(startTime) : undefined}
+                onModeChange={setBulkMode}
+                onSpecificDatesChange={setSpecificDatesConfig}
+                onRecurringWeekdaysChange={setRecurringWeekdaysConfig}
+              />
             )}
 
             {/* Fee Configuration Section */}

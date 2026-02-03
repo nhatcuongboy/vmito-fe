@@ -48,14 +48,6 @@ function SignInForm() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // Show session conflict warning
-  useEffect(() => {
-    const reason = searchParams.get('reason');
-    if (reason === 'session_conflict') {
-      setFormError(t('sessionConflict'));
-    }
-  }, [searchParams, t]);
-
   // Handle redirect for already authenticated users (e.g., direct URL access)
   useEffect(() => {
     if (!isHydrated) return;
