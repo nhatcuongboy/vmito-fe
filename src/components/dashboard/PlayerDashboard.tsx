@@ -64,7 +64,7 @@ export default function PlayerDashboard() {
             <Button
               colorPalette="blue"
               size="sm"
-              onClick={() => router.push('/player/sessions/new')}
+              onClick={() => router.push('/sessions/new')}
             >
               <Plus size={16} style={{ marginRight: 4 }} />
               {t('createSession')}

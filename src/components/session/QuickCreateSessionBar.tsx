@@ -28,11 +28,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
   if (!user) return null;
 
   const handleCreateClick = () => {
-    if (user.role === UserRole.HOST) {
-      router.push('/host/sessions/new');
-    } else {
-      router.push('/player/sessions/new');
-    }
+    router.push('/sessions/new');
   };
 
   return (

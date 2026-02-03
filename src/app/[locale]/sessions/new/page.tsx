@@ -2,16 +2,15 @@
 
 import { useRouter } from '@/i18n/config';
 import NewSessionForm from '@/components/session/NewSessionForm';
-
 import { Suspense } from 'react';
 
-export default function PlayerNewSessionPage() {
+export default function NewSessionPage() {
   const router = useRouter();
 
   return (
     <Suspense>
       <NewSessionForm
-        backHref="/player/sessions"
+        backHref="/host/sessions"
         onSuccess={(session) => router.push(`/sessions/${session.id}`)}
       />
     </Suspense>

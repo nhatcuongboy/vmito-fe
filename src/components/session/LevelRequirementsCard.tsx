@@ -101,13 +101,13 @@ export default function LevelRequirementsCard({
       border="1px solid"
       borderColor="border"
     >
-      <Heading size="md" mb={1}>
+      <Heading size="md" mb={4}>
         {t('generalSettings.requiredPlayerLevels')}
       </Heading>
 
-      <Text fontSize="sm" color="fg.muted" mb={4}>
+      {/* <Text fontSize="sm" color="fg.muted" mb={4}>
         {t('generalSettings.selectRequiredLevels')}
-      </Text>
+      </Text> */}
 
       <Stack gap={3}>
         {/* All Levels Button */}
@@ -115,28 +115,17 @@ export default function LevelRequirementsCard({
           type="button"
           size="md"
           width="full"
-          variant={allLevelsSelected ? 'solid' : 'outline'}
+          variant={allLevelsSelected ? 'subtle' : 'outline'}
           colorPalette="blue"
-          bg={
-            allLevelsSelected
-              ? 'blue.600'
-              : { base: 'white', _dark: 'gray.700' }
-          }
-          color={allLevelsSelected ? 'white' : 'fg'}
-          borderColor={allLevelsSelected ? 'blue.600' : 'border'}
-          borderWidth="2px"
           onClick={handleSelectAllLevels}
-          fontWeight="medium"
+          fontWeight="semibold"
           h="44px"
+          borderRadius="full"
+          transition="all 0.15s ease"
           _hover={{
-            bg: allLevelsSelected
-              ? 'blue.700'
-              : { base: 'gray.50', _dark: 'gray.600' },
-            borderColor: allLevelsSelected ? 'blue.700' : 'blue.400',
             transform: 'translateY(-1px)',
             shadow: 'sm',
           }}
-          transition="all 0.15s ease"
         >
           <HStack gap={2}>
             {allLevelsSelected && <Check size={18} strokeWidth={3} />}
@@ -182,16 +171,7 @@ export default function LevelRequirementsCard({
                 transition="all 0.15s ease"
               >
                 <HStack gap={1.5}>
-                  {isSelected ? (
-                    <Check size={13} strokeWidth={3} />
-                  ) : (
-                    <Box
-                      w="8px"
-                      h="8px"
-                      borderRadius="full"
-                      bg={levelColor.color}
-                    />
-                  )}
+                  {isSelected && <Check size={13} strokeWidth={3} />}
                   <Text fontSize="xs" fontWeight="medium">
                     {getLevelShortLabel(level)}
                   </Text>

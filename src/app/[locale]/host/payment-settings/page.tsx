@@ -19,6 +19,13 @@ import { PaymentSettingsForm } from '@/components/payment';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { HostPaymentSettings, UserRole } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
+import PageWrapper from '@/components/layout/PageWrapper';
+import {
+  CONTAINER_PX,
+  CONTENT_PT_OFFSET,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 function PaymentSettingsContent() {
   const t = useTranslations('payment');
@@ -134,7 +141,15 @@ function PaymentSettingsContent() {
   }
 
   return (
-    <Container maxW="container.md" py={6}>
+    <Container
+      maxW="container.md"
+      px={CONTAINER_PX}
+      pt={{
+        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+      }}
+      pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
+    >
       <VStack gap={6} align="stretch">
         <HStack justify="space-between">
           <HStack>
@@ -276,10 +291,10 @@ export default function PaymentSettingsPage() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Suspense>
-        <Box minH="100vh">
+        <PageWrapper minH="100vh">
           <TopBar title={t('settings')} />
           <PaymentSettingsContent />
-        </Box>
+        </PageWrapper>
       </Suspense>
     </ProtectedRouteGuard>
   );

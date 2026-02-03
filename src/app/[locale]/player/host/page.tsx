@@ -3,14 +3,7 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  Button,
-  Spinner,
-} from '@chakra-ui/react';
+import { Container, Flex, Heading, Button, Spinner } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
@@ -131,7 +124,7 @@ function PlayerHostContent() {
           <Button
             colorPalette="blue"
             size="sm"
-            onClick={() => router.push('/player/sessions/new')}
+            onClick={() => router.push('/sessions/new')}
             loading={loading}
           >
             <Plus size={16} style={{ marginRight: 4 }} />

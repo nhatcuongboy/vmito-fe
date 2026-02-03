@@ -251,7 +251,7 @@
       "allowGuestJoinDesc": "Allow guests to join without registration",
       "allowNewPlayers": "Allow New Players",
       "allowNewPlayersDesc": "Allow new players to join during session",
-      "requiredPlayerLevels": "Required Player Levels",
+      "requiredPlayerLevels": "Level Requirements",
       "selectRequiredLevels": "Select required levels for this session. Leave empty to allow all levels.",
       "levelsSelected": "✓ {count} level(s) selected",
       "allLevelsSelected": "⚠️ All levels selected. Consider leaving empty to allow all levels.",

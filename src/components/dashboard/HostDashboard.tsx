@@ -58,7 +58,7 @@ export default function HostDashboard() {
             </Heading>
             <Flex gap={4}>
               <NextLinkButton
-                href="/host/sessions/new"
+                href="/sessions/new"
                 colorPalette="blue"
                 size="lg"
               >

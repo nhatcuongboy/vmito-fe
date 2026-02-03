@@ -251,7 +251,7 @@
       "allowGuestJoinDesc": "Cho phép khách tham gia mà không cần đăng ký",
       "allowNewPlayers": "Cho phép người chơi mới",
       "allowNewPlayersDesc": "Cho phép người chơi mới tham gia trong thời gian diễn ra",
-      "requiredPlayerLevels": "Yêu cầu trình độ người chơi",
+      "requiredPlayerLevels": "Trình độ yêu cầu ",
       "selectRequiredLevels": "Chọn trình độ yêu cầu cho kèo này. Để trống để cho phép tất cả trình độ.",
       "levelsSelected": "✓ Đã chọn {count} trình độ",
       "allLevelsSelected": "⚠️ Đã chọn tất cả trình độ. Cân nhắc để trống để cho phép mọi trình độ.",

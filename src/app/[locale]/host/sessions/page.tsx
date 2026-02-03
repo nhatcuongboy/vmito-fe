@@ -18,12 +18,11 @@ import {
 } from '@/constants';
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
-import { useSidebar } from '@/contexts/SidebarContext';
+import PageWrapper from '@/components/layout/PageWrapper';
 
 function HostSessionsContent() {
   const t = useTranslations('pages.host');
   const [filters, setFilters] = useState<ISessionFilterState>({});
-  const { isCollapsed } = useSidebar();
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
@@ -31,16 +30,7 @@ function HostSessionsContent() {
 
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
-      <Box
-        minH="100vh"
-        ml={{
-          base: 0,
-          md: isCollapsed
-            ? `${SIDEBAR_WIDTH_COLLAPSED}px`
-            : `${SIDEBAR_WIDTH_EXPANDED}px`,
-        }}
-        transition="margin-left 0.3s ease"
-      >
+      <PageWrapper minH="100vh">
         {/* Top Bar */}
         <TopBar
           showBackButton={true}
@@ -62,7 +52,7 @@ function HostSessionsContent() {
             <Heading as="h2" size="xl" textAlign="left">
               {t('header')}
             </Heading>
-            <NextLinkButton href="/host/sessions/new" colorPalette="blue">
+            <NextLinkButton href="/sessions/new" colorPalette="blue">
               <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
             </NextLinkButton>
           </Flex>
@@ -79,7 +69,7 @@ function HostSessionsContent() {
             <SessionsList status={filters.status || 'ALL'} mode="manage" />
           </VStack>
         </Container>
-      </Box>
+      </PageWrapper>
     </ProtectedRouteGuard>
   );
 }

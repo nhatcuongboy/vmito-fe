@@ -81,6 +81,7 @@ import { Select } from '@/components/ui/Select';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
+import { Tooltip } from '@/components/ui/tooltip';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import TopBar from '@/components/ui/TopBar';
 import CoverPhotoUpload from '@/components/session/CoverPhotoUpload';
@@ -91,6 +92,7 @@ import {
   SpecificDatesConfig,
   RecurringWeekdaysConfig,
 } from '@/lib/api/types';
+import PageWrapper from '@/components/layout/PageWrapper';
 
 function formatDateTimeLocal(date: Date): string {
   if (!date) return '';
@@ -687,7 +689,7 @@ export default function SessionForm({
   };
 
   return (
-    <Box
+    <PageWrapper
       minH={isEditMode ? undefined : '100vh'}
       bg={isEditMode ? 'transparent' : { base: 'gray.50', _dark: 'gray.950' }}
     >
@@ -709,21 +711,26 @@ export default function SessionForm({
             onSuccess={handleAISuccess}
           />
 
-          <Box position="fixed" bottom="24px" right="24px" zIndex={1000}>
-            <Button
-              type="button"
-              colorPalette="purple"
-              onClick={() => setIsAIModalOpen(true)}
-              boxShadow="lg"
-              _hover={{
-                transform: 'scale(1.05)',
-                boxShadow: 'xl',
-              }}
-              transition="all 0.2s"
-            >
-              <Sparkles size={20} style={{ marginRight: '8px' }} />
-              {t('createByAI')}
-            </Button>
+          <Box position="fixed" bottom="30px" right="24px" zIndex={1000}>
+            <Tooltip content={t('createByAI')} showArrow portalled>
+              <Button
+                type="button"
+                colorPalette="purple"
+                onClick={() => setIsAIModalOpen(true)}
+                boxShadow="0 4px 15px rgba(138, 43, 226, 0.4)"
+                borderRadius="full"
+                h="56px"
+                w="56px"
+                p={0}
+                _hover={{
+                  transform: 'scale(1.1)',
+                  boxShadow: '0 8px 25px rgba(138, 43, 226, 0.5)',
+                }}
+                transition="all 0.2s"
+              >
+                <Sparkles size={24} />
+              </Button>
+            </Tooltip>
           </Box>
         </>
       )}
@@ -1467,6 +1474,6 @@ export default function SessionForm({
           </Stack>
         </form>
       </Container>
-    </Box>
+    </PageWrapper>
   );
 }

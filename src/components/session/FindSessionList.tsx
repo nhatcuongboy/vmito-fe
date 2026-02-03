@@ -372,12 +372,7 @@ export default function FindSessionList({
     // Save data to session storage to be picked up by the form
     sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
 
-    // Redirect based on role
-    if (user?.role === UserRole.HOST) {
-      router.push('/host/sessions/new');
-    } else {
-      router.push('/player/sessions/new');
-    }
+    router.push('/sessions/new');
   };
 
   return (
