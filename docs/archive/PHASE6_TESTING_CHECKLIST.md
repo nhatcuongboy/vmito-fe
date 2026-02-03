@@ -5,6 +5,7 @@
 ### API Testing
 
 #### Tournament CRUD
+
 - [ ] **Create tournament** - POST /api/tournaments
   - [ ] Valid tournament creation with all fields
   - [ ] Validation: name, startDate, endDate required
@@ -15,7 +16,7 @@
 
 - [ ] **Get all tournaments** - GET /api/tournaments
   - [ ] Returns all tournaments (public)
-  - [ ] Includes host, _count fields
+  - [ ] Includes host, \_count fields
 
 - [ ] **Get tournament by ID** - GET /api/tournaments/:id
   - [ ] Returns tournament with all relations (public)
@@ -33,6 +34,7 @@
   - [ ] Cascades delete to related data
 
 #### Category Management
+
 - [ ] **Get categories** - GET /api/tournaments/:id/categories
 - [ ] **Create category** - POST /api/tournaments/:id/categories
 - [ ] **Get category** - GET /api/categories/:id
@@ -40,6 +42,7 @@
 - [ ] **Delete category** - DELETE /api/categories/:id
 
 #### Category Registration
+
 - [ ] **Get registrations** - GET /api/categories/:id/registrations
 - [ ] **Create registration** - POST /api/categories/:id/registrations
   - [ ] Single category: register player
@@ -47,6 +50,7 @@
 - [ ] **Delete registration** - DELETE /api/categories/:id/registrations/:registrationId
 
 #### Category Matches
+
 - [ ] **Get matches** - GET /api/categories/:id/matches
 - [ ] **Create match** - POST /api/categories/:id/matches
 - [ ] **Get match** - GET /api/category-matches/:id
@@ -58,12 +62,14 @@
   - [ ] Validates score format
 
 #### Standings
+
 - [ ] **Get group standings** - GET /api/categories/:id/groups/:groupId/standings
 - [ ] **Get all standings** - GET /api/categories/:id/standings
 - [ ] **Calculate standings** - POST /api/categories/:id/groups/:groupId/calculate-standings
 - [ ] **Get group winners** - GET /api/categories/:id/groups/:groupId/winners
 
 #### Tournament Players
+
 - [ ] **Get players** - GET /api/tournaments/:id/players
 - [ ] **Create player** - POST /api/tournaments/:id/players
 - [ ] **Get player** - GET /api/tournament-players/:id
@@ -71,6 +77,7 @@
 - [ ] **Delete player** - DELETE /api/tournament-players/:id
 
 #### Tournament Pairs
+
 - [ ] **Get pairs** - GET /api/tournaments/:id/pairs
 - [ ] **Create pair** - POST /api/tournaments/:id/pairs
 - [ ] **Get pair** - GET /api/tournament-pairs/:id
@@ -78,6 +85,7 @@
 - [ ] **Delete pair** - DELETE /api/tournament-pairs/:id
 
 #### Tournament Resources (Umpires, Scoring Devices, Courts)
+
 - [ ] **Get umpires** - GET /api/tournaments/:id/umpires
 - [ ] **Add umpire** - POST /api/tournaments/:id/umpires
 - [ ] **Update umpire** - PUT /api/tournament-umpires/:id
@@ -116,6 +124,7 @@
 ### UI Testing
 
 #### Tournament List Page (`/tournaments`)
+
 - [ ] Displays all tournaments correctly
 - [ ] Search functionality works
 - [ ] Status filter works
@@ -126,6 +135,7 @@
 - [ ] Empty state displays when no tournaments
 
 #### Tournament Detail Page (`/tournaments/:id`)
+
 - [ ] Displays tournament information correctly
 - [ ] Shows all categories
 - [ ] Shows host information
@@ -136,6 +146,7 @@
 - [ ] Error handling for non-existent tournament
 
 #### Create Tournament Page (`/tournaments/new`)
+
 - [ ] Form validation works
   - [ ] Name required
   - [ ] Start date required
@@ -152,6 +163,7 @@
 - [ ] Loading state during submission
 
 #### Tournament Management Page (`/tournaments/:id/manage`)
+
 - [ ] Tabs display correctly
 - [ ] Categories tab shows all categories
 - [ ] Players tab shows all players
@@ -163,6 +175,7 @@
 - [ ] Loading states work correctly
 
 #### Category Management Page (`/tournaments/:id/manage/categories/:categoryId`)
+
 - [ ] Displays category information
 - [ ] Settings tab works
   - [ ] Can update hasGroupStage
@@ -185,6 +198,7 @@
   - [ ] Can recalculate standings
 
 #### Player Management Page (`/tournaments/:id/manage/players`)
+
 - [ ] Displays all players
 - [ ] Search functionality works
 - [ ] Can create player
@@ -194,6 +208,7 @@
 - [ ] Loading states work
 
 #### Pair Management Page (`/tournaments/:id/manage/pairs`)
+
 - [ ] Displays all pairs
 - [ ] Can create pair
 - [ ] Can edit pair
@@ -204,6 +219,7 @@
 ### Bug Fixes
 
 #### Known Issues to Fix
+
 - [ ] Check for TypeScript errors
 - [ ] Check for runtime errors
 - [ ] Check for console warnings
@@ -238,13 +254,14 @@
 When finding bugs, document them here:
 
 ### Bug #1: [Title]
+
 - **Location**: [File/Page]
 - **Description**: [What happens]
 - **Expected**: [What should happen]
-- **Steps to reproduce**: 
-  1. 
-  2. 
-  3. 
+- **Steps to reproduce**:
+  1.
+  2.
+  3.
 - **Status**: [ ] Open [ ] Fixed [ ] Won't Fix
 
 ---
@@ -252,6 +269,7 @@ When finding bugs, document them here:
 ## ✅ Completion Criteria
 
 Phase 6 is complete when:
+
 - [ ] All API endpoints tested and working
 - [ ] All UI flows tested and working
 - [ ] Authorization properly enforced
@@ -259,4 +277,3 @@ Phase 6 is complete when:
 - [ ] No TypeScript errors
 - [ ] No console errors in production build
 - [ ] Documentation updated
-

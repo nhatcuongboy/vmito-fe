@@ -17,7 +17,7 @@ import {
   VStack,
   chakra,
 } from '@chakra-ui/react';
-import { Archive, Filter, RotateCcw, Trophy } from 'lucide-react';
+import { Filter, RotateCcw, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 /* eslint-disable @typescript-eslint/no-explicit-any */

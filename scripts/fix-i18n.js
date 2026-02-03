@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const messagesDir = path.join(__dirname, '../src/i18n/messages');
 
@@ -41,7 +41,11 @@ function getAllKeys(obj, prefix = '') {
   let keys = [];
   for (const key in obj) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
-    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+    if (
+      typeof obj[key] === 'object' &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key])
+    ) {
       keys = keys.concat(getAllKeys(obj[key], fullKey));
     } else {
       keys.push(fullKey);
@@ -58,11 +62,11 @@ console.log('🔧 Starting i18n fix process...\n');
 
 // Fix VI file
 console.log('📝 Fixing VI translations...');
-const missingInVi = enKeys.filter(k => !viKeys.includes(k));
-const extraInVi = viKeys.filter(k => !enKeys.includes(k));
+const missingInVi = enKeys.filter((k) => !viKeys.includes(k));
+const extraInVi = viKeys.filter((k) => !enKeys.includes(k));
 
 let viFixed = 0;
-missingInVi.forEach(key => {
+missingInVi.forEach((key) => {
   const enValue = getNestedValue(en, key);
   // Try to use English value as placeholder
   setNestedValue(vi, key, enValue);
@@ -70,18 +74,18 @@ missingInVi.forEach(key => {
   console.log(`   ✅ Added: ${key}`);
 });
 
-extraInVi.forEach(key => {
+extraInVi.forEach((key) => {
   deleteNestedKey(vi, key);
   console.log(`   🗑️  Removed extra: ${key}`);
 });
 
 // Fix CN file
 console.log('\n📝 Fixing CN translations...');
-const missingInCn = enKeys.filter(k => !cnKeys.includes(k));
-const extraInCn = cnKeys.filter(k => !enKeys.includes(k));
+const missingInCn = enKeys.filter((k) => !cnKeys.includes(k));
+const extraInCn = cnKeys.filter((k) => !enKeys.includes(k));
 
 let cnFixed = 0;
-missingInCn.forEach(key => {
+missingInCn.forEach((key) => {
   const enValue = getNestedValue(en, key);
   // Try to use English value as placeholder
   setNestedValue(cn, key, enValue);
@@ -89,7 +93,7 @@ missingInCn.forEach(key => {
   console.log(`   ✅ Added: ${key}`);
 });
 
-extraInCn.forEach(key => {
+extraInCn.forEach((key) => {
   deleteNestedKey(cn, key);
   console.log(`   🗑️  Removed extra: ${key}`);
 });

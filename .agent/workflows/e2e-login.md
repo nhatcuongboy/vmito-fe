@@ -8,11 +8,11 @@ This workflow describes how to perform login for E2E testing on pages protected 
 
 ## Test Account
 
-| Field    | Value              |
-|----------|--------------------|
-| Email    | admin@example.com  |
+| Field    | Value                     |
+| -------- | ------------------------- |
+| Email    | admin@example.com         |
 | Password | `E2E_TEST_PASSWORD` (env) |
-| Role     | ADMIN              |
+| Role     | ADMIN                     |
 
 ## Login Steps
 
@@ -34,6 +34,7 @@ This workflow describes how to perform login for E2E testing on pages protected 
 ## Verification
 
 After successful login, verify:
+
 - URL is `http://localhost:3000/{locale}/host/dashboard`
 - Page title contains "Bảng điều khiển" or "Dashboard"
 - User info is displayed in the sidebar/menu

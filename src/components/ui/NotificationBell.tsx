@@ -18,7 +18,6 @@ import {
   LuBell,
   LuCheck,
   LuTrash2,
-  LuInfo,
   LuInbox,
   LuShield,
   LuMail,
@@ -126,7 +125,7 @@ export default function NotificationBell({
         addSuffix: true,
         locale: locale === 'vi' ? vi : enUS,
       });
-    } catch (e) {
+    } catch {
       return '';
     }
   };

@@ -1,13 +1,5 @@
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import {
-  Button,
-  Card,
-  CardBody,
-  VStack,
-  HStack,
-} from '@/components/ui/chakra-compat';
-import { Plus, Users, UserPlus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Box } from '@chakra-ui/react';
+import { VStack } from '@/components/ui/chakra-compat';
 import React from 'react';
 import PlayerEmptyState from './PlayerEmptyState';
 import PlayerListItem from './PlayerListItem';
@@ -15,18 +7,7 @@ import { Player } from './types';
 
 interface PlayerListProps {
   players: Player[];
-  editingPlayers: { [key: string]: Player };
-  availableLevels: number[];
-  isSaving: boolean;
-  onAddNewPlayer: () => void;
   onEditPlayer: (player: Player) => void;
-  onCancelEditPlayer: (playerId: string) => void;
-  onSavePlayer: (playerId: string) => void;
-  onUpdateEditingPlayer: (
-    playerId: string,
-    field: string,
-    value: string | boolean
-  ) => void;
   onDeletePlayer: (playerId: string) => void;
   onTogglePlayerStatus: (playerId: string) => void;
   onShowQR: (player: Player) => void;
@@ -36,22 +17,13 @@ interface PlayerListProps {
 
 const PlayerList: React.FC<PlayerListProps> = ({
   players,
-  editingPlayers,
-  availableLevels,
-  isSaving,
-  onAddNewPlayer,
   onEditPlayer,
-  onCancelEditPlayer,
-  onSavePlayer,
-  onUpdateEditingPlayer,
   onDeletePlayer,
   onTogglePlayerStatus,
   onShowQR,
   isFiltered = false,
   filterName,
 }) => {
-  const t = useTranslations('pages.playerManagement');
-
   return (
     <Box>
       <VStack spacing={5} align="stretch">
@@ -66,13 +38,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                 <PlayerListItem
                   key={player.id}
                   player={player}
-                  isEditing={editingPlayers[player.id]}
-                  availableLevels={availableLevels}
-                  isSaving={isSaving}
                   onEdit={onEditPlayer}
-                  onCancelEdit={onCancelEditPlayer}
-                  onSave={onSavePlayer}
-                  onUpdateEditing={onUpdateEditingPlayer}
                   onDelete={onDeletePlayer}
                   onToggleStatus={onTogglePlayerStatus}
                   onShowQR={onShowQR}

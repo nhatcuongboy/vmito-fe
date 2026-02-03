@@ -1,6 +1,6 @@
 import { CourtDirection } from '@/lib/api/types';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { Badge, Box, Flex, Icon, Stack, Text, Grid } from '@chakra-ui/react';
+import { Badge, Box, Flex, Icon, Stack, Text } from '@chakra-ui/react';
 import { Edit, Clock, MapPin } from 'lucide-react';
 import React from 'react';
 

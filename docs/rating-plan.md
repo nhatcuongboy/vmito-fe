@@ -3,60 +3,60 @@ Requirements Summary
 Player → Host Ratings: Players rate hosts (only, not sessions) after session ends. 1-5 stars + optional comment. One-time submission, no edits.
 Host → Player Ratings: Hosts rate players who participated. 1-5 stars + optional comment. One-time submission, no edits.
 Average Rating Display: Show average ratings for users across all their sessions as hosts and/or players.
+
 1. Data Model Design
-New Types to Add in /src/lib/api/types.ts
+   New Types to Add in /src/lib/api/types.ts
 
 export enum RatingType {
-  PLAYER_TO_HOST = 'PLAYER_TO_HOST',
-  HOST_TO_PLAYER = 'HOST_TO_PLAYER',
+PLAYER_TO_HOST = 'PLAYER_TO_HOST',
+HOST_TO_PLAYER = 'HOST_TO_PLAYER',
 }
 
 export interface Rating {
-  id: string;
-  sessionId: string;
-  raterUserId: string;    // User giving rating
-  ratedUserId: string;    // User receiving rating
-  type: RatingType;       // Direction (player→host or host→player)
-  rating: number;         // 1-5 stars
-  comment?: string;       // Optional review (max 500 chars)
-  createdAt: Date;
-  updatedAt: Date;
-  rater?: { id: string; name: string; image?: string };
-  rated?: { id: string; name: string; image?: string };
+id: string;
+sessionId: string;
+raterUserId: string; // User giving rating
+ratedUserId: string; // User receiving rating
+type: RatingType; // Direction (player→host or host→player)
+rating: number; // 1-5 stars
+comment?: string; // Optional review (max 500 chars)
+createdAt: Date;
+updatedAt: Date;
+rater?: { id: string; name: string; image?: string };
+rated?: { id: string; name: string; image?: string };
 }
 
 export interface UserRatingStats {
-  userId: string;
-  averageRating: number;     // Overall average
-  totalRatings: number;      // Total count
-  asHostAverage?: number;    // Average when acting as host
-  asHostCount?: number;
-  asPlayerAverage?: number;  // Average when acting as player
-  asPlayerCount?: number;
+userId: string;
+averageRating: number; // Overall average
+totalRatings: number; // Total count
+asHostAverage?: number; // Average when acting as host
+asHostCount?: number;
+asPlayerAverage?: number; // Average when acting as player
+asPlayerCount?: number;
 }
 
 export interface SessionRatingEligibility {
-  canRateHost: boolean;
-  hasRatedHost: boolean;
-  hostRating?: Rating;
-  canRatePlayers: string[];          // Player IDs host can rate
-  ratedPlayerIds: string[];          // Player IDs already rated by host
-  playerRatings: Rating[];
+canRateHost: boolean;
+hasRatedHost: boolean;
+hostRating?: Rating;
+canRatePlayers: string[]; // Player IDs host can rate
+ratedPlayerIds: string[]; // Player IDs already rated by host
+playerRatings: Rating[];
 }
 
 export interface CreateRatingRequest {
-  sessionId: string;
-  ratedUserId: string;
-  type: RatingType;
-  rating: number;      // 1-5 required
-  comment?: string;    // Max 500 chars
+sessionId: string;
+ratedUserId: string;
+type: RatingType;
+rating: number; // 1-5 required
+comment?: string; // Max 500 chars
 }
 Update Existing Types
 TransactionSummary: Add averageRating?: number and totalRatings?: number
 HostTransactionSummary: Add averageRating?: number and totalRatings?: number
 User: Add optional ratingStats?: UserRatingStats
-ISession: Add optional ratingEligibility?: SessionRatingEligibility
-2. API Endpoints (Backend)
+ISession: Add optional ratingEligibility?: SessionRatingEligibility 2. API Endpoints (Backend)
 Rating Endpoints
 POST /ratings - Create a rating (player→host or host→player)
 GET /ratings - Get ratings with filters (userId, sessionId, type, raterUserId, ratedUserId)
@@ -75,8 +75,7 @@ Host → Player:
 Session status must be FINISHED
 Current user must be session.hostId
 Player must have participated in the session
-Host must not have already rated this player for this session
-3. Frontend Service Layer
+Host must not have already rated this player for this session 3. Frontend Service Layer
 Create /src/lib/api/rating.service.ts
 Implement service methods (following payment.service.ts pattern):
 
@@ -85,8 +84,7 @@ getRatings(filters?: GetRatingsRequest): Promise<Rating[]>
 getSessionRatingEligibility(sessionId: string): Promise<SessionRatingEligibility>
 getUserRatingStats(userId: string): Promise<UserRatingStats>
 getUserReceivedRatings(userId: string): Promise<Rating[]>
-getUserGivenRatings(userId: string): Promise<Rating[]>
-4. UI Components to Create
+getUserGivenRatings(userId: string): Promise<Rating[]> 4. UI Components to Create
 New Components in /src/components/rating/
 StarRatingInput.tsx
 
@@ -113,8 +111,7 @@ Props: ratings[], isLoading, showRater, showRated
 UserRatingSummaryCard.tsx
 
 Summary card with user's rating stats
-Optional breakdown: as-host vs as-player
-5. Integration Points
+Optional breakdown: as-host vs as-player 5. Integration Points
 Session Pages (After Session Ends)
 Player View - /src/app/[locale]/player/sessions/[id]/page.tsx
 
@@ -150,10 +147,9 @@ File - /src/components/session/FindSessionCard.tsx or /src/components/session/Ba
 
 Fetch host rating stats for session.hostId
 Display StarRatingDisplay next to host name
-Optional: Visual badge for highly-rated hosts (4.5+ rating)
-6. Implementation Phases
+Optional: Visual badge for highly-rated hosts (4.5+ rating) 6. Implementation Phases
 Phase 1: Types & Service (1-2 days)
-✅ Add all Rating* types to types.ts
+✅ Add all Rating\* types to types.ts
 ✅ Update TransactionSummary, User, ISession types
 ✅ Create rating.service.ts with all API methods
 Test service methods once backend endpoints ready
@@ -184,24 +180,23 @@ Phase 6: Testing (1 day)
 Unit tests for service and components
 Integration tests for rating submission
 E2E tests for complete user flow
-Performance optimization
-7. Business Logic
+Performance optimization 7. Business Logic
 Validation (Frontend)
 
 - Rating must be 1-5
 - Comment must be ≤ 500 characters
 - Required field: rating
 - Optional field: comment
-Duplicate Prevention
-Database constraint: unique(sessionId, raterUserId, ratedUserId, type)
-Frontend check: Show existing rating, disable submit button
-Average Calculation
-Formula: averageRating = SUM(rating) / COUNT(rating) where ratedUserId = :userId
-Display: Round to 1 decimal (e.g., 4.3)
-Show count: "4.3 ⭐ (12 ratings)"
-8. i18n Translations to Add
-Add these keys to en.json, vi.json, cn.json:
+  Duplicate Prevention
+  Database constraint: unique(sessionId, raterUserId, ratedUserId, type)
+  Frontend check: Show existing rating, disable submit button
+  Average Calculation
+  Formula: averageRating = SUM(rating) / COUNT(rating) where ratedUserId = :userId
+  Display: Round to 1 decimal (e.g., 4.3)
+  Show count: "4.3 ⭐ (12 ratings)"
 
+8. i18n Translations to Add
+   Add these keys to en.json, vi.json, cn.json:
 
 rating.rateHost
 rating.ratePlayer
@@ -221,8 +216,7 @@ rating.sessionMustBeFinished
 rating.asHost
 rating.asPlayer
 rating.ratedBy
-rating.ratedOn
-9. Critical Files to Create/Modify
+rating.ratedOn 9. Critical Files to Create/Modify
 NEW FILES
 /src/lib/api/rating.service.ts - Service layer for all rating API calls
 /src/components/rating/StarRatingInput.tsx - Interactive star selector
@@ -231,7 +225,7 @@ NEW FILES
 /src/components/rating/RatingList.tsx - Display list of ratings
 /src/components/rating/UserRatingSummaryCard.tsx - Summary card
 MODIFY
-/src/lib/api/types.ts - Add Rating*, UserRatingStats, SessionRatingEligibility types; update User, ISession, TransactionSummary
+/src/lib/api/types.ts - Add Rating\*, UserRatingStats, SessionRatingEligibility types; update User, ISession, TransactionSummary
 /src/app/[locale]/player/sessions/[id]/page.tsx - Add "Rate Host" button if eligible
 /src/app/[locale]/host/sessions/[id]/page.tsx - Add "Rate Players" buttons if eligible
 /src/app/[locale]/player/transactions/page.tsx - Fetch & display host ratings
@@ -239,8 +233,7 @@ MODIFY
 /src/components/payment/TransactionSummaryList.tsx - Add StarRatingDisplay integration
 /src/components/player/PlayerDetailModal.tsx - Show player rating & reviews
 /src/components/session/FindSessionCard.tsx - Show host rating
-/src/i18n/messages/en.json - Add rating i18n keys (+ vi.json, cn.json)
-10. Key Dependencies & Patterns
+/src/i18n/messages/en.json - Add rating i18n keys (+ vi.json, cn.json) 10. Key Dependencies & Patterns
 Patterns to Follow
 Service Layer Pattern: Follow session.service.ts and payment.service.ts
 Modal Pattern: Follow PlayerDetailModal.tsx (CommonModal component)
@@ -249,8 +242,7 @@ Type Organization: Follow /lib/api/types.ts structure
 UI Library Dependencies
 Existing components: Button, Modal, Input, Textarea, Avatar
 Toast notifications: Use existing toaster from UI library
-Icons: Star icons from icon library (or SVG stars)
-11. Verification Checklist
+Icons: Star icons from icon library (or SVG stars) 11. Verification Checklist
 Manual Testing Scenarios
 Player → Host Rating:
 
@@ -288,8 +280,7 @@ Edge Cases:
 ✅ Try to rate before session ends → Button disabled with message
 ✅ Try to rate twice → Button disabled, existing rating shown
 ✅ Player not in session → Cannot see "Rate" button
-✅ Guest player (no userId) → Cannot give/receive ratings
-12. Dependencies on Backend
+✅ Guest player (no userId) → Cannot give/receive ratings 12. Dependencies on Backend
 Must Wait For:
 
 POST /ratings endpoint

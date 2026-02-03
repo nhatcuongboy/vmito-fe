@@ -5,9 +5,10 @@ import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import { NewPlayer, Player } from './types';
+import { ISession, Gender, PlayerStatus } from '@/lib/api/types';
 
 export const usePlayerManagement = (
-  session: any,
+  session: ISession,
   onDataRefresh?: () => void
 ) => {
   const t = useTranslations('pages.playerManagement');
@@ -22,7 +23,7 @@ export const usePlayerManagement = (
     useState<boolean>(false);
   const [availableUsers, setAvailableUsers] = useState<UserOption[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
-  const [playerToDelete, setPlayerToDelete] = useState<any>(null); // Keep as any for now as in original
+  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
   const [newPlayerErrors, setNewPlayerErrors] = useState<{
     [index: number]: string;
   }>({});
@@ -74,7 +75,7 @@ export const usePlayerManagement = (
   const addNewPlayerRow = () => {
     const existingMaxPlayerNumber = Math.max(
       0,
-      ...session.players.map((p: any) => p.playerNumber || 0)
+      ...(session.players?.map((p: Player) => p.playerNumber || 0) || [])
     );
 
     const newPlayerMaxNumber =
@@ -90,7 +91,7 @@ export const usePlayerManagement = (
       {
         playerNumber: nextPlayerNumber,
         name: '',
-        gender: 'MALE',
+        gender: Gender.MALE,
         level: getDefaultLevel(),
         levelDescription: '',
         requireConfirmInfo: false,
@@ -141,7 +142,7 @@ export const usePlayerManagement = (
         'name',
         `Player ${newPlayers[index].playerNumber}`
       );
-      updateNewPlayer(index, 'gender', 'MALE');
+      updateNewPlayer(index, 'gender', Gender.MALE);
       updateNewPlayer(index, 'level', getDefaultLevel());
       updateNewPlayer(index, 'levelDescription', '');
       return;
@@ -161,9 +162,8 @@ export const usePlayerManagement = (
       return;
     }
 
-    const isUserInExistingPlayers = session.players.some(
-      (p: any) => p.userId === userId
-    );
+    const isUserInExistingPlayers =
+      session.players?.some((p: Player) => p.userId === userId) || false;
 
     if (isUserInExistingPlayers) {
       toaster.create({
@@ -230,7 +230,7 @@ export const usePlayerManagement = (
 
   const validateNewPlayers = () => {
     const errors: { [index: number]: string } = {};
-    newPlayers.forEach((player: any, idx: any) => {
+    newPlayers.forEach((player: NewPlayer, idx: number) => {
       if (!player.name || player.name.trim() === '') {
         errors[idx] = t('playerNameRequired');
       }
@@ -252,14 +252,17 @@ export const usePlayerManagement = (
       if (playersToUpdate.length > 0) {
         await PlayerService.bulkUpdatePlayers(
           session.id,
-          playersToUpdate as any
+          playersToUpdate as Player[]
         );
       }
 
       if (playersToCreate.length > 0) {
         const playersToCreateSubmitted = playersToCreate.map(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ({ playerNumber, ...rest }: any) => rest
+          ({ playerNumber, level, ...rest }: NewPlayer) => ({
+            ...rest,
+            level: level === null ? undefined : level,
+          })
         );
         await PlayerService.createBulkPlayers(
           session.id,
@@ -295,7 +298,7 @@ export const usePlayerManagement = (
       await PlayerService.updatePlayerBySession(
         session.id,
         playerId,
-        playerToUpdate as any
+        playerToUpdate as Player
       );
 
       setEditingPlayers((prev) => {
@@ -327,7 +330,7 @@ export const usePlayerManagement = (
   };
 
   const deletePlayer = (playerId: string) => {
-    const player = session.players.find((p: any) => p.id === playerId);
+    const player = session.players?.find((p: Player) => p.id === playerId);
     if (player) {
       setPlayerToDelete(player);
     }
@@ -338,6 +341,7 @@ export const usePlayerManagement = (
 
     const playerName =
       playerToDelete.name || `Player ${playerToDelete.playerNumber || ''}`;
+    console.debug('Deleting player:', playerName);
 
     try {
       setIsSaving(true);
@@ -364,8 +368,9 @@ export const usePlayerManagement = (
   };
 
   // Max players logic
-  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
-  const currentPlayerCount = session.players.length + newPlayers.length;
+  const maxPlayers =
+    (session.numberOfCourts || 0) * (session.maxPlayersPerCourt || 0);
+  const currentPlayerCount = (session.players?.length || 0) + newPlayers.length;
   const isMaxPlayersReached = currentPlayerCount >= maxPlayers;
 
   const handleAddNewPlayer = () => {
@@ -395,9 +400,8 @@ export const usePlayerManagement = (
         p.userId === userId &&
         (currentIndex === undefined || idx !== currentIndex)
     );
-    const inExistingPlayers = session.players.some(
-      (p: any) => p.userId === userId
-    );
+    const inExistingPlayers =
+      session.players?.some((p: Player) => p.userId === userId) || false;
     return inNewPlayers || inExistingPlayers;
   };
 
@@ -459,15 +463,18 @@ export const usePlayerManagement = (
      * Toggles player status between INACTIVE and WAITING
      */
     togglePlayerStatus: async (playerId: string) => {
-      const player = session.players.find((p: any) => p.id === playerId);
+      const player = session.players?.find((p: Player) => p.id === playerId);
       if (!player) return;
 
-      const newStatus = player.status === 'INACTIVE' ? 'WAITING' : 'INACTIVE';
+      const newStatus =
+        player.status === PlayerStatus.INACTIVE
+          ? PlayerStatus.WAITING
+          : PlayerStatus.INACTIVE;
 
       try {
         setIsSaving(true);
         await PlayerService.updatePlayerBySession(session.id, playerId, {
-          status: newStatus as any,
+          status: newStatus,
         });
         if (onDataRefresh) {
           onDataRefresh();

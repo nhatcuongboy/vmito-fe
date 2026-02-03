@@ -77,7 +77,7 @@ export default function BulkPlayersForm({
     setSuccess(null);
 
     try {
-      const playersToSubmit = players.map(({ playerNumber, ...rest }) => ({
+      const playersToSubmit = players.map(({ ...rest }) => ({
         ...rest,
         // We omit playerNumber so backend assigns it
       }));

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Text, Avatar, Button, Icon } from '@chakra-ui/react';
+import { Box, Flex, Text, Avatar, Button } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/chakra-compat';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';

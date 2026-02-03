@@ -9,6 +9,7 @@ Fixed incorrect API paths for transaction endpoints. Frontend was calling wrong 
 ### Issue
 
 Frontend was calling transaction endpoints with wrong paths:
+
 - ❌ `/transactions/summary` → 404 Not Found
 - ❌ `/transactions/with-host/:id` → 404 Not Found
 - ❌ `/host/transactions/summary` → 404 Not Found
@@ -22,21 +23,23 @@ Updated `payment.service.ts` to use correct backend paths:
 
 ```typescript
 // Before (WRONG)
-getMyTransactionSummary: () => api.get('/transactions/summary')
-getMyTransactionsWithHost: (id) => api.get(`/transactions/with-host/${id}`)
-getHostTransactionSummary: () => api.get('/host/transactions/summary')
-getHostTransactionsWithUser: (id) => api.get(`/host/transactions/with-user/${id}`)
+getMyTransactionSummary: () => api.get('/transactions/summary');
+getMyTransactionsWithHost: (id) => api.get(`/transactions/with-host/${id}`);
+getHostTransactionSummary: () => api.get('/host/transactions/summary');
+getHostTransactionsWithUser: (id) =>
+  api.get(`/host/transactions/with-user/${id}`);
 
 // After (CORRECT)
-getMyTransactionSummary: () => api.get('/payments/me/summary')
-getMyTransactionsWithHost: (id) => api.get(`/payments/me/host/${id}`)
-getHostTransactionSummary: () => api.get('/payments/host/summary')
-getHostTransactionsWithUser: (id) => api.get(`/payments/host/user/${id}`)
+getMyTransactionSummary: () => api.get('/payments/me/summary');
+getMyTransactionsWithHost: (id) => api.get(`/payments/me/host/${id}`);
+getHostTransactionSummary: () => api.get('/payments/host/summary');
+getHostTransactionsWithUser: (id) => api.get(`/payments/host/user/${id}`);
 ```
 
 ### Impact
 
 ✅ **Resolved:**
+
 - Players can now view transaction history across all hosts
 - Players can view detailed transactions with specific host
 - Hosts can view transaction summary per player
@@ -45,12 +48,12 @@ getHostTransactionsWithUser: (id) => api.get(`/payments/host/user/${id}`)
 
 ### Backend Endpoints (Confirmed Working)
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/payments/me/summary` | GET | Player transaction summary |
-| `/payments/me/host/:hostId` | GET | Player transactions with host |
-| `/payments/host/summary` | GET | Host transaction summary |
-| `/payments/host/user/:userId` | GET | Host transactions with user |
+| Endpoint                      | Method | Purpose                       |
+| ----------------------------- | ------ | ----------------------------- |
+| `/payments/me/summary`        | GET    | Player transaction summary    |
+| `/payments/me/host/:hostId`   | GET    | Player transactions with host |
+| `/payments/host/summary`      | GET    | Host transaction summary      |
+| `/payments/host/user/:userId` | GET    | Host transactions with user   |
 
 **Note:** All transaction endpoints are under `/payments/*` prefix, consistent with other payment endpoints.
 
@@ -61,6 +64,7 @@ getHostTransactionsWithUser: (id) => api.get(`/payments/host/user/${id}`)
 ### Testing
 
 To verify the fix:
+
 1. As player: Navigate to transaction history page
 2. Should see list of transactions grouped by host ✅
 3. Click on a host to see detailed transactions ✅
@@ -97,7 +101,7 @@ Modified `PaymentSettingsForm.tsx` to only include `qrCodeUrl` in request body w
 // Before
 await onSubmit({
   bankName: bankName || undefined,
-  qrCodeUrl,  // ❌ Could be undefined
+  qrCodeUrl, // ❌ Could be undefined
   isDefault,
 });
 
@@ -108,7 +112,7 @@ const data = {
 };
 
 if (qrCodeUrl && qrCodeUrl.trim() !== '') {
-  data.qrCodeUrl = qrCodeUrl;  // ✅ Only include if valid
+  data.qrCodeUrl = qrCodeUrl; // ✅ Only include if valid
 }
 
 await onSubmit(data);
@@ -128,14 +132,15 @@ Fixed multipart/form-data field names for file uploads to match backend expectat
 
 ### Changes
 
-| Service | Method | Before | After | File |
-|---------|--------|--------|-------|------|
-| PaymentSettingsService | uploadQRCode | `formData.append('file', file)` | `formData.append('qrCode', file)` | payment-settings.service.ts:88 |
-| PaymentService | uploadPaymentProof | `formData.append('file', file)` | `formData.append('proof', file)` | payment.service.ts:57 |
+| Service                | Method             | Before                          | After                             | File                           |
+| ---------------------- | ------------------ | ------------------------------- | --------------------------------- | ------------------------------ |
+| PaymentSettingsService | uploadQRCode       | `formData.append('file', file)` | `formData.append('qrCode', file)` | payment-settings.service.ts:88 |
+| PaymentService         | uploadPaymentProof | `formData.append('file', file)` | `formData.append('proof', file)`  | payment.service.ts:57          |
 
 ### Error Fixed
 
 **Before:**
+
 ```json
 {
   "success": false,
@@ -171,28 +176,28 @@ Fixed 8 API endpoints to match backend specification. All payment-related APIs n
 
 #### Player APIs
 
-| # | Before (❌) | After (✅) | Line |
-|---|------------|-----------|------|
-| 1 | `/sessions/${sessionId}/payments/me` | `/sessions/${sessionId}/my-payments` | 20 |
-| 2 | `/payments/me/summary` | `/transactions/summary` | 41 |
-| 3 | `/payments/me/host/${hostId}` | `/transactions/with-host/${hostId}` | 49 |
-| 4 | `/uploads/payment-proof` | `/upload/payment-proof` | 59 |
+| #   | Before (❌)                          | After (✅)                           | Line |
+| --- | ------------------------------------ | ------------------------------------ | ---- |
+| 1   | `/sessions/${sessionId}/payments/me` | `/sessions/${sessionId}/my-payments` | 20   |
+| 2   | `/payments/me/summary`               | `/transactions/summary`              | 41   |
+| 3   | `/payments/me/host/${hostId}`        | `/transactions/with-host/${hostId}`  | 49   |
+| 4   | `/uploads/payment-proof`             | `/upload/payment-proof`              | 59   |
 
 #### Host APIs
 
-| # | Before (❌) | After (✅) | Line |
-|---|------------|-----------|------|
-| 5 | `/payments/host/summary` | `/host/transactions/summary` | 142 |
-| 6 | `/payments/host/user/${userId}` | `/host/transactions/with-user/${userId}` | 152 |
+| #   | Before (❌)                     | After (✅)                               | Line |
+| --- | ------------------------------- | ---------------------------------------- | ---- |
+| 5   | `/payments/host/summary`        | `/host/transactions/summary`             | 142  |
+| 6   | `/payments/host/user/${userId}` | `/host/transactions/with-user/${userId}` | 152  |
 
 ---
 
 ### 2. Payment Settings Service (payment-settings.service.ts)
 
-| # | Before (❌) | After (✅) | Method | Line |
-|---|------------|-----------|--------|------|
-| 7 | PATCH `/payment-settings/${id}/default` | POST `/payment-settings/${id}/set-default` | setDefaultPaymentSettings | 78 |
-| 8 | `/uploads/qr-code` | `/upload/qr-code` | uploadQRCode | 90 |
+| #   | Before (❌)                             | After (✅)                                 | Method                    | Line |
+| --- | --------------------------------------- | ------------------------------------------ | ------------------------- | ---- |
+| 7   | PATCH `/payment-settings/${id}/default` | POST `/payment-settings/${id}/set-default` | setDefaultPaymentSettings | 78   |
+| 8   | `/uploads/qr-code`                      | `/upload/qr-code`                          | uploadQRCode              | 90   |
 
 ---
 
@@ -236,11 +241,13 @@ Fixed 8 API endpoints to match backend specification. All payment-related APIs n
 
 **Recommended Solution:**
 Backend needs to implement this endpoint to:
+
 - Filter payment records by authenticated user
 - Return only payments where `registeredByUserId` matches current user
 - Support multi-slot scenarios (user may have multiple payment records)
 
 **Alternative Workaround:**
+
 - Reuse `/api/sessions/:sessionId/payments` endpoint
 - Backend filters by user automatically based on authentication
 - Change response format to match spec
@@ -264,9 +271,11 @@ Backend needs to implement this endpoint to:
 ## 📝 API Specification Reference
 
 All endpoints now match the specification in:
+
 - [api-spec-fee-payment.md](./api-spec-fee-payment.md)
 
 Key sections:
+
 - Line 328: `GET /api/sessions/:sessionId/my-payments`
 - Line 259: `POST /api/upload/qr-code`
 - Line 442: `POST /api/upload/payment-proof`
@@ -307,11 +316,11 @@ If backend was previously implemented with the old endpoints, those need to be u
 
 ## Version History
 
-| Date | Version | Changes |
-|------|---------|---------|
-| 2026-01-28 | 1.2.0 | Fixed qrCodeUrl validation in PaymentSettingsForm |
-| 2026-01-28 | 1.1.0 | Fixed file upload field names (qrCode, proof) |
-| 2026-01-28 | 1.0.0 | Fixed 8 API endpoints to match specification |
+| Date       | Version | Changes                                           |
+| ---------- | ------- | ------------------------------------------------- |
+| 2026-01-28 | 1.2.0   | Fixed qrCodeUrl validation in PaymentSettingsForm |
+| 2026-01-28 | 1.1.0   | Fixed file upload field names (qrCode, proof)     |
+| 2026-01-28 | 1.0.0   | Fixed 8 API endpoints to match specification      |
 
 ---
 

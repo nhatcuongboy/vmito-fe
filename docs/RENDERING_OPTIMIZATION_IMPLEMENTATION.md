@@ -26,11 +26,14 @@ This document tracks the conversion of pages from Client-Side Rendering (CSR) to
 ### Phase 1: SSG Pages (4 completed)
 
 #### 1. `/about` - Landing Page
+
 **Files Modified:**
+
 - `src/app/[locale]/about/page.tsx` - Server Component
 - `src/app/[locale]/about/AboutClient.tsx` - Client Component (new)
 
 **Pattern:**
+
 ```typescript
 // page.tsx (Server Component)
 export async function generateStaticParams() {
@@ -48,11 +51,14 @@ export default async function AboutPage({ params }) {
 ---
 
 #### 2. `/auth/signin` - Login Page
+
 **Files Modified:**
+
 - `src/app/[locale]/auth/signin/page.tsx` - Server Component
 - `src/app/[locale]/auth/signin/SignInClient.tsx` - Client Component (new)
 
 **Key Features Preserved:**
+
 - Form validation with Zod
 - Auth redirect logic (client-side)
 - Google OAuth integration
@@ -63,11 +69,14 @@ export default async function AboutPage({ params }) {
 ---
 
 #### 3. `/auth/signup` - Registration Page
+
 **Files Modified:**
+
 - `src/app/[locale]/auth/signup/page.tsx` - Server Component
 - `src/app/[locale]/auth/signup/SignUpClient.tsx` - Client Component (new)
 
 **Key Features Preserved:**
+
 - React Hook Form with Zod validation
 - Password confirmation logic
 - PublicRouteGuard integration
@@ -77,11 +86,14 @@ export default async function AboutPage({ params }) {
 ---
 
 #### 4. `/join-by-code` - Guest Join Page
+
 **Files Modified:**
+
 - `src/app/[locale]/join-by-code/page.tsx` - Server Component
 - `src/app/[locale]/join-by-code/JoinByCodeClient.tsx` - Client Component (new)
 
 **Key Features Preserved:**
+
 - QR Scanner component
 - Code validation
 - Query param handling (Suspense)
@@ -94,12 +106,15 @@ export default async function AboutPage({ params }) {
 ### Phase 2: ISR Pages (2 completed)
 
 #### 5. `/browse/sessions` - Session Listing
+
 **Files Modified:**
+
 - `src/app/[locale]/browse/sessions/page.tsx` - Server Component with ISR
 - `src/app/[locale]/browse/sessions/BrowseSessionsClient.tsx` - Client Component (new)
 - `src/components/session/FindSessionList.tsx` - Added `initialSessions` prop
 
 **Implementation:**
+
 ```typescript
 // page.tsx
 export const revalidate = 30; // ISR: 30 seconds
@@ -120,6 +135,7 @@ export default async function FindSessionPage({ params }) {
 ```
 
 **FindSessionList Component Changes:**
+
 ```typescript
 // Before
 export default function FindSessionList() {
@@ -136,7 +152,9 @@ interface FindSessionListProps {
   initialSessions?: ISession[];
 }
 
-export default function FindSessionList({ initialSessions = [] }: FindSessionListProps) {
+export default function FindSessionList({
+  initialSessions = [],
+}: FindSessionListProps) {
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
   const [loading, setLoading] = useState(initialSessions.length === 0);
 
@@ -152,6 +170,7 @@ export default function FindSessionList({ initialSessions = [] }: FindSessionLis
 **Result:** ✅ Server fetches sessions, revalidates every 30s (confirmed in build output)
 
 **Build Output:**
+
 ```
 ├ ● /[locale]/browse/sessions    495 B    207 kB    30s    1y
 ├   ├ /vi/browse/sessions                           30s    1y
@@ -162,6 +181,7 @@ export default function FindSessionList({ initialSessions = [] }: FindSessionLis
 ---
 
 #### 6. Homepage `/` (uses FindSessionList)
+
 The homepage also benefits from the `initialSessions` prop modification if it renders the session list.
 
 ---
@@ -171,10 +191,12 @@ The homepage also benefits from the `initialSessions` prop modification if it re
 ### Phase 3: Dynamic SSR Pages (3 pending)
 
 #### 7. `/join/register` - Player Registration
+
 **Current Status:** ❌ Still CSR
 **Target:** Dynamic SSR (query param: `code`)
 
 **Implementation Pattern:**
+
 ```typescript
 // page.tsx
 export const dynamic = 'force-dynamic';
@@ -187,15 +209,18 @@ export default async function RegisterPage({ params, searchParams }) {
 ```
 
 **Files to Create:**
+
 - `src/app/[locale]/join/register/RegisterClient.tsx`
 
 ---
 
 #### 8. `/join/confirm` - Player Confirmation
+
 **Current Status:** ❌ Still CSR
 **Target:** Dynamic SSR (query param: `code`)
 
 **Implementation Pattern:**
+
 ```typescript
 // page.tsx
 export const dynamic = 'force-dynamic';
@@ -208,15 +233,18 @@ export default async function ConfirmPage({ params, searchParams }) {
 ```
 
 **Files to Create:**
+
 - `src/app/[locale]/join/confirm/ConfirmClient.tsx`
 
 ---
 
 #### 9. `/join/status` - Player Status
+
 **Current Status:** ❌ Still CSR
 **Target:** Dynamic SSR (query param: `sessionId`)
 
 **Implementation Pattern:**
+
 ```typescript
 // page.tsx
 export const dynamic = 'force-dynamic';
@@ -229,6 +257,7 @@ export default async function StatusPage({ params, searchParams }) {
 ```
 
 **Files to Create:**
+
 - `src/app/[locale]/join/status/StatusClient.tsx`
 
 ---
@@ -236,10 +265,12 @@ export default async function StatusPage({ params, searchParams }) {
 ### Phase 4: Additional ISR Page
 
 #### 10. `/browse/tournaments` - Tournament Listing
+
 **Current Status:** ❌ Still CSR
 **Target:** SSR + ISR (300s revalidation)
 
 **Implementation Pattern:**
+
 ```typescript
 // page.tsx
 export const revalidate = 300; // 5 minutes
@@ -260,6 +291,7 @@ export default async function BrowseTournamentsPage({ params }) {
 ```
 
 **Files to Create:**
+
 - `src/app/[locale]/browse/tournaments/BrowseTournamentsClient.tsx`
 - May need to modify tournament list component to accept `initialTournaments` prop
 
@@ -270,14 +302,15 @@ export default async function BrowseTournamentsPage({ params }) {
 Add `generateMetadata()` to all converted pages for better SEO.
 
 **Pattern:**
+
 ```typescript
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({
-  params
+  params,
 }: {
-  params: Promise<{ locale: string }>
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'pages.about' });
@@ -290,7 +323,7 @@ export async function generateMetadata({
       description: t('metaDescription'),
       type: 'website',
       locale: locale,
-      alternateLocale: ['en', 'vi', 'cn'].filter(l => l !== locale),
+      alternateLocale: ['en', 'vi', 'cn'].filter((l) => l !== locale),
     },
     twitter: {
       card: 'summary_large_image',
@@ -302,6 +335,7 @@ export async function generateMetadata({
 ```
 
 **Required Translation Updates:**
+
 ```json
 // src/i18n/messages/en.json
 {
@@ -323,6 +357,7 @@ export async function generateMetadata({
 ```
 
 Apply to all pages:
+
 - ✅ `/about`
 - ✅ `/auth/signin`
 - ✅ `/auth/signup`
@@ -342,6 +377,7 @@ Apply to all pages:
 **Use for:** Static pages (about, signin, signup, join-by-code)
 
 **Steps:**
+
 1. Remove `'use client'` from page.tsx
 2. Create `{PageName}Client.tsx` with `'use client'`
 3. Move all JSX and interactive logic to Client component
@@ -349,6 +385,7 @@ Apply to all pages:
 5. Server component imports and renders Client component
 
 **Template:**
+
 ```typescript
 // page.tsx (Server Component)
 import {PageName}Client from './{PageName}Client';
@@ -370,6 +407,7 @@ export default async function {PageName}Page({ params }) {
 **Use for:** Dynamic data that changes frequently (sessions, tournaments)
 
 **Steps:**
+
 1. Remove `'use client'` from page.tsx
 2. Add `export const revalidate = X` (30 or 300)
 3. Create server fetch function
@@ -378,6 +416,7 @@ export default async function {PageName}Page({ params }) {
 6. Modify child components to accept `initialData`
 
 **Template:**
+
 ```typescript
 // page.tsx (Server Component)
 import {PageName}Client from './{PageName}Client';
@@ -403,9 +442,10 @@ export default async function {PageName}Page({ params }) {
 
 ### Pattern 3: Dynamic SSR (No Cache)
 
-**Use for:** Pages with query parameters that need SEO (join/*, sharing links)
+**Use for:** Pages with query parameters that need SEO (join/\*, sharing links)
 
 **Steps:**
+
 1. Remove `'use client'` from page.tsx
 2. Add `export const dynamic = 'force-dynamic'`
 3. Access `searchParams` for query parameters
@@ -413,6 +453,7 @@ export default async function {PageName}Page({ params }) {
 5. Pass query params as props
 
 **Template:**
+
 ```typescript
 // page.tsx (Server Component)
 import {PageName}Client from './{PageName}Client';
@@ -470,6 +511,7 @@ src/components/session/
 ### FindSessionList.tsx
 
 **Changes:**
+
 1. Added `FindSessionListProps` interface
 2. Added `initialSessions` prop (default: `[]`)
 3. Initialize state with `initialSessions`
@@ -477,6 +519,7 @@ src/components/session/
 5. Only fetch data if `initialSessions` is empty
 
 **Before/After:**
+
 ```typescript
 // Before
 export default function FindSessionList() {
@@ -489,7 +532,9 @@ interface FindSessionListProps {
   initialSessions?: ISession[];
 }
 
-export default function FindSessionList({ initialSessions = [] }: FindSessionListProps) {
+export default function FindSessionList({
+  initialSessions = [],
+}: FindSessionListProps) {
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
   const [loading, setLoading] = useState(initialSessions.length === 0);
 }
@@ -500,11 +545,13 @@ export default function FindSessionList({ initialSessions = [] }: FindSessionLis
 ## 🧪 Testing
 
 ### Build Test
+
 ```bash
 pnpm build
 ```
 
 **Expected Output:**
+
 ```
 ✓ Compiled successfully
 ├ ● /[locale]/about              SSG (3 locales)
@@ -515,6 +562,7 @@ pnpm build
 ```
 
 **Legend:**
+
 - `●` = Static/SSG
 - `ƒ` = Dynamic
 - `30s` = ISR revalidation time
@@ -522,6 +570,7 @@ pnpm build
 ### Functional Testing Checklist
 
 **SSG Pages:**
+
 - [ ] `/about` loads instantly
 - [ ] `/auth/signin` form submits correctly
 - [ ] `/auth/signup` form validation works
@@ -530,12 +579,14 @@ pnpm build
 - [ ] PublicRouteGuard redirects authenticated users
 
 **ISR Pages:**
+
 - [ ] `/browse/sessions` shows initial data immediately
 - [ ] Sessions can be filtered client-side
 - [ ] Join button works for authenticated users
 - [ ] Data refreshes after 30 seconds
 
 **General:**
+
 - [ ] No hydration mismatch warnings in console
 - [ ] Client-side navigation works
 - [ ] Auth flow works (login → dashboard)
@@ -554,6 +605,7 @@ curl http://localhost:3000/en/browse/sessions | grep -o "session"
 ### Performance Testing
 
 Run Lighthouse audit on converted pages:
+
 ```bash
 # Install Lighthouse
 npm install -g lighthouse
@@ -564,6 +616,7 @@ lighthouse http://localhost:3000/en/browse/sessions --view
 ```
 
 **Target Metrics:**
+
 - **FCP** < 1.8s
 - **LCP** < 2.5s
 - **TTI** < 3.8s
@@ -575,22 +628,22 @@ lighthouse http://localhost:3000/en/browse/sessions --view
 
 ### Before (100% CSR)
 
-| Metric | Value |
-|--------|-------|
-| FCP | ~3.5s |
-| LCP | ~4.2s |
-| TTI | ~5.0s |
-| SEO Score | 60-70 |
+| Metric       | Value           |
+| ------------ | --------------- |
+| FCP          | ~3.5s           |
+| LCP          | ~4.2s           |
+| TTI          | ~5.0s           |
+| SEO Score    | 60-70           |
 | Initial HTML | ~50KB (minimal) |
 
 ### After (SSG/SSR/ISR)
 
-| Metric | Target |
-|--------|--------|
-| FCP | <1.8s |
-| LCP | <2.5s |
-| TTI | <3.8s |
-| SEO Score | >90 |
+| Metric       | Target                |
+| ------------ | --------------------- |
+| FCP          | <1.8s                 |
+| LCP          | <2.5s                 |
+| TTI          | <3.8s                 |
+| SEO Score    | >90                   |
 | Initial HTML | ~200KB (full content) |
 
 **Improvement:** ~48% faster initial load
@@ -606,6 +659,7 @@ lighthouse http://localhost:3000/en/browse/sessions --view
 **Cause:** Server HTML differs from client render
 
 **Solution:**
+
 ```typescript
 // Use suppressHydrationWarning for dynamic content
 <Text suppressHydrationWarning>
@@ -632,6 +686,7 @@ lighthouse http://localhost:3000/en/browse/sessions --view
 **Cause:** API not accessible during build or returns unexpected format
 
 **Solution:**
+
 ```typescript
 async function getInitialData() {
   try {

@@ -56,20 +56,24 @@ Dự án hiện tại là một **Next.js Full-Stack Application** với:
 ### Phương Án 1: Next.js API Routes Trong Monorepo (Đề Xuất)
 
 **Mô Tả**: Tách thành 2 Next.js apps trong cùng một monorepo:
+
 - `apps/backend`: Chỉ chứa API routes
 - `apps/frontend`: Chỉ chứa frontend pages và components
 
 **Ưu Điểm**:
+
 - ✅ Dễ migrate (ít thay đổi code)
 - ✅ Vẫn sử dụng Next.js API Routes (familiar)
 - ✅ Có thể share types và utilities
 - ✅ Có thể deploy riêng biệt
 
 **Nhược Điểm**:
+
 - ❌ Vẫn phụ thuộc vào Next.js cho backend
 - ❌ Deployment hơi phức tạp hơn
 
 **Cấu Trúc Dự Kiến**:
+
 ```
 badminton-app/
 ├── apps/
@@ -104,23 +108,27 @@ badminton-app/
 **Mô Tả**: Tạo một Node.js server độc lập với Express hoặc Fastify, chuyển toàn bộ API routes sang REST API server.
 
 **Ưu Điểm**:
+
 - ✅ Hoàn toàn độc lập với frontend framework
 - ✅ Dễ scale backend riêng biệt
 - ✅ Có thể dùng bất kỳ Node.js framework nào
 - ✅ Deployment đơn giản hơn (chỉ cần Node.js server)
 
 **Nhược Điểm**:
+
 - ❌ Cần rewrite nhiều code (Next.js API routes → Express routes)
 - ❌ Mất một số features của Next.js (middleware, edge functions)
 - ❌ Cần setup CORS, authentication lại
 
 **Tech Stack Đề Xuất**:
+
 - **Backend**: Express.js hoặc Fastify
 - **Database**: Prisma (giữ nguyên)
 - **Auth**: JWT + custom auth middleware (thay NextAuth)
 - **Validation**: Zod (đã có sẵn)
 
 **Cấu Trúc Dự Kiến**:
+
 ```
 badminton-app/
 ├── backend/              # Express/Fastify server
@@ -147,11 +155,13 @@ badminton-app/
 **Mô Tả**: Giữ backend ở Next.js, nhưng tách frontend ra một React/Next.js app riêng chạy ở port khác.
 
 **Ưu Điểm**:
+
 - ✅ Dễ migrate (ít thay đổi backend)
 - ✅ Frontend có thể deploy ở CDN/static hosting
 - ✅ Backend vẫn giữ được Next.js features
 
 **Nhược Điểm**:
+
 - ❌ Vẫn phụ thuộc Next.js cho backend
 - ❌ Cần setup CORS cho API
 
@@ -160,6 +170,7 @@ badminton-app/
 ## 🚀 Phương Án Đề Xuất: Monorepo với 2 Apps
 
 Tôi đề xuất **Phương Án 1** vì:
+
 1. Ít thay đổi code nhất
 2. Vẫn giữ được Next.js API Routes (đã quen thuộc)
 3. Có thể deploy riêng biệt
@@ -172,9 +183,10 @@ Tôi đề xuất **Phương Án 1** vì:
 **File**: `src/lib/api/base.ts`
 
 **Hiện Tại**:
+
 ```typescript
 export const api = axios.create({
-  baseURL: '/api',  // Relative path
+  baseURL: '/api', // Relative path
   headers: {
     'Content-Type': 'application/json',
   },
@@ -182,6 +194,7 @@ export const api = axios.create({
 ```
 
 **Sau Khi Tách**:
+
 ```typescript
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
@@ -192,6 +205,7 @@ export const api = axios.create({
 ```
 
 **Environment Variables Cần Thêm**:
+
 ```env
 # Frontend .env.local
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
@@ -216,16 +230,22 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api')) {
     const origin = request.headers.get('origin');
     const response = NextResponse.next();
-    
+
     response.headers.set('Access-Control-Allow-Origin', origin || '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+    );
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
+    );
     response.headers.set('Access-Control-Allow-Credentials', 'true');
-    
+
     if (request.method === 'OPTIONS') {
       return new NextResponse(null, { status: 200, headers: response.headers });
     }
-    
+
     return response;
   }
 }
@@ -236,11 +256,13 @@ export function middleware(request: NextRequest) {
 **Vấn Đề**: NextAuth sử dụng cookies để quản lý session. Khi tách backend, cần đảm bảo cookies được share giữa frontend và backend.
 
 **Giải Pháp 1**: Sử dụng JWT tokens thay vì cookies
+
 - Frontend lưu JWT trong localStorage
 - Gửi JWT trong Authorization header
 - Backend validate JWT
 
 **Giải Pháp 2**: Giữ cookies nhưng đảm bảo:
+
 - Same domain: `api.yourdomain.com` và `app.yourdomain.com` share cookies
 - Hoặc sử dụng subdomain với wildcard cookie
 
@@ -260,10 +282,12 @@ api.interceptors.request.use((config) => {
 ### 4. Database - Shared Prisma Schema
 
 **Option 1**: Giữ Prisma trong backend, frontend không cần database
+
 - ✅ Đơn giản hơn
 - ✅ Bảo mật hơn
 
 **Option 2**: Share Prisma client giữa 2 apps (monorepo)
+
 - ✅ Có thể validate types
 - ❌ Frontend vẫn có quyền truy cập database types
 
@@ -272,6 +296,7 @@ api.interceptors.request.use((config) => {
 ### 5. Environment Variables
 
 **Backend `.env`**:
+
 ```env
 # Database
 DATABASE_URL=postgresql://...
@@ -289,6 +314,7 @@ FRONTEND_URL=http://localhost:3000
 ```
 
 **Frontend `.env.local`**:
+
 ```env
 # API Backend URL
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
@@ -302,6 +328,7 @@ NEXTAUTH_URL=http://localhost:3000
 ### Bước 1: Setup Monorepo Structure
 
 1. Cài đặt workspace manager (pnpm workspace):
+
 ```bash
 # Root package.json
 {
@@ -315,6 +342,7 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 
 2. Tạo cấu trúc thư mục:
+
 ```
 badminton-app/
 ├── apps/
@@ -360,21 +388,25 @@ badminton-app/
 ### Option 1: Vercel (Easier)
 
 **Backend**:
+
 - Deploy `apps/backend` lên Vercel
 - API URL: `https://backend-app.vercel.app`
 
 **Frontend**:
+
 - Deploy `apps/frontend` lên Vercel
 - Set env: `NEXT_PUBLIC_API_URL=https://backend-app.vercel.app/api`
 
 ### Option 2: Separate Servers
 
 **Backend**:
+
 - Deploy Node.js server (Railway, Render, AWS EC2)
 - Setup reverse proxy (Nginx) nếu cần
 - Domain: `api.yourdomain.com`
 
 **Frontend**:
+
 - Deploy Next.js app (Vercel, Netlify)
 - Domain: `app.yourdomain.com` hoặc `yourdomain.com`
 
@@ -393,10 +425,9 @@ badminton-app/
 
 - **Phương án**: Monorepo với 2 Next.js apps
 - **Timeline**: 2-3 ngày để migrate và test
-- **Lợi ích**: 
+- **Lợi ích**:
   - Scale backend riêng biệt
   - Deploy độc lập
   - Team có thể làm việc parallel
 
 Bạn muốn tôi bắt đầu implement phương án nào?
-

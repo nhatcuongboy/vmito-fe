@@ -5,6 +5,7 @@ Utility functions for automatically distributing teams/registrations evenly acro
 ## Overview
 
 Auto-assign algorithm distributes teams across groups using different strategies:
+
 - **Round-robin**: Distribute in order, cycling through groups
 - **Sequential**: Fill each group completely before moving to next
 - **Balanced**: Try to keep groups as equal as possible
@@ -16,13 +17,15 @@ Auto-assign algorithm distributes teams across groups using different strategies
 Automatically assign registrations to groups using specified strategy.
 
 **Parameters:**
+
 - `registrations`: Array of registration IDs (strings)
 - `groups`: Array of groups with `id` and `groupNumber`
-- `options`: 
+- `options`:
   - `shuffle?: boolean` - Randomize before assigning (default: true)
   - `strategy?: 'round-robin' | 'sequential' | 'balanced'` (default: 'round-robin')
 
 **Returns:**
+
 ```typescript
 {
   assignments: Record<string, string[]>; // groupId -> registrationIds[]
@@ -38,19 +41,31 @@ Automatically assign registrations to groups using specified strategy.
 ```
 
 **Example:**
+
 ```typescript
 import { autoAssignTeamsToGroups } from '@/utils/auto-assign';
 
-const registrations = ['reg1', 'reg2', 'reg3', 'reg4', 'reg5', 'reg6', 'reg7', 'reg8', 'reg9', 'reg10'];
+const registrations = [
+  'reg1',
+  'reg2',
+  'reg3',
+  'reg4',
+  'reg5',
+  'reg6',
+  'reg7',
+  'reg8',
+  'reg9',
+  'reg10',
+];
 const groups = [
   { id: 'group1', groupNumber: 1 },
   { id: 'group2', groupNumber: 2 },
-  { id: 'group3', groupNumber: 3 }
+  { id: 'group3', groupNumber: 3 },
 ];
 
 const result = autoAssignTeamsToGroups(registrations, groups, {
   shuffle: true,
-  strategy: 'round-robin'
+  strategy: 'round-robin',
 });
 
 // Result:
@@ -76,6 +91,7 @@ const result = autoAssignTeamsToGroups(registrations, groups, {
 Calculate optimal distribution for given number of teams and groups.
 
 **Example:**
+
 ```typescript
 const dist = calculateOptimalDistribution(10, 3);
 // Returns:
@@ -93,6 +109,7 @@ const dist = calculateOptimalDistribution(10, 3);
 Validate if auto-assignment is possible.
 
 **Example:**
+
 ```typescript
 validateAutoAssign(10, 3); // { valid: true }
 validateAutoAssign(2, 5); // { valid: false, error: 'Cannot assign...' }
@@ -103,6 +120,7 @@ validateAutoAssign(2, 5); // { valid: false, error: 'Cannot assign...' }
 Preview how teams will be distributed before actual assignment.
 
 **Example:**
+
 ```typescript
 const preview = previewDistribution(10, 3, 'balanced');
 // Returns:
@@ -121,7 +139,9 @@ const preview = previewDistribution(10, 3, 'balanced');
 ## Strategies
 
 ### Round-Robin
+
 Distributes teams in order, cycling through groups:
+
 - Team 1 → Group 1
 - Team 2 → Group 2
 - Team 3 → Group 3
@@ -132,7 +152,9 @@ Distributes teams in order, cycling through groups:
 **Best for**: Fair distribution when order doesn't matter
 
 ### Sequential
+
 Fills each group completely before moving to next:
+
 - Teams 1-4 → Group 1
 - Teams 5-7 → Group 2
 - Teams 8-10 → Group 3
@@ -140,7 +162,9 @@ Fills each group completely before moving to next:
 **Best for**: When you want to keep teams together
 
 ### Balanced
+
 Tries to keep groups as equal as possible:
+
 - Distributes extra teams to first groups
 - Similar to sequential but optimized
 
@@ -169,6 +193,7 @@ const result = autoAssignTeamsToGroups(
 ## Usage in Frontend
 
 You can use these utilities in the frontend to:
+
 - Preview distribution before assigning
 - Show expected team counts per group
 - Validate before submission
@@ -189,21 +214,19 @@ console.log(`Teams will be distributed as:`, preview.distribution);
 ## Distribution Examples
 
 ### 10 teams, 3 groups
+
 - Base: 3 teams per group
 - Extra: 1 team
 - Result: 4, 3, 3 teams
 
 ### 12 teams, 4 groups
+
 - Base: 3 teams per group
 - Extra: 0 teams
 - Result: 3, 3, 3, 3 teams (balanced)
 
 ### 7 teams, 3 groups
+
 - Base: 2 teams per group
 - Extra: 1 team
 - Result: 3, 2, 2 teams
-
-
-
-
-

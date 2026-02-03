@@ -4,13 +4,12 @@ import AddPlayerModal from '@/components/session/player-management/AddPlayerModa
 import EditPlayerModal from '@/components/session/player-management/EditPlayerModal';
 import { PlayerDetailModal } from '@/components/player/PlayerDetailModal';
 import PlayerList from '@/components/session/player-management/PlayerList';
-import PlayerStatsHeader from '@/components/session/player-management/PlayerStatsHeader';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
 import { ISession, Player } from '@/lib/api/types';
 import { Box, Text } from '@chakra-ui/react';
-import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
+import { HStack, VStack } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
-import { AlertCircle, Plus } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
@@ -50,7 +49,6 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     isLoadingUsers,
     newPlayerErrors,
     availableLevels,
-    maxPlayers,
     currentPlayerCount,
     removeNewPlayerRow,
     clearAllNewPlayers,
@@ -94,11 +92,6 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   const closeDetailModal = () => {
     setShowDetailModal(false);
     setSelectedPlayerForDetail(null);
-  };
-
-  const openAddPlayerModal = () => {
-    handleAddNewPlayer(); // This adds the first empty player row
-    setShowAddPlayerModal(true);
   };
 
   const closeAddPlayerModal = () => {
@@ -175,7 +168,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         const filteredPlayers =
           playerFilter.length === 0
             ? allPlayers
-            : allPlayers.filter((p) => playerFilter.includes(p.status as any));
+            : allPlayers.filter((p) => playerFilter.includes(p.status));
 
         // Get translated filter name for empty state
         const filterName = playerFilter
@@ -198,14 +191,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         return (
           <PlayerList
             players={filteredPlayers}
-            editingPlayers={editingPlayers}
-            availableLevels={availableLevels}
-            isSaving={isSaving}
-            onAddNewPlayer={handleAddNewPlayer}
             onEditPlayer={openEditPlayerModal}
-            onCancelEditPlayer={cancelEditingPlayer}
-            onSavePlayer={saveIndividualPlayer}
-            onUpdateEditingPlayer={updateEditingPlayer}
             onDeletePlayer={deletePlayer}
             onTogglePlayerStatus={togglePlayerStatus}
             onShowQR={showPlayerDetail}

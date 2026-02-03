@@ -1,6 +1,7 @@
 # API Specification: Session Fee & Payment Management
 
 ## Overview
+
 This document describes the backend API endpoints needed to support the session fee and payment management feature.
 
 ---
@@ -11,26 +12,27 @@ This document describes the backend API endpoints needed to support the session 
 
 ```typescript
 enum FeeType {
-  FIXED = 'FIXED',           // Fixed price per gender
-  SPLIT_EVENLY = 'SPLIT_EVENLY'  // Split total evenly among players
+  FIXED = 'FIXED', // Fixed price per gender
+  SPLIT_EVENLY = 'SPLIT_EVENLY', // Split total evenly among players
 }
 
 enum PaymentMethod {
   CASH = 'CASH',
-  BANK_TRANSFER = 'BANK_TRANSFER'
+  BANK_TRANSFER = 'BANK_TRANSFER',
 }
 
 enum PaymentStatus {
-  PENDING = 'PENDING',       // Player hasn't paid yet
-  SUBMITTED = 'SUBMITTED',   // Player marked as paid, waiting for host approval
-  APPROVED = 'APPROVED',     // Host approved the payment
-  REJECTED = 'REJECTED'      // Host rejected the payment
+  PENDING = 'PENDING', // Player hasn't paid yet
+  SUBMITTED = 'SUBMITTED', // Player marked as paid, waiting for host approval
+  APPROVED = 'APPROVED', // Host approved the payment
+  REJECTED = 'REJECTED', // Host rejected the payment
 }
 ```
 
 ### Database Tables
 
 #### session_fee_configs
+
 ```sql
 CREATE TABLE session_fee_configs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -48,6 +50,7 @@ CREATE TABLE session_fee_configs (
 ```
 
 #### host_payment_settings
+
 ```sql
 CREATE TABLE host_payment_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -68,6 +71,7 @@ WHERE is_default = true;
 ```
 
 #### payment_records
+
 ```sql
 CREATE TABLE payment_records (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -97,9 +101,11 @@ CREATE TABLE payment_records (
 ### 1. Session Fee Configuration
 
 #### GET /api/sessions/:sessionId/fee-config
+
 Get fee configuration for a session.
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -120,9 +126,11 @@ Get fee configuration for a session.
 ---
 
 #### POST /api/sessions/:sessionId/fee-config
+
 Create fee configuration for a session. Only session host can create.
 
 **Request Body:**
+
 ```json
 {
   "feeType": "FIXED",
@@ -133,6 +141,7 @@ Create fee configuration for a session. Only session host can create.
 ```
 
 Or for SPLIT_EVENLY:
+
 ```json
 {
   "feeType": "SPLIT_EVENLY",
@@ -143,12 +152,14 @@ Or for SPLIT_EVENLY:
 **Response (201):** Created fee config object
 
 **Errors:**
+
 - 403: Not session host
 - 409: Fee config already exists
 
 ---
 
 #### PUT /api/sessions/:sessionId/fee-config
+
 Update fee configuration. Only session host can update.
 
 **Request Body:** Same as POST
@@ -156,17 +167,20 @@ Update fee configuration. Only session host can update.
 **Response:** Updated fee config object
 
 **Side Effects:**
+
 - If changing from FIXED to SPLIT_EVENLY or vice versa, recalculate all payment_records amounts
 - If updating maleFee/femaleFee, update affected payment_records
 
 ---
 
 #### DELETE /api/sessions/:sessionId/fee-config
+
 Delete fee configuration. Only session host can delete.
 
 **Response:** 204 No Content
 
 **Side Effects:**
+
 - Delete all associated payment_records
 
 ---
@@ -174,9 +188,11 @@ Delete fee configuration. Only session host can delete.
 ### 2. Host Payment Settings
 
 #### GET /api/payment-settings
+
 Get all payment settings for the authenticated host.
 
 **Response:**
+
 ```json
 [
   {
@@ -196,6 +212,7 @@ Get all payment settings for the authenticated host.
 ---
 
 #### GET /api/payment-settings/default
+
 Get the default payment setting for the authenticated host.
 
 **Response:** Single payment setting object or null
@@ -203,6 +220,7 @@ Get the default payment setting for the authenticated host.
 ---
 
 #### GET /api/hosts/:hostId/payment-settings
+
 Get the default payment setting for a specific host. Used by players to see payment info.
 
 **Response:** Single payment setting object (only default one) or null
@@ -210,9 +228,11 @@ Get the default payment setting for a specific host. Used by players to see paym
 ---
 
 #### POST /api/payment-settings
+
 Create a new payment setting.
 
 **Request Body:**
+
 ```json
 {
   "bankName": "Vietcombank",
@@ -226,11 +246,13 @@ Create a new payment setting.
 **Response (201):** Created payment setting
 
 **Side Effects:**
+
 - If isDefault=true, set all other settings for this user to isDefault=false
 
 ---
 
 #### PUT /api/payment-settings/:id
+
 Update a payment setting.
 
 **Request Body:** Same as POST (all fields optional)
@@ -240,6 +262,7 @@ Update a payment setting.
 ---
 
 #### DELETE /api/payment-settings/:id
+
 Delete a payment setting.
 
 **Response:** 204 No Content
@@ -247,21 +270,25 @@ Delete a payment setting.
 ---
 
 #### POST /api/payment-settings/:id/set-default
+
 Set a payment setting as default.
 
 **Response:** Updated payment setting with isDefault=true
 
 **Side Effects:**
+
 - Set all other settings for this user to isDefault=false
 
 ---
 
 #### POST /api/upload/qr-code
+
 Upload a QR code image.
 
 **Request:** multipart/form-data with file field "qrCode"
 
 **Response:**
+
 ```json
 {
   "url": "https://storage.example.com/qr-codes/abc123.png"
@@ -273,12 +300,15 @@ Upload a QR code image.
 ### 3. Payment Records
 
 #### GET /api/sessions/:sessionId/payments
+
 Get all payment records for a session. Only session host can access.
 
 **Query Parameters:**
+
 - `status`: Filter by status (PENDING, SUBMITTED, APPROVED, REJECTED)
 
 **Response:**
+
 ```json
 {
   "payments": [
@@ -326,9 +356,11 @@ Get all payment records for a session. Only session host can access.
 ---
 
 #### GET /api/sessions/:sessionId/my-payments
+
 Get payment records for the authenticated player in a session.
 
 **Response:**
+
 ```json
 [
   {
@@ -351,9 +383,11 @@ Get payment records for the authenticated player in a session.
 ---
 
 #### POST /api/payments/:id/submit
+
 Player submits payment (marks as paid).
 
 **Request Body:**
+
 ```json
 {
   "paymentMethod": "BANK_TRANSFER",
@@ -365,19 +399,23 @@ Player submits payment (marks as paid).
 **Response:** Updated payment record
 
 **Validation:**
+
 - Only the player or the user who registered them can submit
 - Status must be PENDING or REJECTED (can resubmit after rejection)
 
 **Side Effects:**
+
 - Set status to SUBMITTED
 - Set submittedAt to now
 
 ---
 
 #### POST /api/payments/:id/approve
+
 Host approves a payment.
 
 **Request Body:**
+
 ```json
 {
   "hostNotes": "Confirmed received"
@@ -387,19 +425,23 @@ Host approves a payment.
 **Response:** Updated payment record
 
 **Validation:**
+
 - Only session host can approve
 - Status must be SUBMITTED
 
 **Side Effects:**
+
 - Set status to APPROVED
 - Set approvedAt to now
 
 ---
 
 #### POST /api/payments/:id/reject
+
 Host rejects a payment.
 
 **Request Body:**
+
 ```json
 {
   "hostNotes": "Amount incorrect, please transfer 50000 VND"
@@ -409,19 +451,23 @@ Host rejects a payment.
 **Response:** Updated payment record
 
 **Validation:**
+
 - Only session host can reject
 - Status must be SUBMITTED
 
 **Side Effects:**
+
 - Set status to REJECTED
 - Set rejectedAt to now
 
 ---
 
 #### POST /api/payments/bulk-approve
+
 Host approves multiple payments at once.
 
 **Request Body:**
+
 ```json
 {
   "paymentIds": ["uuid1", "uuid2", "uuid3"],
@@ -430,6 +476,7 @@ Host approves multiple payments at once.
 ```
 
 **Response:**
+
 ```json
 {
   "approved": 3,
@@ -440,11 +487,13 @@ Host approves multiple payments at once.
 ---
 
 #### POST /api/upload/payment-proof
+
 Upload a payment proof image.
 
 **Request:** multipart/form-data with file field "proof"
 
 **Response:**
+
 ```json
 {
   "url": "https://storage.example.com/payment-proofs/abc123.png"
@@ -456,9 +505,11 @@ Upload a payment proof image.
 ### 4. Transaction Summary
 
 #### GET /api/transactions/summary
+
 Get transaction summary for the authenticated player, grouped by host.
 
 **Response:**
+
 ```json
 [
   {
@@ -475,9 +526,11 @@ Get transaction summary for the authenticated player, grouped by host.
 ---
 
 #### GET /api/transactions/with-host/:hostId
+
 Get detailed transactions between player and a specific host.
 
 **Response:**
+
 ```json
 {
   "host": {
@@ -508,9 +561,11 @@ Get detailed transactions between player and a specific host.
 ---
 
 #### GET /api/host/transactions/summary
+
 Get transaction summary for the authenticated host, grouped by player/user.
 
 **Response:**
+
 ```json
 [
   {
@@ -528,6 +583,7 @@ Get transaction summary for the authenticated host, grouped by player/user.
 ---
 
 #### GET /api/host/transactions/with-user/:userId
+
 Get detailed transactions between host and a specific user.
 
 **Response:** Similar structure to player version
@@ -537,18 +593,19 @@ Get detailed transactions between host and a specific user.
 ### 5. Session Integration
 
 #### When a player joins a session with fee config:
+
 1. Create a payment_record with:
    - amount: calculated based on feeType and player gender
    - status: PENDING
    - registeredByUserId: the user who registered (for multi-slot tracking)
 
 #### When calculating fee for FIXED type:
+
 ```javascript
 function calculateFee(feeConfig, playerGender, slots = 1) {
   if (feeConfig.feeType === 'FIXED') {
-    const feePerSlot = playerGender === 'FEMALE'
-      ? feeConfig.femaleFee
-      : feeConfig.maleFee;
+    const feePerSlot =
+      playerGender === 'FEMALE' ? feeConfig.femaleFee : feeConfig.maleFee;
     return feePerSlot * slots;
   }
   return 0; // SPLIT_EVENLY calculated later
@@ -556,6 +613,7 @@ function calculateFee(feeConfig, playerGender, slots = 1) {
 ```
 
 #### When host sets split total (SPLIT_EVENLY):
+
 1. Update session_fee_configs.split_total
 2. Calculate split_per_player = split_total / total_players
 3. Update all payment_records.amount for this session
@@ -571,13 +629,13 @@ For real-time updates:
 socket.emit('payment:updated', {
   sessionId: 'uuid',
   paymentId: 'uuid',
-  status: 'APPROVED'
+  status: 'APPROVED',
 });
 
 // When host sets split amount
 socket.emit('fee:splitCalculated', {
   sessionId: 'uuid',
-  splitPerPlayer: 50000
+  splitPerPlayer: 50000,
 });
 ```
 
@@ -597,6 +655,7 @@ All endpoints return errors in this format:
 ```
 
 Common error codes:
+
 - `UNAUTHORIZED`: Not authenticated
 - `FORBIDDEN`: Not authorized to perform this action
 - `NOT_FOUND`: Resource not found

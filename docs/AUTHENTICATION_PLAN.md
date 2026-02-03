@@ -23,15 +23,15 @@ Authentication is handled by the NestJS backend with JWT tokens.
 
 ## Auth Endpoints (Backend)
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/auth/register` | POST | Public | Create new user |
-| `/auth/login` | POST | Public | Login, returns JWT |
-| `/auth/token` | GET | 🔒 | Refresh token |
-| `/auth/change-password` | PUT | 🔒 | Change password |
-| `/auth/reset-password` | PUT | Public | Reset password |
-| `/auth/google` | GET | Public | Start Google OAuth |
-| `/auth/google/callback` | GET | Public | Google OAuth callback |
+| Endpoint                | Method | Auth   | Description           |
+| ----------------------- | ------ | ------ | --------------------- |
+| `/auth/register`        | POST   | Public | Create new user       |
+| `/auth/login`           | POST   | Public | Login, returns JWT    |
+| `/auth/token`           | GET    | 🔒     | Refresh token         |
+| `/auth/change-password` | PUT    | 🔒     | Change password       |
+| `/auth/reset-password`  | PUT    | Public | Reset password        |
+| `/auth/google`          | GET    | Public | Start Google OAuth    |
+| `/auth/google/callback` | GET    | Public | Google OAuth callback |
 
 ---
 
@@ -81,10 +81,10 @@ interface AuthState {
 ### Auth Service (`src/lib/api/auth.service.ts`)
 
 ```typescript
-AuthService.login({ email, password })  // Returns JWT + user
-AuthService.register({ email, password, name })
-AuthService.logout()                     // Clears local state
-AuthService.refreshToken()               // Get new token
+AuthService.login({ email, password }); // Returns JWT + user
+AuthService.register({ email, password, name });
+AuthService.logout(); // Clears local state
+AuthService.refreshToken(); // Get new token
 ```
 
 ### API Interceptor (`src/lib/api/base.ts`)
@@ -126,11 +126,11 @@ AuthService.refreshToken()               // Get new token
 
 ## User Roles
 
-| Role | Permissions |
-|------|-------------|
-| `ADMIN` | Full system access |
-| `HOST` | Create/manage sessions & tournaments |
-| `PLAYER` | Join sessions, view own data |
+| Role     | Permissions                          |
+| -------- | ------------------------------------ |
+| `ADMIN`  | Full system access                   |
+| `HOST`   | Create/manage sessions & tournaments |
+| `PLAYER` | Join sessions, view own data         |
 
 ---
 
@@ -149,11 +149,13 @@ AuthService.refreshToken()               // Get new token
 ## Environment Variables
 
 ### Frontend (`.env.local`)
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ### Backend (`.env`)
+
 ```env
 JWT_SECRET=your-secret-key-min-32-chars
 JWT_EXPIRES_IN=7d

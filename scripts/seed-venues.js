@@ -29,7 +29,8 @@ const venues = [
 ];
 
 async function seedVenues() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
   console.log('🌱 Starting venue seeding...');
   console.log(`📍 API URL: ${API_URL}\n`);

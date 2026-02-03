@@ -90,6 +90,7 @@ The system supports the following player levels:
 **Location**: `src/components/session/GeneralSettings.tsx` and `src/app/[locale]/host/sessions/new/page.tsx`
 
 **Features**:
+
 - Visual level selector with badges
 - Click to toggle levels on/off
 - Shows count of selected levels
@@ -100,6 +101,7 @@ The system supports the following player levels:
 **Location**: `src/components/session/SessionCard.tsx` and `src/components/player/PlayerSessionCard.tsx`
 
 **Features**:
+
 - Shield icon indicator when session has required levels
 - Badges showing each required level
 - Clear visual indication of restrictions
@@ -109,6 +111,7 @@ The system supports the following player levels:
 **Location**: `src/app/[locale]/join/page.tsx`
 
 **Features**:
+
 - Shows required levels when session is selected
 - Real-time validation of player level
 - Color-coded feedback (green/yellow/red)
@@ -119,6 +122,7 @@ The system supports the following player levels:
 **Location**: `src/components/session/PlayerManagement.tsx`
 
 **Features**:
+
 - Level dropdown only shows allowed levels
 - If session has required levels, only those levels appear
 - If session allows all levels, all levels appear
@@ -138,6 +142,7 @@ model Session {
 ### API Endpoints
 
 #### Create Session
+
 ```
 POST /api/sessions
 Body: {
@@ -146,6 +151,7 @@ Body: {
 ```
 
 #### Update Session
+
 ```
 PUT /api/sessions/:id
 Body: {
@@ -154,6 +160,7 @@ Body: {
 ```
 
 #### Player Join Validation
+
 ```
 POST /api/sessions/:id/players
 Body: {
@@ -238,9 +245,9 @@ Result: Only advanced players (TB, TB+, K) can join.
 ## Future Enhancements
 
 Potential improvements:
+
 - Level range selector (e.g., "Y to TBY")
 - Auto-suggest levels based on current players
 - Analytics: Track sessions by required levels
 - Quick filters: Filter sessions by level requirements
 - Export/import session templates with requiredLevels
-

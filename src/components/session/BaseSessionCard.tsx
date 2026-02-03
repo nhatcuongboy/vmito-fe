@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession, UserRatingStats } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import dayjs from '@/lib/dayjs';
 import {
@@ -25,9 +25,7 @@ import {
   Users,
   Shield,
   Star,
-  MapPin,
   Banknote,
-  Timer,
   Phone,
   Share2,
   Download,
@@ -39,7 +37,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import { StarRatingDisplay } from '@/components/rating';
 import { useRatingStats } from '@/contexts/RatingStatsContext';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
@@ -108,9 +105,6 @@ interface BaseSessionCardProps {
   extraInfoRows?: React.ReactNode;
   actionButtons?: React.ReactNode;
 
-  // New props
-  sessionDistance?: number;
-
   // Optional modal
   modalContent?: React.ReactNode;
 
@@ -134,17 +128,15 @@ const BaseSessionCard = ({
   actionButtons,
   modalContent,
   hostActions,
-  sessionDistance,
   actions,
   topActionButtons,
   bottomActionButtons,
   onHostClick,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
-  const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
   const { getRatingStats } = useRatingStats();
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 

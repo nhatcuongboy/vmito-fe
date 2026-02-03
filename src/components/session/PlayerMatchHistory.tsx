@@ -100,7 +100,7 @@ export default function PlayerMatchHistory({
         if (typeof matchData.score === 'string') {
           try {
             matchData.score = JSON.parse(matchData.score);
-          } catch (_e) {
+          } catch {
             // ignore error
           }
         }
@@ -108,7 +108,7 @@ export default function PlayerMatchHistory({
         if (typeof matchData.winnerIds === 'string') {
           try {
             matchData.winnerIds = JSON.parse(matchData.winnerIds);
-          } catch (_e) {
+          } catch {
             // ignore error
           }
         }

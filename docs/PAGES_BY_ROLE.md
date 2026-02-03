@@ -8,10 +8,10 @@ Hệ thống có 4 loại user role:
 
 ```typescript
 enum UserRole {
-  HOST = 'HOST',      // Người tổ chức session/tournament
-  GUEST = 'GUEST',    // Khách (chưa đăng nhập hoặc tạm thời)
-  PLAYER = 'PLAYER',  // Người chơi
-  ADMIN = 'ADMIN',    // Quản trị viên
+  HOST = 'HOST', // Người tổ chức session/tournament
+  GUEST = 'GUEST', // Khách (chưa đăng nhập hoặc tạm thời)
+  PLAYER = 'PLAYER', // Người chơi
+  ADMIN = 'ADMIN', // Quản trị viên
 }
 ```
 
@@ -64,57 +64,57 @@ Cấu trúc URL được tổ chức theo vai trò người dùng để dễ qu�
 
 Pages chỉ dành cho ADMIN hoặc ADMIN quản lý hệ thống:
 
-| Path | Mô tả | Required Roles |
-|------|-------|----------------|
-| `/admin/users` | Quản lý người dùng hệ thống | `ADMIN` |
-| `/host/dashboard` | Dashboard quản lý (chung với Host) | `ADMIN, HOST` |
+| Path                                   | Mô tả                              | Required Roles |
+| -------------------------------------- | ---------------------------------- | -------------- |
+| `/admin/users`                         | Quản lý người dùng hệ thống        | `ADMIN`        |
+| `/host/dashboard`                      | Dashboard quản lý (chung với Host) | `ADMIN, HOST`  |
 | (Truy cập được toàn bộ pages của HOST) |
 
 ### 🟢 HOST Role
 
 Pages dành cho HOST để quản lý giải đấu và buổi chơi:
 
-| Path | Mô tả | Required Roles |
-|------|-------|----------------|
-| `/host/dashboard` | Dashboard chính của Host | `HOST, ADMIN` |
-| `/host/sessions` | Danh sách sessions đang quản lý | `HOST, ADMIN` |
-| `/host/sessions/new` | Tạo session mới | `HOST, ADMIN` |
-| `/host/sessions/[id]` | Màn hình quản lý chi tiết session | `HOST, ADMIN` |
-| `/host/tournaments/new` | Tạo giải đấu mới | `HOST, ADMIN` |
-| `/host/tournaments/[id]` | Màn hình quản lý giải đấu | `HOST, ADMIN` |
-| `/host/tournaments/[id]/categories/[catId]` | Quản lý hạng mục giải đấu | `HOST, ADMIN` |
-| `/host/tournaments/[id]/players` | Quản lý VĐV giải đấu | `HOST, ADMIN` |
-| `/host/tournaments/[id]/pairs` | Quản lý cặp đấu giải đấu | `HOST, ADMIN` |
+| Path                                        | Mô tả                             | Required Roles |
+| ------------------------------------------- | --------------------------------- | -------------- |
+| `/host/dashboard`                           | Dashboard chính của Host          | `HOST, ADMIN`  |
+| `/host/sessions`                            | Danh sách sessions đang quản lý   | `HOST, ADMIN`  |
+| `/host/sessions/new`                        | Tạo session mới                   | `HOST, ADMIN`  |
+| `/host/sessions/[id]`                       | Màn hình quản lý chi tiết session | `HOST, ADMIN`  |
+| `/host/tournaments/new`                     | Tạo giải đấu mới                  | `HOST, ADMIN`  |
+| `/host/tournaments/[id]`                    | Màn hình quản lý giải đấu         | `HOST, ADMIN`  |
+| `/host/tournaments/[id]/categories/[catId]` | Quản lý hạng mục giải đấu         | `HOST, ADMIN`  |
+| `/host/tournaments/[id]/players`            | Quản lý VĐV giải đấu              | `HOST, ADMIN`  |
+| `/host/tournaments/[id]/pairs`              | Quản lý cặp đấu giải đấu          | `HOST, ADMIN`  |
 
 ### 🔵 PLAYER Role
 
 Pages dành cho người chơi (PLAYER):
 
-| Path | Mô tả | Required Roles |
-|------|-------|----------------|
-| `/player/dashboard` | Dashboard cá nhân của người chơi | `PLAYER` |
-| `/player/sessions/[id]` | Xem chi tiết session (View mode) | `PLAYER` |
-| `/player/sessions/join/confirm` | Xác nhận tham gia session | `PLAYER` |
+| Path                            | Mô tả                            | Required Roles |
+| ------------------------------- | -------------------------------- | -------------- |
+| `/player/dashboard`             | Dashboard cá nhân của người chơi | `PLAYER`       |
+| `/player/sessions/[id]`         | Xem chi tiết session (View mode) | `PLAYER`       |
+| `/player/sessions/join/confirm` | Xác nhận tham gia session        | `PLAYER`       |
 
 ### ⚪ GUEST Role
 
 Pages dành cho khách vãng lai hoặc người dùng chưa định danh đầy đủ:
 
-| Path | Mô tả | Required Roles |
-|------|-------|----------------|
-| `/guest/session` | Xem thông tin session tạm thời | `GUEST` |
-| `/guest/join/status` | Kiểm tra trạng thái tham gia | `GUEST` |
+| Path                 | Mô tả                          | Required Roles |
+| -------------------- | ------------------------------ | -------------- |
+| `/guest/session`     | Xem thông tin session tạm thời | `GUEST`        |
+| `/guest/join/status` | Kiểm tra trạng thái tham gia   | `GUEST`        |
 
 ### 🟡 Public Pages (Browse)
 
 Pages công khai, ai cũng có thể xem (nhưng hành động Add/Join sẽ yêu cầu đăng nhập):
 
-| Path | Mô tả |
-|------|-------|
-| `/` | Trang chủ |
-| `/auth/signin` | Đăng nhập |
-| `/browse/sessions` | Tìm kiếm buổi chơi |
-| `/browse/tournaments` | Tìm kiếm giải đấu |
+| Path                       | Mô tả                  |
+| -------------------------- | ---------------------- |
+| `/`                        | Trang chủ              |
+| `/auth/signin`             | Đăng nhập              |
+| `/browse/sessions`         | Tìm kiếm buổi chơi     |
+| `/browse/tournaments`      | Tìm kiếm giải đấu      |
 | `/browse/tournaments/[id]` | Xem thông tin giải đấu |
 
 ---

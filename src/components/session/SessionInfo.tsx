@@ -20,7 +20,6 @@ import {
   Users,
   User,
   Tag,
-  LayoutGrid,
   FileText,
   DollarSign,
 } from 'lucide-react';

@@ -34,38 +34,45 @@ Tài liệu này mô tả chi tiết kế hoạch migration phần Backend của
 ### Cấu trúc API hiện tại
 
 #### 1. **Sessions Management** (15+ endpoints)
+
 - `/api/sessions` - CRUD operations
 - `/api/sessions/[id]/start`, `/end`, `/status`
 - `/api/sessions/[id]/players`, `/courts`, `/matches`
 - `/api/sessions/[id]/auto-assign`, `/waiting-queue`, `/wait-times`
 
 #### 2. **Players Management** (8+ endpoints)
+
 - `/api/players/[id]` - CRUD
 - `/api/players/[id]/confirm`
 - `/api/players/check-code`, `/link-account`
 - `/api/sessions/[id]/players/bulk`
 
 #### 3. **Courts Management** (8+ endpoints)
+
 - `/api/courts/[id]` - CRUD
 - `/api/courts/[id]/select-players`, `/start-match`, `/end-match`
 - `/api/courts/[id]/pre-select`, `/suggested-players`
 
 #### 4. **Matches Management** (5+ endpoints)
+
 - `/api/sessions/[id]/matches`
 - `/api/sessions/[id]/matches/[matchId]/end`
 - `/api/category-matches/[id]/start`, `/end`
 
 #### 5. **Tournaments Management** (20+ endpoints)
+
 - `/api/tournaments` - CRUD
 - `/api/tournaments/[id]/categories`, `/players`, `/pairs`, `/courts`
 - `/api/categories/[id]/groups`, `/registrations`, `/matches`
 - `/api/category-matches/[id]` - Match management
 
 #### 6. **Authentication** (5 endpoints)
+
 - `/api/auth/[...nextauth]` - NextAuth handlers
 - `/api/auth/register`, `/change-password`, `/reset-password`, `/token`
 
 #### 7. **Utilities** (5+ endpoints)
+
 - `/api/health` - Health check
 - `/api/pwa/subscribe`, `/sync` - PWA features
 - `/api/update-wait-times` - Background jobs
@@ -198,17 +205,20 @@ badminton-backend/
 ## 🔄 Chiến lược Migration
 
 ### Phương án 1: Big Bang Migration (Không khuyến nghị)
+
 - Migrate toàn bộ một lúc
 - Rủi ro cao, downtime lớn
 - Khó test và rollback
 
 ### Phương án 2: Strangler Fig Pattern (Khuyến nghị) ⭐
+
 - Migrate từng module một
 - Giữ Next.js API routes song song
 - Chuyển dần traffic sang NestJS
 - Có thể rollback dễ dàng
 
 ### Phương án 3: Hybrid Approach
+
 - Giữ Next.js cho frontend rendering
 - NestJS chỉ cho API endpoints
 - Proxy requests từ Next.js → NestJS
@@ -220,6 +230,7 @@ badminton-backend/
 ### Phase 1: Setup & Infrastructure (Tuần 1-2)
 
 #### 1.1. Tạo NestJS project mới
+
 ```bash
 # Tạo project mới
 nest new badminton-backend
@@ -235,23 +246,27 @@ npm install @nestjs/swagger   # API documentation
 ```
 
 #### 1.2. Setup Prisma
+
 - Copy `prisma/` folder từ project hiện tại
 - Setup `PrismaService` và `PrismaModule`
 - Test database connection
 
 #### 1.3. Setup Configuration
+
 - Environment variables management
 - Database configuration
 - JWT configuration
 - CORS configuration
 
 #### 1.4. Setup Common modules
+
 - Exception filters
 - Validation pipes
 - Logging interceptors
 - Response transformation
 
 **Deliverables:**
+
 - ✅ NestJS project structure
 - ✅ Prisma integration
 - ✅ Basic configuration
@@ -262,12 +277,14 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 2: Authentication Module (Tuần 3-4)
 
 #### 2.1. Migrate NextAuth → NestJS Auth
+
 - Implement JWT strategy
 - Implement Local strategy (credentials)
 - Implement OAuth strategy (Google) - optional
 - Create auth guards
 
 #### 2.2. Auth Endpoints
+
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/change-password`
@@ -275,11 +292,13 @@ npm install @nestjs/swagger   # API documentation
 - `POST /auth/token` (refresh token)
 
 #### 2.3. User Management
+
 - `GET /users` - Get users
 - `GET /users/:id` - Get user by ID
 - `PUT /users/:id` - Update user
 
 **Deliverables:**
+
 - ✅ Authentication module hoàn chỉnh
 - ✅ JWT authentication working
 - ✅ User CRUD operations
@@ -290,6 +309,7 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 3: Sessions Module (Tuần 5-7)
 
 #### 3.1. Core Session Operations
+
 - `GET /sessions` - List sessions
 - `POST /sessions` - Create session
 - `GET /sessions/:id` - Get session
@@ -297,16 +317,19 @@ npm install @nestjs/swagger   # API documentation
 - `DELETE /sessions/:id` - Delete session
 
 #### 3.2. Session Lifecycle
+
 - `POST /sessions/:id/start` - Start session
 - `POST /sessions/:id/end` - End session
 - `GET /sessions/:id/status` - Get status
 
 #### 3.3. Session Relations
+
 - `GET /sessions/:id/players` - Get players
 - `GET /sessions/:id/courts` - Get courts
 - `GET /sessions/:id/matches` - Get matches
 
 **Deliverables:**
+
 - ✅ Sessions module
 - ✅ All session endpoints migrated
 - ✅ Business logic preserved
@@ -317,12 +340,14 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 4: Players Module (Tuần 8-9)
 
 #### 4.1. Player CRUD
+
 - `GET /players/:id`
 - `PUT /players/:id`
 - `DELETE /players/:id`
 - `POST /players/:id/confirm`
 
 #### 4.2. Session Players
+
 - `POST /sessions/:id/players` - Add player
 - `POST /sessions/:id/players/bulk` - Bulk add
 - `PATCH /sessions/:id/players/:playerId`
@@ -330,11 +355,13 @@ npm install @nestjs/swagger   # API documentation
 - `GET /sessions/:id/players/statistics`
 
 #### 4.3. Player Utilities
+
 - `GET /players/check-code/:code`
 - `POST /players/link-account`
 - `GET /players/me/sessions`
 
 **Deliverables:**
+
 - ✅ Players module
 - ✅ All player endpoints
 - ✅ Bulk operations
@@ -345,6 +372,7 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 5: Courts & Matches Module (Tuần 10-11)
 
 #### 5.1. Courts Module
+
 - `GET /courts/:id`
 - `PATCH /courts/:id`
 - `POST /courts/:id/select-players`
@@ -355,18 +383,21 @@ npm install @nestjs/swagger   # API documentation
 - `GET /courts/:id/suggested-players`
 
 #### 5.2. Matches Module
+
 - `GET /sessions/:id/matches`
 - `POST /sessions/:id/matches/:matchId/end`
 - `POST /category-matches/:id/start`
 - `POST /category-matches/:id/end`
 
 #### 5.3. Auto-assign & Queue
+
 - `POST /sessions/:id/auto-assign`
 - `GET /sessions/:id/waiting-queue`
 - `PUT /sessions/:id/wait-times`
 - `POST /update-wait-times`
 
 **Deliverables:**
+
 - ✅ Courts module
 - ✅ Matches module
 - ✅ Auto-assign logic
@@ -377,6 +408,7 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 6: Tournaments Module (Tuần 12-15)
 
 #### 6.1. Tournaments CRUD
+
 - `GET /tournaments`
 - `POST /tournaments`
 - `GET /tournaments/:id`
@@ -384,6 +416,7 @@ npm install @nestjs/swagger   # API documentation
 - `DELETE /tournaments/:id`
 
 #### 6.2. Tournament Relations
+
 - `GET /tournaments/:id/players`
 - `POST /tournaments/:id/players`
 - `GET /tournaments/:id/categories`
@@ -392,6 +425,7 @@ npm install @nestjs/swagger   # API documentation
 - `GET /tournaments/:id/courts`
 
 #### 6.3. Categories Module
+
 - `GET /categories/:id`
 - `PUT /categories/:id`
 - `GET /categories/:id/registrations`
@@ -399,6 +433,7 @@ npm install @nestjs/swagger   # API documentation
 - `GET /categories/:id/standings`
 
 #### 6.4. Groups Module
+
 - `GET /categories/:id/groups`
 - `POST /categories/:id/groups`
 - `POST /categories/:id/groups/auto-assign`
@@ -406,11 +441,13 @@ npm install @nestjs/swagger   # API documentation
 - `POST /categories/:id/groups/:groupId/generate-matches`
 
 #### 6.5. Category Matches
+
 - `GET /category-matches/:id`
 - `POST /category-matches/:id/start`
 - `POST /category-matches/:id/end`
 
 **Deliverables:**
+
 - ✅ Tournaments module hoàn chỉnh
 - ✅ Categories & Groups
 - ✅ Match management
@@ -421,17 +458,21 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 7: Utilities & PWA (Tuần 16)
 
 #### 7.1. Health Check
+
 - `GET /health` - Health check endpoint
 
 #### 7.2. PWA Support
+
 - `POST /pwa/subscribe` - Push notification subscription
 - `POST /pwa/sync` - Offline sync
 
 #### 7.3. Other Utilities
+
 - `POST /join-by-code` - Join session by code
 - `GET /player-status` - Get player status
 
 **Deliverables:**
+
 - ✅ All utility endpoints
 - ✅ PWA support
 - ✅ Health monitoring
@@ -441,25 +482,30 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 8: Testing & Documentation (Tuần 17-18)
 
 #### 8.1. Unit Tests
+
 - Test tất cả services
 - Test business logic
 - Coverage > 80%
 
 #### 8.2. Integration Tests
+
 - Test API endpoints
 - Test authentication flow
 - Test database operations
 
 #### 8.3. E2E Tests
+
 - Test critical user flows
 - Test error scenarios
 
 #### 8.4. API Documentation
+
 - Swagger/OpenAPI documentation
 - Update API docs
 - Migration guide
 
 **Deliverables:**
+
 - ✅ Test suite hoàn chỉnh
 - ✅ API documentation
 - ✅ Migration guide
@@ -469,23 +515,27 @@ npm install @nestjs/swagger   # API documentation
 ### Phase 9: Deployment & Migration (Tuần 19-20)
 
 #### 9.1. Production Setup
+
 - Setup production environment
 - Database migration
 - Environment variables
 - Monitoring & logging
 
 #### 9.2. Gradual Migration
+
 - Deploy NestJS backend
 - Update frontend to use new API
 - Monitor performance
 - Rollback plan ready
 
 #### 9.3. Cleanup
+
 - Remove old Next.js API routes
 - Update documentation
 - Archive old code
 
 **Deliverables:**
+
 - ✅ Production deployment
 - ✅ Frontend migrated
 - ✅ Old code removed
@@ -503,7 +553,10 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   async onModuleInit() {
     await this.$connect();
   }
@@ -542,7 +595,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 ```typescript
 // sessions/dto/create-session.dto.ts
-import { IsString, IsNumber, IsOptional, IsArray, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsArray,
+  IsEnum,
+} from 'class-validator';
 import { Level } from '@prisma/client';
 
 export class CreateSessionDto {
@@ -564,7 +623,12 @@ export class CreateSessionDto {
 
 ```typescript
 // common/filters/http-exception.filter.ts
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+} from '@nestjs/common';
 import { Response } from 'express';
 
 @Catch(HttpException)
@@ -587,7 +651,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 ```typescript
 // common/interceptors/transform.interceptor.ts
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -595,10 +664,10 @@ import { map } from 'rxjs/operators';
 export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(data => ({
+      map((data) => ({
         success: true,
         data,
-      })),
+      }))
     );
   }
 }
@@ -609,6 +678,7 @@ export class TransformInterceptor implements NestInterceptor {
 ## 📦 Dependencies cần thiết
 
 ### Core Dependencies
+
 ```json
 {
   "@nestjs/common": "^10.0.0",
@@ -622,6 +692,7 @@ export class TransformInterceptor implements NestInterceptor {
 ```
 
 ### Authentication
+
 ```json
 {
   "@nestjs/jwt": "^10.0.0",
@@ -633,6 +704,7 @@ export class TransformInterceptor implements NestInterceptor {
 ```
 
 ### Validation & Transformation
+
 ```json
 {
   "class-validator": "^0.14.0",
@@ -641,6 +713,7 @@ export class TransformInterceptor implements NestInterceptor {
 ```
 
 ### Configuration & Utilities
+
 ```json
 {
   "@nestjs/config": "^3.0.0",
@@ -654,21 +727,25 @@ export class TransformInterceptor implements NestInterceptor {
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 - Test services với mocked dependencies
 - Test business logic
 - Test validation
 
 ### Integration Tests
+
 - Test API endpoints
 - Test database operations
 - Test authentication flow
 
 ### E2E Tests
+
 - Test complete user flows
 - Test error scenarios
 - Test performance
 
 ### Test Coverage Goals
+
 - Services: > 90%
 - Controllers: > 80%
 - Overall: > 80%
@@ -678,21 +755,25 @@ export class TransformInterceptor implements NestInterceptor {
 ## 🚀 Deployment Strategy
 
 ### Development
+
 - Local development với hot reload
 - Docker compose cho local testing
 
 ### Staging
+
 - Deploy NestJS backend riêng biệt
 - Test với frontend staging
 - Performance testing
 
 ### Production
+
 - Deploy NestJS backend (Vercel/Heroku/AWS)
 - Update frontend API base URL
 - Monitor và log
 - Gradual rollout
 
 ### Environment Variables
+
 ```env
 # Database
 DATABASE_URL=postgresql://...
@@ -715,37 +796,47 @@ CORS_ORIGIN=https://your-frontend.com
 ## ⚠️ Rủi ro và Giải pháp
 
 ### Rủi ro 1: Breaking Changes
+
 **Mô tả**: API response format có thể thay đổi  
-**Giải pháp**: 
+**Giải pháp**:
+
 - Giữ nguyên response format hiện tại
 - Sử dụng interceptors để transform
 - Version API nếu cần
 
 ### Rủi ro 2: Authentication Migration
+
 **Mô tả**: NextAuth → NestJS JWT có thể không tương thích  
 **Giải pháp**:
+
 - Implement JWT tương thích với NextAuth
 - Support migration tokens
 - Dual authentication trong giai đoạn transition
 
 ### Rủi ro 3: Database Schema Changes
+
 **Mô tả**: Có thể cần thay đổi schema  
 **Giải pháp**:
+
 - Giữ nguyên Prisma schema
 - Không thay đổi database structure
 - Chỉ migrate application layer
 
 ### Rủi ro 4: Performance Issues
+
 **Mô tả**: NestJS có thể chậm hơn Next.js API routes  
 **Giải pháp**:
+
 - Performance testing
 - Caching strategies
 - Database query optimization
 - Load testing
 
 ### Rủi ro 5: Downtime
+
 **Mô tả**: Migration có thể gây downtime  
 **Giải pháp**:
+
 - Gradual migration
 - Blue-green deployment
 - Rollback plan
@@ -756,6 +847,7 @@ CORS_ORIGIN=https://your-frontend.com
 ## ✅ Checklist Migration
 
 ### Pre-Migration
+
 - [ ] Backup database
 - [ ] Document current API endpoints
 - [ ] Create test suite cho current API
@@ -763,6 +855,7 @@ CORS_ORIGIN=https://your-frontend.com
 - [ ] Setup CI/CD pipeline
 
 ### Phase 1: Infrastructure
+
 - [ ] Setup NestJS project
 - [ ] Integrate Prisma
 - [ ] Setup configuration
@@ -770,6 +863,7 @@ CORS_ORIGIN=https://your-frontend.com
 - [ ] Health check endpoint
 
 ### Phase 2: Authentication
+
 - [ ] Migrate auth logic
 - [ ] Implement JWT strategy
 - [ ] Create auth endpoints
@@ -777,6 +871,7 @@ CORS_ORIGIN=https://your-frontend.com
 - [ ] Update frontend auth calls
 
 ### Phase 3-6: Business Modules
+
 - [ ] Migrate Sessions module
 - [ ] Migrate Players module
 - [ ] Migrate Courts module
@@ -785,11 +880,13 @@ CORS_ORIGIN=https://your-frontend.com
 - [ ] Test each module independently
 
 ### Phase 7: Utilities
+
 - [ ] Migrate utility endpoints
 - [ ] PWA support
 - [ ] Health checks
 
 ### Phase 8: Testing
+
 - [ ] Unit tests
 - [ ] Integration tests
 - [ ] E2E tests
@@ -797,6 +894,7 @@ CORS_ORIGIN=https://your-frontend.com
 - [ ] API documentation
 
 ### Phase 9: Deployment
+
 - [ ] Production deployment
 - [ ] Update frontend
 - [ ] Monitor performance
@@ -816,17 +914,17 @@ CORS_ORIGIN=https://your-frontend.com
 
 ## 📅 Timeline ước tính
 
-| Phase | Duration | Start | End |
-|-------|----------|-------|-----|
-| Phase 1: Infrastructure | 2 weeks | Week 1 | Week 2 |
-| Phase 2: Authentication | 2 weeks | Week 3 | Week 4 |
-| Phase 3: Sessions | 3 weeks | Week 5 | Week 7 |
-| Phase 4: Players | 2 weeks | Week 8 | Week 9 |
-| Phase 5: Courts & Matches | 2 weeks | Week 10 | Week 11 |
-| Phase 6: Tournaments | 4 weeks | Week 12 | Week 15 |
-| Phase 7: Utilities | 1 week | Week 16 | Week 16 |
-| Phase 8: Testing | 2 weeks | Week 17 | Week 18 |
-| Phase 9: Deployment | 2 weeks | Week 19 | Week 20 |
+| Phase                     | Duration | Start   | End     |
+| ------------------------- | -------- | ------- | ------- |
+| Phase 1: Infrastructure   | 2 weeks  | Week 1  | Week 2  |
+| Phase 2: Authentication   | 2 weeks  | Week 3  | Week 4  |
+| Phase 3: Sessions         | 3 weeks  | Week 5  | Week 7  |
+| Phase 4: Players          | 2 weeks  | Week 8  | Week 9  |
+| Phase 5: Courts & Matches | 2 weeks  | Week 10 | Week 11 |
+| Phase 6: Tournaments      | 4 weeks  | Week 12 | Week 15 |
+| Phase 7: Utilities        | 1 week   | Week 16 | Week 16 |
+| Phase 8: Testing          | 2 weeks  | Week 17 | Week 18 |
+| Phase 9: Deployment       | 2 weeks  | Week 19 | Week 20 |
 
 **Tổng thời gian**: ~20 tuần (5 tháng)
 
@@ -858,4 +956,3 @@ CORS_ORIGIN=https://your-frontend.com
 **Tác giả**: Development Team  
 **Ngày cập nhật**: 2025-01-XX  
 **Version**: 1.0
-

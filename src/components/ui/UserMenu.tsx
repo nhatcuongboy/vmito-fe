@@ -1,19 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import {
-  Box,
-  Flex,
-  Text,
-  Avatar,
-  Portal,
-  IconButton,
-  Icon,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, Avatar, Portal, IconButton } from '@chakra-ui/react';
 import {
   ChevronDown,
   User as UserIcon,
-  Monitor,
   MessageSquare,
   LogOut,
   ChevronRight,

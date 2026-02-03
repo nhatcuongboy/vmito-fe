@@ -5,6 +5,7 @@ Utility functions for calculating tournament group standings based on match resu
 ## Overview
 
 Standings calculation determines team rankings based on:
+
 1. **Points** (primary): Win = 2, Draw = 1, Loss = 0
 2. **Head-to-head** (tie-breaker): Direct match results between tied teams
 3. **Point difference** (tie-breaker): Total points scored minus points conceded
@@ -17,9 +18,10 @@ Standings calculation determines team rankings based on:
 Calculate standings from match results.
 
 **Parameters:**
+
 - `teamIds`: Array of team/registration IDs
 - `matches`: Array of finished match results
-- `options`: 
+- `options`:
   - `pointsForWin?: number` (default: 2)
   - `pointsForDraw?: number` (default: 1)
   - `pointsForLoss?: number` (default: 0)
@@ -27,11 +29,13 @@ Calculate standings from match results.
   - `usePointDifference?: boolean` (default: true)
 
 **Returns:**
+
 ```typescript
 TeamStanding[] // Sorted by rank
 ```
 
 **Example:**
+
 ```typescript
 import { calculateStandings } from '@/utils/standings';
 
@@ -73,6 +77,7 @@ const standings = calculateStandings(teamIds, matches);
 Determine winners from standings (top N teams).
 
 **Example:**
+
 ```typescript
 const winners = determineWinners(standings, 2);
 // Returns: ['team1', 'team2'] (top 2 teams)
@@ -83,6 +88,7 @@ const winners = determineWinners(standings, 2);
 Get all teams with a specific rank (for handling ties).
 
 **Example:**
+
 ```typescript
 const rank2Teams = getTeamsWithRank(standings, 2);
 // Returns teams that are tied for 2nd place
@@ -93,6 +99,7 @@ const rank2Teams = getTeamsWithRank(standings, 2);
 Check if all teams have played all possible matches (round-robin complete).
 
 **Example:**
+
 ```typescript
 const complete = isStandingsComplete(standings, 4);
 // Returns true if all teams have played 3 matches (4-1)
@@ -103,6 +110,7 @@ const complete = isStandingsComplete(standings, 4);
 Calculate win percentage for a team.
 
 **Example:**
+
 ```typescript
 const winPct = calculateWinPercentage(standing);
 // Returns: 75.0 (for 3 wins out of 4 matches)
@@ -113,6 +121,7 @@ const winPct = calculateWinPercentage(standing);
 Format standings for display with human-readable strings.
 
 **Example:**
+
 ```typescript
 const formatted = formatStandings(standings);
 // Returns:
@@ -141,6 +150,7 @@ Standings are sorted by (in order):
 ## Head-to-Head Tie-Breaking
 
 When two teams have the same points, head-to-head record is checked:
+
 - If Team A beat Team B directly, Team A ranks higher
 - If teams split matches, point difference in head-to-head is used
 - If still tied, overall point difference is used
@@ -171,6 +181,7 @@ const winners = determineWinners(standings, category.winnersPerGroup || 1);
 ## Usage in Frontend
 
 You can use these utilities in the frontend to:
+
 - Display standings tables
 - Show win percentages
 - Format standings for display
@@ -181,18 +192,22 @@ import { formatStandings, calculateWinPercentage } from '@/utils/standings';
 
 const formatted = formatStandings(standings);
 formatted.forEach((team) => {
-  console.log(`${team.rank}. ${team.teamId}: ${team.record} (${team.winPercentage}%)`);
+  console.log(
+    `${team.rank}. ${team.teamId}: ${team.record} (${team.winPercentage}%)`
+  );
 });
 ```
 
 ## Points System
 
 Default points:
+
 - **Win**: 2 points
 - **Draw**: 1 point
 - **Loss**: 0 points
 
 This can be customized via options:
+
 ```typescript
 const standings = calculateStandings(teamIds, matches, {
   pointsForWin: 3, // 3 points for win
@@ -200,8 +215,3 @@ const standings = calculateStandings(teamIds, matches, {
   pointsForLoss: 0,
 });
 ```
-
-
-
-
-

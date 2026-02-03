@@ -1,30 +1,37 @@
 # Session Cover Photo Feature - Frontend Implementation
 
 ## Overview
+
 This document describes the frontend implementation of the session cover photo feature, which allows hosts to upload and manage cover photos for their badminton sessions.
 
 ## Implementation Summary
 
 ### 1. Type Definitions
+
 **File**: `src/lib/api/types.ts`
 
 Added to `ISession` interface:
+
 ```typescript
 coverPhoto?: string;
 coverPhotoPublicId?: string;
 ```
 
 ### 2. API Service Methods
+
 **File**: `src/lib/api/session.service.ts`
 
 Added two new methods:
+
 - `uploadCoverPhoto(sessionId: string, file: File): Promise<ISession>`
 - `deleteCoverPhoto(sessionId: string): Promise<ISession>`
 
 ### 3. CoverPhotoUpload Component
+
 **File**: `src/components/session/CoverPhotoUpload.tsx`
 
 A reusable component for uploading and managing cover photos with:
+
 - Image preview
 - Drag-and-drop support (via file input)
 - File validation (type and size)
@@ -33,6 +40,7 @@ A reusable component for uploading and managing cover photos with:
 - Responsive design
 
 **Props**:
+
 ```typescript
 interface CoverPhotoUploadProps {
   currentPhotoUrl?: string;
@@ -44,9 +52,11 @@ interface CoverPhotoUploadProps {
 ```
 
 ### 4. SessionForm Integration
+
 **File**: `src/components/session/SessionForm.tsx`
 
 **Changes**:
+
 - Imported `CoverPhotoUpload` component
 - Added state management for cover photo:
   ```typescript
@@ -60,13 +70,16 @@ interface CoverPhotoUploadProps {
 - Handles upload and delete operations with toast notifications
 
 **Note**: Cover photo upload is only available in **edit mode**, not during session creation. This is because:
+
 1. The session must exist first to have an ID for the upload endpoint
 2. Hosts can add cover photo after creating the session
 
 ### 5. Display in Session Cards
+
 **File**: `src/components/session/BaseSessionCard.tsx`
 
 Updated the cover image section to use session's cover photo if available:
+
 ```typescript
 <Image
   src={session.coverPhoto || "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&h=400&fit=crop"}
@@ -80,9 +93,11 @@ Updated the cover image section to use session's cover photo if available:
 Falls back to default badminton court image if no cover photo is set.
 
 ### 6. Display in Session Detail Pages
+
 **File**: `src/components/session/SessionOverviewTab.tsx`
 
 Added cover photo display at the top of the overview tab:
+
 ```typescript
 {session.coverPhoto && (
   <Box mb={8} borderRadius="xl" overflow="hidden" boxShadow="md">
@@ -102,6 +117,7 @@ Added cover photo display at the top of the overview tab:
 ### For Session Hosts
 
 #### Uploading a Cover Photo
+
 1. Create a new session (cover photo not available yet)
 2. Navigate to the session's Settings tab
 3. Scroll to the "Cover Photo" section
@@ -112,6 +128,7 @@ Added cover photo display at the top of the overview tab:
 8. Cover photo is immediately visible in the form
 
 #### Removing a Cover Photo
+
 1. Go to session Settings tab
 2. Click the "X" button on the cover photo
 3. Confirm removal
@@ -119,6 +136,7 @@ Added cover photo display at the top of the overview tab:
 5. Success toast notification appears
 
 #### Viewing Cover Photos
+
 - **Session Cards**: Cover photo appears as the card header image
 - **Session Detail**: Cover photo appears at the top of the Overview tab
 - **Fallback**: Default badminton court image if no cover photo
@@ -126,21 +144,25 @@ Added cover photo display at the top of the overview tab:
 ## Technical Details
 
 ### Image Specifications
+
 - **Recommended size**: 1200x630px
 - **Max file size**: 5MB
 - **Supported formats**: jpg, jpeg, png, gif, webp
 - **Optimization**: Handled by Cloudinary (auto quality, auto format)
 
 ### API Endpoints Used
+
 - `POST /sessions/:id/cover-photo` - Upload cover photo
 - `DELETE /sessions/:id/cover-photo` - Remove cover photo
 
 ### State Management
+
 - Local component state for upload progress
 - Immediate UI update after successful upload/delete
 - Toast notifications for user feedback
 
 ### Error Handling
+
 - File type validation (client-side)
 - File size validation (client-side)
 - Upload failure toast notifications
@@ -158,6 +180,7 @@ Added cover photo display at the top of the overview tab:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Add cover photo upload during session creation (would require two-step process)
 2. Image cropping tool before upload
 3. Multiple image gallery support

@@ -31,56 +31,56 @@ See [PAGES_BY_ROLE.md](./PAGES_BY_ROLE.md) for complete route documentation.
 
 ### Layout Components
 
-| Component | Path | Description |
-|-----------|------|-------------|
-| `MainLayout` | `components/layout/MainLayout.tsx` | Main page wrapper |
-| `TopBar` | `components/layout/TopBar.tsx` | Navigation header |
-| `SidebarMenu` | `components/layout/SidebarMenu.tsx` | Side navigation |
+| Component     | Path                                | Description       |
+| ------------- | ----------------------------------- | ----------------- |
+| `MainLayout`  | `components/layout/MainLayout.tsx`  | Main page wrapper |
+| `TopBar`      | `components/layout/TopBar.tsx`      | Navigation header |
+| `SidebarMenu` | `components/layout/SidebarMenu.tsx` | Side navigation   |
 
 ### UI Components (`components/ui/`)
 
-| Component | Description |
-|-----------|-------------|
-| `CommonModal` | Standardized modal with animations |
-| `Avatar` | User avatar with fallback |
-| `LanguageSwitcher` | i18n language selector |
-| `PasswordInput` | Password with visibility toggle |
+| Component          | Description                        |
+| ------------------ | ---------------------------------- |
+| `CommonModal`      | Standardized modal with animations |
+| `Avatar`           | User avatar with fallback          |
+| `LanguageSwitcher` | i18n language selector             |
+| `PasswordInput`    | Password with visibility toggle    |
 
 ### Session Components (`components/session/`)
 
-| Component | Description |
-|-----------|-------------|
-| `PlayersTab` | Player grid/list views |
-| `CourtsTab` | Court management |
-| `MatchesTab` | Match history |
+| Component             | Description            |
+| --------------------- | ---------------------- |
+| `PlayersTab`          | Player grid/list views |
+| `CourtsTab`           | Court management       |
+| `MatchesTab`          | Match history          |
 | `SessionStatusHeader` | Session status display |
 
 ### Player Components (`components/player/`)
 
-| Component | Description |
-|-----------|-------------|
-| `PlayerGrid` | Grid view of players |
-| `PlayerList` | List view of players |
-| `PlayerDetailModal` | Player info modal |
-| `PlayerManagement` | Add/edit players |
-| `AddPlayerModal` | Add new player |
-| `EditPlayerModal` | Edit existing player |
+| Component           | Description          |
+| ------------------- | -------------------- |
+| `PlayerGrid`        | Grid view of players |
+| `PlayerList`        | List view of players |
+| `PlayerDetailModal` | Player info modal    |
+| `PlayerManagement`  | Add/edit players     |
+| `AddPlayerModal`    | Add new player       |
+| `EditPlayerModal`   | Edit existing player |
 
 ### Court Components (`components/court/`)
 
-| Component | Description |
-|-----------|-------------|
-| `CourtCard` | Court status card |
-| `ManualSelectPlayersModal` | Manual player selection |
-| `MatchPreviewModal` | Match preview before start |
-| `MatchResultModal` | End match with score |
+| Component                  | Description                |
+| -------------------------- | -------------------------- |
+| `CourtCard`                | Court status card          |
+| `ManualSelectPlayersModal` | Manual player selection    |
+| `MatchPreviewModal`        | Match preview before start |
+| `MatchResultModal`         | End match with score       |
 
 ### Guards (`components/guards/`)
 
-| Component | Description |
-|-----------|-------------|
-| `ProtectedRouteGuard` | Requires authentication |
-| `PublicRouteGuard` | Redirects if authenticated |
+| Component             | Description                |
+| --------------------- | -------------------------- |
+| `ProtectedRouteGuard` | Requires authentication    |
+| `PublicRouteGuard`    | Redirects if authenticated |
 
 ---
 
@@ -88,9 +88,9 @@ See [PAGES_BY_ROLE.md](./PAGES_BY_ROLE.md) for complete route documentation.
 
 ### Zustand Stores (`stores/`)
 
-| Store | Purpose |
-|-------|---------|
-| `useAuthStore` | Authentication state |
+| Store             | Purpose              |
+| ----------------- | -------------------- |
+| `useAuthStore`    | Authentication state |
 | `useSessionStore` | Current session data |
 
 ---
@@ -116,6 +116,7 @@ See [README-I18N.md](./README-I18N.md) for i18n documentation.
 ## Key Patterns
 
 ### Modal Pattern
+
 ```tsx
 import { CommonModal } from '@/components/ui/CommonModal';
 
@@ -125,10 +126,11 @@ import { CommonModal } from '@/components/ui/CommonModal';
   title="Modal Title"
   primaryLabel="Confirm"
   onPrimaryClick={handleConfirm}
-/>
+/>;
 ```
 
 ### Translation Pattern
+
 ```tsx
 import { useTranslations } from 'next-intl';
 
@@ -137,6 +139,7 @@ return <h1>{t('title')}</h1>;
 ```
 
 ### Protected Route Pattern
+
 ```tsx
 <ProtectedRouteGuard requiredRole={['HOST', 'ADMIN']}>
   <HostDashboard />

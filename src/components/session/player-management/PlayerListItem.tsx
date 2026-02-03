@@ -1,30 +1,10 @@
 import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import {
-  Card,
-  CardBody,
-  HStack,
-  VStack,
-  IconButton,
-  Button,
-} from '@/components/ui/chakra-compat';
+import { Card, CardBody, HStack, VStack } from '@/components/ui/chakra-compat';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import {
-  AlertCircle,
-  Edit,
-  MoreVertical,
-  QrCode,
-  Trash2,
-  UserCheck,
-  PlayCircle,
-  PauseCircle,
-  Clock,
-  CheckCircle2,
-  Zap,
-  User,
-} from 'lucide-react';
+import { AlertCircle, UserCheck, Zap, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { PlayerActionMenu } from './PlayerActionMenu';
 import { Player } from './types';
 import { Gender } from '@/lib/api/types';
@@ -78,30 +58,7 @@ function getStatusGradient(status: string) {
   }
 }
 
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'PLAYING':
-      return { color: 'green', icon: PlayCircle, label: 'Playing' };
-    case 'WAITING':
-      return { color: 'orange', icon: Clock, label: 'Waiting' };
-    case 'READY':
-      return { color: 'blue', icon: CheckCircle2, label: 'Ready' };
-    default:
-      return { color: 'gray', icon: AlertCircle, label: 'Unknown' };
-  }
-}
-
 // Enhanced Gender gradient backgrounds
-function getGenderGradient(gender?: string): string {
-  if (gender === Gender.MALE) return 'linear(135deg, #3182ce 0%, #63b3ed 100%)';
-  if (gender === Gender.FEMALE)
-    return 'linear(135deg, #d53f8c 0%, #f687b3 100%)';
-  if (gender === Gender.OTHER)
-    return 'linear(135deg, #805ad5 0%, #b794f4 100%)';
-  if (gender === Gender.PREFER_NOT_TO_SAY)
-    return 'linear(135deg, #718096 0%, #a0aec0 100%)';
-  return 'linear(135deg, #718096 0%, #a0aec0 100%)';
-}
 
 function getGenderColor(gender?: string): string {
   if (gender === Gender.MALE) return 'blue';
@@ -228,17 +185,7 @@ const EnhancedAvatar = ({
 
 interface PlayerListItemProps {
   player: Player;
-  isEditing: Player | undefined;
-  availableLevels: number[];
-  isSaving: boolean;
   onEdit: (player: Player) => void;
-  onCancelEdit: (playerId: string) => void;
-  onSave: (playerId: string) => void;
-  onUpdateEditing: (
-    playerId: string,
-    field: string,
-    value: string | boolean
-  ) => void;
   onDelete: (playerId: string) => void;
   onToggleStatus: (playerId: string) => void;
   onShowQR: (player: Player) => void;
@@ -269,10 +216,6 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
         return '?';
     }
   };
-
-  const statusColor = getStatusColor(player.status);
-  const statusInfo = getStatusBadge(player.status);
-  const isPlaying = player.status === 'PLAYING';
 
   return (
     <Card

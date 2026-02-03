@@ -1,9 +1,11 @@
-export type { Player } from '@/lib/api/types';
+import { Player as IPlayer, GenderType } from '@/lib/api/types';
+
+export type Player = IPlayer;
 
 export interface NewPlayer {
   playerNumber: number;
   name: string;
-  gender: string;
+  gender: GenderType;
   level: number | null;
   levelDescription?: string;
   requireConfirmInfo?: boolean;

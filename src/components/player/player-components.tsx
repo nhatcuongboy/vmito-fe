@@ -16,13 +16,7 @@ import { Button } from '@chakra-ui/react';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VALID_LEVELS } from '@/constants/levels';
 
-export function AddPlayerForm({
-  sessionId: _sessionId,
-  onSuccess,
-}: {
-  sessionId: string;
-  onSuccess?: () => void;
-}) {
+export function AddPlayerForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isLoading, setIsLoading] = useState(false);
   const { getLevelLabel } = useLevelLabel();
 

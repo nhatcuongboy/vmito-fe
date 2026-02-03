@@ -5,7 +5,6 @@ import SessionForm from './SessionForm';
 import { ISession } from '@/lib/api/types';
 import { SessionService } from '@/lib/api/session.service';
 import { Box, Spinner, Text } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 
 interface SessionEditFormProps {
   sessionId: string;
@@ -16,7 +15,6 @@ export default function SessionEditForm({
   sessionId,
   onSuccess,
 }: SessionEditFormProps) {
-  const t = useTranslations('session');
   const [session, setSession] = useState<ISession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

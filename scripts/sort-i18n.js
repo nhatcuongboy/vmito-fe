@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const messagesDir = path.join(__dirname, '../src/i18n/messages');
 
@@ -21,7 +21,11 @@ function sortObjectByReference(obj, reference) {
   // First, add all keys that exist in reference, in the same order
   for (const key in reference) {
     if (obj.hasOwnProperty(key)) {
-      if (typeof reference[key] === 'object' && reference[key] !== null && !Array.isArray(reference[key])) {
+      if (
+        typeof reference[key] === 'object' &&
+        reference[key] !== null &&
+        !Array.isArray(reference[key])
+      ) {
         // Recursively sort nested objects
         sorted[key] = sortObjectByReference(obj[key], reference[key]);
       } else {
@@ -55,4 +59,6 @@ console.log('   ✅ vi.json sorted');
 fs.writeFileSync(cnPath, JSON.stringify(cnSorted, null, 2) + '\n', 'utf8');
 console.log('   ✅ cn.json sorted');
 
-console.log('\n✨ Sorting complete! All files now have keys in the same order as en.json\n');
+console.log(
+  '\n✨ Sorting complete! All files now have keys in the same order as en.json\n'
+);

@@ -46,6 +46,7 @@
 All 28 API methods are implemented:
 
 #### Player Methods ✅
+
 - `getMySessionPayments(sessionId)` - Get player's payments
 - `submitPayment(paymentId, data)` - Submit payment with proof
 - `uploadPaymentProof(file)` - Upload proof image
@@ -53,6 +54,7 @@ All 28 API methods are implemented:
 - `getMyTransactionsWithHost(hostId)` - Transactions with specific host
 
 #### Host Methods ✅
+
 - `getSessionPayments(sessionId)` - Get all session payments
 - `getSessionPaymentsWithFilters(sessionId, filters)` - With status filters
 - `approvePayment(paymentId, data)` - Approve a payment
@@ -66,9 +68,11 @@ All 28 API methods are implemented:
 ### 2. UI Components - Created But Not Used
 
 #### SessionPaymentList.tsx ✅ (Not Integrated)
+
 **Location:** `src/components/payment/SessionPaymentList.tsx`
 **Lines:** 300+
 **Features:**
+
 - Display list of all payments in a session
 - Filter by status (PENDING/SUBMITTED/APPROVED/REJECTED)
 - Show payment summary statistics
@@ -79,9 +83,11 @@ All 28 API methods are implemented:
 **Status:** ✅ Fully implemented but **NOT USED ANYWHERE**
 
 #### PaymentApprovalModal.tsx ✅ (Not Integrated)
+
 **Location:** `src/components/payment/PaymentApprovalModal.tsx`
 **Lines:** 238
 **Features:**
+
 - Show payment details (amount, status, player info)
 - Display payment proof image
 - Show player notes
@@ -92,8 +98,10 @@ All 28 API methods are implemented:
 **Status:** ✅ Fully implemented but **NOT USED in PaymentTab**
 
 #### PaymentInfoTab.tsx ✅ (Used - Player Side)
+
 **Location:** `src/components/payment/PaymentInfoTab.tsx`
 **Features:**
+
 - Player view of their payments
 - Submit payment with proof
 - View payment status
@@ -101,13 +109,16 @@ All 28 API methods are implemented:
 **Status:** ✅ Integrated in PlayerSessionView
 
 #### PaymentTab.tsx ⚠️ (Partially Complete - Host Side)
+
 **Location:** `src/components/session/PaymentTab.tsx`
 **Current Features:**
+
 - ✅ Manage payment settings (bank info, QR code)
 - ✅ Display fee configuration
 - ✅ Edit/Create payment settings
 
 **Missing Features:**
+
 - ❌ Display list of payments (SessionPaymentList not imported/used)
 - ❌ Approve/Reject payments UI
 - ❌ Set split amount UI (for SPLIT_EVENLY fee type)
@@ -125,6 +136,7 @@ All 28 API methods are implemented:
 **Problem:** Host cannot see or manage payments in the PaymentTab
 
 **What's Missing:**
+
 ```typescript
 // PaymentTab.tsx needs to:
 1. Import SessionPaymentList component ❌
@@ -136,6 +148,7 @@ All 28 API methods are implemented:
 ```
 
 **Impact:**
+
 - Host has no way to see who has paid
 - Host cannot approve/reject payments
 - Host cannot use bulk approve feature
@@ -148,6 +161,7 @@ All 28 API methods are implemented:
 **Problem:** No UI for hosts to set split amount for SPLIT_EVENLY sessions
 
 **What's Missing:**
+
 ```typescript
 // PaymentTab.tsx needs:
 1. Check if session.feeConfig.feeType === 'SPLIT_EVENLY' ❌
@@ -158,11 +172,13 @@ All 28 API methods are implemented:
 ```
 
 **Impact:**
+
 - Host cannot use SPLIT_EVENLY fee type effectively
 - Must manually calculate and tell players
 - Backend functionality exists but is unusable
 
 **Example UI Needed:**
+
 ```tsx
 {session.feeConfig?.feeType === 'SPLIT_EVENLY' && (
   <Box>
@@ -192,6 +208,7 @@ All 28 API methods are implemented:
 **Problem:** No visualization of payment statistics
 
 **What's Missing:**
+
 ```typescript
 // PaymentTab.tsx needs:
 1. Fetch stats: PaymentService.getSessionPaymentStats(sessionId) ❌
@@ -201,18 +218,16 @@ All 28 API methods are implemented:
 ```
 
 **Impact:**
+
 - Host cannot see payment overview at a glance
 - Must manually count from payment list
 - Backend calculates stats but frontend doesn't show them
 
 **Example UI Needed:**
+
 ```tsx
 <SimpleGrid columns={4} gap={4}>
-  <StatCard
-    label="Total Players"
-    value={stats.totalPlayers}
-    icon={Users}
-  />
+  <StatCard label="Total Players" value={stats.totalPlayers} icon={Users} />
   <StatCard
     label="Total Amount"
     value={formatCurrency(stats.totalAmount)}
@@ -241,6 +256,7 @@ All 28 API methods are implemented:
 **Problem:** Bulk approve exists in SessionPaymentList but not wired up
 
 **What's Missing:**
+
 ```typescript
 // PaymentTab.tsx needs:
 1. Pass onBulkApprove callback to SessionPaymentList ❌
@@ -252,6 +268,7 @@ All 28 API methods are implemented:
 ```
 
 **Impact:**
+
 - Host must approve payments one by one
 - Slow and tedious for sessions with many players
 - Existing button in SessionPaymentList is non-functional
@@ -292,7 +309,7 @@ All 28 API methods are implemented:
   ```typescript
   const handleReject = async (paymentId: string, notes?: string) => {
     await PaymentService.rejectPayment(paymentId, {
-      hostNotes: notes || 'Rejected'
+      hostNotes: notes || 'Rejected',
     });
     await loadPayments(); // Refresh
   };
@@ -334,34 +351,36 @@ All 28 API methods are implemented:
 - [ ] Create StatCard component or use Chakra's Stat
 - [ ] Render statistics at the top of PaymentTab:
   ```tsx
-  {stats && (
-    <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
-      <Stat>
-        <StatLabel>Total Players</StatLabel>
-        <StatNumber>{stats.totalPlayers}</StatNumber>
-      </Stat>
-      <Stat>
-        <StatLabel>Total Amount</StatLabel>
-        <StatNumber>{formatCurrency(stats.totalAmount)}</StatNumber>
-      </Stat>
-      <Stat>
-        <StatLabel>Paid</StatLabel>
-        <StatNumber color="green.500">
-          {formatCurrency(stats.paidAmount)}
-        </StatNumber>
-        <StatHelpText>{stats.approvedCount} approved</StatHelpText>
-      </Stat>
-      <Stat>
-        <StatLabel>Pending</StatLabel>
-        <StatNumber color="orange.500">
-          {formatCurrency(stats.pendingAmount)}
-        </StatNumber>
-        <StatHelpText>
-          {stats.pendingCount + stats.submittedCount} waiting
-        </StatHelpText>
-      </Stat>
-    </SimpleGrid>
-  )}
+  {
+    stats && (
+      <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
+        <Stat>
+          <StatLabel>Total Players</StatLabel>
+          <StatNumber>{stats.totalPlayers}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Total Amount</StatLabel>
+          <StatNumber>{formatCurrency(stats.totalAmount)}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Paid</StatLabel>
+          <StatNumber color="green.500">
+            {formatCurrency(stats.paidAmount)}
+          </StatNumber>
+          <StatHelpText>{stats.approvedCount} approved</StatHelpText>
+        </Stat>
+        <Stat>
+          <StatLabel>Pending</StatLabel>
+          <StatNumber color="orange.500">
+            {formatCurrency(stats.pendingAmount)}
+          </StatNumber>
+          <StatHelpText>
+            {stats.pendingCount + stats.submittedCount} waiting
+          </StatHelpText>
+        </Stat>
+      </SimpleGrid>
+    );
+  }
   ```
 
 ### Phase 3: Add Split Amount UI (Medium Priority)
@@ -371,33 +390,38 @@ All 28 API methods are implemented:
 - [ ] Check if fee type is SPLIT_EVENLY in render
 - [ ] Create input + button UI:
   ```tsx
-  {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
-    <Box bg="purple.50" p={4} borderRadius="lg">
-      <Heading size="sm" mb={2}>Split Amount Calculator</Heading>
-      <Text fontSize="sm" color="gray.600" mb={3}>
-        Set the total amount to be split equally among all players
-      </Text>
-      <HStack>
-        <Input
-          type="number"
-          placeholder="Enter total amount"
-          value={splitAmount}
-          onChange={(e) => setSplitAmount(e.target.value)}
-          disabled={isSettingSplit}
-        />
-        <Button
-          colorPalette="purple"
-          onClick={handleSetSplitAmount}
-          loading={isSettingSplit}
-          disabled={!splitAmount || isSettingSplit}
-        >
-          Calculate & Update
-        </Button>
-      </HStack>
-    </Box>
-  )}
+  {
+    session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
+      <Box bg="purple.50" p={4} borderRadius="lg">
+        <Heading size="sm" mb={2}>
+          Split Amount Calculator
+        </Heading>
+        <Text fontSize="sm" color="gray.600" mb={3}>
+          Set the total amount to be split equally among all players
+        </Text>
+        <HStack>
+          <Input
+            type="number"
+            placeholder="Enter total amount"
+            value={splitAmount}
+            onChange={(e) => setSplitAmount(e.target.value)}
+            disabled={isSettingSplit}
+          />
+          <Button
+            colorPalette="purple"
+            onClick={handleSetSplitAmount}
+            loading={isSettingSplit}
+            disabled={!splitAmount || isSettingSplit}
+          >
+            Calculate & Update
+          </Button>
+        </HStack>
+      </Box>
+    );
+  }
   ```
 - [ ] Implement handler:
+
   ```typescript
   const handleSetSplitAmount = async () => {
     const amount = parseFloat(splitAmount);
@@ -414,7 +438,7 @@ All 28 API methods are implemented:
       setSplitAmount(''); // Clear input
       toaster.success({
         title: 'Split amount set',
-        description: 'All payment amounts have been updated'
+        description: 'All payment amounts have been updated',
       });
     } catch (error) {
       console.error('Failed to set split amount:', error);
@@ -457,15 +481,18 @@ Add missing translation keys to `en.json`, `vi.json`, `cn.json`:
 ## 🎯 Recommended Implementation Order
 
 ### Must Have (Before Production)
+
 1. **Payment List Integration** - Critical for host functionality
 2. **Approve/Reject Workflow** - Core payment feature
 3. **Bulk Approve** - Efficiency feature
 
 ### Should Have (Soon After)
+
 4. **Payment Statistics** - Better UX for hosts
 5. **Split Amount UI** - Complete SPLIT_EVENLY support
 
 ### Nice to Have (Later)
+
 6. **Advanced Filters** - Filter by date, amount range
 7. **Export to CSV** - Download payment records
 8. **Payment Reminders** - Send notifications to non-payers
@@ -475,6 +502,7 @@ Add missing translation keys to `en.json`, `vi.json`, `cn.json`:
 ## 📁 Files That Need Changes
 
 ### Files to Modify
+
 1. **`src/components/session/PaymentTab.tsx`** - Main integration work
    - Current: 287 lines
    - Estimated: +200 lines (payment list, stats, split amount UI)
@@ -484,6 +512,7 @@ Add missing translation keys to `en.json`, `vi.json`, `cn.json`:
 4. **`src/i18n/messages/cn.json`** - Add translations
 
 ### Files Already Complete (No Changes Needed)
+
 - ✅ `src/lib/api/payment.service.ts`
 - ✅ `src/components/payment/SessionPaymentList.tsx`
 - ✅ `src/components/payment/PaymentApprovalModal.tsx`
@@ -515,15 +544,15 @@ Add missing translation keys to `en.json`, `vi.json`, `cn.json`:
 
 ## 📊 Estimated Work
 
-| Task | Complexity | Time Estimate |
-|------|-----------|---------------|
-| Integrate SessionPaymentList | Medium | 2-3 hours |
-| Wire up Approve/Reject | Easy | 1 hour |
-| Add Statistics Display | Easy | 1-2 hours |
-| Add Split Amount UI | Medium | 2 hours |
-| Add Translations | Easy | 30 min |
-| Testing & Bug Fixes | Medium | 2-3 hours |
-| **Total** | **Medium** | **8-11 hours** |
+| Task                         | Complexity | Time Estimate  |
+| ---------------------------- | ---------- | -------------- |
+| Integrate SessionPaymentList | Medium     | 2-3 hours      |
+| Wire up Approve/Reject       | Easy       | 1 hour         |
+| Add Statistics Display       | Easy       | 1-2 hours      |
+| Add Split Amount UI          | Medium     | 2 hours        |
+| Add Translations             | Easy       | 30 min         |
+| Testing & Bug Fixes          | Medium     | 2-3 hours      |
+| **Total**                    | **Medium** | **8-11 hours** |
 
 ---
 
@@ -606,6 +635,7 @@ return (
 ```
 
 This gives hosts the critical ability to:
+
 - ✅ See all payments
 - ✅ Approve/reject individual payments
 - ✅ Bulk approve submitted payments
@@ -617,6 +647,7 @@ This gives hosts the critical ability to:
 Once integration is complete:
 
 ### Manual Testing
+
 1. Create session with FIXED fee (male: 50k, female: 40k)
 2. Join with 5 players
 3. Host opens Payment tab → Should see 5 payment records
@@ -627,6 +658,7 @@ Once integration is complete:
 8. Test bulk approve with multiple submitted payments
 
 ### Split Amount Testing
+
 1. Create session with SPLIT_EVENLY fee
 2. Join with 10 players
 3. Host sets total: 500,000
@@ -634,6 +666,7 @@ Once integration is complete:
 5. Player submits → Host approves
 
 ### Statistics Testing
+
 1. Open session with mixed payment statuses
 2. Verify stats match actual counts
 3. Verify amounts are calculated correctly

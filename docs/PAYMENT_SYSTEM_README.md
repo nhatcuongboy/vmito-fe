@@ -45,7 +45,7 @@ await PaymentSettingsService.createPaymentSettings({
   bankAccountNumber: '1234567890',
   accountHolderName: 'NGUYEN VAN A',
   qrCodeUrl: qrUrl,
-  isDefault: true
+  isDefault: true,
 });
 ```
 
@@ -65,7 +65,7 @@ await FeeService.createSessionFeeConfig(sessionId, {
   feeType: 'FIXED',
   maleFee: 90000,
   femaleFee: 80000,
-  notes: 'Phí bao gồm nước'
+  notes: 'Phí bao gồm nước',
 });
 ```
 
@@ -87,7 +87,7 @@ const proofUrl = await PaymentService.uploadPaymentProof(file);
 await PaymentService.submitPayment(paymentId, {
   paymentMethod: 'BANK_TRANSFER',
   proofImageUrl: proofUrl,
-  proofNotes: 'Đã chuyển lúc 10h'
+  proofNotes: 'Đã chuyển lúc 10h',
 });
 ```
 
@@ -103,12 +103,12 @@ const payments = await PaymentService.getSessionPayments(sessionId);
 
 // Approve
 await PaymentService.approvePayment(paymentId, {
-  hostNotes: 'Đã nhận tiền'
+  hostNotes: 'Đã nhận tiền',
 });
 
 // Reject
 await PaymentService.rejectPayment(paymentId, {
-  hostNotes: 'Số tiền không đúng'
+  hostNotes: 'Số tiền không đúng',
 });
 
 // Bulk approve
@@ -196,6 +196,7 @@ Host Side:
 ![Payment Tab](https://via.placeholder.com/800x400?text=Payment+Tab+Screenshot)
 
 **Features:**
+
 - View fee configuration
 - View/edit payment settings
 - Link to payment settings page
@@ -208,6 +209,7 @@ Host Side:
 ![Payment Info Tab](https://via.placeholder.com/800x400?text=Payment+Info+Tab+Screenshot)
 
 **Features:**
+
 - View fee amount
 - View host payment info (bank, QR code)
 - Submit payment with proof
@@ -271,6 +273,7 @@ await fetchPayments();
 ### Issue 1: "Unexpected field - file" khi upload
 
 **Error:**
+
 ```json
 {
   "error": {
@@ -281,6 +284,7 @@ await fetchPayments();
 ```
 
 **Solution:** Backend expect field names cụ thể:
+
 - QR code: `formData.append('qrCode', file)` ✅
 - Payment proof: `formData.append('proof', file)` ✅
 - NOT: `formData.append('file', file)` ❌
@@ -298,6 +302,7 @@ await fetchPayments();
 **Reason:** Host chưa set payment settings làm default
 
 **Solution:**
+
 ```typescript
 await PaymentSettingsService.setDefaultPaymentSettings(settingId);
 ```
@@ -307,6 +312,7 @@ await PaymentSettingsService.setDefaultPaymentSettings(settingId);
 ### Issue 4: "qrCodeUrl must be a URL address" khi update payment settings
 
 **Error:**
+
 ```json
 {
   "error": {
@@ -319,6 +325,7 @@ await PaymentSettingsService.setDefaultPaymentSettings(settingId);
 **Reason:** Backend validation yêu cầu `qrCodeUrl` phải là URL hợp lệ nếu field tồn tại
 
 **Solution:** ✅ Đã fix - Chỉ gửi `qrCodeUrl` khi có giá trị hợp lệ
+
 ```typescript
 // PaymentSettingsForm now only includes qrCodeUrl if it has value
 if (qrCodeUrl && qrCodeUrl.trim() !== '') {
@@ -331,6 +338,7 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 ### Issue 5: "Cannot GET /api/sessions/:id/my-payments" (404)
 
 **Error:**
+
 ```json
 {
   "error": {
@@ -347,12 +355,14 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 **Status:** ⏳ Pending backend implementation
 
 **Frontend Solution:** ✅ Graceful error handling implemented
+
 - Frontend hiện thị thông báo thân thiện khi endpoint chưa sẵn sàng
 - Error UI với icon và message phù hợp
 - Retry button cho network errors
 - No crash, no blank screen
 
 **Error Handling:**
+
 ```typescript
 // src/components/session/PlayerSessionView.tsx
 // Detects 404 and shows friendly message:
@@ -362,6 +372,7 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 ```
 
 **Temporary Workaround:**
+
 - Backend có thể reuse endpoint `/api/sessions/:sessionId/payments`
 - Backend phải filter payments theo authenticated user
 - Hoặc tạo endpoint mới như spec
@@ -373,6 +384,7 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 **Reason:** Host chưa set split amount sau khi session kết thúc
 
 **Solution:**
+
 ```typescript
 await PaymentService.setSplitAmount(sessionId, totalAmount);
 ```

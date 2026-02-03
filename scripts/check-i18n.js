@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const messagesDir = path.join(__dirname, '../src/i18n/messages');
 
@@ -17,7 +17,11 @@ function getAllKeys(obj, prefix = '') {
   let keys = [];
   for (const key in obj) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
-    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+    if (
+      typeof obj[key] === 'object' &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key])
+    ) {
       keys = keys.concat(getAllKeys(obj[key], fullKey));
     } else {
       keys.push(fullKey);
@@ -33,11 +37,18 @@ function findDuplicates(obj, prefix = '', seen = new Map()) {
   for (const key in obj) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
 
-    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+    if (
+      typeof obj[key] === 'object' &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key])
+    ) {
       duplicates.push(...findDuplicates(obj[key], fullKey, seen));
     } else {
       if (seen.has(fullKey)) {
-        duplicates.push({ key: fullKey, locations: [seen.get(fullKey), fullKey] });
+        duplicates.push({
+          key: fullKey,
+          locations: [seen.get(fullKey), fullKey],
+        });
       } else {
         seen.set(fullKey, fullKey);
       }
@@ -62,10 +73,10 @@ console.log(`   VI: ${viKeys.length} keys`);
 console.log(`   CN: ${cnKeys.length} keys\n`);
 
 // Find missing keys
-const missingInVi = enKeys.filter(k => !viKeys.includes(k));
-const missingInCn = enKeys.filter(k => !cnKeys.includes(k));
-const extraInVi = viKeys.filter(k => !enKeys.includes(k));
-const extraInCn = cnKeys.filter(k => !enKeys.includes(k));
+const missingInVi = enKeys.filter((k) => !viKeys.includes(k));
+const missingInCn = enKeys.filter((k) => !cnKeys.includes(k));
+const extraInVi = viKeys.filter((k) => !enKeys.includes(k));
+const extraInCn = cnKeys.filter((k) => !enKeys.includes(k));
 
 // Check for duplicates
 const enDuplicates = findDuplicates(en);
@@ -78,7 +89,7 @@ let hasIssues = false;
 if (missingInVi.length > 0) {
   hasIssues = true;
   console.log(`❌ Missing in VI (${missingInVi.length} keys):`);
-  missingInVi.forEach(key => console.log(`   - ${key}`));
+  missingInVi.forEach((key) => console.log(`   - ${key}`));
   console.log('');
 }
 
@@ -86,7 +97,7 @@ if (missingInVi.length > 0) {
 if (missingInCn.length > 0) {
   hasIssues = true;
   console.log(`❌ Missing in CN (${missingInCn.length} keys):`);
-  missingInCn.forEach(key => console.log(`   - ${key}`));
+  missingInCn.forEach((key) => console.log(`   - ${key}`));
   console.log('');
 }
 
@@ -94,7 +105,7 @@ if (missingInCn.length > 0) {
 if (extraInVi.length > 0) {
   hasIssues = true;
   console.log(`⚠️  Extra keys in VI not in EN (${extraInVi.length} keys):`);
-  extraInVi.forEach(key => console.log(`   - ${key}`));
+  extraInVi.forEach((key) => console.log(`   - ${key}`));
   console.log('');
 }
 
@@ -102,7 +113,7 @@ if (extraInVi.length > 0) {
 if (extraInCn.length > 0) {
   hasIssues = true;
   console.log(`⚠️  Extra keys in CN not in EN (${extraInCn.length} keys):`);
-  extraInCn.forEach(key => console.log(`   - ${key}`));
+  extraInCn.forEach((key) => console.log(`   - ${key}`));
   console.log('');
 }
 
@@ -110,21 +121,21 @@ if (extraInCn.length > 0) {
 if (enDuplicates.length > 0) {
   hasIssues = true;
   console.log(`🔁 Duplicate keys in EN (${enDuplicates.length}):`);
-  enDuplicates.forEach(dup => console.log(`   - ${dup.key}`));
+  enDuplicates.forEach((dup) => console.log(`   - ${dup.key}`));
   console.log('');
 }
 
 if (viDuplicates.length > 0) {
   hasIssues = true;
   console.log(`🔁 Duplicate keys in VI (${viDuplicates.length}):`);
-  viDuplicates.forEach(dup => console.log(`   - ${dup.key}`));
+  viDuplicates.forEach((dup) => console.log(`   - ${dup.key}`));
   console.log('');
 }
 
 if (cnDuplicates.length > 0) {
   hasIssues = true;
   console.log(`🔁 Duplicate keys in CN (${cnDuplicates.length}):`);
-  cnDuplicates.forEach(dup => console.log(`   - ${dup.key}`));
+  cnDuplicates.forEach((dup) => console.log(`   - ${dup.key}`));
   console.log('');
 }
 

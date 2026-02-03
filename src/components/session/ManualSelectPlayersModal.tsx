@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import { CommonModal } from '@/components/ui/CommonModal';

@@ -4,20 +4,15 @@ import { SessionService } from '@/lib/api/session.service';
 import { CourtDirection, Player, Court } from '@/lib/api/types';
 import { parseScoreData } from '@/utils/match-result-utils';
 import {
-  Badge,
   Box,
   Center,
   Flex,
   Grid,
   Heading,
-  Icon,
   Spinner,
-  Stack,
   Text,
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
-import { Edit, Clock, MapPin } from 'lucide-react';
-import { IconButton } from '@/components/ui/chakra-compat';
 import { EditMatchModal } from './EditMatchModal';
 import {
   HistoryMatchCard,
@@ -148,7 +143,7 @@ export default function SessionHistoryList({
         if (typeof matchData.score === 'string') {
           try {
             matchData.score = JSON.parse(matchData.score);
-          } catch (_e) {
+          } catch {
             // ignore error, will fail gracefully later
           }
         }
@@ -157,7 +152,7 @@ export default function SessionHistoryList({
         if (typeof matchData.winnerIds === 'string') {
           try {
             matchData.winnerIds = JSON.parse(matchData.winnerIds);
-          } catch (_e) {
+          } catch {
             // ignore error
           }
         }

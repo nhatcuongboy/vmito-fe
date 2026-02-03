@@ -1,11 +1,10 @@
 'use client';
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Box, Flex, IconButton, Text, Stack, Button } from '@chakra-ui/react';
+import { Box, Flex, Text, Stack, Button } from '@chakra-ui/react';
 import {
   Home,
   Info,
-  X,
   LogIn,
   Receipt,
   CreditCard,
@@ -14,8 +13,6 @@ import {
   Ticket,
   Moon,
   Sun,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
@@ -42,7 +39,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const { colorMode, toggleColorMode } = useColorMode();
-  const { isCollapsed, toggleCollapse } = useSidebar();
+  const { isCollapsed } = useSidebar();
 
   return (
     <>

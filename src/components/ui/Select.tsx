@@ -234,177 +234,169 @@ function extractOptionsFromChildren(children: React.ReactNode): SelectOption[] {
  * </Select>
  * ```
  */
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  (
-    {
-      isDisabled,
-      disabled,
-      children,
-      size = 'md',
-      variant = 'outline',
-      placeholder,
-      value,
-      onChange,
-      ...props
-    },
-    ref
-  ) => {
-    const isSelectDisabled = isDisabled || disabled;
+export const Select = ({
+  isDisabled,
+  disabled,
+  children,
+  size = 'md',
+  variant = 'outline',
+  placeholder,
+  value,
+  onChange,
+  ...props
+}: SelectProps) => {
+  const isSelectDisabled = isDisabled || disabled;
 
-    // Extract options from children
-    const items = useMemo(
-      () => extractOptionsFromChildren(children),
-      [children]
-    );
+  // Extract options from children
+  const items = useMemo(() => extractOptionsFromChildren(children), [children]);
 
-    // Find placeholder from children if not explicitly provided
-    const derivedPlaceholder = useMemo(() => {
-      if (placeholder) return placeholder;
+  // Find placeholder from children if not explicitly provided
+  const derivedPlaceholder = useMemo(() => {
+    if (placeholder) return placeholder;
 
-      let foundPlaceholder = 'Select...';
-      React.Children.forEach(children, (child) => {
-        if (React.isValidElement(child) && child.type === 'option') {
-          const props = child.props as {
-            value?: string | number;
-            children?: React.ReactNode;
-          };
-          if (props.value === '' || props.value === undefined) {
-            foundPlaceholder = props.children as string;
-          }
+    let foundPlaceholder = 'Select...';
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child) && child.type === 'option') {
+        const props = child.props as {
+          value?: string | number;
+          children?: React.ReactNode;
+        };
+        if (props.value === '' || props.value === undefined) {
+          foundPlaceholder = props.children as string;
         }
-      });
-      return foundPlaceholder;
-    }, [children, placeholder]);
-
-    const collection = createListCollection({
-      items,
-    });
-
-    // Convert value to string array format for Chakra UI
-    const selectedValues =
-      value !== undefined && value !== '' ? [String(value)] : [];
-
-    // Handle value change and convert to native onChange format
-    const handleValueChange = (details: { value: string[] }) => {
-      if (onChange) {
-        // Create a synthetic event matching native select onChange
-        const syntheticEvent = {
-          target: {
-            value: details.value[0] || '',
-            name: props.name,
-          },
-          currentTarget: {
-            value: details.value[0] || '',
-            name: props.name,
-          },
-        } as React.ChangeEvent<HTMLSelectElement>;
-
-        onChange(syntheticEvent);
       }
-    };
+    });
+    return foundPlaceholder;
+  }, [children, placeholder]);
 
-    const triggerProps = {
-      _focusVisible: {
-        borderColor: 'blue.500',
-        boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
-      },
-      _invalid: {
-        borderColor: 'border.error',
-        boxShadow: '0 0 0 1px var(--chakra-colors-border-error)',
-      },
-      paddingStart: props.leftElement ? '10' : undefined,
-      paddingEnd: props.rightElement ? '10' : undefined,
-      width: '100%',
-    };
+  const collection = createListCollection({
+    items,
+  });
 
-    return (
-      <SelectRoot
-        collection={collection}
-        size={size}
-        variant={variant}
-        disabled={isSelectDisabled}
-        value={selectedValues}
-        onValueChange={handleValueChange}
-        name={props.name}
-        positioning={{ strategy: 'fixed' }}
-      >
-        <Box position="relative" width="100%">
-          {props.leftElement && (
-            <Box
-              position="absolute"
-              left="3"
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex="1"
-              pointerEvents="none"
-              display="flex"
-              alignItems="center"
-              color="fg.muted"
-            >
-              {props.leftElement}
-            </Box>
-          )}
+  // Convert value to string array format for Chakra UI
+  const selectedValues =
+    value !== undefined && value !== '' ? [String(value)] : [];
 
-          <SelectTrigger {...triggerProps}>
-            <SelectValueText placeholder={derivedPlaceholder} />
-          </SelectTrigger>
+  // Handle value change and convert to native onChange format
+  const handleValueChange = (details: { value: string[] }) => {
+    if (onChange) {
+      // Create a synthetic event matching native select onChange
+      const syntheticEvent = {
+        target: {
+          value: details.value[0] || '',
+          name: props.name,
+        },
+        currentTarget: {
+          value: details.value[0] || '',
+          name: props.name,
+        },
+      } as React.ChangeEvent<HTMLSelectElement>;
 
-          {props.rightElement && (
-            <Box
-              position="absolute"
-              right="3"
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex="1"
-              pointerEvents="none"
-              display="flex"
-              alignItems="center"
-              color="fg.muted"
-            >
-              {props.rightElement}
-            </Box>
-          )}
-        </Box>
-        <Portal>
-          <SelectPositioner zIndex="popover">
-            <SelectContent
-              bg={{ base: 'white', _dark: 'gray.800' }}
-              boxShadow="lg"
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor="border"
-              p="1"
-              minW="var(--reference-width)"
-              maxH="300px"
-              overflowY="auto"
-              zIndex="popover"
-            >
-              {items.map((item) => (
-                <SelectItem
-                  key={item.value}
-                  item={item.value}
-                  _hover={{ bg: { base: 'gray.50', _dark: 'whiteAlpha.50' } }}
-                  _selected={{
-                    bg: { base: 'blue.50', _dark: 'blue.900/40' },
-                    color: { base: 'blue.600', _dark: 'blue.300' },
-                  }}
-                  p="2"
-                  borderRadius="sm"
-                  cursor="pointer"
-                  display="flex"
-                  alignItems="center"
-                  fontSize="sm"
-                >
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectPositioner>
-        </Portal>
-      </SelectRoot>
-    );
-  }
-);
+      onChange(syntheticEvent);
+    }
+  };
+
+  const triggerProps = {
+    _focusVisible: {
+      borderColor: 'blue.500',
+      boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+    },
+    _invalid: {
+      borderColor: 'border.error',
+      boxShadow: '0 0 0 1px var(--chakra-colors-border-error)',
+    },
+    paddingStart: props.leftElement ? '10' : undefined,
+    paddingEnd: props.rightElement ? '10' : undefined,
+    width: '100%',
+  };
+
+  return (
+    <SelectRoot
+      collection={collection}
+      size={size}
+      variant={variant}
+      disabled={isSelectDisabled}
+      value={selectedValues}
+      onValueChange={handleValueChange}
+      name={props.name}
+      positioning={{ strategy: 'fixed' }}
+    >
+      <Box position="relative" width="100%">
+        {props.leftElement && (
+          <Box
+            position="absolute"
+            left="3"
+            top="50%"
+            transform="translateY(-50%)"
+            zIndex="1"
+            pointerEvents="none"
+            display="flex"
+            alignItems="center"
+            color="fg.muted"
+          >
+            {props.leftElement}
+          </Box>
+        )}
+
+        <SelectTrigger {...triggerProps}>
+          <SelectValueText placeholder={derivedPlaceholder} />
+        </SelectTrigger>
+
+        {props.rightElement && (
+          <Box
+            position="absolute"
+            right="3"
+            top="50%"
+            transform="translateY(-50%)"
+            zIndex="1"
+            pointerEvents="none"
+            display="flex"
+            alignItems="center"
+            color="fg.muted"
+          >
+            {props.rightElement}
+          </Box>
+        )}
+      </Box>
+      <Portal>
+        <SelectPositioner zIndex="popover">
+          <SelectContent
+            bg={{ base: 'white', _dark: 'gray.800' }}
+            boxShadow="lg"
+            borderRadius="md"
+            borderWidth="1px"
+            borderColor="border"
+            p="1"
+            minW="var(--reference-width)"
+            maxH="300px"
+            overflowY="auto"
+            zIndex="popover"
+          >
+            {items.map((item) => (
+              <SelectItem
+                key={item.value}
+                item={item.value}
+                _hover={{ bg: { base: 'gray.50', _dark: 'whiteAlpha.50' } }}
+                _selected={{
+                  bg: { base: 'blue.50', _dark: 'blue.900/40' },
+                  color: { base: 'blue.600', _dark: 'blue.300' },
+                }}
+                p="2"
+                borderRadius="sm"
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+                fontSize="sm"
+              >
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </SelectPositioner>
+      </Portal>
+    </SelectRoot>
+  );
+};
 
 Select.displayName = 'Select';
 

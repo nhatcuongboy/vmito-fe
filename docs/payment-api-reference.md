@@ -85,6 +85,7 @@ GET /api/sessions/:sessionId/fee-config
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -114,6 +115,7 @@ POST /api/sessions/:sessionId/fee-config
 ```
 
 **Request Body:**
+
 ```json
 {
   "feeType": "FIXED",
@@ -138,6 +140,7 @@ PUT /api/sessions/:sessionId/fee-config
 **Request Body:** Same as POST
 
 **Side Effects:**
+
 - Recalculates all payment_records amounts if fee changed
 - Updates pending payments only
 
@@ -154,6 +157,7 @@ DELETE /api/sessions/:sessionId/fee-config
 **Response:** 204 No Content
 
 **Side Effects:**
+
 - Deletes all associated payment_records
 
 ---
@@ -165,10 +169,11 @@ DELETE /api/sessions/:sessionId/fee-config
 **Frontend Method:** `PaymentSettingsService.getMyPaymentSettings()`
 
 ```typescript
-GET /api/payment-settings
+GET / api / payment - settings;
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -219,10 +224,11 @@ GET /api/hosts/:hostId/payment-settings
 **Frontend Method:** `PaymentSettingsService.createPaymentSettings(data)`
 
 ```typescript
-POST /api/payment-settings
+POST / api / payment - settings;
 ```
 
 **Request Body:**
+
 ```json
 {
   "bankName": "Vietcombank",
@@ -234,11 +240,13 @@ POST /api/payment-settings
 ```
 
 **Validation:**
+
 - All fields are optional
 - `qrCodeUrl` must be a valid URL if provided
 - At least one field (bankName, bankAccountNumber, or qrCodeUrl) is recommended
 
 **Side Effects:**
+
 - If isDefault=true, sets all other settings to isDefault=false
 
 ---
@@ -254,6 +262,7 @@ PUT /api/payment-settings/:id
 **Request Body:** Same as POST (all fields optional)
 
 **Validation:**
+
 - `qrCodeUrl` must be a valid URL if provided
 - Omit `qrCodeUrl` field entirely (don't send `undefined`) to remove QR code
 
@@ -280,6 +289,7 @@ POST /api/payment-settings/:id/set-default
 ```
 
 **Side Effects:**
+
 - Sets all other settings for this user to isDefault=false
 
 ---
@@ -297,10 +307,12 @@ GET /api/sessions/:sessionId/my-payments
 ⚠️ **Status:** Backend implementation pending - Currently returns 404
 
 **Expected Implementation:**
+
 - Filter payments where `registeredByUserId` matches authenticated user
 - Return array of payment records (may be multiple for multi-slot)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -343,10 +355,12 @@ GET /api/sessions/:sessionId/payments
 ```
 
 **Query Parameters:**
+
 - `status`: Filter by status (PENDING, SUBMITTED, APPROVED, REJECTED)
 - `paymentMethod`: Filter by method (CASH, BANK_TRANSFER)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -387,6 +401,7 @@ POST /api/payments/:id/submit
 ```
 
 **Request Body:**
+
 ```json
 {
   "paymentMethod": "BANK_TRANSFER",
@@ -396,10 +411,12 @@ POST /api/payments/:id/submit
 ```
 
 **Validation:**
+
 - Only player or registering user can submit
 - Status must be PENDING or REJECTED
 
 **Side Effects:**
+
 - Status → SUBMITTED
 - submittedAt → now
 
@@ -414,6 +431,7 @@ POST /api/payments/:id/approve
 ```
 
 **Request Body:**
+
 ```json
 {
   "hostNotes": "Đã nhận tiền"
@@ -421,10 +439,12 @@ POST /api/payments/:id/approve
 ```
 
 **Validation:**
+
 - Only session host can approve
 - Status must be SUBMITTED
 
 **Side Effects:**
+
 - Status → APPROVED
 - approvedAt → now
 
@@ -439,6 +459,7 @@ POST /api/payments/:id/reject
 ```
 
 **Request Body:**
+
 ```json
 {
   "hostNotes": "Số tiền không đúng, vui lòng chuyển 90.000đ"
@@ -446,10 +467,12 @@ POST /api/payments/:id/reject
 ```
 
 **Validation:**
+
 - Only session host can reject
 - Status must be SUBMITTED
 
 **Side Effects:**
+
 - Status → REJECTED
 - rejectedAt → now
 
@@ -460,10 +483,11 @@ POST /api/payments/:id/reject
 **Frontend Method:** `PaymentService.bulkApprovePayments(paymentIds)`
 
 ```typescript
-POST /api/payments/bulk-approve
+POST / api / payments / bulk - approve;
 ```
 
 **Request Body:**
+
 ```json
 {
   "paymentIds": ["uuid1", "uuid2", "uuid3"],
@@ -472,6 +496,7 @@ POST /api/payments/bulk-approve
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -492,6 +517,7 @@ POST /api/sessions/:sessionId/payments/split
 ```
 
 **Request Body:**
+
 ```json
 {
   "totalAmount": 1000000
@@ -501,6 +527,7 @@ POST /api/sessions/:sessionId/payments/split
 **Note:** For SPLIT_EVENLY fee type only
 
 **Side Effects:**
+
 - Calculates splitPerPlayer = totalAmount / totalPlayers
 - Updates all payment_records.amount for this session
 
@@ -515,6 +542,7 @@ GET /api/sessions/:sessionId/payments/stats
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -540,10 +568,11 @@ GET /api/sessions/:sessionId/payments/stats
 **Frontend Method:** `PaymentService.getMyTransactionSummary()`
 
 ```typescript
-GET /api/transactions/summary
+GET / api / transactions / summary;
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -572,6 +601,7 @@ GET /api/transactions/with-host/:hostId
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -598,10 +628,11 @@ GET /api/transactions/with-host/:hostId
 **Frontend Method:** `PaymentService.getHostTransactionSummary()`
 
 ```typescript
-GET /api/host/transactions/summary
+GET / api / host / transactions / summary;
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -640,12 +671,13 @@ GET /api/host/transactions/with-user/:userId
 **Frontend Method:** `PaymentSettingsService.uploadQRCode(file)`
 
 ```typescript
-POST /api/upload/qr-code
+POST / api / upload / qr - code;
 ```
 
 **Request:** multipart/form-data with file field **"qrCode"**
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -662,12 +694,13 @@ POST /api/upload/qr-code
 **Frontend Method:** `PaymentService.uploadPaymentProof(file)`
 
 ```typescript
-POST /api/upload/payment-proof
+POST / api / upload / payment - proof;
 ```
 
 **Request:** multipart/form-data with file field **"proof"**
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -696,7 +729,7 @@ const created = await FeeService.createSessionFeeConfig(sessionId, {
   feeType: 'FIXED',
   maleFee: 90000,
   femaleFee: 80000,
-  notes: 'Phí bao gồm nước'
+  notes: 'Phí bao gồm nước',
 });
 
 // Calculate fee for player
@@ -723,7 +756,7 @@ const myPayments = await PaymentService.getMySessionPayments(sessionId);
 await PaymentService.submitPayment(paymentId, {
   paymentMethod: 'BANK_TRANSFER',
   proofImageUrl: 'https://...',
-  proofNotes: 'Đã chuyển'
+  proofNotes: 'Đã chuyển',
 });
 
 // Player: Upload proof
@@ -737,12 +770,12 @@ const payments = await PaymentService.getSessionPayments(sessionId);
 
 // Host: Approve payment
 await PaymentService.approvePayment(paymentId, {
-  hostNotes: 'Đã nhận'
+  hostNotes: 'Đã nhận',
 });
 
 // Host: Reject payment
 await PaymentService.rejectPayment(paymentId, {
-  hostNotes: 'Số tiền không đúng'
+  hostNotes: 'Số tiền không đúng',
 });
 
 // Host: Bulk approve
@@ -771,7 +804,8 @@ const settings = await PaymentSettingsService.getMyPaymentSettings();
 const defaultSetting = await PaymentSettingsService.getDefaultPaymentSettings();
 
 // Get host settings (for players)
-const hostSettings = await PaymentSettingsService.getHostPaymentSettings(hostId);
+const hostSettings =
+  await PaymentSettingsService.getHostPaymentSettings(hostId);
 
 // Create settings
 const created = await PaymentSettingsService.createPaymentSettings({
@@ -779,12 +813,12 @@ const created = await PaymentSettingsService.createPaymentSettings({
   bankAccountNumber: '1234567890',
   accountHolderName: 'NGUYEN VAN A',
   qrCodeUrl: 'https://...',
-  isDefault: true
+  isDefault: true,
 });
 
 // Update settings
 const updated = await PaymentSettingsService.updatePaymentSettings(id, {
-  bankName: 'Techcombank'
+  bankName: 'Techcombank',
 });
 
 // Delete settings
@@ -878,13 +912,13 @@ sequenceDiagram
 
 ### Common Error Codes
 
-| Code | HTTP Status | Description | Frontend Action |
-|------|-------------|-------------|-----------------|
-| `UNAUTHORIZED` | 401 | Not authenticated | Redirect to login |
-| `FORBIDDEN` | 403 | Not authorized | Show error message |
-| `NOT_FOUND` | 404 | Resource not found | Show not found page |
-| `VALIDATION_ERROR` | 400 | Invalid request data | Show field errors |
-| `CONFLICT` | 409 | Resource already exists | Show conflict message |
+| Code               | HTTP Status | Description             | Frontend Action       |
+| ------------------ | ----------- | ----------------------- | --------------------- |
+| `UNAUTHORIZED`     | 401         | Not authenticated       | Redirect to login     |
+| `FORBIDDEN`        | 403         | Not authorized          | Show error message    |
+| `NOT_FOUND`        | 404         | Resource not found      | Show not found page   |
+| `VALIDATION_ERROR` | 400         | Invalid request data    | Show field errors     |
+| `CONFLICT`         | 409         | Resource already exists | Show conflict message |
 
 ---
 

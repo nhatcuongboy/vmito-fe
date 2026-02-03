@@ -34,7 +34,6 @@ export function EditMatchModal({
   isOpen,
   onClose,
   match,
-  sessionId: _sessionId,
   players,
   onUpdate,
 }: EditMatchModalProps) {
@@ -108,7 +107,7 @@ export function EditMatchModal({
 
       onUpdate();
       onClose();
-    } catch (_error) {
+    } catch {
       toaster.create({
         title: 'Error updating match',
         description: 'Failed to update match details',

@@ -1,10 +1,10 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Box, Flex, Icon, Text, Badge, Stack } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import React, { useState } from 'react';
@@ -24,7 +24,6 @@ interface FindSessionCardProps {
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void;
-  distance?: number | null;
   onDeleteSuccess?: () => void;
   onHostClick?: () => void;
 }
@@ -35,14 +34,12 @@ const FindSessionCard = ({
   isJoined = false,
   userRegistrationStatus = null,
   onRegistrationUpdate,
-  distance,
   onDeleteSuccess,
   onHostClick,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
-  const locale = useLocale();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -250,7 +247,6 @@ const FindSessionCard = ({
         extraInfoRows={locationRow}
         registrationBadgeContent={registrationStatusBadge}
         actions={actions}
-        sessionDistance={distance || undefined}
         onHostClick={onHostClick}
       />
 

@@ -4,7 +4,7 @@ import { ISession } from '@/lib/api/types';
 import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
@@ -31,7 +31,6 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
   const { user } = useAuthStore();
 
   const {

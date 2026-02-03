@@ -1,14 +1,17 @@
 # Feature: User Selection for Player Creation
 
 ## Overview
+
 This feature allows hosts to select existing players from the User table when creating new players in a session. When a user is selected, their information is automatically filled into the form and the userId is linked to the player.
 
 ## Changes Made
 
 ### 1. API Endpoint - Get Users
+
 **File**: `src/app/api/users/route.ts` (New)
 
 New endpoint to fetch list of users:
+
 - **Method**: GET
 - **Path**: `/api/users`
 - **Authentication**: Required
@@ -28,15 +31,19 @@ New endpoint to fetch list of users:
 ```
 
 ### 2. User Service
+
 **File**: `src/lib/api/user.service.ts` (New)
 
 Service to call users API:
+
 - `getAllUsers()`: Fetch all users
 
 ### 3. Updated Types
+
 **File**: `src/lib/api/types.ts`
 
 Added `userId` to `BulkPlayerData`:
+
 ```typescript
 export interface BulkPlayerData {
   // ... existing fields
@@ -45,6 +52,7 @@ export interface BulkPlayerData {
 ```
 
 ### 4. Updated Bulk Player API
+
 **File**: `src/app/api/sessions/[id]/players/bulk/route.ts`
 
 - Added `userId` to `BulkPlayerData` interface
@@ -54,13 +62,16 @@ export interface BulkPlayerData {
   - Mark `isGuest = false`
 
 ### 5. Updated PlayerManagement Component
+
 **File**: `src/components/session/PlayerManagement.tsx`
 
 **New State**:
+
 - `availableUsers`: List of selectable users
 - `isLoadingUsers`: Loading state for users
 
 **New Functions**:
+
 - `handleUserSelection(index, userId)`: Handle user selection from dropdown
   - Auto-fill information: name, gender, level, levelDescription
   - Save userId to player data
@@ -72,6 +83,7 @@ export interface BulkPlayerData {
   - Used to disable options in dropdown
 
 **UI Changes**:
+
 - Added "Select Existing Player (Optional)" dropdown before "Player Name" field
 - Dropdown displays users in format: `{name} ({email})`
 - When user is selected, fields are automatically filled
@@ -83,6 +95,7 @@ export interface BulkPlayerData {
 ## User Flow
 
 ### Creating player from existing user:
+
 1. Host clicks "Add Player" button
 2. New form appears with "Select Existing Player" dropdown
 3. Host selects a user from dropdown
@@ -93,12 +106,14 @@ export interface BulkPlayerData {
 7. Click "Save All" to create player
 
 ### Validation:
+
 - **Cannot select the same user for multiple players**
 - **System checks both new players being added and existing players in session**
 - **Error toast appears if attempting to select already-used user**
 - **Dropdown options are disabled for already-selected users**
 
 ### Creating new player without linking user:
+
 1. Host clicks "Add Player" button
 2. Keep dropdown at "-- Create new player --" option
 3. Fill in player information manually
@@ -107,6 +122,7 @@ export interface BulkPlayerData {
 ## Database Impact
 
 When player is created with userId:
+
 - `userId`: ID of selected user
 - `isJoined`: true (player slot has been filled)
 - `isGuest`: false (not a guest)
@@ -126,7 +142,9 @@ When player is created with userId:
 ## Implementation Details
 
 ### Disabled Fields Logic
+
 When a user is selected from the dropdown (`player.userId` is set):
+
 - **Player Name** input: `disabled={!!player.userId}`
 - **Gender** select: `disabled={!!player.userId}`
 - **Level** select: `disabled={!!player.userId}`
@@ -135,11 +153,14 @@ When a user is selected from the dropdown (`player.userId` is set):
 - Background color changed to gray for better visual indication
 
 Fields that remain **enabled**:
+
 - **Select Existing Player** dropdown (to allow changing selection)
 - **Require player to confirm information** checkbox (session-specific setting)
 
 ### User Selection Validation
+
 To prevent duplicate user selection:
+
 - `isUserAlreadyUsed(userId, currentIndex?)` checks:
   - All new players being created (excluding current player being edited)
   - All existing players in the session
@@ -155,6 +176,7 @@ To prevent duplicate user selection:
 ## Testing
 
 ### Test Cases:
+
 1. ✅ Load users list when component mounts
 2. ✅ Select user from dropdown auto-fills information
 3. ✅ **Fields are disabled when user is selected**

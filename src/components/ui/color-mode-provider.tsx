@@ -50,7 +50,7 @@ export const useColorModeValue = <TLight, TDark>(
 
 // Internal component to provide color mode context
 const ColorModeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

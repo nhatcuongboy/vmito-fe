@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { Button, Card, CardBody, VStack } from '@/components/ui/chakra-compat';
-import { Users, UserPlus } from 'lucide-react';
+import { Card, CardBody, VStack } from '@/components/ui/chakra-compat';
+import { Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 

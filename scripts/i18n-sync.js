@@ -10,8 +10,8 @@
  * 4. Verifies final synchronization
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const messagesDir = path.join(__dirname, '../src/i18n/messages');
 
@@ -22,7 +22,7 @@ const colors = {
   yellow: '\x1b[33m',
   red: '\x1b[31m',
   cyan: '\x1b[36m',
-  bold: '\x1b[1m'
+  bold: '\x1b[1m',
 };
 
 function log(message, color = 'reset') {
@@ -30,9 +30,15 @@ function log(message, color = 'reset') {
 }
 
 function readFiles() {
-  const en = JSON.parse(fs.readFileSync(path.join(messagesDir, 'en.json'), 'utf8'));
-  const vi = JSON.parse(fs.readFileSync(path.join(messagesDir, 'vi.json'), 'utf8'));
-  const cn = JSON.parse(fs.readFileSync(path.join(messagesDir, 'cn.json'), 'utf8'));
+  const en = JSON.parse(
+    fs.readFileSync(path.join(messagesDir, 'en.json'), 'utf8')
+  );
+  const vi = JSON.parse(
+    fs.readFileSync(path.join(messagesDir, 'vi.json'), 'utf8')
+  );
+  const cn = JSON.parse(
+    fs.readFileSync(path.join(messagesDir, 'cn.json'), 'utf8')
+  );
   return { en, vi, cn };
 }
 
@@ -40,7 +46,11 @@ function getAllKeys(obj, prefix = '') {
   let keys = [];
   for (const key in obj) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
-    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+    if (
+      typeof obj[key] === 'object' &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key])
+    ) {
       keys = keys.concat(getAllKeys(obj[key], fullKey));
     } else {
       keys.push(fullKey);
@@ -89,7 +99,11 @@ function sortObjectByReference(obj, reference) {
   const sorted = {};
   for (const key in reference) {
     if (obj.hasOwnProperty(key)) {
-      if (typeof reference[key] === 'object' && reference[key] !== null && !Array.isArray(reference[key])) {
+      if (
+        typeof reference[key] === 'object' &&
+        reference[key] !== null &&
+        !Array.isArray(reference[key])
+      ) {
         sorted[key] = sortObjectByReference(obj[key], reference[key]);
       } else {
         sorted[key] = obj[key];
@@ -124,33 +138,39 @@ function main() {
   // Step 2: Check for missing/extra keys
   log('🔍 Checking for missing/extra keys...', 'cyan');
 
-  const missingInVi = enKeys.filter(k => !viKeys.includes(k));
-  const missingInCn = enKeys.filter(k => !cnKeys.includes(k));
-  const extraInVi = viKeys.filter(k => !enKeys.includes(k));
-  const extraInCn = cnKeys.filter(k => !enKeys.includes(k));
+  const missingInVi = enKeys.filter((k) => !viKeys.includes(k));
+  const missingInCn = enKeys.filter((k) => !cnKeys.includes(k));
+  const extraInVi = viKeys.filter((k) => !enKeys.includes(k));
+  const extraInCn = cnKeys.filter((k) => !enKeys.includes(k));
 
   let needsFix = false;
 
   if (missingInVi.length > 0 || extraInVi.length > 0) {
     needsFix = true;
-    log(`   VI: ${missingInVi.length} missing, ${extraInVi.length} extra`, 'yellow');
+    log(
+      `   VI: ${missingInVi.length} missing, ${extraInVi.length} extra`,
+      'yellow'
+    );
 
-    missingInVi.forEach(key => {
+    missingInVi.forEach((key) => {
       setNestedValue(vi, key, getNestedValue(en, key));
     });
-    extraInVi.forEach(key => {
+    extraInVi.forEach((key) => {
       deleteNestedKey(vi, key);
     });
   }
 
   if (missingInCn.length > 0 || extraInCn.length > 0) {
     needsFix = true;
-    log(`   CN: ${missingInCn.length} missing, ${extraInCn.length} extra`, 'yellow');
+    log(
+      `   CN: ${missingInCn.length} missing, ${extraInCn.length} extra`,
+      'yellow'
+    );
 
-    missingInCn.forEach(key => {
+    missingInCn.forEach((key) => {
       setNestedValue(cn, key, getNestedValue(en, key));
     });
-    extraInCn.forEach(key => {
+    extraInCn.forEach((key) => {
       deleteNestedKey(cn, key);
     });
   }
@@ -167,11 +187,14 @@ function main() {
   const emptyInVi = findEmptyObjects(vi);
   const emptyInCn = findEmptyObjects(cn);
 
-  emptyInVi.forEach(path => deleteNestedKey(vi, path));
-  emptyInCn.forEach(path => deleteNestedKey(cn, path));
+  emptyInVi.forEach((path) => deleteNestedKey(vi, path));
+  emptyInCn.forEach((path) => deleteNestedKey(cn, path));
 
   if (emptyInVi.length > 0 || emptyInCn.length > 0) {
-    log(`   Removed ${emptyInVi.length + emptyInCn.length} empty objects\n`, 'green');
+    log(
+      `   Removed ${emptyInVi.length + emptyInCn.length} empty objects\n`,
+      'green'
+    );
   } else {
     log('   ✅ No empty objects found\n', 'green');
   }
@@ -184,8 +207,16 @@ function main() {
 
   // Step 5: Write files
   log('💾 Writing files...', 'cyan');
-  fs.writeFileSync(path.join(messagesDir, 'vi.json'), JSON.stringify(vi, null, 2) + '\n', 'utf8');
-  fs.writeFileSync(path.join(messagesDir, 'cn.json'), JSON.stringify(cn, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(
+    path.join(messagesDir, 'vi.json'),
+    JSON.stringify(vi, null, 2) + '\n',
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(messagesDir, 'cn.json'),
+    JSON.stringify(cn, null, 2) + '\n',
+    'utf8'
+  );
   log('   ✅ Files updated\n', 'green');
 
   // Step 6: Final verification
@@ -198,7 +229,8 @@ function main() {
   log(`   VI: ${finalVi.length} keys`, 'green');
   log(`   CN: ${finalCn.length} keys`, 'green');
 
-  const allSynced = finalEn.length === finalVi.length && finalEn.length === finalCn.length;
+  const allSynced =
+    finalEn.length === finalVi.length && finalEn.length === finalCn.length;
 
   if (allSynced) {
     log('\n========================================', 'cyan');

@@ -16,50 +16,11 @@ import {
   HStack,
   Stack,
   Text,
-  Wrap,
-  WrapItem,
 } from '@chakra-ui/react';
-import { BarChart, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-
-const CustomCheckbox = ({
-  isChecked,
-  onChange,
-}: {
-  isChecked: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) => {
-  const boxSize = '24px';
-  const iconSize = 16;
-
-  return (
-    <Box as="label" cursor="pointer" display="inline-flex" alignItems="center">
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={onChange}
-        style={{ display: 'none' }}
-      />
-      <Box
-        w={boxSize}
-        h={boxSize}
-        border="2px solid"
-        borderColor={isChecked ? 'blue.500' : 'border'}
-        bg={isChecked ? 'blue.500' : 'transparent'}
-        borderRadius="md"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        transition="all 0.2s"
-        _hover={{ borderColor: isChecked ? 'blue.600' : 'blue.500/50' }}
-      >
-        {isChecked && <Check size={iconSize} color="white" strokeWidth={3} />}
-      </Box>
-    </Box>
-  );
-};
 
 interface LevelRequirementsCardProps {
   control: Control<any>;
@@ -93,7 +54,6 @@ export default function LevelRequirementsCard({
 }: LevelRequirementsCardProps) {
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
-
   // Watch the current values
   const allLevelsSelected = useWatch({ control, name: 'allLevelsSelected' });
   const requiredLevels = useWatch({ control, name: 'requiredLevels' }) || [];

@@ -20,6 +20,7 @@ Implemented complete payment system frontend with graceful error handling for pe
 **Location:** `/host/sessions/[id]` - Tab 5 (Payment icon)
 
 **Features:**
+
 - ✅ View/edit payment settings (bank info, QR code)
 - ✅ Display current session fee configuration
 - ✅ Upload QR code (multipart/form-data with field name "qrCode")
@@ -28,6 +29,7 @@ Implemented complete payment system frontend with graceful error handling for pe
 - ✅ Empty state with call-to-action
 
 **Files:**
+
 - `src/components/session/PaymentTab.tsx` (New)
 - `src/app/[locale]/host/sessions/[id]/page.tsx` (Updated)
 
@@ -38,6 +40,7 @@ Implemented complete payment system frontend with graceful error handling for pe
 **Page:** `/host/payment-settings`
 
 **Features:**
+
 - ✅ Create/Edit/Delete payment settings
 - ✅ Multiple payment settings support
 - ✅ Set default payment settings
@@ -45,6 +48,7 @@ Implemented complete payment system frontend with graceful error handling for pe
 - ✅ Form validation (qrCodeUrl only sent when valid)
 
 **Files:**
+
 - `src/app/[locale]/host/payment-settings/page.tsx` (Existing)
 - `src/components/payment/PaymentSettingsForm.tsx` (Fixed validation)
 
@@ -57,6 +61,7 @@ Implemented complete payment system frontend with graceful error handling for pe
 **Location:** Player session view - Tab 4 (Payment)
 
 **Features:**
+
 - ✅ View fee configuration (Fixed/Split Evenly)
 - ✅ View host payment information (bank, QR code)
 - ✅ View payment summary (total, paid, pending)
@@ -65,6 +70,7 @@ Implemented complete payment system frontend with graceful error handling for pe
 - ✅ **Graceful error handling** when backend endpoint unavailable
 
 **Error States:**
+
 1. **404 Not Implemented:**
    - Shows orange warning box
    - Message: "Payment feature is not yet available on the backend"
@@ -81,6 +87,7 @@ Implemented complete payment system frontend with graceful error handling for pe
    - **Retry button**
 
 **Files:**
+
 - `src/components/session/PlayerSessionView.tsx` (Updated with error handling)
 - `src/components/payment/PaymentInfoTab.tsx` (Existing)
 
@@ -90,18 +97,18 @@ Implemented complete payment system frontend with graceful error handling for pe
 
 ### Endpoint Corrections (10 total fixes)
 
-| # | Service | Before | After | Status |
-|---|---------|--------|-------|--------|
-| 1 | PaymentService | `/sessions/:id/payments/me` | `/sessions/:id/my-payments` | ✅ |
-| 2 | PaymentService | `/payments/me/summary` | `/transactions/summary` | ✅ |
-| 3 | PaymentService | `/payments/me/host/:id` | `/transactions/with-host/:id` | ✅ |
-| 4 | PaymentService | `/payments/host/summary` | `/host/transactions/summary` | ✅ |
-| 5 | PaymentService | `/payments/host/user/:id` | `/host/transactions/with-user/:id` | ✅ |
-| 6 | PaymentService | `/uploads/payment-proof` | `/upload/payment-proof` | ✅ |
-| 7 | PaymentService | `formData.append('file')` | `formData.append('proof')` | ✅ |
-| 8 | PaymentSettingsService | `/uploads/qr-code` | `/upload/qr-code` | ✅ |
-| 9 | PaymentSettingsService | `formData.append('file')` | `formData.append('qrCode')` | ✅ |
-| 10 | PaymentSettingsService | `PATCH /:id/default` | `POST /:id/set-default` | ✅ |
+| #   | Service                | Before                      | After                              | Status |
+| --- | ---------------------- | --------------------------- | ---------------------------------- | ------ |
+| 1   | PaymentService         | `/sessions/:id/payments/me` | `/sessions/:id/my-payments`        | ✅     |
+| 2   | PaymentService         | `/payments/me/summary`      | `/transactions/summary`            | ✅     |
+| 3   | PaymentService         | `/payments/me/host/:id`     | `/transactions/with-host/:id`      | ✅     |
+| 4   | PaymentService         | `/payments/host/summary`    | `/host/transactions/summary`       | ✅     |
+| 5   | PaymentService         | `/payments/host/user/:id`   | `/host/transactions/with-user/:id` | ✅     |
+| 6   | PaymentService         | `/uploads/payment-proof`    | `/upload/payment-proof`            | ✅     |
+| 7   | PaymentService         | `formData.append('file')`   | `formData.append('proof')`         | ✅     |
+| 8   | PaymentSettingsService | `/uploads/qr-code`          | `/upload/qr-code`                  | ✅     |
+| 9   | PaymentSettingsService | `formData.append('file')`   | `formData.append('qrCode')`        | ✅     |
+| 10  | PaymentSettingsService | `PATCH /:id/default`        | `POST /:id/set-default`            | ✅     |
 
 ---
 
@@ -111,11 +118,11 @@ Implemented complete payment system frontend with graceful error handling for pe
 
 ```typescript
 // QR Code Upload
-formData.append('qrCode', file);  // ✅ Correct
+formData.append('qrCode', file); // ✅ Correct
 // NOT: formData.append('file', file);  ❌
 
 // Payment Proof Upload
-formData.append('proof', file);   // ✅ Correct
+formData.append('proof', file); // ✅ Correct
 // NOT: formData.append('file', file);  ❌
 ```
 
@@ -126,11 +133,12 @@ formData.append('proof', file);   // ✅ Correct
 **Issue:** Backend validation requires `qrCodeUrl` to be valid URL **if field exists**
 
 **Solution:**
+
 ```typescript
 // PaymentSettingsForm.tsx - Only include qrCodeUrl when valid
 const data = { bankName, accountHolderName, isDefault };
 if (qrCodeUrl && qrCodeUrl.trim() !== '') {
-  data.qrCodeUrl = qrCodeUrl;  // Only add if valid
+  data.qrCodeUrl = qrCodeUrl; // Only add if valid
 }
 ```
 
@@ -188,11 +196,13 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 **Status:** ✅ All payment endpoints are now working
 
 **Recently Implemented:**
+
 1. ✅ `GET /api/sessions/:sessionId/my-payments` - Player payment viewing (Fixed route path)
 2. ✅ `POST /api/sessions/:sessionId/payments/split` - Split amount calculation (NEW)
 3. ✅ `GET /api/sessions/:sessionId/payments/stats` - Payment statistics (NEW)
 
 **Impact:**
+
 - ✅ Players can now view their payment records
 - ✅ Players can submit payments with proof
 - ✅ Hosts can set split amounts for SPLIT_EVENLY fee type
@@ -200,10 +210,12 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 - ✅ Complete payment workflow from creation to approval
 
 **Backend Files Modified:**
+
 - `badminton-backend/src/payments/payments.controller.ts` - Added 3 endpoints
 - `badminton-backend/src/payments/payments.service.ts` - Added business logic
 
 **Documentation:**
+
 - See `badminton-backend/PAYMENT_SYSTEM_COMPLETE.md` for full details
 
 ---
@@ -212,27 +224,27 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 
 ### Host Features
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| View payment settings in session | ✅ | Tab added successfully |
-| Create payment settings | ✅ | Validation fixed |
-| Edit payment settings | ✅ | qrCodeUrl validation fixed |
-| Delete payment settings | ⏳ | Not tested |
-| Upload QR code | ✅ | Field name fixed |
-| Set as default | ✅ | Endpoint fixed |
-| View fee config | ✅ | Displayed in PaymentTab |
+| Feature                          | Status | Notes                      |
+| -------------------------------- | ------ | -------------------------- |
+| View payment settings in session | ✅     | Tab added successfully     |
+| Create payment settings          | ✅     | Validation fixed           |
+| Edit payment settings            | ✅     | qrCodeUrl validation fixed |
+| Delete payment settings          | ⏳     | Not tested                 |
+| Upload QR code                   | ✅     | Field name fixed           |
+| Set as default                   | ✅     | Endpoint fixed             |
+| View fee config                  | ✅     | Displayed in PaymentTab    |
 
 ### Player Features
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| View payment tab | ✅ | Shows graceful error for 404 |
-| View fee config | ✅ | Works |
-| View host payment info | ✅ | Works |
-| View payment records | ❌ | Blocked by backend 404 |
-| Upload payment proof | ✅ | Field name fixed |
-| Submit payment | ❌ | Blocked by backend 404 |
-| Retry on error | ✅ | Button works |
+| Feature                | Status | Notes                        |
+| ---------------------- | ------ | ---------------------------- |
+| View payment tab       | ✅     | Shows graceful error for 404 |
+| View fee config        | ✅     | Works                        |
+| View host payment info | ✅     | Works                        |
+| View payment records   | ❌     | Blocked by backend 404       |
+| Upload payment proof   | ✅     | Field name fixed             |
+| Submit payment         | ❌     | Blocked by backend 404       |
+| Retry on error         | ✅     | Button works                 |
 
 ---
 
@@ -328,16 +340,19 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 ### Key Files
 
 **Services:**
+
 - `src/lib/api/payment.service.ts`
 - `src/lib/api/payment-settings.service.ts`
 - `src/lib/api/fee.service.ts`
 
 **Components:**
+
 - `src/components/session/PaymentTab.tsx` (Host)
 - `src/components/payment/PaymentInfoTab.tsx` (Player)
 - `src/components/payment/PaymentSettingsForm.tsx`
 
 **Pages:**
+
 - `src/app/[locale]/host/payment-settings/page.tsx`
 - `src/app/[locale]/host/sessions/[id]/page.tsx`
 
@@ -348,6 +363,7 @@ if (qrCodeUrl && qrCodeUrl.trim() !== '') {
 ### 1. Graceful Degradation
 
 Frontend works smoothly even when backend endpoints return 404:
+
 - Clear error messages
 - No crashes
 - Retry mechanism for transient errors
@@ -356,6 +372,7 @@ Frontend works smoothly even when backend endpoints return 404:
 ### 2. Complete Documentation
 
 1000+ lines of comprehensive documentation covering:
+
 - Every API endpoint
 - Code examples
 - Common issues
@@ -364,6 +381,7 @@ Frontend works smoothly even when backend endpoints return 404:
 ### 3. Type Safety
 
 All TypeScript types properly defined:
+
 - Request/Response types
 - Error types
 - Component prop types
@@ -371,6 +389,7 @@ All TypeScript types properly defined:
 ### 4. I18n Support
 
 All user-facing text supports 3 languages:
+
 - English
 - Tiếng Việt
 - 中文

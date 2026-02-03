@@ -21,7 +21,7 @@ import {
 import { CommonModal } from '@/components/ui/CommonModal';
 import { UserOption } from '@/lib/api/user.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Plus, Save, Trash2, UserPlus } from 'lucide-react';
+import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { NewPlayer } from './types';
 

@@ -1,11 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Text } from '@chakra-ui/react';
-import {
-  IconButton,
-  Button,
-  HStack,
-  VStack,
-} from '@/components/ui/chakra-compat';
+import { IconButton, Button, HStack } from '@/components/ui/chakra-compat';
 import {
   MoreVertical,
   User,

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  TOP_BAR_HEIGHT_DESKTOP,
-  TOP_BAR_HEIGHT_MOBILE,
-  SIDEBAR_WIDTH_EXPANDED,
-  SIDEBAR_WIDTH_COLLAPSED,
-} from '@/constants';
+import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -36,19 +31,13 @@ interface TopBarProps {
   rightContent?: React.ReactNode;
 }
 
-export default function TopBar({
-  showBackButton = false,
-  backHref = '/',
-  title,
-  icon,
-  rightContent,
-}: TopBarProps) {
+export default function TopBar({ title, icon, rightContent }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
   const { isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const locale = useLocale();
   const router = useRouter();
-  const { isCollapsed, toggleCollapse } = useSidebar();
+  const { toggleCollapse } = useSidebar();
 
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);

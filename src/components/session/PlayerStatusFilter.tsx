@@ -4,12 +4,12 @@ import { Button, HStack, VStack, Divider } from '@/components/ui/chakra-compat';
 import { ChevronDown, Filter, X, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-export type PlayerStatus = 'PLAYING' | 'WAITING' | 'READY' | 'INACTIVE';
+import { PlayerStatus } from '@/lib/api/types';
 
 interface PlayerStatusFilterProps {
   selected: PlayerStatus[];
   onChange: (selected: PlayerStatus[]) => void;
-  counts: Record<PlayerStatus, number>;
+  counts: Record<string, number>;
   totalCount: number;
 }
 
@@ -24,10 +24,10 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const allStatuses: PlayerStatus[] = [
-    'PLAYING',
-    'WAITING',
-    'READY',
-    'INACTIVE',
+    PlayerStatus.PLAYING,
+    PlayerStatus.WAITING,
+    PlayerStatus.READY,
+    PlayerStatus.INACTIVE,
   ];
 
   useEffect(() => {
@@ -64,13 +64,13 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
 
   const getLabel = (status: PlayerStatus) => {
     switch (status) {
-      case 'PLAYING':
+      case PlayerStatus.PLAYING:
         return t('playing');
-      case 'WAITING':
+      case PlayerStatus.WAITING:
         return t('waiting');
-      case 'READY':
+      case PlayerStatus.READY:
         return t('ready');
-      case 'INACTIVE':
+      case PlayerStatus.INACTIVE:
         return t('inactive');
       default:
         return status;
@@ -79,13 +79,13 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
 
   const getColorScheme = (status: PlayerStatus) => {
     switch (status) {
-      case 'PLAYING':
+      case PlayerStatus.PLAYING:
         return 'blue';
-      case 'WAITING':
+      case PlayerStatus.WAITING:
         return 'orange';
-      case 'READY':
+      case PlayerStatus.READY:
         return 'green';
-      case 'INACTIVE':
+      case PlayerStatus.INACTIVE:
         return 'red';
       default:
         return 'gray';
