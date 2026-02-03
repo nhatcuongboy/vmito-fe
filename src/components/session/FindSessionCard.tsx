@@ -23,9 +23,10 @@ interface FindSessionCardProps {
   onJoin: () => void;
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
-  onRegistrationUpdate?: () => void;
+  onRegistrationUpdate?: () => void | Promise<void>;
   onDeleteSuccess?: () => void;
   onHostClick?: () => void;
+  distance?: number;
 }
 
 const FindSessionCard = ({
@@ -36,6 +37,7 @@ const FindSessionCard = ({
   onRegistrationUpdate,
   onDeleteSuccess,
   onHostClick,
+  distance,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -161,10 +163,17 @@ const FindSessionCard = ({
       <Flex align="flex-start">
         <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
         <Box flex="1" overflow="hidden">
-          <Flex align="center" gap={1}>
+          <Flex align="center" gap={2} wrap="wrap">
             <Text fontWeight="medium" lineClamp={1}>
               {session.venue?.name || session.location}
             </Text>
+            {distance !== undefined && (
+              <Badge colorPalette="blue" variant="subtle" size="sm">
+                {distance < 1
+                  ? `${Math.round(distance * 1000)}m`
+                  : `${distance.toFixed(1)}km`}
+              </Badge>
+            )}
             {googleMapButton}
           </Flex>
           {session.venue?.address &&

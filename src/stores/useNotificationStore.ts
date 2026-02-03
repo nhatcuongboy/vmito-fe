@@ -41,14 +41,33 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
         limit: 20,
       });
 
-      set((state) => ({
-        notifications: reset
-          ? response.data
-          : [...state.notifications, ...response.data],
-        page: currentPage + 1,
-        hasMore: currentPage < response.pagination.totalPages,
-        isLoading: false,
-      }));
+      set((state) => {
+        let notifications: INotification[];
+
+        if (reset) {
+          notifications = response.data;
+        } else {
+          // Merge with deduplication when loading more
+          const existingIds = new Set(state.notifications.map((n) => n.id));
+          const newNotifications = response.data.filter(
+            (n) => !existingIds.has(n.id)
+          );
+          notifications = [...state.notifications, ...newNotifications];
+
+          if (newNotifications.length < response.data.length) {
+            console.warn(
+              `[NotificationStore] Filtered ${response.data.length - newNotifications.length} duplicate notifications from API`
+            );
+          }
+        }
+
+        return {
+          notifications,
+          page: currentPage + 1,
+          hasMore: currentPage < response.pagination.totalPages,
+          isLoading: false,
+        };
+      });
     } catch (error) {
       set({
         error:
@@ -70,10 +89,22 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
   },
 
   addNotification: (notification: INotification) => {
-    set((state) => ({
-      notifications: [notification, ...state.notifications],
-      unreadCount: state.unreadCount + 1,
-    }));
+    set((state) => {
+      // Check if notification already exists (deduplication)
+      const exists = state.notifications.some((n) => n.id === notification.id);
+
+      if (exists) {
+        console.warn(
+          `[NotificationStore] Duplicate notification detected and prevented: ${notification.id}`
+        );
+        return state; // Don't add duplicate
+      }
+
+      return {
+        notifications: [notification, ...state.notifications],
+        unreadCount: state.unreadCount + 1,
+      };
+    });
   },
 
   markAsRead: async (id: string) => {

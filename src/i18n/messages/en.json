@@ -152,6 +152,7 @@
     "setUpYourBadmintonSession": "Set up your badminton session",
     "startYourBadmintonJourney": "Start Your Badminton Journey",
     "status": {
+      "all": "All",
       "preparing": "Upcoming",
       "inProgress": "In Progress",
       "finished": "Finished"
@@ -325,6 +326,7 @@
       "selectedCities": "{count} cities",
       "selectedDistricts": "{count} districts",
       "sessionStatus": "Status",
+      "searchSessions": "Search sessions...",
       "availableSlots": "Available",
       "date": "Date",
       "quickFilters": "Quick Filters",
@@ -1651,7 +1653,8 @@
       "loginFailed": "Login failed",
       "authenticationFailed": "Authentication failed",
       "invalidEmailOrPassword": "Invalid email or password",
-      "tooManyRequests": "Too many requests. Please try again later."
+      "tooManyRequests": "Too many requests. Please try again later.",
+      "sessionConflict": "You were logged out because you signed in from another device or browser. Please sign in again."
     },
     "signup": {
       "title": "Sign Up",

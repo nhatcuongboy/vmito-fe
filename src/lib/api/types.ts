@@ -867,3 +867,9 @@ export interface IBroadcastNotificationRequest {
   title: string;
   message: string;
 }
+
+// Socket Events
+export interface ISessionConflictData {
+  message: string;
+  timestamp: string;
+}

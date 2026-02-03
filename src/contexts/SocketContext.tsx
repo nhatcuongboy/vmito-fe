@@ -6,7 +6,7 @@ import { io, Socket } from 'socket.io-client';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
-import { INotification } from '@/lib/api/types';
+import { INotification, ISessionConflictData } from '@/lib/api/types';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -98,7 +98,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     if (socket && isConnected && user?.id) {
       // Join user specific room
       socket.emit('join_user_room', { userId: user.id });
-      console.log(`Joined user room: user-${user.id}`);
+      console.log(`[Socket] Joined user room: user-${user.id}`, {
+        socketId: socket.id,
+        timestamp: new Date().toISOString(),
+      });
     }
   }, [socket, isConnected, user?.id]);
 
@@ -126,8 +129,46 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     };
 
+    // Listener for Session Conflict (MINIMUM ESSENTIAL)
+    const handleSessionConflict = (data: ISessionConflictData) => {
+      console.warn('[Socket] Session conflict detected:', data);
+
+      // Prevent auto-reconnect
+      if (socket) {
+        socket.io.opts.reconnection = false;
+        socket.disconnect();
+      }
+
+      // Show immediate notification
+      toaster.error({
+        title: 'Session Conflict',
+        description:
+          'You have been logged in from another location. Logging out in 3 seconds...',
+        duration: 3000,
+      });
+
+      // Auto logout and redirect after delay
+      setTimeout(() => {
+        // Clear auth state
+        useAuthStore.getState().clearAuth();
+
+        // Redirect to login with reason
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login?reason=session_conflict';
+        }
+      }, 3000);
+    };
+
     // Listener for Real-time Notifications
     const handleNotificationReceived = (data: INotification) => {
+      console.log('[Socket] Notification received:', {
+        notificationId: data.id,
+        userId: data.userId,
+        currentUserId: user?.id,
+        type: data.type,
+        title: data.title,
+      });
+
       // Security check: only process if it's for the current user
       if (data.userId !== user?.id) {
         console.warn(
@@ -136,7 +177,19 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      // Add to store
+      // Check for duplicate before adding (defensive check)
+      const currentNotifications =
+        useNotificationStore.getState().notifications;
+      const isDuplicate = currentNotifications.some((n) => n.id === data.id);
+
+      if (isDuplicate) {
+        console.warn(
+          `[Socket] Duplicate notification detected and blocked: ${data.id}`
+        );
+        return;
+      }
+
+      // Add to store (store also has its own deduplication)
       useNotificationStore.getState().addNotification(data);
 
       // Show toast notification
@@ -149,6 +202,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);
     socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
+    socket.on('session_conflict', handleSessionConflict);
     socket.on(
       SessionEventType.NOTIFICATION_RECEIVED,
       handleNotificationReceived
@@ -163,12 +217,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         SessionEventType.REGISTRATION_STATUS_UPDATED,
         handleStatusUpdate
       );
+      socket.off('session_conflict', handleSessionConflict);
       socket.off(
         SessionEventType.NOTIFICATION_RECEIVED,
         handleNotificationReceived
       );
     };
-  }, [socket]);
+  }, [socket, user]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

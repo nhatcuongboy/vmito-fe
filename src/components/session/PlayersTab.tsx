@@ -5,13 +5,13 @@ import { PlayerGrid } from '@/components/player/PlayerGrid';
 import PlayerManagement from '@/components/session/PlayerManagement';
 import { LayoutGrid, List } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { ISession, Player } from '@/lib/api/types';
+import { ISession, Player, PlayerStatus } from '@/lib/api/types';
 import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { AlertCircle, Plus } from 'lucide-react';
 import PendingPlayersSection from './PendingPlayersSection';
-import PlayerStatusFilter, { PlayerStatus } from './PlayerStatusFilter';
+import PlayerStatusFilter from './PlayerStatusFilter';
 import PlayerEmptyState from './player-management/PlayerEmptyState';
 import EditPlayerModal from './player-management/EditPlayerModal';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
@@ -53,13 +53,13 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   const [showAddPlayerModal, setShowAddPlayerModal] = React.useState(false);
 
   // Safe session object for hook
-  const safeSession = session || {
+  const safeSession = (session || {
     id: sessionId,
     players: sessionPlayers,
     numberOfCourts: 0,
     maxPlayersPerCourt: 0,
-    requiredLevels: [],
-  };
+    requiredLevels: [] as number[],
+  }) as ISession;
 
   const {
     newPlayers,
