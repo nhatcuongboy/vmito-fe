@@ -218,6 +218,7 @@ export interface Venue {
   lng?: number;
   district?: string;
   city?: string;
+  isVerified?: boolean;
 }
 
 // Session types

@@ -106,6 +106,7 @@ export const ROUTES = {
   ADMIN: {
     USERS: '/admin/users',
     NOTIFICATIONS: '/admin/notifications',
+    VENUES: '/admin/venues',
   },
 
   // Settings & Profile

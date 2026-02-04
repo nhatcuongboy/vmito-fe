@@ -10,7 +10,9 @@
     "joined": "Joined",
     "transactions": "Transactions",
     "paymentSettings": "Payment Settings",
-    "myHostedSessions": "My Hosted Sessions"
+    "myHostedSessions": "My Hosted Sessions",
+    "notifications": "Notifications",
+    "venues": "Venues"
   },
   "common": {
     "browse": "Analysis",
@@ -47,6 +49,7 @@
     "theme": "Theme",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
+    "systemMode": "System",
     "settings": "Settings",
     "about": "About",
     "navigation": "Navigation",
@@ -106,7 +109,11 @@
     "displayLanguage": "Language",
     "vietnamese": "Vietnamese",
     "english": "English",
-    "chinese": "Chinese"
+    "chinese": "Chinese",
+    "filters": {
+      "area": "Area",
+      "allCities": "All Cities"
+    }
   },
   "session": {
     "title": "Badminton Session",
@@ -1768,7 +1775,26 @@
     "failedToCreateUser": "Failed to create user",
     "failedToUpdateUser": "Failed to update user",
     "failedToDeleteUser": "Failed to delete user",
-    "accessDenied": "Access denied. Admin only."
+    "accessDenied": "Access denied. Admin only.",
+    "venueManagement": "Venue Management",
+    "venues": "Venues",
+    "addVenue": "Add Venue",
+    "editVenue": "Edit Venue",
+    "deleteVenue": "Delete Venue",
+    "createVenue": "Create Venue",
+    "venueCreatedSuccess": "Venue created successfully",
+    "venueUpdatedSuccess": "Venue updated successfully",
+    "venueDeletedSuccess": "Venue deleted successfully",
+    "failedToLoadVenues": "Failed to load venues",
+    "failedToCreateVenue": "Failed to create venue",
+    "failedToUpdateVenue": "Failed to update venue",
+    "failedToDeleteVenue": "Failed to delete venue",
+    "placeId": "Place ID",
+    "address": "Address",
+    "isVerified": "Is Verified",
+    "yes": "Yes",
+    "no": "No",
+    "noVenuesFound": "No venues found"
   },
   "PlayerDetailModal": {
     "status": "Status",

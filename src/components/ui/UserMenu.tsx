@@ -13,6 +13,7 @@ import {
   Languages,
   Moon,
   Sun,
+  Monitor,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations, useLocale } from 'next-intl';
@@ -40,8 +41,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Use actual color mode from theme provider
-  const { colorMode, setColorMode } = useColorMode();
-  const currentTheme = colorMode;
+  const { theme, setColorMode } = useColorMode();
+  const currentTheme = theme;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -79,14 +80,16 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
     setCurrentMenu('MAIN');
   };
 
-  const getThemeLabel = (theme: 'light' | 'dark') => {
+  const getThemeLabel = (theme: 'light' | 'dark' | 'system') => {
     switch (theme) {
       case 'dark':
         return common('darkTheme');
       case 'light':
         return common('lightTheme');
+      case 'system':
+        return common('deviceTheme');
       default:
-        return common('lightTheme');
+        return common('deviceTheme');
     }
   };
 
@@ -235,28 +238,29 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           {[
             { id: 'dark', label: common('darkTheme'), icon: Moon },
             { id: 'light', label: common('lightTheme'), icon: Sun },
-          ].map((theme) => (
+            { id: 'system', label: common('systemMode'), icon: Monitor },
+          ].map((t) => (
             <Flex
-              key={theme.id}
+              key={t.id}
               align="center"
               gap={3}
               py={3}
               px={2}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-              onClick={() => setColorMode(theme.id as 'light' | 'dark')}
+              onClick={() => setColorMode(t.id as 'light' | 'dark' | 'system')}
               borderRadius="md"
             >
               <Box w={6}>
-                {currentTheme === theme.id && (
+                {theme === t.id && (
                   <Check size={20} color="var(--chakra-colors-blue-500)" />
                 )}
               </Box>
               <Text
                 flex={1}
-                fontWeight={currentTheme === theme.id ? 'semibold' : 'normal'}
+                fontWeight={theme === t.id ? 'semibold' : 'normal'}
               >
-                {theme.label}
+                {t.label}
               </Text>
             </Flex>
           ))}

@@ -1,7 +1,7 @@
 'use client';
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Box, Flex, Text, Stack, Button, Separator } from '@chakra-ui/react';
+import { Box, Flex, Text, Stack, Separator } from '@chakra-ui/react';
 import {
   Home,
   Info,
@@ -12,8 +12,9 @@ import {
   Calendar,
   Ticket,
   Users,
-  Moon,
-  Sun,
+  Bell,
+  MapPin,
+  Monitor,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
@@ -30,6 +31,7 @@ import { useColorMode } from './color-mode-provider';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { Tooltip } from './tooltip';
 import { ROUTES } from '@/constants';
+import ThemeSwitcher from './ThemeSwitcher';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -40,7 +42,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const common = useTranslations('common');
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
-  const { colorMode, toggleColorMode } = useColorMode();
   const { isCollapsed } = useSidebar();
 
   return (
@@ -415,6 +416,86 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
+
+                    <Tooltip
+                      content={nav('notifications')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={ROUTES.ADMIN.NOTIFICATIONS}
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
+                          <Bell size={18} />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('notifications')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
+
+                    <Tooltip
+                      content={nav('venues')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={ROUTES.ADMIN.VENUES}
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
+                          <MapPin size={18} />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('venues')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
                   </Stack>
                 </Box>
 
@@ -547,7 +628,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               </Box>
             )}
 
-            {/* Theme Toggle */}
+            {/* Theme Switcher */}
             <Box>
               {!isCollapsed && (
                 <Text
@@ -560,54 +641,25 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   {common('theme')}
                 </Text>
               )}
-              <Tooltip
-                content={
-                  colorMode === 'dark'
-                    ? common('lightMode')
-                    : common('darkMode')
-                }
-                positioning={{
-                  placement: 'right',
-                  offset: { mainAxis: 12 },
-                }}
-                disabled={!isCollapsed}
-                showArrow
-                openDelay={200}
-              >
-                <Button
-                  variant="ghost"
-                  justifyContent={{
-                    base: 'flex-start',
-                    md: isCollapsed ? 'center' : 'flex-start',
-                  }}
-                  w="full"
-                  onClick={toggleColorMode}
-                  px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                >
-                  <Flex
-                    align="center"
-                    gap={3}
-                    w="full"
-                    justifyContent={{
-                      base: 'flex-start',
-                      md: isCollapsed ? 'center' : 'flex-start',
+              <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
+                {isCollapsed ? (
+                  <Tooltip
+                    content={common('theme')}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
                     }}
+                    showArrow
+                    openDelay={200}
                   >
-                    {colorMode === 'dark' ? (
-                      <Sun size={18} />
-                    ) : (
-                      <Moon size={18} />
-                    )}
-                    {!isCollapsed && (
-                      <Text display={{ base: 'block', md: 'block' }}>
-                        {colorMode === 'dark'
-                          ? common('lightMode')
-                          : common('darkMode')}
-                      </Text>
-                    )}
-                  </Flex>
-                </Button>
-              </Tooltip>
+                    <Box w="full" px={1}>
+                      <ThemeSwitcher />
+                    </Box>
+                  </Tooltip>
+                ) : (
+                  <ThemeSwitcher />
+                )}
+              </Suspense>
             </Box>
 
             {/* Footer */}

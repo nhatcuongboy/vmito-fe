@@ -10,7 +10,9 @@
     "joined": "Kèo tham gia",
     "transactions": "Giao dịch",
     "paymentSettings": "Cài đặt thanh toán",
-    "myHostedSessions": "Kèo host"
+    "myHostedSessions": "Kèo host",
+    "notifications": "Thông báo",
+    "venues": "Sân bãi"
   },
   "common": {
     "browse": "Thống kê",
@@ -47,6 +49,7 @@
     "theme": "Giao diện",
     "lightMode": "Chế độ sáng",
     "darkMode": "Chế độ tối",
+    "systemMode": "Tự động",
     "settings": "Cài đặt",
     "about": "Giới thiệu",
     "navigation": "Điều hướng",
@@ -106,7 +109,11 @@
     "displayLanguage": "Ngôn ngữ",
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
-    "chinese": "Tiếng Trung"
+    "chinese": "Tiếng Trung",
+    "filters": {
+      "area": "Khu vực",
+      "allCities": "Tất cả thành phố"
+    }
   },
   "session": {
     "title": "Kèo cầu lông",
@@ -1768,7 +1775,26 @@
     "failedToCreateUser": "Không thể tạo người dùng",
     "failedToUpdateUser": "Không thể cập nhật người dùng",
     "failedToDeleteUser": "Không thể xóa người dùng",
-    "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên."
+    "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên.",
+    "venueManagement": "Quản lý địa điểm",
+    "venues": "Địa điểm",
+    "addVenue": "Thêm địa điểm",
+    "editVenue": "Sửa địa điểm",
+    "deleteVenue": "Xóa địa điểm",
+    "createVenue": "Tạo địa điểm",
+    "venueCreatedSuccess": "Tạo địa điểm thành công",
+    "venueUpdatedSuccess": "Cập nhật địa điểm thành công",
+    "venueDeletedSuccess": "Xóa địa điểm thành công",
+    "failedToLoadVenues": "Không thể tải danh sách địa điểm",
+    "failedToCreateVenue": "Không thể tạo địa điểm",
+    "failedToUpdateVenue": "Không thể cập nhật địa điểm",
+    "failedToDeleteVenue": "Không thể xóa địa điểm",
+    "placeId": "Mã địa điểm",
+    "address": "Địa chỉ",
+    "isVerified": "Đã xác minh",
+    "yes": "Có",
+    "no": "Không",
+    "noVenuesFound": "Không tìm thấy địa điểm nào"
   },
   "PlayerDetailModal": {
     "status": "Trạng thái",

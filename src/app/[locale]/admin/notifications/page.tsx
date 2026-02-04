@@ -1,5 +1,7 @@
 'use client';
 
+import MainLayout from '@/components/layout/MainLayout';
+
 import { useState } from 'react';
 import {
   Box,
@@ -82,108 +84,114 @@ export default function AdminNotificationsPage() {
   };
 
   return (
-    <Container maxW="container.lg" py={8}>
-      <VStack gap={6} align="stretch">
-        <HStack gap={3}>
-          <Box
-            p={3}
-            borderRadius="lg"
-            bg="purple.100"
-            _dark={{ bg: 'purple.900/30' }}
-            color="purple.600"
-          >
-            <LuBell size={24} />
-          </Box>
-          <Box>
-            <Heading size="lg">{tn('broadcastNotifications')}</Heading>
-            <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-              {tn('broadcastDescription')}
-            </Text>
-          </Box>
-        </HStack>
+    <MainLayout title={tn('broadcastNotifications')}>
+      <Container maxW="container.lg" py={8}>
+        <VStack gap={6} align="stretch">
+          <HStack gap={3}>
+            <Box
+              p={3}
+              borderRadius="lg"
+              bg="purple.100"
+              _dark={{ bg: 'purple.900/30' }}
+              color="purple.600"
+            >
+              <LuBell size={24} />
+            </Box>
+            <Box>
+              <Heading size="lg">{tn('broadcastNotifications')}</Heading>
+              <Text color="gray.600" _dark={{ color: 'gray.400' }}>
+                {tn('broadcastDescription')}
+              </Text>
+            </Box>
+          </HStack>
 
-        <Card.Root>
-          <Card.Body>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <VStack gap={4} align="stretch">
-                <Field.Root invalid={!!errors.title}>
-                  <Field.Label>{tn('notificationTitle')} *</Field.Label>
-                  <Input
-                    {...register('title')}
-                    placeholder={tn('titlePlaceholder')}
-                    maxLength={200}
-                  />
-                  {errors.title && (
-                    <Field.ErrorText>{errors.title.message}</Field.ErrorText>
-                  )}
-                  <Field.HelperText>{watchedTitle.length}/200</Field.HelperText>
-                </Field.Root>
+          <Card.Root>
+            <Card.Body>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <VStack gap={4} align="stretch">
+                  <Field.Root invalid={!!errors.title}>
+                    <Field.Label>{tn('notificationTitle')} *</Field.Label>
+                    <Input
+                      {...register('title')}
+                      placeholder={tn('titlePlaceholder')}
+                      maxLength={200}
+                    />
+                    {errors.title && (
+                      <Field.ErrorText>{errors.title.message}</Field.ErrorText>
+                    )}
+                    <Field.HelperText>
+                      {watchedTitle.length}/200
+                    </Field.HelperText>
+                  </Field.Root>
 
-                <Field.Root invalid={!!errors.message}>
-                  <Field.Label>{tn('notificationMessage')} *</Field.Label>
-                  <Textarea
-                    {...register('message')}
-                    placeholder={tn('messagePlaceholder')}
-                    rows={4}
-                    maxLength={1000}
-                  />
-                  {errors.message && (
-                    <Field.ErrorText>{errors.message.message}</Field.ErrorText>
-                  )}
-                  <Field.HelperText>
-                    {watchedMessage.length}/1000
-                  </Field.HelperText>
-                </Field.Root>
+                  <Field.Root invalid={!!errors.message}>
+                    <Field.Label>{tn('notificationMessage')} *</Field.Label>
+                    <Textarea
+                      {...register('message')}
+                      placeholder={tn('messagePlaceholder')}
+                      rows={4}
+                      maxLength={1000}
+                    />
+                    {errors.message && (
+                      <Field.ErrorText>
+                        {errors.message.message}
+                      </Field.ErrorText>
+                    )}
+                    <Field.HelperText>
+                      {watchedMessage.length}/1000
+                    </Field.HelperText>
+                  </Field.Root>
 
-                {/* Preview */}
-                {(watchedTitle || watchedMessage) && (
-                  <Box
-                    p={4}
-                    borderRadius="md"
-                    bg="gray.50"
-                    _dark={{ bg: 'gray.800' }}
-                    borderWidth="1px"
-                  >
-                    <Text
-                      fontSize="sm"
-                      fontWeight="semibold"
-                      color="gray.500"
-                      mb={2}
+                  {/* Preview */}
+                  {(watchedTitle || watchedMessage) && (
+                    <Box
+                      p={4}
+                      borderRadius="md"
+                      bg="gray.50"
+                      _dark={{ bg: 'gray.800' }}
+                      borderWidth="1px"
                     >
-                      {tn('preview')}
-                    </Text>
-                    <VStack align="start" gap={1}>
-                      <Text fontWeight="semibold">
-                        {watchedTitle || tn('notificationTitle')}
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="gray.500"
+                        mb={2}
+                      >
+                        {tn('preview')}
                       </Text>
-                      <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-                        {watchedMessage || tn('notificationMessage')}
-                      </Text>
-                    </VStack>
-                  </Box>
-                )}
-
-                <Button
-                  type="submit"
-                  colorPalette="purple"
-                  size="lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <>
-                      <LuSend size={18} />
-                      <LuUsers size={18} />
-                      {tn('sendToAllUsers')}
-                    </>
+                      <VStack align="start" gap={1}>
+                        <Text fontWeight="semibold">
+                          {watchedTitle || tn('notificationTitle')}
+                        </Text>
+                        <Text color="gray.600" _dark={{ color: 'gray.400' }}>
+                          {watchedMessage || tn('notificationMessage')}
+                        </Text>
+                      </VStack>
+                    </Box>
                   )}
-                </Button>
-              </VStack>
-            </form>
-          </Card.Body>
-        </Card.Root>
-      </VStack>
-    </Container>
+
+                  <Button
+                    type="submit"
+                    colorPalette="purple"
+                    size="lg"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <>
+                        <LuSend size={18} />
+                        <LuUsers size={18} />
+                        {tn('sendToAllUsers')}
+                      </>
+                    )}
+                  </Button>
+                </VStack>
+              </form>
+            </Card.Body>
+          </Card.Root>
+        </VStack>
+      </Container>
+    </MainLayout>
   );
 }

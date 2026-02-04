@@ -6,8 +6,9 @@ import { createContext, useContext, useEffect, useState } from 'react';
 // Color mode context for hooks
 interface ColorModeContextType {
   colorMode: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   toggleColorMode: () => void;
-  setColorMode: (mode: 'light' | 'dark') => void;
+  setColorMode: (mode: 'light' | 'dark' | 'system') => void;
 }
 
 const ColorModeContext = createContext<ColorModeContextType | undefined>(
@@ -21,6 +22,7 @@ export const useColorMode = (): ColorModeContextType => {
     // Return default values if not in provider (SSR)
     return {
       colorMode: 'light',
+      theme: 'light',
       toggleColorMode: () => {},
       setColorMode: () => {},
     };
@@ -50,7 +52,7 @@ export const useColorModeValue = <TLight, TDark>(
 
 // Internal component to provide color mode context
 const ColorModeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { setTheme, theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -58,18 +60,22 @@ const ColorModeProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const colorMode = (mounted ? resolvedTheme : 'light') as 'light' | 'dark';
+  const currentTheme = (mounted ? theme : 'light') as
+    | 'light'
+    | 'dark'
+    | 'system';
 
   const toggleColorMode = () => {
     setTheme(colorMode === 'dark' ? 'light' : 'dark');
   };
 
-  const setColorMode = (mode: 'light' | 'dark') => {
+  const setColorMode = (mode: 'light' | 'dark' | 'system') => {
     setTheme(mode);
   };
 
   return (
     <ColorModeContext.Provider
-      value={{ colorMode, toggleColorMode, setColorMode }}
+      value={{ colorMode, theme: currentTheme, toggleColorMode, setColorMode }}
     >
       {children}
     </ColorModeContext.Provider>
@@ -85,8 +91,8 @@ export const ThemeProviderWrapper = ({
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="light"
-      enableSystem={false}
+      defaultTheme="system"
+      enableSystem={true}
       disableTransitionOnChange={false}
     >
       <ColorModeProvider>{children}</ColorModeProvider>

@@ -19,4 +19,18 @@ export const VenueService = {
     const response = await api.post<ApiResponse<Venue>>('/venues', venue);
     return response.data.data!;
   },
+
+  // Update venue
+  updateVenue: async (id: string, venue: Partial<Venue>): Promise<Venue> => {
+    const response = await api.patch<ApiResponse<Venue>>(
+      `/venues/${id}`,
+      venue
+    );
+    return response.data.data!;
+  },
+
+  // Delete venue
+  deleteVenue: async (id: string): Promise<void> => {
+    await api.delete<ApiResponse<void>>(`/venues/${id}`);
+  },
 };
