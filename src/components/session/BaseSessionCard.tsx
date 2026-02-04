@@ -19,6 +19,8 @@ import {
   MenuTrigger,
   MenuContent,
   MenuItem,
+  MenuPositioner,
+  Portal,
 } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
@@ -370,7 +372,11 @@ const BaseSessionCard = ({
     // Render layout if we have any buttons or menu items
     if (menuItems.length > 0 || rightButtons.length > 0) {
       return (
-        <Flex w="full" justify="space-between" align="center">
+        <Flex
+          w="full"
+          justify={menuItems.length > 0 ? 'space-between' : 'flex-end'}
+          align="center"
+        >
           {/* Left side: Action menu */}
           {menuItems.length > 0 && (
             <MenuRoot positioning={{ placement: 'bottom-start' }}>
@@ -384,9 +390,22 @@ const BaseSessionCard = ({
                   onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 />
               </MenuTrigger>
-              <MenuContent onClick={(e) => e.stopPropagation()}>
-                {menuItems}
-              </MenuContent>
+              <Portal>
+                <MenuPositioner zIndex={2000}>
+                  <MenuContent
+                    onClick={(e) => e.stopPropagation()}
+                    bg="white"
+                    boxShadow="lg"
+                    borderRadius="md"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                    zIndex={2001}
+                  >
+                    {menuItems}
+                  </MenuContent>
+                </MenuPositioner>
+              </Portal>
             </MenuRoot>
           )}
           {/* Right side: Other action buttons */}

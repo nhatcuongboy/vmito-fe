@@ -12,12 +12,12 @@ import {
 } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { CommonModal, useModal } from '@/components/ui/CommonModal';
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from '@/i18n/config';
+import { useEffect, useState, useCallback } from 'react';
+// import { useRouter, usePathname } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
 import BaseSessionCard from '@/components/session/BaseSessionCard';
@@ -103,7 +103,7 @@ export const PublicSessionDetailContent = ({
     fetchSession();
   }, [sessionId, initialSession]);
 
-  const fetchRegistrationStatus = async () => {
+  const fetchRegistrationStatus = useCallback(async () => {
     if (!user || !session) return;
     try {
       const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
@@ -115,11 +115,11 @@ export const PublicSessionDetailContent = ({
     } catch (err) {
       console.error('Error fetching registration status:', err);
     }
-  };
+  }, [user, session]);
 
   useEffect(() => {
     fetchRegistrationStatus();
-  }, [user, session]);
+  }, [fetchRegistrationStatus]);
 
   const isOwner = session?.hostId === user?.id;
   const isAdmin = user?.role === UserRole.ADMIN;
