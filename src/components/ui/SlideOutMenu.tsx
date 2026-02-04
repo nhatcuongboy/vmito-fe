@@ -1,16 +1,17 @@
 'use client';
 
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Box, Flex, Text, Stack, Button } from '@chakra-ui/react';
+import { Box, Flex, Text, Stack, Button, Separator } from '@chakra-ui/react';
 import {
   Home,
   Info,
   LogIn,
   Receipt,
   CreditCard,
-  LayoutDashboard,
+  BarChart3,
   Calendar,
   Ticket,
+  Users,
   Moon,
   Sun,
 } from 'lucide-react';
@@ -91,25 +92,18 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
       >
         {/* Body */}
         <Box p={{ base: 4, md: isCollapsed ? 2 : 4 }}>
-          <Stack gap={6}>
-            {/* Main Navigation Section */}
+          <Stack gap={3}>
+            {/* Home - Standalone (No Group) */}
             <Box>
-              {!isCollapsed && (
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="fg.muted"
-                  mb={3}
-                  display={{ base: 'block', md: 'block' }}
-                >
-                  Main
-                </Text>
-              )}
               <Stack gap={2}>
                 <Tooltip
                   content={nav('home')}
-                  positioning={{ placement: 'right' }}
+                  positioning={{
+                    placement: 'right',
+                    offset: { mainAxis: 12 },
+                  }}
                   disabled={!isCollapsed}
+                  showArrow
                   openDelay={200}
                 >
                   <NextLinkButton
@@ -141,56 +135,36 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Flex>
                   </NextLinkButton>
                 </Tooltip>
+              </Stack>
+            </Box>
 
-                {isAuthenticated && user?.role !== UserRole.PLAYER && (
-                  <Tooltip
-                    content={nav('browse')}
-                    positioning={{ placement: 'right' }}
-                    disabled={!isCollapsed}
-                    openDelay={200}
-                  >
-                    <NextLinkButton
-                      href={
-                        user?.role === UserRole.HOST ||
-                        user?.role === UserRole.ADMIN
-                          ? ROUTES.HOST.DASHBOARD
-                          : ROUTES.HOME
-                      }
-                      variant="ghost"
-                      justifyContent={{
-                        base: 'flex-start',
-                        md: isCollapsed ? 'center' : 'flex-start',
-                      }}
-                      onClick={onClose}
-                      w="full"
-                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+            {/* Separator */}
+            <Separator />
+
+            {/* Sessions Section */}
+            {isAuthenticated && (
+              <>
+                <Box>
+                  {!isCollapsed && (
+                    <Text
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      color="fg.muted"
+                      mb={3}
+                      display={{ base: 'block', md: 'block' }}
                     >
-                      <Flex
-                        align="center"
-                        gap={3}
-                        w="full"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                      >
-                        <LayoutDashboard size={18} />
-                        {!isCollapsed && (
-                          <Text display={{ base: 'block', md: 'block' }}>
-                            {nav('browse')}
-                          </Text>
-                        )}
-                      </Flex>
-                    </NextLinkButton>
-                  </Tooltip>
-                )}
-
-                {isAuthenticated && (
-                  <>
+                      {common('sessions')}
+                    </Text>
+                  )}
+                  <Stack gap={2}>
                     <Tooltip
                       content={nav('host')}
-                      positioning={{ placement: 'right' }}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
                       disabled={!isCollapsed}
+                      showArrow
                       openDelay={200}
                     >
                       <NextLinkButton
@@ -230,8 +204,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
                     <Tooltip
                       content={nav('joined')}
-                      positioning={{ placement: 'right' }}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
                       disabled={!isCollapsed}
+                      showArrow
                       openDelay={200}
                     >
                       <NextLinkButton
@@ -263,11 +241,38 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
+                  </Stack>
+                </Box>
 
+                {/* Separator */}
+                <Separator />
+              </>
+            )}
+
+            {/* Finance Section */}
+            {isAuthenticated && (
+              <>
+                <Box>
+                  {!isCollapsed && (
+                    <Text
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      color="fg.muted"
+                      mb={3}
+                      display={{ base: 'block', md: 'block' }}
+                    >
+                      {common('finance')}
+                    </Text>
+                  )}
+                  <Stack gap={2}>
                     <Tooltip
                       content={nav('transactions')}
-                      positioning={{ placement: 'right' }}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
                       disabled={!isCollapsed}
+                      showArrow
                       openDelay={200}
                     >
                       <NextLinkButton
@@ -304,20 +309,85 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
-                  </>
-                )}
 
-                {isAuthenticated &&
-                  (user?.role === UserRole.HOST ||
-                    user?.role === UserRole.ADMIN) && (
+                    {(user?.role === UserRole.HOST ||
+                      user?.role === UserRole.ADMIN) && (
+                      <Tooltip
+                        content={nav('paymentSettings')}
+                        positioning={{
+                          placement: 'right',
+                          offset: { mainAxis: 12 },
+                        }}
+                        disabled={!isCollapsed}
+                        showArrow
+                        openDelay={200}
+                      >
+                        <NextLinkButton
+                          href={ROUTES.HOST.PAYMENT_SETTINGS}
+                          variant="ghost"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                          onClick={onClose}
+                          w="full"
+                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        >
+                          <Flex
+                            align="center"
+                            gap={3}
+                            w="full"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                          >
+                            <CreditCard size={18} />
+                            {!isCollapsed && (
+                              <Text display={{ base: 'block', md: 'block' }}>
+                                {nav('paymentSettings')}
+                              </Text>
+                            )}
+                          </Flex>
+                        </NextLinkButton>
+                      </Tooltip>
+                    )}
+                  </Stack>
+                </Box>
+
+                {/* Separator */}
+                <Separator />
+              </>
+            )}
+
+            {/* Admin Section */}
+            {isAuthenticated && user?.role === UserRole.ADMIN && (
+              <>
+                <Box>
+                  {!isCollapsed && (
+                    <Text
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      color="fg.muted"
+                      mb={3}
+                      display={{ base: 'block', md: 'block' }}
+                    >
+                      {common('admin')}
+                    </Text>
+                  )}
+                  <Stack gap={2}>
                     <Tooltip
-                      content={nav('paymentSettings')}
-                      positioning={{ placement: 'right' }}
+                      content={nav('users')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
                       disabled={!isCollapsed}
+                      showArrow
                       openDelay={200}
                     >
                       <NextLinkButton
-                        href={ROUTES.HOST.PAYMENT_SETTINGS}
+                        href={ROUTES.ADMIN.USERS}
                         variant="ghost"
                         justifyContent={{
                           base: 'flex-start',
@@ -336,21 +406,93 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <CreditCard size={18} />
+                          <Users size={18} />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('paymentSettings')}
+                              {nav('users')}
                             </Text>
                           )}
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
-                  )}
+                  </Stack>
+                </Box>
+
+                {/* Separator */}
+                <Separator />
+              </>
+            )}
+
+            {/* Other Section */}
+            <Box>
+              {!isCollapsed && (
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="fg.muted"
+                  mb={3}
+                  display={{ base: 'block', md: 'block' }}
+                >
+                  {common('otherSection')}
+                </Text>
+              )}
+              <Stack gap={2}>
+                {/* Analysis - Moved to Other section */}
+                {isAuthenticated && user?.role !== UserRole.PLAYER && (
+                  <Tooltip
+                    content={nav('browse')}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
+                    }}
+                    disabled={!isCollapsed}
+                    showArrow
+                    openDelay={200}
+                  >
+                    <NextLinkButton
+                      href={
+                        user?.role === UserRole.HOST ||
+                        user?.role === UserRole.ADMIN
+                          ? ROUTES.HOST.DASHBOARD
+                          : ROUTES.HOME
+                      }
+                      variant="ghost"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                      onClick={onClose}
+                      w="full"
+                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    >
+                      <Flex
+                        align="center"
+                        gap={3}
+                        w="full"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                      >
+                        <BarChart3 size={18} />
+                        {!isCollapsed && (
+                          <Text display={{ base: 'block', md: 'block' }}>
+                            {nav('browse')}
+                          </Text>
+                        )}
+                      </Flex>
+                    </NextLinkButton>
+                  </Tooltip>
+                )}
 
                 <Tooltip
                   content={common('about')}
-                  positioning={{ placement: 'right' }}
+                  positioning={{
+                    placement: 'right',
+                    offset: { mainAxis: 12 },
+                  }}
                   disabled={!isCollapsed}
+                  showArrow
                   openDelay={200}
                 >
                   <NextLinkButton
@@ -384,6 +526,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 </Tooltip>
               </Stack>
             </Box>
+
+            {/* Separator */}
+            <Separator />
 
             {/* Language Switcher */}
             {!isCollapsed && (
@@ -421,8 +566,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     ? common('lightMode')
                     : common('darkMode')
                 }
-                positioning={{ placement: 'right' }}
+                positioning={{
+                  placement: 'right',
+                  offset: { mainAxis: 12 },
+                }}
                 disabled={!isCollapsed}
+                showArrow
                 openDelay={200}
               >
                 <Button
@@ -468,8 +617,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 <Box mb={4}>
                   <Tooltip
                     content="Login"
-                    positioning={{ placement: 'right' }}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
+                    }}
                     disabled={!isCollapsed}
+                    showArrow
                     openDelay={200}
                   >
                     <NextLinkButton
@@ -512,15 +665,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     textAlign="center"
                     display={{ base: 'block', md: 'block' }}
                   >
-                    {common('appName')}
-                  </Text>
-                  <Text
-                    fontSize="xs"
-                    color="gray.400"
-                    textAlign="center"
-                    display={{ base: 'block', md: 'block' }}
-                  >
-                    © {new Date().getFullYear()}
+                    {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved`}
                   </Text>
                 </>
               )}

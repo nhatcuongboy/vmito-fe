@@ -7,7 +7,7 @@ import { UserRole } from '@/lib/api/types';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import { Home, Search, Trophy, Users, Ticket, Calendar } from 'lucide-react';
+import { Home, Search, Trophy, Ticket, Calendar } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
@@ -42,7 +42,6 @@ export default function GlobalBottomNav() {
           icon: Ticket,
           href: ROUTES.PLAYER.SESSIONS.LIST,
         },
-        { id: 4, label: t('users'), icon: Users, href: ROUTES.ADMIN.USERS },
       ];
     }
 

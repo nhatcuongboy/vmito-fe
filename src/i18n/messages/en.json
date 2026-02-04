@@ -4,7 +4,7 @@
     "join": "Join",
     "home": "Home",
     "tournaments": "Tournaments",
-    "browse": "Dashboard",
+    "browse": "Analysis",
     "users": "Users",
     "mySessions": "My Sessions",
     "joined": "Joined",
@@ -13,7 +13,7 @@
     "myHostedSessions": "My Hosted Sessions"
   },
   "common": {
-    "browse": "Dashboard",
+    "browse": "Analysis",
     "appName": "Vmito",
     "save": "Save",
     "cancel": "Cancel",
@@ -30,6 +30,11 @@
     "back": "Back",
     "backToHome": "Back to Home",
     "backToDashboard": "Back to Dashboard",
+    "main": "Main",
+    "sessions": "Sessions",
+    "finance": "Finance",
+    "admin": "Admin",
+    "otherSection": "Other",
     "backToSessions": "Back to Sessions",
     "next": "Next",
     "submit": "Submit",
@@ -410,7 +415,7 @@
     "courts": "courts",
     "viewMoreSessions": "View more sessions",
     "quickCreate": {
-      "placeholder": "Do you want to create a new session, {name}?",
+      "placeholder": "Do you want to create a new session?",
       "aiPlaceholder": "Quick create by AI...",
       "createButton": "Create"
     },
@@ -812,8 +817,8 @@
       "viewSession": "View Session"
     },
     "dashboard": {
-      "title": "Dashboard",
-      "dashboard": "Dashboard",
+      "title": "Analysis",
+      "dashboard": "Analysis",
       "createNew": "Create New Session",
       "existingSessions": "Existing Sessions",
       "yourSessions": "Your Sessions",

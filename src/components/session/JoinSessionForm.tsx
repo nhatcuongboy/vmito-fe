@@ -75,9 +75,9 @@ export default function JoinSessionForm({
 
   return (
     <VStack spacing={4} align="stretch">
-      <Text fontSize="sm" color="fg.muted">
+      {/* <Text fontSize="sm" color="fg.muted">
         {t('joinSessionDescription', { hostName: session.host?.name || '' })}
-      </Text>
+      </Text> */}
 
       {session.requiredLevels && session.requiredLevels.length > 0 && (
         <Box
@@ -92,7 +92,7 @@ export default function JoinSessionForm({
         </Box>
       )}
 
-      <Divider />
+      {/* <Divider /> */}
 
       {players.map((player, index) => (
         <Box

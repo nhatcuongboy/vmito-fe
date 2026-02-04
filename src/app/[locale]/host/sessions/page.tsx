@@ -3,14 +3,13 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import { Container, Flex, Heading, Button, Spinner } from '@chakra-ui/react';
+import { Container, Flex, Spinner } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 import SessionsList from '@/components/session/SessionsList';
 import TopBar from '@/components/ui/TopBar';
 import PageWrapper from '@/components/layout/PageWrapper';
-import { Plus } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import {
   CONTAINER_PX,
@@ -21,9 +20,11 @@ import {
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
+import { QuickCreateSessionBar } from '@/components/session/QuickCreateSessionBar';
+import AISessionModal from '@/components/session/AISessionModal';
+import { ExtractedSessionData } from '@/lib/api/ai.service';
 
 function HostSessionsContent() {
-  const t = useTranslations('pages.dashboard');
   const tNav = useTranslations('navigation');
   const router = useRouter();
   const { user } = useAuthStore();
@@ -31,6 +32,7 @@ function HostSessionsContent() {
   const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ISessionFilterState>({});
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const fetchHostedSessions = async () => {
     try {
@@ -104,6 +106,14 @@ function HostSessionsContent() {
     setFilters(newFilters);
   };
 
+  const handleAISuccess = (data: ExtractedSessionData) => {
+    // Redirect to create session page with AI-extracted data
+    const queryParams = new URLSearchParams({
+      aiData: JSON.stringify(data),
+    });
+    router.push(`/sessions/new?${queryParams.toString()}`);
+  };
+
   return (
     <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
       <TopBar showBackButton={false} title={tNav('myHostedSessions')} />
@@ -117,21 +127,6 @@ function HostSessionsContent() {
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
       >
-        <Flex mb={6} justify="space-between" align="center">
-          <Heading as="h2" size="lg">
-            {t('hostedSessions')}
-          </Heading>
-          <Button
-            colorPalette="blue"
-            size="sm"
-            onClick={() => router.push('/sessions/new')}
-            loading={loading}
-          >
-            <Plus size={16} style={{ marginRight: 4 }} />
-            {t('createSession')}
-          </Button>
-        </Flex>
-
         <SessionFilters
           onFilterChange={handleFilterChange}
           showStatusFilter={true}
@@ -140,6 +135,8 @@ function HostSessionsContent() {
           showLevelFilter={false}
         />
 
+        <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+
         <SessionsList
           sessions={filteredSessions}
           isLoading={loading}
@@ -147,6 +144,12 @@ function HostSessionsContent() {
           onRefresh={fetchHostedSessions}
         />
       </Container>
+
+      <AISessionModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onSuccess={handleAISuccess}
+      />
     </PageWrapper>
   );
 }

@@ -15,6 +15,10 @@ import {
   Stack,
   Text,
   Wrap,
+  MenuRoot,
+  MenuTrigger,
+  MenuContent,
+  MenuItem,
 } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
@@ -30,6 +34,9 @@ import {
   Share2,
   Download,
   User,
+  MoreVertical,
+  Eye,
+  Trash2,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -249,40 +256,43 @@ const BaseSessionCard = ({
   const renderBottomActions = () => {
     if (!actions) return null;
 
-    const leftButtons: React.ReactNode[] = [];
+    const menuItems: React.ReactNode[] = [];
     const rightButtons: React.ReactNode[] = [];
 
-    // Left side: Delete button (owner or admin)
+    // Menu items: View button
+    if (actions.showViewButton) {
+      const viewHref = actions.viewButtonHref || `/sessions/${session.id}`;
+      menuItems.push(
+        <MenuItem
+          key="view"
+          value="view"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.location.href = viewHref;
+          }}
+        >
+          <Icon as={Eye} mr={2} />
+          {t('view')}
+        </MenuItem>
+      );
+    }
+
+    // Menu items: Delete button (owner or admin)
     if (actions.showDeleteButton && canManage && actions.onDelete) {
-      leftButtons.push(
-        <Button
+      menuItems.push(
+        <MenuItem
           key="delete"
-          colorPalette="red"
-          variant="outline"
-          size="sm"
-          onClick={(e: React.MouseEvent) => {
+          value="delete"
+          color="red.600"
+          _hover={{ bg: 'red.50' }}
+          onClick={(e) => {
             e.stopPropagation();
             actions.onDelete?.(session.id);
           }}
         >
+          <Icon as={Trash2} mr={2} />
           {t('deleteSession')}
-        </Button>
-      );
-    }
-
-    // Right side: View button
-    if (actions.showViewButton) {
-      const viewHref = actions.viewButtonHref || `/sessions/${session.id}`;
-      rightButtons.push(
-        <NextLinkButton
-          key="view"
-          href={viewHref}
-          colorPalette="gray"
-          variant="outline"
-          size="sm"
-        >
-          {t('view')}
-        </NextLinkButton>
+        </MenuItem>
       );
     }
 
@@ -357,11 +367,29 @@ const BaseSessionCard = ({
       );
     }
 
-    // Render layout if we have any buttons
-    if (leftButtons.length > 0 || rightButtons.length > 0) {
+    // Render layout if we have any buttons or menu items
+    if (menuItems.length > 0 || rightButtons.length > 0) {
       return (
         <Flex w="full" justify="space-between" align="center">
-          <Box>{leftButtons}</Box>
+          {/* Left side: Action menu */}
+          {menuItems.length > 0 && (
+            <MenuRoot positioning={{ placement: 'bottom-start' }}>
+              <MenuTrigger asChild>
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorPalette="gray"
+                  aria-label="Actions"
+                  icon={<Icon as={MoreVertical} />}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                />
+              </MenuTrigger>
+              <MenuContent onClick={(e) => e.stopPropagation()}>
+                {menuItems}
+              </MenuContent>
+            </MenuRoot>
+          )}
+          {/* Right side: Other action buttons */}
           <Flex gap={2}>{rightButtons}</Flex>
         </Flex>
       );

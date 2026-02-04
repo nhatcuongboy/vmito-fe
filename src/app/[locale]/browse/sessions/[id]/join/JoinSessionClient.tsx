@@ -15,6 +15,7 @@ import {
   CONTENT_PT_OFFSET,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
+  ROUTES,
 } from '@/constants';
 
 interface JoinSessionClientProps {
@@ -41,10 +42,8 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
     session,
     isOpen: true,
     onSuccess: () => {
-      // Refresh or redirect
-      // Assuming we want to go back to session details or the list?
-      // For now, let's go back to the browse list
-      router.push('/');
+      // Navigate to session detail page after successful registration
+      router.push(ROUTES.SESSIONS.DETAIL(id));
     },
   });
 

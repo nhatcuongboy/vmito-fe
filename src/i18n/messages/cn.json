@@ -4,7 +4,7 @@
     "join": "加入",
     "home": "首页",
     "tournaments": "锦标赛",
-    "browse": "浏览",
+    "browse": "统计分析",
     "users": "用户",
     "mySessions": "我的场次",
     "joined": "已加入",
@@ -13,7 +13,7 @@
     "myHostedSessions": "我主持的场次"
   },
   "common": {
-    "browse": "浏览",
+    "browse": "统计分析",
     "appName": "Vmito",
     "save": "保存",
     "cancel": "取消",
@@ -30,6 +30,11 @@
     "back": "返回",
     "backToHome": "返回首页",
     "backToDashboard": "返回控制台",
+    "main": "主要",
+    "sessions": "场次",
+    "finance": "财务",
+    "admin": "管理",
+    "otherSection": "其他",
     "backToSessions": "返回赛事列表",
     "next": "下一步",
     "submit": "提交",
@@ -812,8 +817,8 @@
       "viewSession": "查看场次"
     },
     "dashboard": {
-      "title": "控制台",
-      "dashboard": "控制台",
+      "title": "统计分析",
+      "dashboard": "统计分析",
       "createNew": "创建新场次",
       "existingSessions": "现有场次",
       "yourSessions": "您的场次",

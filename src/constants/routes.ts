@@ -255,11 +255,11 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Home',
   [ROUTES.AUTH.SIGNIN]: 'Sign In',
   [ROUTES.AUTH.SIGNUP]: 'Sign Up',
-  [ROUTES.HOST.DASHBOARD]: 'Host Dashboard',
+  [ROUTES.HOST.DASHBOARD]: 'Analysis',
   [ROUTES.HOST.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.HOST.TRANSACTIONS]: 'Transactions',
   [ROUTES.HOST.PAYMENT_SETTINGS]: 'Payment Settings',
-  [ROUTES.PLAYER.DASHBOARD]: 'Player Dashboard',
+  [ROUTES.PLAYER.DASHBOARD]: 'Analysis',
 
   [ROUTES.PLAYER.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.PLAYER.TRANSACTIONS]: 'Transactions',

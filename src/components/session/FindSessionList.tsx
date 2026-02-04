@@ -1078,7 +1078,10 @@ export default function FindSessionList({
           isOpen={isJoinModalOpen}
           onClose={() => setIsJoinModalOpen(false)}
           session={selectedSession}
-          onSuccess={fetchSessions}
+          onSuccess={() => {
+            fetchSessions();
+            router.push(ROUTES.SESSIONS.DETAIL(selectedSession.id));
+          }}
         />
       )}
 

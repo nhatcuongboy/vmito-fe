@@ -4,16 +4,16 @@
     "join": "Tham gia",
     "home": "Trang chủ",
     "tournaments": "Giải đấu",
-    "browse": "Dashboard",
+    "browse": "Thống kê",
     "users": "Người dùng",
     "mySessions": "Kèo của tôi",
     "joined": "Kèo tham gia",
     "transactions": "Giao dịch",
     "paymentSettings": "Cài đặt thanh toán",
-    "myHostedSessions": "Kèo host của tôi"
+    "myHostedSessions": "Kèo host"
   },
   "common": {
-    "browse": "Dashboard",
+    "browse": "Thống kê",
     "appName": "Vmito",
     "save": "Lưu",
     "cancel": "Hủy",
@@ -30,6 +30,11 @@
     "back": "Quay lại",
     "backToHome": "Quay lại trang chủ",
     "backToDashboard": "Quay lại bảng điều khiển",
+    "main": "Chính",
+    "sessions": "Kèo",
+    "finance": "Tài chính",
+    "admin": "Quản trị",
+    "otherSection": "Khác",
     "backToSessions": "Quay lại danh sách kèo",
     "next": "Tiếp theo",
     "submit": "Gửi",
@@ -410,7 +415,7 @@
     "courts": "sân",
     "viewMoreSessions": "Xem thêm kèo",
     "quickCreate": {
-      "placeholder": "Bạn muốn tạo kèo mới, {name}?",
+      "placeholder": "Bạn muốn tạo kèo mới?",
       "aiPlaceholder": "Tạo kèo nhanh bằng AI...",
       "createButton": "Tạo kèo"
     },
@@ -797,8 +802,8 @@
       }
     },
     "player": {
-      "dashboard": "Bảng điều khiển người chơi",
-      "welcome": "Chào mừng đến với bảng điều khiển của bạn",
+      "dashboard": "Phân tích người chơi",
+      "welcome": "Chào mừng đến với bảng phân tích của bạn",
       "dashboardDescription": "Xem và theo dõi tất cả các kèo cầu lông mà bạn đã tham gia",
       "yourSessions": "Các kèo của bạn",
       "activeSessions": "Kèo đang hoạt động",
@@ -812,8 +817,8 @@
       "viewSession": "Xem kèo"
     },
     "dashboard": {
-      "title": "Bảng điều khiển",
-      "dashboard": "Bảng điều khiển",
+      "title": "Thống kê",
+      "dashboard": "Thống kê",
       "createNew": "Tạo kèo mới",
       "existingSessions": "Kèo hiện có",
       "yourSessions": "Kèo của bạn",
@@ -841,7 +846,7 @@
       "viewSession": "Xem kèo",
       "createSession": "Tạo kèo",
       "joinedSessions": "Kèo đã tham gia",
-      "hostedSessions": "Kèo của tôi (Host)",
+      "hostedSessions": "Kèo host",
       "stats": {
         "totalSessions": "Tổng số phiên",
         "activeSessions": "Đang diễn ra",
