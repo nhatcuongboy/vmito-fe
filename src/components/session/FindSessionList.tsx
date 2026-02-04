@@ -11,7 +11,7 @@ import { useRouter } from '@/i18n/config';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
-import { ISession, UserRole } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -30,6 +30,7 @@ import { Filter, MapPin, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { AISessionModal } from './AISessionModal';
 import FindSessionCard from './FindSessionCard';
 import JoinSessionModal from './JoinSessionModal';
@@ -37,7 +38,12 @@ import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { CommonModal } from '@/components/ui/CommonModal';
 import AppHostDetail from './AppHostDetail';
-import { ROUTES } from '@/constants';
+import {
+  ROUTES,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
+import { Check } from 'lucide-react';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -46,6 +52,8 @@ const TIME_RANGES = [
   { key: 'evening', start: 18, end: 22 },
   { key: 'night', start: 22, end: 5 },
 ] as const;
+
+const PAGE_SIZE = 12;
 
 type TimeRangeKey = (typeof TIME_RANGES)[number]['key'];
 
@@ -58,6 +66,9 @@ export default function FindSessionList({
 }: FindSessionListProps) {
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
   const [loading, setLoading] = useState(initialSessions.length === 0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [joinedSessionIds, setJoinedSessionIds] = useState<Set<string>>(
     new Set()
@@ -75,12 +86,22 @@ export default function FindSessionList({
     setSortByDistance,
     userLocation,
     setUserLocation,
-    toggleCity,
-    toggleDistrict,
-    clearLocation,
   } = useSessionFilterStore();
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
+
+  // Local state for pending filters (before Submit)
+  const [pendingFilters, setPendingFilters] = useState(filters);
+  const [pendingSortByDistance, setPendingSortByDistance] =
+    useState(sortByDistance);
+
+  // Sync pending filters when drawer opens
+  useEffect(() => {
+    if (showFilters) {
+      setPendingFilters(filters);
+      setPendingSortByDistance(sortByDistance);
+    }
+  }, [showFilters, filters, sortByDistance]);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [selectedSessionForDetail, setSelectedSessionForDetail] =
@@ -95,6 +116,11 @@ export default function FindSessionList({
   const { user } = useAuthStore();
   const { getLevelShortLabel } = useLevelLabel();
 
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  });
+
   // Load initial date from URL or today
   useEffect(() => {
     const dateParam = searchParams.get('date');
@@ -103,17 +129,24 @@ export default function FindSessionList({
     }
   }, [searchParams, setFilters]);
 
-  const fetchSessions = async () => {
+  const fetchSessions = async (isLoadMore = false) => {
     try {
-      setLoading(true);
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+        setPage(1); // Reset to first page on filter change
+      }
       setError(null);
 
       // Helper to clean district/city names for searching (remove "Quận", "Huyện", etc.)
       const normalizeLocation = (name: string) =>
         name.replace(/^(Quận|Huyện|Thành phố|Thị xã)\s+/i, '').trim();
 
+      const currentPage = isLoadMore ? page + 1 : 1;
+
       // Prepare filters for API
-      const apiFilters: Record<string, unknown> = {
+      const apiFilters: any = {
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME instead of CODE
@@ -129,6 +162,8 @@ export default function FindSessionList({
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
+        page: currentPage,
+        limit: PAGE_SIZE,
       };
 
       // Fee filter (only if changed from defaults or split evenly is selected)
@@ -221,7 +256,14 @@ export default function FindSessionList({
         });
       }
 
-      setSessions(filteredData);
+      if (isLoadMore) {
+        setSessions((prev) => [...prev, ...filteredData]);
+        setPage(currentPage);
+      } else {
+        setSessions(filteredData);
+      }
+
+      setHasMore(data.length === PAGE_SIZE);
 
       // Fetch user specific data
       if (user) {
@@ -248,6 +290,7 @@ export default function FindSessionList({
       console.error(err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -274,11 +317,19 @@ export default function FindSessionList({
     filters.searchQuery,
   ]);
 
-  // Handle Location
+  // Trigger load more when in view
+  useEffect(() => {
+    if (inView && hasMore && !loading && !loadingMore) {
+      fetchSessions(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, hasMore, loading, loadingMore]);
+
+  // Handle Location (for pending filters)
   const handleNearMe = async () => {
-    if (sortByDistance) {
+    if (pendingSortByDistance) {
       // Toggle off
-      setSortByDistance(false);
+      setPendingSortByDistance(false);
       return;
     }
 
@@ -286,39 +337,78 @@ export default function FindSessionList({
       setLoading(true);
       const location = await getUserLocation();
       setUserLocation(location);
-      setSortByDistance(true);
-      // Clear city/district when using Near Me?
-      // Optional: keep them as filters within the radius/sorted list
-      // For now, let's keep them independent but maybe clear specifically if it conflicts logic?
-      // Actually, sorting by distance inside a specific city makes sense.
+      setPendingSortByDistance(true);
     } catch (error: any) {
       toaster.error({
         title: t('filters.locationPermissionDenied'),
         description: error.message,
       });
-      setSortByDistance(false);
+      setPendingSortByDistance(false);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handlers
+  // Handlers for pending filters
   const handleSearchQueryChange = (val: string) => {
     setFilters({ searchQuery: val });
   };
 
   const toggleLevel = (level: number) => {
-    const newLevels = filters.levels.includes(level)
-      ? filters.levels.filter((l) => l !== level)
-      : [...filters.levels, level];
-    setFilters({ levels: newLevels });
+    const newLevels = pendingFilters.levels.includes(level)
+      ? pendingFilters.levels.filter((l) => l !== level)
+      : [...pendingFilters.levels, level];
+    setPendingFilters({ ...pendingFilters, levels: newLevels });
   };
 
   const toggleTimeRange = (rangeKey: TimeRangeKey) => {
-    const newTimeRanges = filters.timeRanges.includes(rangeKey)
-      ? filters.timeRanges.filter((r) => r !== rangeKey)
-      : [...filters.timeRanges, rangeKey];
-    setFilters({ timeRanges: newTimeRanges });
+    const newTimeRanges = pendingFilters.timeRanges.includes(rangeKey)
+      ? pendingFilters.timeRanges.filter((r) => r !== rangeKey)
+      : [...pendingFilters.timeRanges, rangeKey];
+    setPendingFilters({ ...pendingFilters, timeRanges: newTimeRanges });
+  };
+
+  const togglePendingCity = (cityCode: string) => {
+    const newCities = pendingFilters.cities.includes(cityCode)
+      ? pendingFilters.cities.filter((c) => c !== cityCode)
+      : [...pendingFilters.cities, cityCode];
+    setPendingFilters({ ...pendingFilters, cities: newCities });
+  };
+
+  const togglePendingDistrict = (districtName: string) => {
+    const newDistricts = pendingFilters.districts.includes(districtName)
+      ? pendingFilters.districts.filter((d) => d !== districtName)
+      : [...pendingFilters.districts, districtName];
+    setPendingFilters({ ...pendingFilters, districts: newDistricts });
+  };
+
+  const clearPendingLocation = () => {
+    setPendingFilters({ ...pendingFilters, cities: [], districts: [] });
+  };
+
+  const handleSubmitFilters = () => {
+    setFilters(pendingFilters);
+    setSortByDistance(pendingSortByDistance);
+    toggleFilters(); // Close drawer
+  };
+
+  const handleResetFilters = () => {
+    clearStoreFilters();
+    setSortByDistance(false);
+    setPendingFilters({
+      date: '',
+      searchQuery: '',
+      cities: [],
+      districts: [],
+      levels: [],
+      timeRanges: [],
+      minFee: 0,
+      maxFee: 200000,
+      hasSlots: false,
+      minAvailableSlots: 0,
+      splitEvenly: false,
+    });
+    setPendingSortByDistance(false);
   };
 
   const clearFilters = () => {
@@ -338,13 +428,13 @@ export default function FindSessionList({
     (filters.splitEvenly ? 1 : 0) +
     (sortByDistance ? 1 : 0);
 
-  // Derived data for display
+  // Derived data for display (use pending filters in drawer)
   const availableDistricts = useMemo(() => {
-    if (filters.cities.length === 0) return [];
+    if (pendingFilters.cities.length === 0) return [];
     return VIETNAM_CITIES.filter((city) =>
-      filters.cities.includes(city.code)
+      pendingFilters.cities.includes(city.code)
     ).flatMap((city) => city.districts);
-  }, [filters.cities]);
+  }, [pendingFilters.cities]);
 
   // Handle Join Actions
   const handleJoinClick = (session: ISession) => {
@@ -378,73 +468,143 @@ export default function FindSessionList({
 
   return (
     <Box>
-      {/* Search Bar & Main Controls - Always Visible */}
-      <Flex gap={2} mb={4} wrap="wrap">
-        <Box flex="1" position="relative" minW="200px">
-          <Input
-            pl={10}
-            placeholder={t('searchPlaceholder')}
-            value={filters.searchQuery}
-            onChange={(e) => handleSearchQueryChange(e.target.value)}
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-          />
-          <Box
-            position="absolute"
-            left={3}
-            top="50%"
-            transform="translateY(-50%)"
-            color="gray.400"
-          >
-            <Search size={18} />
-          </Box>
-        </Box>
-
-        <Box position="relative">
-          <IconButton
-            variant={showFilters ? 'solid' : 'outline'}
-            colorPalette="blue"
-            onClick={toggleFilters}
-            aria-label={t('filters.title')}
-            icon={<Filter size={18} />}
-          />
-          {activeFilterCount > 0 && (
-            <Badge
+      {/* Search Bar & Main Controls - Sticky at top when scrolling */}
+      <Box
+        position="sticky"
+        top={{
+          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+        }}
+        zIndex={100}
+        bg="bg"
+        py={3}
+        mb={4}
+      >
+        <Flex gap={2} wrap="wrap">
+          <Box flex="1" position="relative" minW="200px">
+            <Input
+              pl={10}
+              placeholder={t('searchPlaceholder')}
+              value={filters.searchQuery}
+              onChange={(e) => handleSearchQueryChange(e.target.value)}
+              bg="white"
+              _dark={{ bg: 'gray.800' }}
+            />
+            <Box
               position="absolute"
-              top="-2"
-              right="-2"
-              borderRadius="full"
-              colorPalette="red"
-              variant="solid"
-              px={1}
-              minW="18px"
-              h="18px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              fontSize="xs"
-              border="2px solid"
-              borderColor="white"
-              zIndex={1}
+              left={3}
+              top="50%"
+              transform="translateY(-50%)"
+              color="gray.400"
             >
-              {activeFilterCount}
-            </Badge>
-          )}
-        </Box>
-      </Flex>
+              <Search size={18} />
+            </Box>
+          </Box>
 
-      {/* Enhanced Filter Panel */}
+          <Box position="relative">
+            <IconButton
+              variant={showFilters ? 'solid' : 'outline'}
+              colorPalette="blue"
+              onClick={toggleFilters}
+              aria-label={t('filters.title')}
+              icon={<Filter size={18} />}
+            />
+            {activeFilterCount > 0 && (
+              <Badge
+                position="absolute"
+                top="-2"
+                right="-2"
+                borderRadius="full"
+                colorPalette="red"
+                variant="solid"
+                px={1}
+                minW="18px"
+                h="18px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontSize="xs"
+                border="2px solid"
+                borderColor="white"
+                zIndex={1}
+              >
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Box>
+        </Flex>
+      </Box>
+
+      {/* Filter Drawer Overlay */}
       {showFilters && (
         <Box
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-          p={5}
-          borderRadius="xl"
-          borderWidth="1px"
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="blackAlpha.600"
+          zIndex={2000}
+          onClick={toggleFilters}
+        />
+      )}
+
+      {/* Filter Drawer - Slide from Right */}
+      <Box
+        position="fixed"
+        top={0}
+        right={0}
+        bottom={0}
+        width={{ base: '90%', md: '480px', lg: '520px' }}
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        shadow="2xl"
+        zIndex={2100}
+        transform={showFilters ? 'translateX(0)' : 'translateX(100%)'}
+        transition="transform 0.3s ease-in-out"
+        display="flex"
+        flexDirection="column"
+      >
+        {/* Drawer Header */}
+        <Box
+          px={4}
+          height={{
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+          }}
+          pt="env(safe-area-inset-top)"
+          display="flex"
+          alignItems="center"
+          borderBottomWidth="1px"
           borderColor="gray.200"
-          mb={4}
-          shadow="md"
+          _dark={{ borderColor: 'gray.700' }}
         >
+          <Flex justify="space-between" align="center" width="full">
+            <HStack gap={2}>
+              <Filter size={20} />
+              <Heading size="md">{t('filters.title') || 'Bộ lọc'}</Heading>
+              {activeFilterCount > 0 && (
+                <Badge
+                  colorPalette="blue"
+                  variant="solid"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </HStack>
+            <IconButton
+              variant="ghost"
+              onClick={toggleFilters}
+              aria-label="Close filters"
+              icon={<X size={20} />}
+            />
+          </Flex>
+        </Box>
+
+        {/* Drawer Body - Scrollable */}
+        <Box flex="1" overflowY="auto" p={5}>
           <VStack align="stretch" gap={5}>
             {/* Date & Time Range Section */}
             <Box>
@@ -466,13 +626,18 @@ export default function FindSessionList({
                         size="md"
                         width="auto"
                         minW="160px"
-                        value={filters.date}
-                        onChange={(e) => setFilters({ date: e.target.value })}
+                        value={pendingFilters.date}
+                        onChange={(e) =>
+                          setPendingFilters({
+                            ...pendingFilters,
+                            date: e.target.value,
+                          })
+                        }
                         onInput={(e) => {
                           // Handle iOS date picker Reset button
                           const target = e.target as HTMLInputElement;
                           if (target.value === '') {
-                            setFilters({ date: '' });
+                            setPendingFilters({ ...pendingFilters, date: '' });
                           }
                         }}
                         borderRadius="lg"
@@ -503,22 +668,30 @@ export default function FindSessionList({
                           },
                           // Hide native placeholder fields when empty to show custom overlay
                           '&::-webkit-datetime-edit-text': {
-                            color: !filters.date ? 'transparent' : 'inherit',
+                            color: !pendingFilters.date
+                              ? 'transparent'
+                              : 'inherit',
                             padding: '0 1px',
                           },
                           '&::-webkit-datetime-edit-month-field': {
-                            color: !filters.date ? 'transparent' : 'inherit',
+                            color: !pendingFilters.date
+                              ? 'transparent'
+                              : 'inherit',
                           },
                           '&::-webkit-datetime-edit-day-field': {
-                            color: !filters.date ? 'transparent' : 'inherit',
+                            color: !pendingFilters.date
+                              ? 'transparent'
+                              : 'inherit',
                           },
                           '&::-webkit-datetime-edit-year-field': {
-                            color: !filters.date ? 'transparent' : 'inherit',
+                            color: !pendingFilters.date
+                              ? 'transparent'
+                              : 'inherit',
                           },
                         }}
                       />
                       {/* Placeholder overlay for iOS */}
-                      {!filters.date && (
+                      {!pendingFilters.date && (
                         <Box
                           position="absolute"
                           left="12px"
@@ -534,12 +707,14 @@ export default function FindSessionList({
                       )}
                     </Box>
                     {/* Clear date button */}
-                    {filters.date && (
+                    {pendingFilters.date && (
                       <IconButton
                         size="sm"
                         variant="ghost"
                         colorPalette="gray"
-                        onClick={() => setFilters({ date: '' })}
+                        onClick={() =>
+                          setPendingFilters({ ...pendingFilters, date: '' })
+                        }
                         aria-label="Clear date"
                         icon={<X size={16} />}
                       />
@@ -557,7 +732,7 @@ export default function FindSessionList({
                     >
                       ⏰ {t('timeRange')}
                     </Text>
-                    {filters.timeRanges.length > 0 && (
+                    {pendingFilters.timeRanges.length > 0 && (
                       <Badge
                         size="sm"
                         colorPalette="orange"
@@ -565,13 +740,15 @@ export default function FindSessionList({
                         borderRadius="full"
                         px={2}
                       >
-                        {filters.timeRanges.length}
+                        {pendingFilters.timeRanges.length}
                       </Badge>
                     )}
                   </HStack>
                   <Flex gap={2} flexWrap="wrap">
                     {TIME_RANGES.map((range) => {
-                      const isSelected = filters.timeRanges.includes(range.key);
+                      const isSelected = pendingFilters.timeRanges.includes(
+                        range.key
+                      );
                       return (
                         <Badge
                           key={range.key}
@@ -611,16 +788,19 @@ export default function FindSessionList({
                       py={2}
                       borderRadius="full"
                       cursor="pointer"
-                      variant={filters.hasSlots ? 'solid' : 'outline'}
-                      colorPalette={filters.hasSlots ? 'green' : 'gray'}
+                      variant={pendingFilters.hasSlots ? 'solid' : 'outline'}
+                      colorPalette={pendingFilters.hasSlots ? 'green' : 'gray'}
                       onClick={() =>
-                        setFilters({ hasSlots: !filters.hasSlots })
+                        setPendingFilters({
+                          ...pendingFilters,
+                          hasSlots: !pendingFilters.hasSlots,
+                        })
                       }
                       fontSize="sm"
                       fontWeight="semibold"
                       transition="all 0.2s"
                       _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
-                      borderWidth={filters.hasSlots ? '0' : '2px'}
+                      borderWidth={pendingFilters.hasSlots ? '0' : '2px'}
                     >
                       {t('filters.availableSlots')}
                     </Badge>
@@ -629,8 +809,8 @@ export default function FindSessionList({
                       py={2}
                       borderRadius="full"
                       cursor="pointer"
-                      variant={sortByDistance ? 'solid' : 'outline'}
-                      colorPalette={sortByDistance ? 'blue' : 'gray'}
+                      variant={pendingSortByDistance ? 'solid' : 'outline'}
+                      colorPalette={pendingSortByDistance ? 'blue' : 'gray'}
                       onClick={handleNearMe}
                       fontSize="sm"
                       fontWeight="semibold"
@@ -639,10 +819,10 @@ export default function FindSessionList({
                       gap={2}
                       transition="all 0.2s"
                       _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
-                      borderWidth={sortByDistance ? '0' : '2px'}
+                      borderWidth={pendingSortByDistance ? '0' : '2px'}
                     >
                       <MapPin size={16} />
-                      {sortByDistance
+                      {pendingSortByDistance
                         ? t('filters.sortByDistance')
                         : t('filters.nearMe')}
                     </Badge>
@@ -666,7 +846,7 @@ export default function FindSessionList({
                   >
                     📍 {t('filters.area')}
                   </Text>
-                  {filters.cities.length > 0 && (
+                  {pendingFilters.cities.length > 0 && (
                     <Badge
                       size="sm"
                       colorPalette="blue"
@@ -674,15 +854,15 @@ export default function FindSessionList({
                       borderRadius="full"
                       px={2}
                     >
-                      {filters.cities.length}
+                      {pendingFilters.cities.length}
                     </Badge>
                   )}
                 </HStack>
-                {filters.cities.length > 0 && (
+                {pendingFilters.cities.length > 0 && (
                   <Button
                     size="xs"
                     variant="ghost"
-                    onClick={clearLocation}
+                    onClick={clearPendingLocation}
                     colorPalette="red"
                     fontWeight="semibold"
                   >
@@ -699,18 +879,22 @@ export default function FindSessionList({
                     borderRadius="lg"
                     cursor="pointer"
                     variant={
-                      filters.cities.includes(city.code) ? 'solid' : 'outline'
+                      pendingFilters.cities.includes(city.code)
+                        ? 'solid'
+                        : 'outline'
                     }
                     colorPalette={
-                      filters.cities.includes(city.code) ? 'blue' : 'gray'
+                      pendingFilters.cities.includes(city.code)
+                        ? 'blue'
+                        : 'gray'
                     }
-                    onClick={() => toggleCity(city.code)}
+                    onClick={() => togglePendingCity(city.code)}
                     fontSize="sm"
                     fontWeight="medium"
                     transition="all 0.2s"
                     _hover={{ transform: 'scale(1.05)' }}
                     borderWidth={
-                      filters.cities.includes(city.code) ? '0' : '2px'
+                      pendingFilters.cities.includes(city.code) ? '0' : '2px'
                     }
                   >
                     {city.name}
@@ -720,92 +904,102 @@ export default function FindSessionList({
             </Box>
 
             {/* District Selection */}
-            {filters.cities.length > 0 && availableDistricts.length > 0 && (
-              <Box>
-                <Flex justify="space-between" align="center" mb={3}>
-                  <HStack gap={2}>
-                    <Text
-                      fontSize="sm"
-                      fontWeight="bold"
-                      color="gray.700"
-                      _dark={{ color: 'gray.200' }}
-                    >
-                      🏘️ {t('filters.allDistricts')}
-                    </Text>
-                    {filters.districts.length > 0 && (
-                      <Badge
-                        size="sm"
-                        colorPalette="blue"
-                        variant="solid"
-                        borderRadius="full"
-                        px={2}
+            {pendingFilters.cities.length > 0 &&
+              availableDistricts.length > 0 && (
+                <Box>
+                  <Flex justify="space-between" align="center" mb={3}>
+                    <HStack gap={2}>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="bold"
+                        color="gray.700"
+                        _dark={{ color: 'gray.200' }}
                       >
-                        {filters.districts.length}
-                      </Badge>
+                        🏘️ {t('filters.allDistricts')}
+                      </Text>
+                      {pendingFilters.districts.length > 0 && (
+                        <Badge
+                          size="sm"
+                          colorPalette="blue"
+                          variant="solid"
+                          borderRadius="full"
+                          px={2}
+                        >
+                          {pendingFilters.districts.length}
+                        </Badge>
+                      )}
+                    </HStack>
+                    {pendingFilters.districts.length > 0 && (
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        onClick={() =>
+                          setPendingFilters({
+                            ...pendingFilters,
+                            districts: [],
+                          })
+                        }
+                        colorPalette="red"
+                        fontWeight="semibold"
+                      >
+                        <X size={14} /> <Text ml={1}>Xóa</Text>
+                      </Button>
                     )}
-                  </HStack>
-                  {filters.districts.length > 0 && (
-                    <Button
-                      size="xs"
-                      variant="ghost"
-                      onClick={() => setFilters({ districts: [] })}
-                      colorPalette="red"
-                      fontWeight="semibold"
-                    >
-                      <X size={14} /> <Text ml={1}>Xóa</Text>
-                    </Button>
-                  )}
-                </Flex>
-                <Flex
-                  gap={2}
-                  flexWrap="wrap"
-                  maxH="120px"
-                  overflowY="auto"
-                  css={{
-                    '&::-webkit-scrollbar': { width: '6px' },
-                    '&::-webkit-scrollbar-track': {
-                      background: '#f1f1f1',
-                      borderRadius: '10px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      background: '#888',
-                      borderRadius: '10px',
-                    },
-                    '&::-webkit-scrollbar-thumb:hover': { background: '#555' },
-                  }}
-                >
-                  {availableDistricts.map((district) => (
-                    <Badge
-                      key={district.code}
-                      px={3}
-                      py={1.5}
-                      borderRadius="lg"
-                      cursor="pointer"
-                      variant={
-                        filters.districts.includes(district.name)
-                          ? 'solid'
-                          : 'outline'
-                      }
-                      colorPalette={
-                        filters.districts.includes(district.name)
-                          ? 'blue'
-                          : 'gray'
-                      }
-                      onClick={() => toggleDistrict(district.name)}
-                      fontSize="sm"
-                      fontWeight="medium"
-                      transition="all 0.2s"
-                      _hover={{ transform: 'scale(1.05)' }}
-                      borderWidth={
-                        filters.districts.includes(district.name) ? '0' : '2px'
-                      }
-                    >
-                      {district.name}
-                    </Badge>
-                  ))}
-                </Flex>
-              </Box>
-            )}
+                  </Flex>
+                  <Flex
+                    gap={2}
+                    flexWrap="wrap"
+                    maxH="120px"
+                    overflowY="auto"
+                    css={{
+                      '&::-webkit-scrollbar': { width: '6px' },
+                      '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1',
+                        borderRadius: '10px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: '#888',
+                        borderRadius: '10px',
+                      },
+                      '&::-webkit-scrollbar-thumb:hover': {
+                        background: '#555',
+                      },
+                    }}
+                  >
+                    {availableDistricts.map((district) => (
+                      <Badge
+                        key={district.code}
+                        px={3}
+                        py={1.5}
+                        borderRadius="lg"
+                        cursor="pointer"
+                        variant={
+                          pendingFilters.districts.includes(district.name)
+                            ? 'solid'
+                            : 'outline'
+                        }
+                        colorPalette={
+                          pendingFilters.districts.includes(district.name)
+                            ? 'blue'
+                            : 'gray'
+                        }
+                        onClick={() => togglePendingDistrict(district.name)}
+                        fontSize="sm"
+                        fontWeight="medium"
+                        transition="all 0.2s"
+                        _hover={{ transform: 'scale(1.05)' }}
+                        borderWidth={
+                          pendingFilters.districts.includes(district.name)
+                            ? '0'
+                            : '2px'
+                        }
+                      >
+                        {district.name}
+                      </Badge>
+                    ))}
+                  </Flex>
+                </Box>
+              )}
 
             {/* Divider */}
             <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
@@ -821,7 +1015,7 @@ export default function FindSessionList({
                 >
                   🏸 {t('level')}
                 </Text>
-                {filters.levels.length > 0 && (
+                {pendingFilters.levels.length > 0 && (
                   <Badge
                     size="sm"
                     colorPalette="purple"
@@ -829,14 +1023,14 @@ export default function FindSessionList({
                     borderRadius="full"
                     px={2}
                   >
-                    {filters.levels.length}
+                    {pendingFilters.levels.length}
                   </Badge>
                 )}
               </HStack>
               <Flex gap={2} flexWrap="wrap">
                 {VALID_LEVELS.map((level) => {
                   const skillColor = getSkillLevelColor([level]);
-                  const isSelected = filters.levels.includes(level);
+                  const isSelected = pendingFilters.levels.includes(level);
                   return (
                     <Badge
                       key={level}
@@ -882,9 +1076,12 @@ export default function FindSessionList({
                     size="md"
                     type="number"
                     width="110px"
-                    value={filters.minFee}
+                    value={pendingFilters.minFee}
                     onChange={(e) =>
-                      setFilters({ minFee: Number(e.target.value) })
+                      setPendingFilters({
+                        ...pendingFilters,
+                        minFee: Number(e.target.value),
+                      })
                     }
                     step={5000}
                     min={0}
@@ -908,9 +1105,12 @@ export default function FindSessionList({
                     size="md"
                     type="number"
                     width="110px"
-                    value={filters.maxFee}
+                    value={pendingFilters.maxFee}
                     onChange={(e) =>
-                      setFilters({ maxFee: Number(e.target.value) })
+                      setPendingFilters({
+                        ...pendingFilters,
+                        maxFee: Number(e.target.value),
+                      })
                     }
                     step={5000}
                     min={0}
@@ -940,29 +1140,36 @@ export default function FindSessionList({
                   px={3}
                   py={2}
                   borderRadius="lg"
-                  bg={filters.splitEvenly ? 'blue.50' : 'transparent'}
+                  bg={pendingFilters.splitEvenly ? 'blue.50' : 'transparent'}
                   _dark={{
-                    bg: filters.splitEvenly ? 'blue.900' : 'transparent',
+                    bg: pendingFilters.splitEvenly ? 'blue.900' : 'transparent',
                   }}
                   borderWidth="2px"
-                  borderColor={filters.splitEvenly ? 'blue.400' : 'gray.300'}
+                  borderColor={
+                    pendingFilters.splitEvenly ? 'blue.400' : 'gray.300'
+                  }
                   transition="all 0.2s"
                   _hover={{ borderColor: 'blue.400' }}
                 >
                   <input
                     type="checkbox"
-                    checked={filters.splitEvenly}
+                    checked={pendingFilters.splitEvenly}
                     onChange={(e) =>
-                      setFilters({ splitEvenly: e.target.checked })
+                      setPendingFilters({
+                        ...pendingFilters,
+                        splitEvenly: e.target.checked,
+                      })
                     }
                     style={{ cursor: 'pointer' }}
                   />
                   <Text
                     fontSize="sm"
                     fontWeight="semibold"
-                    color={filters.splitEvenly ? 'blue.700' : 'gray.700'}
+                    color={pendingFilters.splitEvenly ? 'blue.700' : 'gray.700'}
                     _dark={{
-                      color: filters.splitEvenly ? 'blue.200' : 'gray.200',
+                      color: pendingFilters.splitEvenly
+                        ? 'blue.200'
+                        : 'gray.200',
                     }}
                   >
                     {t('filters.splitEvenly')}
@@ -970,32 +1177,40 @@ export default function FindSessionList({
                 </Box>
               </Flex>
             </Box>
-
-            {/* Clear Filters Button */}
-            {activeFilterCount > 0 && (
-              <>
-                <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
-                <Flex justify="center">
-                  <Button
-                    size="md"
-                    variant="solid"
-                    colorPalette="red"
-                    onClick={clearFilters}
-                    leftIcon={<X size={18} />}
-                    fontWeight="bold"
-                    px={6}
-                    borderRadius="full"
-                    transition="all 0.2s"
-                    _hover={{ transform: 'scale(1.05)', shadow: 'lg' }}
-                  >
-                    {t('clearFilters')} ({activeFilterCount})
-                  </Button>
-                </Flex>
-              </>
-            )}
           </VStack>
         </Box>
-      )}
+
+        {/* Drawer Footer */}
+        <Box
+          p={4}
+          pb={{ base: 'calc(16px + env(safe-area-inset-bottom))', md: 4 }}
+          borderTopWidth="1px"
+          borderColor="gray.200"
+          bg="gray.50"
+          _dark={{ borderColor: 'gray.700', bg: 'gray.900' }}
+        >
+          <Flex gap={3}>
+            <Button
+              flex="1"
+              variant="outline"
+              colorPalette="gray"
+              onClick={handleResetFilters}
+              leftIcon={<X size={18} />}
+            >
+              {t('reset') || 'Đặt lại'}
+            </Button>
+            <Button
+              flex="1"
+              variant="solid"
+              colorPalette="blue"
+              onClick={handleSubmitFilters}
+              leftIcon={<Check size={18} />}
+            >
+              {t('applySearch') || 'Tìm kiếm'}
+            </Button>
+          </Flex>
+        </Box>
+      </Box>
 
       {/* Quick Create Bar */}
       {user && (
@@ -1064,12 +1279,35 @@ export default function FindSessionList({
                 userRegistrationStatus={
                   registrationStatusMap[session.id] || null
                 }
-                onRegistrationUpdate={fetchSessions}
+                onRegistrationUpdate={() => fetchSessions()}
                 distance={session.distance}
                 onHostClick={() => handleHostClick(session)}
               />
             ))}
           </Grid>
+
+          {/* Infinite Scroll Trigger */}
+          {hasMore && (
+            <Box ref={ref} mt={8} mb={10} width="full">
+              <Grid
+                templateColumns={{
+                  base: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                }}
+                gap={6}
+              >
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <SessionCardSkeleton key={index} />
+                ))}
+              </Grid>
+              <Flex justify="center" mt={4}>
+                <Text color="gray.500" fontSize="sm">
+                  {t('loadingMore') || 'Đang tải thêm...'}
+                </Text>
+              </Flex>
+            </Box>
+          )}
         </RatingStatsProvider>
       )}
 

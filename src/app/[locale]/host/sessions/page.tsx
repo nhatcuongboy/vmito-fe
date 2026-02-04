@@ -3,11 +3,13 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import { Container, Flex, Spinner } from '@chakra-ui/react';
+import { Box, Container, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
+import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import TopBar from '@/components/ui/TopBar';
 import PageWrapper from '@/components/layout/PageWrapper';
 import { useRouter } from '@/i18n/config';
@@ -26,27 +28,54 @@ import { ExtractedSessionData } from '@/lib/api/ai.service';
 
 function HostSessionsContent() {
   const tNav = useTranslations('navigation');
+  const tSession = useTranslations('session');
   const router = useRouter();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const PAGE_SIZE = 12;
+
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
-  const fetchHostedSessions = async () => {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  });
+
+  const fetchHostedSessions = async (isLoadMore = false) => {
     try {
-      setLoading(true);
-      // Use getAvailableSessions to get full session data with fee, venue, and host info
-      const sessionData = await SessionService.getAvailableSessions();
-      // Filter for sessions hosted by current user
-      const hostedSessions = sessionData.filter((s) => s.hostId === user?.id);
-      setSessions(hostedSessions);
-      setFilteredSessions(hostedSessions);
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+        setPage(1);
+      }
+
+      const currentPage = isLoadMore ? page + 1 : 1;
+      const sessionData = await SessionService.getAllSessions({
+        page: currentPage,
+        limit: PAGE_SIZE,
+        hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
+      });
+
+      if (isLoadMore) {
+        setSessions((prev) => [...prev, ...sessionData]);
+        setPage(currentPage);
+      } else {
+        setSessions(sessionData);
+      }
+
+      setHasMore(sessionData.length === PAGE_SIZE);
     } catch (err) {
       console.error('Error fetching hosted sessions:', err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -56,6 +85,14 @@ function HostSessionsContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
+
+  // Trigger load more when in view
+  useEffect(() => {
+    if (inView && hasMore && !loading && !loadingMore) {
+      fetchHostedSessions(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, hasMore, loading, loadingMore]);
 
   // Apply filters whenever filters or sessions change
   useEffect(() => {
@@ -143,6 +180,30 @@ function HostSessionsContent() {
           mode="manage"
           onRefresh={fetchHostedSessions}
         />
+
+        {/* Infinite Scroll Trigger */}
+        {hasMore && filteredSessions.length >= PAGE_SIZE && (
+          <Box ref={ref} mt={8} mb={10} width="full">
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }}
+              gap={6}
+            >
+              {Array.from({ length: 3 }).map((_, index) => (
+                <SessionCardSkeleton key={index} />
+              ))}
+            </Grid>
+            <Flex justify="center" mt={4}>
+              <Spinner size="sm" color="blue.500" mr={2} />
+              <Text color="gray.500" fontSize="sm">
+                {tSession('loadingMore')}
+              </Text>
+            </Flex>
+          </Box>
+        )}
       </Container>
 
       <AISessionModal

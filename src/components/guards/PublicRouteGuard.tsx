@@ -66,11 +66,11 @@ export default function PublicRouteGuard({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        bg="gray.50"
+        bg="bg"
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">Checking authentication...</Text>
+          <Text color="fg.muted">Checking authentication...</Text>
         </VStack>
       </Box>
     );
@@ -95,11 +95,11 @@ export default function PublicRouteGuard({
           display="flex"
           alignItems="center"
           justifyContent="center"
-          bg="gray.50"
+          bg="bg"
         >
           <VStack gap={4}>
             <Spinner size="lg" color="blue.500" />
-            <Text color="gray.600">Redirecting...</Text>
+            <Text color="fg.muted">Redirecting...</Text>
           </VStack>
         </Box>
       );
@@ -117,11 +117,11 @@ export default function PublicRouteGuard({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        bg="gray.50"
+        bg="bg"
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">Redirecting...</Text>
+          <Text color="fg.muted">Redirecting...</Text>
         </VStack>
       </Box>
     );

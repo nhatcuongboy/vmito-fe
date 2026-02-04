@@ -160,10 +160,18 @@ export const PlayerService = {
   },
 
   // Get sessions that the current user has participated in
-  getMySessions: async (): Promise<ISession[]> => {
-    const response = await api.get<ApiResponse<ISession[]>>(
-      '/players/me/sessions'
-    );
+  getMySessions: async (filters?: {
+    page?: number;
+    limit?: number;
+  }): Promise<ISession[]> => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+
+    const url = params.toString()
+      ? `/players/me/sessions?${params.toString()}`
+      : '/players/me/sessions';
+    const response = await api.get<ApiResponse<ISession[]>>(url);
     return response.data.data || [];
   },
 

@@ -2,7 +2,37 @@
 
 import { Box, Flex, Stack, Skeleton, SkeletonCircle } from '@chakra-ui/react';
 
-export const SessionCardSkeleton = () => {
+interface SessionCardSkeletonProps {
+  showOnlyOne?: boolean;
+}
+
+export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
+  showOnlyOne = false,
+}) => {
+  if (showOnlyOne) {
+    return (
+      <Box
+        borderWidth="1px"
+        borderRadius="xl"
+        overflow="hidden"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        shadow="sm"
+        p={4}
+        width="100%"
+        maxW="400px"
+      >
+        <Skeleton height="160px" borderRadius="lg" mb={4} />
+        <Skeleton height="24px" width="70%" mb={2} />
+        <Skeleton height="16px" width="40%" mb={4} />
+        <Flex gap={2}>
+          <Skeleton height="32px" width="60px" borderRadius="full" />
+          <Skeleton height="32px" width="60px" borderRadius="full" />
+        </Flex>
+      </Box>
+    );
+  }
+
   return (
     <Flex
       direction="column"

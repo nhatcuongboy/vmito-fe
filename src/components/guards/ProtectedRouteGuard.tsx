@@ -52,11 +52,11 @@ export default function ProtectedRouteGuard({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        bg="gray.50"
+        bg="bg"
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">{t('authenticating')}</Text>
+          <Text color="fg.muted">{t('authenticating')}</Text>
         </VStack>
       </Box>
     );
@@ -70,11 +70,11 @@ export default function ProtectedRouteGuard({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        bg="gray.50"
+        bg="bg"
       >
         <VStack gap={4}>
           <Spinner size="lg" color="blue.500" />
-          <Text color="gray.600">{t('redirectingToSignIn')}</Text>
+          <Text color="fg.muted">{t('redirectingToSignIn')}</Text>
         </VStack>
       </Box>
     );
@@ -88,18 +88,18 @@ export default function ProtectedRouteGuard({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        bg="gray.50"
+        bg="bg"
         px={4}
       >
         <VStack gap={6} textAlign="center">
           <Text fontSize="2xl" fontWeight="bold" color="red.500">
             {t('accessDenied')}
           </Text>
-          <Text color="gray.600">{t('permissionDenied')}</Text>
-          <Text fontSize="sm" color="gray.500">
+          <Text color="fg.muted">{t('permissionDenied')}</Text>
+          <Text fontSize="sm" color="fg.muted">
             {t('requiredRole')} {requiredRole.join(', ')}
           </Text>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="fg.muted">
             {t('yourRole')} {user?.role || t('unknown')}
           </Text>
           <Button colorPalette="blue" onClick={() => router.push(`/`)}>

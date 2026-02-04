@@ -357,6 +357,8 @@
       }
     },
     "clearFilters": "Clear Filters",
+    "reset": "Reset",
+    "applySearch": "Search",
     "noSessionsFound": "No sessions found",
     "noSessionsDescription": "You haven't joined any badminton sessions yet. Join a session to see it here!",
     "activeSessions": "Active Sessions",
@@ -467,7 +469,9 @@
         "sun": "Sun"
       },
       "addDate": "Add date"
-    }
+    },
+    "loadMore": "Load More",
+    "loadingMore": "Loading More..."
   },
   "court": {
     "title": "Court",

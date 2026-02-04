@@ -612,21 +612,44 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
             <Separator />
 
             {/* Language Switcher */}
-            {!isCollapsed && (
-              <Box display={{ base: 'block', md: 'block' }}>
+            <Box>
+              {!isCollapsed && (
                 <Text
                   fontSize="sm"
                   fontWeight="semibold"
                   color="fg.muted"
                   mb={3}
+                  display={{ base: 'block', md: 'block' }}
                 >
                   {common('language')}
                 </Text>
-                <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
-                  <LanguageSwitcher keepDrawerOpen={false} />
-                </Suspense>
-              </Box>
-            )}
+              )}
+              <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
+                {isCollapsed ? (
+                  <Tooltip
+                    content={common('language')}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
+                    }}
+                    showArrow
+                    openDelay={200}
+                  >
+                    <Box w="full" px={1}>
+                      <LanguageSwitcher
+                        keepDrawerOpen={false}
+                        isCollapsed={true}
+                      />
+                    </Box>
+                  </Tooltip>
+                ) : (
+                  <LanguageSwitcher
+                    keepDrawerOpen={false}
+                    isCollapsed={false}
+                  />
+                )}
+              </Suspense>
+            </Box>
 
             {/* Theme Switcher */}
             <Box>
@@ -653,11 +676,11 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     openDelay={200}
                   >
                     <Box w="full" px={1}>
-                      <ThemeSwitcher />
+                      <ThemeSwitcher isCollapsed={true} />
                     </Box>
                   </Tooltip>
                 ) : (
-                  <ThemeSwitcher />
+                  <ThemeSwitcher isCollapsed={false} />
                 )}
               </Suspense>
             </Box>

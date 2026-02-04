@@ -357,6 +357,8 @@
       }
     },
     "clearFilters": "Xóa bộ lọc",
+    "reset": "Đặt lại",
+    "applySearch": "Tìm kiếm",
     "noSessionsFound": "Không tìm thấy kèo nào",
     "noSessionsDescription": "Bạn chưa tham gia kèo cầu lông nào. Tham gia một kèo để xem ở đây!",
     "activeSessions": "Kèo đang hoạt động",
@@ -467,7 +469,9 @@
         "sun": "CN"
       },
       "addDate": "Thêm ngày"
-    }
+    },
+    "loadMore": "Xem thêm",
+    "loadingMore": "Đang tải thêm..."
   },
   "court": {
     "title": "Sân",

@@ -6,7 +6,11 @@ import { ChevronDown, Moon, Sun, Monitor, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useColorMode } from './color-mode-provider';
 
-export default function ThemeSwitcher() {
+interface ThemeSwitcherProps {
+  isCollapsed?: boolean;
+}
+
+export default function ThemeSwitcher({ isCollapsed }: ThemeSwitcherProps) {
   const common = useTranslations('common');
   const { theme, setColorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
@@ -49,27 +53,29 @@ export default function ThemeSwitcher() {
         onClick={() => setIsOpen(!isOpen)}
         display="flex"
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent={isCollapsed ? 'center' : 'space-between'}
         gap={2}
         w="full"
         bg="bg"
         borderColor="border"
+        px={isCollapsed ? 0 : 3}
         _hover={{ bg: 'bg.muted' }}
       >
         <Flex align="center" gap={2}>
           <currentTheme.icon size={16} />
-          <Text fontSize="sm">{currentTheme.label}</Text>
+          {!isCollapsed && <Text fontSize="sm">{currentTheme.label}</Text>}
         </Flex>
-        <ChevronDown size={16} />
+        {!isCollapsed && <ChevronDown size={16} />}
       </Button>
 
       {isOpen && (
         <Box
           position="absolute"
-          top="100%"
-          left={0}
-          right={0}
-          mt={1}
+          bottom={isCollapsed ? 'auto' : '100%'}
+          top={isCollapsed ? 0 : 'auto'}
+          left={isCollapsed ? 'calc(100% + 12px)' : 0}
+          right={isCollapsed ? 'auto' : 0}
+          mb={isCollapsed ? 0 : 2}
           bg="bg"
           border="1px solid"
           borderColor="border"
@@ -77,6 +83,7 @@ export default function ThemeSwitcher() {
           shadow="lg"
           zIndex={1000}
           overflow="hidden"
+          minW={isCollapsed ? '160px' : 'full'}
         >
           {themes.map((t) => (
             <Box

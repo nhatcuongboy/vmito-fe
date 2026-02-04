@@ -63,8 +63,20 @@ export const SessionService = {
   },
 
   // Get all sessions
-  getAllSessions: async (): Promise<ISession[]> => {
-    const response = await api.get<ApiResponse<ISession[]>>('/sessions');
+  getAllSessions: async (filters?: {
+    page?: number;
+    limit?: number;
+    hostId?: string;
+  }): Promise<ISession[]> => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.hostId) params.append('hostId', filters.hostId);
+
+    const url = params.toString()
+      ? `/sessions?${params.toString()}`
+      : '/sessions';
+    const response = await api.get<ApiResponse<ISession[]>>(url);
     return response.data.data || [];
   },
 
@@ -82,6 +94,8 @@ export const SessionService = {
     lat?: number;
     lng?: number;
     sortByDistance?: boolean;
+    page?: number;
+    limit?: number;
   }): Promise<ISession[]> => {
     const params = new URLSearchParams();
     if (filters?.date) params.append('date', filters.date);
@@ -103,6 +117,10 @@ export const SessionService = {
       params.append('lng', filters.lng.toString());
     if (filters?.sortByDistance !== undefined)
       params.append('sortByDistance', filters.sortByDistance.toString());
+    if (filters?.page !== undefined)
+      params.append('page', filters.page.toString());
+    if (filters?.limit !== undefined)
+      params.append('limit', filters.limit.toString());
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

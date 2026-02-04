@@ -70,13 +70,13 @@ function AuthCallbackContent() {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          bg="gray.50"
+          bg="bg"
         >
           <VStack gap={4}>
             <Text color="red.500" fontSize="xl">
               {error}
             </Text>
-            <Text color="gray.600">Redirecting to sign in...</Text>
+            <Text color="fg.muted">Redirecting to sign in...</Text>
           </VStack>
         </Box>
       </MainLayout>
@@ -89,11 +89,11 @@ function AuthCallbackContent() {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bg="gray.50"
+      bg="bg"
     >
       <VStack gap={4}>
         <Spinner size="xl" color="blue.500" />
-        <Text color="gray.600">Completing sign in...</Text>
+        <Text color="fg.muted">Completing sign in...</Text>
       </VStack>
     </Box>
   );
@@ -105,7 +105,7 @@ export default function AuthCallbackPage() {
       fallback={
         <Box
           minH="100vh"
-          bg="gray.50"
+          bg="bg"
           display="flex"
           alignItems="center"
           justifyContent="center"
