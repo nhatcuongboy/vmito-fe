@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
+import { ROUTES } from '@/constants';
 
 export default function GlobalBottomNav() {
   const { user, isAuthenticated } = useAuthStore();
@@ -36,48 +37,68 @@ export default function GlobalBottomNav() {
 
     if (user.role === UserRole.ADMIN) {
       return [
-        { id: 1, label: t('home'), icon: Home, href: '/' },
+        { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
         {
           id: 3,
           label: t('browse'),
           icon: LayoutDashboard,
-          href: '/host/dashboard',
+          href: ROUTES.HOST.DASHBOARD,
         },
         {
           id: 2,
           label: t('host'),
           icon: Calendar,
-          href: '/host/sessions',
+          href: ROUTES.HOST.SESSIONS.LIST,
         },
-        { id: 6, label: t('joined'), icon: Ticket, href: '/player/sessions' },
-        { id: 4, label: t('users'), icon: Users, href: '/admin/users' },
+        {
+          id: 6,
+          label: t('joined'),
+          icon: Ticket,
+          href: ROUTES.PLAYER.SESSIONS.LIST,
+        },
+        { id: 4, label: t('users'), icon: Users, href: ROUTES.ADMIN.USERS },
       ];
     }
 
     if (user.role === UserRole.HOST) {
       return [
-        { id: 1, label: t('home'), icon: Home, href: '/' },
+        { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
         {
           id: 3,
           label: t('browse'),
           icon: LayoutDashboard,
-          href: '/host/dashboard',
+          href: ROUTES.HOST.DASHBOARD,
         },
         {
           id: 2,
           label: t('host'),
           icon: Calendar,
-          href: '/host/sessions',
+          href: ROUTES.HOST.SESSIONS.LIST,
         },
-        { id: 6, label: t('joined'), icon: Ticket, href: '/player/sessions' },
+        {
+          id: 6,
+          label: t('joined'),
+          icon: Ticket,
+          href: ROUTES.PLAYER.SESSIONS.LIST,
+        },
       ];
     }
 
     // Default to Player view (including Guest if they are authenticated via some mechanism)
     return [
-      { id: 1, label: t('home'), icon: Home, href: '/' },
-      { id: 4, label: t('host'), icon: Calendar, href: '/player/host' },
-      { id: 2, label: t('joined'), icon: Ticket, href: '/player/sessions' },
+      { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
+      {
+        id: 4,
+        label: t('host'),
+        icon: Calendar,
+        href: ROUTES.PLAYER.HOST_FEATURE,
+      },
+      {
+        id: 2,
+        label: t('joined'),
+        icon: Ticket,
+        href: ROUTES.PLAYER.SESSIONS.LIST,
+      },
     ];
   }, [isAuthenticated, user, t]);
 

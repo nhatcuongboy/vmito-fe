@@ -28,6 +28,7 @@ import {
 import { useColorMode } from './color-mode-provider';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { Tooltip } from './tooltip';
+import { ROUTES } from '@/constants';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -112,7 +113,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   openDelay={200}
                 >
                   <NextLinkButton
-                    href="/"
+                    href={ROUTES.HOME}
                     variant="ghost"
                     justifyContent={{
                       base: 'flex-start',
@@ -152,8 +153,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       href={
                         user?.role === UserRole.HOST ||
                         user?.role === UserRole.ADMIN
-                          ? '/host/dashboard'
-                          : '/'
+                          ? ROUTES.HOST.DASHBOARD
+                          : ROUTES.HOME
                       }
                       variant="ghost"
                       justifyContent={{
@@ -196,8 +197,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         href={
                           user?.role === UserRole.HOST ||
                           user?.role === UserRole.ADMIN
-                            ? '/host/sessions'
-                            : '/player/host'
+                            ? ROUTES.HOST.SESSIONS.LIST
+                            : ROUTES.PLAYER.HOST_FEATURE
                         }
                         variant="ghost"
                         justifyContent={{
@@ -234,7 +235,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       openDelay={200}
                     >
                       <NextLinkButton
-                        href="/player/sessions"
+                        href={ROUTES.PLAYER.SESSIONS.LIST}
                         variant="ghost"
                         justifyContent={{
                           base: 'flex-start',
@@ -273,8 +274,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         href={
                           user?.role === UserRole.HOST ||
                           user?.role === UserRole.ADMIN
-                            ? '/host/transactions'
-                            : '/player/transactions'
+                            ? ROUTES.HOST.TRANSACTIONS
+                            : ROUTES.PLAYER.TRANSACTIONS
                         }
                         variant="ghost"
                         justifyContent={{
@@ -316,7 +317,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       openDelay={200}
                     >
                       <NextLinkButton
-                        href="/host/payment-settings"
+                        href={ROUTES.HOST.PAYMENT_SETTINGS}
                         variant="ghost"
                         justifyContent={{
                           base: 'flex-start',
@@ -353,7 +354,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   openDelay={200}
                 >
                   <NextLinkButton
-                    href="/about"
+                    href={ROUTES.ABOUT}
                     variant="ghost"
                     justifyContent={{
                       base: 'flex-start',
@@ -472,7 +473,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     openDelay={200}
                   >
                     <NextLinkButton
-                      href="/auth/signin"
+                      href={ROUTES.AUTH.SIGNIN}
                       variant="outline"
                       colorPalette="blue"
                       w="full"

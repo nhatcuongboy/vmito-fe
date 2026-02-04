@@ -16,6 +16,7 @@ import { AuthService } from '@/lib/api/auth.service';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { toaster } from '@/components/ui/toaster';
+import { ROUTES } from '@/constants';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
 
@@ -57,7 +58,7 @@ function RegisterContent() {
       // Successfully registered and joined - redirect to player status page
       if (playerResult.data?.player) {
         const { id, joinCode } = playerResult.data.player;
-        router.push(`/player/${id}?code=${joinCode}`);
+        router.push(`${ROUTES.PLAYER.PROFILE(id)}?code=${joinCode}`);
       } else {
         toaster.error({ title: t('joinFailed') });
       }

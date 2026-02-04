@@ -1,0 +1,503 @@
+{
+  "applicationName": "Badminton Frontend",
+  "routesManagement": {
+    "configFile": "src/constants/routes.ts",
+    "documentationFile": "docs/ROUTES.md",
+    "lastUpdated": "2026-02-03"
+  },
+  "locales": ["vi", "en", "cn"],
+  "summary": {
+    "totalPages": 50,
+    "totalRouteGroups": 8,
+    "protectedPages": 12,
+    "publicPages": 8,
+    "dynamicSegments": 4
+  },
+  "routes": {
+    "root": {
+      "path": "/",
+      "name": "Home",
+      "protected": false,
+      "description": "Landing/Home page"
+    },
+    "dashboard": {
+      "path": "/dashboard",
+      "name": "Dashboard",
+      "protected": true,
+      "description": "Role-based dashboard (Host or Player)"
+    },
+    "authentication": {
+      "signin": {
+        "path": "/auth/signin",
+        "name": "Sign In",
+        "protected": false,
+        "description": "User login page"
+      },
+      "signup": {
+        "path": "/auth/signup",
+        "name": "Sign Up",
+        "protected": false,
+        "description": "User registration page"
+      },
+      "callback": {
+        "path": "/auth/callback",
+        "name": "Auth Callback",
+        "protected": false,
+        "description": "OAuth callback endpoint"
+      }
+    },
+    "sessions": {
+      "new": {
+        "path": "/sessions/new",
+        "name": "Create Session",
+        "protected": true,
+        "description": "Create a new badminton session"
+      },
+      "detail": {
+        "path": "/sessions/:id",
+        "name": "Session Details",
+        "protected": false,
+        "description": "View session details"
+      },
+      "host": {
+        "list": {
+          "path": "/host/sessions",
+          "name": "Host Sessions",
+          "protected": true,
+          "role": "HOST",
+          "description": "List of sessions hosted by user"
+        },
+        "detail": {
+          "path": "/host/sessions/:id",
+          "name": "Host Session Detail",
+          "protected": true,
+          "role": "HOST",
+          "description": "Manage a specific hosted session"
+        }
+      },
+      "player": {
+        "list": {
+          "path": "/player/sessions",
+          "name": "Player Sessions",
+          "protected": true,
+          "role": "PLAYER",
+          "description": "List of sessions player joined"
+        },
+        "detail": {
+          "path": "/player/sessions/:id",
+          "name": "Player Session Detail",
+          "protected": true,
+          "role": "PLAYER",
+          "description": "View a joined session"
+        },
+        "joinConfirm": {
+          "path": "/player/sessions/join/confirm",
+          "name": "Join Confirmation",
+          "protected": true,
+          "role": "PLAYER",
+          "description": "Confirm session join request"
+        }
+      },
+      "browse": {
+        "detail": {
+          "path": "/browse/sessions/:id",
+          "name": "Browse Session",
+          "protected": false,
+          "description": "View public session details"
+        },
+        "join": {
+          "path": "/browse/sessions/:id/join",
+          "name": "Join Session",
+          "protected": false,
+          "description": "Join a public session"
+        }
+      }
+    },
+    "tournaments": {
+      "hostNew": {
+        "path": "/host/tournaments/new",
+        "name": "Create Tournament",
+        "protected": true,
+        "role": "HOST",
+        "description": "Create a new tournament"
+      },
+      "hostDetail": {
+        "path": "/host/tournaments/:id",
+        "name": "Host Tournament",
+        "protected": true,
+        "role": "HOST",
+        "description": "Manage tournament"
+      },
+      "hostPlayers": {
+        "path": "/host/tournaments/:id/players",
+        "name": "Tournament Players",
+        "protected": true,
+        "role": "HOST",
+        "description": "Manage tournament players"
+      },
+      "hostPairs": {
+        "path": "/host/tournaments/:id/pairs",
+        "name": "Tournament Pairs",
+        "protected": true,
+        "role": "HOST",
+        "description": "Manage tournament pairs"
+      },
+      "hostCategoryDetail": {
+        "path": "/host/tournaments/:id/categories/:categoryId",
+        "name": "Tournament Category",
+        "protected": true,
+        "role": "HOST",
+        "description": "Manage tournament category"
+      },
+      "browseList": {
+        "path": "/browse/tournaments",
+        "name": "Browse Tournaments",
+        "protected": false,
+        "description": "List all public tournaments"
+      },
+      "browseDetail": {
+        "path": "/browse/tournaments/:id",
+        "name": "Tournament Details",
+        "protected": false,
+        "description": "View tournament overview"
+      },
+      "browseMatches": {
+        "path": "/browse/tournaments/:id/matches",
+        "name": "Tournament Matches",
+        "protected": false,
+        "description": "View tournament matches"
+      },
+      "browsePlayers": {
+        "path": "/browse/tournaments/:id/players",
+        "name": "Tournament Players",
+        "protected": false,
+        "description": "View tournament players"
+      },
+      "browsePlayerDetail": {
+        "path": "/browse/tournaments/:id/players/:playerId",
+        "name": "Player in Tournament",
+        "protected": false,
+        "description": "View player details in tournament"
+      },
+      "browseEvents": {
+        "path": "/browse/tournaments/:id/events",
+        "name": "Tournament Events",
+        "protected": false,
+        "description": "View tournament events/categories"
+      },
+      "browseWinners": {
+        "path": "/browse/tournaments/:id/winners",
+        "name": "Tournament Winners",
+        "protected": false,
+        "description": "View tournament winners"
+      },
+      "browseCategoryDetail": {
+        "path": "/browse/tournaments/:id/categories/:categoryId",
+        "name": "Tournament Category",
+        "protected": false,
+        "description": "View tournament category"
+      },
+      "browseManageHub": {
+        "path": "/browse/tournaments/:id/manage",
+        "name": "Tournament Management",
+        "protected": true,
+        "description": "Tournament management hub"
+      },
+      "browseManagePlayers": {
+        "path": "/browse/tournaments/:id/manage/players",
+        "name": "Manage Players",
+        "protected": true,
+        "description": "Manage tournament players"
+      },
+      "browseManagePairs": {
+        "path": "/browse/tournaments/:id/manage/pairs",
+        "name": "Manage Pairs",
+        "protected": true,
+        "description": "Manage tournament pairs"
+      },
+      "browseManageCategoryDetail": {
+        "path": "/browse/tournaments/:id/manage/categories/:categoryId",
+        "name": "Manage Category",
+        "protected": true,
+        "description": "Manage tournament category"
+      }
+    },
+    "host": {
+      "dashboard": {
+        "path": "/host/dashboard",
+        "name": "Host Dashboard",
+        "protected": true,
+        "role": "HOST",
+        "description": "Host main dashboard"
+      },
+      "transactions": {
+        "path": "/host/transactions",
+        "name": "Transactions",
+        "protected": true,
+        "role": "HOST",
+        "description": "View host transactions"
+      },
+      "paymentSettings": {
+        "path": "/host/payment-settings",
+        "name": "Payment Settings",
+        "protected": true,
+        "role": "HOST",
+        "description": "Configure payment settings"
+      }
+    },
+    "player": {
+      "dashboard": {
+        "path": "/player/dashboard",
+        "name": "Player Dashboard",
+        "protected": true,
+        "role": "PLAYER",
+        "description": "Player main dashboard"
+      },
+      "hostFeature": {
+        "path": "/player/host",
+        "name": "Become a Host",
+        "protected": true,
+        "role": "PLAYER",
+        "description": "Host feature page for players"
+      },
+      "transactions": {
+        "path": "/player/transactions",
+        "name": "Transactions",
+        "protected": true,
+        "role": "PLAYER",
+        "description": "View player transactions"
+      },
+      "profile": {
+        "path": "/player/:playerId",
+        "name": "Player Profile",
+        "protected": false,
+        "description": "View player profile"
+      }
+    },
+    "join": {
+      "entry": {
+        "path": "/join",
+        "name": "Join Entry",
+        "protected": false,
+        "description": "Join session entry page"
+      },
+      "register": {
+        "path": "/join/register",
+        "name": "Join Register",
+        "protected": false,
+        "description": "Join registration form"
+      },
+      "confirm": {
+        "path": "/join/confirm",
+        "name": "Join Confirm",
+        "protected": false,
+        "description": "Confirm join request"
+      },
+      "status": {
+        "path": "/join/status",
+        "name": "Join Status",
+        "protected": false,
+        "description": "Join request status"
+      },
+      "byCode": {
+        "path": "/join-by-code",
+        "name": "Join by Code",
+        "protected": false,
+        "description": "Join session using code"
+      }
+    },
+    "guest": {
+      "session": {
+        "path": "/guest/session",
+        "name": "Guest Session",
+        "protected": false,
+        "description": "Guest session view"
+      },
+      "joinStatus": {
+        "path": "/guest/join/status",
+        "name": "Guest Join Status",
+        "protected": false,
+        "description": "Guest join status"
+      }
+    },
+    "admin": {
+      "users": {
+        "path": "/admin/users",
+        "name": "Users Management",
+        "protected": true,
+        "role": "ADMIN",
+        "description": "Manage users"
+      },
+      "notifications": {
+        "path": "/admin/notifications",
+        "name": "Notifications Management",
+        "protected": true,
+        "role": "ADMIN",
+        "description": "Manage notifications"
+      }
+    },
+    "other": {
+      "settings": {
+        "path": "/settings",
+        "name": "Settings",
+        "protected": true,
+        "description": "User settings"
+      },
+      "playerStatus": {
+        "path": "/player-status",
+        "name": "Player Status",
+        "protected": true,
+        "description": "Player status page"
+      },
+      "about": {
+        "path": "/about",
+        "name": "About",
+        "protected": false,
+        "description": "About page"
+      }
+    }
+  },
+  "routeGroups": {
+    "protected": [
+      "/dashboard",
+      "/host/dashboard",
+      "/host/sessions",
+      "/host/transactions",
+      "/host/payment-settings",
+      "/player/dashboard",
+      "/player/host",
+      "/player/sessions",
+      "/player/transactions",
+      "/admin/users",
+      "/admin/notifications",
+      "/settings"
+    ],
+    "public": [
+      "/",
+      "/auth/signin",
+      "/auth/signup",
+      "/join",
+      "/join/register",
+      "/join-by-code",
+      "/browse/tournaments",
+      "/about"
+    ],
+    "hostOnly": [
+      "/host/dashboard",
+      "/host/sessions",
+      "/host/transactions",
+      "/host/payment-settings"
+    ],
+    "playerOnly": [
+      "/player/dashboard",
+      "/player/host",
+      "/player/sessions",
+      "/player/transactions"
+    ],
+    "adminOnly": ["/admin/users", "/admin/notifications"],
+    "mainNav": ["/", "/browse/tournaments", "/dashboard", "/settings"],
+    "sessionRoutes": [
+      "/sessions/new",
+      "/host/sessions",
+      "/player/sessions",
+      "/browse/sessions/:id"
+    ],
+    "tournamentRoutes": [
+      "/host/tournaments/new",
+      "/browse/tournaments",
+      "/browse/tournaments/:id"
+    ]
+  },
+  "redirects": {
+    "/my-session": "/guest/session",
+    "/join/confirm": "/player/sessions/join/confirm",
+    "/join/status": "/guest/join/status",
+    "/sessions/find": "/browse/tournaments",
+    "/tournaments": "/browse/tournaments",
+    "/tournaments/new": "/host/tournaments/new"
+  },
+  "dynamicSegments": [
+    {
+      "name": "locale",
+      "pattern": "[locale]",
+      "description": "Language/locale (vi, en, cn)",
+      "required": true,
+      "always_in_url": true
+    },
+    {
+      "name": "id",
+      "pattern": "[id]",
+      "description": "Resource ID (session or tournament)",
+      "required": true,
+      "examples": [
+        "/sessions/123",
+        "/host/sessions/456",
+        "/browse/tournaments/789"
+      ]
+    },
+    {
+      "name": "playerId",
+      "pattern": "[playerId]",
+      "description": "Player identifier",
+      "required": true,
+      "examples": [
+        "/player/user-123",
+        "/browse/tournaments/456/players/user-789"
+      ]
+    },
+    {
+      "name": "categoryId",
+      "pattern": "[categoryId]",
+      "description": "Tournament category identifier",
+      "required": true,
+      "examples": ["/browse/tournaments/789/categories/men-doubles"]
+    }
+  ],
+  "statistics": {
+    "byCategory": {
+      "Authentication": 3,
+      "Sessions": 9,
+      "Tournaments": 18,
+      "Host": 3,
+      "Player": 4,
+      "Join": 5,
+      "Guest": 2,
+      "Admin": 2,
+      "Other": 3
+    },
+    "byProtection": {
+      "Protected": 21,
+      "Public": 29
+    },
+    "byRole": {
+      "HOST": 8,
+      "PLAYER": 7,
+      "ADMIN": 2,
+      "PUBLIC": 29,
+      "AUTHENTICATED": 4
+    },
+    "nesting_levels": {
+      "level_1": 2,
+      "level_2": 8,
+      "level_3": 15,
+      "level_4": 20,
+      "level_5": 5
+    }
+  },
+  "exportedConstants": {
+    "ROUTES": "Main routes object with nested structure",
+    "ROUTE_GROUPS": "Grouped routes for navigation and access control",
+    "routeHelpers": "Helper functions for route checking and manipulation",
+    "BREADCRUMB_LABELS": "Route to label mapping for breadcrumbs",
+    "ROUTE_REDIRECTS": "Old routes to new routes mapping",
+    "withLocale": "Add locale prefix to route",
+    "removeLocale": "Remove locale prefix from route"
+  },
+  "usageExamples": {
+    "importingRoutes": "import { ROUTES } from '@/constants'",
+    "importingHelpers": "import { routeHelpers, ROUTE_GROUPS } from '@/constants'",
+    "importingLocaleHelpers": "import { withLocale, removeLocale } from '@/constants'",
+    "usingDynamic": "href={ROUTES.HOST.SESSIONS.DETAIL(sessionId)}",
+    "checkingRoute": "routeHelpers.isProtected(pathname)"
+  }
+}

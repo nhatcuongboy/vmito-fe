@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { UserRole } from '@/lib/api/types';
+import { ROUTES } from '@/constants';
 
 interface QuickCreateSessionBarProps {
   onInputClick: () => void;
@@ -28,7 +29,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
   if (!user) return null;
 
   const handleCreateClick = () => {
-    router.push('/sessions/new');
+    router.push(ROUTES.SESSIONS.NEW);
   };
 
   return (

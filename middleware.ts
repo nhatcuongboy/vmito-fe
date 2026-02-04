@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ROUTE_REDIRECTS } from '@/constants';
 
 const locales = ['vi', 'en', 'cn'];
 const defaultLocale =
@@ -17,18 +18,10 @@ export function middleware(request: NextRequest) {
     // Check for redirects
     const pathWithoutLocale = pathname.replace(`/${firstSegment}`, '') || '/';
 
-    // 1. Exact redirects
-    const exactRedirects: Record<string, string> = {
-      '/my-session': '/guest/session',
-      '/join/confirm': '/player/sessions/join/confirm',
-      '/join/status': '/guest/join/status',
-      '/sessions/find': '/browse/sessions',
-      '/tournaments': '/browse/tournaments',
-      '/tournaments/new': '/host/tournaments/new',
-    };
-
-    if (exactRedirects[pathWithoutLocale]) {
-      const newPath = exactRedirects[pathWithoutLocale];
+    // 1. Exact redirects (using ROUTE_REDIRECTS from constants)
+    const newPath =
+      ROUTE_REDIRECTS[pathWithoutLocale as keyof typeof ROUTE_REDIRECTS];
+    if (newPath) {
       console.log(`Redirecting ${pathWithoutLocale} to ${newPath}`);
       return NextResponse.redirect(
         new URL(`/${firstSegment}${newPath}`, request.url)

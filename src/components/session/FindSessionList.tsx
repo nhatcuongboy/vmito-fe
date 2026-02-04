@@ -37,6 +37,7 @@ import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { CommonModal } from '@/components/ui/CommonModal';
 import AppHostDetail from './AppHostDetail';
+import { ROUTES } from '@/constants';
 
 // Time range definitions
 const TIME_RANGES = [
@@ -348,7 +349,7 @@ export default function FindSessionList({
   // Handle Join Actions
   const handleJoinClick = (session: ISession) => {
     if (!user) {
-      router.push('/auth/signin');
+      router.push(ROUTES.AUTH.SIGNIN);
       return;
     }
     setSelectedSession(session);
@@ -372,7 +373,7 @@ export default function FindSessionList({
     // Save data to session storage to be picked up by the form
     sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
 
-    router.push('/sessions/new');
+    router.push(ROUTES.SESSIONS.NEW);
   };
 
   return (

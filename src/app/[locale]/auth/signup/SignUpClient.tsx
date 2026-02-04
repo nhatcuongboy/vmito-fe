@@ -22,6 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useMemo } from 'react';
+import { ROUTES } from '@/constants';
 
 // SignUp form schema creator
 function createSignUpSchema(t: any) {
@@ -76,7 +77,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
       });
 
       toaster.success({ title: t('accountCreated') });
-      router.push(`/auth/signin`);
+      router.push(ROUTES.AUTH.SIGNIN);
     } catch (error: any) {
       // General registration error handling
       console.error('Registration error:', error);
@@ -197,7 +198,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                 <Text color="gray.600">
                   {t('alreadyHaveAccount')}{' '}
                   <Link
-                    href={`/${locale}/auth/signin`}
+                    href={ROUTES.AUTH.SIGNIN}
                     color="blue.600"
                     fontWeight="semibold"
                   >
@@ -208,7 +209,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                 <Text color="gray.500" fontSize="sm">
                   {t('or')}{' '}
                   <Link
-                    href={`/${locale}/join-by-code`}
+                    href={ROUTES.JOIN.BY_CODE}
                     color="blue.600"
                     fontWeight="semibold"
                   >

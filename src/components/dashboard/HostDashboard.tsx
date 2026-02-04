@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import PendingRequestsList from './PendingRequestsList';
 import OverviewStats from './OverviewStats';
+import { ROUTES } from '@/constants';
 
 export default function HostDashboard() {
   const t = useTranslations('pages.dashboard');
@@ -58,14 +59,14 @@ export default function HostDashboard() {
             </Heading>
             <Flex gap={4}>
               <NextLinkButton
-                href="/sessions/new"
+                href={ROUTES.SESSIONS.NEW}
                 colorPalette="blue"
                 size="lg"
               >
                 <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
               </NextLinkButton>
               <NextLinkButton
-                href="/host/sessions"
+                href={ROUTES.HOST.SESSIONS.LIST}
                 colorPalette="purple"
                 variant="outline"
                 size="lg"

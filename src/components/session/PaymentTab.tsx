@@ -40,6 +40,7 @@ import { PaymentService } from '@/lib/api/payment.service';
 import { PaymentSettingsForm, SessionPaymentList } from '@/components/payment';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
+import { ROUTES } from '@/constants';
 
 interface PaymentTabProps {
   session: ISession;
@@ -170,7 +171,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
   };
 
   const goToPaymentSettingsPage = () => {
-    router.push('/host/payment-settings');
+    router.push(ROUTES.HOST.PAYMENT_SETTINGS);
   };
 
   // Payment management handlers

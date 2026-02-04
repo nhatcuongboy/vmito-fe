@@ -7,6 +7,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { type Player, GenderType } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { ROUTES } from '@/constants';
 import {
   Box,
   Container,
@@ -48,7 +49,7 @@ function ConfirmPageContent() {
       try {
         if (!playerId) {
           toaster.error({ title: t('confirm.errors.missingInfo') });
-          router.push('/join');
+          router.push(ROUTES.JOIN.ENTRY);
           return;
         }
 
@@ -124,7 +125,7 @@ function ConfirmPageContent() {
       // Get joinCode from the player data we fetched earlier
       const playerForGuest = await PlayerService.getPlayerForGuest(player.id);
       router.push(
-        `/player/${player.id}?code=${(playerForGuest as { joinCode?: string }).joinCode || ''}`
+        `${ROUTES.PLAYER.PROFILE(player.id)}?code=${(playerForGuest as { joinCode?: string }).joinCode || ''}`
       );
     } catch (error) {
       console.error('Error confirming player:', error);

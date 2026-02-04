@@ -1,4 +1,6 @@
 export * from './images';
+export * from './routes';
+
 export const TOP_BAR_HEIGHT_MOBILE = 50;
 export const TOP_BAR_HEIGHT_DESKTOP = 56;
 export const TOP_BAR_HEIGHT = TOP_BAR_HEIGHT_DESKTOP;

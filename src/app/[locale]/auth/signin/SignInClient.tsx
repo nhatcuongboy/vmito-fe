@@ -23,6 +23,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ROUTES } from '@/constants';
 
 // SignIn form schema creator
 function createSignInSchema(t: (key: string) => string) {
@@ -322,7 +323,7 @@ function SignInForm() {
               <Text color="fg.muted">
                 {t('noAccount')}{' '}
                 <Link
-                  href="/auth/signup"
+                  href={ROUTES.AUTH.SIGNUP}
                   color="blue.600"
                   _dark={{ color: 'blue.400' }}
                   fontWeight="semibold"
@@ -334,7 +335,7 @@ function SignInForm() {
               <Text color="fg.subtle" fontSize="sm">
                 {t('or')}{' '}
                 <Link
-                  href="/join-by-code"
+                  href={ROUTES.JOIN.BY_CODE}
                   color="blue.600"
                   _dark={{ color: 'blue.400' }}
                   fontWeight="semibold"

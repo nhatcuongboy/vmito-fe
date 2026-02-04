@@ -1,6 +1,10 @@
 'use client';
 
-import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
+import {
+  TOP_BAR_HEIGHT_DESKTOP,
+  TOP_BAR_HEIGHT_MOBILE,
+  ROUTES,
+} from '@/constants';
 import { useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -51,7 +55,7 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
     onMenuClose();
 
     // Redirect
-    router.push(`/auth/signin`);
+    router.push(ROUTES.AUTH.SIGNIN);
   };
 
   return (
