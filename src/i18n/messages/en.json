@@ -9,7 +9,8 @@
     "mySessions": "My Sessions",
     "joined": "Joined",
     "transactions": "Transactions",
-    "paymentSettings": "Payment Settings"
+    "paymentSettings": "Payment Settings",
+    "myHostedSessions": "My Hosted Sessions"
   },
   "common": {
     "browse": "Dashboard",
@@ -53,7 +54,7 @@
     "phone": "Phone",
     "giveFeedback": "Give Feedback",
     "levels": {
-      "1": "Beginner",
+      "1": "Weak",
       "2": "Advanced Beginner",
       "3": "Low Intermediate",
       "4": "Intermediate",
@@ -63,7 +64,7 @@
       "8": "Pro"
     },
     "levelShorts": {
-      "1": "Mới chơi",
+      "1": "Yếu",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
@@ -693,6 +694,8 @@
     "playerManagement": {
       "playerManagementTitle": "Player Management",
       "title": "Player Management",
+      "playerWithNumber": "Player {number}",
+      "matchesCount": "{count} matches",
       "addPlayer": "Add Player",
       "addAnother": "Add Another",
       "addFirstPlayer": "Add Your First Player",

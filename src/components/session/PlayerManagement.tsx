@@ -251,7 +251,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             borderRadius="md"
           >
             <Text fontSize="sm" color="gray.600" fontWeight="medium">
-              Adding more players may result in:
+              {t('limitWarningModal.addingMoreMayResultIn')}
             </Text>
             <Text fontSize="sm" color="gray.600">
               • {t('limitWarningModal.longerWaitingTimes')}
@@ -298,7 +298,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             t('deleteConfirmation', {
               name:
                 playerToDelete.name ||
-                `Player ${playerToDelete.playerNumber || ''}`,
+                t('playerWithNumber', {
+                  number: playerToDelete.playerNumber || '',
+                }),
             })}
         </Text>
       </CommonModal>

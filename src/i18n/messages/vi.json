@@ -9,7 +9,8 @@
     "mySessions": "Kèo của tôi",
     "joined": "Kèo tham gia",
     "transactions": "Giao dịch",
-    "paymentSettings": "Cài đặt thanh toán"
+    "paymentSettings": "Cài đặt thanh toán",
+    "myHostedSessions": "Kèo host của tôi"
   },
   "common": {
     "browse": "Dashboard",
@@ -53,7 +54,7 @@
     "phone": "Số điện thoại",
     "giveFeedback": "Gửi phản hồi",
     "levels": {
-      "1": "Mới chơi",
+      "1": "Yếu",
       "2": "Trung bình yếu",
       "3": "Trung bình-",
       "4": "Trung bình",
@@ -63,7 +64,7 @@
       "8": "Chuyên nghiệp"
     },
     "levelShorts": {
-      "1": "Mới chơi",
+      "1": "Yếu",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
@@ -299,7 +300,7 @@
     "allLevels": "Tất cả trình độ",
     "levelsLabel": "Trình độ",
     "levels": {
-      "1": "Mới chơi",
+      "1": "Yếu",
       "2": "Trung bình yếu",
       "3": "Trung bình-",
       "4": "Trung bình",
@@ -693,6 +694,8 @@
     "playerManagement": {
       "playerManagementTitle": "Quản lý người chơi",
       "title": "Quản lý người chơi",
+      "playerWithNumber": "Người chơi {number}",
+      "matchesCount": "{count} trận",
       "addPlayer": "Thêm người chơi",
       "addAnother": "Thêm nữa",
       "addFirstPlayer": "Thêm người chơi đầu tiên",

@@ -227,7 +227,8 @@ export const PlayerGrid = ({
                     color="fg"
                     title={player.name || `Player ${player.playerNumber}`}
                   >
-                    {player.name || `Player ${player.playerNumber}`}
+                    {player.name ||
+                      t('playerWithNumber', { number: player.playerNumber })}
                   </Text>
 
                   <Flex
@@ -276,7 +277,7 @@ export const PlayerGrid = ({
                   </Flex>
 
                   <Text fontSize="xs" color="fg.muted" fontWeight="medium">
-                    {player.matchesPlayed} matches
+                    {t('matchesCount', { count: player.matchesPlayed })}
                   </Text>
                 </VStack>
 

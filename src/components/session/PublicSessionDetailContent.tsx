@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import {
   Box,
   Flex,
@@ -122,6 +122,8 @@ export const PublicSessionDetailContent = ({
   }, [user, session]);
 
   const isOwner = session?.hostId === user?.id;
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const canManage = isOwner || isAdmin;
   const maxPlayers = session?.numberOfCourts
     ? session.numberOfCourts * (session?.maxPlayersPerCourt || 4)
     : 0;
@@ -175,18 +177,18 @@ export const PublicSessionDetailContent = ({
 
   const actions: SessionActionConfig = {
     showCallButton: !!session.hostPhone,
-    showDownloadButton: isOwner,
+    showDownloadButton: canManage,
     showShareButton: true,
-    showManageButton: isOwner,
+    showManageButton: canManage,
     manageButtonHref:
-      user?.role === 'PLAYER'
+      user?.role === UserRole.PLAYER
         ? `/player/sessions/${session.id}`
         : `/host/sessions/${session.id}`,
     showViewButton: false,
     showViewRegistrationButton: !isOwner && !!userRegistrationStatus,
     onViewRegistration: onOpenViewRegistrationModal,
-    showViewSessionButton: userRegistrationStatus === 'APPROVED',
-    showRegisterButton: !isOwner && !userRegistrationStatus,
+    showViewSessionButton: userRegistrationStatus === 'APPROVED' || isAdmin,
+    showRegisterButton: !userRegistrationStatus && (isAdmin || !isOwner),
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
   };

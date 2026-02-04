@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import dayjs from '@/lib/dayjs';
 import {
@@ -142,6 +142,8 @@ const BaseSessionCard = ({
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const canManage = isOwner || isAdmin;
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const totalPlayers = session._count?.players || 0;
   const isFull = totalPlayers >= maxPlayers;
@@ -204,8 +206,8 @@ const BaseSessionCard = ({
       );
     }
 
-    // Download button (owner-only)
-    if (actions.showDownloadButton && isOwner) {
+    // Download button (owner or admin)
+    if (actions.showDownloadButton && canManage) {
       buttons.push(
         <IconButton
           key="download"
@@ -250,8 +252,8 @@ const BaseSessionCard = ({
     const leftButtons: React.ReactNode[] = [];
     const rightButtons: React.ReactNode[] = [];
 
-    // Left side: Delete button (owner-only)
-    if (actions.showDeleteButton && isOwner && actions.onDelete) {
+    // Left side: Delete button (owner or admin)
+    if (actions.showDeleteButton && canManage && actions.onDelete) {
       leftButtons.push(
         <Button
           key="delete"
@@ -318,11 +320,11 @@ const BaseSessionCard = ({
       );
     }
 
-    // Right side: Manage button (for owners)
-    if (actions.showManageButton && isOwner) {
+    // Right side: Manage button (for owners or admin)
+    if (actions.showManageButton && canManage) {
       const manageHref =
         actions.manageButtonHref ||
-        (user?.role === 'PLAYER'
+        (user?.role === UserRole.PLAYER
           ? `/player/sessions/${session.id}`
           : `/host/sessions/${session.id}`);
       rightButtons.push(

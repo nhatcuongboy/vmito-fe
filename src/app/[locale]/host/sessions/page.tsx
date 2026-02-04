@@ -1,83 +1,168 @@
 'use client';
-import { UserRole } from '@/lib/api/types';
+
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import SessionsList from '@/components/session/SessionsList';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import TopBar from '@/components/ui/TopBar';
-import { Box, Container, Flex, Heading, VStack } from '@chakra-ui/react';
-import { Plus } from 'lucide-react';
+import { SessionService } from '@/lib/api/session.service';
+import { ISession, UserRole } from '@/lib/api/types';
+import { Container, Flex, Heading, Button, Spinner } from '@chakra-ui/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import SessionsList from '@/components/session/SessionsList';
+import TopBar from '@/components/ui/TopBar';
+import PageWrapper from '@/components/layout/PageWrapper';
+import { Plus } from 'lucide-react';
+import { useRouter } from '@/i18n/config';
 import {
   CONTAINER_PX,
   CONTENT_PT_OFFSET,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
-  SIDEBAR_WIDTH_EXPANDED,
-  SIDEBAR_WIDTH_COLLAPSED,
 } from '@/constants';
+
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
-import PageWrapper from '@/components/layout/PageWrapper';
 
 function HostSessionsContent() {
-  const t = useTranslations('pages.host');
+  const t = useTranslations('pages.dashboard');
+  const tNav = useTranslations('navigation');
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const [sessions, setSessions] = useState<ISession[]>([]);
+  const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ISessionFilterState>({});
+
+  const fetchHostedSessions = async () => {
+    try {
+      setLoading(true);
+      // Use getAvailableSessions to get full session data with fee, venue, and host info
+      const sessionData = await SessionService.getAvailableSessions();
+      // Filter for sessions hosted by current user
+      const hostedSessions = sessionData.filter((s) => s.hostId === user?.id);
+      setSessions(hostedSessions);
+      setFilteredSessions(hostedSessions);
+    } catch (err) {
+      console.error('Error fetching hosted sessions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchHostedSessions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  // Apply filters whenever filters or sessions change
+  useEffect(() => {
+    let result = [...sessions];
+
+    // Status filter
+    if (filters.status) {
+      result = result.filter((session) => session.status === filters.status);
+    }
+
+    // Date filter
+    if (filters.date) {
+      const filterDate = new Date(filters.date);
+      result = result.filter((session) => {
+        if (!session.startTime) return false;
+        const sessionDate = new Date(session.startTime);
+        return (
+          sessionDate.getFullYear() === filterDate.getFullYear() &&
+          sessionDate.getMonth() === filterDate.getMonth() &&
+          sessionDate.getDate() === filterDate.getDate()
+        );
+      });
+    }
+
+    // Search filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      result = result.filter(
+        (session) =>
+          session.name?.toLowerCase().includes(query) ||
+          session.location?.toLowerCase().includes(query) ||
+          session.venue?.name?.toLowerCase().includes(query) ||
+          session.venue?.address?.toLowerCase().includes(query)
+      );
+    }
+
+    // Default sort by date (newest first)
+    result.sort((a, b) => {
+      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    setFilteredSessions(result);
+  }, [filters, sessions]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
   };
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
-      <PageWrapper minH="100vh">
-        {/* Top Bar */}
-        <TopBar
-          showBackButton={true}
-          backHref="/host/dashboard"
-          title={t('title')}
+    <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
+      <TopBar showBackButton={false} title={tNav('myHostedSessions')} />
+
+      <Container
+        maxW="container.xl"
+        px={CONTAINER_PX}
+        pt={{
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+        }}
+        pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
+      >
+        <Flex mb={6} justify="space-between" align="center">
+          <Heading as="h2" size="lg">
+            {t('hostedSessions')}
+          </Heading>
+          <Button
+            colorPalette="blue"
+            size="sm"
+            onClick={() => router.push('/sessions/new')}
+            loading={loading}
+          >
+            <Plus size={16} style={{ marginRight: 4 }} />
+            {t('createSession')}
+          </Button>
+        </Flex>
+
+        <SessionFilters
+          onFilterChange={handleFilterChange}
+          showStatusFilter={true}
+          showDateFilter={true}
+          showSearchFilter={true}
+          showLevelFilter={false}
         />
 
-        <Container
-          maxW="7xl"
-          px={CONTAINER_PX}
-          pt={{
-            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-          }}
-          pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
-        >
-          {/* My Sessions Content Only */}
-          <Flex mb={6} justify="space-between" alignItems="center">
-            <Heading as="h2" size="xl" textAlign="left">
-              {t('header')}
-            </Heading>
-            <NextLinkButton href="/sessions/new" colorPalette="blue">
-              <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}
-            </NextLinkButton>
-          </Flex>
-
-          <SessionFilters
-            onFilterChange={handleFilterChange}
-            showStatusFilter={true}
-            showDateFilter={true}
-            showSearchFilter={true}
-            showLevelFilter={false}
-          />
-
-          <VStack gap={6} alignItems="stretch">
-            <SessionsList status={filters.status || 'ALL'} mode="manage" />
-          </VStack>
-        </Container>
-      </PageWrapper>
-    </ProtectedRouteGuard>
+        <SessionsList
+          sessions={filteredSessions}
+          isLoading={loading}
+          mode="manage"
+          onRefresh={fetchHostedSessions}
+        />
+      </Container>
+    </PageWrapper>
   );
 }
 
 export default function HostSessionsPage() {
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
-      <Suspense>
+    <ProtectedRouteGuard
+      requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
+    >
+      <Suspense
+        fallback={
+          <Flex justify="center" align="center" minH="100vh">
+            <Spinner size="xl" />
+          </Flex>
+        }
+      >
         <HostSessionsContent />
       </Suspense>
     </ProtectedRouteGuard>

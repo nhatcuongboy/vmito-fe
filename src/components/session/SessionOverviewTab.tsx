@@ -248,7 +248,7 @@ export default function SessionOverviewTab({
               <Users size={20} />
             </Box>
             <Text fontSize="sm" color="fg.muted" fontWeight="medium">
-              {t('players')}
+              {t('playersTab.players')}
             </Text>
           </Flex>
           <Text fontSize="2xl" fontWeight="bold" color="fg">

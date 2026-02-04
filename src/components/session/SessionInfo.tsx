@@ -167,7 +167,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
 
       <InfoRow icon={Users} label={t('maxPlayersTitle') || 'Tối đa'}>
         {session.numberOfCourts * (session.maxPlayersPerCourt || 4)} (
-        {t('players') || 'người'})
+        {t('playersTab.players') || 'Người chơi'})
       </InfoRow>
 
       <InfoRow icon={Award} label={t('requiredLevels')}>

@@ -140,7 +140,9 @@ export const usePlayerManagement = (
       updateNewPlayer(
         index,
         'name',
-        `Player ${newPlayers[index].playerNumber}`
+        t('playerWithNumber', {
+          number: newPlayers[index].playerNumber,
+        })
       );
       updateNewPlayer(index, 'gender', Gender.MALE);
       updateNewPlayer(index, 'level', getDefaultLevel());
@@ -340,7 +342,8 @@ export const usePlayerManagement = (
     if (!playerToDelete) return;
 
     const playerName =
-      playerToDelete.name || `Player ${playerToDelete.playerNumber || ''}`;
+      playerToDelete.name ||
+      t('playerWithNumber', { number: playerToDelete.playerNumber || '' });
     console.debug('Deleting player:', playerName);
 
     try {
@@ -416,7 +419,7 @@ export const usePlayerManagement = (
           updateNewPlayer(
             newPlayerIndex,
             'name',
-            `Player ${newPlayer.playerNumber}`
+            t('playerWithNumber', { number: newPlayer.playerNumber })
           );
         }, 10);
       }

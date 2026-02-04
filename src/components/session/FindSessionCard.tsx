@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
@@ -69,8 +69,10 @@ const FindSessionCard = ({
     onClose: onCloseDeleteModal,
   } = useModal();
 
-  // Check if current user is the session owner/host
+  // Check if current user is the session owner/host or has ADMIN role
   const isOwner = session.hostId === user?.id;
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const canManage = isOwner || isAdmin;
 
   // Calculate if session is full (only count approved players)
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -219,32 +221,34 @@ const FindSessionCard = ({
   const actions: SessionActionConfig = {
     // Top actions
     showCallButton: !!session.hostPhone,
-    showDownloadButton: isOwner,
+    showDownloadButton: canManage,
     showShareButton: true,
 
     // Bottom actions - delete
-    showDeleteButton: isOwner,
+    showDeleteButton: canManage,
     onDelete: onOpenDeleteModal,
 
     // Bottom actions - right side
     showViewButton: true,
 
-    // For owner: show manage button
-    showManageButton: isOwner,
-    manageButtonHref:
-      user?.role === 'PLAYER'
-        ? `/player/sessions/${session.id}`
-        : `/host/sessions/${session.id}`,
+    // For owner or ADMIN: show manage button
+    showManageButton: canManage,
+    // manageButtonHref:
+    //   user?.role === UserRole.PLAYER
+    //     ? `/player/sessions/${session.id}`
+    //     : `/host/sessions/${session.id}`,
+    manageButtonHref: `/host/sessions/${session.id}`,
 
     // For players with registration: show view registration modal
     showViewRegistrationButton: !!userRegistrationStatus && !isJoined,
     onViewRegistration: onOpenViewRegistrationModal,
 
-    // For approved players: show view session button
-    showViewSessionButton: userRegistrationStatus === 'APPROVED',
+    // For approved players or ADMIN: show view session button
+    showViewSessionButton: userRegistrationStatus === 'APPROVED' || isAdmin,
 
-    // For non-registered users: show register button
-    showRegisterButton: !userRegistrationStatus && !isJoined && !isOwner,
+    // For non-registered users: show register button (hidden for non-admin owners)
+    showRegisterButton:
+      !userRegistrationStatus && !isJoined && (isAdmin || !isOwner),
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
   };

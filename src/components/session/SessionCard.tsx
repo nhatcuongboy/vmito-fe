@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
@@ -53,8 +53,10 @@ const SessionCard = ({
 
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
-  // Check if current user is the session owner
+  // Check if current user is the session owner or has ADMIN role
   const isOwner = session.hostId === user?.id;
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const canManage = isOwner || isAdmin;
 
   // Handle withdraw request
   const handleWithdrawRequest = async () => {
@@ -168,11 +170,11 @@ const SessionCard = ({
   const actions: SessionActionConfig = {
     // Top actions
     showCallButton: !!session.hostPhone,
-    showDownloadButton: isOwner,
+    showDownloadButton: canManage,
     showShareButton: true,
 
     // Bottom actions
-    showDeleteButton: (mode === 'manage' || isOwner) && !!onDelete,
+    showDeleteButton: (mode === 'manage' || canManage) && !!onDelete,
     onDelete: onDelete ? () => onOpenDeleteModal() : undefined,
 
     // View button (always show)
@@ -182,13 +184,18 @@ const SessionCard = ({
     showViewRegistrationButton: !isOwner && !!session.players?.[0],
     onViewRegistration: onOpenViewRegistrationModal,
 
-    // Manage button (for owners in manage mode or owners)
-    showManageButton: isOwner && mode === 'manage',
+    // Manage button (for owners or ADMIN)
+    showManageButton: canManage,
+    // manageButtonHref:
+    //   user?.role === UserRole.PLAYER
+    //     ? `/player/sessions/${session.id}`
+    //     : `/host/sessions/${session.id}`,
     manageButtonHref: `/host/sessions/${session.id}`,
 
-    // View session button (for approved players only, NOT for owners)
+    // View session button (for approved players or ADMIN, NOT for owners)
     showViewSessionButton:
-      !isOwner && session.players?.[0]?.registrationStatus === 'APPROVED',
+      (isAdmin || session.players?.[0]?.registrationStatus === 'APPROVED') &&
+      !isOwner,
     viewSessionHref: `/player/sessions/${session.id}`,
   };
 

@@ -46,7 +46,7 @@ export const ROUTES = {
   // Player Routes
   PLAYER: {
     DASHBOARD: '/player/dashboard',
-    HOST_FEATURE: '/player/host',
+    HOST_FEATURE: '/host/sessions',
     SESSIONS: {
       LIST: '/player/sessions',
       DETAIL: (id: string) => `/player/sessions/${id}`,
@@ -127,7 +127,7 @@ export const ROUTE_GROUPS = {
     ROUTES.HOST.TRANSACTIONS,
     ROUTES.HOST.PAYMENT_SETTINGS,
     ROUTES.PLAYER.DASHBOARD,
-    ROUTES.PLAYER.HOST_FEATURE,
+    ROUTES.HOST.SESSIONS.LIST,
     ROUTES.PLAYER.SESSIONS.LIST,
     ROUTES.PLAYER.TRANSACTIONS,
     ROUTES.ADMIN.USERS,
@@ -158,7 +158,7 @@ export const ROUTE_GROUPS = {
   // Player-only routes
   PLAYER_ONLY: [
     ROUTES.PLAYER.DASHBOARD,
-    ROUTES.PLAYER.HOST_FEATURE,
+
     ROUTES.PLAYER.SESSIONS.LIST,
     ROUTES.PLAYER.TRANSACTIONS,
   ],
@@ -260,7 +260,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.HOST.TRANSACTIONS]: 'Transactions',
   [ROUTES.HOST.PAYMENT_SETTINGS]: 'Payment Settings',
   [ROUTES.PLAYER.DASHBOARD]: 'Player Dashboard',
-  [ROUTES.PLAYER.HOST_FEATURE]: 'Become a Host',
+
   [ROUTES.PLAYER.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.PLAYER.TRANSACTIONS]: 'Transactions',
   [ROUTES.BROWSE.TOURNAMENTS.LIST]: 'Browse Tournaments',

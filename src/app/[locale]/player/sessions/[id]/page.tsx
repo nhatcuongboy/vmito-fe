@@ -94,7 +94,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
   // Define navigation tabs
   const navigationTabs: NavigationTab[] = [
     { id: 0, label: t('overview'), icon: Info },
-    { id: 1, label: t('players'), icon: Users },
+    { id: 1, label: t('playersTab.players'), icon: Users },
     { id: 2, label: t('courts'), icon: Square },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('settings'), icon: RefreshCw },

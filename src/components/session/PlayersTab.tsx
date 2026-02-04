@@ -351,7 +351,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             borderRadius="md"
           >
             <Text fontSize="sm" color="gray.600" fontWeight="medium">
-              Adding more players may result in:
+              {tPlayer('limitWarningModal.addingMoreMayResultIn')}
             </Text>
             <Text fontSize="sm" color="gray.600">
               • {tPlayer('limitWarningModal.longerWaitingTimes')}
@@ -417,7 +417,9 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             tPlayer('deleteConfirmation', {
               name:
                 playerToDelete.name ||
-                `Player ${playerToDelete.playerNumber || ''}`,
+                tPlayer('playerWithNumber', {
+                  number: playerToDelete.playerNumber || '',
+                }),
             })}
         </Text>
       </CommonModal>

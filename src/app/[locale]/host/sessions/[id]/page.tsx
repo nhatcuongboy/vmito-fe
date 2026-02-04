@@ -101,7 +101,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   // Define navigation tabs
   const allNavigationTabs: NavigationTab[] = [
     { id: 0, label: t('overview'), icon: Info },
-    { id: 1, label: t('players'), icon: Users },
+    { id: 1, label: t('playersTab.players'), icon: Users },
     { id: 2, label: t('courts'), icon: Square },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('payment'), icon: DollarSign },
@@ -132,9 +132,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     <MainLayout
       title={t('title')}
       showBackButton={true}
-      backHref={
-        user?.role === UserRole.PLAYER ? '/player/host' : '/host/sessions'
-      }
+      backHref="/host/sessions"
       contentPadding={0}
     >
       {loading && !session ? (

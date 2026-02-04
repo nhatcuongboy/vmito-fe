@@ -9,7 +9,8 @@
     "mySessions": "我的场次",
     "joined": "已加入",
     "transactions": "交易",
-    "paymentSettings": "支付设置"
+    "paymentSettings": "支付设置",
+    "myHostedSessions": "我主持的场次"
   },
   "common": {
     "browse": "浏览",
@@ -63,7 +64,7 @@
       "8": "职业"
     },
     "levelShorts": {
-      "1": "新手",
+      "1": "弱",
       "2": "高新",
       "3": "初中",
       "4": "中等",
@@ -249,7 +250,7 @@
       "allowGuestJoinDesc": "允许访客无需注册即可加入",
       "allowNewPlayers": "允许新玩家",
       "allowNewPlayersDesc": "允许新玩家在场次期间加入",
-      "requiredPlayerLevels": "所需的玩家等级",
+      "requiredPlayerLevels": "等级要求",
       "selectRequiredLevels": "选择此场次所需的等级。留空以允许所有等级。",
       "levelsSelected": "✓ 已选择 {count} 个等级",
       "allLevelsSelected": "⚠️ 已选择所有等级。建议留空以允许所有等级。",
@@ -693,6 +694,8 @@
     "playerManagement": {
       "playerManagementTitle": "玩家管理",
       "title": "玩家管理",
+      "playerWithNumber": "玩家 {number}",
+      "matchesCount": "{count} 场比赛",
       "addPlayer": "添加玩家",
       "addAnother": "继续添加",
       "addFirstPlayer": "添加您的第一个玩家",

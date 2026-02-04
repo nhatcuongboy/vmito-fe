@@ -94,7 +94,7 @@ export default function OverviewPlayerTable({
           color="gray.700"
           _dark={{ color: 'gray.200' }}
         >
-          {sessionT('players')} ({players?.length || 0})
+          {sessionT('playersTab.players')} ({players?.length || 0})
         </Heading>
       </Flex>
 
