@@ -643,10 +643,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Box>
                   </Tooltip>
                 ) : (
-                  <LanguageSwitcher
-                    keepDrawerOpen={false}
-                    isCollapsed={false}
-                  />
+                  <Box w="180px">
+                    <LanguageSwitcher
+                      keepDrawerOpen={false}
+                      isCollapsed={false}
+                    />
+                  </Box>
                 )}
               </Suspense>
             </Box>
@@ -680,7 +682,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Box>
                   </Tooltip>
                 ) : (
-                  <ThemeSwitcher isCollapsed={false} />
+                  <Box w="180px">
+                    <ThemeSwitcher isCollapsed={false} />
+                  </Box>
                 )}
               </Suspense>
             </Box>

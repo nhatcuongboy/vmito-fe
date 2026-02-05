@@ -311,7 +311,7 @@ export const PublicSessionDetailContent = ({
           />
         </CommonModal>
 
-        {isOwner && (
+        {canManage && (
           <Portal>
             <Box
               position="absolute"
@@ -322,6 +322,9 @@ export const PublicSessionDetailContent = ({
             >
               <Box>
                 <SessionShareCard session={session} mode="portrait" />
+              </Box>
+              <Box mt={4}>
+                <SessionShareCard session={session} mode="social" />
               </Box>
             </Box>
           </Portal>

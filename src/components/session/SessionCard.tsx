@@ -259,7 +259,7 @@ const SessionCard = ({
           {withdrawModal}
           {viewRegistrationModal}
           {/* Hidden SessionShareCards for image generation */}
-          {isOwner && (
+          {canManage && (
             <Portal>
               <Box
                 position="absolute"
@@ -270,6 +270,9 @@ const SessionCard = ({
               >
                 <Box>
                   <SessionShareCard session={session} mode="portrait" />
+                </Box>
+                <Box mt={4}>
+                  <SessionShareCard session={session} mode="social" />
                 </Box>
               </Box>
             </Portal>

@@ -460,7 +460,9 @@
     "coverPhotoRemoved": "封面图片已移除",
     "coverPhotoRemoveFailed": "移除封面图片失败",
     "downloadImage": "下载图片",
-    "imageDownloadSuccess": "图片下载成功"
+    "imageDownloadSuccess": "图片下载成功",
+    "downloadPortrait": "竖版图片 (2:3)",
+    "downloadSocial": "社交媒体图片 (4:5)"
   },
   "court": {
     "title": "场地",

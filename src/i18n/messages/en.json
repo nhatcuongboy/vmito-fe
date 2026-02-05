@@ -419,6 +419,8 @@
     "checkOutThisSession": "Check out this session",
     "downloadImage": "Download image",
     "imageDownloadSuccess": "Image downloaded successfully",
+    "downloadPortrait": "Portrait (2:3)",
+    "downloadSocial": "Social Media (4:5)",
     "hostedBy": "Hosted by",
     "dateNotSet": "Date not set",
     "timeNotSet": "Time not set",

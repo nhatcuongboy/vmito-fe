@@ -22,6 +22,7 @@ import {
   MapPin,
   Banknote,
   Phone,
+  User,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Locale } from '@/i18n/locales';
@@ -35,7 +36,7 @@ import { useEffect, useState } from 'react';
 
 interface SessionShareCardProps {
   session: ISession;
-  mode?: 'portrait' | 'landscape';
+  mode?: 'portrait' | 'landscape' | 'social';
 }
 
 const formatDate = (dateString: string | Date, locale: string): string => {
@@ -81,9 +82,10 @@ const SessionShareCard = ({
 
   useEffect(() => {
     const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
+    const qrWidth = mode === 'landscape' ? 120 : mode === 'social' ? 100 : 80;
     QRCode.toDataURL(url, {
       margin: 0,
-      width: mode === 'landscape' ? 120 : 100,
+      width: qrWidth,
       color: {
         dark: '#2563EB', // blue.600
         light: '#FFFFFF',
@@ -92,6 +94,232 @@ const SessionShareCard = ({
       .then((url) => setQrDataUrl(url))
       .catch((err) => console.error('Error generating QR code:', err));
   }, [mode, locale, session.id]);
+
+  // Social media mode (4x5 ratio - 1080x1350px)
+  if (mode === 'social') {
+    return (
+      <Box
+        id={`session-share-card-social-${session.id}`}
+        w="1080px"
+        h="1350px"
+        bg="white"
+        borderRadius="3xl"
+        overflow="hidden"
+        borderWidth="12px"
+        borderColor="blue.600"
+        boxShadow="none"
+      >
+        {/* Cover Image */}
+        <Box position="relative" h="400px" overflow="hidden">
+          <Image
+            src={session.coverPhoto || DEFAULT_COVER_PHOTO}
+            alt={session.name}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            crossOrigin="anonymous"
+          />
+        </Box>
+
+        {/* Share Header */}
+        <Box bg="blue.600" color="white" py={5} px={10} textAlign="center">
+          <Heading size="2xl" fontWeight="black" textTransform="uppercase">
+            {t('shareCardHeader')}
+          </Heading>
+        </Box>
+
+        {/* Content Section */}
+        <Box p={10} pb={6} bg="white">
+          <Stack gap={6}>
+            {/* Title */}
+            <Heading
+              size="3xl"
+              fontWeight="black"
+              color="blue.600"
+              textAlign="center"
+            >
+              {session.name}
+            </Heading>
+
+            {/* Location */}
+            {(session.venue?.name || session.location) && (
+              <Flex align="flex-start" gap={4}>
+                <Icon as={MapPin} boxSize={12} color="blue.600" mt={1} />
+                <Box flex="1">
+                  <Text fontWeight="black" color="gray.800" fontSize="3xl">
+                    {session.venue?.name || session.location}
+                  </Text>
+                  {session.venue?.address &&
+                    session.venue.address !== session.venue.name && (
+                      <Text fontSize="xl" color="gray.500" mt={2}>
+                        {session.venue.address}
+                      </Text>
+                    )}
+                </Box>
+              </Flex>
+            )}
+
+            {/* Host Info */}
+            <Flex align="center" gap={4}>
+              <Icon as={User} boxSize={12} color="blue.600" />
+              <Text fontSize="2xl" fontWeight="black" color="gray.700">
+                Host: {displayHostName}
+              </Text>
+            </Flex>
+
+            {/* Date, Time, Courts Grid */}
+            <Grid templateColumns="1fr 1fr" gap={6}>
+              <Flex align="center" gap={4}>
+                <Icon as={Calendar} boxSize={12} color="blue.600" />
+                <Box>
+                  <Text fontSize="lg" color="gray.500" fontWeight="semibold">
+                    Ngày
+                  </Text>
+                  <Text fontSize="2xl" fontWeight="black" color="gray.800">
+                    {compactDate}
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex align="center" gap={4}>
+                <Icon as={Clock} boxSize={12} color="blue.600" />
+                <Box>
+                  <Text fontSize="lg" color="gray.500" fontWeight="semibold">
+                    Thời gian
+                  </Text>
+                  <Text fontSize="2xl" fontWeight="black" color="gray.800">
+                    {compactTime}
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex align="center" gap={4}>
+                <Icon as={SquareAsterisk} boxSize={12} color="blue.600" />
+                <Box>
+                  <Text fontSize="lg" color="gray.500" fontWeight="semibold">
+                    sân
+                  </Text>
+                  <Text fontSize="2xl" fontWeight="black" color="gray.800">
+                    {session.numberOfCourts} sân
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex align="center" gap={4}>
+                <Icon as={Users} boxSize={12} color="blue.600" />
+                <Box>
+                  <Text fontSize="lg" color="gray.500" fontWeight="semibold">
+                    người chơi
+                  </Text>
+                  <Text fontSize="2xl" fontWeight="black" color="gray.800">
+                    Tối đa {maxPlayers}
+                  </Text>
+                </Box>
+              </Flex>
+            </Grid>
+
+            {/* Skill Levels */}
+            <Flex align="center" gap={4}>
+              <Icon as={Shield} boxSize={12} color={skillLevelColor.color} />
+              <Wrap gap={3}>
+                {session.requiredLevels && session.requiredLevels.length > 0 ? (
+                  Array.from(new Set(session.requiredLevels))
+                    .sort((a, b) =>
+                      typeof a === 'number' && typeof b === 'number' ? a - b : 0
+                    )
+                    .map((level) => {
+                      const levelColor = getSkillLevelColor([level]);
+                      return (
+                        <Badge
+                          key={level}
+                          colorPalette={levelColor.colorPalette}
+                          variant="solid"
+                          size="lg"
+                          fontSize="xl"
+                          fontWeight="black"
+                          px={6}
+                          py={2.5}
+                          borderRadius="full"
+                          borderWidth="3px"
+                          borderColor={levelColor.borderColor}
+                        >
+                          {getLevelShortLabel(level)}
+                        </Badge>
+                      );
+                    })
+                ) : (
+                  <Badge colorPalette="gray" variant="subtle" size="lg">
+                    {t('allLevels')}
+                  </Badge>
+                )}
+              </Wrap>
+            </Flex>
+
+            {/* Price */}
+            {session.feeConfig && (
+              <Box
+                py={7}
+                bg="red.50"
+                px={8}
+                borderRadius="3xl"
+                borderWidth="3px"
+                borderColor="red.200"
+              >
+                <Flex align="center" gap={6}>
+                  <Icon as={Banknote} boxSize={14} color="red.600" />
+                  <Text fontSize="5xl" fontWeight="black" color="red.600">
+                    {session.feeConfig.feeType === 'SPLIT_EVENLY'
+                      ? session.feeConfig.splitPerPlayer
+                        ? FeeService.formatFee(session.feeConfig.splitPerPlayer)
+                        : 'Chia đều'
+                      : session.feeConfig.maleFee ===
+                          session.feeConfig.femaleFee
+                        ? FeeService.formatFee(session.feeConfig.maleFee || 0)
+                        : `Nam: ${FeeService.formatFee(session.feeConfig.maleFee || 0)} - Nữ: ${FeeService.formatFee(session.feeConfig.femaleFee || 0)}`}
+                  </Text>
+                </Flex>
+              </Box>
+            )}
+
+            {/* Footer with QR and Branding */}
+            <Box
+              mt={4}
+              pt={8}
+              pb={2}
+              borderTopWidth="4px"
+              borderColor="blue.200"
+              bg="blue.50"
+              mx={-10}
+              px={10}
+              borderBottomRadius="2xl"
+            >
+              <Flex align="center" justify="space-between">
+                <Box>
+                  <Text fontSize="3xl" fontWeight="black" color="blue.700">
+                    Truy cập{' '}
+                    <Text as="span" color="lime.500">
+                      VMITO.COM
+                    </Text>
+                  </Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="blue.600">
+                    để tìm kiếm nhiều kèo hot hơn
+                  </Text>
+                </Box>
+                {qrDataUrl && (
+                  <Box
+                    p={3}
+                    border="3px solid"
+                    borderColor="blue.300"
+                    borderRadius="2xl"
+                    bg="white"
+                  >
+                    <Image src={qrDataUrl} alt="QR" boxSize="110px" />
+                  </Box>
+                )}
+              </Flex>
+            </Box>
+          </Stack>
+        </Box>
+      </Box>
+    );
+  }
 
   if (mode === 'landscape') {
     return (
@@ -180,7 +408,7 @@ const SessionShareCard = ({
                     <Text fontWeight="bold" color="gray.700" fontSize="2xl">
                       {session.venue?.name || session.location}
                     </Text>
-                    <Text fontSize="lg" color="gray.500">
+                    <Text fontSize="md" color="gray.500">
                       {session.venue?.address}
                     </Text>
                   </Box>
@@ -337,42 +565,43 @@ const SessionShareCard = ({
       </Box>
 
       {/* Content Section */}
-      <Box p={4}>
+      <Box p={4} pb={2}>
         <Stack gap={3}>
           {/* Title */}
           <Heading
             size="lg"
             fontWeight="bold"
-            color="gray.800"
+            color="blue.600"
             textAlign="center"
           >
             {session.name}
           </Heading>
-
-          {/* Host Info */}
-          <Flex align="center" gap={3}>
-            <Text fontSize="md" fontWeight="bold" color="blue.600">
-              Host: {displayHostName}
-            </Text>
-          </Flex>
 
           {/* Location */}
           {(session.venue?.name || session.location) && (
             <Flex align="flex-start">
               <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
               <Box flex="1">
-                <Text fontWeight="semibold" color="gray.700" fontSize="md">
+                <Text fontWeight="semibold" color="gray.700" fontSize="sm">
                   {session.venue?.name || session.location}
                 </Text>
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (
-                    <Text fontSize="sm" color="gray.500">
+                    <Text fontSize="xs" color="gray.500">
                       {session.venue.address}
                     </Text>
                   )}
               </Box>
             </Flex>
           )}
+
+          {/* Host Info */}
+          <Flex align="center" gap={2}>
+            <Icon as={User} boxSize={5} color="blue.500" />
+            <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+              {`Host: ${displayHostName}`}
+            </Text>
+          </Flex>
 
           {/* Info Grid */}
           <Stack gap={2}>
@@ -462,8 +691,12 @@ const SessionShareCard = ({
                         variant="solid"
                         size="sm"
                         fontSize="xs"
-                        px={2}
-                        borderRadius="md"
+                        fontWeight="bold"
+                        px={2.5}
+                        py={0.5}
+                        borderRadius="full"
+                        borderWidth="1px"
+                        borderColor={levelColor.borderColor}
                       >
                         {getLevelShortLabel(level)}
                       </Badge>
@@ -479,17 +712,17 @@ const SessionShareCard = ({
 
           {/* Price */}
           {session.feeConfig && (
-            <Box py={2} borderY="1px" borderColor="gray.100">
+            <Box py={1} borderY="1px" borderColor="gray.100">
               <Flex align="center" gap={2}>
-                <Icon as={Banknote} boxSize={6} color="red.600" />
-                <Text fontSize="lg" fontWeight="bold" color="red.600">
+                <Icon as={Banknote} boxSize={5} color="red.600" />
+                <Text fontSize="md" fontWeight="bold" color="red.600">
                   {session.feeConfig.feeType === 'SPLIT_EVENLY'
                     ? session.feeConfig.splitPerPlayer
                       ? FeeService.formatFee(session.feeConfig.splitPerPlayer)
                       : 'Chia đều'
                     : session.feeConfig.maleFee === session.feeConfig.femaleFee
                       ? FeeService.formatFee(session.feeConfig.maleFee || 0)
-                      : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig.maleFee || 0)}, ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig.femaleFee || 0)}`}
+                      : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig.maleFee || 0)} - ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig.femaleFee || 0)}`}
                 </Text>
               </Flex>
             </Box>
@@ -505,44 +738,39 @@ const SessionShareCard = ({
           {/* Call to Action Footer with QR Code */}
           <Flex
             mt={0}
-            pt={2}
+            pt={1.5}
+            pb={0.5}
             borderTopWidth="1px"
             borderColor="gray.200"
             align="center"
             justify="space-between"
-            gap={4}
+            gap={2}
           >
             <Box flex="1">
               <Text
-                fontSize="sm"
+                fontSize="xs"
                 fontWeight="bold"
                 color="blue.700"
-                lineHeight="short"
+                lineHeight="1.4"
                 textAlign="center"
               >
-                {t('shareCardFooter')
-                  .split('VMITO.COM')
-                  .map((part, index, array) => (
-                    <span key={index}>
-                      {part}
-                      {index < array.length - 1 && (
-                        <Text as="span" color="lime.500">
-                          VMITO.COM
-                        </Text>
-                      )}
-                    </span>
-                  ))}
+                Truy cập{' '}
+                <Text as="span" color="lime.500">
+                  VMITO.COM
+                </Text>
+                <br />
+                để tìm kiếm nhiều kèo hot hơn
               </Text>
             </Box>
             {qrDataUrl && (
               <Box
-                p={1}
+                p={0.5}
                 border="1px solid"
                 borderColor="gray.100"
                 borderRadius="lg"
                 flexShrink={0}
               >
-                <Image src={qrDataUrl} alt="VMITO QR Code" boxSize="60px" />
+                <Image src={qrDataUrl} alt="VMITO QR Code" boxSize="50px" />
               </Box>
             )}
           </Flex>

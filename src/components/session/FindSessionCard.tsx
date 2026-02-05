@@ -310,7 +310,7 @@ const FindSessionCard = ({
       </CommonModal>
 
       {/* Hidden SessionShareCards for image generation */}
-      {isOwner && (
+      {canManage && (
         <Portal>
           <Box
             position="absolute"
@@ -321,6 +321,9 @@ const FindSessionCard = ({
           >
             <Box>
               <SessionShareCard session={session} mode="portrait" />
+            </Box>
+            <Box mt={4}>
+              <SessionShareCard session={session} mode="social" />
             </Box>
           </Box>
         </Portal>

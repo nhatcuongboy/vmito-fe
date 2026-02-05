@@ -191,9 +191,13 @@ const BaseSessionCard = ({
   };
 
   // Helper function: Handle download action
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = (
+    e: React.MouseEvent,
+    mode: 'portrait' | 'social' = 'portrait'
+  ) => {
     e.stopPropagation();
-    downloadSessionImage(session, `session-share-card-portrait-${session.id}`);
+    const elementId = `session-share-card-${mode}-${session.id}`;
+    downloadSessionImage(session, elementId);
   };
 
   // Render top action buttons (icon buttons)
@@ -217,19 +221,59 @@ const BaseSessionCard = ({
       );
     }
 
-    // Download button (owner or admin)
+    // Download button with menu (owner or admin)
     if (actions.showDownloadButton && canManage) {
       buttons.push(
-        <IconButton
-          key="download"
-          size="sm"
-          colorPalette="blue"
-          variant="outline"
-          aria-label="Download session image"
-          loading={isDownloading}
-          onClick={handleDownload}
-          icon={<Icon as={Download} />}
-        />
+        <MenuRoot key="download" positioning={{ placement: 'bottom-end' }}>
+          <MenuTrigger asChild>
+            <IconButton
+              size="sm"
+              colorPalette="blue"
+              variant="outline"
+              aria-label="Download session image"
+              loading={isDownloading}
+              icon={<Icon as={Download} />}
+            />
+          </MenuTrigger>
+          <Portal>
+            <MenuPositioner>
+              <MenuContent
+                bg="white"
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="md"
+                shadow="lg"
+                minW="150px"
+                py={2}
+              >
+                <MenuItem
+                  value="portrait"
+                  cursor="pointer"
+                  _hover={{ bg: 'gray.100' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(e, 'portrait');
+                  }}
+                >
+                  <Icon as={Download} mr={2} />
+                  {t('downloadPortrait') || 'Ảnh dọc (2:3)'}
+                </MenuItem>
+                <MenuItem
+                  value="social"
+                  cursor="pointer"
+                  _hover={{ bg: 'gray.100' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(e, 'social');
+                  }}
+                >
+                  <Icon as={Download} mr={2} />
+                  {t('downloadSocial') || 'Ảnh mạng xã hội (4:5)'}
+                </MenuItem>
+              </MenuContent>
+            </MenuPositioner>
+          </Portal>
+        </MenuRoot>
       );
     }
 

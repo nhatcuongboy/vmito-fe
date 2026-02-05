@@ -8,10 +8,12 @@ import {
   Toast,
   createToaster,
 } from '@chakra-ui/react';
+import { X } from 'lucide-react';
 
 export const toaster = createToaster({
   placement: 'top-end',
   pauseOnPageIdle: true,
+  duration: 3000,
 });
 
 export const Toaster = () => {
@@ -19,7 +21,7 @@ export const Toaster = () => {
     <Portal>
       <ChakraToaster toaster={toaster} insetInline={{ mdDown: '4' }}>
         {(toast) => (
-          <Toast.Root width={{ md: 'sm' }}>
+          <Toast.Root width={{ md: 'sm' }} pr="8">
             {toast.type === 'loading' ? (
               <Spinner size="sm" color="blue.solid" />
             ) : (
@@ -38,7 +40,17 @@ export const Toaster = () => {
             {toast.action && (
               <Toast.ActionTrigger>{toast.action.label}</Toast.ActionTrigger>
             )}
-            {toast.closable && <Toast.CloseTrigger />}
+            <Toast.CloseTrigger
+              position="absolute"
+              top="2"
+              right="2"
+              p="1"
+              borderRadius="md"
+              _hover={{ bg: 'blackAlpha.100' }}
+              _dark={{ _hover: { bg: 'whiteAlpha.100' } }}
+            >
+              <X size={16} />
+            </Toast.CloseTrigger>
           </Toast.Root>
         )}
       </ChakraToaster>
