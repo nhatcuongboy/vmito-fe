@@ -517,33 +517,41 @@ const SessionShareCard = ({
 
           {/* Call to Action Footer with QR Code */}
           <Flex
-            mt={2}
-            pt={2}
+            mt={0}
+            pt={1.5}
+            pb={0.5}
             borderTopWidth="1px"
             borderColor="gray.200"
-            justify="flex-end"
+            align="center"
+            justify="space-between"
+            gap={2}
           >
-            {qrDataUrl && (
-              <Stack gap={1} align="center">
-                <Box
-                  p={1}
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="md"
-                  bg="white"
-                >
-                  <Image src={qrDataUrl} alt="VMITO QR Code" boxSize="70px" />
-                </Box>
-                <Text
-                  fontSize="xs"
-                  fontWeight="black"
-                  color="blue.700"
-                  textAlign="center"
-                  lineHeight={1}
-                >
+            <Box flex="1">
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                color="blue.700"
+                lineHeight="1.4"
+                textAlign="center"
+              >
+                Truy cập{' '}
+                <Text as="span" color="lime.500">
                   VMITO.COM
                 </Text>
-              </Stack>
+                <br />
+                để tìm kiếm nhiều kèo hot hơn
+              </Text>
+            </Box>
+            {qrDataUrl && (
+              <Box
+                p={0.5}
+                border="1px solid"
+                borderColor="gray.100"
+                borderRadius="lg"
+                flexShrink={0}
+              >
+                <Image src={qrDataUrl} alt="VMITO QR Code" boxSize="50px" />
+              </Box>
             )}
           </Flex>
         </Stack>
