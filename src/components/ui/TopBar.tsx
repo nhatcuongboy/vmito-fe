@@ -65,7 +65,7 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
         top={0}
         left={0}
         right={0}
-        zIndex={1700}
+        zIndex={1100}
         bg="bg"
         backdropFilter="blur(10px)"
         borderBottom="1px solid"

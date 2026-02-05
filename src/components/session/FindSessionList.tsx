@@ -109,6 +109,10 @@ export default function FindSessionList({
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [pendingUserLocation, setPendingUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(userLocation);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -136,6 +140,11 @@ export default function FindSessionList({
       } else {
         setLoading(true);
         setPage(1); // Reset to first page on filter change
+
+        // Scroll to top on new search/filter
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
       setError(null);
 
@@ -334,9 +343,8 @@ export default function FindSessionList({
     }
 
     try {
-      setLoading(true);
       const location = await getUserLocation();
-      setUserLocation(location);
+      setPendingUserLocation(location);
       setPendingSortByDistance(true);
     } catch (error: any) {
       toaster.error({
@@ -344,8 +352,6 @@ export default function FindSessionList({
         description: error.message,
       });
       setPendingSortByDistance(false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -389,6 +395,9 @@ export default function FindSessionList({
   const handleSubmitFilters = () => {
     setFilters(pendingFilters);
     setSortByDistance(pendingSortByDistance);
+    if (pendingUserLocation) {
+      setUserLocation(pendingUserLocation);
+    }
     toggleFilters(); // Close drawer
   };
 
@@ -409,6 +418,7 @@ export default function FindSessionList({
       splitEvenly: false,
     });
     setPendingSortByDistance(false);
+    setPendingUserLocation(null);
   };
 
   const clearFilters = () => {
@@ -702,7 +712,7 @@ export default function FindSessionList({
                           fontSize="md"
                           userSelect="none"
                         >
-                          Tất cả ngày
+                          {t('filters.allDays')}
                         </Box>
                       )}
                     </Box>
@@ -822,9 +832,7 @@ export default function FindSessionList({
                       borderWidth={pendingSortByDistance ? '0' : '2px'}
                     >
                       <MapPin size={16} />
-                      {pendingSortByDistance
-                        ? t('filters.sortByDistance')
-                        : t('filters.nearMe')}
+                      {t('filters.nearMe')}
                     </Badge>
                   </Flex>
                 </Box>
@@ -1192,21 +1200,21 @@ export default function FindSessionList({
           <Flex gap={3}>
             <Button
               flex="1"
-              variant="outline"
-              colorPalette="gray"
-              onClick={handleResetFilters}
-              leftIcon={<X size={18} />}
-            >
-              {t('reset') || 'Đặt lại'}
-            </Button>
-            <Button
-              flex="1"
               variant="solid"
               colorPalette="blue"
               onClick={handleSubmitFilters}
               leftIcon={<Check size={18} />}
             >
               {t('applySearch') || 'Tìm kiếm'}
+            </Button>
+            <Button
+              flex="1"
+              variant="outline"
+              colorPalette="gray"
+              onClick={handleResetFilters}
+              leftIcon={<X size={18} />}
+            >
+              {t('reset') || 'Đặt lại'}
             </Button>
           </Flex>
         </Box>

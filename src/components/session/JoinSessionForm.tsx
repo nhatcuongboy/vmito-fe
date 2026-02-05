@@ -1,6 +1,5 @@
 import {
   Button,
-  Divider,
   FormControl,
   FormLabel,
   IconButton,
@@ -8,6 +7,7 @@ import {
 } from '@/components/ui/chakra-compat';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { GenderType, ISession } from '@/lib/api/types';
 import {
   Badge,
@@ -58,8 +58,9 @@ export default function JoinSessionForm({
   onUpdatePlayer,
 }: JoinSessionFormProps) {
   const t = useTranslations('session');
+  const common = useTranslations('common');
   const tPlayer = useTranslations('pages.playerManagement');
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
 
   const availableLevels = useMemo(() => {
     if (session.requiredLevels && session.requiredLevels.length > 0) {
@@ -74,7 +75,7 @@ export default function JoinSessionForm({
   }, [session.feeConfig]);
 
   return (
-    <VStack spacing={4} align="stretch">
+    <VStack spacing={3} align="stretch">
       {/* <Text fontSize="sm" color="fg.muted">
         {t('joinSessionDescription', { hostName: session.host?.name || '' })}
       </Text> */}
@@ -82,13 +83,39 @@ export default function JoinSessionForm({
       {session.requiredLevels && session.requiredLevels.length > 0 && (
         <Box
           bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
-          p={3}
+          p={2}
           borderRadius="md"
         >
-          <Text fontSize="sm" color={{ base: 'blue.700', _dark: 'blue.300' }}>
-            {t('requiredLevels')}:{' '}
-            {session.requiredLevels.map((l) => t(`levels.${l}`)).join(', ')}
-          </Text>
+          <Flex align="center" wrap="wrap" gap={2}>
+            <Text
+              fontSize="sm"
+              color={{ base: 'blue.700', _dark: 'blue.300' }}
+              as="span"
+              mr={1}
+            >
+              {t('requiredLevels')}:
+            </Text>
+            {session.requiredLevels.map((l) => {
+              const levelColor = getSkillLevelColor([l]);
+              return (
+                <Badge
+                  key={l}
+                  colorPalette={levelColor.colorPalette}
+                  variant="solid"
+                  size="md"
+                  fontSize="xs"
+                  fontWeight="bold"
+                  px={2.5}
+                  py={0.5}
+                  borderRadius="full"
+                  borderWidth="1px"
+                  borderColor={levelColor.borderColor}
+                >
+                  {getLevelShortLabel(l)}
+                </Badge>
+              );
+            })}
+          </Flex>
         </Box>
       )}
 
@@ -97,7 +124,7 @@ export default function JoinSessionForm({
       {players.map((player, index) => (
         <Box
           key={index}
-          p={4}
+          p={3.5}
           borderWidth="1px"
           borderColor="border"
           borderRadius="lg"
@@ -106,7 +133,7 @@ export default function JoinSessionForm({
           shadow="sm"
         >
           {/* Header with badge and delete button */}
-          <Flex justify="space-between" align="center" mb={4}>
+          <Flex justify="space-between" align="center" mb={3}>
             <Flex align="center" gap={2}>
               <Box
                 bg={player.isMe ? 'blue.500' : 'green.500'}
@@ -137,39 +164,58 @@ export default function JoinSessionForm({
             )}
           </Flex>
 
-          <VStack spacing={4} align="stretch">
-            {/* Player name */}
-            <FormControl isRequired isInvalid={!!errors[index]?.name}>
-              <FormLabel fontSize="sm" fontWeight="medium" color="fg.muted">
-                {player.isMe ? t('myName') : t('guestName')}
-              </FormLabel>
-              <Input
-                value={player.name}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  onUpdatePlayer(index, 'name', e.target.value)
-                }
-                placeholder={t('enterName')}
-                bg={{ base: 'white', _dark: 'gray.800' }}
-                size="md"
-                borderColor={errors[index]?.name ? 'red.400' : 'border'}
-                _focus={{
-                  borderColor: errors[index]?.name ? 'red.400' : 'blue.500',
-                  boxShadow: errors[index]?.name
-                    ? '0 0 0 1px #F56565'
-                    : '0 0 0 1px #3182ce',
-                }}
-              />
-              {errors[index]?.name && (
-                <Text fontSize="xs" color="fg.error" mt={1}>
-                  {tPlayer('playerNameRequired')}
-                </Text>
-              )}
-            </FormControl>
+          <VStack spacing={3} align="stretch">
+            {/* Player Information Grid */}
+            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={3}>
+              {/* Player name */}
+              <FormControl isRequired isInvalid={!!errors[index]?.name}>
+                <FormLabel fontSize="sm" fontWeight="medium" color="fg.muted">
+                  {player.isMe ? t('myName') : t('guestName')}
+                </FormLabel>
+                <Input
+                  value={player.name}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onUpdatePlayer(index, 'name', e.target.value)
+                  }
+                  placeholder={t('enterName')}
+                  bg={{ base: 'white', _dark: 'gray.800' }}
+                  size="md"
+                  borderColor={errors[index]?.name ? 'red.400' : 'border'}
+                  _focus={{
+                    borderColor: errors[index]?.name ? 'red.400' : 'blue.500',
+                    boxShadow: errors[index]?.name
+                      ? '0 0 0 1px #F56565'
+                      : '0 0 0 1px #3182ce',
+                  }}
+                />
+                {errors[index]?.name && (
+                  <Text fontSize="xs" color="fg.error" mt={1}>
+                    {tPlayer('playerNameRequired')}
+                  </Text>
+                )}
+              </FormControl>
+
+              {/* Player phone */}
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium" color="fg.muted">
+                  {common('phone')}
+                </FormLabel>
+                <Input
+                  value={player.phone || ''}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onUpdatePlayer(index, 'phone', e.target.value)
+                  }
+                  placeholder={common('phone')}
+                  bg={{ base: 'white', _dark: 'gray.800' }}
+                  size="md"
+                />
+              </FormControl>
+            </Grid>
 
             {/* Gender and Level - responsive grid */}
-            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={3}>
               <Box>
-                <Text fontSize="sm" mb={2} color="fg.muted" fontWeight="medium">
+                <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
                   {tPlayer('gender')}
                 </Text>
                 <select
@@ -185,6 +231,7 @@ export default function JoinSessionForm({
                     backgroundColor: 'transparent',
                     color: 'inherit',
                     fontSize: '14px',
+                    height: '40px', // Match Chakra Input height
                   }}
                 >
                   {genderOptions.map((option) => (
@@ -196,7 +243,7 @@ export default function JoinSessionForm({
               </Box>
 
               <FormControl isRequired isInvalid={!!errors[index]?.level}>
-                <Text fontSize="sm" mb={2} color="fg.muted" fontWeight="medium">
+                <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
                   {t('level')}{' '}
                   <Text as="span" color="red.500">
                     *
@@ -217,12 +264,13 @@ export default function JoinSessionForm({
                     backgroundColor: 'transparent',
                     color: 'inherit',
                     fontSize: '14px',
+                    height: '40px', // Match Chakra Input height
                   }}
                 >
                   <option value={0}>{tPlayer('selectLevel')}</option>
                   {availableLevels.map((l) => (
                     <option key={l} value={l}>
-                      {getLevelLabel(l)}
+                      {getLevelShortLabel(l)}
                     </option>
                   ))}
                 </select>
@@ -236,7 +284,7 @@ export default function JoinSessionForm({
 
             {/* Level description */}
             <Box>
-              <Text fontSize="sm" mb={2} color="fg.muted" fontWeight="medium">
+              <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
                 {tPlayer('levelDescription')}
               </Text>
               <Textarea

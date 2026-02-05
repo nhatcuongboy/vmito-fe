@@ -5,6 +5,7 @@ import { GenderType, ISession, Player } from '@/lib/api/types';
 
 export interface RegisterPlayerInput {
   name: string;
+  phone?: string;
   gender: GenderType;
   level: number;
   levelDescription: string;
@@ -14,6 +15,7 @@ export interface RegisterPlayerInput {
 export interface ValidationErrors {
   [index: number]: {
     name?: string;
+    phone?: string;
     level?: string;
   };
 }
@@ -48,6 +50,8 @@ export function useJoinSession({
       setPlayers([
         {
           name: user?.name || '',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          phone: (user as any)?.phone || '',
           gender: 'MALE',
           level: getDefaultLevel(),
           levelDescription: '',
@@ -63,6 +67,7 @@ export function useJoinSession({
       ...prev,
       {
         name: '',
+        phone: '',
         gender: 'MALE',
         level: getDefaultLevel(),
         levelDescription: '',
@@ -158,6 +163,7 @@ export function useJoinSession({
       const playersDto: Partial<Player>[] = players.map((p, index) => ({
         playerNumber: (session._count?.players || 0) + 1 + index,
         name: p.name.trim(),
+        phone: p.phone?.trim(),
         gender: p.gender,
         level: p.level,
         levelDescription: p.levelDescription.trim() || undefined,

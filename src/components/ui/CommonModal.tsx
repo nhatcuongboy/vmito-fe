@@ -124,7 +124,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   hideSecondaryAction = false,
   headerRightContent,
   description,
-  zIndex = 1000,
+  zIndex = 1400,
   maxBodyHeight = '60vh',
   showHeaderDivider = true,
   showFooterDivider = true,

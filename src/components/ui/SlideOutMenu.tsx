@@ -59,7 +59,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
           right={0}
           bottom={0}
           bg="blackAlpha.600"
-          zIndex={1500}
+          zIndex={1200}
           onClick={onClose}
         />
       )}
@@ -81,7 +81,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
         }}
         bg="bg"
         shadow="xl"
-        zIndex={1600}
+        zIndex={1250}
         transform={{
           base: isOpen ? 'translateX(0)' : 'translateX(-100%)',
           md: 'translateX(0)',

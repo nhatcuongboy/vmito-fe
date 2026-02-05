@@ -158,7 +158,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
 
               {/* Date Filter */}
               {showDateFilter && (
-                <Box flex="1" minW={{ lg: '180px' }}>
+                <Box flex="1" minW={{ lg: '180px' }} position="relative">
                   <Flex
                     align="center"
                     bg="gray.50"
@@ -199,9 +199,48 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                           display: 'none',
                           webkitAppearance: 'none',
                         },
+                        '&::-webkit-date-and-time-value': {
+                          minHeight: '1.5em',
+                          display: 'flex',
+                          alignItems: 'center',
+                        },
+                        '&::-webkit-datetime-edit': {
+                          minHeight: '1.5em',
+                        },
+                        '&::-webkit-datetime-edit-fields-wrapper': {
+                          padding: '0',
+                        },
+                        '&::-webkit-datetime-edit-text': {
+                          color: !filters.date ? 'transparent' : 'inherit',
+                          padding: '0 1px',
+                        },
+                        '&::-webkit-datetime-edit-month-field': {
+                          color: !filters.date ? 'transparent' : 'inherit',
+                        },
+                        '&::-webkit-datetime-edit-day-field': {
+                          color: !filters.date ? 'transparent' : 'inherit',
+                        },
+                        '&::-webkit-datetime-edit-year-field': {
+                          color: !filters.date ? 'transparent' : 'inherit',
+                        },
                       }}
                     />
                   </Flex>
+                  {/* Placeholder overlay */}
+                  {!filters.date && (
+                    <Box
+                      position="absolute"
+                      left="40px"
+                      top="50%"
+                      transform="translateY(-50%)"
+                      color="gray.400"
+                      pointerEvents="none"
+                      fontSize="sm"
+                      userSelect="none"
+                    >
+                      {t('allDays') || 'Tất cả ngày'}
+                    </Box>
+                  )}
                 </Box>
               )}
             </Flex>

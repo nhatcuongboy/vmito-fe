@@ -99,9 +99,29 @@ export function PWAInstallPrompt() {
   );
 }
 
+import { useColorMode } from './ui/color-mode-provider';
+
 export function PWAStatus() {
   const [isOnline, setIsOnline] = useState(true);
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const { colorMode } = useColorMode();
+
+  useEffect(() => {
+    // Update theme-color meta tag based on color mode
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    // Dark mode color matches chakra theme 'bg' token (#1a202c)
+    // Light mode color matches chakra theme 'bg' token (#ffffff)
+    const newThemeColor = colorMode === 'dark' ? '#1a202c' : '#ffffff';
+
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', newThemeColor);
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = newThemeColor;
+      document.head.appendChild(meta);
+    }
+  }, [colorMode]);
 
   useEffect(() => {
     // Check online status

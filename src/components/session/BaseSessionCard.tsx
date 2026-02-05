@@ -54,6 +54,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
+import { useRouter } from '@/i18n/config';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -148,6 +149,7 @@ const BaseSessionCard = ({
   const { user } = useAuthStore();
   const { getRatingStats } = useRatingStats();
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+  const router = useRouter();
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -270,7 +272,7 @@ const BaseSessionCard = ({
           value="view"
           onClick={(e) => {
             e.stopPropagation();
-            window.location.href = viewHref;
+            router.push(viewHref);
           }}
         >
           <Icon as={Eye} mr={2} />
@@ -561,7 +563,16 @@ const BaseSessionCard = ({
         <Box p={5} pb={2} flex="1" display="flex" flexDirection="column">
           <Stack gap={4} flex="1">
             {/* Title */}
-            <Heading size="lg" fontWeight="bold">
+            <Heading
+              size="lg"
+              fontWeight="bold"
+              cursor="pointer"
+              _hover={{ color: 'blue.600', textDecoration: 'underline' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/sessions/${session.id}`);
+              }}
+            >
               {convertedSession.title}
             </Heading>
 
@@ -694,7 +705,9 @@ const BaseSessionCard = ({
                           fontWeight="bold"
                           px={2.5}
                           py={0.5}
-                          borderRadius="md"
+                          borderRadius="full"
+                          borderWidth="1px"
+                          borderColor={levelColor.borderColor}
                         >
                           {getLevelShortLabel(level)}
                         </Badge>
@@ -709,7 +722,9 @@ const BaseSessionCard = ({
                     fontWeight="bold"
                     px={2.5}
                     py={0.5}
-                    borderRadius="md"
+                    borderRadius="full"
+                    borderWidth="1px"
+                    borderColor="gray.200"
                   >
                     {t('allLevels')}
                   </Badge>
