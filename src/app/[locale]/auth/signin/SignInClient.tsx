@@ -331,18 +331,6 @@ function SignInForm() {
                   {t('signUp')}
                 </Link>
               </Text>
-
-              <Text color="fg.subtle" fontSize="sm">
-                {t('or')}{' '}
-                <Link
-                  href={ROUTES.JOIN.BY_CODE}
-                  color="blue.600"
-                  _dark={{ color: 'blue.400' }}
-                  fontWeight="semibold"
-                >
-                  {t('joinAsGuest')}
-                </Link>
-              </Text>
             </VStack>
           </VStack>
         </Box>

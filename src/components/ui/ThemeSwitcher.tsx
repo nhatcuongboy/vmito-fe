@@ -45,12 +45,31 @@ export default function ThemeSwitcher({ isCollapsed }: ThemeSwitcherProps) {
     setIsOpen(false);
   };
 
+  const handleCycleTheme = () => {
+    const currentIndex = themes.findIndex((t) => t.id === theme);
+    // If current theme is not found (e.g. system default at start), default to first or next appropriately?
+    // Actually currentTheme handles fallback. But theme string might be 'system' which is in the list.
+    // If theme is undefined, it defaults to 'system' in useColorMode probably?
+    // Let's assume theme matches one of the ids.
+    const safeIndex = currentIndex === -1 ? 2 : currentIndex; // default to system if unknown
+    const nextIndex = (safeIndex + 1) % themes.length;
+    handleThemeChange(themes[nextIndex].id);
+  };
+
+  const handleClick = () => {
+    if (isCollapsed) {
+      handleCycleTheme();
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
   return (
     <Box position="relative" ref={menuRef} w="full">
       <Button
         variant="outline"
         size="sm"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
         display="flex"
         alignItems="center"
         justifyContent={isCollapsed ? 'center' : 'space-between'}
@@ -68,14 +87,13 @@ export default function ThemeSwitcher({ isCollapsed }: ThemeSwitcherProps) {
         {!isCollapsed && <ChevronDown size={16} />}
       </Button>
 
-      {isOpen && (
+      {isOpen && !isCollapsed && (
         <Box
           position="absolute"
-          bottom={isCollapsed ? 'auto' : '100%'}
-          top={isCollapsed ? 0 : 'auto'}
-          left={isCollapsed ? 'calc(100% + 12px)' : 0}
-          right={isCollapsed ? 'auto' : 0}
-          mb={isCollapsed ? 0 : 2}
+          bottom="100%"
+          left={0}
+          right={0}
+          mb={2}
           bg="bg"
           border="1px solid"
           borderColor="border"
@@ -83,7 +101,7 @@ export default function ThemeSwitcher({ isCollapsed }: ThemeSwitcherProps) {
           shadow="lg"
           zIndex={1000}
           overflow="hidden"
-          minW={isCollapsed ? '160px' : 'full'}
+          minW="full"
         >
           {themes.map((t) => (
             <Box

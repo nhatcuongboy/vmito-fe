@@ -55,6 +55,7 @@
     "navigation": "Navigation",
     "logout": "Logout",
     "login": "Login",
+    "register": "Register",
     "userInfo": "User Information",
     "profile": "Profile",
     "editProfile": "Edit Profile",

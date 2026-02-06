@@ -14,7 +14,7 @@ import {
   Users,
   Bell,
   MapPin,
-  Monitor,
+  UserPlus,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
@@ -27,7 +27,6 @@ import {
   SIDEBAR_WIDTH_EXPANDED,
   SIDEBAR_WIDTH_COLLAPSED,
 } from '@/constants';
-import { useColorMode } from './color-mode-provider';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { Tooltip } from './tooltip';
 import { ROUTES } from '@/constants';
@@ -693,9 +692,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
             <Box pt={4}>
               {/* Login Button - Only show when NOT logged in and finished loading */}
               {isHydrated && !isLoading && !isAuthenticated && (
-                <Box mb={4}>
+                <Stack gap={2} mb={4}>
                   <Tooltip
-                    content="Login"
+                    content={common('login')}
                     positioning={{
                       placement: 'right',
                       offset: { mainAxis: 12 },
@@ -706,34 +705,54 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   >
                     <NextLinkButton
                       href={ROUTES.AUTH.SIGNIN}
-                      variant="outline"
+                      // variant="outline"
                       colorPalette="blue"
-                      w="full"
+                      w={isCollapsed ? 'full' : '180px'}
                       onClick={onClose}
-                      justifyContent={{
-                        base: 'flex-start',
-                        md: isCollapsed ? 'center' : 'flex-start',
-                      }}
+                      justifyContent="center"
                       px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                     >
-                      <Flex
-                        align="center"
-                        gap={2}
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                      >
+                      <Flex align="center" gap={2} justifyContent="center">
                         <LogIn size={16} />
                         {!isCollapsed && (
                           <Text display={{ base: 'block', md: 'block' }}>
-                            Login
+                            {common('login')}
                           </Text>
                         )}
                       </Flex>
                     </NextLinkButton>
                   </Tooltip>
-                </Box>
+
+                  <Tooltip
+                    content={common('register')}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
+                    }}
+                    disabled={!isCollapsed}
+                    showArrow
+                    openDelay={200}
+                  >
+                    <NextLinkButton
+                      href={ROUTES.AUTH.SIGNUP}
+                      variant="outline"
+                      colorPalette="blue"
+                      w={isCollapsed ? 'full' : '180px'}
+                      onClick={onClose}
+                      justifyContent="center"
+                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    >
+                      <Flex align="center" gap={2} justifyContent="center">
+                        <UserPlus size={16} />
+                        {!isCollapsed && (
+                          <Text display={{ base: 'block', md: 'block' }}>
+                            {common('register')}
+                          </Text>
+                        )}
+                      </Flex>
+                    </NextLinkButton>
+                  </Tooltip>
+                </Stack>
               )}
 
               {!isCollapsed && (

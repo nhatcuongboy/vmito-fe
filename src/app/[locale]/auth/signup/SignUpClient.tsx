@@ -205,17 +205,6 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                     {t('signIn')}
                   </Link>
                 </Text>
-
-                <Text color="gray.500" fontSize="sm">
-                  {t('or')}{' '}
-                  <Link
-                    href={ROUTES.JOIN.BY_CODE}
-                    color="blue.600"
-                    fontWeight="semibold"
-                  >
-                    {t('joinAsGuest')}
-                  </Link>
-                </Text>
               </VStack>
             </VStack>
           </Box>

@@ -73,12 +73,26 @@ export default function LanguageSwitcher({
     }
   };
 
+  const handleCycleLocale = () => {
+    const currentIndex = locales.findIndex((l) => l.code === locale);
+    const nextIndex = (currentIndex + 1) % locales.length;
+    handleLocaleChange(locales[nextIndex].code);
+  };
+
+  const handleClick = () => {
+    if (isCollapsed) {
+      handleCycleLocale();
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
   return (
     <Box position="relative" w="full" ref={menuRef}>
       <Button
         variant="outline"
         size="sm"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
         disabled={isPending}
         display="flex"
         alignItems="center"
@@ -91,7 +105,13 @@ export default function LanguageSwitcher({
         _hover={{ bg: 'bg.muted' }}
       >
         <Flex align="center" gap={2}>
-          <Languages size={16} />
+          {isCollapsed ? (
+            <Text fontSize="lg" lineHeight="1">
+              {currentLocale.flag}
+            </Text>
+          ) : (
+            <Languages size={16} />
+          )}
           {!isCollapsed && (
             <Text fontSize="sm">
               {currentLocale.flag} {currentLocale.label}
@@ -101,14 +121,13 @@ export default function LanguageSwitcher({
         {!isCollapsed && <ChevronDown size={16} />}
       </Button>
 
-      {isOpen && (
+      {isOpen && !isCollapsed && (
         <Box
           position="absolute"
-          bottom={isCollapsed ? 'auto' : '100%'}
-          top={isCollapsed ? 0 : 'auto'}
-          left={isCollapsed ? 'calc(100% + 12px)' : 0}
-          right={isCollapsed ? 'auto' : 0}
-          mb={isCollapsed ? 0 : 2}
+          bottom="100%"
+          left={0}
+          right={0}
+          mb={2}
           bg="bg"
           border="1px solid"
           borderColor="border"
@@ -116,7 +135,7 @@ export default function LanguageSwitcher({
           shadow="lg"
           zIndex={1000}
           overflow="hidden"
-          minW={isCollapsed ? '160px' : 'full'}
+          minW="full"
         >
           {locales.map((loc) => (
             <Box
