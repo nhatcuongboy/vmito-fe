@@ -173,7 +173,13 @@ const SessionShareCard = ({
           <Box p={10}>
             <Stack gap={8}>
               <Box>
-                <Heading size="2xl" fontWeight="black" color="gray.800" mb={3}>
+                <Heading
+                  size="2xl"
+                  fontWeight="black"
+                  color="gray.800"
+                  mb={3}
+                  textTransform="uppercase"
+                >
                   {session.name}
                 </Heading>
                 <Text fontSize="2xl" fontWeight="bold" color="blue.600">
@@ -349,10 +355,11 @@ const SessionShareCard = ({
         <Stack gap={3}>
           {/* Title */}
           <Heading
-            size="lg"
+            size="md"
             fontWeight="bold"
             color="blue.600"
             textAlign="center"
+            textTransform="uppercase"
           >
             {session.name}
           </Heading>

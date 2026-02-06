@@ -247,18 +247,6 @@ const BaseSessionCard = ({
                 py={2}
               >
                 <MenuItem
-                  value="portrait"
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.100' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'portrait');
-                  }}
-                >
-                  <Icon as={Download} mr={2} />
-                  {t('downloadPortrait') || 'Ảnh dọc (2:3)'}
-                </MenuItem>
-                <MenuItem
                   value="social"
                   cursor="pointer"
                   _hover={{ bg: 'gray.100' }}
@@ -269,6 +257,18 @@ const BaseSessionCard = ({
                 >
                   <Icon as={Download} mr={2} />
                   {t('downloadSocial') || 'Ảnh mạng xã hội (4:5)'}
+                </MenuItem>
+                <MenuItem
+                  value="portrait"
+                  cursor="pointer"
+                  _hover={{ bg: 'gray.100' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(e, 'portrait');
+                  }}
+                >
+                  <Icon as={Download} mr={2} />
+                  {t('downloadPortrait') || 'Ảnh dọc (2:3)'}
                 </MenuItem>
               </MenuContent>
             </MenuPositioner>

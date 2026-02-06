@@ -130,6 +130,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
             fontWeight="bold"
             color="blue.600"
             textAlign="center"
+            textTransform="uppercase"
           >
             {session.name}
           </Heading>
@@ -230,109 +231,109 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
             )}
           </Stack>
 
-          {/* Skill Levels */}
-          <Flex align="center" gap={8}>
-            <Icon as={Shield} boxSize={14} color={skillLevelColor.color} />
-            <Wrap gap={4}>
-              {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels))
-                  .sort((a, b) =>
-                    typeof a === 'number' && typeof b === 'number' ? a - b : 0
-                  )
-                  .map((level) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        variant="solid"
-                        size="lg"
-                        fontSize="3xl"
-                        fontWeight="bold"
-                        px={8}
-                        py={3}
-                        borderRadius="full"
-                        borderWidth="2px"
-                        borderColor={levelColor.borderColor}
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })
-              ) : (
-                <Badge colorPalette="gray" variant="subtle" size="lg">
-                  {t('allLevels')}
-                </Badge>
-              )}
-            </Wrap>
-          </Flex>
-
-          {/* Price */}
-          {session.feeConfig && (
-            <Box pt={1}>
-              <Flex align="center" gap={6}>
-                <Icon as={Banknote} boxSize={14} color="red.600" />
-                <Text fontSize="4xl" fontWeight="bold" color="red.600">
-                  {session.feeConfig.feeType === 'SPLIT_EVENLY'
-                    ? session.feeConfig.splitPerPlayer
-                      ? FeeService.formatFee(session.feeConfig.splitPerPlayer)
-                      : 'Chia đều'
-                    : session.feeConfig.maleFee === session.feeConfig.femaleFee
-                      ? FeeService.formatFee(session.feeConfig.maleFee || 0)
-                      : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig.maleFee || 0)} - ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig.femaleFee || 0)}`}
-                </Text>
-              </Flex>
-            </Box>
-          )}
-
-          {/* Description */}
-          {session.description && (
-            <Text fontSize="4xl" color="gray.600" lineClamp={3}>
-              {session.description}
-            </Text>
-          )}
-
-          {/* Footer with QR and Branding */}
-          <Flex
-            mt={0}
-            pt={6}
-            pb={2}
-            // borderTopWidth="3px"
-            // borderColor="gray.200"
-            align="flex-end"
-            justify="space-between"
-            gap={6}
-          >
+          {/* Skill Levels, Price, Description & QR Code */}
+          <Flex gap={8} align="flex-start">
             <Box flex="1">
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                color="blue.700"
-                lineHeight="1.5"
-              >
-                Truy cập{' '}
-                <Text as="span" color="lime.500">
-                  VMITO.COM
-                </Text>
-                <br />
-                để tìm kiếm nhiều kèo hot hơn
-              </Text>
-            </Box>
-            {qrDataUrl && (
-              <Box textAlign="center">
-                <Box
-                  p={2}
-                  border="3px solid"
-                  borderColor="gray.200"
-                  borderRadius="2xl"
-                  bg="white"
-                  mb={2}
-                >
-                  <Image src={qrDataUrl} alt="QR" boxSize="150px" />
+              {/* Skill Levels */}
+              <Flex align="center" gap={8}>
+                <Icon as={Shield} boxSize={14} color={skillLevelColor.color} />
+                <Wrap gap={4}>
+                  {session.requiredLevels &&
+                  session.requiredLevels.length > 0 ? (
+                    Array.from(new Set(session.requiredLevels))
+                      .sort((a, b) =>
+                        typeof a === 'number' && typeof b === 'number'
+                          ? a - b
+                          : 0
+                      )
+                      .map((level) => {
+                        const levelColor = getSkillLevelColor([level]);
+                        return (
+                          <Badge
+                            key={level}
+                            colorPalette={levelColor.colorPalette}
+                            variant="solid"
+                            size="lg"
+                            fontSize="3xl"
+                            fontWeight="bold"
+                            px={8}
+                            py={3}
+                            borderRadius="full"
+                            borderWidth="2px"
+                            borderColor={levelColor.borderColor}
+                          >
+                            {getLevelShortLabel(level)}
+                          </Badge>
+                        );
+                      })
+                  ) : (
+                    <Badge colorPalette="gray" variant="subtle" size="lg">
+                      {t('allLevels')}
+                    </Badge>
+                  )}
+                </Wrap>
+              </Flex>
+
+              {/* Price */}
+              {session.feeConfig && (
+                <Box pt={5}>
+                  <Flex align="center" gap={6}>
+                    <Icon as={Banknote} boxSize={14} color="red.600" />
+                    <Text fontSize="4xl" fontWeight="bold" color="red.600">
+                      {session.feeConfig.feeType === 'SPLIT_EVENLY'
+                        ? session.feeConfig.splitPerPlayer
+                          ? FeeService.formatFee(
+                              session.feeConfig.splitPerPlayer
+                            )
+                          : 'Chia đều'
+                        : session.feeConfig.maleFee ===
+                            session.feeConfig.femaleFee
+                          ? FeeService.formatFee(session.feeConfig.maleFee || 0)
+                          : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig.maleFee || 0)} - ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig.femaleFee || 0)}`}
+                    </Text>
+                  </Flex>
                 </Box>
-                <Text fontSize="xl" fontWeight="bold" color="blue.600">
-                  vmito.com
+              )}
+
+              {/* Description */}
+              {session.description && (
+                <Text fontSize="4xl" color="gray.600" lineClamp={3} mt={5}>
+                  {session.description}
                 </Text>
+              )}
+            </Box>
+
+            {/* QR Code */}
+            {qrDataUrl && (
+              <Box textAlign="center" flexShrink={0} mt={12}>
+                <Box
+                  p={1.5}
+                  border="2px solid"
+                  borderColor="gray.200"
+                  borderRadius="lg"
+                  bg="white"
+                  display="inline-block"
+                >
+                  <Image src={qrDataUrl} alt="QR" boxSize="120px" />
+                </Box>
+                <Box mt={2}>
+                  <Text
+                    fontSize="xl"
+                    fontWeight="bold"
+                    color="blue.600"
+                    lineHeight="1.3"
+                  >
+                    Truy cập VMITO.com
+                  </Text>
+                  <Text
+                    fontSize="xl"
+                    fontWeight="bold"
+                    color="blue.600"
+                    lineHeight="1.3"
+                  >
+                    để tìm thêm nhiều kèo
+                  </Text>
+                </Box>
               </Box>
             )}
           </Flex>
