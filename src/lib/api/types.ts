@@ -209,6 +209,11 @@ export interface RejectPaymentRequest {
   hostNotes: string; // Required - reason for rejection
 }
 
+export enum VenueStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
 export interface Venue {
   id: string;
   placeId: string;
@@ -219,6 +224,26 @@ export interface Venue {
   district?: string;
   city?: string;
   isVerified?: boolean;
+  openingHours?: string;
+  numberOfCourts?: number;
+  status?: VenueStatus;
+  phone?: string;
+  website?: string;
+  hourlyRateFixed?: number;
+  hourlyRateWalkIn?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  distance?: number;
+}
+
+export interface SearchVenueResponse {
+  data: Venue[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 // Session types

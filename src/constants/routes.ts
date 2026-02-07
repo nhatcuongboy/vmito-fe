@@ -66,6 +66,9 @@ export const ROUTES = {
 
   // Browse/Public Routes
   BROWSE: {
+    VENUES: {
+      LIST: '/browse/venues',
+    },
     SESSIONS: {
       DETAIL: (id: string) => `/browse/sessions/${id}`,
       JOIN: (id: string) => `/browse/sessions/${id}/join`,
@@ -153,6 +156,7 @@ export const ROUTE_GROUPS = {
     ROUTES.JOIN.REGISTER,
     ROUTES.JOIN.BY_CODE,
     ROUTES.BROWSE.TOURNAMENTS.LIST,
+    ROUTES.BROWSE.VENUES.LIST,
     ROUTES.ABOUT,
   ],
 

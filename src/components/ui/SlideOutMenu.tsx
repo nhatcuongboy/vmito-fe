@@ -135,6 +135,45 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Flex>
                   </NextLinkButton>
                 </Tooltip>
+                <Tooltip
+                  content={nav('venues') || 'Tìm sân'}
+                  positioning={{
+                    placement: 'right',
+                    offset: { mainAxis: 12 },
+                  }}
+                  disabled={!isCollapsed}
+                  showArrow
+                  openDelay={200}
+                >
+                  <NextLinkButton
+                    href={ROUTES.BROWSE.VENUES.LIST}
+                    variant="ghost"
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
+                    onClick={onClose}
+                    w="full"
+                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                  >
+                    <Flex
+                      align="center"
+                      gap={3}
+                      w="full"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                    >
+                      <MapPin size={18} />
+                      {!isCollapsed && (
+                        <Text display={{ base: 'block', md: 'block' }}>
+                          {nav('venues') || 'Tìm sân'}
+                        </Text>
+                      )}
+                    </Flex>
+                  </NextLinkButton>
+                </Tooltip>
               </Stack>
             </Box>
 

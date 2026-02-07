@@ -1,7 +1,36 @@
 import { api, ApiResponse } from './base';
-import { Venue } from './types';
+import { SearchVenueResponse, Venue } from './types';
 
 export const VenueService = {
+  // Search venues (public - no auth required)
+  searchVenues: async (filters?: {
+    keyword?: string;
+    city?: string;
+    district?: string;
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    status?: string;
+    isVerified?: boolean;
+    sortBy?: string;
+    sortOrder?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<SearchVenueResponse> => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+    }
+    const response = await api.get<ApiResponse<SearchVenueResponse>>(
+      `/venues/search?${params.toString()}`
+    );
+    return response.data.data!;
+  },
+
   // Get all venues
   getAllVenues: async (): Promise<Venue[]> => {
     const response = await api.get<ApiResponse<Venue[]>>('/venues');
