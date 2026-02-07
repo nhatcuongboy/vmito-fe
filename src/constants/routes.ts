@@ -31,6 +31,14 @@ export const ROUTES = {
     },
     TRANSACTIONS: '/host/transactions',
     PAYMENT_SETTINGS: '/host/payment-settings',
+    FIXED_MEMBERS: {
+      LIST: '/host/fixed-members',
+      CREATE: '/host/fixed-members/create',
+      DETAIL: (id: string) => `/host/fixed-members/${id}`,
+      EDIT: (id: string) => `/host/fixed-members/${id}/edit`,
+      MEMBERS: (id: string) => `/host/fixed-members/${id}/members`,
+      FEES: (id: string) => `/host/fixed-members/${id}/fees`,
+    },
     TOURNAMENTS: {
       NEW: '/host/tournaments/new',
       DETAIL: (id: string) => `/host/tournaments/${id}`,

@@ -103,7 +103,7 @@ const EnhancedAvatar = ({
   };
 
   const colors =
-    gradientColors[gender as keyof typeof gradientColors] ||
+    gradientColors[gender as Gender] ||
     gradientColors[Gender.PREFER_NOT_TO_SAY];
 
   return (
@@ -321,6 +321,39 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   <Box as={User} boxSize="12px" />
                   {getGenderLabel(player.gender)}
                 </Badge>
+
+                {/* Fixed Member Badge */}
+                {player.isFixedMember && player.fixedMemberGroup && (
+                  <Badge
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    bg={
+                      player.fixedMemberGroup.color
+                        ? `${player.fixedMemberGroup.color}.50`
+                        : 'teal.50'
+                    }
+                    color={
+                      player.fixedMemberGroup.color
+                        ? `${player.fixedMemberGroup.color}.700`
+                        : 'teal.700'
+                    }
+                    borderRadius="lg"
+                    px={2.5}
+                    py={1}
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    border="1px solid"
+                    borderColor={
+                      player.fixedMemberGroup.color
+                        ? `${player.fixedMemberGroup.color}.100`
+                        : 'teal.100'
+                    }
+                  >
+                    <Box as={UserCheck} boxSize="12px" />
+                    {player.fixedMemberGroup.name}
+                  </Badge>
+                )}
 
                 {/* Status Badge - More prominent */}
                 {/* <Badge

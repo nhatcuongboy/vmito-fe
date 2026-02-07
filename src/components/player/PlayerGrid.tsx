@@ -5,7 +5,7 @@ import { SessionService } from '@/lib/api/session.service';
 import { Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
-import { Mars, User, Users, Venus } from 'lucide-react';
+import { Mars, User, Users, Venus, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { PlayerDetailModal } from './PlayerDetailModal';
 import { CommonModal } from '@/components/ui/CommonModal';
@@ -274,6 +274,18 @@ export const PlayerGrid = ({
                         <User size={12} />
                       )}
                     </Badge>
+                    {player.isFixedMember && (
+                      <Badge
+                        variant="solid"
+                        colorPalette="teal"
+                        fontSize="xs"
+                        borderRadius="sm"
+                        px={1}
+                        title={player.fixedMemberGroup?.name}
+                      >
+                        <UserCheck size={12} />
+                      </Badge>
+                    )}
                   </Flex>
 
                   <Text fontSize="xs" color="fg.muted" fontWeight="medium">

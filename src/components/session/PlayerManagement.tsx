@@ -68,6 +68,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     isUserAlreadyUsed,
     setPlayerToDelete,
     togglePlayerStatus,
+    fixedMemberGroups,
   } = usePlayerManagement(session, onDataRefresh);
 
   // Detail Modal State (UI specific)
@@ -159,9 +160,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onSaveAll={handleSaveAndClose}
         onCancelAll={clearAllNewPlayers}
         isUserAlreadyUsed={isUserAlreadyUsed}
+        fixedMemberGroups={fixedMemberGroups}
       />
 
-      {/* Player List - apply filter */}
       {/* Player List - apply filter */}
       {(() => {
         const allPlayers = session.players || [];
@@ -215,6 +216,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         isSaving={isSaving}
         onUpdateEditing={updateEditingPlayer}
         onSave={handleSaveEditAndClose}
+        fixedMemberGroups={fixedMemberGroups}
       />
 
       {/* Warning popup for exceeding recommended player limit */}

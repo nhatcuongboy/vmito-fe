@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import { NewPlayer, Player } from './types';
 import { ISession, Gender, PlayerStatus } from '@/lib/api/types';
+import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
+import { IFixedMemberGroup } from '@/types/fixed-member';
 
 export const usePlayerManagement = (
   session: ISession,
@@ -27,6 +29,9 @@ export const usePlayerManagement = (
   const [newPlayerErrors, setNewPlayerErrors] = useState<{
     [index: number]: string;
   }>({});
+  const [fixedMemberGroups, setFixedMemberGroups] = useState<
+    IFixedMemberGroup[]
+  >([]);
 
   // Load available users on mount
   useEffect(() => {
@@ -47,6 +52,16 @@ export const usePlayerManagement = (
       }
     };
     loadUsers();
+
+    const loadFixedMemberGroups = async () => {
+      try {
+        const groups = await FixedMemberGroupsService.getGroups();
+        setFixedMemberGroups(groups);
+      } catch (error) {
+        console.error('Error loading fixed member groups:', error);
+      }
+    };
+    loadFixedMemberGroups();
   }, [t]);
 
   /**
@@ -95,6 +110,8 @@ export const usePlayerManagement = (
         level: getDefaultLevel(),
         levelDescription: '',
         requireConfirmInfo: false,
+        isFixedMember: false,
+        fixedMemberGroupId: undefined,
       },
     ]);
   };
@@ -115,7 +132,7 @@ export const usePlayerManagement = (
   const updateNewPlayer = (
     index: number,
     field: string,
-    value: string | boolean | number | null
+    value: string | boolean | number | null | undefined
   ) => {
     setNewPlayers((prev) =>
       prev.map((player, i) =>
@@ -204,6 +221,8 @@ export const usePlayerManagement = (
         ...player,
         levelDescription: player.levelDescription || '',
         requireConfirmInfo: !!player.requireConfirmInfo,
+        isFixedMember: !!player.isFixedMember,
+        fixedMemberGroupId: player.fixedMemberGroupId || undefined,
       },
     }));
   };
@@ -219,7 +238,7 @@ export const usePlayerManagement = (
   const updateEditingPlayer = (
     playerId: string,
     field: string,
-    value: string | boolean | number | null
+    value: string | boolean | number | null | undefined
   ) => {
     setEditingPlayers((prev) => ({
       ...prev,
@@ -441,6 +460,7 @@ export const usePlayerManagement = (
     maxPlayers,
     currentPlayerCount,
     isMaxPlayersReached,
+    fixedMemberGroups,
 
     // Actions
     addNewPlayerRow,

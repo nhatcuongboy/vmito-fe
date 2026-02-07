@@ -312,45 +312,87 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
                     {(user?.role === UserRole.HOST ||
                       user?.role === UserRole.ADMIN) && (
-                      <Tooltip
-                        content={nav('paymentSettings')}
-                        positioning={{
-                          placement: 'right',
-                          offset: { mainAxis: 12 },
-                        }}
-                        disabled={!isCollapsed}
-                        showArrow
-                        openDelay={200}
-                      >
-                        <NextLinkButton
-                          href={ROUTES.HOST.PAYMENT_SETTINGS}
-                          variant="ghost"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
+                      <>
+                        <Tooltip
+                          content={nav('paymentSettings')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
                           }}
-                          onClick={onClose}
-                          w="full"
-                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
                         >
-                          <Flex
-                            align="center"
-                            gap={3}
-                            w="full"
+                          <NextLinkButton
+                            href={ROUTES.HOST.PAYMENT_SETTINGS}
+                            variant="ghost"
                             justifyContent={{
                               base: 'flex-start',
                               md: isCollapsed ? 'center' : 'flex-start',
                             }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                           >
-                            <CreditCard size={18} />
-                            {!isCollapsed && (
-                              <Text display={{ base: 'block', md: 'block' }}>
-                                {nav('paymentSettings')}
-                              </Text>
-                            )}
-                          </Flex>
-                        </NextLinkButton>
-                      </Tooltip>
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <CreditCard size={18} />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('paymentSettings')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </Tooltip>
+
+                        <Tooltip
+                          content={nav('fixedMembers')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.HOST.FIXED_MEMBERS.LIST}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <UserPlus size={18} />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('fixedMembers')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </Tooltip>
+                      </>
                     )}
                   </Stack>
                 </Box>

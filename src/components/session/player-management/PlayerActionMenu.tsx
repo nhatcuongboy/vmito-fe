@@ -18,8 +18,8 @@ interface PlayerActionMenuProps {
   onDelete: (id: string) => void;
   onToggleStatus: (id: string) => void;
   t: (key: string) => string;
-  buttonVariant?: any;
-  buttonSize?: any;
+  buttonVariant?: 'ghost' | 'solid' | 'outline' | 'subtle' | 'plain';
+  buttonSize?: 'xs' | 'sm' | 'md' | 'lg';
   onOpenChange?: (isOpen: boolean) => void;
 }
 

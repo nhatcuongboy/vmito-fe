@@ -76,21 +76,31 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fuzzy search function with scoring
+  // Normalize Vietnamese characters for fuzzy search
+  const normalizeVietnamese = (text: string): string => {
+    // Remove diacritics using NFD (Canonical Decomposition)
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  };
+
+  // Fuzzy search function with scoring (supports Vietnamese)
   const fuzzyMatch = (
     text: string,
     query: string
   ): { matches: boolean; score: number } => {
+    const textNormalized = normalizeVietnamese(text).toLowerCase();
+    const queryNormalized = normalizeVietnamese(query).toLowerCase();
     const textLower = text.toLowerCase();
-    const queryLower = query.toLowerCase();
 
     let textIndex = 0;
     let queryIndex = 0;
     let score = 0;
     let consecutiveMatches = 0;
 
-    while (textIndex < textLower.length && queryIndex < queryLower.length) {
-      if (textLower[textIndex] === queryLower[queryIndex]) {
+    while (
+      textIndex < textNormalized.length &&
+      queryIndex < queryNormalized.length
+    ) {
+      if (textNormalized[textIndex] === queryNormalized[queryIndex]) {
         // Award points for matches
         score += 1;
 
@@ -106,7 +116,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         }
 
         // Bonus points for matching after a space (word boundary)
-        if (textIndex > 0 && textLower[textIndex - 1] === ' ') {
+        if (textIndex > 0 && textNormalized[textIndex - 1] === ' ') {
           score += 5;
         }
 
@@ -118,11 +128,11 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
 
     // All query characters must be found in order
-    const matches = queryIndex === queryLower.length;
+    const matches = queryIndex === queryNormalized.length;
 
     // Penalize based on length difference
     if (matches) {
-      const lengthDiff = text.length - query.length;
+      const lengthDiff = textNormalized.length - queryNormalized.length;
       score -= lengthDiff * 0.5;
     }
 

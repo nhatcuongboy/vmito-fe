@@ -22,6 +22,7 @@ import { Plus, Save, Trash2, UserCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { NewPlayer } from './types';
+import { IFixedMemberGroup } from '@/types/fixed-member';
 
 interface NewPlayerListProps {
   newPlayers: NewPlayer[];
@@ -29,6 +30,7 @@ interface NewPlayerListProps {
   isLoadingUsers: boolean;
   errors: { [index: number]: string };
   availableLevels: number[];
+  fixedMemberGroups?: IFixedMemberGroup[];
   isSaving: boolean;
   onUpdatePlayer: (
     index: number,
@@ -49,6 +51,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
   isLoadingUsers,
   errors,
   availableLevels,
+  fixedMemberGroups = [],
   isSaving,
   onUpdatePlayer,
   onRemovePlayer,
@@ -313,37 +316,114 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                       />
                     </Box>
 
-                    {/* Confirmation checkbox */}
+                    {/* Confirmation checkboxes */}
                     <Box>
-                      <Flex align="center" gap={3}>
-                        <input
-                          type="checkbox"
-                          id={`requireConfirm-${index}`}
-                          checked={player.requireConfirmInfo || false}
-                          onChange={(e) =>
-                            onUpdatePlayer(
-                              index,
-                              'requireConfirmInfo',
-                              e.target.checked
-                            )
-                          }
-                          style={{
-                            width: '16px',
-                            height: '16px',
-                            accentColor: '#3182ce',
-                          }}
-                        />
-                        <label
-                          htmlFor={`requireConfirm-${index}`}
-                          style={{
-                            fontSize: '14px',
-                            color: '#4A5568',
-                            lineHeight: '1.4',
-                          }}
-                        >
-                          {t('requirePlayerConfirmInfo')}
-                        </label>
-                      </Flex>
+                      <VStack align="stretch" spacing={2}>
+                        <Flex align="center" gap={3}>
+                          <input
+                            type="checkbox"
+                            id={`requireConfirm-${index}`}
+                            checked={player.requireConfirmInfo || false}
+                            onChange={(e) =>
+                              onUpdatePlayer(
+                                index,
+                                'requireConfirmInfo',
+                                e.target.checked
+                              )
+                            }
+                            style={{
+                              width: '16px',
+                              height: '16px',
+                              accentColor: '#3182ce',
+                            }}
+                          />
+                          <label
+                            htmlFor={`requireConfirm-${index}`}
+                            style={{
+                              fontSize: '14px',
+                              color: '#4A5568',
+                              lineHeight: '1.4',
+                            }}
+                          >
+                            {t('requirePlayerConfirmInfo')}
+                          </label>
+                        </Flex>
+
+                        {/* Fixed Member Checkbox */}
+                        <Flex align="center" gap={3}>
+                          <input
+                            type="checkbox"
+                            id={`isFixedMember-${index}`}
+                            checked={player.isFixedMember || false}
+                            onChange={(e) => {
+                              onUpdatePlayer(
+                                index,
+                                'isFixedMember',
+                                e.target.checked
+                              );
+                              if (!e.target.checked) {
+                                onUpdatePlayer(index, 'fixedMemberGroupId', '');
+                              }
+                            }}
+                            style={{
+                              width: '16px',
+                              height: '16px',
+                              accentColor: '#3182ce',
+                            }}
+                          />
+                          <label
+                            htmlFor={`isFixedMember-${index}`}
+                            style={{
+                              fontSize: '14px',
+                              color: '#4A5568',
+                              lineHeight: '1.4',
+                            }}
+                          >
+                            {t('isFixedMember')}
+                          </label>
+                        </Flex>
+
+                        {/* Fixed Member Group Select */}
+                        {player.isFixedMember && (
+                          <Box ml={7}>
+                            <Text
+                              fontSize="sm"
+                              mb={1}
+                              color="gray.600"
+                              fontWeight="medium"
+                            >
+                              {t('selectGroup')}
+                            </Text>
+                            <select
+                              value={player.fixedMemberGroupId || ''}
+                              onChange={(e) =>
+                                onUpdatePlayer(
+                                  index,
+                                  'fixedMemberGroupId',
+                                  e.target.value
+                                )
+                              }
+                              style={{
+                                width: '100%',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                border: '1px solid #E2E8F0',
+                                backgroundColor: 'white',
+                                fontSize: '14px',
+                              }}
+                            >
+                              <option value="">
+                                {t('selectGroupPlaceholder')}
+                              </option>
+                              {fixedMemberGroups.map((group) => (
+                                <option key={group.id} value={group.id}>
+                                  {group.name}
+                                </option>
+                              ))}
+                            </select>
+                          </Box>
+                        )}
+                      </VStack>
                     </Box>
                   </VStack>
                 </CardBody>

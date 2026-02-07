@@ -91,6 +91,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
     setPlayerToDelete,
     togglePlayerStatus,
     editingPlayers,
+    fixedMemberGroups,
   } = usePlayerManagement(safeSession, onPlayerUpdate);
 
   const openAddPlayerModal = () => {
@@ -304,6 +305,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         onClose={closeAddPlayerModal}
         newPlayers={newPlayers}
         availableUsers={availableUsers}
+        fixedMemberGroups={fixedMemberGroups}
         isLoadingUsers={isLoadingUsers}
         errors={newPlayerErrors}
         availableLevels={availableLevels}
@@ -384,6 +386,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         isSaving={isSaving}
         onUpdateEditing={updateEditingPlayer}
         onSave={handleSaveEditAndClose}
+        fixedMemberGroups={fixedMemberGroups}
       />
 
       {/* Player Detail Modal (Grid View) */}

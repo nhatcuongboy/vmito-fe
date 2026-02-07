@@ -16,18 +16,20 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Edit } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Player } from './types';
+import { IFixedMemberGroup } from '@/types/fixed-member';
 
 interface EditPlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
   player: Player | null;
   editingData: Player | null;
+  fixedMemberGroups?: IFixedMemberGroup[];
   availableLevels: number[];
   isSaving: boolean;
   onUpdateEditing: (
     playerId: string,
     field: string,
-    value: string | boolean | number | null
+    value: string | boolean | number | null | undefined
   ) => void;
   onSave: (playerId: string) => void;
 }
@@ -38,6 +40,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   player,
   editingData,
   availableLevels,
+  fixedMemberGroups = [],
   isSaving,
   onUpdateEditing,
   onSave,
@@ -175,64 +178,131 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
 
         {/* Confirmation checkboxes */}
         <Box>
-          <Flex align="center" gap={3} mb={2}>
-            <input
-              type="checkbox"
-              id={`requireConfirm-edit-${player.id}`}
-              checked={editingData.requireConfirmInfo || false}
-              onChange={(e) =>
-                onUpdateEditing(
-                  player.id,
-                  'requireConfirmInfo',
-                  e.target.checked
-                )
-              }
-              style={{
-                width: '16px',
-                height: '16px',
-                accentColor: '#3182ce',
-              }}
-            />
-            <label
-              htmlFor={`requireConfirm-edit-${player.id}`}
-              style={{
-                fontSize: '14px',
-                color: '#4A5568',
-                lineHeight: '1.4',
-              }}
-            >
-              {t('requirePlayerConfirmInfo')}
-            </label>
-          </Flex>
-          <Flex align="center" gap={3}>
-            <input
-              type="checkbox"
-              id={`confirmedByPlayer-edit-${player.id}`}
-              checked={editingData.confirmedByPlayer || false}
-              onChange={(e) =>
-                onUpdateEditing(
-                  player.id,
-                  'confirmedByPlayer',
-                  e.target.checked
-                )
-              }
-              style={{
-                width: '16px',
-                height: '16px',
-                accentColor: '#38a169',
-              }}
-            />
-            <label
-              htmlFor={`confirmedByPlayer-edit-${player.id}`}
-              style={{
-                fontSize: '14px',
-                color: '#22543d',
-                lineHeight: '1.4',
-              }}
-            >
-              {t('confirmedByPlayer')}
-            </label>
-          </Flex>
+          <VStack align="stretch" spacing={2}>
+            <Flex align="center" gap={3}>
+              <input
+                type="checkbox"
+                id={`requireConfirm-edit-${player.id}`}
+                checked={editingData.requireConfirmInfo || false}
+                onChange={(e) =>
+                  onUpdateEditing(
+                    player.id,
+                    'requireConfirmInfo',
+                    e.target.checked
+                  )
+                }
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#3182ce',
+                }}
+              />
+              <label
+                htmlFor={`requireConfirm-edit-${player.id}`}
+                style={{
+                  fontSize: '14px',
+                  color: '#4A5568',
+                  lineHeight: '1.4',
+                }}
+              >
+                {t('requirePlayerConfirmInfo')}
+              </label>
+            </Flex>
+            <Flex align="center" gap={3}>
+              <input
+                type="checkbox"
+                id={`confirmedByPlayer-edit-${player.id}`}
+                checked={editingData.confirmedByPlayer || false}
+                onChange={(e) =>
+                  onUpdateEditing(
+                    player.id,
+                    'confirmedByPlayer',
+                    e.target.checked
+                  )
+                }
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#38a169',
+                }}
+              />
+              <label
+                htmlFor={`confirmedByPlayer-edit-${player.id}`}
+                style={{
+                  fontSize: '14px',
+                  color: '#22543d',
+                  lineHeight: '1.4',
+                }}
+              >
+                {t('confirmedByPlayer')}
+              </label>
+            </Flex>
+
+            {/* Fixed Member Checkbox */}
+            <Flex align="center" gap={3}>
+              <input
+                type="checkbox"
+                id={`isFixedMember-edit-${player.id}`}
+                checked={editingData.isFixedMember || false}
+                onChange={(e) => {
+                  onUpdateEditing(player.id, 'isFixedMember', e.target.checked);
+                  if (!e.target.checked) {
+                    onUpdateEditing(player.id, 'fixedMemberGroupId', undefined);
+                  }
+                }}
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#3182ce',
+                }}
+              />
+              <label
+                htmlFor={`isFixedMember-edit-${player.id}`}
+                style={{
+                  fontSize: '14px',
+                  color: '#4A5568',
+                  lineHeight: '1.4',
+                }}
+              >
+                {t('isFixedMember')}
+              </label>
+            </Flex>
+
+            {/* Fixed Member Group Select */}
+            {editingData.isFixedMember && (
+              <Box ml={7}>
+                <Text fontSize="sm" mb={1} color="gray.600" fontWeight="medium">
+                  {t('selectGroup')}
+                </Text>
+                <select
+                  value={editingData.fixedMemberGroupId || ''}
+                  onChange={(e) =>
+                    onUpdateEditing(
+                      player.id,
+                      'fixedMemberGroupId',
+                      e.target.value
+                    )
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #E2E8F0',
+                    backgroundColor: 'white',
+                    color: 'inherit',
+                    fontSize: '14px',
+                  }}
+                >
+                  <option value="">{t('selectGroupPlaceholder')}</option>
+                  {fixedMemberGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+            )}
+          </VStack>
         </Box>
       </VStack>
     </CommonModal>

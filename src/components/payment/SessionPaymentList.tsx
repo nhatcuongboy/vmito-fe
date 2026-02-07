@@ -10,8 +10,9 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
+import { NativeSelectRoot, NativeSelectField } from '@chakra-ui/react';
 import {
   PaymentRecord,
   PaymentStatus,
@@ -19,9 +20,10 @@ import {
   FeeType,
 } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { User, CheckCheck, Filter } from 'lucide-react';
+import { User, CheckCheck, Filter, UserCheck } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import PaymentApprovalModal from './PaymentApprovalModal';
+import { Tooltip } from '@/components/ui/tooltip';
 
 interface SessionPaymentListProps {
   session: ISession;
@@ -33,6 +35,7 @@ interface SessionPaymentListProps {
 }
 
 type FilterType = 'all' | PaymentStatus;
+type MemberFilterType = 'all' | 'fixed' | 'regular' | string;
 
 export default function SessionPaymentList({
   session,
@@ -43,18 +46,61 @@ export default function SessionPaymentList({
   isLoading = false,
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
+  const tFixed = useTranslations('fixedMembers');
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
     null
   );
   const [filter, setFilter] = useState<FilterType>('all');
+  const [memberFilter, setMemberFilter] = useState<MemberFilterType>('all');
   const [isBulkApproving, setIsBulkApproving] = useState(false);
 
   const paymentsArray = Array.isArray(payments) ? payments : [];
-  const filteredPayments =
-    filter === 'all'
-      ? paymentsArray
-      : paymentsArray.filter((p) => p.status === filter);
+
+  // Extract unique fixed member groups from payments
+  const fixedMemberGroups = useMemo(() => {
+    const groupsMap = new Map<
+      string,
+      { id: string; name: string; color?: string }
+    >();
+    paymentsArray.forEach((p) => {
+      if (p.player?.isFixedMember && p.player?.fixedMemberGroup) {
+        const group = p.player.fixedMemberGroup;
+        if (!groupsMap.has(group.id)) {
+          groupsMap.set(group.id, {
+            id: group.id,
+            name: group.name,
+            color: group.color,
+          });
+        }
+      }
+    });
+    return Array.from(groupsMap.values());
+  }, [paymentsArray]);
+
+  // Apply filters
+  const filteredPayments = useMemo(() => {
+    let filtered = paymentsArray;
+
+    // Status filter
+    if (filter !== 'all') {
+      filtered = filtered.filter((p) => p.status === filter);
+    }
+
+    // Member type filter
+    if (memberFilter === 'fixed') {
+      filtered = filtered.filter((p) => p.player?.isFixedMember);
+    } else if (memberFilter === 'regular') {
+      filtered = filtered.filter((p) => !p.player?.isFixedMember);
+    } else if (memberFilter !== 'all') {
+      // Filter by specific group ID
+      filtered = filtered.filter(
+        (p) => p.player?.fixedMemberGroup?.id === memberFilter
+      );
+    }
+
+    return filtered;
+  }, [paymentsArray, filter, memberFilter]);
 
   const pendingCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.PENDING
@@ -62,8 +108,8 @@ export default function SessionPaymentList({
   const submittedCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.SUBMITTED
   ).length;
-  const approvedCount = paymentsArray.filter(
-    (p) => p.status === PaymentStatus.APPROVED
+  const fixedMemberCount = paymentsArray.filter(
+    (p) => p.player?.isFixedMember
   ).length;
 
   const submittedPaymentIds = paymentsArray
@@ -99,6 +145,46 @@ export default function SessionPaymentList({
     .filter((p) => p.status === PaymentStatus.APPROVED)
     .reduce((sum, p) => sum + p.amount, 0);
 
+  // Helper to render fixed member info with tooltip
+  const renderFixedMemberAmount = (payment: PaymentRecord) => {
+    const player = payment.player;
+    const isFixed = player?.isFixedMember && player?.fixedMemberGroup;
+
+    if (!isFixed) {
+      return (
+        <Text fontWeight="semibold" color="blue.600">
+          {FeeService.formatFee(payment.amount)}
+        </Text>
+      );
+    }
+
+    const groupName = player.fixedMemberGroup?.name || '';
+
+    return (
+      <Tooltip
+        content={
+          <Box>
+            <Text fontWeight="bold" mb={1}>
+              {tFixed('fixedMember')}: {groupName}
+            </Text>
+            <Text fontSize="sm">
+              {tFixed('perSessionFee')}: {FeeService.formatFee(payment.amount)}
+            </Text>
+          </Box>
+        }
+      >
+        <HStack gap={1} cursor="help">
+          <Text fontWeight="semibold" color="teal.600">
+            {FeeService.formatFee(payment.amount)}
+          </Text>
+          <Badge colorPalette="teal" variant="subtle" fontSize="2xs" px={1}>
+            {groupName}
+          </Badge>
+        </HStack>
+      </Tooltip>
+    );
+  };
+
   return (
     <VStack gap={4} align="stretch">
       {/* Summary */}
@@ -111,9 +197,19 @@ export default function SessionPaymentList({
       >
         <HStack justify="space-between" mb={3}>
           <Text fontWeight="semibold">{t('paymentSummary')}</Text>
-          {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
-            <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
-          )}
+          <HStack gap={2}>
+            {fixedMemberCount > 0 && (
+              <Badge colorPalette="teal">
+                <UserCheck size={12} />
+                <Text ml={1}>
+                  {fixedMemberCount} {tFixed('fixedMember')}
+                </Text>
+              </Badge>
+            )}
+            {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
+              <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
+            )}
+          </HStack>
         </HStack>
 
         <Flex gap={4} wrap="wrap">
@@ -146,38 +242,59 @@ export default function SessionPaymentList({
 
       {/* Filters & Actions */}
       <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
-        <HStack gap={1}>
-          <Filter size={16} />
+        <HStack gap={2} wrap="wrap">
           <HStack gap={1}>
-            {(
-              [
-                'all',
-                PaymentStatus.PENDING,
-                PaymentStatus.SUBMITTED,
-                PaymentStatus.APPROVED,
-              ] as FilterType[]
-            ).map((f) => (
-              <Button
-                key={f}
-                size="sm"
-                variant={filter === f ? 'solid' : 'outline'}
-                colorPalette={filter === f ? 'blue' : 'gray'}
-                onClick={() => setFilter(f)}
-              >
-                {f === 'all' ? t('all') : t(`status.${f.toLowerCase()}`)}
-                {f === PaymentStatus.PENDING && pendingCount > 0 && (
-                  <Badge ml={1} colorPalette="yellow">
-                    {pendingCount}
-                  </Badge>
-                )}
-                {f === PaymentStatus.SUBMITTED && submittedCount > 0 && (
-                  <Badge ml={1} colorPalette="blue">
-                    {submittedCount}
-                  </Badge>
-                )}
-              </Button>
-            ))}
+            <Filter size={16} />
+            <HStack gap={1}>
+              {(
+                [
+                  'all',
+                  PaymentStatus.PENDING,
+                  PaymentStatus.SUBMITTED,
+                  PaymentStatus.APPROVED,
+                ] as FilterType[]
+              ).map((f) => (
+                <Button
+                  key={f}
+                  size="sm"
+                  variant={filter === f ? 'solid' : 'outline'}
+                  colorPalette={filter === f ? 'blue' : 'gray'}
+                  onClick={() => setFilter(f)}
+                >
+                  {f === 'all' ? t('all') : t(`status.${f.toLowerCase()}`)}
+                  {f === PaymentStatus.PENDING && pendingCount > 0 && (
+                    <Badge ml={1} colorPalette="yellow">
+                      {pendingCount}
+                    </Badge>
+                  )}
+                  {f === PaymentStatus.SUBMITTED && submittedCount > 0 && (
+                    <Badge ml={1} colorPalette="blue">
+                      {submittedCount}
+                    </Badge>
+                  )}
+                </Button>
+              ))}
+            </HStack>
           </HStack>
+
+          {/* Fixed Member Filter */}
+          {fixedMemberGroups.length > 0 && (
+            <NativeSelectRoot size="sm" minW="150px">
+              <NativeSelectField
+                value={memberFilter}
+                onChange={(e) => setMemberFilter(e.target.value)}
+              >
+                <option value="all">{tFixed('allMembers')}</option>
+                <option value="fixed">{tFixed('fixedMembersOnly')}</option>
+                <option value="regular">{tFixed('regularMembersOnly')}</option>
+                {fixedMemberGroups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </NativeSelectField>
+            </NativeSelectRoot>
+          )}
         </HStack>
 
         {onBulkApprove && submittedPaymentIds.length > 0 && (
@@ -211,7 +328,9 @@ export default function SessionPaymentList({
               key={payment.id}
               bg="white"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor={
+                payment.player?.isFixedMember ? 'teal.200' : 'gray.200'
+              }
               borderRadius="lg"
               p={3}
               cursor="pointer"
@@ -231,11 +350,28 @@ export default function SessionPaymentList({
                     )}
                   </Avatar.Root>
                   <Box>
-                    <Text fontWeight="medium" fontSize="sm">
-                      {payment.player?.name ||
-                        payment.player?.user?.name ||
-                        t('unknownPlayer')}
-                    </Text>
+                    <HStack gap={2}>
+                      <Text fontWeight="medium" fontSize="sm">
+                        {payment.player?.name ||
+                          payment.player?.user?.name ||
+                          t('unknownPlayer')}
+                      </Text>
+                      {/* Fixed Member Badge */}
+                      {payment.player?.isFixedMember && (
+                        <Badge
+                          colorPalette="teal"
+                          variant="subtle"
+                          fontSize="2xs"
+                          px={1}
+                        >
+                          <UserCheck size={10} />
+                          <Text ml={0.5}>
+                            {payment.player?.fixedMemberGroup?.name ||
+                              tFixed('fixedMember')}
+                          </Text>
+                        </Badge>
+                      )}
+                    </HStack>
                     {payment.player?.gender && (
                       <Text fontSize="xs" color="gray.500">
                         {payment.player.gender}
@@ -245,9 +381,7 @@ export default function SessionPaymentList({
                 </HStack>
 
                 <HStack gap={3}>
-                  <Text fontWeight="semibold" color="blue.600">
-                    {FeeService.formatFee(payment.amount)}
-                  </Text>
+                  {renderFixedMemberAmount(payment)}
                   <PaymentStatusBadge status={payment.status} size="sm" />
                 </HStack>
               </HStack>

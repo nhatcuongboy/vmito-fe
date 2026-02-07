@@ -295,6 +295,15 @@ export interface Player {
     email?: string;
   };
   paymentRecord?: PaymentRecord; // Payment record for this player
+  // Fixed Member fields
+  isFixedMember?: boolean;
+  fixedMemberGroupId?: string;
+  fixedMemberFeeApplied?: boolean;
+  fixedMemberGroup?: {
+    id: string;
+    name: string;
+    color?: string;
+  };
 }
 
 // Court types
