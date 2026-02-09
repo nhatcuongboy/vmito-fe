@@ -893,7 +893,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     textAlign="center"
                     display={{ base: 'block', md: 'block' }}
                   >
-                    {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved`}
+                    {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved!`}
                   </Text>
                 </>
               )}
