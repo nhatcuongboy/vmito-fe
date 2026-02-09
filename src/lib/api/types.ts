@@ -331,6 +331,15 @@ export interface Player {
   };
 }
 
+export interface PendingRequest extends Player {
+  session: {
+    id: string;
+    name: string;
+    startTime: string;
+    venue?: { name: string } | null;
+  };
+}
+
 // Court types
 export interface Court {
   id: string;

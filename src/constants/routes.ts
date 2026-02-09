@@ -31,14 +31,15 @@ export const ROUTES = {
     },
     TRANSACTIONS: '/host/transactions',
     PAYMENT_SETTINGS: '/host/payment-settings',
-    FIXED_MEMBERS: {
-      LIST: '/host/fixed-members',
-      CREATE: '/host/fixed-members/create',
-      DETAIL: (id: string) => `/host/fixed-members/${id}`,
-      EDIT: (id: string) => `/host/fixed-members/${id}/edit`,
-      MEMBERS: (id: string) => `/host/fixed-members/${id}/members`,
-      FEES: (id: string) => `/host/fixed-members/${id}/fees`,
+    CLUBS: {
+      LIST: '/host/clubs',
+      CREATE: '/host/clubs/create',
+      DETAIL: (id: string) => `/host/clubs/${id}`,
+      EDIT: (id: string) => `/host/clubs/${id}/edit`,
+      MEMBERS: (id: string) => `/host/clubs/${id}/members`,
+      FEES: (id: string) => `/host/clubs/${id}/fees`,
     },
+    PENDING_JOIN_REQUESTS: '/host/pending-join-requests',
     TOURNAMENTS: {
       NEW: '/host/tournaments/new',
       DETAIL: (id: string) => `/host/tournaments/${id}`,
@@ -272,6 +273,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.HOST.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.HOST.TRANSACTIONS]: 'Transactions',
   [ROUTES.HOST.PAYMENT_SETTINGS]: 'Payment Settings',
+  [ROUTES.HOST.PENDING_JOIN_REQUESTS]: 'Pending Join Requests',
   [ROUTES.PLAYER.DASHBOARD]: 'Analysis',
 
   [ROUTES.PLAYER.SESSIONS.LIST]: 'My Sessions',

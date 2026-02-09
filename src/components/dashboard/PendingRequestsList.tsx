@@ -1,7 +1,7 @@
 'use client';
 
 import { PlayerService } from '@/lib/api/player.service';
-import { Player } from '@/lib/api/types';
+import { PendingRequest } from '@/lib/api/types';
 import {
   Box,
   Badge,
@@ -17,13 +17,6 @@ import { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import dayjs from '@/lib/dayjs';
 
-interface PendingRequest extends Player {
-  session: {
-    name: string;
-    startTime: string;
-  };
-}
-
 export default function PendingRequestsList() {
   const t = useTranslations('common');
   const [requests, setRequests] = useState<PendingRequest[]>([]);
@@ -33,8 +26,8 @@ export default function PendingRequestsList() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const data = await PlayerService.getPendingRequests();
-      setRequests(data as unknown as PendingRequest[]);
+      const result = await PlayerService.getPendingRequests({ limit: 5 });
+      setRequests(result.data);
     } catch (error) {
       console.error(error);
     } finally {

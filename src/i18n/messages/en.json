@@ -13,7 +13,10 @@
     "myHostedSessions": "My Hosted Sessions",
     "notifications": "Notifications",
     "venues": "Venues",
-    "fixedMembers": "Fixed Members"
+    "browseVenues": "Browse Venues",
+    "fixedMembers": "Fixed Members",
+    "clubs": "Clubs",
+    "pendingJoinRequests": "Join Requests"
   },
   "common": {
     "browse": "Analysis",
@@ -2159,5 +2162,49 @@
     "fixedMembersOnly": "Fixed Members Only",
     "regularMembersOnly": "Regular Members Only",
     "perSessionFee": "Per Session Fee"
+  },
+  "clubs": {
+    "browseClubs": "Browse Clubs",
+    "browseClubsDescription": "Discover badminton clubs in your area and join the community",
+    "searchPlaceholder": "Search by club name or location...",
+    "noClubsFound": "No Clubs Found",
+    "noClubsFoundDescription": "Try adjusting your search or check back later for new clubs",
+    "members": "members",
+    "sessions": "sessions",
+    "hostedBy": "Hosted by",
+    "maxMembers": "Max {count} members",
+    "myClubs": "My Clubs",
+    "joinClub": "Join Club",
+    "leaveClub": "Leave Club",
+    "pendingRequest": "Request Pending",
+    "clubDetails": "Club Details",
+    "clubMembers": "Club Members",
+    "recentAnnouncements": "Recent Announcements",
+    "noAnnouncements": "No announcements yet",
+    "joinPolicy": {
+      "open": "Open",
+      "approvalRequired": "Approval Required",
+      "invitationOnly": "Invitation Only"
+    },
+    "memberRole": {
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "member": "Member"
+    },
+    "joinMessage": "Message (optional)",
+    "joinMessagePlaceholder": "Tell the club owner why you want to join...",
+    "joinRequestSent": "Join request sent successfully",
+    "joinedSuccessfully": "You have joined the club successfully",
+    "leftSuccessfully": "You have left the club successfully",
+    "privateClub": "This is a private club",
+    "joinRequests": "Join Requests",
+    "approve": "Approve",
+    "reject": "Reject",
+    "attendance": "Attendance",
+    "roleUpdatedSuccessfully": "Role updated successfully",
+    "requestApprovedSuccessfully": "Join request approved",
+    "requestRejectedSuccessfully": "Join request rejected",
+    "confirmApprove": "Approve this join request?",
+    "confirmReject": "Reject this join request?"
   }
 }

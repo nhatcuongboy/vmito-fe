@@ -15,6 +15,7 @@ import {
   Bell,
   MapPin,
   UserPlus,
+  ClipboardCheck,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
@@ -168,7 +169,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       <MapPin size={18} />
                       {!isCollapsed && (
                         <Text display={{ base: 'block', md: 'block' }}>
-                          {nav('venues') || 'Tìm sân'}
+                          {nav('browseVenues')}
                         </Text>
                       )}
                     </Flex>
@@ -280,6 +281,94 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </Flex>
                       </NextLinkButton>
                     </Tooltip>
+
+                    <Tooltip
+                      content={nav('clubs')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={
+                          user?.role === UserRole.HOST ||
+                          user?.role === UserRole.ADMIN
+                            ? ROUTES.HOST.CLUBS.LIST
+                            : '/player/clubs'
+                        }
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
+                          <Users size={18} />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('clubs')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </Tooltip>
+
+                    {(user?.role === UserRole.HOST ||
+                      user?.role === UserRole.ADMIN) && (
+                      <Tooltip
+                        content={nav('pendingJoinRequests')}
+                        positioning={{
+                          placement: 'right',
+                          offset: { mainAxis: 12 },
+                        }}
+                        disabled={!isCollapsed}
+                        showArrow
+                        openDelay={200}
+                      >
+                        <NextLinkButton
+                          href={ROUTES.HOST.PENDING_JOIN_REQUESTS}
+                          variant="ghost"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                          onClick={onClose}
+                          w="full"
+                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        >
+                          <Flex
+                            align="center"
+                            gap={3}
+                            w="full"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                          >
+                            <ClipboardCheck size={18} />
+                            {!isCollapsed && (
+                              <Text display={{ base: 'block', md: 'block' }}>
+                                {nav('pendingJoinRequests')}
+                              </Text>
+                            )}
+                          </Flex>
+                        </NextLinkButton>
+                      </Tooltip>
+                    )}
                   </Stack>
                 </Box>
 
@@ -386,46 +475,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                               {!isCollapsed && (
                                 <Text display={{ base: 'block', md: 'block' }}>
                                   {nav('paymentSettings')}
-                                </Text>
-                              )}
-                            </Flex>
-                          </NextLinkButton>
-                        </Tooltip>
-
-                        <Tooltip
-                          content={nav('fixedMembers')}
-                          positioning={{
-                            placement: 'right',
-                            offset: { mainAxis: 12 },
-                          }}
-                          disabled={!isCollapsed}
-                          showArrow
-                          openDelay={200}
-                        >
-                          <NextLinkButton
-                            href={ROUTES.HOST.FIXED_MEMBERS.LIST}
-                            variant="ghost"
-                            justifyContent={{
-                              base: 'flex-start',
-                              md: isCollapsed ? 'center' : 'flex-start',
-                            }}
-                            onClick={onClose}
-                            w="full"
-                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                          >
-                            <Flex
-                              align="center"
-                              gap={3}
-                              w="full"
-                              justifyContent={{
-                                base: 'flex-start',
-                                md: isCollapsed ? 'center' : 'flex-start',
-                              }}
-                            >
-                              <UserPlus size={18} />
-                              {!isCollapsed && (
-                                <Text display={{ base: 'block', md: 'block' }}>
-                                  {nav('fixedMembers')}
                                 </Text>
                               )}
                             </Flex>

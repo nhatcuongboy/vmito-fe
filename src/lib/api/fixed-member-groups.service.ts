@@ -7,6 +7,8 @@ import type {
   IUpdateGroupDto,
   ICreateGroupFeeDto,
   IUserSearchResult,
+  EMemberRole,
+  IClubJoinRequest,
 } from '@/types/fixed-member';
 import { ApiResponse } from './base';
 
@@ -175,5 +177,62 @@ export const FixedMemberGroupsService = {
       `/fixed-member-groups/user/${userId}/groups`
     );
     return response.data.data || [];
+  },
+
+  /**
+   * Update a member's role in a group
+   */
+  async updateMemberRole(
+    groupId: string,
+    userId: string,
+    role: EMemberRole
+  ): Promise<IFixedMemberGroupMember> {
+    const response = await api.put<ApiResponse<IFixedMemberGroupMember>>(
+      `/fixed-member-groups/${groupId}/members/${userId}/role`,
+      { role }
+    );
+    return response.data.data!;
+  },
+
+  // ==========================================
+  // Join Request Management
+  // ==========================================
+
+  /**
+   * Get all join requests for a group
+   */
+  async getJoinRequests(groupId: string): Promise<IClubJoinRequest[]> {
+    const response = await api.get<ApiResponse<IClubJoinRequest[]>>(
+      `/fixed-member-groups/${groupId}/join-requests`
+    );
+    return response.data.data || [];
+  },
+
+  /**
+   * Approve a join request
+   */
+  async approveJoinRequest(
+    groupId: string,
+    requestId: string
+  ): Promise<IFixedMemberGroupMember | { status: string }> {
+    const response = await api.post<
+      ApiResponse<IFixedMemberGroupMember | { status: string }>
+    >(`/fixed-member-groups/${groupId}/join-requests/${requestId}/approve`);
+    return response.data.data!;
+  },
+
+  /**
+   * Reject a join request
+   */
+  async rejectJoinRequest(
+    groupId: string,
+    requestId: string,
+    response?: string
+  ): Promise<IClubJoinRequest> {
+    const apiResponse = await api.post<ApiResponse<IClubJoinRequest>>(
+      `/fixed-member-groups/${groupId}/join-requests/${requestId}/reject`,
+      { response }
+    );
+    return apiResponse.data.data!;
   },
 };

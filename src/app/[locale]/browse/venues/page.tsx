@@ -13,16 +13,13 @@ import {
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
 import { MapPin } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function BrowseVenuesPage() {
+  const t = useTranslations('navigation');
   return (
-    <PageWrapper
-      display="flex"
-      flexDirection="column"
-      bg="gray.50"
-      _dark={{ bg: 'gray.900' }}
-    >
-      <TopBar title="Tìm sân cầu lông" icon={<MapPin size={24} />} />
+    <PageWrapper flexDirection="column" bg="gray.50" _dark={{ bg: 'gray.900' }}>
+      <TopBar title={t('browseVenues')} icon={<MapPin size={24} />} />
       <Container
         maxW="container.xl"
         px={CONTAINER_PX}

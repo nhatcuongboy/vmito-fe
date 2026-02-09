@@ -22,7 +22,10 @@ import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
 import { toaster } from '@/components/ui/toaster';
+import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
+
+import PageLayout from '@/components/layout/PageLayout';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -51,7 +54,7 @@ const CreateGroupPage = () => {
     try {
       await FixedMemberGroupsService.createGroup(data);
       toaster.success({ title: t('groupCreatedSuccess') });
-      router.push('/host/fixed-members');
+      router.push(ROUTES.HOST.CLUBS.LIST);
     } catch (error) {
       console.error('Failed to create group:', error);
       toaster.error({ title: t('failedToCreateGroup') });
@@ -70,14 +73,7 @@ const CreateGroupPage = () => {
   ];
 
   return (
-    <Container maxW="container.md" py={8}>
-      <Flex mb={8} align="center">
-        <Button variant="ghost" onClick={() => router.back()} mr={4}>
-          {t('back')}
-        </Button>
-        <Heading size="lg">{t('createGroup')}</Heading>
-      </Flex>
-
+    <PageLayout title={t('createGroup')}>
       <Box
         as="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -86,6 +82,8 @@ const CreateGroupPage = () => {
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
+        maxW="container.md"
+        mx="auto"
       >
         <VStack spacing={6} align="stretch">
           <Field
@@ -124,14 +122,11 @@ const CreateGroupPage = () => {
                   borderColor={`${color}.200`}
                   _hover={{ bg: `${color}.100` }}
                 >
-                  <Flex align="center">
-                    <input
-                      type="radio"
-                      value={color}
-                      {...register('color')}
-                      style={{ marginRight: '8px' }}
-                    />
-                    <Text textTransform="capitalize">{color}</Text>
+                  <Flex align="center" gap={2}>
+                    <input type="radio" value={color} {...register('color')} />
+                    <Text textTransform="capitalize" fontSize="sm">
+                      {color}
+                    </Text>
                   </Flex>
                 </Box>
               ))}
@@ -148,7 +143,7 @@ const CreateGroupPage = () => {
           </Flex>
         </VStack>
       </Box>
-    </Container>
+    </PageLayout>
   );
 };
 

@@ -13,7 +13,11 @@
     "myHostedSessions": "Kèo host",
     "notifications": "Thông báo",
     "venues": "Sân bãi",
-    "fixedMembers": "Thành viên cố định"
+    "browseVenues": "Tra cứu sân",
+    "fixedMembers": "Câu lạc bộ",
+    "createClub": "Tạo CLB mới",
+    "clubs": "Câu lạc bộ",
+    "pendingJoinRequests": "Yêu cầu tham gia"
   },
   "common": {
     "browse": "Thống kê",
@@ -112,6 +116,7 @@
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
     "chinese": "Tiếng Trung",
+    "search": "Tìm kiếm",
     "filters": {
       "area": "Khu vực",
       "allCities": "Tất cả thành phố"
@@ -2078,11 +2083,11 @@
     }
   },
   "fixedMembers": {
-    "fixedMemberGroups": "Nhóm Thành viên Cố định",
-    "manageYourGroups": "Quản lý các nhóm thành viên cố định của bạn",
-    "createGroup": "Tạo nhóm",
-    "createNewGroup": "Tạo nhóm mới",
-    "noGroupsFound": "Chưa có nhóm nào. Hãy tạo nhóm đầu tiên!",
+    "fixedMemberGroups": "Quản lý CLB",
+    "manageYourGroups": "Quản lý các câu lạc bộ của bạn",
+    "createGroup": "Tạo CLB",
+    "createNewGroup": "Tạo CLB mới",
+    "noGroupsFound": "Chưa có CLB nào. Hãy tạo CLB đầu tiên!",
     "members": "thành viên",
     "edit": "Chỉnh sửa",
     "manageFees": "Quản lý phí",
@@ -2159,5 +2164,49 @@
     "fixedMembersOnly": "Chỉ thành viên cố định",
     "regularMembersOnly": "Chỉ thành viên vãng lai",
     "perSessionFee": "Phí theo buổi"
+  },
+  "clubs": {
+    "browseClubs": "Khám phá CLB",
+    "browseClubsDescription": "Khám phá các câu lạc bộ cầu lông trong khu vực của bạn và tham gia cộng đồng",
+    "searchPlaceholder": "Tìm kiếm theo tên CLB hoặc địa điểm...",
+    "noClubsFound": "Không tìm thấy CLB nào",
+    "noClubsFoundDescription": "Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau để xem các CLB mới",
+    "members": "thành viên",
+    "sessions": "buổi chơi",
+    "hostedBy": "Chủ CLB:",
+    "maxMembers": "Tối đa {count} thành viên",
+    "myClubs": "CLB của tôi",
+    "joinClub": "Tham gia CLB",
+    "leaveClub": "Rời CLB",
+    "pendingRequest": "Đang chờ duyệt",
+    "clubDetails": "Chi tiết CLB",
+    "clubMembers": "Thành viên CLB",
+    "recentAnnouncements": "Thông báo mới nhất",
+    "noAnnouncements": "Chưa có thông báo nào",
+    "joinPolicy": {
+      "open": "Tham gia tự do",
+      "approvalRequired": "Cần duyệt",
+      "invitationOnly": "Chỉ mời"
+    },
+    "memberRole": {
+      "admin": "Quản trị viên",
+      "moderator": "Điều hành viên",
+      "member": "Thành viên"
+    },
+    "joinMessage": "Lời nhắn (tùy chọn)",
+    "joinMessagePlaceholder": "Cho chủ CLB biết lý do bạn muốn tham gia...",
+    "joinRequestSent": "Yêu cầu tham gia đã được gửi thành công",
+    "joinedSuccessfully": "Bạn đã tham gia câu lạc bộ thành công",
+    "leftSuccessfully": "Bạn đã rời câu lạc bộ thành công",
+    "privateClub": "Đây là câu lạc bộ riêng tư",
+    "joinRequests": "Yêu cầu tham gia",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "attendance": "Tham gia",
+    "roleUpdatedSuccessfully": "Cập nhật vai trò thành công",
+    "requestApprovedSuccessfully": "Đã duyệt yêu cầu",
+    "requestRejectedSuccessfully": "Đã từ chối yêu cầu",
+    "confirmApprove": "Duyệt yêu cầu tham gia này?",
+    "confirmReject": "Từ chối yêu cầu tham gia này?"
   }
 }

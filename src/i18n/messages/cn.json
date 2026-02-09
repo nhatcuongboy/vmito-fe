@@ -10,7 +10,9 @@
     "joined": "已加入",
     "transactions": "交易",
     "paymentSettings": "支付设置",
-    "myHostedSessions": "我主持的场次"
+    "browseVenues": "浏览场地",
+    "myHostedSessions": "我主持的场次",
+    "pendingJoinRequests": "加入请求"
   },
   "common": {
     "browse": "统计分析",

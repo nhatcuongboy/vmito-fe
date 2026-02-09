@@ -5,6 +5,7 @@ import {
   BulkPlayersInfoResponse,
   BulkPlayersResponse,
   ISession,
+  PendingRequest,
   Player,
 } from './types';
 
@@ -229,11 +230,50 @@ export const PlayerService = {
     return response.data.data || [];
   },
 
-  // Get pending requests for host
-  getPendingRequests: async (): Promise<Player[]> => {
-    const response = await api.get<ApiResponse<Player[]>>(
-      '/players/pending-requests'
+  // Get pending requests for host (paginated)
+  getPendingRequests: async (filters?: {
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    data: PendingRequest[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+
+    const url = params.toString()
+      ? `/players/pending-requests?${params.toString()}`
+      : '/players/pending-requests';
+    const response = await api.get<
+      ApiResponse<{
+        data: PendingRequest[];
+        total: number;
+        page: number;
+        totalPages: number;
+      }>
+    >(url);
+    return response.data.data || { data: [], total: 0, page: 1, totalPages: 0 };
+  },
+
+  // Get count of pending requests for host
+  getPendingRequestsCount: async (): Promise<number> => {
+    const response = await api.get<ApiResponse<{ count: number }>>(
+      '/players/pending-requests/count'
     );
-    return response.data.data || [];
+    return response.data.data?.count || 0;
+  },
+
+  // Batch approve/reject pending requests
+  batchUpdateStatus: async (
+    playerIds: string[],
+    status: 'APPROVED' | 'REJECTED'
+  ): Promise<{ updated: number; status: string }> => {
+    const response = await api.post<
+      ApiResponse<{ updated: number; status: string }>
+    >('/players/pending-requests/batch', { playerIds, status });
+    return response.data.data!;
   },
 };
