@@ -94,9 +94,7 @@ export default function SessionPaymentList({
       filtered = filtered.filter((p) => !p.player?.isClubMember);
     } else if (memberFilter !== 'all') {
       // Filter by specific group ID
-      filtered = filtered.filter(
-        (p) => p.player?.club?.id === memberFilter
-      );
+      filtered = filtered.filter((p) => p.player?.club?.id === memberFilter);
     }
 
     return filtered;
@@ -366,8 +364,7 @@ export default function SessionPaymentList({
                         >
                           <UserCheck size={10} />
                           <Text ml={0.5}>
-                            {payment.player?.club?.name ||
-                              tFixed('clubMember')}
+                            {payment.player?.club?.name || tFixed('clubMember')}
                           </Text>
                         </Badge>
                       )}

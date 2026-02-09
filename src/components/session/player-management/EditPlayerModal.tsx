@@ -277,11 +277,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 <select
                   value={editingData.clubId || ''}
                   onChange={(e) =>
-                    onUpdateEditing(
-                      player.id,
-                      'clubId',
-                      e.target.value
-                    )
+                    onUpdateEditing(player.id, 'clubId', e.target.value)
                   }
                   style={{
                     width: '100%',

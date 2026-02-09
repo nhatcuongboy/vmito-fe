@@ -237,7 +237,7 @@ export default function MyClubsPage() {
                       </Box>
                       <Box>
                         <Heading size="sm" mb={1}>
-                          {request.club.name}
+                          {request.club?.name}
                         </Heading>
                         <Text fontSize="xs" color="gray.500">
                           Requested on{' '}
@@ -262,7 +262,7 @@ export default function MyClubsPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() =>
-                          router.push(`/player/clubs/${request.club.id}`)
+                          router.push(`/player/clubs/${request.club?.id}`)
                         }
                       >
                         View Club

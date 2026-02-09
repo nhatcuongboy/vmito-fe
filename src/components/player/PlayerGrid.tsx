@@ -274,14 +274,14 @@ export const PlayerGrid = ({
                         <User size={12} />
                       )}
                     </Badge>
-                    {player.isFixedMember && (
+                    {player.isClubMember && (
                       <Badge
                         variant="solid"
                         colorPalette="teal"
                         fontSize="xs"
                         borderRadius="sm"
                         px={1}
-                        title={player.fixedMemberGroup?.name}
+                        title={player.club?.name}
                       >
                         <UserCheck size={12} />
                       </Badge>

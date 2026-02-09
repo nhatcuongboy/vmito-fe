@@ -411,11 +411,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         <select
                           value={player.clubId || ''}
                           onChange={(e) =>
-                            onUpdatePlayer(
-                              index,
-                              'clubId',
-                              e.target.value
-                            )
+                            onUpdatePlayer(index, 'clubId', e.target.value)
                           }
                           style={{
                             width: '100%',
@@ -427,9 +423,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                             fontSize: '14px',
                           }}
                         >
-                          <option value="">
-                            {t('selectClubPlaceholder')}
-                          </option>
+                          <option value="">{t('selectClubPlaceholder')}</option>
                           {clubs.map((club) => (
                             <option key={club.id} value={club.id}>
                               {club.name}

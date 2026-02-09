@@ -311,7 +311,9 @@ const ClubsPage = () => {
                               fontSize="0.8em"
                               mb={2}
                             >
-                              {t(`clubs.clubStatus.${group.status.toLowerCase()}`)}
+                              {t(
+                                `clubs.clubStatus.${group.status.toLowerCase()}`
+                              )}
                             </Badge>
                           )}
                           <Text fontWeight="bold" fontSize="lg" mb={1}>
@@ -334,7 +336,9 @@ const ClubsPage = () => {
                                 <MenuItem
                                   value="edit"
                                   onClick={() =>
-                                    router.push(ROUTES.HOST.CLUBS.EDIT(group.id))
+                                    router.push(
+                                      ROUTES.HOST.CLUBS.EDIT(group.id)
+                                    )
                                   }
                                 >
                                   <Icon as={Edit} mr={2} />
@@ -343,7 +347,9 @@ const ClubsPage = () => {
                                 <MenuItem
                                   value="fees"
                                   onClick={() =>
-                                    router.push(ROUTES.HOST.CLUBS.FEES(group.id))
+                                    router.push(
+                                      ROUTES.HOST.CLUBS.FEES(group.id)
+                                    )
                                   }
                                 >
                                   <Icon as={Settings} mr={2} />
@@ -382,7 +388,11 @@ const ClubsPage = () => {
                             borderRadius="md"
                             mb={4}
                           >
-                            <Text fontSize="xs" color="red.600" fontWeight="medium">
+                            <Text
+                              fontSize="xs"
+                              color="red.600"
+                              fontWeight="medium"
+                            >
                               {t('clubs.rejectionReason', {
                                 reason: group.rejectionReason,
                               })}

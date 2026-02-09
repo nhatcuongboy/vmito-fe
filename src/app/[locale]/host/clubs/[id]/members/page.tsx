@@ -60,7 +60,9 @@ const GroupMembersPage = () => {
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<IClubUserSearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<IClubUserSearchResult[]>(
+    []
+  );
   const [isSearching, setIsSearching] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>('members');
 

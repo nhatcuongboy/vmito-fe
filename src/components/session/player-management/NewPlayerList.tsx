@@ -397,11 +397,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                             <select
                               value={player.clubId || ''}
                               onChange={(e) =>
-                                onUpdatePlayer(
-                                  index,
-                                  'clubId',
-                                  e.target.value
-                                )
+                                onUpdatePlayer(index, 'clubId', e.target.value)
                               }
                               style={{
                                 width: '100%',

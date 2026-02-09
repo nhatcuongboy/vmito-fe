@@ -323,19 +323,17 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                 </Badge>
 
                 {/* Fixed Member Badge */}
-                {player.isFixedMember && player.fixedMemberGroup && (
+                {player.isClubMember && player.club && (
                   <Badge
                     display="flex"
                     alignItems="center"
                     gap={1}
                     bg={
-                      player.fixedMemberGroup.color
-                        ? `${player.fixedMemberGroup.color}.50`
-                        : 'teal.50'
+                      player.club.color ? `${player.club.color}.50` : 'teal.50'
                     }
                     color={
-                      player.fixedMemberGroup.color
-                        ? `${player.fixedMemberGroup.color}.700`
+                      player.club.color
+                        ? `${player.club.color}.700`
                         : 'teal.700'
                     }
                     borderRadius="lg"
@@ -345,13 +343,13 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                     fontWeight="semibold"
                     border="1px solid"
                     borderColor={
-                      player.fixedMemberGroup.color
-                        ? `${player.fixedMemberGroup.color}.100`
+                      player.club.color
+                        ? `${player.club.color}.100`
                         : 'teal.100'
                     }
                   >
                     <Box as={UserCheck} boxSize="12px" />
-                    {player.fixedMemberGroup.name}
+                    {player.club.name}
                   </Badge>
                 )}
 
