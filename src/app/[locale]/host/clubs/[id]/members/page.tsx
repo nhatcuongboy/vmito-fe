@@ -35,32 +35,32 @@ import {
 } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
-import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
+import { ClubsService } from '@/lib/api/clubs.service';
 import {
-  IFixedMemberGroup,
-  IFixedMemberGroupMember,
-  IUserSearchResult,
+  IClub,
+  IClubMember,
+  IClubUserSearchResult,
   IClubJoinRequest,
   EMemberRole,
   EJoinRequestStatus,
-} from '@/types/fixed-member';
+} from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import PageLayout from '@/components/layout/PageLayout';
 
 const GroupMembersPage = () => {
-  const t = useTranslations('fixedMembers');
+  const t = useTranslations('clubs');
   const t_clubs = useTranslations('clubs');
   const router = useRouter();
   const params = useParams();
   const groupId = params.id as string;
 
-  const [group, setGroup] = useState<IFixedMemberGroup | null>(null);
-  const [members, setMembers] = useState<IFixedMemberGroupMember[]>([]);
+  const [group, setGroup] = useState<IClub | null>(null);
+  const [members, setMembers] = useState<IClubMember[]>([]);
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<IUserSearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<IClubUserSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>('members');
 
@@ -70,9 +70,9 @@ const GroupMembersPage = () => {
     try {
       setIsLoading(true);
       const [groupData, membersData, requestsData] = await Promise.all([
-        FixedMemberGroupsService.getGroup(groupId),
-        FixedMemberGroupsService.getGroupMembers(groupId),
-        FixedMemberGroupsService.getJoinRequests(groupId),
+        ClubsService.getClub(groupId),
+        ClubsService.getClubMembers(groupId),
+        ClubsService.getJoinRequests(groupId),
       ]);
       setGroup(groupData);
       setMembers(membersData);
@@ -97,7 +97,7 @@ const GroupMembersPage = () => {
     if (!searchQuery.trim()) return;
     try {
       setIsSearching(true);
-      const results = await FixedMemberGroupsService.searchUsers(searchQuery);
+      const results = await ClubsService.searchUsers(searchQuery);
       setSearchResults(results);
     } catch (error) {
       console.error('Search failed:', error);
@@ -108,13 +108,13 @@ const GroupMembersPage = () => {
 
   const handleAddMember = async (userId: string) => {
     try {
-      await FixedMemberGroupsService.addMemberToGroup(groupId, userId);
-      toaster.success({ title: t('memberAddedSuccess') });
+      await ClubsService.addMemberToClub(groupId, userId);
+      toaster.success({ title: t('clubMemberAddedSuccess') });
       loadData();
       setSearchResults((prev) => prev.filter((u) => u.id !== userId));
     } catch (error) {
       console.error('Failed to add member:', error);
-      toaster.error({ title: t('failedToAddMember') });
+      toaster.error({ title: t('failedToAddClubMember') });
     }
   };
 
@@ -122,33 +122,33 @@ const GroupMembersPage = () => {
     if (!confirm(t('confirmRemoveMember'))) return;
 
     try {
-      await FixedMemberGroupsService.removeMemberFromGroup(groupId, userId);
-      toaster.success({ title: t('memberRemovedSuccess') });
+      await ClubsService.removeMemberFromClub(groupId, userId);
+      toaster.success({ title: t('clubMemberRemovedSuccess') });
       setMembers((prev) => prev.filter((m) => m.userId !== userId));
     } catch (error) {
       console.error('Failed to remove member:', error);
-      toaster.error({ title: t('failedToRemoveMember') });
+      toaster.error({ title: t('failedToRemoveClubMember') });
     }
   };
 
   const handleUpdateRole = async (userId: string, role: EMemberRole) => {
     try {
-      await FixedMemberGroupsService.updateMemberRole(groupId, userId, role);
-      toaster.success({ title: t_clubs('roleUpdatedSuccessfully') });
+      await ClubsService.updateMemberRole(groupId, userId, role);
+      toaster.success({ title: t('roleUpdatedSuccessfully') });
       setMembers((prev) =>
         prev.map((m) => (m.userId === userId ? { ...m, role } : m))
       );
     } catch (error) {
       console.error('Failed to update role:', error);
-      toaster.error({ title: t('failedToUpdateGroup') });
+      toaster.error({ title: t('failedToUpdateClub') });
     }
   };
 
   const handleApproveRequest = async (requestId: string) => {
     if (!confirm(t_clubs('confirmApprove'))) return;
     try {
-      await FixedMemberGroupsService.approveJoinRequest(groupId, requestId);
-      toaster.success({ title: t_clubs('requestApprovedSuccessfully') });
+      await ClubsService.approveJoinRequest(groupId, requestId);
+      toaster.success({ title: t('requestApprovedSuccessfully') });
       loadData();
     } catch (error) {
       console.error('Failed to approve request:', error);
@@ -158,8 +158,8 @@ const GroupMembersPage = () => {
   const handleRejectRequest = async (requestId: string) => {
     if (!confirm(t_clubs('confirmReject'))) return;
     try {
-      await FixedMemberGroupsService.rejectJoinRequest(groupId, requestId);
-      toaster.success({ title: t_clubs('requestRejectedSuccessfully') });
+      await ClubsService.rejectJoinRequest(groupId, requestId);
+      toaster.success({ title: t('requestRejectedSuccessfully') });
       setJoinRequests((prev) => prev.filter((r) => r.id !== requestId));
     } catch (error) {
       console.error('Failed to reject request:', error);
@@ -180,7 +180,7 @@ const GroupMembersPage = () => {
   if (!group) {
     return (
       <PageLayout title={t('manageMembers')} maxW="container.md">
-        <Text>{t('groupNotFound')}</Text>
+        <Text>{t('clubNotFound')}</Text>
       </PageLayout>
     );
   }
@@ -456,7 +456,7 @@ const GroupMembersPage = () => {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('addMemberToGroup')}</DialogTitle>
+            <DialogTitle>{t('addClubMember')}</DialogTitle>
           </DialogHeader>
           <DialogCloseTrigger />
           <DialogBody pb={6}>

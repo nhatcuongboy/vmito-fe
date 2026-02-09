@@ -6,8 +6,8 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import { NewPlayer, Player } from './types';
 import { ISession, Gender, PlayerStatus } from '@/lib/api/types';
-import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
-import { IFixedMemberGroup } from '@/types/fixed-member';
+import { ClubsService } from '@/lib/api/clubs.service';
+import { IClub } from '@/types/club';
 
 export const usePlayerManagement = (
   session: ISession,
@@ -29,9 +29,7 @@ export const usePlayerManagement = (
   const [newPlayerErrors, setNewPlayerErrors] = useState<{
     [index: number]: string;
   }>({});
-  const [fixedMemberGroups, setFixedMemberGroups] = useState<
-    IFixedMemberGroup[]
-  >([]);
+  const [clubs, setClubs] = useState<IClub[]>([]);
 
   // Load available users on mount
   useEffect(() => {
@@ -53,15 +51,15 @@ export const usePlayerManagement = (
     };
     loadUsers();
 
-    const loadFixedMemberGroups = async () => {
+    const loadClubs = async () => {
       try {
-        const groups = await FixedMemberGroupsService.getGroups();
-        setFixedMemberGroups(groups);
+        const clubsData = await ClubsService.getClubsToManage();
+        setClubs(clubsData);
       } catch (error) {
-        console.error('Error loading fixed member groups:', error);
+        console.error('Error loading clubs:', error);
       }
     };
-    loadFixedMemberGroups();
+    loadClubs();
   }, [t]);
 
   /**
@@ -110,8 +108,8 @@ export const usePlayerManagement = (
         level: getDefaultLevel(),
         levelDescription: '',
         requireConfirmInfo: false,
-        isFixedMember: false,
-        fixedMemberGroupId: undefined,
+        isClubMember: false,
+        clubId: undefined,
       },
     ]);
   };
@@ -221,8 +219,8 @@ export const usePlayerManagement = (
         ...player,
         levelDescription: player.levelDescription || '',
         requireConfirmInfo: !!player.requireConfirmInfo,
-        isFixedMember: !!player.isFixedMember,
-        fixedMemberGroupId: player.fixedMemberGroupId || undefined,
+        isClubMember: !!player.isClubMember,
+        clubId: player.clubId || undefined,
       },
     }));
   };
@@ -460,7 +458,7 @@ export const usePlayerManagement = (
     maxPlayers,
     currentPlayerCount,
     isMaxPlayersReached,
-    fixedMemberGroups,
+    clubs,
 
     // Actions
     addNewPlayerRow,

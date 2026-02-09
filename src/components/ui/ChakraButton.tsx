@@ -82,8 +82,14 @@ interface IconButtonProps extends ChakraIconButtonProps {
   isLoading?: boolean;
 }
 
-export const IconButton = ({ icon, isLoading, ...props }: IconButtonProps) => (
+export const IconButton = ({
+  icon,
+  isLoading,
+  children,
+  ...props
+}: IconButtonProps & { children?: React.ReactNode }) => (
   <ChakraIconButton loading={isLoading} {...props}>
     {icon}
+    {children}
   </ChakraIconButton>
 );

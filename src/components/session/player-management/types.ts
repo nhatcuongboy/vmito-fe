@@ -10,6 +10,6 @@ export interface NewPlayer {
   levelDescription?: string;
   requireConfirmInfo?: boolean;
   userId?: string;
-  fixedMemberGroupId?: string;
-  isFixedMember?: boolean;
+  clubId?: string;
+  isClubMember?: boolean;
 }

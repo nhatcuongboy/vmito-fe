@@ -22,7 +22,7 @@ import { Plus, Save, Trash2, UserCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { NewPlayer } from './types';
-import { IFixedMemberGroup } from '@/types/fixed-member';
+import { IClub } from '@/types/club';
 
 interface NewPlayerListProps {
   newPlayers: NewPlayer[];
@@ -30,7 +30,7 @@ interface NewPlayerListProps {
   isLoadingUsers: boolean;
   errors: { [index: number]: string };
   availableLevels: number[];
-  fixedMemberGroups?: IFixedMemberGroup[];
+  clubs?: IClub[];
   isSaving: boolean;
   onUpdatePlayer: (
     index: number,
@@ -51,7 +51,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
   isLoadingUsers,
   errors,
   availableLevels,
-  fixedMemberGroups = [],
+  clubs = [],
   isSaving,
   onUpdatePlayer,
   onRemovePlayer,
@@ -349,20 +349,20 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                           </label>
                         </Flex>
 
-                        {/* Fixed Member Checkbox */}
+                        {/* Club Checkbox */}
                         <Flex align="center" gap={3}>
                           <input
                             type="checkbox"
-                            id={`isFixedMember-${index}`}
-                            checked={player.isFixedMember || false}
+                            id={`isClubMember-${index}`}
+                            checked={player.isClubMember || false}
                             onChange={(e) => {
                               onUpdatePlayer(
                                 index,
-                                'isFixedMember',
+                                'isClubMember',
                                 e.target.checked
                               );
                               if (!e.target.checked) {
-                                onUpdatePlayer(index, 'fixedMemberGroupId', '');
+                                onUpdatePlayer(index, 'clubId', '');
                               }
                             }}
                             style={{
@@ -372,19 +372,19 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                             }}
                           />
                           <label
-                            htmlFor={`isFixedMember-${index}`}
+                            htmlFor={`isClubMember-${index}`}
                             style={{
                               fontSize: '14px',
                               color: '#4A5568',
                               lineHeight: '1.4',
                             }}
                           >
-                            {t('isFixedMember')}
+                            {t('isClubMember')}
                           </label>
                         </Flex>
 
-                        {/* Fixed Member Group Select */}
-                        {player.isFixedMember && (
+                        {/* Club Select */}
+                        {player.isClubMember && (
                           <Box ml={7}>
                             <Text
                               fontSize="sm"
@@ -392,14 +392,14 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                               color="gray.600"
                               fontWeight="medium"
                             >
-                              {t('selectGroup')}
+                              {t('selectClub')}
                             </Text>
                             <select
-                              value={player.fixedMemberGroupId || ''}
+                              value={player.clubId || ''}
                               onChange={(e) =>
                                 onUpdatePlayer(
                                   index,
-                                  'fixedMemberGroupId',
+                                  'clubId',
                                   e.target.value
                                 )
                               }
@@ -413,11 +413,11 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                               }}
                             >
                               <option value="">
-                                {t('selectGroupPlaceholder')}
+                                {t('selectClubPlaceholder')}
                               </option>
-                              {fixedMemberGroups.map((group) => (
-                                <option key={group.id} value={group.id}>
-                                  {group.name}
+                              {clubs.map((club) => (
+                                <option key={club.id} value={club.id}>
+                                  {club.name}
                                 </option>
                               ))}
                             </select>

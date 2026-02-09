@@ -24,14 +24,14 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { NewPlayer } from './types';
-import { IFixedMemberGroup } from '@/types/fixed-member';
+import { IClub } from '@/types/club';
 
 interface AddPlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
   newPlayers: NewPlayer[];
   availableUsers: UserOption[];
-  fixedMemberGroups?: IFixedMemberGroup[];
+  clubs?: IClub[];
   isLoadingUsers: boolean;
   errors: { [index: number]: string };
   availableLevels: number[];
@@ -54,7 +54,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   onClose,
   newPlayers,
   availableUsers,
-  fixedMemberGroups = [],
+  clubs = [],
   isLoadingUsers,
   errors,
   availableLevels,
@@ -362,20 +362,20 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       </label>
                     </Flex>
 
-                    {/* Fixed Member Checkbox */}
+                    {/* Club Checkbox */}
                     <Flex align="center" gap={3}>
                       <input
                         type="checkbox"
-                        id={`isFixedMember-${index}`}
-                        checked={player.isFixedMember || false}
+                        id={`isClubMember-${index}`}
+                        checked={player.isClubMember || false}
                         onChange={(e) => {
                           onUpdatePlayer(
                             index,
-                            'isFixedMember',
+                            'isClubMember',
                             e.target.checked
                           );
                           if (!e.target.checked) {
-                            onUpdatePlayer(index, 'fixedMemberGroupId', null);
+                            onUpdatePlayer(index, 'clubId', null);
                           }
                         }}
                         style={{
@@ -385,7 +385,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         }}
                       />
                       <label
-                        htmlFor={`isFixedMember-${index}`}
+                        htmlFor={`isClubMember-${index}`}
                         style={{
                           fontSize: '14px',
                           color: 'inherit',
@@ -393,12 +393,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           lineHeight: '1.4',
                         }}
                       >
-                        {t('isFixedMember')}
+                        {t('isClubMember')}
                       </label>
                     </Flex>
 
-                    {/* Fixed Member Group Select */}
-                    {player.isFixedMember && (
+                    {/* Club Select */}
+                    {player.isClubMember && (
                       <Box ml={7}>
                         <Text
                           fontSize="sm"
@@ -406,14 +406,14 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           color="fg.muted"
                           fontWeight="medium"
                         >
-                          {t('selectGroup')}
+                          {t('selectClub')}
                         </Text>
                         <select
-                          value={player.fixedMemberGroupId || ''}
+                          value={player.clubId || ''}
                           onChange={(e) =>
                             onUpdatePlayer(
                               index,
-                              'fixedMemberGroupId',
+                              'clubId',
                               e.target.value
                             )
                           }
@@ -428,11 +428,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           }}
                         >
                           <option value="">
-                            {t('selectGroupPlaceholder')}
+                            {t('selectClubPlaceholder')}
                           </option>
-                          {fixedMemberGroups.map((group) => (
-                            <option key={group.id} value={group.id}>
-                              {group.name}
+                          {clubs.map((club) => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
                             </option>
                           ))}
                         </select>

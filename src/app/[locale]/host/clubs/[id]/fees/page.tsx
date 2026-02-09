@@ -13,14 +13,14 @@ import {
   Input,
 } from '@/components/ui/chakra-compat';
 import { useParams } from 'next/navigation';
-import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
+import { ClubsService } from '@/lib/api/clubs.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import PageLayout from '@/components/layout/PageLayout';
 
-const FeesPage = () => {
-  const t = useTranslations('fixedMembers');
+const ClubFeesPage = () => {
+  const t = useTranslations('clubs');
   const params = useParams();
   const groupId = params.id as string;
   const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ const FeesPage = () => {
   const loadFees = useCallback(async () => {
     try {
       setLoading(true);
-      const feeConfig = await FixedMemberGroupsService.getGroupFeeForMonth(
+      const feeConfig = await ClubsService.getClubFeeForMonth(
         groupId,
         selectedYear,
         selectedMonth
@@ -78,7 +78,7 @@ const FeesPage = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await FixedMemberGroupsService.upsertGroupFee(groupId, {
+      await ClubsService.upsertClubFee(groupId, {
         month: selectedMonth,
         year: selectedYear,
         maleFeeMonthly: formData.maleFeeMonthly
@@ -265,4 +265,4 @@ const FeesPage = () => {
   );
 };
 
-export default FeesPage;
+export default ClubFeesPage;

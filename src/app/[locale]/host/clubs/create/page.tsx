@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
-import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
+import { ClubsService } from '@/lib/api/clubs.service';
 import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
@@ -35,8 +35,8 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const CreateGroupPage = () => {
-  const t = useTranslations('fixedMembers');
+const CreateClubPage = () => {
+  const t = useTranslations('clubs');
   const router = useRouter();
 
   const {
@@ -52,12 +52,12 @@ const CreateGroupPage = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await FixedMemberGroupsService.createGroup(data);
-      toaster.success({ title: t('groupCreatedSuccess') });
+      await ClubsService.createClub(data);
+      toaster.success({ title: t('clubCreatedSuccess') });
       router.push(ROUTES.HOST.CLUBS.LIST);
     } catch (error) {
-      console.error('Failed to create group:', error);
-      toaster.error({ title: t('failedToCreateGroup') });
+      console.error('Failed to create club:', error);
+      toaster.error({ title: t('failedToCreateClub') });
     }
   };
 
@@ -73,7 +73,7 @@ const CreateGroupPage = () => {
   ];
 
   return (
-    <PageLayout title={t('createGroup')}>
+    <PageLayout title={t('createClub')}>
       <Box
         as="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -87,13 +87,13 @@ const CreateGroupPage = () => {
       >
         <VStack spacing={6} align="stretch">
           <Field
-            label={t('groupName')}
+            label={t('clubName')}
             invalid={!!errors.name}
             errorText={errors.name?.message}
           >
             <Input
               {...register('name')}
-              placeholder={t('groupNamePlaceholder')}
+              placeholder={t('clubNamePlaceholder')}
             />
           </Field>
 
@@ -138,7 +138,7 @@ const CreateGroupPage = () => {
               {t('cancel')}
             </Button>
             <Button type="submit" colorPalette="blue" loading={isSubmitting}>
-              {t('createGroup')}
+              {t('createClub')}
             </Button>
           </Flex>
         </VStack>
@@ -147,4 +147,4 @@ const CreateGroupPage = () => {
   );
 };
 
-export default CreateGroupPage;
+export default CreateClubPage;

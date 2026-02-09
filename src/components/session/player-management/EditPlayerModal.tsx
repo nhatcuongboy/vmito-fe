@@ -16,14 +16,14 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Edit } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Player } from './types';
-import { IFixedMemberGroup } from '@/types/fixed-member';
+import { IClub } from '@/types/club';
 
 interface EditPlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
   player: Player | null;
   editingData: Player | null;
-  fixedMemberGroups?: IFixedMemberGroup[];
+  clubs?: IClub[];
   availableLevels: number[];
   isSaving: boolean;
   onUpdateEditing: (
@@ -40,7 +40,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   player,
   editingData,
   availableLevels,
-  fixedMemberGroups = [],
+  clubs = [],
   isSaving,
   onUpdateEditing,
   onSave,
@@ -238,16 +238,16 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               </label>
             </Flex>
 
-            {/* Fixed Member Checkbox */}
+            {/* Club Checkbox */}
             <Flex align="center" gap={3}>
               <input
                 type="checkbox"
-                id={`isFixedMember-edit-${player.id}`}
-                checked={editingData.isFixedMember || false}
+                id={`isClubMember-edit-${player.id}`}
+                checked={editingData.isClubMember || false}
                 onChange={(e) => {
-                  onUpdateEditing(player.id, 'isFixedMember', e.target.checked);
+                  onUpdateEditing(player.id, 'isClubMember', e.target.checked);
                   if (!e.target.checked) {
-                    onUpdateEditing(player.id, 'fixedMemberGroupId', undefined);
+                    onUpdateEditing(player.id, 'clubId', undefined);
                   }
                 }}
                 style={{
@@ -257,29 +257,29 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 }}
               />
               <label
-                htmlFor={`isFixedMember-edit-${player.id}`}
+                htmlFor={`isClubMember-edit-${player.id}`}
                 style={{
                   fontSize: '14px',
                   color: '#4A5568',
                   lineHeight: '1.4',
                 }}
               >
-                {t('isFixedMember')}
+                {t('isClubMember')}
               </label>
             </Flex>
 
-            {/* Fixed Member Group Select */}
-            {editingData.isFixedMember && (
+            {/* Club Select */}
+            {editingData.isClubMember && (
               <Box ml={7}>
                 <Text fontSize="sm" mb={1} color="gray.600" fontWeight="medium">
-                  {t('selectGroup')}
+                  {t('selectClub')}
                 </Text>
                 <select
-                  value={editingData.fixedMemberGroupId || ''}
+                  value={editingData.clubId || ''}
                   onChange={(e) =>
                     onUpdateEditing(
                       player.id,
-                      'fixedMemberGroupId',
+                      'clubId',
                       e.target.value
                     )
                   }
@@ -293,10 +293,10 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                     fontSize: '14px',
                   }}
                 >
-                  <option value="">{t('selectGroupPlaceholder')}</option>
-                  {fixedMemberGroups.map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
+                  <option value="">{t('selectClubPlaceholder')}</option>
+                  {clubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
                     </option>
                   ))}
                 </select>

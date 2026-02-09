@@ -119,6 +119,7 @@ export const ROUTES = {
     USERS: '/admin/users',
     NOTIFICATIONS: '/admin/notifications',
     VENUES: '/admin/venues',
+    CLUBS: '/admin/clubs/pending',
   },
 
   // Settings & Profile
@@ -145,6 +146,7 @@ export const ROUTE_GROUPS = {
     ROUTES.PLAYER.TRANSACTIONS,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.NOTIFICATIONS,
+    ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
   ],
 
@@ -178,7 +180,11 @@ export const ROUTE_GROUPS = {
   ],
 
   // Admin-only routes
-  ADMIN_ONLY: [ROUTES.ADMIN.USERS, ROUTES.ADMIN.NOTIFICATIONS],
+  ADMIN_ONLY: [
+    ROUTES.ADMIN.USERS,
+    ROUTES.ADMIN.NOTIFICATIONS,
+    ROUTES.ADMIN.CLUBS,
+  ],
 
   // Main navigation items
   MAIN_NAV: [ROUTES.HOME, ROUTES.BROWSE.TOURNAMENTS.LIST, ROUTES.SETTINGS],
@@ -283,6 +289,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.ABOUT]: 'About',
   [ROUTES.ADMIN.USERS]: 'Users',
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',
+  [ROUTES.ADMIN.CLUBS]: 'Club Approval',
 };
 
 // ==================== REDIRECT MAPPINGS ====================

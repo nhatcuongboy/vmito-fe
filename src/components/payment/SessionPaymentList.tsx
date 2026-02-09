@@ -46,7 +46,7 @@ export default function SessionPaymentList({
   isLoading = false,
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
-  const tFixed = useTranslations('fixedMembers');
+  const tFixed = useTranslations('clubs');
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
     null
@@ -64,8 +64,8 @@ export default function SessionPaymentList({
       { id: string; name: string; color?: string }
     >();
     paymentsArray.forEach((p) => {
-      if (p.player?.isFixedMember && p.player?.fixedMemberGroup) {
-        const group = p.player.fixedMemberGroup;
+      if (p.player?.isClubMember && p.player?.club) {
+        const group = p.player.club;
         if (!groupsMap.has(group.id)) {
           groupsMap.set(group.id, {
             id: group.id,
@@ -89,13 +89,13 @@ export default function SessionPaymentList({
 
     // Member type filter
     if (memberFilter === 'fixed') {
-      filtered = filtered.filter((p) => p.player?.isFixedMember);
+      filtered = filtered.filter((p) => p.player?.isClubMember);
     } else if (memberFilter === 'regular') {
-      filtered = filtered.filter((p) => !p.player?.isFixedMember);
+      filtered = filtered.filter((p) => !p.player?.isClubMember);
     } else if (memberFilter !== 'all') {
       // Filter by specific group ID
       filtered = filtered.filter(
-        (p) => p.player?.fixedMemberGroup?.id === memberFilter
+        (p) => p.player?.club?.id === memberFilter
       );
     }
 
@@ -109,7 +109,7 @@ export default function SessionPaymentList({
     (p) => p.status === PaymentStatus.SUBMITTED
   ).length;
   const fixedMemberCount = paymentsArray.filter(
-    (p) => p.player?.isFixedMember
+    (p) => p.player?.isClubMember
   ).length;
 
   const submittedPaymentIds = paymentsArray
@@ -148,7 +148,7 @@ export default function SessionPaymentList({
   // Helper to render fixed member info with tooltip
   const renderFixedMemberAmount = (payment: PaymentRecord) => {
     const player = payment.player;
-    const isFixed = player?.isFixedMember && player?.fixedMemberGroup;
+    const isFixed = player?.isClubMember && player?.club;
 
     if (!isFixed) {
       return (
@@ -158,14 +158,14 @@ export default function SessionPaymentList({
       );
     }
 
-    const groupName = player.fixedMemberGroup?.name || '';
+    const groupName = player.club?.name || '';
 
     return (
       <Tooltip
         content={
           <Box>
             <Text fontWeight="bold" mb={1}>
-              {tFixed('fixedMember')}: {groupName}
+              {tFixed('clubMember')}: {groupName}
             </Text>
             <Text fontSize="sm">
               {tFixed('perSessionFee')}: {FeeService.formatFee(payment.amount)}
@@ -202,7 +202,7 @@ export default function SessionPaymentList({
               <Badge colorPalette="teal">
                 <UserCheck size={12} />
                 <Text ml={1}>
-                  {fixedMemberCount} {tFixed('fixedMember')}
+                  {fixedMemberCount} {tFixed('clubMember')}
                 </Text>
               </Badge>
             )}
@@ -329,7 +329,7 @@ export default function SessionPaymentList({
               bg="white"
               border="1px solid"
               borderColor={
-                payment.player?.isFixedMember ? 'teal.200' : 'gray.200'
+                payment.player?.isClubMember ? 'teal.200' : 'gray.200'
               }
               borderRadius="lg"
               p={3}
@@ -357,7 +357,7 @@ export default function SessionPaymentList({
                           t('unknownPlayer')}
                       </Text>
                       {/* Fixed Member Badge */}
-                      {payment.player?.isFixedMember && (
+                      {payment.player?.isClubMember && (
                         <Badge
                           colorPalette="teal"
                           variant="subtle"
@@ -366,8 +366,8 @@ export default function SessionPaymentList({
                         >
                           <UserCheck size={10} />
                           <Text ml={0.5}>
-                            {payment.player?.fixedMemberGroup?.name ||
-                              tFixed('fixedMember')}
+                            {payment.player?.club?.name ||
+                              tFixed('clubMember')}
                           </Text>
                         </Badge>
                       )}

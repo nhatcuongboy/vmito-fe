@@ -16,11 +16,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
-import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
+import { ClubsService } from '@/lib/api/clubs.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import { EClubJoinPolicy } from '@/types/fixed-member';
+import { EClubJoinPolicy } from '@/types/club';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
 
@@ -38,8 +38,8 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const EditGroupPage = () => {
-  const t = useTranslations('fixedMembers');
+const EditClubPage = () => {
+  const t = useTranslations('clubs');
   const t_clubs = useTranslations('clubs');
   const router = useRouter();
   const params = useParams();
@@ -67,7 +67,7 @@ const EditGroupPage = () => {
   useEffect(() => {
     const loadGroup = async () => {
       try {
-        const group = await FixedMemberGroupsService.getGroup(groupId);
+        const group = await ClubsService.getClub(groupId);
         setValue('name', group.name);
         setValue('description', group.description || '');
         setValue('color', group.color || 'blue');
@@ -80,7 +80,7 @@ const EditGroupPage = () => {
         setValue('location', group.location || '');
       } catch (error) {
         console.error('Failed to load group:', error);
-        toaster.error({ title: t('failedToLoadGroup') });
+        toaster.error({ title: t('failedToLoadClub') });
         router.push(ROUTES.HOST.CLUBS.LIST);
       }
     };
@@ -92,18 +92,18 @@ const EditGroupPage = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await FixedMemberGroupsService.updateGroup(groupId, {
+      await ClubsService.updateClub(groupId, {
         ...data,
         maxMembers:
           (data.maxMembers as any) === null
             ? undefined
             : (data.maxMembers as any),
       });
-      toaster.success({ title: t('groupUpdatedSuccess') });
+      toaster.success({ title: t('clubUpdatedSuccess') });
       router.push(ROUTES.HOST.CLUBS.LIST);
     } catch (error) {
-      console.error('Failed to update group:', error);
-      toaster.error({ title: t('failedToUpdateGroup') });
+      console.error('Failed to update club:', error);
+      toaster.error({ title: t('failedToUpdateClub') });
     }
   };
 
@@ -143,13 +143,13 @@ const EditGroupPage = () => {
         <VStack gap={6} align="stretch">
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
             <Field
-              label={t('groupName')}
+              label={t('clubName')}
               invalid={!!errors.name}
               errorText={errors.name?.message}
             >
               <Input
                 {...register('name')}
-                placeholder={t('groupNamePlaceholder')}
+                placeholder={t('clubNamePlaceholder')}
               />
             </Field>
 
@@ -193,7 +193,7 @@ const EditGroupPage = () => {
             </Field>
 
             <Field
-              label={t_clubs('maxMembers') || 'Max Members'}
+              label={t_clubs('maxMembersLabel') || 'Max Members'}
               invalid={!!errors.maxMembers}
               errorText={errors.maxMembers?.message}
             >
@@ -269,4 +269,4 @@ const EditGroupPage = () => {
   );
 };
 
-export default EditGroupPage;
+export default EditClubPage;

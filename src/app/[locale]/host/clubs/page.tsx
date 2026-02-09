@@ -24,11 +24,10 @@ import {
   Search,
   RefreshCw,
   Users,
+  MoreVertical,
 } from 'lucide-react';
-import { FixedMemberGroupsService } from '@/lib/api/fixed-member-groups.service';
 import { ClubsService } from '@/lib/api/clubs.service';
-import { IFixedMemberGroup } from '@/types/fixed-member';
-import { IClubListItem } from '@/types/club';
+import { IClub, IClubListItem, EClubStatus } from '@/types/club';
 import { useRouter } from '@/i18n/config';
 import { toaster } from '@/components/ui/toaster';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -55,7 +54,7 @@ const ClubsPage = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   // My Clubs State
-  const [myGroups, setMyGroups] = useState<IFixedMemberGroup[]>([]);
+  const [myGroups, setMyGroups] = useState<IClub[]>([]);
   const [isMyGroupsLoading, setIsMyGroupsLoading] = useState(true);
 
   // Browse Clubs State
@@ -69,11 +68,11 @@ const ClubsPage = () => {
   const fetchMyGroups = async () => {
     try {
       setIsMyGroupsLoading(true);
-      const data = await FixedMemberGroupsService.getGroups();
+      const data = await ClubsService.getClubsToManage();
       setMyGroups(data);
     } catch (error) {
       console.error('Failed to fetch groups:', error);
-      toaster.error({ title: t('fixedMembers.failedToFetchGroups') });
+      toaster.error({ title: t('clubs.failedToFetchClubs') });
     } finally {
       setIsMyGroupsLoading(false);
     }
@@ -112,15 +111,15 @@ const ClubsPage = () => {
   }, [fetchBrowseClubs]);
 
   const handleDeleteGroup = async (groupId: string) => {
-    if (!confirm(t('fixedMembers.confirmDeleteGroup'))) return;
+    if (!confirm(t('clubs.confirmApprove'))) return; // Reusing confirmApprove for now or adding specific one
 
     try {
-      await FixedMemberGroupsService.deleteGroup(groupId);
-      toaster.success({ title: t('fixedMembers.groupDeletedSuccess') });
+      await ClubsService.deleteClub(groupId);
+      toaster.success({ title: t('clubs.clubDeletedSuccess') });
       fetchMyGroups();
     } catch (error) {
       console.error('Failed to delete group:', error);
-      toaster.error({ title: t('fixedMembers.failedToDeleteGroup') });
+      toaster.error({ title: t('clubs.failedToDeleteClub') });
     }
   };
 
@@ -142,163 +141,21 @@ const ClubsPage = () => {
   };
 
   return (
-    <PageLayout
-      title={t('navigation.clubs')}
-      rightContent={
-        user?.role === UserRole.HOST || user?.role === UserRole.ADMIN ? (
-          <Button
-            colorPalette="green"
-            onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
-            size="sm"
-          >
-            <Plus size={16} />
-            {t('navigation.createClub') || 'Tạo CLB mới'}
-          </Button>
-        ) : undefined
-      }
-    >
+    <PageLayout title={t('navigation.clubs')}>
       <Tabs
         index={activeTab}
         onChange={(idx) => setActiveTab(idx)}
         colorPalette="green"
       >
         <TabList mb={6}>
-          <Tab>{t('clubs.myClubs')}</Tab>
           <Tab>{t('clubs.browseClubs')}</Tab>
+          {(user?.role === UserRole.HOST || user?.role === UserRole.ADMIN) && (
+            <Tab>{t('clubs.myClubs')}</Tab>
+          )}
         </TabList>
 
         <TabPanels>
-          {/* Tab 0: My Clubs */}
-          <TabPanel>
-            {isMyGroupsLoading ? (
-              <LoadingSpinner />
-            ) : myGroups.length === 0 ? (
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                p={12}
-                bg="gray.50"
-                _dark={{ bg: 'gray.800' }}
-                borderRadius="lg"
-                borderStyle="dashed"
-                borderWidth="2px"
-              >
-                <Users
-                  size={48}
-                  color="#A0AEC0"
-                  style={{ marginBottom: '16px' }}
-                />
-                <Text fontSize="lg" color="gray.500" mb={4}>
-                  {t('fixedMembers.noGroupsFound')}
-                </Text>
-                <Button
-                  colorPalette="green"
-                  variant="outline"
-                  onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
-                >
-                  {t('fixedMembers.createNewGroup')}
-                </Button>
-              </Flex>
-            ) : (
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-                {myGroups.map((group) => (
-                  <Box
-                    key={group.id}
-                    p={6}
-                    bg="white"
-                    _dark={{ bg: 'gray.900' }}
-                    shadow="sm"
-                    borderWidth="1px"
-                    borderRadius="lg"
-                    position="relative"
-                    _hover={{ shadow: 'md' }}
-                  >
-                    <Flex justify="space-between" align="start" mb={4}>
-                      <Box>
-                        <Badge
-                          colorPalette={group.color || 'gray'}
-                          fontSize="0.8em"
-                          mb={2}
-                        >
-                          {group.memberCount || 0} {t('fixedMembers.members')}
-                        </Badge>
-                        <Text fontWeight="bold" fontSize="lg" mb={1}>
-                          {group.name}
-                        </Text>
-                      </Box>
-                      <MenuRoot positioning={{ placement: 'bottom-end' }}>
-                        <MenuTrigger asChild>
-                          <IconButton
-                            variant="ghost"
-                            size="sm"
-                            aria-label="Options"
-                          >
-                            <Settings size={18} />
-                          </IconButton>
-                        </MenuTrigger>
-                        <Portal>
-                          <MenuPositioner>
-                            <MenuContent>
-                              <MenuItem
-                                value="edit"
-                                onClick={() =>
-                                  router.push(ROUTES.HOST.CLUBS.EDIT(group.id))
-                                }
-                              >
-                                <Icon as={Edit} mr={2} />
-                                {t('fixedMembers.edit')}
-                              </MenuItem>
-                              <MenuItem
-                                value="fees"
-                                onClick={() =>
-                                  router.push(ROUTES.HOST.CLUBS.FEES(group.id))
-                                }
-                              >
-                                <Icon as={Settings} mr={2} />
-                                {t('fixedMembers.manageFees')}
-                              </MenuItem>
-                              <MenuItem
-                                value="delete"
-                                color="red.500"
-                                onClick={() => handleDeleteGroup(group.id)}
-                              >
-                                <Icon as={Trash2} mr={2} />
-                                {t('fixedMembers.delete')}
-                              </MenuItem>
-                            </MenuContent>
-                          </MenuPositioner>
-                        </Portal>
-                      </MenuRoot>
-                    </Flex>
-
-                    <Text
-                      color="gray.600"
-                      _dark={{ color: 'gray.400' }}
-                      mb={4}
-                      fontSize="sm"
-                      lineClamp={2}
-                    >
-                      {group.description || t('fixedMembers.noDescription')}
-                    </Text>
-
-                    <Button
-                      width="full"
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        router.push(ROUTES.HOST.CLUBS.MEMBERS(group.id))
-                      }
-                    >
-                      {t('fixedMembers.manageMembers')}
-                    </Button>
-                  </Box>
-                ))}
-              </SimpleGrid>
-            )}
-          </TabPanel>
-
-          {/* Tab 1: Browse Clubs */}
+          {/* Tab 0: Browse Clubs */}
           <TabPanel>
             {/* Search Bar */}
             <Box mb={6}>
@@ -374,6 +231,181 @@ const ClubsPage = () => {
               </>
             )}
           </TabPanel>
+
+          {/* Tab 1: My Clubs (Conditional) */}
+          {(user?.role === UserRole.HOST || user?.role === UserRole.ADMIN) && (
+            <TabPanel>
+              {/* Add Create Button here */}
+              <Flex justify="flex-end" mb={6}>
+                <Button
+                  colorPalette="green"
+                  onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
+                  size="md"
+                  leftIcon={<Plus size={18} />}
+                >
+                  {t('navigation.createClub') || 'Tạo CLB mới'}
+                </Button>
+              </Flex>
+
+              {isMyGroupsLoading ? (
+                <LoadingSpinner />
+              ) : myGroups.length === 0 ? (
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  p={12}
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.800' }}
+                  borderRadius="lg"
+                  borderStyle="dashed"
+                  borderWidth="2px"
+                >
+                  <Users
+                    size={48}
+                    color="#A0AEC0"
+                    style={{ marginBottom: '16px' }}
+                  />
+                  <Text fontSize="lg" color="gray.500" mb={4}>
+                    {t('clubs.noGroupsFound')}
+                  </Text>
+                  <Button
+                    colorPalette="green"
+                    variant="outline"
+                    onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
+                  >
+                    {t('clubs.createNewGroup')}
+                  </Button>
+                </Flex>
+              ) : (
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+                  {myGroups.map((group) => (
+                    <Box
+                      key={group.id}
+                      p={6}
+                      bg="white"
+                      _dark={{ bg: 'gray.900' }}
+                      shadow="sm"
+                      borderWidth="1px"
+                      borderRadius="lg"
+                      position="relative"
+                      _hover={{ shadow: 'md' }}
+                    >
+                      <Flex justify="space-between" align="start" mb={4}>
+                        <Box>
+                          <Badge
+                            colorPalette={group.color || 'gray'}
+                            fontSize="0.8em"
+                            mb={2}
+                            mr={2}
+                          >
+                            {group.memberCount || 0} {t('clubs.members')}
+                          </Badge>
+                          {group.status !== EClubStatus.APPROVED && (
+                            <Badge
+                              colorPalette={
+                                group.status === EClubStatus.PENDING
+                                  ? 'yellow'
+                                  : 'red'
+                              }
+                              fontSize="0.8em"
+                              mb={2}
+                            >
+                              {t(`clubs.clubStatus.${group.status.toLowerCase()}`)}
+                            </Badge>
+                          )}
+                          <Text fontWeight="bold" fontSize="lg" mb={1}>
+                            {group.name}
+                          </Text>
+                        </Box>
+                        <MenuRoot positioning={{ placement: 'bottom-end' }}>
+                          <MenuTrigger asChild>
+                            <IconButton
+                              variant="ghost"
+                              size="sm"
+                              aria-label="Options"
+                            >
+                              <MoreVertical size={18} />
+                            </IconButton>
+                          </MenuTrigger>
+                          <Portal>
+                            <MenuPositioner>
+                              <MenuContent>
+                                <MenuItem
+                                  value="edit"
+                                  onClick={() =>
+                                    router.push(ROUTES.HOST.CLUBS.EDIT(group.id))
+                                  }
+                                >
+                                  <Icon as={Edit} mr={2} />
+                                  {t('common.edit')}
+                                </MenuItem>
+                                <MenuItem
+                                  value="fees"
+                                  onClick={() =>
+                                    router.push(ROUTES.HOST.CLUBS.FEES(group.id))
+                                  }
+                                >
+                                  <Icon as={Settings} mr={2} />
+                                  {t('clubs.manageFeesTitle')}
+                                </MenuItem>
+                                <MenuItem
+                                  value="delete"
+                                  color="red.500"
+                                  onClick={() => handleDeleteGroup(group.id)}
+                                >
+                                  <Icon as={Trash2} mr={2} />
+                                  {t('common.delete')}
+                                </MenuItem>
+                              </MenuContent>
+                            </MenuPositioner>
+                          </Portal>
+                        </MenuRoot>
+                      </Flex>
+
+                      <Text
+                        color="gray.600"
+                        _dark={{ color: 'gray.400' }}
+                        mb={2}
+                        fontSize="sm"
+                        lineClamp={2}
+                      >
+                        {group.description || t('clubs.noDescription')}
+                      </Text>
+
+                      {group.status === EClubStatus.REJECTED &&
+                        group.rejectionReason && (
+                          <Box
+                            p={2}
+                            bg="red.50"
+                            _dark={{ bg: 'red.900/20' }}
+                            borderRadius="md"
+                            mb={4}
+                          >
+                            <Text fontSize="xs" color="red.600" fontWeight="medium">
+                              {t('clubs.rejectionReason', {
+                                reason: group.rejectionReason,
+                              })}
+                            </Text>
+                          </Box>
+                        )}
+
+                      <Button
+                        width="full"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          router.push(ROUTES.HOST.CLUBS.MEMBERS(group.id))
+                        }
+                      >
+                        {t('clubs.manageMembers')}
+                      </Button>
+                    </Box>
+                  ))}
+                </SimpleGrid>
+              )}
+            </TabPanel>
+          )}
         </TabPanels>
       </Tabs>
     </PageLayout>

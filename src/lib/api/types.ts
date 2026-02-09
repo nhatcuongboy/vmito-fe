@@ -320,11 +320,11 @@ export interface Player {
     email?: string;
   };
   paymentRecord?: PaymentRecord; // Payment record for this player
-  // Fixed Member fields
-  isFixedMember?: boolean;
-  fixedMemberGroupId?: string;
-  fixedMemberFeeApplied?: boolean;
-  fixedMemberGroup?: {
+  // Club fields
+  isClubMember?: boolean;
+  clubId?: string;
+  clubFeeApplied?: boolean;
+  club?: {
     id: string;
     name: string;
     color?: string;
