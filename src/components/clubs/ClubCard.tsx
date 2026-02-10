@@ -1,7 +1,7 @@
 'use client';
 
-import { IClubListItem, EClubJoinPolicy } from '@/types/club';
-import { Badge, Box, Flex, HStack, Text } from '@chakra-ui/react';
+import { IClubListItem, EClubJoinPolicy, IClubSchedule } from '@/types/club';
+import { Badge, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import {
   Crown,
   MapPin,
@@ -10,6 +10,7 @@ import {
   Lock,
   Unlock,
   ShieldCheck,
+  Clock,
 } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
@@ -60,6 +61,9 @@ export default function ClubCard({ club }: ClubCardProps) {
   const handleClick = () => {
     router.push(`/player/clubs/${club.id}`);
   };
+
+  const venueName = club.defaultVenue?.name;
+  const hasSchedules = club.schedules && club.schedules.length > 0;
 
   return (
     <Box
@@ -137,8 +141,24 @@ export default function ClubCard({ club }: ClubCardProps) {
               </Text>
             )}
 
-            {/* Location */}
-            {club.location && (
+            {/* Venue */}
+            {venueName && (
+              <Flex
+                align="center"
+                gap={1.5}
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+                mb={2}
+              >
+                <MapPin size={14} style={{ flexShrink: 0 }} />
+                <Text fontSize="sm" lineClamp={1} fontWeight="medium">
+                  {venueName}
+                </Text>
+              </Flex>
+            )}
+
+            {/* Location fallback if no venue */}
+            {!venueName && club.location && (
               <Flex
                 align="center"
                 gap={1.5}
@@ -151,6 +171,27 @@ export default function ClubCard({ club }: ClubCardProps) {
                   {club.location}
                 </Text>
               </Flex>
+            )}
+
+            {/* Schedule */}
+            {hasSchedules && (
+              <VStack align="stretch" gap={1} mb={2}>
+                {club.schedules!.map((schedule, idx) => (
+                  <Flex
+                    key={idx}
+                    align="center"
+                    gap={1.5}
+                    color="gray.600"
+                    _dark={{ color: 'gray.400' }}
+                  >
+                    <Clock size={14} style={{ flexShrink: 0 }} />
+                    <Text fontSize="sm">
+                      {t(`clubs.dayNames.${schedule.dayOfWeek}` as any)}{' '}
+                      {schedule.startTime}-{schedule.endTime}
+                    </Text>
+                  </Flex>
+                ))}
+              </VStack>
             )}
           </Box>
         </Flex>
@@ -225,23 +266,7 @@ export default function ClubCard({ club }: ClubCardProps) {
       {/* Footer Section */}
       <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
       <Box px={5} py={3}>
-        <Flex justify="space-between" align="center">
-          {/* Join policy badge */}
-          <Badge
-            colorPalette={joinPolicyBadge.colorPalette}
-            variant="subtle"
-            size="sm"
-            borderRadius="md"
-            display="flex"
-            alignItems="center"
-            gap={1}
-            px={2}
-            py={1}
-          >
-            <JoinPolicyIcon size={12} />
-            <Text fontSize="xs">{joinPolicyBadge.label}</Text>
-          </Badge>
-
+        <Flex justify="flex-end" align="center">
           {/* Max members */}
           {club.maxMembers && (
             <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.500' }}>

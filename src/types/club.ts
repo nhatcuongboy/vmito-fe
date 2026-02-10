@@ -72,6 +72,28 @@ export interface IClubMember {
   };
 }
 
+export interface IClubSchedule {
+  id: string;
+  clubId: string;
+  dayOfWeek: number; // 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
+  startTime: string; // "19:00"
+  endTime: string; // "21:00"
+  notes?: string;
+}
+
+export interface IClubScheduleDto {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  notes?: string;
+}
+
+export interface IClubVenue {
+  id: string;
+  name: string;
+  address: string;
+}
+
 export interface IClubAnnouncement {
   id: string;
   title: string;
@@ -108,6 +130,8 @@ export interface IClub {
   host: IClubHost;
   members?: IClubMember[];
   announcements?: IClubAnnouncement[];
+  schedules?: IClubSchedule[];
+  defaultVenue?: IClubVenue;
 }
 
 export interface IClubListItem {
@@ -125,6 +149,8 @@ export interface IClubListItem {
   status: EClubStatus;
   rejectionReason?: string;
   createdAt: string;
+  schedules?: IClubSchedule[];
+  defaultVenue?: IClubVenue;
 }
 
 export interface IMyClub {
@@ -137,6 +163,8 @@ export interface IMyClub {
   memberCount: number;
   host: IClubHost;
   joinedAt: string;
+  schedules?: IClubSchedule[];
+  defaultVenue?: IClubVenue;
 }
 
 export interface IClubJoinRequest {
@@ -175,6 +203,10 @@ export interface ICreateClubDto {
   joinPolicy?: EClubJoinPolicy;
   maxMembers?: number;
   location?: string;
+  defaultVenueId?: string;
+  image?: string;
+  imagePublicId?: string;
+  schedules?: IClubScheduleDto[];
 }
 
 export interface IUpdateClubDto {
@@ -185,6 +217,10 @@ export interface IUpdateClubDto {
   joinPolicy?: EClubJoinPolicy;
   maxMembers?: number;
   location?: string;
+  defaultVenueId?: string;
+  image?: string;
+  imagePublicId?: string;
+  schedules?: IClubScheduleDto[];
 }
 
 export interface ICreateClubFeeDto {

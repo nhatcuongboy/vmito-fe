@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Box, Flex, Text, Textarea } from '@chakra-ui/react';
 import {
@@ -8,21 +8,33 @@ import {
   VStack,
   SimpleGrid,
   Input,
-  Select,
+  IconButton,
 } from '@/components/ui/chakra-compat';
+import { LegacySelect } from '@/components/ui/Select';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Switch } from '@/components/ui/switch';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { VenueService } from '@/lib/api/venue.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import ImageUploader from '@/components/cloudinary/ImageUploader';
 import { EClubJoinPolicy } from '@/types/club';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
+import { Plus, Trash2 } from 'lucide-react';
+import { Venue } from '@/lib/api/types';
+
+const scheduleSchema = z.object({
+  dayOfWeek: z.coerce.number().min(0).max(6),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'HH:mm'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'HH:mm'),
+});
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -34,6 +46,9 @@ const schema = z.object({
     .union([z.coerce.number(), z.literal(''), z.null()])
     .transform((val) => (val === '' || val === null ? null : val)),
   location: z.string().optional(),
+  image: z.string().optional(),
+  imagePublicId: z.string().optional(),
+  schedules: z.array(scheduleSchema).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -45,11 +60,15 @@ const EditClubPage = () => {
   const params = useParams();
   const groupId = params.id as string;
 
+  const [selectedVenueId, setSelectedVenueId] = useState<string>('');
+  const [venues, setVenues] = useState<Venue[]>([]);
+
   const {
     register,
     handleSubmit,
     setValue,
     control,
+    watch,
     formState: { errors, isSubmitting, isLoading },
   } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
@@ -61,8 +80,40 @@ const EditClubPage = () => {
       description: '',
       color: 'blue',
       location: '',
+      schedules: [],
     },
   });
+
+  const { fields, append, remove, replace } = useFieldArray({
+    control,
+    name: 'schedules',
+  });
+
+  const imageValue = watch('image');
+
+  const handleUploadImage = useCallback(
+    async (file: File): Promise<string> => {
+      const result = await ClubsService.uploadClubImage(file);
+      setValue('imagePublicId', result.publicId);
+      return result.url;
+    },
+    [setValue]
+  );
+
+  useEffect(() => {
+    VenueService.getAllVenues()
+      .then(setVenues)
+      .catch(() => setVenues([]));
+  }, []);
+
+  const venueOptions = useMemo(
+    () =>
+      venues.map((v) => ({
+        value: v.id,
+        label: `${v.name} - ${v.address}`,
+      })),
+    [venues]
+  );
 
   useEffect(() => {
     const loadGroup = async () => {
@@ -78,6 +129,24 @@ const EditClubPage = () => {
         );
         setValue('maxMembers', group.maxMembers ?? null);
         setValue('location', group.location || '');
+        setValue('image', group.image || undefined);
+        setValue('imagePublicId', group.imagePublicId || undefined);
+
+        // Load schedules
+        if (group.schedules && group.schedules.length > 0) {
+          replace(
+            group.schedules.map((s) => ({
+              dayOfWeek: s.dayOfWeek,
+              startTime: s.startTime,
+              endTime: s.endTime,
+            }))
+          );
+        }
+
+        // Load default venue
+        if (group.defaultVenue) {
+          setSelectedVenueId(group.defaultVenue.id);
+        }
       } catch (error) {
         console.error('Failed to load group:', error);
         toaster.error({ title: t('failedToLoadClub') });
@@ -88,7 +157,7 @@ const EditClubPage = () => {
     if (groupId) {
       loadGroup();
     }
-  }, [groupId, setValue, router, t]);
+  }, [groupId, setValue, replace, router, t]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -98,6 +167,7 @@ const EditClubPage = () => {
           (data.maxMembers as any) === null
             ? undefined
             : (data.maxMembers as any),
+        defaultVenueId: selectedVenueId || undefined,
       });
       toaster.success({ title: t('clubUpdatedSuccess') });
       router.push(ROUTES.HOST.CLUBS.LIST);
@@ -117,6 +187,11 @@ const EditClubPage = () => {
     'cyan',
     'pink',
   ];
+
+  const dayOptions = Array.from({ length: 7 }, (_, i) => ({
+    value: i,
+    label: t(`dayNames.${i}` as any),
+  }));
 
   if (isLoading) {
     return (
@@ -177,9 +252,99 @@ const EditClubPage = () => {
             />
           </Field>
 
+          {/* Club Image */}
+          <Field label={t('clubImage')}>
+            <ImageUploader
+              value={imageValue}
+              onChange={(url) => {
+                setValue('image', url || undefined);
+                if (!url) setValue('imagePublicId', undefined);
+              }}
+              onUpload={handleUploadImage}
+              maxSizeMB={5}
+              maxWidth={400}
+              maxHeight={400}
+            />
+          </Field>
+
+          {/* Venue Selector */}
+          <Field label={t('venue')}>
+            <SearchableSelect
+              options={venueOptions}
+              value={selectedVenueId}
+              onChange={setSelectedVenueId}
+              placeholder={t('searchVenue')}
+              searchPlaceholder={t('searchVenue')}
+              noOptionsMessage={t('noVenueSelected')}
+            />
+          </Field>
+
+          {/* Schedule */}
+          <Field label={t('schedule')}>
+            <VStack spacing={3} align="stretch">
+              {fields.map((field, index) => (
+                <Flex key={field.id} gap={3} align="center" flexWrap="wrap">
+                  <Box flex="1" minW="120px">
+                    <Controller
+                      name={`schedules.${index}.dayOfWeek`}
+                      control={control}
+                      render={({ field: f }) => (
+                        <LegacySelect
+                          value={String(f.value)}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                            f.onChange(Number(e.target.value))
+                          }
+                        >
+                          {dayOptions.map((d) => (
+                            <option key={d.value} value={d.value}>
+                              {d.label}
+                            </option>
+                          ))}
+                        </LegacySelect>
+                      )}
+                    />
+                  </Box>
+                  <Input
+                    type="time"
+                    {...register(`schedules.${index}.startTime`)}
+                    w="130px"
+                  />
+                  <Text fontSize="sm" color="gray.500">
+                    -
+                  </Text>
+                  <Input
+                    type="time"
+                    {...register(`schedules.${index}.endTime`)}
+                    w="130px"
+                  />
+                  <IconButton
+                    size="sm"
+                    variant="ghost"
+                    colorPalette="red"
+                    onClick={() => remove(index)}
+                    aria-label={t('removeSchedule')}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+                </Flex>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  append({ dayOfWeek: 1, startTime: '19:00', endTime: '21:00' })
+                }
+                w="fit-content"
+              >
+                <Plus size={16} />
+                {t('addSchedule')}
+              </Button>
+            </VStack>
+          </Field>
+
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
             <Field label={t_clubs('joinPolicy.title' as any) || 'Join Policy'}>
-              <Select {...register('joinPolicy')}>
+              <LegacySelect {...register('joinPolicy')}>
                 <option value={EClubJoinPolicy.OPEN}>
                   {t_clubs('joinPolicy.open')}
                 </option>
@@ -189,7 +354,7 @@ const EditClubPage = () => {
                 <option value={EClubJoinPolicy.INVITATION_ONLY}>
                   {t_clubs('joinPolicy.invitationOnly')}
                 </option>
-              </Select>
+              </LegacySelect>
             </Field>
 
             <Field

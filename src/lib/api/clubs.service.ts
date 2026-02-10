@@ -302,6 +302,24 @@ export const ClubsService = {
   // ==========================================
 
   /**
+   * Upload club image
+   */
+  uploadClubImage: async (
+    file: File
+  ): Promise<{ url: string; publicId: string }> => {
+    const formData = new FormData();
+    formData.append('clubImage', file);
+    const response = await api.post<
+      ApiResponse<{ url: string; publicId: string }>
+    >('/upload/club-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data!;
+  },
+
+  /**
    * Get all clubs pending approval (Admin only)
    */
   getPendingClubs: async (): Promise<IClub[]> => {

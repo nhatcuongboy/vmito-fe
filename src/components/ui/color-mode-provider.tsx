@@ -91,7 +91,7 @@ export const ThemeProviderWrapper = ({
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="light"
       enableSystem={true}
       disableTransitionOnChange={false}
     >

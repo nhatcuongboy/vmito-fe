@@ -106,6 +106,9 @@
     "pleaseSelectImageFile": "Vui lòng chọn file ảnh",
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
+    "uploadImage": "Tải ảnh lên",
+    "clickToUpload": "Click để tải lên",
+    "maxSize": "Kích thước tối đa",
     "appearance": "Giao diện",
     "deviceTheme": "Tự động",
     "darkTheme": "Giao diện tối",
@@ -2196,6 +2199,27 @@
     "noGroupsFound": "Chưa có CLB nào",
     "groupDeletedSuccess": "Đã xóa CLB thành công",
     "failedToDeleteGroup": "Không thể xóa CLB",
-    "createNewGroup": "Tạo CLB mới"
+    "createNewGroup": "Tạo CLB mới",
+    "schedule": "Lịch sinh hoạt",
+    "addSchedule": "Thêm lịch",
+    "removeSchedule": "Xóa",
+    "dayOfWeek": "Thứ",
+    "startTime": "Giờ bắt đầu",
+    "endTime": "Giờ kết thúc",
+    "noSchedule": "Chưa có lịch sinh hoạt",
+    "venue": "Sân sinh hoạt",
+    "selectVenue": "Chọn sân",
+    "searchVenue": "Tìm sân...",
+    "noVenueSelected": "Chưa chọn sân",
+    "clubImage": "Ảnh CLB",
+    "dayNames": {
+      "0": "Chủ nhật",
+      "1": "Thứ 2",
+      "2": "Thứ 3",
+      "3": "Thứ 4",
+      "4": "Thứ 5",
+      "5": "Thứ 6",
+      "6": "Thứ 7"
+    }
   }
 }
