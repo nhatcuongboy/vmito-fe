@@ -62,4 +62,4 @@ jobs:
             cd /opt/badminton
             docker compose -f docker-compose.staging.yml pull frontend-staging
             docker compose -f docker-compose.staging.yml up -d frontend-staging
-            docker image prune -f
+            docker image prune -a -f
