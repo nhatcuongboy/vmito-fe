@@ -199,7 +199,7 @@ export default function CoverPhotoUpload({
               <Button
                 type="button"
                 size="sm"
-                colorPalette="blue"
+                colorPalette="green"
                 onClick={handleClick}
                 leftIcon={<Upload size={16} />}
               >

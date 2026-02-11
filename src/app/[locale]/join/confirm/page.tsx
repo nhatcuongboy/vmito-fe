@@ -145,7 +145,7 @@ function ConfirmPageContent() {
             height="50vh"
             direction="column"
           >
-            <Spinner size="xl" color="blue.500" mb={4} />
+            <Spinner size="xl" color="green.500" mb={4} />
             <Text>{tCommon('loading')}</Text>
           </Flex>
         </Container>
@@ -176,7 +176,7 @@ function ConfirmPageContent() {
             py={5}
           >
             <Flex align="center" mb={2}>
-              <Box as={User} boxSize={5} color="blue.500" mr={2} />
+              <Box as={User} boxSize={5} color="green.500" mr={2} />
               <Heading size="md">{t('confirm.subtitle')}</Heading>
             </Flex>
             <Text color="gray.500" fontSize="sm">
@@ -325,7 +325,7 @@ function ConfirmPageContent() {
 
                 <Button
                   type="submit"
-                  colorPalette="blue"
+                  colorPalette="green"
                   size="lg"
                   width="full"
                   mt={4}

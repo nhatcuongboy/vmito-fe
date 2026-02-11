@@ -60,7 +60,7 @@ export default function HostDashboard() {
             <Flex gap={4}>
               <NextLinkButton
                 href={ROUTES.SESSIONS.NEW}
-                colorPalette="blue"
+                colorPalette="green"
                 size="lg"
               >
                 <Plus className="mr-2 h-4 w-4" /> {t('createNewSession')}

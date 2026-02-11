@@ -249,7 +249,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
   if (isLoading) {
     return (
       <Center py={10}>
-        <Spinner size="lg" color="blue.500" />
+        <Spinner size="lg" color="green.500" />
       </Center>
     );
   }
@@ -275,7 +275,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             size="sm"
             variant="outline"
             onClick={goToPaymentSettingsPage}
-            colorPalette="blue"
+            colorPalette="green"
           >
             <ExternalLink size={14} />
             <Text ml={1}>{t('manageSettings')}</Text>
@@ -299,14 +299,14 @@ export default function PaymentTab({ session }: PaymentTabProps) {
           <HStack mb={2}>
             <Text
               fontWeight="semibold"
-              color="blue.700"
+              color="green.700"
               _dark={{ color: 'blue.200' }}
             >
               {t('sessionFeeConfig')}
             </Text>
           </HStack>
           <VStack align="stretch" gap={1}>
-            <Text fontSize="sm" color="blue.600" _dark={{ color: 'blue.300' }}>
+            <Text fontSize="sm" color="green.600" _dark={{ color: 'blue.300' }}>
               {t('feeType')}:{' '}
               {session.feeConfig.feeType === 'FIXED'
                 ? t('fixed')
@@ -317,7 +317,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
                 {session.feeConfig.maleFee && (
                   <Text
                     fontSize="sm"
-                    color="blue.600"
+                    color="green.600"
                     _dark={{ color: 'blue.300' }}
                   >
                     {t('maleFee')}:{' '}
@@ -327,7 +327,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
                 {session.feeConfig.femaleFee && (
                   <Text
                     fontSize="sm"
-                    color="blue.600"
+                    color="green.600"
                     _dark={{ color: 'blue.300' }}
                   >
                     {t('femaleFee')}:{' '}
@@ -339,7 +339,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
             {session.feeConfig.notes && (
               <Text
                 fontSize="sm"
-                color="blue.600"
+                color="green.600"
                 _dark={{ color: 'blue.300' }}
               >
                 {t('notes')}: {session.feeConfig.notes}
@@ -604,7 +604,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
               <Text
                 fontSize="2xl"
                 fontWeight="bold"
-                color="blue.600"
+                color="green.600"
                 _dark={{ color: 'blue.300' }}
               >
                 {stats.totalPlayers}
@@ -632,7 +632,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
               <Text
                 fontSize="2xl"
                 fontWeight="bold"
-                color="blue.600"
+                color="green.600"
                 _dark={{ color: 'blue.300' }}
               >
                 {stats.totalAmount.toLocaleString('vi-VN')}
@@ -722,7 +722,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
         </Heading>
         {isLoadingPayments ? (
           <Center py={10}>
-            <Spinner size="lg" color="blue.500" />
+            <Spinner size="lg" color="green.500" />
           </Center>
         ) : (
           <SessionPaymentList

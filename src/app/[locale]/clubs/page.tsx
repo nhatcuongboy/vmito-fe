@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Flex, SimpleGrid, Spinner, Text, Button } from '@chakra-ui/react';
+import { Box, Flex, SimpleGrid, Spinner, Text } from '@chakra-ui/react';
 import { Search, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ClubsService } from '@/lib/api/clubs.service';
@@ -9,21 +9,10 @@ import ClubCard from '@/components/clubs/ClubCard';
 import { IClubListItem } from '@/types/club';
 import { Input } from '@/components/ui/Input';
 import PageLayout from '@/components/layout/PageLayout';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { UserRole } from '@/lib/api/types';
-import { ROUTES } from '@/constants/routes';
-import { useRouter } from '@/i18n/config';
+import { Button } from '@/components/ui/chakra-compat';
 
 export default function BrowseClubsPage() {
   const t = useTranslations();
-  const { user } = useAuthStore();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (user?.role === UserRole.HOST || user?.role === UserRole.ADMIN) {
-      router.replace(ROUTES.HOST.CLUBS.LIST);
-    }
-  }, [user, router]);
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,16 +69,6 @@ export default function BrowseClubsPage() {
     fetchClubs(nextPage, search, true);
   };
 
-  if (user?.role === UserRole.HOST || user?.role === UserRole.ADMIN) {
-    return (
-      <PageLayout title={t('clubs.browseClubs')}>
-        <Flex justify="center" align="center" minH="200px">
-          <Spinner size="xl" colorPalette="green" />
-        </Flex>
-      </PageLayout>
-    );
-  }
-
   return (
     <PageLayout title={t('clubs.browseClubs')}>
       {/* Search Bar */}
@@ -102,7 +81,7 @@ export default function BrowseClubsPage() {
             onKeyPress={handleKeyPress}
             size="lg"
           />
-          <Button onClick={handleSearch} colorPalette="green" size="lg" px={6}>
+          <Button onClick={handleSearch} size="lg" px={6}>
             <Search size={20} />
             {t('common.search')}
           </Button>

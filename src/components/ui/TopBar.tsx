@@ -11,7 +11,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useSidebar } from '@/contexts/SidebarContext';
 import {
   Box,
-  Button,
   Container,
   Flex,
   Heading,
@@ -19,6 +18,7 @@ import {
   Image,
   Text,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -120,7 +120,7 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
                 <Text
                   fontSize={{ base: 'md', md: 'lg' }}
                   fontWeight="bold"
-                  color="blue.600"
+                  color="green.600"
                 >
                   Vmito
                 </Text>
@@ -178,10 +178,15 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
               ) : (
                 <Button
                   onClick={() => router.push('/auth/signin')}
-                  // variant="ghost"
-                  colorPalette="blue"
+                  colorPalette="green"
                   size="sm"
-                  fontWeight="bold"
+                  fontWeight="600"
+                  boxShadow="0 2px 8px rgba(23, 154, 59, 0.25)"
+                  _hover={{
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(23, 154, 59, 0.35)',
+                  }}
+                  transition="all 0.2s"
                 >
                   {common('login')}
                 </Button>

@@ -11,7 +11,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 }) => {
   return (
     <Center py={10} {...props}>
-      <Spinner size="xl" color="blue.500" {...spinnerProps} />
+      <Spinner size="xl" color="green.500" {...spinnerProps} />
     </Center>
   );
 };

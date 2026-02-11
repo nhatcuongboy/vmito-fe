@@ -143,7 +143,7 @@ function TournamentsContent() {
               </Button>
               <NextLinkButton
                 href="/host/tournaments/new"
-                colorPalette="blue"
+                colorPalette="green"
                 leftIcon={<Plus size={16} />}
               >
                 {t('createTournament')}

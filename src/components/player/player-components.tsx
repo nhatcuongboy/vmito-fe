@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Player } from '@/lib/api/types';
 import { UserPlus, User, Edit, Trash } from 'lucide-react';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VALID_LEVELS } from '@/constants/levels';
 

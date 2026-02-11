@@ -209,7 +209,7 @@ export default function TournamentPairsPage() {
               <Button
                 leftIcon={<Plus size={16} />}
                 onClick={handleCreate}
-                colorPalette="blue"
+                colorPalette="green"
               >
                 {t('addPair')}
               </Button>
@@ -253,7 +253,7 @@ export default function TournamentPairsPage() {
                                 {pair.type && (
                                   <Text
                                     fontSize="xs"
-                                    color="blue.600"
+                                    color="green.600"
                                     fontWeight="medium"
                                   >
                                     {getPairTypeLabel(pair.type)}
@@ -395,7 +395,7 @@ export default function TournamentPairsPage() {
               <Button variant="ghost" mr={3} onClick={onClose}>
                 {t('cancel')}
               </Button>
-              <Button colorPalette="blue" onClick={handleSave}>
+              <Button colorPalette="green" onClick={handleSave}>
                 {editingPair ? t('update') : t('create')}
               </Button>
             </ModalFooter>

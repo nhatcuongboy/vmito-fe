@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-// import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,9 +9,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Court, Player } from '@/lib/api/types';
-import { Button } from '@chakra-ui/react';
 import { Clock, Play, Square, User } from 'lucide-react';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { Button } from '../ui/chakra-compat';
 
 export function CourtCard({
   court,

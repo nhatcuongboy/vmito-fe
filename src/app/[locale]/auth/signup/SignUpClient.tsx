@@ -9,7 +9,6 @@ import {
   VStack,
   Heading,
   Input,
-  Button,
   Text,
   Link,
   Field,
@@ -23,6 +22,7 @@ import { z } from 'zod';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useMemo } from 'react';
 import { ROUTES } from '@/constants';
+import { Button } from '@/components/ui/chakra-compat';
 
 // SignUp form schema creator
 function createSignUpSchema(t: any) {
@@ -127,7 +127,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
           >
             <VStack gap={6}>
               <Box textAlign="center">
-                <Heading size="lg" color="blue.600">
+                <Heading size="lg" color="green.600">
                   {t('heading')}
                 </Heading>
                 <Text color="gray.600" mt={2}>
@@ -184,7 +184,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
 
                   <Button
                     type="submit"
-                    colorPalette="blue"
+                    colorPalette="green"
                     width="full"
                     size="lg"
                     loading={isSubmitting}
@@ -199,7 +199,7 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                   {t('alreadyHaveAccount')}{' '}
                   <Link
                     href={ROUTES.AUTH.SIGNIN}
-                    color="blue.600"
+                    color="green.600"
                     fontWeight="semibold"
                   >
                     {t('signIn')}

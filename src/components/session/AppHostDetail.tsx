@@ -117,7 +117,7 @@ export const AppHostDetail = ({
 
           {phone && (
             <Button
-              colorPalette="blue"
+              colorPalette="green"
               variant="outline"
               w="full"
               onClick={handleCall}

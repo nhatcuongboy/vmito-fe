@@ -157,7 +157,7 @@ export default function SessionManagement({
   if (loading && !realTimeData) {
     return (
       <Box p={6} textAlign="center">
-        <Spinner size="xl" color="blue.500" />
+        <Spinner size="xl" color="green.500" />
         <Text mt={4}>Loading session management...</Text>
       </Box>
     );
@@ -293,7 +293,7 @@ export default function SessionManagement({
               onClick={handleAutoAssign}
               loading={actionLoading === 'auto-assign'}
               disabled={stats.availableCourts === 0 || stats.waitingPlayers < 4}
-              colorPalette="blue"
+              colorPalette="green"
               size="sm"
               width="full"
             >

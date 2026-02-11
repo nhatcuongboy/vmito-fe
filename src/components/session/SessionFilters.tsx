@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Box, Flex, Input, Button } from '@chakra-ui/react';
+import { Box, Flex, Input } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Select } from '@/components/ui/Select';
 import { Search, X, Calendar, Filter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -11,6 +12,7 @@ import {
   ISessionFilterState,
 } from './SessionFilters.types';
 import { SessionStatus } from '@/lib/api/types';
+import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 const SessionFilters: React.FC<ISessionFiltersProps> = ({
   onFilterChange,
@@ -79,6 +81,12 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
 
   return (
     <Box
+      position="sticky"
+      top={{
+        base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+        md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+      }}
+      zIndex={50}
       mb={6}
       p={4}
       bg="white"
@@ -168,6 +176,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                     px={3}
                     h="40px"
                     transition="all 0.2s"
+                    cursor="pointer"
                     _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
                     _hover={{
                       borderColor: 'blue.400',
@@ -176,6 +185,10 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                     _focusWithin={{
                       borderColor: 'blue.500',
                       shadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+                    }}
+                    onClick={(e) => {
+                      const input = e.currentTarget.querySelector('input');
+                      input?.showPicker?.();
                     }}
                   >
                     <Calendar
@@ -196,8 +209,12 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                       _placeholder={{ color: 'gray.400' }}
                       css={{
                         '&::-webkit-calendar-picker-indicator': {
-                          display: 'none',
-                          webkitAppearance: 'none',
+                          position: 'absolute',
+                          right: 0,
+                          width: '100%',
+                          height: '100%',
+                          opacity: 0,
+                          cursor: 'pointer',
                         },
                         '&::-webkit-date-and-time-value': {
                           minHeight: '1.5em',

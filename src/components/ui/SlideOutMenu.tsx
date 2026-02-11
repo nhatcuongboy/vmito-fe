@@ -32,6 +32,7 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import { Tooltip } from './tooltip';
 import { ROUTES } from '@/constants';
 import ThemeSwitcher from './ThemeSwitcher';
+import { usePathname } from '@/i18n/config';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -43,6 +44,34 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const { isCollapsed } = useSidebar();
+  const pathname = usePathname();
+
+  const getActiveProps = (href: string) => {
+    // Exact match for home, startsWith for others
+    const isActive =
+      href === '/' ? pathname === '/' : pathname.startsWith(href);
+
+    if (!isActive) {
+      return {
+        color: 'fg',
+      };
+    }
+
+    return {
+      bg: 'green.50',
+      _dark: { bg: 'green.950/20' },
+      color: 'green.600',
+      fontWeight: 'semibold',
+      borderLeft: !isCollapsed ? '4px solid' : 'none',
+      borderLeftColor: 'green.500',
+      borderRadius: isCollapsed ? 'lg' : '0',
+      ps: !isCollapsed ? '12px' : isCollapsed ? 0 : 4, // Adjust padding for border
+      _hover: {
+        bg: 'green.100',
+        _dark: { bg: 'green.900/40' },
+      },
+    };
+  };
 
   return (
     <>
@@ -117,6 +146,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     onClick={onClose}
                     w="full"
                     px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    {...getActiveProps(ROUTES.HOME)}
                   >
                     <Flex
                       align="center"
@@ -127,7 +157,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         md: isCollapsed ? 'center' : 'flex-start',
                       }}
                     >
-                      <Home size={18} />
+                      <Home
+                        size={18}
+                        color={
+                          pathname === ROUTES.HOME
+                            ? 'var(--chakra-colors-green-500)'
+                            : 'currentColor'
+                        }
+                      />
                       {!isCollapsed && (
                         <Text display={{ base: 'block', md: 'block' }}>
                           {nav('home')}
@@ -156,6 +193,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     onClick={onClose}
                     w="full"
                     px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    {...getActiveProps(ROUTES.BROWSE.VENUES.LIST)}
                   >
                     <Flex
                       align="center"
@@ -166,10 +204,64 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         md: isCollapsed ? 'center' : 'flex-start',
                       }}
                     >
-                      <MapPin size={18} />
+                      <MapPin
+                        size={18}
+                        color={
+                          pathname.startsWith(ROUTES.BROWSE.VENUES.LIST)
+                            ? 'var(--chakra-colors-green-500)'
+                            : 'currentColor'
+                        }
+                      />
                       {!isCollapsed && (
                         <Text display={{ base: 'block', md: 'block' }}>
                           {nav('browseVenues')}
+                        </Text>
+                      )}
+                    </Flex>
+                  </NextLinkButton>
+                </Tooltip>
+                <Tooltip
+                  content={nav('browseClubs') || 'Tra cứu nhóm'}
+                  positioning={{
+                    placement: 'right',
+                    offset: { mainAxis: 12 },
+                  }}
+                  disabled={!isCollapsed}
+                  showArrow
+                  openDelay={200}
+                >
+                  <NextLinkButton
+                    href={ROUTES.CLUBS.BROWSE}
+                    variant="ghost"
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
+                    onClick={onClose}
+                    w="full"
+                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    {...getActiveProps(ROUTES.CLUBS.BROWSE)}
+                  >
+                    <Flex
+                      align="center"
+                      gap={3}
+                      w="full"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                    >
+                      <Users
+                        size={18}
+                        color={
+                          pathname.startsWith(ROUTES.CLUBS.BROWSE)
+                            ? 'var(--chakra-colors-green-500)'
+                            : 'currentColor'
+                        }
+                      />
+                      {!isCollapsed && (
+                        <Text display={{ base: 'block', md: 'block' }}>
+                          {nav('browseClubs')}
                         </Text>
                       )}
                     </Flex>
@@ -222,6 +314,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(
+                          user?.role === UserRole.HOST ||
+                            user?.role === UserRole.ADMIN
+                            ? ROUTES.HOST.SESSIONS.LIST
+                            : ROUTES.PLAYER.HOST_FEATURE
+                        )}
                       >
                         <Flex
                           align="center"
@@ -232,7 +330,15 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <Calendar size={18} />
+                          <Calendar
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.HOST.SESSIONS.LIST) ||
+                              pathname === ROUTES.PLAYER.HOST_FEATURE
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
                               {nav('host')}
@@ -262,6 +368,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.PLAYER.SESSIONS.LIST)}
                       >
                         <Flex
                           align="center"
@@ -272,55 +379,17 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <Ticket size={18} />
+                          <Ticket
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.PLAYER.SESSIONS.LIST)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
                               {nav('joined')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </Tooltip>
-
-                    <Tooltip
-                      content={nav('clubs')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={
-                          user?.role === UserRole.HOST ||
-                          user?.role === UserRole.ADMIN
-                            ? ROUTES.HOST.CLUBS.LIST
-                            : '/player/clubs'
-                        }
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <Users size={18} />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('clubs')}
                             </Text>
                           )}
                         </Flex>
@@ -349,6 +418,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           onClick={onClose}
                           w="full"
                           px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                          {...getActiveProps(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
                         >
                           <Flex
                             align="center"
@@ -359,10 +429,69 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                               md: isCollapsed ? 'center' : 'flex-start',
                             }}
                           >
-                            <ClipboardCheck size={18} />
+                            <ClipboardCheck
+                              size={18}
+                              color={
+                                pathname.startsWith(
+                                  ROUTES.HOST.PENDING_JOIN_REQUESTS
+                                )
+                                  ? 'var(--chakra-colors-green-500)'
+                                  : 'currentColor'
+                              }
+                            />
                             {!isCollapsed && (
                               <Text display={{ base: 'block', md: 'block' }}>
                                 {nav('pendingJoinRequests')}
+                              </Text>
+                            )}
+                          </Flex>
+                        </NextLinkButton>
+                      </Tooltip>
+                    )}
+
+                    {isAuthenticated && (
+                      <Tooltip
+                        content={nav('myClubs')}
+                        positioning={{
+                          placement: 'right',
+                          offset: { mainAxis: 12 },
+                        }}
+                        disabled={!isCollapsed}
+                        showArrow
+                        openDelay={200}
+                      >
+                        <NextLinkButton
+                          href={ROUTES.CLUBS.MY_CLUBS}
+                          variant="ghost"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                          onClick={onClose}
+                          w="full"
+                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                          {...getActiveProps(ROUTES.CLUBS.MY_CLUBS)}
+                        >
+                          <Flex
+                            align="center"
+                            gap={3}
+                            w="full"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                          >
+                            <Users
+                              size={18}
+                              color={
+                                pathname.startsWith(ROUTES.CLUBS.MY_CLUBS)
+                                  ? 'var(--chakra-colors-green-500)'
+                                  : 'currentColor'
+                              }
+                            />
+                            {!isCollapsed && (
+                              <Text display={{ base: 'block', md: 'block' }}>
+                                {nav('myClubs')}
                               </Text>
                             )}
                           </Flex>
@@ -418,6 +547,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(
+                          user?.role === UserRole.HOST ||
+                            user?.role === UserRole.ADMIN
+                            ? ROUTES.HOST.TRANSACTIONS
+                            : ROUTES.PLAYER.TRANSACTIONS
+                        )}
                       >
                         <Flex
                           align="center"
@@ -428,7 +563,15 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <Receipt size={18} />
+                          <Receipt
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.HOST.TRANSACTIONS) ||
+                              pathname.startsWith(ROUTES.PLAYER.TRANSACTIONS)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
                               {nav('transactions')}
@@ -440,47 +583,55 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
                     {(user?.role === UserRole.HOST ||
                       user?.role === UserRole.ADMIN) && (
-                      <>
-                        <Tooltip
-                          content={nav('paymentSettings')}
-                          positioning={{
-                            placement: 'right',
-                            offset: { mainAxis: 12 },
+                      <Tooltip
+                        content={nav('paymentSettings')}
+                        positioning={{
+                          placement: 'right',
+                          offset: { mainAxis: 12 },
+                        }}
+                        disabled={!isCollapsed}
+                        showArrow
+                        openDelay={200}
+                      >
+                        <NextLinkButton
+                          href={ROUTES.HOST.PAYMENT_SETTINGS}
+                          variant="ghost"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
                           }}
-                          disabled={!isCollapsed}
-                          showArrow
-                          openDelay={200}
+                          onClick={onClose}
+                          w="full"
+                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                          {...getActiveProps(ROUTES.HOST.PAYMENT_SETTINGS)}
                         >
-                          <NextLinkButton
-                            href={ROUTES.HOST.PAYMENT_SETTINGS}
-                            variant="ghost"
+                          <Flex
+                            align="center"
+                            gap={3}
+                            w="full"
                             justifyContent={{
                               base: 'flex-start',
                               md: isCollapsed ? 'center' : 'flex-start',
                             }}
-                            onClick={onClose}
-                            w="full"
-                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                           >
-                            <Flex
-                              align="center"
-                              gap={3}
-                              w="full"
-                              justifyContent={{
-                                base: 'flex-start',
-                                md: isCollapsed ? 'center' : 'flex-start',
-                              }}
-                            >
-                              <CreditCard size={18} />
-                              {!isCollapsed && (
-                                <Text display={{ base: 'block', md: 'block' }}>
-                                  {nav('paymentSettings')}
-                                </Text>
-                              )}
-                            </Flex>
-                          </NextLinkButton>
-                        </Tooltip>
-                      </>
+                            <CreditCard
+                              size={18}
+                              color={
+                                pathname.startsWith(
+                                  ROUTES.HOST.PAYMENT_SETTINGS
+                                )
+                                  ? 'var(--chakra-colors-green-500)'
+                                  : 'currentColor'
+                              }
+                            />
+                            {!isCollapsed && (
+                              <Text display={{ base: 'block', md: 'block' }}>
+                                {nav('paymentSettings')}
+                              </Text>
+                            )}
+                          </Flex>
+                        </NextLinkButton>
+                      </Tooltip>
                     )}
                   </Stack>
                 </Box>
@@ -526,6 +677,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.ADMIN.USERS)}
                       >
                         <Flex
                           align="center"
@@ -536,7 +688,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <Users size={18} />
+                          <Users
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.ADMIN.USERS)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
                               {nav('users')}
@@ -566,6 +725,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.ADMIN.NOTIFICATIONS)}
                       >
                         <Flex
                           align="center"
@@ -576,7 +736,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <Bell size={18} />
+                          <Bell
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.ADMIN.NOTIFICATIONS)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
                               {nav('notifications')}
@@ -606,6 +773,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         onClick={onClose}
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.ADMIN.VENUES)}
                       >
                         <Flex
                           align="center"
@@ -616,7 +784,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <MapPin size={18} />
+                          <MapPin
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.ADMIN.VENUES)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
                               {nav('venues')}
@@ -674,6 +849,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       onClick={onClose}
                       w="full"
                       px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      {...getActiveProps(
+                        user?.role === UserRole.HOST ||
+                          user?.role === UserRole.ADMIN
+                          ? ROUTES.HOST.DASHBOARD
+                          : ROUTES.HOME
+                      )}
                     >
                       <Flex
                         align="center"
@@ -684,7 +865,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           md: isCollapsed ? 'center' : 'flex-start',
                         }}
                       >
-                        <BarChart3 size={18} />
+                        <BarChart3
+                          size={18}
+                          color={
+                            pathname.startsWith(ROUTES.HOST.DASHBOARD)
+                              ? 'var(--chakra-colors-green-500)'
+                              : 'currentColor'
+                          }
+                        />
                         {!isCollapsed && (
                           <Text display={{ base: 'block', md: 'block' }}>
                             {nav('browse')}
@@ -715,6 +903,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     onClick={onClose}
                     w="full"
                     px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    {...getActiveProps(ROUTES.ABOUT)}
                   >
                     <Flex
                       align="center"
@@ -725,7 +914,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         md: isCollapsed ? 'center' : 'flex-start',
                       }}
                     >
-                      <Info size={18} />
+                      <Info
+                        size={18}
+                        color={
+                          pathname.startsWith(ROUTES.ABOUT)
+                            ? 'var(--chakra-colors-green-500)'
+                            : 'currentColor'
+                        }
+                      />
                       {!isCollapsed && (
                         <Text display={{ base: 'block', md: 'block' }}>
                           {common('about')}
@@ -836,7 +1032,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     <NextLinkButton
                       href={ROUTES.AUTH.SIGNIN}
                       // variant="outline"
-                      colorPalette="blue"
+                      colorPalette="green"
                       w={isCollapsed ? 'full' : '180px'}
                       onClick={onClose}
                       justifyContent="center"
@@ -866,7 +1062,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     <NextLinkButton
                       href={ROUTES.AUTH.SIGNUP}
                       variant="outline"
-                      colorPalette="blue"
+                      colorPalette="green"
                       w={isCollapsed ? 'full' : '180px'}
                       onClick={onClose}
                       justifyContent="center"

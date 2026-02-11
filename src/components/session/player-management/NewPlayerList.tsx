@@ -186,10 +186,10 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                           errors[index] ? '0 0 0 1px #F56565' : undefined
                         }
                         _focus={{
-                          borderColor: errors[index] ? 'red.400' : 'blue.500',
+                          borderColor: errors[index] ? 'red.400' : 'green.500',
                           boxShadow: errors[index]
                             ? '0 0 0 1px #F56565'
-                            : '0 0 0 1px #3182ce',
+                            : '0 0 0 1px #38a169',
                         }}
                         disabled={!!player.userId}
                         opacity={player.userId ? 0.6 : 1}
@@ -334,7 +334,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                             style={{
                               width: '16px',
                               height: '16px',
-                              accentColor: '#3182ce',
+                              accentColor: '#38a169',
                             }}
                           />
                           <label
@@ -368,7 +368,7 @@ const NewPlayerList: React.FC<NewPlayerListProps> = ({
                             style={{
                               width: '16px',
                               height: '16px',
-                              accentColor: '#3182ce',
+                              accentColor: '#38a169',
                             }}
                           />
                           <label

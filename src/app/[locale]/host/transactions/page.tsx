@@ -12,8 +12,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { Receipt } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import TopBar from '@/components/ui/TopBar';
-import PageWrapper from '@/components/layout/PageWrapper';
+import PageLayout from '@/components/layout/PageLayout';
 import { TransactionSummaryList } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
 import {
@@ -68,7 +67,7 @@ function HostTransactionsContent() {
   }
 
   return (
-    <Container maxW="container.md" py={6} pt={20}>
+    <Container maxW="container.md">
       <HStack mb={6}>
         <Receipt size={24} color="#3182ce" />
         <Heading size="lg">{t('transactionHistory')}</Heading>
@@ -94,10 +93,9 @@ export default function HostTransactionsPage() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Suspense>
-        <PageWrapper>
-          <TopBar title={t('transactionHistory')} />
+        <PageLayout title={t('transactionHistory')}>
           <HostTransactionsContent />
-        </PageWrapper>
+        </PageLayout>
       </Suspense>
     </ProtectedRouteGuard>
   );

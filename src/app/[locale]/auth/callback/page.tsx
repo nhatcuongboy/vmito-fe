@@ -92,7 +92,7 @@ function AuthCallbackContent() {
       bg="bg"
     >
       <VStack gap={4}>
-        <Spinner size="xl" color="blue.500" />
+        <Spinner size="xl" color="green.500" />
         <Text color="fg.muted">Completing sign in...</Text>
       </VStack>
     </Box>
@@ -110,7 +110,7 @@ export default function AuthCallbackPage() {
           alignItems="center"
           justifyContent="center"
         >
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Box>
       }
     >

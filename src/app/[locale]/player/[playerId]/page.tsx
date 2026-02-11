@@ -54,7 +54,7 @@ export default function GuestPlayerPage() {
           justifyContent="center"
           bg="gray.50"
         >
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Box>
       }
     >

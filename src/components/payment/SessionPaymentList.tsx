@@ -150,7 +150,7 @@ export default function SessionPaymentList({
 
     if (!isFixed) {
       return (
-        <Text fontWeight="semibold" color="blue.600">
+        <Text fontWeight="semibold" color="green.600">
           {FeeService.formatFee(payment.amount)}
         </Text>
       );
@@ -266,7 +266,7 @@ export default function SessionPaymentList({
                     </Badge>
                   )}
                   {f === PaymentStatus.SUBMITTED && submittedCount > 0 && (
-                    <Badge ml={1} colorPalette="blue">
+                    <Badge ml={1} colorPalette="green">
                       {submittedCount}
                     </Badge>
                   )}

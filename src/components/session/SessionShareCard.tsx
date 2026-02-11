@@ -88,7 +88,7 @@ const SessionShareCard = ({
       margin: 0,
       width: qrWidth,
       color: {
-        dark: '#2563EB', // blue.600
+        dark: '#179a3b', // primary green
         light: '#FFFFFF',
       },
     })
@@ -111,7 +111,7 @@ const SessionShareCard = ({
         borderRadius="2xl"
         overflow="hidden"
         borderWidth="12px"
-        borderColor="blue.600"
+        borderColor="green.600"
         position="relative"
       >
         <Grid templateColumns="450px 1fr" h="100%">
@@ -134,7 +134,7 @@ const SessionShareCard = ({
             </Box>
             <Box p={8} textAlign="center">
               <Box
-                bg="blue.600"
+                bg="green.600"
                 color="white"
                 py={4}
                 px={6}
@@ -182,14 +182,14 @@ const SessionShareCard = ({
                 >
                   {session.name}
                 </Heading>
-                <Text fontSize="2xl" fontWeight="bold" color="blue.600">
+                <Text fontSize="2xl" fontWeight="bold" color="green.600">
                   Host: {displayHostName}
                 </Text>
               </Box>
 
               <Stack gap={6}>
                 <Flex align="center">
-                  <Icon as={MapPin} boxSize={8} mr={4} color="blue.500" />
+                  <Icon as={MapPin} boxSize={8} mr={4} color="green.500" />
                   <Box>
                     <Text fontWeight="bold" color="gray.700" fontSize="2xl">
                       {session.venue?.name || session.location}
@@ -203,7 +203,7 @@ const SessionShareCard = ({
                 <Grid templateColumns="1fr 1fr" gap={10}>
                   <Stack gap={6}>
                     <Flex align="center" gap={4}>
-                      <Icon as={Calendar} boxSize={8} color="blue.500" />
+                      <Icon as={Calendar} boxSize={8} color="green.500" />
                       <Text
                         fontSize="xl"
                         fontWeight="semibold"
@@ -213,7 +213,7 @@ const SessionShareCard = ({
                       </Text>
                     </Flex>
                     <Flex align="center" gap={4}>
-                      <Icon as={SquareAsterisk} boxSize={8} color="blue.500" />
+                      <Icon as={SquareAsterisk} boxSize={8} color="green.500" />
                       <Text
                         fontSize="xl"
                         fontWeight="semibold"
@@ -236,7 +236,7 @@ const SessionShareCard = ({
                   </Stack>
                   <Stack gap={6}>
                     <Flex align="center" gap={4}>
-                      <Icon as={Clock} boxSize={8} color="blue.500" />
+                      <Icon as={Clock} boxSize={8} color="green.500" />
                       <Text
                         fontSize="xl"
                         fontWeight="semibold"
@@ -246,7 +246,7 @@ const SessionShareCard = ({
                       </Text>
                     </Flex>
                     <Flex align="center" gap={4}>
-                      <Icon as={Users} boxSize={8} color="blue.500" />
+                      <Icon as={Users} boxSize={8} color="green.500" />
                       <Text
                         fontSize="xl"
                         fontWeight="semibold"
@@ -257,7 +257,7 @@ const SessionShareCard = ({
                     </Flex>
                     {session.hostPhone && (
                       <Flex align="center" gap={4}>
-                        <Icon as={Phone} boxSize={8} color="blue.500" />
+                        <Icon as={Phone} boxSize={8} color="green.500" />
                         <Text
                           fontSize="xl"
                           fontWeight="semibold"
@@ -328,7 +328,7 @@ const SessionShareCard = ({
       borderRadius="2xl"
       overflow="hidden"
       borderWidth="6px"
-      borderColor="blue.600"
+      borderColor="green.600"
       boxShadow="none" // No shadow to avoid artifacts in captured image
     >
       {/* Cover Image Section */}
@@ -344,7 +344,7 @@ const SessionShareCard = ({
       </Box>
 
       {/* Share Header */}
-      <Box bg="blue.600" color="white" py={2} px={5} textAlign="center">
+      <Box bg="green.600" color="white" py={2} px={5} textAlign="center">
         <Heading size="md" fontWeight="bold" textTransform="uppercase">
           {t('shareCardHeader')}
         </Heading>
@@ -357,7 +357,7 @@ const SessionShareCard = ({
           <Heading
             size="md"
             fontWeight="bold"
-            color="blue.600"
+            color="green.600"
             textAlign="center"
             textTransform="uppercase"
           >
@@ -367,7 +367,7 @@ const SessionShareCard = ({
           {/* Location */}
           {(session.venue?.name || session.location) && (
             <Flex align="flex-start">
-              <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
+              <Icon as={MapPin} boxSize={5} mr={2} color="green.500" mt={1} />
               <Box flex="1">
                 <Text fontWeight="semibold" color="gray.700" fontSize="sm">
                   {session.venue?.name || session.location}
@@ -384,7 +384,7 @@ const SessionShareCard = ({
 
           {/* Host Info */}
           <Flex align="center" gap={2}>
-            <Icon as={User} boxSize={5} color="blue.500" />
+            <Icon as={User} boxSize={5} color="green.500" />
             <Text fontSize="sm" fontWeight="semibold" color="gray.700">
               {`Host: ${displayHostName}`}
             </Text>
@@ -395,13 +395,13 @@ const SessionShareCard = ({
             {/* Row 1: Date & Time */}
             <Grid templateColumns="1fr 1fr" gap={4}>
               <Flex align="center" gap={2}>
-                <Icon as={Calendar} boxSize={5} color="blue.500" />
+                <Icon as={Calendar} boxSize={5} color="green.500" />
                 <Text fontSize="sm" fontWeight="medium" color="gray.700">
                   {compactDate}
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon as={Clock} boxSize={5} color="blue.500" />
+                <Icon as={Clock} boxSize={5} color="green.500" />
                 <Text fontSize="sm" fontWeight="medium" color="gray.700">
                   {compactTime}
                 </Text>
@@ -411,7 +411,7 @@ const SessionShareCard = ({
             {/* Row 2: Courts & Max Players */}
             <Grid templateColumns="1fr 1fr" gap={4}>
               <Flex align="center" gap={2}>
-                <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
+                <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
                 <Text fontSize="sm" fontWeight="medium" color="gray.700">
                   {session.numberOfCourts} {t('courts')}
                   {session.courts && session.courts.length > 0 && (
@@ -428,7 +428,7 @@ const SessionShareCard = ({
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon as={Users} boxSize={5} color="blue.500" />
+                <Icon as={Users} boxSize={5} color="green.500" />
                 <Text fontSize="sm" fontWeight="medium" color="gray.700">
                   {t('maxPlayers', { count: maxPlayers })}
                 </Text>
@@ -440,7 +440,7 @@ const SessionShareCard = ({
               <Grid templateColumns="1fr 1fr" gap={4}>
                 {session.hostPhone ? (
                   <Flex align="center" gap={2}>
-                    <Icon as={Phone} boxSize={5} color="blue.500" />
+                    <Icon as={Phone} boxSize={5} color="green.500" />
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
                       {session.hostPhone}
                     </Text>
@@ -450,7 +450,7 @@ const SessionShareCard = ({
                 )}
                 {session.shuttlecock && (
                   <Flex align="center" gap={2}>
-                    <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
+                    <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
                       Cầu {session.shuttlecock}
                     </Text>
@@ -537,7 +537,7 @@ const SessionShareCard = ({
               <Text
                 fontSize="xs"
                 fontWeight="bold"
-                color="blue.700"
+                color="green.700"
                 lineHeight="1.4"
                 textAlign="center"
               >

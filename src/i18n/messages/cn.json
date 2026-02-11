@@ -14,6 +14,8 @@
     "notifications": "通知",
     "venues": "场地",
     "browseVenues": "浏览场地",
+    "browseClubs": "浏览俱乐部",
+    "myClubs": "我的俱乐部",
     "clubs": "俱乐部",
     "createClub": "创建新俱乐部",
     "pendingJoinRequests": "加入请求"
@@ -2089,6 +2091,8 @@
     "noClubsFoundDescription": "尝试调整您的搜索或稍后查看新俱乐部",
     "members": "成员",
     "sessions": "场次",
+    "active": "活跃",
+    "viewDetails": "查看详情",
     "hostedBy": "主持人",
     "maxMembers": "最多 {count} 名成员",
     "myClubs": "我的俱乐部",

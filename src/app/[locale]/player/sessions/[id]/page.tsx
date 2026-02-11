@@ -118,7 +118,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
       >
         <Center minH="50vh">
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Center>
       </ProtectedRouteGuard>
     );
@@ -158,7 +158,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         <Box
           p={6}
           bg="blue.50"
-          color="blue.600"
+          color="green.600"
           borderRadius="md"
           m={8}
           textAlign="center"
@@ -307,7 +307,7 @@ export default function PlayerSessionManagePage({
       <Suspense
         fallback={
           <Center minH="50vh">
-            <Spinner size="xl" color="blue.500" />
+            <Spinner size="xl" color="green.500" />
           </Center>
         }
       >

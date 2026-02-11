@@ -27,7 +27,7 @@ export default function MainLayout({
   title,
   showBackButton = false,
   backHref = '/',
-  backgroundColor = { base: 'gray.50', _dark: 'gray.950' },
+  backgroundColor = { base: 'green.50', _dark: 'gray.950' },
   contentPadding = 0,
 }: MainLayoutProps) {
   const { isCollapsed } = useSidebar();
@@ -69,7 +69,7 @@ export default function MainLayout({
           <Box flex="1" p={contentPadding}>
             {children}
           </Box>
-          <Footer />
+          {/* <Footer /> */}
         </Flex>
       </Box>
     </Box>

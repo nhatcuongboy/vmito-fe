@@ -196,7 +196,7 @@ export const PublicSessionDetailContent = ({
   const locationRow =
     session.venue?.name || session.location ? (
       <Flex align="flex-start">
-        <Icon as={MapPin} boxSize={5} mr={2} color="blue.500" mt={1} />
+        <Icon as={MapPin} boxSize={5} mr={2} color="green.500" mt={1} />
         <Box flex="1" overflow="hidden">
           <Flex align="center" gap={1}>
             <Text fontWeight="medium" lineClamp={1}>
@@ -204,7 +204,7 @@ export const PublicSessionDetailContent = ({
             </Text>
             <IconButton
               size="xs"
-              colorPalette="blue"
+              colorPalette="green"
               variant="ghost"
               aria-label="Google Maps"
               onClick={(e) => {

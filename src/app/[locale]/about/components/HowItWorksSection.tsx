@@ -54,7 +54,7 @@ export default function HowItWorksSection() {
                 borderRadius="full"
                 boxShadow="lg"
                 mb={6}
-                color="blue.500"
+                color="green.500"
               >
                 <step.icon size={40} />
               </Box>

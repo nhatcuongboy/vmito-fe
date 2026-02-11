@@ -46,7 +46,7 @@ export default function PlayerSessionBottomNav({
         display="flex"
         flexDirection="column"
         alignItems="center"
-        color={activeTab === 0 ? 'blue.500' : 'gray.500'}
+        color={activeTab === 0 ? 'green.500' : 'gray.500'}
         fontWeight={activeTab === 0 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >
@@ -61,7 +61,7 @@ export default function PlayerSessionBottomNav({
         display="flex"
         flexDirection="column"
         alignItems="center"
-        color={activeTab === 1 ? 'blue.500' : 'gray.500'}
+        color={activeTab === 1 ? 'green.500' : 'gray.500'}
         fontWeight={activeTab === 1 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >
@@ -80,7 +80,7 @@ export default function PlayerSessionBottomNav({
         display="flex"
         flexDirection="column"
         alignItems="center"
-        color={activeTab === 2 ? 'blue.500' : 'gray.500'}
+        color={activeTab === 2 ? 'green.500' : 'gray.500'}
         fontWeight={activeTab === 2 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >
@@ -99,7 +99,7 @@ export default function PlayerSessionBottomNav({
         display="flex"
         flexDirection="column"
         alignItems="center"
-        color={activeTab === 3 ? 'blue.500' : 'gray.500'}
+        color={activeTab === 3 ? 'green.500' : 'gray.500'}
         fontWeight={activeTab === 3 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >
@@ -118,7 +118,7 @@ export default function PlayerSessionBottomNav({
         display="flex"
         flexDirection="column"
         alignItems="center"
-        color={activeTab === 4 ? 'blue.500' : 'gray.500'}
+        color={activeTab === 4 ? 'green.500' : 'gray.500'}
         fontWeight={activeTab === 4 ? 'bold' : 'normal'}
         fontSize={{ base: '10px', md: 'sm' }}
       >

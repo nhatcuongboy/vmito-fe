@@ -1,15 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Textarea,
-  Button,
-  Avatar,
-} from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Textarea, Avatar } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { StarRatingInput } from './StarRatingInput';
 import { useTranslations } from 'next-intl';

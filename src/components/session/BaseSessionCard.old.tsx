@@ -199,7 +199,7 @@ const BaseSessionCard = ({
         <Stack gap={3} flex={1}>
           <Flex align="center" flexWrap="wrap" gap={2}>
             <Flex align="center">
-              <Icon as={User} boxSize={5} mr={2} color="blue.500" />
+              <Icon as={User} boxSize={5} mr={2} color="green.500" />
               <Text>
                 {t('host')}: <strong>{convertedSession.hostName}</strong>
               </Text>
@@ -218,21 +218,21 @@ const BaseSessionCard = ({
           {extraInfoRows}
 
           <Flex align="center">
-            <Icon as={Calendar} boxSize={5} mr={2} color="blue.500" />
+            <Icon as={Calendar} boxSize={5} mr={2} color="green.500" />
             <Text>{convertedSession.date}</Text>
           </Flex>
           <Flex align="center">
-            <Icon as={Clock} boxSize={5} mr={2} color="blue.500" />
+            <Icon as={Clock} boxSize={5} mr={2} color="green.500" />
             <Text>{convertedSession.time}</Text>
           </Flex>
           <Flex align="center">
-            <Icon as={SquareAsterisk} boxSize={5} mr={2} color="blue.500" />
+            <Icon as={SquareAsterisk} boxSize={5} mr={2} color="green.500" />
             <Text>
               {convertedSession.numberOfCourts} {t('courtsAvailable')}
             </Text>
           </Flex>
           <Flex align="center">
-            <Icon as={Users} boxSize={5} mr={2} color="blue.500" />
+            <Icon as={Users} boxSize={5} mr={2} color="green.500" />
             <Text>
               {convertedSession.totalPlayers} / {convertedSession.maxPlayers}{' '}
               {t('players')}
@@ -283,7 +283,7 @@ const BaseSessionCard = ({
           {/* Fee Display */}
           {session.feeConfig && (
             <Flex align="center">
-              <Icon as={DollarSign} boxSize={5} mr={2} color="blue.500" />
+              <Icon as={DollarSign} boxSize={5} mr={2} color="green.500" />
               <Text>
                 <Text as="span" fontWeight="bold" color="green.600">
                   {FeeService.getFeeDisplayText(session.feeConfig)}

@@ -69,7 +69,7 @@ export default function PublicRouteGuard({
         bg="bg"
       >
         <VStack gap={4}>
-          <Spinner size="lg" color="blue.500" />
+          <Spinner size="lg" color="green.500" />
           <Text color="fg.muted">Checking authentication...</Text>
         </VStack>
       </Box>
@@ -98,7 +98,7 @@ export default function PublicRouteGuard({
           bg="bg"
         >
           <VStack gap={4}>
-            <Spinner size="lg" color="blue.500" />
+            <Spinner size="lg" color="green.500" />
             <Text color="fg.muted">Redirecting...</Text>
           </VStack>
         </Box>
@@ -120,7 +120,7 @@ export default function PublicRouteGuard({
         bg="bg"
       >
         <VStack gap={4}>
-          <Spinner size="lg" color="blue.500" />
+          <Spinner size="lg" color="green.500" />
           <Text color="fg.muted">Redirecting...</Text>
         </VStack>
       </Box>

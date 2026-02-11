@@ -3,22 +3,15 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import { Box, Container, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
-import TopBar from '@/components/ui/TopBar';
-import PageWrapper from '@/components/layout/PageWrapper';
+import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
-import {
-  CONTAINER_PX,
-  CONTENT_PT_OFFSET,
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-} from '@/constants';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
@@ -32,7 +25,6 @@ function HostSessionsContent() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
-  const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -95,7 +87,7 @@ function HostSessionsContent() {
   }, [inView, hasMore, loading, loadingMore]);
 
   // Apply filters whenever filters or sessions change
-  useEffect(() => {
+  const filteredSessions = useMemo(() => {
     let result = [...sessions];
 
     // Status filter
@@ -136,7 +128,7 @@ function HostSessionsContent() {
       return dateB - dateA;
     });
 
-    setFilteredSessions(result);
+    return result;
   }, [filters, sessions]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
@@ -152,66 +144,59 @@ function HostSessionsContent() {
   };
 
   return (
-    <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar showBackButton={false} title={tNav('myHostedSessions')} />
+    <PageLayout
+      showBackButton={false}
+      title={tNav('myHostedSessions')}
+      bg="green.50"
+      _dark={{ bg: 'gray.900' }}
+    >
+      <SessionFilters
+        onFilterChange={handleFilterChange}
+        showStatusFilter={true}
+        showDateFilter={true}
+        showSearchFilter={true}
+        showLevelFilter={false}
+      />
 
-      <Container
-        maxW="container.xl"
-        px={CONTAINER_PX}
-        pt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-        }}
-        pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
-      >
-        <SessionFilters
-          onFilterChange={handleFilterChange}
-          showStatusFilter={true}
-          showDateFilter={true}
-          showSearchFilter={true}
-          showLevelFilter={false}
-        />
+      <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
 
-        <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+      <SessionsList
+        sessions={filteredSessions}
+        isLoading={loading}
+        mode="manage"
+        onRefresh={fetchHostedSessions}
+      />
 
-        <SessionsList
-          sessions={filteredSessions}
-          isLoading={loading}
-          mode="manage"
-          onRefresh={fetchHostedSessions}
-        />
-
-        {/* Infinite Scroll Trigger */}
-        {hasMore && filteredSessions.length >= PAGE_SIZE && (
-          <Box ref={ref} mt={8} mb={10} width="full">
-            <Grid
-              templateColumns={{
-                base: '1fr',
-                md: 'repeat(2, 1fr)',
-                lg: 'repeat(3, 1fr)',
-              }}
-              gap={6}
-            >
-              {Array.from({ length: 3 }).map((_, index) => (
-                <SessionCardSkeleton key={index} />
-              ))}
-            </Grid>
-            <Flex justify="center" mt={4}>
-              <Spinner size="sm" color="blue.500" mr={2} />
-              <Text color="gray.500" fontSize="sm">
-                {tSession('loadingMore')}
-              </Text>
-            </Flex>
-          </Box>
-        )}
-      </Container>
+      {/* Infinite Scroll Trigger */}
+      {hasMore && filteredSessions.length >= PAGE_SIZE && (
+        <Box ref={ref} mt={8} mb={10} width="full">
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            }}
+            gap={6}
+          >
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SessionCardSkeleton key={index} />
+            ))}
+          </Grid>
+          <Flex justify="center" mt={4}>
+            <Spinner size="sm" color="green.500" mr={2} />
+            <Text color="gray.500" fontSize="sm">
+              {tSession('loadingMore')}
+            </Text>
+          </Flex>
+        </Box>
+      )}
 
       <AISessionModal
         isOpen={isAIModalOpen}
         onClose={() => setIsAIModalOpen(false)}
         onSuccess={handleAISuccess}
       />
-    </PageWrapper>
+    </PageLayout>
   );
 }
 

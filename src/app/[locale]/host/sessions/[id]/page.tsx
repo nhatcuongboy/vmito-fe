@@ -137,7 +137,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     >
       {loading && !session ? (
         <Center minH="50vh">
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Center>
       ) : error ? (
         <Box
@@ -159,7 +159,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
         <Box
           p={6}
           bg="blue.50"
-          color="blue.600"
+          color="green.600"
           borderRadius="md"
           m={8}
           textAlign="center"
@@ -291,7 +291,7 @@ export default function HostSessionPage({
       <Suspense
         fallback={
           <Center minH="50vh">
-            <Spinner size="xl" color="blue.500" />
+            <Spinner size="xl" color="green.500" />
           </Center>
         }
       >

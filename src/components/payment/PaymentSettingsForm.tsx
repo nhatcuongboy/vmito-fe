@@ -214,7 +214,7 @@ export default function PaymentSettingsForm({
           )}
           <Button
             type="submit"
-            colorPalette="blue"
+            colorPalette="green"
             loading={isLoading}
             disabled={!isFormValid || isDeleting}
           >

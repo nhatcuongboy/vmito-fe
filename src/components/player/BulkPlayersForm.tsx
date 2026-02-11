@@ -551,7 +551,7 @@ export default function BulkPlayersForm({
       <Flex mt={4} gap={4} wrap="wrap">
         <Button
           onClick={addPlayer}
-          colorPalette="blue"
+          colorPalette="green"
           disabled={!sessionInfo || sessionInfo.availableSlots === 0}
           size="md"
         >

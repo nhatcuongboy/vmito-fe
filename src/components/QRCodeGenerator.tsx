@@ -76,7 +76,7 @@ export default function QRCodeGenerator({
         fontSize="lg"
         fontWeight="bold"
         letterSpacing="2px"
-        color="blue.600"
+        color="green.600"
       >
         {joinCode}
       </Text>

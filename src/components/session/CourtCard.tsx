@@ -174,7 +174,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
           <HStack gap={2} alignItems="center">
             {currentMatch && court.status === 'IN_USE' && (
               <Badge
-                colorPalette="blue"
+                colorPalette="green"
                 variant="solid"
                 display="flex"
                 alignItems="center"
@@ -309,7 +309,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 !hasPreSelectedPlayers(court) && (
                   <CompatButton
                     size="sm"
-                    colorPalette="blue"
+                    colorPalette="green"
                     variant="outline"
                     onClick={() => onPreSelectClick(court)}
                     disabled={isRefreshing || waitingPlayers.length < 4}
@@ -385,7 +385,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 </CompatButton>
                 {startManualMatchCreation && (
                   <CompatButton
-                    colorPalette="blue"
+                    colorPalette="green"
                     onClick={() => onManualSelectionClick(court)}
                     size="sm"
                     width="full"

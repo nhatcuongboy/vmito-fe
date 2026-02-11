@@ -5,7 +5,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Box,
-  Button,
   Heading,
   Input,
   Link,
@@ -22,6 +21,7 @@ import QRScanner from '@/components/QRScanner';
 import { AuthService } from '@/lib/api/auth.service';
 import MainLayout from '@/components/layout/MainLayout';
 import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
+import { Button } from '@/components/ui/chakra-compat';
 
 interface JoinByCodeClientProps {
   locale: string;
@@ -165,7 +165,7 @@ function JoinByCodeContent() {
                 {t('alreadyHaveAccount')}{' '}
                 <Link
                   href="/auth/signin"
-                  color="blue.600"
+                  color="green.600"
                   fontWeight="semibold"
                 >
                   {t('signIn')}
@@ -196,7 +196,7 @@ export default function JoinByCodeClient({ locale }: JoinByCodeClientProps) {
             alignItems="center"
             justifyContent="center"
           >
-            <Spinner size="xl" color="blue.500" />
+            <Spinner size="xl" color="green.500" />
           </Box>
         }
       >

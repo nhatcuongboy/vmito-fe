@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { MapPin } from 'lucide-react';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { useTranslations } from 'next-intl';
@@ -51,7 +52,7 @@ export default function CourtCallModal({
           <Text
             fontSize="2xl"
             fontWeight="bold"
-            color="blue.600"
+            color="green.600"
             _dark={{ color: 'blue.400' }}
           >
             {courtName}

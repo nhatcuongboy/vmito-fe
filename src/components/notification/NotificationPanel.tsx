@@ -7,10 +7,10 @@ import {
   VStack,
   HStack,
   IconButton,
-  Button,
   Spinner,
   Flex,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import {
   PopoverRoot,
   PopoverTrigger,

@@ -7,7 +7,6 @@ import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import {
   Box,
-  Button,
   Field,
   Heading,
   Input,
@@ -24,6 +23,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ROUTES } from '@/constants';
+import { Button } from '@/components/ui/chakra-compat';
 
 // SignIn form schema creator
 function createSignInSchema(t: (key: string) => string) {
@@ -164,7 +164,7 @@ function SignInForm() {
         bg={{ base: 'gray.50', _dark: 'gray.950' }}
       >
         <VStack gap={4}>
-          <Spinner size="lg" color="blue.500" />
+          <Spinner size="lg" color="green.500" />
           <Text color="fg.muted">
             {isRedirecting ? 'Redirecting...' : 'Loading...'}
           </Text>
@@ -195,7 +195,11 @@ function SignInForm() {
         >
           <VStack gap={6}>
             <Box textAlign="center">
-              <Heading size="lg" color="blue.600" _dark={{ color: 'blue.400' }}>
+              <Heading
+                size="lg"
+                color="green.600"
+                _dark={{ color: 'blue.400' }}
+              >
                 {t('appTitle')}
               </Heading>
               <Text color="fg.muted" mt={2}>
@@ -260,7 +264,7 @@ function SignInForm() {
                 <Button
                   type="submit"
                   data-testid="login-button"
-                  colorPalette="blue"
+                  colorPalette="green"
                   width="full"
                   size="lg"
                   loading={isSubmitting}
@@ -324,7 +328,7 @@ function SignInForm() {
                 {t('noAccount')}{' '}
                 <Link
                   href={ROUTES.AUTH.SIGNUP}
-                  color="blue.600"
+                  color="green.600"
                   _dark={{ color: 'blue.400' }}
                   fontWeight="semibold"
                 >
@@ -350,7 +354,7 @@ export default function SignInClient({ locale }: SignInClientProps) {
           alignItems="center"
           justifyContent="center"
         >
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Box>
       }
     >

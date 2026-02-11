@@ -280,7 +280,7 @@ export default function TournamentManagePage() {
             </Card>
 
             {/* Tabs */}
-            <Tabs variant="enclosed" colorPalette="blue">
+            <Tabs variant="enclosed" colorPalette="green">
               <TabList flexWrap="wrap">
                 <Tab>
                   <HStack gap={2}>
@@ -365,7 +365,7 @@ export default function TournamentManagePage() {
                                   alignItems="start"
                                 >
                                   <Heading size="sm">{category.name}</Heading>
-                                  <Badge colorPalette="blue">
+                                  <Badge colorPalette="green">
                                     {getCategoryTypeLabel(category.type)}
                                   </Badge>
                                 </Flex>

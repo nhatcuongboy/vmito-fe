@@ -8,15 +8,8 @@ import {
 } from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
 import { CourtDirection } from '@/lib/api/types';
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -116,7 +109,7 @@ export default function LevelRequirementsCard({
           size="md"
           width="full"
           variant={allLevelsSelected ? 'subtle' : 'outline'}
-          colorPalette="blue"
+          colorPalette="green"
           onClick={handleSelectAllLevels}
           fontWeight="semibold"
           h="44px"

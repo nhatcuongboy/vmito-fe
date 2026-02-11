@@ -4,7 +4,6 @@ import { SessionService } from '@/lib/api/session.service';
 import { PlayerStatistics } from '@/lib/api/types';
 import {
   Box,
-  Button,
   Center,
   Flex,
   HStack,
@@ -17,6 +16,7 @@ import {
   VStack,
   chakra,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Filter, RotateCcw, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
@@ -134,7 +134,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
         borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
       >
         <Flex align="center" mb={4}>
-          <Icon as={Filter} boxSize={5} mr={2} color="blue.500" />
+          <Icon as={Filter} boxSize={5} mr={2} color="green.500" />
           <Heading size="sm" fontWeight="bold">
             {t('filtersAndSorting')}
           </Heading>
@@ -239,7 +239,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
       >
         {loading ? (
           <Center py={12}>
-            <Spinner size="xl" color="blue.500" />
+            <Spinner size="xl" color="green.500" />
           </Center>
         ) : error ? (
           <Center py={10}>
@@ -302,7 +302,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
                     <Table.Cell
                       py={2.5}
                       fontWeight="medium"
-                      color="blue.600"
+                      color="green.600"
                       _dark={{ color: 'blue.300' }}
                       cursor="pointer"
                       _hover={{ textDecoration: 'underline' }}
@@ -399,7 +399,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
           alignItems="center"
           justifyContent="center"
         >
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Box>
       )}
     </VStack>

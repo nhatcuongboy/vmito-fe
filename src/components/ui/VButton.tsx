@@ -4,41 +4,42 @@
 
 import React from 'react';
 import {
-  Button as ChakraButton,
-  ButtonProps as ChakraButtonProps,
+  Button,
+  ButtonProps,
   IconButton as ChakraIconButton,
   IconButtonProps as ChakraIconButtonProps,
   Box,
 } from '@chakra-ui/react';
 
 // Create enhanced Button with leftIcon support
-export interface ButtonProps extends Omit<ChakraButtonProps, 'as'> {
+export interface VButtonProps extends Omit<ButtonProps, 'as'> {
   leftIcon?: React.ReactNode;
   as?: React.ElementType;
   href?: string; // Add href prop for Link compatibility
   isWithinLink?: boolean; // Flag to indicate button is inside a Link
 }
 
-export const Button = ({
+export const VButton = ({
   leftIcon,
   children,
   as,
   href,
   isWithinLink,
+  colorPalette = 'green', // Default colorPalette to match theme defaultVariants
   ...props
-}: ButtonProps) => {
+}: VButtonProps) => {
   // Special case: if this button is inside a Link component, don't set as="a"
   // to avoid nested <a> tags
   if (isWithinLink) {
     return (
-      <ChakraButton {...props}>
+      <Button colorPalette={colorPalette} {...props}>
         {leftIcon && (
           <Box mr="2" display="inline-block">
             {leftIcon}
           </Box>
         )}
         {children}
-      </ChakraButton>
+      </Button>
     );
   }
 
@@ -47,14 +48,14 @@ export const Button = ({
     const LinkComponent = as;
     return (
       <LinkComponent href={href} style={{ textDecoration: 'none' }}>
-        <ChakraButton {...props}>
+        <Button colorPalette={colorPalette} {...props}>
           {leftIcon && (
             <Box mr="2" display="inline-block">
               {leftIcon}
             </Box>
           )}
           {children}
-        </ChakraButton>
+        </Button>
       </LinkComponent>
     );
   }
@@ -65,14 +66,19 @@ export const Button = ({
   const extraProps = href && typeof ComponentType === 'string' ? { href } : {};
 
   return (
-    <ChakraButton as={ComponentType} {...extraProps} {...props}>
+    <Button
+      as={ComponentType}
+      colorPalette={colorPalette}
+      {...extraProps}
+      {...props}
+    >
       {leftIcon && (
         <Box mr="2" display="inline-block">
           {leftIcon}
         </Box>
       )}
       {children}
-    </ChakraButton>
+    </Button>
   );
 };
 
@@ -86,9 +92,10 @@ export const IconButton = ({
   icon,
   isLoading,
   children,
+  colorPalette = 'green', // Default colorPalette to match theme defaultVariants
   ...props
 }: IconButtonProps & { children?: React.ReactNode }) => (
-  <ChakraIconButton loading={isLoading} {...props}>
+  <ChakraIconButton loading={isLoading} colorPalette={colorPalette} {...props}>
     {icon}
     {children}
   </ChakraIconButton>

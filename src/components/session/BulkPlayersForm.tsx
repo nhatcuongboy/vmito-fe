@@ -237,7 +237,7 @@ export default function BulkPlayersForm({
           <HStack gap={2}>
             <Button onClick={addPlayer}>Add Player</Button>
             <Button
-              colorPalette="blue"
+              colorPalette="green"
               onClick={handleSubmit}
               loading={loading}
             >

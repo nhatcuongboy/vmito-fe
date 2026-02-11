@@ -87,7 +87,7 @@ export default function OverviewPlayerTable({
         borderColor="gray.100"
         _dark={{ borderColor: 'gray.700' }}
       >
-        <Icon as={Users} boxSize={5} mr={2} color="blue.500" />
+        <Icon as={Users} boxSize={5} mr={2} color="green.500" />
         <Heading
           size="sm"
           fontSize="md"
@@ -147,7 +147,7 @@ export default function OverviewPlayerTable({
                   <Table.Cell py={3} textAlign="center">
                     {player.level ? (
                       <Badge
-                        colorPalette="blue"
+                        colorPalette="green"
                         variant="subtle"
                         px={2}
                         borderRadius="full"

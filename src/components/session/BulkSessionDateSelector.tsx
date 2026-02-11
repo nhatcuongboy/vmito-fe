@@ -210,7 +210,7 @@ export function BulkSessionDateSelector({
                       />
                       <Button
                         size="sm"
-                        colorPalette="blue"
+                        colorPalette="green"
                         onClick={handleAddDate}
                         disabled={!tempDate}
                       >
@@ -245,7 +245,7 @@ export function BulkSessionDateSelector({
                                   bg: 'blue.900/30',
                                   color: 'blue.300',
                                 }}
-                                color="blue.600"
+                                color="green.600"
                                 borderRadius="md"
                                 fontSize="xs"
                               >
@@ -253,7 +253,7 @@ export function BulkSessionDateSelector({
                                 <Box
                                   as="button"
                                   onClick={() => handleRemoveDate(date)}
-                                  color="blue.400"
+                                  color="green.400"
                                   _hover={{ color: 'blue.600' }}
                                 >
                                   <X size={14} />
@@ -292,7 +292,7 @@ export function BulkSessionDateSelector({
                         {WEEKDAYS.map((weekday) => (
                           <VStack key={weekday.value} gap={1}>
                             <Checkbox
-                              colorPalette="blue"
+                              colorPalette="green"
                               checked={selectedWeekdays.includes(weekday.value)}
                               onCheckedChange={() =>
                                 handleWeekdayToggle(weekday.value)
@@ -368,7 +368,7 @@ export function BulkSessionDateSelector({
             <Text fontSize="sm" fontWeight="medium">
               {t('totalSessions')}
             </Text>
-            <Text fontSize="lg" fontWeight="bold" color="blue.500">
+            <Text fontSize="lg" fontWeight="bold" color="green.500">
               {calculateTotalSessions()}
             </Text>
           </Flex>

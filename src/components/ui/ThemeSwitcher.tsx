@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Box, Flex, Text, Button } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { ChevronDown, Moon, Sun, Monitor, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useColorMode } from './color-mode-provider';
@@ -119,7 +120,7 @@ export default function ThemeSwitcher({ isCollapsed }: ThemeSwitcherProps) {
                   <Text fontSize="sm">{t.label}</Text>
                 </Flex>
                 {theme === t.id && (
-                  <Check size={14} color="var(--chakra-colors-blue-500)" />
+                  <Check size={14} color="var(--chakra-colors-green-500)" />
                 )}
               </Flex>
             </Box>

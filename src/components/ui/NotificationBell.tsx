@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Button,
   Flex,
   Heading,
   IconButton,
@@ -14,6 +13,7 @@ import {
   HStack,
   VStack,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import {
   LuBell,
   LuCheck,
@@ -201,7 +201,7 @@ export default function NotificationBell({
               <Button
                 size="xs"
                 variant="ghost"
-                colorPalette="blue"
+                colorPalette="green"
                 onClick={markAllAsRead}
                 fontSize="xs"
                 h="24px"
@@ -217,7 +217,7 @@ export default function NotificationBell({
           <Box maxH="400px" overflowY="auto">
             {isLoading && notifications.length === 0 ? (
               <Flex justify="center" align="center" py={12}>
-                <Spinner size="md" color="blue.500" />
+                <Spinner size="md" color="green.500" />
               </Flex>
             ) : notifications.length === 0 ? (
               <VStack gap={3} p={10} color="gray.400">

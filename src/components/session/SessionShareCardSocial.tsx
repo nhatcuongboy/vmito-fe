@@ -82,7 +82,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
       margin: 0,
       width: 150,
       color: {
-        dark: '#2563EB', // blue.600
+        dark: '#179a3b', // primary green
         light: '#FFFFFF',
       },
     })
@@ -99,7 +99,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
       borderRadius="3xl"
       overflow="hidden"
       borderWidth="16px"
-      borderColor="blue.600"
+      borderColor="green.600"
       boxShadow="none"
     >
       {/* Cover Image */}
@@ -115,7 +115,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
       </Box>
 
       {/* Share Header */}
-      <Box bg="blue.600" color="white" py={5} px={10} textAlign="center">
+      <Box bg="green.600" color="white" py={5} px={10} textAlign="center">
         <Heading size="4xl" fontWeight="bold" textTransform="uppercase">
           {t('shareCardHeader')}
         </Heading>
@@ -128,7 +128,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
           <Heading
             size="4xl"
             fontWeight="bold"
-            color="blue.600"
+            color="green.600"
             textAlign="center"
             textTransform="uppercase"
           >
@@ -138,7 +138,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
           {/* Location */}
           {(session.venue?.name || session.location) && (
             <Flex align="flex-start" gap={6}>
-              <Icon as={MapPin} boxSize={14} color="blue.500" mt={1} />
+              <Icon as={MapPin} boxSize={14} color="green.500" mt={1} />
               <Box flex="1">
                 <Text fontWeight="semibold" color="gray.700" fontSize="4xl">
                   {session.venue?.name || session.location}
@@ -155,7 +155,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
 
           {/* Host Info */}
           <Flex align="center" gap={6}>
-            <Icon as={User} boxSize={14} color="blue.500" />
+            <Icon as={User} boxSize={14} color="green.500" />
             <Text fontSize="4xl" fontWeight="semibold" color="gray.700">
               Host: {displayHostName}
             </Text>
@@ -166,13 +166,13 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
             {/* Row 1: Date & Time */}
             <Grid templateColumns="1fr 1fr" gap={10}>
               <Flex align="center" gap={6}>
-                <Icon as={Calendar} boxSize={14} color="blue.500" />
+                <Icon as={Calendar} boxSize={14} color="green.500" />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {compactDate}
                 </Text>
               </Flex>
               <Flex align="center" gap={6}>
-                <Icon as={Clock} boxSize={14} color="blue.500" />
+                <Icon as={Clock} boxSize={14} color="green.500" />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {compactTime}
                 </Text>
@@ -182,7 +182,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
             {/* Row 2: Courts & Max Players */}
             <Grid templateColumns="1fr 1fr" gap={10}>
               <Flex align="center" gap={6}>
-                <Icon as={SquareAsterisk} boxSize={14} color="blue.500" />
+                <Icon as={SquareAsterisk} boxSize={14} color="green.500" />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {session.numberOfCourts} {t('courts')}
                   {session.courts && session.courts.length > 0 && (
@@ -199,7 +199,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                 </Text>
               </Flex>
               <Flex align="center" gap={6}>
-                <Icon as={Users} boxSize={14} color="blue.500" />
+                <Icon as={Users} boxSize={14} color="green.500" />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {t('maxPlayers', { count: maxPlayers })}
                 </Text>
@@ -211,7 +211,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
               <Grid templateColumns="1fr 1fr" gap={10}>
                 {session.hostPhone ? (
                   <Flex align="center" gap={6}>
-                    <Icon as={Phone} boxSize={14} color="blue.500" />
+                    <Icon as={Phone} boxSize={14} color="green.500" />
                     <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                       {session.hostPhone}
                     </Text>
@@ -221,7 +221,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                 )}
                 {session.shuttlecock && (
                   <Flex align="center" gap={6}>
-                    <Icon as={SquareAsterisk} boxSize={14} color="blue.500" />
+                    <Icon as={SquareAsterisk} boxSize={14} color="green.500" />
                     <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                       Cầu {session.shuttlecock}
                     </Text>
@@ -320,7 +320,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                   <Text
                     fontSize="xl"
                     fontWeight="bold"
-                    color="blue.600"
+                    color="green.600"
                     lineHeight="1.3"
                   >
                     Truy cập VMITO.com
@@ -328,7 +328,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                   <Text
                     fontSize="xl"
                     fontWeight="bold"
-                    color="blue.600"
+                    color="green.600"
                     lineHeight="1.3"
                   >
                     để tìm thêm nhiều kèo

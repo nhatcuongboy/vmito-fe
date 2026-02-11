@@ -242,7 +242,7 @@ function StatusPageContent() {
             height="50vh"
             direction="column"
           >
-            <Spinner size="xl" color="blue.500" mb={4} />
+            <Spinner size="xl" color="green.500" mb={4} />
             <Text>{common('loading')}</Text>
           </Flex>
         </Container>
@@ -286,14 +286,14 @@ function StatusPageContent() {
               </Text>
             </Box>
             <Flex gap={3}>
-              <NextLinkButton href="/join" colorPalette="blue">
+              <NextLinkButton href="/join" colorPalette="green">
                 {t('errors.returnToJoin')}
               </NextLinkButton>
               {error === 'GENERAL_ERROR' && (
                 <NextLinkButton
                   href="#"
                   variant="outline"
-                  colorPalette="blue"
+                  colorPalette="green"
                   onClick={(e) => {
                     e.preventDefault();
                     fetchPlayerData(false); // Initial load for retry
@@ -353,7 +353,7 @@ function StatusPageContent() {
                   _dark={{ borderBottomColor: 'gray.700' }}
                 >
                   <Flex align="center">
-                    <Box as={User} boxSize={5} color="blue.500" mr={2} />
+                    <Box as={User} boxSize={5} color="green.500" mr={2} />
                     <Box>
                       <Heading size="md">{t('yourStatus')}</Heading>
                       {/* <Text color="gray.500" fontSize="sm">
@@ -530,7 +530,7 @@ function StatusPageContent() {
                                       <Text
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="blue.700"
+                                        color="green.700"
                                         _dark={{ color: 'blue.300' }}
                                         mb={1}
                                       >
@@ -545,7 +545,7 @@ function StatusPageContent() {
                                           <Text
                                             key={p.id}
                                             fontSize="sm"
-                                            color="blue.600"
+                                            color="green.600"
                                             bg="blue.100"
                                             _dark={{
                                               bg: 'blue.800',

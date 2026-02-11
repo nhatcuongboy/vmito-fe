@@ -2,7 +2,6 @@
 
 import {
   Box,
-  Button,
   Container,
   Flex,
   Heading,
@@ -11,6 +10,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Menu as MenuIcon, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

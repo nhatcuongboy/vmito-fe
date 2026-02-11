@@ -99,6 +99,12 @@ export const ROUTES = {
     },
   },
 
+  // Clubs Routes
+  CLUBS: {
+    BROWSE: '/clubs',
+    MY_CLUBS: '/my-clubs',
+  },
+
   // Join Routes
   JOIN: {
     ENTRY: '/join',

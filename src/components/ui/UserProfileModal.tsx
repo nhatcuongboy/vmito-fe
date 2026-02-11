@@ -241,7 +241,7 @@ export default function UserProfileModal({
             disabled={isAvatarUploading}
           />
           <Box position="relative">
-            <Avatar.Root size="2xl" bg="blue.500">
+            <Avatar.Root size="2xl" bg="green.500">
               <Avatar.Fallback name={user.name || user.email}>
                 {(user.name || user.email).charAt(0).toUpperCase()}
               </Avatar.Fallback>
@@ -251,7 +251,7 @@ export default function UserProfileModal({
               position="absolute"
               bottom={0}
               right={0}
-              bg="blue.500"
+              bg="green.500"
               color="white"
               p={2}
               borderRadius="full"

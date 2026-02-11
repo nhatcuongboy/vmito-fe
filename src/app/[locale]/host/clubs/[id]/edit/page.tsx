@@ -150,7 +150,7 @@ const EditClubPage = () => {
       } catch (error) {
         console.error('Failed to load group:', error);
         toaster.error({ title: t('failedToLoadClub') });
-        router.push(ROUTES.HOST.CLUBS.LIST);
+        router.push(ROUTES.CLUBS.BROWSE);
       }
     };
 
@@ -170,7 +170,7 @@ const EditClubPage = () => {
         defaultVenueId: selectedVenueId || undefined,
       });
       toaster.success({ title: t('clubUpdatedSuccess') });
-      router.push(ROUTES.HOST.CLUBS.LIST);
+      router.push(ROUTES.CLUBS.BROWSE);
     } catch (error) {
       console.error('Failed to update club:', error);
       toaster.error({ title: t('failedToUpdateClub') });
@@ -380,7 +380,7 @@ const EditClubPage = () => {
                     id="isPublic"
                     checked={field.value}
                     onCheckedChange={(e) => field.onChange(e.checked)}
-                    colorPalette="blue"
+                    colorPalette="green"
                   />
                 )}
               />
@@ -424,7 +424,7 @@ const EditClubPage = () => {
             <Button variant="ghost" onClick={() => router.back()}>
               {t('cancel')}
             </Button>
-            <Button type="submit" colorPalette="blue" loading={isSubmitting}>
+            <Button type="submit" colorPalette="green" loading={isSubmitting}>
               {t('saveChanges')}
             </Button>
           </Flex>

@@ -132,7 +132,9 @@ export default function SessionOverviewTab({
             {onToggleSessionStatus && session.status !== 'FINISHED' && (
               <Flex mt={6} justify="center">
                 <Button
-                  colorPalette={session.status === 'PREPARING' ? 'blue' : 'red'}
+                  colorPalette={
+                    session.status === 'PREPARING' ? 'green' : 'red'
+                  }
                   size="lg"
                   px={8}
                   onClick={onToggleSessionStatus}
@@ -241,7 +243,7 @@ export default function SessionOverviewTab({
             <Box
               p={2}
               bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
-              color="blue.500"
+              color="green.500"
               borderRadius="lg"
               mr={3}
             >

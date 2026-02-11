@@ -135,7 +135,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
           <Text>{t('filter')}</Text>
           {!isAllSelected && (
             <Badge
-              colorPalette="blue"
+              colorPalette="green"
               bg="blue.500"
               color="white"
               borderRadius="full"

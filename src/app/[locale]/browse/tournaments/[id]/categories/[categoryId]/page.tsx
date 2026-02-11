@@ -181,7 +181,7 @@ export default function CategoryDetailPage() {
                   <VStack align="start" gap={2}>
                     <Heading size="lg">{category.name}</Heading>
                     <HStack>
-                      <Badge colorPalette="blue">
+                      <Badge colorPalette="green">
                         {getCategoryTypeLabel(category.type)}
                       </Badge>
                       {category.hasGroupStage && (

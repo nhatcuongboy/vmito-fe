@@ -242,7 +242,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
 
           {isLoadingStats ? (
             <Flex justify="center" py={4}>
-              <Spinner size="sm" color="blue.500" />
+              <Spinner size="sm" color="green.500" />
             </Flex>
           ) : playerStats ? (
             <SimpleGrid columns={2} gap={3}>

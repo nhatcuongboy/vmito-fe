@@ -45,7 +45,7 @@ export default function UseCasesSection() {
             borderColor="blue.500"
           >
             <Flex align="center" mb={6} gap={4}>
-              <Box p={3} bg="blue.100" color="blue.600" borderRadius="full">
+              <Box p={3} bg="blue.100" color="green.600" borderRadius="full">
                 <Users size={32} />
               </Box>
               <Heading size="lg">{tPlayers('title')}</Heading>

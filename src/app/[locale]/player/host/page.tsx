@@ -3,24 +3,18 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import { Container, Flex, Heading, Button, Spinner } from '@chakra-ui/react';
+import { Flex, Heading, Spinner } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 import SessionsList from '@/components/session/SessionsList';
-import TopBar from '@/components/ui/TopBar';
-import PageWrapper from '@/components/layout/PageWrapper';
+import PageLayout from '@/components/layout/PageLayout';
 import { Plus } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
-import {
-  CONTAINER_PX,
-  CONTENT_PT_OFFSET,
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-} from '@/constants';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
+import { Button } from '@/components/ui/chakra-compat';
 
 function PlayerHostContent() {
   const t = useTranslations('pages.dashboard');
@@ -105,49 +99,42 @@ function PlayerHostContent() {
   };
 
   return (
-    <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar showBackButton={false} title={tNav('host')} />
+    <PageLayout
+      showBackButton={false}
+      title={tNav('host')}
+      bg="gray.50"
+      _dark={{ bg: 'gray.900' }}
+    >
+      <Flex mb={6} justify="space-between" align="center">
+        <Heading as="h2" size="lg">
+          {t('hostedSessions')}
+        </Heading>
+        <Button
+          colorPalette="green"
+          size="sm"
+          onClick={() => router.push('/sessions/new')}
+          loading={loading}
+        >
+          <Plus size={16} style={{ marginRight: 4 }} />
+          {t('createSession')}
+        </Button>
+      </Flex>
 
-      <Container
-        maxW="container.xl"
-        px={CONTAINER_PX}
-        pt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-        }}
-        pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
-      >
-        <Flex mb={6} justify="space-between" align="center">
-          <Heading as="h2" size="lg">
-            {t('hostedSessions')}
-          </Heading>
-          <Button
-            colorPalette="blue"
-            size="sm"
-            onClick={() => router.push('/sessions/new')}
-            loading={loading}
-          >
-            <Plus size={16} style={{ marginRight: 4 }} />
-            {t('createSession')}
-          </Button>
-        </Flex>
+      <SessionFilters
+        onFilterChange={handleFilterChange}
+        showStatusFilter={true}
+        showDateFilter={true}
+        showSearchFilter={true}
+        showLevelFilter={false}
+      />
 
-        <SessionFilters
-          onFilterChange={handleFilterChange}
-          showStatusFilter={true}
-          showDateFilter={true}
-          showSearchFilter={true}
-          showLevelFilter={false}
-        />
-
-        <SessionsList
-          sessions={filteredSessions}
-          isLoading={loading}
-          mode="manage"
-          onRefresh={fetchPlayerSessions}
-        />
-      </Container>
-    </PageWrapper>
+      <SessionsList
+        sessions={filteredSessions}
+        isLoading={loading}
+        mode="manage"
+        onRefresh={fetchPlayerSessions}
+      />
+    </PageLayout>
   );
 }
 

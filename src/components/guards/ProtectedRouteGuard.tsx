@@ -3,7 +3,8 @@
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { useEffect } from 'react';
-import { Box, Spinner, Text, VStack, Button } from '@chakra-ui/react';
+import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 
 interface ProtectedRouteGuardProps {
@@ -55,7 +56,7 @@ export default function ProtectedRouteGuard({
         bg="bg"
       >
         <VStack gap={4}>
-          <Spinner size="lg" color="blue.500" />
+          <Spinner size="lg" color="green.500" />
           <Text color="fg.muted">{t('authenticating')}</Text>
         </VStack>
       </Box>
@@ -73,7 +74,7 @@ export default function ProtectedRouteGuard({
         bg="bg"
       >
         <VStack gap={4}>
-          <Spinner size="lg" color="blue.500" />
+          <Spinner size="lg" color="green.500" />
           <Text color="fg.muted">{t('redirectingToSignIn')}</Text>
         </VStack>
       </Box>
@@ -102,7 +103,7 @@ export default function ProtectedRouteGuard({
           <Text fontSize="sm" color="fg.muted">
             {t('yourRole')} {user?.role || t('unknown')}
           </Text>
-          <Button colorPalette="blue" onClick={() => router.push(`/`)}>
+          <Button colorPalette="green" onClick={() => router.push(`/`)}>
             {t('goHome')}
           </Button>
         </VStack>

@@ -3,21 +3,14 @@
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { PlayerService } from '@/lib/api/player.service';
 import { ISession, UserRole } from '@/lib/api/types';
-import { Box, Container, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import { useAuthStore } from '@/stores/useAuthStore';
-import TopBar from '@/components/ui/TopBar';
-import PageWrapper from '@/components/layout/PageWrapper';
-import {
-  CONTAINER_PX,
-  CONTENT_PT_OFFSET,
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-} from '@/constants';
+import PageLayout from '@/components/layout/PageLayout';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
@@ -27,7 +20,6 @@ function PlayerSessionsContent() {
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
-  const [filteredSessions, setFilteredSessions] = useState<ISession[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -88,7 +80,7 @@ function PlayerSessionsContent() {
   }, [inView, hasMore, loading, loadingMore]);
 
   // Apply filters whenever filters or sessions change
-  useEffect(() => {
+  const filteredSessions = useMemo(() => {
     let result = [...sessions];
 
     // Status filter
@@ -130,7 +122,7 @@ function PlayerSessionsContent() {
       return dateB - dateA;
     });
 
-    setFilteredSessions(result);
+    return result;
   }, [filters, sessions]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
@@ -138,58 +130,51 @@ function PlayerSessionsContent() {
   };
 
   return (
-    <PageWrapper bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <TopBar showBackButton={false} title={t('joined')} />
+    <PageLayout
+      showBackButton={false}
+      title={t('joined')}
+      bg="green.50"
+      _dark={{ bg: 'gray.900' }}
+    >
+      <SessionFilters
+        onFilterChange={handleFilterChange}
+        showStatusFilter={true}
+        showDateFilter={true}
+        showSearchFilter={true}
+        showLevelFilter={false}
+      />
 
-      <Container
-        maxW="container.xl"
-        px={CONTAINER_PX}
-        pt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-        }}
-        pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
-      >
-        <SessionFilters
-          onFilterChange={handleFilterChange}
-          showStatusFilter={true}
-          showDateFilter={true}
-          showSearchFilter={true}
-          showLevelFilter={false}
-        />
+      <SessionsList
+        sessions={filteredSessions}
+        isLoading={loading}
+        mode="view"
+        onRefresh={fetchPlayerSessions}
+      />
 
-        <SessionsList
-          sessions={filteredSessions}
-          isLoading={loading}
-          mode="view"
-          onRefresh={fetchPlayerSessions}
-        />
-
-        {/* Infinite Scroll Trigger */}
-        {hasMore && filteredSessions.length >= PAGE_SIZE && (
-          <Box ref={ref} mt={8} mb={10} width="full">
-            <Grid
-              templateColumns={{
-                base: '1fr',
-                md: 'repeat(2, 1fr)',
-                lg: 'repeat(3, 1fr)',
-              }}
-              gap={6}
-            >
-              {Array.from({ length: 3 }).map((_, index) => (
-                <SessionCardSkeleton key={index} />
-              ))}
-            </Grid>
-            <Flex justify="center" mt={4}>
-              <Spinner size="sm" color="blue.500" mr={2} />
-              <Text color="gray.500" fontSize="sm">
-                {tSession('loadingMore')}
-              </Text>
-            </Flex>
-          </Box>
-        )}
-      </Container>
-    </PageWrapper>
+      {/* Infinite Scroll Trigger */}
+      {hasMore && filteredSessions.length >= PAGE_SIZE && (
+        <Box ref={ref} mt={8} mb={10} width="full">
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            }}
+            gap={6}
+          >
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SessionCardSkeleton key={index} />
+            ))}
+          </Grid>
+          <Flex justify="center" mt={4}>
+            <Spinner size="sm" color="green.500" mr={2} />
+            <Text color="gray.500" fontSize="sm">
+              {tSession('loadingMore')}
+            </Text>
+          </Flex>
+        </Box>
+      )}
+    </PageLayout>
   );
 }
 

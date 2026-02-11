@@ -10,22 +10,46 @@ const system = createSystem(defaultConfig, {
     tokens: {
       colors: {
         brand: {
-          50: { value: '#e6fffa' },
-          100: { value: '#b2f5ea' },
-          200: { value: '#81e6d9' },
-          300: { value: '#4fd1c7' },
-          400: { value: '#38b2ac' },
-          500: { value: '#319795' },
-          600: { value: '#2c7a7b' },
-          700: { value: '#285e61' },
-          800: { value: '#234e52' },
-          900: { value: '#1d4044' },
+          50: { value: '#ebfaf0' },
+          100: { value: '#c6f0d3' },
+          200: { value: '#8fdca6' },
+          300: { value: '#54c676' },
+          400: { value: '#26b04e' },
+          500: { value: '#179a3b' },
+          600: { value: '#127b2f' },
+          700: { value: '#0e5c23' },
+          800: { value: '#0a3d17' },
+          900: { value: '#061e0b' },
+        },
+        green: {
+          50: { value: '#ebfaf0' },
+          100: { value: '#c6f0d3' },
+          200: { value: '#8fdca6' },
+          300: { value: '#54c676' },
+          400: { value: '#26b04e' },
+          500: { value: '#179a3b' },
+          600: { value: '#127b2f' },
+          700: { value: '#0e5c23' },
+          800: { value: '#0a3d17' },
+          900: { value: '#061e0b' },
         },
         badminton: {
-          green: { value: '#22c55e' },
+          green: { value: '#179a3b' },
           orange: { value: '#f97316' },
           blue: { value: '#3b82f6' },
           purple: { value: '#8b5cf6' },
+        },
+        teal: {
+          50: { value: '#ebfaf0' },
+          100: { value: '#c6f0d3' },
+          200: { value: '#8fdca6' },
+          300: { value: '#54c676' },
+          400: { value: '#26b04e' },
+          500: { value: '#179a3b' },
+          600: { value: '#127b2f' },
+          700: { value: '#0e5c23' },
+          800: { value: '#0a3d17' },
+          900: { value: '#061e0b' },
         },
         error: {
           50: { value: '#fef2f2' },
@@ -77,6 +101,11 @@ const system = createSystem(defaultConfig, {
       },
     },
     recipes: {
+      button: {
+        defaultVariants: {
+          colorPalette: 'green',
+        },
+      },
       skeleton: {
         base: {
           _light: {

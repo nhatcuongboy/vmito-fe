@@ -502,7 +502,7 @@ export default function NewTournamentPage() {
                 </Button>
                 <Button
                   type="submit"
-                  colorPalette="blue"
+                  colorPalette="green"
                   loading={isLoading}
                   loadingText={t('creating')}
                 >

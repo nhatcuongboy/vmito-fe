@@ -44,7 +44,7 @@ export default function PlayerStatusTab({
         _dark={{ borderBottomColor: 'gray.700' }}
       >
         <Flex align="center">
-          <Box as={User} boxSize={5} color="blue.500" mr={2} />
+          <Box as={User} boxSize={5} color="green.500" mr={2} />
           <Box>
             <Heading size="md">{t('yourStatus')}</Heading>
           </Box>
@@ -207,7 +207,7 @@ export default function PlayerStatusTab({
                             <Text
                               fontSize="sm"
                               fontWeight="semibold"
-                              color="blue.700"
+                              color="green.700"
                               _dark={{ color: 'blue.300' }}
                               mb={1}
                             >
@@ -218,7 +218,7 @@ export default function PlayerStatusTab({
                                 <Text
                                   key={p.id}
                                   fontSize="sm"
-                                  color="blue.600"
+                                  color="green.600"
                                   bg="blue.100"
                                   _dark={{
                                     bg: 'blue.800',

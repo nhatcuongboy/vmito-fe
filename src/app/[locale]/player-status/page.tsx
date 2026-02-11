@@ -7,7 +7,6 @@ import {
   VStack,
   HStack,
   Heading,
-  Button,
   Text,
   Badge,
   Separator,
@@ -16,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { RefreshCw, Clock, Users, Trophy, ExternalLink } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
+import { Button } from '@/components/ui/chakra-compat';
 
 interface PlayerStatus {
   id: string;
@@ -128,7 +128,7 @@ function PlayerStatusContent() {
         justifyContent="center"
       >
         <VStack gap={4}>
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
           <Text>Loading player status...</Text>
         </VStack>
       </Box>
@@ -160,7 +160,7 @@ function PlayerStatusContent() {
           <Text color="gray.600" mb={6}>
             Invalid player token or session expired
           </Text>
-          <Link href="/join-by-code" color="blue.600" fontWeight="semibold">
+          <Link href="/join-by-code" color="green.600" fontWeight="semibold">
             Join a new session
           </Link>
         </Box>
@@ -175,7 +175,7 @@ function PlayerStatusContent() {
           <VStack gap={6}>
             {/* Header */}
             <Box textAlign="center" w="full">
-              <Heading size="lg" color="blue.600">
+              <Heading size="lg" color="green.600">
                 🏸 Player Status
               </Heading>
               <Text color="gray.600" mt={1}>
@@ -194,14 +194,14 @@ function PlayerStatusContent() {
             >
               <VStack gap={2} align="start">
                 <HStack justify="space-between" w="full">
-                  <Text fontWeight="bold" color="blue.700">
+                  <Text fontWeight="bold" color="green.700">
                     {playerStatus.name || `Player ${playerStatus.playerNumber}`}
                   </Text>
                   <Badge colorPalette={getStatusColor(playerStatus.status)}>
                     {getStatusText(playerStatus.status)}
                   </Badge>
                 </HStack>
-                <Text color="blue.600" fontSize="sm">
+                <Text color="green.600" fontSize="sm">
                   Player #{playerStatus.playerNumber}
                 </Text>
               </VStack>
@@ -296,7 +296,7 @@ function PlayerStatusContent() {
                 </Text>
                 <Link
                   href="/auth/signin"
-                  color="blue.600"
+                  color="green.600"
                   fontSize="sm"
                   fontWeight="semibold"
                 >
@@ -328,7 +328,7 @@ export default function PlayerStatusPage() {
           justifyContent="center"
         >
           <VStack gap={4}>
-            <Spinner size="xl" color="blue.500" />
+            <Spinner size="xl" color="green.500" />
             <Text>Loading player status...</Text>
           </VStack>
         </Box>

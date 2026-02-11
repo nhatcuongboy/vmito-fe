@@ -28,6 +28,16 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   rightContent?: ReactNode;
 
   /**
+   * Whether to show a back button in the TopBar
+   */
+  showBackButton?: boolean;
+
+  /**
+   * Optional href for the back button
+   */
+  backHref?: string;
+
+  /**
    * Maximum width of the container
    * @default "container.xl"
    */
@@ -77,6 +87,8 @@ export default function PageLayout({
   title,
   icon,
   rightContent,
+  showBackButton,
+  backHref,
   maxW = 'container.xl',
   children,
   isLoading = false,
@@ -85,7 +97,13 @@ export default function PageLayout({
 }: PageLayoutProps) {
   return (
     <PageWrapper>
-      <TopBar title={title} icon={icon} rightContent={rightContent} />
+      <TopBar
+        title={title}
+        icon={icon}
+        rightContent={rightContent}
+        showBackButton={showBackButton}
+        backHref={backHref}
+      />
       <Container
         maxW={maxW}
         px={CONTAINER_PX}

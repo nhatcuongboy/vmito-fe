@@ -24,7 +24,7 @@ export default function FeeDetailPopover({ feeConfig }: FeeDetailPopoverProps) {
       <Box
         as="button"
         cursor="pointer"
-        color="blue.500"
+        color="green.500"
         _hover={{ color: 'blue.600' }}
         display="inline-flex"
         alignItems="center"
@@ -90,7 +90,7 @@ export default function FeeDetailPopover({ feeConfig }: FeeDetailPopoverProps) {
               border="1px solid"
               borderColor="blue.200"
             >
-              <Text fontSize="sm" color="blue.700">
+              <Text fontSize="sm" color="green.700">
                 {t('splitDescription')}
               </Text>
             </Box>

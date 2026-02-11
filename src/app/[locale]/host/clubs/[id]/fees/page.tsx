@@ -250,7 +250,7 @@ const ClubFeesPage = () => {
 
             <Flex justify="flex-end" mt={6}>
               <Button
-                colorPalette="blue"
+                colorPalette="green"
                 size="lg"
                 onClick={handleSave}
                 loading={saving}

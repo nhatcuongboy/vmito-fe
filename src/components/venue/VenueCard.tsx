@@ -83,7 +83,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
               </Text>
               {venue.isVerified && (
                 <Badge
-                  colorPalette="blue"
+                  colorPalette="green"
                   variant="solid"
                   size="sm"
                   borderRadius="full"
@@ -149,7 +149,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
           {/* Distance badge */}
           {venue.distance !== undefined && venue.distance !== null && (
             <Badge
-              colorPalette="blue"
+              colorPalette="green"
               variant="surface"
               borderRadius="full"
               px={3}

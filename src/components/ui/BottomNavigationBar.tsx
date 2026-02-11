@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Spinner, Button, Text } from '@chakra-ui/react';
+import { Box, Spinner, Text } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { LucideIcon } from 'lucide-react';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
@@ -63,14 +64,25 @@ export default function BottomNavigationBar({
             width="100%"
             height="100%"
             py={2}
-            borderRadius={0}
+            borderRadius={isActive ? 'lg' : 0}
             flexDirection="column"
             gap={1}
-            color={isActive ? 'blue.500' : 'fg.muted'}
-            _active={{ bg: 'transparent' }}
+            color={isActive ? 'green.500' : 'fg.muted'}
+            bg={
+              isActive
+                ? { base: 'green.50', _dark: 'green.900/20' }
+                : 'transparent'
+            }
+            _active={{
+              bg: isActive
+                ? { base: 'green.50', _dark: 'green.900/20' }
+                : 'transparent',
+            }}
             _hover={{
-              bg: 'transparent',
-              color: { base: 'blue.600', _dark: 'blue.400' },
+              bg: isActive
+                ? { base: 'green.50', _dark: 'green.900/20' }
+                : { base: 'gray.50', _dark: 'gray.800' },
+              color: { base: 'green.600', _dark: 'green.400' },
             }}
             flex={1}
             display="flex"
@@ -79,13 +91,13 @@ export default function BottomNavigationBar({
             opacity={isLoading ? 0.7 : 1}
           >
             {isLoading ? (
-              <Spinner size="sm" color="blue.500" mb={{ base: 0.5, md: 1 }} />
+              <Spinner size="sm" color="green.500" mb={{ base: 0.5, md: 1 }} />
             ) : (
               <Icon
                 size={20}
                 style={{
                   color: isActive
-                    ? 'var(--chakra-colors-blue-500)'
+                    ? 'var(--chakra-colors-green-500)'
                     : 'currentColor',
                 }}
               />

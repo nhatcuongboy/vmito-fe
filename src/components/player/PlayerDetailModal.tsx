@@ -7,12 +7,12 @@ import {
   Text,
   VStack,
   HStack,
-  Button,
   Image,
   Separator,
   Collapsible,
   Avatar,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { CommonModal } from '@/components/ui/CommonModal';
 import {
@@ -480,7 +480,7 @@ export const PlayerDetailModal = ({
                   py={2}
                   height="auto"
                   _hover={{ bg: 'blue.50' }}
-                  color="blue.600"
+                  color="green.600"
                 >
                   <HStack gap={2}>
                     <QrCode size={18} />
@@ -520,7 +520,7 @@ export const PlayerDetailModal = ({
                   <HStack width="full" gap={2}>
                     <Button
                       variant="subtle"
-                      colorPalette="blue"
+                      colorPalette="green"
                       flex={1}
                       onClick={handleCopyUrl}
                       size="sm"
@@ -567,7 +567,7 @@ const InfoRow = ({
     _hover={{ bg: 'gray.50' }}
   >
     <HStack gap={3} color="gray.500">
-      <Box color="blue.500">{icon}</Box>
+      <Box color="green.500">{icon}</Box>
       <Text fontWeight="medium" fontSize="sm">
         {label}:
       </Text>

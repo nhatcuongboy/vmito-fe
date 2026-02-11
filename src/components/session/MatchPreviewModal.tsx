@@ -335,7 +335,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
           {!isLoadingConfirm && suggestedPlayers && (
             <HStack justify="space-between" width="full" px={4} align="center">
               <HStack gap={2} justify="center" flex="1">
-                <Badge colorPalette="blue" variant="solid" fontSize="sm">
+                <Badge colorPalette="green" variant="solid" fontSize="sm">
                   {t('courtsTab.pair1')}
                 </Badge>
               </HStack>

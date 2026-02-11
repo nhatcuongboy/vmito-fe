@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Box, Button, VStack, HStack, Text } from '@chakra-ui/react';
+import { Box, VStack, HStack, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { useCourtSelection } from '@/hooks/useCourtSelection';
 import { BadmintonCourtPlayer } from '@/components/court/CourtPlayer';
+import { Button } from '../ui/chakra-compat';
 
 interface CourtSelectionModeProps {
   availablePlayers: BadmintonCourtPlayer[];
@@ -156,7 +157,7 @@ export default function CourtSelectionMode({
       {/* Action Buttons */}
       <HStack gap={3}>
         <Button
-          colorPalette="blue"
+          colorPalette="green"
           onClick={handleConfirm}
           disabled={!isSelectionComplete}
         >

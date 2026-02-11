@@ -135,7 +135,7 @@ export default function PaymentApprovalModal({
         <Box border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
           <HStack justify="space-between" mb={2}>
             <Text color="gray.600">{t('amount')}</Text>
-            <Text fontSize="lg" fontWeight="bold" color="blue.600">
+            <Text fontSize="lg" fontWeight="bold" color="green.600">
               {FeeService.formatFee(paymentRecord.amount)}
             </Text>
           </HStack>

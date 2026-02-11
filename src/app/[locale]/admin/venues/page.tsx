@@ -9,7 +9,6 @@ import { UserRole, Venue } from '@/lib/api/types';
 import {
   Badge,
   Box,
-  Button,
   Container,
   Field,
   Flex,
@@ -32,6 +31,7 @@ import * as z from 'zod';
 
 import CommonModal from '@/components/ui/CommonModal';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Button } from '@/components/ui/chakra-compat';
 
 // Schema definitions
 const venueSchema = z.object({

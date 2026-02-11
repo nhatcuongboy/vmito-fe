@@ -24,7 +24,7 @@ const PlayerStatsHeader: React.FC<PlayerStatsHeaderProps> = ({
     <Box>
       <Flex justify="space-between" align="center" mb={2}>
         <HStack spacing={3}>
-          <Box as={Users} boxSize={5} color="blue.600" />
+          <Box as={Users} boxSize={5} color="green.600" />
           <Heading size="md" color="gray.800">
             {t('playerManagementTitle')}
           </Heading>

@@ -23,7 +23,7 @@ export default function CTASection() {
             fontSize="2xl"
             fontWeight="bold"
             bg="white"
-            color="blue.600"
+            color="green.600"
             _hover={{ bg: 'gray.100', transform: 'scale(1.05)' }}
           >
             {t('button')}

@@ -70,7 +70,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
       <Box minH="100vh" bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <TopBar showBackButton={true} backHref="/" title={t('joinSession')} />
         <Center pt={20}>
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Center>
       </Box>
     );
@@ -134,7 +134,7 @@ export default function JoinSessionClient({ id }: JoinSessionClientProps) {
 
           <Box mt={6} pt={6} borderTopWidth="1px" borderColor="border">
             <Button
-              colorPalette="blue"
+              colorPalette="green"
               width="full"
               size="lg"
               onClick={handleSubmit}

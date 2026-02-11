@@ -243,7 +243,7 @@ export default function TournamentPlayersPage() {
                           fontSize="xl"
                           fontWeight="bold"
                           mb={4}
-                          color="blue.600"
+                          color="green.600"
                         >
                           {letter}
                         </Text>
@@ -258,7 +258,7 @@ export default function TournamentPlayersPage() {
                                   style={{ textDecoration: 'none' }}
                                 >
                                   <Text
-                                    color="blue.500"
+                                    color="green.500"
                                     _hover={{ textDecoration: 'underline' }}
                                     cursor="pointer"
                                     fontSize="sm"
@@ -282,7 +282,7 @@ export default function TournamentPlayersPage() {
                                   style={{ textDecoration: 'none' }}
                                 >
                                   <Text
-                                    color="blue.500"
+                                    color="green.500"
                                     _hover={{ textDecoration: 'underline' }}
                                     cursor="pointer"
                                     fontSize="sm"
@@ -306,7 +306,7 @@ export default function TournamentPlayersPage() {
                                   style={{ textDecoration: 'none' }}
                                 >
                                   <Text
-                                    color="blue.500"
+                                    color="green.500"
                                     _hover={{ textDecoration: 'underline' }}
                                     cursor="pointer"
                                     fontSize="sm"

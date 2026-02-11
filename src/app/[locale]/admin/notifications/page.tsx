@@ -13,7 +13,6 @@ import {
   Card,
   Input,
   Textarea,
-  Button,
   Spinner,
 } from '@chakra-ui/react';
 import { Field } from '@chakra-ui/react';
@@ -24,6 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toaster } from '@/components/ui/toaster';
 import { NotificationService } from '@/lib/api/notification.service';
+import { Button } from '@/components/ui/chakra-compat';
 
 const broadcastSchema = z.object({
   title: z

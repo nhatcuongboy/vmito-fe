@@ -52,14 +52,14 @@ const CustomCheckbox = ({
         w={boxSize}
         h={boxSize}
         border="2px solid"
-        borderColor={isChecked ? 'blue.500' : 'border'}
-        bg={isChecked ? 'blue.500' : 'transparent'}
+        borderColor={isChecked ? 'green.500' : 'border'}
+        bg={isChecked ? 'green.500' : 'transparent'}
         borderRadius="md"
         display="flex"
         alignItems="center"
         justifyContent="center"
         transition="all 0.2s"
-        _hover={{ borderColor: disabled ? undefined : 'blue.600' }}
+        _hover={{ borderColor: disabled ? undefined : 'green.600' }}
       >
         {isChecked && (
           <svg
@@ -123,7 +123,7 @@ export default function SessionFeeConfigForm({
       {/* Header with toggle */}
       <Flex justify="space-between" align="center" mb={enabled ? 4 : 0}>
         <HStack gap={2}>
-          <DollarSign size={20} color="#3182ce" />
+          <DollarSign size={20} color="#38a169" />
           <Text fontWeight="semibold" fontSize="md">
             {t('title')}
           </Text>
@@ -162,23 +162,23 @@ export default function SessionFeeConfigForm({
                   borderRadius="md"
                   border="2px solid"
                   borderColor={
-                    feeType === FeeType.FIXED ? 'blue.500' : 'border'
+                    feeType === FeeType.FIXED ? 'green.500' : 'border'
                   }
                   bg={
                     feeType === FeeType.FIXED
-                      ? { base: 'blue.50', _dark: 'blue.900/40' }
+                      ? { base: 'green.50', _dark: 'green.900/40' }
                       : 'transparent'
                   }
                   color={
                     feeType === FeeType.FIXED
-                      ? { base: 'blue.700', _dark: 'blue.300' }
+                      ? { base: 'green.700', _dark: 'green.300' }
                       : 'fg'
                   }
                   fontWeight={feeType === FeeType.FIXED ? 'semibold' : 'normal'}
                   cursor={disabled ? 'not-allowed' : 'pointer'}
                   opacity={disabled ? 0.6 : 1}
                   transition="all 0.2s"
-                  _hover={{ borderColor: disabled ? undefined : 'blue.400' }}
+                  _hover={{ borderColor: disabled ? undefined : 'green.400' }}
                 >
                   {t('fixed')}
                 </Box>
@@ -197,16 +197,16 @@ export default function SessionFeeConfigForm({
                   borderRadius="md"
                   border="2px solid"
                   borderColor={
-                    feeType === FeeType.SPLIT_EVENLY ? 'blue.500' : 'border'
+                    feeType === FeeType.SPLIT_EVENLY ? 'green.500' : 'border'
                   }
                   bg={
                     feeType === FeeType.SPLIT_EVENLY
-                      ? { base: 'blue.50', _dark: 'blue.900/40' }
+                      ? { base: 'green.50', _dark: 'green.900/40' }
                       : 'transparent'
                   }
                   color={
                     feeType === FeeType.SPLIT_EVENLY
-                      ? { base: 'blue.700', _dark: 'blue.300' }
+                      ? { base: 'green.700', _dark: 'green.300' }
                       : 'fg'
                   }
                   fontWeight={
@@ -215,7 +215,7 @@ export default function SessionFeeConfigForm({
                   cursor={disabled ? 'not-allowed' : 'pointer'}
                   opacity={disabled ? 0.6 : 1}
                   transition="all 0.2s"
-                  _hover={{ borderColor: disabled ? undefined : 'blue.400' }}
+                  _hover={{ borderColor: disabled ? undefined : 'green.400' }}
                 >
                   {t('splitEvenly')}
                 </Box>
@@ -272,15 +272,15 @@ export default function SessionFeeConfigForm({
           {/* Split Evenly Description */}
           {feeType === FeeType.SPLIT_EVENLY && (
             <Box
-              bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+              bg={{ base: 'green.50', _dark: 'green.900/30' }}
               p={3}
               borderRadius="md"
               border="1px solid"
-              borderColor={{ base: 'blue.200', _dark: 'blue.800' }}
+              borderColor={{ base: 'green.200', _dark: 'green.800' }}
             >
               <Text
                 fontSize="sm"
-                color={{ base: 'blue.700', _dark: 'blue.300' }}
+                color={{ base: 'green.700', _dark: 'green.300' }}
               >
                 {t('splitDescription')}
               </Text>

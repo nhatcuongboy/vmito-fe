@@ -13,13 +13,12 @@ import {
 import { useTranslations } from 'next-intl';
 import { CreditCard, Plus } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import TopBar from '@/components/ui/TopBar';
 import { Button } from '@/components/ui/chakra-compat';
 import { PaymentSettingsForm } from '@/components/payment';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { HostPaymentSettings, UserRole } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
-import PageWrapper from '@/components/layout/PageWrapper';
+import PageLayout from '@/components/layout/PageLayout';
 import {
   CONTAINER_PX,
   CONTENT_PT_OFFSET,
@@ -157,7 +156,7 @@ function PaymentSettingsContent() {
             <Heading size="lg">{t('settings')}</Heading>
           </HStack>
           {!isCreating && settings.length > 0 && (
-            <Button colorPalette="blue" onClick={() => setIsCreating(true)}>
+            <Button colorPalette="green" onClick={() => setIsCreating(true)}>
               <Plus size={16} />
               <Text ml={1}>{t('addSettings')}</Text>
             </Button>
@@ -197,7 +196,7 @@ function PaymentSettingsContent() {
                         px={2}
                         py={0.5}
                         bg="blue.100"
-                        color="blue.700"
+                        color="green.700"
                         borderRadius="md"
                         fontSize="xs"
                         fontWeight="medium"
@@ -274,7 +273,7 @@ function PaymentSettingsContent() {
             <Text mt={4} mb={4} color="gray.500">
               {t('noSettings')}
             </Text>
-            <Button colorPalette="blue" onClick={() => setIsCreating(true)}>
+            <Button colorPalette="green" onClick={() => setIsCreating(true)}>
               <Plus size={16} />
               <Text ml={1}>{t('addSettings')}</Text>
             </Button>
@@ -291,10 +290,9 @@ export default function PaymentSettingsPage() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Suspense>
-        <PageWrapper minH="100vh">
-          <TopBar title={t('settings')} />
+        <PageLayout title={t('settings')} minH="100vh">
           <PaymentSettingsContent />
-        </PageWrapper>
+        </PageLayout>
       </Suspense>
     </ProtectedRouteGuard>
   );

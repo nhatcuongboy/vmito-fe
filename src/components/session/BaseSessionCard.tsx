@@ -212,7 +212,7 @@ const BaseSessionCard = ({
         <IconButton
           key="call"
           size="sm"
-          colorPalette="blue"
+          colorPalette="green"
           variant="outline"
           aria-label="Call host"
           onClick={handleCall}
@@ -228,7 +228,7 @@ const BaseSessionCard = ({
           <MenuTrigger asChild>
             <IconButton
               size="sm"
-              colorPalette="blue"
+              colorPalette="green"
               variant="outline"
               aria-label="Download session image"
               loading={isDownloading}
@@ -349,7 +349,7 @@ const BaseSessionCard = ({
       rightButtons.push(
         <Button
           key="view-registration"
-          colorPalette="blue"
+          colorPalette="green"
           variant="outline"
           size="sm"
           onClick={(e: React.MouseEvent) => {
@@ -389,7 +389,7 @@ const BaseSessionCard = ({
         <NextLinkButton
           key="manage"
           href={manageHref}
-          colorPalette="blue"
+          colorPalette="green"
           size="sm"
         >
           {t('manageSession')}
@@ -402,7 +402,7 @@ const BaseSessionCard = ({
       rightButtons.push(
         <Button
           key="register"
-          colorPalette="blue"
+          colorPalette="green"
           size="sm"
           disabled={actions.registerButtonDisabled || isFull}
           onClick={(e: React.MouseEvent) => {
@@ -541,20 +541,24 @@ const BaseSessionCard = ({
       <Box
         position="relative"
         borderWidth="1px"
-        borderRadius="xl"
+        borderRadius="2xl"
         overflow="hidden"
         bg="white"
         _dark={{ bg: 'gray.800' }}
-        transition="transform 0.2s, box-shadow 0.2s"
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={{
-          transform: 'translateY(-4px)',
-          boxShadow: 'xl',
+          transform: 'translateY(-6px)',
+          boxShadow:
+            '0 12px 24px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
+          borderColor: 'green.200',
         }}
         maxW="400px"
         w="100%"
         display="flex"
         flexDirection="column"
         height="100%"
+        cursor="pointer"
       >
         {/* Level Color Strip */}
         <Flex
@@ -587,9 +591,12 @@ const BaseSessionCard = ({
               <Badge
                 colorPalette={statusColors[convertedSession.status] || 'gray'}
                 fontSize="sm"
-                px={3}
-                py={1}
-                borderRadius="md"
+                px={4}
+                py={1.5}
+                borderRadius="full"
+                fontWeight="600"
+                boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
+                backdropFilter="blur(8px)"
               >
                 {getStatusLabel(convertedSession.status, t)}
               </Badge>
@@ -680,15 +687,15 @@ const BaseSessionCard = ({
               {/* Left Column: Date & Time */}
               <Stack gap={2}>
                 <Flex align="center" gap={2}>
-                  <Icon as={Calendar} boxSize={5} color="blue.500" />
+                  <Icon as={Calendar} boxSize={5} color="green.500" />
                   <Text fontSize="sm">{compactDate}</Text>
                 </Flex>
                 <Flex align="center" gap={2}>
-                  <Icon as={Clock} boxSize={5} color="blue.500" />
+                  <Icon as={Clock} boxSize={5} color="green.500" />
                   <Text fontSize="sm">{compactTime}</Text>
                 </Flex>
                 <Flex align="center" gap={2}>
-                  <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
+                  <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
                   <Text fontSize="sm">
                     {t('shuttlecock') + ' ' + (session.shuttlecock || '...')}
                   </Text>
@@ -698,7 +705,7 @@ const BaseSessionCard = ({
               {/* Right Column: Courts & Players */}
               <Stack gap={2}>
                 <Flex align="center" gap={2}>
-                  <Icon as={SquareAsterisk} boxSize={5} color="blue.500" />
+                  <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
                   <Text fontSize="sm">
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
                     {session.courts && session.courts.length > 0 && (
@@ -715,13 +722,13 @@ const BaseSessionCard = ({
                   </Text>
                 </Flex>
                 <Flex align="center" gap={2}>
-                  <Icon as={Users} boxSize={5} color="blue.500" />
+                  <Icon as={Users} boxSize={5} color="green.500" />
                   <Text fontSize="sm">
                     {t('maxPlayers', { count: convertedSession.maxPlayers })}
                   </Text>
                 </Flex>
                 <Flex align="center" gap={2}>
-                  <Icon as={User} boxSize={5} color="blue.500" />
+                  <Icon as={User} boxSize={5} color="green.500" />
                   <Text fontSize="sm">
                     {convertedSession.totalPlayers}/
                     {convertedSession.maxPlayers} {t('players')}

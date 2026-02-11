@@ -199,7 +199,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             <HStack gap={6} justify="center" w="full">
               {/* Pair 1 Score */}
               <VStack gap={2} align="center">
-                <Text fontSize="sm" color="blue.600" fontWeight="semibold">
+                <Text fontSize="sm" color="green.600" fontWeight="semibold">
                   {t('matchResult.pair1')}
                 </Text>
                 <Input
@@ -279,8 +279,8 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 )}
                 <VStack gap={2}>
                   <HStack gap={1} justify="center">
-                    <Box as={Users} boxSize={3} color="blue.500" />
-                    <Text fontSize="sm" fontWeight="semibold" color="blue.600">
+                    <Box as={Users} boxSize={3} color="green.500" />
+                    <Text fontSize="sm" fontWeight="semibold" color="green.600">
                       {t('matchResult.pair1')}
                     </Text>
                   </HStack>

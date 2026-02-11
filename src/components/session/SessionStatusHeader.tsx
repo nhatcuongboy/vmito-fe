@@ -234,7 +234,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                     fontWeight="normal"
                     borderRadius="0"
                   >
-                    <Box as={RefreshCw} boxSize={4} color="blue.500" />
+                    <Box as={RefreshCw} boxSize={4} color="green.500" />
                     <Text fontSize="sm" fontWeight="medium">
                       {t('refresh')}
                     </Text>

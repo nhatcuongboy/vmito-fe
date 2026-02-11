@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Flex, Text, Avatar, Button } from '@chakra-ui/react';
+import { Box, Flex, Text, Avatar } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useColorModeValue } from '@/components/ui/chakra-compat';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -72,7 +73,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
         {/* Create Button */}
         <Button
           onClick={handleCreateClick}
-          colorPalette="blue"
+          colorPalette="green"
           borderRadius="full"
           size="sm"
           px={4}
@@ -85,7 +86,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
         {/* Mobile Create Button */}
         <Button
           onClick={handleCreateClick}
-          colorPalette="blue"
+          colorPalette="green"
           borderRadius="full"
           size="sm"
           display={{ base: 'flex', sm: 'none' }}

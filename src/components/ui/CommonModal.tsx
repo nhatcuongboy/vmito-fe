@@ -118,7 +118,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   isPrimaryLoading = false,
   isPrimaryDisabled = false,
   isSecondaryDisabled = false,
-  primaryColorScheme = 'blue',
+  primaryColorScheme = 'green',
   secondaryActionText,
   onSecondaryAction,
   hideSecondaryAction = false,
@@ -308,7 +308,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
                   {primaryActionText && (
                     <Button
                       type="button"
-                      colorPalette={primaryColorScheme}
+                      // colorPalette={primaryColorScheme}
                       onClick={onPrimaryAction}
                       loading={isPrimaryLoading}
                       disabled={isPrimaryDisabled || isPrimaryLoading}

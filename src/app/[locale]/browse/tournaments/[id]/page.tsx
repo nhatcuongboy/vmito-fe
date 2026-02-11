@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Button,
   Card,
   CardBody,
   Table,
@@ -26,7 +27,6 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
   Box,
-  Button,
   Container,
   Flex,
   Grid,
@@ -596,7 +596,7 @@ export default function TournamentDetailPage() {
                                           >
                                             <Text
                                               as="span"
-                                              color="blue.500"
+                                              color="green.500"
                                               _hover={{
                                                 textDecoration: 'underline',
                                               }}
@@ -655,7 +655,7 @@ export default function TournamentDetailPage() {
                       <Link href="#" style={{ color: '#3182ce' }}>
                         <Text
                           as="span"
-                          color="blue.500"
+                          color="green.500"
                           _hover={{ textDecoration: 'underline' }}
                           cursor="pointer"
                         >
@@ -712,7 +712,7 @@ export default function TournamentDetailPage() {
                 {canManage && (
                   <NextLinkButton
                     href={`/tournaments/${tournamentId}/manage`}
-                    colorPalette="blue"
+                    colorPalette="green"
                     size="md"
                   >
                     {t('tournamentDetail.manageTournament')}

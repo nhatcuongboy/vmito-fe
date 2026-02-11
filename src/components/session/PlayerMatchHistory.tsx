@@ -218,7 +218,7 @@ export default function PlayerMatchHistory({
   if (loading) {
     return (
       <Center py={10}>
-        <Spinner size="xl" color="blue.500" />
+        <Spinner size="xl" color="green.500" />
       </Center>
     );
   }

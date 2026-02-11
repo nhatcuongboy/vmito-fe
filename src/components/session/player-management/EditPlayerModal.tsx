@@ -61,7 +61,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
       onClose={onClose}
       title={
         <HStack spacing={3}>
-          <Box as={Edit} boxSize={5} color="blue.600" />
+          <Box as={Edit} boxSize={5} color="green.600" />
           <Text fontWeight="semibold">
             {t('editPlayerModalTitle', { number: player.playerNumber })}
           </Text>
@@ -79,10 +79,15 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
       <VStack spacing={4} align="stretch">
         {/* Header with player number */}
         <HStack spacing={3}>
-          <Badge colorPalette="blue" variant="solid" borderRadius="full" px={3}>
+          <Badge
+            colorPalette="green"
+            variant="solid"
+            borderRadius="full"
+            px={3}
+          >
             #{player.playerNumber}
           </Badge>
-          <Text fontSize="sm" color="blue.600" fontWeight="medium">
+          <Text fontSize="sm" color="green.600" fontWeight="medium">
             {editingData.name || `Player ${player.playerNumber}`}
           </Text>
         </HStack>

@@ -6,12 +6,12 @@ import {
   VStack,
   HStack,
   Text,
-  Button,
   Avatar,
   SimpleGrid,
   Spinner,
   Badge,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Star, CheckCircle, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { RatingService } from '@/lib/api/rating.service';

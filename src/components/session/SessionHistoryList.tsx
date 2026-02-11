@@ -367,7 +367,7 @@ export default function SessionHistoryList({
       {/* Results */}
       {loading ? (
         <Center py={10}>
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="green.500" />
         </Center>
       ) : error ? (
         <Box

@@ -196,7 +196,7 @@ export default function JoinPage() {
             zIndex={1}
           >
             <Flex align="center" mb={2}>
-              <Box as={LogIn} boxSize={5} color="blue.500" mr={2} />
+              <Box as={LogIn} boxSize={5} color="green.500" mr={2} />
               <Heading size="md">{t('joinBadmintonSession')}</Heading>
             </Flex>
             <Text color="gray.500" fontSize="sm">
@@ -210,7 +210,7 @@ export default function JoinPage() {
                 <Box>
                   <Box mb={2}>
                     <Flex align="center">
-                      <Box as={Hash} boxSize={4} color="blue.500" mr={2} />
+                      <Box as={Hash} boxSize={4} color="green.500" mr={2} />
                       <Text fontWeight="medium">
                         {t('selectSession')}
                         <Box as="span" color="red.500">
@@ -221,7 +221,7 @@ export default function JoinPage() {
                   </Box>
                   {loadingSessions ? (
                     <Flex justify="center" py={4}>
-                      <Spinner color="blue.500" />
+                      <Spinner color="green.500" />
                     </Flex>
                   ) : (
                     <select
@@ -256,7 +256,7 @@ export default function JoinPage() {
                   {selectedSession && (
                     <Box mt={2}>
                       <Box p={2} bg="blue.50" borderRadius="md" mb={2}>
-                        <Text fontSize="sm" color="blue.600">
+                        <Text fontSize="sm" color="green.600">
                           {t('sessionInfo', {
                             host: selectedSession.host.name,
                             courts: selectedSession.numberOfCourts,
@@ -312,7 +312,7 @@ export default function JoinPage() {
                 <Box>
                   <Box mb={2}>
                     <Flex align="center">
-                      <Box as={Users} boxSize={4} color="blue.500" mr={2} />
+                      <Box as={Users} boxSize={4} color="green.500" mr={2} />
                       <Text fontWeight="medium">
                         {t('playerNumber')}
                         <Box as="span" color="red.500">
@@ -323,7 +323,7 @@ export default function JoinPage() {
                   </Box>
                   {loading ? (
                     <Flex justify="center" py={4}>
-                      <Spinner color="blue.500" />
+                      <Spinner color="green.500" />
                     </Flex>
                   ) : (
                     <>
@@ -542,7 +542,7 @@ export default function JoinPage() {
 
                 <Button
                   type="submit"
-                  colorPalette="blue"
+                  colorPalette="green"
                   size="lg"
                   width="full"
                   mt={4}
@@ -582,7 +582,7 @@ export default function JoinPage() {
               <Box
                 as={Activity}
                 boxSize={4}
-                color="blue.400"
+                color="green.400"
                 mt={2}
                 opacity={0.7}
                 transform="rotate(0deg)"

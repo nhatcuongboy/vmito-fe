@@ -38,8 +38,8 @@ import {
   Heading,
   Spinner,
   Text,
-  Button,
 } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -343,7 +343,7 @@ export default function PlayerSessionView({
               height="50vh"
               direction="column"
             >
-              <Spinner size="xl" color="blue.500" mb={4} />
+              <Spinner size="xl" color="green.500" mb={4} />
               <Text>{common('loading')}</Text>
             </Flex>
           </PageWrapper>
@@ -388,7 +388,7 @@ export default function PlayerSessionView({
                 <Text>{errorMessage.description}</Text>
               </Box>
               <Flex gap={3}>
-                <NextLinkButton href={errorRedirectPath} colorPalette="blue">
+                <NextLinkButton href={errorRedirectPath} colorPalette="green">
                   {mode === 'guest'
                     ? t('errors.returnToJoin')
                     : 'Quay lại Dashboard'}
@@ -397,7 +397,7 @@ export default function PlayerSessionView({
                   <NextLinkButton
                     href="#"
                     variant="outline"
-                    colorPalette="blue"
+                    colorPalette="green"
                     onClick={(e) => {
                       e.preventDefault();
                       fetchPlayerData(false);
@@ -586,7 +586,7 @@ export default function PlayerSessionView({
                     </Box>
                   ) : paymentLoading ? (
                     <Center py={8}>
-                      <Spinner size="lg" color="blue.500" />
+                      <Spinner size="lg" color="green.500" />
                     </Center>
                   ) : paymentError ? (
                     <Box
@@ -623,7 +623,7 @@ export default function PlayerSessionView({
                       {paymentError.type !== 'not_implemented' && (
                         <Button
                           size="sm"
-                          colorPalette="blue"
+                          colorPalette="green"
                           onClick={() => fetchPaymentData()}
                         >
                           Retry

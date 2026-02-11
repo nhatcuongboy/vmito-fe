@@ -129,7 +129,7 @@ export default function PlayerTooltip({
           #{player.playerNumber}
         </Text>
 
-        <Text fontSize="md" fontWeight="medium" color="blue.300" mb={4}>
+        <Text fontSize="md" fontWeight="medium" color="green.300" mb={4}>
           {player.name || `Player ${player.playerNumber}`}
         </Text>
 

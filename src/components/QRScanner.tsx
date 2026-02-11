@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/library';
-import { Box, Button, Text, VStack, HStack } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack } from '@chakra-ui/react';
 import { Camera, X } from 'lucide-react';
+import { Button } from './ui/chakra-compat';
 
 interface QRScannerProps {
   isOpen: boolean;
@@ -141,7 +142,7 @@ export default function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
 
           <VStack gap={2} w="full">
             {!isScanning ? (
-              <Button onClick={startScanning} colorPalette="blue" width="full">
+              <Button onClick={startScanning} colorPalette="green" width="full">
                 <Camera size={16} style={{ marginRight: '8px' }} />
                 Start Scanning
               </Button>

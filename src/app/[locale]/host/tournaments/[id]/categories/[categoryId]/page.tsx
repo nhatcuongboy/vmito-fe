@@ -409,7 +409,7 @@ export default function CategoryManagePage() {
               <CardBody>
                 <VStack align="stretch" gap={2}>
                   <Heading size="lg">{category.name}</Heading>
-                  <Badge colorPalette="blue" w="fit-content">
+                  <Badge colorPalette="green" w="fit-content">
                     {getCategoryTypeLabel(category.type)}
                   </Badge>
                 </VStack>
@@ -502,7 +502,7 @@ export default function CategoryManagePage() {
             {/* Tabs */}
             <Tabs
               variant="enclosed"
-              colorPalette="blue"
+              colorPalette="green"
               index={category.hasGroupStage ? activeTab : undefined}
               onChange={category.hasGroupStage ? setActiveTab : undefined}
             >
@@ -640,7 +640,7 @@ export default function CategoryManagePage() {
                               borderWidth="1px"
                               borderColor="blue.200"
                             >
-                              <Text fontSize="sm" color="blue.700">
+                              <Text fontSize="sm" color="green.700">
                                 {t('totalTeams')}: {registrations.length} |{' '}
                                 {t('groups')}: {formData.groupCount} |{' '}
                                 {t('averageTeamsPerGroup', {
@@ -656,7 +656,7 @@ export default function CategoryManagePage() {
                           leftIcon={<Save size={16} />}
                           onClick={handleSaveSettings}
                           loading={saving}
-                          colorPalette="blue"
+                          colorPalette="green"
                         >
                           {t('saveSettings')}
                         </Button>
@@ -995,7 +995,7 @@ export default function CategoryManagePage() {
                                 <>
                                   <Heading size="sm">{player.name}</Heading>
                                   {player.level && (
-                                    <Badge colorPalette="blue">
+                                    <Badge colorPalette="green">
                                       {player.level}
                                     </Badge>
                                   )}
@@ -1036,7 +1036,7 @@ export default function CategoryManagePage() {
                                 <Text>{t('unknown')}</Text>
                               )}
                               {isSelected && (
-                                <Badge colorPalette="blue" mt={1}>
+                                <Badge colorPalette="green" mt={1}>
                                   {t('selected')}
                                 </Badge>
                               )}
@@ -1059,7 +1059,7 @@ export default function CategoryManagePage() {
                   {t('cancel')}
                 </Button>
                 <Button
-                  colorPalette="blue"
+                  colorPalette="green"
                   onClick={handleAddRegistration}
                   disabled={!selectedRegistration}
                 >
@@ -1256,7 +1256,7 @@ export default function CategoryManagePage() {
                 <Button variant="ghost" onClick={onMatchClose}>
                   {t('cancel')}
                 </Button>
-                <Button colorPalette="blue" onClick={handleSaveMatch}>
+                <Button colorPalette="green" onClick={handleSaveMatch}>
                   {t('createMatch')}
                 </Button>
               </Flex>
@@ -1428,7 +1428,7 @@ function GroupDivisionTab({
                     leftIcon={<Users size={16} />}
                     onClick={handleCreateGroups}
                     loading={loading}
-                    colorPalette="blue"
+                    colorPalette="green"
                   >
                     {t('createGroups')}
                   </Button>
@@ -1699,7 +1699,7 @@ function GroupDivisionTab({
                 {t('cancel')}
               </Button>
               <Button
-                colorPalette="blue"
+                colorPalette="green"
                 onClick={handleAssignTeam}
                 disabled={!selectedRegistration}
                 loading={loading}
@@ -1847,7 +1847,7 @@ function GroupStageTab({
                   leftIcon={<Play size={16} />}
                   onClick={handleGenerateAllMatches}
                   loading={loading}
-                  colorPalette="blue"
+                  colorPalette="green"
                 >
                   {t('generateAllMatches')}
                 </Button>
@@ -2419,7 +2419,7 @@ function MatchConfigurationModal({
           <Button variant="ghost" onClick={onClose}>
             {t('cancel')}
           </Button>
-          <Button colorPalette="blue" onClick={handleSave} loading={loading}>
+          <Button colorPalette="green" onClick={handleSave} loading={loading}>
             {t('save')}
           </Button>
         </Flex>
@@ -2629,7 +2629,7 @@ function MatchScoresModal({
           <Button variant="ghost" onClick={onClose}>
             {t('cancel')}
           </Button>
-          <Button colorPalette="blue" onClick={handleSave} loading={loading}>
+          <Button colorPalette="green" onClick={handleSave} loading={loading}>
             {t('save')}
           </Button>
         </Flex>

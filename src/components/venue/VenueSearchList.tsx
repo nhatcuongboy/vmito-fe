@@ -19,7 +19,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Check, Filter, MapPin, Search, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
@@ -73,26 +73,24 @@ export default function VenueSearchList() {
   const normalizeLocation = (name: string) =>
     name.replace(/^(Quận|Huyện|Thành phố|Thị xã)\s+/i, '').trim();
 
-  const fetchVenues = useCallback(
-    async (isLoadMore = false) => {
-      try {
-        if (isLoadMore) {
-          setLoadingMore(true);
-        } else {
-          setLoading(true);
-          setPage(1);
-          if (typeof window !== 'undefined') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
+  // Plain function (not useCallback) to always read the latest `page` state
+  const fetchVenues = async (isLoadMore = false) => {
+    try {
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+        setPage(1);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        setError(null);
+      }
+      setError(null);
 
-        const currentPage = isLoadMore ? page + 1 : 1;
+      const currentPage = isLoadMore ? page + 1 : 1;
 
-        const apiFilters: Record<
-          string,
-          string | number | boolean | undefined
-        > = {
+      const apiFilters: Record<string, string | number | boolean | undefined> =
+        {
           keyword: keyword || undefined,
           city:
             cities.length === 1
@@ -106,62 +104,60 @@ export default function VenueSearchList() {
           limit: PAGE_SIZE,
         };
 
-        if (sortByDistance && userLocation) {
-          apiFilters.lat = userLocation.lat;
-          apiFilters.lng = userLocation.lng;
-          apiFilters.sortBy = 'distance';
-          apiFilters.sortOrder = 'asc';
-        }
-
-        const result = await VenueService.searchVenues(apiFilters);
-        let venueData = result.data;
-
-        // Client-side multi-city filter
-        if (cities.length > 1) {
-          venueData = venueData.filter((venue) => {
-            const venueCity = venue.city || '';
-            return cities.some((cityCode) => {
-              const cityName = VIETNAM_CITIES.find(
-                (c) => c.code === cityCode
-              )?.name;
-              return (
-                venueCity.includes(cityCode) ||
-                (cityName && venueCity.includes(cityName))
-              );
-            });
-          });
-        }
-
-        // Client-side multi-district filter
-        if (districts.length > 1) {
-          venueData = venueData.filter((venue) => {
-            const venueDistrict = venue.district || '';
-            return districts.some((d) => {
-              const cleanFilter = normalizeLocation(d);
-              const cleanVenue = normalizeLocation(venueDistrict);
-              return cleanVenue.includes(cleanFilter);
-            });
-          });
-        }
-
-        if (isLoadMore) {
-          setVenues((prev) => [...prev, ...venueData]);
-          setPage(currentPage);
-        } else {
-          setVenues(venueData);
-        }
-
-        setHasMore(result.data.length === PAGE_SIZE);
-      } catch (err) {
-        setError('Không thể tải danh sách sân. Vui lòng thử lại.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
+      if (sortByDistance && userLocation) {
+        apiFilters.lat = userLocation.lat;
+        apiFilters.lng = userLocation.lng;
+        apiFilters.sortBy = 'distance';
+        apiFilters.sortOrder = 'asc';
       }
-    },
-    [keyword, cities, districts, sortByDistance, userLocation, page]
-  );
+
+      const result = await VenueService.searchVenues(apiFilters);
+      let venueData = result.data;
+
+      // Client-side multi-city filter
+      if (cities.length > 1) {
+        venueData = venueData.filter((venue) => {
+          const venueCity = venue.city || '';
+          return cities.some((cityCode) => {
+            const cityName = VIETNAM_CITIES.find(
+              (c) => c.code === cityCode
+            )?.name;
+            return (
+              venueCity.includes(cityCode) ||
+              (cityName && venueCity.includes(cityName))
+            );
+          });
+        });
+      }
+
+      // Client-side multi-district filter
+      if (districts.length > 1) {
+        venueData = venueData.filter((venue) => {
+          const venueDistrict = venue.district || '';
+          return districts.some((d) => {
+            const cleanFilter = normalizeLocation(d);
+            const cleanVenue = normalizeLocation(venueDistrict);
+            return cleanVenue.includes(cleanFilter);
+          });
+        });
+      }
+
+      if (isLoadMore) {
+        setVenues((prev) => [...prev, ...venueData]);
+        setPage(currentPage);
+      } else {
+        setVenues(venueData);
+      }
+
+      setHasMore(result.data.length === PAGE_SIZE);
+    } catch (err) {
+      setError('Không thể tải danh sách sân. Vui lòng thử lại.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   // Debounced fetch on filter change
   useEffect(() => {
@@ -172,7 +168,7 @@ export default function VenueSearchList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, cities, districts, sortByDistance, userLocation]);
 
-  // Infinite scroll
+  // Trigger load more when in view
   useEffect(() => {
     if (inView && hasMore && !loading && !loadingMore) {
       fetchVenues(true);
@@ -297,7 +293,7 @@ export default function VenueSearchList() {
           <Box position="relative">
             <IconButton
               variant={showFilters ? 'solid' : 'outline'}
-              colorPalette="blue"
+              colorPalette="green"
               onClick={toggleFilters}
               aria-label="Bộ lọc"
               icon={<Filter size={18} />}
@@ -440,7 +436,7 @@ export default function VenueSearchList() {
                   {pendingCities.length > 0 && (
                     <Badge
                       size="sm"
-                      colorPalette="blue"
+                      colorPalette="green"
                       variant="solid"
                       borderRadius="full"
                       px={2}
@@ -509,7 +505,7 @@ export default function VenueSearchList() {
                     {pendingDistricts.length > 0 && (
                       <Badge
                         size="sm"
-                        colorPalette="blue"
+                        colorPalette="green"
                         variant="solid"
                         borderRadius="full"
                         px={2}
@@ -595,7 +591,7 @@ export default function VenueSearchList() {
             <Button
               flex="1"
               variant="solid"
-              colorPalette="blue"
+              colorPalette="green"
               onClick={handleSubmitFilters}
               leftIcon={<Check size={18} />}
             >

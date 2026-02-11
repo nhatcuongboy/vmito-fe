@@ -110,7 +110,7 @@ export default function SubmitPaymentModal({
         >
           <HStack justify="space-between">
             <Text fontWeight="medium">{t('yourFee')}</Text>
-            <Text fontSize="xl" fontWeight="bold" color="blue.600">
+            <Text fontSize="xl" fontWeight="bold" color="green.600">
               {FeeService.formatFee(paymentRecord.amount)}
             </Text>
           </HStack>

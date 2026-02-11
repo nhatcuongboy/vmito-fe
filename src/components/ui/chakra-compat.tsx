@@ -17,8 +17,8 @@ export {
 } from './ChakraTabs';
 
 // Export Button components
-export { Button, IconButton } from './ChakraButton';
-export type { ButtonProps } from './ChakraButton';
+export { VButton as Button, IconButton } from './VButton';
+export type { VButtonProps as ButtonProps } from './VButton';
 
 // Export Stack components
 export { HStack, VStack, SimpleGrid } from './ChakraStack';

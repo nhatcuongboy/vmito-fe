@@ -75,7 +75,7 @@ export default function PaymentInfoTab({
           p={4}
         >
           <HStack justify="space-between" mb={2}>
-            <Text fontWeight="semibold" color="blue.700">
+            <Text fontWeight="semibold" color="green.700">
               {session.feeConfig.feeType === FeeType.FIXED
                 ? t('fixedFee')
                 : t('splitEvenly')}
@@ -84,7 +84,7 @@ export default function PaymentInfoTab({
               <Badge colorPalette="purple">{t('calculatedAfterSession')}</Badge>
             )}
           </HStack>
-          <Text fontSize="sm" color="blue.600">
+          <Text fontSize="sm" color="green.600">
             {session.feeConfig.feeType === FeeType.FIXED
               ? t('fixedFeeDescription')
               : t('splitEvenlyDescription')}
@@ -233,14 +233,14 @@ export default function PaymentInfoTab({
               </HStack>
 
               <HStack justify="space-between" align="center">
-                <Text fontSize="lg" fontWeight="bold" color="blue.600">
+                <Text fontSize="lg" fontWeight="bold" color="green.600">
                   {FeeService.formatFee(payment.amount)}
                 </Text>
 
                 {canSubmit(payment) && (
                   <Button
                     size="sm"
-                    colorPalette="blue"
+                    colorPalette="green"
                     onClick={() => setSelectedPayment(payment)}
                   >
                     <Send size={14} />
@@ -250,7 +250,7 @@ export default function PaymentInfoTab({
               </HStack>
 
               {payment.status === PaymentStatus.SUBMITTED && (
-                <Text fontSize="sm" color="blue.600" mt={2}>
+                <Text fontSize="sm" color="green.600" mt={2}>
                   {t('waitingForApproval')}
                 </Text>
               )}

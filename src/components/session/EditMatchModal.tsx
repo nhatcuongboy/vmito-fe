@@ -138,7 +138,7 @@ export function EditMatchModal({
               <FormLabel>Score</FormLabel>
               <HStack>
                 <VStack>
-                  <Text fontSize="sm" fontWeight="bold" color="blue.600">
+                  <Text fontSize="sm" fontWeight="bold" color="green.600">
                     Pair 1
                   </Text>
                   <Input
@@ -257,7 +257,7 @@ export function EditMatchModal({
             Cancel
           </Button>
           <Button
-            colorPalette="blue"
+            colorPalette="green"
             onClick={handleSubmit}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {...({ isLoading: isSubmitting } as any)}

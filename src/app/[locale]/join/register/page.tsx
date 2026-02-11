@@ -3,15 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
-import {
-  Box,
-  Button,
-  Heading,
-  Input,
-  Text,
-  VStack,
-  Spinner,
-} from '@chakra-ui/react';
+import { Box, Heading, Input, Text, VStack, Spinner } from '@chakra-ui/react';
 import { AuthService } from '@/lib/api/auth.service';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -19,6 +11,7 @@ import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/chakra-compat';
 
 function RegisterContent() {
   const t = useTranslations('pages.join.register');

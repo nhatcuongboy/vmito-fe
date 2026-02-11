@@ -112,7 +112,7 @@ export const NotificationItem = ({
               {notification.title}
             </Text>
             {!notification.isRead && (
-              <Badge colorPalette="blue" size="xs">
+              <Badge colorPalette="green" size="xs">
                 {t('new')}
               </Badge>
             )}

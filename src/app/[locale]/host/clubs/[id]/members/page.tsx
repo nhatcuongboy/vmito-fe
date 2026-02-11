@@ -256,7 +256,7 @@ const GroupMembersPage = () => {
                 <Text color="gray.500">{t('noMembersYet')}</Text>
                 <Button
                   mt={4}
-                  colorPalette="blue"
+                  colorPalette="green"
                   variant="plain"
                   onClick={onOpen}
                 >
@@ -307,7 +307,7 @@ const GroupMembersPage = () => {
                       <HStack mt={1} gap={4}>
                         <Text
                           fontSize="xs"
-                          color="blue.500"
+                          color="green.500"
                           display="flex"
                           alignItems="center"
                           gap={1}
@@ -509,7 +509,7 @@ const GroupMembersPage = () => {
                     ) : (
                       <Button
                         size="xs"
-                        colorPalette="blue"
+                        colorPalette="green"
                         onClick={() => handleAddMember(user.id)}
                       >
                         {t('add')}

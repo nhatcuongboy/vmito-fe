@@ -102,7 +102,7 @@ const CreateClubPage = () => {
         defaultVenueId: selectedVenueId || undefined,
       });
       toaster.success({ title: t('clubCreatedSuccess') });
-      router.push(ROUTES.HOST.CLUBS.LIST);
+      router.push(ROUTES.CLUBS.BROWSE);
     } catch (error) {
       console.error('Failed to create club:', error);
       toaster.error({ title: t('failedToCreateClub') });
@@ -283,7 +283,7 @@ const CreateClubPage = () => {
             <Button variant="ghost" onClick={() => router.back()}>
               {t('cancel')}
             </Button>
-            <Button type="submit" colorPalette="blue" loading={isSubmitting}>
+            <Button type="submit" colorPalette="green" loading={isSubmitting}>
               {t('createClub')}
             </Button>
           </Flex>
