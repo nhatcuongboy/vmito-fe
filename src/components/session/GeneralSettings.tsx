@@ -82,9 +82,10 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
     const fetchVenues = async () => {
       try {
         const venueData = await VenueService.getAllVenues();
-        setVenues(venueData);
+        setVenues(Array.isArray(venueData) ? venueData : []);
       } catch (error) {
         console.error('Error fetching venues:', error);
+        setVenues([]); // Ensure venues is always an array
       }
     };
     fetchVenues();
@@ -588,7 +589,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   </Wrap>
 
                   {formData.requiredLevels?.length > 0 && (
-                    <Text fontSize="xs" color="blue.600" mt={2}>
+                    <Text fontSize="xs" color="green.600" mt={2}>
                       {t('levelsSelected', {
                         count: formData.requiredLevels.length,
                       })}
@@ -725,7 +726,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               </CommonModal>
 
               <Button
-                colorPalette="blue"
+                colorPalette="green"
                 size="lg"
                 borderRadius="lg"
                 loading={isLoading}

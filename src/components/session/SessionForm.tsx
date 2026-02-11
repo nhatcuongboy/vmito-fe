@@ -343,9 +343,10 @@ export default function SessionForm({
     const fetchVenues = async () => {
       try {
         const venueData = await VenueService.getAllVenues();
-        setVenues(venueData);
+        setVenues(Array.isArray(venueData) ? venueData : []);
       } catch (error) {
         console.error('Error fetching venues:', error);
+        setVenues([]); // Ensure venues is always an array
       }
     };
     fetchVenues();
@@ -1455,7 +1456,7 @@ export default function SessionForm({
               )}
               <Button
                 type="submit"
-                colorPalette="blue"
+                colorPalette="green"
                 loading={isSubmitting || isNavigating}
                 loadingText={
                   isNavigating

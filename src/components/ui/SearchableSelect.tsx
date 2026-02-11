@@ -141,14 +141,17 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 
   // Filter and sort options based on fuzzy search query
   const filteredOptions = useMemo(() => {
+    // Ensure options is always an array
+    const safeOptions = Array.isArray(options) ? options : [];
+
     if (!searchQuery.trim()) {
-      return options;
+      return safeOptions;
     }
 
     const query = searchQuery.trim();
 
     // Map options with their match scores
-    const scoredOptions = options
+    const scoredOptions = safeOptions
       .map((option) => {
         const result = fuzzyMatch(String(option.label || ''), query);
         return {
@@ -166,7 +169,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 
   // Find selected option label
   const selectedLabel = useMemo(() => {
-    const selected = options.find((opt) => opt.value === value);
+    const safeOptions = Array.isArray(options) ? options : [];
+    const selected = safeOptions.find((opt) => opt.value === value);
     return selected?.label || '';
   }, [options, value]);
 

@@ -82,6 +82,12 @@ export default function AdminVenuesPage() {
     try {
       setLoading(true);
       const data = await VenueService.getAllVenues();
+      // Ensure data is an array before filtering
+      if (!Array.isArray(data)) {
+        console.error('Venues data is not an array:', data);
+        setVenues([]);
+        return;
+      }
       // Simple client-side filtering since backend doesn't support search yet
       const filteredData = data.filter(
         (venue) =>
@@ -96,6 +102,7 @@ export default function AdminVenuesPage() {
     } catch (error) {
       console.error('Failed to fetch venues:', error);
       toaster.error({ title: t('failedToLoadVenues') });
+      setVenues([]); // Ensure venues is always an array
     } finally {
       setLoading(false);
     }
@@ -198,7 +205,7 @@ export default function AdminVenuesPage() {
           <Flex justify="space-between" align="center">
             <Heading size="lg">{t('venueManagement')}</Heading>
             <Button
-              colorPalette="blue"
+              colorPalette="green"
               onClick={() => {
                 form.reset({
                   name: '',
