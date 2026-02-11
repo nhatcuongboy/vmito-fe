@@ -57,55 +57,70 @@ export default function BottomNavigationBar({
         const isLoading = loadingTabId === tab.id;
 
         return (
-          <Button
-            key={tab.id}
-            onClick={() => !isLoading && onTabChange(tab.id)}
-            variant="ghost"
-            width="100%"
-            height="100%"
-            py={2}
-            borderRadius={isActive ? 'lg' : 0}
-            flexDirection="column"
-            gap={1}
-            color={isActive ? 'green.500' : 'fg.muted'}
-            bg={
-              isActive
-                ? { base: 'green.50', _dark: 'green.900/20' }
-                : 'transparent'
-            }
-            _active={{
-              bg: isActive
-                ? { base: 'green.50', _dark: 'green.900/20' }
-                : 'transparent',
-            }}
-            _hover={{
-              bg: isActive
-                ? { base: 'green.50', _dark: 'green.900/20' }
-                : { base: 'gray.50', _dark: 'gray.800' },
-              color: { base: 'green.600', _dark: 'green.400' },
-            }}
-            flex={1}
-            display="flex"
-            alignItems="center"
-            cursor={isLoading ? 'not-allowed' : 'pointer'}
-            opacity={isLoading ? 0.7 : 1}
-          >
-            {isLoading ? (
-              <Spinner size="sm" color="green.500" mb={{ base: 0.5, md: 1 }} />
-            ) : (
-              <Icon
-                size={20}
-                style={{
-                  color: isActive
-                    ? 'var(--chakra-colors-green-500)'
-                    : 'currentColor',
-                }}
+          <Box key={tab.id} position="relative" flex={1}>
+            <Button
+              onClick={() => !isLoading && onTabChange(tab.id)}
+              variant="ghost"
+              width="100%"
+              height="100%"
+              py={2}
+              borderRadius={isActive ? 'lg' : 0}
+              flexDirection="column"
+              gap={1}
+              color={isActive ? 'green.500' : 'fg.muted'}
+              bg={
+                isActive
+                  ? { base: 'green.50', _dark: 'green.900/20' }
+                  : 'transparent'
+              }
+              _active={{
+                bg: isActive
+                  ? { base: 'green.50', _dark: 'green.900/20' }
+                  : 'transparent',
+              }}
+              _hover={{
+                bg: isActive
+                  ? { base: 'green.50', _dark: 'green.900/20' }
+                  : { base: 'gray.50', _dark: 'gray.800' },
+                color: { base: 'green.600', _dark: 'green.400' },
+              }}
+              display="flex"
+              alignItems="center"
+              cursor={isLoading ? 'not-allowed' : 'pointer'}
+              opacity={isLoading ? 0.7 : 1}
+            >
+              {isLoading ? (
+                <Spinner
+                  size="sm"
+                  color="green.500"
+                  mb={{ base: 0.5, md: 1 }}
+                />
+              ) : (
+                <Icon
+                  size={20}
+                  style={{
+                    color: isActive
+                      ? 'var(--chakra-colors-green-500)'
+                      : 'currentColor',
+                  }}
+                />
+              )}
+              <Text fontSize="xs" fontWeight={isActive ? 'semibold' : 'medium'}>
+                {tab.label}
+              </Text>
+            </Button>
+            {/* Active indicator bar */}
+            {isActive && (
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                height="3px"
+                bg="green.500"
               />
             )}
-            <Text fontSize="xs" fontWeight={isActive ? 'semibold' : 'medium'}>
-              {tab.label}
-            </Text>
-          </Button>
+          </Box>
         );
       })}
     </Box>
