@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { Button } from '@/components/ui/chakra-compat';
 import TopBar from '@/components/ui/TopBar';
@@ -11,7 +12,6 @@ import {
   Container,
   Flex,
   Heading,
-  Input,
   Spinner,
   Stack,
   Text,

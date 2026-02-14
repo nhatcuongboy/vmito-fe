@@ -54,14 +54,14 @@ const CustomCheckbox = ({
         w={boxSize}
         h={boxSize}
         border="2px solid"
-        borderColor={isChecked ? 'blue.500' : 'gray.300'}
-        bg={isChecked ? 'blue.500' : 'white'}
+        borderColor={isChecked ? 'brand.500' : 'gray.300'}
+        bg={isChecked ? 'brand.500' : 'white'}
         borderRadius="md"
         display="flex"
         alignItems="center"
         justifyContent="center"
         transition="all 0.2s"
-        _hover={{ borderColor: 'blue.600' }}
+        _hover={{ borderColor: 'brand.600' }}
       >
         {isChecked && <Check size={iconSize} color="white" strokeWidth={3} />}
       </Box>
@@ -689,10 +689,15 @@ export default function SessionForm({
     }
   };
 
+  const Wrapper = isEditMode ? Box : PageWrapper;
   return (
-    <PageWrapper
-      minH={isEditMode ? undefined : '100vh'}
-      bg={isEditMode ? 'transparent' : { base: 'gray.50', _dark: 'gray.950' }}
+    <Wrapper
+      {...(isEditMode
+        ? { w: 'full' }
+        : {
+            minH: '100vh',
+            bg: { base: 'gray.50', _dark: 'gray.950' },
+          })}
     >
       {showTopBar && (
         <TopBar
@@ -736,7 +741,7 @@ export default function SessionForm({
         </>
       )}
 
-      <Container maxW="4xl" pt={showTopBar ? '80px' : '0'} pb={8}>
+      <Box maxW="4xl" pt={showTopBar ? '80px' : '0'} pb={8} mx="auto" w="full">
         <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
           <Stack gap={6}>
             {/* Warning messages */}
@@ -1238,7 +1243,7 @@ export default function SessionForm({
                                 onClick={() => field.onChange(color.value)}
                                 border="3px solid"
                                 borderColor={
-                                  isSelected ? 'blue.500' : 'transparent'
+                                  isSelected ? 'brand.500' : 'transparent'
                                 }
                                 boxShadow={isSelected ? 'lg' : 'sm'}
                                 transition="all 0.2s"
@@ -1474,7 +1479,7 @@ export default function SessionForm({
             </Flex>
           </Stack>
         </form>
-      </Container>
-    </PageWrapper>
+      </Box>
+    </Wrapper>
   );
 }

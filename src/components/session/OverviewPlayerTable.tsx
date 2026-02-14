@@ -26,7 +26,7 @@ export default function OverviewPlayerTable({
       case 'WAITING':
         return 'orange';
       case 'READY':
-        return 'blue';
+        return 'brand';
       case 'FINISHED':
         return 'gray';
       default:

@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -6,7 +7,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import {
   Box,
   Heading,
-  Input,
   Link,
   Spinner,
   Text,

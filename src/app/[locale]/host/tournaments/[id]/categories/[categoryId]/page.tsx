@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import {
   Box,
@@ -9,7 +10,6 @@ import {
   VStack,
   HStack,
   Spinner,
-  Input,
   Badge,
   Field,
   useDisclosure,

@@ -47,11 +47,11 @@ export const Tab = ({ children, ...props }: TabProps) => {
       minW="fit-content"
       whiteSpace="nowrap"
       fontWeight={isSelected ? 'bold' : 'medium'}
-      color={isSelected ? 'blue.500' : 'gray.500'}
+      color={isSelected ? 'brand.500' : 'gray.500'}
       borderBottom="2px solid"
-      borderColor={isSelected ? 'blue.500' : 'transparent'}
+      borderColor={isSelected ? 'brand.500' : 'transparent'}
       transition="all 0.2s"
-      _hover={{ color: isSelected ? 'blue.600' : 'gray.700' }}
+      _hover={{ color: isSelected ? 'brand.600' : 'gray.700' }}
       fontSize="sm"
       {...props}
     >

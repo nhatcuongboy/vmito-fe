@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import TournamentLayout from '@/components/tournament/TournamentLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -6,7 +7,6 @@ import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import {
   Box,
   Container,
-  Input,
   InputGroup,
   Spinner,
   Text,

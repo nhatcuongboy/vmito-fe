@@ -1,3 +1,4 @@
+import { Input } from '@/components/ui/Input';
 import {
   Button,
   FormControl,
@@ -9,15 +10,7 @@ import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { GenderType, ISession } from '@/lib/api/types';
-import {
-  Badge,
-  Box,
-  Flex,
-  Grid,
-  Input,
-  Text,
-  Textarea,
-} from '@chakra-ui/react';
+import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
 import { Plus, Trash2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useMemo } from 'react';
@@ -82,14 +75,14 @@ export default function JoinSessionForm({
 
       {session.requiredLevels && session.requiredLevels.length > 0 && (
         <Box
-          bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+          bg={{ base: 'brand.50', _dark: 'brand.900/30' }}
           p={2}
           borderRadius="md"
         >
           <Flex align="center" wrap="wrap" gap={2}>
             <Text
               fontSize="sm"
-              color={{ base: 'blue.700', _dark: 'blue.300' }}
+              color={{ base: 'brand.700', _dark: 'brand.300' }}
               as="span"
               mr={1}
             >
@@ -136,14 +129,14 @@ export default function JoinSessionForm({
           <Flex justify="space-between" align="center" mb={3}>
             <Flex align="center" gap={2}>
               <Box
-                bg={player.isMe ? 'blue.500' : 'green.500'}
+                bg={player.isMe ? 'brand.500' : 'green.500'}
                 p={1.5}
                 borderRadius="full"
               >
                 <User size={14} color="white" />
               </Box>
               <Badge
-                colorPalette={player.isMe ? 'blue' : 'green'}
+                colorPalette={player.isMe ? 'brand' : 'green'}
                 variant="subtle"
                 borderRadius="full"
                 px={2}
@@ -182,7 +175,7 @@ export default function JoinSessionForm({
                   size="md"
                   borderColor={errors[index]?.name ? 'red.400' : 'border'}
                   _focus={{
-                    borderColor: errors[index]?.name ? 'red.400' : 'blue.500',
+                    borderColor: errors[index]?.name ? 'red.400' : 'brand.500',
                     boxShadow: errors[index]?.name
                       ? '0 0 0 1px #F56565'
                       : '0 0 0 1px #3182ce',

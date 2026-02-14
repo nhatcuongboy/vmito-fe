@@ -57,7 +57,7 @@ const CourtSettings: React.FC<CourtSettingsProps> = ({
                             onUpdateSettings('courtColor', color.value)
                           }
                           border="4px solid"
-                          borderColor={isSelected ? 'blue.500' : 'transparent'}
+                          borderColor={isSelected ? 'brand.500' : 'transparent'}
                           boxShadow={isSelected ? 'lg' : 'sm'}
                           transition="all 0.2s"
                           _hover={{

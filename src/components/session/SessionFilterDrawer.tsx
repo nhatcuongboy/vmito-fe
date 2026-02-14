@@ -218,13 +218,13 @@ export default function SessionFilterDrawer({
                         color="gray.800"
                         bg="white"
                         px={3}
-                        _hover={{ borderColor: 'blue.400' }}
-                        _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                        _hover={{ borderColor: 'brand.400' }}
+                        _focus={{ borderColor: 'brand.500', shadow: 'outline' }}
                         _dark={{
                           color: 'white',
                           bg: 'gray.700',
                           borderColor: 'gray.600',
-                          _hover: { borderColor: 'blue.400' },
+                          _hover: { borderColor: 'brand.400' },
                         }}
                         css={{
                           '&::-webkit-date-and-time-value': {
@@ -297,7 +297,7 @@ export default function SessionFilterDrawer({
                     {filters.timeRanges.length > 0 && (
                       <Badge
                         size="sm"
-                        colorPalette="orange"
+                        colorPalette="green"
                         variant="solid"
                         borderRadius="full"
                         px={2}
@@ -370,7 +370,7 @@ export default function SessionFilterDrawer({
                       borderRadius="full"
                       cursor="pointer"
                       variant={sortByDistance ? 'solid' : 'outline'}
-                      colorPalette={sortByDistance ? 'blue' : 'gray'}
+                      colorPalette={sortByDistance ? 'green' : 'gray'}
                       onClick={handleNearMe}
                       fontSize="sm"
                       fontWeight="semibold"
@@ -440,7 +440,7 @@ export default function SessionFilterDrawer({
                       filters.cities.includes(city.code) ? 'solid' : 'outline'
                     }
                     colorPalette={
-                      filters.cities.includes(city.code) ? 'blue' : 'gray'
+                      filters.cities.includes(city.code) ? 'green' : 'gray'
                     }
                     onClick={() => toggleCity(city.code)}
                     fontSize="sm"
@@ -533,7 +533,7 @@ export default function SessionFilterDrawer({
                       }
                       colorPalette={
                         filters.districts.includes(district.name)
-                          ? 'blue'
+                          ? 'brand'
                           : 'gray'
                       }
                       onClick={() => toggleDistrict(district.name)}
@@ -569,7 +569,7 @@ export default function SessionFilterDrawer({
                 {filters.levels.length > 0 && (
                   <Badge
                     size="sm"
-                    colorPalette="purple"
+                    colorPalette="green"
                     variant="solid"
                     borderRadius="full"
                     px={2}
@@ -641,8 +641,8 @@ export default function SessionFilterDrawer({
                     borderColor="gray.300"
                     color="gray.800"
                     bg="white"
-                    _hover={{ borderColor: 'blue.400' }}
-                    _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                    _hover={{ borderColor: 'brand.400' }}
+                    _focus={{ borderColor: 'brand.500', shadow: 'outline' }}
                     _dark={{
                       color: 'white',
                       bg: 'gray.700',
@@ -670,8 +670,8 @@ export default function SessionFilterDrawer({
                     borderColor="gray.300"
                     color="gray.800"
                     bg="white"
-                    _hover={{ borderColor: 'blue.400' }}
-                    _focus={{ borderColor: 'blue.500', shadow: 'outline' }}
+                    _hover={{ borderColor: 'brand.400' }}
+                    _focus={{ borderColor: 'brand.500', shadow: 'outline' }}
                     _dark={{
                       color: 'white',
                       bg: 'gray.700',
@@ -691,14 +691,14 @@ export default function SessionFilterDrawer({
                   px={3}
                   py={2}
                   borderRadius="lg"
-                  bg={filters.splitEvenly ? 'blue.50' : 'transparent'}
+                  bg={filters.splitEvenly ? 'brand.50' : 'transparent'}
                   _dark={{
-                    bg: filters.splitEvenly ? 'blue.900' : 'transparent',
+                    bg: filters.splitEvenly ? 'brand.900' : 'transparent',
                   }}
                   borderWidth="2px"
-                  borderColor={filters.splitEvenly ? 'blue.400' : 'gray.300'}
+                  borderColor={filters.splitEvenly ? 'brand.400' : 'gray.300'}
                   transition="all 0.2s"
-                  _hover={{ borderColor: 'blue.400' }}
+                  _hover={{ borderColor: 'brand.400' }}
                 >
                   <input
                     type="checkbox"
@@ -714,9 +714,9 @@ export default function SessionFilterDrawer({
                   <Text
                     fontSize="sm"
                     fontWeight="semibold"
-                    color={filters.splitEvenly ? 'blue.700' : 'gray.700'}
+                    color={filters.splitEvenly ? 'brand.700' : 'gray.700'}
                     _dark={{
-                      color: filters.splitEvenly ? 'blue.200' : 'gray.200',
+                      color: filters.splitEvenly ? 'brand.200' : 'gray.200',
                     }}
                   >
                     {t('filters.splitEvenly')}

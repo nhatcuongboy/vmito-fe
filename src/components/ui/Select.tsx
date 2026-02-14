@@ -125,9 +125,9 @@ export const LegacySelect = React.forwardRef<
         onFocus={(e) => {
           if (!isSelectDisabled && variant !== 'plain') {
             e.currentTarget.style.borderColor =
-              'var(--chakra-colors-color-palette-500)';
+              'var(--chakra-colors-brand-500)';
             e.currentTarget.style.boxShadow =
-              '0 0 0 1px var(--chakra-colors-color-palette-500)';
+              '0 0 0 1px var(--chakra-colors-brand-500)';
           }
           props.onFocus?.(e);
         }}
@@ -298,8 +298,8 @@ export const Select = ({
 
   const triggerProps = {
     _focusVisible: {
-      borderColor: 'blue.500',
-      boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+      borderColor: 'brand.500',
+      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
     },
     _invalid: {
       borderColor: 'border.error',
@@ -378,8 +378,8 @@ export const Select = ({
                 item={item.value}
                 _hover={{ bg: { base: 'gray.50', _dark: 'whiteAlpha.50' } }}
                 _selected={{
-                  bg: { base: 'blue.50', _dark: 'blue.900/40' },
-                  color: { base: 'blue.600', _dark: 'blue.300' },
+                  bg: { base: 'brand.50', _dark: 'brand.900/40' },
+                  color: { base: 'brand.600', _dark: 'brand.300' },
                 }}
                 p="2"
                 borderRadius="sm"

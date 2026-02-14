@@ -1,9 +1,10 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useState, Suspense } from 'react';
 import { useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
-import { Box, Heading, Input, Text, VStack, Spinner } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, Spinner } from '@chakra-ui/react';
 import { AuthService } from '@/lib/api/auth.service';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';

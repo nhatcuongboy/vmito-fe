@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -26,7 +27,6 @@ import { toaster } from '@/components/ui/toaster';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { Field } from '@/components/ui/Field';
-import { Input } from '@/components/ui/Input';
 import CommonModal from '@/components/ui/CommonModal';
 
 const AdminClubApprovalPage = () => {

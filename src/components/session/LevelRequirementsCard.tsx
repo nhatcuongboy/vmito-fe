@@ -178,16 +178,16 @@ export default function LevelRequirementsCard({
         {!allLevelsSelected && requiredLevels.length > 0 && (
           <Box
             p={3}
-            bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+            bg={{ base: 'brand.50', _dark: 'brand.900/30' }}
             borderRadius="md"
             border="1px solid"
-            borderColor={{ base: 'blue.200', _dark: 'blue.700' }}
+            borderColor={{ base: 'brand.200', _dark: 'brand.700' }}
           >
             <Flex align="center" gap={2} wrap="wrap">
               <Text
                 fontSize="sm"
                 fontWeight="semibold"
-                color={{ base: 'blue.800', _dark: 'blue.200' }}
+                color={{ base: 'brand.800', _dark: 'brand.200' }}
               >
                 {t('generalSettings.selectedLevels')}:
               </Text>

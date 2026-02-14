@@ -79,7 +79,7 @@ export const AppHostDetail = ({
       <CardBody>
         <VStack gap={4} align="stretch">
           <Flex align="center" gap={4}>
-            <Avatar.Root size="xl" bg="blue.500">
+            <Avatar.Root size="xl" bg="brand.500">
               <Avatar.Fallback name={name || 'Host'}>
                 {(name || 'H').charAt(0).toUpperCase()}
               </Avatar.Fallback>

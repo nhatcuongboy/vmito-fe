@@ -80,7 +80,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
   const getColorScheme = (status: PlayerStatus) => {
     switch (status) {
       case PlayerStatus.PLAYING:
-        return 'blue';
+        return 'brand';
       case PlayerStatus.WAITING:
         return 'orange';
       case PlayerStatus.READY:
@@ -126,9 +126,9 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
         size="sm"
         variant="outline"
         onClick={() => setIsOpen(!isOpen)}
-        colorPalette={!isAllSelected ? 'blue' : 'gray'}
-        bg={!isAllSelected ? 'blue.50' : 'transparent'}
-        borderColor={!isAllSelected ? 'blue.200' : 'gray.200'}
+        colorPalette={!isAllSelected ? 'brand' : 'gray'}
+        bg={!isAllSelected ? 'brand.50' : 'transparent'}
+        borderColor={!isAllSelected ? 'brand.200' : 'gray.200'}
       >
         <HStack gap={2}>
           <Filter size={16} />
@@ -136,7 +136,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
           {!isAllSelected && (
             <Badge
               colorPalette="green"
-              bg="blue.500"
+              bg="brand.500"
               color="white"
               borderRadius="full"
               variant="solid"

@@ -109,7 +109,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PREPARING':
-        return 'blue';
+        return 'brand';
       case 'IN_PROGRESS':
         return 'green';
       case 'FINISHED':

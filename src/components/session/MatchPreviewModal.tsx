@@ -372,9 +372,9 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
               <HStack gap={2} width="full" justify="center" align="stretch">
                 {/* Pair 1 */}
                 <Box
-                  bg="blue.50"
+                  bg="brand.50"
                   border="2px solid"
-                  borderColor="blue.200"
+                  borderColor="brand.200"
                   borderRadius="lg"
                   p={3}
                   textAlign="center"
@@ -401,7 +401,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
                         borderRadius="md"
                         p={2}
                         border="1px solid"
-                        borderColor="blue.100"
+                        borderColor="brand.100"
                         width="full"
                       >
                         <Text

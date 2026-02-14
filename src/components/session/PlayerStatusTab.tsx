@@ -198,9 +198,9 @@ export default function PlayerStatusTab({
                       <Box
                         mt={3}
                         p={3}
-                        bg="blue.50"
+                        bg="brand.50"
                         borderRadius="md"
-                        _dark={{ bg: 'blue.900' }}
+                        _dark={{ bg: 'brand.900' }}
                       >
                         {partners.length > 0 && (
                           <Box mb={2}>
@@ -208,7 +208,7 @@ export default function PlayerStatusTab({
                               fontSize="sm"
                               fontWeight="semibold"
                               color="green.700"
-                              _dark={{ color: 'blue.300' }}
+                              _dark={{ color: 'brand.300' }}
                               mb={1}
                             >
                               🤝 {t('court.partnerWith')}
@@ -219,10 +219,10 @@ export default function PlayerStatusTab({
                                   key={p.id}
                                   fontSize="sm"
                                   color="green.600"
-                                  bg="blue.100"
+                                  bg="brand.100"
                                   _dark={{
-                                    bg: 'blue.800',
-                                    color: 'blue.200',
+                                    bg: 'brand.800',
+                                    color: 'brand.200',
                                   }}
                                   px={3}
                                   py={1}
@@ -288,12 +288,12 @@ export default function PlayerStatusTab({
               flex={1}
               transition="all 0.2s"
               _hover={{
-                borderColor: 'blue.200',
-                bg: 'blue.50',
+                borderColor: 'brand.200',
+                bg: 'brand.50',
                 transform: 'translateY(-2px)',
               }}
               _dark={{
-                _hover: { bg: 'blue.900', borderColor: 'blue.700' },
+                _hover: { bg: 'brand.900', borderColor: 'brand.700' },
               }}
             >
               <Center mb={1}>
@@ -315,12 +315,12 @@ export default function PlayerStatusTab({
               flex={1}
               transition="all 0.2s"
               _hover={{
-                borderColor: 'blue.200',
-                bg: 'blue.50',
+                borderColor: 'brand.200',
+                bg: 'brand.50',
                 transform: 'translateY(-2px)',
               }}
               _dark={{
-                _hover: { bg: 'blue.900', borderColor: 'blue.700' },
+                _hover: { bg: 'brand.900', borderColor: 'brand.700' },
               }}
             >
               <Center mb={1}>

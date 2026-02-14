@@ -121,7 +121,13 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
         overflowY="auto"
       >
         {/* Body */}
-        <Box p={{ base: 4, md: isCollapsed ? 2 : 4 }}>
+        <Box
+          p={{ base: 4, md: isCollapsed ? 2 : 4 }}
+          pb={{
+            base: 'calc(1rem + env(safe-area-inset-bottom))',
+            md: isCollapsed ? 2 : 4,
+          }}
+        >
           <Stack gap={3}>
             {/* Home - Standalone (No Group) */}
             <Box>

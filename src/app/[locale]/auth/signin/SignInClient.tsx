@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import MainLayout from '@/components/layout/MainLayout';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -9,7 +10,6 @@ import {
   Box,
   Field,
   Heading,
-  Input,
   Link,
   Separator,
   Spinner,

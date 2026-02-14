@@ -205,7 +205,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             onClick={() => setSubTab('grid')}
             leftIcon={<LayoutGrid size={14} />}
             variant={subTab === 'grid' ? 'solid' : 'ghost'}
-            colorPalette={subTab === 'grid' ? 'blue' : 'gray'}
+            colorPalette={subTab === 'grid' ? 'brand' : 'gray'}
             borderRadius="md"
           >
             {t('playersTab.grid')}
@@ -215,7 +215,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             onClick={() => setSubTab('list')}
             leftIcon={<List size={14} />}
             variant={subTab === 'list' ? 'solid' : 'ghost'}
-            colorPalette={subTab === 'list' ? 'blue' : 'gray'}
+            colorPalette={subTab === 'list' ? 'brand' : 'gray'}
             borderRadius="md"
           >
             {t('playersTab.list')}

@@ -1,8 +1,9 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Box, Flex, Input } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Select } from '@/components/ui/Select';
 import { Search, X, Calendar, Filter } from 'lucide-react';
@@ -100,40 +101,18 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
         {/* Search Filter - Full width on mobile, flexible on desktop */}
         {showSearchFilter && (
           <Box flex={{ base: '1 1 100%', lg: '1 1 300px' }}>
-            <Flex
-              align="center"
+            <Input
+              placeholder={t('searchSessions')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               bg="gray.50"
-              borderRadius="md"
-              border="1px solid"
               borderColor="gray.200"
-              px={3}
               h="40px"
-              transition="all 0.2s"
+              fontSize="sm"
               _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-              _hover={{
-                borderColor: 'blue.400',
-                _dark: { borderColor: 'blue.500' },
-              }}
-              _focusWithin={{
-                borderColor: 'blue.500',
-                shadow: '0 0 0 1px var(--chakra-colors-blue-500)',
-                bg: 'white',
-                _dark: { bg: 'gray.800' },
-              }}
-            >
-              <Search size={18} style={{ marginRight: 8, opacity: 0.5 }} />
-              <Input
-                placeholder={t('searchSessions')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                border="none"
-                outline="none"
-                _focus={{ outline: 'none', shadow: 'none' }}
-                h="100%"
-                fontSize="sm"
-                _placeholder={{ color: 'gray.400' }}
-              />
-            </Flex>
+              leftElement={<Search size={18} style={{ opacity: 0.5 }} />}
+              _placeholder={{ color: 'gray.400' }}
+            />
           </Box>
         )}
 
@@ -167,82 +146,54 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
               {/* Date Filter */}
               {showDateFilter && (
                 <Box flex="1" minW={{ lg: '180px' }} position="relative">
-                  <Flex
-                    align="center"
+                  <Input
+                    type="date"
+                    value={filters.date || ''}
+                    onChange={(e) => handleFilterChange('date', e.target.value)}
                     bg="gray.50"
-                    borderRadius="md"
-                    border="1px solid"
                     borderColor="gray.200"
-                    px={3}
                     h="40px"
-                    transition="all 0.2s"
-                    cursor="pointer"
+                    fontSize="sm"
                     _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                    _hover={{
-                      borderColor: 'blue.400',
-                      _dark: { borderColor: 'blue.500' },
+                    leftElement={
+                      <Calendar size={16} style={{ opacity: 0.6 }} />
+                    }
+                    _placeholder={{ color: 'gray.400' }}
+                    css={{
+                      '&::-webkit-calendar-picker-indicator': {
+                        position: 'absolute',
+                        right: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0,
+                        cursor: 'pointer',
+                      },
+                      '&::-webkit-date-and-time-value': {
+                        minHeight: '1.5em',
+                        display: 'flex',
+                        alignItems: 'center',
+                      },
+                      '&::-webkit-datetime-edit': {
+                        minHeight: '1.5em',
+                      },
+                      '&::-webkit-datetime-edit-fields-wrapper': {
+                        padding: '0',
+                      },
+                      '&::-webkit-datetime-edit-text': {
+                        color: !filters.date ? 'transparent' : 'inherit',
+                        padding: '0 1px',
+                      },
+                      '&::-webkit-datetime-edit-month-field': {
+                        color: !filters.date ? 'transparent' : 'inherit',
+                      },
+                      '&::-webkit-datetime-edit-day-field': {
+                        color: !filters.date ? 'transparent' : 'inherit',
+                      },
+                      '&::-webkit-datetime-edit-year-field': {
+                        color: !filters.date ? 'transparent' : 'inherit',
+                      },
                     }}
-                    _focusWithin={{
-                      borderColor: 'blue.500',
-                      shadow: '0 0 0 1px var(--chakra-colors-blue-500)',
-                    }}
-                    onClick={(e) => {
-                      const input = e.currentTarget.querySelector('input');
-                      input?.showPicker?.();
-                    }}
-                  >
-                    <Calendar
-                      size={16}
-                      style={{ marginRight: 8, opacity: 0.6 }}
-                    />
-                    <Input
-                      type="date"
-                      value={filters.date || ''}
-                      onChange={(e) =>
-                        handleFilterChange('date', e.target.value)
-                      }
-                      h="100%"
-                      fontSize="sm"
-                      border="none"
-                      outline="none"
-                      _focus={{ outline: 'none', shadow: 'none' }}
-                      _placeholder={{ color: 'gray.400' }}
-                      css={{
-                        '&::-webkit-calendar-picker-indicator': {
-                          position: 'absolute',
-                          right: 0,
-                          width: '100%',
-                          height: '100%',
-                          opacity: 0,
-                          cursor: 'pointer',
-                        },
-                        '&::-webkit-date-and-time-value': {
-                          minHeight: '1.5em',
-                          display: 'flex',
-                          alignItems: 'center',
-                        },
-                        '&::-webkit-datetime-edit': {
-                          minHeight: '1.5em',
-                        },
-                        '&::-webkit-datetime-edit-fields-wrapper': {
-                          padding: '0',
-                        },
-                        '&::-webkit-datetime-edit-text': {
-                          color: !filters.date ? 'transparent' : 'inherit',
-                          padding: '0 1px',
-                        },
-                        '&::-webkit-datetime-edit-month-field': {
-                          color: !filters.date ? 'transparent' : 'inherit',
-                        },
-                        '&::-webkit-datetime-edit-day-field': {
-                          color: !filters.date ? 'transparent' : 'inherit',
-                        },
-                        '&::-webkit-datetime-edit-year-field': {
-                          color: !filters.date ? 'transparent' : 'inherit',
-                        },
-                      }}
-                    />
-                  </Flex>
+                  />
                   {/* Placeholder overlay */}
                   {!filters.date && (
                     <Box

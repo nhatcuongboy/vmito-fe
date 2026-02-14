@@ -1,7 +1,8 @@
+import { Input } from '@/components/ui/Input';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { CourtDirection } from '@/lib/api/types';
 import { Match } from '@/types/session';
-import { Box, HStack, Input, Text, Textarea, VStack } from '@chakra-ui/react';
+import { Box, HStack, Text, Textarea, VStack } from '@chakra-ui/react';
 import { Trophy, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';

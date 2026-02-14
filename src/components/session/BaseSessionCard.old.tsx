@@ -66,7 +66,7 @@ export const formatTime = (
 };
 
 export const statusColors: Record<string, string> = {
-  PREPARING: 'blue',
+  PREPARING: 'brand',
   IN_PROGRESS: 'green',
   FINISHED: 'gray',
 };

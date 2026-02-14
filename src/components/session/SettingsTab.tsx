@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import React from 'react';
 import SessionEditForm from './SessionEditForm';
 import { ISession } from '@/lib/api/types';
@@ -13,14 +13,16 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
   refreshSessionData,
 }) => {
   return (
-    <Box maxW="4xl" mx="auto">
-      <SessionEditForm
-        sessionId={session.id}
-        onSuccess={(updatedSession: ISession) => {
-          refreshSessionData();
-        }}
-      />
-    </Box>
+    <Flex justify="center" w="full">
+      <Box maxW="4xl" w="full">
+        <SessionEditForm
+          sessionId={session.id}
+          onSuccess={(updatedSession: ISession) => {
+            refreshSessionData();
+          }}
+        />
+      </Box>
+    </Flex>
   );
 };
 

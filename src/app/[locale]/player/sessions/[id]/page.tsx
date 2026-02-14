@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState, useEffect, Suspense } from 'react';
-import { Spinner, Center, Box, Text, Container } from '@chakra-ui/react';
+import { Spinner, Center, Box, Text, Container, Flex } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Info, RefreshCw, Square, Trophy, Users } from 'lucide-react';
 
@@ -211,9 +211,15 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         onRefreshData={refreshSessionData}
       />
 
-      <Container maxW="7xl" py={2}>
+      <Flex
+        direction="column"
+        align="center"
+        py={2}
+        w="full"
+        px={{ base: 4, md: 8 }}
+      >
         {/* Tab Content Area */}
-        <Box minH="60vh" pb="80px">
+        <Box minH="60vh" pb="80px" w="full" maxW="7xl">
           {activeTab === 0 && (
             <SessionOverviewTab
               session={session}
@@ -272,7 +278,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           activeTab={activeTab}
           onTabChange={handleTabChange}
         />
-      </Container>
+      </Flex>
 
       {/* Confirmation Dialog */}
       <CommonModal

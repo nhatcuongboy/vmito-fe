@@ -1,15 +1,8 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import React from 'react';
-import {
-  Badge,
-  Box,
-  Flex,
-  Grid,
-  Input,
-  Text,
-  Textarea,
-} from '@chakra-ui/react';
+import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
 import {
   Button,
   Card,

@@ -39,11 +39,8 @@ export default function SessionSearchBar({
         borderRadius="xl"
         boxShadow="md"
       >
-        {/* Search Input */}
-        <Box flex="1" position="relative" minW="200px">
+        <Box flex="1" minW="200px">
           <Input
-            pl={10}
-            pr={4}
             h="44px"
             placeholder={t('searchPlaceholder')}
             value={searchQuery}
@@ -51,35 +48,18 @@ export default function SessionSearchBar({
             bg="gray.50"
             _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
             borderRadius="xl"
-            borderWidth="2px"
-            borderColor="gray.200"
-            _hover={{
-              borderColor: 'green.400',
-              _dark: { borderColor: 'green.600' },
-            }}
+            leftElement={<Search size={20} />}
             _focus={{
-              borderColor: 'green.500',
-              boxShadow: '0 0 0 1px var(--chakra-colors-green-500)',
+              borderColor: 'brand.500',
+              boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
               bg: 'white',
               _dark: {
                 bg: 'gray.600',
-                borderColor: 'green.500',
-                boxShadow: '0 0 0 1px var(--chakra-colors-green-500)',
               },
             }}
             fontSize="md"
             transition="all 0.2s"
           />
-          <Box
-            position="absolute"
-            left={3}
-            top="50%"
-            transform="translateY(-50%)"
-            color="gray.400"
-            _dark={{ color: 'gray.500' }}
-          >
-            <Search size={20} />
-          </Box>
         </Box>
 
         {/* Filter Button */}

@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { Card, CardBody, Button, Select } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
@@ -15,7 +16,6 @@ import {
   Grid,
   Heading,
   HStack,
-  Input,
   Text,
   Textarea,
   VStack,
@@ -265,7 +265,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   borderColor="border"
                   bg={{ base: 'white', _dark: 'gray.700' }}
                   _focus={{
-                    borderColor: 'blue.400',
+                    borderColor: 'brand.400',
                     boxShadow: '0 0 0 1px #3182ce',
                   }}
                 />
@@ -288,7 +288,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   borderRadius="lg"
                   borderColor="gray.300"
                   _focus={{
-                    borderColor: 'blue.400',
+                    borderColor: 'brand.400',
                     boxShadow: '0 0 0 1px #3182ce',
                   }}
                 />
@@ -344,7 +344,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     borderColor="border"
                     bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
-                      borderColor: 'blue.400',
+                      borderColor: 'brand.400',
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
@@ -370,7 +370,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     borderColor="border"
                     bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
-                      borderColor: 'blue.400',
+                      borderColor: 'brand.400',
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
@@ -398,7 +398,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     color="gray.800"
                     _dark={{ color: 'white' }}
                     _focus={{
-                      borderColor: 'blue.400',
+                      borderColor: 'brand.400',
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
                     css={{
@@ -431,7 +431,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     color="gray.800"
                     _dark={{ color: 'white' }}
                     _focus={{
-                      borderColor: 'blue.400',
+                      borderColor: 'brand.400',
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
                     css={{
@@ -568,7 +568,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                             cursor="pointer"
                             bg={
                               isSelected
-                                ? 'blue.500'
+                                ? 'brand.500'
                                 : { base: 'gray.200', _dark: 'gray.700' }
                             }
                             color={isSelected ? 'white' : 'fg'}
@@ -638,7 +638,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                                 handleInputChange('courtColor', color.value)
                               }
                               border="4px solid"
-                              borderColor={isSelected ? 'blue.500' : 'border'}
+                              borderColor={isSelected ? 'brand.500' : 'border'}
                               boxShadow={isSelected ? 'lg' : 'sm'}
                               transition="all 0.2s"
                               _hover={{

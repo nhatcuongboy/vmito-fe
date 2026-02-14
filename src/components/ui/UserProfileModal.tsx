@@ -1,11 +1,11 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useEffect, useRef, useState } from 'react';
 import {
   Box,
   VStack,
   Text,
-  Input,
   Avatar,
   Flex,
   Textarea,
@@ -256,7 +256,7 @@ export default function UserProfileModal({
               p={2}
               borderRadius="full"
               cursor="pointer"
-              _hover={{ bg: 'blue.600' }}
+              _hover={{ bg: 'brand.600' }}
               boxShadow="md"
               onClick={handleAvatarClick}
             >

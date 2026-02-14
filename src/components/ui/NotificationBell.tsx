@@ -63,7 +63,7 @@ const getNotificationColor = (type: NotificationType) => {
     case NotificationType.SYSTEM:
       return 'purple';
     case NotificationType.SESSION:
-      return 'blue';
+      return 'brand';
     case NotificationType.REGISTRATION:
       return 'green';
     case NotificationType.PAYMENT:
@@ -238,7 +238,7 @@ export default function NotificationBell({
                       onClick={() => handleNotificationClick(notification)}
                       w="100%"
                       p={4}
-                      bg={notification.isRead ? 'transparent' : 'blue.50/30'}
+                      bg={notification.isRead ? 'transparent' : 'brand.50/30'}
                       _dark={{
                         bg: notification.isRead
                           ? 'transparent'
@@ -263,7 +263,7 @@ export default function NotificationBell({
                           top={0}
                           bottom={0}
                           width="3px"
-                          bg="blue.500"
+                          bg="brand.500"
                         />
                       )}
 
@@ -307,7 +307,7 @@ export default function NotificationBell({
                               <Box
                                 w="8px"
                                 h="8px"
-                                bg="blue.500"
+                                bg="brand.500"
                                 borderRadius="full"
                                 boxShadow="0 0 0 2px white"
                                 _dark={{

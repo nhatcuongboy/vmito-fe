@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Flex, SimpleGrid, Spinner, Text } from '@chakra-ui/react';
@@ -7,7 +8,6 @@ import { useTranslations } from 'next-intl';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import { IClubListItem } from '@/types/club';
-import { Input } from '@/components/ui/Input';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/chakra-compat';
 

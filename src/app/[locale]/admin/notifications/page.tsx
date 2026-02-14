@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import MainLayout from '@/components/layout/MainLayout';
 
@@ -11,7 +12,6 @@ import {
   VStack,
   HStack,
   Card,
-  Input,
   Textarea,
   Spinner,
 } from '@chakra-ui/react';

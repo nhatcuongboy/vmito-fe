@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import MainLayout from '@/components/layout/MainLayout';
 import { toaster } from '@/components/ui/toaster';
@@ -15,7 +16,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Input,
   Spinner,
   Table,
   Text,

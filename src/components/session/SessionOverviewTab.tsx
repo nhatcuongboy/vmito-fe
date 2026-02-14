@@ -242,7 +242,7 @@ export default function SessionOverviewTab({
           <Flex align="center" mb={2}>
             <Box
               p={2}
-              bg={{ base: 'blue.50', _dark: 'blue.900/30' }}
+              bg={{ base: 'brand.50', _dark: 'brand.900/30' }}
               color="green.500"
               borderRadius="lg"
               mr={3}

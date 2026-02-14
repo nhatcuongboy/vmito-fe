@@ -78,13 +78,13 @@ export const HistoryMatchCard = ({
   // Winning pair: blue, losing pair: red
   const pair1WonStyle =
     winningPair === 1
-      ? { fontWeight: 'bold', color: 'blue.600' }
+      ? { fontWeight: 'bold', color: 'brand.600' }
       : winningPair === 2
         ? { fontWeight: 'bold', color: 'red.600' }
         : {};
   const pair2WonStyle =
     winningPair === 2
-      ? { fontWeight: 'bold', color: 'blue.600' }
+      ? { fontWeight: 'bold', color: 'brand.600' }
       : winningPair === 1
         ? { fontWeight: 'bold', color: 'red.600' }
         : {};
@@ -112,7 +112,7 @@ export const HistoryMatchCard = ({
             size="sm"
             variant="ghost"
             color="gray.400"
-            _hover={{ color: 'blue.500', bg: 'blue.50' }}
+            _hover={{ color: 'brand.500', bg: 'brand.50' }}
             onClick={() => onEdit(match)}
           />
         </Box>

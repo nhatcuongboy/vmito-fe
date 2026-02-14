@@ -241,7 +241,7 @@ export default function CoverPhotoUpload({
           _hover={
             disabled || isUploading
               ? {}
-              : { borderColor: 'blue.400', bg: 'gray.100' }
+              : { borderColor: 'brand.400', bg: 'gray.100' }
           }
           transition="all 0.2s"
         >

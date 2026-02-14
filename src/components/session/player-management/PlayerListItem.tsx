@@ -39,7 +39,7 @@ function getStatusColor(status: string) {
     case 'WAITING':
       return 'orange.500';
     case 'READY':
-      return 'blue.500';
+      return 'brand.500';
     default:
       return 'gray.400';
   }
@@ -52,7 +52,7 @@ function getStatusGradient(status: string) {
     case 'WAITING':
       return 'linear(to-r, orange.400, orange.600)';
     case 'READY':
-      return 'linear(to-r, blue.400, blue.600)';
+      return 'linear(to-r, brand.400, brand.600)';
     default:
       return 'linear(to-r, gray.400, gray.600)';
   }
@@ -61,7 +61,7 @@ function getStatusGradient(status: string) {
 // Enhanced Gender gradient backgrounds
 
 function getGenderColor(gender?: string): string {
-  if (gender === Gender.MALE) return 'blue';
+  if (gender === Gender.MALE) return 'brand';
   if (gender === Gender.FEMALE) return 'pink';
   if (gender === Gender.OTHER) return 'purple';
   if (gender === Gender.PREFER_NOT_TO_SAY) return 'gray';
@@ -86,7 +86,7 @@ const EnhancedAvatar = ({
   const gradientColors = {
     [Gender.MALE]: {
       bg: 'linear-gradient(135deg, #4299e1 0%, #667eea 100%)',
-      ring: 'blue.300',
+      ring: 'brand.300',
     },
     [Gender.FEMALE]: {
       bg: 'linear-gradient(135deg, #ed64a6 0%, #f687b3 100%)',

@@ -331,7 +331,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           _hover={{ opacity: 0.8 }}
           transition="opacity 0.2s"
         >
-          <Avatar.Root size="sm" bg="blue.500">
+          <Avatar.Root size="sm" bg="brand.500">
             <Avatar.Fallback name={user.name || user.email}>
               {(user.name || user.email).charAt(0).toUpperCase()}
             </Avatar.Fallback>
@@ -381,7 +381,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                   _dark={{ borderColor: 'gray.700' }}
                 >
                   <Flex align="center" gap={3}>
-                    <Avatar.Root size="md" bg="blue.500">
+                    <Avatar.Root size="md" bg="brand.500">
                       <Avatar.Fallback name={user.name || user.email}>
                         {(user.name || user.email).charAt(0).toUpperCase()}
                       </Avatar.Fallback>

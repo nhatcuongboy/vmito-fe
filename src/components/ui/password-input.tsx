@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import type {
   ButtonProps,
@@ -10,7 +11,6 @@ import {
   Box,
   HStack,
   IconButton,
-  Input,
   InputGroup,
   Stack,
   mergeRefs,

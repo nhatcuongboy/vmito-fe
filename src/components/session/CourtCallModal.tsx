@@ -53,7 +53,7 @@ export default function CourtCallModal({
             fontSize="2xl"
             fontWeight="bold"
             color="green.600"
-            _dark={{ color: 'blue.400' }}
+            _dark={{ color: 'brand.400' }}
           >
             {courtName}
           </Text>

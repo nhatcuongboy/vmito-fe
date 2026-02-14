@@ -63,7 +63,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
       case 'FINISHED':
         return 'gray.400';
       default:
-        return 'blue.500';
+        return 'brand.500';
     }
   };
 
@@ -86,7 +86,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
       _dark={{ bg: '#0052CC' }}
       mt={mt}
       borderBottomWidth="1px"
-      borderColor="blue.600"
+      borderColor="brand.600"
       shadow="md"
       py={1}
       px={4}

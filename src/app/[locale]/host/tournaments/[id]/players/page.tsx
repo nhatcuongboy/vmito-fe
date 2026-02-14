@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import {
@@ -26,7 +27,6 @@ import {
   Flex,
   Heading,
   HStack,
-  Input,
   Spinner,
   Text,
   useDisclosure,

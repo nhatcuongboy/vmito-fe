@@ -70,7 +70,7 @@ export default function AiAssistant({ sessionId }: { sessionId: string }) {
       case 'CREATE_MATCH':
         return 'green';
       case 'MOVE_PLAYER':
-        return 'blue';
+        return 'brand';
       default:
         return 'gray';
     }

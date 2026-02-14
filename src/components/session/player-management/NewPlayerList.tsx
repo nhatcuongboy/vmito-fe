@@ -1,10 +1,10 @@
+import { Input } from '@/components/ui/Input';
 import {
   Badge,
   Box,
   Flex,
   Grid,
   Heading,
-  Input,
   Text,
   Textarea,
 } from '@chakra-ui/react';

@@ -303,7 +303,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({ sessionId }) => {
                       py={2.5}
                       fontWeight="medium"
                       color="green.600"
-                      _dark={{ color: 'blue.300' }}
+                      _dark={{ color: 'brand.300' }}
                       cursor="pointer"
                       _hover={{ textDecoration: 'underline' }}
                       onClick={() => handlePlayerClick(p.playerId)}

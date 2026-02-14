@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
@@ -11,7 +12,6 @@ import {
   VStack,
   HStack,
   Avatar,
-  Input,
   InputGroup,
   useDisclosure,
   DialogRoot,

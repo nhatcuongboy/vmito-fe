@@ -121,11 +121,11 @@ export const PlayerActionMenu: React.FC<PlayerActionMenuProps> = ({
               setIsOpen(false);
             }}
             borderRadius={0}
-            _hover={{ bg: 'blue.50', color: 'blue.600' }}
+            _hover={{ bg: 'brand.50', color: 'brand.600' }}
             transition="all 0.2s"
           >
             <HStack spacing={3}>
-              <Box p={1.5} bg="blue.100" borderRadius="md">
+              <Box p={1.5} bg="brand.100" borderRadius="md">
                 <User size={14} color="#3182ce" />
               </Box>
               <Text fontSize="sm" fontWeight="medium">

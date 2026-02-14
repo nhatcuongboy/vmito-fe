@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useState } from 'react';
 import {
@@ -13,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { Radio } from '@/components/ui/radio';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/Input';
 import { X, Calendar as CalendarIcon, Plus } from 'lucide-react';
 import dayjs from '@/lib/dayjs';
 import { useTranslations } from 'next-intl';
@@ -240,10 +240,10 @@ export function BulkSessionDateSelector({
                                 gap={1}
                                 px={2}
                                 py={1}
-                                bg="blue.50"
+                                bg="brand.50"
                                 _dark={{
-                                  bg: 'blue.900/30',
-                                  color: 'blue.300',
+                                  bg: 'brand.900/30',
+                                  color: 'brand.300',
                                 }}
                                 color="green.600"
                                 borderRadius="md"
@@ -254,7 +254,7 @@ export function BulkSessionDateSelector({
                                   as="button"
                                   onClick={() => handleRemoveDate(date)}
                                   color="green.400"
-                                  _hover={{ color: 'blue.600' }}
+                                  _hover={{ color: 'brand.600' }}
                                 >
                                   <X size={14} />
                                 </Box>

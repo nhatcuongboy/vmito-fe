@@ -1,15 +1,8 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import React from 'react';
-import {
-  Badge,
-  Box,
-  Flex,
-  Grid,
-  Input,
-  Text,
-  Textarea,
-} from '@chakra-ui/react';
+import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
 import { HStack, VStack } from '@/components/ui/chakra-compat';
 import { CommonModal } from '@/components/ui/CommonModal';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -72,7 +65,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
       primaryActionText={t('saveChanges')}
       onPrimaryAction={handleSave}
       isPrimaryLoading={isSaving}
-      primaryColorScheme="blue"
+      primaryColorScheme="brand"
       secondaryActionText={t('cancelEditing')}
       onSecondaryAction={onClose}
     >

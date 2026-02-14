@@ -1,7 +1,8 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Box, Input, Portal, Text, VStack } from '@chakra-ui/react';
+import { Box, Portal, Text, VStack } from '@chakra-ui/react';
 import { Search, ChevronDown, Check } from 'lucide-react';
 
 /**
@@ -246,7 +247,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         bg={{ base: 'white', _dark: 'gray.800' }}
         border="1px solid"
         borderColor={
-          isInvalid ? 'border.error' : isOpen ? 'blue.500' : 'border'
+          isInvalid ? 'border.error' : isOpen ? 'brand.500' : 'border'
         }
         borderRadius="md"
         {...sizeStyles}
@@ -258,14 +259,14 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
             ? 'border.error'
             : isDisabled
               ? 'border'
-              : 'blue.500/50',
+              : 'brand.500/50',
         }}
         _focus={{
           outline: 'none',
-          borderColor: isInvalid ? 'border.error' : 'blue.500',
+          borderColor: isInvalid ? 'border.error' : 'brand.500',
           boxShadow: isInvalid
             ? '0 0 0 1px var(--chakra-colors-border-error)'
-            : '0 0 0 1px var(--chakra-colors-blue-500)',
+            : '0 0 0 1px var(--chakra-colors-brand-500)',
         }}
         transition="all 0.2s"
         display="flex"
@@ -354,7 +355,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   borderColor="border"
                   _focus={{
                     bg: { base: 'white', _dark: 'gray.700' },
-                    borderColor: 'blue.500',
+                    borderColor: 'brand.500',
                     boxShadow: 'none',
                   }}
                 />
@@ -386,19 +387,19 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       opacity={option.disabled ? 0.5 : 1}
                       bg={
                         option.value === value
-                          ? { base: 'blue.50', _dark: 'blue.900/40' }
+                          ? { base: 'brand.50', _dark: 'brand.900/40' }
                           : 'transparent'
                       }
                       color={
                         option.value === value
-                          ? { base: 'blue.600', _dark: 'blue.300' }
+                          ? { base: 'brand.600', _dark: 'brand.300' }
                           : 'inherit'
                       }
                       _hover={{
                         bg: option.disabled
                           ? 'transparent'
                           : option.value === value
-                            ? { base: 'blue.100', _dark: 'blue.900/60' }
+                            ? { base: 'brand.100', _dark: 'brand.900/60' }
                             : 'bg.muted',
                       }}
                       display="flex"
@@ -409,7 +410,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       {option.value === value && (
                         <Check
                           size={16}
-                          color="var(--chakra-colors-blue-600)"
+                          color="var(--chakra-colors-brand-600)"
                         />
                       )}
                     </Box>

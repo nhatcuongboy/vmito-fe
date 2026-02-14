@@ -87,7 +87,7 @@ export const formatTime = (
 };
 
 export const statusColors: Record<string, string> = {
-  PREPARING: 'blue',
+  PREPARING: 'brand',
   IN_PROGRESS: 'green',
   FINISHED: 'gray',
 };
@@ -618,7 +618,7 @@ const BaseSessionCard = ({
               size="lg"
               fontWeight="bold"
               cursor="pointer"
-              _hover={{ color: 'blue.600', textDecoration: 'underline' }}
+              _hover={{ color: 'brand.600', textDecoration: 'underline' }}
               onClick={(e) => {
                 e.stopPropagation();
                 router.push(`/sessions/${session.id}`);
@@ -641,7 +641,7 @@ const BaseSessionCard = ({
               _hover={onHostClick ? { opacity: 0.8 } : {}}
               transition="opacity 0.2s"
             >
-              <Avatar.Root size="sm" bg="blue.500">
+              <Avatar.Root size="sm" bg="brand.500">
                 <Avatar.Fallback name={displayHostName}>
                   {displayHostName
                     ? displayHostName.charAt(0).toUpperCase()

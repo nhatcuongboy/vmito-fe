@@ -27,8 +27,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ref,
       ...props,
       _focusVisible: {
-        borderColor: 'blue.500',
-        boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+        borderColor: 'brand.500',
+        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
       },
       _invalid: {
         borderColor: 'border.error',

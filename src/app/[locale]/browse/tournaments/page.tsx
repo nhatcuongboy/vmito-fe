@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import {
   Box,
@@ -10,7 +11,6 @@ import {
   HStack,
   Badge,
   Spinner,
-  Input,
 } from '@chakra-ui/react';
 import {
   Card,

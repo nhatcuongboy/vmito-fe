@@ -1,18 +1,11 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import { AuthService } from '@/lib/api/auth.service';
-import {
-  Box,
-  VStack,
-  Heading,
-  Input,
-  Text,
-  Link,
-  Field,
-} from '@chakra-ui/react';
+import { Box, VStack, Heading, Text, Link, Field } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
 import TopBar from '@/components/ui/TopBar';
 import { useTranslations } from 'next-intl';

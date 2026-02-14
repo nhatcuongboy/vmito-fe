@@ -234,7 +234,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                         <Badge
                           colorPalette={
                             player.gender === 'MALE'
-                              ? 'blue'
+                              ? 'brand'
                               : player.gender === 'FEMALE'
                                 ? 'pink'
                                 : 'gray'

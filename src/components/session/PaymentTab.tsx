@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -12,7 +13,6 @@ import {
   Image,
   Flex,
   SimpleGrid,
-  Input,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
@@ -289,24 +289,28 @@ export default function PaymentTab({ session }: PaymentTabProps) {
       {/* Fee Configuration Info */}
       {session.feeConfig && (
         <Box
-          bg="blue.50"
-          _dark={{ bg: 'blue.900' }}
+          bg="brand.50"
+          _dark={{ bg: 'brand.900' }}
           borderRadius="lg"
           p={4}
           border="1px solid"
-          borderColor="blue.200"
+          borderColor="brand.200"
         >
           <HStack mb={2}>
             <Text
               fontWeight="semibold"
               color="green.700"
-              _dark={{ color: 'blue.200' }}
+              _dark={{ color: 'brand.200' }}
             >
               {t('sessionFeeConfig')}
             </Text>
           </HStack>
           <VStack align="stretch" gap={1}>
-            <Text fontSize="sm" color="green.600" _dark={{ color: 'blue.300' }}>
+            <Text
+              fontSize="sm"
+              color="green.600"
+              _dark={{ color: 'brand.300' }}
+            >
               {t('feeType')}:{' '}
               {session.feeConfig.feeType === 'FIXED'
                 ? t('fixed')
@@ -318,7 +322,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
                   <Text
                     fontSize="sm"
                     color="green.600"
-                    _dark={{ color: 'blue.300' }}
+                    _dark={{ color: 'brand.300' }}
                   >
                     {t('maleFee')}:{' '}
                     {session.feeConfig.maleFee.toLocaleString('vi-VN')} VND
@@ -328,7 +332,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
                   <Text
                     fontSize="sm"
                     color="green.600"
-                    _dark={{ color: 'blue.300' }}
+                    _dark={{ color: 'brand.300' }}
                   >
                     {t('femaleFee')}:{' '}
                     {session.feeConfig.femaleFee.toLocaleString('vi-VN')} VND
@@ -340,7 +344,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
               <Text
                 fontSize="sm"
                 color="green.600"
-                _dark={{ color: 'blue.300' }}
+                _dark={{ color: 'brand.300' }}
               >
                 {t('notes')}: {session.feeConfig.notes}
               </Text>
@@ -583,12 +587,12 @@ export default function PaymentTab({ session }: PaymentTabProps) {
           </Heading>
           <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
             <Box
-              bg="blue.50"
-              _dark={{ bg: 'blue.900' }}
+              bg="brand.50"
+              _dark={{ bg: 'brand.900' }}
               p={4}
               borderRadius="md"
               border="1px solid"
-              borderColor="blue.200"
+              borderColor="brand.200"
             >
               <HStack mb={2}>
                 <Users size={16} color="#3182ce" />
@@ -605,18 +609,18 @@ export default function PaymentTab({ session }: PaymentTabProps) {
                 fontSize="2xl"
                 fontWeight="bold"
                 color="green.600"
-                _dark={{ color: 'blue.300' }}
+                _dark={{ color: 'brand.300' }}
               >
                 {stats.totalPlayers}
               </Text>
             </Box>
             <Box
-              bg="blue.50"
-              _dark={{ bg: 'blue.900' }}
+              bg="brand.50"
+              _dark={{ bg: 'brand.900' }}
               p={4}
               borderRadius="md"
               border="1px solid"
-              borderColor="blue.200"
+              borderColor="brand.200"
             >
               <HStack mb={2}>
                 <DollarSign size={16} color="#3182ce" />
@@ -633,7 +637,7 @@ export default function PaymentTab({ session }: PaymentTabProps) {
                 fontSize="2xl"
                 fontWeight="bold"
                 color="green.600"
-                _dark={{ color: 'blue.300' }}
+                _dark={{ color: 'brand.300' }}
               >
                 {stats.totalAmount.toLocaleString('vi-VN')}
               </Text>

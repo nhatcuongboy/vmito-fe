@@ -1,7 +1,8 @@
 'use client';
+import { Input } from '@/components/ui/Input';
 
 import { useState } from 'react';
-import { Box, Input, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
@@ -115,7 +116,7 @@ export default function BulkPlayersForm({
       <CardBody>
         <VStack gap={4}>
           {sessionInfo && (
-            <Box p={3} bg="blue.50" borderRadius="md" width="100%">
+            <Box p={3} bg="brand.50" borderRadius="md" width="100%">
               <Text fontSize="sm">
                 Session: {sessionInfo.sessionName} | Max Players:{' '}
                 {sessionInfo.maxPlayers} | Current:{' '}
