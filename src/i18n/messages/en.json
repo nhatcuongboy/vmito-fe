@@ -367,11 +367,11 @@
         "intermediate": "Intermediate",
         "advanced": "Advanced",
         "allLevels": "All Levels"
-      }
+      },
+      "clearFilters": "Clear Filters",
+      "reset": "Reset",
+      "applySearch": "Search"
     },
-    "clearFilters": "Clear Filters",
-    "reset": "Reset",
-    "applySearch": "Search",
     "noSessionsFound": "No sessions found",
     "noSessionsDescription": "You haven't joined any badminton sessions yet. Join a session to see it here!",
     "activeSessions": "Active Sessions",

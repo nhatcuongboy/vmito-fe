@@ -118,6 +118,7 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
                   />
                 )}
                 <Text
+                  display={{ base: 'none', md: 'block' }}
                   fontSize={{ base: 'md', md: 'lg' }}
                   fontWeight="bold"
                   color="green.600"

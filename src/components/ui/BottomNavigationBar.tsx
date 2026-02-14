@@ -64,24 +64,15 @@ export default function BottomNavigationBar({
               width="100%"
               height="100%"
               py={2}
-              borderRadius={isActive ? 'lg' : 0}
               flexDirection="column"
               gap={1}
               color={isActive ? 'green.500' : 'fg.muted'}
-              bg={
-                isActive
-                  ? { base: 'green.50', _dark: 'green.900/20' }
-                  : 'transparent'
-              }
+              bg="transparent"
               _active={{
-                bg: isActive
-                  ? { base: 'green.50', _dark: 'green.900/20' }
-                  : 'transparent',
+                bg: 'transparent',
               }}
               _hover={{
-                bg: isActive
-                  ? { base: 'green.50', _dark: 'green.900/20' }
-                  : { base: 'gray.50', _dark: 'gray.800' },
+                bg: { base: 'gray.50', _dark: 'gray.800' },
                 color: { base: 'green.600', _dark: 'green.400' },
               }}
               display="flex"
@@ -110,16 +101,6 @@ export default function BottomNavigationBar({
               </Text>
             </Button>
             {/* Active indicator bar */}
-            {isActive && (
-              <Box
-                position="absolute"
-                top={0}
-                left={0}
-                right={0}
-                height="3px"
-                bg="green.500"
-              />
-            )}
           </Box>
         );
       })}

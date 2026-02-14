@@ -67,11 +67,14 @@ export const SessionService = {
     page?: number;
     limit?: number;
     hostId?: string;
+    searchQuery?: string;
   }): Promise<ISession[]> => {
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.hostId) params.append('hostId', filters.hostId);
+    if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`

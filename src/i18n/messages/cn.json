@@ -16,6 +16,7 @@
     "browseVenues": "浏览场地",
     "browseClubs": "浏览俱乐部",
     "myClubs": "我的俱乐部",
+    "manageGroups": "Manage Groups",
     "clubs": "俱乐部",
     "createClub": "创建新俱乐部",
     "pendingJoinRequests": "加入请求"
@@ -28,6 +29,7 @@
     "cancel": "取消",
     "delete": "删除",
     "edit": "编辑",
+    "view": "View",
     "add": "添加",
     "create": "创建",
     "remove": "移除",
@@ -108,6 +110,9 @@
     "pleaseSelectImageFile": "请选择图片文件",
     "fileSizeTooLarge": "文件大小必须小于 5MB",
     "imageProcessingFailed": "处理图片失败。请尝试其他文件。",
+    "uploadImage": "Upload Image",
+    "clickToUpload": "Click to upload",
+    "maxSize": "Max size",
     "appearance": "外观",
     "deviceTheme": "自动",
     "darkTheme": "深色",
@@ -362,11 +367,11 @@
         "intermediate": "中级",
         "advanced": "高级",
         "allLevels": "所有级别"
-      }
+      },
+      "clearFilters": "清除筛选",
+      "reset": "Reset",
+      "applySearch": "Search"
     },
-    "clearFilters": "清除筛选",
-    "reset": "Reset",
-    "applySearch": "Search",
     "noSessionsFound": "未找到场次",
     "noSessionsDescription": "您尚未加入任何羽毛球场次。加入一个场次即可在此处查看！",
     "activeSessions": "活动场次",
@@ -2096,6 +2101,7 @@
     "hostedBy": "主持人",
     "maxMembers": "最多 {count} 名成员",
     "myClubs": "我的俱乐部",
+    "manageMyClubsDescription": "Manage the clubs you've joined and your join requests",
     "joinClub": "加入俱乐部",
     "leaveClub": "退出俱乐部",
     "pendingRequest": "等待审核",
@@ -2136,6 +2142,7 @@
     "leftSuccessfully": "您已成功退出俱乐部",
     "privateClub": "这是一个私有俱乐部",
     "joinRequests": "加入申请",
+    "noPendingRequests": "No pending join requests",
     "approve": "批准",
     "reject": "拒绝",
     "attendance": "考勤",
@@ -2200,6 +2207,27 @@
     "noGroupsFound": "未找到俱乐部",
     "groupDeletedSuccess": "俱乐部已成功删除",
     "failedToDeleteGroup": "删除俱乐部失败",
-    "createNewGroup": "创建新俱乐部"
+    "createNewGroup": "创建新俱乐部",
+    "schedule": "Schedule",
+    "addSchedule": "Add Schedule",
+    "removeSchedule": "Remove",
+    "dayOfWeek": "Day",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "noSchedule": "No schedule set",
+    "venue": "Venue",
+    "selectVenue": "Select Venue",
+    "searchVenue": "Search venue...",
+    "noVenueSelected": "No venue selected",
+    "clubImage": "Club Image",
+    "dayNames": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    }
   }
 }

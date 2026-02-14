@@ -744,7 +744,7 @@ export default function SessionFilterDrawer({
               onClick={onSubmit}
               leftIcon={<Check size={18} />}
             >
-              {t('applySearch') || 'Tìm kiếm'}
+              {t('filters.applySearch') || 'Tìm kiếm'}
             </Button>
             <Button
               flex="1"
@@ -753,7 +753,7 @@ export default function SessionFilterDrawer({
               onClick={onReset}
               leftIcon={<X size={18} />}
             >
-              {t('reset') || 'Đặt lại'}
+              {t('filters.reset') || 'Đặt lại'}
             </Button>
           </Flex>
         </Box>

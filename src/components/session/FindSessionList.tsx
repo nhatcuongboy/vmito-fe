@@ -456,7 +456,7 @@ export default function FindSessionList({
           </Heading>
           <Text color="gray.500">{t('tryAdjustingFilters')}</Text>
           <Button mt={4} onClick={clearFilters} variant="outline" size="sm">
-            {t('clearFilters')}
+            {t('filters.clearFilters')}
           </Button>
         </Box>
       ) : (
