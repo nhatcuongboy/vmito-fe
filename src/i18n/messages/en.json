@@ -25,6 +25,7 @@
   "common": {
     "browse": "Analysis",
     "search": "Search",
+    "filter": "Filter",
     "appName": "Vmito",
     "save": "Save",
     "cancel": "Cancel",
@@ -1815,7 +1816,9 @@
     "failedToDeleteVenue": "Failed to delete venue",
     "placeId": "Place ID",
     "address": "Address",
-    "isVerified": "Is Verified",
+    "isVerified": "Verified",
+    "images": "Image Gallery",
+    "coverPhoto": "Cover Photo",
     "yes": "Yes",
     "no": "No",
     "noVenuesFound": "No venues found"

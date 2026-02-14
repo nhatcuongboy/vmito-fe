@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { PaymentRecord, PaymentStatus } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
@@ -70,7 +70,7 @@ export default function PaymentApprovalModal({
     paymentRecord.status === PaymentStatus.PENDING;
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={t('reviewPayment')}
@@ -236,6 +236,6 @@ export default function PaymentApprovalModal({
           </Box>
         )}
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 }

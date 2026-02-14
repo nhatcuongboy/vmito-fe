@@ -25,11 +25,11 @@ import {
   ModalCloseButton,
   FormControl,
   FormLabel,
-  Select,
+  VSelect,
   useDisclosure,
   IconButton,
 } from '@/components/ui/chakra-compat';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import { useTranslations } from 'next-intl';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentPairService } from '@/lib/api/tournament-pair.service';
@@ -319,7 +319,7 @@ export default function TournamentPairsPage() {
 
                 <FormControl isRequired={!editingPair}>
                   <FormLabel>{t('type')}</FormLabel>
-                  <Select
+                  <VSelect
                     value={formData.type}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                       setFormData({
@@ -338,12 +338,12 @@ export default function TournamentPairsPage() {
                     <option value={CategoryType.MIXED_DOUBLE}>
                       {t('mixedDoubles')}
                     </option>
-                  </Select>
+                  </VSelect>
                 </FormControl>
 
                 <FormControl isRequired={!editingPair}>
                   <FormLabel>{t('player1')}</FormLabel>
-                  <Select
+                  <VSelect
                     value={formData.player1Id}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                       setFormData({ ...formData, player1Id: e.target.value })
@@ -356,12 +356,12 @@ export default function TournamentPairsPage() {
                         {player.name}
                       </option>
                     ))}
-                  </Select>
+                  </VSelect>
                 </FormControl>
 
                 <FormControl isRequired={!editingPair}>
                   <FormLabel>{t('player2')}</FormLabel>
-                  <Select
+                  <VSelect
                     value={formData.player2Id}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                       setFormData({ ...formData, player2Id: e.target.value })
@@ -376,7 +376,7 @@ export default function TournamentPairsPage() {
                           {player.name}
                         </option>
                       ))}
-                  </Select>
+                  </VSelect>
                 </FormControl>
 
                 <FormControl>
@@ -402,7 +402,7 @@ export default function TournamentPairsPage() {
           </ModalContent>
         </Modal>
 
-        <CommonModal
+        <VModal
           isOpen={!!pairToDelete}
           onClose={() => setPairToDelete(null)}
           title={t('deletePair')}
@@ -413,7 +413,7 @@ export default function TournamentPairsPage() {
           primaryColorScheme="red"
         >
           <Text>{t('deleteConfirmation')}</Text>
-        </CommonModal>
+        </VModal>
       </Box>
     </ProtectedRouteGuard>
   );

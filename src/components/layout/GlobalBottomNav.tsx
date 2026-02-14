@@ -7,14 +7,7 @@ import { UserRole } from '@/lib/api/types';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import {
-  Home,
-  Search,
-  Trophy,
-  Ticket,
-  Calendar,
-  Lightbulb,
-} from 'lucide-react';
+import { Home, Search, Trophy, Ticket, Calendar, UserPlus } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
@@ -56,12 +49,6 @@ export default function GlobalBottomNav() {
       return [
         { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
         {
-          id: 5,
-          label: t('suggestions'),
-          icon: Lightbulb,
-          href: ROUTES.PLAYER.SUGGESTIONS,
-        },
-        {
           id: 2,
           label: t('host'),
           icon: Calendar,
@@ -73,18 +60,18 @@ export default function GlobalBottomNav() {
           icon: Ticket,
           href: ROUTES.PLAYER.SESSIONS.LIST,
         },
+        {
+          id: 7,
+          label: t('pendingJoinRequests'),
+          icon: UserPlus,
+          href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
+        },
       ];
     }
 
     // Default to Player view (including Guest if they are authenticated via some mechanism)
     return [
       { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
-      {
-        id: 5,
-        label: t('suggestions'),
-        icon: Lightbulb,
-        href: ROUTES.PLAYER.SUGGESTIONS,
-      },
       {
         id: 4,
         label: t('host'),

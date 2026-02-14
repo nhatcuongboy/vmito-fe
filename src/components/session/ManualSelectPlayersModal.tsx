@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { Player, Court } from '@/types/session';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { useTranslations } from 'next-intl';
@@ -79,7 +79,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onCancel}
       title={
@@ -88,7 +88,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
           courtNumber: court.courtNumber,
         })
       }
-      size="xl" // xl corresponds to 800px, but the original was 6xl (huge). CommonModal 'xl' or 'full' might be better.
+      size="xl" // xl corresponds to 800px, but the original was 6xl (huge). VModal 'xl' or 'full' might be better.
       // Let's use custom maxW if needed, or stick to xl/full.
       // Original maxW="6xl" is very wide. I'll use size="xl" for now or keep it flexible.
       showCloseButton={true}
@@ -154,7 +154,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
           )}
         </Box>
       </Box>
-    </CommonModal>
+    </VModal>
   );
 };
 

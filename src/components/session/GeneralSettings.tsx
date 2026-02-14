@@ -1,8 +1,8 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import { Card, CardBody, Button, Select } from '@/components/ui/chakra-compat';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { Card, CardBody, Button, VSelect } from '@/components/ui/chakra-compat';
+import { VModal } from '@/components/ui/VModal';
 import { SessionService } from '@/lib/api/session.service';
 import { VenueService } from '@/lib/api/venue.service';
 import { Venue, UserRole } from '@/lib/api/types';
@@ -301,7 +301,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     {t('location')}
                   </Text>
                 </HStack>
-                <Select
+                <VSelect
                   value={selectedVenueId}
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     setSelectedVenueId(e.target.value)
@@ -317,7 +317,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       {venue.name} - {venue.address}
                     </option>
                   ))}
-                </Select>
+                </VSelect>
               </Box>
 
               <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
@@ -678,7 +678,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
               </VStack>
 
               {/* Confirmation Dialog */}
-              <CommonModal
+              <VModal
                 isOpen={showConfirmDialog}
                 onClose={handleCancelUpdate}
                 title={
@@ -723,7 +723,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     {t('playerImpactWarning')}
                   </Text>
                 </VStack>
-              </CommonModal>
+              </VModal>
 
               <Button
                 colorPalette="green"

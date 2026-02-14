@@ -3,7 +3,7 @@
 import { Box, Text, VStack, HStack, Image, Textarea } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import {
   PaymentMethod,
@@ -88,7 +88,7 @@ export default function SubmitPaymentModal({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={handleClose}
       title={t('submitPayment')}
@@ -304,6 +304,6 @@ export default function SubmitPaymentModal({
           />
         </Box>
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 }

@@ -29,7 +29,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import CommonModal from '@/components/ui/CommonModal';
+import VModal from '@/components/ui/VModal';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/chakra-compat';
 
@@ -339,7 +339,7 @@ export default function AdminUsersPage() {
         </VStack>
 
         {/* Create User Dialog */}
-        <CommonModal
+        <VModal
           isOpen={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           title={t('createUser')}
@@ -416,10 +416,10 @@ export default function AdminUsersPage() {
               )}
             />
           </VStack>
-        </CommonModal>
+        </VModal>
 
         {/* Edit User Dialog */}
-        <CommonModal
+        <VModal
           isOpen={isEditOpen}
           onClose={() => setIsEditOpen(false)}
           title={t('editUser')}
@@ -479,10 +479,10 @@ export default function AdminUsersPage() {
               )}
             />
           </VStack>
-        </CommonModal>
+        </VModal>
 
         {/* Delete Confirmation Dialog */}
-        <CommonModal
+        <VModal
           isOpen={isDeleteOpen}
           onClose={() => setIsDeleteOpen(false)}
           title={t('deleteUser')}
@@ -495,7 +495,7 @@ export default function AdminUsersPage() {
           <Text>
             {t('deleteConfirmation', { name: selectedUser?.name || '' })}
           </Text>
-        </CommonModal>
+        </VModal>
       </Container>
     </MainLayout>
   );

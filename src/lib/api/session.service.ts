@@ -89,6 +89,7 @@ export const SessionService = {
     level?: number;
     city?: string;
     district?: string;
+    venueId?: string;
     minFee?: number;
     maxFee?: number;
     hasSlots?: boolean;
@@ -105,6 +106,7 @@ export const SessionService = {
     if (filters?.level) params.append('level', filters.level.toString());
     if (filters?.city) params.append('city', filters.city);
     if (filters?.district) params.append('district', filters.district);
+    if (filters?.venueId) params.append('venueId', filters.venueId);
     if (filters?.minFee !== undefined)
       params.append('minFee', filters.minFee.toString());
     if (filters?.maxFee !== undefined)

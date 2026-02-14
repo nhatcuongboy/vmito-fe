@@ -23,7 +23,7 @@ import {
   Tabs,
   Badge,
 } from '@chakra-ui/react';
-import { Button, IconButton, Select } from '@/components/ui/chakra-compat';
+import { Button, IconButton, VSelect } from '@/components/ui/chakra-compat';
 import {
   Trash2,
   Search,
@@ -326,7 +326,7 @@ const GroupMembersPage = () => {
 
                   <HStack gap={4}>
                     <Box w="140px">
-                      <Select
+                      <VSelect
                         size="sm"
                         value={member.role}
                         onChange={(e) =>
@@ -345,7 +345,7 @@ const GroupMembersPage = () => {
                         <option value={EMemberRole.ADMIN}>
                           {t_clubs('memberRole.admin')}
                         </option>
-                      </Select>
+                      </VSelect>
                     </Box>
                     <IconButton
                       icon={<Trash2 size={18} />}

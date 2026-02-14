@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Box, VStack, HStack, Text, Textarea, Avatar } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { StarRatingInput } from './StarRatingInput';
 import { useTranslations } from 'next-intl';
 import { RatingService } from '@/lib/api/rating.service';
@@ -71,7 +71,7 @@ export const SubmitRatingModal = ({
   const remainingChars = MAX_COMMENT_LENGTH - comment.length;
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={handleClose}
       title={title}
@@ -145,6 +145,6 @@ export const SubmitRatingModal = ({
           </Text>
         </Box>
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 };

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Text } from '@chakra-ui/react';
-import { CommonModal } from './CommonModal';
+import { VModal } from './VModal';
 import { useAppStore } from '@/stores/useAppStore';
 import { useTranslations } from 'next-intl';
 
@@ -16,7 +16,7 @@ export function GlobalErrorModal() {
   const isOpen = !!error;
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={clearError}
       title={t('error')}
@@ -29,6 +29,6 @@ export function GlobalErrorModal() {
       <Text color="red.500" whiteSpace="pre-wrap">
         {error}
       </Text>
-    </CommonModal>
+    </VModal>
   );
 }

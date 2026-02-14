@@ -56,5 +56,9 @@ export { Input } from './Input';
 export { useColorModeValue, useDisclosure } from './ChakraHooks';
 
 // Export Select component from dedicated file
-export { Select, LegacySelect } from './Select';
-export type { SelectProps, LegacySelectProps, SelectOption } from './Select';
+export { VSelect, LegacySelect } from './VSelect';
+export type {
+  VSelectProps,
+  VLegacySelectProps as LegacySelectProps,
+  VSelectOption as SelectOption,
+} from './VSelect';

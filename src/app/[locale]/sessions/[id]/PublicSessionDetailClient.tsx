@@ -16,7 +16,7 @@ import {
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
 import JoinSessionModal from '@/components/session/JoinSessionModal';
-import { useModal } from '@/components/ui/CommonModal';
+import { useModal } from '@/components/ui/VModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 interface PublicSessionDetailClientProps {

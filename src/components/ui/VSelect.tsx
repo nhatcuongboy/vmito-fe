@@ -16,7 +16,7 @@ import {
 /**
  * Select Option Interface
  */
-export interface SelectOption {
+export interface VSelectOption {
   value: string;
   label: string;
   disabled?: boolean;
@@ -25,7 +25,7 @@ export interface SelectOption {
 /**
  * Props for LegacySelect component
  */
-export interface LegacySelectProps
+export interface VLegacySelectProps
   extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
   isDisabled?: boolean;
   children?: React.ReactNode;
@@ -55,7 +55,7 @@ export interface LegacySelectProps
  */
 export const LegacySelect = React.forwardRef<
   HTMLSelectElement,
-  LegacySelectProps
+  VLegacySelectProps
 >(
   (
     {
@@ -154,7 +154,7 @@ LegacySelect.displayName = 'LegacySelect';
 /**
  * Props for the new Select component using Chakra UI
  */
-export interface SelectProps
+export interface VSelectProps
   extends Omit<
     React.SelectHTMLAttributes<HTMLSelectElement>,
     'size' | 'onChange'
@@ -194,8 +194,10 @@ export interface SelectProps
 /**
  * Helper function to extract options from React children
  */
-function extractOptionsFromChildren(children: React.ReactNode): SelectOption[] {
-  const options: SelectOption[] = [];
+function extractOptionsFromChildren(
+  children: React.ReactNode
+): VSelectOption[] {
+  const options: VSelectOption[] = [];
 
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child) && child.type === 'option') {
@@ -227,14 +229,14 @@ function extractOptionsFromChildren(children: React.ReactNode): SelectOption[] {
  *
  * @example
  * ```tsx
- * <Select value={selectedValue} onChange={handleChange}>
+ * <VSelect value={selectedValue} onChange={handleChange}>
  *   <option value="">Select an option</option>
  *   <option value="1">Option 1</option>
  *   <option value="2">Option 2</option>
- * </Select>
+ * </VSelect>
  * ```
  */
-export const Select = ({
+export const VSelect = ({
   isDisabled,
   disabled,
   children,
@@ -244,7 +246,7 @@ export const Select = ({
   value,
   onChange,
   ...props
-}: SelectProps) => {
+}: VSelectProps) => {
   const isSelectDisabled = isDisabled || disabled;
 
   // Extract options from children
@@ -398,6 +400,6 @@ export const Select = ({
   );
 };
 
-Select.displayName = 'Select';
+VSelect.displayName = 'VSelect';
 
-export default Select;
+export default VSelect;

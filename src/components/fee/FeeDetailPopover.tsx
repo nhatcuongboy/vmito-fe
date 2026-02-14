@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import { SessionFeeConfig, FeeType } from '@/lib/api/types';
 import { Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -38,7 +38,7 @@ export default function FeeDetailPopover({ feeConfig }: FeeDetailPopoverProps) {
         <Info size={16} />
       </Box>
 
-      <CommonModal
+      <VModal
         isOpen={isOpen}
         onClose={onClose}
         title={t('title')}
@@ -108,7 +108,7 @@ export default function FeeDetailPopover({ feeConfig }: FeeDetailPopoverProps) {
             </Box>
           )}
         </VStack>
-      </CommonModal>
+      </VModal>
     </>
   );
 }

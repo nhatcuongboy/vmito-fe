@@ -25,6 +25,7 @@
   "common": {
     "browse": "统计分析",
     "search": "搜索",
+    "filter": "筛选",
     "appName": "Vmito",
     "save": "保存",
     "cancel": "取消",
@@ -336,7 +337,7 @@
       "8": "职业"
     },
     "search": "搜索",
-    "searchPlaceholder": "按场地、地址或主持人搜索...",
+    "searchPlaceholder": "按场地、地址或场地搜索...",
     "timeRange": "时间段",
     "timeRanges": {
       "morning": "上午",
@@ -1815,7 +1816,9 @@
     "failedToDeleteVenue": "Failed to delete venue",
     "placeId": "Place ID",
     "address": "Address",
-    "isVerified": "Is Verified",
+    "isVerified": "已验证",
+    "images": "图片库",
+    "coverPhoto": "封面图片",
     "yes": "Yes",
     "no": "No",
     "noVenuesFound": "No venues found"

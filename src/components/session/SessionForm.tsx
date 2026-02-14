@@ -77,7 +77,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { Select } from '@/components/ui/Select';
+import { VSelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
@@ -1175,7 +1175,7 @@ export default function SessionForm({
                             control={control}
                             name={`courts.${index}.direction`}
                             render={({ field }) => (
-                              <Select
+                              <VSelect
                                 value={field.value}
                                 onChange={(
                                   e: React.ChangeEvent<HTMLSelectElement>
@@ -1188,7 +1188,7 @@ export default function SessionForm({
                                 <option value={CourtDirection.VERTICAL}>
                                   {t('vertical')}
                                 </option>
-                              </Select>
+                              </VSelect>
                             )}
                           />
                         </Field.Root>

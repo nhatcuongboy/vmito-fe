@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Box, Text, Textarea } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { AIService, ExtractedSessionData } from '@/lib/api/ai.service';
 import { toaster } from '@/components/ui/toaster';
 import { Locale } from '@/i18n/locales';
@@ -57,7 +57,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={handleClose}
       title={
@@ -94,7 +94,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
           {t('aiModal.hint')}
         </Text>
       </Box>
-    </CommonModal>
+    </VModal>
   );
 };
 

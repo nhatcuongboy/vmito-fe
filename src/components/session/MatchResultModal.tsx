@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/Input';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { CourtDirection } from '@/lib/api/types';
 import { Match } from '@/types/session';
 import { Box, HStack, Text, Textarea, VStack } from '@chakra-ui/react';
@@ -177,7 +177,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   const canSubmit = true;
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onCancel}
       title={t('matchResult.title')}
@@ -396,7 +396,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
           />
         </Box>
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 };
 

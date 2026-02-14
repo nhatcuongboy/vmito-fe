@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import {
   Mars,
   Venus,
@@ -148,7 +148,7 @@ export const PlayerDetailModal = ({
   if (!isOpen) return null;
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={
@@ -545,7 +545,7 @@ export const PlayerDetailModal = ({
           </Box>
         )}
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 };
 

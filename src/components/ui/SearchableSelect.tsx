@@ -17,7 +17,7 @@ export interface SearchableSelectOption {
 /**
  * Props for SearchableSelect component
  */
-export interface SearchableSelectProps {
+export interface SearchableVSelectProps {
   /**
    * Array of options to display
    */
@@ -60,7 +60,7 @@ export interface SearchableSelectProps {
  * SearchableSelect - A custom select component with search functionality
  * Uses Popover pattern to avoid zag-js state machine conflicts
  */
-export const SearchableSelect: React.FC<SearchableSelectProps> = ({
+export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   options,
   value,
   onChange,

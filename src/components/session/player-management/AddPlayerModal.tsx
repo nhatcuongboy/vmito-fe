@@ -11,7 +11,7 @@ import {
   IconButton,
   VStack,
 } from '@/components/ui/chakra-compat';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { UserOption } from '@/lib/api/user.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
@@ -75,7 +75,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={handleClose}
       title={
@@ -444,7 +444,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           {newPlayers.length === 0 ? t('addPlayer') : t('addAnother')}
         </Button>
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 };
 

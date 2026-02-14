@@ -1,6 +1,6 @@
 'use client';
 
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
@@ -26,7 +26,7 @@ const LoginPromptModal = ({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={t('loginRequired')}
@@ -36,7 +36,7 @@ const LoginPromptModal = ({
       primaryColorScheme="blue"
     >
       <Text>{t('loginRequiredDescription')}</Text>
-    </CommonModal>
+    </VModal>
   );
 };
 

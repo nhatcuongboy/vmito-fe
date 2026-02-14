@@ -234,6 +234,10 @@ export interface Venue {
   createdAt?: Date;
   updatedAt?: Date;
   distance?: number;
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
 }
 
 export interface SearchVenueResponse {

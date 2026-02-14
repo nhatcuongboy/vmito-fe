@@ -34,10 +34,12 @@ export default function SessionSearchBar({
         gap={3}
         align="center"
         bg="white"
-        _dark={{ bg: 'gray.800' }}
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         p={3}
-        borderRadius="xl"
-        boxShadow="md"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="gray.200"
+        boxShadow="sm"
       >
         <Box flex="1" minW="200px">
           <Input
@@ -47,7 +49,7 @@ export default function SessionSearchBar({
             onChange={(e) => onSearchChange(e.target.value)}
             bg="gray.50"
             _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-            borderRadius="xl"
+            borderRadius="md"
             leftElement={<Search size={20} />}
             _focus={{
               borderColor: 'brand.500',
@@ -72,7 +74,7 @@ export default function SessionSearchBar({
             onClick={onToggleFilters}
             aria-label={t('filters.title')}
             icon={<Filter size={20} />}
-            borderRadius="xl"
+            borderRadius="md"
             transition="all 0.2s"
             _hover={{
               transform: 'scale(1.05)',

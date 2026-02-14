@@ -1,19 +1,24 @@
 'use client';
+import React from 'react';
 
 import { Venue } from '@/lib/api/types';
-import { Badge, Box, Flex, HStack, Stack, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, HStack, Image, Stack, Text } from '@chakra-ui/react';
 import {
   BadgeCheck,
   Banknote,
   Clock,
+  Eye,
   Globe,
   LayoutGrid,
   MapPin,
   MapPinned,
   Navigation,
   Phone,
-  Star,
+  Search,
 } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { useRouter } from '@/i18n/config';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
 
 interface VenueCardProps {
   venue: Venue;
@@ -25,12 +30,24 @@ function formatPrice(amount?: number) {
 }
 
 export default function VenueCard({ venue }: VenueCardProps) {
+  const router = useRouter();
+
   const handleNavigate = () => {
     const query = encodeURIComponent(venue.address || venue.name);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       '_blank'
     );
+  };
+
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/browse/venues/${venue.id}`);
+  };
+
+  const handleFindSessions = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/?venueId=${venue.id}`);
   };
 
   return (
@@ -51,20 +68,37 @@ export default function VenueCard({ venue }: VenueCardProps) {
       }}
       cursor="pointer"
     >
-      {/* Gradient overlay at top */}
-      <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        h="4px"
-        bgGradient="to-r"
-        gradientFrom="blue.400"
-        gradientVia="purple.400"
-        gradientTo="pink.400"
-        opacity={venue.isVerified ? 1 : 0}
-        transition="opacity 0.3s"
-      />
+      {/* Cover Photo */}
+      <Box position="relative" h="140px" overflow="hidden">
+        <Image
+          src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
+          alt={venue.name}
+          w="100%"
+          h="100%"
+          objectFit="cover"
+        />
+
+        {/* Verified Badge Overlay */}
+        {venue.isVerified && (
+          <Box position="absolute" top={3} right={3}>
+            <Badge
+              colorPalette="green"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              px={2}
+              py={0.5}
+              display="flex"
+              alignItems="center"
+              gap={1}
+              shadow="md"
+            >
+              <BadgeCheck size={12} />
+              <Text fontSize="xs">Verified</Text>
+            </Badge>
+          </Box>
+        )}
+      </Box>
 
       {/* Header Section */}
       <Box px={5} pt={5} pb={3}>
@@ -81,22 +115,6 @@ export default function VenueCard({ venue }: VenueCardProps) {
               >
                 {venue.name}
               </Text>
-              {venue.isVerified && (
-                <Badge
-                  colorPalette="green"
-                  variant="solid"
-                  size="sm"
-                  borderRadius="full"
-                  display="flex"
-                  alignItems="center"
-                  gap={1}
-                  px={2}
-                  py={0.5}
-                >
-                  <BadgeCheck size={12} />
-                  <Text fontSize="xs">Verified</Text>
-                </Badge>
-              )}
             </Flex>
 
             {/* Location badges */}
@@ -130,19 +148,33 @@ export default function VenueCard({ venue }: VenueCardProps) {
               </HStack>
             )}
 
-            <Flex
-              align="center"
-              gap={1.5}
-              color="gray.600"
-              _dark={{ color: 'gray.400' }}
-              onClick={handleNavigate}
-              _hover={{ color: 'blue.500', _dark: { color: 'blue.400' } }}
-              transition="color 0.2s"
-            >
-              <MapPin size={14} style={{ flexShrink: 0 }} />
-              <Text fontSize="sm" lineClamp={2} fontWeight="medium">
+            <Flex align="center" gap={1.5}>
+              <MapPin
+                size={14}
+                style={{ flexShrink: 0 }}
+                color="var(--chakra-colors-gray-600)"
+              />
+              <Text
+                fontSize="sm"
+                lineClamp={2}
+                fontWeight="medium"
+                flex="1"
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+              >
                 {venue.address}
               </Text>
+              <IconButton
+                size="xs"
+                colorPalette="green"
+                variant="ghost"
+                aria-label="Google Maps"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleNavigate();
+                }}
+                icon={<Navigation size={14} />}
+              />
             </Flex>
           </Box>
 
@@ -389,6 +421,43 @@ export default function VenueCard({ venue }: VenueCardProps) {
           </Box>
         </>
       )}
+
+      {/* Action Buttons */}
+      <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
+      <Box px={5} py={4}>
+        <Flex gap={3}>
+          <Button
+            flex="1"
+            variant="outline"
+            colorPalette="blue"
+            size="md"
+            onClick={handleViewDetails}
+            leftIcon={<Eye size={16} />}
+            _hover={{
+              transform: 'translateY(-2px)',
+              shadow: 'md',
+            }}
+            transition="all 0.2s"
+          >
+            Xem
+          </Button>
+          <Button
+            flex="1"
+            variant="solid"
+            colorPalette="green"
+            size="md"
+            onClick={handleFindSessions}
+            leftIcon={<Search size={16} />}
+            _hover={{
+              transform: 'translateY(-2px)',
+              shadow: 'lg',
+            }}
+            transition="all 0.2s"
+          >
+            Tìm kèo
+          </Button>
+        </Flex>
+      </Box>
     </Box>
   );
 }

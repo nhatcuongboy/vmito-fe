@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { ISession } from '@/lib/api/types';
 import JoinSessionForm from './JoinSessionForm';
 import { useJoinSession } from './useJoinSession';
@@ -40,7 +40,7 @@ export default function JoinSessionModal({
   });
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={`${t('joinSession')}: ${session.name}`}
@@ -58,6 +58,6 @@ export default function JoinSessionModal({
         onRemovePlayer={handleRemovePlayer}
         onUpdatePlayer={handleUpdatePlayer}
       />
-    </CommonModal>
+    </VModal>
   );
 }

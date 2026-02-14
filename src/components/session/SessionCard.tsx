@@ -5,7 +5,7 @@ import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -201,7 +201,7 @@ const SessionCard = ({
 
   // Delete modal
   const deleteModal = onDelete ? (
-    <CommonModal
+    <VModal
       isOpen={isDeleteModalOpen}
       onClose={onCloseDeleteModal}
       title={t('deleteSession')}
@@ -214,12 +214,12 @@ const SessionCard = ({
       primaryColorScheme="red"
     >
       <Text>{t('deleteConfirmation')}</Text>
-    </CommonModal>
+    </VModal>
   ) : null;
 
   // Withdraw confirmation modal
   const withdrawModal = (
-    <CommonModal
+    <VModal
       isOpen={isWithdrawModalOpen}
       onClose={onCloseWithdrawModal}
       title={t('withdrawRequest')}
@@ -230,7 +230,7 @@ const SessionCard = ({
       isPrimaryLoading={isWithdrawing}
     >
       <Text>{t('withdrawConfirmation')}</Text>
-    </CommonModal>
+    </VModal>
   );
 
   // View Registration modal

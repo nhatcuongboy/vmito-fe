@@ -27,7 +27,7 @@ import { toaster } from '@/components/ui/toaster';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { Field } from '@/components/ui/Field';
-import CommonModal from '@/components/ui/CommonModal';
+import VModal from '@/components/ui/VModal';
 
 const AdminClubApprovalPage = () => {
   const t = useTranslations();
@@ -237,7 +237,7 @@ const AdminClubApprovalPage = () => {
       )}
 
       {/* Rejection Dialog */}
-      <CommonModal
+      <VModal
         isOpen={isRejectDialogOpen}
         onClose={() => setIsRejectDialogOpen(false)}
         title={t('clubs.reject')}
@@ -258,7 +258,7 @@ const AdminClubApprovalPage = () => {
             onChange={(e) => setRejectionReason(e.target.value)}
           />
         </Field>
-      </CommonModal>
+      </VModal>
     </PageLayout>
   );
 };

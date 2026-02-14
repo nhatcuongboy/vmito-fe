@@ -10,7 +10,7 @@ import { useEffect, useState, useMemo } from 'react';
 import SessionCard from './SessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
 
 interface SessionsListProps {
@@ -195,7 +195,7 @@ export default function SessionsList({
       </Grid>
 
       {/* Session Host Detail Modal */}
-      <CommonModal
+      <VModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         title={t('hostInfo') || 'Thông tin Host'}
@@ -215,7 +215,7 @@ export default function SessionsList({
             hideHeader={true}
           />
         )}
-      </CommonModal>
+      </VModal>
     </RatingStatsProvider>
   );
 }

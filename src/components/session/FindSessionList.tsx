@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES } from '@/constants';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
@@ -96,11 +96,15 @@ export default function FindSessionList({
     rootMargin: '100px',
   });
 
-  // Load initial date from URL or today
+  // Load initial filters from URL
   useEffect(() => {
     const dateParam = searchParams.get('date');
-    if (dateParam) {
-      setFilters({ date: dateParam });
+    const venueIdParam = searchParams.get('venueId');
+    const newFilters: Record<string, string> = {};
+    if (dateParam) newFilters.date = dateParam;
+    if (venueIdParam) newFilters.venueId = venueIdParam;
+    if (Object.keys(newFilters).length > 0) {
+      setFilters(newFilters);
     }
   }, [searchParams, setFilters]);
 
@@ -139,6 +143,7 @@ export default function FindSessionList({
           filters.districts.length === 1
             ? normalizeLocation(filters.districts[0])
             : undefined,
+        venueId: filters.venueId || undefined,
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
@@ -285,6 +290,7 @@ export default function FindSessionList({
     filters.date,
     filters.cities,
     filters.districts,
+    filters.venueId,
     filters.hasSlots,
     filters.minAvailableSlots,
     filters.minFee,
@@ -530,7 +536,7 @@ export default function FindSessionList({
       />
 
       {/* Session Host Detail Modal */}
-      <CommonModal
+      <VModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         title={t('hostInfo') || 'Thông tin Host'}
@@ -550,7 +556,7 @@ export default function FindSessionList({
             hideHeader={true}
           />
         )}
-      </CommonModal>
+      </VModal>
     </Box>
   );
 }

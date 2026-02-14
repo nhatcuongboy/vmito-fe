@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { ISession, Player, PlayerStatus } from '@/lib/api/types';
 import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
 import { usePlayerManagement } from '@/components/session/player-management/usePlayerManagement';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { AlertCircle, Plus } from 'lucide-react';
 import PendingPlayersSection from './PendingPlayersSection';
 import PlayerStatusFilter from './PlayerStatusFilter';
@@ -320,7 +320,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
       />
 
       {/* Warning popup for exceeding recommended player limit */}
-      <CommonModal
+      <VModal
         isOpen={showMaxPlayersWarning}
         onClose={handleCancelWarning}
         title={
@@ -370,7 +370,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
             {tPlayer('limitWarningModal.confirmQuestion')}
           </Text>
         </VStack>
-      </CommonModal>
+      </VModal>
 
       {/* Edit Player Modal (Grid View) */}
       <EditPlayerModal
@@ -405,7 +405,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
       )}
 
       {/* Delete Player Confirmation Modal (Grid View) */}
-      <CommonModal
+      <VModal
         isOpen={!!playerToDelete}
         onClose={() => setPlayerToDelete(null)}
         title={tCommon('delete')}
@@ -425,7 +425,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
                 }),
             })}
         </Text>
-      </CommonModal>
+      </VModal>
     </VStack>
   );
 };

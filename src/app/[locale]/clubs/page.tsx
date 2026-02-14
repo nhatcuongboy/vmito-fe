@@ -2,14 +2,15 @@
 import { Input } from '@/components/ui/Input';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Flex, SimpleGrid, Spinner, Text } from '@chakra-ui/react';
-import { Search, RefreshCw } from 'lucide-react';
+import { Badge, Box, Flex, SimpleGrid, Spinner, Text } from '@chakra-ui/react';
+import { Search, RefreshCw, Filter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import { IClubListItem } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function BrowseClubsPage() {
   const t = useTranslations();
@@ -20,6 +21,9 @@ export default function BrowseClubsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const debouncedSearch = useDebounce(search, 500);
 
   const fetchClubs = useCallback(
     async (pageNum: number, searchQuery?: string, append = false) => {
@@ -49,19 +53,15 @@ export default function BrowseClubsPage() {
   );
 
   useEffect(() => {
-    fetchClubs(1, search);
-  }, []);
+    fetchClubs(1, debouncedSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
-  const handleSearch = () => {
-    setPage(1);
-    fetchClubs(1, search);
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
+  const activeFilterCount = search ? 1 : 0;
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -73,18 +73,82 @@ export default function BrowseClubsPage() {
     <PageLayout title={t('clubs.browseClubs')}>
       {/* Search Bar */}
       <Box mb={6}>
-        <Flex gap={2}>
-          <Input
-            placeholder={t('clubs.searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyPress={handleKeyPress}
-            size="lg"
-          />
-          <Button onClick={handleSearch} size="lg" px={6}>
-            <Search size={20} />
-            {t('common.search')}
-          </Button>
+        <Flex
+          gap={3}
+          align="center"
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          p={3}
+          borderRadius="lg"
+          borderWidth="1px"
+          borderColor="gray.200"
+          boxShadow="sm"
+        >
+          <Box flex="1" minW="200px">
+            <Input
+              h="44px"
+              placeholder={t('clubs.searchPlaceholder')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              bg="gray.50"
+              _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+              borderRadius="md"
+              leftElement={<Search size={20} />}
+              _focus={{
+                borderColor: 'brand.500',
+                boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                bg: 'white',
+                _dark: {
+                  bg: 'gray.600',
+                },
+              }}
+              fontSize="md"
+              transition="all 0.2s"
+            />
+          </Box>
+
+          {/* Filter Button */}
+          <Box position="relative">
+            <IconButton
+              h="44px"
+              w="44px"
+              variant="solid"
+              colorPalette="green"
+              onClick={toggleFilters}
+              aria-label={t('common.filter') || 'Bộ lọc'}
+              icon={<Filter size={20} />}
+              borderRadius="md"
+              transition="all 0.2s"
+              _hover={{
+                transform: 'scale(1.05)',
+              }}
+            />
+            {activeFilterCount > 0 && (
+              <Badge
+                position="absolute"
+                top="-6px"
+                right="-6px"
+                borderRadius="full"
+                colorPalette="red"
+                variant="solid"
+                px={1.5}
+                minW="20px"
+                h="20px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontSize="xs"
+                fontWeight="bold"
+                border="2px solid"
+                borderColor="white"
+                _dark={{ borderColor: 'gray.800' }}
+                zIndex={1}
+                boxShadow="sm"
+              >
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Box>
         </Flex>
       </Box>
 

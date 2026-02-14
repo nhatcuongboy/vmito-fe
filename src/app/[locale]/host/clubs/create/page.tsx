@@ -10,7 +10,7 @@ import {
   Input,
   IconButton,
 } from '@/components/ui/chakra-compat';
-import { LegacySelect } from '@/components/ui/Select';
+import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

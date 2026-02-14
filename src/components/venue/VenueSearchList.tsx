@@ -263,59 +263,80 @@ export default function VenueSearchList() {
           md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
         }}
         zIndex={100}
-        bg="bg"
-        py={3}
-        mb={4}
+        mb={6}
       >
-        <Flex gap={2} wrap="wrap">
-          <Box flex="1" position="relative" minW="200px">
+        <Flex
+          gap={3}
+          align="center"
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          p={3}
+          borderRadius="lg"
+          borderWidth="1px"
+          borderColor="gray.200"
+          boxShadow="sm"
+        >
+          <Box flex="1" minW="200px">
             <Input
-              pl={10}
+              h="44px"
               placeholder="Tìm sân cầu lông..."
               value={keyword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setKeyword(e.target.value)
               }
-              bg="white"
-              _dark={{ bg: 'gray.800' }}
+              bg="gray.50"
+              _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+              borderRadius="md"
+              leftElement={<Search size={20} />}
+              _focus={{
+                borderColor: 'brand.500',
+                boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                bg: 'white',
+                _dark: {
+                  bg: 'gray.600',
+                },
+              }}
+              fontSize="md"
+              transition="all 0.2s"
             />
-            <Box
-              position="absolute"
-              left={3}
-              top="50%"
-              transform="translateY(-50%)"
-              color="gray.400"
-            >
-              <Search size={18} />
-            </Box>
           </Box>
 
           <Box position="relative">
             <IconButton
-              variant={showFilters ? 'solid' : 'outline'}
+              h="44px"
+              w="44px"
+              variant="solid"
               colorPalette="green"
               onClick={toggleFilters}
               aria-label="Bộ lọc"
-              icon={<Filter size={18} />}
+              icon={<Filter size={20} />}
+              borderRadius="md"
+              transition="all 0.2s"
+              _hover={{
+                transform: 'scale(1.05)',
+              }}
             />
             {activeFilterCount > 0 && (
               <Badge
                 position="absolute"
-                top="-2"
-                right="-2"
+                top="-6px"
+                right="-6px"
                 borderRadius="full"
                 colorPalette="red"
                 variant="solid"
-                px={1}
-                minW="18px"
-                h="18px"
+                px={1.5}
+                minW="20px"
+                h="20px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 fontSize="xs"
+                fontWeight="bold"
                 border="2px solid"
                 borderColor="white"
+                _dark={{ borderColor: 'gray.800' }}
                 zIndex={1}
+                boxShadow="sm"
               >
                 {activeFilterCount}
               </Badge>

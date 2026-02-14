@@ -11,11 +11,11 @@ import {
   Textarea,
   Field,
 } from '@chakra-ui/react';
-import { Select } from './Select';
+import { VSelect } from './VSelect';
 import { PasswordInput } from './password-input';
 import { Upload } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { CommonModal } from './CommonModal';
+import { VModal } from './VModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AdminService, UpdateUserData } from '@/lib/api/admin.service';
 import { Gender, GenderType, PlayerLevel } from '@/lib/api/types';
@@ -217,7 +217,7 @@ export default function UserProfileModal({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={common('editProfile')}
@@ -312,7 +312,7 @@ export default function UserProfileModal({
             control={control}
             name="gender"
             render={({ field }) => (
-              <Select
+              <VSelect
                 value={field.value}
                 onChange={(e) => field.onChange(e.target.value)}
               >
@@ -320,7 +320,7 @@ export default function UserProfileModal({
                 <option value="MALE">{common('male')}</option>
                 <option value="FEMALE">{common('female')}</option>
                 <option value="OTHER">{common('other')}</option>
-              </Select>
+              </VSelect>
             )}
           />
           <Field.ErrorText color="fg.error">
@@ -335,7 +335,7 @@ export default function UserProfileModal({
             control={control}
             name="level"
             render={({ field }) => (
-              <Select
+              <VSelect
                 value={field.value}
                 onChange={(e) => field.onChange(e.target.value)}
               >
@@ -364,7 +364,7 @@ export default function UserProfileModal({
                 <option value={String(PlayerLevel.PRO)}>
                   {common('levels.8')}
                 </option>
-              </Select>
+              </VSelect>
             )}
           />
           <Field.ErrorText color="fg.error">
@@ -419,6 +419,6 @@ export default function UserProfileModal({
           </VStack>
         </Box>
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 }

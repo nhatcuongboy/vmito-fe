@@ -8,7 +8,7 @@ import { usePlayerManagement } from '@/components/session/player-management/useP
 import { ISession, Player } from '@/lib/api/types';
 import { Box, Text } from '@chakra-ui/react';
 import { HStack, VStack } from '@/components/ui/chakra-compat';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
@@ -220,7 +220,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       />
 
       {/* Warning popup for exceeding recommended player limit */}
-      <CommonModal
+      <VModal
         isOpen={showMaxPlayersWarning}
         onClose={handleCancelWarning}
         title={
@@ -270,7 +270,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             {t('limitWarningModal.confirmQuestion')}
           </Text>
         </VStack>
-      </CommonModal>
+      </VModal>
 
       {/* Player Detail Modal */}
       {selectedPlayerForDetail && (
@@ -285,7 +285,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       )}
 
       {/* Delete Player Confirmation Modal */}
-      <CommonModal
+      <VModal
         isOpen={!!playerToDelete}
         onClose={() => setPlayerToDelete(null)}
         title={t('deletePlayer')}
@@ -305,7 +305,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
                 }),
             })}
         </Text>
-      </CommonModal>
+      </VModal>
     </VStack>
   );
 };

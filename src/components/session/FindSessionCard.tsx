@@ -10,7 +10,7 @@ import { SessionActionConfig } from './BaseSessionCard.types';
 import React, { useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
@@ -27,6 +27,7 @@ interface FindSessionCardProps {
   onDeleteSuccess?: () => void;
   onHostClick?: () => void;
   distance?: number;
+  coverPhotoOverlay?: React.ReactNode;
 }
 
 const FindSessionCard = ({
@@ -38,6 +39,7 @@ const FindSessionCard = ({
   onDeleteSuccess,
   onHostClick,
   distance,
+  coverPhotoOverlay,
 }: FindSessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -259,6 +261,7 @@ const FindSessionCard = ({
         session={session}
         extraInfoRows={locationRow}
         registrationBadgeContent={registrationStatusBadge}
+        coverPhotoOverlay={coverPhotoOverlay}
         actions={actions}
         onHostClick={onHostClick}
       />
@@ -271,7 +274,7 @@ const FindSessionCard = ({
       />
 
       {/* Withdraw confirmation modal */}
-      <CommonModal
+      <VModal
         isOpen={isWithdrawModalOpen}
         onClose={onCloseWithdrawModal}
         title={t('withdrawRequest')}
@@ -282,7 +285,7 @@ const FindSessionCard = ({
         isPrimaryLoading={isWithdrawing}
       >
         <Text>{t('withdrawConfirmation')}</Text>
-      </CommonModal>
+      </VModal>
 
       {/* View Registration modal */}
       <MyRegistrationModal
@@ -296,7 +299,7 @@ const FindSessionCard = ({
       />
 
       {/* Delete confirmation modal */}
-      <CommonModal
+      <VModal
         isOpen={isDeleteModalOpen}
         onClose={onCloseDeleteModal}
         title={t('deleteSession')}
@@ -307,7 +310,7 @@ const FindSessionCard = ({
         isPrimaryLoading={isDeleting}
       >
         <Text>{t('deleteConfirmation')}</Text>
-      </CommonModal>
+      </VModal>
 
       {/* Hidden SessionShareCards for image generation */}
       {canManage && (

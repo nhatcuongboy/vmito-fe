@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/Input';
 import React from 'react';
 import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
 import { HStack, VStack } from '@/components/ui/chakra-compat';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Edit } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -49,7 +49,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   };
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={
@@ -299,7 +299,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           </VStack>
         </Box>
       </VStack>
-    </CommonModal>
+    </VModal>
   );
 };
 

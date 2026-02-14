@@ -1,6 +1,6 @@
 {
   "navigation": {
-    "host": "Host",
+    "host": "Kèo host",
     "join": "Tham gia",
     "home": "Trang chủ",
     "tournaments": "Giải đấu",
@@ -124,6 +124,7 @@
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
     "chinese": "Tiếng Trung",
+    "filter": "Bộ lọc",
     "filters": {
       "area": "Khu vực",
       "allCities": "Tất cả thành phố"
@@ -336,7 +337,7 @@
       "8": "Chuyên nghiệp"
     },
     "search": "Tìm kiếm",
-    "searchPlaceholder": "Tìm theo tên sân, địa chỉ hoặc host...",
+    "searchPlaceholder": "Tìm theo tên kèo, tên sân...",
     "timeRange": "Khung giờ",
     "timeRanges": {
       "morning": "Sáng",
@@ -1816,6 +1817,8 @@
     "placeId": "Mã địa điểm",
     "address": "Địa chỉ",
     "isVerified": "Đã xác minh",
+    "images": "Bộ sưu tập ảnh",
+    "coverPhoto": "Ảnh bìa",
     "yes": "Có",
     "no": "Không",
     "noVenuesFound": "Không tìm thấy địa điểm nào"

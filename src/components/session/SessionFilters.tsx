@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Box, Flex } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Select } from '@/components/ui/Select';
+import { VSelect } from '@/components/ui/VSelect';
 import { Search, X, Calendar, Filter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -123,7 +123,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
               {/* Status Filter */}
               {showStatusFilter && (
                 <Box flex="1" minW={{ lg: '180px' }}>
-                  <Select
+                  <VSelect
                     value={filters.status || 'ALL'}
                     onChange={(e) =>
                       handleFilterChange(
@@ -139,7 +139,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                         {option.label}
                       </option>
                     ))}
-                  </Select>
+                  </VSelect>
                 </Box>
               )}
 
@@ -218,7 +218,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
         {/* Level Filter */}
         {showLevelFilter && (
           <Box flex={{ base: '1 1 100%', lg: '0 1 180px' }}>
-            <Select
+            <VSelect
               value={filters.level ? String(filters.level) : ''}
               onChange={(e) =>
                 handleFilterChange(
@@ -233,7 +233,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                   {option.label}
                 </option>
               ))}
-            </Select>
+            </VSelect>
           </Box>
         )}
 

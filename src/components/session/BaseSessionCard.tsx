@@ -111,6 +111,7 @@ interface BaseSessionCardProps {
   // Customization slots
   statusBadgeContent?: React.ReactNode;
   registrationBadgeContent?: React.ReactNode;
+  coverPhotoOverlay?: React.ReactNode;
   afterStatusContent?: React.ReactNode;
   extraInfoRows?: React.ReactNode;
   actionButtons?: React.ReactNode;
@@ -133,6 +134,7 @@ const BaseSessionCard = ({
   session,
   statusBadgeContent,
   registrationBadgeContent,
+  coverPhotoOverlay,
   afterStatusContent,
   extraInfoRows,
   actionButtons,
@@ -608,6 +610,8 @@ const BaseSessionCard = ({
               {registrationBadgeContent}
             </Box>
           )}
+          {/* Custom Cover Photo Overlay */}
+          {coverPhotoOverlay}
         </Box>
 
         {/* Content Section */}

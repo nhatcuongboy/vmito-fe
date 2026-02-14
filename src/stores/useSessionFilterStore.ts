@@ -16,6 +16,7 @@ export interface SessionFilters {
   searchQuery: string;
   cities: string[]; // Changed to array for multi-select
   districts: string[]; // Changed to array for multi-select
+  venueId: string;
   levels: number[];
   timeRanges: TimeRangeKey[];
   minFee: number;
@@ -52,6 +53,7 @@ const defaultFilters: SessionFilters = {
   searchQuery: '',
   cities: [],
   districts: [],
+  venueId: '',
   levels: [],
   timeRanges: [],
   minFee: 0,

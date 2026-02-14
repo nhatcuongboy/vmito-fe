@@ -51,6 +51,33 @@ const SuggestionSessionCard = ({
 
   const reasons = session.matchReasons.filter((r) => REASON_CONFIG[r]);
 
+  // Match reason badges component
+  const matchReasonBadges = reasons.length > 0 && (
+    <Box position="absolute" bottom={3} left={3} zIndex={2}>
+      <Flex gap={1.5} flexWrap="wrap">
+        {reasons.map((reason) => {
+          const config = REASON_CONFIG[reason];
+          return (
+            <Badge
+              key={reason}
+              colorPalette={config.colorPalette}
+              variant="solid"
+              size="sm"
+              fontSize="xs"
+              borderRadius="full"
+              px={2}
+              py={0.5}
+              boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
+              backdropFilter="blur(8px)"
+            >
+              {t(config.translationKey)}
+            </Badge>
+          );
+        })}
+      </Flex>
+    </Box>
+  );
+
   return (
     <Box position="relative">
       {/* Auto badge overlay */}
@@ -83,30 +110,8 @@ const SuggestionSessionCard = ({
         onRegistrationUpdate={onRegistrationUpdate}
         onHostClick={onHostClick}
         distance={session.distance ?? undefined}
+        coverPhotoOverlay={matchReasonBadges}
       />
-
-      {/* Match reason badges */}
-      {reasons.length > 0 && (
-        <Flex gap={1.5} mt={2} flexWrap="wrap" px={1}>
-          {reasons.map((reason) => {
-            const config = REASON_CONFIG[reason];
-            return (
-              <Badge
-                key={reason}
-                colorPalette={config.colorPalette}
-                variant="subtle"
-                size="sm"
-                fontSize="xs"
-                borderRadius="full"
-                px={2}
-                py={0.5}
-              >
-                {t(config.translationKey)}
-              </Badge>
-            );
-          })}
-        </Flex>
-      )}
     </Box>
   );
 };

@@ -9,7 +9,7 @@ import {
   IconButton,
   SimpleGrid,
 } from '@/components/ui/chakra-compat';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import TopBar from '@/components/ui/TopBar';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentPlayer, UserRole, GenderType } from '@/lib/api/types';
@@ -431,7 +431,7 @@ export default function TournamentPlayersPage() {
           </DialogContent>
         </DialogRoot>
 
-        <CommonModal
+        <VModal
           isOpen={!!playerToDelete}
           onClose={() => setPlayerToDelete(null)}
           title={t('deletePlayer')}
@@ -442,7 +442,7 @@ export default function TournamentPlayersPage() {
           primaryColorScheme="red"
         >
           <Text>{t('deleteConfirmation')}</Text>
-        </CommonModal>
+        </VModal>
       </Box>
     </ProtectedRouteGuard>
   );

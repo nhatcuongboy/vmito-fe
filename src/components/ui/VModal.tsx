@@ -7,7 +7,7 @@ import { Button } from './chakra-compat';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
-export interface CommonModalProps {
+export interface VModalProps {
   /** Controls modal visibility */
   isOpen: boolean;
   /** Callback when modal is closed */
@@ -67,21 +67,21 @@ const sizeConfig: Record<ModalSize, string> = {
 };
 
 /**
- * CommonModal - A reusable modal component using Chakra UI
+ * VModal - A reusable modal component using Chakra UI
  *
  * @example
  * // Basic usage
- * <CommonModal
+ * <VModal
  *   isOpen={isOpen}
  *   onClose={onClose}
  *   title="Modal Title"
  * >
  *   <Text>Modal content goes here</Text>
- * </CommonModal>
+ * </VModal>
  *
  * @example
  * // With actions
- * <CommonModal
+ * <VModal
  *   isOpen={isOpen}
  *   onClose={onClose}
  *   title="Confirm Action"
@@ -91,20 +91,20 @@ const sizeConfig: Record<ModalSize, string> = {
  *   secondaryActionText="Cancel"
  * >
  *   <Text>Are you sure?</Text>
- * </CommonModal>
+ * </VModal>
  *
  * @example
  * // With custom footer
- * <CommonModal
+ * <VModal
  *   isOpen={isOpen}
  *   onClose={onClose}
  *   title="Custom Footer"
  *   footer={<CustomFooterComponent />}
  * >
  *   <Text>Content</Text>
- * </CommonModal>
+ * </VModal>
  */
-export const CommonModal: React.FC<CommonModalProps> = ({
+export const VModal: React.FC<VModalProps> = ({
   isOpen,
   onClose,
   title,
@@ -344,4 +344,4 @@ export const useModal = (defaultOpen = false) => {
   };
 };
 
-export default CommonModal;
+export default VModal;

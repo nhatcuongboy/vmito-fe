@@ -1,6 +1,6 @@
 'use client';
 
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { ISession, Player } from '@/lib/api/types';
 import { Box, Text, VStack, Badge, Flex, Icon } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
@@ -84,7 +84,7 @@ export default function MyRegistrationModal({
 
   return (
     <>
-      <CommonModal
+      <VModal
         isOpen={isOpen}
         onClose={onClose}
         title={t('myRegistration')}
@@ -161,9 +161,9 @@ export default function MyRegistrationModal({
             {t('playerCount', { count: players.length })}
           </Text>
         </VStack>
-      </CommonModal>
+      </VModal>
 
-      <CommonModal
+      <VModal
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         title={t('withdrawRequest')}
@@ -177,7 +177,7 @@ export default function MyRegistrationModal({
         zIndex={1100}
       >
         <Text>{t('withdrawConfirmation')}</Text>
-      </CommonModal>
+      </VModal>
     </>
   );
 }

@@ -12,7 +12,7 @@ import {
   Input,
   VStack,
   HStack,
-  Select,
+  VSelect,
 } from '@/components/ui/chakra-compat';
 import { Text } from '@chakra-ui/react';
 import React, { useState, useEffect, ChangeEvent } from 'react';
@@ -173,7 +173,7 @@ export function EditMatchModal({
                     <Text fontSize="xs" color="gray.500">
                       Pair 1 (Position 1)
                     </Text>
-                    <Select
+                    <VSelect
                       value={selectedPlayerIds[0] || ''}
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         handlePlayerChange(0, e.target.value)
@@ -187,11 +187,11 @@ export function EditMatchModal({
                           #{p.playerNumber} {p.name}
                         </option>
                       ))}
-                    </Select>
+                    </VSelect>
                     <Text fontSize="xs" color="gray.500">
                       Pair 1 (Position 2)
                     </Text>
-                    <Select
+                    <VSelect
                       value={selectedPlayerIds[1] || ''}
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         handlePlayerChange(1, e.target.value)
@@ -205,14 +205,14 @@ export function EditMatchModal({
                           #{p.playerNumber} {p.name}
                         </option>
                       ))}
-                    </Select>
+                    </VSelect>
                   </VStack>
 
                   <VStack flex={1} spacing={2}>
                     <Text fontSize="xs" color="gray.500">
                       Pair 2 (Position 3)
                     </Text>
-                    <Select
+                    <VSelect
                       value={selectedPlayerIds[2] || ''}
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         handlePlayerChange(2, e.target.value)
@@ -226,11 +226,11 @@ export function EditMatchModal({
                           #{p.playerNumber} {p.name}
                         </option>
                       ))}
-                    </Select>
+                    </VSelect>
                     <Text fontSize="xs" color="gray.500">
                       Pair 2 (Position 4)
                     </Text>
-                    <Select
+                    <VSelect
                       value={selectedPlayerIds[3] || ''}
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         handlePlayerChange(3, e.target.value)
@@ -244,7 +244,7 @@ export function EditMatchModal({
                           #{p.playerNumber} {p.name}
                         </option>
                       ))}
-                    </Select>
+                    </VSelect>
                   </VStack>
                 </HStack>
               </VStack>

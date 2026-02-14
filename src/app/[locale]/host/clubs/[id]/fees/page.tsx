@@ -7,7 +7,7 @@ import {
   Button,
   VStack,
   HStack,
-  Select,
+  VSelect,
   SimpleGrid,
   Divider,
   Input,
@@ -133,7 +133,7 @@ const ClubFeesPage = () => {
               </Heading>
               <HStack spacing={4} mb={6}>
                 <Box width="150px">
-                  <Select
+                  <VSelect
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(Number(e.target.value))}
                   >
@@ -142,10 +142,10 @@ const ClubFeesPage = () => {
                         {t(`month${m}`)}
                       </option>
                     ))}
-                  </Select>
+                  </VSelect>
                 </Box>
                 <Box width="120px">
-                  <Select
+                  <VSelect
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(Number(e.target.value))}
                   >
@@ -156,7 +156,7 @@ const ClubFeesPage = () => {
                         </option>
                       )
                     )}
-                  </Select>
+                  </VSelect>
                 </Box>
               </HStack>
             </Box>

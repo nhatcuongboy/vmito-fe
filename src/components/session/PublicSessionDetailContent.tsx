@@ -15,7 +15,7 @@ import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import { useEffect, useState, useCallback } from 'react';
 // import { useRouter, usePathname } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
@@ -294,7 +294,7 @@ export const PublicSessionDetailContent = ({
           }}
         />
 
-        <CommonModal
+        <VModal
           isOpen={isHostDetailModalOpen}
           onClose={onCloseHostDetailModal}
           title={t('hostInfo') || 'Thông tin Host'}
@@ -309,7 +309,7 @@ export const PublicSessionDetailContent = ({
             email={session.host?.email}
             hideHeader={true}
           />
-        </CommonModal>
+        </VModal>
 
         {canManage && (
           <Portal>

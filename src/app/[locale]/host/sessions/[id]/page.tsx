@@ -33,7 +33,7 @@ import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
@@ -263,7 +263,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
           </Flex>
 
           {/* Confirmation Dialog */}
-          <CommonModal
+          <VModal
             isOpen={showConfirmDialog}
             onClose={handleCancelAction}
             title={t('confirmEndSession')}
@@ -276,7 +276,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             <Text color="gray.600" _dark={{ color: 'gray.300' }}>
               {t('confirmEndSessionMessage')}
             </Text>
-          </CommonModal>
+          </VModal>
         </>
       )}
     </MainLayout>

@@ -28,7 +28,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import CommonModal from '@/components/ui/CommonModal';
+import VModal from '@/components/ui/VModal';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/chakra-compat';
 import { VSwitch } from '@/components/ui/VSwitch';
@@ -43,6 +43,8 @@ const venueSchema = z.object({
   lat: z.number().optional(),
   lng: z.number().optional(),
   isVerified: z.boolean(),
+  coverPhoto: z.string().optional(),
+  images: z.array(z.string()).optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -75,6 +77,8 @@ export default function AdminVenuesPage() {
       lat: undefined,
       lng: undefined,
       isVerified: false,
+      coverPhoto: '',
+      images: [],
     },
   });
 
@@ -173,6 +177,8 @@ export default function AdminVenuesPage() {
       lat: venue.lat,
       lng: venue.lng,
       isVerified: venue.isVerified ?? false,
+      coverPhoto: venue.coverPhoto || '',
+      images: venue.images || [],
     });
     setIsEditOpen(true);
   };
@@ -216,6 +222,8 @@ export default function AdminVenuesPage() {
                   lat: undefined,
                   lng: undefined,
                   isVerified: false,
+                  coverPhoto: '',
+                  images: [],
                 });
                 setIsCreateOpen(true);
               }}
@@ -324,7 +332,7 @@ export default function AdminVenuesPage() {
         </VStack>
 
         {/* Create/Edit Venue Modal */}
-        <CommonModal
+        <VModal
           isOpen={isCreateOpen || isEditOpen}
           onClose={() => {
             setIsCreateOpen(false);
@@ -449,6 +457,138 @@ export default function AdminVenuesPage() {
 
             <Controller
               control={form.control}
+              name="coverPhoto"
+              render={({ field }) => (
+                <Field.Root>
+                  <Field.Label fontWeight="bold">{t('coverPhoto')}</Field.Label>
+                  <VStack align="stretch" gap={3}>
+                    <Input {...field} placeholder="Enter cover photo URL..." />
+                    {field.value && (
+                      <Box
+                        borderRadius="lg"
+                        overflow="hidden"
+                        borderWidth="1px"
+                        borderColor="gray.200"
+                        bg="gray.50"
+                        _dark={{ borderColor: 'gray.700', bg: 'gray.900' }}
+                      >
+                        <img
+                          src={field.value}
+                          alt="Cover preview"
+                          style={{
+                            width: '100%',
+                            maxHeight: '200px',
+                            objectFit: 'cover',
+                            display: 'block',
+                          }}
+                          onError={(e) => {
+                            (
+                              e.target as HTMLImageElement
+                            ).parentElement!.style.display = 'none';
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </VStack>
+                </Field.Root>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="images"
+              render={({ field }) => (
+                <Field.Root>
+                  <Field.Label fontWeight="bold">{t('images')}</Field.Label>
+                  <VStack align="stretch" gap={4}>
+                    <VStack align="stretch" gap={3}>
+                      {(field.value || []).map((url, index) => (
+                        <Box
+                          key={index}
+                          p={3}
+                          borderRadius="lg"
+                          borderWidth="1px"
+                          borderColor="gray.200"
+                          bg="white"
+                          _dark={{ borderColor: 'gray.700', bg: 'gray.800' }}
+                        >
+                          <Flex gap={3} align="start">
+                            <Box flex="1">
+                              <Input
+                                value={url}
+                                size="sm"
+                                variant="flushed"
+                                onChange={(e) => {
+                                  const newImages = [...(field.value || [])];
+                                  newImages[index] = e.target.value;
+                                  field.onChange(newImages);
+                                }}
+                                placeholder="Paste image URL here..."
+                                mb={url ? 2 : 0}
+                              />
+                            </Box>
+                            <IconButton
+                              aria-label="Remove image"
+                              size="xs"
+                              colorPalette="red"
+                              variant="ghost"
+                              onClick={() => {
+                                const newImages = (field.value || []).filter(
+                                  (_, i) => i !== index
+                                );
+                                field.onChange(newImages);
+                              }}
+                            >
+                              <Trash2 size={16} />
+                            </IconButton>
+                          </Flex>
+                          {url && (
+                            <Box
+                              mt={2}
+                              borderRadius="md"
+                              overflow="hidden"
+                              maxH="120px"
+                              bg="gray.50"
+                              _dark={{ bg: 'gray.900' }}
+                            >
+                              <img
+                                src={url}
+                                alt={`Gallery ${index + 1}`}
+                                style={{
+                                  width: '100%',
+                                  height: '120px',
+                                  objectFit: 'cover',
+                                }}
+                                onError={(e) => {
+                                  (
+                                    e.target as HTMLImageElement
+                                  ).parentElement!.style.display = 'none';
+                                }}
+                              />
+                            </Box>
+                          )}
+                        </Box>
+                      ))}
+                    </VStack>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorPalette="brand"
+                      onClick={() =>
+                        field.onChange([...(field.value || []), ''])
+                      }
+                      width="fit-content"
+                    >
+                      <Plus size={16} style={{ marginRight: '8px' }} />
+                      Thêm ảnh
+                    </Button>
+                  </VStack>
+                </Field.Root>
+              )}
+            />
+
+            <Controller
+              control={form.control}
               name="isVerified"
               render={({ field }) => (
                 <Field.Root display="flex" alignItems="center" gap={4}>
@@ -463,10 +603,10 @@ export default function AdminVenuesPage() {
               )}
             />
           </VStack>
-        </CommonModal>
+        </VModal>
 
         {/* Delete Confirmation Modal */}
-        <CommonModal
+        <VModal
           isOpen={isDeleteOpen}
           onClose={() => setIsDeleteOpen(false)}
           title={t('deleteVenue')}
@@ -478,7 +618,7 @@ export default function AdminVenuesPage() {
           <Text>
             {t('deleteConfirmation', { name: selectedVenue?.name || '' })}
           </Text>
-        </CommonModal>
+        </VModal>
       </Container>
     </MainLayout>
   );

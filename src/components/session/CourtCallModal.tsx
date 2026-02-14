@@ -1,7 +1,7 @@
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { MapPin } from 'lucide-react';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { useTranslations } from 'next-intl';
 
 interface CourtCallModalProps {
@@ -18,7 +18,7 @@ export default function CourtCallModal({
   const t = useTranslations('pages.join.status');
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={t('courtCall.title')}
@@ -88,6 +88,6 @@ export default function CourtCallModal({
           }
         }
       `}</style>
-    </CommonModal>
+    </VModal>
   );
 }

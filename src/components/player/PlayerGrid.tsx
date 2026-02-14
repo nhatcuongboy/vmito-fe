@@ -8,7 +8,7 @@ import { Badge, Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import { Mars, User, Users, Venus, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { PlayerDetailModal } from './PlayerDetailModal';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { PlayerActionMenu } from '@/components/session/player-management/PlayerActionMenu';
 import { useTranslations } from 'next-intl';
 

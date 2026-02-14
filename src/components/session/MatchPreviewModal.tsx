@@ -1,5 +1,5 @@
 import { Button as CompatButton } from '@/components/ui/chakra-compat';
-import { CommonModal } from '@/components/ui/CommonModal';
+import { VModal } from '@/components/ui/VModal';
 import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
@@ -190,7 +190,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
     description || t('courtsTab.autoAssignMatchDescription');
 
   return (
-    <CommonModal
+    <VModal
       isOpen={isOpen}
       onClose={onCancel}
       title={modalTitle}
@@ -550,7 +550,7 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
           ) : null}
         </VStack>
       </Box>
-    </CommonModal>
+    </VModal>
   );
 };
 

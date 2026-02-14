@@ -17,7 +17,7 @@ import AppHostDetail from './AppHostDetail';
 import JoinSessionModal from './JoinSessionModal';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SuggestionSessionCard from './SuggestionSessionCard';
-import { CommonModal, useModal } from '@/components/ui/CommonModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 
 const PAGE_SIZE = 12;
 
@@ -346,7 +346,7 @@ export default function SuggestionsList() {
       )}
 
       {/* Host Detail Modal */}
-      <CommonModal
+      <VModal
         isOpen={isDetailModalOpen}
         onClose={onCloseDetailModal}
         title={tSession('hostInfo')}
@@ -366,7 +366,7 @@ export default function SuggestionsList() {
             hideHeader={true}
           />
         )}
-      </CommonModal>
+      </VModal>
     </Box>
   );
 }
