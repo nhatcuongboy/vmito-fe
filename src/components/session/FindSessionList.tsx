@@ -89,6 +89,7 @@ export default function FindSessionList({
   const searchParams = useSearchParams();
 
   const t = useTranslations('session');
+  const { viewMode } = useSessionFilterStore();
   const { user } = useAuthStore();
 
   const { ref, inView } = useInView({
@@ -426,15 +427,24 @@ export default function FindSessionList({
       {/* Results List */}
       {loading ? (
         <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
-          }}
-          gap={6}
+          templateColumns={
+            viewMode === 'compact'
+              ? {
+                  base: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)',
+                }
+              : {
+                  base: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                }
+          }
+          gap={viewMode === 'compact' ? 4 : 6}
         >
           {Array.from({ length: 6 }).map((_, index) => (
-            <SessionCardSkeleton key={index} />
+            <SessionCardSkeleton key={index} variant={viewMode} />
           ))}
         </Grid>
       ) : error ? (
@@ -469,17 +479,27 @@ export default function FindSessionList({
       ) : (
         <RatingStatsProvider userIds={hostIds}>
           <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={6}
+            templateColumns={
+              viewMode === 'compact'
+                ? {
+                    base: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)',
+                  }
+                : {
+                    base: '1fr',
+                    md: 'repeat(2, 1fr)',
+                    lg: 'repeat(3, 1fr)',
+                  }
+            }
+            gap={viewMode === 'compact' ? 4 : 6}
           >
             {sessions.map((session) => (
               <FindSessionCard
                 key={session.id}
                 session={session}
+                variant={viewMode}
                 onJoin={() => handleJoinClick(session)}
                 isJoined={joinedSessionIds.has(session.id)}
                 userRegistrationStatus={
@@ -496,15 +516,24 @@ export default function FindSessionList({
           {hasMore && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
-                templateColumns={{
-                  base: '1fr',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }}
-                gap={6}
+                templateColumns={
+                  viewMode === 'compact'
+                    ? {
+                        base: '1fr',
+                        sm: 'repeat(2, 1fr)',
+                        md: 'repeat(3, 1fr)',
+                        lg: 'repeat(4, 1fr)',
+                      }
+                    : {
+                        base: '1fr',
+                        md: 'repeat(2, 1fr)',
+                        lg: 'repeat(3, 1fr)',
+                      }
+                }
+                gap={viewMode === 'compact' ? 4 : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} />
+                  <SessionCardSkeleton key={index} variant={viewMode} />
                 ))}
               </Grid>
               <Flex justify="center" mt={4}>

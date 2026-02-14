@@ -26,11 +26,14 @@ export interface SessionFilters {
   splitEvenly: boolean; // New field for split payment option
 }
 
+export type ViewMode = 'full' | 'compact';
+
 interface SessionFilterState {
   // State
   filters: SessionFilters;
   sortByDistance: boolean;
   userLocation: { lat: number; lng: number } | null;
+  viewMode: ViewMode;
 
   // Actions
   setFilter: <K extends keyof SessionFilters>(
@@ -41,6 +44,7 @@ interface SessionFilterState {
   clearFilters: () => void;
   setSortByDistance: (sort: boolean) => void;
   setUserLocation: (location: { lat: number; lng: number } | null) => void;
+  setViewMode: (mode: ViewMode) => void;
 
   // Multi-select helpers
   toggleCity: (city: string) => void;
@@ -70,6 +74,7 @@ export const useSessionFilterStore = create<SessionFilterState>()(
       filters: defaultFilters,
       sortByDistance: false,
       userLocation: null,
+      viewMode: 'full' as ViewMode,
 
       // Actions
       setFilter: (key, value) =>
@@ -105,6 +110,8 @@ export const useSessionFilterStore = create<SessionFilterState>()(
 
       setUserLocation: (location) =>
         set({ userLocation: location }, false, 'setUserLocation'),
+
+      setViewMode: (mode) => set({ viewMode: mode }, false, 'setViewMode'),
 
       // Multi-select helpers
       toggleCity: (city) =>

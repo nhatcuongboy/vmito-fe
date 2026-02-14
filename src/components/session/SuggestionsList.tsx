@@ -7,6 +7,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
 import { MapPinOff, RefreshCw, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -64,6 +65,7 @@ export default function SuggestionsList() {
   const t = useTranslations('suggestions');
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
+  const { viewMode } = useSessionFilterStore();
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -236,15 +238,24 @@ export default function SuggestionsList() {
       {/* Results */}
       {loading ? (
         <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
-          }}
-          gap={6}
+          templateColumns={
+            viewMode === 'compact'
+              ? {
+                  base: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)',
+                }
+              : {
+                  base: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                }
+          }
+          gap={viewMode === 'compact' ? 4 : 6}
         >
           {Array.from({ length: 6 }).map((_, index) => (
-            <SessionCardSkeleton key={index} />
+            <SessionCardSkeleton key={index} variant={viewMode} />
           ))}
         </Grid>
       ) : error ? (
@@ -285,17 +296,27 @@ export default function SuggestionsList() {
       ) : (
         <RatingStatsProvider userIds={hostIds}>
           <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={6}
+            templateColumns={
+              viewMode === 'compact'
+                ? {
+                    base: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)',
+                  }
+                : {
+                    base: '1fr',
+                    md: 'repeat(2, 1fr)',
+                    lg: 'repeat(3, 1fr)',
+                  }
+            }
+            gap={viewMode === 'compact' ? 4 : 6}
           >
             {sessions.map((session) => (
               <SuggestionSessionCard
                 key={session.id}
                 session={session}
+                variant={viewMode}
                 onJoin={() => handleJoinClick(session)}
                 isJoined={joinedSessionIds.has(session.id)}
                 userRegistrationStatus={
@@ -311,15 +332,24 @@ export default function SuggestionsList() {
           {hasMore && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
-                templateColumns={{
-                  base: '1fr',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }}
-                gap={6}
+                templateColumns={
+                  viewMode === 'compact'
+                    ? {
+                        base: '1fr',
+                        sm: 'repeat(2, 1fr)',
+                        md: 'repeat(3, 1fr)',
+                        lg: 'repeat(4, 1fr)',
+                      }
+                    : {
+                        base: '1fr',
+                        md: 'repeat(2, 1fr)',
+                        lg: 'repeat(3, 1fr)',
+                      }
+                }
+                gap={viewMode === 'compact' ? 4 : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} />
+                  <SessionCardSkeleton key={index} variant={viewMode} />
                 ))}
               </Grid>
               <Flex justify="center" mt={4}>

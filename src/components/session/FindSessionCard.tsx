@@ -7,6 +7,7 @@ import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
+import { ViewMode } from '@/stores/useSessionFilterStore';
 import React, { useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
@@ -20,6 +21,7 @@ import { Portal } from '@chakra-ui/react';
 
 interface FindSessionCardProps {
   session: ISession;
+  variant?: ViewMode;
   onJoin: () => void;
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
@@ -32,6 +34,7 @@ interface FindSessionCardProps {
 
 const FindSessionCard = ({
   session,
+  variant = 'full',
   onJoin,
   isJoined = false,
   userRegistrationStatus = null,
@@ -41,6 +44,7 @@ const FindSessionCard = ({
   distance,
   coverPhotoOverlay,
 }: FindSessionCardProps) => {
+  const isCompact = variant === 'compact';
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
@@ -165,10 +169,20 @@ const FindSessionCard = ({
   const locationRow =
     session.venue?.name || session.location ? (
       <Flex align="flex-start">
-        <Icon as={MapPin} boxSize={5} mr={2} color="green.500" mt={1} />
+        <Icon
+          as={MapPin}
+          boxSize={isCompact ? 4 : 5}
+          mr={2}
+          color="green.500"
+          mt={isCompact ? 0.5 : 1}
+        />
         <Box flex="1" overflow="hidden">
           <Flex align="center" gap={2} wrap="wrap">
-            <Text fontWeight="medium" lineClamp={1}>
+            <Text
+              fontWeight="medium"
+              fontSize={isCompact ? 'sm' : 'md'}
+              lineClamp={1}
+            >
               {session.venue?.name || session.location}
             </Text>
             {distance !== undefined && (
@@ -180,7 +194,8 @@ const FindSessionCard = ({
             )}
             {googleMapButton}
           </Flex>
-          {session.venue?.address &&
+          {!isCompact &&
+            session.venue?.address &&
             session.venue.address !== session.venue.name && (
               <Text fontSize="xs" color="gray.500" lineClamp={1}>
                 {session.venue.address}
@@ -259,6 +274,7 @@ const FindSessionCard = ({
     <>
       <BaseSessionCard
         session={session}
+        variant={variant}
         extraInfoRows={locationRow}
         registrationBadgeContent={registrationStatusBadge}
         coverPhotoOverlay={coverPhotoOverlay}

@@ -1,14 +1,57 @@
 'use client';
 
 import { Box, Flex, Stack, Skeleton, SkeletonCircle } from '@chakra-ui/react';
+import { ViewMode } from '@/stores/useSessionFilterStore';
 
 interface SessionCardSkeletonProps {
   showOnlyOne?: boolean;
+  variant?: ViewMode;
 }
 
 export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
   showOnlyOne = false,
+  variant = 'full',
 }) => {
+  if (variant === 'compact') {
+    return (
+      <Flex
+        direction="column"
+        h="100%"
+        gap={2}
+        borderWidth="1px"
+        borderLeftWidth="4px"
+        borderLeftColor="gray.200"
+        borderRadius="lg"
+        overflow="hidden"
+        bg="bg"
+        borderColor="border"
+        p={3}
+      >
+        <Flex justify="space-between" align="flex-start">
+          <Skeleton height="22px" width="60%" borderRadius="md" />
+          <Skeleton height="20px" width="60px" borderRadius="full" />
+        </Flex>
+        <Flex align="center" gap={2}>
+          <SkeletonCircle size="4" />
+          <Skeleton height="16px" width="150px" borderRadius="sm" />
+        </Flex>
+        <Flex gap={3}>
+          <Skeleton height="16px" width="80px" borderRadius="sm" />
+          <Skeleton height="16px" width="80px" borderRadius="sm" />
+          <Skeleton height="16px" width="40px" borderRadius="sm" />
+        </Flex>
+        <Flex gap={1}>
+          <Skeleton height="20px" width="50px" borderRadius="full" />
+          <Skeleton height="20px" width="50px" borderRadius="full" />
+        </Flex>
+        <Flex justify="space-between" align="center" mt="auto" pt={2}>
+          <Skeleton height="18px" width="80px" borderRadius="sm" />
+          <Skeleton height="28px" width="80px" borderRadius="md" />
+        </Flex>
+      </Flex>
+    );
+  }
+
   if (showOnlyOne) {
     return (
       <Box

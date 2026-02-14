@@ -8,6 +8,7 @@ import SuggestionsList from '@/components/session/SuggestionsList';
 import PageLayout from '@/components/layout/PageLayout';
 import { Image } from '@chakra-ui/react';
 import { Search, Sparkles } from 'lucide-react';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 type HomeMode = 'browse' | 'auto';
 
@@ -56,6 +57,7 @@ function ModeFloatingButton({
 function HomeContent() {
   const t = useTranslations('session');
   const [mode, setMode] = useState<HomeMode>('browse');
+  const { user } = useAuthStore();
 
   return (
     <PageLayout
@@ -64,8 +66,8 @@ function HomeContent() {
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
     >
-      {mode === 'browse' ? <FindSessionList /> : <SuggestionsList />}
-      <ModeFloatingButton mode={mode} onChange={setMode} />
+      {mode === 'browse' || !user ? <FindSessionList /> : <SuggestionsList />}
+      {user && <ModeFloatingButton mode={mode} onChange={setMode} />}
     </PageLayout>
   );
 }

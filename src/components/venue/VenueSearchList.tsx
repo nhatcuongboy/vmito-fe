@@ -423,7 +423,7 @@ export default function VenueSearchList() {
                 borderRadius="full"
                 cursor="pointer"
                 variant={pendingSortByDistance ? 'solid' : 'outline'}
-                colorPalette={pendingSortByDistance ? 'blue' : 'gray'}
+                colorPalette={pendingSortByDistance ? 'green' : 'gray'}
                 onClick={handleNearMe}
                 fontSize="sm"
                 fontWeight="semibold"
@@ -493,7 +493,7 @@ export default function VenueSearchList() {
                       pendingCities.includes(city.code) ? 'solid' : 'outline'
                     }
                     colorPalette={
-                      pendingCities.includes(city.code) ? 'blue' : 'gray'
+                      pendingCities.includes(city.code) ? 'green' : 'gray'
                     }
                     onClick={() => togglePendingCity(city.code)}
                     fontSize="sm"
@@ -578,7 +578,7 @@ export default function VenueSearchList() {
                       }
                       colorPalette={
                         pendingDistricts.includes(district.name)
-                          ? 'blue'
+                          ? 'green'
                           : 'gray'
                       }
                       onClick={() => togglePendingDistrict(district.name)}
