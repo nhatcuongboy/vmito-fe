@@ -56,6 +56,7 @@ export const ROUTES = {
   PLAYER: {
     DASHBOARD: '/player/dashboard',
     HOST_FEATURE: '/host/sessions',
+    SUGGESTIONS: '/player/suggestions',
     SESSIONS: {
       LIST: '/player/sessions',
       DETAIL: (id: string) => `/player/sessions/${id}`,

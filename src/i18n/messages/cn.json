@@ -19,7 +19,8 @@
     "manageGroups": "Manage Groups",
     "clubs": "俱乐部",
     "createClub": "创建新俱乐部",
-    "pendingJoinRequests": "加入请求"
+    "pendingJoinRequests": "加入请求",
+    "suggestions": "推荐"
   },
   "common": {
     "browse": "统计分析",
@@ -2229,5 +2230,21 @@
       "5": "Friday",
       "6": "Saturday"
     }
+  },
+  "suggestions": {
+    "title": "推荐场次",
+    "noSuggestions": "暂无推荐",
+    "noSuggestionsDesc": "多参加一些场次，我们就能更好地了解您的偏好",
+    "browseAll": "浏览场次",
+    "locationDenied": "未授权位置访问。推荐将基于您的打球历史。",
+    "loadingError": "加载推荐失败，请重试。",
+    "totalResults": "{count} 个推荐场次",
+    "reasonLevelMatch": "水平匹配",
+    "reasonNearby": "附近",
+    "reasonFamiliarVenue": "常去场地",
+    "reasonPreferredTime": "常打时段",
+    "reasonAvailableSlots": "有空位",
+    "modeBrowse": "浏览",
+    "modeAuto": "为你推荐"
   }
 }

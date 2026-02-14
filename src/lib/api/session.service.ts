@@ -387,4 +387,47 @@ export const SessionService = {
     );
     return response.data.data!;
   },
+
+  // Get suggested sessions for current user
+  getSuggestedSessions: async (filters?: {
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    data: (ISession & {
+      score: number;
+      distance: number | null;
+      matchReasons: string[];
+    })[];
+    pagination: { page: number; limit: number; total: number };
+  }> => {
+    const params = new URLSearchParams();
+    if (filters?.lat !== undefined)
+      params.append('lat', filters.lat.toString());
+    if (filters?.lng !== undefined)
+      params.append('lng', filters.lng.toString());
+    if (filters?.radius !== undefined)
+      params.append('radius', filters.radius.toString());
+    if (filters?.page !== undefined)
+      params.append('page', filters.page.toString());
+    if (filters?.limit !== undefined)
+      params.append('limit', filters.limit.toString());
+
+    const url = params.toString()
+      ? `/sessions/suggestions?${params.toString()}`
+      : '/sessions/suggestions';
+    const response = await api.get<
+      ApiResponse<{
+        data: (ISession & {
+          score: number;
+          distance: number | null;
+          matchReasons: string[];
+        })[];
+        pagination: { page: number; limit: number; total: number };
+      }>
+    >(url);
+    return response.data.data!;
+  },
 };

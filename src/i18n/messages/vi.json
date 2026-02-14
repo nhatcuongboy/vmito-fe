@@ -19,7 +19,8 @@
     "manageGroups": "Quản lý nhóm",
     "clubs": "Câu lạc bộ",
     "createClub": "Tạo CLB mới",
-    "pendingJoinRequests": "Yêu cầu tham gia"
+    "pendingJoinRequests": "Yêu cầu tham gia",
+    "suggestions": "Gợi ý"
   },
   "common": {
     "browse": "Thống kê",
@@ -2229,5 +2230,21 @@
       "5": "Thứ 6",
       "6": "Thứ 7"
     }
+  },
+  "suggestions": {
+    "title": "Gợi ý kèo",
+    "noSuggestions": "Không có gợi ý nào phù hợp",
+    "noSuggestionsDesc": "Hãy tham gia thêm các kèo để chúng tôi hiểu sở thích của bạn hơn",
+    "browseAll": "Tìm kèo",
+    "locationDenied": "Bạn chưa cấp quyền vị trí. Gợi ý sẽ dựa trên lịch sử chơi của bạn.",
+    "loadingError": "Không thể tải gợi ý. Vui lòng thử lại.",
+    "totalResults": "{count} kèo phù hợp",
+    "reasonLevelMatch": "Phù hợp trình độ",
+    "reasonNearby": "Gần bạn",
+    "reasonFamiliarVenue": "Sân quen thuộc",
+    "reasonPreferredTime": "Giờ chơi yêu thích",
+    "reasonAvailableSlots": "Còn chỗ trống",
+    "modeBrowse": "Tìm kèo",
+    "modeAuto": "Auto"
   }
 }
