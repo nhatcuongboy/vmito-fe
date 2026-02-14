@@ -21,7 +21,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Switch } from '@/components/ui/switch';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback } from 'react';
 import { Pencil, Trash2, Plus, Search, RefreshCcw, MapPin } from 'lucide-react';
@@ -32,6 +31,7 @@ import * as z from 'zod';
 import CommonModal from '@/components/ui/CommonModal';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/chakra-compat';
+import { VSwitch } from '@/components/ui/VSwitch';
 
 // Schema definitions
 const venueSchema = z.object({
@@ -453,7 +453,7 @@ export default function AdminVenuesPage() {
               render={({ field }) => (
                 <Field.Root display="flex" alignItems="center" gap={4}>
                   <Field.Label mb={0}>{t('isVerified')}</Field.Label>
-                  <Switch
+                  <VSwitch
                     checked={field.value}
                     onCheckedChange={(details) =>
                       field.onChange(details.checked)

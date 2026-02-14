@@ -23,7 +23,7 @@ import { FeeService } from '@/lib/api/fee.service';
 import { User, CheckCheck, Filter, UserCheck } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import PaymentApprovalModal from './PaymentApprovalModal';
-import { Tooltip } from '@/components/ui/tooltip';
+import { VTooltip } from '@/components/ui/VTooltip';
 
 interface SessionPaymentListProps {
   session: ISession;
@@ -159,7 +159,7 @@ export default function SessionPaymentList({
     const groupName = player.club?.name || '';
 
     return (
-      <Tooltip
+      <VTooltip
         content={
           <Box>
             <Text fontWeight="bold" mb={1}>
@@ -179,7 +179,7 @@ export default function SessionPaymentList({
             {groupName}
           </Badge>
         </HStack>
-      </Tooltip>
+      </VTooltip>
     );
   };
 

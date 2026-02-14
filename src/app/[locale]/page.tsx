@@ -16,7 +16,6 @@ function HomeContent() {
       icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
-      pb={8}
     >
       <FindSessionList />
     </PageLayout>

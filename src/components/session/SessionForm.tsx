@@ -81,7 +81,7 @@ import { Select } from '@/components/ui/Select';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
-import { Tooltip } from '@/components/ui/tooltip';
+import { VTooltip } from '@/components/ui/VTooltip';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import TopBar from '@/components/ui/TopBar';
 import CoverPhotoUpload from '@/components/session/CoverPhotoUpload';
@@ -718,7 +718,7 @@ export default function SessionForm({
           />
 
           <Box position="fixed" bottom="30px" right="24px" zIndex={1000}>
-            <Tooltip content={t('createByAI')} showArrow portalled>
+            <VTooltip content={t('createByAI')} showArrow portalled>
               <Button
                 type="button"
                 colorPalette="purple"
@@ -736,7 +736,7 @@ export default function SessionForm({
               >
                 <Sparkles size={24} />
               </Button>
-            </Tooltip>
+            </VTooltip>
           </Box>
         </>
       )}

@@ -29,7 +29,7 @@ import {
   SIDEBAR_WIDTH_COLLAPSED,
 } from '@/constants';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { Tooltip } from './tooltip';
+import { VTooltip } from './VTooltip';
 import { ROUTES } from '@/constants';
 import ThemeSwitcher from './ThemeSwitcher';
 import { usePathname } from '@/i18n/config';
@@ -132,7 +132,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
             {/* Home - Standalone (No Group) */}
             <Box>
               <Stack gap={2}>
-                <Tooltip
+                <VTooltip
                   content={nav('home')}
                   positioning={{
                     placement: 'right',
@@ -178,8 +178,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       )}
                     </Flex>
                   </NextLinkButton>
-                </Tooltip>
-                <Tooltip
+                </VTooltip>
+                <VTooltip
                   content={nav('venues') || 'Tìm sân'}
                   positioning={{
                     placement: 'right',
@@ -225,8 +225,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       )}
                     </Flex>
                   </NextLinkButton>
-                </Tooltip>
-                <Tooltip
+                </VTooltip>
+                <VTooltip
                   content={nav('browseClubs') || 'Tra cứu nhóm'}
                   positioning={{
                     placement: 'right',
@@ -272,7 +272,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       )}
                     </Flex>
                   </NextLinkButton>
-                </Tooltip>
+                </VTooltip>
               </Stack>
             </Box>
 
@@ -295,7 +295,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Text>
                   )}
                   <Stack gap={2}>
-                    <Tooltip
+                    <VTooltip
                       content={nav('host')}
                       positioning={{
                         placement: 'right',
@@ -352,9 +352,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           )}
                         </Flex>
                       </NextLinkButton>
-                    </Tooltip>
+                    </VTooltip>
 
-                    <Tooltip
+                    <VTooltip
                       content={nav('joined')}
                       positioning={{
                         placement: 'right',
@@ -400,11 +400,11 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           )}
                         </Flex>
                       </NextLinkButton>
-                    </Tooltip>
+                    </VTooltip>
 
                     {(user?.role === UserRole.HOST ||
                       user?.role === UserRole.ADMIN) && (
-                      <Tooltip
+                      <VTooltip
                         content={nav('pendingJoinRequests')}
                         positioning={{
                           placement: 'right',
@@ -452,11 +452,11 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             )}
                           </Flex>
                         </NextLinkButton>
-                      </Tooltip>
+                      </VTooltip>
                     )}
 
                     {isAuthenticated && (
-                      <Tooltip
+                      <VTooltip
                         content={nav('myClubs')}
                         positioning={{
                           placement: 'right',
@@ -502,7 +502,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             )}
                           </Flex>
                         </NextLinkButton>
-                      </Tooltip>
+                      </VTooltip>
                     )}
                   </Stack>
                 </Box>
@@ -528,7 +528,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Text>
                   )}
                   <Stack gap={2}>
-                    <Tooltip
+                    <VTooltip
                       content={nav('transactions')}
                       positioning={{
                         placement: 'right',
@@ -585,11 +585,11 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           )}
                         </Flex>
                       </NextLinkButton>
-                    </Tooltip>
+                    </VTooltip>
 
                     {(user?.role === UserRole.HOST ||
                       user?.role === UserRole.ADMIN) && (
-                      <Tooltip
+                      <VTooltip
                         content={nav('paymentSettings')}
                         positioning={{
                           placement: 'right',
@@ -637,7 +637,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             )}
                           </Flex>
                         </NextLinkButton>
-                      </Tooltip>
+                      </VTooltip>
                     )}
                   </Stack>
                 </Box>
@@ -663,7 +663,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Text>
                   )}
                   <Stack gap={2}>
-                    <Tooltip
+                    <VTooltip
                       content={nav('users')}
                       positioning={{
                         placement: 'right',
@@ -709,9 +709,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           )}
                         </Flex>
                       </NextLinkButton>
-                    </Tooltip>
+                    </VTooltip>
 
-                    <Tooltip
+                    <VTooltip
                       content={nav('notifications')}
                       positioning={{
                         placement: 'right',
@@ -757,9 +757,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           )}
                         </Flex>
                       </NextLinkButton>
-                    </Tooltip>
+                    </VTooltip>
 
-                    <Tooltip
+                    <VTooltip
                       content={nav('venues')}
                       positioning={{
                         placement: 'right',
@@ -805,7 +805,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           )}
                         </Flex>
                       </NextLinkButton>
-                    </Tooltip>
+                    </VTooltip>
                   </Stack>
                 </Box>
 
@@ -830,7 +830,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               <Stack gap={2}>
                 {/* Analysis - Moved to Other section */}
                 {isAuthenticated && user?.role !== UserRole.PLAYER && (
-                  <Tooltip
+                  <VTooltip
                     content={nav('browse')}
                     positioning={{
                       placement: 'right',
@@ -886,10 +886,10 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         )}
                       </Flex>
                     </NextLinkButton>
-                  </Tooltip>
+                  </VTooltip>
                 )}
 
-                <Tooltip
+                <VTooltip
                   content={common('about')}
                   positioning={{
                     placement: 'right',
@@ -935,7 +935,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       )}
                     </Flex>
                   </NextLinkButton>
-                </Tooltip>
+                </VTooltip>
               </Stack>
             </Box>
 
@@ -957,7 +957,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               )}
               <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
                 {isCollapsed ? (
-                  <Tooltip
+                  <VTooltip
                     content={common('language')}
                     positioning={{
                       placement: 'right',
@@ -972,7 +972,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         isCollapsed={true}
                       />
                     </Box>
-                  </Tooltip>
+                  </VTooltip>
                 ) : (
                   <Box w="180px">
                     <LanguageSwitcher
@@ -999,7 +999,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               )}
               <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
                 {isCollapsed ? (
-                  <Tooltip
+                  <VTooltip
                     content={common('theme')}
                     positioning={{
                       placement: 'right',
@@ -1011,7 +1011,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     <Box w="full" px={1}>
                       <ThemeSwitcher isCollapsed={true} />
                     </Box>
-                  </Tooltip>
+                  </VTooltip>
                 ) : (
                   <Box w="180px">
                     <ThemeSwitcher isCollapsed={false} />
@@ -1025,7 +1025,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               {/* Login Button - Only show when NOT logged in and finished loading */}
               {isHydrated && !isLoading && !isAuthenticated && (
                 <Stack gap={2} mb={4}>
-                  <Tooltip
+                  <VTooltip
                     content={common('login')}
                     positioning={{
                       placement: 'right',
@@ -1053,9 +1053,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         )}
                       </Flex>
                     </NextLinkButton>
-                  </Tooltip>
+                  </VTooltip>
 
-                  <Tooltip
+                  <VTooltip
                     content={common('register')}
                     positioning={{
                       placement: 'right',
@@ -1083,7 +1083,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         )}
                       </Flex>
                     </NextLinkButton>
-                  </Tooltip>
+                  </VTooltip>
                 </Stack>
               )}
 

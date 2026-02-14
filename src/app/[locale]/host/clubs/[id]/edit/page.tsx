@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/chakra-compat';
 import { LegacySelect } from '@/components/ui/Select';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { Switch } from '@/components/ui/switch';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +28,7 @@ import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
 import { Plus, Trash2 } from 'lucide-react';
 import { Venue } from '@/lib/api/types';
+import { VSwitch } from '@/components/ui/VSwitch';
 
 const scheduleSchema = z.object({
   dayOfWeek: z.coerce.number().min(0).max(6),
@@ -376,7 +376,7 @@ const EditClubPage = () => {
                 name="isPublic"
                 control={control}
                 render={({ field }) => (
-                  <Switch
+                  <VSwitch
                     id="isPublic"
                     checked={field.value}
                     onCheckedChange={(e) => field.onChange(e.checked)}
