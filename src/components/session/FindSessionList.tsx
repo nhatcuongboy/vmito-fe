@@ -333,6 +333,7 @@ export default function FindSessionList({
       searchQuery: '',
       cities: [],
       districts: [],
+      venueId: '',
       levels: [],
       timeRanges: [],
       minFee: 0,
