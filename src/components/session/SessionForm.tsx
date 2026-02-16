@@ -724,9 +724,9 @@ export default function SessionForm({
               showArrow
               portalled
             >
-              <Box
-                as="button"
+              <Button
                 type="button"
+                variant="plain"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -747,7 +747,7 @@ export default function SessionForm({
                 aria-label={t('quickCreate.aiPlaceholder')}
               >
                 <Icon as={Sparkles} boxSize={7} />
-              </Box>
+              </Button>
             </VTooltip>
           </Box>
         </>

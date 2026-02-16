@@ -134,6 +134,7 @@
   },
   "session": {
     "title": "羽毛球场次",
+    "resultsCount": "{count} 个场次",
     "sessionDetails": "场次详情",
     "name": "名称",
     "basicInfo": "基本信息",
@@ -400,6 +401,8 @@
     "withdrawRequest": "撤回请求",
     "viewRequest": "查看请求",
     "sessionFull": "已满员",
+    "slotsAvailable": "有空位",
+    "slotsFull": "已满",
     "withdrawConfirmation": "您确定要撤回注册请求吗？",
     "requestWithdrawn": "请求已成功撤回",
     "noPendingRequest": "未找到待审核请求",

@@ -32,7 +32,9 @@ function PlayerHostContent() {
       // Use getAvailableSessions to get full session data with fee, venue, and host info
       const sessionData = await SessionService.getAvailableSessions();
       // Filter for sessions hosted by current user
-      const hostedSessions = sessionData.filter((s) => s.hostId === user?.id);
+      const hostedSessions = sessionData.data.filter(
+        (s) => s.hostId === user?.id
+      );
       setSessions(hostedSessions);
       setFilteredSessions(hostedSessions);
     } catch (err) {
