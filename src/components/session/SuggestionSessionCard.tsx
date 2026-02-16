@@ -36,7 +36,7 @@ const REASON_CONFIG: Record<
     translationKey: 'reasonPreferredTime',
   },
   available_slots: {
-    colorPalette: 'gray',
+    colorPalette: 'teal',
     translationKey: 'reasonAvailableSlots',
   },
 };
@@ -73,6 +73,8 @@ const SuggestionSessionCard = ({
               py={0.5}
               boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
               backdropFilter="blur(8px)"
+              borderWidth="1px"
+              borderColor="whiteAlpha.400"
             >
               {t(config.translationKey)}
             </Badge>
@@ -82,45 +84,52 @@ const SuggestionSessionCard = ({
     </Box>
   );
 
-  return (
-    <Box position="relative">
-      {/* Auto badge - overlay in full mode, inline tag in compact mode */}
-      {isCompact ? (
-        <Flex gap={1} mb={1} flexWrap="wrap">
+  // Compact-mode badges rendered inside the card via compactTopContent
+  const compactBadges = isCompact && (
+    <Flex gap={1} flexWrap="wrap">
+      <Badge
+        colorPalette="yellow"
+        variant="solid"
+        fontSize="xs"
+        fontWeight="bold"
+        px={2}
+        py={0.5}
+        borderRadius="full"
+        display="flex"
+        alignItems="center"
+        gap={1}
+        borderWidth="1px"
+        borderColor="yellow.500"
+      >
+        <Icon as={Sparkles} boxSize={3} />
+        Auto
+      </Badge>
+      {reasons.map((reason) => {
+        const config = REASON_CONFIG[reason];
+        return (
           <Badge
-            colorPalette="yellow"
+            key={reason}
+            colorPalette={config.colorPalette}
             variant="solid"
+            size="sm"
             fontSize="xs"
-            fontWeight="bold"
+            borderRadius="full"
             px={2}
             py={0.5}
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            gap={1}
+            borderWidth="1px"
+            borderColor={`${config.colorPalette}.400`}
           >
-            <Icon as={Sparkles} boxSize={3} />
-            Auto
+            {t(config.translationKey)}
           </Badge>
-          {reasons.map((reason) => {
-            const config = REASON_CONFIG[reason];
-            return (
-              <Badge
-                key={reason}
-                colorPalette={config.colorPalette}
-                variant="solid"
-                size="sm"
-                fontSize="xs"
-                borderRadius="full"
-                px={2}
-                py={0.5}
-              >
-                {t(config.translationKey)}
-              </Badge>
-            );
-          })}
-        </Flex>
-      ) : (
+        );
+      })}
+    </Flex>
+  );
+
+  return (
+    <Box position="relative">
+      {/* Auto badge - overlay in full mode only */}
+      {!isCompact && (
         <Badge
           position="absolute"
           top={3}
@@ -137,6 +146,8 @@ const SuggestionSessionCard = ({
           display="flex"
           alignItems="center"
           gap={1}
+          borderWidth="1px"
+          borderColor="whiteAlpha.400"
         >
           <Icon as={Sparkles} boxSize={3} />
           Auto
@@ -153,6 +164,8 @@ const SuggestionSessionCard = ({
         onHostClick={onHostClick}
         distance={session.distance ?? undefined}
         coverPhotoOverlay={matchReasonBadges}
+        compactTopContent={compactBadges}
+        showSlotBadge={false}
       />
     </Box>
   );

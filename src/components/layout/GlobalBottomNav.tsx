@@ -42,6 +42,12 @@ export default function GlobalBottomNav() {
           icon: Ticket,
           href: ROUTES.PLAYER.SESSIONS.LIST,
         },
+        {
+          id: 7,
+          label: t('pendingJoinRequests'),
+          icon: UserPlus,
+          href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
+        },
       ];
     }
 
@@ -83,6 +89,12 @@ export default function GlobalBottomNav() {
         label: t('joined'),
         icon: Ticket,
         href: ROUTES.PLAYER.SESSIONS.LIST,
+      },
+      {
+        id: 7,
+        label: t('pendingJoinRequests'),
+        icon: UserPlus,
+        href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
       },
     ];
   }, [isAuthenticated, user, t]);

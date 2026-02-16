@@ -39,6 +39,10 @@ import {
   MoreVertical,
   Eye,
   Trash2,
+  LogIn,
+  Settings,
+  UserPlus,
+  ClipboardList,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -118,6 +122,7 @@ interface BaseSessionCardProps {
   afterStatusContent?: React.ReactNode;
   extraInfoRows?: React.ReactNode;
   actionButtons?: React.ReactNode;
+  compactTopContent?: React.ReactNode;
 
   // Optional modal
   modalContent?: React.ReactNode;
@@ -148,6 +153,7 @@ const BaseSessionCard = ({
   topActionButtons,
   bottomActionButtons,
   onHostClick,
+  compactTopContent,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const isCompact = variant === 'compact';
   const t = useTranslations('session');
@@ -364,6 +370,7 @@ const BaseSessionCard = ({
             actions.onViewRegistration?.();
           }}
         >
+          <Icon as={ClipboardList} boxSize={4} />
           {t('viewMyRegistration')}
         </Button>
       );
@@ -380,6 +387,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           size="sm"
         >
+          <Icon as={LogIn} boxSize={4} />
           {t('viewSession')}
         </NextLinkButton>
       );
@@ -399,6 +407,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           size="sm"
         >
+          <Icon as={Settings} boxSize={4} />
           {t('manageSession')}
         </NextLinkButton>
       );
@@ -417,6 +426,7 @@ const BaseSessionCard = ({
             actions.onRegister?.();
           }}
         >
+          <Icon as={UserPlus} boxSize={4} />
           {isFull ? t('sessionFull') : t('register')}
         </Button>
       );
@@ -630,6 +640,9 @@ const BaseSessionCard = ({
           flexDirection="column"
         >
           <Stack gap={isCompact ? 2 : 4} flex="1">
+            {/* Compact-only top content (e.g. suggestion badges) */}
+            {isCompact && compactTopContent}
+
             {/* Title row - in compact mode includes status + registration badges inline */}
             {isCompact ? (
               <Flex justify="space-between" align="flex-start" gap={2}>

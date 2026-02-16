@@ -10,10 +10,21 @@ import { useRouter } from '@/i18n/config';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
+import { VenueService } from '@/lib/api/venue.service';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
-import { Box, Flex, Grid, Heading, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Grid,
+  Heading,
+  HStack,
+  Icon,
+  Text,
+} from '@chakra-ui/react';
+import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -26,17 +37,24 @@ import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionFilterDrawer from './SessionFilterDrawer';
 import SessionSearchBar from './SessionSearchBar';
+import ViewModeToggle from './ViewModeToggle';
+import ResultsHeader from './ResultsHeader';
 
 const PAGE_SIZE = 12;
 
 interface FindSessionListProps {
   initialSessions?: ISession[];
+  mode?: 'browse' | 'auto';
+  onModeChange?: (mode: 'browse' | 'auto') => void;
 }
 
 export default function FindSessionList({
   initialSessions = [],
+  mode = 'browse',
+  onModeChange,
 }: FindSessionListProps) {
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(initialSessions.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -85,6 +103,9 @@ export default function FindSessionList({
     lat: number;
     lng: number;
   } | null>(userLocation);
+  const [selectedVenueName, setSelectedVenueName] = useState<string | null>(
+    null
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -101,13 +122,31 @@ export default function FindSessionList({
   useEffect(() => {
     const dateParam = searchParams.get('date');
     const venueIdParam = searchParams.get('venueId');
-    const newFilters: Record<string, string> = {};
+    const newFilters: any = {};
     if (dateParam) newFilters.date = dateParam;
     if (venueIdParam) newFilters.venueId = venueIdParam;
     if (Object.keys(newFilters).length > 0) {
       setFilters(newFilters);
     }
   }, [searchParams, setFilters]);
+
+  // Fetch venue name if filtered by venue
+  useEffect(() => {
+    const fetchVenueName = async () => {
+      if (filters.venueId) {
+        try {
+          const venue = await VenueService.getVenue(filters.venueId);
+          setSelectedVenueName(venue.name);
+        } catch (error) {
+          console.error('Failed to fetch venue name:', error);
+          setSelectedVenueName(null);
+        }
+      } else {
+        setSelectedVenueName(null);
+      }
+    };
+    fetchVenueName();
+  }, [filters.venueId]);
 
   const fetchSessions = async (isLoadMore = false) => {
     try {
@@ -175,7 +214,8 @@ export default function FindSessionList({
         apiFilters.level = filters.levels[0];
       }
 
-      const data = await SessionService.getAvailableSessions(apiFilters);
+      const response = await SessionService.getAvailableSessions(apiFilters);
+      const { data, pagination } = response;
 
       // Client-side post-filtering for complex logic (multiple levels, time ranges, multi-city/district)
       let filteredData = data;
@@ -247,9 +287,10 @@ export default function FindSessionList({
         setPage(currentPage);
       } else {
         setSessions(filteredData);
+        setTotalCount(pagination.total);
       }
 
-      setHasMore(data.length === PAGE_SIZE);
+      setHasMore(currentPage < pagination.totalPages);
 
       // Fetch user specific data
       if (user) {
@@ -347,12 +388,39 @@ export default function FindSessionList({
     setPendingUserLocation(null);
   };
 
+  const removeVenueIdFromUrl = () => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('venueId');
+    window.history.replaceState({}, '', url.toString());
+  };
+
+  const handleClearVenueFilter = () => {
+    setFilters({ venueId: '' });
+    removeVenueIdFromUrl();
+  };
+
   const clearFilters = () => {
     clearStoreFilters();
+    removeVenueIdFromUrl();
   };
 
   const activeFilterCount =
     (filters.searchQuery ? 1 : 0) +
+    (filters.date ? 1 : 0) +
+    filters.levels.length +
+    filters.timeRanges.length +
+    filters.cities.length +
+    filters.districts.length +
+    (filters.hasSlots ? 1 : 0) +
+    (filters.minAvailableSlots > 0 ? 1 : 0) +
+    (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
+    (filters.splitEvenly ? 1 : 0) +
+    (sortByDistance ? 1 : 0);
+
+  // Count of non-search filters for showing the clear-all button
+  const nonSearchFilterCount =
+    (filters.venueId ? 1 : 0) +
     (filters.date ? 1 : 0) +
     filters.levels.length +
     filters.timeRanges.length +
@@ -421,8 +489,64 @@ export default function FindSessionList({
 
       {/* Quick Create Bar */}
       {user && (
-        <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+        <Box mb={4}>
+          <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+        </Box>
       )}
+
+      {/* Results Header: Count + Mode Toggles + View Toggle */}
+      <ResultsHeader
+        count={totalCount}
+        mode={mode}
+        onModeChange={(newMode) => onModeChange?.(newMode)}
+        onRefresh={() => fetchSessions()}
+        isLoading={loading}
+      >
+        {(filters.venueId || nonSearchFilterCount > 0) && (
+          <HStack gap={3} wrap="wrap">
+            {filters.venueId && (
+              <Badge
+                colorPalette="teal"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="bold">
+                  {t('filters.atVenue') || 'Sân'}:
+                </Text>
+                <Text fontSize="xs" fontWeight="semibold" maxW="200px" truncate>
+                  {selectedVenueName || '...'}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={handleClearVenueFilter}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* {nonSearchFilterCount > 0 && (
+              <Button
+                size="xs"
+                variant="ghost"
+                colorPalette="red"
+                onClick={clearFilters}
+                fontSize="xs"
+                height="24px"
+              >
+                {t('filters.clearAll') || 'Xóa tất cả bộ lọc'}
+              </Button>
+            )} */}
+          </HStack>
+        )}
+      </ResultsHeader>
 
       {/* Results List */}
       {loading ? (

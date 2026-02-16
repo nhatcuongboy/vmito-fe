@@ -2,7 +2,7 @@
   "navigation": {
     "host": "Host",
     "join": "Join",
-    "home": "Home",
+    "home": "Find Sessions",
     "tournaments": "Tournaments",
     "browse": "Analysis",
     "users": "Users",
@@ -18,6 +18,7 @@
     "myClubs": "My Clubs",
     "manageGroups": "Manage Groups",
     "clubs": "Clubs",
+    "clubsAdmin": "Approve Clubs",
     "createClub": "Create New Club",
     "pendingJoinRequests": "Join Requests",
     "suggestions": "For You"
@@ -46,7 +47,8 @@
     "main": "Main",
     "sessions": "Sessions",
     "finance": "Finance",
-    "admin": "Admin",
+    "admin": "Management",
+    "discovery": "Discovery",
     "otherSection": "Other",
     "backToSessions": "Back to Sessions",
     "next": "Next",
@@ -132,6 +134,7 @@
   },
   "session": {
     "title": "Badminton Session",
+    "resultsCount": "{count} sessions",
     "sessionDetails": "Session Details",
     "name": "Name",
     "basicInfo": "Basic Info",
@@ -372,7 +375,9 @@
       },
       "clearFilters": "Clear Filters",
       "reset": "Reset",
-      "applySearch": "Search"
+      "applySearch": "Search",
+      "atVenue": "Venue",
+      "clearAll": "Clear all filters"
     },
     "noSessionsFound": "No sessions found",
     "noSessionsDescription": "You haven't joined any badminton sessions yet. Join a session to see it here!",
@@ -396,6 +401,8 @@
     "withdrawRequest": "Withdraw Request",
     "viewRequest": "View Request",
     "sessionFull": "Session Full",
+    "slotsAvailable": "Open",
+    "slotsFull": "Full",
     "withdrawConfirmation": "Are you sure you want to withdraw your registration request?",
     "requestWithdrawn": "Request withdrawn successfully",
     "noPendingRequest": "No pending request found",
@@ -416,7 +423,7 @@
     "coverPhotoRemoved": "Cover photo removed successfully",
     "coverPhotoRemoveFailed": "Failed to remove cover photo",
     "aiModal": {
-      "title": "Create Session from Article",
+      "title": "Quick create session by AI",
       "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
       "placeholder": "Paste article content here...\n\nExample:\nLooking for 2 players for badminton at ABC Court, District 1, HCM. Time: 6pm-8pm on Jan 27, 2026. Contact: Minh 0912345678. Level: Intermediate-Advanced.",
       "generate": "Create Session",
@@ -426,7 +433,8 @@
       "error": "Failed to analyze article content",
       "emptyContent": "Please enter article content",
       "hint": "AI will extract: session name, location, time, levels, host info...",
-      "venueMatched": "Venue matched: {venueName}"
+      "venueMatched": "Venue matched: {venueName}",
+      "manualLink": "Or create manually here"
     },
     "linkCopied": "Link copied to clipboard",
     "shareCardHeader": "Recruiting badminton players",
@@ -443,8 +451,9 @@
     "viewMoreSessions": "View more sessions",
     "quickCreate": {
       "placeholder": "Do you want to create a new session?",
-      "aiPlaceholder": "Quick create by AI...",
-      "createButton": "Create"
+      "aiPlaceholder": "🤖 Create with AI - Describe your session...",
+      "createButton": "Create",
+      "manualButton": "Create"
     },
     "hostDetail": {
       "title": "Host Details",
@@ -2247,7 +2256,19 @@
     "reasonFamiliarVenue": "Familiar venue",
     "reasonPreferredTime": "Preferred time",
     "reasonAvailableSlots": "Slots available",
-    "modeBrowse": "Browse",
-    "modeAuto": "Auto"
+    "modeBrowse": "All",
+    "modeAuto": "Suggestions"
+  },
+  "venue": {
+    "verified": "Verified",
+    "openingHours": "Opening Hours",
+    "availableCourts": "Available Courts",
+    "courts": "courts",
+    "pricing": "Pricing",
+    "fixedRate": "Fixed Rate",
+    "walkInRate": "Walk-in Rate",
+    "website": "Website",
+    "viewDetails": "View Details",
+    "findSessionsAtVenue": "Find Sessions"
   }
 }

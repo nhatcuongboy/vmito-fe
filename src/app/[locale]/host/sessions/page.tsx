@@ -19,6 +19,8 @@ import { QuickCreateSessionBar } from '@/components/session/QuickCreateSessionBa
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { useDebounce } from '@/hooks/useDebounce';
+import ResultsHeader from '@/components/session/ResultsHeader';
+import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 
 function HostSessionsContent() {
   const tNav = useTranslations('navigation');
@@ -26,6 +28,7 @@ function HostSessionsContent() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -53,7 +56,7 @@ function HostSessionsContent() {
       }
 
       const currentPage = isLoadMore ? page + 1 : 1;
-      const sessionData = await SessionService.getAllSessions({
+      const response = await SessionService.getAllSessions({
         page: currentPage,
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
@@ -61,13 +64,14 @@ function HostSessionsContent() {
       });
 
       if (isLoadMore) {
-        setSessions((prev) => [...prev, ...sessionData]);
+        setSessions((prev) => [...prev, ...response.data]);
         setPage(currentPage);
       } else {
-        setSessions(sessionData);
+        setSessions(response.data);
+        setTotalCount(response.total);
       }
 
-      setHasMore(sessionData.length === PAGE_SIZE);
+      setHasMore(currentPage < response.totalPages);
     } catch (err) {
       console.error('Error fetching hosted sessions:', err);
     } finally {
@@ -156,8 +160,10 @@ function HostSessionsContent() {
         showLevelFilter={false}
       />
 
-      <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
-
+      <Box mb={4}>
+        <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+      </Box>
+      <ResultsHeader count={totalCount} />
       <SessionsList
         sessions={filteredSessions}
         isLoading={loading}
@@ -188,6 +194,8 @@ function HostSessionsContent() {
           </Flex>
         </Box>
       )}
+
+      {user && <QuickCreateFAB bottom="90px" />}
 
       <AISessionModal
         isOpen={isAIModalOpen}

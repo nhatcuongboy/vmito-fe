@@ -1,9 +1,9 @@
 'use client';
 
-import { Box, Flex, Text, Avatar } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useColorModeValue } from '@/components/ui/chakra-compat';
-import { Plus } from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
@@ -39,60 +39,51 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
       borderWidth="1px"
       borderColor={borderColor}
       borderRadius="xl"
-      p={3}
-      mb={4}
+      p={1.5}
       shadow="sm"
+      transition="all 0.2s"
+      _hover={{
+        shadow: 'md',
+      }}
     >
-      <Flex gap={4} align="center">
-        {/* Avatar */}
-        <Avatar.Root size="sm" bg="brand.500">
-          <Avatar.Fallback name={user.name || user.email}>
-            {(user.name || user.email).charAt(0).toUpperCase()}
-          </Avatar.Fallback>
-          {user.image && <Avatar.Image src={user.image} />}
-        </Avatar.Root>
-
+      <Flex gap={2} align="center" h="38px">
         {/* AI Trigger Area (Looks like an input) */}
         <Flex
           flex={1}
           bg={inputBg}
           borderRadius="full"
-          px={4}
-          py={1.5}
+          px={3}
+          h="38px"
           cursor="pointer"
           onClick={onInputClick}
           _hover={{ bg: inputHoverBg }}
           transition="background 0.2s"
           align="center"
+          gap={1}
         >
-          <Text color={placeholderColor} fontSize="sm">
-            {t('quickCreate.placeholder', { name: user.name || 'bạn' })}
+          <Sparkles size={16} style={{ flexShrink: 0, opacity: 0.6 }} />
+          <Text color={placeholderColor} fontSize="sm" truncate>
+            {t('quickCreate.aiPlaceholder')}
           </Text>
         </Flex>
 
-        {/* Create Button */}
+        {/* Manual Create Button */}
         <Button
           onClick={handleCreateClick}
           colorPalette="green"
           borderRadius="full"
           size="sm"
           px={4}
-          display={{ base: 'none', sm: 'flex' }}
-        >
-          <Plus size={16} style={{ marginRight: '8px' }} />
-          {t('quickCreate.createButton')}
-        </Button>
-
-        {/* Mobile Create Button */}
-        <Button
-          onClick={handleCreateClick}
-          colorPalette="green"
-          borderRadius="full"
-          size="sm"
-          display={{ base: 'flex', sm: 'none' }}
-          aria-label={t('quickCreate.createButton')}
+          h="38px"
+          display="flex"
+          transition="all 0.2s"
+          _hover={{
+            transform: 'translateY(-1px)',
+            shadow: 'md',
+          }}
         >
           <Plus size={16} />
+          {t('quickCreate.manualButton')}
         </Button>
       </Flex>
     </Box>

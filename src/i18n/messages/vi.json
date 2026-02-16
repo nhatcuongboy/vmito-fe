@@ -2,7 +2,7 @@
   "navigation": {
     "host": "Kèo host",
     "join": "Tham gia",
-    "home": "Trang chủ",
+    "home": "Tìm kèo",
     "tournaments": "Giải đấu",
     "browse": "Thống kê",
     "users": "Người dùng",
@@ -18,6 +18,7 @@
     "myClubs": "Nhóm của tôi",
     "manageGroups": "Quản lý nhóm",
     "clubs": "Câu lạc bộ",
+    "clubsAdmin": "Duyệt nhóm",
     "createClub": "Tạo CLB mới",
     "pendingJoinRequests": "Yêu cầu tham gia",
     "suggestions": "Gợi ý"
@@ -45,7 +46,8 @@
     "main": "Chính",
     "sessions": "Kèo",
     "finance": "Tài chính",
-    "admin": "Quản trị",
+    "admin": "Quản lý",
+    "discovery": "Khám phá",
     "otherSection": "Khác",
     "backToSessions": "Quay lại danh sách kèo",
     "next": "Tiếp theo",
@@ -132,9 +134,10 @@
   },
   "session": {
     "title": "Kèo cầu lông",
+    "resultsCount": "{count} kèo",
     "sessionDetails": "Chi tiết kèo",
     "name": "Tên",
-    "basicInfo": "Thông tin cơ bản",
+    "basicInfo": "Thông tin chung",
     "description": "Mô tả",
     "descriptionPlaceholder": "Nhập mô tả kèo",
     "hostInfo": "Thông tin Host",
@@ -372,7 +375,9 @@
       },
       "clearFilters": "Xóa bộ lọc",
       "reset": "Đặt lại",
-      "applySearch": "Tìm kiếm"
+      "applySearch": "Tìm kiếm",
+      "atVenue": "Sân",
+      "clearAll": "Xóa bộ lọc sân"
     },
     "noSessionsFound": "Không tìm thấy kèo nào",
     "noSessionsDescription": "Bạn chưa tham gia kèo cầu lông nào. Tham gia một kèo để xem ở đây!",
@@ -396,6 +401,8 @@
     "withdrawRequest": "Thu hồi yêu cầu",
     "viewRequest": "Xem yêu cầu",
     "sessionFull": "Đã đủ người",
+    "slotsAvailable": "Còn slot",
+    "slotsFull": "Hết slot",
     "withdrawConfirmation": "Bạn có chắc chắn muốn thu hồi yêu cầu đăng ký không?",
     "requestWithdrawn": "Đã thu hồi yêu cầu thành công",
     "noPendingRequest": "Không tìm thấy yêu cầu chờ duyệt",
@@ -416,7 +423,7 @@
     "coverPhotoRemoved": "Ảnh bìa đã được xóa thành công",
     "coverPhotoRemoveFailed": "Không thể xóa ảnh bìa",
     "aiModal": {
-      "title": "Tạo kèo từ bài đăng",
+      "title": "Tạo kèo nhanh bằng AI",
       "description": "Dán nội dung bài đăng tuyển vãng lai, AI sẽ tự động điền thông tin kèo cho bạn.",
       "placeholder": "Ví dụ:\nTuyển 2 bạn đánh cầu lông tại sân ABC, Quận 1, HCM. \nThời gian 18h-20h ngày 27/1/2026. \nTrình độ TB-K. \nLiên hệ: Minh 0912345678.",
       "generate": "Tạo kèo",
@@ -426,7 +433,8 @@
       "error": "Không thể phân tích nội dung bài đăng",
       "emptyContent": "Vui lòng nhập nội dung bài đăng",
       "hint": "AI sẽ trích xuất: tên kèo, địa điểm, thời gian, trình độ, thông tin...",
-      "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}"
+      "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}",
+      "manualLink": "Hoặc tạo thủ công tại đây"
     },
     "linkCopied": "Đã sao chép link",
     "shareCardHeader": "Tuyển vãng lai cầu lông",
@@ -444,7 +452,8 @@
     "quickCreate": {
       "placeholder": "Bạn muốn tạo kèo mới?",
       "aiPlaceholder": "Tạo kèo nhanh bằng AI...",
-      "createButton": "Tạo kèo"
+      "createButton": "Tạo kèo",
+      "manualButton": "Tạo kèo"
     },
     "hostDetail": {
       "title": "Thông tin Host",
@@ -2246,8 +2255,20 @@
     "reasonNearby": "Gần bạn",
     "reasonFamiliarVenue": "Sân quen thuộc",
     "reasonPreferredTime": "Giờ chơi yêu thích",
-    "reasonAvailableSlots": "Còn chỗ trống",
-    "modeBrowse": "Tìm kèo",
-    "modeAuto": "Auto"
+    "reasonAvailableSlots": "Còn slot",
+    "modeBrowse": "Tất cả",
+    "modeAuto": "Gợi ý"
+  },
+  "venue": {
+    "verified": "Đã xác minh",
+    "openingHours": "Giờ mở cửa",
+    "availableCourts": "Sân trống",
+    "courts": "sân",
+    "pricing": "Giá thuê",
+    "fixedRate": "Giá cố định",
+    "walkInRate": "Giá vãng lai",
+    "website": "Website",
+    "viewDetails": "Xem chi tiết",
+    "findSessionsAtVenue": "Tìm kèo tại sân"
   }
 }

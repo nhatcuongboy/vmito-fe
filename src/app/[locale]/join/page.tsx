@@ -56,8 +56,8 @@ export default function JoinPage() {
     async function fetchSessions() {
       try {
         setLoadingSessions(true);
-        const sessionsData = await SessionService.getAllSessions();
-        const availableSessions = sessionsData.filter(
+        const response = await SessionService.getAllSessions();
+        const availableSessions = response.data.filter(
           (session) =>
             session.status === 'PREPARING' || session.status === 'IN_PROGRESS'
         );

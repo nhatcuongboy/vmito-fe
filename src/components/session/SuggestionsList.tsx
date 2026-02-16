@@ -3,6 +3,7 @@
 import { ROUTES } from '@/constants';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { useRouter } from '@/i18n/config';
+import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
@@ -14,10 +15,17 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
+import { AISessionModal } from './AISessionModal';
 import AppHostDetail from './AppHostDetail';
 import JoinSessionModal from './JoinSessionModal';
+import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
+import SessionFilterDrawer from './SessionFilterDrawer';
+import SessionSearchBar from './SessionSearchBar';
 import SuggestionSessionCard from './SuggestionSessionCard';
+import ViewModeToggle from './ViewModeToggle';
+import ResultsHeader from './ResultsHeader';
 import { VModal, useModal } from '@/components/ui/VModal';
 
 const PAGE_SIZE = 12;
@@ -28,7 +36,15 @@ type SuggestedSession = ISession & {
   matchReasons: string[];
 };
 
-export default function SuggestionsList() {
+interface SuggestionsListProps {
+  mode?: 'browse' | 'auto';
+  onModeChange?: (mode: 'browse' | 'auto') => void;
+}
+
+export default function SuggestionsList({
+  mode = 'auto',
+  onModeChange,
+}: SuggestionsListProps) {
   const [sessions, setSessions] = useState<SuggestedSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -54,6 +70,35 @@ export default function SuggestionsList() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [selectedSessionForDetail, setSelectedSessionForDetail] =
     useState<ISession | null>(null);
+
+  // Search & filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+
+  // Pending filters for SessionFilterDrawer
+  const {
+    filters,
+    setFilters,
+    clearFilters: clearStoreFilters,
+    sortByDistance,
+    setSortByDistance,
+  } = useSessionFilterStore();
+  const [pendingFilters, setPendingFilters] = useState(filters);
+  const [pendingSortByDistance, setPendingSortByDistance] =
+    useState(sortByDistance);
+  const [pendingUserLocation, setPendingUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  // Sync pending filters when drawer opens
+  useEffect(() => {
+    if (showFilters) {
+      setPendingFilters(filters);
+      setPendingSortByDistance(sortByDistance);
+    }
+  }, [showFilters, filters, sortByDistance]);
 
   const {
     isOpen: isDetailModalOpen,
@@ -198,8 +243,109 @@ export default function SuggestionsList() {
     return [...new Set(ids)];
   }, [sessions]);
 
+  // Client-side search filtering
+  const filteredSessions = useMemo(() => {
+    if (!searchQuery.trim()) return sessions;
+    const query = searchQuery.toLowerCase().trim();
+    return sessions.filter((session) => {
+      const name = session.name?.toLowerCase() || '';
+      const venueName = session.venue?.name?.toLowerCase() || '';
+      const location = session.location?.toLowerCase() || '';
+      const hostName =
+        session.hostName?.toLowerCase() ||
+        session.host?.name?.toLowerCase() ||
+        '';
+      return (
+        name.includes(query) ||
+        venueName.includes(query) ||
+        location.includes(query) ||
+        hostName.includes(query)
+      );
+    });
+  }, [sessions, searchQuery]);
+
+  const activeFilterCount = searchQuery ? 1 : 0;
+
+  const handleSearchQueryChange = (val: string) => {
+    setSearchQuery(val);
+  };
+
+  const handleSubmitFilters = () => {
+    setFilters(pendingFilters);
+    setSortByDistance(pendingSortByDistance);
+    if (pendingUserLocation) {
+      setUserLocation(pendingUserLocation);
+    }
+    toggleFilters();
+  };
+
+  const handleResetFilters = () => {
+    clearStoreFilters();
+    setSortByDistance(false);
+    setPendingFilters({
+      date: '',
+      searchQuery: '',
+      cities: [],
+      districts: [],
+      venueId: '',
+      levels: [],
+      timeRanges: [],
+      minFee: 0,
+      maxFee: 200000,
+      hasSlots: false,
+      minAvailableSlots: 0,
+      splitEvenly: false,
+    });
+    setPendingSortByDistance(false);
+    setPendingUserLocation(null);
+  };
+
+  const handleAISuccess = (data: ExtractedSessionData) => {
+    sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
+    router.push(ROUTES.SESSIONS.NEW);
+  };
+
   return (
     <Box>
+      {/* Search Bar */}
+      <SessionSearchBar
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchQueryChange}
+        onToggleFilters={toggleFilters}
+        activeFilterCount={activeFilterCount}
+      />
+
+      {/* Filter Drawer */}
+      <SessionFilterDrawer
+        isOpen={showFilters}
+        onClose={toggleFilters}
+        filters={pendingFilters}
+        setFilters={setPendingFilters}
+        sortByDistance={pendingSortByDistance}
+        setSortByDistance={setPendingSortByDistance}
+        onSubmit={handleSubmitFilters}
+        onReset={handleResetFilters}
+        activeFilterCount={activeFilterCount}
+        userLocation={pendingUserLocation}
+        setUserLocation={setPendingUserLocation}
+      />
+
+      {/* Quick Create Bar */}
+      {user && (
+        <Box mb={4}>
+          <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
+        </Box>
+      )}
+
+      {/* Results Header: Count + Mode Toggles + View Toggle + Refresh */}
+      <ResultsHeader
+        count={total}
+        mode={mode}
+        onModeChange={(newMode) => onModeChange?.(newMode)}
+        onRefresh={() => fetchSuggestions()}
+        isLoading={loading}
+      />
+
       {/* Location denied info */}
       {locationDenied && (
         <Flex
@@ -218,22 +364,6 @@ export default function SuggestionsList() {
           </Text>
         </Flex>
       )}
-
-      {/* Refresh button */}
-      <Flex justify="space-between" align="center" mb={4}>
-        <Text fontSize="sm" color="gray.500">
-          {!loading && total > 0 && t('totalResults', { count: total })}
-        </Text>
-        <IconButton
-          size="sm"
-          variant="ghost"
-          colorPalette="green"
-          aria-label="Refresh"
-          icon={<Icon as={RefreshCw} />}
-          onClick={() => fetchSuggestions()}
-          loading={loading}
-        />
-      </Flex>
 
       {/* Results */}
       {loading ? (
@@ -269,7 +399,7 @@ export default function SuggestionsList() {
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
-      ) : sessions.length === 0 ? (
+      ) : filteredSessions.length === 0 ? (
         <Box
           textAlign="center"
           py={10}
@@ -281,17 +411,32 @@ export default function SuggestionsList() {
         >
           <Icon as={Sparkles} boxSize={10} color="gray.300" mb={4} />
           <Heading size="md" mb={2}>
-            {t('noSuggestions')}
+            {searchQuery ? tSession('noSessionsFound') : t('noSuggestions')}
           </Heading>
-          <Text color="gray.500">{t('noSuggestionsDesc')}</Text>
-          <Button
-            mt={4}
-            onClick={() => router.push(ROUTES.HOME)}
-            variant="outline"
-            size="sm"
-          >
-            {t('browseAll')}
-          </Button>
+          <Text color="gray.500">
+            {searchQuery
+              ? tSession('tryAdjustingFilters')
+              : t('noSuggestionsDesc')}
+          </Text>
+          {searchQuery ? (
+            <Button
+              mt={4}
+              onClick={() => setSearchQuery('')}
+              variant="outline"
+              size="sm"
+            >
+              {tSession('filters.clearFilters')}
+            </Button>
+          ) : (
+            <Button
+              mt={4}
+              onClick={() => router.push(ROUTES.HOME)}
+              variant="outline"
+              size="sm"
+            >
+              {t('browseAll')}
+            </Button>
+          )}
         </Box>
       ) : (
         <RatingStatsProvider userIds={hostIds}>
@@ -312,7 +457,7 @@ export default function SuggestionsList() {
             }
             gap={viewMode === 'compact' ? 4 : 6}
           >
-            {sessions.map((session) => (
+            {filteredSessions.map((session) => (
               <SuggestionSessionCard
                 key={session.id}
                 session={session}
@@ -374,6 +519,13 @@ export default function SuggestionsList() {
           }}
         />
       )}
+
+      {/* AI Session Creation Modal */}
+      <AISessionModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onSuccess={handleAISuccess}
+      />
 
       {/* Host Detail Modal */}
       <VModal

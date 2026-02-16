@@ -20,7 +20,7 @@ export default function TestimonialsSection() {
   ];
 
   return (
-    <Box py={20}>
+    <Box py={20} bg="gray.50" _dark={{ bg: 'gray.900' }}>
       <Container maxW="container.xl">
         <Heading textAlign="center" mb={16} size="2xl">
           {t('title')}
@@ -52,11 +52,11 @@ export default function TestimonialsSection() {
                 position="relative"
                 zIndex={1}
               >
-                "{review.text}"
+                &ldquo;{review.text}&rdquo;
               </Text>
               <Flex align="center" gap={4}>
                 <Box
-                  bg="blue.500"
+                  bg="green.500"
                   w={12}
                   h={12}
                   borderRadius="full"

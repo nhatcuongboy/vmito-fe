@@ -2,7 +2,7 @@
   "navigation": {
     "host": "主办方",
     "join": "加入",
-    "home": "首页",
+    "home": "发现场次",
     "tournaments": "锦标赛",
     "browse": "统计分析",
     "users": "用户",
@@ -18,6 +18,7 @@
     "myClubs": "我的俱乐部",
     "manageGroups": "Manage Groups",
     "clubs": "俱乐部",
+    "clubsAdmin": "审核俱乐部",
     "createClub": "创建新俱乐部",
     "pendingJoinRequests": "加入请求",
     "suggestions": "推荐"
@@ -47,6 +48,7 @@
     "sessions": "场次",
     "finance": "财务",
     "admin": "管理",
+    "discovery": "探索",
     "otherSection": "其他",
     "backToSessions": "返回赛事列表",
     "next": "下一步",
@@ -371,8 +373,10 @@
         "allLevels": "所有级别"
       },
       "clearFilters": "清除筛选",
-      "reset": "Reset",
-      "applySearch": "Search"
+      "reset": "重置",
+      "applySearch": "搜索",
+      "atVenue": "场地",
+      "clearAll": "清除所有筛选"
     },
     "noSessionsFound": "未找到场次",
     "noSessionsDescription": "您尚未加入任何羽毛球场次。加入一个场次即可在此处查看！",
@@ -416,17 +420,18 @@
     "coverPhotoRemoved": "封面图片已移除",
     "coverPhotoRemoveFailed": "移除封面图片失败",
     "aiModal": {
-      "title": "Create Session from Article",
-      "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
-      "placeholder": "Paste article content here...\n\nExample:\nLooking for 2 players for badminton at ABC Court, District 1, HCM. Time: 6pm-8pm on Jan 27, 2026. Contact: Minh 0912345678. Level: Intermediate-Advanced.",
-      "generate": "Create Session",
-      "generating": "Processing...",
-      "cancel": "Cancel",
-      "success": "Session information created successfully!",
-      "error": "Failed to analyze article content",
-      "emptyContent": "Please enter article content",
-      "hint": "AI will extract: session name, location, time, levels, host info...",
-      "venueMatched": "Venue matched: {venueName}"
+      "title": "AI 快速创建赛场",
+      "description": "粘贴招募贴内容，AI 将自动为您填写赛场信息。",
+      "placeholder": "在此处粘贴招募贴内容...\n\n例如：\nHCM 第一区 ABC 球场招募 2 名羽毛球手。时间：2026年1月27日 18:00-20:00。联系人：Minh 0912345678。等级：中级-高级。",
+      "generate": "创建赛场",
+      "generating": "处理中...",
+      "cancel": "取消",
+      "success": "赛场信息创建成功！",
+      "error": "无法分析内容",
+      "emptyContent": "请输入招募贴内容",
+      "hint": "AI 将提取：赛场名称、地点、时间、等级、主办方信息...",
+      "venueMatched": "匹配的场馆：{venueName}",
+      "manualLink": "或在这里手动创建"
     },
     "linkCopied": "链接已复制",
     "shareCardHeader": "招募羽毛球球友",
@@ -443,8 +448,9 @@
     "viewMoreSessions": "查看更多场次",
     "quickCreate": {
       "placeholder": "{name}，你想创建什么？",
-      "aiPlaceholder": "使用 AI 快速创建场次...",
-      "createButton": "创建场次"
+      "aiPlaceholder": "🤖 使用 AI 创建 - 描述您的场次...",
+      "createButton": "创建场次",
+      "manualButton": "创建场次"
     },
     "hostDetail": {
       "title": "主办方信息",
@@ -2247,7 +2253,19 @@
     "reasonFamiliarVenue": "常去场地",
     "reasonPreferredTime": "常打时段",
     "reasonAvailableSlots": "有空位",
-    "modeBrowse": "浏览",
+    "modeBrowse": "全部",
     "modeAuto": "为你推荐"
+  },
+  "venue": {
+    "verified": "已验证",
+    "openingHours": "营业时间",
+    "availableCourts": "可用场地",
+    "courts": "个场地",
+    "pricing": "价格",
+    "fixedRate": "固定价格",
+    "walkInRate": "散客价格",
+    "website": "网站",
+    "viewDetails": "查看详情",
+    "findSessionsAtVenue": "查找场次"
   }
 }

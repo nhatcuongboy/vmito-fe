@@ -19,6 +19,7 @@ import {
   Grid,
   Heading,
   HStack,
+  Icon,
   Stack,
   Text,
   Textarea,
@@ -718,24 +719,35 @@ export default function SessionForm({
           />
 
           <Box position="fixed" bottom="30px" right="24px" zIndex={1000}>
-            <VTooltip content={t('createByAI')} showArrow portalled>
-              <Button
+            <VTooltip
+              content={t('quickCreate.aiPlaceholder')}
+              showArrow
+              portalled
+            >
+              <Box
+                as="button"
                 type="button"
-                colorPalette="purple"
-                onClick={() => setIsAIModalOpen(true)}
-                boxShadow="0 4px 15px rgba(138, 43, 226, 0.4)"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                boxSize="56px"
                 borderRadius="full"
-                h="56px"
-                w="56px"
-                p={0}
+                bg="purple.500"
+                color="white"
+                boxShadow="0 4px 14px rgba(128, 90, 213, 0.4)"
+                cursor="pointer"
+                transition="all 0.2s"
                 _hover={{
                   transform: 'scale(1.1)',
-                  boxShadow: '0 8px 25px rgba(138, 43, 226, 0.5)',
+                  bg: 'purple.600',
+                  boxShadow: '0 6px 20px rgba(128, 90, 213, 0.6)',
                 }}
-                transition="all 0.2s"
+                _active={{ transform: 'scale(0.95)' }}
+                onClick={() => setIsAIModalOpen(true)}
+                aria-label={t('quickCreate.aiPlaceholder')}
               >
-                <Sparkles size={24} />
-              </Button>
+                <Icon as={Sparkles} boxSize={7} />
+              </Box>
             </VTooltip>
           </Box>
         </>

@@ -7,52 +7,10 @@ import FindSessionList from '@/components/session/FindSessionList';
 import SuggestionsList from '@/components/session/SuggestionsList';
 import PageLayout from '@/components/layout/PageLayout';
 import { Image } from '@chakra-ui/react';
-import { Search, Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 
 type HomeMode = 'browse' | 'auto';
-
-function ModeFloatingButton({
-  mode,
-  onChange,
-}: {
-  mode: HomeMode;
-  onChange: (mode: HomeMode) => void;
-}) {
-  const t = useTranslations('suggestions');
-  const nextMode = mode === 'browse' ? 'auto' : 'browse';
-
-  return (
-    <Box position="fixed" bottom="90px" right="4" zIndex={1000}>
-      <Box
-        as="button"
-        display="flex"
-        alignItems="center"
-        gap={2}
-        py={2.5}
-        px={4}
-        borderRadius="full"
-        cursor="pointer"
-        transition="all 0.2s"
-        boxShadow="0 4px 14px rgba(0, 0, 0, 0.15)"
-        _hover={{ transform: 'scale(1.05)' }}
-        _active={{ transform: 'scale(0.95)' }}
-        bg={mode === 'browse' ? 'yellow.400' : 'white'}
-        color={mode === 'browse' ? 'yellow.900' : 'gray.700'}
-        _dark={{
-          bg: mode === 'browse' ? 'yellow.500' : 'gray.700',
-          color: mode === 'browse' ? 'yellow.900' : 'gray.100',
-        }}
-        onClick={() => onChange(nextMode)}
-      >
-        <Icon as={mode === 'browse' ? Sparkles : Search} boxSize={5} />
-        <Text fontSize="sm" fontWeight="bold" whiteSpace="nowrap">
-          {mode === 'browse' ? t('modeAuto') : t('modeBrowse')}
-        </Text>
-      </Box>
-    </Box>
-  );
-}
 
 function HomeContent() {
   const t = useTranslations('session');
@@ -66,8 +24,12 @@ function HomeContent() {
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
     >
-      {mode === 'browse' || !user ? <FindSessionList /> : <SuggestionsList />}
-      {user && <ModeFloatingButton mode={mode} onChange={setMode} />}
+      {mode === 'browse' || !user ? (
+        <FindSessionList mode={mode} onModeChange={setMode} />
+      ) : (
+        <SuggestionsList mode={mode} onModeChange={setMode} />
+      )}
+      {user && <QuickCreateFAB bottom="90px" />}
     </PageLayout>
   );
 }

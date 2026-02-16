@@ -4,17 +4,19 @@ import { Box, Container, Heading, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export default function CTASection() {
   const t = useTranslations('pages.about.cta');
+  const { isAuthenticated } = useAuthStore();
 
   return (
-    <Box py={20} bgGradient="linear(to-r, blue.600, teal.500)" color="white">
+    <Box pb={20} bgGradient="linear(to-r, green.600, green.400)" color="white">
       <Container maxW="container.md" textAlign="center">
         <VStack gap={8}>
           <Heading size="3xl">{t('title')}</Heading>
           <NextLinkButton
-            href="/auth/signin"
+            href={isAuthenticated ? '/' : '/auth/signin'}
             size="2xl"
             variant="surface"
             colorPalette="white"

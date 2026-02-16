@@ -21,8 +21,8 @@ export default function HostDashboard() {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const data = await SessionService.getAllSessions();
-      setSessions(data);
+      const response = await SessionService.getAllSessions();
+      setSessions(response.data);
     } catch (error) {
       console.error('Failed to fetch sessions', error);
     } finally {

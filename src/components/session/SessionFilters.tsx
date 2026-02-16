@@ -88,7 +88,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
         md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
       }}
       zIndex={50}
-      mb={6}
+      mb={4}
       p={4}
       bg="white"
       borderRadius="lg"

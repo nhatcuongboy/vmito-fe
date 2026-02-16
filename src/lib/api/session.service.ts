@@ -68,10 +68,15 @@ export const SessionService = {
     limit?: number;
     hostId?: string;
     searchQuery?: string;
-  }): Promise<ISession[]> => {
+  }): Promise<{
+    data: ISession[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> => {
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.hostId) params.append('hostId', filters.hostId);
     if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
@@ -79,8 +84,24 @@ export const SessionService = {
     const url = params.toString()
       ? `/sessions?${params.toString()}`
       : '/sessions';
-    const response = await api.get<ApiResponse<ISession[]>>(url);
-    return response.data.data || [];
+    const response = await api.get<
+      ApiResponse<{
+        data: ISession[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>
+    >(url);
+    return (
+      response.data.data || {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 12,
+        totalPages: 0,
+      }
+    );
   },
 
   // Get available sessions
@@ -100,7 +121,15 @@ export const SessionService = {
     sortByDistance?: boolean;
     page?: number;
     limit?: number;
-  }): Promise<ISession[]> => {
+  }): Promise<{
+    data: ISession[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> => {
     const params = new URLSearchParams();
     if (filters?.date) params.append('date', filters.date);
     if (filters?.level) params.append('level', filters.level.toString());
@@ -131,8 +160,23 @@ export const SessionService = {
       ? `/sessions/available?${params.toString()}`
       : `/sessions/available`;
 
-    const response = await api.get<ApiResponse<ISession[]>>(url);
-    return response.data.data || [];
+    const response = await api.get<
+      ApiResponse<{
+        data: ISession[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+      }>
+    >(url);
+    return (
+      response.data.data || {
+        data: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0 },
+      }
+    );
   },
 
   // Get session by ID

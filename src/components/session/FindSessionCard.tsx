@@ -30,6 +30,8 @@ interface FindSessionCardProps {
   onHostClick?: () => void;
   distance?: number;
   coverPhotoOverlay?: React.ReactNode;
+  compactTopContent?: React.ReactNode;
+  showSlotBadge?: boolean;
 }
 
 const FindSessionCard = ({
@@ -43,6 +45,8 @@ const FindSessionCard = ({
   onHostClick,
   distance,
   coverPhotoOverlay,
+  compactTopContent,
+  showSlotBadge = true,
 }: FindSessionCardProps) => {
   const isCompact = variant === 'compact';
   const t = useTranslations('session');
@@ -205,6 +209,18 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
+  // Slot availability badge
+  const slotAvailabilityBadge = (
+    <Badge
+      colorPalette={isFull ? 'gray' : 'teal'}
+      variant="solid"
+      borderWidth="1px"
+      borderColor={isFull ? 'gray.400' : 'teal.400'}
+    >
+      {isFull ? t('slotsFull') : t('slotsAvailable')}
+    </Badge>
+  );
+
   // Registration status badge
   const registrationStatusBadge = userRegistrationStatus ? (
     <Badge
@@ -216,6 +232,14 @@ const FindSessionCard = ({
             : 'red'
       }
       variant="solid"
+      borderWidth="1px"
+      borderColor={
+        userRegistrationStatus === 'APPROVED'
+          ? 'green.400'
+          : userRegistrationStatus === 'PENDING'
+            ? 'yellow.400'
+            : 'red.400'
+      }
     >
       {userRegistrationStatus === 'APPROVED'
         ? t('registrationApproved')
@@ -224,6 +248,13 @@ const FindSessionCard = ({
           : t('registrationRejected')}
     </Badge>
   ) : null;
+
+  const combinedBadges = (
+    <Flex gap={1}>
+      {showSlotBadge && slotAvailabilityBadge}
+      {registrationStatusBadge}
+    </Flex>
+  );
 
   // Handle register action
   const handleRegister = () => {
@@ -276,8 +307,9 @@ const FindSessionCard = ({
         session={session}
         variant={variant}
         extraInfoRows={locationRow}
-        registrationBadgeContent={registrationStatusBadge}
+        registrationBadgeContent={combinedBadges}
         coverPhotoOverlay={coverPhotoOverlay}
+        compactTopContent={compactTopContent}
         actions={actions}
         onHostClick={onHostClick}
       />

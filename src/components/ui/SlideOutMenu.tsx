@@ -129,8 +129,19 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
           }}
         >
           <Stack gap={3}>
-            {/* Home - Standalone (No Group) */}
+            {/* Discovery Section */}
             <Box>
+              {!isCollapsed && (
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="fg.muted"
+                  mb={3}
+                  display={{ base: 'block', md: 'block' }}
+                >
+                  {common('discovery')}
+                </Text>
+              )}
               <Stack gap={2}>
                 <VTooltip
                   content={nav('home')}
@@ -402,107 +413,324 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       </NextLinkButton>
                     </VTooltip>
 
-                    {(user?.role === UserRole.HOST ||
-                      user?.role === UserRole.ADMIN) && (
-                      <VTooltip
-                        content={nav('pendingJoinRequests')}
-                        positioning={{
-                          placement: 'right',
-                          offset: { mainAxis: 12 },
+                    <VTooltip
+                      content={nav('pendingJoinRequests')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={ROUTES.HOST.PENDING_JOIN_REQUESTS}
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
                         }}
-                        disabled={!isCollapsed}
-                        showArrow
-                        openDelay={200}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
                       >
-                        <NextLinkButton
-                          href={ROUTES.HOST.PENDING_JOIN_REQUESTS}
-                          variant="ghost"
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
                           justifyContent={{
                             base: 'flex-start',
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
-                          onClick={onClose}
-                          w="full"
-                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                          {...getActiveProps(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
                         >
-                          <Flex
-                            align="center"
-                            gap={3}
-                            w="full"
-                            justifyContent={{
-                              base: 'flex-start',
-                              md: isCollapsed ? 'center' : 'flex-start',
-                            }}
-                          >
-                            <ClipboardCheck
-                              size={18}
-                              color={
-                                pathname.startsWith(
-                                  ROUTES.HOST.PENDING_JOIN_REQUESTS
-                                )
-                                  ? 'var(--chakra-colors-green-500)'
-                                  : 'currentColor'
-                              }
-                            />
-                            {!isCollapsed && (
-                              <Text display={{ base: 'block', md: 'block' }}>
-                                {nav('pendingJoinRequests')}
-                              </Text>
-                            )}
-                          </Flex>
-                        </NextLinkButton>
-                      </VTooltip>
-                    )}
+                          <ClipboardCheck
+                            size={18}
+                            color={
+                              pathname.startsWith(
+                                ROUTES.HOST.PENDING_JOIN_REQUESTS
+                              )
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('pendingJoinRequests')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </VTooltip>
 
-                    {isAuthenticated && (
-                      <VTooltip
-                        content={nav('myClubs')}
-                        positioning={{
-                          placement: 'right',
-                          offset: { mainAxis: 12 },
+                    {/* Redundant 'My Clubs' removed from here and moved to Management section */}
+                  </Stack>
+                </Box>
+
+                {/* Separator */}
+                <Separator />
+              </>
+            )}
+
+            {/* Management Section */}
+            {isAuthenticated && (
+              <>
+                <Box>
+                  {!isCollapsed && (
+                    <Text
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      color="fg.muted"
+                      mb={3}
+                      display={{ base: 'block', md: 'block' }}
+                    >
+                      {common('admin')}
+                    </Text>
+                  )}
+                  <Stack gap={2}>
+                    <VTooltip
+                      content={nav('myClubs')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={ROUTES.CLUBS.MY_CLUBS}
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
                         }}
-                        disabled={!isCollapsed}
-                        showArrow
-                        openDelay={200}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.CLUBS.MY_CLUBS)}
                       >
-                        <NextLinkButton
-                          href={ROUTES.CLUBS.MY_CLUBS}
-                          variant="ghost"
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
                           justifyContent={{
                             base: 'flex-start',
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
-                          onClick={onClose}
-                          w="full"
-                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                          {...getActiveProps(ROUTES.CLUBS.MY_CLUBS)}
                         >
-                          <Flex
-                            align="center"
-                            gap={3}
-                            w="full"
+                          <Users
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.CLUBS.MY_CLUBS)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('myClubs')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </VTooltip>
+                    {user?.role === UserRole.ADMIN && (
+                      <>
+                        <VTooltip
+                          content={nav('users')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.USERS}
+                            variant="ghost"
                             justifyContent={{
                               base: 'flex-start',
                               md: isCollapsed ? 'center' : 'flex-start',
                             }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.USERS)}
                           >
-                            <Users
-                              size={18}
-                              color={
-                                pathname.startsWith(ROUTES.CLUBS.MY_CLUBS)
-                                  ? 'var(--chakra-colors-green-500)'
-                                  : 'currentColor'
-                              }
-                            />
-                            {!isCollapsed && (
-                              <Text display={{ base: 'block', md: 'block' }}>
-                                {nav('myClubs')}
-                              </Text>
-                            )}
-                          </Flex>
-                        </NextLinkButton>
-                      </VTooltip>
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <Users
+                                size={18}
+                                color={
+                                  pathname.startsWith(ROUTES.ADMIN.USERS)
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('users')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+
+                        <VTooltip
+                          content={nav('notifications')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.NOTIFICATIONS}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.NOTIFICATIONS)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <Bell
+                                size={18}
+                                color={
+                                  pathname.startsWith(
+                                    ROUTES.ADMIN.NOTIFICATIONS
+                                  )
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('notifications')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+
+                        <VTooltip
+                          content={nav('venues')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.VENUES}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.VENUES)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <MapPin
+                                size={18}
+                                color={
+                                  pathname.startsWith(ROUTES.ADMIN.VENUES)
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('venues')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+
+                        <VTooltip
+                          content={nav('clubsAdmin') || 'Duyệt nhóm'}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.CLUBS}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.CLUBS)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <Users
+                                size={18}
+                                color={
+                                  pathname.startsWith(ROUTES.ADMIN.CLUBS)
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('clubsAdmin') || 'Duyệt nhóm'}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+                      </>
                     )}
                   </Stack>
                 </Box>
@@ -639,173 +867,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </NextLinkButton>
                       </VTooltip>
                     )}
-                  </Stack>
-                </Box>
-
-                {/* Separator */}
-                <Separator />
-              </>
-            )}
-
-            {/* Admin Section */}
-            {isAuthenticated && user?.role === UserRole.ADMIN && (
-              <>
-                <Box>
-                  {!isCollapsed && (
-                    <Text
-                      fontSize="sm"
-                      fontWeight="semibold"
-                      color="fg.muted"
-                      mb={3}
-                      display={{ base: 'block', md: 'block' }}
-                    >
-                      {common('admin')}
-                    </Text>
-                  )}
-                  <Stack gap={2}>
-                    <VTooltip
-                      content={nav('users')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={ROUTES.ADMIN.USERS}
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(ROUTES.ADMIN.USERS)}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <Users
-                            size={18}
-                            color={
-                              pathname.startsWith(ROUTES.ADMIN.USERS)
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('users')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
-
-                    <VTooltip
-                      content={nav('notifications')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={ROUTES.ADMIN.NOTIFICATIONS}
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(ROUTES.ADMIN.NOTIFICATIONS)}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <Bell
-                            size={18}
-                            color={
-                              pathname.startsWith(ROUTES.ADMIN.NOTIFICATIONS)
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('notifications')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
-
-                    <VTooltip
-                      content={nav('venues')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={ROUTES.ADMIN.VENUES}
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(ROUTES.ADMIN.VENUES)}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <MapPin
-                            size={18}
-                            color={
-                              pathname.startsWith(ROUTES.ADMIN.VENUES)
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('venues')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
                   </Stack>
                 </Box>
 

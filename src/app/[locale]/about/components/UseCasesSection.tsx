@@ -27,9 +27,9 @@ export default function UseCasesSection() {
   const tHosts = useTranslations('pages.about.useCases.hosts');
 
   return (
-    <Box py={20}>
+    <Box pb={20} pt={10}>
       <Container maxW="container.xl">
-        <Heading textAlign="center" mb={16} size="2xl">
+        <Heading textAlign="center" mb={10} size="2xl">
           {t('title')}
         </Heading>
 
@@ -45,7 +45,7 @@ export default function UseCasesSection() {
             borderColor="blue.500"
           >
             <Flex align="center" mb={6} gap={4}>
-              <Box p={3} bg="blue.100" color="green.600" borderRadius="full">
+              <Box p={3} bg="blue.100" color="blue.600" borderRadius="full">
                 <Users size={32} />
               </Box>
               <Heading size="lg">{tPlayers('title')}</Heading>
@@ -89,10 +89,10 @@ export default function UseCasesSection() {
             borderRadius="2xl"
             boxShadow="xl"
             borderTop="4px solid"
-            borderColor="teal.500"
+            borderColor="green.600"
           >
             <Flex align="center" mb={6} gap={4}>
-              <Box p={3} bg="teal.100" color="teal.600" borderRadius="full">
+              <Box p={3} bg="green.100" color="green.600" borderRadius="full">
                 <Crown size={32} />
               </Box>
               <Heading size="lg">{tHosts('title')}</Heading>
@@ -111,19 +111,19 @@ export default function UseCasesSection() {
                 icon={Calendar}
                 title={tHosts('features.manage.title')}
                 desc={tHosts('features.manage.description')}
-                color="teal"
+                color="green"
               />
               <FeatureItem
                 icon={QrCode}
                 title={tHosts('features.tools.title')}
                 desc={tHosts('features.tools.description')}
-                color="teal"
+                color="green"
               />
               <FeatureItem
                 icon={Heart}
                 title={tHosts('features.community.title')}
                 desc={tHosts('features.community.description')}
-                color="teal"
+                color="green"
               />
             </SimpleGrid>
           </Box>

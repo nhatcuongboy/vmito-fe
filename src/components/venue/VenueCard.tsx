@@ -19,6 +19,7 @@ import {
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { useTranslations } from 'next-intl';
 
 interface VenueCardProps {
   venue: Venue;
@@ -31,6 +32,7 @@ function formatPrice(amount?: number) {
 
 export default function VenueCard({ venue }: VenueCardProps) {
   const router = useRouter();
+  const t = useTranslations('venue');
 
   const handleNavigate = () => {
     const query = encodeURIComponent(venue.address || venue.name);
@@ -94,7 +96,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
               shadow="md"
             >
               <BadgeCheck size={12} />
-              <Text fontSize="xs">Verified</Text>
+              <Text fontSize="xs">{t('verified')}</Text>
             </Badge>
           </Box>
         )}
@@ -225,7 +227,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   _dark={{ color: 'gray.500' }}
                   mb={0.5}
                 >
-                  Opening Hours
+                  {t('openingHours')}
                 </Text>
                 <Text
                   fontSize="sm"
@@ -261,7 +263,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   _dark={{ color: 'gray.500' }}
                   mb={0.5}
                 >
-                  Available Courts
+                  {t('availableCourts')}
                 </Text>
                 <Text
                   fontSize="sm"
@@ -269,7 +271,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   _dark={{ color: 'gray.300' }}
                   fontWeight="medium"
                 >
-                  {venue.numberOfCourts} courts
+                  {venue.numberOfCourts} {t('courts')}
                 </Text>
               </Box>
             </Flex>
@@ -293,7 +295,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   _dark={{ color: 'gray.500' }}
                   mb={1}
                 >
-                  Pricing
+                  {t('pricing')}
                 </Text>
                 <Stack gap={1.5}>
                   {venue.hourlyRateFixed && (
@@ -315,7 +317,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                         color="gray.600"
                         _dark={{ color: 'gray.400' }}
                       >
-                        Fixed Rate
+                        {t('fixedRate')}
                       </Text>
                     </Flex>
                   )}
@@ -338,7 +340,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                         color="gray.600"
                         _dark={{ color: 'gray.400' }}
                       >
-                        Walk-in Rate
+                        {t('walkInRate')}
                       </Text>
                     </Flex>
                   )}
@@ -413,7 +415,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                     fontWeight="medium"
                   >
                     <Globe size={14} style={{ flexShrink: 0 }} />
-                    <Text fontSize="xs">Website</Text>
+                    <Text fontSize="xs">{t('website')}</Text>
                   </Flex>
                 </a>
               )}
@@ -439,7 +441,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
             }}
             transition="all 0.2s"
           >
-            Xem
+            {t('viewDetails')}
           </Button>
           <Button
             flex="1"
@@ -454,7 +456,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
             }}
             transition="all 0.2s"
           >
-            Tìm kèo
+            {t('findSessionsAtVenue')}
           </Button>
         </Flex>
       </Box>

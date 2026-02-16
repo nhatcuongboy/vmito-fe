@@ -8,6 +8,8 @@ import { VModal } from '@/components/ui/VModal';
 import { AIService, ExtractedSessionData } from '@/lib/api/ai.service';
 import { toaster } from '@/components/ui/toaster';
 import { Locale } from '@/i18n/locales';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants';
 
 export interface AISessionModalProps {
   isOpen: boolean;
@@ -90,9 +92,27 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
             boxShadow: '0 0 0 1px var(--chakra-colors-purple-400)',
           }}
         />
-        <Text fontSize="xs" color="gray.500" mt={2}>
-          {t('aiModal.hint')}
-        </Text>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mt={2}
+        >
+          <Text fontSize="xs" color="gray.500">
+            {t('aiModal.hint')}
+          </Text>
+          <Link
+            href={ROUTES.SESSIONS.NEW}
+            style={{
+              fontSize: '12px',
+              color: 'var(--chakra-colors-purple-500)',
+              textDecoration: 'underline',
+              fontWeight: 500,
+            }}
+          >
+            {t('aiModal.manualLink')}
+          </Link>
+        </Box>
       </Box>
     </VModal>
   );

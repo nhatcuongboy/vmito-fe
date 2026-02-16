@@ -13,6 +13,8 @@ import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
 
+import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
+
 interface SessionsListProps {
   status?: string;
   mode?: 'view' | 'manage';
@@ -30,6 +32,7 @@ export default function SessionsList({
   onRefresh,
   onHostClick,
 }: SessionsListProps) {
+  const { viewMode } = useSessionFilterStore();
   const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
   const [internalLoading, setInternalLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,8 +81,8 @@ export default function SessionsList({
     async function fetchSessions() {
       try {
         setInternalLoading(true);
-        const sessionData = await SessionService.getAllSessions();
-        setInternalSessions(sessionData);
+        const response = await SessionService.getAllSessions();
+        setInternalSessions(response.data);
       } catch (_err) {
         setError(t('loadingError'));
         console.error(_err);
@@ -173,12 +176,21 @@ export default function SessionsList({
   return (
     <RatingStatsProvider userIds={hostIds}>
       <Grid
-        templateColumns={{
-          base: '1fr',
-          md: 'repeat(2, 1fr)',
-          lg: 'repeat(3, 1fr)',
-        }}
-        gap={6}
+        templateColumns={
+          viewMode === 'compact'
+            ? {
+                base: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              }
+            : {
+                base: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }
+        }
+        gap={viewMode === 'compact' ? 4 : 6}
       >
         {filteredSessions.map((session) => (
           <SessionCard
@@ -186,6 +198,7 @@ export default function SessionsList({
             session={session}
             onDelete={mode === 'manage' ? handleDelete : undefined}
             mode={mode}
+            variant={viewMode}
             onHostClick={() => {
               setSelectedSessionForDetail(session);
               setIsDetailModalOpen(true);

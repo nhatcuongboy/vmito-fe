@@ -6,7 +6,6 @@ import { Badge, Box, Flex } from '@chakra-ui/react';
 import { Filter, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
-import ViewModeToggle from './ViewModeToggle';
 
 export default function SessionSearchBar({
   searchQuery,
@@ -64,9 +63,6 @@ export default function SessionSearchBar({
             transition="all 0.2s"
           />
         </Box>
-
-        {/* View Mode Toggle */}
-        <ViewModeToggle />
 
         {/* Filter Button */}
         <Box position="relative">

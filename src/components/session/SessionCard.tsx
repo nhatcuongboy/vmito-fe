@@ -21,6 +21,7 @@ interface SessionCardProps {
   onDelete?: (id: string) => void;
   mode?: 'view' | 'manage';
   onHostClick?: () => void;
+  variant?: 'full' | 'compact';
 }
 
 const SessionCard = ({
@@ -28,6 +29,7 @@ const SessionCard = ({
   onDelete,
   mode = 'view',
   onHostClick,
+  variant = 'full',
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -249,6 +251,7 @@ const SessionCard = ({
   return (
     <BaseSessionCard
       session={session}
+      variant={variant}
       registrationBadgeContent={registrationBadge}
       extraInfoRows={locationRow}
       actions={actions}

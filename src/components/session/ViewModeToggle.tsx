@@ -10,31 +10,34 @@ export default function ViewModeToggle() {
 
   return (
     <Flex
-      gap={1}
-      bg="gray.100"
-      _dark={{ bg: 'gray.700' }}
-      borderRadius="md"
+      gap={0.5}
+      bg="white"
+      borderRadius="lg"
       p={0.5}
+      borderWidth="1px"
+      borderColor="gray.200"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      shadow="sm"
     >
       <IconButton
-        size="sm"
-        h="40px"
-        w="40px"
+        size="xs"
+        h="32px"
+        w="32px"
         variant={viewMode === 'full' ? 'solid' : 'ghost'}
         colorPalette="green"
         aria-label="Full view"
-        icon={<LayoutGrid size={18} />}
+        icon={<LayoutGrid size={16} />}
         onClick={() => setViewMode('full')}
         borderRadius="md"
       />
       <IconButton
-        size="sm"
-        h="40px"
-        w="40px"
+        size="xs"
+        h="32px"
+        w="32px"
         variant={viewMode === 'compact' ? 'solid' : 'ghost'}
         colorPalette="green"
         aria-label="Compact view"
-        icon={<List size={18} />}
+        icon={<List size={16} />}
         onClick={() => setViewMode('compact')}
         borderRadius="md"
       />

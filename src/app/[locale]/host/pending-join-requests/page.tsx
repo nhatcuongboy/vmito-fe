@@ -184,7 +184,7 @@ export default function PendingJoinRequestsPage() {
   const nav = useTranslations('navigation');
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+    <ProtectedRouteGuard>
       <Suspense>
         <PageLayout title={nav('pendingJoinRequests')}>
           <PendingJoinRequestsContent />
