@@ -28,6 +28,7 @@ const PAGE_SIZE = 12;
 
 export default function VenueSearchList() {
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -70,9 +71,6 @@ export default function VenueSearchList() {
     }
   }, [showFilters, cities, districts, sortByDistance, userLocation]);
 
-  const normalizeLocation = (name: string) =>
-    name.replace(/^(Quận|Huyện|Thành phố|Thị xã)\s+/i, '').trim();
-
   // Plain function (not useCallback) to always read the latest `page` state
   const fetchVenues = async (isLoadMore = false) => {
     try {
@@ -96,10 +94,7 @@ export default function VenueSearchList() {
             cities.length === 1
               ? VIETNAM_CITIES.find((c) => c.code === cities[0])?.name
               : undefined,
-          district:
-            districts.length === 1
-              ? normalizeLocation(districts[0])
-              : undefined,
+          district: districts.length === 1 ? districts[0] : undefined,
           page: currentPage,
           limit: PAGE_SIZE,
         };
@@ -112,6 +107,7 @@ export default function VenueSearchList() {
       }
 
       const result = await VenueService.searchVenues(apiFilters);
+      setTotalCount(result.pagination.total);
       let venueData = result.data;
 
       // Client-side multi-city filter
@@ -134,11 +130,9 @@ export default function VenueSearchList() {
       if (districts.length > 1) {
         venueData = venueData.filter((venue) => {
           const venueDistrict = venue.district || '';
-          return districts.some((d) => {
-            const cleanFilter = normalizeLocation(d);
-            const cleanVenue = normalizeLocation(venueDistrict);
-            return cleanVenue.includes(cleanFilter);
-          });
+          return districts.some(
+            (d) => venueDistrict.toLowerCase() === d.toLowerCase()
+          );
         });
       }
 
@@ -238,6 +232,16 @@ export default function VenueSearchList() {
     setDistricts([]);
     setSortByDistance(false);
     setUserLocation(null);
+  };
+
+  const removeCity = (cityCode: string) => {
+    const nextCities = cities.filter((c) => c !== cityCode);
+    setCities(nextCities);
+    if (nextCities.length === 0) setDistricts([]);
+  };
+
+  const removeDistrict = (districtName: string) => {
+    setDistricts((prev) => prev.filter((d) => d !== districtName));
   };
 
   const activeFilterCount =
@@ -344,6 +348,118 @@ export default function VenueSearchList() {
           </Box>
         </Flex>
       </Box>
+
+      {/* Results info + active filter chips */}
+      {!loading &&
+        (cities.length > 0 ||
+          districts.length > 0 ||
+          sortByDistance ||
+          totalCount !== null) && (
+          <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
+            {totalCount !== null && (
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                flexShrink={0}
+              >
+                {totalCount} kết quả
+              </Text>
+            )}
+
+            {sortByDistance && (
+              <Badge
+                colorPalette="blue"
+                variant="subtle"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="semibold"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                <MapPin size={11} />
+                Gần tôi
+                <Box
+                  as="span"
+                  cursor="pointer"
+                  display="inline-flex"
+                  alignItems="center"
+                  onClick={() => {
+                    setSortByDistance(false);
+                    setUserLocation(null);
+                  }}
+                  _hover={{ color: 'blue.700' }}
+                >
+                  <X size={12} />
+                </Box>
+              </Badge>
+            )}
+
+            {cities.map((cityCode) => {
+              const cityName =
+                VIETNAM_CITIES.find((c) => c.code === cityCode)?.name ??
+                cityCode;
+              return (
+                <Badge
+                  key={cityCode}
+                  colorPalette="green"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  display="flex"
+                  alignItems="center"
+                  gap={1.5}
+                >
+                  {cityName}
+                  <Box
+                    as="span"
+                    cursor="pointer"
+                    display="inline-flex"
+                    alignItems="center"
+                    onClick={() => removeCity(cityCode)}
+                    _hover={{ color: 'green.700' }}
+                  >
+                    <X size={12} />
+                  </Box>
+                </Badge>
+              );
+            })}
+
+            {districts.map((districtName) => (
+              <Badge
+                key={districtName}
+                colorPalette="purple"
+                variant="subtle"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="semibold"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                {districtName}
+                <Box
+                  as="span"
+                  cursor="pointer"
+                  display="inline-flex"
+                  alignItems="center"
+                  onClick={() => removeDistrict(districtName)}
+                  _hover={{ color: 'purple.700' }}
+                >
+                  <X size={12} />
+                </Box>
+              </Badge>
+            ))}
+          </Flex>
+        )}
 
       {/* Filter Drawer Overlay */}
       {showFilters && (

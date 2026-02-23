@@ -14,7 +14,6 @@ export default function BrowseVenuesPage() {
       icon={<MapPin size={24} />}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
-      pb={8}
     >
       <VenueSearchList />
     </PageLayout>

@@ -92,6 +92,8 @@ export interface IClubVenue {
   id: string;
   name: string;
   address: string;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export interface IClubAnnouncement {
@@ -151,6 +153,7 @@ export interface IClubListItem {
   createdAt: string;
   schedules?: IClubSchedule[];
   defaultVenue?: IClubVenue;
+  distance?: number | null;
 }
 
 export interface IMyClub {
@@ -236,6 +239,12 @@ export interface ICreateClubFeeDto {
 export interface IBrowseClubsParams {
   search?: string;
   location?: string;
+  city?: string;
+  district?: string;
+  lat?: number;
+  lng?: number;
+  sortBy?: string;
+  sortOrder?: string;
   page?: number;
   limit?: number;
 }

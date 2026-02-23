@@ -24,6 +24,7 @@ import PageLayout from '@/components/layout/PageLayout';
 
 function PendingJoinRequestsContent() {
   const t = useTranslations('common');
+  const tSession = useTranslations('session');
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -97,7 +98,7 @@ function PendingJoinRequestsContent() {
   return (
     <Box px={{ base: 4, md: 6 }} py={4} maxW="container.md" mx="auto">
       <Text color="fg.muted" mb={4}>
-        {total} pending request{total !== 1 ? 's' : ''}
+        {t('pendingRequests', { count: total })}
       </Text>
 
       <Flex direction="column" gap={4}>
@@ -107,10 +108,10 @@ function PendingJoinRequestsContent() {
               <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
                 <Box>
                   <Text fontWeight="bold" fontSize="lg">
-                    {request.name || 'Unknown'}
+                    {request.name || t('unknown')}
                   </Text>
                   <Text fontSize="sm" color="fg.muted">
-                    Session:{' '}
+                    {tSession('session')}:{' '}
                     {request.session?.venue?.name || request.session?.name} -{' '}
                     {dayjs(request.session?.startTime).format('MMM D, HH:mm')}
                   </Text>
@@ -131,7 +132,7 @@ function PendingJoinRequestsContent() {
                     }
                     disabled={actionLoading === request.id}
                   >
-                    Reject
+                    {t('reject')}
                   </Button>
                   <Button
                     size="sm"
@@ -141,7 +142,7 @@ function PendingJoinRequestsContent() {
                     }
                     loading={actionLoading === request.id}
                   >
-                    Approve
+                    {t('approve')}
                   </Button>
                 </Flex>
               </Flex>

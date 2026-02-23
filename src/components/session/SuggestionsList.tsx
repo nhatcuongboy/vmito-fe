@@ -342,7 +342,6 @@ export default function SuggestionsList({
         count={total}
         mode={mode}
         onModeChange={(newMode) => onModeChange?.(newMode)}
-        onRefresh={() => fetchSuggestions()}
         isLoading={loading}
       />
 

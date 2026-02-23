@@ -2,7 +2,7 @@
 
 import { Flex, Text, Icon, HStack } from '@chakra-ui/react';
 import React from 'react';
-import { Sparkles, RefreshCw } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ViewModeToggle from './ViewModeToggle';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
@@ -11,7 +11,7 @@ interface ResultsHeaderProps {
   count: number;
   mode?: 'browse' | 'auto';
   onModeChange?: (mode: 'browse' | 'auto') => void;
-  onRefresh?: () => void;
+
   isLoading?: boolean;
   children?: React.ReactNode;
 }
@@ -20,7 +20,7 @@ export default function ResultsHeader({
   count,
   mode,
   onModeChange,
-  onRefresh,
+
   isLoading,
   children,
 }: ResultsHeaderProps) {
@@ -44,18 +44,6 @@ export default function ResultsHeader({
 
       {/* Right: Mode toggle + View mode toggle */}
       <HStack gap={2}>
-        {onRefresh && (
-          <IconButton
-            size="sm"
-            variant="ghost"
-            colorPalette="green"
-            aria-label="Refresh"
-            icon={<Icon as={RefreshCw} />}
-            onClick={onRefresh}
-            loading={isLoading}
-          />
-        )}
-
         {/* Mode Toggle Button (On/Off) */}
         {mode && onModeChange && (
           <Button

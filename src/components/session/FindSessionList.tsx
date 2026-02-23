@@ -499,7 +499,6 @@ export default function FindSessionList({
         count={totalCount}
         mode={mode}
         onModeChange={(newMode) => onModeChange?.(newMode)}
-        onRefresh={() => fetchSessions()}
         isLoading={loading}
       >
         {(filters.venueId || nonSearchFilterCount > 0) && (
