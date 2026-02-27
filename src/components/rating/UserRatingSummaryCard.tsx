@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, VStack, HStack, Text, Skeleton } from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Skeleton, Icon } from '@chakra-ui/react';
 import { StarRatingDisplay } from './StarRatingDisplay';
 import { UserRatingStats } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
@@ -39,18 +39,20 @@ export const UserRatingSummaryCard = ({
   if (!stats || stats.totalRatings === 0) {
     return (
       <Box
-        p={4}
+        p={5}
+        borderRadius="xl"
+        bg="white"
+        _dark={{ bg: 'gray.800/50' }}
         borderWidth="1px"
-        borderRadius="lg"
         borderColor="gray.100"
-        bg="gray.50"
+        borderStyle="dashed"
       >
-        <HStack gap={2}>
-          <Star size={20} color="#A0AEC0" />
-          <Text color="gray.500" fontSize="sm">
+        <VStack gap={2} align="center" py={2}>
+          <Icon as={Star} boxSize={6} color="gray.300" />
+          <Text color="gray.400" fontSize="sm" fontWeight="medium">
             {t('noRatingsYet')}
           </Text>
-        </HStack>
+        </VStack>
       </Box>
     );
   }

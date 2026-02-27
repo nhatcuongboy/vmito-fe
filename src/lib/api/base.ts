@@ -108,10 +108,12 @@ api.interceptors.response.use(
       message = error.message;
     }
 
-    // Check if this is an authentication request (login/register)
+    // Check if this is an authentication request (login/register/refresh)
+    // Must exclude /auth/refresh to prevent infinite retry loop when refresh token is expired
     const isAuthRequest =
       originalRequest.url?.includes('/auth/login') ||
-      originalRequest.url?.includes('/auth/register');
+      originalRequest.url?.includes('/auth/register') ||
+      originalRequest.url?.includes('/auth/refresh');
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (

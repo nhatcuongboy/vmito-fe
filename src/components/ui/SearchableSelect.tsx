@@ -1,7 +1,13 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from 'react';
 import { Box, Portal, Text, VStack } from '@chakra-ui/react';
 import { Search, ChevronDown, Check } from 'lucide-react';
 
@@ -54,6 +60,15 @@ export interface SearchableVSelectProps {
    * Whether the select is invalid
    */
   isInvalid?: boolean;
+  /**
+   * Called when search query changes — enables server-side search.
+   * When provided, internal filtering is skipped (options are used as-is).
+   */
+  onSearchChange?: (query: string) => void;
+  /**
+   * Show loading indicator in the dropdown (for async search)
+   */
+  isLoading?: boolean;
 }
 
 /**
@@ -70,6 +85,8 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   isDisabled = false,
   size = 'md',
   isInvalid = false,
+  onSearchChange,
+  isLoading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -140,10 +157,24 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     return { matches, score };
   };
 
+  // Notify parent of search query changes (for server-side search)
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+      onSearchChange?.(query);
+    },
+    [onSearchChange]
+  );
+
   // Filter and sort options based on fuzzy search query
   const filteredOptions = useMemo(() => {
     // Ensure options is always an array
     const safeOptions = Array.isArray(options) ? options : [];
+
+    // When server-side search is enabled, skip client-side filtering
+    if (onSearchChange) {
+      return safeOptions;
+    }
 
     if (!searchQuery.trim()) {
       return safeOptions;
@@ -166,7 +197,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
       .map((item) => item.option);
 
     return scoredOptions;
-  }, [options, searchQuery]);
+  }, [options, searchQuery, onSearchChange]);
 
   // Find selected option label
   const selectedLabel = useMemo(() => {
@@ -175,7 +206,14 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     return selected?.label || '';
   }, [options, value]);
 
-  // Handle click outside to close dropdown
+  // Close dropdown and reset search state (including parent's server-side search)
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+    setSearchQuery('');
+    onSearchChange?.('');
+  }, [onSearchChange]);
+
+  // Handle click outside and scroll to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -184,17 +222,30 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
-        setSearchQuery('');
+        closeDropdown();
       }
+    };
+
+    const handleScroll = (event: Event) => {
+      // Close unless the scroll is inside the dropdown itself
+      if (
+        dropdownRef.current &&
+        dropdownRef.current.contains(event.target as Node)
+      ) {
+        return;
+      }
+      closeDropdown();
     };
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () =>
+      document.addEventListener('scroll', handleScroll, true);
+      return () => {
         document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('scroll', handleScroll, true);
+      };
     }
-  }, [isOpen]);
+  }, [isOpen, closeDropdown]);
 
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -209,15 +260,13 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   // Handle option select
   const handleSelect = (optionValue: string) => {
     onChange?.(optionValue);
-    setIsOpen(false);
-    setSearchQuery('');
+    closeDropdown();
   };
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
-      setIsOpen(false);
-      setSearchQuery('');
+      closeDropdown();
     }
   };
 
@@ -347,7 +396,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                   ref={searchInputRef}
                   placeholder={searchPlaceholder}
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   size="sm"
                   pl="9"
                   bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
@@ -364,7 +413,11 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
 
             {/* Options List */}
             <Box maxH="250px" overflowY="auto" p="1">
-              {filteredOptions.length === 0 ? (
+              {isLoading ? (
+                <Box p="3" textAlign="center" color="fg.muted" fontSize="sm">
+                  ...
+                </Box>
+              ) : filteredOptions.length === 0 ? (
                 <Box p="3" textAlign="center" color="fg.muted" fontSize="sm">
                   {noOptionsMessage}
                 </Box>

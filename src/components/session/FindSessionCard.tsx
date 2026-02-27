@@ -288,11 +288,14 @@ const FindSessionCard = ({
     manageButtonHref: `/host/sessions/${session.id}`,
 
     // For players with registration: show view registration modal
-    showViewRegistrationButton: !!userRegistrationStatus && !isJoined,
+    showViewRegistrationButton:
+      !isOwner &&
+      !!userRegistrationStatus &&
+      userRegistrationStatus !== 'APPROVED',
     onViewRegistration: onOpenViewRegistrationModal,
 
-    // For approved players or ADMIN: show view session button
-    showViewSessionButton: userRegistrationStatus === 'APPROVED' || isAdmin,
+    // For approved players: show view session button
+    showViewSessionButton: userRegistrationStatus === 'APPROVED',
 
     // For non-registered users: show register button (hidden for non-admin owners)
     showRegisterButton:

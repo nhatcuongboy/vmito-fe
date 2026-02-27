@@ -1,20 +1,14 @@
 'use client';
 
-import { Box, Flex, Text, Avatar, Icon } from '@chakra-ui/react';
-import { Phone, Mail } from 'lucide-react';
+import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
+import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
+import { RatingService } from '@/lib/api/rating.service';
+import { SessionService } from '@/lib/api/session.service';
+import { UserRatingStats } from '@/lib/api/types';
+import { Avatar, Box, Grid, Icon, Image, Text } from '@chakra-ui/react';
+import { Check, Copy, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { RatingService } from '@/lib/api/rating.service';
-import { UserRatingStats } from '@/lib/api/types';
-import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Button,
-  VStack,
-  HStack,
-} from '@/components/ui/chakra-compat';
 
 interface AppHostDetailProps {
   userId: string;
@@ -30,21 +24,28 @@ export const AppHostDetail = ({
   name,
   image,
   phone,
-  email,
   hideHeader = false,
 }: AppHostDetailProps) => {
   const t = useTranslations('session.hostDetail');
   const [stats, setStats] = useState<UserRatingStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [totalSessions, setTotalSessions] = useState<number>(0);
+  const [availableSessions, setAvailableSessions] = useState<number>(0);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const data = await RatingService.getUserRatingStats(userId);
-        setStats(data);
+        const [ratingData, availableData] = await Promise.all([
+          RatingService.getUserRatingStats(userId),
+          SessionService.getAvailableSessions({ hostId: userId, limit: 1 }),
+        ]);
+        setStats(ratingData);
+        setTotalSessions(ratingData.asHostCount ?? 0);
+        setAvailableSessions(availableData.pagination.total);
       } catch (error) {
-        console.error('Failed to fetch host rating stats:', error);
+        console.error('Failed to fetch host stats:', error);
       } finally {
         setLoading(false);
       }
@@ -62,73 +63,177 @@ export const AppHostDetail = ({
     }
   };
 
+  const handleZalo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (phone) {
+      const normalized = phone.replace(/^0/, '84');
+      window.open(`https://zalo.me/${normalized}`, '_blank');
+    }
+  };
+
+  const handleCopyPhone = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (phone) {
+      await navigator.clipboard.writeText(phone);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <Card
-      w="full"
-      maxW="400px"
-      borderWidth={hideHeader ? '0' : '1px'}
-      boxShadow={hideHeader ? 'none' : 'sm'}
-    >
-      {!hideHeader && (
-        <CardHeader>
-          <Text fontSize="lg" fontWeight="bold">
-            {t('title')}
-          </Text>
-        </CardHeader>
-      )}
-      <CardBody>
-        <VStack gap={4} align="stretch">
-          <Flex align="center" gap={4}>
-            <Avatar.Root size="xl" bg="brand.500">
-              <Avatar.Fallback name={name || 'Host'}>
-                {(name || 'H').charAt(0).toUpperCase()}
-              </Avatar.Fallback>
-              {image && <Avatar.Image src={image} />}
-            </Avatar.Root>
-            <Box flex={1}>
-              <Text fontSize="xl" fontWeight="bold">
-                {name || 'Unknown Host'}
-              </Text>
-              {email && (
-                <HStack gap={1} color="gray.500">
-                  <Icon as={Mail} boxSize={3} />
-                  <Text fontSize="xs">{email}</Text>
-                </HStack>
-              )}
-            </Box>
-          </Flex>
-
-          <Box>
+    <Box w="full">
+      <VStack gap={4} align="stretch">
+        {/* Profile Header */}
+        <HStack gap={4} align="center">
+          <Avatar.Root
+            size="xl"
+            bg="brand.500"
+            borderWidth="3px"
+            borderColor="white"
+            boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+            flexShrink={0}
+          >
+            <Avatar.Fallback name={name || 'Host'}>
+              {(name || 'H').charAt(0).toUpperCase()}
+            </Avatar.Fallback>
+            {image && <Avatar.Image src={image} />}
+          </Avatar.Root>
+          <Box flex={1} minW={0}>
             <Text
-              fontSize="sm"
-              fontWeight="medium"
-              mb={2}
-              color="gray.600"
-              _dark={{ color: 'gray.400' }}
+              fontSize="xl"
+              fontWeight="extrabold"
+              color="gray.800"
+              _dark={{ color: 'white' }}
+              letterSpacing="tight"
+              truncate
             >
-              {t('rating')}
+              {name || 'Unknown Host'}
             </Text>
-            <UserRatingSummaryCard
-              stats={stats}
-              isLoading={loading}
-              showBreakdown
-            />
+            {phone && (
+              <HStack gap={1} color="gray.500" mt={1} align="center">
+                <Icon
+                  as={Phone}
+                  boxSize={3.5}
+                  color="brand.500"
+                  flexShrink={0}
+                />
+                <Text fontSize="sm" fontWeight="medium" flex={1}>
+                  {phone}
+                </Text>
+                <Box
+                  as="button"
+                  onClick={handleCopyPhone}
+                  p={1}
+                  borderRadius="md"
+                  color={copied ? 'green.500' : 'gray.400'}
+                  _hover={{ color: 'gray.600', bg: 'gray.100' }}
+                  transition="all 0.2s"
+                  flexShrink={0}
+                  aria-label="Copy phone"
+                >
+                  <Icon as={copied ? Check : Copy} boxSize={3.5} />
+                </Box>
+              </HStack>
+            )}
           </Box>
+        </HStack>
 
-          {phone && (
+        {/* Session Stats */}
+        {!loading && (
+          <Grid templateColumns="1fr 1fr" gap={2.5}>
+            <Box
+              bg="gray.50"
+              _dark={{ bg: 'gray.800' }}
+              borderRadius="lg"
+              p={2.5}
+              textAlign="center"
+            >
+              <Text fontSize="xl" fontWeight="extrabold" color="brand.500">
+                {totalSessions}
+              </Text>
+              <Text fontSize="xs" color="gray.500" fontWeight="medium">
+                {t('totalHosted')}
+              </Text>
+            </Box>
+            <Box
+              bg="green.50"
+              _dark={{ bg: 'green.900' }}
+              borderRadius="lg"
+              p={2.5}
+              textAlign="center"
+            >
+              <Text fontSize="xl" fontWeight="extrabold" color="green.500">
+                {availableSessions}
+              </Text>
+              <Text fontSize="xs" color="gray.500" fontWeight="medium">
+                {t('availableSessions')}
+              </Text>
+            </Box>
+          </Grid>
+        )}
+
+        {/* Rating Section */}
+        <Box>
+          <Text
+            fontSize="xs"
+            fontWeight="bold"
+            color="gray.400"
+            textTransform="uppercase"
+            letterSpacing="widest"
+            mb={2}
+            px={1}
+          >
+            {t('rating')}
+          </Text>
+          <UserRatingSummaryCard
+            stats={stats}
+            isLoading={loading}
+            showBreakdown
+          />
+        </Box>
+
+        {/* Contact Actions */}
+        {phone && (
+          <HStack gap={2.5}>
             <Button
               colorPalette="green"
-              variant="outline"
-              w="full"
+              variant="solid"
+              flex={1}
+              height="48px"
+              borderRadius="xl"
               onClick={handleCall}
-              leftIcon={<Icon as={Phone} />}
+              fontSize="sm"
+              fontWeight="bold"
+              boxShadow="0 4px 12px rgba(16, 185, 129, 0.25)"
+              _hover={{ bg: 'green.600' }}
             >
-              {t('call')} ({phone})
+              <Icon as={Phone} mr={1.5} boxSize={4} strokeWidth={2.5} />
+              {t('call')}
             </Button>
-          )}
-        </VStack>
-      </CardBody>
-    </Card>
+            <Button
+              colorPalette="blue"
+              variant="outline"
+              flex={1}
+              height="48px"
+              borderRadius="xl"
+              onClick={handleZalo}
+              fontSize="sm"
+              fontWeight="bold"
+              _hover={{ bg: 'blue.50' }}
+            >
+              <Image
+                src="/icons/zalo.png"
+                alt="Zalo"
+                boxSize={5}
+                mr={1.5}
+                flexShrink={0}
+              />
+              {t('zalo')}
+            </Button>
+          </HStack>
+        )}
+      </VStack>
+    </Box>
   );
 };
 

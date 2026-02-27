@@ -7,7 +7,14 @@ import { UserRole } from '@/lib/api/types';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import { Home, Search, Trophy, Ticket, Calendar, UserPlus } from 'lucide-react';
+import {
+  Home,
+  Search,
+  Trophy,
+  Ticket,
+  Calendar,
+  ClipboardCheck,
+} from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
@@ -45,7 +52,7 @@ export default function GlobalBottomNav() {
         {
           id: 7,
           label: t('pendingJoinRequests'),
-          icon: UserPlus,
+          icon: ClipboardCheck,
           href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
         },
       ];
@@ -69,7 +76,7 @@ export default function GlobalBottomNav() {
         {
           id: 7,
           label: t('pendingJoinRequests'),
-          icon: UserPlus,
+          icon: ClipboardCheck,
           href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
         },
       ];
@@ -93,7 +100,7 @@ export default function GlobalBottomNav() {
       {
         id: 7,
         label: t('pendingJoinRequests'),
-        icon: UserPlus,
+        icon: ClipboardCheck,
         href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
       },
     ];

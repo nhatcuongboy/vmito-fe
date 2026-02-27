@@ -31,6 +31,7 @@ import * as z from 'zod';
 import VModal from '@/components/ui/VModal';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/chakra-compat';
+import { VButton } from '@/components/ui/VButton';
 import { VSwitch } from '@/components/ui/VSwitch';
 
 // Schema definitions
@@ -210,8 +211,9 @@ export default function AdminVenuesPage() {
           {/* Header */}
           <Flex justify="space-between" align="center">
             <Heading size="lg">{t('venueManagement')}</Heading>
-            <Button
+            <VButton
               colorPalette="green"
+              leftIcon={<Plus size={18} />}
               onClick={() => {
                 form.reset({
                   name: '',
@@ -228,9 +230,8 @@ export default function AdminVenuesPage() {
                 setIsCreateOpen(true);
               }}
             >
-              <Plus size={18} />
-              <Text ml={2}>{t('addVenue')}</Text>
-            </Button>
+              {t('addVenue')}
+            </VButton>
           </Flex>
 
           {/* Filters */}
@@ -570,18 +571,18 @@ export default function AdminVenuesPage() {
                         </Box>
                       ))}
                     </VStack>
-                    <Button
+                    <VButton
                       size="sm"
                       variant="outline"
                       colorPalette="brand"
+                      leftIcon={<Plus size={16} />}
                       onClick={() =>
                         field.onChange([...(field.value || []), ''])
                       }
                       width="fit-content"
                     >
-                      <Plus size={16} style={{ marginRight: '8px' }} />
                       Thêm ảnh
-                    </Button>
+                    </VButton>
                   </VStack>
                 </Field.Root>
               )}

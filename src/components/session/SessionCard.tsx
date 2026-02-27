@@ -183,7 +183,10 @@ const SessionCard = ({
     showViewButton: true,
 
     // View registration button (for non-owners with registration)
-    showViewRegistrationButton: !isOwner && !!session.players?.[0],
+    showViewRegistrationButton:
+      !isOwner &&
+      !!session.players?.[0] &&
+      session.players[0].registrationStatus !== 'APPROVED',
     onViewRegistration: onOpenViewRegistrationModal,
 
     // Manage button (for owners or ADMIN)
@@ -194,10 +197,9 @@ const SessionCard = ({
     //     : `/host/sessions/${session.id}`,
     manageButtonHref: `/host/sessions/${session.id}`,
 
-    // View session button (for approved players or ADMIN, NOT for owners)
+    // View session button (for approved players, NOT for owners)
     showViewSessionButton:
-      (isAdmin || session.players?.[0]?.registrationStatus === 'APPROVED') &&
-      !isOwner,
+      session.players?.[0]?.registrationStatus === 'APPROVED' && !isOwner,
     viewSessionHref: `/player/sessions/${session.id}`,
   };
 

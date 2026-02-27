@@ -156,6 +156,7 @@
     "start": "Bắt đầu",
     "end": "Kết thúc",
     "duration": "Thời lượng",
+    "multiDay": "Nhiều ngày",
     "shuttlecock": "Cầu",
     "allLevelsAllowedMessage": "Chào đón mọi trình độ",
     "location": "Địa điểm",
@@ -197,7 +198,7 @@
     },
     "courtsAvailable": "sân",
     "players": "người chơi",
-    "manageSession": "Quản lý",
+    "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Xóa",
     "viewSession": "Vào sân",
@@ -467,7 +468,10 @@
       "contact": "Liên hệ",
       "rating": "Đánh giá",
       "call": "Gọi điện",
-      "email": "Email"
+      "zalo": "Nhắn Zalo",
+      "email": "Email",
+      "totalHosted": "Kèo đã host",
+      "availableSessions": "Kèo đang mở"
     },
     "bulkCreation": {
       "title": "Tạo nhiều kèo",
@@ -483,6 +487,8 @@
       "weeksUnit": "tuần (tối đa 52)",
       "selectedDates": "Các ngày đã chọn ({count}):",
       "selectedWeekdays": "Các ngày đã chọn:",
+      "enable": "Bật tạo nhiều kèo",
+      "disable": "Tắt tạo nhiều kèo",
       "totalSessions": "Tổng số kèo sẽ tạo:",
       "sessionsPerWeek": "ngày/tuần",
       "totalSessionsCalc": "{perWeek} ngày/tuần × {weeks} tuần = {total} kèo",

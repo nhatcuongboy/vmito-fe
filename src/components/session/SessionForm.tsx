@@ -72,13 +72,22 @@ const CustomCheckbox = ({
 
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Button } from '@/components/ui/chakra-compat';
-import { Plus, Minus, Sparkles, User, Users, UserPlus } from 'lucide-react';
+import {
+  Plus,
+  Minus,
+  CalendarPlus,
+  Sparkles,
+  User,
+  Users,
+  UserPlus,
+} from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { VSelect } from '@/components/ui/VSelect';
+import { VSwitch } from '@/components/ui/VSwitch';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
@@ -103,6 +112,21 @@ function formatDateTimeLocal(date: Date): string {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function formatDateOnly(date: Date): string {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatTimeOnly(date: Date): string {
+  if (!date) return '';
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
 }
 
 // Zod schema for court validation
@@ -195,13 +219,6 @@ export default function SessionForm({
   const canEditCourts = !isEditMode || !hasPlayers;
   const canEditTime = !isEditMode || !isSessionActive;
 
-  // Calculate default times (for create mode)
-  const now = useMemo(() => new Date(), []);
-  const twoHoursLater = useMemo(
-    () => new Date(now.getTime() + 2 * 60 * 60 * 1000),
-    [now]
-  );
-
   // Default values
   const defaultValues: SessionFormData = useMemo(() => {
     if (isEditMode && initialData) {
@@ -242,8 +259,8 @@ export default function SessionForm({
       selectedVenueId: '',
       hostName: user?.name || '',
       hostPhone: '',
-      startTime: formatDateTimeLocal(now),
-      endTime: formatDateTimeLocal(twoHoursLater),
+      startTime: '',
+      endTime: '',
       courts: [
         {
           courtNumber: 1,
@@ -260,7 +277,7 @@ export default function SessionForm({
       requiredLevels: [],
       shuttlecock: '',
     };
-  }, [isEditMode, initialData, user, now, twoHoursLater]);
+  }, [isEditMode, initialData, user]);
 
   const sessionFormSchema = useMemo(() => createSessionFormSchema(t), [t]);
 
@@ -289,6 +306,13 @@ export default function SessionForm({
 
   // State for async data and modal
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [selectedVenueObj, setSelectedVenueObj] = useState<Venue | null>(
+    isEditMode && initialData?.venue ? (initialData.venue as Venue) : null
+  );
+  const [isVenueLoading, setIsVenueLoading] = useState(false);
+  const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
 
@@ -317,7 +341,47 @@ export default function SessionForm({
     string | undefined
   >(initialData?.coverPhotoPublicId);
 
+  // Single-day time picker state
+  const [isMultiDay, setIsMultiDay] = useState(() => {
+    if (isEditMode && initialData?.startTime && initialData?.endTime) {
+      const startDay = new Date(initialData.startTime).toDateString();
+      const endDay = new Date(initialData.endTime).toDateString();
+      return startDay !== endDay;
+    }
+    return false;
+  });
+  const [sessionDate, setSessionDate] = useState(() => {
+    if (isEditMode && initialData?.startTime)
+      return formatDateOnly(new Date(initialData.startTime));
+    return formatDateOnly(new Date());
+  });
+  const [startHour, setStartHour] = useState(() => {
+    if (isEditMode && initialData?.startTime)
+      return formatTimeOnly(new Date(initialData.startTime));
+    return '';
+  });
+  const [endHour, setEndHour] = useState(() => {
+    if (isEditMode && initialData?.endTime)
+      return formatTimeOnly(new Date(initialData.endTime));
+    return '';
+  });
+
+  const handleDateChange = (date: string) => {
+    setSessionDate(date);
+    if (startHour) setValue('startTime', `${date}T${startHour}`);
+    if (endHour) setValue('endTime', `${date}T${endHour}`);
+  };
+  const handleStartHourChange = (time: string) => {
+    setStartHour(time);
+    setValue('startTime', time && sessionDate ? `${sessionDate}T${time}` : '');
+  };
+  const handleEndHourChange = (time: string) => {
+    setEndHour(time);
+    setValue('endTime', time && sessionDate ? `${sessionDate}T${time}` : '');
+  };
+
   // Bulk creation state
+  const [bulkEnabled, setBulkEnabled] = useState(false);
   const [bulkMode, setBulkMode] = useState<BulkCreationMode>('single');
   const [specificDatesConfig, setSpecificDatesConfig] = useState<
     SpecificDatesConfig | undefined
@@ -340,14 +404,48 @@ export default function SessionForm({
     }
   }, [startTime, endTime]);
 
+  // Venue options: always include the currently selected venue so it shows correctly
+  const venueOptions = useMemo(() => {
+    const opts = venues.map((v) => ({
+      value: v.id,
+      label: `${v.name} - ${v.address}`,
+    }));
+    if (selectedVenueObj && !venues.find((v) => v.id === selectedVenueObj.id)) {
+      opts.unshift({
+        value: selectedVenueObj.id,
+        label: `${selectedVenueObj.name} - ${selectedVenueObj.address}`,
+      });
+    }
+    return opts;
+  }, [venues, selectedVenueObj]);
+
+  // Debounced venue search handler (server-side)
+  const handleVenueSearch = useCallback((keyword: string) => {
+    if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
+    venueSearchTimerRef.current = setTimeout(async () => {
+      setIsVenueLoading(true);
+      try {
+        const result = await VenueService.searchVenues({
+          keyword: keyword.trim() || undefined,
+          limit: 100,
+        });
+        setVenues(result.data || []);
+      } catch (error) {
+        console.error('Error searching venues:', error);
+      } finally {
+        setIsVenueLoading(false);
+      }
+    }, 300);
+  }, []);
+
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const venueData = await VenueService.getAllVenues();
-        setVenues(Array.isArray(venueData) ? venueData : []);
+        const result = await VenueService.searchVenues({ limit: 100 });
+        setVenues(result.data || []);
       } catch (error) {
         console.error('Error fetching venues:', error);
-        setVenues([]); // Ensure venues is always an array
+        setVenues([]);
       }
     };
     fetchVenues();
@@ -411,6 +509,10 @@ export default function SessionForm({
           const startDate = new Date(data.startTime);
           if (!isNaN(startDate.getTime())) {
             setValue('startTime', formatDateTimeLocal(startDate));
+            if (!isMultiDay) {
+              setSessionDate(formatDateOnly(startDate));
+              setStartHour(formatTimeOnly(startDate));
+            }
           }
         } catch (e) {
           console.error('Invalid start time from AI:', e);
@@ -422,6 +524,9 @@ export default function SessionForm({
           const endDate = new Date(data.endTime);
           if (!isNaN(endDate.getTime())) {
             setValue('endTime', formatDateTimeLocal(endDate));
+            if (!isMultiDay) {
+              setEndHour(formatTimeOnly(endDate));
+            }
           }
         } catch (e) {
           console.error('Invalid end time from AI:', e);
@@ -494,6 +599,7 @@ export default function SessionForm({
     [
       setValue,
       venues,
+      isMultiDay,
       setFeeEnabled,
       setFeeType,
       setMaleFee,
@@ -524,16 +630,15 @@ export default function SessionForm({
   // Form submission handler
   const onSubmit = async (data: SessionFormData) => {
     try {
-      const selectedVenue = venues.find((v) => v.id === data.selectedVenueId);
-      const venueData = selectedVenue
+      const venueData = selectedVenueObj
         ? {
-            placeId: selectedVenue.placeId,
-            name: selectedVenue.name,
-            address: selectedVenue.address,
-            lat: selectedVenue.lat,
-            lng: selectedVenue.lng,
-            district: selectedVenue.district,
-            city: selectedVenue.city,
+            placeId: selectedVenueObj.placeId,
+            name: selectedVenueObj.name,
+            address: selectedVenueObj.address,
+            lat: selectedVenueObj.lat,
+            lng: selectedVenueObj.lng,
+            district: selectedVenueObj.district,
+            city: selectedVenueObj.city,
           }
         : undefined;
 
@@ -690,6 +795,40 @@ export default function SessionForm({
     }
   };
 
+  const scrollToFirstError = useCallback(
+    (formErrors: Partial<Record<keyof SessionFormData, unknown>>) => {
+      const fieldOrder: (keyof SessionFormData)[] = [
+        'name',
+        'selectedVenueId',
+        'hostName',
+        'hostPhone',
+        'startTime',
+        'endTime',
+        'courts',
+      ];
+      const fieldToId: Partial<Record<keyof SessionFormData, string>> = {
+        name: 'field-name',
+        selectedVenueId: 'field-venue',
+        hostName: 'field-hostName',
+        hostPhone: 'field-hostPhone',
+        startTime: 'field-startTime',
+        endTime: 'field-endTime',
+        courts: 'field-courts',
+      };
+      for (const fieldName of fieldOrder) {
+        if (!formErrors[fieldName]) continue;
+        const id = fieldToId[fieldName];
+        if (!id) continue;
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
+    },
+    []
+  );
+
   const Wrapper = isEditMode ? Box : PageWrapper;
   return (
     <Wrapper
@@ -753,8 +892,18 @@ export default function SessionForm({
         </>
       )}
 
-      <Box maxW="4xl" pt={showTopBar ? '80px' : '0'} pb={8} mx="auto" w="full">
-        <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
+      <Box
+        maxW="4xl"
+        pt={showTopBar ? '80px' : '0'}
+        pb={20}
+        px={6}
+        mx="auto"
+        w="full"
+      >
+        <form
+          onSubmit={handleSubmit(onSubmit, scrollToFirstError)}
+          onKeyDown={handleKeyDown}
+        >
           <Stack gap={6}>
             {/* Warning messages */}
             {/* {isEditMode && !canEditCourts && (
@@ -787,7 +936,7 @@ export default function SessionForm({
               </Heading>
               <Stack gap={4}>
                 {/* Session Name */}
-                <Field.Root invalid={!!errors.name}>
+                <Field.Root id="field-name" invalid={!!errors.name}>
                   <Field.Label>
                     {t('name')}{' '}
                     <Text as="span" color="red.500">
@@ -893,7 +1042,7 @@ export default function SessionForm({
                 </Box>
 
                 {/* Location */}
-                <Field.Root invalid={!!errors.selectedVenueId}>
+                <Field.Root id="field-venue" invalid={!!errors.selectedVenueId}>
                   <Field.Label>
                     {t('location')}{' '}
                     <Text as="span" color="red.500">
@@ -907,13 +1056,16 @@ export default function SessionForm({
                       <SearchableSelect
                         isInvalid={!!errors.selectedVenueId}
                         value={field.value}
-                        onChange={(value) => field.onChange(value)}
-                        options={venues.map((v) => ({
-                          value: v.id,
-                          label: `${v.name} - ${v.address}`,
-                        }))}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          const venue = venues.find((v) => v.id === value);
+                          setSelectedVenueObj(venue ?? null);
+                        }}
+                        options={venueOptions}
                         placeholder={t('generalSettings.selectVenue')}
                         searchPlaceholder={t('generalSettings.searchVenue')}
+                        onSearchChange={handleVenueSearch}
+                        isLoading={isVenueLoading}
                       />
                     )}
                   />
@@ -938,7 +1090,7 @@ export default function SessionForm({
               </Heading>
               <Flex gap={4}>
                 <Box flex={1}>
-                  <Field.Root invalid={!!errors.hostName}>
+                  <Field.Root id="field-hostName" invalid={!!errors.hostName}>
                     <Field.Label>
                       {t('hostName')}{' '}
                       <Text as="span" color="red.500">
@@ -955,7 +1107,7 @@ export default function SessionForm({
                   </Field.Root>
                 </Box>
                 <Box flex={1}>
-                  <Field.Root invalid={!!errors.hostPhone}>
+                  <Field.Root id="field-hostPhone" invalid={!!errors.hostPhone}>
                     <Field.Label>
                       {t('hostPhone')}{' '}
                       <Text as="span" color="red.500">
@@ -984,87 +1136,203 @@ export default function SessionForm({
               border="1px solid"
               borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
             >
-              <Heading size="md" mb={4}>
-                {t('time')}
-              </Heading>
-              <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
-                <Box flex={1}>
-                  <Field.Root
-                    invalid={!!errors.startTime}
+              <Flex align="center" justify="space-between" mb={4}>
+                <Heading size="md">{t('time')}</Heading>
+                <Flex align="center" gap={2}>
+                  <Text fontSize="sm" color="fg.muted">
+                    {t('multiDay')}
+                  </Text>
+                  <VSwitch
+                    checked={isMultiDay}
+                    onCheckedChange={(e) => setIsMultiDay(e.checked)}
                     disabled={!canEditTime}
-                  >
-                    <Field.Label>
-                      {t('start')}{' '}
-                      <Text as="span" color="red.500">
-                        *
-                      </Text>
-                    </Field.Label>
-                    <Input
-                      type="datetime-local"
-                      {...register('startTime')}
+                    size="sm"
+                    colorPalette="green"
+                  />
+                </Flex>
+              </Flex>
+
+              {!isMultiDay ? (
+                <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
+                  {/* Date picker */}
+                  <Box flex={1}>
+                    <Field.Root disabled={!canEditTime}>
+                      <Field.Label>
+                        {t('date')}{' '}
+                        <Text as="span" color="red.500">
+                          *
+                        </Text>
+                      </Field.Label>
+                      <Input
+                        type="date"
+                        value={sessionDate}
+                        onChange={(e) => handleDateChange(e.target.value)}
+                        disabled={!canEditTime}
+                        color="gray.800"
+                        bg="white"
+                        _dark={{ color: 'white', bg: 'gray.700' }}
+                        css={{
+                          '&::-webkit-date-and-time-value': {
+                            minHeight: '1.5em',
+                            display: 'flex',
+                            alignItems: 'center',
+                          },
+                        }}
+                      />
+                    </Field.Root>
+                  </Box>
+
+                  {/* Start / end time pickers */}
+                  <Stack direction="row" gap={4} flex={2}>
+                    <Box id="field-startTime" flex={1}>
+                      <Field.Root
+                        invalid={!!errors.startTime}
+                        disabled={!canEditTime}
+                      >
+                        <Field.Label>
+                          {t('start')}{' '}
+                          <Text as="span" color="red.500">
+                            *
+                          </Text>
+                        </Field.Label>
+                        <Input
+                          type="time"
+                          value={startHour}
+                          onChange={(e) =>
+                            handleStartHourChange(e.target.value)
+                          }
+                          disabled={!canEditTime}
+                          color="gray.800"
+                          bg="white"
+                          _dark={{ color: 'white', bg: 'gray.700' }}
+                          css={{
+                            '&::-webkit-date-and-time-value': {
+                              minHeight: '1.5em',
+                              display: 'flex',
+                              alignItems: 'center',
+                            },
+                          }}
+                        />
+                        <Field.ErrorText color="fg.error">
+                          {errors.startTime?.message}
+                        </Field.ErrorText>
+                      </Field.Root>
+                    </Box>
+                    <Box id="field-endTime" flex={1}>
+                      <Field.Root
+                        invalid={!!errors.endTime}
+                        disabled={!canEditTime}
+                      >
+                        <Field.Label>
+                          {t('end')}{' '}
+                          <Text as="span" color="red.500">
+                            *
+                          </Text>
+                        </Field.Label>
+                        <Input
+                          type="time"
+                          value={endHour}
+                          onChange={(e) => handleEndHourChange(e.target.value)}
+                          disabled={!canEditTime}
+                          color="gray.800"
+                          bg="white"
+                          _dark={{ color: 'white', bg: 'gray.700' }}
+                          css={{
+                            '&::-webkit-date-and-time-value': {
+                              minHeight: '1.5em',
+                              display: 'flex',
+                              alignItems: 'center',
+                            },
+                          }}
+                        />
+                        <Field.ErrorText color="fg.error">
+                          {errors.endTime?.message}
+                        </Field.ErrorText>
+                      </Field.Root>
+                    </Box>
+                  </Stack>
+                </Stack>
+              ) : (
+                /* Multi-day: original datetime-local pickers */
+                <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
+                  <Box id="field-startTime" flex={1}>
+                    <Field.Root
+                      invalid={!!errors.startTime}
                       disabled={!canEditTime}
-                      color="gray.800"
-                      bg="white"
-                      _dark={{
-                        color: 'white',
-                        bg: 'gray.700',
-                      }}
-                      css={{
-                        '&::-webkit-date-and-time-value': {
-                          minHeight: '1.5em',
-                          display: 'flex',
-                          alignItems: 'center',
-                        },
-                      }}
-                    />
-                    <Field.ErrorText color="fg.error">
-                      {errors.startTime?.message}
-                    </Field.ErrorText>
-                  </Field.Root>
-                </Box>
-                <Box flex={1}>
-                  <Field.Root
-                    invalid={!!errors.endTime}
-                    disabled={!canEditTime}
-                  >
-                    <Field.Label>
-                      {t('end')}{' '}
-                      <Text as="span" color="red.500">
-                        *
-                      </Text>
-                    </Field.Label>
-                    <Input
-                      type="datetime-local"
-                      {...register('endTime')}
+                    >
+                      <Field.Label>
+                        {t('start')}{' '}
+                        <Text as="span" color="red.500">
+                          *
+                        </Text>
+                      </Field.Label>
+                      <Input
+                        type="datetime-local"
+                        {...register('startTime')}
+                        disabled={!canEditTime}
+                        color="gray.800"
+                        bg="white"
+                        _dark={{ color: 'white', bg: 'gray.700' }}
+                        css={{
+                          '&::-webkit-date-and-time-value': {
+                            minHeight: '1.5em',
+                            display: 'flex',
+                            alignItems: 'center',
+                          },
+                        }}
+                        onInvalid={(e) => e.preventDefault()}
+                      />
+                      <Field.ErrorText color="fg.error">
+                        {errors.startTime?.message}
+                      </Field.ErrorText>
+                    </Field.Root>
+                  </Box>
+                  <Box id="field-endTime" flex={1}>
+                    <Field.Root
+                      invalid={!!errors.endTime}
                       disabled={!canEditTime}
-                      color="gray.800"
-                      bg="white"
-                      _dark={{
-                        color: 'white',
-                        bg: 'gray.700',
-                      }}
-                      css={{
-                        '&::-webkit-date-and-time-value': {
-                          minHeight: '1.5em',
-                          display: 'flex',
-                          alignItems: 'center',
-                        },
-                      }}
-                    />
-                    <Field.ErrorText color="fg.error">
-                      {errors.endTime?.message}
-                    </Field.ErrorText>
-                  </Field.Root>
-                </Box>
-              </Stack>
-              <Text fontSize="sm" color="fg.muted" mt={2}>
-                {t('duration')}: {Math.floor(sessionDuration / 60)}h{' '}
-                {sessionDuration % 60}m
-              </Text>
+                    >
+                      <Field.Label>
+                        {t('end')}{' '}
+                        <Text as="span" color="red.500">
+                          *
+                        </Text>
+                      </Field.Label>
+                      <Input
+                        type="datetime-local"
+                        {...register('endTime')}
+                        disabled={!canEditTime}
+                        color="gray.800"
+                        bg="white"
+                        _dark={{ color: 'white', bg: 'gray.700' }}
+                        css={{
+                          '&::-webkit-date-and-time-value': {
+                            minHeight: '1.5em',
+                            display: 'flex',
+                            alignItems: 'center',
+                          },
+                        }}
+                        onInvalid={(e) => e.preventDefault()}
+                      />
+                      <Field.ErrorText color="fg.error">
+                        {errors.endTime?.message}
+                      </Field.ErrorText>
+                    </Field.Root>
+                  </Box>
+                </Stack>
+              )}
+
+              {startTime && endTime && (
+                <Text fontSize="sm" color="fg.muted" mt={2}>
+                  {t('duration')}: {Math.floor(sessionDuration / 60)}h{' '}
+                  {sessionDuration % 60}m
+                </Text>
+              )}
             </Box>
 
             {/* Courts Configuration Section */}
             <Box
+              id="field-courts"
               bg={{ base: 'white', _dark: 'gray.800' }}
               p={6}
               borderRadius="lg"
@@ -1078,6 +1346,7 @@ export default function SessionForm({
                   type="button"
                   onClick={handleAddCourt}
                   size="sm"
+                  variant="outline"
                   disabled={!canEditCourts}
                 >
                   <Plus size={16} style={{ marginRight: '8px' }} />
@@ -1438,6 +1707,8 @@ export default function SessionForm({
             {/* Bulk Session Creation Section - Only show in create mode */}
             {!isEditMode && user?.role !== UserRole.PLAYER && (
               <BulkSessionDateSelector
+                enabled={bulkEnabled}
+                onEnabledChange={setBulkEnabled}
                 baseStartTime={startTime ? new Date(startTime) : undefined}
                 onModeChange={setBulkMode}
                 onSpecificDatesChange={setSpecificDatesConfig}
@@ -1485,6 +1756,7 @@ export default function SessionForm({
                 flex={onCancel ? 1 : undefined}
                 w={onCancel ? undefined : 'full'}
               >
+                <CalendarPlus size={18} style={{ marginRight: '8px' }} />
                 {submitButtonText ||
                   (isEditMode ? t('saveChanges') : t('createSession'))}
               </Button>

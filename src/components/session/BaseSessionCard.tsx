@@ -363,7 +363,7 @@ const BaseSessionCard = ({
         <Button
           key="view-registration"
           colorPalette="green"
-          variant="outline"
+          variant="subtle"
           size="sm"
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
@@ -385,6 +385,7 @@ const BaseSessionCard = ({
           key="view-session"
           href={viewSessionHref}
           colorPalette="green"
+          variant="subtle"
           size="sm"
         >
           <Icon as={LogIn} boxSize={4} />
@@ -404,7 +405,8 @@ const BaseSessionCard = ({
         <NextLinkButton
           key="manage"
           href={manageHref}
-          colorPalette="green"
+          colorPalette="gray"
+          variant="outline"
           size="sm"
         >
           <Icon as={Settings} boxSize={4} />
@@ -419,6 +421,7 @@ const BaseSessionCard = ({
         <Button
           key="register"
           colorPalette="green"
+          variant="solid"
           size="sm"
           disabled={actions.registerButtonDisabled || isFull}
           onClick={(e: React.MouseEvent) => {
@@ -435,18 +438,14 @@ const BaseSessionCard = ({
     // Render layout if we have any buttons or menu items
     if (menuItems.length > 0 || rightButtons.length > 0) {
       return (
-        <Flex
-          w="full"
-          justify={menuItems.length > 0 ? 'space-between' : 'flex-end'}
-          align="center"
-        >
-          {/* Left side: Action menu */}
+        <Flex w="full" justify="flex-end" align="center" gap={2} wrap="wrap">
+          {/* Action menu (3 dots) on the left of buttons */}
           {menuItems.length > 0 && (
             <MenuRoot positioning={{ placement: 'bottom-start' }}>
               <MenuTrigger asChild>
                 <IconButton
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   colorPalette="gray"
                   aria-label="Actions"
                   icon={<Icon as={MoreVertical} />}
@@ -472,7 +471,7 @@ const BaseSessionCard = ({
             </MenuRoot>
           )}
           {/* Right side: Other action buttons */}
-          <Flex gap={2}>{rightButtons}</Flex>
+          {rightButtons}
         </Flex>
       );
     }

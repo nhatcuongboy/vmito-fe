@@ -14,19 +14,14 @@ export function useBottomNavVisibility() {
     if (pathname.match(/\/host\/tournaments\/[^/]+$/)) return true;
 
     return (
+      // Exclude auth pages - they have their own full-screen layout (no MainLayout)
+      // Prevents bottom nav from showing during "Redirecting..." state after login
+      pathname.includes('/auth/') ||
       // Exclude session detail pages
       pathname.includes('/host/sessions/') ||
       pathname.includes('/player/sessions/') ||
       // Public session detail
       pathname.match(/\/sessions\/[^/]+$/) ||
-      // Exclude tournament sub-pages management that might need full screen or have their own nav
-      // But keep bottom nav for main lists if desired. For now based on requirements:
-      // "Except session detail content" -> We only definitely exclude session details.
-      // However, host tournament management usually has many tabs (Overview, Categories, etc)
-      // so we might want to exclude it to avoid double bottom bars if they use bottom bars too.
-      // The requirement only mentioned SessionDetailContent.
-      // Let's stick to excluding Session Details for now.
-
       // Also potentially exclude specific full-screen flows like /join/confirm if needed
       pathname.includes('/join/confirm')
     );

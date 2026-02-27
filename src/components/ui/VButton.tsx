@@ -34,7 +34,7 @@ export const VButton = ({
     return (
       <Button colorPalette={colorPalette} {...props}>
         {leftIcon && (
-          <Box mr="2" display="inline-block">
+          <Box mr="1" display="inline-block">
             {leftIcon}
           </Box>
         )}
@@ -50,7 +50,7 @@ export const VButton = ({
       <LinkComponent href={href} style={{ textDecoration: 'none' }}>
         <Button colorPalette={colorPalette} {...props}>
           {leftIcon && (
-            <Box mr="2" display="inline-block">
+            <Box mr="1" display="inline-block">
               {leftIcon}
             </Box>
           )}
@@ -73,7 +73,7 @@ export const VButton = ({
       {...props}
     >
       {leftIcon && (
-        <Box mr="2" display="inline-block">
+        <Box mr="1" display="inline-block">
           {leftIcon}
         </Box>
       )}

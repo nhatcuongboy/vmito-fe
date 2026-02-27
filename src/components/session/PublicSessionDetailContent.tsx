@@ -185,9 +185,12 @@ export const PublicSessionDetailContent = ({
         ? `/player/sessions/${session.id}`
         : `/host/sessions/${session.id}`,
     showViewButton: false,
-    showViewRegistrationButton: !isOwner && !!userRegistrationStatus,
+    showViewRegistrationButton:
+      !isOwner &&
+      !!userRegistrationStatus &&
+      userRegistrationStatus !== 'APPROVED',
     onViewRegistration: onOpenViewRegistrationModal,
-    showViewSessionButton: userRegistrationStatus === 'APPROVED' || isAdmin,
+    showViewSessionButton: userRegistrationStatus === 'APPROVED',
     showRegisterButton: !userRegistrationStatus && (isAdmin || !isOwner),
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
@@ -300,6 +303,7 @@ export const PublicSessionDetailContent = ({
           title={t('hostInfo') || 'Thông tin Host'}
           size="md"
           hideSecondaryAction={true}
+          maxBodyHeight="80vh"
         >
           <AppHostDetail
             userId={session.hostId}

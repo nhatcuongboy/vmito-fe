@@ -121,6 +121,7 @@ export const SessionService = {
     sortByDistance?: boolean;
     page?: number;
     limit?: number;
+    hostId?: string;
   }): Promise<{
     data: ISession[];
     pagination: {
@@ -155,6 +156,7 @@ export const SessionService = {
       params.append('page', filters.page.toString());
     if (filters?.limit !== undefined)
       params.append('limit', filters.limit.toString());
+    if (filters?.hostId) params.append('hostId', filters.hostId);
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

@@ -4,6 +4,7 @@ import { Flex, Text, Icon, HStack } from '@chakra-ui/react';
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useAuthStore } from '@/stores/useAuthStore';
 import ViewModeToggle from './ViewModeToggle';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 
@@ -26,6 +27,7 @@ export default function ResultsHeader({
 }: ResultsHeaderProps) {
   const t = useTranslations('session');
   const tSuggestions = useTranslations('suggestions');
+  const { isAuthenticated } = useAuthStore();
 
   return (
     <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
@@ -45,7 +47,7 @@ export default function ResultsHeader({
       {/* Right: Mode toggle + View mode toggle */}
       <HStack gap={2}>
         {/* Mode Toggle Button (On/Off) */}
-        {mode && onModeChange && (
+        {mode && onModeChange && isAuthenticated && (
           <Button
             size="sm"
             variant={mode === 'auto' ? 'solid' : 'outline'}

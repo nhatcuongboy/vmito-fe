@@ -156,6 +156,7 @@
     "start": "开始",
     "end": "结束",
     "duration": "时长",
+    "multiDay": "多天",
     "shuttlecock": "用球",
     "allLevelsAllowedMessage": "欢迎所有等级",
     "location": "地点",
@@ -197,7 +198,7 @@
     },
     "courtsAvailable": "场地",
     "players": "玩家",
-    "manageSession": "主持人",
+    "manageSession": "Host",
     "host": "主办方",
     "deleteSession": "删除",
     "viewSession": "进入球场",
@@ -467,7 +468,10 @@
       "contact": "联系方式",
       "rating": "评分",
       "call": "拨打电话",
-      "email": "电子邮件"
+      "zalo": "Zalo 联系",
+      "email": "电子邮件",
+      "totalHosted": "已主办场次",
+      "availableSessions": "开放场次"
     },
     "bulkCreation": {
       "title": "批量创建场次",
@@ -483,6 +487,8 @@
       "weeksUnit": "周（最多 52）",
       "selectedDates": "已选日期 ({count}):",
       "selectedWeekdays": "已选星期：",
+      "enable": "开启批量创建",
+      "disable": "关闭批量创建",
       "totalSessions": "将创建的总场数：",
       "sessionsPerWeek": "天/周",
       "totalSessionsCalc": "{perWeek} 天/周 × {weeks} 周 = {total} 场",
