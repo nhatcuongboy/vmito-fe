@@ -277,8 +277,6 @@ const FindSessionCard = ({
     onDelete: onOpenDeleteModal,
 
     // Bottom actions - right side
-    showViewButton: true,
-
     // For owner or ADMIN: show manage button
     showManageButton: canManage,
     // manageButtonHref:
@@ -297,9 +295,8 @@ const FindSessionCard = ({
     // For approved players: show view session button
     showViewSessionButton: userRegistrationStatus === 'APPROVED',
 
-    // For non-registered users: show register button (hidden for non-admin owners)
-    showRegisterButton:
-      !userRegistrationStatus && !isJoined && (isAdmin || !isOwner),
+    // For non-registered users: show register button (hidden for owners)
+    showRegisterButton: !userRegistrationStatus && !isJoined && !isOwner,
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
   };

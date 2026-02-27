@@ -19,7 +19,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Menu } from 'lucide-react';
+import { LogIn, Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -189,6 +189,7 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
                   }}
                   transition="all 0.2s"
                 >
+                  <LogIn size={16} />
                   {common('login')}
                 </Button>
               )}

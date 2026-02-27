@@ -28,11 +28,9 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
   if (!user) return null;
 
   const handleSuccess = (data: ExtractedSessionData) => {
-    // Redirect to create session page with AI-extracted data
-    const queryParams = new URLSearchParams({
-      aiData: JSON.stringify(data),
-    });
-    router.push(`${ROUTES.SESSIONS.NEW}?${queryParams.toString()}`);
+    // Save AI-extracted data to sessionStorage so SessionForm can pick it up
+    sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
+    router.push(ROUTES.SESSIONS.NEW);
   };
 
   return (

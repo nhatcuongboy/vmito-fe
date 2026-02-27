@@ -89,7 +89,8 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
       }}
       zIndex={50}
       mb={4}
-      p={4}
+      px={3}
+      py={2}
       bg="white"
       borderRadius="lg"
       borderWidth="1px"
@@ -97,7 +98,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
       shadow="sm"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      <Flex gap={3} direction="row" flexWrap="wrap" align="stretch">
+      <Flex gap={2} direction="row" flexWrap="wrap" align="center">
         {/* Search Filter - Full width on mobile, flexible on desktop */}
         {showSearchFilter && (
           <Box flex={{ base: '1 1 100%', lg: '1 1 300px' }}>
@@ -105,13 +106,22 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
               placeholder={t('searchSessions')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              bg="gray.50"
+              bg="white"
               borderColor="gray.200"
-              h="40px"
+              h="36px"
               fontSize="sm"
               _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-              leftElement={<Search size={18} style={{ opacity: 0.5 }} />}
+              leftElement={
+                <Box color="gray.400">
+                  <Search size={16} />
+                </Box>
+              }
+              _focus={{
+                borderColor: 'brand.500',
+                boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+              }}
               _placeholder={{ color: 'gray.400' }}
+              transition="all 0.2s"
             />
           </Box>
         )}

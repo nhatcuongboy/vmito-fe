@@ -24,8 +24,8 @@ export default function PlayerDashboard() {
     async function fetchPlayerSessions() {
       try {
         setLoading(true);
-        const sessionData = await PlayerService.getMySessions();
-        setSessions(sessionData);
+        const sessionResponse = await PlayerService.getMySessions();
+        setSessions(sessionResponse.data);
       } catch (err) {
         setError(t('loadingError'));
         console.error('Error fetching player sessions:', err);

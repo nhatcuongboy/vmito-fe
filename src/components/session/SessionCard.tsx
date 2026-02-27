@@ -179,9 +179,6 @@ const SessionCard = ({
     showDeleteButton: (mode === 'manage' || canManage) && !!onDelete,
     onDelete: onDelete ? () => onOpenDeleteModal() : undefined,
 
-    // View button (always show)
-    showViewButton: true,
-
     // View registration button (for non-owners with registration)
     showViewRegistrationButton:
       !isOwner &&

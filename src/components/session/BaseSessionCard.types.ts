@@ -38,18 +38,6 @@ export interface SessionActionConfig {
 
   // Bottom action buttons - Right side
   /**
-   * Show view button (public session detail page)
-   * Default href: /sessions/{id}
-   */
-  showViewButton?: boolean;
-
-  /**
-   * Custom href for view button
-   * @default /sessions/{id}
-   */
-  viewButtonHref?: string;
-
-  /**
    * Show manage button (for session owner)
    * Routes to host or player manage page based on role
    */

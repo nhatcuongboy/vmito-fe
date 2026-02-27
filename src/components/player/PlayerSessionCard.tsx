@@ -88,7 +88,6 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
 
   // Action configuration for player session card
   const actions: SessionActionConfig = {
-    showViewButton: true,
     showViewSessionButton: true,
   };
 

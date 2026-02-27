@@ -21,11 +21,22 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
   const router = useRouter();
   const { user } = useAuthStore();
 
-  const bgColor: string = useColorModeValue('white', 'gray.800');
-  const borderColor: string = useColorModeValue('gray.200', 'gray.700');
-  const inputBg: string = useColorModeValue('gray.50', 'gray.700');
-  const inputHoverBg: string = useColorModeValue('gray.100', 'gray.600');
-  const placeholderColor: string = useColorModeValue('gray.500', 'gray.400');
+  const aiBg: string = useColorModeValue(
+    'linear-gradient(135deg, rgba(139, 92, 246, 0.07) 0%, rgba(20, 184, 166, 0.07) 100%)',
+    'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(20, 184, 166, 0.15) 100%)'
+  );
+  const inputBg: string = useColorModeValue(
+    'rgba(255,255,255,0.7)',
+    'rgba(26,32,44,0.6)'
+  );
+  const inputHoverBg: string = useColorModeValue(
+    'rgba(255,255,255,0.95)',
+    'rgba(26,32,44,0.8)'
+  );
+  const placeholderColor: string = useColorModeValue(
+    'purple.500',
+    'purple.300'
+  );
 
   if (!user) return null;
 
@@ -35,9 +46,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
 
   return (
     <Box
-      bg={bgColor}
-      borderWidth="1px"
-      borderColor={borderColor}
+      style={{ background: aiBg }}
       borderRadius="xl"
       p={1.5}
       shadow="sm"
@@ -46,23 +55,30 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
         shadow: 'md',
       }}
     >
-      <Flex gap={2} align="center" h="38px">
+      <Flex gap={2} align="center" h="40px">
         {/* AI Trigger Area (Looks like an input) */}
         <Flex
           flex={1}
           bg={inputBg}
           borderRadius="full"
           px={3}
-          h="38px"
+          h="40px"
           cursor="pointer"
           onClick={onInputClick}
           _hover={{ bg: inputHoverBg }}
           transition="background 0.2s"
           align="center"
-          gap={1}
+          gap={2}
         >
-          <Sparkles size={16} style={{ flexShrink: 0, opacity: 0.6 }} />
-          <Text color={placeholderColor} fontSize="sm" truncate>
+          <Box color="purple.400" flexShrink={0}>
+            <Sparkles size={15} />
+          </Box>
+          <Text
+            color={placeholderColor}
+            fontSize="sm"
+            fontStyle="italic"
+            truncate
+          >
             {t('quickCreate.aiPlaceholder')}
           </Text>
         </Flex>
@@ -74,7 +90,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
           borderRadius="full"
           size="sm"
           px={4}
-          h="38px"
+          h="40px"
           display="flex"
           transition="all 0.2s"
           _hover={{

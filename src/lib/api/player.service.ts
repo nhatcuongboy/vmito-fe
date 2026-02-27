@@ -165,7 +165,13 @@ export const PlayerService = {
     page?: number;
     limit?: number;
     searchQuery?: string;
-  }): Promise<ISession[]> => {
+  }): Promise<{
+    data: ISession[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> => {
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
@@ -174,8 +180,24 @@ export const PlayerService = {
     const url = params.toString()
       ? `/players/me/sessions?${params.toString()}`
       : '/players/me/sessions';
-    const response = await api.get<ApiResponse<ISession[]>>(url);
-    return response.data.data || [];
+    const response = await api.get<
+      ApiResponse<{
+        data: ISession[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>
+    >(url);
+    return (
+      response.data.data || {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 12,
+        totalPages: 0,
+      }
+    );
   },
 
   // Register players for a session

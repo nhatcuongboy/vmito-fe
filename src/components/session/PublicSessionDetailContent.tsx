@@ -184,14 +184,13 @@ export const PublicSessionDetailContent = ({
       user?.role === UserRole.PLAYER
         ? `/player/sessions/${session.id}`
         : `/host/sessions/${session.id}`,
-    showViewButton: false,
     showViewRegistrationButton:
       !isOwner &&
       !!userRegistrationStatus &&
       userRegistrationStatus !== 'APPROVED',
     onViewRegistration: onOpenViewRegistrationModal,
     showViewSessionButton: userRegistrationStatus === 'APPROVED',
-    showRegisterButton: !userRegistrationStatus && (isAdmin || !isOwner),
+    showRegisterButton: !userRegistrationStatus && !isOwner,
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
   };
@@ -249,6 +248,7 @@ export const PublicSessionDetailContent = ({
             registrationBadgeContent={registrationStatusBadge}
             actions={actions}
             onHostClick={onOpenHostDetailModal}
+            disableCardLink
           />
         </Flex>
 

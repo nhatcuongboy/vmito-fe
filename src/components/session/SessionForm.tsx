@@ -1168,6 +1168,9 @@ export default function SessionForm({
                         value={sessionDate}
                         onChange={(e) => handleDateChange(e.target.value)}
                         disabled={!canEditTime}
+                        min={
+                          !isEditMode ? formatDateOnly(new Date()) : undefined
+                        }
                         color="gray.800"
                         bg="white"
                         _dark={{ color: 'white', bg: 'gray.700' }}

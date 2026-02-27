@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Box, Flex, Text, Avatar, Portal, IconButton } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Text,
+  Avatar,
+  Portal,
+  IconButton,
+  Badge,
+} from '@chakra-ui/react';
 import {
   ChevronDown,
   User as UserIcon,
@@ -16,6 +24,7 @@ import {
   Monitor,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { UserRole } from '@/lib/api/types';
 import { useTranslations, useLocale } from 'next-intl';
 import UserProfileModal from './UserProfileModal';
 import { useRouter, usePathname } from '@/i18n/config';
@@ -388,9 +397,31 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                       {user.image && <Avatar.Image src={user.image} />}
                     </Avatar.Root>
                     <Box flex={1}>
-                      <Text fontSize="md" fontWeight="semibold">
-                        {user.name || 'User'}
-                      </Text>
+                      <Flex align="center" gap={2}>
+                        <Text fontSize="md" fontWeight="semibold">
+                          {user.name || 'User'}
+                        </Text>
+                        {user.role === UserRole.HOST && (
+                          <Badge
+                            colorPalette="green"
+                            size="sm"
+                            fontSize="xs"
+                            borderRadius="md"
+                          >
+                            {common('roleHost')}
+                          </Badge>
+                        )}
+                        {user.role === UserRole.ADMIN && (
+                          <Badge
+                            colorPalette="purple"
+                            size="sm"
+                            fontSize="xs"
+                            borderRadius="md"
+                          >
+                            {common('roleAdmin')}
+                          </Badge>
+                        )}
+                      </Flex>
                       <Text
                         fontSize="sm"
                         color="gray.600"

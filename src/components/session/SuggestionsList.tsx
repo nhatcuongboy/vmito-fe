@@ -171,8 +171,10 @@ export default function SuggestionsList({
         // Fetch user-specific data
         if (user) {
           try {
-            const mySessions = await PlayerService.getMySessions();
-            setJoinedSessionIds(new Set(mySessions.map((s) => s.id)));
+            const mySessionsResponse = await PlayerService.getMySessions();
+            setJoinedSessionIds(
+              new Set(mySessionsResponse.data.map((s) => s.id))
+            );
 
             const registrations = await PlayerService.getMyRegistrations();
             const statusMap: Record<

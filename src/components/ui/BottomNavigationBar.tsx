@@ -44,7 +44,7 @@ export default function BottomNavigationBar({
       borderTopWidth="1px"
       borderTopColor="border"
       boxShadow="sm"
-      display="flex"
+      display={{ base: 'flex', md: 'none' }}
       justifyContent="space-around"
       alignItems="center"
       height="calc(64px + env(safe-area-inset-bottom))"

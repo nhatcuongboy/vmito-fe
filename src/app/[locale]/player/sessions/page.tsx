@@ -15,12 +15,14 @@ import PageLayout from '@/components/layout/PageLayout';
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
 import { useDebounce } from '@/hooks/useDebounce';
+import ResultsHeader from '@/components/session/ResultsHeader';
 
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -47,20 +49,21 @@ function PlayerSessionsContent() {
       }
 
       const currentPage = isLoadMore ? page + 1 : 1;
-      const sessionData = await PlayerService.getMySessions({
+      const response = await PlayerService.getMySessions({
         page: currentPage,
         limit: PAGE_SIZE,
         searchQuery: debouncedSearchQuery,
       });
 
       if (isLoadMore) {
-        setSessions((prev) => [...prev, ...sessionData]);
+        setSessions((prev) => [...prev, ...response.data]);
         setPage(currentPage);
       } else {
-        setSessions(sessionData);
+        setSessions(response.data);
+        setTotalCount(response.total);
       }
 
-      setHasMore(sessionData.length === PAGE_SIZE);
+      setHasMore(currentPage < response.totalPages);
     } catch (err) {
       console.error('Error fetching player sessions:', err);
     } finally {
@@ -141,6 +144,7 @@ function PlayerSessionsContent() {
         showLevelFilter={false}
       />
 
+      <ResultsHeader count={totalCount} />
       <SessionsList
         sessions={filteredSessions}
         isLoading={loading}

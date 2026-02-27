@@ -270,11 +270,12 @@ export default function VenueSearchList() {
         mb={6}
       >
         <Flex
-          gap={3}
+          gap={2}
           align="center"
           bg="white"
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          p={3}
+          px={3}
+          h="48px"
           borderRadius="lg"
           borderWidth="1px"
           borderColor="gray.200"
@@ -282,16 +283,16 @@ export default function VenueSearchList() {
         >
           <Box flex="1" minW="200px">
             <Input
-              h="44px"
+              h="36px"
               placeholder="Tìm sân cầu lông..."
               value={keyword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setKeyword(e.target.value)
               }
-              bg="gray.50"
+              bg="white"
               _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
               borderRadius="md"
-              leftElement={<Search size={20} />}
+              leftElement={<Search size={18} />}
               _focus={{
                 borderColor: 'brand.500',
                 boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
@@ -300,20 +301,21 @@ export default function VenueSearchList() {
                   bg: 'gray.600',
                 },
               }}
-              fontSize="md"
+              fontSize="sm"
               transition="all 0.2s"
             />
           </Box>
 
           <Box position="relative">
             <IconButton
-              h="44px"
-              w="44px"
+              h="36px"
+              w="36px"
+              minW="36px"
               variant="solid"
               colorPalette="green"
               onClick={toggleFilters}
               aria-label="Bộ lọc"
-              icon={<Filter size={20} />}
+              icon={<Filter size={18} />}
               borderRadius="md"
               transition="all 0.2s"
               _hover={{
