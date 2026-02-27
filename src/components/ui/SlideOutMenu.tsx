@@ -3,7 +3,7 @@
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { Box, Flex, Text, Stack, Separator } from '@chakra-ui/react';
 import {
-  Home,
+  Search,
   Info,
   LogIn,
   Receipt,
@@ -12,6 +12,7 @@ import {
   Calendar,
   Ticket,
   Users,
+  UserSearch,
   Bell,
   MapPin,
   UserPlus,
@@ -174,7 +175,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         md: isCollapsed ? 'center' : 'flex-start',
                       }}
                     >
-                      <Home
+                      <Search
                         size={18}
                         color={
                           pathname === ROUTES.HOME
@@ -268,7 +269,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         md: isCollapsed ? 'center' : 'flex-start',
                       }}
                     >
-                      <Users
+                      <UserSearch
                         size={18}
                         color={
                           pathname.startsWith(ROUTES.CLUBS.BROWSE)

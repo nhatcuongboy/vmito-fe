@@ -22,6 +22,8 @@ export function useBottomNavVisibility() {
       pathname.includes('/player/sessions/') ||
       // Public session detail
       pathname.match(/\/sessions\/[^/]+$/) ||
+      // Exclude about page (static)
+      pathname.includes('/about') ||
       // Also potentially exclude specific full-screen flows like /join/confirm if needed
       pathname.includes('/join/confirm')
     );

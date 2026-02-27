@@ -15,11 +15,11 @@
     "venues": "Venues",
     "browseVenues": "Browse Venues",
     "browseClubs": "Browse Clubs",
-    "myClubs": "My Clubs",
+    "myClubs": "Clubs",
     "manageGroups": "Manage Groups",
     "clubs": "Clubs",
     "clubsAdmin": "Approve Clubs",
-    "createClub": "Create New Club",
+    "createClub": "Create Group",
     "pendingJoinRequests": "Join Requests",
     "suggestions": "For You"
   },

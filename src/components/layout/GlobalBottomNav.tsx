@@ -8,12 +8,12 @@ import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
 import {
-  Home,
   Search,
-  Trophy,
   Ticket,
   Calendar,
-  ClipboardCheck,
+  Users,
+  MapPin,
+  CheckCircle,
 } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
@@ -31,80 +31,62 @@ export default function GlobalBottomNav() {
   // Check visibility using the hook
   const isBottomNavVisible = useBottomNavVisibility();
 
+  const isAdminContext = useMemo(
+    () => !!pathname?.startsWith('/admin'),
+    [pathname]
+  );
+
   const tabs = useMemo<NavigationTab[]>(() => {
     if (!isAuthenticated || !user) return [];
 
-    if (user.role === UserRole.ADMIN) {
+    // ADMIN on admin pages → admin management tabs
+    if (user.role === UserRole.ADMIN && isAdminContext) {
       return [
-        { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
+        { id: 10, label: t('home'), icon: Search, href: ROUTES.HOME },
         {
-          id: 2,
-          label: t('host'),
-          icon: Calendar,
-          href: ROUTES.HOST.SESSIONS.LIST,
+          id: 11,
+          label: t('venues'),
+          icon: MapPin,
+          href: ROUTES.ADMIN.VENUES,
         },
         {
-          id: 6,
-          label: t('joined'),
-          icon: Ticket,
-          href: ROUTES.PLAYER.SESSIONS.LIST,
+          id: 12,
+          label: t('users'),
+          icon: Users,
+          href: ROUTES.ADMIN.USERS,
         },
         {
-          id: 7,
-          label: t('pendingJoinRequests'),
-          icon: ClipboardCheck,
-          href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
+          id: 13,
+          label: t('clubsAdmin'),
+          icon: CheckCircle,
+          href: ROUTES.ADMIN.CLUBS,
         },
       ];
     }
 
-    if (user.role === UserRole.HOST) {
-      return [
-        { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
-        {
-          id: 2,
-          label: t('host'),
-          icon: Calendar,
-          href: ROUTES.HOST.SESSIONS.LIST,
-        },
-        {
-          id: 6,
-          label: t('joined'),
-          icon: Ticket,
-          href: ROUTES.PLAYER.SESSIONS.LIST,
-        },
-        {
-          id: 7,
-          label: t('pendingJoinRequests'),
-          icon: ClipboardCheck,
-          href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
-        },
-      ];
-    }
-
-    // Default to Player view (including Guest if they are authenticated via some mechanism)
+    // PLAYER, HOST and ADMIN (on non-admin pages) share the same tabs
     return [
-      { id: 1, label: t('home'), icon: Home, href: ROUTES.HOME },
-      {
-        id: 4,
-        label: t('host'),
-        icon: Calendar,
-        href: ROUTES.PLAYER.HOST_FEATURE,
-      },
+      { id: 1, label: t('home'), icon: Search, href: ROUTES.HOME },
       {
         id: 2,
+        label: t('host'),
+        icon: Calendar,
+        href: ROUTES.HOST.SESSIONS.LIST,
+      },
+      {
+        id: 3,
         label: t('joined'),
         icon: Ticket,
         href: ROUTES.PLAYER.SESSIONS.LIST,
       },
       {
-        id: 7,
-        label: t('pendingJoinRequests'),
-        icon: ClipboardCheck,
-        href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
+        id: 4,
+        label: t('myClubs'),
+        icon: Users,
+        href: ROUTES.CLUBS.MY_CLUBS,
       },
     ];
-  }, [isAuthenticated, user, t]);
+  }, [isAuthenticated, user, isAdminContext, t]);
 
   // Handle Tab Change
   const handleTabChange = (tabId: number) => {

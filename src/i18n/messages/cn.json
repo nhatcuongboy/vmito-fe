@@ -15,11 +15,11 @@
     "venues": "场地",
     "browseVenues": "浏览场地",
     "browseClubs": "浏览俱乐部",
-    "myClubs": "我的俱乐部",
+    "myClubs": "俱乐部",
     "manageGroups": "Manage Groups",
     "clubs": "俱乐部",
     "clubsAdmin": "审核俱乐部",
-    "createClub": "创建新俱乐部",
+    "createClub": "创建群组",
     "pendingJoinRequests": "加入请求",
     "suggestions": "推荐"
   },

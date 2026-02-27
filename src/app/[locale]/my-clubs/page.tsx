@@ -18,10 +18,13 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { UserRole } from '@/lib/api/types';
+import { ROUTES } from '@/constants';
 import {
   ChevronRight,
   ClipboardList,
   Clock,
+  Plus,
   UserCircle,
   Users,
 } from 'lucide-react';
@@ -32,6 +35,9 @@ export default function MyClubsPage() {
   const t = useTranslations();
   const router = useRouter();
   const { user: currentUser } = useAuthStore();
+
+  const isHostOrAdmin =
+    currentUser?.role === UserRole.HOST || currentUser?.role === UserRole.ADMIN;
 
   const [myClubs, setMyClubs] = useState<IMyClub[]>([]);
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);
@@ -76,17 +82,29 @@ export default function MyClubsPage() {
 
       {/* Section 1: Joined Clubs */}
       <Box mb={12}>
-        <HStack mb={6} gap={2}>
-          <Users size={20} />
-          <Heading size="lg">{t('clubs.myClubs')}</Heading>
-          <Badge
-            colorPalette="green"
-            variant="subtle"
-            borderRadius="full"
-            px={2}
-          >
-            {myClubs.length}
-          </Badge>
+        <HStack mb={6} gap={2} justify="space-between">
+          <HStack gap={2}>
+            <Users size={20} />
+            <Heading size="lg">{t('clubs.myClubs')}</Heading>
+            <Badge
+              colorPalette="green"
+              variant="subtle"
+              borderRadius="full"
+              px={2}
+            >
+              {myClubs.length}
+            </Badge>
+          </HStack>
+          {isHostOrAdmin && (
+            <Button
+              colorPalette="green"
+              size="sm"
+              onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
+            >
+              <Plus size={16} />
+              {t('navigation.createClub')}
+            </Button>
+          )}
         </HStack>
 
         {myClubs.length === 0 ? (

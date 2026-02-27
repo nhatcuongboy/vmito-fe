@@ -15,11 +15,11 @@
     "venues": "Sân bãi",
     "browseVenues": "Tra cứu sân",
     "browseClubs": "Tra cứu nhóm",
-    "myClubs": "Nhóm của tôi",
+    "myClubs": "Nhóm",
     "manageGroups": "Quản lý nhóm",
     "clubs": "Câu lạc bộ",
     "clubsAdmin": "Duyệt nhóm",
-    "createClub": "Tạo CLB mới",
+    "createClub": "Tạo nhóm",
     "pendingJoinRequests": "Yêu cầu tham gia",
     "suggestions": "Gợi ý"
   },
