@@ -13,7 +13,10 @@ import { SessionService } from '@/lib/api/session.service';
 import { VenueService } from '@/lib/api/venue.service';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
+import {
+  useSessionFilterStore,
+  toApiSort,
+} from '@/stores/useSessionFilterStore';
 import {
   Badge,
   Box,
@@ -74,6 +77,7 @@ export default function FindSessionList({
     clearFilters: clearStoreFilters,
     sortByDistance,
     setSortByDistance,
+    sortBy,
     userLocation,
     setUserLocation,
   } = useSessionFilterStore();
@@ -207,6 +211,13 @@ export default function FindSessionList({
         apiFilters.lat = userLocation.lat;
         apiFilters.lng = userLocation.lng;
         apiFilters.sortByDistance = true;
+      }
+
+      // Pass sort params to API
+      const apiSortParams = toApiSort(sortBy);
+      if (apiSortParams.sortBy) {
+        apiFilters.sortBy = apiSortParams.sortBy;
+        apiFilters.sortOrder = apiSortParams.sortOrder;
       }
 
       // Add level filter (basic logic: pass first selected level or handle in client)
@@ -345,6 +356,7 @@ export default function FindSessionList({
     sortByDistance,
     userLocation,
     filters.searchQuery,
+    sortBy,
   ]);
 
   // Trigger load more when in view
@@ -449,13 +461,37 @@ export default function FindSessionList({
     setIsDetailModalOpen(true);
   };
 
+  // Sort sessions: API handles most sorts, client-side only for distance and slots
+  const sortedSessions = useMemo(() => {
+    const sorted = [...sessions];
+    switch (sortBy) {
+      case 'distance':
+        return sorted.sort((a, b) => {
+          const distA = a.distance ?? Infinity;
+          const distB = b.distance ?? Infinity;
+          return distA - distB;
+        });
+      case 'slots_desc':
+        return sorted.sort((a, b) => {
+          const maxA = a.numberOfCourts * a.maxPlayersPerCourt;
+          const maxB = b.numberOfCourts * b.maxPlayersPerCourt;
+          const currentA = a._count?.players ?? a.players?.length ?? 0;
+          const currentB = b._count?.players ?? b.players?.length ?? 0;
+          return maxB - currentB - (maxA - currentA);
+        });
+      default:
+        // Already sorted by API
+        return sorted;
+    }
+  }, [sessions, sortBy]);
+
   // Extract unique host IDs for batch rating stats loading
   const hostIds = useMemo(() => {
-    const ids = sessions
+    const ids = sortedSessions
       .map((s) => s.hostId)
       .filter((id): id is string => id !== null && id !== undefined);
     return [...new Set(ids)];
-  }, [sessions]);
+  }, [sortedSessions]);
 
   const handleAISuccess = (data: ExtractedSessionData) => {
     // Save data to session storage to be picked up by the form
@@ -583,7 +619,7 @@ export default function FindSessionList({
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
-      ) : sessions.length === 0 ? (
+      ) : sortedSessions.length === 0 ? (
         <Box
           textAlign="center"
           py={10}
@@ -620,7 +656,7 @@ export default function FindSessionList({
             }
             gap={viewMode === 'compact' ? 4 : 6}
           >
-            {sessions.map((session) => (
+            {sortedSessions.map((session) => (
               <FindSessionCard
                 key={session.id}
                 session={session}

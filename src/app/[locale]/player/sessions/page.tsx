@@ -15,7 +15,20 @@ import PageLayout from '@/components/layout/PageLayout';
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
 import { useDebounce } from '@/hooks/useDebounce';
-import ResultsHeader from '@/components/session/ResultsHeader';
+import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
+import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
+
+const PLAYER_SORT_OPTIONS: SortOption[] = [
+  { value: 'status', labelKey: 'sort.status' },
+  { value: 'date_asc', labelKey: 'sort.dateOldest' },
+  { value: 'date_desc', labelKey: 'sort.dateNewest' },
+  { value: 'created_desc', labelKey: 'sort.createdNewest' },
+  { value: 'created_asc', labelKey: 'sort.createdOldest' },
+  { value: 'price_asc', labelKey: 'sort.priceLow' },
+  { value: 'price_desc', labelKey: 'sort.priceHigh' },
+  { value: 'distance', labelKey: 'sort.distance' },
+  { value: 'slots_desc', labelKey: 'sort.slotsAvailable' },
+];
 
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
@@ -30,6 +43,7 @@ function PlayerSessionsContent() {
   const PAGE_SIZE = 12;
 
   const [filters, setFilters] = useState<ISessionFilterState>({});
+  const [sortBy, setSortBy] = useState<SessionSortBy>('status');
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -49,10 +63,12 @@ function PlayerSessionsContent() {
       }
 
       const currentPage = isLoadMore ? page + 1 : 1;
+      const apiSortParams = toApiSort(sortBy);
       const response = await PlayerService.getMySessions({
         page: currentPage,
         limit: PAGE_SIZE,
         searchQuery: debouncedSearchQuery,
+        ...apiSortParams,
       });
 
       if (isLoadMore) {
@@ -77,7 +93,7 @@ function PlayerSessionsContent() {
       fetchPlayerSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, debouncedSearchQuery]);
+  }, [user?.id, debouncedSearchQuery, sortBy]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -115,15 +131,20 @@ function PlayerSessionsContent() {
       setSearchQuery(filters.searchQuery || '');
     }
 
-    // Default sort by date (newest first)
-    result.sort((a, b) => {
-      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
-      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
-      return dateB - dateA;
-    });
+    // Client-side sort only for slots (not supported by API)
+    if (sortBy === 'slots_desc') {
+      result.sort((a, b) => {
+        const maxA = a.numberOfCourts * a.maxPlayersPerCourt;
+        const maxB = b.numberOfCourts * b.maxPlayersPerCourt;
+        const currentA = a._count?.players ?? a.players?.length ?? 0;
+        const currentB = b._count?.players ?? b.players?.length ?? 0;
+        return maxB - currentB - (maxA - currentA);
+      });
+    }
+    // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery]);
+  }, [filters, sessions, searchQuery, sortBy]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
@@ -144,7 +165,12 @@ function PlayerSessionsContent() {
         showLevelFilter={false}
       />
 
-      <ResultsHeader count={totalCount} />
+      <ResultsHeader
+        count={totalCount}
+        sortOptions={PLAYER_SORT_OPTIONS}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+      />
       <SessionsList
         sessions={filteredSessions}
         isLoading={loading}

@@ -210,6 +210,7 @@ const FindSessionCard = ({
     ) : null;
 
   // Slot availability badge
+  const availableSlots = maxPlayers - approvedPlayersCount;
   const slotAvailabilityBadge = (
     <Badge
       colorPalette={isFull ? 'gray' : 'teal'}
@@ -217,7 +218,7 @@ const FindSessionCard = ({
       borderWidth="1px"
       borderColor={isFull ? 'gray.400' : 'teal.400'}
     >
-      {isFull ? t('slotsFull') : t('slotsAvailable')}
+      {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
     </Badge>
   );
 

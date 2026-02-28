@@ -8,7 +8,15 @@ import {
 } from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
 import { CourtDirection } from '@/lib/api/types';
-import { Box, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  HStack,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -106,13 +114,13 @@ export default function LevelRequirementsCard({
         {/* All Levels Button */}
         <Button
           type="button"
-          size="md"
+          size="sm"
           width="full"
           variant={allLevelsSelected ? 'subtle' : 'outline'}
           colorPalette="green"
           onClick={handleSelectAllLevels}
           fontWeight="semibold"
-          h="44px"
+          h="34px"
           borderRadius="full"
           transition="all 0.15s ease"
           _hover={{
@@ -141,25 +149,18 @@ export default function LevelRequirementsCard({
                 flex="1"
                 minW="65px"
                 variant={isSelected ? 'solid' : 'outline'}
-                bg={
-                  isSelected
-                    ? levelColor.color
-                    : { base: 'white', _dark: 'gray.700' }
-                }
-                color={isSelected ? 'white' : 'fg'}
-                borderColor={
-                  isSelected ? levelColor.color : levelColor.borderColor
-                }
+                colorPalette={levelColor.colorPalette}
+                borderColor={isSelected ? undefined : levelColor.borderColor}
                 borderWidth="2px"
                 onClick={() => handleLevelToggle(level)}
-                borderRadius="lg"
+                borderRadius="full"
                 fontWeight="medium"
-                h="38px"
+                h="30px"
                 px={2}
                 _hover={{
                   transform: 'translateY(-1px)',
                   shadow: 'sm',
-                  borderColor: levelColor.color,
+                  borderColor: levelColor.borderColor,
                 }}
                 transition="all 0.15s ease"
               >
@@ -197,18 +198,20 @@ export default function LevelRequirementsCard({
                   .map((level: number) => {
                     const levelColor = getSkillLevelColor([level]);
                     return (
-                      <Box
+                      <Badge
                         key={level}
+                        colorPalette={levelColor.colorPalette}
+                        variant="solid"
+                        fontSize="xs"
+                        fontWeight="bold"
                         px={2.5}
                         py={0.5}
-                        bg={levelColor.color}
-                        color="white"
                         borderRadius="full"
-                        fontSize="xs"
-                        fontWeight="semibold"
+                        borderWidth="1px"
+                        borderColor={levelColor.borderColor}
                       >
                         {getLevelShortLabel(level)}
-                      </Box>
+                      </Badge>
                     );
                   })}
               </Flex>

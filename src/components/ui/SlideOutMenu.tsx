@@ -9,7 +9,7 @@ import {
   Receipt,
   CreditCard,
   BarChart3,
-  Calendar,
+  ClipboardList,
   Ticket,
   Users,
   UserSearch,
@@ -348,7 +348,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             md: isCollapsed ? 'center' : 'flex-start',
                           }}
                         >
-                          <Calendar
+                          <ClipboardList
                             size={18}
                             color={
                               pathname.startsWith(ROUTES.HOST.SESSIONS.LIST) ||

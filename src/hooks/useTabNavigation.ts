@@ -14,7 +14,7 @@ export function useTabNavigation() {
   const [activeTab, setActiveTab] = useState<number>(() => {
     const tabParam = searchParams.get('tab');
     const tabIndex = tabParam ? parseInt(tabParam, 10) : 0;
-    return tabIndex >= 0 && tabIndex <= 4 ? tabIndex : 0;
+    return tabIndex >= 0 ? tabIndex : 0;
   });
 
   // Function to update URL with current tab

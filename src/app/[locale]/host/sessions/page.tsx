@@ -19,8 +19,21 @@ import { QuickCreateSessionBar } from '@/components/session/QuickCreateSessionBa
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { useDebounce } from '@/hooks/useDebounce';
-import ResultsHeader from '@/components/session/ResultsHeader';
+import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
+import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import QuickCreateFAB from '@/components/session/QuickCreateFAB';
+
+const HOST_SORT_OPTIONS: SortOption[] = [
+  { value: 'status', labelKey: 'sort.status' },
+  { value: 'date_asc', labelKey: 'sort.dateOldest' },
+  { value: 'date_desc', labelKey: 'sort.dateNewest' },
+  { value: 'created_desc', labelKey: 'sort.createdNewest' },
+  { value: 'created_asc', labelKey: 'sort.createdOldest' },
+  { value: 'price_asc', labelKey: 'sort.priceLow' },
+  { value: 'price_desc', labelKey: 'sort.priceHigh' },
+  { value: 'distance', labelKey: 'sort.distance' },
+  { value: 'slots_desc', labelKey: 'sort.slotsAvailable' },
+];
 
 function HostSessionsContent() {
   const tNav = useTranslations('navigation');
@@ -36,6 +49,7 @@ function HostSessionsContent() {
   const PAGE_SIZE = 12;
 
   const [filters, setFilters] = useState<ISessionFilterState>({});
+  const [sortBy, setSortBy] = useState<SessionSortBy>('status');
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const { ref, inView } = useInView({
@@ -56,11 +70,13 @@ function HostSessionsContent() {
       }
 
       const currentPage = isLoadMore ? page + 1 : 1;
+      const apiSortParams = toApiSort(sortBy);
       const response = await SessionService.getAllSessions({
         page: currentPage,
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
         searchQuery: debouncedSearchQuery,
+        ...apiSortParams,
       });
 
       if (isLoadMore) {
@@ -85,7 +101,7 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, debouncedSearchQuery]);
+  }, [user?.id, debouncedSearchQuery, sortBy]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -123,15 +139,20 @@ function HostSessionsContent() {
       setSearchQuery(filters.searchQuery || '');
     }
 
-    // Default sort by date (newest first)
-    result.sort((a, b) => {
-      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
-      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
-      return dateB - dateA;
-    });
+    // Client-side sort only for slots (not supported by API)
+    if (sortBy === 'slots_desc') {
+      result.sort((a, b) => {
+        const maxA = a.numberOfCourts * a.maxPlayersPerCourt;
+        const maxB = b.numberOfCourts * b.maxPlayersPerCourt;
+        const currentA = a._count?.players ?? a.players?.length ?? 0;
+        const currentB = b._count?.players ?? b.players?.length ?? 0;
+        return maxB - currentB - (maxA - currentA);
+      });
+    }
+    // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery]);
+  }, [filters, sessions, searchQuery, sortBy]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
@@ -156,12 +177,18 @@ function HostSessionsContent() {
         showDateFilter={true}
         showSearchFilter={true}
         showLevelFilter={false}
+        resultCount={totalCount}
       />
 
       <Box mb={4}>
         <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
       </Box>
-      <ResultsHeader count={totalCount} />
+      <ResultsHeader
+        count={totalCount}
+        sortOptions={HOST_SORT_OPTIONS}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+      />
       <SessionsList
         sessions={filteredSessions}
         isLoading={loading}

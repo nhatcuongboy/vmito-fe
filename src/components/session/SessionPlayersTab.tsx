@@ -1,9 +1,18 @@
 import React from 'react';
-import { VStack, Flex, Heading, HStack, Text, Box } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import {
+  VStack,
+  Flex,
+  Heading,
+  HStack,
+  Text,
+  Box,
+  Input,
+  InputGroup,
+} from '@chakra-ui/react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import PlayerManagement from '@/components/session/PlayerManagement';
-import { LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, Player, PlayerStatus } from '@/lib/api/types';
 import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
@@ -22,7 +31,7 @@ export type PlayerFilter = PlayerStatus[];
 // Sub-tab type for Grid/List views
 export type PlayersSubTab = 'grid' | 'list';
 
-interface PlayersTabProps {
+interface SessionPlayersTabProps {
   sessionPlayers: Player[];
   playerFilter: PlayerFilter;
   setPlayerFilter: (filter: PlayerFilter) => void;
@@ -35,7 +44,7 @@ interface PlayersTabProps {
   onSubTabChange?: (subTab: PlayersSubTab) => void; // Callback to change sub-tab
 }
 
-const PlayersTab: React.FC<PlayersTabProps> = ({
+const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   sessionPlayers,
   playerFilter,
   setPlayerFilter,
@@ -51,6 +60,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   const tPlayer = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
   const [showAddPlayerModal, setShowAddPlayerModal] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   // Safe session object for hook
   const safeSession = (session || {
@@ -92,7 +102,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
     togglePlayerStatus,
     editingPlayers,
     clubs: fixedMemberGroups,
-  } = usePlayerManagement(safeSession, onPlayerUpdate);
+  } = usePlayerManagement(safeSession, onPlayerUpdate, mode);
 
   const openAddPlayerModal = () => {
     handleAddNewPlayer();
@@ -182,45 +192,24 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   };
 
   return (
-    <VStack gap={6} align="stretch">
-      {/* Players Section Header with Sub-tabs */}
-      <Flex justify="space-between" align="center" wrap="wrap" gap={3}>
-        <HStack gap={4}>
-          <Heading size="md">
-            {t('playersTab.players')}
-            {session && ` (${approvedPlayers.length}/${maxPlayers})`}
-          </Heading>
-        </HStack>
+    <VStack gap={3} align="stretch">
+      {/* Players Section Header */}
+      <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
+        <Heading size="md">
+          {t('playersTab.players')}
+          {session && ` (${approvedPlayers.length}/${maxPlayers})`}
+        </Heading>
 
-        {/* Sub-tabs: Grid / List */}
-        <HStack
-          bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
-          borderRadius="lg"
-          p={1}
-          gap={0}
-        >
+        {mode === 'manage' && (
           <Button
             size="sm"
-            onClick={() => setSubTab('grid')}
-            leftIcon={<LayoutGrid size={14} />}
-            variant={subTab === 'grid' ? 'solid' : 'ghost'}
-            colorPalette={subTab === 'grid' ? 'brand' : 'gray'}
-            borderRadius="md"
+            colorPalette="green"
+            onClick={openAddPlayerModal}
+            leftIcon={<Box as={Plus} boxSize={4} />}
           >
-            {t('playersTab.grid')}
+            {tPlayer('addPlayer')}
           </Button>
-          <Button
-            size="sm"
-            onClick={() => setSubTab('list')}
-            leftIcon={<List size={14} />}
-            variant={subTab === 'list' ? 'solid' : 'ghost'}
-            colorPalette={subTab === 'list' ? 'brand' : 'gray'}
-            borderRadius="md"
-          >
-            {t('playersTab.list')}
-          </Button>
-        </HStack>
+        )}
       </Flex>
 
       {/* Pending Players Section */}
@@ -232,22 +221,56 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
         />
       )}
 
-      {/* Filter and Add Player row */}
-      <Flex justify="space-between" align="center" mb={2}>
+      {/* Search + Filter row */}
+      <Flex gap={2} align="center">
+        {/* Search bar */}
+        <InputGroup flex={1} startElement={<Search size={14} color="gray" />}>
+          <Input
+            placeholder={t('playersTab.searchPlayers')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="sm"
+            borderRadius="md"
+          />
+        </InputGroup>
+
+        {/* Filter button */}
         <PlayerStatusFilter
           selected={playerFilter}
           onChange={setPlayerFilter}
           counts={counts}
           totalCount={approvedPlayers.length}
         />
-        <Button
-          size="sm"
-          colorPalette="green"
-          onClick={openAddPlayerModal}
-          leftIcon={<Box as={Plus} boxSize={4} />}
+      </Flex>
+
+      {/* Sub-tabs: Grid / List — aligned right */}
+      <Flex justify="flex-end">
+        <HStack
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          borderRadius="lg"
+          p={1}
+          gap={0}
         >
-          {tPlayer('addPlayer')}
-        </Button>
+          <IconButton
+            size="sm"
+            aria-label={t('playersTab.grid')}
+            onClick={() => setSubTab('grid')}
+            variant={subTab === 'grid' ? 'solid' : 'ghost'}
+            colorPalette={subTab === 'grid' ? 'green' : 'gray'}
+            borderRadius="md"
+            icon={<LayoutGrid size={16} />}
+          />
+          <IconButton
+            size="sm"
+            aria-label={t('playersTab.list')}
+            onClick={() => setSubTab('list')}
+            variant={subTab === 'list' ? 'solid' : 'ghost'}
+            colorPalette={subTab === 'list' ? 'green' : 'gray'}
+            borderRadius="md"
+            icon={<List size={16} />}
+          />
+        </HStack>
       </Flex>
 
       {/* Grid View Content */}
@@ -256,18 +279,28 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
           {/* Filtered Players Grid */}
           {(() => {
             const filteredPlayers = approvedPlayers.filter((player) => {
-              if (playerFilter.length === 0) return true;
-              return playerFilter.includes(player.status as PlayerStatus);
+              const matchesFilter =
+                playerFilter.length === 0 ||
+                playerFilter.includes(player.status as PlayerStatus);
+              const matchesSearch =
+                !searchQuery ||
+                player.name
+                  ?.toLowerCase()
+                  .includes(searchQuery.toLowerCase()) ||
+                player.phone?.toLowerCase().includes(searchQuery.toLowerCase());
+              return matchesFilter && matchesSearch;
             });
             if (filteredPlayers.length === 0) {
-              const filterName = playerFilter
-                .map((s) => t(`playersTab.${s.toLowerCase()}`))
-                .join(', ');
-
               return (
                 <PlayerEmptyState
-                  isFiltered={playerFilter.length > 0}
-                  filterName={filterName}
+                  isFiltered={playerFilter.length > 0 || !!searchQuery}
+                  filterName={
+                    searchQuery
+                      ? `"${searchQuery}"`
+                      : playerFilter
+                          .map((s) => t(`playersTab.${s.toLowerCase()}`))
+                          .join(', ')
+                  }
                 />
               );
             }
@@ -296,6 +329,8 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
           session={session}
           onDataRefresh={onPlayerUpdate}
           playerFilter={playerFilter}
+          mode={mode}
+          searchQuery={searchQuery}
         />
       )}
 
@@ -430,4 +465,4 @@ const PlayersTab: React.FC<PlayersTabProps> = ({
   );
 };
 
-export default PlayersTab;
+export default SessionPlayersTab;

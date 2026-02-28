@@ -28,10 +28,51 @@ export interface SessionFilters {
 
 export type ViewMode = 'full' | 'compact';
 
+export type SessionSortBy =
+  | 'date_desc'
+  | 'date_asc'
+  | 'price_asc'
+  | 'price_desc'
+  | 'distance'
+  | 'slots_desc'
+  | 'created_desc'
+  | 'created_asc'
+  | 'status';
+
+/** Convert frontend SessionSortBy to backend API sortBy/sortOrder params */
+export function toApiSort(sortBy: SessionSortBy): {
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+} {
+  switch (sortBy) {
+    case 'date_asc':
+      return { sortBy: 'date', sortOrder: 'asc' };
+    case 'date_desc':
+      return { sortBy: 'date', sortOrder: 'desc' };
+    case 'price_asc':
+      return { sortBy: 'price', sortOrder: 'asc' };
+    case 'price_desc':
+      return { sortBy: 'price', sortOrder: 'desc' };
+    case 'created_asc':
+      return { sortBy: 'created', sortOrder: 'asc' };
+    case 'created_desc':
+      return { sortBy: 'created', sortOrder: 'desc' };
+    case 'status':
+      return { sortBy: 'status', sortOrder: 'asc' };
+    case 'distance':
+    case 'slots_desc':
+      // These are handled client-side or via special API params
+      return {};
+    default:
+      return {};
+  }
+}
+
 interface SessionFilterState {
   // State
   filters: SessionFilters;
   sortByDistance: boolean;
+  sortBy: SessionSortBy;
   userLocation: { lat: number; lng: number } | null;
   viewMode: ViewMode;
 
@@ -43,6 +84,7 @@ interface SessionFilterState {
   setFilters: (filters: Partial<SessionFilters>) => void;
   clearFilters: () => void;
   setSortByDistance: (sort: boolean) => void;
+  setSortBy: (sort: SessionSortBy) => void;
   setUserLocation: (location: { lat: number; lng: number } | null) => void;
   setViewMode: (mode: ViewMode) => void;
 
@@ -73,6 +115,7 @@ export const useSessionFilterStore = create<SessionFilterState>()(
       // Initial state
       filters: defaultFilters,
       sortByDistance: false,
+      sortBy: 'date_asc' as SessionSortBy,
       userLocation: null,
       viewMode: 'full' as ViewMode,
 
@@ -100,6 +143,7 @@ export const useSessionFilterStore = create<SessionFilterState>()(
           {
             filters: defaultFilters,
             sortByDistance: false,
+            sortBy: 'date_asc' as SessionSortBy,
           },
           false,
           'clearFilters'
@@ -107,6 +151,16 @@ export const useSessionFilterStore = create<SessionFilterState>()(
 
       setSortByDistance: (sort) =>
         set({ sortByDistance: sort }, false, 'setSortByDistance'),
+
+      setSortBy: (sort) =>
+        set(
+          {
+            sortBy: sort,
+            sortByDistance: sort === 'distance',
+          },
+          false,
+          'setSortBy'
+        ),
 
       setUserLocation: (location) =>
         set({ userLocation: location }, false, 'setUserLocation'),

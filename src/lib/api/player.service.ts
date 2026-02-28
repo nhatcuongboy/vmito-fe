@@ -165,6 +165,8 @@ export const PlayerService = {
     page?: number;
     limit?: number;
     searchQuery?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }): Promise<{
     data: ISession[];
     total: number;
@@ -176,6 +178,8 @@ export const PlayerService = {
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
     const url = params.toString()
       ? `/players/me/sessions?${params.toString()}`

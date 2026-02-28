@@ -7,7 +7,6 @@ import {
   Heading,
   Badge,
   Text,
-  useMediaQuery,
   Image,
   Stack,
 } from '@chakra-ui/react';
@@ -30,12 +29,12 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
   onPlayerUpdate,
 }) => {
   const t = useTranslations('SessionDetail.playersTab');
+  const tCommon = useTranslations('common');
   const [isExpanded, setIsExpanded] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [bulkActionLoading, setBulkActionLoading] = useState<
     'approve' | 'reject' | null
   >(null);
-  const [isMobile] = useMediaQuery(['(max-width: 768px)']);
 
   const handleAction = useCallback(
     async (playerId: string, status: 'APPROVED' | 'REJECTED') => {
@@ -107,7 +106,13 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
       mb={4}
     >
       {/* Section Header */}
-      <Flex justify="space-between" align="center" mb={isExpanded ? 4 : 0}>
+      <Flex
+        justify="space-between"
+        align={{ base: 'flex-start', md: 'center' }}
+        direction={{ base: 'column', sm: 'row' }}
+        gap={2}
+        mb={isExpanded ? 4 : 0}
+      >
         <Button
           size="sm"
           variant="ghost"
@@ -118,29 +123,18 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
           p={1}
           _hover={{ bg: 'purple.100', _dark: { bg: 'purple.900' } }}
         >
-          <HStack gap={2}>
-            <Heading
-              size="sm"
-              fontWeight="600"
-              color="purple.700"
-              _dark={{ color: 'purple.200' }}
-            >
-              {t('pendingRequestsCount', { count: pendingPlayers.length })}
-            </Heading>
-            <Badge
-              colorPalette="purple"
-              variant="solid"
-              borderRadius="full"
-              fontSize="xs"
-              px={2}
-            >
-              {pendingPlayers.length}
-            </Badge>
-          </HStack>
+          <Heading
+            size="sm"
+            fontWeight="600"
+            color="purple.700"
+            _dark={{ color: 'purple.200' }}
+          >
+            {t('pendingRequestsCount', { count: pendingPlayers.length })}
+          </Heading>
         </Button>
 
         {isExpanded && (
-          <HStack gap={2}>
+          <HStack gap={2} w={{ base: '100%', sm: 'auto' }}>
             <Button
               size="sm"
               colorPalette="green"
@@ -150,8 +144,9 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
               loading={bulkActionLoading === 'approve'}
               disabled={bulkActionLoading !== null}
               fontSize="xs"
+              flex={{ base: 1, sm: 'unset' }}
             >
-              {isMobile ? t('approveAllShort') || 'Approve' : t('approveAll')}
+              {t('approveAll')}
             </Button>
             <Button
               size="sm"
@@ -162,8 +157,9 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
               loading={bulkActionLoading === 'reject'}
               disabled={bulkActionLoading !== null}
               fontSize="xs"
+              flex={{ base: 1, sm: 'unset' }}
             >
-              {isMobile ? t('rejectAllShort') || 'Reject' : t('rejectAll')}
+              {t('rejectAll')}
             </Button>
           </HStack>
         )}
@@ -234,7 +230,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                         <Badge
                           colorPalette={
                             player.gender === 'MALE'
-                              ? 'brand'
+                              ? 'blue'
                               : player.gender === 'FEMALE'
                                 ? 'pink'
                                 : 'gray'
@@ -243,16 +239,18 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                           size="sm"
                         >
                           {player.gender === 'MALE'
-                            ? 'M'
+                            ? tCommon('male')
                             : player.gender === 'FEMALE'
-                              ? 'F'
-                              : 'O'}
+                              ? tCommon('female')
+                              : tCommon('other')}
                         </Badge>
                       )}
                     </HStack>
                     <HStack gap={2}>
                       <Badge colorPalette="purple" variant="subtle" size="sm">
-                        Lv {player.level || '?'}
+                        {player.level
+                          ? tCommon(`levelShorts.${player.level}`)
+                          : '?'}
                       </Badge>
                       <Text fontSize="xs" color="gray.500">
                         #{player.playerNumber}
@@ -287,7 +285,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
                   <Button
                     size="sm"
                     colorPalette="red"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => handleAction(player.id, 'REJECTED')}
                     disabled={
                       actionLoading !== null || bulkActionLoading !== null

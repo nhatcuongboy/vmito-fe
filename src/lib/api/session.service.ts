@@ -68,6 +68,8 @@ export const SessionService = {
     limit?: number;
     hostId?: string;
     searchQuery?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }): Promise<{
     data: ISession[];
     total: number;
@@ -80,6 +82,8 @@ export const SessionService = {
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.hostId) params.append('hostId', filters.hostId);
     if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`
@@ -122,6 +126,8 @@ export const SessionService = {
     page?: number;
     limit?: number;
     hostId?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }): Promise<{
     data: ISession[];
     pagination: {
@@ -157,6 +163,8 @@ export const SessionService = {
     if (filters?.limit !== undefined)
       params.append('limit', filters.limit.toString());
     if (filters?.hostId) params.append('hostId', filters.hostId);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

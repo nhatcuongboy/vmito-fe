@@ -232,6 +232,7 @@ const BaseSessionCard = ({
           variant="outline"
           aria-label="Call host"
           onClick={handleCall}
+          shadow="sm"
           icon={<Icon as={Phone} />}
         />
       );
@@ -248,6 +249,7 @@ const BaseSessionCard = ({
               variant="outline"
               aria-label="Download session image"
               loading={isDownloading}
+              shadow="sm"
               icon={<Icon as={Download} />}
               onClick={(e) => e.stopPropagation()}
             />
@@ -304,6 +306,7 @@ const BaseSessionCard = ({
           variant="outline"
           aria-label="Share session"
           onClick={handleShare}
+          shadow="sm"
           icon={<Icon as={Share2} />}
         />
       );
@@ -351,6 +354,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           variant="subtle"
           size="sm"
+          shadow="md"
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
             actions.onViewRegistration?.();
@@ -373,6 +377,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           variant="solid"
           size="sm"
+          shadow="md"
         >
           <Icon as={LogIn} boxSize={4} />
           {t('viewSession')}
@@ -394,6 +399,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           variant="solid"
           size="sm"
+          shadow="md"
         >
           <Icon as={Settings} boxSize={4} />
           {t('manageSession')}
@@ -409,6 +415,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           variant="solid"
           size="sm"
+          shadow="md"
           disabled={actions.registerButtonDisabled || isFull}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
@@ -434,6 +441,7 @@ const BaseSessionCard = ({
                   variant="outline"
                   colorPalette="gray"
                   aria-label="Actions"
+                  shadow="md"
                   icon={<Icon as={MoreVertical} />}
                   onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 />

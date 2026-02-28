@@ -10,7 +10,7 @@ import BottomNavigationBar, {
 import {
   Search,
   Ticket,
-  Calendar,
+  ClipboardList,
   Users,
   MapPin,
   CheckCircle,
@@ -70,7 +70,7 @@ export default function GlobalBottomNav() {
       {
         id: 2,
         label: t('host'),
-        icon: Calendar,
+        icon: ClipboardList,
         href: ROUTES.HOST.SESSIONS.LIST,
       },
       {

@@ -1,7 +1,7 @@
 'use client';
 
 import CourtCallModal from '@/components/session/CourtCallModal';
-import CourtsTab from '@/components/session/CourtsTab';
+import SessionCourtsTab from '@/components/session/SessionCourtsTab';
 import PlayerSessionBottomNav from '@/components/session/PlayerSessionBottomNav';
 import PlayerStatusTab from '@/components/session/PlayerStatusTab';
 import PlayerMatchHistory from '@/components/session/PlayerMatchHistory';
@@ -550,7 +550,7 @@ export default function PlayerSessionView({
 
               {/* Courts Tab */}
               {activeTab === 2 && (
-                <CourtsTab
+                <SessionCourtsTab
                   session={session}
                   waitingPlayers={getWaitingPlayers()}
                   getCurrentMatch={getCurrentMatch}

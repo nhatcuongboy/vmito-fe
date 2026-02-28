@@ -13,19 +13,23 @@ import { AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
-// Import PlayerFilter type from PlayersTab
-import { PlayerFilter } from './PlayersTab';
+// Import PlayerFilter type from SessionPlayersTab
+import { PlayerFilter } from './SessionPlayersTab';
 
 interface PlayerManagementProps {
   session: ISession;
   onDataRefresh?: () => void;
   playerFilter?: PlayerFilter;
+  mode?: 'view' | 'manage';
+  searchQuery?: string;
 }
 
 const PlayerManagement: React.FC<PlayerManagementProps> = ({
   session,
   onDataRefresh,
   playerFilter = [],
+  mode = 'manage',
+  searchQuery = '',
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tDetail = useTranslations('SessionDetail');
@@ -69,7 +73,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     setPlayerToDelete,
     togglePlayerStatus,
     clubs: fixedMemberGroups,
-  } = usePlayerManagement(session, onDataRefresh);
+  } = usePlayerManagement(session, onDataRefresh, mode);
 
   // Detail Modal State (UI specific)
   const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
@@ -133,7 +137,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   };
 
   return (
-    <VStack spacing={8} align="stretch" p={{ base: 2, md: 4 }}>
+    <VStack spacing={8} align="stretch">
       {/* Header section with stats */}
       {/* <PlayerStatsHeader
         session={session}
@@ -166,10 +170,15 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
       {/* Player List - apply filter */}
       {(() => {
         const allPlayers = session.players || [];
-        const filteredPlayers =
-          playerFilter.length === 0
-            ? allPlayers
-            : allPlayers.filter((p) => playerFilter.includes(p.status));
+        const filteredPlayers = allPlayers.filter((p) => {
+          const matchesFilter =
+            playerFilter.length === 0 || playerFilter.includes(p.status);
+          const matchesSearch =
+            !searchQuery ||
+            p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.phone?.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesFilter && matchesSearch;
+        });
 
         // Get translated filter name for empty state
         const filterName = playerFilter
@@ -196,8 +205,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
             onDeletePlayer={deletePlayer}
             onTogglePlayerStatus={togglePlayerStatus}
             onShowQR={showPlayerDetail}
-            isFiltered={playerFilter.length > 0}
-            filterName={filterName}
+            isFiltered={playerFilter.length > 0 || !!searchQuery}
+            filterName={searchQuery ? `"${searchQuery}"` : filterName}
           />
         );
       })()}

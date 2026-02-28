@@ -124,11 +124,10 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
     <Box position="relative" ref={containerRef}>
       <Button
         size="sm"
-        variant="outline"
+        variant={!isAllSelected ? 'solid' : 'subtle'}
         onClick={() => setIsOpen(!isOpen)}
-        colorPalette={!isAllSelected ? 'brand' : 'gray'}
-        bg={!isAllSelected ? 'brand.50' : 'transparent'}
-        borderColor={!isAllSelected ? 'brand.200' : 'gray.200'}
+        colorPalette="green"
+        shadow="sm"
       >
         <HStack gap={2}>
           <Filter size={16} />
@@ -154,7 +153,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
         <Box
           position="absolute"
           top="100%"
-          left={0} // Aligned to left like popover bottom-start
+          right={0}
           mt={2}
           bg={{ base: 'white', _dark: 'gray.800' }}
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}

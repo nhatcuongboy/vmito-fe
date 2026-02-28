@@ -10,11 +10,20 @@ import { Locale } from '@/i18n/locales';
 interface QRCodeGeneratorProps {
   joinCode: string;
   size?: number;
+  /** Optional URL override. When provided, the QR code encodes this URL directly instead of the join-by-code URL. */
+  url?: string;
+  /** Optional label displayed below the QR code. Defaults to 'Scan to join session'. */
+  label?: string;
+  /** Hide the join code text below the label. */
+  hideCode?: boolean;
 }
 
 export default function QRCodeGenerator({
   joinCode,
   size = 200,
+  url: urlOverride,
+  label = 'Scan to join session',
+  hideCode = false,
 }: QRCodeGeneratorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
@@ -28,7 +37,11 @@ export default function QRCodeGenerator({
         // Get current locale from pathname or default to Locale.EN
         const currentPath = window.location.pathname;
         const locale = (currentPath.split('/')[1] as Locale) || Locale.EN;
-        const url = `${window.location.origin}/${locale}/join-by-code?code=${joinCode}`;
+        const url = urlOverride
+          ? urlOverride.startsWith('http')
+            ? urlOverride
+            : `${window.location.origin}${urlOverride}`
+          : `${window.location.origin}/${locale}/join-by-code?code=${joinCode}`;
         setShareUrl(url);
         await QRCode.toCanvas(canvasRef.current, url, {
           width: size,
@@ -44,7 +57,7 @@ export default function QRCodeGenerator({
     };
 
     generateQR();
-  }, [joinCode, size]);
+  }, [joinCode, size, urlOverride]);
 
   const copyLink = async () => {
     try {
@@ -70,16 +83,18 @@ export default function QRCodeGenerator({
         <canvas ref={canvasRef} />
       </Box>
       <Text fontSize="sm" color="gray.600" textAlign="center">
-        Scan to join session
+        {label}
       </Text>
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        letterSpacing="2px"
-        color="green.600"
-      >
-        {joinCode}
-      </Text>
+      {!hideCode && (
+        <Text
+          fontSize="lg"
+          fontWeight="bold"
+          letterSpacing="2px"
+          color="green.600"
+        >
+          {joinCode}
+        </Text>
+      )}
       <Button
         onClick={copyLink}
         variant="outline"

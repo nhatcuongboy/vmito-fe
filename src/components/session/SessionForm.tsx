@@ -75,6 +75,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import {
   Plus,
   Minus,
+  Trash2,
   CalendarPlus,
   Sparkles,
   User,
@@ -102,7 +103,6 @@ import {
   SpecificDatesConfig,
   RecurringWeekdaysConfig,
 } from '@/lib/api/types';
-import PageWrapper from '@/components/layout/PageWrapper';
 
 function formatDateTimeLocal(date: Date): string {
   if (!date) return '';
@@ -207,16 +207,11 @@ export default function SessionForm({
   const isEditMode = mode === 'edit';
 
   // Computed checks
-  const hasPlayers =
-    isEditMode &&
-    initialData &&
-    ((initialData?.players?.length || 0) > 0 ||
-      (initialData?.pendingPlayers?.length || 0) > 0);
-
   const isSessionActive =
     isEditMode && initialData?.status === SessionStatus.IN_PROGRESS;
 
-  const canEditCourts = !isEditMode || !hasPlayers;
+  const canEditCourts =
+    !isEditMode || initialData?.status === SessionStatus.PREPARING;
   const canEditTime = !isEditMode || !isSessionActive;
 
   // Default values
@@ -463,11 +458,8 @@ export default function SessionForm({
 
   // Court management handlers
   const handleAddCourt = () => {
-    const currentCourts = watch('courts');
-    const newCourtNumber =
-      Math.max(...currentCourts.map((c) => c.courtNumber), 0) + 1;
     append({
-      courtNumber: newCourtNumber,
+      courtNumber: 0,
       courtName: '',
       direction: CourtDirection.HORIZONTAL,
     });
@@ -476,13 +468,6 @@ export default function SessionForm({
   const handleRemoveCourt = (index: number) => {
     if (fields.length > 1) {
       remove(index);
-      // Re-index court numbers after removal
-      setTimeout(() => {
-        const currentCourts = watch('courts');
-        currentCourts.forEach((_, idx) => {
-          setValue(`courts.${idx}.courtNumber`, idx + 1);
-        });
-      }, 0);
     }
   };
 
@@ -829,17 +814,9 @@ export default function SessionForm({
     []
   );
 
-  const Wrapper = isEditMode ? Box : PageWrapper;
   return (
-    <Wrapper
-      {...(isEditMode
-        ? { w: 'full' }
-        : {
-            minH: '100vh',
-            bg: { base: 'gray.50', _dark: 'gray.950' },
-          })}
-    >
-      {showTopBar && (
+    <Box w="full">
+      {/* {showTopBar && (
         <TopBar
           title={
             title || (isEditMode ? t('editSession') : t('createNewSession'))
@@ -847,7 +824,7 @@ export default function SessionForm({
           showBackButton={!!backHref}
           backHref={backHref}
         />
-      )}
+      )} */}
 
       {!isEditMode && (
         <>
@@ -894,9 +871,9 @@ export default function SessionForm({
 
       <Box
         maxW="4xl"
-        pt={showTopBar ? '80px' : '0'}
+        // pt={showTopBar ? '80px' : '0'}
         pb={20}
-        px={6}
+        px={0}
         mx="auto"
         w="full"
       >
@@ -1386,7 +1363,7 @@ export default function SessionForm({
                           px={2}
                           disabled={!canEditCourts}
                         >
-                          <Minus size={16} />
+                          <Trash2 size={16} />
                         </Button>
                       )}
                     </Flex>
@@ -1409,12 +1386,11 @@ export default function SessionForm({
                             render={({ field }) => (
                               <Input
                                 type="number"
-                                min={1}
-                                value={field.value}
+                                value={field.value === 0 ? '' : field.value}
                                 onChange={(
                                   e: React.ChangeEvent<HTMLInputElement>
                                 ) =>
-                                  field.onChange(parseInt(e.target.value) || 1)
+                                  field.onChange(parseInt(e.target.value) || 0)
                                 }
                                 disabled={!canEditCourts}
                               />
@@ -1767,6 +1743,6 @@ export default function SessionForm({
           </Stack>
         </form>
       </Box>
-    </Wrapper>
+    </Box>
   );
 }

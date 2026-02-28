@@ -21,7 +21,7 @@ import {
 
 // ... (rest of the file)
 
-interface SessionHistoryListProps {
+interface SessionMatchesTabProps {
   sessionId: string;
   sessionData?: {
     players: Array<{
@@ -37,10 +37,10 @@ interface SessionHistoryListProps {
   };
 }
 
-export default function SessionHistoryList({
+export default function SessionMatchesTab({
   sessionId,
   sessionData,
-}: SessionHistoryListProps) {
+}: SessionMatchesTabProps) {
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

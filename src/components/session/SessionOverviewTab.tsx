@@ -23,7 +23,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
 import SessionPlayers from './SessionPlayers';
 import { RatePlayersSection } from '@/components/rating';
@@ -77,6 +77,7 @@ export default function SessionOverviewTab({
   isToggleStatusLoading,
 }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
+  const locale = useLocale();
 
   const joinCode = session.id.slice(-8).toUpperCase();
 
@@ -87,6 +88,9 @@ export default function SessionOverviewTab({
     session.players?.filter((p: Player) => p.status === 'PLAYING').length || 0;
   const readyPlayers =
     session.players?.filter((p: Player) => p.status === 'READY').length || 0;
+  const maxPlayers = session.numberOfCourts * (session.maxPlayersPerCourt || 4);
+  const fillPercent =
+    maxPlayers > 0 ? Math.round((totalPlayers / maxPlayers) * 100) : 0;
 
   return (
     <Box>
@@ -148,7 +152,7 @@ export default function SessionOverviewTab({
                   }
                 >
                   {session.status === 'PREPARING'
-                    ? `${t('start')} ${t('title')}`
+                    ? `${t('start')}`
                     : t('endSession')}
                 </Button>
               </Flex>
@@ -223,11 +227,63 @@ export default function SessionOverviewTab({
               flexDirection="column"
               justifyContent="center"
             >
-              <QRCodeGenerator joinCode={joinCode} size={200} />
+              <QRCodeGenerator
+                joinCode={joinCode}
+                size={200}
+                url={`/${locale}/sessions/${session.id}`}
+                label={t('qrScanToView')}
+                hideCode
+              />
             </Box>
           </Box>
         </Box>
       </SimpleGrid>
+
+      {/* Fill Rate Banner - visible when IN_PROGRESS */}
+      {session.status === SessionStatus.IN_PROGRESS && (
+        <Box
+          mb={4}
+          p={4}
+          bg="green.50"
+          _dark={{ bg: 'green.900/20', borderColor: 'green.800' }}
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="green.100"
+        >
+          <Flex align="center" justify="space-between" mb={2}>
+            <Text
+              fontSize="sm"
+              fontWeight="semibold"
+              color="green.700"
+              _dark={{ color: 'green.300' }}
+            >
+              {t('fillRate')}
+            </Text>
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color="green.700"
+              _dark={{ color: 'green.300' }}
+            >
+              {totalPlayers} / {maxPlayers} ({fillPercent}%)
+            </Text>
+          </Flex>
+          <Box
+            h="8px"
+            bg="green.100"
+            _dark={{ bg: 'green.800' }}
+            borderRadius="full"
+            overflow="hidden"
+          >
+            <Box
+              h="full"
+              bg={fillPercent >= 80 ? 'orange.400' : 'green.500'}
+              borderRadius="full"
+              style={{ width: `${Math.min(fillPercent, 100)}%` }}
+            />
+          </Box>
+        </Box>
+      )}
 
       {/* Session Statistics */}
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
@@ -253,9 +309,29 @@ export default function SessionOverviewTab({
               {t('playersTab.players')}
             </Text>
           </Flex>
-          <Text fontSize="2xl" fontWeight="bold" color="fg">
-            {totalPlayers}
-          </Text>
+          <Flex align="baseline" gap={1.5}>
+            <Text fontSize="2xl" fontWeight="bold" color="fg">
+              {totalPlayers}
+            </Text>
+            <Text fontSize="sm" color="fg.muted">
+              / {maxPlayers}
+            </Text>
+          </Flex>
+          <Box
+            mt={2}
+            h="4px"
+            bg="gray.100"
+            _dark={{ bg: 'gray.600' }}
+            borderRadius="full"
+            overflow="hidden"
+          >
+            <Box
+              h="full"
+              bg={fillPercent >= 80 ? 'orange.400' : 'green.400'}
+              borderRadius="full"
+              style={{ width: `${Math.min(fillPercent, 100)}%` }}
+            />
+          </Box>
         </Box>
 
         <Box

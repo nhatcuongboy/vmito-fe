@@ -3,12 +3,12 @@ import React from 'react';
 import SessionEditForm from './SessionEditForm';
 import { ISession } from '@/lib/api/types';
 
-interface SettingsTabProps {
+interface SessionSettingsTabProps {
   session: ISession;
   refreshSessionData: () => void;
 }
 
-const SettingsTab: React.FC<SettingsTabProps> = ({
+const SessionSettingsTab: React.FC<SessionSettingsTabProps> = ({
   session,
   refreshSessionData,
 }) => {
@@ -26,4 +26,4 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
   );
 };
 
-export default SettingsTab;
+export default SessionSettingsTab;

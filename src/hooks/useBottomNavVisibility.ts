@@ -18,7 +18,6 @@ export function useBottomNavVisibility() {
       // Prevents bottom nav from showing during "Redirecting..." state after login
       pathname.includes('/auth/') ||
       // Exclude session detail pages
-      pathname.includes('/host/sessions/') ||
       pathname.includes('/player/sessions/') ||
       // Public session detail
       pathname.match(/\/sessions\/[^/]+$/) ||

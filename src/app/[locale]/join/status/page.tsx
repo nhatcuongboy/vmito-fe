@@ -3,8 +3,10 @@
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { UserRole, PlayerStatus } from '@/lib/api/types';
-import CourtsTab from '@/components/session/CourtsTab';
-import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
+import SessionCourtsTab from '@/components/session/SessionCourtsTab';
+import SessionPlayersTab, {
+  PlayerFilter,
+} from '@/components/session/SessionPlayersTab';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
@@ -714,7 +716,7 @@ function StatusPageContent() {
 
             {/* Courts Tab */}
             {activeTab === StatusPageTab.COURTS && (
-              <CourtsTab
+              <SessionCourtsTab
                 session={session}
                 waitingPlayers={getWaitingPlayers()}
                 getCurrentMatch={getCurrentMatch}
@@ -728,7 +730,7 @@ function StatusPageContent() {
 
             {/* Players Tab */}
             {activeTab === StatusPageTab.PLAYERS && (
-              <PlayersTab
+              <SessionPlayersTab
                 sessionPlayers={session.players || []}
                 playerFilter={playerFilter}
                 setPlayerFilter={setPlayerFilter}

@@ -13,7 +13,7 @@ import WaitingPlayers from './WaitingPlayers';
 import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 
-interface CourtsTabProps {
+interface SessionCourtsTabProps {
   session: any;
   waitingPlayers: Player[];
   getCurrentMatch: (courtId: string) => Match | null;
@@ -29,7 +29,7 @@ interface CourtsTabProps {
   selectedPlayers: string[]; // Only needed for WaitingPlayers component
 }
 
-const CourtsTab: React.FC<CourtsTabProps> = ({
+const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
   session,
   waitingPlayers,
   selectedPlayers,
@@ -299,4 +299,4 @@ const CourtsTab: React.FC<CourtsTabProps> = ({
   );
 };
 
-export default CourtsTab;
+export default SessionCourtsTab;

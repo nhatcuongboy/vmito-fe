@@ -12,4 +12,5 @@ export interface ISessionFiltersProps {
   showSearchFilter?: boolean;
   showStatusFilter?: boolean;
   initialFilters?: ISessionFilterState;
+  resultCount?: number;
 }

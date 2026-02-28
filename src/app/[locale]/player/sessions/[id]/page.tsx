@@ -15,11 +15,13 @@ import { useAuthStore } from '@/stores/useAuthStore';
 // Components
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import MainLayout from '@/components/layout/MainLayout';
-import CourtsTab from '@/components/session/CourtsTab';
-import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
-import SessionHistoryList from '@/components/session/SessionHistoryList';
+import SessionCourtsTab from '@/components/session/SessionCourtsTab';
+import SessionPlayersTab, {
+  PlayerFilter,
+} from '@/components/session/SessionPlayersTab';
+import SessionMatchesTab from '@/components/session/SessionMatchesTab';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
-import SettingsTab from '@/components/session/SettingsTab';
+import SessionSettingsTab from '@/components/session/SessionSettingsTab';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import BottomNavigationBar, {
@@ -229,7 +231,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           )}
 
           {activeTab === 1 && (
-            <PlayersTab
+            <SessionPlayersTab
               session={session}
               sessionPlayers={session.players}
               playerFilter={playerFilter}
@@ -241,7 +243,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           )}
 
           {activeTab === 2 && (
-            <CourtsTab
+            <SessionCourtsTab
               session={session}
               waitingPlayers={waitingPlayers}
               getCurrentMatch={getCurrentMatch}
@@ -255,7 +257,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           )}
 
           {activeTab === 3 && (
-            <SessionHistoryList
+            <SessionMatchesTab
               sessionId={session.id}
               sessionData={{
                 players: session.players,
@@ -265,7 +267,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           )}
 
           {activeTab === 4 && (
-            <SettingsTab
+            <SessionSettingsTab
               session={session}
               refreshSessionData={refreshSessionData}
             />

@@ -5,15 +5,20 @@ import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import { NewPlayer, Player } from './types';
-import { ISession, Gender, PlayerStatus } from '@/lib/api/types';
+import { ISession, Gender, PlayerStatus, UserRole } from '@/lib/api/types';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { IClub } from '@/types/club';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export const usePlayerManagement = (
   session: ISession,
-  onDataRefresh?: () => void
+  onDataRefresh?: () => void,
+  mode: 'view' | 'manage' = 'manage'
 ) => {
   const t = useTranslations('pages.playerManagement');
+  const { user } = useAuthStore();
+  const isHostOrAdmin =
+    user?.role === UserRole.HOST || user?.role === UserRole.ADMIN;
 
   // Internal state management
   const [newPlayers, setNewPlayers] = useState<NewPlayer[]>([]);
@@ -51,16 +56,18 @@ export const usePlayerManagement = (
     };
     loadUsers();
 
-    const loadClubs = async () => {
-      try {
-        const clubsData = await ClubsService.getClubsToManage();
-        setClubs(clubsData);
-      } catch (error) {
-        console.error('Error loading clubs:', error);
-      }
-    };
-    loadClubs();
-  }, [t]);
+    if (mode === 'manage' && isHostOrAdmin) {
+      const loadClubs = async () => {
+        try {
+          const clubsData = await ClubsService.getClubsToManage();
+          setClubs(clubsData);
+        } catch (error) {
+          console.error('Error loading clubs:', error);
+        }
+      };
+      loadClubs();
+    }
+  }, [t, mode, isHostOrAdmin]);
 
   /**
    * Get default level for new players based on session requiredLevels

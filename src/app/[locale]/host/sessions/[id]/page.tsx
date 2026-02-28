@@ -22,13 +22,15 @@ import { useAuthStore } from '@/stores/useAuthStore';
 // Components
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import MainLayout from '@/components/layout/MainLayout';
-import CourtsTab from '@/components/session/CourtsTab';
-import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
-import SessionHistoryList from '@/components/session/SessionHistoryList';
+import SessionCourtsTab from '@/components/session/SessionCourtsTab';
+import SessionPlayersTab, {
+  PlayerFilter,
+} from '@/components/session/SessionPlayersTab';
+import SessionMatchesTab from '@/components/session/SessionMatchesTab';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
-import SettingsTab from '@/components/session/SettingsTab';
+import SessionSettingsTab from '@/components/session/SessionSettingsTab';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
-import PaymentTab from '@/components/session/PaymentTab';
+import SessionPaymentTab from '@/components/session/SessionPaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import BottomNavigationBar, {
   NavigationTab,
@@ -39,6 +41,7 @@ import { VModal } from '@/components/ui/VModal';
 import { UserRole, SessionStatus } from '@/lib/api/types';
 import { REFRESH_INTERVALS } from '@/lib/constants';
 import { toaster } from '@/components/ui/toaster';
+import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
   getWaitingPlayers,
@@ -75,6 +78,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
+  const isGlobalBottomNavVisible = useBottomNavVisibility();
 
   const { refreshSessionData, isRefreshing } = useSessionRefresh({
     sessionId: session?.id || sessionId,
@@ -108,13 +112,22 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     { id: 5, label: t('settings'), icon: RefreshCw },
   ];
 
-  const navigationTabs = allNavigationTabs.filter((tab) => {
+  const filteredOriginalTabs = allNavigationTabs.filter((tab) => {
     if (user?.role === UserRole.PLAYER) {
       // Disable Courts (2), Matches (3), and Payment (4) for PLAYER
       return tab.id !== 2 && tab.id !== 3 && tab.id !== 4;
     }
     return true;
   });
+
+  // Remap ids to sequential (0, 1, 2...) for BottomNavigationBar
+  const navigationTabs = filteredOriginalTabs.map((tab, index) => ({
+    ...tab,
+    id: index,
+  }));
+
+  // Map sequential tab index → original content tab id
+  const contentTabId = filteredOriginalTabs.map((tab) => tab.id);
 
   // Computed values using utility functions
   const waitingPlayers = session ? getWaitingPlayers(session.players) : [];
@@ -198,7 +211,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
           >
             {/* Tab Content Area */}
             <Box minH="60vh" pb="80px" w="full" maxW="7xl">
-              {activeTab === 0 && (
+              {contentTabId[activeTab] === 0 && (
                 <SessionOverviewTab
                   session={session}
                   onToggleSessionStatus={toggleSessionStatus}
@@ -206,8 +219,8 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                 />
               )}
 
-              {activeTab === 1 && (
-                <PlayersTab
+              {contentTabId[activeTab] === 1 && (
+                <SessionPlayersTab
                   session={session}
                   sessionPlayers={session.players}
                   playerFilter={playerFilter}
@@ -215,11 +228,12 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                   formatWaitTime={formatWaitTime}
                   sessionId={session.id}
                   onPlayerUpdate={refreshSessionData}
+                  mode="manage"
                 />
               )}
 
-              {activeTab === 2 && user?.role !== UserRole.PLAYER && (
-                <CourtsTab
+              {contentTabId[activeTab] === 2 && (
+                <SessionCourtsTab
                   session={session}
                   waitingPlayers={waitingPlayers}
                   getCurrentMatch={getCurrentMatch}
@@ -232,8 +246,8 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                 />
               )}
 
-              {activeTab === 3 && user?.role !== UserRole.PLAYER && (
-                <SessionHistoryList
+              {contentTabId[activeTab] === 3 && (
+                <SessionMatchesTab
                   sessionId={session.id}
                   sessionData={{
                     players: session.players,
@@ -242,12 +256,12 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                 />
               )}
 
-              {activeTab === 4 && user?.role !== UserRole.PLAYER && (
-                <PaymentTab session={session} />
+              {contentTabId[activeTab] === 4 && (
+                <SessionPaymentTab session={session} />
               )}
 
-              {activeTab === 5 && (
-                <SettingsTab
+              {contentTabId[activeTab] === 5 && (
+                <SessionSettingsTab
                   session={session}
                   refreshSessionData={refreshSessionData}
                 />
@@ -259,6 +273,15 @@ function HostSessionContent({ params }: { params: { id: string } }) {
               tabs={navigationTabs}
               activeTab={activeTab}
               onTabChange={handleTabChange}
+              alwaysVisible
+              bottomOffset={
+                isGlobalBottomNavVisible
+                  ? {
+                      base: 'calc(64px + env(safe-area-inset-bottom))',
+                      md: '0',
+                    }
+                  : undefined
+              }
             />
           </Flex>
 

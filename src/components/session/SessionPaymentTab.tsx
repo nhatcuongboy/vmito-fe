@@ -42,11 +42,11 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 
-interface PaymentTabProps {
+interface SessionPaymentTabProps {
   session: ISession;
 }
 
-export default function PaymentTab({ session }: PaymentTabProps) {
+export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   const t = useTranslations('payment');
   const tCommon = useTranslations('common');
   const router = useRouter();

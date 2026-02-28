@@ -14,9 +14,11 @@ import {
   Award,
   Calendar,
   Clock,
+  Feather,
   Info,
   MapPin,
   Map,
+  Square,
   Users,
   User,
   Tag,
@@ -31,6 +33,7 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { useState, useEffect } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { FeeService } from '@/lib/api/fee.service';
 
 interface InfoRowProps extends FlexProps {
@@ -170,29 +173,54 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         {t('playersTab.players') || 'Người chơi'})
       </InfoRow>
 
+      <InfoRow icon={Square} label={t('numberOfCourtsTitle')}>
+        {session.numberOfCourts}
+      </InfoRow>
+
+      {session.shuttlecock && (
+        <InfoRow icon={Feather} label={t('shuttlecock')}>
+          {session.shuttlecock}
+        </InfoRow>
+      )}
+
       <InfoRow icon={Award} label={t('requiredLevels')}>
         <Flex gap={2} flexWrap="wrap">
           {session.requiredLevels && session.requiredLevels.length > 0 ? (
             Array.from(new Set(session.requiredLevels))
               .sort((a, b) => a - b)
-              .map((level: number) => (
-                <Box
-                  key={level}
-                  px={2.5}
-                  py={0.5}
-                  bg="orange.50"
-                  color="orange.700"
-                  borderRadius="full"
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  border="1px solid"
-                  borderColor="orange.100"
-                >
-                  {getLevelShortLabel(level)}
-                </Box>
-              ))
+              .map((level: number) => {
+                const levelColor = getSkillLevelColor([level]);
+                return (
+                  <Badge
+                    key={level}
+                    colorPalette={levelColor.colorPalette}
+                    variant="solid"
+                    fontSize="xs"
+                    fontWeight="bold"
+                    px={2.5}
+                    py={0.5}
+                    borderRadius="full"
+                    borderWidth="1px"
+                    borderColor={levelColor.borderColor}
+                  >
+                    {getLevelShortLabel(level)}
+                  </Badge>
+                );
+              })
           ) : (
-            <Text>{t('allLevels')}</Text>
+            <Badge
+              colorPalette="gray"
+              variant="subtle"
+              fontSize="xs"
+              fontWeight="bold"
+              px={2.5}
+              py={0.5}
+              borderRadius="full"
+              borderWidth="1px"
+              borderColor="gray.200"
+            >
+              {t('allLevels')}
+            </Badge>
           )}
         </Flex>
       </InfoRow>

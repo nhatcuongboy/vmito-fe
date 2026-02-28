@@ -18,6 +18,8 @@ interface BottomNavigationBarProps {
   activeTab: number;
   loadingTabId?: number | null;
   onTabChange: (tabIndex: number) => void;
+  bottomOffset?: string | Record<string, string>;
+  alwaysVisible?: boolean;
 }
 
 export default function BottomNavigationBar({
@@ -25,6 +27,8 @@ export default function BottomNavigationBar({
   activeTab,
   loadingTabId,
   onTabChange,
+  bottomOffset,
+  alwaysVisible,
 }: BottomNavigationBarProps) {
   const { isCollapsed } = useSidebar();
 
@@ -38,13 +42,13 @@ export default function BottomNavigationBar({
           : `${SIDEBAR_WIDTH_EXPANDED}px`,
       }}
       right={0}
-      bottom={0}
+      bottom={bottomOffset ?? 0}
       zIndex={100}
       bg={{ base: 'white', _dark: 'gray.800' }}
       borderTopWidth="1px"
       borderTopColor="border"
       boxShadow="sm"
-      display={{ base: 'flex', md: 'none' }}
+      display={alwaysVisible ? 'flex' : { base: 'flex', md: 'none' }}
       justifyContent="space-around"
       alignItems="center"
       height="calc(64px + env(safe-area-inset-bottom))"

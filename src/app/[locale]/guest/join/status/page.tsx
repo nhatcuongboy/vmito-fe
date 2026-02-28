@@ -11,8 +11,10 @@ import {
   type PlayerStatistics,
   PlayerStatus,
 } from '@/lib/api/types';
-import CourtsTab from '@/components/session/CourtsTab';
-import PlayersTab, { PlayerFilter } from '@/components/session/PlayersTab';
+import SessionCourtsTab from '@/components/session/SessionCourtsTab';
+import SessionPlayersTab, {
+  PlayerFilter,
+} from '@/components/session/SessionPlayersTab';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
@@ -685,7 +687,7 @@ function StatusPageContent() {
 
             {/* Courts Tab */}
             {activeTab === 1 && (
-              <CourtsTab
+              <SessionCourtsTab
                 session={session}
                 waitingPlayers={getWaitingPlayers()}
                 getCurrentMatch={getCurrentMatch}
@@ -699,7 +701,7 @@ function StatusPageContent() {
 
             {/* Players Tab */}
             {activeTab === 2 && (
-              <PlayersTab
+              <SessionPlayersTab
                 sessionPlayers={session.players || []}
                 playerFilter={playerFilter}
                 setPlayerFilter={setPlayerFilter}
