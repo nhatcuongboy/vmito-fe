@@ -127,12 +127,7 @@ export default function VenueDetailPage() {
   }
 
   return (
-    <PageLayout
-      title={venue.name}
-      icon={<MapPin size={24} />}
-      bg="gray.50"
-      _dark={{ bg: 'gray.900' }}
-    >
+    <PageLayout title={venue.name} bg="gray.50" _dark={{ bg: 'gray.900' }}>
       <Box maxW="1200px" mx="auto">
         {/* Cover Photo */}
         <Box

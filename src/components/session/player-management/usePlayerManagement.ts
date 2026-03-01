@@ -9,6 +9,7 @@ import { ISession, Gender, PlayerStatus, UserRole } from '@/lib/api/types';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { IClub } from '@/types/club';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 
 export const usePlayerManagement = (
   session: ISession,
@@ -17,8 +18,8 @@ export const usePlayerManagement = (
 ) => {
   const t = useTranslations('pages.playerManagement');
   const { user } = useAuthStore();
-  const isHostOrAdmin =
-    user?.role === UserRole.HOST || user?.role === UserRole.ADMIN;
+  const { canAccessHostFeatures } = useCanAccessHostFeatures();
+  const isHostOrAdmin = canAccessHostFeatures;
 
   // Internal state management
   const [newPlayers, setNewPlayers] = useState<NewPlayer[]>([]);

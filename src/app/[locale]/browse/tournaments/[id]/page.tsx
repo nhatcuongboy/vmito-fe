@@ -25,6 +25,7 @@ import {
   UserRole,
 } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { canRoleAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import {
   Box,
   Container,
@@ -240,7 +241,7 @@ export default function TournamentDetailPage() {
     );
   }
 
-  const isHost = user?.role === UserRole.HOST;
+  const isHost = canRoleAccessHostFeatures(user?.role);
   const canManage = isHost && tournament?.hostId === user?.id;
 
   const tabs = [

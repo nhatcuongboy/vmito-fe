@@ -10,12 +10,13 @@ import {
   Flex,
   Textarea,
   Field,
+  Button,
 } from '@chakra-ui/react';
 import { VSelect } from './VSelect';
-import { PasswordInput } from './password-input';
-import { Upload } from 'lucide-react';
+import { Upload, Lock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { VModal } from './VModal';
+import ChangePasswordModal from './ChangePasswordModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AdminService, UpdateUserData } from '@/lib/api/admin.service';
 import { Gender, GenderType, PlayerLevel } from '@/lib/api/types';
@@ -25,28 +26,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 // Zod schema for user profile validation
-const userProfileSchema = z
-  .object({
-    name: z.string().min(1, 'Name is required'),
-    phone: z.string().optional(),
-    gender: z.nativeEnum(Gender).optional().or(z.literal('')),
-    level: z.string().optional(),
-    levelDescription: z.string().optional(),
-    password: z.string().optional(),
-    confirmPassword: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.password && data.password.length > 0) {
-        return data.password === data.confirmPassword;
-      }
-      return true;
-    },
-    {
-      message: 'Passwords do not match',
-      path: ['confirmPassword'],
-    }
-  );
+const userProfileSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  phone: z.string().optional(),
+  gender: z.nativeEnum(Gender).optional().or(z.literal('')),
+  level: z.string().optional(),
+  levelDescription: z.string().optional(),
+});
 
 type UserProfileFormData = z.infer<typeof userProfileSchema>;
 
@@ -61,8 +47,10 @@ export default function UserProfileModal({
 }: UserProfileModalProps) {
   const { user, setUser } = useAuthStore();
   const common = useTranslations('common');
+  const t = useTranslations('common.profileModal');
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   const {
     register,
@@ -95,8 +83,6 @@ export default function UserProfileModal({
             gender: (fullUser.gender as Gender) || '',
             level: fullUser.level ? String(fullUser.level) : '',
             levelDescription: fullUser.levelDescription || '',
-            password: '',
-            confirmPassword: '',
           });
         } catch (error) {
           console.error('Failed to load user data:', error);
@@ -106,8 +92,6 @@ export default function UserProfileModal({
             gender: '',
             level: '',
             levelDescription: '',
-            password: '',
-            confirmPassword: '',
           });
         }
       };
@@ -133,13 +117,6 @@ export default function UserProfileModal({
       if (data.levelDescription && typeof data.levelDescription === 'string') {
         updateData.levelDescription = data.levelDescription;
       }
-      if (
-        data.password &&
-        typeof data.password === 'string' &&
-        data.password.trim() !== ''
-      ) {
-        updateData.password = data.password;
-      }
 
       const updatedUser = await AdminService.updateUser(
         user.id,
@@ -156,7 +133,7 @@ export default function UserProfileModal({
 
       toaster.create({
         title: common('success'),
-        description: 'Profile updated successfully',
+        description: t('profileUpdatedSuccessfully'),
         type: 'success',
       });
 
@@ -165,7 +142,7 @@ export default function UserProfileModal({
       console.error('Failed to update profile:', error);
       toaster.create({
         title: common('error'),
-        description: 'Failed to update profile',
+        description: t('failedToUpdateProfile'),
         type: 'error',
       });
     }
@@ -200,14 +177,14 @@ export default function UserProfileModal({
 
       toaster.create({
         title: common('success'),
-        description: 'Avatar updated successfully',
+        description: t('avatarUpdatedSuccessfully'),
         type: 'success',
       });
     } catch (error) {
       console.error('Failed to upload avatar:', error);
       toaster.create({
         title: common('error'),
-        description: 'Failed to upload avatar',
+        description: t('failedToUploadAvatar'),
         type: 'error',
       });
     } finally {
@@ -264,7 +241,7 @@ export default function UserProfileModal({
             </Box>
           </Box>
           <Text fontSize="sm" color="fg.muted">
-            Click to upload avatar
+            {t('clickToUploadAvatar')}
           </Text>
         </Flex>
 
@@ -276,7 +253,7 @@ export default function UserProfileModal({
               *
             </Text>
           </Field.Label>
-          <Input {...register('name')} placeholder="Enter your name" />
+          <Input {...register('name')} placeholder={t('enterName')} />
           <Field.ErrorText color="fg.error">
             {errors.name?.message}
           </Field.ErrorText>
@@ -297,7 +274,7 @@ export default function UserProfileModal({
           <Field.Label>{common('phone')}</Field.Label>
           <Input
             {...register('phone')}
-            placeholder="Enter your phone number"
+            placeholder={t('enterPhone')}
             type="tel"
           />
           <Field.ErrorText color="fg.error">
@@ -374,10 +351,10 @@ export default function UserProfileModal({
 
         {/* Level Description */}
         <Field.Root invalid={!!errors.levelDescription}>
-          <Field.Label>Level Description</Field.Label>
+          <Field.Label>{t('levelDescription')}</Field.Label>
           <Textarea
             {...register('levelDescription')}
-            placeholder="Describe your skill level"
+            placeholder={t('describeLevelPlaceholder')}
             rows={3}
           />
           <Field.ErrorText color="fg.error">
@@ -385,40 +362,25 @@ export default function UserProfileModal({
           </Field.ErrorText>
         </Field.Root>
 
-        {/* Password Section */}
+        {/* Change Password Button */}
         <Box borderTop="1px solid" borderColor="border" pt={4}>
-          <Text fontSize="md" fontWeight="semibold" mb={4}>
-            Change Password
-          </Text>
-
-          <VStack gap={4} align="stretch">
-            <Field.Root invalid={!!errors.password}>
-              <Field.Label>New Password</Field.Label>
-              <PasswordInput
-                {...register('password')}
-                placeholder="Enter new password (leave blank to keep current)"
-              />
-              <Field.ErrorText color="fg.error">
-                {errors.password?.message}
-              </Field.ErrorText>
-              <Field.HelperText>
-                Leave blank to keep current password
-              </Field.HelperText>
-            </Field.Root>
-
-            <Field.Root invalid={!!errors.confirmPassword}>
-              <Field.Label>Confirm Password</Field.Label>
-              <PasswordInput
-                {...register('confirmPassword')}
-                placeholder="Confirm new password"
-              />
-              <Field.ErrorText color="fg.error">
-                {errors.confirmPassword?.message}
-              </Field.ErrorText>
-            </Field.Root>
-          </VStack>
+          <Button
+            variant="outline"
+            w="full"
+            onClick={() => setIsChangePasswordOpen(true)}
+            gap={2}
+          >
+            <Lock size={16} />
+            {t('changePassword')}
+          </Button>
         </Box>
       </VStack>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </VModal>
   );
 }

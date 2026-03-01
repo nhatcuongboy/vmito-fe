@@ -125,6 +125,27 @@
     "clickToUpload": "Click để tải lên",
     "maxSize": "Kích thước tối đa",
     "appearance": "Giao diện",
+    "profileModal": {
+      "clickToUploadAvatar": "Nhấn để tải ảnh đại diện",
+      "enterName": "Nhập tên của bạn",
+      "enterPhone": "Nhập số điện thoại",
+      "levelDescription": "Mô tả trình độ",
+      "describeLevelPlaceholder": "Mô tả trình độ của bạn",
+      "changePassword": "Đổi mật khẩu",
+      "profileUpdatedSuccessfully": "Cập nhật hồ sơ thành công",
+      "failedToUpdateProfile": "Cập nhật hồ sơ thất bại",
+      "avatarUpdatedSuccessfully": "Cập nhật ảnh đại diện thành công",
+      "failedToUploadAvatar": "Tải ảnh đại diện thất bại",
+      "newPassword": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới",
+      "passwordsDoNotMatch": "Mật khẩu không khớp",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+      "passwordRequired": "Vui lòng nhập mật khẩu mới",
+      "passwordChangedSuccessfully": "Đổi mật khẩu thành công",
+      "failedToChangePassword": "Đổi mật khẩu thất bại"
+    },
     "deviceTheme": "Tự động",
     "darkTheme": "Giao diện tối",
     "lightTheme": "Giao diện sáng",
@@ -1478,6 +1499,7 @@
       "noData": "Chưa có thống kê"
     },
     "overview": "Tổng quan",
+    "editSession": "Chỉnh sửa kèo",
     "information": "Thông tin",
     "sessionName": "Tên kèo",
     "host": "Host",
@@ -1674,7 +1696,33 @@
       "rejectAllShort": "Từ chối hết"
     },
     "matchs": {
-      "tabTitle": "Kết quả"
+      "tabTitle": "Kết quả",
+      "matches": "Trận đấu",
+      "player": "Người chơi",
+      "allPlayers": "Tất cả người chơi",
+      "unnamed": "Chưa đặt tên",
+      "court": "Sân",
+      "allCourts": "Tất cả sân",
+      "courtNumber": "Sân {number}",
+      "courtNumberWithName": "Sân {number} ({name})",
+      "courtUnknown": "Sân ?",
+      "noCompletedMatches": "Chưa có trận đấu hoàn thành",
+      "noMatchesWithFilters": "Không tìm thấy trận đấu với bộ lọc đã chọn. Hãy thử điều chỉnh bộ lọc.",
+      "noMatchesYet": "Chưa có trận đấu hoàn thành nào. Chơi và hoàn thành trận đấu để xem tại đây!",
+      "failedToLoadMatchHistory": "Không thể tải lịch sử trận đấu. Vui lòng thử lại sau.",
+      "extra": "Phụ",
+      "players": "Người chơi",
+      "pair1": "Cặp 1",
+      "pair2": "Cặp 2",
+      "finalScore": "Tỉ số",
+      "draw": "(Hòa)",
+      "pair1Won": "(Cặp 1 thắng)",
+      "pair2Won": "(Cặp 2 thắng)",
+      "winner": "Người thắng: {name}",
+      "editMatch": "Sửa trận đấu",
+      "lessThan1Min": "< 1 phút",
+      "durationHoursMinutes": "{hours}g {minutes}p",
+      "durationMinutes": "{minutes}p"
     },
     "results": {
       "filter": {
@@ -1745,7 +1793,9 @@
     "waiting": "Đang chờ",
     "playing": "Đang chơi",
     "resting": "Đang nghỉ",
-    "resetFilters": "Đặt lại"
+    "resetFilters": "Đặt lại",
+    "playerCount": "{count} người chơi",
+    "playerCountSingular": "{count} người chơi"
   },
   "auth": {
     "signin": {

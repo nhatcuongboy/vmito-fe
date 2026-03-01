@@ -1,5 +1,6 @@
 export * from './images';
 export * from './routes';
+export * from './feature-flags';
 
 export const TOP_BAR_HEIGHT_MOBILE = 50;
 export const TOP_BAR_HEIGHT_DESKTOP = 56;

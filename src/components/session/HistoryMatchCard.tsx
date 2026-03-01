@@ -3,6 +3,7 @@ import { IconButton } from '@/components/ui/chakra-compat';
 import { Badge, Box, Flex, Icon, Stack, Text } from '@chakra-ui/react';
 import { Edit, Clock, MapPin } from 'lucide-react';
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 // New implementation: Show all completed matches, not just sessions
 export type HistoryMatch = {
@@ -31,26 +32,30 @@ const formatTime = (dateString: string | Date): string => {
   });
 };
 
-const formatDuration = (
+const getDurationParts = (
   startTime?: string | Date,
   endTime?: string | Date
-): string => {
-  if (!startTime || !endTime) return '';
+): {
+  type: 'none' | 'lessThan1Min' | 'hoursMinutes' | 'minutes';
+  hours?: number;
+  minutes?: number;
+} => {
+  if (!startTime || !endTime) return { type: 'none' };
 
   const start = new Date(startTime);
   const end = new Date(endTime);
   const durationMs = end.getTime() - start.getTime();
   const durationMinutes = Math.floor(durationMs / (1000 * 60));
 
-  if (durationMinutes < 1) return '< 1 min';
+  if (durationMinutes < 1) return { type: 'lessThan1Min' };
 
   const hours = Math.floor(durationMinutes / 60);
   const minutes = durationMinutes % 60;
 
   if (hours > 0) {
-    return `${hours}h ${minutes}m`;
+    return { type: 'hoursMinutes', hours, minutes };
   }
-  return `${minutes}m`;
+  return { type: 'minutes', minutes };
 };
 
 interface HistoryMatchCardProps {
@@ -64,6 +69,7 @@ export const HistoryMatchCard = ({
   direction = CourtDirection.HORIZONTAL,
   onEdit,
 }: HistoryMatchCardProps) => {
+  const t = useTranslations('SessionDetail.matchs');
   let pair1: string[], pair2: string[];
 
   if (direction === CourtDirection.HORIZONTAL) {
@@ -107,7 +113,7 @@ export const HistoryMatchCard = ({
       {onEdit && (
         <Box position="absolute" top={2} right={2}>
           <IconButton
-            aria-label="Edit match"
+            aria-label={t('editMatch')}
             icon={<Edit size={16} />}
             size="sm"
             variant="ghost"
@@ -132,7 +138,7 @@ export const HistoryMatchCard = ({
                 py={1}
                 borderRadius="md"
               >
-                Extra
+                {t('extra')}
               </Badge>
             )}
           </Flex>
@@ -146,30 +152,43 @@ export const HistoryMatchCard = ({
                 {match.startTime ? `${formatTime(match.startTime)}` : '...'}
                 {match.endTime ? ` - ${formatTime(match.endTime)}` : '...'}
               </Text>
-              {match.startTime && match.endTime && (
-                <Text color="gray.500">{`(${formatDuration(
-                  match.startTime,
-                  match.endTime
-                )})`}</Text>
-              )}
+              {match.startTime &&
+                match.endTime &&
+                (() => {
+                  const duration = getDurationParts(
+                    match.startTime,
+                    match.endTime
+                  );
+                  if (duration.type === 'none') return null;
+                  const label =
+                    duration.type === 'lessThan1Min'
+                      ? t('lessThan1Min')
+                      : duration.type === 'hoursMinutes'
+                        ? t('durationHoursMinutes', {
+                            hours: duration.hours!,
+                            minutes: duration.minutes!,
+                          })
+                        : t('durationMinutes', { minutes: duration.minutes! });
+                  return <Text color="gray.500">({label})</Text>;
+                })()}
             </Box>
           </Flex>
         </Stack>
 
         <Box mt={2}>
           <Text fontWeight="semibold" mb={1}>
-            Players
+            {t('players')}
           </Text>
           <Flex gap={4}>
             <Box {...pair1WonStyle}>
               <Text color="gray.600" fontSize="sm">
-                Pair 1
+                {t('pair1')}
               </Text>
               <Text fontWeight="semibold">{pair1.join(' & ')}</Text>
             </Box>
             <Box {...pair2WonStyle}>
               <Text color="gray.600" fontSize="sm">
-                Pair 2
+                {t('pair2')}
               </Text>
               <Text fontWeight="semibold">{pair2.join(' & ')}</Text>
             </Box>
@@ -180,7 +199,7 @@ export const HistoryMatchCard = ({
         {match.scores ? (
           <Box borderTopWidth="1px" pt={4} mt={2}>
             <Text fontWeight="semibold" mb={2}>
-              Final Score
+              {t('finalScore')}
             </Text>
             <Flex justifyContent="center" alignItems="center" gap={3}>
               <Text fontSize="2xl" fontWeight="bold" {...pair1WonStyle}>
@@ -205,16 +224,16 @@ export const HistoryMatchCard = ({
               }
             >
               {match.scores.pair1Score === match.scores.pair2Score
-                ? '(Draw)'
+                ? t('draw')
                 : winningPair === 1
-                  ? '(Pair 1 Won)'
-                  : '(Pair 2 Won)'}
+                  ? t('pair1Won')
+                  : t('pair2Won')}
             </Text>
           </Box>
         ) : (
           <Box borderTopWidth="1px" pt={4} mt={2}>
             <Text fontWeight="semibold" mb={2}>
-              Final Score
+              {t('finalScore')}
             </Text>
             <Flex justifyContent="center" alignItems="center" gap={3}>
               <Text fontSize="2xl" fontWeight="bold" color="gray.400">
@@ -227,7 +246,7 @@ export const HistoryMatchCard = ({
         {match.winner && !match.scores && (
           <Box borderTopWidth="1px" pt={4} mt={2}>
             <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-              Winner: {match.winner}
+              {t('winner', { name: match.winner })}
             </Text>
           </Box>
         )}

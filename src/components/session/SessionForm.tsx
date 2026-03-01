@@ -71,6 +71,7 @@ const CustomCheckbox = ({
 };
 
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { Button } from '@/components/ui/chakra-compat';
 import {
   Plus,
@@ -204,6 +205,7 @@ export default function SessionForm({
   const t = useTranslations('session');
   const tc = useTranslations('common');
   const { user } = useAuthStore();
+  const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const isEditMode = mode === 'edit';
 
   // Computed checks
@@ -1467,7 +1469,7 @@ export default function SessionForm({
             </Box>
 
             {/* Court Appearance Section */}
-            {user?.role !== UserRole.PLAYER && (
+            {canAccessHostFeatures && (
               <Box
                 bg={{ base: 'white', _dark: 'gray.800' }}
                 p={6}
@@ -1684,7 +1686,7 @@ export default function SessionForm({
             )}
 
             {/* Bulk Session Creation Section - Only show in create mode */}
-            {!isEditMode && user?.role !== UserRole.PLAYER && (
+            {!isEditMode && canAccessHostFeatures && (
               <BulkSessionDateSelector
                 enabled={bulkEnabled}
                 onEnabledChange={setBulkEnabled}

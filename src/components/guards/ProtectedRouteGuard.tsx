@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
+import { canRoleAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
+import { UserRole } from '@/lib/api/types';
 
 interface ProtectedRouteGuardProps {
   children: React.ReactNode;
@@ -40,9 +42,19 @@ export default function ProtectedRouteGuard({
   }, [isHydrated, isAuthenticated, router, redirectTo]);
 
   // Check role permission if required
+  // When PLAYER_VIP_ENABLED is true, PLAYER can access HOST-restricted pages
   const hasRequiredRole = () => {
     if (requiredRole.length === 0) return true;
-    return requiredRole.includes(user?.role || '');
+    const userRole = user?.role || '';
+    if (requiredRole.includes(userRole)) return true;
+    // If requiredRole includes HOST, allow VIP PLAYER access
+    if (
+      requiredRole.includes(UserRole.HOST) &&
+      canRoleAccessHostFeatures(userRole)
+    ) {
+      return true;
+    }
+    return false;
   };
 
   // Loading state - waiting for hydration

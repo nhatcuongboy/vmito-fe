@@ -126,6 +126,27 @@
     "clickToUpload": "Click to upload",
     "maxSize": "Max size",
     "appearance": "Appearance",
+    "profileModal": {
+      "clickToUploadAvatar": "Click to upload avatar",
+      "enterName": "Enter your name",
+      "enterPhone": "Enter your phone number",
+      "levelDescription": "Level Description",
+      "describeLevelPlaceholder": "Describe your skill level",
+      "changePassword": "Change Password",
+      "profileUpdatedSuccessfully": "Profile updated successfully",
+      "failedToUpdateProfile": "Failed to update profile",
+      "avatarUpdatedSuccessfully": "Avatar updated successfully",
+      "failedToUploadAvatar": "Failed to upload avatar",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "passwordRequired": "Please enter new password",
+      "passwordChangedSuccessfully": "Password changed successfully",
+      "failedToChangePassword": "Failed to change password"
+    },
     "deviceTheme": "Auto",
     "darkTheme": "Dark Theme",
     "lightTheme": "Light Theme",
@@ -1478,6 +1499,7 @@
       "noData": "No data available"
     },
     "overview": "Overview",
+    "editSession": "Edit Session",
     "information": "Information",
     "sessionName": "Name",
     "host": "Host",
@@ -1674,7 +1696,33 @@
       "rejectAllShort": "Reject All"
     },
     "matchs": {
-      "tabTitle": "Results"
+      "tabTitle": "Results",
+      "matches": "Matches",
+      "player": "Player",
+      "allPlayers": "All players",
+      "unnamed": "Unnamed",
+      "court": "Court",
+      "allCourts": "All courts",
+      "courtNumber": "Court {number}",
+      "courtNumberWithName": "Court {number} ({name})",
+      "courtUnknown": "Court ?",
+      "noCompletedMatches": "No Completed Matches",
+      "noMatchesWithFilters": "No matches found with the selected filters. Try adjusting your filters.",
+      "noMatchesYet": "There are no completed matches yet. Play and complete matches to see them here!",
+      "failedToLoadMatchHistory": "Failed to load match history. Please try again later.",
+      "extra": "Extra",
+      "players": "Players",
+      "pair1": "Pair 1",
+      "pair2": "Pair 2",
+      "finalScore": "Final Score",
+      "draw": "(Draw)",
+      "pair1Won": "(Pair 1 Won)",
+      "pair2Won": "(Pair 2 Won)",
+      "winner": "Winner: {name}",
+      "editMatch": "Edit match",
+      "lessThan1Min": "< 1 min",
+      "durationHoursMinutes": "{hours}h {minutes}m",
+      "durationMinutes": "{minutes}m"
     },
     "results": {
       "filter": {
@@ -1745,7 +1793,9 @@
     "waiting": "Waiting",
     "playing": "Playing",
     "resting": "Resting",
-    "resetFilters": "Reset"
+    "resetFilters": "Reset",
+    "playerCount": "{count} players",
+    "playerCountSingular": "{count} player"
   },
   "auth": {
     "signin": {

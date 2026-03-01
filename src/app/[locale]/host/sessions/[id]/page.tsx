@@ -3,14 +3,7 @@
 import { use, useState, useEffect, Suspense } from 'react';
 import { Spinner, Center, Box, Text, Container, Flex } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import {
-  Info,
-  RefreshCw,
-  Square,
-  Trophy,
-  Users,
-  DollarSign,
-} from 'lucide-react';
+import { Info, Square, Trophy, Users, DollarSign } from 'lucide-react';
 
 // Hooks
 import { useSessionData } from '@/hooks/useSessionData';
@@ -18,6 +11,7 @@ import { useTabNavigation } from '@/hooks/useTabNavigation';
 import { useSessionRefresh } from '@/hooks/useSessionRefresh';
 import { useSessionManagement } from '@/hooks/useSessionManagement';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 
 // Components
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -28,7 +22,6 @@ import SessionPlayersTab, {
 } from '@/components/session/SessionPlayersTab';
 import SessionMatchesTab from '@/components/session/SessionMatchesTab';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
-import SessionSettingsTab from '@/components/session/SessionSettingsTab';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import SessionPaymentTab from '@/components/session/SessionPaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
@@ -56,6 +49,7 @@ import {
 function HostSessionContent({ params }: { params: { id: string } }) {
   const t = useTranslations('SessionDetail');
   const { user } = useAuthStore();
+  const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const sessionId = params.id;
 
   // Fetch session data using custom hook
@@ -109,12 +103,11 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     { id: 2, label: t('courts'), icon: Square },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('payment'), icon: DollarSign },
-    { id: 5, label: t('settings'), icon: RefreshCw },
   ];
 
   const filteredOriginalTabs = allNavigationTabs.filter((tab) => {
-    if (user?.role === UserRole.PLAYER) {
-      // Disable Courts (2), Matches (3), and Payment (4) for PLAYER
+    if (user?.role === UserRole.PLAYER && !canAccessHostFeatures) {
+      // Disable Courts (2), Matches (3), and Payment (4) for non-VIP PLAYER
       return tab.id !== 2 && tab.id !== 3 && tab.id !== 4;
     }
     return true;
@@ -216,6 +209,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                   session={session}
                   onToggleSessionStatus={toggleSessionStatus}
                   isToggleStatusLoading={isToggleStatusLoading}
+                  refreshSessionData={refreshSessionData}
                 />
               )}
 
@@ -258,13 +252,6 @@ function HostSessionContent({ params }: { params: { id: string } }) {
 
               {contentTabId[activeTab] === 4 && (
                 <SessionPaymentTab session={session} />
-              )}
-
-              {contentTabId[activeTab] === 5 && (
-                <SessionSettingsTab
-                  session={session}
-                  refreshSessionData={refreshSessionData}
-                />
               )}
             </Box>
 

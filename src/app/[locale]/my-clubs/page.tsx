@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { UserRole } from '@/lib/api/types';
 import { ROUTES } from '@/constants';
+import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import {
   ChevronRight,
   ClipboardList,
@@ -35,9 +36,9 @@ export default function MyClubsPage() {
   const t = useTranslations();
   const router = useRouter();
   const { user: currentUser } = useAuthStore();
+  const { canAccessHostFeatures } = useCanAccessHostFeatures();
 
-  const isHostOrAdmin =
-    currentUser?.role === UserRole.HOST || currentUser?.role === UserRole.ADMIN;
+  const isHostOrAdmin = canAccessHostFeatures;
 
   const [myClubs, setMyClubs] = useState<IMyClub[]>([]);
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);

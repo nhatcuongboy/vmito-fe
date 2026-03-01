@@ -13,6 +13,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { EditMatchModal } from './EditMatchModal';
 import {
   HistoryMatchCard,
@@ -41,6 +42,7 @@ export default function SessionMatchesTab({
   sessionId,
   sessionData,
 }: SessionMatchesTabProps) {
+  const t = useTranslations('SessionDetail.matchs');
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,19 +106,22 @@ export default function SessionMatchesTab({
         const matchData = match as unknown as Record<string, any>;
 
         // ... (existing courtName logic)
-        let courtName = 'Court ?';
+        let courtName = t('courtUnknown');
         if (
           matchData.court &&
           matchData.court.courtName &&
           matchData.court.courtNumber
         ) {
-          courtName = `Court ${matchData.court.courtNumber} (${matchData.court.courtName})`;
+          courtName = t('courtNumberWithName', {
+            number: matchData.court.courtNumber,
+            name: matchData.court.courtName,
+          });
         } else if (matchData.court && matchData.court.courtName) {
           courtName = matchData.court.courtName;
         } else if (matchData.court && matchData.court.courtNumber) {
-          courtName = `Court ${matchData.court.courtNumber}`;
+          courtName = t('courtNumber', { number: matchData.court.courtNumber });
         } else if (matchData.courtId) {
-          courtName = `Court ${matchData.courtId}`;
+          courtName = t('courtNumber', { number: matchData.courtId });
         }
 
         // Get player names and IDs sorted by courtPosition
@@ -252,7 +257,7 @@ export default function SessionMatchesTab({
 
       setMatches(allMatches);
     } catch (err) {
-      setError('Failed to load match history. Please try again later.');
+      setError(t('failedToLoadMatchHistory'));
       console.error('Error fetching match history:', err);
     } finally {
       setLoading(false);
@@ -281,7 +286,7 @@ export default function SessionMatchesTab({
   return (
     <Box>
       <Text fontWeight="semibold" mb={3}>
-        Matches
+        {t('matches')}
       </Text>
 
       {/* ... (Filters) */}
@@ -301,7 +306,7 @@ export default function SessionMatchesTab({
               _dark={{ color: 'gray.400' }}
               mb={1}
             >
-              Player
+              {t('player')}
             </Text>
             <select
               value={selectedPlayerId}
@@ -318,10 +323,10 @@ export default function SessionMatchesTab({
                 color: 'inherit',
               }}
             >
-              <option value="">All players</option>
+              <option value="">{t('allPlayers')}</option>
               {players.map((player) => (
                 <option key={player.id} value={player.id}>
-                  #{player.playerNumber} - {player.name || 'Unnamed'}
+                  #{player.playerNumber} - {player.name || t('unnamed')}
                 </option>
               ))}
             </select>
@@ -335,7 +340,7 @@ export default function SessionMatchesTab({
               _dark={{ color: 'gray.400' }}
               mb={1}
             >
-              Court
+              {t('court')}
             </Text>
             <select
               value={selectedCourtId}
@@ -352,11 +357,15 @@ export default function SessionMatchesTab({
                 color: 'inherit',
               }}
             >
-              <option value="">All courts</option>
+              <option value="">{t('allCourts')}</option>
               {courts.map((court) => (
                 <option key={court.id} value={court.id}>
-                  Court {court.courtNumber}
-                  {court.courtName ? ` (${court.courtName})` : ''}
+                  {court.courtName
+                    ? t('courtNumberWithName', {
+                        number: court.courtNumber,
+                        name: court.courtName,
+                      })
+                    : t('courtNumber', { number: court.courtNumber })}
                 </option>
               ))}
             </select>
@@ -392,12 +401,12 @@ export default function SessionMatchesTab({
           _dark={{ bg: 'gray.800' }}
         >
           <Heading size="md" mb={2}>
-            No Completed Matches
+            {t('noCompletedMatches')}
           </Heading>
           <Text color="gray.500">
             {selectedPlayerId || selectedCourtId
-              ? 'No matches found with the selected filters. Try adjusting your filters.'
-              : 'There are no completed matches yet. Play and complete matches to see them here!'}
+              ? t('noMatchesWithFilters')
+              : t('noMatchesYet')}
           </Text>
         </Box>
       ) : (

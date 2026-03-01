@@ -124,6 +124,27 @@
     "clickToUpload": "Click to upload",
     "maxSize": "Max size",
     "appearance": "外观",
+    "profileModal": {
+      "clickToUploadAvatar": "点击上传头像",
+      "enterName": "输入您的姓名",
+      "enterPhone": "输入您的电话号码",
+      "levelDescription": "等级描述",
+      "describeLevelPlaceholder": "描述您的技术水平",
+      "changePassword": "修改密码",
+      "profileUpdatedSuccessfully": "个人资料更新成功",
+      "failedToUpdateProfile": "更新个人资料失败",
+      "avatarUpdatedSuccessfully": "头像更新成功",
+      "failedToUploadAvatar": "上传头像失败",
+      "newPassword": "新密码",
+      "newPasswordPlaceholder": "输入新密码",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "确认新密码",
+      "passwordsDoNotMatch": "密码不匹配",
+      "passwordTooShort": "密码至少需要6个字符",
+      "passwordRequired": "请输入新密码",
+      "passwordChangedSuccessfully": "密码修改成功",
+      "failedToChangePassword": "修改密码失败"
+    },
     "deviceTheme": "自动",
     "darkTheme": "深色",
     "lightTheme": "浅色",
@@ -1672,7 +1693,33 @@
       "rejectAllShort": "Reject All"
     },
     "matchs": {
-      "tabTitle": "结果"
+      "tabTitle": "结果",
+      "matches": "比赛",
+      "player": "球员",
+      "allPlayers": "所有球员",
+      "unnamed": "未命名",
+      "court": "场地",
+      "allCourts": "所有场地",
+      "courtNumber": "场地 {number}",
+      "courtNumberWithName": "场地 {number} ({name})",
+      "courtUnknown": "场地 ?",
+      "noCompletedMatches": "暂无已完成的比赛",
+      "noMatchesWithFilters": "未找到符合筛选条件的比赛。请尝试调整筛选条件。",
+      "noMatchesYet": "暂无已完成的比赛。完成比赛后即可在此查看！",
+      "failedToLoadMatchHistory": "加载比赛历史失败。请稍后再试。",
+      "extra": "加赛",
+      "players": "球员",
+      "pair1": "组 1",
+      "pair2": "组 2",
+      "finalScore": "最终比分",
+      "draw": "(平局)",
+      "pair1Won": "(组 1 胜)",
+      "pair2Won": "(组 2 胜)",
+      "winner": "获胜者: {name}",
+      "editMatch": "编辑比赛",
+      "lessThan1Min": "< 1 分钟",
+      "durationHoursMinutes": "{hours}时 {minutes}分",
+      "durationMinutes": "{minutes}分"
     },
     "results": {
       "filter": {
@@ -1743,7 +1790,9 @@
     "waiting": "等待中",
     "playing": "进行中",
     "resting": "休息中",
-    "resetFilters": "重置"
+    "resetFilters": "重置",
+    "playerCount": "{count} 位球员",
+    "playerCountSingular": "{count} 位球员"
   },
   "auth": {
     "signin": {

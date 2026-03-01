@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
+import { VDrawer } from '@/components/ui/VDrawer';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
 import {
   Badge,
@@ -17,6 +19,7 @@ import {
   CheckCircle,
   Clock,
   DoorOpen,
+  Pencil,
   Play,
   Shield,
   Square,
@@ -25,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
+import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
 import { RatePlayersSection } from '@/components/rating';
 
@@ -69,15 +73,18 @@ interface SessionOverviewTabProps {
   session: ISession;
   onToggleSessionStatus?: () => void;
   isToggleStatusLoading?: boolean;
+  refreshSessionData?: () => void;
 }
 
 export default function SessionOverviewTab({
   session,
   onToggleSessionStatus,
   isToggleStatusLoading,
+  refreshSessionData,
 }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
   const locale = useLocale();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const joinCode = session.id.slice(-8).toUpperCase();
 
@@ -176,16 +183,26 @@ export default function SessionOverviewTab({
             h="full"
           >
             <Box w="full" mb={6}>
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color="gray.500"
-                mb={4}
-                textTransform="uppercase"
-                letterSpacing="wider"
-              >
-                {t('settings')}
-              </Text>
+              <Flex align="center" justify="space-between" mb={4}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  {t('settings')}
+                </Text>
+                <Button
+                  size="xs"
+                  variant="outline"
+                  colorPalette="green"
+                  onClick={() => setIsEditModalOpen(true)}
+                  leftIcon={<Pencil size={13} />}
+                >
+                  {t('editSession')}
+                </Button>
+              </Flex>
               <VStack align="start" spacing={3}>
                 <InfoRow icon={Shield} label={t('requirePlayerInfo')}>
                   <Badge
@@ -450,6 +467,25 @@ export default function SessionOverviewTab({
         </Heading>
         <SessionPlayers sessionId={session.id} />
       </Box>
+
+      {/* Edit Session Drawer */}
+      <VDrawer
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title={t('editSession')}
+        size="lg"
+        placement="right"
+        hideSecondaryAction
+        showCloseButton
+      >
+        <SessionEditForm
+          sessionId={session.id}
+          onSuccess={() => {
+            setIsEditModalOpen(false);
+            refreshSessionData?.();
+          }}
+        />
+      </VDrawer>
     </Box>
   );
 }

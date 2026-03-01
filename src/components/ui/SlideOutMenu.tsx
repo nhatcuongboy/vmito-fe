@@ -23,6 +23,7 @@ import { Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LanguageSwitcher from './LanguageSwitcher';
 import { UserRole } from '@/lib/api/types';
+import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
@@ -44,6 +45,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const common = useTranslations('common');
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
+  const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const { isCollapsed } = useSidebar();
   const pathname = usePathname();
 
@@ -319,8 +321,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     >
                       <NextLinkButton
                         href={
-                          user?.role === UserRole.HOST ||
-                          user?.role === UserRole.ADMIN
+                          canAccessHostFeatures
                             ? ROUTES.HOST.SESSIONS.LIST
                             : ROUTES.PLAYER.HOST_FEATURE
                         }
@@ -333,8 +334,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                         {...getActiveProps(
-                          user?.role === UserRole.HOST ||
-                            user?.role === UserRole.ADMIN
+                          canAccessHostFeatures
                             ? ROUTES.HOST.SESSIONS.LIST
                             : ROUTES.PLAYER.HOST_FEATURE
                         )}
@@ -769,8 +769,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     >
                       <NextLinkButton
                         href={
-                          user?.role === UserRole.HOST ||
-                          user?.role === UserRole.ADMIN
+                          canAccessHostFeatures
                             ? ROUTES.HOST.TRANSACTIONS
                             : ROUTES.PLAYER.TRANSACTIONS
                         }
@@ -783,8 +782,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         w="full"
                         px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                         {...getActiveProps(
-                          user?.role === UserRole.HOST ||
-                            user?.role === UserRole.ADMIN
+                          canAccessHostFeatures
                             ? ROUTES.HOST.TRANSACTIONS
                             : ROUTES.PLAYER.TRANSACTIONS
                         )}
@@ -816,8 +814,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       </NextLinkButton>
                     </VTooltip>
 
-                    {(user?.role === UserRole.HOST ||
-                      user?.role === UserRole.ADMIN) && (
+                    {canAccessHostFeatures && (
                       <VTooltip
                         content={nav('paymentSettings')}
                         positioning={{
@@ -891,7 +888,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
               )}
               <Stack gap={2}>
                 {/* Analysis - Moved to Other section */}
-                {isAuthenticated && user?.role !== UserRole.PLAYER && (
+                {isAuthenticated && canAccessHostFeatures && (
                   <VTooltip
                     content={nav('browse')}
                     positioning={{
@@ -904,8 +901,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   >
                     <NextLinkButton
                       href={
-                        user?.role === UserRole.HOST ||
-                        user?.role === UserRole.ADMIN
+                        canAccessHostFeatures
                           ? ROUTES.HOST.DASHBOARD
                           : ROUTES.HOME
                       }
@@ -918,8 +914,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       w="full"
                       px={{ base: 4, md: isCollapsed ? 0 : 4 }}
                       {...getActiveProps(
-                        user?.role === UserRole.HOST ||
-                          user?.role === UserRole.ADMIN
+                        canAccessHostFeatures
                           ? ROUTES.HOST.DASHBOARD
                           : ROUTES.HOME
                       )}
