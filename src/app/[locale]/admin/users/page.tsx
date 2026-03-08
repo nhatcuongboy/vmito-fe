@@ -17,10 +17,18 @@ import {
   HStack,
   IconButton,
   Spinner,
-  Table,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import {
+  TableContainer,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/ui/VTable';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback } from 'react';
@@ -230,80 +238,106 @@ export default function AdminUsersPage() {
             </Button>
           </Flex>
 
-          {/* Filters */}
-          <Flex gap={4} wrap="wrap">
-            <Box position="relative" flex="1" minW="200px">
-              <Input
-                placeholder="Search by email or name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                pl={10}
-              />
-              <Box
-                position="absolute"
-                left={3}
-                top="50%"
-                transform="translateY(-50%)"
-              >
-                <Search size={16} color="gray" />
+          {/* Search Bar - Sticky */}
+          <Box position="sticky" top={0} zIndex={100}>
+            <Flex
+              gap={2}
+              align="center"
+              bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+              px={3}
+              h="48px"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="gray.200"
+              boxShadow="sm"
+            >
+              <Box flex="1" minW="200px">
+                <Input
+                  h="36px"
+                  placeholder="Search by email or name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  bg="white"
+                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+                  borderRadius="md"
+                  leftElement={<Search size={18} />}
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    bg: 'white',
+                    _dark: { bg: 'gray.600' },
+                  }}
+                  fontSize="sm"
+                  transition="all 0.2s"
+                />
               </Box>
-            </Box>
-            <Box minW="150px">
-              <select
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                }}
+              <Box minW="120px">
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  style={{
+                    height: '36px',
+                    padding: '0 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '14px',
+                    background: 'white',
+                  }}
+                >
+                  <option value="">All Roles</option>
+                  <option value={UserRole.ADMIN}>Admin</option>
+                  <option value={UserRole.HOST}>Host</option>
+                  <option value={UserRole.PLAYER}>Player</option>
+                </select>
+              </Box>
+              <IconButton
+                h="36px"
+                w="36px"
+                minW="36px"
+                variant="solid"
+                colorPalette="green"
+                aria-label="Refresh"
+                onClick={fetchUsers}
+                borderRadius="md"
+                transition="all 0.2s"
+                _hover={{ transform: 'scale(1.05)' }}
               >
-                <option value="">All Roles</option>
-                <option value={UserRole.ADMIN}>Admin</option>
-                <option value={UserRole.HOST}>Host</option>
-                <option value={UserRole.PLAYER}>Player</option>
-              </select>
-            </Box>
-            <IconButton aria-label="Refresh" onClick={fetchUsers}>
-              <RefreshCcw size={18} />
-            </IconButton>
-          </Flex>
+                <RefreshCcw size={18} />
+              </IconButton>
+            </Flex>
+          </Box>
 
           {/* Users Table */}
-          <Box
-            bg="white"
-            borderRadius="lg"
-            boxShadow="sm"
-            overflow="hidden"
-            _dark={{ bg: 'gray.800' }}
-          >
-            <Table.Root>
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Name</Table.ColumnHeader>
-                  <Table.ColumnHeader>Email</Table.ColumnHeader>
-                  <Table.ColumnHeader>Role</Table.ColumnHeader>
-                  <Table.ColumnHeader>Created</Table.ColumnHeader>
-                  <Table.ColumnHeader textAlign="right">
+          <TableContainer>
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th w="180px">Name</Th>
+                  <Th>Email</Th>
+                  <Th w="100px">Role</Th>
+                  <Th w="120px">Created</Th>
+                  <Th w="120px" textAlign="right">
                     Actions
-                  </Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
+                  </Th>
+                </Tr>
+              </Thead>
+              <Tbody>
                 {users.map((user) => (
-                  <Table.Row key={user.id}>
-                    <Table.Cell fontWeight="medium">{user.name}</Table.Cell>
-                    <Table.Cell color="gray.600">{user.email}</Table.Cell>
-                    <Table.Cell>
+                  <Tr key={user.id}>
+                    <Td w="180px" fontWeight="medium">
+                      {user.name}
+                    </Td>
+                    <Td color="gray.600">{user.email}</Td>
+                    <Td w="100px">
                       <Badge colorPalette={getRoleBadgeColor(user.role)}>
                         {user.role}
                       </Badge>
-                    </Table.Cell>
-                    <Table.Cell color="gray.600">
+                    </Td>
+                    <Td w="120px" color="gray.600">
                       {new Date(user.createdAt).toLocaleDateString()}
-                    </Table.Cell>
-                    <Table.Cell textAlign="right">
+                    </Td>
+                    <Td w="120px">
                       <HStack gap={2} justify="flex-end">
                         <IconButton
                           aria-label="Edit user"
@@ -324,18 +358,17 @@ export default function AdminUsersPage() {
                           <Trash2 size={16} />
                         </IconButton>
                       </HStack>
-                    </Table.Cell>
-                  </Table.Row>
+                    </Td>
+                  </Tr>
                 ))}
-              </Table.Body>
-            </Table.Root>
-
+              </Tbody>
+            </Table>
             {users.length === 0 && (
               <Box p={8} textAlign="center" color="gray.500">
                 No users found
               </Box>
             )}
-          </Box>
+          </TableContainer>
         </VStack>
 
         {/* Create User Dialog */}

@@ -123,7 +123,7 @@ export default function MyClubsPage() {
             <Button
               colorPalette="green"
               variant="outline"
-              onClick={() => router.push('/player/clubs')}
+              onClick={() => router.push('/clubs')}
             >
               {t('clubs.browseClubs')}
             </Button>

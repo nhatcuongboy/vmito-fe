@@ -130,11 +130,12 @@ const CreateClubPage = () => {
       <Box
         as="form"
         onSubmit={handleSubmit(onSubmit)}
-        bg="white"
+        bg={{ base: 'white', _dark: 'gray.900' }}
         p={8}
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
+        borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
         maxW="container.md"
         mx="auto"
       >
@@ -264,9 +265,11 @@ const CreateClubPage = () => {
                   borderWidth="1px"
                   borderRadius="md"
                   p={2}
-                  bg={`${color}.50`}
-                  borderColor={`${color}.200`}
-                  _hover={{ bg: `${color}.100` }}
+                  bg={{ base: `${color}.50`, _dark: `${color}.900` }}
+                  borderColor={{ base: `${color}.200`, _dark: `${color}.700` }}
+                  _hover={{
+                    bg: { base: `${color}.100`, _dark: `${color}.800` },
+                  }}
                 >
                   <Flex align="center" gap={2}>
                     <input type="radio" value={color} {...register('color')} />

@@ -5,8 +5,31 @@
 import React from 'react';
 import { Box } from '@chakra-ui/react';
 
+export const TableContainer = ({
+  children,
+  ...props
+}: React.PropsWithChildren<any>) => (
+  <Box
+    overflowX="auto"
+    bg="white"
+    _dark={{ bg: 'gray.800' }}
+    borderRadius="lg"
+    borderWidth="1px"
+    borderColor="gray.200"
+    boxShadow="sm"
+    {...props}
+  >
+    {children}
+  </Box>
+);
+
 export const Table = ({ children, ...props }: React.PropsWithChildren<any>) => (
-  <Box as="table" width="100%" borderCollapse="collapse" {...props}>
+  <Box
+    as="table"
+    width="100%"
+    style={{ borderCollapse: 'collapse', tableLayout: 'auto' }}
+    {...props}
+  >
     {children}
   </Box>
 );
@@ -33,7 +56,6 @@ export const Tbody = ({ children, ...props }: React.PropsWithChildren<any>) => (
 export const Tr = ({ children, ...props }: React.PropsWithChildren<any>) => (
   <Box
     as="tr"
-    display="flex"
     borderBottomWidth="1px"
     borderColor="gray.100"
     _dark={{ borderColor: 'gray.700' }}
@@ -56,8 +78,8 @@ export const Th = ({ children, ...props }: React.PropsWithChildren<any>) => (
     letterSpacing="wider"
     color="gray.600"
     _dark={{ color: 'gray.400' }}
-    flex="1"
     textAlign="left"
+    whiteSpace="nowrap"
     {...props}
   >
     {children}
@@ -65,35 +87,7 @@ export const Th = ({ children, ...props }: React.PropsWithChildren<any>) => (
 );
 
 export const Td = ({ children, ...props }: React.PropsWithChildren<any>) => (
-  <Box
-    as="td"
-    px="4"
-    py="3"
-    flex="1"
-    display="flex"
-    alignItems="center"
-    fontSize="sm"
-    {...props}
-  >
-    {children}
-  </Box>
-);
-
-export const TableContainer = ({
-  children,
-  ...props
-}: React.PropsWithChildren<any>) => (
-  <Box
-    overflowX="auto"
-    bg="white"
-    _dark={{ bg: 'gray.800' }}
-    borderRadius="lg"
-    borderWidth="1px"
-    borderColor="gray.200"
-    _darkBorderColor="gray.700"
-    boxShadow="sm"
-    {...props}
-  >
+  <Box as="td" px="4" py="4" fontSize="sm" verticalAlign="middle" {...props}>
     {children}
   </Box>
 );

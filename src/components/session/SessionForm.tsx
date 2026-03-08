@@ -630,6 +630,7 @@ export default function SessionForm({
         : undefined;
 
       let session: ISession;
+      let bulkCreatedSessions: ISession[] = [];
 
       // Prepare fee config
       const feeConfigData = feeEnabled
@@ -735,11 +736,14 @@ export default function SessionForm({
 
           // Use the first session as the main session to navigate to
           session = bulkResult.sessions[0];
+          bulkCreatedSessions = bulkResult.sessions;
 
           // Show success message with count
           toaster.success({
-            title: t('bulkCreationSuccess') || 'Sessions created successfully',
-            description: `${bulkResult.sessionsCreated} ${t('sessionsCreated') || 'sessions created'}`,
+            title:
+              t('session.bulkCreation.success') ||
+              'Sessions created successfully',
+            description: `${bulkResult.sessionsCreated} ${t('session.bulkCreation.sessionsCreated') || 'sessions created'}`,
           });
         }
       }
@@ -752,6 +756,18 @@ export default function SessionForm({
             coverPhotoFile
           );
           session = updatedSession;
+
+          // For bulk creation, reuse the same cover photo URL for all other sessions
+          if (bulkCreatedSessions.length > 1 && updatedSession.coverPhoto) {
+            await Promise.all(
+              bulkCreatedSessions.slice(1).map((s) =>
+                SessionService.updateSession(s.id, {
+                  coverPhoto: updatedSession.coverPhoto,
+                  coverPhotoPublicId: updatedSession.coverPhotoPublicId,
+                })
+              )
+            );
+          }
         } catch (photoError) {
           console.error(
             'Failed to upload cover photo for new session:',

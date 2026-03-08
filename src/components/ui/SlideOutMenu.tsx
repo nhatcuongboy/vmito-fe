@@ -890,7 +890,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 {/* Analysis - Moved to Other section */}
                 {isAuthenticated && canAccessHostFeatures && (
                   <VTooltip
-                    content={nav('browse')}
+                    content={nav('statistics')}
                     positioning={{
                       placement: 'right',
                       offset: { mainAxis: 12 },
@@ -938,7 +938,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         />
                         {!isCollapsed && (
                           <Text display={{ base: 'block', md: 'block' }}>
-                            {nav('browse')}
+                            {nav('statistics')}
                           </Text>
                         )}
                       </Flex>

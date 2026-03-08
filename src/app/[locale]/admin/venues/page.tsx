@@ -290,54 +290,56 @@ function AdminVenuesContent() {
             </VButton>
           </Flex>
 
-          {/* Search Bar */}
-          <Flex
-            gap={2}
-            align="center"
-            bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-            px={3}
-            h="48px"
-            borderRadius="lg"
-            borderWidth="1px"
-            borderColor="gray.200"
-            boxShadow="sm"
-          >
-            <Box flex="1" minW="200px">
-              <Input
-                h="36px"
-                placeholder={t('searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                bg="white"
-                _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                borderRadius="md"
-                leftElement={<Search size={18} />}
-                _focus={{
-                  borderColor: 'brand.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  bg: 'white',
-                  _dark: { bg: 'gray.600' },
-                }}
-                fontSize="sm"
-                transition="all 0.2s"
-              />
-            </Box>
-            <IconButton
-              h="36px"
-              w="36px"
-              minW="36px"
-              variant="solid"
-              colorPalette="green"
-              aria-label="Refresh"
-              onClick={() => fetchVenues()}
-              borderRadius="md"
-              transition="all 0.2s"
-              _hover={{ transform: 'scale(1.05)' }}
+          {/* Search Bar - Sticky */}
+          <Box position="sticky" top={0} zIndex={100}>
+            <Flex
+              gap={2}
+              align="center"
+              bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+              px={3}
+              h="48px"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="gray.200"
+              boxShadow="sm"
             >
-              <RefreshCcw size={18} />
-            </IconButton>
-          </Flex>
+              <Box flex="1" minW="200px">
+                <Input
+                  h="36px"
+                  placeholder={t('searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  bg="white"
+                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+                  borderRadius="md"
+                  leftElement={<Search size={18} />}
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    bg: 'white',
+                    _dark: { bg: 'gray.600' },
+                  }}
+                  fontSize="sm"
+                  transition="all 0.2s"
+                />
+              </Box>
+              <IconButton
+                h="36px"
+                w="36px"
+                minW="36px"
+                variant="solid"
+                colorPalette="green"
+                aria-label="Refresh"
+                onClick={() => fetchVenues()}
+                borderRadius="md"
+                transition="all 0.2s"
+                _hover={{ transform: 'scale(1.05)' }}
+              >
+                <RefreshCcw size={18} />
+              </IconButton>
+            </Flex>
+          </Box>
 
           {/* Venues Table */}
           <TableContainer>

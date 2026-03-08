@@ -1,15 +1,7 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Spinner,
-} from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, HStack, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { CreditCard, Plus } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -19,12 +11,6 @@ import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { HostPaymentSettings, UserRole } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import PageLayout from '@/components/layout/PageLayout';
-import {
-  CONTAINER_PX,
-  CONTENT_PT_OFFSET,
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-} from '@/constants';
 
 function PaymentSettingsContent() {
   const t = useTranslations('payment');
@@ -140,147 +126,133 @@ function PaymentSettingsContent() {
   }
 
   return (
-    <Container
-      maxW="container.md"
-      px={CONTAINER_PX}
-      pt={{
-        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-      }}
-      pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
-    >
-      <VStack gap={6} align="stretch">
-        <HStack justify="space-between">
-          <HStack>
-            <CreditCard size={24} color="#3182ce" />
-            <Heading size="lg">{t('settings')}</Heading>
-          </HStack>
-          {!isCreating && settings.length > 0 && (
-            <Button colorPalette="green" onClick={() => setIsCreating(true)}>
-              <Plus size={16} />
-              <Text ml={1}>{t('addSettings')}</Text>
-            </Button>
-          )}
+    <VStack gap={6} align="stretch">
+      <HStack justify="space-between">
+        <HStack>
+          <CreditCard size={24} color="#3182ce" />
+          <Heading size="lg">{t('settings')}</Heading>
         </HStack>
+        {!isCreating && settings.length > 0 && (
+          <Button colorPalette="green" onClick={() => setIsCreating(true)}>
+            <Plus size={16} />
+            <Text ml={1}>{t('addSettings')}</Text>
+          </Button>
+        )}
+      </HStack>
 
-        <Text color="gray.600">{t('settingsDescription')}</Text>
+      <Text color="gray.600">{t('settingsDescription')}</Text>
 
-        {/* Existing Settings */}
-        {settings.map((setting) => (
-          <Box key={setting.id}>
-            {editingId === setting.id ? (
-              <PaymentSettingsForm
-                initialData={setting}
-                onSubmit={(data) => handleUpdate(setting.id, data)}
-                onDelete={() => handleDelete(setting.id)}
-                onUploadQR={handleUploadQR}
-                isLoading={savingId === setting.id}
-                isDeleting={deletingId === setting.id}
-                showDelete
-              />
-            ) : (
-              <Box
-                border="1px solid"
-                borderColor="gray.200"
-                borderRadius="lg"
-                p={4}
-                bg="white"
-              >
-                <HStack justify="space-between" mb={3}>
-                  <HStack>
-                    <Text fontWeight="semibold">
-                      {setting.bankName || t('noBank')}
-                    </Text>
-                    {setting.isDefault && (
-                      <Box
-                        px={2}
-                        py={0.5}
-                        bg="blue.100"
-                        color="green.700"
-                        borderRadius="md"
-                        fontSize="xs"
-                        fontWeight="medium"
-                      >
-                        {t('default')}
-                      </Box>
-                    )}
-                  </HStack>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditingId(setting.id)}
-                  >
-                    {tCommon('edit')}
-                  </Button>
-                </HStack>
-
-                <VStack align="stretch" gap={1}>
-                  {setting.bankAccountNumber && (
-                    <Text fontSize="sm" color="gray.600">
-                      {t('accountNumber')}: {setting.bankAccountNumber}
-                    </Text>
-                  )}
-                  {setting.accountHolderName && (
-                    <Text fontSize="sm" color="gray.600">
-                      {t('accountHolderName')}: {setting.accountHolderName}
-                    </Text>
-                  )}
-                  {setting.qrCodeUrl && (
-                    <Text fontSize="sm" color="green.600">
-                      {t('qrCodeUploaded')}
-                    </Text>
-                  )}
-                </VStack>
-              </Box>
-            )}
-          </Box>
-        ))}
-
-        {/* Create New Form */}
-        {isCreating && (
-          <Box>
-            <HStack justify="space-between" mb={4}>
-              <Heading size="md">{t('addSettings')}</Heading>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsCreating(false)}
-              >
-                {tCommon('cancel')}
-              </Button>
-            </HStack>
+      {/* Existing Settings */}
+      {settings.map((setting) => (
+        <Box key={setting.id}>
+          {editingId === setting.id ? (
             <PaymentSettingsForm
-              onSubmit={handleCreate}
+              initialData={setting}
+              onSubmit={(data) => handleUpdate(setting.id, data)}
+              onDelete={() => handleDelete(setting.id)}
               onUploadQR={handleUploadQR}
+              isLoading={savingId === setting.id}
+              isDeleting={deletingId === setting.id}
+              showDelete
             />
-          </Box>
-        )}
+          ) : (
+            <Box
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="lg"
+              p={4}
+              bg="white"
+            >
+              <HStack justify="space-between" mb={3}>
+                <HStack>
+                  <Text fontWeight="semibold">
+                    {setting.bankName || t('noBank')}
+                  </Text>
+                  {setting.isDefault && (
+                    <Box
+                      px={2}
+                      py={0.5}
+                      bg="blue.100"
+                      color="green.700"
+                      borderRadius="md"
+                      fontSize="xs"
+                      fontWeight="medium"
+                    >
+                      {t('default')}
+                    </Box>
+                  )}
+                </HStack>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditingId(setting.id)}
+                >
+                  {tCommon('edit')}
+                </Button>
+              </HStack>
 
-        {/* Empty State */}
-        {settings.length === 0 && !isCreating && (
-          <Box
-            textAlign="center"
-            py={10}
-            border="2px dashed"
-            borderColor="gray.200"
-            borderRadius="lg"
-          >
-            <CreditCard
-              size={48}
-              color="#A0AEC0"
-              style={{ margin: '0 auto' }}
-            />
-            <Text mt={4} mb={4} color="gray.500">
-              {t('noSettings')}
-            </Text>
-            <Button colorPalette="green" onClick={() => setIsCreating(true)}>
-              <Plus size={16} />
-              <Text ml={1}>{t('addSettings')}</Text>
+              <VStack align="stretch" gap={1}>
+                {setting.bankAccountNumber && (
+                  <Text fontSize="sm" color="gray.600">
+                    {t('accountNumber')}: {setting.bankAccountNumber}
+                  </Text>
+                )}
+                {setting.accountHolderName && (
+                  <Text fontSize="sm" color="gray.600">
+                    {t('accountHolderName')}: {setting.accountHolderName}
+                  </Text>
+                )}
+                {setting.qrCodeUrl && (
+                  <Text fontSize="sm" color="green.600">
+                    {t('qrCodeUploaded')}
+                  </Text>
+                )}
+              </VStack>
+            </Box>
+          )}
+        </Box>
+      ))}
+
+      {/* Create New Form */}
+      {isCreating && (
+        <Box>
+          <HStack justify="space-between" mb={4}>
+            <Heading size="md">{t('addSettings')}</Heading>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setIsCreating(false)}
+            >
+              {tCommon('cancel')}
             </Button>
-          </Box>
-        )}
-      </VStack>
-    </Container>
+          </HStack>
+          <PaymentSettingsForm
+            onSubmit={handleCreate}
+            onUploadQR={handleUploadQR}
+          />
+        </Box>
+      )}
+
+      {/* Empty State */}
+      {settings.length === 0 && !isCreating && (
+        <Box
+          textAlign="center"
+          py={10}
+          border="2px dashed"
+          borderColor="gray.200"
+          borderRadius="lg"
+        >
+          <CreditCard size={48} color="#A0AEC0" style={{ margin: '0 auto' }} />
+          <Text mt={4} mb={4} color="gray.500">
+            {t('noSettings')}
+          </Text>
+          <Button colorPalette="green" onClick={() => setIsCreating(true)}>
+            <Plus size={16} />
+            <Text ml={1}>{t('addSettings')}</Text>
+          </Button>
+        </Box>
+      )}
+    </VStack>
   );
 }
 

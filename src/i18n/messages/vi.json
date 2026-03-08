@@ -5,6 +5,7 @@
     "home": "Tìm kèo",
     "tournaments": "Giải đấu",
     "browse": "Thống kê",
+    "statistics": "Thống kê",
     "users": "Người dùng",
     "mySessions": "Kèo của tôi",
     "joined": "Kèo tham gia",
@@ -542,7 +543,9 @@
         "sat": "T7",
         "sun": "CN"
       },
-      "addDate": "Thêm ngày"
+      "addDate": "Thêm ngày",
+      "success": "Tạo kèo thành công",
+      "sessionsCreated": "kèo đã tạo"
     },
     "loadMore": "Xem thêm",
     "loadingMore": "Đang tải thêm..."
@@ -2177,6 +2180,17 @@
     "broadcastSuccess": "Gửi thông báo thành công",
     "broadcastError": "Không thể gửi thông báo",
     "usersNotified": "người dùng đã nhận",
+    "notificationsTab": "Thông báo",
+    "approvalRequestsTab": "Yêu cầu phê duyệt",
+    "approvalRequestsEmpty": "Không có yêu cầu phê duyệt nào",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "approvalSession": "Buổi",
+    "approvalLevel": "Cấp độ",
+    "approvalPlayer": "Người chơi #",
+    "approveSuccess": "Đã duyệt yêu cầu",
+    "rejectSuccess": "Đã từ chối yêu cầu",
+    "approvalActionFailed": "Thao tác thất bại",
     "types": {
       "SYSTEM": "Hệ thống",
       "SESSION": "Kèo",

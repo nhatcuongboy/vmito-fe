@@ -5,6 +5,7 @@
     "home": "发现场次",
     "tournaments": "锦标赛",
     "browse": "统计分析",
+    "statistics": "统计分析",
     "users": "用户",
     "mySessions": "我的场次",
     "joined": "已加入",
@@ -540,7 +541,9 @@
         "sat": "周六",
         "sun": "周日"
       },
-      "addDate": "添加日期"
+      "addDate": "添加日期",
+      "success": "场次创建成功",
+      "sessionsCreated": "场次已创建"
     },
     "loadMore": "Load More",
     "loadingMore": "Loading More..."

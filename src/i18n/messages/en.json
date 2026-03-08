@@ -5,6 +5,7 @@
     "home": "Find Sessions",
     "tournaments": "Tournaments",
     "browse": "Analysis",
+    "statistics": "Statistics",
     "users": "Users",
     "mySessions": "My Sessions",
     "joined": "Joined",
@@ -542,7 +543,9 @@
         "sat": "Sat",
         "sun": "Sun"
       },
-      "addDate": "Add date"
+      "addDate": "Add date",
+      "success": "Sessions created successfully",
+      "sessionsCreated": "sessions created"
     },
     "loadMore": "Load More",
     "loadingMore": "Loading More..."
@@ -2177,6 +2180,17 @@
     "broadcastSuccess": "Notification sent successfully",
     "broadcastError": "Failed to send notification",
     "usersNotified": "users notified",
+    "notificationsTab": "Notifications",
+    "approvalRequestsTab": "Approval Requests",
+    "approvalRequestsEmpty": "No pending approval requests",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approvalSession": "Session",
+    "approvalLevel": "Level",
+    "approvalPlayer": "Player #",
+    "approveSuccess": "Request approved",
+    "rejectSuccess": "Request rejected",
+    "approvalActionFailed": "Action failed",
     "types": {
       "SYSTEM": "System",
       "SESSION": "Session",
