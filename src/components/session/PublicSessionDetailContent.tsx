@@ -11,7 +11,7 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
@@ -256,11 +256,24 @@ export const PublicSessionDetailContent = ({
           <Flex justify="center" mt={6}>
             <NextLinkButton
               href="/"
-              colorPalette="gray"
+              colorPalette="green"
               variant="outline"
               size="md"
+              px={6}
+              borderRadius="full"
+              fontWeight="medium"
+              color="green.600"
+              borderColor="green.300"
+              _hover={{
+                bg: 'green.50',
+                borderColor: 'green.500',
+                color: 'green.700',
+              }}
+              transition="all 0.2s"
+              gap={1.5}
             >
               {t('viewMoreSessions') || 'Xem thêm kèo'}
+              <Icon as={ArrowRight} boxSize={3.5} />
             </NextLinkButton>
           </Flex>
         )}

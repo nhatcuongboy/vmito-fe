@@ -27,7 +27,7 @@ import 'dayjs/locale/vi';
 import {
   Calendar,
   Clock,
-  SquareAsterisk,
+  LayoutGrid,
   Users,
   Shield,
   Star,
@@ -35,13 +35,14 @@ import {
   Phone,
   Share2,
   Download,
-  User,
+  UserCheck,
   MoreVertical,
   Trash2,
   LogIn,
   Settings,
   UserPlus,
   ClipboardList,
+  Feather,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -803,88 +804,91 @@ const BaseSessionCard = ({
                   <Icon as={Clock} boxSize={4} color="green.500" />
                   <Text fontSize="xs">{compactTime}</Text>
                 </Flex>
+              </Flex>
+              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
                 <Flex align="center" gap={1}>
-                  <Icon as={SquareAsterisk} boxSize={4} color="green.500" />
+                  <Icon as={LayoutGrid} boxSize={4} color="green.500" />
                   <Text fontSize="xs">
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
                   </Text>
                 </Flex>
-              </Flex>
-              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
                 <Flex align="center" gap={1}>
                   <Icon as={Users} boxSize={4} color="green.500" />
                   <Text fontSize="xs">
                     {t('maxPlayers', { count: convertedSession.maxPlayers })}
                   </Text>
                 </Flex>
+              </Flex>
+              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
                 <Flex align="center" gap={1}>
-                  <Icon as={User} boxSize={4} color="green.500" />
+                  <Icon as={UserCheck} boxSize={4} color="green.500" />
                   <Text fontSize="xs">
                     {convertedSession.totalPlayers}/
                     {convertedSession.maxPlayers} {t('players')}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={SquareAsterisk} boxSize={4} color="green.500" />
-                  <Text fontSize="xs" lineClamp={1}>
-                    {session.shuttlecock || '...'}
-                  </Text>
-                </Flex>
+                {session.shuttlecock && (
+                  <Flex align="center" gap={1}>
+                    <Icon as={Feather} boxSize={4} color="green.500" />
+                    <Text fontSize="xs" lineClamp={1}>
+                      {session.shuttlecock}
+                    </Text>
+                  </Flex>
+                )}
               </Flex>
             </>
           ) : (
-            <Grid templateColumns="1fr 1fr" gap={4}>
-              {/* Left Column: Date & Time */}
-              <Stack gap={2}>
-                <Flex align="center" gap={2}>
-                  <Icon as={Calendar} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">{compactDate}</Text>
-                </Flex>
-                <Flex align="center" gap={2}>
-                  <Icon as={Clock} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">{compactTime}</Text>
-                </Flex>
-                <Flex align="center" gap={2}>
-                  <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {t('shuttlecock') + ' ' + (session.shuttlecock || '...')}
-                  </Text>
-                </Flex>
-              </Stack>
+            <Grid templateColumns="1fr 1fr" gap={2}>
+              {/* Row 1: Date & Time */}
+              <Flex align="center" gap={2}>
+                <Icon as={Calendar} boxSize={5} color="green.500" />
+                <Text fontSize="sm">{compactDate}</Text>
+              </Flex>
+              <Flex align="center" gap={2}>
+                <Icon as={Clock} boxSize={5} color="green.500" />
+                <Text fontSize="sm">{compactTime}</Text>
+              </Flex>
 
-              {/* Right Column: Courts & Players */}
-              <Stack gap={2}>
+              {/* Row 2: Number of Courts & Max Players */}
+              <Flex align="center" gap={2}>
+                <Icon as={LayoutGrid} boxSize={5} color="green.500" />
+                <Text fontSize="sm">
+                  {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                  {session.courts && session.courts.length > 0 && (
+                    <Text as="span" ml={1}>
+                      (
+                      {session.courts
+                        .slice()
+                        .sort((a, b) => a.courtNumber - b.courtNumber)
+                        .map((c) => c.courtName || c.courtNumber)
+                        .join(', ')}
+                      )
+                    </Text>
+                  )}
+                </Text>
+              </Flex>
+              <Flex align="center" gap={2}>
+                <Icon as={Users} boxSize={5} color="green.500" />
+                <Text fontSize="sm">
+                  {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                </Text>
+              </Flex>
+
+              <Flex align="center" gap={2}>
+                <Icon as={UserCheck} boxSize={5} color="green.500" />
+                <Text fontSize="sm">
+                  {convertedSession.totalPlayers}/{convertedSession.maxPlayers}{' '}
+                  {t('players')}
+                </Text>
+              </Flex>
+              {session.shuttlecock && (
                 <Flex align="center" gap={2}>
-                  <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
+                  <Icon as={Feather} boxSize={5} color="green.500" />
                   <Text fontSize="sm">
-                    {convertedSession.numberOfCourts} {t('courtsAvailable')}
-                    {session.courts && session.courts.length > 0 && (
-                      <Text as="span" ml={1}>
-                        (
-                        {session.courts
-                          .slice()
-                          .sort((a, b) => a.courtNumber - b.courtNumber)
-                          .map((c) => c.courtName || c.courtNumber)
-                          .join(', ')}
-                        )
-                      </Text>
-                    )}
+                    {t('shuttlecock') + ' ' + session.shuttlecock}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={2}>
-                  <Icon as={Users} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                  </Text>
-                </Flex>
-                <Flex align="center" gap={2}>
-                  <Icon as={User} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {convertedSession.totalPlayers}/
-                    {convertedSession.maxPlayers} {t('players')}
-                  </Text>
-                </Flex>
-              </Stack>
+              )}
             </Grid>
           )}
 
