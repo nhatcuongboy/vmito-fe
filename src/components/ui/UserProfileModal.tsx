@@ -66,8 +66,6 @@ export default function UserProfileModal({
       gender: '',
       level: '',
       levelDescription: '',
-      password: '',
-      confirmPassword: '',
     },
   });
 
