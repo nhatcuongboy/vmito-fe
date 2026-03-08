@@ -2348,6 +2348,7 @@
     "fixedRate": "Fixed Rate",
     "walkInRate": "Walk-in Rate",
     "website": "Website",
+    "call": "Call",
     "viewDetails": "View Details",
     "findSessionsAtVenue": "Find Sessions"
   }

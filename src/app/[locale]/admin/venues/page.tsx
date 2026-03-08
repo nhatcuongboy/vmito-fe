@@ -22,17 +22,28 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState, useCallback } from 'react';
-import { Pencil, Trash2, Plus, Search, RefreshCcw, MapPin } from 'lucide-react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  Search,
+  RefreshCcw,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 import VModal from '@/components/ui/VModal';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useUrlFilters, stringField } from '@/hooks/useUrlFilters';
 import { Button } from '@/components/ui/chakra-compat';
 import { VButton } from '@/components/ui/VButton';
 import { VSwitch } from '@/components/ui/VSwitch';
+
+const PAGE_SIZE = 20;
 
 // Schema definitions
 const venueSchema = z.object({
@@ -43,6 +54,7 @@ const venueSchema = z.object({
   city: z.string().optional(),
   lat: z.number().optional(),
   lng: z.number().optional(),
+  phone: z.string().optional(),
   isVerified: z.boolean(),
   coverPhoto: z.string().optional(),
   images: z.array(z.string()).optional(),
@@ -51,14 +63,34 @@ const venueSchema = z.object({
 type VenueFormValues = z.infer<typeof venueSchema>;
 
 export default function AdminVenuesPage() {
+  return (
+    <Suspense>
+      <AdminVenuesContent />
+    </Suspense>
+  );
+}
+
+function AdminVenuesContent() {
   const t = useTranslations('admin');
   const tCommon = useTranslations('common');
   const router = useRouter();
   const { user: currentUser, isAuthenticated, isHydrated } = useAuthStore();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
+
+  // URL-synced search query
+  const [urlFilters, setUrlFilters] = useUrlFilters({ q: stringField('') });
+  // Local input state — debounced writes to URL
+  const [searchQuery, setSearchQuery] = useState(urlFilters.q);
+
+  // Keep input in sync when URL changes (back/forward)
+  useEffect(() => {
+    setSearchQuery(urlFilters.q);
+    setPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlFilters.q]);
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -77,41 +109,36 @@ export default function AdminVenuesPage() {
       city: '',
       lat: undefined,
       lng: undefined,
+      phone: '',
       isVerified: false,
       coverPhoto: '',
       images: [],
     },
   });
 
-  const fetchVenues = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await VenueService.getAllVenues();
-      // Ensure data is an array before filtering
-      if (!Array.isArray(data)) {
-        console.error('Venues data is not an array:', data);
+  const fetchVenues = useCallback(
+    async (targetPage = page) => {
+      try {
+        setLoading(true);
+        const result = await VenueService.searchVenues({
+          keyword: urlFilters.q || undefined,
+          page: targetPage,
+          limit: PAGE_SIZE,
+          status: undefined, // admin sees all statuses
+        });
+        setVenues(result.data);
+        setTotalCount(result.pagination.total);
+      } catch (error) {
+        console.error('Failed to fetch venues:', error);
+        toaster.error({ title: t('failedToLoadVenues') });
         setVenues([]);
-        return;
+      } finally {
+        setLoading(false);
       }
-      // Simple client-side filtering since backend doesn't support search yet
-      const filteredData = data.filter(
-        (venue) =>
-          venue.name
-            .toLowerCase()
-            .includes(debouncedSearchQuery.toLowerCase()) ||
-          venue.address
-            .toLowerCase()
-            .includes(debouncedSearchQuery.toLowerCase())
-      );
-      setVenues(filteredData);
-    } catch (error) {
-      console.error('Failed to fetch venues:', error);
-      toaster.error({ title: t('failedToLoadVenues') });
-      setVenues([]); // Ensure venues is always an array
-    } finally {
-      setLoading(false);
-    }
-  }, [debouncedSearchQuery, t]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [urlFilters.q, page, t]
+  );
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -127,6 +154,23 @@ export default function AdminVenuesPage() {
     }
     fetchVenues();
   }, [isHydrated, isAuthenticated, currentUser, router, fetchVenues, t]);
+
+  // Debounce: write keyword to URL 500ms after the user stops typing.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setUrlFilters({ q: searchQuery });
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const handlePageChange = (next: number) => {
+    setPage(next);
+    fetchVenues(next);
+  };
 
   const handleCreate = async (data: VenueFormValues) => {
     try {
@@ -177,6 +221,7 @@ export default function AdminVenuesPage() {
       city: venue.city || '',
       lat: venue.lat,
       lng: venue.lng,
+      phone: venue.phone || '',
       isVerified: venue.isVerified ?? false,
       coverPhoto: venue.coverPhoto || '',
       images: venue.images || [],
@@ -223,6 +268,7 @@ export default function AdminVenuesPage() {
                   city: '',
                   lat: undefined,
                   lng: undefined,
+                  phone: '',
                   isVerified: false,
                   coverPhoto: '',
                   images: [],
@@ -252,7 +298,7 @@ export default function AdminVenuesPage() {
                 <Search size={16} color="gray" />
               </Box>
             </Box>
-            <IconButton aria-label="Refresh" onClick={fetchVenues}>
+            <IconButton aria-label="Refresh" onClick={() => fetchVenues()}>
               <RefreshCcw size={18} />
             </IconButton>
           </Flex>
@@ -330,6 +376,33 @@ export default function AdminVenuesPage() {
               </Box>
             )}
           </Box>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Flex justify="space-between" align="center" pt={2}>
+              <Text fontSize="sm" color="gray.500">
+                {totalCount} venues &middot; trang {page}/{totalPages}
+              </Text>
+              <HStack gap={2}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page <= 1 || loading}
+                >
+                  <ChevronLeft size={16} />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page >= totalPages || loading}
+                >
+                  <ChevronRight size={16} />
+                </Button>
+              </HStack>
+            </Flex>
+          )}
         </VStack>
 
         {/* Create/Edit Venue Modal */}
@@ -382,6 +455,17 @@ export default function AdminVenuesPage() {
                   <Field.Label>{t('address')}</Field.Label>
                   <Input {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+                </Field.Root>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <Field.Root>
+                  <Field.Label>{t('phone')}</Field.Label>
+                  <Input {...field} placeholder="e.g. +84 123 456 789" />
                 </Field.Root>
               )}
             />

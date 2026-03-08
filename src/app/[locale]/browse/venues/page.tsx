@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import VenueSearchList from '@/components/venue/VenueSearchList';
 import PageLayout from '@/components/layout/PageLayout';
 
@@ -14,7 +14,9 @@ export default function BrowseVenuesPage() {
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
     >
-      <VenueSearchList />
+      <Suspense>
+        <VenueSearchList />
+      </Suspense>
     </PageLayout>
   );
 }

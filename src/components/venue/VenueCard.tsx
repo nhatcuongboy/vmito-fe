@@ -178,6 +178,25 @@ export default function VenueCard({ venue }: VenueCardProps) {
                 icon={<Navigation size={14} />}
               />
             </Flex>
+
+            {/* Phone number inline */}
+            {/* {venue.phone && (
+              <Flex align="center" gap={1.5} mt={1.5}>
+                <Phone
+                  size={13}
+                  style={{ flexShrink: 0 }}
+                  color="var(--chakra-colors-gray-500)"
+                />
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {venue.phone}
+                </Text>
+              </Flex>
+            )} */}
           </Box>
 
           {/* Distance badge */}
@@ -207,183 +226,236 @@ export default function VenueCard({ venue }: VenueCardProps) {
       <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
 
       {/* Info Section */}
-      <Box px={5} py={4}>
-        <Stack gap={3}>
-          {/* Opening hours */}
-          {venue.openingHours && (
-            <Flex align="center" gap={2.5}>
-              <Box
-                p={2}
-                borderRadius="lg"
-                bg="blue.50"
-                _dark={{ bg: 'blue.900/20' }}
-              >
-                <Clock size={16} color="#3182CE" style={{ flexShrink: 0 }} />
-              </Box>
-              <Box flex="1">
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                  _dark={{ color: 'gray.500' }}
-                  mb={0.5}
+      {(venue.openingHours ||
+        venue.numberOfCourts ||
+        venue.hourlyRateFixed ||
+        venue.hourlyRateWalkIn) && (
+        <Box px={5} py={4}>
+          <Stack gap={3}>
+            {/* Opening hours */}
+            {venue.openingHours && (
+              <Flex align="center" gap={2.5}>
+                <Box
+                  p={2}
+                  borderRadius="lg"
+                  bg="blue.50"
+                  _dark={{ bg: 'blue.900/20' }}
                 >
-                  {t('openingHours')}
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="gray.700"
-                  _dark={{ color: 'gray.300' }}
-                  fontWeight="medium"
-                >
-                  {venue.openingHours}
-                </Text>
-              </Box>
-            </Flex>
-          )}
+                  <Clock size={16} color="#3182CE" style={{ flexShrink: 0 }} />
+                </Box>
+                <Box flex="1">
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.500' }}
+                    mb={0.5}
+                  >
+                    {t('openingHours')}
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                    fontWeight="medium"
+                  >
+                    {venue.openingHours}
+                  </Text>
+                </Box>
+              </Flex>
+            )}
 
-          {/* Number of courts */}
-          {venue.numberOfCourts && (
-            <Flex align="center" gap={2.5}>
-              <Box
-                p={2}
-                borderRadius="lg"
-                bg="green.50"
-                _dark={{ bg: 'green.900/20' }}
-              >
-                <LayoutGrid
-                  size={16}
-                  color="#38A169"
-                  style={{ flexShrink: 0 }}
-                />
-              </Box>
-              <Box flex="1">
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                  _dark={{ color: 'gray.500' }}
-                  mb={0.5}
+            {/* Number of courts */}
+            {venue.numberOfCourts && (
+              <Flex align="center" gap={2.5}>
+                <Box
+                  p={2}
+                  borderRadius="lg"
+                  bg="green.50"
+                  _dark={{ bg: 'green.900/20' }}
                 >
-                  {t('availableCourts')}
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="gray.700"
-                  _dark={{ color: 'gray.300' }}
-                  fontWeight="medium"
-                >
-                  {venue.numberOfCourts} {t('courts')}
-                </Text>
-              </Box>
-            </Flex>
-          )}
+                  <LayoutGrid
+                    size={16}
+                    color="#38A169"
+                    style={{ flexShrink: 0 }}
+                  />
+                </Box>
+                <Box flex="1">
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.500' }}
+                    mb={0.5}
+                  >
+                    {t('availableCourts')}
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                    fontWeight="medium"
+                  >
+                    {venue.numberOfCourts} {t('courts')}
+                  </Text>
+                </Box>
+              </Flex>
+            )}
 
-          {/* Pricing */}
-          {(venue.hourlyRateFixed || venue.hourlyRateWalkIn) && (
-            <Flex align="flex-start" gap={2.5}>
-              <Box
-                p={2}
-                borderRadius="lg"
-                bg="orange.50"
-                _dark={{ bg: 'orange.900/20' }}
-              >
-                <Banknote size={16} color="#DD6B20" style={{ flexShrink: 0 }} />
-              </Box>
-              <Box flex="1">
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                  _dark={{ color: 'gray.500' }}
-                  mb={1}
+            {/* Pricing */}
+            {(venue.hourlyRateFixed || venue.hourlyRateWalkIn) && (
+              <Flex align="flex-start" gap={2.5}>
+                <Box
+                  p={2}
+                  borderRadius="lg"
+                  bg="orange.50"
+                  _dark={{ bg: 'orange.900/20' }}
                 >
-                  {t('pricing')}
-                </Text>
-                <Stack gap={1.5}>
-                  {venue.hourlyRateFixed && (
-                    <Flex align="center" gap={2}>
-                      <Badge
-                        colorPalette="green"
-                        variant="solid"
-                        size="sm"
-                        borderRadius="md"
-                        px={2}
-                        py={0.5}
-                      >
-                        <Text fontSize="xs" fontWeight="bold">
-                          {formatPrice(venue.hourlyRateFixed)}/h
+                  <Banknote
+                    size={16}
+                    color="#DD6B20"
+                    style={{ flexShrink: 0 }}
+                  />
+                </Box>
+                <Box flex="1">
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.500' }}
+                    mb={1}
+                  >
+                    {t('pricing')}
+                  </Text>
+                  <Stack gap={1.5}>
+                    {venue.hourlyRateFixed && (
+                      <Flex align="center" gap={2}>
+                        <Badge
+                          colorPalette="green"
+                          variant="solid"
+                          size="sm"
+                          borderRadius="md"
+                          px={2}
+                          py={0.5}
+                        >
+                          <Text fontSize="xs" fontWeight="bold">
+                            {formatPrice(venue.hourlyRateFixed)}/h
+                          </Text>
+                        </Badge>
+                        <Text
+                          fontSize="xs"
+                          color="gray.600"
+                          _dark={{ color: 'gray.400' }}
+                        >
+                          {t('fixedRate')}
                         </Text>
-                      </Badge>
-                      <Text
-                        fontSize="xs"
-                        color="gray.600"
-                        _dark={{ color: 'gray.400' }}
-                      >
-                        {t('fixedRate')}
-                      </Text>
-                    </Flex>
-                  )}
-                  {venue.hourlyRateWalkIn && (
-                    <Flex align="center" gap={2}>
-                      <Badge
-                        colorPalette="orange"
-                        variant="solid"
-                        size="sm"
-                        borderRadius="md"
-                        px={2}
-                        py={0.5}
-                      >
-                        <Text fontSize="xs" fontWeight="bold">
-                          {formatPrice(venue.hourlyRateWalkIn)}/h
+                      </Flex>
+                    )}
+                    {venue.hourlyRateWalkIn && (
+                      <Flex align="center" gap={2}>
+                        <Badge
+                          colorPalette="orange"
+                          variant="solid"
+                          size="sm"
+                          borderRadius="md"
+                          px={2}
+                          py={0.5}
+                        >
+                          <Text fontSize="xs" fontWeight="bold">
+                            {formatPrice(venue.hourlyRateWalkIn)}/h
+                          </Text>
+                        </Badge>
+                        <Text
+                          fontSize="xs"
+                          color="gray.600"
+                          _dark={{ color: 'gray.400' }}
+                        >
+                          {t('walkInRate')}
                         </Text>
-                      </Badge>
-                      <Text
-                        fontSize="xs"
-                        color="gray.600"
-                        _dark={{ color: 'gray.400' }}
-                      >
-                        {t('walkInRate')}
-                      </Text>
-                    </Flex>
-                  )}
-                </Stack>
-              </Box>
-            </Flex>
-          )}
-        </Stack>
-      </Box>
+                      </Flex>
+                    )}
+                  </Stack>
+                </Box>
+              </Flex>
+            )}
+          </Stack>
+        </Box>
+      )}
 
       {/* Contact Section */}
       {(venue.phone || venue.website) && (
         <>
           <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
           <Box px={5} py={3}>
-            <Flex gap={3} flexWrap="wrap" justify="space-between">
+            {/* Action buttons row */}
+            <Flex gap={2} flexWrap="wrap">
               {venue.phone && (
                 <a
                   href={`tel:${venue.phone}`}
                   onClick={(e) => e.stopPropagation()}
-                  style={{ flex: 1, minWidth: '140px' }}
                 >
                   <Flex
                     align="center"
-                    justify="center"
-                    gap={2}
+                    gap={1.5}
                     px={3}
                     py={2}
                     borderRadius="lg"
-                    bg="gray.50"
-                    _dark={{ bg: 'gray.700', color: 'gray.300' }}
-                    color="gray.700"
+                    bg="green.50"
+                    _dark={{
+                      bg: 'green.900/20',
+                      color: 'green.300',
+                      borderColor: 'green.700',
+                    }}
+                    color="green.600"
                     _hover={{
-                      bg: 'blue.50',
-                      color: 'blue.600',
-                      _dark: { bg: 'blue.900/30', color: 'blue.400' },
+                      bg: 'green.100',
+                      _dark: { bg: 'green.900/40' },
                     }}
                     transition="all 0.2s"
                     fontSize="sm"
-                    fontWeight="medium"
+                    fontWeight="semibold"
+                    borderWidth="1px"
+                    borderColor="green.200"
                   >
                     <Phone size={14} />
-                    <Text fontSize="xs">{venue.phone}</Text>
+                    <Text fontSize="xs">{t('call')}</Text>
+                  </Flex>
+                </a>
+              )}
+              {venue.phone && (
+                <a
+                  href={`https://zalo.me/${venue.phone.replace(/^0/, '84')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Flex
+                    align="center"
+                    gap={1.5}
+                    px={3}
+                    py={2}
+                    borderRadius="lg"
+                    bg="blue.50"
+                    _dark={{
+                      bg: 'blue.900/20',
+                      color: 'blue.300',
+                      borderColor: 'blue.700',
+                    }}
+                    color="blue.600"
+                    _hover={{
+                      bg: 'blue.100',
+                      _dark: { bg: 'blue.900/40' },
+                    }}
+                    transition="all 0.2s"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    borderWidth="1px"
+                    borderColor="blue.200"
+                  >
+                    <Image
+                      src="/icons/zalo.png"
+                      alt="Zalo"
+                      boxSize="14px"
+                      flexShrink={0}
+                    />
+                    <Text fontSize="xs">Zalo</Text>
                   </Flex>
                 </a>
               )}
@@ -393,26 +465,29 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  style={{ flex: 1, minWidth: '100px' }}
                 >
                   <Flex
                     align="center"
-                    justify="center"
-                    gap={2}
+                    gap={1.5}
                     px={3}
                     py={2}
                     borderRadius="lg"
-                    bg="gray.50"
-                    _dark={{ bg: 'gray.700', color: 'gray.300' }}
-                    color="gray.700"
+                    bg="purple.50"
+                    _dark={{
+                      bg: 'purple.900/20',
+                      color: 'purple.300',
+                      borderColor: 'purple.700',
+                    }}
+                    color="purple.600"
                     _hover={{
-                      bg: 'purple.50',
-                      color: 'purple.600',
-                      _dark: { bg: 'purple.900/30', color: 'purple.400' },
+                      bg: 'purple.100',
+                      _dark: { bg: 'purple.900/40' },
                     }}
                     transition="all 0.2s"
                     fontSize="sm"
-                    fontWeight="medium"
+                    fontWeight="semibold"
+                    borderWidth="1px"
+                    borderColor="purple.200"
                   >
                     <Globe size={14} style={{ flexShrink: 0 }} />
                     <Text fontSize="xs">{t('website')}</Text>

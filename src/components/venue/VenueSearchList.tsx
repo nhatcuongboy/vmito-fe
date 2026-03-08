@@ -23,8 +23,26 @@ import { useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
+import {
+  useUrlFilters,
+  stringField,
+  stringArrayField,
+  booleanField,
+} from '@/hooks/useUrlFilters';
 
 const PAGE_SIZE = 12;
+
+// URL filter schema for the venue search page.
+// q        → keyword (string)
+// city     → comma-separated city codes  (e.g. "HCM,HN")
+// district → comma-separated district names (e.g. "Bình Thạnh,Quận 1")
+// near     → sort by distance flag       ("1" = true)
+const VENUE_FILTERS_SCHEMA = {
+  q: stringField(''),
+  city: stringArrayField(),
+  district: stringArrayField(),
+  near: booleanField(false),
+};
 
 export default function VenueSearchList() {
   const [venues, setVenues] = useState<Venue[]>([]);
@@ -35,11 +53,14 @@ export default function VenueSearchList() {
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters
-  const [keyword, setKeyword] = useState('');
-  const [cities, setCities] = useState<string[]>([]);
-  const [districts, setDistricts] = useState<string[]>([]);
-  const [sortByDistance, setSortByDistance] = useState(false);
+  // URL-synced applied filters
+  const [filters, setFilters, resetFilters] =
+    useUrlFilters(VENUE_FILTERS_SCHEMA);
+
+  // Local keyword state drives the search input; synced to URL with debounce.
+  const [keyword, setKeyword] = useState(filters.q);
+
+  // User location is never stored in URL (privacy).
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
@@ -61,15 +82,20 @@ export default function VenueSearchList() {
     rootMargin: '100px',
   });
 
-  // Sync pending filters when drawer opens
+  // Stable string keys for array filters — used in useEffect dependency arrays.
+  const citiesKey = filters.city.join(',');
+  const districtsKey = filters.district.join(',');
+
+  // Sync pending filters when drawer opens.
   useEffect(() => {
     if (showFilters) {
-      setPendingCities(cities);
-      setPendingDistricts(districts);
-      setPendingSortByDistance(sortByDistance);
+      setPendingCities(filters.city);
+      setPendingDistricts(filters.district);
+      setPendingSortByDistance(filters.near);
       setPendingUserLocation(userLocation);
     }
-  }, [showFilters, cities, districts, sortByDistance, userLocation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilters]);
 
   // Plain function (not useCallback) to always read the latest `page` state
   const fetchVenues = async (isLoadMore = false) => {
@@ -89,17 +115,18 @@ export default function VenueSearchList() {
 
       const apiFilters: Record<string, string | number | boolean | undefined> =
         {
-          keyword: keyword || undefined,
+          keyword: filters.q || undefined,
           city:
-            cities.length === 1
-              ? VIETNAM_CITIES.find((c) => c.code === cities[0])?.name
+            filters.city.length === 1
+              ? VIETNAM_CITIES.find((c) => c.code === filters.city[0])?.name
               : undefined,
-          district: districts.length === 1 ? districts[0] : undefined,
+          district:
+            filters.district.length === 1 ? filters.district[0] : undefined,
           page: currentPage,
           limit: PAGE_SIZE,
         };
 
-      if (sortByDistance && userLocation) {
+      if (filters.near && userLocation) {
         apiFilters.lat = userLocation.lat;
         apiFilters.lng = userLocation.lng;
         apiFilters.sortBy = 'distance';
@@ -111,10 +138,10 @@ export default function VenueSearchList() {
       let venueData = result.data;
 
       // Client-side multi-city filter
-      if (cities.length > 1) {
+      if (filters.city.length > 1) {
         venueData = venueData.filter((venue) => {
           const venueCity = venue.city || '';
-          return cities.some((cityCode) => {
+          return filters.city.some((cityCode) => {
             const cityName = VIETNAM_CITIES.find(
               (c) => c.code === cityCode
             )?.name;
@@ -127,10 +154,10 @@ export default function VenueSearchList() {
       }
 
       // Client-side multi-district filter
-      if (districts.length > 1) {
+      if (filters.district.length > 1) {
         venueData = venueData.filter((venue) => {
           const venueDistrict = venue.district || '';
-          return districts.some(
+          return filters.district.some(
             (d) => venueDistrict.toLowerCase() === d.toLowerCase()
           );
         });
@@ -153,14 +180,26 @@ export default function VenueSearchList() {
     }
   };
 
-  // Debounced fetch on filter change
+  // Sync keyword input → URL with 500 ms debounce (avoids polluting history on every keystroke).
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchVenues();
+      setFilters({ q: keyword });
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keyword, cities, districts, sortByDistance, userLocation]);
+  }, [keyword]);
+
+  // Keep the input display in sync when the URL changes externally (browser back/forward).
+  useEffect(() => {
+    setKeyword(filters.q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.q]);
+
+  // Fetch whenever URL-applied filters or user location change.
+  useEffect(() => {
+    fetchVenues();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.q, citiesKey, districtsKey, filters.near, userLocation]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -208,14 +247,12 @@ export default function VenueSearchList() {
   };
 
   const handleSubmitFilters = () => {
-    setCities(pendingCities);
-    setDistricts(pendingDistricts);
-    setSortByDistance(pendingSortByDistance);
-    if (pendingUserLocation) {
-      setUserLocation(pendingUserLocation);
-    } else {
-      setUserLocation(null);
-    }
+    setFilters({
+      city: pendingCities,
+      district: pendingDistricts,
+      near: pendingSortByDistance,
+    });
+    setUserLocation(pendingUserLocation ?? null);
     toggleFilters();
   };
 
@@ -228,27 +265,29 @@ export default function VenueSearchList() {
 
   const clearAllFilters = () => {
     setKeyword('');
-    setCities([]);
-    setDistricts([]);
-    setSortByDistance(false);
+    resetFilters();
     setUserLocation(null);
   };
 
   const removeCity = (cityCode: string) => {
-    const nextCities = cities.filter((c) => c !== cityCode);
-    setCities(nextCities);
-    if (nextCities.length === 0) setDistricts([]);
+    const nextCities = filters.city.filter((c) => c !== cityCode);
+    setFilters({
+      city: nextCities,
+      ...(nextCities.length === 0 ? { district: [] } : {}),
+    });
   };
 
   const removeDistrict = (districtName: string) => {
-    setDistricts((prev) => prev.filter((d) => d !== districtName));
+    setFilters({
+      district: filters.district.filter((d) => d !== districtName),
+    });
   };
 
   const activeFilterCount =
-    (keyword ? 1 : 0) +
-    cities.length +
-    districts.length +
-    (sortByDistance ? 1 : 0);
+    (filters.q ? 1 : 0) +
+    filters.city.length +
+    filters.district.length +
+    (filters.near ? 1 : 0);
 
   const availableDistricts = useMemo(() => {
     if (pendingCities.length === 0) return [];
@@ -353,9 +392,9 @@ export default function VenueSearchList() {
 
       {/* Results info + active filter chips */}
       {!loading &&
-        (cities.length > 0 ||
-          districts.length > 0 ||
-          sortByDistance ||
+        (filters.city.length > 0 ||
+          filters.district.length > 0 ||
+          filters.near ||
           totalCount !== null) && (
           <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
             {totalCount !== null && (
@@ -369,7 +408,7 @@ export default function VenueSearchList() {
               </Text>
             )}
 
-            {sortByDistance && (
+            {filters.near && (
               <Badge
                 colorPalette="blue"
                 variant="subtle"
@@ -390,7 +429,7 @@ export default function VenueSearchList() {
                   display="inline-flex"
                   alignItems="center"
                   onClick={() => {
-                    setSortByDistance(false);
+                    setFilters({ near: false });
                     setUserLocation(null);
                   }}
                   _hover={{ color: 'blue.700' }}
@@ -400,7 +439,7 @@ export default function VenueSearchList() {
               </Badge>
             )}
 
-            {cities.map((cityCode) => {
+            {filters.city.map((cityCode) => {
               const cityName =
                 VIETNAM_CITIES.find((c) => c.code === cityCode)?.name ??
                 cityCode;
@@ -433,7 +472,7 @@ export default function VenueSearchList() {
               );
             })}
 
-            {districts.map((districtName) => (
+            {filters.district.map((districtName) => (
               <Badge
                 key={districtName}
                 colorPalette="purple"
