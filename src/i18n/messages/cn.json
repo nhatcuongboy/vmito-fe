@@ -1907,7 +1907,9 @@
     "coverPhoto": "封面图片",
     "yes": "Yes",
     "no": "No",
-    "noVenuesFound": "No venues found"
+    "noVenuesFound": "No venues found",
+    "district": "区",
+    "city": "城市"
   },
   "PlayerDetailModal": {
     "status": "状态",
@@ -2346,6 +2348,8 @@
     "walkInRate": "散客价格",
     "website": "网站",
     "call": "拨打电话",
+    "share": "分享",
+    "view": "查看",
     "viewDetails": "查看详情",
     "findSessionsAtVenue": "查找场次"
   }

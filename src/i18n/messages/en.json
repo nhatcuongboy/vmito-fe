@@ -1905,12 +1905,15 @@
     "failedToDeleteVenue": "Failed to delete venue",
     "placeId": "Place ID",
     "address": "Address",
+    "phone": "Phone",
     "isVerified": "Verified",
     "images": "Image Gallery",
     "coverPhoto": "Cover Photo",
     "yes": "Yes",
     "no": "No",
-    "noVenuesFound": "No venues found"
+    "noVenuesFound": "No venues found",
+    "district": "District",
+    "city": "City"
   },
   "PlayerDetailModal": {
     "status": "Status",
@@ -2349,6 +2352,8 @@
     "walkInRate": "Walk-in Rate",
     "website": "Website",
     "call": "Call",
+    "share": "Share",
+    "view": "View",
     "viewDetails": "View Details",
     "findSessionsAtVenue": "Find Sessions"
   }

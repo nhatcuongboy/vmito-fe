@@ -15,6 +15,7 @@ import {
   Navigation,
   Phone,
   Search,
+  Share2,
 } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
@@ -384,116 +385,82 @@ export default function VenueCard({ venue }: VenueCardProps) {
         <>
           <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
           <Box px={5} py={3}>
-            {/* Action buttons row */}
-            <Flex gap={2} flexWrap="wrap">
+            <Flex gap={2} justify="flex-end">
               {venue.phone && (
-                <a
-                  href={`tel:${venue.phone}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Flex
-                    align="center"
-                    gap={1.5}
-                    px={3}
-                    py={2}
-                    borderRadius="lg"
-                    bg="green.50"
-                    _dark={{
-                      bg: 'green.900/20',
-                      color: 'green.300',
-                      borderColor: 'green.700',
-                    }}
-                    color="green.600"
-                    _hover={{
-                      bg: 'green.100',
-                      _dark: { bg: 'green.900/40' },
-                    }}
-                    transition="all 0.2s"
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    borderWidth="1px"
-                    borderColor="green.200"
-                  >
-                    <Phone size={14} />
-                    <Text fontSize="xs">{t('call')}</Text>
-                  </Flex>
-                </a>
+                <IconButton
+                  size="sm"
+                  colorPalette="green"
+                  variant="outline"
+                  aria-label={t('call')}
+                  shadow="sm"
+                  icon={<Phone size={16} />}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    window.location.href = `tel:${venue.phone}`;
+                  }}
+                />
               )}
               {venue.phone && (
-                <a
-                  href={`https://zalo.me/${venue.phone.replace(/^0/, '84')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
+                <IconButton
+                  size="sm"
+                  colorPalette="blue"
+                  variant="outline"
+                  aria-label="Zalo"
+                  shadow="sm"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    window.open(
+                      `https://zalo.me/${venue.phone!.replace(/^0/, '84')}`,
+                      '_blank'
+                    );
+                  }}
                 >
-                  <Flex
-                    align="center"
-                    gap={1.5}
-                    px={3}
-                    py={2}
-                    borderRadius="lg"
-                    bg="blue.50"
-                    _dark={{
-                      bg: 'blue.900/20',
-                      color: 'blue.300',
-                      borderColor: 'blue.700',
-                    }}
-                    color="blue.600"
-                    _hover={{
-                      bg: 'blue.100',
-                      _dark: { bg: 'blue.900/40' },
-                    }}
-                    transition="all 0.2s"
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    borderWidth="1px"
-                    borderColor="blue.200"
-                  >
-                    <Image
-                      src="/icons/zalo.png"
-                      alt="Zalo"
-                      boxSize="14px"
-                      flexShrink={0}
-                    />
-                    <Text fontSize="xs">Zalo</Text>
-                  </Flex>
-                </a>
+                  <Image
+                    src="/icons/zalo.png"
+                    alt="Zalo"
+                    boxSize="16px"
+                    flexShrink={0}
+                  />
+                </IconButton>
               )}
               {venue.website && (
-                <a
-                  href={venue.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Flex
-                    align="center"
-                    gap={1.5}
-                    px={3}
-                    py={2}
-                    borderRadius="lg"
-                    bg="purple.50"
-                    _dark={{
-                      bg: 'purple.900/20',
-                      color: 'purple.300',
-                      borderColor: 'purple.700',
-                    }}
-                    color="purple.600"
-                    _hover={{
-                      bg: 'purple.100',
-                      _dark: { bg: 'purple.900/40' },
-                    }}
-                    transition="all 0.2s"
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    borderWidth="1px"
-                    borderColor="purple.200"
-                  >
-                    <Globe size={14} style={{ flexShrink: 0 }} />
-                    <Text fontSize="xs">{t('website')}</Text>
-                  </Flex>
-                </a>
+                <IconButton
+                  size="sm"
+                  colorPalette="purple"
+                  variant="outline"
+                  aria-label={t('website')}
+                  shadow="sm"
+                  icon={<Globe size={16} />}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    window.open(venue.website!, '_blank');
+                  }}
+                />
               )}
+              <IconButton
+                size="sm"
+                colorPalette="gray"
+                variant="outline"
+                aria-label={t('share')}
+                shadow="sm"
+                icon={<Share2 size={16} />}
+                onClick={async (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  const shareData = {
+                    title: venue.name,
+                    url: `${window.location.origin}/browse/venues/${venue.id}`,
+                  };
+                  try {
+                    if (navigator.share) {
+                      await navigator.share(shareData);
+                    } else {
+                      await navigator.clipboard.writeText(shareData.url);
+                    }
+                  } catch {
+                    // user cancelled
+                  }
+                }}
+              />
             </Flex>
           </Box>
         </>
@@ -516,7 +483,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
             }}
             transition="all 0.2s"
           >
-            {t('viewDetails')}
+            {t('view')}
           </Button>
           <Button
             flex="1"

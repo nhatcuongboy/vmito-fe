@@ -17,10 +17,18 @@ import {
   HStack,
   IconButton,
   Spinner,
-  Table,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+} from '@/components/ui/VTable';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import {
@@ -42,6 +50,8 @@ import { useUrlFilters, stringField } from '@/hooks/useUrlFilters';
 import { Button } from '@/components/ui/chakra-compat';
 import { VButton } from '@/components/ui/VButton';
 import { VSwitch } from '@/components/ui/VSwitch';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 
 const PAGE_SIZE = 20;
 
@@ -50,8 +60,8 @@ const venueSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   placeId: z.string().min(1, 'Place ID is required'),
   address: z.string().min(5, 'Address must be at least 5 characters'),
-  district: z.string().optional(),
-  city: z.string().optional(),
+  district: z.string().min(1, 'District is required'),
+  city: z.string().min(1, 'City is required'),
   lat: z.number().optional(),
   lng: z.number().optional(),
   phone: z.string().optional(),
@@ -280,71 +290,89 @@ function AdminVenuesContent() {
             </VButton>
           </Flex>
 
-          {/* Filters */}
-          <Flex gap={4} wrap="wrap">
-            <Box position="relative" flex="1" minW="200px">
+          {/* Search Bar */}
+          <Flex
+            gap={2}
+            align="center"
+            bg="white"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            px={3}
+            h="48px"
+            borderRadius="lg"
+            borderWidth="1px"
+            borderColor="gray.200"
+            boxShadow="sm"
+          >
+            <Box flex="1" minW="200px">
               <Input
+                h="36px"
                 placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                pl={10}
+                bg="white"
+                _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+                borderRadius="md"
+                leftElement={<Search size={18} />}
+                _focus={{
+                  borderColor: 'brand.500',
+                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  bg: 'white',
+                  _dark: { bg: 'gray.600' },
+                }}
+                fontSize="sm"
+                transition="all 0.2s"
               />
-              <Box
-                position="absolute"
-                left={3}
-                top="50%"
-                transform="translateY(-50%)"
-              >
-                <Search size={16} color="gray" />
-              </Box>
             </Box>
-            <IconButton aria-label="Refresh" onClick={() => fetchVenues()}>
+            <IconButton
+              h="36px"
+              w="36px"
+              minW="36px"
+              variant="solid"
+              colorPalette="green"
+              aria-label="Refresh"
+              onClick={() => fetchVenues()}
+              borderRadius="md"
+              transition="all 0.2s"
+              _hover={{ transform: 'scale(1.05)' }}
+            >
               <RefreshCcw size={18} />
             </IconButton>
           </Flex>
 
           {/* Venues Table */}
-          <Box
-            bg="white"
-            borderRadius="lg"
-            boxShadow="sm"
-            overflow="hidden"
-            _dark={{ bg: 'gray.800' }}
-          >
-            <Table.Root>
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>{t('name')}</Table.ColumnHeader>
-                  <Table.ColumnHeader>{t('address')}</Table.ColumnHeader>
-                  <Table.ColumnHeader>{t('isVerified')}</Table.ColumnHeader>
-                  <Table.ColumnHeader textAlign="right">
-                    {t('actions')}
-                  </Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
+          <TableContainer>
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>{t('name')}</Th>
+                  <Th>{t('address')}</Th>
+                  <Th>{t('isVerified')}</Th>
+                  <Th textAlign="right">{t('actions')}</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
                 {venues.map((venue) => (
-                  <Table.Row key={venue.id}>
-                    <Table.Cell fontWeight="medium">
+                  <Tr key={venue.id}>
+                    <Td fontWeight="medium">
                       <HStack gap={2}>
                         <MapPin size={16} color="#179a3b" />
                         <Text>{venue.name}</Text>
                       </HStack>
-                    </Table.Cell>
-                    <Table.Cell color="gray.600">
+                    </Td>
+                    <Td color="gray.600">
                       <Text fontSize="sm">{venue.address}</Text>
                       {venue.district && venue.city && (
                         <Text fontSize="xs" color="gray.400">
                           {venue.district}, {venue.city}
                         </Text>
                       )}
-                    </Table.Cell>
-                    <Table.Cell>
+                    </Td>
+                    <Td>
                       <Badge colorPalette={venue.isVerified ? 'green' : 'gray'}>
                         {venue.isVerified ? t('yes') : t('no')}
                       </Badge>
-                    </Table.Cell>
-                    <Table.Cell textAlign="right">
+                    </Td>
+                    <Td textAlign="right">
                       <HStack gap={2} justify="flex-end">
                         <IconButton
                           aria-label="Edit venue"
@@ -364,18 +392,18 @@ function AdminVenuesContent() {
                           <Trash2 size={16} />
                         </IconButton>
                       </HStack>
-                    </Table.Cell>
-                  </Table.Row>
+                    </Td>
+                  </Tr>
                 ))}
-              </Table.Body>
-            </Table.Root>
+              </Tbody>
+            </Table>
+          </TableContainer>
 
-            {venues.length === 0 && !loading && (
-              <Box p={8} textAlign="center" color="gray.500">
-                {t('noVenuesFound') || 'No venues found'}
-              </Box>
-            )}
-          </Box>
+          {venues.length === 0 && !loading && (
+            <Box p={8} textAlign="center" color="gray.500">
+              {t('noVenuesFound') || 'No venues found'}
+            </Box>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -427,8 +455,10 @@ function AdminVenuesContent() {
               control={form.control}
               name="name"
               render={({ field, fieldState }) => (
-                <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label>{t('name')}</Field.Label>
+                <Field.Root invalid={!!fieldState.error} required>
+                  <Field.Label>
+                    {t('name')} <Field.RequiredIndicator />
+                  </Field.Label>
                   <Input {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -439,8 +469,10 @@ function AdminVenuesContent() {
               control={form.control}
               name="placeId"
               render={({ field, fieldState }) => (
-                <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label>{t('placeId')}</Field.Label>
+                <Field.Root invalid={!!fieldState.error} required>
+                  <Field.Label>
+                    {t('placeId')} <Field.RequiredIndicator />
+                  </Field.Label>
                   <Input {...field} placeholder="Google Place ID" />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -451,8 +483,10 @@ function AdminVenuesContent() {
               control={form.control}
               name="address"
               render={({ field, fieldState }) => (
-                <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label>{t('address')}</Field.Label>
+                <Field.Root invalid={!!fieldState.error} required>
+                  <Field.Label>
+                    {t('address')} <Field.RequiredIndicator />
+                  </Field.Label>
                   <Input {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -470,26 +504,59 @@ function AdminVenuesContent() {
               )}
             />
 
-            <HStack width="full" gap={4}>
+            <HStack width="full" gap={4} align="flex-start">
               <Controller
                 control={form.control}
-                name="district"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>{tCommon('filters.area')}</Field.Label>
-                    <Input {...field} placeholder="District" />
+                name="city"
+                render={({ field, fieldState }) => (
+                  <Field.Root flex={1} invalid={!!fieldState.error} required>
+                    <Field.Label>
+                      {t('city')} <Field.RequiredIndicator />
+                    </Field.Label>
+                    <SearchableSelect
+                      options={VIETNAM_CITIES}
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        form.setValue('district', '');
+                      }}
+                      placeholder={t('city')}
+                      isInvalid={!!fieldState.error}
+                    />
+                    <Field.ErrorText>
+                      {fieldState.error?.message}
+                    </Field.ErrorText>
                   </Field.Root>
                 )}
               />
               <Controller
                 control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>{tCommon('filters.allCities')}</Field.Label>
-                    <Input {...field} placeholder="City" />
-                  </Field.Root>
-                )}
+                name="district"
+                render={({ field, fieldState }) => {
+                  const selectedCity = form.watch('city');
+                  const districtOptions = getDistrictsByCity(selectedCity);
+                  return (
+                    <Field.Root flex={1} invalid={!!fieldState.error} required>
+                      <Field.Label>
+                        {t('district')} <Field.RequiredIndicator />
+                      </Field.Label>
+                      <SearchableSelect
+                        options={districtOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={
+                          selectedCity ? t('district') : 'Chọn thành phố trước'
+                        }
+                        isDisabled={!selectedCity}
+                        isInvalid={!!fieldState.error}
+                        noOptionsMessage="Không tìm thấy quận/huyện"
+                      />
+                      <Field.ErrorText>
+                        {fieldState.error?.message}
+                      </Field.ErrorText>
+                    </Field.Root>
+                  );
+                }}
               />
             </HStack>
 
@@ -544,10 +611,14 @@ function AdminVenuesContent() {
               control={form.control}
               name="coverPhoto"
               render={({ field }) => (
-                <Field.Root>
+                <Field.Root width="full">
                   <Field.Label fontWeight="bold">{t('coverPhoto')}</Field.Label>
-                  <VStack align="stretch" gap={3}>
-                    <Input {...field} placeholder="Enter cover photo URL..." />
+                  <VStack align="stretch" gap={3} width="full">
+                    <Input
+                      {...field}
+                      placeholder="Enter cover photo URL..."
+                      width="full"
+                    />
                     {field.value && (
                       <Box
                         borderRadius="lg"
@@ -676,15 +747,12 @@ function AdminVenuesContent() {
               control={form.control}
               name="isVerified"
               render={({ field }) => (
-                <Field.Root display="flex" alignItems="center" gap={4}>
-                  <Field.Label mb={0}>{t('isVerified')}</Field.Label>
-                  <VSwitch
-                    checked={field.value}
-                    onCheckedChange={(details) =>
-                      field.onChange(details.checked)
-                    }
-                  />
-                </Field.Root>
+                <VSwitch
+                  checked={field.value}
+                  onCheckedChange={(details) => field.onChange(details.checked)}
+                  label={t('isVerified')}
+                  colorPalette="green"
+                />
               )}
             />
           </VStack>

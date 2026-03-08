@@ -16,8 +16,12 @@ export const VSwitch = React.forwardRef<HTMLInputElement, VSwitchProps>(
     return (
       <ChakraSwitch.Root ref={rootRef} {...rest}>
         <ChakraSwitch.HiddenInput ref={ref} {...inputProps} />
-        <ChakraSwitch.Control>
-          <ChakraSwitch.Thumb />
+        <ChakraSwitch.Control
+          outline="1.5px solid"
+          outlineColor={{ base: 'gray.300', _dark: 'gray.600' }}
+          _checked={{ outlineColor: 'transparent' }}
+        >
+          <ChakraSwitch.Thumb boxShadow="0 1px 3px rgba(0,0,0,0.25)" />
           {trackLabel && (
             <ChakraSwitch.Indicator fallback={trackLabel.off}>
               {trackLabel.on}

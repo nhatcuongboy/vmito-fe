@@ -1905,12 +1905,15 @@
     "failedToDeleteVenue": "Không thể xóa địa điểm",
     "placeId": "Mã địa điểm",
     "address": "Địa chỉ",
+    "phone": "Số điện thoại",
     "isVerified": "Đã xác minh",
     "images": "Bộ sưu tập ảnh",
     "coverPhoto": "Ảnh bìa",
     "yes": "Có",
     "no": "Không",
-    "noVenuesFound": "Không tìm thấy địa điểm nào"
+    "noVenuesFound": "Không tìm thấy địa điểm nào",
+    "district": "Quận/Huyện",
+    "city": "Thành phố"
   },
   "PlayerDetailModal": {
     "status": "Trạng thái",
@@ -2349,6 +2352,8 @@
     "walkInRate": "Giá vãng lai",
     "website": "Website",
     "call": "Gọi điện",
+    "share": "Chia sẻ",
+    "view": "Xem",
     "viewDetails": "Xem chi tiết",
     "findSessionsAtVenue": "Tìm kèo tại sân"
   }
