@@ -300,6 +300,7 @@ export default function SuggestionsList({
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
+    toggleFilters(); // Close drawer after reset
   };
 
   const handleAISuccess = (data: ExtractedSessionData) => {

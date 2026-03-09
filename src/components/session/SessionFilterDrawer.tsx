@@ -533,7 +533,7 @@ export default function SessionFilterDrawer({
                       }
                       colorPalette={
                         filters.districts.includes(district.name)
-                          ? 'brand'
+                          ? 'green'
                           : 'gray'
                       }
                       onClick={() => toggleDistrict(district.name)}
@@ -749,7 +749,7 @@ export default function SessionFilterDrawer({
             <Button
               flex="1"
               variant="outline"
-              colorPalette="gray"
+              colorPalette="red"
               onClick={onReset}
               leftIcon={<X size={18} />}
             >

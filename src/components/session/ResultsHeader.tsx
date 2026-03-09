@@ -112,9 +112,9 @@ export default function ResultsHeader({
   }, [isOpen]);
 
   return (
-    <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
-      {/* Left: Results count + Active Filters */}
-      <HStack gap={3} wrap="wrap" flex="1" minW="0">
+    <Box mb={4}>
+      <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
+        {/* Left: Results count */}
         <Text
           fontSize="sm"
           color="gray.600"
@@ -123,136 +123,138 @@ export default function ResultsHeader({
         >
           {t('resultsCount', { count })}
         </Text>
-        {children}
-      </HStack>
 
-      {/* Right: Sort + Mode toggle + View mode toggle */}
-      <HStack gap={2} flexShrink={0}>
-        {/* Sort Dropdown */}
-        <Box position="relative" ref={dropdownRef}>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setIsOpen((v) => !v)}
-            display="flex"
-            alignItems="center"
-            gap={1.5}
-            h="32px"
-            px={3}
-            borderRadius="full"
-            borderColor="gray.200"
-            bg={{ base: 'white', _dark: 'gray.800' }}
-            color={{ base: 'gray.700', _dark: 'gray.200' }}
-            fontWeight="normal"
-            fontSize="sm"
-            _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
-            _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
-          >
-            <ArrowUpDown size={14} />
-            <Text as="span" maxW="100px" truncate>
-              {t(activeOption.labelKey)}
-            </Text>
-            <ChevronDown
-              size={13}
-              style={{
-                transition: 'transform 0.2s',
-                transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              }}
-            />
-          </Button>
-
-          {isOpen && (
-            <Box
-              position="absolute"
-              top="calc(100% + 6px)"
-              right={0}
-              zIndex={200}
+        {/* Right: Sort + Mode toggle + View mode toggle */}
+        <HStack gap={2} flexShrink={0}>
+          {/* Sort Dropdown */}
+          <Box position="relative" ref={dropdownRef}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsOpen((v) => !v)}
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+              h="32px"
+              px={3}
+              borderRadius="full"
+              borderColor="gray.200"
               bg={{ base: 'white', _dark: 'gray.800' }}
-              border="1px solid"
-              borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-              borderRadius="xl"
-              boxShadow="lg"
-              minW="180px"
-              overflow="hidden"
-              py={1}
-            >
-              {options.map((opt) => {
-                const OptionIcon = SORT_ICONS[opt.value] ?? ArrowUpDown;
-                const isActive = opt.value === currentSortBy;
-                return (
-                  <Flex
-                    key={opt.value}
-                    align="center"
-                    gap={2.5}
-                    px={3}
-                    py={2}
-                    cursor="pointer"
-                    bg={
-                      isActive
-                        ? { base: 'green.50', _dark: 'green.900' }
-                        : 'transparent'
-                    }
-                    color={
-                      isActive
-                        ? 'green.600'
-                        : { base: 'gray.700', _dark: 'gray.200' }
-                    }
-                    fontWeight={isActive ? 'semibold' : 'normal'}
-                    fontSize="sm"
-                    _hover={{
-                      bg: isActive
-                        ? { base: 'green.100', _dark: 'green.800' }
-                        : { base: 'gray.50', _dark: 'gray.700' },
-                    }}
-                    onClick={() => handleSelect(opt.value)}
-                  >
-                    <OptionIcon size={14} />
-                    <Text flex={1}>{t(opt.labelKey)}</Text>
-                    {isActive && <Check size={13} />}
-                  </Flex>
-                );
-              })}
-            </Box>
-          )}
-        </Box>
-
-        {/* Mode Toggle Button (On/Off) */}
-        {mode && onModeChange && isAuthenticated && (
-          <Button
-            size="sm"
-            variant={mode === 'auto' ? 'solid' : 'outline'}
-            colorPalette={mode === 'auto' ? 'yellow' : 'gray'}
-            onClick={() => onModeChange(mode === 'auto' ? 'browse' : 'auto')}
-            borderRadius="full"
-            gap={1.5}
-            px={3}
-            h="32px"
-            borderColor={mode === 'auto' ? 'transparent' : 'gray.200'}
-            _light={{
-              bg: mode === 'auto' ? 'yellow.400' : 'white',
-              color: mode === 'auto' ? 'yellow.900' : 'gray.600',
-              _hover: {
-                bg: mode === 'auto' ? 'yellow.500' : 'gray.50',
-              },
-            }}
-          >
-            <Icon
-              as={Sparkles}
-              boxSize={4}
-              fill={mode === 'auto' ? 'currentColor' : 'none'}
-            />
-            <Text
+              color={{ base: 'gray.700', _dark: 'gray.200' }}
+              fontWeight="normal"
               fontSize="sm"
-              fontWeight={mode === 'auto' ? 'bold' : 'normal'}
+              _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
+              _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
             >
-              {tSuggestions('modeAuto')}
-            </Text>
-          </Button>
-        )}
+              <ArrowUpDown size={14} />
+              <Text as="span" maxW="100px" truncate>
+                {t(activeOption.labelKey)}
+              </Text>
+              <ChevronDown
+                size={13}
+                style={{
+                  transition: 'transform 0.2s',
+                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
+              />
+            </Button>
 
-        {/* View Mode Toggle */}
-        <ViewModeToggle />
-      </HStack>
-    </Flex>
+            {isOpen && (
+              <Box
+                position="absolute"
+                top="calc(100% + 6px)"
+                right={0}
+                zIndex={200}
+                bg={{ base: 'white', _dark: 'gray.800' }}
+                border="1px solid"
+                borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+                borderRadius="xl"
+                boxShadow="lg"
+                minW="180px"
+                overflow="hidden"
+                py={1}
+              >
+                {options.map((opt) => {
+                  const OptionIcon = SORT_ICONS[opt.value] ?? ArrowUpDown;
+                  const isActive = opt.value === currentSortBy;
+                  return (
+                    <Flex
+                      key={opt.value}
+                      align="center"
+                      gap={2.5}
+                      px={3}
+                      py={2}
+                      cursor="pointer"
+                      bg={
+                        isActive
+                          ? { base: 'green.50', _dark: 'green.900' }
+                          : 'transparent'
+                      }
+                      color={
+                        isActive
+                          ? 'green.600'
+                          : { base: 'gray.700', _dark: 'gray.200' }
+                      }
+                      fontWeight={isActive ? 'semibold' : 'normal'}
+                      fontSize="sm"
+                      _hover={{
+                        bg: isActive
+                          ? { base: 'green.100', _dark: 'green.800' }
+                          : { base: 'gray.50', _dark: 'gray.700' },
+                      }}
+                      onClick={() => handleSelect(opt.value)}
+                    >
+                      <OptionIcon size={14} />
+                      <Text flex={1}>{t(opt.labelKey)}</Text>
+                      {isActive && <Check size={13} />}
+                    </Flex>
+                  );
+                })}
+              </Box>
+            )}
+          </Box>
+
+          {/* Mode Toggle Button (On/Off) */}
+          {mode && onModeChange && isAuthenticated && (
+            <Button
+              size="sm"
+              variant={mode === 'auto' ? 'solid' : 'outline'}
+              colorPalette={mode === 'auto' ? 'yellow' : 'gray'}
+              onClick={() => onModeChange(mode === 'auto' ? 'browse' : 'auto')}
+              borderRadius="full"
+              gap={1.5}
+              px={3}
+              h="32px"
+              borderColor={mode === 'auto' ? 'transparent' : 'gray.200'}
+              _light={{
+                bg: mode === 'auto' ? 'yellow.400' : 'white',
+                color: mode === 'auto' ? 'yellow.900' : 'gray.600',
+                _hover: {
+                  bg: mode === 'auto' ? 'yellow.500' : 'gray.50',
+                },
+              }}
+            >
+              <Icon
+                as={Sparkles}
+                boxSize={4}
+                fill={mode === 'auto' ? 'currentColor' : 'none'}
+              />
+              <Text
+                fontSize="sm"
+                fontWeight={mode === 'auto' ? 'bold' : 'normal'}
+              >
+                {tSuggestions('modeAuto')}
+              </Text>
+            </Button>
+          )}
+
+          {/* View Mode Toggle */}
+          <ViewModeToggle />
+        </HStack>
+      </Flex>
+
+      {/* Active Filters row */}
+      {children && <Box mt={2}>{children}</Box>}
+    </Box>
   );
 }

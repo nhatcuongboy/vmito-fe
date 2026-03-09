@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
 import { useTranslations } from 'next-intl';
 import { Box, Flex, Text, Textarea } from '@chakra-ui/react';
 import {
@@ -48,6 +54,10 @@ const CreateClubPage = () => {
   const router = useRouter();
   const [selectedVenueId, setSelectedVenueId] = useState<string>('');
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [venueSearchLoading, setVenueSearchLoading] = useState(false);
+  const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   const {
     register,
@@ -71,6 +81,25 @@ const CreateClubPage = () => {
 
   const imageValue = watch('image');
 
+  // Debounced server-side venue search
+  const handleVenueSearch = useCallback((query: string) => {
+    if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
+    venueSearchTimerRef.current = setTimeout(async () => {
+      setVenueSearchLoading(true);
+      try {
+        const result = await VenueService.searchVenues({
+          keyword: query || undefined,
+          limit: 50,
+        });
+        setVenues(result.data ?? []);
+      } catch {
+        setVenues([]);
+      } finally {
+        setVenueSearchLoading(false);
+      }
+    }, 300);
+  }, []);
+
   const handleUploadImage = useCallback(
     async (file: File): Promise<string> => {
       const result = await ClubsService.uploadClubImage(file);
@@ -80,11 +109,10 @@ const CreateClubPage = () => {
     [setValue]
   );
 
+  // Load initial venues when dropdown first receives focus (lazy)
   useEffect(() => {
-    VenueService.getAllVenues()
-      .then(setVenues)
-      .catch(() => setVenues([]));
-  }, []);
+    handleVenueSearch('');
+  }, [handleVenueSearch]);
 
   const venueOptions = useMemo(
     () =>
@@ -188,6 +216,8 @@ const CreateClubPage = () => {
               placeholder={t('searchVenue')}
               searchPlaceholder={t('searchVenue')}
               noOptionsMessage={t('noVenueSelected')}
+              onSearchChange={handleVenueSearch}
+              isLoading={venueSearchLoading}
             />
           </Field>
 

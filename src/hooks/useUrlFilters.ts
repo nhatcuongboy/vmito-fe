@@ -157,3 +157,22 @@ export const numberField = (defaultValue = 0): UrlFilterField<number> => ({
   fromQuery: (raw) => (raw != null ? Number(raw) : defaultValue),
   toQuery: (value) => (value !== defaultValue ? String(value) : null),
 });
+
+/**
+ * A URL filter field for a comma-separated array of numbers.
+ * Omitted from URL when empty.
+ *
+ * URL format: `key=1,2,3`
+ *
+ * @example numberArrayField()  // field for number[]
+ */
+export const numberArrayField = (): UrlFilterField<number[]> => ({
+  fromQuery: (raw) =>
+    raw
+      ? raw
+          .split(',')
+          .map((s) => Number(s.trim()))
+          .filter((n) => !isNaN(n))
+      : [],
+  toQuery: (value) => (value.length > 0 ? value.join(',') : null),
+});

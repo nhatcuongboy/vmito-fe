@@ -18,8 +18,19 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Check, Filter, MapPin, Search, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  ArrowDownAZ,
+  CalendarArrowDown,
+  Check,
+  ChevronDown,
+  Filter,
+  Grid2X2,
+  MapPin,
+  Search,
+  TrendingUp,
+  X,
+} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
@@ -32,16 +43,58 @@ import {
 
 const PAGE_SIZE = 12;
 
+// Sort option definition
+interface ISortOption {
+  value: string;
+  label: string;
+  sortBy: 'name' | 'createdAt' | 'numberOfCourts' | 'hourlyRateFixed';
+  sortOrder: 'asc' | 'desc';
+  icon: React.ComponentType<{ size?: number }>;
+}
+
+const SORT_OPTIONS: ISortOption[] = [
+  {
+    value: 'newest',
+    label: 'Mới nhất',
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    icon: CalendarArrowDown,
+  },
+  {
+    value: 'name_asc',
+    label: 'Tên A→Z',
+    sortBy: 'name',
+    sortOrder: 'asc',
+    icon: ArrowDownAZ,
+  },
+  {
+    value: 'price_asc',
+    label: 'Giá thấp nhất',
+    sortBy: 'hourlyRateFixed',
+    sortOrder: 'asc',
+    icon: TrendingUp,
+  },
+  {
+    value: 'courts_desc',
+    label: 'Nhiều sân nhất',
+    sortBy: 'numberOfCourts',
+    sortOrder: 'desc',
+    icon: Grid2X2,
+  },
+];
+
 // URL filter schema for the venue search page.
 // q        → keyword (string)
 // city     → comma-separated city codes  (e.g. "HCM,HN")
 // district → comma-separated district names (e.g. "Bình Thạnh,Quận 1")
 // near     → sort by distance flag       ("1" = true)
+// sort     → active sort option value    (e.g. "newest", "name_asc")
 const VENUE_FILTERS_SCHEMA = {
   q: stringField(''),
   city: stringArrayField(),
   district: stringArrayField(),
   near: booleanField(false),
+  sort: stringField('name_asc'),
 };
 
 export default function VenueSearchList() {
@@ -113,6 +166,11 @@ export default function VenueSearchList() {
 
       const currentPage = isLoadMore ? page + 1 : 1;
 
+      // Resolve the active sort option
+      const activeSortOption =
+        SORT_OPTIONS.find((opt) => opt.value === filters.sort) ??
+        SORT_OPTIONS[0];
+
       const apiFilters: Record<string, string | number | boolean | undefined> =
         {
           keyword: filters.q || undefined,
@@ -127,10 +185,14 @@ export default function VenueSearchList() {
         };
 
       if (filters.near && userLocation) {
+        // Distance sort overrides the sort bar when "Near me" is active
         apiFilters.lat = userLocation.lat;
         apiFilters.lng = userLocation.lng;
         apiFilters.sortBy = 'distance';
         apiFilters.sortOrder = 'asc';
+      } else {
+        apiFilters.sortBy = activeSortOption.sortBy;
+        apiFilters.sortOrder = activeSortOption.sortOrder;
       }
 
       const result = await VenueService.searchVenues(apiFilters);
@@ -195,11 +257,18 @@ export default function VenueSearchList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.q]);
 
-  // Fetch whenever URL-applied filters or user location change.
+  // Fetch whenever URL-applied filters, sort, or user location change.
   useEffect(() => {
     fetchVenues();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.q, citiesKey, districtsKey, filters.near, userLocation]);
+  }, [
+    filters.q,
+    citiesKey,
+    districtsKey,
+    filters.near,
+    filters.sort,
+    userLocation,
+  ]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -220,10 +289,11 @@ export default function VenueSearchList() {
       const location = await getUserLocation();
       setPendingUserLocation(location);
       setPendingSortByDistance(true);
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
       toaster.error({
         title: 'Không thể lấy vị trí',
-        description: err.message,
+        description: message,
       });
     }
   };
@@ -269,6 +339,16 @@ export default function VenueSearchList() {
     setUserLocation(null);
   };
 
+  // Handle sort chip click — clear "near" if it was active
+  const handleSortChange = (value: string) => {
+    if (filters.near) {
+      setFilters({ sort: value, near: false });
+      setUserLocation(null);
+    } else {
+      setFilters({ sort: value });
+    }
+  };
+
   const removeCity = (cityCode: string) => {
     const nextCities = filters.city.filter((c) => c !== cityCode);
     setFilters({
@@ -289,6 +369,30 @@ export default function VenueSearchList() {
     filters.district.length +
     (filters.near ? 1 : 0);
 
+  // Sort dropdown state
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  const activeSortOption =
+    SORT_OPTIONS.find((opt) => opt.value === filters.sort) ?? SORT_OPTIONS[0];
+
+  // When "near me" is active, distance sort overrides; show MapPin label
+  const sortButtonLabel = filters.near ? 'Gần tôi' : activeSortOption.label;
+  const SortButtonIcon = filters.near ? MapPin : activeSortOption.icon;
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsSortOpen(false);
+      }
+    };
+    if (isSortOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSortOpen]);
+
   const availableDistricts = useMemo(() => {
     if (pendingCities.length === 0) return [];
     return VIETNAM_CITIES.filter((city) =>
@@ -308,6 +412,7 @@ export default function VenueSearchList() {
         zIndex={100}
         mb={6}
       >
+        {/* Search & filter row */}
         <Flex
           gap={2}
           align="center"
@@ -390,24 +495,129 @@ export default function VenueSearchList() {
         </Flex>
       </Box>
 
-      {/* Results info + active filter chips */}
+      {/* Results bar: count + sort dropdown */}
+      {!loading && (
+        <Flex
+          justify="space-between"
+          align="center"
+          mb={
+            filters.city.length > 0 ||
+            filters.district.length > 0 ||
+            filters.near
+              ? 2
+              : 4
+          }
+          minH="28px"
+        >
+          {/* Count */}
+          <Text
+            fontSize="sm"
+            color="gray.500"
+            _dark={{ color: 'gray.400' }}
+            flexShrink={0}
+          >
+            {totalCount !== null ? `${totalCount} kết quả` : ''}
+          </Text>
+
+          {/* Sort dropdown */}
+          <Box position="relative" ref={sortDropdownRef}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsSortOpen((v) => !v)}
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+              h="32px"
+              px={3}
+              borderRadius="full"
+              borderColor="gray.200"
+              bg={{ base: 'white', _dark: 'gray.800' }}
+              color={{ base: 'gray.700', _dark: 'gray.200' }}
+              fontWeight="normal"
+              fontSize="sm"
+              _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
+              _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
+            >
+              <SortButtonIcon size={14} />
+              <Text as="span" maxW="110px" truncate>
+                {sortButtonLabel}
+              </Text>
+              <ChevronDown
+                size={13}
+                style={{
+                  transition: 'transform 0.2s',
+                  transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
+              />
+            </Button>
+
+            {isSortOpen && (
+              <Box
+                position="absolute"
+                top="calc(100% + 6px)"
+                right={0}
+                zIndex={200}
+                bg={{ base: 'white', _dark: 'gray.800' }}
+                border="1px solid"
+                borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+                borderRadius="xl"
+                boxShadow="lg"
+                minW="180px"
+                overflow="hidden"
+                py={1}
+              >
+                {SORT_OPTIONS.map((opt) => {
+                  const OptionIcon = opt.icon;
+                  const isActive = !filters.near && opt.value === filters.sort;
+                  return (
+                    <Flex
+                      key={opt.value}
+                      align="center"
+                      gap={2.5}
+                      px={3}
+                      py={2}
+                      cursor="pointer"
+                      bg={
+                        isActive
+                          ? { base: 'green.50', _dark: 'green.900' }
+                          : 'transparent'
+                      }
+                      color={
+                        isActive
+                          ? 'green.600'
+                          : { base: 'gray.700', _dark: 'gray.200' }
+                      }
+                      fontWeight={isActive ? 'semibold' : 'normal'}
+                      fontSize="sm"
+                      _hover={{
+                        bg: isActive
+                          ? { base: 'green.100', _dark: 'green.800' }
+                          : { base: 'gray.50', _dark: 'gray.700' },
+                      }}
+                      onClick={() => {
+                        handleSortChange(opt.value);
+                        setIsSortOpen(false);
+                      }}
+                    >
+                      <OptionIcon size={14} />
+                      <Text flex={1}>{opt.label}</Text>
+                      {isActive && <Check size={13} />}
+                    </Flex>
+                  );
+                })}
+              </Box>
+            )}
+          </Box>
+        </Flex>
+      )}
+
+      {/* Active filter chips */}
       {!loading &&
         (filters.city.length > 0 ||
           filters.district.length > 0 ||
-          filters.near ||
-          totalCount !== null) && (
+          filters.near) && (
           <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
-            {totalCount !== null && (
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-                flexShrink={0}
-              >
-                {totalCount} kết quả
-              </Text>
-            )}
-
             {filters.near && (
               <Badge
                 colorPalette="blue"

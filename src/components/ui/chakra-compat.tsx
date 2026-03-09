@@ -4,7 +4,17 @@
 export { Card, CardHeader, CardBody } from './ChakraCard';
 
 // Export Table components
-export { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from './VTable';
+export {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  VTablePagination,
+} from './VTable';
+export type { ITableContainerProps, IVTablePaginationProps } from './VTable';
 
 // Export Tab components
 export {

@@ -167,6 +167,7 @@
     "title": "Badminton Session",
     "resultsCount": "{count} sessions",
     "sessionDetails": "Session Details",
+    "header": "Session",
     "name": "Name",
     "basicInfo": "Basic Info",
     "description": "Description",
@@ -384,7 +385,7 @@
       "title": "Filters",
       "area": "Area",
       "allCities": "All Cities",
-      "allDistricts": "All Districts",
+      "allDistricts": "Districts",
       "selectAll": "Select All",
       "selectedCities": "{count} cities",
       "selectedDistricts": "{count} districts",
@@ -413,7 +414,7 @@
     },
     "sort": {
       "dateNewest": "Furthest sessions",
-      "dateOldest": "Nearest sessions",
+      "dateOldest": "Nearest",
       "priceLow": "Price: low → high",
       "priceHigh": "Price: high → low",
       "distance": "Nearest venue",
@@ -494,7 +495,7 @@
     "viewMoreSessions": "View more sessions",
     "quickCreate": {
       "placeholder": "Do you want to create a new session?",
-      "aiPlaceholder": "🤖 Create with AI - Describe your session...",
+      "aiPlaceholder": "Create session quickly by AI....",
       "createButton": "Create",
       "manualButton": "Create"
     },

@@ -76,7 +76,7 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
           <Text
             color={placeholderColor}
             fontSize="sm"
-            fontStyle="italic"
+            // fontStyle="italic"
             truncate
           >
             {t('quickCreate.aiPlaceholder')}

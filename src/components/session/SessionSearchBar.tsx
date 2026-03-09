@@ -5,6 +5,7 @@ import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { Badge, Box, Flex } from '@chakra-ui/react';
 import { Filter, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
 
 export default function SessionSearchBar({
@@ -14,6 +15,23 @@ export default function SessionSearchBar({
   activeFilterCount,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
+
+  // Local input value — updates immediately for snappy typing feel
+  const [localValue, setLocalValue] = useState(searchQuery);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync external value (e.g. reset from URL) into local state
+  useEffect(() => {
+    setLocalValue(searchQuery);
+  }, [searchQuery]);
+
+  const handleChange = (val: string) => {
+    setLocalValue(val);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onSearchChange(val);
+    }, 400);
+  };
 
   return (
     <Box
@@ -46,8 +64,8 @@ export default function SessionSearchBar({
           <Input
             h="36px"
             placeholder={t('searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            value={localValue}
+            onChange={(e) => handleChange(e.target.value)}
             bg="white"
             _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
             borderRadius="md"

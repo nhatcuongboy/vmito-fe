@@ -16,7 +16,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -28,32 +27,39 @@ import {
   Th,
   Td,
   TableContainer,
+  VTablePagination,
 } from '@/components/ui/VTable';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState, useCallback, Suspense } from 'react';
-import {
-  Pencil,
-  Trash2,
-  Plus,
-  Search,
-  RefreshCcw,
-  MapPin,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
+import { Pencil, Trash2, Plus, MapPin, X } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 import VModal from '@/components/ui/VModal';
-import { useUrlFilters, stringField } from '@/hooks/useUrlFilters';
-import { Button } from '@/components/ui/chakra-compat';
+import {
+  useUrlFilters,
+  stringField,
+  stringArrayField,
+} from '@/hooks/useUrlFilters';
 import { VButton } from '@/components/ui/VButton';
 import { VSwitch } from '@/components/ui/VSwitch';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
+import { VIETNAM_CITIES as CITY_HIERARCHY } from '@/constants/vietnam-locations';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
+import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
+import { FilterDrawer } from '@/components/ui/FilterDrawer';
+import { FilterChip } from '@/components/ui/FilterChip';
 
 const PAGE_SIZE = 20;
+
+const ADMIN_VENUE_FILTERS_SCHEMA = {
+  q: stringField(''),
+  city: stringArrayField(),
+  district: stringArrayField(),
+  isVerified: stringField(''),
+};
 
 // Schema definitions
 const venueSchema = z.object({
@@ -90,17 +96,36 @@ function AdminVenuesContent() {
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
 
-  // URL-synced search query
-  const [urlFilters, setUrlFilters] = useUrlFilters({ q: stringField('') });
+  // URL-synced filters
+  const [filters, setFilters] = useUrlFilters(ADMIN_VENUE_FILTERS_SCHEMA);
   // Local input state — debounced writes to URL
-  const [searchQuery, setSearchQuery] = useState(urlFilters.q);
+  const [keyword, setKeyword] = useState(filters.q);
+
+  // Filter drawer
+  const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
+  const [pendingCities, setPendingCities] = useState<string[]>([]);
+  const [pendingDistricts, setPendingDistricts] = useState<string[]>([]);
+  const [pendingIsVerified, setPendingIsVerified] = useState('');
+
+  // Stable keys for dependency arrays
+  const citiesKey = filters.city.join(',');
+  const districtsKey = filters.district.join(',');
 
   // Keep input in sync when URL changes (back/forward)
   useEffect(() => {
-    setSearchQuery(urlFilters.q);
-    setPage(1);
+    setKeyword(filters.q);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlFilters.q]);
+  }, [filters.q]);
+
+  // Sync pending filters when drawer opens
+  useEffect(() => {
+    if (showFilters) {
+      setPendingCities(filters.city);
+      setPendingDistricts(filters.district);
+      setPendingIsVerified(filters.isVerified);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilters]);
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -130,13 +155,59 @@ function AdminVenuesContent() {
     async (targetPage = page) => {
       try {
         setLoading(true);
-        const result = await VenueService.searchVenues({
-          keyword: urlFilters.q || undefined,
+
+        const apiFilters: Record<
+          string,
+          string | number | boolean | undefined
+        > = {
+          keyword: filters.q || undefined,
+          city:
+            filters.city.length === 1
+              ? CITY_HIERARCHY.find((c) => c.code === filters.city[0])?.name
+              : undefined,
+          district:
+            filters.district.length === 1 ? filters.district[0] : undefined,
+          isVerified:
+            filters.isVerified === '1'
+              ? true
+              : filters.isVerified === '0'
+                ? false
+                : undefined,
           page: targetPage,
           limit: PAGE_SIZE,
-          status: undefined, // admin sees all statuses
-        });
-        setVenues(result.data);
+          status: undefined,
+        };
+
+        const result = await VenueService.searchVenues(apiFilters);
+        let venueData = result.data;
+
+        // Client-side multi-city filter
+        if (filters.city.length > 1) {
+          venueData = venueData.filter((venue) => {
+            const venueCity = venue.city || '';
+            return filters.city.some((cityCode) => {
+              const cityName = CITY_HIERARCHY.find(
+                (c) => c.code === cityCode
+              )?.name;
+              return (
+                venueCity.includes(cityCode) ||
+                (cityName && venueCity.includes(cityName))
+              );
+            });
+          });
+        }
+
+        // Client-side multi-district filter
+        if (filters.district.length > 1) {
+          venueData = venueData.filter((venue) => {
+            const venueDistrict = venue.district || '';
+            return filters.district.some(
+              (d) => venueDistrict.toLowerCase() === d.toLowerCase()
+            );
+          });
+        }
+
+        setVenues(venueData);
         setTotalCount(result.pagination.total);
       } catch (error) {
         console.error('Failed to fetch venues:', error);
@@ -145,9 +216,9 @@ function AdminVenuesContent() {
       } finally {
         setLoading(false);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [urlFilters.q, page, t]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filters.q, citiesKey, districtsKey, filters.isVerified, page, t]
   );
 
   useEffect(() => {
@@ -168,18 +239,78 @@ function AdminVenuesContent() {
   // Debounce: write keyword to URL 500ms after the user stops typing.
   useEffect(() => {
     const timer = setTimeout(() => {
-      setUrlFilters({ q: searchQuery });
+      setFilters({ q: keyword });
       setPage(1);
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [keyword]);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const handlePageChange = (next: number) => {
     setPage(next);
     fetchVenues(next);
+  };
+
+  // Filter helpers
+  const activeFilterCount =
+    filters.city.length +
+    filters.district.length +
+    (filters.isVerified ? 1 : 0);
+
+  const availableDistricts = useMemo(() => {
+    if (pendingCities.length === 0) return [];
+    return CITY_HIERARCHY.filter((city) =>
+      pendingCities.includes(city.code)
+    ).flatMap((city) => city.districts);
+  }, [pendingCities]);
+
+  const togglePendingCity = (cityCode: string) => {
+    setPendingCities((prev) =>
+      prev.includes(cityCode)
+        ? prev.filter((c) => c !== cityCode)
+        : [...prev, cityCode]
+    );
+    setPendingDistricts([]);
+  };
+
+  const togglePendingDistrict = (districtName: string) => {
+    setPendingDistricts((prev) =>
+      prev.includes(districtName)
+        ? prev.filter((d) => d !== districtName)
+        : [...prev, districtName]
+    );
+  };
+
+  const handleSubmitFilters = () => {
+    setFilters({
+      city: pendingCities,
+      district: pendingDistricts,
+      isVerified: pendingIsVerified,
+    });
+    setPage(1);
+    toggleFilters();
+  };
+
+  const handleResetFilters = () => {
+    setPendingCities([]);
+    setPendingDistricts([]);
+    setPendingIsVerified('');
+  };
+
+  const removeCity = (cityCode: string) => {
+    const nextCities = filters.city.filter((c) => c !== cityCode);
+    setFilters({
+      city: nextCities,
+      ...(nextCities.length === 0 ? { district: [] } : {}),
+    });
+  };
+
+  const removeDistrict = (districtName: string) => {
+    setFilters({
+      district: filters.district.filter((d) => d !== districtName),
+    });
   };
 
   const handleCreate = async (data: VenueFormValues) => {
@@ -244,21 +375,6 @@ function AdminVenuesContent() {
     setIsDeleteOpen(true);
   };
 
-  if (loading && venues.length === 0) {
-    return (
-      <MainLayout title={t('venues')}>
-        <Box
-          minH="100vh"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Spinner size="xl" />
-        </Box>
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout title={t('venues')}>
       <Container maxW="container.xl" py={6}>
@@ -292,57 +408,277 @@ function AdminVenuesContent() {
 
           {/* Search Bar - Sticky */}
           <Box position="sticky" top={0} zIndex={100}>
-            <Flex
-              gap={2}
-              align="center"
-              bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-              px={3}
-              h="48px"
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="gray.200"
-              boxShadow="sm"
-            >
-              <Box flex="1" minW="200px">
-                <Input
-                  h="36px"
-                  placeholder={t('searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  bg="white"
-                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                  borderRadius="md"
-                  leftElement={<Search size={18} />}
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                    bg: 'white',
-                    _dark: { bg: 'gray.600' },
-                  }}
-                  fontSize="sm"
-                  transition="all 0.2s"
-                />
-              </Box>
-              <IconButton
-                h="36px"
-                w="36px"
-                minW="36px"
-                variant="solid"
-                colorPalette="green"
-                aria-label="Refresh"
-                onClick={() => fetchVenues()}
-                borderRadius="md"
-                transition="all 0.2s"
-                _hover={{ transform: 'scale(1.05)' }}
-              >
-                <RefreshCcw size={18} />
-              </IconButton>
-            </Flex>
+            <SearchFilterBar
+              keyword={keyword}
+              onKeywordChange={setKeyword}
+              placeholder={t('searchPlaceholder')}
+              activeFilterCount={activeFilterCount}
+              onFilterToggle={toggleFilters}
+            />
           </Box>
 
+          {/* Active filter chips */}
+          {!loading &&
+            (filters.city.length > 0 ||
+              filters.district.length > 0 ||
+              filters.isVerified) && (
+              <Flex align="center" flexWrap="wrap" gap={2} mb={-2} minH="28px">
+                {filters.isVerified && (
+                  <FilterChip
+                    label={
+                      filters.isVerified === '1' ? 'Verified' : 'Unverified'
+                    }
+                    colorPalette={
+                      filters.isVerified === '1' ? 'green' : 'orange'
+                    }
+                    onRemove={() => setFilters({ isVerified: '' })}
+                  />
+                )}
+
+                {filters.city.map((cityCode) => {
+                  const cityName =
+                    CITY_HIERARCHY.find((c) => c.code === cityCode)?.name ??
+                    cityCode;
+                  return (
+                    <FilterChip
+                      key={cityCode}
+                      label={cityName}
+                      colorPalette="green"
+                      onRemove={() => removeCity(cityCode)}
+                    />
+                  );
+                })}
+
+                {filters.district.map((districtName) => (
+                  <FilterChip
+                    key={districtName}
+                    label={districtName}
+                    colorPalette="purple"
+                    onRemove={() => removeDistrict(districtName)}
+                  />
+                ))}
+              </Flex>
+            )}
+
+          {/* Filter Drawer */}
+          <FilterDrawer
+            isOpen={showFilters}
+            onClose={toggleFilters}
+            onSubmit={handleSubmitFilters}
+            onReset={handleResetFilters}
+          >
+            <VStack align="stretch" gap={5}>
+              {/* isVerified Filter */}
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  Trạng thái xác minh
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {[
+                    { value: '', label: 'Tất cả' },
+                    { value: '1', label: 'Đã xác minh' },
+                    { value: '0', label: 'Chưa xác minh' },
+                  ].map((opt) => (
+                    <Badge
+                      key={opt.value || 'all'}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={
+                        pendingIsVerified === opt.value ? 'solid' : 'outline'
+                      }
+                      colorPalette={
+                        pendingIsVerified === opt.value ? 'green' : 'gray'
+                      }
+                      onClick={() => setPendingIsVerified(opt.value)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={
+                        pendingIsVerified === opt.value ? '0' : '2px'
+                      }
+                    >
+                      {opt.label}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+
+              <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
+              {/* City Selection */}
+              <Box>
+                <Flex justify="space-between" align="center" mb={3}>
+                  <HStack gap={2}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color="gray.700"
+                      _dark={{ color: 'gray.200' }}
+                    >
+                      Khu vực
+                    </Text>
+                    {pendingCities.length > 0 && (
+                      <Badge
+                        size="sm"
+                        colorPalette="green"
+                        variant="solid"
+                        borderRadius="full"
+                        px={2}
+                      >
+                        {pendingCities.length}
+                      </Badge>
+                    )}
+                  </HStack>
+                  {pendingCities.length > 0 && (
+                    <Box
+                      as="button"
+                      fontSize="xs"
+                      color="red.500"
+                      fontWeight="semibold"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      onClick={() => {
+                        setPendingCities([]);
+                        setPendingDistricts([]);
+                      }}
+                    >
+                      <X size={14} /> Xóa
+                    </Box>
+                  )}
+                </Flex>
+                <Flex gap={2} flexWrap="wrap">
+                  {CITY_HIERARCHY.map((city) => (
+                    <Badge
+                      key={city.code}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={
+                        pendingCities.includes(city.code) ? 'solid' : 'outline'
+                      }
+                      colorPalette={
+                        pendingCities.includes(city.code) ? 'green' : 'gray'
+                      }
+                      onClick={() => togglePendingCity(city.code)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={
+                        pendingCities.includes(city.code) ? '0' : '2px'
+                      }
+                    >
+                      {city.name}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+
+              {/* District Selection */}
+              {pendingCities.length > 0 && availableDistricts.length > 0 && (
+                <Box>
+                  <Flex justify="space-between" align="center" mb={3}>
+                    <HStack gap={2}>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="bold"
+                        color="gray.700"
+                        _dark={{ color: 'gray.200' }}
+                      >
+                        Quận / Huyện
+                      </Text>
+                      {pendingDistricts.length > 0 && (
+                        <Badge
+                          size="sm"
+                          colorPalette="green"
+                          variant="solid"
+                          borderRadius="full"
+                          px={2}
+                        >
+                          {pendingDistricts.length}
+                        </Badge>
+                      )}
+                    </HStack>
+                    {pendingDistricts.length > 0 && (
+                      <Box
+                        as="button"
+                        fontSize="xs"
+                        color="red.500"
+                        fontWeight="semibold"
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                        onClick={() => setPendingDistricts([])}
+                      >
+                        <X size={14} /> Xóa
+                      </Box>
+                    )}
+                  </Flex>
+                  <Flex
+                    gap={2}
+                    flexWrap="wrap"
+                    maxH="120px"
+                    overflowY="auto"
+                    css={{
+                      '&::-webkit-scrollbar': { width: '6px' },
+                      '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1',
+                        borderRadius: '10px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: '#888',
+                        borderRadius: '10px',
+                      },
+                    }}
+                  >
+                    {availableDistricts.map((district) => (
+                      <Badge
+                        key={district.code}
+                        px={3}
+                        py={1.5}
+                        borderRadius="lg"
+                        cursor="pointer"
+                        variant={
+                          pendingDistricts.includes(district.name)
+                            ? 'solid'
+                            : 'outline'
+                        }
+                        colorPalette={
+                          pendingDistricts.includes(district.name)
+                            ? 'green'
+                            : 'gray'
+                        }
+                        onClick={() => togglePendingDistrict(district.name)}
+                        fontSize="sm"
+                        fontWeight="medium"
+                        transition="all 0.2s"
+                        _hover={{ transform: 'scale(1.05)' }}
+                        borderWidth={
+                          pendingDistricts.includes(district.name) ? '0' : '2px'
+                        }
+                      >
+                        {district.name}
+                      </Badge>
+                    ))}
+                  </Flex>
+                </Box>
+              )}
+            </VStack>
+          </FilterDrawer>
+
           {/* Venues Table */}
-          <TableContainer>
+          <TableContainer isLoading={loading}>
             <Table>
               <Thead>
                 <Tr>
@@ -399,40 +735,21 @@ function AdminVenuesContent() {
                 ))}
               </Tbody>
             </Table>
+            {venues.length === 0 && !loading && (
+              <Box p={8} textAlign="center" color="gray.500">
+                {t('noVenuesFound') || 'No venues found'}
+              </Box>
+            )}
           </TableContainer>
 
-          {venues.length === 0 && !loading && (
-            <Box p={8} textAlign="center" color="gray.500">
-              {t('noVenuesFound') || 'No venues found'}
-            </Box>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Flex justify="space-between" align="center" pt={2}>
-              <Text fontSize="sm" color="gray.500">
-                {totalCount} venues &middot; trang {page}/{totalPages}
-              </Text>
-              <HStack gap={2}>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page <= 1 || loading}
-                >
-                  <ChevronLeft size={16} />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page >= totalPages || loading}
-                >
-                  <ChevronRight size={16} />
-                </Button>
-              </HStack>
-            </Flex>
-          )}
+          <VTablePagination
+            page={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={PAGE_SIZE}
+            isLoading={loading}
+            onPageChange={handlePageChange}
+          />
         </VStack>
 
         {/* Create/Edit Venue Modal */}

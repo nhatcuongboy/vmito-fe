@@ -16,7 +16,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -28,18 +27,30 @@ import {
   Tr,
   Th,
   Td,
+  VTablePagination,
 } from '@/components/ui/VTable';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState, useCallback } from 'react';
-import { Pencil, Trash2, Plus, Search, RefreshCcw } from 'lucide-react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 import VModal from '@/components/ui/VModal';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useUrlFilters, stringField } from '@/hooks/useUrlFilters';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { Button } from '@/components/ui/chakra-compat';
+import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
+import { FilterDrawer } from '@/components/ui/FilterDrawer';
+import { FilterChip } from '@/components/ui/FilterChip';
+
+const PAGE_SIZE = 20;
+
+const USER_FILTERS_SCHEMA = {
+  q: stringField(''),
+  role: stringField(''),
+};
 
 // Schema definitions
 const createUserSchema = z.object({
@@ -58,15 +69,29 @@ type CreateUserFormValues = z.infer<typeof createUserSchema>;
 type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
 
 export default function AdminUsersPage() {
+  return (
+    <Suspense>
+      <AdminUsersContent />
+    </Suspense>
+  );
+}
+
+function AdminUsersContent() {
   const t = useTranslations('admin');
   const tCommon = useTranslations('common');
   const router = useRouter();
   const { user: currentUser, isAuthenticated, isHydrated } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  const [roleFilter, setRoleFilter] = useState('');
+  const [page, setPage] = useState(1);
+
+  // URL-synced filters
+  const [filters, setFilters] = useUrlFilters(USER_FILTERS_SCHEMA);
+  const [keyword, setKeyword] = useState(filters.q);
+
+  // Filter drawer
+  const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
+  const [pendingRole, setPendingRole] = useState('');
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -93,48 +118,83 @@ export default function AdminUsersPage() {
     },
   });
 
+  // Keep input in sync when URL changes (back/forward)
+  useEffect(() => {
+    setKeyword(filters.q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.q]);
+
+  // Sync pending filters when drawer opens
+  useEffect(() => {
+    if (showFilters) {
+      setPendingRole(filters.role);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilters]);
+
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await AdminService.getUsers({
-        search: debouncedSearchQuery || undefined,
-        role: roleFilter || undefined,
+        search: filters.q || undefined,
+        role: filters.role || undefined,
       });
       setUsers(data);
+      setPage(1);
     } catch (error) {
       console.error('Failed to fetch users:', error);
       toaster.error({ title: 'Failed to load users' });
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearchQuery, roleFilter]);
+  }, [filters.q, filters.role]);
 
   useEffect(() => {
-    // Wait for auth store to be hydrated from localStorage
-    if (!isHydrated) {
-      return;
-    }
-
-    // If not authenticated, redirect to signin
+    if (!isHydrated) return;
     if (!isAuthenticated) {
       router.replace('/auth/signin');
       return;
     }
-
-    // Wait until we have the user data
-    if (!currentUser) {
-      return;
-    }
-
-    // Check role after user is loaded
+    if (!currentUser) return;
     if (currentUser.role !== UserRole.ADMIN) {
       toaster.error({ title: 'Access denied. Admin only.' });
       router.replace('/dashboard');
       return;
     }
-
     fetchUsers();
   }, [isHydrated, isAuthenticated, currentUser, router, fetchUsers]);
+
+  // Debounce: write keyword to URL 500ms after the user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters({ q: keyword });
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword]);
+
+  // Filter helpers
+  const activeFilterCount = filters.role ? 1 : 0;
+
+  const handleSubmitFilters = () => {
+    setFilters({ role: pendingRole });
+    toggleFilters();
+  };
+
+  const handleResetFilters = () => {
+    setPendingRole('');
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case UserRole.ADMIN:
+        return 'red';
+      case UserRole.HOST:
+        return 'blue';
+      default:
+        return 'gray';
+    }
+  };
 
   const handleCreate = async (data: CreateUserFormValues) => {
     try {
@@ -193,31 +253,8 @@ export default function AdminUsersPage() {
     setIsDeleteOpen(true);
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case UserRole.ADMIN:
-        return 'red';
-      case UserRole.HOST:
-        return 'blue';
-      default:
-        return 'gray';
-    }
-  };
-
-  if (loading) {
-    return (
-      <MainLayout title="Admin - Users">
-        <Box
-          minH="100vh"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Spinner size="xl" />
-        </Box>
-      </MainLayout>
-    );
-  }
+  const totalPages = Math.ceil(users.length / PAGE_SIZE);
+  const paginatedUsers = users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <MainLayout title="Admin - Users">
@@ -240,76 +277,78 @@ export default function AdminUsersPage() {
 
           {/* Search Bar - Sticky */}
           <Box position="sticky" top={0} zIndex={100}>
-            <Flex
-              gap={2}
-              align="center"
-              bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-              px={3}
-              h="48px"
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="gray.200"
-              boxShadow="sm"
-            >
-              <Box flex="1" minW="200px">
-                <Input
-                  h="36px"
-                  placeholder="Search by email or name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  bg="white"
-                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                  borderRadius="md"
-                  leftElement={<Search size={18} />}
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                    bg: 'white',
-                    _dark: { bg: 'gray.600' },
-                  }}
-                  fontSize="sm"
-                  transition="all 0.2s"
-                />
-              </Box>
-              <Box minW="120px">
-                <select
-                  value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                  style={{
-                    height: '36px',
-                    padding: '0 12px',
-                    borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '14px',
-                    background: 'white',
-                  }}
-                >
-                  <option value="">All Roles</option>
-                  <option value={UserRole.ADMIN}>Admin</option>
-                  <option value={UserRole.HOST}>Host</option>
-                  <option value={UserRole.PLAYER}>Player</option>
-                </select>
-              </Box>
-              <IconButton
-                h="36px"
-                w="36px"
-                minW="36px"
-                variant="solid"
-                colorPalette="green"
-                aria-label="Refresh"
-                onClick={fetchUsers}
-                borderRadius="md"
-                transition="all 0.2s"
-                _hover={{ transform: 'scale(1.05)' }}
-              >
-                <RefreshCcw size={18} />
-              </IconButton>
-            </Flex>
+            <SearchFilterBar
+              keyword={keyword}
+              onKeywordChange={setKeyword}
+              placeholder="Search by email or name..."
+              activeFilterCount={activeFilterCount}
+              onFilterToggle={toggleFilters}
+            />
           </Box>
 
+          {/* Active filter chips */}
+          {!loading && filters.role && (
+            <Flex align="center" flexWrap="wrap" gap={2} mb={-2} minH="28px">
+              <FilterChip
+                label={filters.role}
+                colorPalette={getRoleBadgeColor(filters.role)}
+                onRemove={() => setFilters({ role: '' })}
+              />
+            </Flex>
+          )}
+
+          {/* Filter Drawer */}
+          <FilterDrawer
+            isOpen={showFilters}
+            onClose={toggleFilters}
+            onSubmit={handleSubmitFilters}
+            onReset={handleResetFilters}
+          >
+            <VStack align="stretch" gap={5}>
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  Role
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {[
+                    { value: '', label: 'All Roles' },
+                    { value: UserRole.ADMIN, label: 'Admin' },
+                    { value: UserRole.HOST, label: 'Host' },
+                    { value: UserRole.PLAYER, label: 'Player' },
+                  ].map((opt) => (
+                    <Badge
+                      key={opt.value || 'all'}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={pendingRole === opt.value ? 'solid' : 'outline'}
+                      colorPalette={
+                        pendingRole === opt.value ? 'green' : 'gray'
+                      }
+                      onClick={() => setPendingRole(opt.value)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={pendingRole === opt.value ? '0' : '2px'}
+                    >
+                      {opt.label}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+            </VStack>
+          </FilterDrawer>
+
           {/* Users Table */}
-          <TableContainer>
+          <TableContainer isLoading={loading}>
             <Table>
               <Thead>
                 <Tr>
@@ -323,7 +362,7 @@ export default function AdminUsersPage() {
                 </Tr>
               </Thead>
               <Tbody>
-                {users.map((user) => (
+                {paginatedUsers.map((user) => (
                   <Tr key={user.id}>
                     <Td w="180px" fontWeight="medium">
                       {user.name}
@@ -363,12 +402,21 @@ export default function AdminUsersPage() {
                 ))}
               </Tbody>
             </Table>
-            {users.length === 0 && (
+            {users.length === 0 && !loading && (
               <Box p={8} textAlign="center" color="gray.500">
                 No users found
               </Box>
             )}
           </TableContainer>
+
+          <VTablePagination
+            page={page}
+            totalPages={totalPages}
+            totalCount={users.length}
+            pageSize={PAGE_SIZE}
+            isLoading={loading}
+            onPageChange={setPage}
+          />
         </VStack>
 
         {/* Create User Dialog */}

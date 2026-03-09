@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES } from '@/constants';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
@@ -16,7 +17,17 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import {
   useSessionFilterStore,
   toApiSort,
+  SessionSortBy,
+  SessionFilters,
 } from '@/stores/useSessionFilterStore';
+import {
+  useUrlFilters,
+  stringField,
+  stringArrayField,
+  numberField,
+  numberArrayField,
+  booleanField,
+} from '@/hooks/useUrlFilters';
 import {
   Badge,
   Box,
@@ -29,7 +40,6 @@ import {
 } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { AISessionModal } from './AISessionModal';
@@ -40,10 +50,31 @@ import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionFilterDrawer from './SessionFilterDrawer';
 import SessionSearchBar from './SessionSearchBar';
-import ViewModeToggle from './ViewModeToggle';
 import ResultsHeader from './ResultsHeader';
 
 const PAGE_SIZE = 12;
+
+// URL filter schema – keeps session filters in sync with query params.
+const SESSION_FILTERS_SCHEMA = {
+  q: stringField(),
+  date: stringField(),
+  cities: stringArrayField(),
+  districts: stringArrayField(),
+  venueId: stringField(),
+  levels: numberArrayField(),
+  timeRanges: stringArrayField(),
+  minFee: numberField(0),
+  maxFee: numberField(200000),
+  hasSlots: booleanField(false),
+  minSlots: numberField(0),
+  splitEvenly: booleanField(false),
+  near: booleanField(false),
+  sort: stringField('date_asc'),
+};
+
+export type SessionUrlFilters = ReturnType<
+  typeof useUrlFilters<typeof SESSION_FILTERS_SCHEMA>
+>[0];
 
 interface FindSessionListProps {
   initialSessions?: ISession[];
@@ -70,17 +101,35 @@ export default function FindSessionList({
     Record<string, 'PENDING' | 'APPROVED' | 'REJECTED'>
   >({});
 
-  // Use Zustand store for filters
-  const {
-    filters,
-    setFilters,
-    clearFilters: clearStoreFilters,
-    sortByDistance,
-    setSortByDistance,
-    sortBy,
-    userLocation,
-    setUserLocation,
-  } = useSessionFilterStore();
+  // URL-synced filters
+  const [urlFilters, setUrlFilters, resetUrlFilters] = useUrlFilters(
+    SESSION_FILTERS_SCHEMA
+  );
+
+  // Map URL filters to the shape expected by SessionFilterDrawer / API
+  const filters = useMemo(
+    () => ({
+      searchQuery: urlFilters.q,
+      date: urlFilters.date,
+      cities: urlFilters.cities,
+      districts: urlFilters.districts,
+      venueId: urlFilters.venueId,
+      levels: urlFilters.levels,
+      timeRanges: urlFilters.timeRanges,
+      minFee: urlFilters.minFee,
+      maxFee: urlFilters.maxFee,
+      hasSlots: urlFilters.hasSlots,
+      minAvailableSlots: urlFilters.minSlots,
+      splitEvenly: urlFilters.splitEvenly,
+    }),
+    [urlFilters]
+  );
+
+  const sortByDistance = urlFilters.near;
+  const sortBy = urlFilters.sort as SessionSortBy;
+
+  // Keep viewMode & userLocation in the Zustand store (non-URL state)
+  const { viewMode, userLocation, setUserLocation } = useSessionFilterStore();
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
@@ -95,7 +144,8 @@ export default function FindSessionList({
       setPendingFilters(filters);
       setPendingSortByDistance(sortByDistance);
     }
-  }, [showFilters, filters, sortByDistance]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilters]);
 
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [selectedSessionForDetail, setSelectedSessionForDetail] =
@@ -111,28 +161,15 @@ export default function FindSessionList({
     null
   );
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const t = useTranslations('session');
-  const { viewMode } = useSessionFilterStore();
+  const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
 
   const { ref, inView } = useInView({
     threshold: 0.1,
     rootMargin: '100px',
   });
-
-  // Load initial filters from URL
-  useEffect(() => {
-    const dateParam = searchParams.get('date');
-    const venueIdParam = searchParams.get('venueId');
-    const newFilters: any = {};
-    if (dateParam) newFilters.date = dateParam;
-    if (venueIdParam) newFilters.venueId = venueIdParam;
-    if (Object.keys(newFilters).length > 0) {
-      setFilters(newFilters);
-    }
-  }, [searchParams, setFilters]);
 
   // Fetch venue name if filtered by venue
   useEffect(() => {
@@ -335,11 +372,9 @@ export default function FindSessionList({
   };
 
   useEffect(() => {
-    // Debounce fetch for search query, but immediate for others if needed.
-    const timer = setTimeout(() => {
-      fetchSessions();
-    }, 500);
-    return () => clearTimeout(timer);
+    // Filters from drawer are applied via Submit button (batch update).
+    // Search query is debounced at the input level (SessionSearchBar).
+    fetchSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     filters.date,
@@ -369,12 +404,25 @@ export default function FindSessionList({
 
   // Handler for search query
   const handleSearchQueryChange = (val: string) => {
-    setFilters({ searchQuery: val });
+    setUrlFilters({ q: val });
   };
 
   const handleSubmitFilters = () => {
-    setFilters(pendingFilters);
-    setSortByDistance(pendingSortByDistance);
+    setUrlFilters({
+      q: pendingFilters.searchQuery,
+      date: pendingFilters.date,
+      cities: pendingFilters.cities,
+      districts: pendingFilters.districts,
+      venueId: pendingFilters.venueId,
+      levels: pendingFilters.levels,
+      timeRanges: pendingFilters.timeRanges,
+      minFee: pendingFilters.minFee,
+      maxFee: pendingFilters.maxFee,
+      hasSlots: pendingFilters.hasSlots,
+      minSlots: pendingFilters.minAvailableSlots,
+      splitEvenly: pendingFilters.splitEvenly,
+      near: pendingSortByDistance,
+    });
     if (pendingUserLocation) {
       setUserLocation(pendingUserLocation);
     }
@@ -382,8 +430,7 @@ export default function FindSessionList({
   };
 
   const handleResetFilters = () => {
-    clearStoreFilters();
-    setSortByDistance(false);
+    resetUrlFilters();
     setPendingFilters({
       date: '',
       searchQuery: '',
@@ -400,23 +447,15 @@ export default function FindSessionList({
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
-  };
-
-  const removeVenueIdFromUrl = () => {
-    if (typeof window === 'undefined') return;
-    const url = new URL(window.location.href);
-    url.searchParams.delete('venueId');
-    window.history.replaceState({}, '', url.toString());
+    toggleFilters(); // Close drawer after reset
   };
 
   const handleClearVenueFilter = () => {
-    setFilters({ venueId: '' });
-    removeVenueIdFromUrl();
+    setUrlFilters({ venueId: '' });
   };
 
   const clearFilters = () => {
-    clearStoreFilters();
-    removeVenueIdFromUrl();
+    resetUrlFilters();
   };
 
   const activeFilterCount =
@@ -514,7 +553,7 @@ export default function FindSessionList({
       <SessionFilterDrawer
         isOpen={showFilters}
         onClose={toggleFilters}
-        filters={pendingFilters}
+        filters={pendingFilters as SessionFilters}
         setFilters={setPendingFilters}
         sortByDistance={pendingSortByDistance}
         setSortByDistance={setPendingSortByDistance}
@@ -538,9 +577,12 @@ export default function FindSessionList({
         mode={mode}
         onModeChange={(newMode) => onModeChange?.(newMode)}
         isLoading={loading}
+        sortBy={sortBy}
+        onSortChange={(value) => setUrlFilters({ sort: value })}
       >
         {(filters.venueId || nonSearchFilterCount > 0) && (
-          <HStack gap={3} wrap="wrap">
+          <HStack gap={2} wrap="wrap">
+            {/* Venue */}
             {filters.venueId && (
               <Badge
                 colorPalette="teal"
@@ -554,9 +596,9 @@ export default function FindSessionList({
                 boxShadow="sm"
               >
                 <Text fontSize="xs" fontWeight="bold">
-                  {t('filters.atVenue') || 'Sân'}:
+                  {t('filters.atVenue')}:
                 </Text>
-                <Text fontSize="xs" fontWeight="semibold" maxW="200px" truncate>
+                <Text fontSize="xs" fontWeight="semibold" maxW="160px" truncate>
                   {selectedVenueName || '...'}
                 </Text>
                 <Icon
@@ -569,18 +611,237 @@ export default function FindSessionList({
               </Badge>
             )}
 
-            {/* {nonSearchFilterCount > 0 && (
-              <Button
-                size="xs"
-                variant="ghost"
-                colorPalette="red"
-                onClick={clearFilters}
-                fontSize="xs"
-                height="24px"
+            {/* Date */}
+            {filters.date && (
+              <Badge
+                colorPalette="blue"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
               >
-                {t('filters.clearAll') || 'Xóa tất cả bộ lọc'}
-              </Button>
-            )} */}
+                <Text fontSize="xs" fontWeight="semibold">
+                  📅 {filters.date}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ date: '' })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Time ranges */}
+            {filters.timeRanges.length > 0 && (
+              <Badge
+                colorPalette="orange"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  ⏰{' '}
+                  {filters.timeRanges.length <= 2
+                    ? filters.timeRanges
+                        .map((r) => t(`timeRanges.${r}`))
+                        .join(', ')
+                    : `${filters.timeRanges.length} ${t('timeRange')}`}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ timeRanges: [] })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Cities / Districts */}
+            {filters.cities.length > 0 && (
+              <Badge
+                colorPalette="purple"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  📍{' '}
+                  {filters.cities.length === 1
+                    ? (VIETNAM_CITIES.find((c) => c.code === filters.cities[0])
+                        ?.name ?? filters.cities[0])
+                    : t('filters.selectedCities', {
+                        count: filters.cities.length,
+                      })}
+                  {filters.districts.length > 0 &&
+                    ` · ${
+                      filters.districts.length > 1
+                        ? t('filters.selectedDistricts', {
+                            count: filters.districts.length,
+                          })
+                        : filters.districts[0]
+                    }`}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ cities: [], districts: [] })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Levels */}
+            {filters.levels.length > 0 && (
+              <Badge
+                colorPalette="green"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  🏸{' '}
+                  {filters.levels.length <= 3
+                    ? filters.levels
+                        .map((l) => getLevelShortLabel(l))
+                        .join(', ')
+                    : `${filters.levels.length} trình độ`}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ levels: [] })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Fee range */}
+            {(filters.minFee > 0 || filters.maxFee < 200000) && (
+              <Badge
+                colorPalette="yellow"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  💰 {filters.minFee / 1000}k→{filters.maxFee / 1000}k
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ minFee: 0, maxFee: 200000 })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Has slots */}
+            {filters.hasSlots && (
+              <Badge
+                colorPalette="green"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {t('filters.availableSlots')}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ hasSlots: false })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Near me */}
+            {sortByDistance && (
+              <Badge
+                colorPalette="cyan"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {t('filters.nearMe')}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ near: false })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Split evenly */}
+            {filters.splitEvenly && (
+              <Badge
+                colorPalette="pink"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {t('filters.splitEvenly')}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ splitEvenly: false })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
           </HStack>
         )}
       </ResultsHeader>

@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Flex, Image } from '@chakra-ui/react';
+import { Container, Box, Image } from '@chakra-ui/react';
 import TopBar from '@/components/ui/TopBar';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -18,6 +18,7 @@ import {
 import JoinSessionModal from '@/components/session/JoinSessionModal';
 import { useModal } from '@/components/ui/VModal';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTranslations } from 'next-intl';
 
 interface PublicSessionDetailClientProps {
   initialSession?: ISession | null;
@@ -31,6 +32,7 @@ const PublicSessionDetailClient = ({
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuthStore();
+  const t = useTranslations('session');
 
   const [session, setSession] = useState<ISession | null>(
     initialSession || null
@@ -59,7 +61,10 @@ const PublicSessionDetailClient = ({
 
   return (
     <PageWrapper>
-      <TopBar icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />} />
+      <TopBar
+        title={t('header')}
+        icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
+      />
       <Box
         pt={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
