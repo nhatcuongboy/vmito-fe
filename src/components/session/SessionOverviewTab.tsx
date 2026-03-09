@@ -10,6 +10,7 @@ import {
   Box,
   Flex,
   FlexProps,
+  Grid,
   Heading,
   Text,
   Image,
@@ -114,7 +115,7 @@ export default function SessionOverviewTab({
         </Box>
       )}
 
-      <SimpleGrid spacing={8} columns={{ base: 1, md: 2 }} mb={8}>
+      <Grid templateColumns={{ base: '1fr', md: '3fr 2fr' }} gap={8} mb={8}>
         {/* Left Column: Session Info */}
         <Box as="section" h="full">
           <Box
@@ -127,16 +128,26 @@ export default function SessionOverviewTab({
             borderColor="gray.100"
             h="full"
           >
-            <Text
-              fontSize="sm"
-              fontWeight="semibold"
-              color="gray.500"
-              mb={4}
-              textTransform="uppercase"
-              letterSpacing="wider"
-            >
-              {t('information')}
-            </Text>
+            <Flex align="center" justify="space-between" mb={4}>
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color="gray.500"
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
+                {t('information')}
+              </Text>
+              <Button
+                size="xs"
+                variant="outline"
+                colorPalette="green"
+                onClick={() => setIsEditModalOpen(true)}
+                leftIcon={<Pencil size={13} />}
+              >
+                {t('edit')}
+              </Button>
+            </Flex>
 
             <SessionInfo session={session} />
 
@@ -183,26 +194,16 @@ export default function SessionOverviewTab({
             h="full"
           >
             <Box w="full" mb={6}>
-              <Flex align="center" justify="space-between" mb={4}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  textTransform="uppercase"
-                  letterSpacing="wider"
-                >
-                  {t('settings')}
-                </Text>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  colorPalette="green"
-                  onClick={() => setIsEditModalOpen(true)}
-                  leftIcon={<Pencil size={13} />}
-                >
-                  {t('editSession')}
-                </Button>
-              </Flex>
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color="gray.500"
+                mb={4}
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
+                {t('settings')}
+              </Text>
               <VStack align="start" spacing={3}>
                 <InfoRow icon={Shield} label={t('requirePlayerInfo')}>
                   <Badge
@@ -254,10 +255,10 @@ export default function SessionOverviewTab({
             </Box>
           </Box>
         </Box>
-      </SimpleGrid>
+      </Grid>
 
       {/* Fill Rate Banner - visible when IN_PROGRESS */}
-      {session.status === SessionStatus.IN_PROGRESS && (
+      {/* {session.status === SessionStatus.IN_PROGRESS && (
         <Box
           mb={4}
           p={4}
@@ -300,7 +301,7 @@ export default function SessionOverviewTab({
             />
           </Box>
         </Box>
-      )}
+      )} */}
 
       {/* Session Statistics */}
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>

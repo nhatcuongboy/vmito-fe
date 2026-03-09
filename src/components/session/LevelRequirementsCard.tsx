@@ -12,6 +12,7 @@ import {
   Badge,
   Box,
   Flex,
+  Grid,
   Heading,
   HStack,
   Stack,
@@ -135,7 +136,7 @@ export default function LevelRequirementsCard({
         </Button>
 
         {/* All Levels in One Row */}
-        <Flex gap={1.5} wrap="wrap">
+        <Grid templateColumns="repeat(4, 1fr)" gap={1.5}>
           {VALID_LEVELS.map((level) => {
             const isSelected =
               !allLevelsSelected && requiredLevels.includes(level);
@@ -146,8 +147,7 @@ export default function LevelRequirementsCard({
                 key={level}
                 size="sm"
                 type="button"
-                flex="1"
-                minW="65px"
+                w="full"
                 variant={isSelected ? 'solid' : 'outline'}
                 colorPalette={levelColor.colorPalette}
                 borderColor={isSelected ? undefined : levelColor.borderColor}
@@ -173,7 +173,7 @@ export default function LevelRequirementsCard({
               </Button>
             );
           })}
-        </Flex>
+        </Grid>
 
         {/* Selected Levels Summary */}
         {!allLevelsSelected && requiredLevels.length > 0 && (

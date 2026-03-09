@@ -1,15 +1,62 @@
 'use client';
 
-import React from 'react';
-import { Box, Flex, HStack, IconButton, Spinner, Text } from '@chakra-ui/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  Box,
+  Flex,
+  HStack,
+  IconButton,
+  MenuContent,
+  MenuItem,
+  MenuRoot,
+  MenuTrigger,
+  Spinner,
+  Text,
+} from '@chakra-ui/react';
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  ListFilter,
+} from 'lucide-react';
 import type { BoxProps } from '@chakra-ui/react';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
+export type TSortDirection = 'asc' | 'desc';
+
+export interface ISortConfig<TKey = string> {
+  key: TKey;
+  direction: TSortDirection;
+}
+
 export interface ITableContainerProps extends BoxProps {
   /** Show a loading overlay over the table content */
   isLoading?: boolean;
+}
+
+export interface IThFilterOption {
+  label: string;
+  value: string;
+}
+
+export interface IThProps extends BoxProps {
+  /** The data key this column maps to, enables sort when provided */
+  sortKey?: string;
+  /** Current active sort config */
+  sortConfig?: ISortConfig | null;
+  /** Called with the column key when the header is clicked */
+  onSort?: (key: string) => void;
+  /** The data key used for filtering this column */
+  filterKey?: string;
+  /** Options shown in the filter dropdown */
+  filterOptions?: IThFilterOption[];
+  /** Currently active filter value for this column */
+  filterValue?: string;
+  /** Called when a filter option is selected */
+  onFilter?: (key: string, value: string) => void;
 }
 
 export interface IVTablePaginationProps {
@@ -59,10 +106,17 @@ export const TableContainer = ({
   </Box>
 );
 
+export interface ITableProps extends BoxProps {
+  variant?: string;
+  size?: string;
+}
+
 export const Table = ({
   children,
+  variant, // eslint-disable-line @typescript-eslint/no-unused-vars
+  size, // eslint-disable-line @typescript-eslint/no-unused-vars
   ...props
-}: React.PropsWithChildren<BoxProps>) => (
+}: React.PropsWithChildren<ITableProps>) => (
   <Box
     as="table"
     width="100%"
@@ -115,27 +169,105 @@ export const Tr = ({
   </Box>
 );
 
+const SortIcon = ({
+  sortKey,
+  sortConfig,
+}: {
+  sortKey: string;
+  sortConfig?: ISortConfig | null;
+}) => {
+  if (!sortConfig || sortConfig.key !== sortKey) {
+    return <ChevronsUpDown size={12} opacity={0.4} />;
+  }
+  return sortConfig.direction === 'asc' ? (
+    <ArrowUp size={12} />
+  ) : (
+    <ArrowDown size={12} />
+  );
+};
+
 export const Th = ({
   children,
+  sortKey,
+  sortConfig,
+  onSort,
+  filterKey,
+  filterOptions,
+  filterValue,
+  onFilter,
   ...props
-}: React.PropsWithChildren<BoxProps>) => (
-  <Box
-    as="th"
-    px="4"
-    py="3"
-    fontWeight="semibold"
-    fontSize="xs"
-    textTransform="uppercase"
-    letterSpacing="wider"
-    color="gray.600"
-    _dark={{ color: 'gray.400' }}
-    textAlign="left"
-    whiteSpace="nowrap"
-    {...props}
-  >
-    {children}
-  </Box>
-);
+}: React.PropsWithChildren<IThProps>) => {
+  const isSortable = !!sortKey && !!onSort;
+  const isActive = isSortable && sortConfig?.key === sortKey;
+  const isFilterable = !!filterKey && !!filterOptions && !!onFilter;
+  const isFiltered = isFilterable && !!filterValue;
+
+  return (
+    <Box
+      as="th"
+      px="4"
+      py="3"
+      fontWeight="semibold"
+      fontSize="sm"
+      color={isActive ? 'green.600' : 'gray.600'}
+      _dark={{ color: isActive ? 'green.400' : 'gray.400' }}
+      textAlign="left"
+      whiteSpace="nowrap"
+      cursor={isSortable ? 'pointer' : undefined}
+      userSelect={isSortable ? 'none' : undefined}
+      _hover={isSortable ? { color: 'green.500' } : undefined}
+      onClick={isSortable ? () => onSort(sortKey) : undefined}
+      {...props}
+    >
+      <Flex align="center" gap="1">
+        {children}
+        {isSortable && <SortIcon sortKey={sortKey} sortConfig={sortConfig} />}
+        {isFilterable && (
+          <MenuRoot positioning={{ placement: 'bottom-start' }}>
+            <MenuTrigger asChild>
+              <Box
+                as="span"
+                display="inline-flex"
+                alignItems="center"
+                ml="0.5"
+                px="0.5"
+                borderRadius="sm"
+                color={isFiltered ? 'green.500' : 'gray.400'}
+                _hover={{ color: 'green.500', bg: 'gray.100' }}
+                _dark={{
+                  color: isFiltered ? 'green.400' : 'gray.500',
+                  _hover: { color: 'green.400', bg: 'gray.700' },
+                }}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                cursor="pointer"
+              >
+                <ListFilter size={11} />
+              </Box>
+            </MenuTrigger>
+            <MenuContent
+              minW="130px"
+              fontSize="sm"
+              zIndex={100}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            >
+              {filterOptions.map((opt) => (
+                <MenuItem
+                  key={opt.value}
+                  value={opt.value}
+                  fontWeight={filterValue === opt.value ? 'bold' : 'normal'}
+                  color={filterValue === opt.value ? 'green.600' : undefined}
+                  onClick={() => onFilter(filterKey, opt.value)}
+                >
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </MenuContent>
+          </MenuRoot>
+        )}
+      </Flex>
+    </Box>
+  );
+};
 
 export const Td = ({
   children,
@@ -150,6 +282,96 @@ export const Td = ({
  * Standalone pagination bar to place below a <TableContainer>.
  * Renders nothing when totalPages <= 1.
  */
+// ─── useFilterable Hook ──────────────────────────────────────────────────────
+
+/**
+ * Manages column filter state and returns client-side filtered data.
+ *
+ * @example
+ * const { filteredData, filters, handleFilter } = useFilterable(rows);
+ * // In JSX:
+ * // <Th filterKey="gender" filterOptions={[...]} filterValue={filters.gender} onFilter={handleFilter}>Gender</Th>
+ */
+export const useFilterable = <T extends object>(data: T[]) => {
+  const [filters, setFilters] = useState<Partial<Record<string, string>>>({});
+
+  const handleFilter = useCallback((key: string, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }, []);
+
+  const filteredData = useMemo(
+    () =>
+      data.filter((item) =>
+        Object.entries(filters).every(([key, value]) => {
+          if (!value) return true;
+          return String((item as Record<string, unknown>)[key]) === value;
+        })
+      ),
+    [data, filters]
+  );
+
+  return { filteredData, filters, handleFilter };
+};
+
+// ─── useSortable Hook ────────────────────────────────────────────────────────
+
+/**
+ * Manages sort state and returns sorted data.
+ *
+ * Cycle: none → asc → desc → none
+ *
+ * @example
+ * const { sortedData, sortConfig, handleSort } = useSortable(rows);
+ * // In JSX:
+ * // <Th sortKey="name" sortConfig={sortConfig} onSort={handleSort}>Name</Th>
+ */
+export const useSortable = <T extends object>(
+  data: T[],
+  initialConfig?: ISortConfig<keyof T>
+) => {
+  const [sortConfig, setSortConfig] = useState<ISortConfig<keyof T> | null>(
+    initialConfig ?? null
+  );
+
+  const handleSort = useCallback((key: keyof T) => {
+    setSortConfig((prev) => {
+      if (prev?.key === key) {
+        if (prev.direction === 'asc')
+          return { key, direction: 'desc' as const };
+        return null; // third click clears sort
+      }
+      return { key, direction: 'asc' as const };
+    });
+  }, []);
+
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return data;
+
+    return [...data].sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+
+      const aStr = String(aVal);
+      const bStr = String(bVal);
+      const cmp = aStr.localeCompare(bStr);
+      return sortConfig.direction === 'asc' ? cmp : -cmp;
+    });
+  }, [data, sortConfig]);
+
+  return { sortedData, sortConfig, handleSort };
+};
+
 export const VTablePagination = ({
   page,
   totalPages,
