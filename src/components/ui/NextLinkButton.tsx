@@ -9,6 +9,7 @@ import { Button, ButtonProps } from './chakra-compat';
 interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
   href: string;
   children: React.ReactNode;
+  loading?: boolean;
 }
 
 /**

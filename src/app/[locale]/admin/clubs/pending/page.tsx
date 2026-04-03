@@ -1,7 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Box,
@@ -13,14 +13,7 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
-import {
-  Check,
-  X,
-  Shield,
-  MapPin,
-  Users as UsersIcon,
-  MessageSquare,
-} from 'lucide-react';
+import { Check, X, Shield, MapPin, Users as UsersIcon } from 'lucide-react';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { IClub } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
@@ -40,7 +33,7 @@ const AdminClubApprovalPage = () => {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const fetchPendingClubs = async () => {
+  const fetchPendingClubs = useCallback(async () => {
     try {
       setIsLoading(true);
       const clubs = await ClubsService.getPendingClubs();
@@ -54,11 +47,11 @@ const AdminClubApprovalPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchPendingClubs();
-  }, []);
+  }, [fetchPendingClubs]);
 
   const handleApprove = async (clubId: string) => {
     try {

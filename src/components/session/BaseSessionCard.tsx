@@ -356,6 +356,7 @@ const BaseSessionCard = ({
           variant="subtle"
           size="sm"
           shadow="md"
+          loading={actions.isRegistrationLoading}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
             actions.onViewRegistration?.();
@@ -378,7 +379,7 @@ const BaseSessionCard = ({
           colorPalette="green"
           variant="solid"
           size="sm"
-          shadow="md"
+          loading={actions.isRegistrationLoading}
         >
           <Icon as={LogIn} boxSize={4} />
           {t('viewSession')}
@@ -417,6 +418,7 @@ const BaseSessionCard = ({
           variant="solid"
           size="sm"
           shadow="md"
+          loading={actions.isRegistrationLoading}
           disabled={actions.registerButtonDisabled || isFull}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();

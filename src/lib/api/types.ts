@@ -68,7 +68,7 @@ export enum PlayerLevel {
 
 // Fee type enum - Fixed or Split evenly
 export enum FeeType {
-  FIXED = 'FIXED', // Giá cố định theo giới tính
+  FIXED = 'FIXED', // Giá vãng lai theo giới tính
   SPLIT_EVENLY = 'SPLIT_EVENLY', // Chia đều sau session
 }
 
@@ -159,6 +159,23 @@ export interface HostTransactionSummary {
   pendingAmount: number; // VND
   averageRating?: number; // Player's average rating
   totalRatings?: number; // Player's total ratings count
+}
+
+// Detailed payment statistics
+export interface PaymentStats {
+  total: number;
+  totalAmount: number;
+  paidAmount: number;
+  submitted: number;
+  approved: number;
+  pending: number;
+  rejected: number;
+}
+
+// Response for getSessionPayments
+export interface SessionPaymentsResponse {
+  payments: PaymentRecord[];
+  stats: PaymentStats;
 }
 
 // Request types for fee configuration
@@ -557,6 +574,7 @@ export enum CategoryType {
   MENS_DOUBLE = 'MENS_DOUBLE',
   WOMENS_DOUBLE = 'WOMENS_DOUBLE',
   MIXED_DOUBLE = 'MIXED_DOUBLE',
+  CUSTOM = 'CUSTOM',
 }
 
 export enum MatchStatus {
@@ -574,11 +592,13 @@ export enum MatchFormat {
 // Tournament interfaces
 export interface Tournament {
   id: string;
+  slug: string;
   name: string;
   startDate: Date;
   endDate: Date;
   hostId: string;
   status: TournamentStatus;
+  isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
   host?: {
@@ -586,6 +606,8 @@ export interface Tournament {
     name: string;
     email: string;
   };
+  venue?: Venue;
+  venueId?: string;
   categories?: Category[];
   umpires?: TournamentUmpire[];
   scoringDevices?: TournamentScoringDevice[];
@@ -597,17 +619,27 @@ export interface Tournament {
   };
 }
 
+export enum CategoryFormat {
+  ROUND_ROBIN = 'ROUND_ROBIN',
+  SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
+  ROUND_ROBIN_TO_SE = 'ROUND_ROBIN_TO_SE',
+}
+
 export interface Category {
   id: string;
   tournamentId: string;
   name: string;
   type: CategoryType;
+  format: CategoryFormat;
   hasGroupStage: boolean;
   averageMatchDuration?: number;
   groupCount?: number;
   winnersPerGroup?: number;
   playersPerGroup?: number;
   matchFormat: MatchFormat; // BEST_OF_1 or BEST_OF_3
+  eliminationMatchFormat?: MatchFormat;
+  thirdPlaceMatch?: boolean;
+  formatConfig?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
   registrations?: CategoryRegistration[];
@@ -767,32 +799,21 @@ export interface CreateTournamentRequest {
   name: string;
   startDate: Date;
   endDate: Date;
-  categories: Array<{
-    name: string;
-    type: CategoryType;
-  }>;
-  umpires?: Array<{
-    name: string;
-    email?: string;
-    phone?: string;
-  }>;
-  scoringDevices?: Array<{
-    name: string;
-    deviceType?: string;
-  }>;
-  courts?: Array<{
-    courtNumber: number;
-    courtName?: string;
-  }>;
+  venueId?: string;
 }
 
 export interface UpdateCategoryRequest {
+  name?: string;
+  format?: CategoryFormat;
   hasGroupStage?: boolean;
   averageMatchDuration?: number;
   groupCount?: number;
   winnersPerGroup?: number;
   playersPerGroup?: number;
-  matchFormat?: MatchFormat; // BEST_OF_1 or BEST_OF_3
+  matchFormat?: MatchFormat;
+  eliminationMatchFormat?: MatchFormat;
+  thirdPlaceMatch?: boolean;
+  formatConfig?: Record<string, unknown>;
 }
 
 export interface CreateCategoryRegistrationRequest {

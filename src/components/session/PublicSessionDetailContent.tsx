@@ -12,14 +12,15 @@ import {
 } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, ArrowRight } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { useEffect, useState, useCallback } from 'react';
-// import { useRouter, usePathname } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
+import { useRouter, usePathname } from '@/i18n/config';
+import { useSearchParams } from 'next/navigation';
 import BaseSessionCard from '@/components/session/BaseSessionCard';
 import AppHostDetail from '@/components/session/AppHostDetail';
 import { SessionActionConfig } from '@/components/session/BaseSessionCard.types';
@@ -33,14 +34,20 @@ interface PublicSessionDetailContentProps {
   sessionId: string;
   initialSession?: ISession | null;
   showViewMore?: boolean;
+  defaultOpenRegister?: boolean;
 }
 
 export const PublicSessionDetailContent = ({
   sessionId,
   initialSession,
   showViewMore = false,
+  defaultOpenRegister = false,
 }: PublicSessionDetailContentProps) => {
+  const locale = useLocale();
   const t = useTranslations('session');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const { user } = useAuthStore();
   const [session, setSession] = useState<ISession | null>(
     initialSession || null
@@ -50,6 +57,7 @@ export const PublicSessionDetailContent = ({
   const [userRegistrationStatus, setUserRegistrationStatus] = useState<
     'PENDING' | 'APPROVED' | 'REJECTED' | null
   >(null);
+  const [isRegistrationLoading, setIsRegistrationLoading] = useState(!!user);
 
   const {
     isOpen: isLoginModalOpen,
@@ -103,9 +111,36 @@ export const PublicSessionDetailContent = ({
     fetchSession();
   }, [sessionId, initialSession]);
 
+  useEffect(() => {
+    if (defaultOpenRegister && user && session && !loading) {
+      onOpenJoinModal();
+
+      // Clear search params
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.delete('register');
+      const search = newSearchParams.toString();
+      router.replace(`${pathname}${search ? `?${search}` : ''}`, {
+        scroll: false,
+      });
+    }
+  }, [
+    defaultOpenRegister,
+    user,
+    session,
+    loading,
+    onOpenJoinModal,
+    router,
+    pathname,
+    searchParams,
+  ]);
+
   const fetchRegistrationStatus = useCallback(async () => {
-    if (!user || !session) return;
+    if (!user || !session) {
+      setIsRegistrationLoading(false);
+      return;
+    }
     try {
+      setIsRegistrationLoading(true);
       const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
       if (myPlayers && myPlayers.length > 0) {
         setUserRegistrationStatus(myPlayers[0].registrationStatus as any);
@@ -114,6 +149,8 @@ export const PublicSessionDetailContent = ({
       }
     } catch (err) {
       console.error('Error fetching registration status:', err);
+    } finally {
+      setIsRegistrationLoading(false);
     }
   }, [user, session]);
 
@@ -130,6 +167,17 @@ export const PublicSessionDetailContent = ({
   const approvedPlayersCount = session?._count?.players || 0;
   const isFull = approvedPlayersCount >= maxPlayers;
 
+  const refreshData = useCallback(async () => {
+    if (!session?.id) return;
+    try {
+      const sessionData = await SessionService.getSession(session.id);
+      setSession(sessionData);
+      await fetchRegistrationStatus();
+    } catch (err) {
+      console.error('Error refreshing data:', err);
+    }
+  }, [session?.id, fetchRegistrationStatus]);
+
   const handleRegister = () => {
     if (!user) {
       onOpenLoginModal();
@@ -141,7 +189,7 @@ export const PublicSessionDetailContent = ({
   if (loading) {
     return (
       <Flex justify="center" align="center" minH="300px">
-        <Spinner size="xl" />
+        <Spinner size="xl" color="green.500" borderWidth="3px" />
       </Flex>
     );
   }
@@ -190,9 +238,11 @@ export const PublicSessionDetailContent = ({
       userRegistrationStatus !== 'APPROVED',
     onViewRegistration: onOpenViewRegistrationModal,
     showViewSessionButton: userRegistrationStatus === 'APPROVED',
-    showRegisterButton: !userRegistrationStatus && !isOwner,
+    showRegisterButton:
+      !userRegistrationStatus && !isOwner && !isRegistrationLoading,
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
+    isRegistrationLoading,
   };
 
   const locationRow =
@@ -289,12 +339,7 @@ export const PublicSessionDetailContent = ({
           isOpen={isJoinModalOpen}
           onClose={onCloseJoinModal}
           session={session}
-          onSuccess={() => {
-            SessionService.getSession(session.id)
-              .then(setSession)
-              .catch(console.error);
-            fetchRegistrationStatus();
-          }}
+          onSuccess={refreshData}
         />
 
         <MyRegistrationModal
@@ -303,10 +348,7 @@ export const PublicSessionDetailContent = ({
           session={session}
           onWithdraw={() => {
             onCloseViewRegistrationModal();
-            SessionService.getSession(session.id)
-              .then(setSession)
-              .catch(console.error);
-            fetchRegistrationStatus();
+            refreshData();
           }}
         />
 

@@ -212,7 +212,6 @@ export const PlayerService = {
     const response = await api.post<
       ApiResponse<{ createdPlayers: Player[]; message: string }>
     >(`/sessions/${sessionId}/players/register`, { players });
-    toaster.success({ title: response.data.data!.message });
     return response.data.data!;
   },
 

@@ -1,13 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-
-// Time range definitions
-const TIME_RANGES = [
-  { key: 'morning', start: 5, end: 12 },
-  { key: 'afternoon', start: 12, end: 18 },
-  { key: 'evening', start: 18, end: 22 },
-  { key: 'night', start: 22, end: 5 },
-] as const;
+import { TIME_RANGES } from '@/constants';
 
 type TimeRangeKey = (typeof TIME_RANGES)[number]['key'];
 

@@ -17,6 +17,8 @@ import {
   MapPin,
   UserPlus,
   ClipboardCheck,
+  Trophy,
+  Swords,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
@@ -287,6 +289,56 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Flex>
                   </NextLinkButton>
                 </VTooltip>
+                {(user?.role === UserRole.ADMIN ||
+                  user?.role === UserRole.HOST) && (
+                  <VTooltip
+                    content={nav('browseTournaments') || 'Giải đấu'}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
+                    }}
+                    disabled={!isCollapsed}
+                    showArrow
+                    openDelay={200}
+                  >
+                    <NextLinkButton
+                      href={ROUTES.BROWSE.TOURNAMENTS.LIST}
+                      variant="ghost"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                      onClick={onClose}
+                      w="full"
+                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      {...getActiveProps(ROUTES.BROWSE.TOURNAMENTS.LIST)}
+                    >
+                      <Flex
+                        align="center"
+                        gap={3}
+                        w="full"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                      >
+                        <Trophy
+                          size={18}
+                          color={
+                            pathname.startsWith(ROUTES.BROWSE.TOURNAMENTS.LIST)
+                              ? 'var(--chakra-colors-green-500)'
+                              : 'currentColor'
+                          }
+                        />
+                        {!isCollapsed && (
+                          <Text display={{ base: 'block', md: 'block' }}>
+                            {nav('browseTournaments')}
+                          </Text>
+                        )}
+                      </Flex>
+                    </NextLinkButton>
+                  </VTooltip>
+                )}
               </Stack>
             </Box>
 
@@ -489,6 +541,59 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Text>
                   )}
                   <Stack gap={2}>
+                    {canAccessHostFeatures &&
+                      (user?.role === UserRole.ADMIN ||
+                        user?.role === UserRole.HOST) && (
+                        <VTooltip
+                          content={nav('tournaments') || 'Giải đấu'}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.HOST.TOURNAMENTS.LIST}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.HOST.TOURNAMENTS.LIST)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <Swords
+                                size={18}
+                                color={
+                                  pathname.startsWith(
+                                    ROUTES.HOST.TOURNAMENTS.LIST
+                                  )
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('tournaments')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+                      )}
                     <VTooltip
                       content={nav('myClubs')}
                       positioning={{

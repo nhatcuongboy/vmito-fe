@@ -10,8 +10,9 @@ export function useBottomNavVisibility() {
   const isExcluded = useMemo(() => {
     if (!pathname) return false;
 
-    // Explicitly exclude /host/tournaments/[id] which has its own tabs
+    // Explicitly exclude pages that have their own bottom tabs
     if (pathname.match(/\/host\/tournaments\/[^/]+$/)) return true;
+    if (pathname.match(/\/tournament\/[^/]+/)) return true;
 
     return (
       // Exclude auth pages - they have their own full-screen layout (no MainLayout)

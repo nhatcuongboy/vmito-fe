@@ -740,10 +740,8 @@ export default function SessionForm({
 
           // Show success message with count
           toaster.success({
-            title:
-              t('session.bulkCreation.success') ||
-              'Sessions created successfully',
-            description: `${bulkResult.sessionsCreated} ${t('session.bulkCreation.sessionsCreated') || 'sessions created'}`,
+            title: t('bulkCreation.success') || 'Sessions created successfully',
+            description: `${bulkResult.sessionsCreated} ${t('bulkCreation.sessionsCreated') || 'sessions created'}`,
           });
         }
       }

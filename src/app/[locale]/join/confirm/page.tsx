@@ -75,7 +75,7 @@ function ConfirmPageContent() {
     }
 
     loadPlayer();
-  }, [playerId, router]);
+  }, [playerId, router, t]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -116,10 +116,7 @@ function ConfirmPageContent() {
       };
 
       // Call the API to confirm the player
-      const confirmedPlayer = await PlayerService.confirmPlayer(
-        player.id,
-        playerData
-      );
+      await PlayerService.confirmPlayer(player.id, playerData);
 
       // Redirect to player status page with joinCode
       // Get joinCode from the player data we fetched earlier

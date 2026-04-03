@@ -7,6 +7,8 @@ import {
   RejectPaymentRequest,
   TransactionSummary,
   HostTransactionSummary,
+  SessionPaymentsResponse,
+  PaymentStats,
 } from './types';
 
 export const PaymentService = {
@@ -75,9 +77,11 @@ export const PaymentService = {
 
   // Get all payments for a session (host only)
   getSessionPayments: async (sessionId: string): Promise<PaymentRecord[]> => {
-    const response = await api.get<any>(`/sessions/${sessionId}/payments`);
-    // API returns { payments: [...], stats: {...} }
-    return response.data.data?.payments || response.data.payments || [];
+    const response = await api.get<ApiResponse<SessionPaymentsResponse>>(
+      `/sessions/${sessionId}/payments`
+    );
+    // API returns { data: { payments: [...], stats: {...} } }
+    return response.data.data?.payments || [];
   },
 
   // Get payments with filters
@@ -183,14 +187,10 @@ export const PaymentService = {
     pendingCount: number;
     rejectedCount: number;
   }> => {
-    const response = await api.get<any>(
+    const response = await api.get<ApiResponse<PaymentStats>>(
       `/sessions/${sessionId}/payments/stats`
     );
-    const stats =
-      response.data.data?.stats ||
-      response.data.stats ||
-      response.data.data ||
-      {};
+    const stats = response.data.data || ({} as PaymentStats);
 
     // Map API response format to frontend type
     // API returns: { total, pending, submitted, approved, rejected, totalAmount, paidAmount }

@@ -12,13 +12,11 @@ import {
   Center,
 } from '@chakra-ui/react';
 import { Button, Card, CardBody } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import dayjs from '@/lib/dayjs';
 
 export default function PendingRequestsList() {
-  const t = useTranslations('common');
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);

@@ -90,4 +90,8 @@ export interface SessionActionConfig {
    * Disable register button (typically when session is full)
    */
   registerButtonDisabled?: boolean;
+  /**
+   * Status of registration status fetching for current user
+   */
+  isRegistrationLoading?: boolean;
 }

@@ -3,6 +3,7 @@ import withPWA from 'next-pwa';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone' as const,
+  transpilePackages: ['react-brackets'],
 };
 
 export default withPWA({

@@ -308,7 +308,7 @@ export function usePlayerSession({
       socket.off('match_started', handleGenericEvent);
       socket.off('match_ended', handleGenericEvent);
     };
-  }, [socket, session?.id, player?.id, t, fetchPlayerData]);
+  }, [socket, session?.id, session?.courts, player?.id, t, fetchPlayerData]);
 
   // Initial data fetch and auto-refresh
   useEffect(() => {

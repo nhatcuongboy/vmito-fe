@@ -38,13 +38,16 @@ export const TournamentPlayerService = {
       level?: number;
       levelDescription?: string;
       userId?: string;
-    }
+    },
+    options?: { showToast?: boolean }
   ): Promise<TournamentPlayer> => {
     const response = await api.post<ApiResponse<TournamentPlayer>>(
       `/tournaments/${tournamentId}/players`,
       data
     );
-    toaster.success({ title: 'Player created successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Player created successfully' });
+    }
     return response.data.data!;
   },
 

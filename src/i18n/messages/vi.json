@@ -1,9 +1,19 @@
 {
+  "onboarding": {
+    "title": "Chào mừng bạn đến với Vmito!",
+    "subtitle": "Hãy chọn khu vực bạn thường chơi để chúng tôi gợi ý những kèo phù hợp nhất.",
+    "city": "Tỉnh/Thành phố",
+    "district": "Quận/Huyện (có thể chọn nhiều)",
+    "useGps": "Sử dụng vị trí hiện tại",
+    "skip": "Bỏ qua & Xem tất cả",
+    "finish": "Bắt đầu khám phá"
+  },
   "navigation": {
     "host": "Quản lý kèo",
     "join": "Tham gia",
     "home": "Tìm kèo",
     "tournaments": "Giải đấu",
+    "browseTournaments": "Tra cứu giải đấu",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -51,6 +61,7 @@
     "backToDashboard": "Quay lại bảng điều khiển",
     "main": "Chính",
     "sessions": "Kèo",
+    "tournaments": "Giải đấu",
     "finance": "Tài chính",
     "admin": "Quản lý",
     "roleHost": "Host",
@@ -413,8 +424,8 @@
       "clearAll": "Xóa bộ lọc sân"
     },
     "sort": {
-      "dateNewest": "Xa nhất",
-      "dateOldest": "Gần nhất",
+      "dateFurthest": "Ngày xa nhất",
+      "dateNearest": "Ngày gần nhất",
       "priceLow": "Giá thấp → cao",
       "priceHigh": "Giá cao → thấp",
       "distance": "Sân gần nhất",
@@ -437,6 +448,7 @@
     "you": "Bạn",
     "guest": "Khách",
     "joined": "Đã tham gia",
+    "registrationSuccessPending": "Yêu cầu đăng ký đã được gửi. Vui lòng chờ host duyệt.",
     "registrationPending": "Đang chờ duyệt",
     "registrationRejected": "Đăng ký bị từ chối",
     "registrationApproved": "Đã duyệt",
@@ -962,8 +974,16 @@
         "cancelled": "Đã hủy"
       },
       "noTournamentsFound": "Không tìm thấy giải đấu nào",
+      "explore": "Khám phá",
+      "searchEvents": "Tìm kiếm sự kiện",
+      "follow": "Theo dõi",
+      "share": "Chia sẻ",
+      "upcoming": "Sắp diễn ra",
+      "runYourOwnEvent": "Tổ chức sự kiện của bạn",
+      "registrationOpen": "Đang mở đăng ký",
       "host": "Người tổ chức",
       "categories": "Hạng mục",
+      "players": "người chơi",
       "playersLabel": "Players",
       "startDate": "Ngày bắt đầu",
       "endDate": "Ngày kết thúc",
@@ -973,6 +993,11 @@
         "mensDouble": "Đôi nam",
         "womensDouble": "Đôi nữ",
         "mixedDouble": "Đôi nam nữ"
+      },
+      "formatLabels": {
+        "roundRobin": "Vòng tròn",
+        "singleElimination": "Loại trực tiếp",
+        "roundRobinToSE": "Vòng tròn → Loại trực tiếp"
       },
       "tournamentDetail": {
         "title": "Giải đấu",
@@ -988,40 +1013,573 @@
         "basicInformation": "Thông tin cơ bản",
         "tournamentName": "Tên giải đấu",
         "enterTournamentName": "Nhập tên giải đấu",
-        "categoryTypeOptions": {
-          "mensSingle": "Đơn nam (MS)",
-          "womensSingle": "Đơn nữ (WS)",
-          "mensDouble": "Đôi nam (MD)",
-          "womensDouble": "Đôi nữ (WD)",
-          "mixedDouble": "Đôi nam nữ (XD)"
-        },
-        "addCategory": "Thêm hạng mục",
-        "categoryName": "Tên hạng mục",
-        "removeCategory": "Xóa hạng mục",
-        "umpiresOptional": "Trọng tài",
-        "addUmpire": "Thêm trọng tài",
-        "umpireName": "Tên trọng tài",
-        "emailOptional": "Email",
-        "phoneOptional": "Điện thoại",
-        "removeUmpire": "Xóa trọng tài",
-        "scoringDevicesOptional": "Thiết bị tính điểm",
-        "addDevice": "Thêm thiết bị",
-        "deviceName": "Tên thiết bị",
-        "deviceTypeOptional": "Loại thiết bị",
-        "removeDevice": "Xóa thiết bị",
-        "courtsOptional": "Sân",
-        "addCourt": "Thêm sân",
-        "courtNumber": "Số sân",
-        "courtNameOptional": "Tên sân",
-        "removeCourt": "Xóa sân",
         "creating": "Đang tạo...",
         "fillAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
-        "addAtLeastOneCategory": "Vui lòng thêm ít nhất một hạng mục",
-        "categories": "Hạng mục",
         "startDate": "Ngày bắt đầu",
         "endDate": "Ngày kết thúc",
+        "venue": "Nơi tổ chức",
+        "selectVenue": "-- Chọn sân --",
         "cancel": "Hủy",
         "createTournament": "Tạo giải đấu"
+      },
+      "detail": {
+        "title": "Giải đấu",
+        "notFound": "Không tìm thấy giải đấu",
+        "comingSoon": "Nội dung sẽ được cập nhật sau",
+        "tabs": {
+          "home": "Trang chủ",
+          "teams": "Đội",
+          "schedule": "Lịch thi đấu",
+          "standings": "Bảng xếp hạng",
+          "manage": "Quản lý",
+          "dashboard": "Tổng quan"
+        },
+        "teamsTab": {
+          "manageTeams": "Quản lý đội",
+          "noCategories": "Chưa có hạng mục nào.",
+          "noTeams": "Chưa có đội nào đăng ký.",
+          "unknownTeam": "Không xác định"
+        },
+        "homeTab": {
+          "overview": {
+            "title": "Tổng quan",
+            "teamsParticipating": "{count} đội tham gia",
+            "viewSchedule": "Xem lịch thi đấu",
+            "viewStandings": "Xem bảng xếp hạng"
+          },
+          "categories": {
+            "title": "Hạng mục",
+            "manage": "Quản lý hạng mục",
+            "empty": "Chưa có hạng mục nào."
+          },
+          "venues": {
+            "title": "Địa điểm",
+            "manage": "Quản lý địa điểm",
+            "directions": "Chỉ đường"
+          },
+          "contact": {
+            "title": "Liên hệ",
+            "name": "Tên",
+            "email": "Email"
+          }
+        },
+        "dashboard": {
+          "title": "Tổng quan",
+          "share": "Chia sẻ",
+          "continueSetup": {
+            "title": "Tiếp tục cài đặt",
+            "description": "Sử dụng hướng dẫn này để chuẩn bị cho ngày thi đấu.",
+            "progress": "{completed} trong {total} hoàn thành"
+          },
+          "steps": {
+            "format": {
+              "title": "Tạo thể thức thi đấu",
+              "description": "Chọn và cấu hình thể thức thi đấu.",
+              "action": "Quản lý thể thức"
+            },
+            "teams": {
+              "title": "Thêm đội tham gia",
+              "description": "Cung cấp ít nhất 2 đội tham gia.",
+              "action": "Quản lý đội"
+            },
+            "rounds": {
+              "title": "Cài đặt vòng đấu",
+              "description": "Xác nhận cài đặt cho từng vòng đấu.",
+              "action": "Quản lý vòng đấu"
+            },
+            "venue": {
+              "title": "Thêm địa điểm",
+              "description": "Cung cấp địa điểm có sân cho giải đấu.",
+              "action": "Quản lý địa điểm"
+            },
+            "schedule": {
+              "title": "Lên lịch trận đấu",
+              "description": "Cài đặt lịch thi đấu cho các trận.",
+              "action": "Quản lý lịch"
+            },
+            "fee": {
+              "title": "Phí xuất bản",
+              "description": "Thanh toán để xuất bản giải đấu.",
+              "action": "Thanh toán"
+            },
+            "publish": {
+              "title": "Xuất bản giải đấu",
+              "description": "Cho phép người tham gia xem giải đấu và gửi kết quả trận đấu.",
+              "action": "Xuất bản giải đấu"
+            }
+          },
+          "quickActions": {
+            "customizePage": {
+              "title": "Tùy chỉnh trang chủ",
+              "description": "Cá nhân hóa trang chủ với nội dung của riêng bạn.",
+              "action": "Chỉnh sửa trang"
+            },
+            "inviteAdmins": {
+              "title": "Đừng làm một mình!",
+              "description": "Mời quản trị viên giúp bạn quản lý giải đấu.",
+              "action": "Mời quản trị viên"
+            }
+          }
+        },
+        "formatWizard": {
+          "cancel": "Hủy",
+          "back": "Quay lại",
+          "next": "Tiếp theo",
+          "confirm": "Xác nhận",
+          "close": "Đóng",
+          "step1": {
+            "title": "Chọn thể thức",
+            "description": "Chọn từ các mẫu có sẵn.",
+            "allTemplates": "Tất cả mẫu",
+            "filterBy": "Lọc theo"
+          },
+          "formats": {
+            "ROUND_ROBIN": {
+              "name": "Vòng tròn",
+              "subtitle": "Vòng tròn",
+              "description": "Các đội thi đấu trong bảng và được xếp hạng dựa trên kết quả.",
+              "cardLabel": "Đấu bảng",
+              "configDescription": "Cấu hình cách xếp hạng đội."
+            },
+            "SINGLE_ELIMINATION": {
+              "name": "Loại trực tiếp",
+              "subtitle": "Loại trực tiếp",
+              "description": "Các đội được xếp vào nhánh đấu, thua một trận sẽ bị loại.",
+              "cardLabel": "Nhánh đấu",
+              "configDescription": "Cấu hình nhánh đấu."
+            },
+            "ROUND_ROBIN_TO_SE": {
+              "name": "Vòng tròn sang Loại trực tiếp",
+              "subtitle": "VT + LTT",
+              "description": "Các đội thi đấu trong bảng rồi vào nhánh đấu loại trực tiếp.",
+              "cardLabel": "Đấu bảng + Vòng loại",
+              "configDescription": "Cấu hình vòng bảng và vòng loại."
+            }
+          },
+          "config": {
+            "rr": {
+              "pointsEarning": "Đội sẽ ghi điểm như thế nào?",
+              "pointsEarningLabel": "Đội sẽ ghi điểm như thế nào?",
+              "matchResults": "Dựa trên kết quả trận đấu",
+              "basedOnMatchResults": "Dựa trên kết quả trận đấu",
+              "manual": "Tính điểm thủ công",
+              "tiebreakersOnly": "Chỉ dùng quy tắc phá hòa",
+              "matchWin": "Thắng trận",
+              "matchTie": "Hòa trận",
+              "matchLoss": "Thua trận",
+              "cancelledMatch": "Trận bị hủy",
+              "gameWin": "Thắng game",
+              "gameLoss": "Thua game",
+              "forfeitWin": "Thắng do bỏ cuộc",
+              "forfeitLoss": "Thua do bỏ cuộc",
+              "nPoints": "{n, plural, =0 {0 điểm} =1 {1 điểm} other {# điểm}}",
+              "advanced": "Nâng cao (Thua, Trận, Bỏ cuộc)",
+              "tiebreakers": "Phá hòa",
+              "tiebreakersDesc": "Quyết định cách phá hòa trong bảng xếp hạng.",
+              "selectTiebreakers": "Chọn quy tắc phá hòa",
+              "teamStatistics": "Thống kê đội",
+              "teamStatisticsDesc": "Chọn thống kê để theo dõi cho mỗi trận.",
+              "selectStatistics": "Chọn thống kê",
+              "required": "Bắt buộc",
+              "standings": "Bảng xếp hạng",
+              "standingsDesc": "Cấu hình hiển thị bảng xếp hạng.",
+              "selectColumns": "Chọn cột",
+              "tiebreakerItems": {
+                "totalPoints": "Tổng điểm",
+                "totalPointsDesc": "Tổng thể (Điểm)",
+                "totalWins": "Tổng thắng",
+                "totalWinsDesc": "Tổng thể (Thắng)",
+                "gameDifferential": "Hiệu game",
+                "gameDifferentialDesc": "Tổng thể (Game thắng - Game thua)",
+                "pointDifferential": "Hiệu điểm",
+                "pointDifferentialDesc": "Tổng thể (Điểm được - Điểm mất)",
+                "headToHead": "Đối đầu trực tiếp",
+                "headToHeadDesc": "Kết quả trận đấu trực tiếp giữa các đội hòa",
+                "pointsFor": "Điểm được",
+                "pointsForDesc": "Tổng điểm ghi được",
+                "pointsAgainst": "Điểm mất",
+                "pointsAgainstDesc": "Tổng điểm để thua"
+              },
+              "statisticItems": {
+                "points": "Điểm",
+                "gamesWon": "Game thắng",
+                "gamesLost": "Game thua",
+                "gameDifferential": "Hiệu game"
+              },
+              "standingsItems": {
+                "matchesPlayed": "Số trận",
+                "wins": "Thắng",
+                "ties": "Hòa",
+                "losses": "Thua",
+                "pointsDifferential": "Hiệu điểm",
+                "gamesWon": "Game thắng",
+                "gamesLost": "Game thua",
+                "gameDifferential": "Hiệu game"
+              }
+            },
+            "se": {
+              "seedingMethod": "Phương pháp xếp hạt giống",
+              "manual": "Thủ công",
+              "random": "Ngẫu nhiên",
+              "ranking": "Theo xếp hạng",
+              "matchFormat": "Thể thức trận đấu",
+              "bestOf1": "Best of 1",
+              "bestOf3": "Best of 3",
+              "thirdPlaceMatch": "Trận tranh hạng ba",
+              "yes": "Có",
+              "no": "Không",
+              "bracketPreview": "Xem trước nhánh đấu sẽ hiển thị ở đây"
+            },
+            "rrse": {
+              "groupStage": "Vòng bảng",
+              "eliminationRound": "Vòng loại trực tiếp",
+              "qualifiersPerGroup": "Số đội vượt qua mỗi bảng"
+            },
+            "playoffs": {
+              "title": "Vòng Playoffs",
+              "description": "Cấu hình nhánh đấu loại trực tiếp.",
+              "bracketsQuestion": "Bạn cần bao nhiêu nhánh đấu?"
+            }
+          },
+          "step3": {
+            "title": "Tuyệt vời! Thể thức đã sẵn sàng.",
+            "description": "Xác nhận để tạo thể thức. Bạn luôn có thể quay lại và thay đổi sau.",
+            "whatsNext": "Tiếp theo là gì?",
+            "nextSteps": {
+              "manageTeams": {
+                "title": "Quản lý đội của bạn",
+                "description": "Cung cấp các đội sẽ tham gia giải đấu."
+              },
+              "generateMatches": {
+                "title": "Tạo trận đấu",
+                "description": "Cấu hình từng vòng và tạo trận đấu cho các đội."
+              },
+              "scheduleMatches": {
+                "title": "Lên lịch trận đấu",
+                "description": "Cung cấp địa điểm và phân bổ thời gian, sân cho các trận."
+              }
+            }
+          }
+        },
+        "manage": {
+          "title": "Quản lý giải đấu",
+          "share": "Chia sẻ",
+          "publishBanner": {
+            "publishedTitle": "Giải đấu đã xuất bản",
+            "publishedSubtitle": "Nhấn vào đây để chuyển về bản nháp.",
+            "draftTitle": "Giải đấu đang ở bản nháp",
+            "draftSubtitle": "Nhấn vào đây để xuất bản giải đấu.",
+            "confirmPublishTitle": "Xuất bản giải đấu?",
+            "confirmPublishDescription": "Bạn có chắc muốn xuất bản giải đấu? Người tham gia sẽ có thể xem giải đấu.",
+            "confirmPublishButton": "Xuất bản",
+            "confirmDraftTitle": "Chuyển về bản nháp?",
+            "confirmDraftDescription": "Bạn có chắc muốn chuyển giải đấu về bản nháp? Giải đấu sẽ bị ẩn với người tham gia.",
+            "confirmDraftButton": "Chuyển về nháp",
+            "cancel": "Hủy"
+          },
+          "tabs": {
+            "organize": "Tổ chức",
+            "settings": "Cài đặt"
+          },
+          "panelTitles": {
+            "publish": "Xuất bản giải đấu",
+            "teams": "Đội",
+            "categories": "Hạng mục",
+            "format": "Thể thức",
+            "standings": "Bảng xếp hạng",
+            "registration": "Đăng ký",
+            "rounds": "Vòng đấu",
+            "venues": "Địa điểm",
+            "schedule": "Lịch thi đấu",
+            "sponsors": "Nhà tài trợ"
+          },
+          "organize": {
+            "publish": {
+              "title": "Xuất bản giải đấu",
+              "description": "Cho phép người tham gia xem giải đấu."
+            },
+            "teams": {
+              "title": "Đội",
+              "description": "{count} đội đã đăng ký"
+            },
+            "categories": {
+              "title": "Hạng mục"
+            },
+            "registration": {
+              "title": "Đăng ký",
+              "description": "Quản lý đăng ký tham gia.",
+              "badge": "Đang mở"
+            },
+            "format": {
+              "title": "Thể thức",
+              "description": "Cấu hình thể thức thi đấu và luồng nhánh đấu."
+            },
+            "standings": {
+              "title": "Bảng xếp hạng",
+              "description": "Xem và quản lý bảng xếp hạng vòng bảng."
+            },
+            "rounds": {
+              "title": "Vòng đấu",
+              "description": "Tạo và quản lý các vòng thi đấu.",
+              "generateAllMatches": "Tạo tất cả trận đấu",
+              "generating": "Đang tạo...",
+              "noGroupsYet": "Chưa có bảng nào. Vui lòng tạo bảng và phân đội trước.",
+              "createGroupsFirst": "Vui lòng tạo bảng trong phần Thể thức trước.",
+              "matchCount": "{count} trận đấu",
+              "groupHasMatches": "Đã tạo trận đấu",
+              "allGroupsHaveMatches": "Tất cả các bảng đã có trận đấu.",
+              "regenerateWarning": "Một số bảng đã có trận đấu. Chỉ các bảng chưa có trận sẽ được tạo mới.",
+              "noTeamsInGroups": "Chưa có đội nào được phân vào bảng. Vui lòng phân đội trước.",
+              "match": "Trận {number}",
+              "vs": "vs",
+              "scheduled": "Đã lên lịch",
+              "inProgress": "Đang diễn ra",
+              "finished": "Đã hoàn thành",
+              "cancelled": "Đã hủy",
+              "deleteAllMatches": "Xóa tất cả trận đấu",
+              "deleteAllMatchesConfirm": "Bạn có chắc chắn muốn xóa tất cả trận đấu của bảng này? Hành động này không thể hoàn tác.",
+              "matchesDeleted": "Đã xóa tất cả trận đấu thành công",
+              "noScore": "Chưa có điểm"
+            },
+            "venues": {
+              "title": "Địa điểm",
+              "noVenue": "Chưa có địa điểm"
+            },
+            "schedule": {
+              "title": "Lịch thi đấu",
+              "description": "Lên lịch giờ đấu và phân bổ sân thi đấu."
+            },
+            "sponsors": {
+              "title": "Nhà tài trợ",
+              "description": "Thêm nhà tài trợ cho giải đấu."
+            }
+          },
+          "settings": {
+            "admins": {
+              "title": "Quản trị viên",
+              "description": "Mời quản trị viên giúp quản lý giải đấu."
+            },
+            "name": {
+              "title": "Tên giải đấu"
+            },
+            "dates": {
+              "title": "Ngày thi đấu"
+            },
+            "location": {
+              "title": "Địa điểm",
+              "noLocation": "Chưa có địa điểm"
+            },
+            "visibility": {
+              "title": "Hiển thị",
+              "description": "Kiểm soát ai có thể xem giải đấu."
+            },
+            "customLink": {
+              "title": "Liên kết tùy chỉnh"
+            },
+            "banner": {
+              "title": "Ảnh banner",
+              "description": "Tải lên ảnh banner cho trang giải đấu."
+            },
+            "rosters": {
+              "title": "Danh sách đội",
+              "description": "Quản lý danh sách đội và giới hạn người chơi."
+            },
+            "results": {
+              "title": "Kết quả",
+              "description": "Cấu hình cách gửi kết quả trận đấu."
+            },
+            "publishingFee": {
+              "title": "Phí xuất bản",
+              "description": "Thanh toán phí để xuất bản và kích hoạt giải đấu."
+            },
+            "duplicate": {
+              "title": "Nhân đôi giải đấu",
+              "description": "Tạo bản sao của giải đấu này với toàn bộ cài đặt."
+            },
+            "delete": {
+              "title": "Xóa giải đấu",
+              "description": "Xóa vĩnh viễn giải đấu này và tất cả dữ liệu."
+            }
+          },
+          "panels": {
+            "teams": {
+              "title": "Đội",
+              "addTeams": "Thêm đội",
+              "noTeams": "Chưa có đội nào đăng ký.",
+              "addTeamsTitle": "Thêm đội",
+              "editTeam": "Sửa đội",
+              "deleteTeam": "Xóa đội",
+              "deleteConfirm": "Bạn có chắc chắn muốn xóa đội này?",
+              "single": "Đơn lẻ",
+              "multiple": "Hàng loạt",
+              "namePlaceholder": "Tên",
+              "multiPlaceholder": "Dán danh sách đội hoặc nhập một tên mỗi dòng",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "delete": "Xóa",
+              "teamsCount": "{count} đội"
+            },
+            "categories": {
+              "title": "Hạng mục",
+              "addCategory": "Thêm hạng mục",
+              "createCategory": "Tạo hạng mục",
+              "editCategory": "Sửa hạng mục",
+              "deleteCategory": "Xóa hạng mục",
+              "deleteConfirm": "Bạn có chắc chắn muốn xóa hạng mục này?",
+              "namePlaceholder": "Tên",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "delete": "Xóa"
+            },
+            "format": {
+              "title": "Thể thức",
+              "switchFormat": "Đổi thể thức"
+            },
+            "standings": {
+              "title": "Bảng xếp hạng",
+              "manageStandings": "Quản lý bảng xếp hạng",
+              "points": "Điểm",
+              "pointsPerWin": "điểm mỗi thắng trận",
+              "pointsPerTie": "điểm mỗi hòa trận",
+              "required": "Bắt buộc",
+              "save": "Lưu",
+              "cancel": "Hủy"
+            },
+            "registration": {
+              "title": "Đăng ký",
+              "description": "Cài đặt đăng ký sẽ được cấu hình tại đây."
+            },
+            "rounds": {
+              "title": "Vòng đấu",
+              "description": "Tạo các vòng đấu để lên lịch trận đấu cho từng hạng mục.",
+              "createGroups": "Tạo {count} bảng",
+              "creating": "Đang tạo...",
+              "groupsCreated": "Đã tạo {count} bảng",
+              "groupCountMin": "Số bảng phải tối thiểu là 1.",
+              "setupGroups": "Tạo bảng đấu",
+              "setupGroupsDescription": "Chọn số lượng bảng để chia đội vào, sau đó nhấn Tạo bảng.",
+              "numberOfGroups": "Số bảng",
+              "configureGroupCount": "Vui lòng cài đặt số lượng bảng trong phần Thể thức trước.",
+              "autoAssignTeams": "Tự động phân đội",
+              "assigning": "Đang phân...",
+              "teamsAssigned": "Đã phân đội vào các bảng thành công",
+              "readyToGenerate": "Đã phân {count} đội. Sẵn sàng tạo trận đấu.",
+              "generateAllMatches": "Tạo tất cả trận đấu",
+              "generating": "Đang tạo...",
+              "noGroupsYet": "Chưa có bảng nào. Tạo bảng và phân đội để bắt đầu tạo trận đấu.",
+              "matchCount": "{count} trận đấu",
+              "teamsCount": "{count} đội",
+              "allGroupsHaveMatches": "Tất cả các bảng đã có trận đấu.",
+              "noTeamsInGroups": "Chưa có đội nào được phân vào bảng. Vui lòng phân đội trước.",
+              "noTeamsInGroup": "Chưa có đội nào trong bảng này.",
+              "vs": "vs",
+              "noScore": "Chưa có điểm",
+              "scheduled": "Đã lên lịch",
+              "inProgress": "Đang diễn ra",
+              "finished": "Đã hoàn thành",
+              "cancelled": "Đã hủy",
+              "setupPools": "Tạo bảng đấu",
+              "setupMatches": "Tạo trận đấu",
+              "poolPlay": "Đấu bảng",
+              "poolPlaySubtitle": "Tạo bảng đấu và phát sinh trận đấu.",
+              "roundRobin": "Round Robin",
+              "configurePoolsAndConfirm": "Cấu hình bảng đấu và xác nhận trận đấu.",
+              "seedTeams": "Bạn có muốn xếp hạt giống không?",
+              "numberOfPools": "Số bảng đấu",
+              "onePool": "1 bảng",
+              "nPools": "{count} bảng",
+              "matchSetupMethod": "Bạn muốn tạo trận đấu như thế nào?",
+              "generateMethod": "Tự động",
+              "manualEntry": "Nhập thủ công",
+              "matchesPerTeam": "Mỗi đội sẽ thi đấu bao nhiêu trận?",
+              "playAllOnce": "Đấu với tất cả đội trong bảng một lần",
+              "generateGames": "Phát sinh trận đấu",
+              "cancel": "Hủy",
+              "back": "Quay lại",
+              "saveMatches": "Lưu trận đấu",
+              "saving": "Đang lưu...",
+              "done": "Hoàn tất",
+              "matchesSaved": "Trận đấu đã được lưu thành công",
+              "editMatches": "Chỉnh sửa trận đấu",
+              "selectTeam": "Chọn đội",
+              "matchLabel": "Trận {number}",
+              "close": "Đóng",
+              "loadingTeams": "Đang tải đội...",
+              "noTeamsRegistered": "Chưa có đội nào đăng ký.",
+              "needAtLeast2Teams": "Cần ít nhất 2 đội.",
+              "poolNeedsMinTeams": "Bảng {pool} cần ít nhất 2 đội.",
+              "includeCrossoverPools": "Bao gồm bảng chéo?",
+              "crossoverPoolsTooltip": "Bảng chéo tạo các trận đấu giữa các đội từ các bảng khác nhau.",
+              "advancingTeams": "Đội thăng hạng",
+              "advancingTeamsSubtitle": "Xác định cách các đội thăng hạng.",
+              "addAdvancingTeams": "Thêm đội thăng hạng",
+              "editAdvancingTeams": "Chỉnh sửa đội thăng hạng",
+              "rankingMethod": "Đội sẽ được xếp hạng như thế nào?",
+              "poolRankings": "Xếp hạng bảng đấu",
+              "overallRankings": "Xếp hạng tổng thể",
+              "crossPoolRankings": "Xếp hạng chéo bảng",
+              "useWildcards": "Sử dụng suất đặc cách",
+              "wildcardsTooltip": "Suất đặc cách cho phép thêm các đội thăng hạng dựa trên thành tích tổng thể ở tất cả các bảng.",
+              "playoffsTeamCount": "Vòng loại trực tiếp",
+              "teamsLabel": "{count, plural, =1 {1 đội} other {# đội}}",
+              "allTeamsWillAdvance": "Tất cả các đội sẽ thăng hạng",
+              "saveTeams": "Lưu đội",
+              "teamsSaved": "Đã lưu đội thăng hạng thành công",
+              "playoffs": "Vòng loại trực tiếp",
+              "playoffsSubtitle": "Thiết lập nhánh đấu và trận đấu.",
+              "addBracket": "Thêm nhánh đấu",
+              "setupBracket": "Thiết lập nhánh đấu",
+              "placementMatches": "Trận xếp hạng",
+              "selectPlacements": "Chọn các vị trí sẽ được xác định.",
+              "playFor3rdPlace": "Tranh hạng 3",
+              "playFor5thPlace": "Tranh hạng 5",
+              "playFor7thPlace": "Tranh hạng 7",
+              "consolationMatches": "Trận an ủi",
+              "consolationDescription": "Thêm trận an ủi vào nhánh đấu.",
+              "addMatch": "Thêm trận",
+              "bracketSaved": "Đã lưu nhánh đấu thành công",
+              "quarterFinals": "Tứ kết",
+              "semiFinals": "Bán kết",
+              "finals": "Chung kết",
+              "firstPlace": "Hạng nhất",
+              "thirdPlace": "Hạng ba",
+              "winnerOf": "Thắng trận {match}",
+              "loserOf": "Thua trận {match}",
+              "nthPoolLabel": "{rank} Bảng {pool}",
+              "confirm": "Xác nhận",
+              "deleteMatch": "Xóa trận",
+              "nMatches": "{count, plural, =1 {1 trận} other {# trận}}",
+              "manualEntryInfo": "Thêm trận đấu thủ công ở bước tiếp theo.",
+              "selectPool": "Chọn bảng",
+              "addCrossover": "Thêm đấu chéo",
+              "crossoverPoolsDescription": "Đấu chéo cho phép các đội thi đấu với đội từ bảng khác thay vì bảng của mình.",
+              "editSeeds": "Chỉnh thứ tự hạt giống",
+              "editSeedsButton": "Chỉnh hạt giống",
+              "bracket": "Nhánh đấu",
+              "bracketSubtitle": "Thiết lập nhánh đấu và trận đấu.",
+              "configureAndConfirmMatches": "Cấu hình nhánh đấu và xác nhận trận đấu.",
+              "consolationMatch": "Trận an ủi",
+              "consolations": "An ủi",
+              "whenMatchPlayed": "Trận đấu sẽ diễn ra khi nào?",
+              "whoHomeTeam": "Đội chủ nhà là ai?",
+              "whoAwayTeam": "Đội khách là ai?"
+            },
+            "venues": {
+              "title": "Địa điểm",
+              "noVenue": "Chưa có địa điểm nào được gán cho giải đấu này."
+            },
+            "schedule": {
+              "title": "Lịch thi đấu",
+              "scheduled": "đã lên lịch",
+              "unscheduled": "chưa lên lịch"
+            },
+            "sponsors": {
+              "title": "Nhà tài trợ",
+              "description": "Thêm nhà tài trợ để hiển thị trên trang giải đấu.",
+              "addSponsors": "Thêm nhà tài trợ"
+            }
+          }
+        }
       },
       "manage": {
         "title": "Quản lý giải đấu",
@@ -1134,7 +1692,12 @@
         "title": "Quản lý hạng mục",
         "notFound": "Không tìm thấy hạng mục",
         "categorySettings": "Cài đặt hạng mục",
-        "hasGroupStage": "Có vòng bảng",
+        "tournamentFormat": "Thể thức thi đấu",
+        "changeFormat": "Đổi thể thức",
+        "formatRoundRobin": "Vòng tròn",
+        "formatSingleElimination": "Loại trực tiếp",
+        "formatRoundRobinToSE": "Vòng tròn → Loại trực tiếp",
+        "hasGroupStage": "Vòng bảng",
         "matchFormat": "Định dạng trận đấu",
         "bestOf1Set": "Tối đa 1 set",
         "bestOf3Sets": "Tối đa 3 set",
@@ -1956,7 +2519,7 @@
   "fee": {
     "title": "Phí tham gia",
     "feeType": "Loại phí",
-    "fixed": "Giá cố định",
+    "fixed": "Giá vãng lai",
     "splitEvenly": "Chia đều",
     "maleFee": "Phí Nam",
     "femaleFee": "Phí Nữ",
@@ -2115,7 +2678,7 @@
     "paymentInfoDescription": "Cấu hình thông tin thanh toán cho kèo này để người chơi biết cách chuyển tiền cho bạn",
     "sessionFeeConfig": "Cấu hình phí kèo",
     "feeType": "Loại phí",
-    "fixed": "Giá cố định",
+    "fixed": "Giá vãng lai",
     "noPaymentSettings": "Chưa cấu hình thông tin thanh toán",
     "noPaymentSettingsDescription": "Vui lòng thêm thông tin ngân hàng và mã QR để người chơi có thể thanh toán",
     "currentSettings": "Cài đặt thanh toán hiện tại",

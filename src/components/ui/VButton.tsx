@@ -14,6 +14,7 @@ import {
 // Create enhanced Button with leftIcon support
 export interface VButtonProps extends Omit<ButtonProps, 'as'> {
   leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   as?: React.ElementType;
   href?: string; // Add href prop for Link compatibility
   isWithinLink?: boolean; // Flag to indicate button is inside a Link
@@ -21,6 +22,7 @@ export interface VButtonProps extends Omit<ButtonProps, 'as'> {
 
 export const VButton = ({
   leftIcon,
+  rightIcon,
   children,
   as,
   href,
@@ -39,6 +41,11 @@ export const VButton = ({
           </Box>
         )}
         {children}
+        {rightIcon && (
+          <Box ml="1" display="inline-block">
+            {rightIcon}
+          </Box>
+        )}
       </Button>
     );
   }
@@ -55,6 +62,11 @@ export const VButton = ({
             </Box>
           )}
           {children}
+          {rightIcon && (
+            <Box ml="1" display="inline-block">
+              {rightIcon}
+            </Box>
+          )}
         </Button>
       </LinkComponent>
     );
@@ -78,6 +90,11 @@ export const VButton = ({
         </Box>
       )}
       {children}
+      {rightIcon && (
+        <Box ml="1" display="inline-block">
+          {rightIcon}
+        </Box>
+      )}
     </Button>
   );
 };

@@ -32,7 +32,7 @@ export const CategoryService = {
   // Create category
   createCategory: async (
     tournamentId: string,
-    data: { name: string; type: string }
+    data: { name: string; type: string; format?: string }
   ): Promise<Category> => {
     const response = await api.post<ApiResponse<Category>>(
       `/tournaments/${tournamentId}/categories`,
@@ -45,13 +45,16 @@ export const CategoryService = {
   // Update category
   updateCategory: async (
     id: string,
-    data: UpdateCategoryRequest
+    data: UpdateCategoryRequest,
+    options?: { showToast?: boolean }
   ): Promise<Category> => {
     const response = await api.put<ApiResponse<Category>>(
       `/categories/${id}`,
       data
     );
-    toaster.success({ title: 'Category updated successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Category updated successfully' });
+    }
     return response.data.data!;
   },
 
@@ -73,13 +76,16 @@ export const CategoryService = {
 
   createRegistration: async (
     categoryId: string,
-    data: CreateCategoryRegistrationRequest
+    data: CreateCategoryRegistrationRequest,
+    options?: { showToast?: boolean }
   ): Promise<CategoryRegistration> => {
     const response = await api.post<ApiResponse<CategoryRegistration>>(
       `/categories/${categoryId}/registrations`,
       data
     );
-    toaster.success({ title: 'Registration created successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Registration created successfully' });
+    }
     return response.data.data!;
   },
 
@@ -109,7 +115,6 @@ export const CategoryService = {
       `/categories/${categoryId}/matches`,
       data
     );
-    toaster.success({ title: 'Match created successfully' });
     return response.data.data!;
   },
 
@@ -199,11 +204,16 @@ export const CategoryService = {
   },
 
   // Group management
-  createGroups: async (categoryId: string): Promise<CategoryGroup[]> => {
+  createGroups: async (
+    categoryId: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryGroup[]> => {
     const response = await api.post<ApiResponse<CategoryGroup[]>>(
       `/categories/${categoryId}/groups`
     );
-    toaster.success({ title: 'Groups created successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Groups created successfully' });
+    }
     return response.data.data!;
   },
 
@@ -227,11 +237,17 @@ export const CategoryService = {
     return response.data.data!;
   },
 
-  deleteGroup: async (categoryId: string, groupId: string): Promise<void> => {
+  deleteGroup: async (
+    categoryId: string,
+    groupId: string,
+    options?: { showToast?: boolean }
+  ): Promise<void> => {
     await api.delete<ApiResponse<null>>(
       `/categories/${categoryId}/groups/${groupId}`
     );
-    toaster.success({ title: 'Group deleted successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Group deleted successfully' });
+    }
   },
 
   // Group registration assignment
@@ -276,12 +292,15 @@ export const CategoryService = {
 
   autoAssignAllRegistrations: async (
     categoryId: string,
-    options?: { shuffle?: boolean }
+    options?: { shuffle?: boolean; showToast?: boolean }
   ): Promise<Record<string, CategoryGroupRegistration[]>> => {
+    const { showToast, ...requestOptions } = options ?? {};
     const response = await api.post<
       ApiResponse<Record<string, CategoryGroupRegistration[]>>
-    >(`/categories/${categoryId}/groups/auto-assign`, options || {});
-    toaster.success({ title: 'Teams auto-assigned to groups successfully' });
+    >(`/categories/${categoryId}/groups/auto-assign`, requestOptions);
+    if (showToast !== false) {
+      toaster.success({ title: 'Teams auto-assigned to groups successfully' });
+    }
     return response.data.data!;
   },
 
@@ -294,6 +313,19 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}/generate-matches`
     );
     toaster.success({ title: 'Matches generated successfully' });
+    return response.data.data!;
+  },
+
+  generateAllGroupMatches: async (
+    categoryId: string,
+    options?: { showToast?: boolean }
+  ): Promise<Array<{ group: CategoryGroup; matches: CategoryMatch[] }>> => {
+    const response = await api.post<
+      ApiResponse<Array<{ group: CategoryGroup; matches: CategoryMatch[] }>>
+    >(`/categories/${categoryId}/groups/generate-all-matches`);
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'All matches generated successfully' });
+    }
     return response.data.data!;
   },
 

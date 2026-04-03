@@ -105,12 +105,8 @@ export default function SessionsList({
             )
           : sessions.filter((s) => s.status === status);
 
-    // Default sort by date (newest first)
-    return [...result].sort((a, b) => {
-      const dateA = a.startTime ? new Date(a.startTime).getTime() : 0;
-      const dateB = b.startTime ? new Date(b.startTime).getTime() : 0;
-      return dateB - dateA;
-    });
+    // Return the result as is to respect the order from API/caller
+    return result;
   }, [sessions, status]);
 
   // Extract unique host IDs for batch rating stats loading

@@ -47,7 +47,7 @@ export default function TournamentLayout({
   // Get active tab from pathname
   const getActiveTab = () => {
     if (pathname?.includes('/matches')) return 'matches';
-    if (pathname?.includes('/players')) return 'players';
+    if (pathname?.includes('/teams')) return 'teams';
     if (pathname?.includes('/events')) return 'events';
     if (pathname?.includes('/winners')) return 'winners';
     return 'overview';
@@ -67,9 +67,9 @@ export default function TournamentLayout({
       path: `/${locale}/tournaments/${tournamentId}/matches`,
     },
     {
-      id: 'players',
-      label: 'Players',
-      path: `/${locale}/tournaments/${tournamentId}/players`,
+      id: 'teams',
+      label: 'Teams',
+      path: `/${locale}/tournaments/${tournamentId}/teams`,
     },
     {
       id: 'events',

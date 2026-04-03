@@ -4,6 +4,7 @@
     "join": "加入",
     "home": "发现场次",
     "tournaments": "锦标赛",
+    "browseTournaments": "浏览锦标赛",
     "browse": "统计分析",
     "statistics": "统计分析",
     "users": "用户",
@@ -52,6 +53,7 @@
     "backToDashboard": "返回控制台",
     "main": "主要",
     "sessions": "场次",
+    "tournaments": "锦标赛",
     "finance": "财务",
     "admin": "管理",
     "discovery": "探索",
@@ -411,8 +413,8 @@
       "clearAll": "清除所有筛选"
     },
     "sort": {
-      "dateNewest": "最新优先",
-      "dateOldest": "最早优先",
+      "dateFurthest": "最远日期",
+      "dateNearest": "最近日期",
       "priceLow": "价格：低→高",
       "priceHigh": "价格：高→低",
       "distance": "最近",
@@ -960,8 +962,16 @@
         "cancelled": "已取消"
       },
       "noTournamentsFound": "未找到锦标赛",
+      "explore": "探索",
+      "searchEvents": "搜索活动",
+      "follow": "关注",
+      "share": "分享",
+      "upcoming": "即将举行",
+      "runYourOwnEvent": "举办您自己的活动",
+      "registrationOpen": "报名开放中",
       "host": "主办方",
       "categories": "类别",
+      "players": "选手",
       "playersLabel": "Players",
       "startDate": "开始日期",
       "endDate": "结束日期",
@@ -971,6 +981,11 @@
         "mensDouble": "男子双打",
         "womensDouble": "女子双打",
         "mixedDouble": "混合双打"
+      },
+      "formatLabels": {
+        "roundRobin": "循环赛",
+        "singleElimination": "单淘汰",
+        "roundRobinToSE": "循环赛 → 淘汰赛"
       },
       "tournamentDetail": {
         "title": "锦标赛",
@@ -986,40 +1001,553 @@
         "basicInformation": "基本信息",
         "tournamentName": "锦标赛名称",
         "enterTournamentName": "输入锦标赛名称",
-        "categoryTypeOptions": {
-          "mensSingle": "男子单打 (MS)",
-          "womensSingle": "女子单打 (WS)",
-          "mensDouble": "男子双打 (MD)",
-          "womensDouble": "女子双打 (WD)",
-          "mixedDouble": "混合双打 (XD)"
-        },
-        "addCategory": "添加类别",
-        "categoryName": "类别名称",
-        "removeCategory": "移除类别",
-        "umpiresOptional": "裁判（可选）",
-        "addUmpire": "添加裁判",
-        "umpireName": "裁判姓名",
-        "emailOptional": "邮箱（可选）",
-        "phoneOptional": "电话（可选）",
-        "removeUmpire": "移除裁判",
-        "scoringDevicesOptional": "计分设备（可选）",
-        "addDevice": "添加设备",
-        "deviceName": "设备名称",
-        "deviceTypeOptional": "设备类型（可选）",
-        "removeDevice": "移除设备",
-        "courtsOptional": "场地（可选）",
-        "addCourt": "添加场地",
-        "courtNumber": "场地编号",
-        "courtNameOptional": "场地名称（可选）",
-        "removeCourt": "移除场地",
         "creating": "正在创建...",
         "fillAllFields": "请填写所有必填字段",
-        "addAtLeastOneCategory": "请至少添加一个类别",
-        "categories": "类别",
         "startDate": "开始日期",
         "endDate": "结束日期",
+        "venue": "场地",
+        "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
         "createTournament": "创建锦标赛"
+      },
+      "detail": {
+        "title": "锦标赛",
+        "notFound": "未找到锦标赛",
+        "comingSoon": "内容即将推出",
+        "tabs": {
+          "home": "主页",
+          "teams": "队伍",
+          "schedule": "赛程",
+          "standings": "排名",
+          "manage": "管理",
+          "dashboard": "仪表板"
+        },
+        "teamsTab": {
+          "manageTeams": "管理队伍",
+          "noCategories": "暂时没有可用类别。",
+          "noTeams": "尚未有队伍报名。",
+          "unknownTeam": "未知"
+        },
+        "homeTab": {
+          "overview": {
+            "title": "概览",
+            "teamsParticipating": "{count} 支队伍参赛",
+            "viewSchedule": "查看赛程",
+            "viewStandings": "查看排名"
+          },
+          "categories": {
+            "title": "类别",
+            "manage": "管理类别",
+            "empty": "暂无类别。"
+          },
+          "venues": {
+            "title": "场地",
+            "manage": "管理场地",
+            "directions": "路线"
+          },
+          "contact": {
+            "title": "联系方式",
+            "name": "姓名",
+            "email": "邮箱"
+          }
+        },
+        "dashboard": {
+          "title": "仪表板",
+          "share": "分享",
+          "continueSetup": {
+            "title": "继续设置",
+            "description": "使用此指南为比赛日做好准备。",
+            "progress": "{completed} / {total} 已完成"
+          },
+          "steps": {
+            "format": {
+              "title": "创建赛制",
+              "description": "选择并配置您的赛制。",
+              "action": "管理赛制"
+            },
+            "teams": {
+              "title": "添加队伍",
+              "description": "提供至少 2 支参赛队伍。",
+              "action": "管理队伍"
+            },
+            "rounds": {
+              "title": "设置轮次",
+              "description": "确认每个轮次的设置。",
+              "action": "管理轮次"
+            },
+            "venue": {
+              "title": "添加场地",
+              "description": "为锦标赛提供有球场的场地。",
+              "action": "管理场地"
+            },
+            "schedule": {
+              "title": "安排比赛",
+              "description": "为比赛制定时间表。",
+              "action": "管理日程"
+            },
+            "fee": {
+              "title": "发布费用",
+              "description": "付费以发布您的锦标赛。",
+              "action": "支付费用"
+            },
+            "publish": {
+              "title": "发布锦标赛",
+              "description": "让参与者查看锦标赛并提交比赛结果。",
+              "action": "发布锦标赛"
+            }
+          },
+          "quickActions": {
+            "customizePage": {
+              "title": "自定义主页",
+              "description": "通过自定义内容让主页更具个性。",
+              "action": "编辑页面"
+            },
+            "inviteAdmins": {
+              "title": "不要独自完成所有工作！",
+              "description": "邀请管理员帮助您管理锦标赛。",
+              "action": "邀请管理员"
+            }
+          }
+        },
+        "formatWizard": {
+          "cancel": "取消",
+          "back": "返回",
+          "next": "下一步",
+          "confirm": "确认",
+          "close": "关闭",
+          "step1": {
+            "title": "选择赛制",
+            "description": "从提供的模板中选择。",
+            "allTemplates": "所有模板",
+            "filterBy": "筛选"
+          },
+          "formats": {
+            "ROUND_ROBIN": {
+              "name": "循环赛",
+              "subtitle": "循环赛",
+              "description": "队伍在小组中竞争，根据结果排名。",
+              "cardLabel": "小组赛",
+              "configDescription": "配置队伍排名方式。"
+            },
+            "SINGLE_ELIMINATION": {
+              "name": "单淘汰赛",
+              "subtitle": "单淘汰",
+              "description": "队伍进入淘汰赛，输一场即被淘汰。",
+              "cardLabel": "淘汰赛",
+              "configDescription": "配置淘汰赛设置。"
+            },
+            "ROUND_ROBIN_TO_SE": {
+              "name": "循环赛转单淘汰",
+              "subtitle": "循环+淘汰",
+              "description": "队伍先在小组中竞争，再进入淘汰赛。",
+              "cardLabel": "小组赛 + 淘汰赛",
+              "configDescription": "配置小组赛和淘汰赛设置。"
+            }
+          },
+          "config": {
+            "rr": {
+              "pointsEarning": "队伍如何获得积分？",
+              "pointsEarningLabel": "队伍如何获得积分？",
+              "matchResults": "基于比赛结果",
+              "basedOnMatchResults": "基于比赛结果",
+              "manual": "手动计分",
+              "tiebreakersOnly": "仅使用决胜规则",
+              "matchWin": "比赛胜利",
+              "matchTie": "比赛平局",
+              "matchLoss": "比赛失败",
+              "cancelledMatch": "取消比赛",
+              "gameWin": "局胜",
+              "gameLoss": "局负",
+              "forfeitWin": "弃权胜",
+              "forfeitLoss": "弃权负",
+              "nPoints": "{n, plural, =0 {0 分} =1 {1 分} other {# 分}}",
+              "advanced": "高级（失败、比赛、弃权）",
+              "tiebreakers": "决胜规则",
+              "tiebreakersDesc": "决定如何在排名中打破平局。",
+              "selectTiebreakers": "选择决胜规则",
+              "teamStatistics": "队伍统计",
+              "teamStatisticsDesc": "选择每场比赛要跟踪的统计数据。",
+              "selectStatistics": "选择统计",
+              "required": "必需",
+              "standings": "排名",
+              "standingsDesc": "配置排名显示方式。",
+              "selectColumns": "选择列",
+              "tiebreakerItems": {
+                "totalPoints": "总积分",
+                "totalPointsDesc": "总体（积分）",
+                "totalWins": "总胜场",
+                "totalWinsDesc": "总体（胜场）",
+                "gameDifferential": "局差",
+                "gameDifferentialDesc": "总体（赢局 - 输局）",
+                "pointDifferential": "分差",
+                "pointDifferentialDesc": "总体（得分 - 失分）",
+                "headToHead": "直接对决",
+                "headToHeadDesc": "平局队伍之间的直接比赛结果",
+                "pointsFor": "得分",
+                "pointsForDesc": "总得分",
+                "pointsAgainst": "失分",
+                "pointsAgainstDesc": "总失分"
+              },
+              "statisticItems": {
+                "points": "积分",
+                "gamesWon": "赢局",
+                "gamesLost": "输局",
+                "gameDifferential": "局差"
+              },
+              "standingsItems": {
+                "matchesPlayed": "比赛场次",
+                "wins": "胜",
+                "ties": "平",
+                "losses": "负",
+                "pointsDifferential": "分差",
+                "gamesWon": "赢局",
+                "gamesLost": "输局",
+                "gameDifferential": "局差"
+              }
+            },
+            "se": {
+              "seedingMethod": "种子排列方式",
+              "manual": "手动",
+              "random": "随机",
+              "ranking": "按排名",
+              "matchFormat": "比赛赛制",
+              "bestOf1": "一局定胜负",
+              "bestOf3": "三局两胜",
+              "thirdPlaceMatch": "季军赛",
+              "yes": "是",
+              "no": "否",
+              "bracketPreview": "淘汰赛预览将显示在此处"
+            },
+            "rrse": {
+              "groupStage": "小组赛阶段",
+              "eliminationRound": "淘汰赛阶段",
+              "qualifiersPerGroup": "每组晋级人数"
+            },
+            "playoffs": {
+              "title": "季后赛",
+              "description": "设置淘汰赛分支。",
+              "bracketsQuestion": "您需要多少个淘汰赛分支？"
+            }
+          },
+          "step3": {
+            "title": "太好了！赛制已准备就绪。",
+            "description": "确认创建赛制。您可以随时返回修改。",
+            "whatsNext": "接下来做什么？",
+            "nextSteps": {
+              "manageTeams": {
+                "title": "管理你的队伍",
+                "description": "提供将参加锦标赛的队伍。"
+              },
+              "generateMatches": {
+                "title": "生成比赛",
+                "description": "配置每一轮并为队伍生成比赛。"
+              },
+              "scheduleMatches": {
+                "title": "安排比赛",
+                "description": "提供场地并为比赛分配时间和球场。"
+              }
+            }
+          }
+        },
+        "manage": {
+          "title": "管理锦标赛",
+          "share": "分享",
+          "publishBanner": {
+            "publishedTitle": "锦标赛已发布",
+            "publishedSubtitle": "点击此处将锦标赛设为草稿。",
+            "draftTitle": "锦标赛为草稿状态",
+            "draftSubtitle": "点击此处发布锦标赛。",
+            "confirmPublishTitle": "发布锦标赛？",
+            "confirmPublishDescription": "确定要发布锦标赛吗？参赛者将能够查看锦标赛。",
+            "confirmPublishButton": "确认发布",
+            "confirmDraftTitle": "设为草稿？",
+            "confirmDraftDescription": "确定要将锦标赛设为草稿吗？这将对参赛者隐藏锦标赛。",
+            "confirmDraftButton": "确认设为草稿",
+            "cancel": "取消"
+          },
+          "tabs": {
+            "organize": "组织",
+            "settings": "设置"
+          },
+          "panelTitles": {
+            "publish": "发布锦标赛",
+            "teams": "队伍",
+            "categories": "类别",
+            "format": "赛制",
+            "standings": "排名",
+            "registration": "报名",
+            "rounds": "轮次",
+            "venues": "场地",
+            "schedule": "赛程",
+            "sponsors": "赞助商"
+          },
+          "organize": {
+            "publish": {
+              "title": "发布锦标赛",
+              "description": "让参与者查看锦标赛。"
+            },
+            "teams": {
+              "title": "队伍",
+              "description": "{count} 支队伍已报名"
+            },
+            "categories": {
+              "title": "类别"
+            },
+            "registration": {
+              "title": "报名",
+              "description": "管理参与者报名。",
+              "badge": "开放中"
+            },
+            "format": {
+              "title": "赛制",
+              "description": "配置比赛赛制与淘汰赛流程。"
+            },
+            "standings": {
+              "title": "排名",
+              "description": "查看和管理小组积分榜。"
+            },
+            "rounds": {
+              "title": "轮次",
+              "description": "生成和管理比赛轮次。",
+              "generateAllMatches": "生成所有比赛",
+              "generating": "生成中...",
+              "noGroupsYet": "尚未有小组。请先创建小组并分配队伍。",
+              "createGroupsFirst": "请先在赛制面板中创建小组。",
+              "matchCount": "{count} 场比赛",
+              "groupHasMatches": "比赛已生成",
+              "allGroupsHaveMatches": "所有小组都已生成比赛。",
+              "regenerateWarning": "部分小组已有比赛。只有没有比赛的小组才会生成新比赛。",
+              "noTeamsInGroups": "队伍尚未分配到小组。请先分配队伍。",
+              "match": "比赛 {number}",
+              "vs": "vs",
+              "scheduled": "已安排",
+              "inProgress": "进行中",
+              "finished": "已完成",
+              "cancelled": "已取消",
+              "deleteAllMatches": "删除所有比赛",
+              "deleteAllMatchesConfirm": "确定删除该小组的所有比赛吗？此操作无法撤销。",
+              "matchesDeleted": "所有比赛已成功删除",
+              "noScore": "暂无比分"
+            },
+            "venues": {
+              "title": "场地",
+              "noVenue": "未设置场地"
+            },
+            "schedule": {
+              "title": "赛程",
+              "description": "安排比赛时间与场地分配。"
+            },
+            "sponsors": {
+              "title": "赞助商",
+              "description": "为锦标赛添加赞助商。"
+            }
+          },
+          "settings": {
+            "admins": {
+              "title": "管理员",
+              "description": "邀请管理员帮助管理锦标赛。"
+            },
+            "name": {
+              "title": "锦标赛名称"
+            },
+            "dates": {
+              "title": "日期"
+            },
+            "location": {
+              "title": "地点",
+              "noLocation": "未设置地点"
+            },
+            "visibility": {
+              "title": "可见性",
+              "description": "控制谁可以查看此锦标赛。"
+            },
+            "customLink": {
+              "title": "自定义链接"
+            },
+            "banner": {
+              "title": "横幅图片",
+              "description": "为锦标赛页面上传横幅图片。"
+            },
+            "rosters": {
+              "title": "名单",
+              "description": "管理队伍名单和球员限制。"
+            },
+            "results": {
+              "title": "结果",
+              "description": "配置比赛结果的提交方式。"
+            },
+            "publishingFee": {
+              "title": "发布费用",
+              "description": "支付费用以发布和激活锦标赛。"
+            },
+            "duplicate": {
+              "title": "复制锦标赛",
+              "description": "创建此锦标赛及其所有设置的副本。"
+            },
+            "delete": {
+              "title": "删除锦标赛",
+              "description": "永久删除此锦标赛及其所有数据。"
+            }
+          },
+          "panels": {
+            "teams": {
+              "title": "队伍",
+              "addTeams": "添加队伍",
+              "noTeams": "尚未有队伍报名。"
+            },
+            "categories": {
+              "title": "类别",
+              "addCategory": "添加类别"
+            },
+            "format": {
+              "title": "赛制",
+              "switchFormat": "切换赛制"
+            },
+            "standings": {
+              "title": "排名",
+              "manageStandings": "管理排名",
+              "points": "积分",
+              "pointsPerWin": "分/胜",
+              "pointsPerTie": "分/平",
+              "required": "必填",
+              "save": "保存",
+              "cancel": "取消"
+            },
+            "registration": {
+              "title": "报名",
+              "description": "报名设置将在此处配置。"
+            },
+            "rounds": {
+              "title": "轮次",
+              "description": "生成轮次为每个类别创建比赛日程。",
+              "createGroups": "创建 {count} 个小组",
+              "creating": "创建中...",
+              "groupsCreated": "已创建 {count} 个小组",
+              "groupCountMin": "小组数量至少为 1。",
+              "setupGroups": "设置小组",
+              "setupGroupsDescription": "选择将队伍划分为几个小组，然后点击创建小组。",
+              "numberOfGroups": "小组数量",
+              "configureGroupCount": "请先在赛制设置中设定小组数量。",
+              "autoAssignTeams": "自动分配队伍",
+              "assigning": "分配中...",
+              "teamsAssigned": "队伍已成功分配到小组",
+              "readyToGenerate": "已分配 {count} 支队伍。可以生成比赛。",
+              "generateAllMatches": "生成所有比赛",
+              "generating": "生成中...",
+              "noGroupsYet": "尚未有小组。创建小组并分配队伍以生成比赛。",
+              "matchCount": "{count} 场比赛",
+              "teamsCount": "{count} 支队伍",
+              "allGroupsHaveMatches": "所有小组都已生成比赛。",
+              "noTeamsInGroups": "队伍尚未分配到小组。请先分配队伍。",
+              "noTeamsInGroup": "该小组尚无队伍。",
+              "vs": "vs",
+              "noScore": "暂无比分",
+              "scheduled": "已安排",
+              "inProgress": "进行中",
+              "finished": "已完成",
+              "cancelled": "已取消",
+              "setupPools": "设置分组",
+              "setupMatches": "设置比赛",
+              "poolPlay": "小组赛",
+              "poolPlaySubtitle": "设置分组和比赛。",
+              "roundRobin": "循环赛",
+              "configurePoolsAndConfirm": "配置分组并确认比赛。",
+              "seedTeams": "是否进行种子队伍排列？",
+              "numberOfPools": "分组数量",
+              "onePool": "1个分组",
+              "nPools": "{count}个分组",
+              "matchSetupMethod": "您希望如何安排比赛？",
+              "generateMethod": "自动生成",
+              "manualEntry": "手动输入",
+              "matchesPerTeam": "每支队伍将参加多少场比赛？",
+              "playAllOnce": "与组内所有队伍各赛一次",
+              "generateGames": "生成比赛",
+              "cancel": "取消",
+              "back": "返回",
+              "saveMatches": "保存比赛",
+              "saving": "保存中...",
+              "done": "完成",
+              "matchesSaved": "比赛保存成功",
+              "editMatches": "编辑比赛",
+              "selectTeam": "选择队伍",
+              "matchLabel": "比赛 {number}",
+              "close": "关闭",
+              "loadingTeams": "正在加载队伍...",
+              "noTeamsRegistered": "尚无队伍报名。",
+              "needAtLeast2Teams": "至少需要2支队伍。",
+              "poolNeedsMinTeams": "分组 {pool} 至少需要2支队伍。",
+              "includeCrossoverPools": "是否包含交叉分组？",
+              "crossoverPoolsTooltip": "交叉分组会在不同分组的队伍之间创建比赛。",
+              "advancingTeams": "晋级队伍",
+              "advancingTeamsSubtitle": "确定队伍如何晋级。",
+              "addAdvancingTeams": "添加晋级队伍",
+              "editAdvancingTeams": "编辑晋级队伍",
+              "rankingMethod": "队伍将如何排名？",
+              "poolRankings": "小组排名",
+              "overallRankings": "总体排名",
+              "crossPoolRankings": "跨组排名",
+              "useWildcards": "使用外卡",
+              "wildcardsTooltip": "外卡允许额外队伍根据所有小组的整体表现晋级。",
+              "playoffsTeamCount": "淘汰赛",
+              "teamsLabel": "{count, plural, =1 {1支队伍} other {#支队伍}}",
+              "allTeamsWillAdvance": "所有队伍都将晋级",
+              "saveTeams": "保存队伍",
+              "teamsSaved": "晋级队伍保存成功",
+              "playoffs": "淘汰赛",
+              "playoffsSubtitle": "设置对阵表和比赛。",
+              "addBracket": "添加对阵表",
+              "setupBracket": "设置对阵表",
+              "placementMatches": "排名赛",
+              "selectPlacements": "选择将确定哪些名次。",
+              "playFor3rdPlace": "争夺第三名",
+              "playFor5thPlace": "争夺第五名",
+              "playFor7thPlace": "争夺第七名",
+              "consolationMatches": "安慰赛",
+              "consolationDescription": "在对阵表中添加安慰赛。",
+              "addMatch": "添加比赛",
+              "bracketSaved": "对阵表保存成功",
+              "quarterFinals": "四分之一决赛",
+              "semiFinals": "半决赛",
+              "finals": "决赛",
+              "firstPlace": "冠军",
+              "thirdPlace": "季军",
+              "winnerOf": "胜者 {match}",
+              "loserOf": "败者 {match}",
+              "nthPoolLabel": "{rank} {pool}组",
+              "confirm": "确认",
+              "deleteMatch": "删除比赛",
+              "nMatches": "{count, plural, =1 {1场比赛} other {#场比赛}}",
+              "manualEntryInfo": "在下一步手动添加比赛。",
+              "selectPool": "选择小组",
+              "addCrossover": "添加交叉",
+              "crossoverPoolsDescription": "交叉小组允许队伍与其他小组的队伍进行比赛，而不是只在自己的小组内比赛。",
+              "editSeeds": "编辑种子排序",
+              "editSeedsButton": "编辑种子",
+              "bracket": "对阵表",
+              "bracketSubtitle": "设置对阵表和比赛。",
+              "configureAndConfirmMatches": "配置对阵表并确认比赛。",
+              "consolationMatch": "安慰赛",
+              "consolations": "安慰赛",
+              "whenMatchPlayed": "比赛什么时候进行？",
+              "whoHomeTeam": "主队是谁？",
+              "whoAwayTeam": "客队是谁？"
+            },
+            "venues": {
+              "title": "场地",
+              "noVenue": "此锦标赛尚未分配场地。"
+            },
+            "schedule": {
+              "title": "赛程",
+              "scheduled": "已安排",
+              "unscheduled": "未安排"
+            },
+            "sponsors": {
+              "title": "赞助商",
+              "description": "添加赞助商以显示在锦标赛页面上。",
+              "addSponsors": "添加赞助商"
+            }
+          }
+        }
       },
       "manage": {
         "title": "管理锦标赛",
@@ -1132,7 +1660,12 @@
         "title": "管理类别",
         "notFound": "未找到类别",
         "categorySettings": "类别设置",
-        "hasGroupStage": "包含小组赛",
+        "tournamentFormat": "比赛赛制",
+        "changeFormat": "更改赛制",
+        "formatRoundRobin": "循环赛",
+        "formatSingleElimination": "单淘汰",
+        "formatRoundRobinToSE": "循环赛 → 淘汰赛",
+        "hasGroupStage": "小组赛",
         "matchFormat": "比赛赛制",
         "bestOf1Set": "一局定胜负",
         "bestOf3Sets": "三局两胜",

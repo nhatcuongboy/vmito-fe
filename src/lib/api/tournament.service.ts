@@ -9,9 +9,16 @@ import {
 } from './types';
 
 export const TournamentService = {
-  // Get all tournaments
+  // Get all tournaments (public)
   getAllTournaments: async (): Promise<Tournament[]> => {
     const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
+    return response.data.data || [];
+  },
+
+  // Get my tournaments (host only)
+  getMyTournaments: async (): Promise<Tournament[]> => {
+    const response =
+      await api.get<ApiResponse<Tournament[]>>('/tournaments/my');
     return response.data.data || [];
   },
 
@@ -45,6 +52,26 @@ export const TournamentService = {
       data
     );
     toaster.success({ title: 'Tournament updated successfully' });
+    return response.data.data!;
+  },
+
+  // Publish tournament
+  publishTournament: async (id: string): Promise<Tournament> => {
+    const response = await api.put<ApiResponse<Tournament>>(
+      `/tournaments/${id}`,
+      { isPublished: true }
+    );
+    toaster.success({ title: 'Tournament published successfully' });
+    return response.data.data!;
+  },
+
+  // Unpublish tournament (set to draft)
+  unpublishTournament: async (id: string): Promise<Tournament> => {
+    const response = await api.put<ApiResponse<Tournament>>(
+      `/tournaments/${id}`,
+      { isPublished: false }
+    );
+    toaster.success({ title: 'Tournament set to draft' });
     return response.data.data!;
   },
 

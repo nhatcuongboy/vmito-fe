@@ -41,6 +41,7 @@ export const ROUTES = {
     },
     PENDING_JOIN_REQUESTS: '/host/pending-join-requests',
     TOURNAMENTS: {
+      LIST: '/host/tournaments',
       NEW: '/host/tournaments/new',
       DETAIL: (id: string) => `/host/tournaments/${id}`,
       PLAYERS: (id: string) => `/host/tournaments/${id}/players`,
@@ -77,27 +78,36 @@ export const ROUTES = {
     },
     TOURNAMENTS: {
       LIST: '/browse/tournaments',
-      DETAIL: (id: string) => `/browse/tournaments/${id}`,
-      MATCHES: (id: string) => `/browse/tournaments/${id}/matches`,
-      PLAYERS: (id: string) => `/browse/tournaments/${id}/players`,
+      DETAIL: (id: string) => `/tournament/${id}`,
+      MATCHES: (id: string) => `/tournament/${id}/schedule`,
+      PLAYERS: (id: string) => `/tournament/${id}/teams`,
       PLAYER_DETAIL: (id: string, playerId: string) =>
-        `/browse/tournaments/${id}/players/${playerId}`,
-      EVENTS: (id: string) => `/browse/tournaments/${id}/events`,
-      WINNERS: (id: string) => `/browse/tournaments/${id}/winners`,
+        `/tournament/${id}/teams`,
+      EVENTS: (id: string) => `/tournament/${id}`,
+      WINNERS: (id: string) => `/tournament/${id}/standings`,
       CATEGORIES: {
-        DETAIL: (id: string, categoryId: string) =>
-          `/browse/tournaments/${id}/categories/${categoryId}`,
+        DETAIL: (id: string, categoryId: string) => `/tournament/${id}`,
       },
       MANAGE: {
-        HUB: (id: string) => `/browse/tournaments/${id}/manage`,
-        PLAYERS: (id: string) => `/browse/tournaments/${id}/manage/players`,
-        PAIRS: (id: string) => `/browse/tournaments/${id}/manage/pairs`,
+        HUB: (id: string) => `/tournament/${id}/manage`,
+        PLAYERS: (id: string) => `/tournament/${id}/manage?option=players`,
+        PAIRS: (id: string) => `/tournament/${id}/manage?option=pairs`,
         CATEGORIES: {
           DETAIL: (id: string, categoryId: string) =>
-            `/browse/tournaments/${id}/manage/categories/${categoryId}`,
+            `/tournament/${id}/manage?option=categories`,
         },
       },
     },
+  },
+
+  // Tournament Routes (New)
+  TOURNAMENT: {
+    DETAIL: (id: string) => `/tournament/${id}`,
+    TEAMS: (id: string) => `/tournament/${id}/teams`,
+    SCHEDULE: (id: string) => `/tournament/${id}/schedule`,
+    STANDINGS: (id: string) => `/tournament/${id}/standings`,
+    MANAGE: (id: string) => `/tournament/${id}/manage`,
+    DASHBOARD: (id: string) => `/tournament/${id}/dashboard`,
   },
 
   // Clubs Routes
@@ -311,6 +321,7 @@ export const ROUTE_REDIRECTS: Record<string, string> = {
   '/sessions/find': ROUTES.BROWSE.TOURNAMENTS.LIST,
   '/tournaments': ROUTES.BROWSE.TOURNAMENTS.LIST,
   '/tournaments/new': ROUTES.HOST.TOURNAMENTS.NEW,
+  '/browse/tournaments/:id(.*)': '/tournament/:id$1',
 } as const;
 
 // ==================== LOCALE ROUTES ====================

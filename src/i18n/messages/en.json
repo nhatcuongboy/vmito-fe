@@ -1,9 +1,19 @@
 {
+  "onboarding": {
+    "title": "Welcome to Vmito!",
+    "subtitle": "Select your usual playing area so we can suggest the best matches for you.",
+    "city": "City/Province",
+    "district": "Districts (multi-select)",
+    "useGps": "Use Current Location",
+    "skip": "Skip & View All",
+    "finish": "Start Exploring"
+  },
   "navigation": {
     "host": "Manage Sessions",
     "join": "Join",
     "home": "Find Sessions",
     "tournaments": "Tournaments",
+    "browseTournaments": "Browse Tournaments",
     "browse": "Analysis",
     "statistics": "Statistics",
     "users": "Users",
@@ -52,6 +62,7 @@
     "backToDashboard": "Back to Dashboard",
     "main": "Main",
     "sessions": "Sessions",
+    "tournaments": "Tournaments",
     "finance": "Finance",
     "admin": "Management",
     "roleHost": "Host",
@@ -413,8 +424,8 @@
       "clearAll": "Clear all filters"
     },
     "sort": {
-      "dateNewest": "Furthest sessions",
-      "dateOldest": "Nearest",
+      "dateFurthest": "Furthest date",
+      "dateNearest": "Nearest date",
       "priceLow": "Price: low → high",
       "priceHigh": "Price: high → low",
       "distance": "Nearest venue",
@@ -437,6 +448,7 @@
     "you": "You",
     "guest": "Guest",
     "joined": "Joined",
+    "registrationSuccessPending": "Registration request sent. Please wait for host approval.",
     "registrationPending": "Registration Pending",
     "registrationRejected": "Registration Rejected",
     "registrationApproved": "Approved",
@@ -962,8 +974,16 @@
         "cancelled": "Cancelled"
       },
       "noTournamentsFound": "No tournaments found",
+      "explore": "Explore",
+      "searchEvents": "Search events",
+      "follow": "Follow",
+      "share": "Share",
+      "upcoming": "Upcoming",
+      "runYourOwnEvent": "Run your own event",
+      "registrationOpen": "Registration Open",
       "host": "Host",
       "categories": "Categories",
+      "players": "players",
       "playersLabel": "Players",
       "startDate": "Start Date",
       "endDate": "End Date",
@@ -973,6 +993,11 @@
         "mensDouble": "Men's Double",
         "womensDouble": "Women's Double",
         "mixedDouble": "Mixed Double"
+      },
+      "formatLabels": {
+        "roundRobin": "Round Robin",
+        "singleElimination": "Single Elimination",
+        "roundRobinToSE": "Round Robin → Elimination"
       },
       "tournamentDetail": {
         "title": "Tournament",
@@ -988,40 +1013,585 @@
         "basicInformation": "Basic Information",
         "tournamentName": "Tournament Name",
         "enterTournamentName": "Enter tournament name",
-        "categoryTypeOptions": {
-          "mensSingle": "Men's Single (MS)",
-          "womensSingle": "Women's Single (WS)",
-          "mensDouble": "Men's Double (MD)",
-          "womensDouble": "Women's Double (WD)",
-          "mixedDouble": "Mixed Double (XD)"
-        },
-        "addCategory": "Add Category",
-        "categoryName": "Category name",
-        "removeCategory": "Remove category",
-        "umpiresOptional": "Umpires (Optional)",
-        "addUmpire": "Add Umpire",
-        "umpireName": "Umpire name",
-        "emailOptional": "Email (optional)",
-        "phoneOptional": "Phone (optional)",
-        "removeUmpire": "Remove umpire",
-        "scoringDevicesOptional": "Scoring Devices (Optional)",
-        "addDevice": "Add Device",
-        "deviceName": "Device name",
-        "deviceTypeOptional": "Device type (optional)",
-        "removeDevice": "Remove device",
-        "courtsOptional": "Courts (Optional)",
-        "addCourt": "Add Court",
-        "courtNumber": "Court number",
-        "courtNameOptional": "Court name (optional)",
-        "removeCourt": "Remove court",
         "creating": "Creating...",
         "fillAllFields": "Please fill in all required fields",
-        "addAtLeastOneCategory": "Please add at least one category",
-        "categories": "Categories",
         "startDate": "Start Date",
         "endDate": "End Date",
+        "venue": "Venue",
+        "selectVenue": "-- Select venue --",
         "cancel": "Cancel",
         "createTournament": "Create Tournament"
+      },
+      "detail": {
+        "title": "Tournament",
+        "notFound": "Tournament not found",
+        "comingSoon": "Content coming soon",
+        "tabs": {
+          "home": "Home",
+          "teams": "Teams",
+          "schedule": "Schedule",
+          "standings": "Standings",
+          "manage": "Manage",
+          "dashboard": "Dashboard"
+        },
+        "teamsTab": {
+          "manageTeams": "Manage teams",
+          "noCategories": "No categories available yet.",
+          "noTeams": "No teams registered yet.",
+          "unknownTeam": "Unknown"
+        },
+        "homeTab": {
+          "overview": {
+            "title": "Overview",
+            "teamsParticipating": "{count} teams participating",
+            "viewSchedule": "View Schedule",
+            "viewStandings": "View Standings"
+          },
+          "categories": {
+            "title": "Categories",
+            "manage": "Manage categories",
+            "empty": "No categories yet."
+          },
+          "venues": {
+            "title": "Venues",
+            "manage": "Manage venues",
+            "directions": "Directions"
+          },
+          "contact": {
+            "title": "Contact",
+            "name": "Name",
+            "email": "Email"
+          }
+        },
+        "dashboard": {
+          "title": "Dashboard",
+          "share": "Share",
+          "continueSetup": {
+            "title": "Continue setup",
+            "description": "Use this guide to get ready for game day.",
+            "progress": "{completed} of {total} complete"
+          },
+          "steps": {
+            "format": {
+              "title": "Create your format",
+              "description": "Select and configure your format.",
+              "action": "Manage format"
+            },
+            "teams": {
+              "title": "Add your teams",
+              "description": "Provide at least 2 participating teams.",
+              "action": "Manage teams"
+            },
+            "rounds": {
+              "title": "Setup your rounds",
+              "description": "Confirm the setup for each of your rounds.",
+              "action": "Manage rounds"
+            },
+            "venue": {
+              "title": "Add a venue",
+              "description": "Provide a location with courts for your tournament.",
+              "action": "Manage venues"
+            },
+            "schedule": {
+              "title": "Schedule your matches",
+              "description": "Set up a schedule for your matches.",
+              "action": "Manage schedule"
+            },
+            "fee": {
+              "title": "Publishing fee",
+              "description": "Pay to publish your tournament.",
+              "action": "Pay for event"
+            },
+            "publish": {
+              "title": "Publish tournament",
+              "description": "Make your tournament viewable by participants and enable game result submissions.",
+              "action": "Publish tournament"
+            }
+          },
+          "quickActions": {
+            "customizePage": {
+              "title": "Customize your home page",
+              "description": "Make your home page your own by customizing its contents.",
+              "action": "Edit page"
+            },
+            "inviteAdmins": {
+              "title": "Don't do all the work alone!",
+              "description": "Invite admins to help you manage your tournament.",
+              "action": "Invite admins"
+            }
+          }
+        },
+        "formatWizard": {
+          "cancel": "Cancel",
+          "back": "Back",
+          "next": "Next",
+          "confirm": "Confirm",
+          "close": "Close",
+          "step1": {
+            "title": "Select format",
+            "description": "Choose from the provided templates.",
+            "allTemplates": "All Templates",
+            "filterBy": "Filter by"
+          },
+          "formats": {
+            "ROUND_ROBIN": {
+              "name": "Round Robin",
+              "subtitle": "Round Robin",
+              "description": "Teams compete in pools and then ranked based on the results.",
+              "cardLabel": "Pool Play",
+              "configDescription": "Configure how teams are ranked."
+            },
+            "SINGLE_ELIMINATION": {
+              "name": "Single Elimination",
+              "subtitle": "Single Elimination",
+              "description": "Teams are placed into a bracket, where they are eliminated after losing one match.",
+              "cardLabel": "Bracket",
+              "configDescription": "Configure bracket settings."
+            },
+            "ROUND_ROBIN_TO_SE": {
+              "name": "Round Robin to Single Elimination",
+              "subtitle": "RR + SE",
+              "description": "Teams compete in pools then placed into brackets, where they are eliminated after losing one match.",
+              "cardLabel": "Pool Play + Playoffs",
+              "configDescription": "Configure group stage and elimination settings."
+            }
+          },
+          "config": {
+            "rr": {
+              "pointsEarning": "How will teams earn points?",
+              "pointsEarningLabel": "How will teams earn points?",
+              "matchResults": "Based on match results",
+              "basedOnMatchResults": "Based on match results",
+              "manual": "Manually awarded points",
+              "tiebreakersOnly": "Use tiebreakers only",
+              "matchWin": "Match win",
+              "matchTie": "Match tie",
+              "matchLoss": "Match loss",
+              "cancelledMatch": "Cancelled match",
+              "gameWin": "Game win",
+              "gameLoss": "Game loss",
+              "forfeitWin": "Forfeit win",
+              "forfeitLoss": "Forfeit loss",
+              "nPoints": "{n, plural, =0 {0 points} =1 {1 point} other {# points}}",
+              "advanced": "Advanced (Loss, Matches, Forfeits)",
+              "tiebreakers": "Tiebreakers",
+              "tiebreakersDesc": "Decide how to break ties in standings.",
+              "selectTiebreakers": "Select tiebreakers",
+              "teamStatistics": "Team statistics",
+              "teamStatisticsDesc": "Select the statistics to track for each match.",
+              "selectStatistics": "Select statistics",
+              "required": "Required",
+              "standings": "Standings",
+              "standingsDesc": "Configure how the standings are displayed.",
+              "selectColumns": "Select columns",
+              "tiebreakerItems": {
+                "totalPoints": "Total Points",
+                "totalPointsDesc": "Overall (Points)",
+                "totalWins": "Total Wins",
+                "totalWinsDesc": "Overall (Wins)",
+                "gameDifferential": "Game Differential",
+                "gameDifferentialDesc": "Overall (Games For - Games Against)",
+                "pointDifferential": "Point Differential",
+                "pointDifferentialDesc": "Overall (Points For - Points Against)",
+                "headToHead": "Head to Head",
+                "headToHeadDesc": "Direct match results between tied teams",
+                "pointsFor": "Points For",
+                "pointsForDesc": "Total points scored",
+                "pointsAgainst": "Points Against",
+                "pointsAgainstDesc": "Total points conceded"
+              },
+              "statisticItems": {
+                "points": "Points",
+                "gamesWon": "Games Won",
+                "gamesLost": "Games Lost",
+                "gameDifferential": "Game Differential"
+              },
+              "standingsItems": {
+                "matchesPlayed": "Matches Played",
+                "wins": "Wins",
+                "ties": "Ties",
+                "losses": "Losses",
+                "pointsDifferential": "Points Differential",
+                "gamesWon": "Games Won",
+                "gamesLost": "Games Lost",
+                "gameDifferential": "Game Differential"
+              }
+            },
+            "se": {
+              "seedingMethod": "Seeding method",
+              "manual": "Manual",
+              "random": "Random",
+              "ranking": "By ranking",
+              "matchFormat": "Match format",
+              "bestOf1": "Best of 1",
+              "bestOf3": "Best of 3",
+              "thirdPlaceMatch": "Third place match",
+              "yes": "Yes",
+              "no": "No",
+              "bracketPreview": "Bracket preview will appear here"
+            },
+            "rrse": {
+              "groupStage": "Group Stage",
+              "eliminationRound": "Elimination Round",
+              "qualifiersPerGroup": "Qualifiers per group"
+            },
+            "playoffs": {
+              "title": "Playoffs",
+              "description": "Determine your bracket flights.",
+              "bracketsQuestion": "How many brackets will you need?"
+            }
+          },
+          "step3": {
+            "title": "Yay! Your format is ready.",
+            "description": "Confirm to create format. You can always come back and change your format later.",
+            "whatsNext": "What's next?",
+            "nextSteps": {
+              "manageTeams": {
+                "title": "Manage your teams",
+                "description": "Provide the teams that will be participating in your tournament."
+              },
+              "generateMatches": {
+                "title": "Generate your matches",
+                "description": "Configure each round and generate matches for your teams."
+              },
+              "scheduleMatches": {
+                "title": "Schedule your matches",
+                "description": "Provide venues and assign times and courts to your matches."
+              }
+            }
+          }
+        },
+        "manage": {
+          "title": "Manage Tournament",
+          "share": "Share",
+          "publishBanner": {
+            "publishedTitle": "Tournament is published",
+            "publishedSubtitle": "Click here to set your tournament to draft.",
+            "draftTitle": "Tournament is in draft",
+            "draftSubtitle": "Click here to publish your tournament.",
+            "confirmPublishTitle": "Publish tournament?",
+            "confirmPublishDescription": "Are you sure you would like to publish your tournament? This will make it visible to participants.",
+            "confirmPublishButton": "Yes, publish",
+            "confirmDraftTitle": "Set to draft?",
+            "confirmDraftDescription": "Are you sure you would like to set your tournament to draft? This will hide the tournament from participants.",
+            "confirmDraftButton": "Yes, set to draft",
+            "cancel": "Cancel"
+          },
+          "tabs": {
+            "organize": "Organize",
+            "settings": "Settings"
+          },
+          "panelTitles": {
+            "publish": "Publish tournament",
+            "teams": "Teams",
+            "categories": "Categories",
+            "format": "Format",
+            "standings": "Standings",
+            "registration": "Registration",
+            "rounds": "Rounds",
+            "venues": "Venue",
+            "schedule": "Schedule",
+            "sponsors": "Sponsors"
+          },
+          "organize": {
+            "publish": {
+              "title": "Publish tournament",
+              "description": "Make your tournament visible to participants."
+            },
+            "teams": {
+              "title": "Teams",
+              "description": "{count} teams registered"
+            },
+            "categories": {
+              "title": "Categories"
+            },
+            "registration": {
+              "title": "Registration",
+              "description": "Manage participant registrations.",
+              "badge": "Open"
+            },
+            "format": {
+              "title": "Format",
+              "description": "Configure match formats and bracket flow."
+            },
+            "standings": {
+              "title": "Standings",
+              "description": "View and manage group standings."
+            },
+            "rounds": {
+              "title": "Rounds",
+              "description": "Generate and manage match rounds.",
+              "generateAllMatches": "Generate All Matches",
+              "generating": "Generating...",
+              "noGroupsYet": "No groups yet. Please create groups and assign teams first.",
+              "createGroupsFirst": "Create groups in the Format panel first.",
+              "matchCount": "{count} matches",
+              "groupHasMatches": "Matches generated",
+              "allGroupsHaveMatches": "All groups have matches generated.",
+              "regenerateWarning": "Matches already exist for some groups. Only groups without matches will have new matches generated.",
+              "noTeamsInGroups": "Teams have not been assigned to groups yet. Please assign teams first.",
+              "match": "Match {number}",
+              "vs": "vs",
+              "scheduled": "Scheduled",
+              "inProgress": "In Progress",
+              "finished": "Finished",
+              "cancelled": "Cancelled",
+              "deleteAllMatches": "Delete All Matches",
+              "deleteAllMatchesConfirm": "Are you sure you want to delete all matches for this group? This action cannot be undone.",
+              "matchesDeleted": "All matches deleted successfully",
+              "noScore": "No score yet"
+            },
+            "venues": {
+              "title": "Venue",
+              "noVenue": "No venue set"
+            },
+            "schedule": {
+              "title": "Schedule",
+              "description": "Plan match times and court assignments."
+            },
+            "sponsors": {
+              "title": "Sponsors",
+              "description": "Add sponsors to your tournament."
+            }
+          },
+          "settings": {
+            "admins": {
+              "title": "Admins",
+              "description": "Invite admins to help manage the tournament."
+            },
+            "name": {
+              "title": "Tournament name"
+            },
+            "dates": {
+              "title": "Dates"
+            },
+            "location": {
+              "title": "Location",
+              "noLocation": "No location set"
+            },
+            "visibility": {
+              "title": "Visibility",
+              "description": "Control who can see this tournament."
+            },
+            "customLink": {
+              "title": "Custom link"
+            },
+            "banner": {
+              "title": "Banner image",
+              "description": "Upload a banner image for your tournament page."
+            },
+            "rosters": {
+              "title": "Rosters",
+              "description": "Manage team rosters and player limits."
+            },
+            "results": {
+              "title": "Results",
+              "description": "Configure how match results are submitted."
+            },
+            "publishingFee": {
+              "title": "Publishing fee",
+              "description": "Pay the fee to publish and activate your tournament."
+            },
+            "duplicate": {
+              "title": "Duplicate tournament",
+              "description": "Create a copy of this tournament with all its settings."
+            },
+            "delete": {
+              "title": "Delete tournament",
+              "description": "Permanently delete this tournament and all its data."
+            }
+          },
+          "panels": {
+            "teams": {
+              "title": "Teams",
+              "addTeams": "Add teams",
+              "noTeams": "No teams registered yet.",
+              "addTeamsTitle": "Add teams",
+              "editTeam": "Edit team",
+              "deleteTeam": "Delete team",
+              "deleteConfirm": "Are you sure you want to delete this team?",
+              "single": "Single",
+              "multiple": "Multiple",
+              "namePlaceholder": "Name",
+              "multiPlaceholder": "Paste teams or enter one team name per line",
+              "save": "Save",
+              "cancel": "Cancel",
+              "delete": "Delete",
+              "teamsCount": "{count} teams"
+            },
+            "categories": {
+              "title": "Categories",
+              "addCategory": "Add category",
+              "createCategory": "Create category",
+              "editCategory": "Edit category",
+              "deleteCategory": "Delete category",
+              "deleteConfirm": "Are you sure you want to delete this category?",
+              "namePlaceholder": "Name",
+              "save": "Save",
+              "cancel": "Cancel",
+              "delete": "Delete"
+            },
+            "format": {
+              "title": "Format",
+              "switchFormat": "Switch format"
+            },
+            "standings": {
+              "title": "Standings",
+              "manageStandings": "Manage standings",
+              "points": "Points",
+              "pointsPerWin": "points per match win",
+              "pointsPerTie": "points per match tie",
+              "required": "Required",
+              "save": "Save",
+              "cancel": "Cancel"
+            },
+            "registration": {
+              "title": "Registration",
+              "description": "Registration settings will be configured here."
+            },
+            "rounds": {
+              "title": "Rounds",
+              "description": "Generate rounds to create match schedules for each category.",
+              "createGroups": "Create {count} Groups",
+              "creating": "Creating...",
+              "groupsCreated": "Created {count} groups",
+              "groupCountMin": "Number of groups must be at least 1.",
+              "setupGroups": "Set up groups",
+              "setupGroupsDescription": "Choose how many groups to divide teams into, then click Create Groups.",
+              "numberOfGroups": "Number of groups",
+              "configureGroupCount": "Please set the number of groups in Format settings first.",
+              "autoAssignTeams": "Auto Assign Teams",
+              "assigning": "Assigning...",
+              "teamsAssigned": "Teams assigned to groups successfully",
+              "readyToGenerate": "{count} teams assigned. Ready to generate matches.",
+              "generateAllMatches": "Generate All Matches",
+              "generating": "Generating...",
+              "noGroupsYet": "No groups yet. Create groups and assign teams to generate matches.",
+              "matchCount": "{count} matches",
+              "teamsCount": "{count} teams",
+              "allGroupsHaveMatches": "All groups have matches generated.",
+              "noTeamsInGroups": "Teams have not been assigned to groups yet. Please assign teams first.",
+              "noTeamsInGroup": "No teams in this group yet.",
+              "vs": "vs",
+              "noScore": "No score yet",
+              "scheduled": "Scheduled",
+              "inProgress": "In Progress",
+              "finished": "Finished",
+              "cancelled": "Cancelled",
+              "setupPools": "Setup pools",
+              "setupMatches": "Setup matches",
+              "poolPlay": "Pool Play",
+              "poolPlaySubtitle": "Setup pools and matches.",
+              "roundRobin": "Round Robin",
+              "configurePoolsAndConfirm": "Configure pools and confirm matches.",
+              "seedTeams": "Would you like to seed teams?",
+              "numberOfPools": "Number of pools",
+              "onePool": "1 pool",
+              "nPools": "{count} pools",
+              "matchSetupMethod": "How would you like to set up your matches?",
+              "generateMethod": "Generate",
+              "manualEntry": "Manual Entry",
+              "matchesPerTeam": "How many matches will each team play?",
+              "playAllOnce": "Play all teams in pool once",
+              "generateGames": "Generate games",
+              "cancel": "Cancel",
+              "back": "Back",
+              "saveMatches": "Save matches",
+              "saving": "Saving...",
+              "done": "Done",
+              "matchesSaved": "Matches saved successfully",
+              "editMatches": "Edit matches",
+              "selectTeam": "Select team",
+              "matchLabel": "Match {number}",
+              "close": "Close",
+              "loadingTeams": "Loading teams...",
+              "noTeamsRegistered": "No teams registered yet.",
+              "needAtLeast2Teams": "At least 2 teams are required.",
+              "poolNeedsMinTeams": "Pool {pool} needs at least 2 teams.",
+              "includeCrossoverPools": "Include crossover pools?",
+              "crossoverPoolsTooltip": "Crossover pools create matches between teams from different pools.",
+              "advancingTeams": "Advancing teams",
+              "advancingTeamsSubtitle": "Determine how teams will advance.",
+              "addAdvancingTeams": "Add advancing teams",
+              "editAdvancingTeams": "Edit advancing teams",
+              "rankingMethod": "How will teams be ranked?",
+              "poolRankings": "Pool rankings",
+              "overallRankings": "Overall rankings",
+              "crossPoolRankings": "Cross pool rankings",
+              "useWildcards": "Use wildcards",
+              "wildcardsTooltip": "Wildcards allow additional teams to advance based on overall performance across all pools.",
+              "playoffsTeamCount": "Playoffs",
+              "teamsLabel": "{count, plural, =0 {0 teams} =1 {1 team} other {# teams}}",
+              "allTeamsWillAdvance": "All teams will advance",
+              "saveTeams": "Save teams",
+              "teamsSaved": "Advancing teams saved successfully",
+              "playoffs": "Playoffs",
+              "playoffsSubtitle": "Setup bracket and matches.",
+              "addBracket": "Add bracket",
+              "setupBracket": "Setup bracket",
+              "placementMatches": "Placement Matches",
+              "selectPlacements": "Select which placements will be determined.",
+              "playFor3rdPlace": "Play for 3rd place",
+              "playFor5thPlace": "Play for 5th place",
+              "playFor7thPlace": "Play for 7th place",
+              "consolationMatches": "Consolation Matches",
+              "consolationDescription": "Add consolation games to the bracket.",
+              "addMatch": "Add match",
+              "bracketSaved": "Bracket saved successfully",
+              "quarterFinals": "Quarter Finals",
+              "semiFinals": "Semi Finals",
+              "finals": "Finals",
+              "firstPlace": "1st Place",
+              "thirdPlace": "3rd Place",
+              "winnerOf": "Winner of {match}",
+              "loserOf": "Loser of {match}",
+              "nthPoolLabel": "{rank} Pool {pool}",
+              "confirm": "Confirm",
+              "deleteMatch": "Delete match",
+              "nMatches": "{count, plural, =1 {1 match} other {# matches}}",
+              "manualEntryInfo": "Add your matches manually in the next step.",
+              "selectPool": "Select pool",
+              "addCrossover": "Add crossover",
+              "crossoverPoolsDescription": "Crossover pools can be used to allow teams to play against teams from another pool instead of their own pool.",
+              "editSeeds": "Edit seeds",
+              "editSeedsButton": "Edit seeds",
+              "bracket": "Bracket",
+              "bracketSubtitle": "Setup bracket and matches.",
+              "configureAndConfirmMatches": "Configure bracket and confirm matches.",
+              "consolationMatch": "Consolation match",
+              "consolations": "Consolations",
+              "whenMatchPlayed": "When will the match be played?",
+              "whoHomeTeam": "Who will be the home team?",
+              "whoAwayTeam": "Who will be the away team?"
+            },
+            "venues": {
+              "title": "Venues",
+              "noVenue": "Provide specific locations where the tournament will be scheduled.",
+              "addVenue": "Add venue",
+              "selectVenue": "Select venue",
+              "createVenue": "Create venue",
+              "createVenueDesc": "Add a new venue to the tournament",
+              "recommendedVenues": "Recommended venues",
+              "address": "Address",
+              "name": "Name",
+              "acronym": "Acronym",
+              "howManyCourts": "How many courts are available?",
+              "court": "Court",
+              "save": "Save",
+              "back": "Back"
+            },
+            "schedule": {
+              "title": "Schedule",
+              "scheduled": "scheduled",
+              "unscheduled": "unscheduled"
+            },
+            "sponsors": {
+              "title": "Sponsors",
+              "description": "Add sponsors to display on your tournament page.",
+              "addSponsors": "Add sponsors"
+            }
+          }
+        }
       },
       "manage": {
         "title": "Manage Tournament",
@@ -1134,7 +1704,12 @@
         "title": "Manage Category",
         "notFound": "Category not found",
         "categorySettings": "Category Settings",
-        "hasGroupStage": "Has Group Stage",
+        "tournamentFormat": "Tournament Format",
+        "changeFormat": "Change Format",
+        "formatRoundRobin": "Round Robin",
+        "formatSingleElimination": "Single Elimination",
+        "formatRoundRobinToSE": "Round Robin → Elimination",
+        "hasGroupStage": "Group Stage",
         "matchFormat": "Match Format",
         "bestOf1Set": "Best of 1 Set",
         "bestOf3Sets": "Best of 3 Sets",
@@ -1956,7 +2531,7 @@
   "fee": {
     "title": "Session Fee",
     "feeType": "Fee Type",
-    "fixed": "Fixed Price",
+    "fixed": "Guest Fee",
     "splitEvenly": "Split Evenly",
     "maleFee": "Male Fee",
     "femaleFee": "Female Fee",
@@ -2115,7 +2690,7 @@
     "paymentInfoDescription": "Configure payment information for this session so players know how to pay you",
     "sessionFeeConfig": "Session Fee Configuration",
     "feeType": "Fee Type",
-    "fixed": "Fixed Price",
+    "fixed": "Guest Fee",
     "noPaymentSettings": "No Payment Settings Configured",
     "noPaymentSettingsDescription": "Please add your bank information and QR code so players can pay you",
     "currentSettings": "Current Payment Settings",

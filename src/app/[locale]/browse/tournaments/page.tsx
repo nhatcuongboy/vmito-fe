@@ -1,9 +1,7 @@
 'use client';
-import { Input } from '@/components/ui/Input';
 
 import {
   Box,
-  Container,
   Flex,
   Heading,
   Text,
@@ -11,24 +9,20 @@ import {
   HStack,
   Badge,
   Spinner,
+  Image,
 } from '@chakra-ui/react';
-import {
-  Card,
-  CardBody,
-  SimpleGrid,
-  Button,
-} from '@/components/ui/chakra-compat';
+import { SimpleGrid, Button } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
-import TopBar from '@/components/ui/TopBar';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
-import { Calendar, Users, Trophy, Plus, Sparkles } from 'lucide-react';
-import { format } from 'date-fns';
-import { toaster } from '@/components/ui/toaster';
-import { api } from '@/lib/api/base';
+import { Search, Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
+import { format, isSameDay } from 'date-fns';
+
+const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
 function TournamentsContent() {
   const t = useTranslations('pages.tournaments');
@@ -37,7 +31,7 @@ function TournamentsContent() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [creatingSample, setCreatingSample] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     loadTournaments();
@@ -55,57 +49,63 @@ function TournamentsContent() {
     }
   };
 
-  const handleCreateSample = async () => {
-    try {
-      setCreatingSample(true);
-      const response = await api.post('/tournaments/create-sample');
-      const result = response.data.data;
-
-      toaster.success({ title: t('sampleCreatedSuccess') });
-      // Reload tournaments
-      await loadTournaments();
-      // Navigate to the new tournament
-      router.push(`/host/tournaments/${result.tournament.id}`);
-    } catch (error: unknown) {
-      console.error('Error creating sample tournament:', error);
-      const err = error as { response?: { data?: { error?: string } } };
-      toaster.error({
-        title:
-          err.response?.data?.error || 'Failed to create sample tournament',
-      });
-    } finally {
-      setCreatingSample(false);
-    }
-  };
-
-  const getStatusColor = (status: TournamentStatus) => {
+  const getStatusBadgeLabel = (status: TournamentStatus): string | null => {
     switch (status) {
       case 'PREPARING':
-        return 'yellow';
-      case 'IN_PROGRESS':
-        return 'green';
-      case 'FINISHED':
-        return 'gray';
-      case 'CANCELLED':
-        return 'red';
-      default:
-        return 'gray';
-    }
-  };
-
-  const getStatusLabel = (status: TournamentStatus) => {
-    switch (status) {
-      case 'PREPARING':
-        return t('status.preparing');
+        return t('registrationOpen');
       case 'IN_PROGRESS':
         return t('status.inProgress');
-      case 'FINISHED':
-        return t('status.finished');
       case 'CANCELLED':
         return t('status.cancelled');
       default:
-        return status;
+        return null;
     }
+  };
+
+  const getStatusBadgeColor = (status: TournamentStatus) => {
+    switch (status) {
+      case 'PREPARING':
+        return { bg: 'green.500', color: 'white' };
+      case 'IN_PROGRESS':
+        return { bg: 'blue.500', color: 'white' };
+      case 'CANCELLED':
+        return { bg: 'red.500', color: 'white' };
+      default:
+        return { bg: 'gray.500', color: 'white' };
+    }
+  };
+
+  const formatDateRange = (startDate: Date, endDate: Date) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isSameDay(start, end)) {
+      return format(start, 'EEE, MMM d, yyyy');
+    }
+    // Same month and year
+    if (
+      start.getMonth() === end.getMonth() &&
+      start.getFullYear() === end.getFullYear()
+    ) {
+      return `${format(start, 'EEE, MMM d')} - ${format(end, 'EEE, MMM d, yyyy')}`;
+    }
+    return `${format(start, 'EEE, MMM d, yyyy')} - ${format(end, 'EEE, MMM d, yyyy')}`;
+  };
+
+  const getLocationText = (tournament: Tournament) => {
+    if (tournament.venue) {
+      const parts: string[] = [];
+      if (tournament.venue.name) parts.push(tournament.venue.name);
+      if (tournament.venue.address) parts.push(tournament.venue.address);
+      return parts.join(', ') || null;
+    }
+    return null;
+  };
+
+  const getCoverImage = (tournament: Tournament) => {
+    if (tournament.venue?.coverPhoto) return tournament.venue.coverPhoto;
+    if (tournament.venue?.images && tournament.venue.images.length > 0)
+      return tournament.venue.images[0];
+    return BADMINTON_PLACEHOLDER;
   };
 
   const filteredTournaments = tournaments.filter((tournament) => {
@@ -117,224 +117,325 @@ function TournamentsContent() {
     return matchesSearch && matchesStatus;
   });
 
+  const filterLabel =
+    statusFilter === 'ALL'
+      ? t('upcoming')
+      : statusFilter === 'PREPARING'
+        ? t('status.preparing')
+        : statusFilter === 'IN_PROGRESS'
+          ? t('status.inProgress')
+          : statusFilter === 'FINISHED'
+            ? t('status.finished')
+            : t('status.cancelled');
+
+  const filterOptions = [
+    { value: 'ALL', label: t('upcoming') },
+    { value: 'PREPARING', label: t('status.preparing') },
+    { value: 'IN_PROGRESS', label: t('status.inProgress') },
+    { value: 'FINISHED', label: t('status.finished') },
+    { value: 'CANCELLED', label: t('status.cancelled') },
+  ];
+
   return (
-    <Box minH="100vh" pb="80px">
-      <TopBar showBackButton={true} backHref="/" title={t('title')} />
-
-      <Container maxW="7xl" p={4} pt={24}>
-        <VStack gap={6} alignItems="stretch">
-          {/* Header */}
-          <Flex
-            justify="space-between"
-            alignItems="center"
-            flexWrap="wrap"
-            gap={4}
-          >
-            <Heading size="lg">{t('allTournaments')}</Heading>
-            <HStack gap={2}>
-              <Button
-                onClick={handleCreateSample}
-                colorPalette="purple"
-                variant="outline"
-                leftIcon={<Sparkles size={16} />}
-                loading={creatingSample}
-              >
-                {creatingSample ? t('creating') : t('createSample')}
-              </Button>
-              <NextLinkButton
-                href="/host/tournaments/new"
-                colorPalette="green"
-                leftIcon={<Plus size={16} />}
-              >
-                {t('createTournament')}
-              </NextLinkButton>
-            </HStack>
-          </Flex>
-
-          {/* Filters */}
-          <Flex gap={4} flexWrap="wrap">
+    <PageLayout title={t('title')} maxW="7xl" bg="gray.50">
+      <VStack gap={6} alignItems="stretch">
+        {/* Search Bar */}
+        <Flex justify="center" pt={2}>
+          <Box position="relative" w="100%" maxW="500px">
+            <Box
+              position="absolute"
+              left="14px"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex={1}
+              color="gray.400"
+              pointerEvents="none"
+            >
+              <Search size={18} />
+            </Box>
             <Input
-              placeholder={t('searchPlaceholder')}
+              placeholder={t('searchEvents')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              maxW="300px"
-            />
-            <select
-              value={statusFilter}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setStatusFilter(e.target.value)
-              }
               style={{
-                maxWidth: '200px',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                borderWidth: '1px',
-                borderColor: '#CBD5E0',
+                paddingLeft: '42px',
+                borderRadius: '24px',
+                height: '44px',
+                border: '1px solid #CBD5E0',
+                background: 'white',
+                fontSize: '15px',
               }}
+            />
+          </Box>
+        </Flex>
+
+        {/* Run your own event link */}
+        <Text
+          textAlign="center"
+          fontSize="sm"
+          color="gray.600"
+          fontWeight="medium"
+          cursor="pointer"
+          _hover={{ textDecoration: 'underline' }}
+          onClick={() => router.push('/host/tournaments/new')}
+        >
+          {t('runYourOwnEvent')}
+        </Text>
+
+        {/* Explore Section */}
+        <Flex justify="space-between" alignItems="center" pt={4}>
+          <Heading size="lg" fontWeight="bold" color="gray.900">
+            {t('explore')}
+          </Heading>
+
+          {/* Status Filter Dropdown */}
+          <Box position="relative">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              borderRadius="full"
+              borderColor="gray.300"
+              bg="white"
+              color="gray.700"
+              fontWeight="medium"
+              px={4}
+              _hover={{ bg: 'gray.50' }}
             >
-              <option value="ALL">{t('allStatus')}</option>
-              <option value="PREPARING">{t('status.preparing')}</option>
-              <option value="IN_PROGRESS">{t('status.inProgress')}</option>
-              <option value="FINISHED">{t('status.finished')}</option>
-              <option value="CANCELLED">{t('status.cancelled')}</option>
-            </select>
+              <Calendar size={14} />
+              {filterLabel}
+              <ChevronDown size={14} />
+            </Button>
+
+            {isFilterOpen && (
+              <Box
+                position="absolute"
+                right={0}
+                top="100%"
+                mt={1}
+                bg="white"
+                borderRadius="md"
+                boxShadow="lg"
+                border="1px solid"
+                borderColor="gray.200"
+                zIndex={10}
+                minW="180px"
+                overflow="hidden"
+              >
+                {filterOptions.map((option) => (
+                  <Box
+                    key={option.value}
+                    px={4}
+                    py={2}
+                    cursor="pointer"
+                    bg={statusFilter === option.value ? 'blue.50' : 'white'}
+                    color={
+                      statusFilter === option.value ? 'blue.600' : 'gray.700'
+                    }
+                    fontWeight={
+                      statusFilter === option.value ? 'semibold' : 'normal'
+                    }
+                    fontSize="sm"
+                    _hover={{ bg: 'gray.50' }}
+                    onClick={() => {
+                      setStatusFilter(option.value);
+                      setIsFilterOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
+        </Flex>
+
+        {/* Loading State */}
+        {loading ? (
+          <Flex justify="center" py={10}>
+            <Spinner size="lg" />
           </Flex>
+        ) : (
+          <>
+            {/* Tournament Cards Grid */}
+            {filteredTournaments.length === 0 ? (
+              <Box textAlign="center" py={10}>
+                <Text color="gray.500" fontSize="lg">
+                  {t('noTournamentsFound')}
+                </Text>
+              </Box>
+            ) : (
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
+                {filteredTournaments.map((tournament) => {
+                  const coverImage = getCoverImage(tournament);
+                  const isPlaceholder = coverImage === BADMINTON_PLACEHOLDER;
+                  const badgeLabel = getStatusBadgeLabel(tournament.status);
+                  const badgeColor = getStatusBadgeColor(tournament.status);
+                  const locationText = getLocationText(tournament);
 
-          {/* Loading State */}
-          {loading ? (
-            <Flex justify="center" py={10}>
-              <Spinner size="lg" />
-            </Flex>
-          ) : (
-            <>
-              {/* Tournaments Grid */}
-              {filteredTournaments.length === 0 ? (
-                <Box textAlign="center" py={10}>
-                  <Text color="gray.500" fontSize="lg">
-                    {t('noTournamentsFound')}
-                  </Text>
-                </Box>
-              ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                  {filteredTournaments.map((tournament) => (
-                    <Card
+                  return (
+                    <Box
                       key={tournament.id}
-                      as={NextLinkButton}
-                      href={`/browse/tournaments/${tournament.id}`}
                       bg="white"
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      borderRadius="lg"
+                      borderRadius="xl"
                       overflow="hidden"
-                      _hover={{
-                        shadow: 'xl',
-                        transform: 'translateY(-4px)',
-                        transition: 'all 0.3s',
-                        borderColor: 'blue.300',
-                      }}
+                      border="1px solid"
+                      borderColor="gray.200"
                       cursor="pointer"
+                      transition="all 0.25s ease"
+                      _hover={{
+                        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.1)',
+                        transform: 'translateY(-3px)',
+                      }}
+                      onClick={() =>
+                        router.push(`/tournament/${tournament.id}`)
+                      }
                     >
-                      <CardBody p={5}>
-                        <VStack align="stretch" gap={4}>
-                          {/* Header with name and status */}
-                          <Flex
-                            justify="space-between"
-                            alignItems="start"
-                            gap={3}
-                          >
-                            <Heading
-                              size="md"
-                              color="gray.800"
-                              fontWeight="bold"
-                              flex={1}
-                            >
-                              {tournament.name}
-                            </Heading>
-                            <Badge
-                              colorPalette={getStatusColor(tournament.status)}
-                              fontSize="xs"
-                              px={2}
-                              py={1}
-                              borderRadius="md"
-                              flexShrink={0}
-                            >
-                              {getStatusLabel(tournament.status)}
-                            </Badge>
-                          </Flex>
+                      {/* Cover Image */}
+                      <Box
+                        position="relative"
+                        h="180px"
+                        bg="gray.100"
+                        overflow="hidden"
+                      >
+                        <Image
+                          src={coverImage}
+                          alt={tournament.name}
+                          w="100%"
+                          h="100%"
+                          objectFit={isPlaceholder ? 'contain' : 'cover'}
+                          objectPosition="center"
+                          p={isPlaceholder ? 8 : 0}
+                          opacity={isPlaceholder ? 0.6 : 1}
+                        />
 
-                          {/* Date */}
-                          <Flex
-                            alignItems="center"
-                            gap={2}
-                            p={2}
-                            bg="gray.50"
+                        {/* Status Badge Overlay */}
+                        {badgeLabel && (
+                          <Badge
+                            position="absolute"
+                            top={3}
+                            right={3}
+                            bg={badgeColor.bg}
+                            color={badgeColor.color}
+                            fontSize="xs"
+                            fontWeight="semibold"
+                            px={3}
+                            py={1}
                             borderRadius="md"
                           >
-                            <Calendar
-                              size={18}
-                              color="var(--chakra-colors-blue-500)"
-                            />
-                            <Text
-                              fontSize="sm"
-                              fontWeight="medium"
-                              color="gray.700"
-                            >
-                              {format(
-                                new Date(tournament.startDate),
-                                'MMM dd, yyyy'
-                              )}
-                            </Text>
-                          </Flex>
+                            {badgeLabel}
+                          </Badge>
+                        )}
+                      </Box>
 
-                          {/* Stats */}
-                          {tournament._count && (
-                            <HStack
-                              gap={4}
-                              p={2}
-                              bg="gray.50"
-                              borderRadius="md"
-                              flexWrap="wrap"
-                            >
-                              <Flex alignItems="center" gap={2}>
-                                <Trophy
-                                  size={18}
-                                  color="var(--chakra-colors-yellow-500)"
-                                />
-                                <Text
-                                  fontSize="sm"
-                                  fontWeight="medium"
-                                  color="gray.700"
-                                >
-                                  {tournament._count.categories}{' '}
-                                  {t('categories')}
-                                </Text>
-                              </Flex>
-                              <Flex alignItems="center" gap={2}>
-                                <Users
-                                  size={18}
-                                  color="var(--chakra-colors-green-500)"
-                                />
-                                <Text
-                                  fontSize="sm"
-                                  fontWeight="medium"
-                                  color="gray.700"
-                                >
-                                  {tournament._count.players} {t('players')}
-                                </Text>
-                              </Flex>
-                            </HStack>
+                      {/* Card Content */}
+                      <Box p={4}>
+                        <VStack align="stretch" gap={2}>
+                          {/* Date Range */}
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            fontWeight="medium"
+                          >
+                            {formatDateRange(
+                              tournament.startDate,
+                              tournament.endDate
+                            )}
+                          </Text>
+
+                          {/* Tournament Name */}
+                          <Heading
+                            size="sm"
+                            color="gray.900"
+                            fontWeight="bold"
+                            lineClamp={2}
+                          >
+                            {tournament.name}
+                          </Heading>
+
+                          {/* Location */}
+                          {locationText && (
+                            <Text fontSize="xs" color="blue.600" lineClamp={2}>
+                              {locationText}
+                            </Text>
                           )}
 
-                          {/* Host */}
-                          {tournament.host && (
-                            <Box
-                              pt={2}
-                              borderTopWidth="1px"
-                              borderTopColor="gray.200"
+                          {/* Follow / Share Row */}
+                          <HStack
+                            gap={0}
+                            pt={2}
+                            borderTop="1px solid"
+                            borderColor="gray.100"
+                            mt={1}
+                          >
+                            <HStack
+                              gap={1}
+                              flex={1}
+                              justify="center"
+                              py={1}
+                              cursor="pointer"
+                              borderRadius="md"
+                              _hover={{ bg: 'gray.50' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
                             >
+                              <Heart size={14} color="#6B7280" />
                               <Text
-                                fontSize="sm"
-                                color="gray.600"
+                                fontSize="xs"
+                                color="gray.500"
                                 fontWeight="medium"
                               >
-                                {t('host')}:{' '}
-                                <Text as="span" color="gray.800">
-                                  {tournament.host.name}
-                                </Text>
+                                {t('follow')}
                               </Text>
-                            </Box>
-                          )}
+                            </HStack>
+
+                            <HStack
+                              gap={1}
+                              flex={1}
+                              justify="center"
+                              py={1}
+                              cursor="pointer"
+                              borderRadius="md"
+                              _hover={{ bg: 'gray.50' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                            >
+                              <Share2 size={14} color="#6B7280" />
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                fontWeight="medium"
+                              >
+                                {t('share')}
+                              </Text>
+                            </HStack>
+                          </HStack>
                         </VStack>
-                      </CardBody>
-                    </Card>
-                  ))}
-                </SimpleGrid>
-              )}
-            </>
-          )}
-        </VStack>
-      </Container>
-    </Box>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </SimpleGrid>
+            )}
+          </>
+        )}
+      </VStack>
+
+      {/* Click-away overlay for filter dropdown */}
+      {isFilterOpen && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          zIndex={5}
+          onClick={() => setIsFilterOpen(false)}
+        />
+      )}
+    </PageLayout>
   );
 }
 

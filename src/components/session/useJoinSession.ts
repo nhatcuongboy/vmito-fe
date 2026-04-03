@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { PlayerService } from '@/lib/api/player.service';
 import { GenderType, ISession, Player } from '@/lib/api/types';
+import { useTranslations } from 'next-intl';
+import { toaster } from '@/components/ui/toaster';
 
 export interface RegisterPlayerInput {
   name: string;
@@ -32,6 +34,7 @@ export function useJoinSession({
   onSuccess,
 }: UseJoinSessionProps) {
   const { user } = useAuthStore();
+  const t = useTranslations('session');
   const [players, setPlayers] = useState<RegisterPlayerInput[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -171,6 +174,9 @@ export function useJoinSession({
       }));
 
       await PlayerService.registerPlayers(session.id, playersDto);
+      toaster.success({
+        title: t('registrationSuccessPending') || 'Registration request sent',
+      });
 
       onSuccess?.();
     } catch (error) {

@@ -44,19 +44,7 @@ const PublicSessionDetailClient = ({
     onClose: onCloseJoinModal,
   } = useModal();
 
-  useEffect(() => {
-    const registerParam = searchParams.get('register');
-    if (registerParam === 'true' && user && session) {
-      onOpenJoinModal();
-
-      const newSearchParams = new URLSearchParams(searchParams.toString());
-      newSearchParams.delete('register');
-      router.replace(`${pathname}?${newSearchParams.toString()}`, {
-        scroll: false,
-      });
-    }
-  }, [searchParams, user, session, onOpenJoinModal, pathname, router]);
-
+  const registerParam = searchParams.get('register');
   const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   return (
@@ -76,25 +64,10 @@ const PublicSessionDetailClient = ({
             sessionId={sessionId || ''}
             initialSession={initialSession}
             showViewMore
+            defaultOpenRegister={registerParam === 'true'}
           />
         </Container>
       </Box>
-
-      {/* Join Session Modal for URL triggers */}
-      {session && (
-        <JoinSessionModal
-          isOpen={isJoinModalOpen}
-          onClose={onCloseJoinModal}
-          session={session}
-          onSuccess={() => {
-            if (sessionId) {
-              SessionService.getSession(sessionId)
-                .then(setSession)
-                .catch(console.error);
-            }
-          }}
-        />
-      )}
     </PageWrapper>
   );
 };

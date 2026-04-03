@@ -174,16 +174,37 @@ const LocationAutocompleteInner = ({
 };
 
 export default function LocationAutocomplete(props: LocationAutocompleteProps) {
-  const { isLoaded } = useJsApiLoader({
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: apiKey || '',
     libraries: LIBRARIES,
   });
 
-  if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+  if (!apiKey) {
+    console.warn(
+      'Google Maps API key is missing. Location search will not work.'
+    );
     return (
       <Input
         placeholder="Enter location (Map API key missing)"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        disabled
+        leftElement={<MapPin color="gray" size={18} />}
+      />
+    );
+  }
+
+  if (loadError) {
+    console.error('Error loading Google Maps script:', loadError);
+    return (
+      <Input
+        placeholder="Error loading maps"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        disabled
         leftElement={<MapPin color="gray" size={18} />}
       />
     );

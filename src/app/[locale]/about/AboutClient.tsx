@@ -18,10 +18,9 @@ interface AboutClientProps {
   locale: string;
 }
 
-function AboutContent({ locale }: AboutClientProps) {
+function AboutContent() {
   const common = useTranslations('common');
   const t = useTranslations('pages.home');
-
   return (
     <PageWrapper>
       <TopBar showBackButton />
@@ -60,10 +59,10 @@ function AboutContent({ locale }: AboutClientProps) {
   );
 }
 
-export default function AboutClient(props: AboutClientProps) {
+export default function AboutClient({ locale: _locale }: AboutClientProps) {
   return (
     <Suspense>
-      <AboutContent {...props} />
+      <AboutContent />
     </Suspense>
   );
 }

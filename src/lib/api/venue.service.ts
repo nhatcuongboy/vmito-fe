@@ -33,9 +33,12 @@ export const VenueService = {
 
   // Get all venues
   getAllVenues: async (): Promise<Venue[]> => {
-    const response = await api.get<
-      ApiResponse<{ data: Venue[]; pagination: any }>
-    >('/venues', { params: { limit: 100 } });
+    const response = await api.get<ApiResponse<SearchVenueResponse>>(
+      '/venues',
+      {
+        params: { limit: 100 },
+      }
+    );
     return response.data.data?.data || [];
   },
 

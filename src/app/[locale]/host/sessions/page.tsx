@@ -25,8 +25,8 @@ import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
-  { value: 'date_asc', labelKey: 'sort.dateOldest' },
-  { value: 'date_desc', labelKey: 'sort.dateNewest' },
+  { value: 'date_asc', labelKey: 'sort.dateNearest' },
+  { value: 'date_desc', labelKey: 'sort.dateFurthest' },
   { value: 'created_desc', labelKey: 'sort.createdNewest' },
   { value: 'created_asc', labelKey: 'sort.createdOldest' },
   { value: 'price_asc', labelKey: 'sort.priceLow' },
@@ -49,7 +49,7 @@ function HostSessionsContent() {
   const PAGE_SIZE = 12;
 
   const [filters, setFilters] = useState<ISessionFilterState>({});
-  const [sortBy, setSortBy] = useState<SessionSortBy>('status');
+  const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const { ref, inView } = useInView({
