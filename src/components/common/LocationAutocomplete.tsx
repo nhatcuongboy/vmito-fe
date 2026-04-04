@@ -63,7 +63,7 @@ const LocationAutocompleteInner = ({
     clearSuggestions();
 
     try {
-      const results = await getGeocode({ address, placeId });
+      const results = await getGeocode({ placeId });
       const { lat, lng } = await getLatLng(results[0]);
 
       // Extract district and city
@@ -175,7 +175,7 @@ const LocationAutocompleteInner = ({
 
 export default function LocationAutocomplete(props: LocationAutocompleteProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
+  console.log('LocationAutocomplete', apiKey);
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey || '',
@@ -217,6 +217,8 @@ export default function LocationAutocomplete(props: LocationAutocompleteProps) {
       </Box>
     );
   }
+
+  console.log('Google Maps API loaded successfully');
 
   return <LocationAutocompleteInner {...props} />;
 }

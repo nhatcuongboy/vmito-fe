@@ -1,41 +1,62 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Bracket, Seed, SeedItem } from 'react-brackets';
-import type { IRoundProps, ISeedProps, IRenderSeedProps } from 'react-brackets';
-
-// Workaround for react-brackets type incompatibility with React 19
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const BracketComponent = Bracket as React.ComponentType<any>;
+import {
+  SingleEliminationBracket,
+  SVGViewer,
+  type MatchType,
+  type MatchComponentProps,
+} from 'react-tournament-brackets';
 import { GripVertical } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
-  PointerSensor,
+  DragEndEvent,
   KeyboardSensor,
+  PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from '@dnd-kit/core';
 import {
+  arrayMove,
+  rectSortingStrategy,
   SortableContext as SortableContextBase,
   useSortable,
-  rectSortingStrategy,
-  arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Workaround for @dnd-kit type incompatibility with React 19
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SortableContext = SortableContextBase as any;
+// Workaround for react-tournament-brackets type incompatibility with React 19
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const BracketEl = SingleEliminationBracket as React.ComponentType<any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SVGViewerEl = SVGViewer as React.ComponentType<any>;
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
 const GROUP_MATCH_OFFSET = 12;
+const MATCH_W = 200; // match card width passed to the bracket engine
+const MATCH_H = 60; // match card height (2 rows × 30px)
+
+// ─── Context ─────────────────────────────────────────────────────────────────
+
+interface IBracketCtx {
+  compact: boolean;
+}
+const BracketCtx = createContext<IBracketCtx>({ compact: false });
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -50,32 +71,16 @@ export interface IBracketVisualizationProps {
   customSlots?: string[];
   /** Fires when the user reorders first-round seeds via drag-and-drop */
   onSlotsChange?: (slots: string[]) => void;
-  /** Consolation matches to display below the main bracket */
-  consolationMatches?: IConsolationMatchDisplay[];
 }
 
-export interface IConsolationMatchDisplay {
+interface IThirdPlaceInfo {
   matchNumber: number;
   participant1Label: string;
   participant2Label: string;
 }
 
-interface IThirdPlaceMatch {
-  matchNumber: number;
-  participant1Label: string;
-  participant2Label: string;
-}
-
-interface ISlotTeam {
-  name: string;
-  slotId: string;
-}
-
-interface IBracketSeed {
-  id: number;
-  matchNumber: number;
-  teams: ISlotTeam[];
-  [key: string]: unknown;
+interface IRTBMatch extends MatchType {
+  isFirstRound: boolean;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -92,7 +97,7 @@ const getRoundName = (
   t: ReturnType<typeof useTranslations>
 ): string => {
   const fromFinal = totalRounds - 1 - roundIndex;
-  if (fromFinal === 0) return t('panels.rounds.firstPlace');
+  if (fromFinal === 0) return t('panels.rounds.finals');
   if (fromFinal === 1) return t('panels.rounds.semiFinals');
   if (fromFinal === 2) return t('panels.rounds.quarterFinals');
   return `Round ${roundIndex + 1}`;
@@ -145,12 +150,10 @@ const computeDefaultSlots = (
 function SortableTeamRow({
   slotId,
   name,
-  compact,
   isLast,
 }: {
   slotId: string;
   name: string;
-  compact: boolean;
   isLast: boolean;
 }) {
   const {
@@ -163,46 +166,50 @@ function SortableTeamRow({
   } = useSortable({ id: slotId });
 
   return (
-    <Flex
+    <div
       ref={setNodeRef}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.4 : 1,
-        position: 'relative',
         zIndex: isDragging ? 50 : undefined,
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 10px',
+        height: `${MATCH_H / 2}px`,
+        background: 'white',
+        borderBottom: isLast ? 'none' : '1px solid #f0f4f8',
       }}
-      align="center"
-      justify="space-between"
-      px={compact ? 1.5 : 2.5}
-      py={compact ? 1 : 1.5}
-      bg="white"
-      borderBottomWidth={isLast ? '0' : '1px'}
-      borderColor="gray.100"
     >
-      <Text
-        fontSize={compact ? '2xs' : 'xs'}
-        flex={1}
-        truncate
-        lineHeight="1.3"
-        color={name ? 'gray.800' : 'gray.400'}
+      <span
+        style={{
+          fontSize: '12px',
+          color: name ? '#2d3748' : '#a0aec0',
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          lineHeight: 1.3,
+        }}
       >
         {name || '—'}
-      </Text>
-      {!compact && (
-        <Box
-          color="gray.400"
-          cursor="grab"
-          _active={{ cursor: 'grabbing' }}
-          ml={1.5}
-          flexShrink={0}
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical size={14} />
-        </Box>
-      )}
-    </Flex>
+      </span>
+      <div
+        style={{
+          color: '#a0aec0',
+          cursor: 'grab',
+          marginLeft: '6px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical size={13} />
+      </div>
+    </div>
   );
 }
 
@@ -210,128 +217,104 @@ function SortableTeamRow({
 
 function StaticTeamRow({
   name,
-  compact,
+  showHandle,
   isLast,
 }: {
   name: string;
-  compact: boolean;
+  showHandle: boolean;
   isLast: boolean;
 }) {
+  const { compact } = useContext(BracketCtx);
+  const rowH = compact ? 20 : MATCH_H / 2;
+
   return (
-    <Flex
-      align="center"
-      justify="space-between"
-      px={compact ? 1.5 : 2.5}
-      py={compact ? 1 : 1.5}
-      bg="white"
-      borderBottomWidth={isLast ? '0' : '1px'}
-      borderColor="gray.100"
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: compact ? '0 6px' : '0 10px',
+        height: `${rowH}px`,
+        background: 'white',
+        borderBottom: isLast ? 'none' : '1px solid #f0f4f8',
+      }}
     >
-      <Text
-        fontSize={compact ? '2xs' : 'xs'}
-        flex={1}
-        truncate
-        lineHeight="1.3"
-        color="gray.600"
+      <span
+        style={{
+          fontSize: compact ? '10px' : '12px',
+          color: '#4a5568',
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          lineHeight: 1.3,
+        }}
       >
         {name || '—'}
-      </Text>
-      {!compact && (
-        <Box color="gray.200" ml={1.5} flexShrink={0}>
-          <GripVertical size={14} />
-        </Box>
+      </span>
+      {showHandle && (
+        <div
+          style={{
+            color: '#e2e8f0',
+            marginLeft: '6px',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <GripVertical size={13} />
+        </div>
       )}
-    </Flex>
+    </div>
   );
 }
 
-// ─── SeedCard ─────────────────────────────────────────────────────────────────
+// ─── CustomMatch ─────────────────────────────────────────────────────────────
 
-function SeedCard({
-  seed,
-  breakpoint,
-  isSortable,
-  compact,
-}: {
-  seed: IBracketSeed;
-  breakpoint: number;
-  isSortable: boolean;
-  compact: boolean;
-}) {
-  const t1 = seed.teams[0];
-  const t2 = seed.teams[1];
-  const cardWidth = compact ? '130px' : '180px';
+function CustomMatch({ match, topParty, bottomParty }: MatchComponentProps) {
+  const { compact } = useContext(BracketCtx);
+  const rtbMatch = match as IRTBMatch;
+  const canSort = rtbMatch.isFirstRound && !compact;
 
   return (
-    <Seed
-      mobileBreakpoint={breakpoint}
+    <div
       style={{
-        padding: compact ? '3px 1.5em' : '6px 1.5em',
-        position: 'relative',
+        width: '100%',
+        height: '100%',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        border: '1.5px solid #e2e8f0',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+        background: 'white',
       }}
     >
-      <SeedItem
-        style={{
-          padding: 0,
-          background: 'white',
-          color: '#1a202c',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          width: cardWidth,
-          border: '1.5px solid #e2e8f0',
-          boxShadow: '0 1px 2px 0 rgba(0,0,0,0.06)',
-          position: 'relative',
-        }}
-      >
-        {/* Match number — positioned in the left padding of Seed */}
-        {!compact && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '-26px',
-              transform: 'translateY(-50%)',
-              fontSize: '11px',
-              color: '#a0aec0',
-              fontWeight: 500,
-              minWidth: '20px',
-              textAlign: 'right',
-            }}
-          >
-            {seed.matchNumber}
-          </div>
-        )}
-        {isSortable ? (
-          <>
-            <SortableTeamRow
-              slotId={t1?.slotId ?? ''}
-              name={t1?.name ?? ''}
-              compact={compact}
-              isLast={false}
-            />
-            <SortableTeamRow
-              slotId={t2?.slotId ?? ''}
-              name={t2?.name ?? ''}
-              compact={compact}
-              isLast={true}
-            />
-          </>
-        ) : (
-          <>
-            <StaticTeamRow
-              name={t1?.name ?? ''}
-              compact={compact}
-              isLast={false}
-            />
-            <StaticTeamRow
-              name={t2?.name ?? ''}
-              compact={compact}
-              isLast={true}
-            />
-          </>
-        )}
-      </SeedItem>
-    </Seed>
+      {canSort ? (
+        <>
+          <SortableTeamRow
+            slotId={String(topParty?.id ?? '')}
+            name={topParty?.name ?? ''}
+            isLast={false}
+          />
+          <SortableTeamRow
+            slotId={String(bottomParty?.id ?? '')}
+            name={bottomParty?.name ?? ''}
+            isLast={true}
+          />
+        </>
+      ) : (
+        <>
+          <StaticTeamRow
+            name={topParty?.name ?? ''}
+            showHandle={!compact}
+            isLast={false}
+          />
+          <StaticTeamRow
+            name={bottomParty?.name ?? ''}
+            showHandle={!compact}
+            isLast={true}
+          />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -342,16 +325,15 @@ function ThirdPlaceCard({
   compact,
   title,
 }: {
-  match: IThirdPlaceMatch;
+  match: IThirdPlaceInfo;
   compact: boolean;
   title: string;
 }) {
-  const cardWidth = compact ? '130px' : '180px';
+  const cardWidth = compact ? '130px' : `${MATCH_W}px`;
 
   return (
     <Box mt={compact ? 4 : 6}>
       <Flex direction="column" align="flex-start" pl={compact ? 4 : 8}>
-        {/* Title pill */}
         <Box
           display="inline-block"
           px={3}
@@ -371,7 +353,6 @@ function ThirdPlaceCard({
           </Text>
         </Box>
 
-        {/* Match card */}
         <Flex align="center" gap={compact ? 1 : 2}>
           {!compact && (
             <Text
@@ -433,7 +414,6 @@ export default function BracketVisualization({
   compact = false,
   customSlots: externalCustomSlots,
   onSlotsChange,
-  consolationMatches,
 }: IBracketVisualizationProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
 
@@ -443,7 +423,6 @@ export default function BracketVisualization({
     return computeDefaultSlots(groupCount, winnersPerGroup);
   });
 
-  // Sync when external customSlots change (e.g., modal reset on open)
   useEffect(() => {
     if (externalCustomSlots === undefined) return;
     const next =
@@ -457,99 +436,115 @@ export default function BracketVisualization({
     });
   }, [externalCustomSlots, groupCount, winnersPerGroup]);
 
-  // ── Build bracket rounds ────────────────────────────────────────────────────
-  const { rounds, thirdPlace, firstRoundSlotIds } = useMemo(() => {
+  // ── Build bracket data ───────────────────────────────────────────────────────
+  const { flatMatches, firstRoundSlotIds, thirdPlace } = useMemo(() => {
     const bracketSize = nextPowerOf2(teamCount);
     if (bracketSize < 2)
-      return { rounds: [], thirdPlace: null, firstRoundSlotIds: [] };
+      return { flatMatches: [], firstRoundSlotIds: [], thirdPlace: null };
 
     const totalRounds = Math.log2(bracketSize);
-    const firstRoundCount = bracketSize / 2;
-    let matchCounter = GROUP_MATCH_OFFSET + 1;
+
+    // Pre-compute all match IDs per round
+    const roundMatchIds: number[][] = [];
+    let counter = GROUP_MATCH_OFFSET + 1;
+    for (let r = 0; r < totalRounds; r++) {
+      const count = bracketSize / Math.pow(2, r + 1);
+      const ids: number[] = [];
+      for (let i = 0; i < count; i++) ids.push(counter++);
+      roundMatchIds.push(ids);
+    }
+
+    const matches: IRTBMatch[] = [];
     const slotIds: string[] = [];
-    const bracketRounds: IRoundProps[] = [];
 
-    // First round
-    const firstSeeds: IBracketSeed[] = [];
-    const advanceLabels: string[] = [];
+    for (let r = 0; r < totalRounds; r++) {
+      const currentIds = roundMatchIds[r];
+      const nextIds = roundMatchIds[r + 1];
+      const roundName = getRoundName(r, totalRounds, t);
+      const isFirstRound = r === 0;
 
-    for (let i = 0; i < firstRoundCount; i++) {
-      const s1 = slots[i * 2] ?? '';
-      const s2 = slots[i * 2 + 1] ?? '';
-      const matchNum = matchCounter++;
-      const id1 = s1 || `_bye_${i * 2}`;
-      const id2 = s2 || `_bye_${i * 2 + 1}`;
-      firstSeeds.push({
-        id: matchNum,
-        matchNumber: matchNum,
-        teams: [
-          { name: s1, slotId: id1 },
-          { name: s2, slotId: id2 },
-        ],
-      });
-      slotIds.push(id1, id2);
-      advanceLabels.push(t('panels.rounds.winnerOf', { match: matchNum }));
-    }
+      for (let i = 0; i < currentIds.length; i++) {
+        const matchId = currentIds[i];
+        const nextMatchId = nextIds
+          ? (nextIds[Math.floor(i / 2)] ?? null)
+          : null;
 
-    if (firstSeeds.length > 0) {
-      bracketRounds.push({
-        title: getRoundName(0, totalRounds, t),
-        seeds: firstSeeds as unknown as ISeedProps[],
-      });
-    }
+        let participants: MatchType['participants'];
 
-    // Subsequent rounds
-    let prevAdvance = advanceLabels;
-    for (let round = 1; round < totalRounds; round++) {
-      const seeds: IBracketSeed[] = [];
-      const nextAdvance: string[] = [];
-      const matchesInRound = prevAdvance.length / 2;
+        if (isFirstRound) {
+          const s1 = slots[i * 2] ?? '';
+          const s2 = slots[i * 2 + 1] ?? '';
+          const id1 = s1 || `_bye_${i * 2}`;
+          const id2 = s2 || `_bye_${i * 2 + 1}`;
+          slotIds.push(id1, id2);
+          participants = [
+            {
+              id: id1,
+              name: s1,
+              resultText: null,
+              isWinner: false,
+              status: null,
+            },
+            {
+              id: id2,
+              name: s2,
+              resultText: null,
+              isWinner: false,
+              status: null,
+            },
+          ];
+        } else {
+          const prevIds = roundMatchIds[r - 1];
+          const prevId1 = prevIds[i * 2];
+          const prevId2 = prevIds[i * 2 + 1];
+          participants = [
+            {
+              id: `win_${prevId1}`,
+              name: t('panels.rounds.winnerOf', { match: prevId1 }),
+              resultText: null,
+              isWinner: false,
+              status: null,
+            },
+            {
+              id: `win_${prevId2}`,
+              name: t('panels.rounds.winnerOf', { match: prevId2 }),
+              resultText: null,
+              isWinner: false,
+              status: null,
+            },
+          ];
+        }
 
-      for (let i = 0; i < matchesInRound; i++) {
-        const p1 = prevAdvance[i * 2] ?? '?';
-        const p2 = prevAdvance[i * 2 + 1] ?? '?';
-        const matchNum = matchCounter++;
-        seeds.push({
-          id: matchNum,
-          matchNumber: matchNum,
-          teams: [
-            { name: p1, slotId: '' },
-            { name: p2, slotId: '' },
-          ],
+        matches.push({
+          id: matchId,
+          name: `Match ${matchId}`,
+          nextMatchId,
+          tournamentRoundText: roundName,
+          startTime: '',
+          state: 'NO_PARTY',
+          isFirstRound,
+          participants,
         });
-        nextAdvance.push(t('panels.rounds.winnerOf', { match: matchNum }));
       }
-
-      bracketRounds.push({
-        title: getRoundName(round, totalRounds, t),
-        seeds: seeds as unknown as ISeedProps[],
-      });
-      prevAdvance = nextAdvance;
     }
 
-    // Third place match
-    let tpMatch: IThirdPlaceMatch | null = null;
-    if (thirdPlaceMatch && bracketRounds.length >= 2) {
-      const sfRound = bracketRounds[bracketRounds.length - 2];
-      if (sfRound && sfRound.seeds.length === 2) {
-        const sf0 = sfRound.seeds[0] as unknown as IBracketSeed;
-        const sf1 = sfRound.seeds[1] as unknown as IBracketSeed;
+    // Third place match info (rendered separately below the SVG bracket)
+    let tpMatch: IThirdPlaceInfo | null = null;
+    if (thirdPlaceMatch && totalRounds >= 2) {
+      const sfIds = roundMatchIds[totalRounds - 2];
+      if (sfIds && sfIds.length === 2) {
         tpMatch = {
-          matchNumber: matchCounter,
-          participant1Label: t('panels.rounds.loserOf', {
-            match: sf0.matchNumber,
-          }),
-          participant2Label: t('panels.rounds.loserOf', {
-            match: sf1.matchNumber,
-          }),
+          matchNumber: counter,
+          participant1Label: t('panels.rounds.loserOf', { match: sfIds[0] }),
+          participant2Label: t('panels.rounds.loserOf', { match: sfIds[1] }),
         };
       }
     }
 
     return {
-      rounds: bracketRounds,
-      thirdPlace: tpMatch,
+      flatMatches: matches,
       firstRoundSlotIds: slotIds,
+      thirdPlace: tpMatch,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slots, teamCount, groupCount, winnersPerGroup, thirdPlaceMatch, t]);
@@ -576,48 +571,7 @@ export default function BracketVisualization({
     [onSlotsChange]
   );
 
-  // ── Custom renders ───────────────────────────────────────────────────────────
-  const renderSeedComponent = useCallback(
-    ({ seed, breakpoint, roundIndex }: IRenderSeedProps) => {
-      const s = seed as unknown as IBracketSeed;
-      return (
-        <SeedCard
-          seed={s}
-          breakpoint={breakpoint}
-          isSortable={roundIndex === 0 && !compact}
-          compact={compact}
-        />
-      );
-    },
-    [compact]
-  );
-
-  const roundTitleComponent = useCallback(
-    (title: string | React.ReactNode) => (
-      <Box display="flex" justifyContent="center" mb={compact ? 1.5 : 2}>
-        <Box
-          px={3}
-          py={1}
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="full"
-          bg="white"
-        >
-          <Text
-            fontSize={compact ? '2xs' : 'xs'}
-            fontWeight="semibold"
-            whiteSpace="nowrap"
-            color="gray.700"
-          >
-            {title}
-          </Text>
-        </Box>
-      </Box>
-    ),
-    [compact]
-  );
-
-  if (rounds.length === 0) {
+  if (flatMatches.length === 0) {
     return (
       <Flex align="center" justify="center" py={8}>
         <Text fontSize="sm" color="gray.400">
@@ -627,115 +581,98 @@ export default function BracketVisualization({
     );
   }
 
+  const matchW = compact ? 130 : MATCH_W;
+  const matchH = compact ? 40 : MATCH_H;
+
+  const bracketOptions = {
+    style: {
+      width: matchW,
+      boxHeight: matchH,
+      canvasPadding: compact ? 8 : 24,
+      spaceBetweenColumns: compact ? 16 : 32,
+      spaceBetweenRows: compact ? 8 : 16,
+      connectorColor: '#CBD5E0',
+      connectorColorHighlight: '#4299E1',
+      roundHeader: {
+        isShown: true,
+        height: compact ? 24 : 32,
+        fontSize: compact ? 10 : 12,
+        fontColor: '#374151',
+        backgroundColor: 'transparent',
+      },
+      roundSeparatorWidth: compact ? 16 : 32,
+    },
+  };
+
   const bracketEl = (
-    <BracketComponent
-      rounds={rounds}
-      mobileBreakpoint={0}
-      renderSeedComponent={renderSeedComponent}
-      roundTitleComponent={roundTitleComponent}
+    <BracketEl
+      matches={flatMatches}
+      matchComponent={CustomMatch}
+      options={bracketOptions}
+      svgWrapper={({
+        bracketWidth,
+        bracketHeight,
+        children,
+      }: {
+        bracketWidth: number;
+        bracketHeight: number;
+        children: React.ReactElement;
+        startAt: number[];
+      }) =>
+        compact ? (
+          <div
+            style={{
+              overflow: 'hidden',
+              pointerEvents: 'none',
+              width: `${bracketWidth}px`,
+              height: `${bracketHeight}px`,
+            }}
+          >
+            {children}
+          </div>
+        ) : (
+          <SVGViewerEl
+            width={bracketWidth}
+            height={bracketHeight}
+            background="transparent"
+            SVGBackground="transparent"
+          >
+            {children}
+          </SVGViewerEl>
+        )
+      }
     />
   );
 
   return (
-    <Box overflowX="auto" overflowY="auto" pb={4}>
-      {compact ? (
-        bracketEl
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={firstRoundSlotIds}
-            strategy={rectSortingStrategy}
+    <BracketCtx.Provider value={{ compact }}>
+      <Box overflowX="auto" overflowY="auto" pb={4}>
+        {compact ? (
+          bracketEl
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            {bracketEl}
-          </SortableContext>
-        </DndContext>
-      )}
-
-      {/* 3rd place match */}
-      {thirdPlace && (
-        <ThirdPlaceCard
-          match={thirdPlace}
-          compact={compact}
-          title={t('panels.rounds.thirdPlace')}
-        />
-      )}
-
-      {/* Consolation matches */}
-      {consolationMatches && consolationMatches.length > 0 && (
-        <Box mt={compact ? 4 : 6}>
-          <Flex direction="column" align="flex-start" pl={compact ? 4 : 8}>
-            <Box
-              display="inline-block"
-              px={3}
-              py={1}
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="full"
-              bg="white"
-              mb={compact ? 1.5 : 2}
+            <SortableContext
+              items={firstRoundSlotIds}
+              strategy={rectSortingStrategy}
             >
-              <Text
-                fontSize={compact ? '2xs' : 'xs'}
-                fontWeight="semibold"
-                color="gray.700"
-              >
-                {t('panels.rounds.consolations')}
-              </Text>
-            </Box>
-            {consolationMatches.map((cm, idx) => (
-              <Flex key={idx} align="center" gap={compact ? 1 : 2} mb={2}>
-                {!compact && (
-                  <Text
-                    fontSize="xs"
-                    color="gray.400"
-                    fontWeight="medium"
-                    minW="20px"
-                    textAlign="right"
-                  >
-                    {cm.matchNumber}
-                  </Text>
-                )}
-                <Box
-                  borderWidth="1.5px"
-                  borderColor="gray.200"
-                  borderRadius="lg"
-                  overflow="hidden"
-                  w={compact ? '130px' : '180px'}
-                  bg="white"
-                  boxShadow="sm"
-                >
-                  {[cm.participant1Label, cm.participant2Label].map(
-                    (name, i) => (
-                      <Flex
-                        key={i}
-                        align="center"
-                        px={compact ? 1.5 : 2.5}
-                        py={compact ? 1 : 1.5}
-                        borderBottomWidth={i === 0 ? '1px' : '0'}
-                        borderColor="gray.100"
-                      >
-                        <Text
-                          fontSize={compact ? '2xs' : 'xs'}
-                          flex={1}
-                          truncate
-                          lineHeight="1.3"
-                          color="gray.600"
-                        >
-                          {name}
-                        </Text>
-                      </Flex>
-                    )
-                  )}
-                </Box>
-              </Flex>
-            ))}
-          </Flex>
-        </Box>
-      )}
-    </Box>
+              {bracketEl}
+            </SortableContext>
+          </DndContext>
+        )}
+
+        {/* 3rd place match — rendered below the SVG bracket */}
+        {thirdPlace && !compact && (
+          <ThirdPlaceCard
+            match={thirdPlace}
+            compact={compact}
+            title={t('panels.rounds.thirdPlace')}
+          />
+        )}
+      </Box>
+    </BracketCtx.Provider>
   );
 }

@@ -204,6 +204,19 @@ export const PublicSessionDetailContent = ({
     );
   }
 
+  const availableSlots = maxPlayers - approvedPlayersCount;
+
+  const slotAvailabilityBadge = (
+    <Badge
+      colorPalette={isFull ? 'gray' : 'teal'}
+      variant="solid"
+      borderWidth="1px"
+      borderColor={isFull ? 'gray.400' : 'teal.400'}
+    >
+      {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
+    </Badge>
+  );
+
   const registrationStatusBadge = userRegistrationStatus ? (
     <Badge
       colorPalette={
@@ -222,6 +235,13 @@ export const PublicSessionDetailContent = ({
           : t('registrationRejected')}
     </Badge>
   ) : null;
+
+  const combinedBadges = (
+    <Flex gap={1}>
+      {slotAvailabilityBadge}
+      {registrationStatusBadge}
+    </Flex>
+  );
 
   const actions: SessionActionConfig = {
     showCallButton: !!session.hostPhone,
@@ -295,7 +315,7 @@ export const PublicSessionDetailContent = ({
           <BaseSessionCard
             session={session}
             extraInfoRows={locationRow}
-            registrationBadgeContent={registrationStatusBadge}
+            registrationBadgeContent={combinedBadges}
             actions={actions}
             onHostClick={onOpenHostDetailModal}
             disableCardLink

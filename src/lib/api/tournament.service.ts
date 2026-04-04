@@ -6,6 +6,8 @@ import {
   TournamentUmpire,
   TournamentScoringDevice,
   TournamentCourt,
+  CategoryMatch,
+  ScheduleType,
 } from './types';
 
 export const TournamentService = {
@@ -206,5 +208,25 @@ export const TournamentService = {
   deleteCourt: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-courts/${id}`);
     toaster.success({ title: 'Court deleted successfully' });
+  },
+
+  // All matches across categories
+  getAllMatches: async (tournamentId: string): Promise<CategoryMatch[]> => {
+    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+      `/tournaments/${tournamentId}/all-matches`
+    );
+    return response.data.data || [];
+  },
+
+  // Update schedule type
+  updateScheduleType: async (
+    tournamentId: string,
+    scheduleType: ScheduleType
+  ): Promise<Tournament> => {
+    const response = await api.put<ApiResponse<Tournament>>(
+      `/tournaments/${tournamentId}`,
+      { scheduleType }
+    );
+    return response.data.data!;
   },
 };

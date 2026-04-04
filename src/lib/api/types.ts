@@ -589,6 +589,11 @@ export enum MatchFormat {
   BEST_OF_3 = 'BEST_OF_3', // Best of 3 sets (first to win 2 sets)
 }
 
+export enum ScheduleType {
+  NEXT_AVAILABLE = 'NEXT_AVAILABLE',
+  ASSIGNED = 'ASSIGNED',
+}
+
 // Tournament interfaces
 export interface Tournament {
   id: string;
@@ -599,6 +604,7 @@ export interface Tournament {
   hostId: string;
   status: TournamentStatus;
   isPublished: boolean;
+  scheduleType?: ScheduleType;
   createdAt: Date;
   updatedAt: Date;
   host?: {
@@ -976,4 +982,12 @@ export interface IBroadcastNotificationRequest {
 export interface ISessionConflictData {
   message: string;
   timestamp: string;
+}
+
+// Schedule types
+export interface IBulkScheduleItem {
+  matchId: string;
+  courtId?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
 }

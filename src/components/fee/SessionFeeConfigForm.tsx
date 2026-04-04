@@ -107,8 +107,8 @@ export default function SessionFeeConfigForm({
     }
   };
 
-  const formatFeeValue = (value: number | undefined): string => {
-    if (value === undefined || value === 0) return '';
+  const formatFeeValue = (value: number | null | undefined): string => {
+    if (value === undefined || value === null || value === 0) return '';
     return value.toLocaleString('vi-VN');
   };
 

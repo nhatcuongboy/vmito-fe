@@ -9,6 +9,8 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
 
 interface PlayerSessionBottomNavProps {
   activeTab: number;
@@ -21,11 +23,18 @@ export default function PlayerSessionBottomNav({
 }: PlayerSessionBottomNavProps) {
   const t = useTranslations('SessionDetail');
   const navT = useTranslations('navigation');
+  const { isCollapsed } = useSidebar();
 
   return (
     <Box
       position="fixed"
-      left={0}
+      left={{
+        base: 0,
+        md: isCollapsed
+          ? `${SIDEBAR_WIDTH_COLLAPSED}px`
+          : `${SIDEBAR_WIDTH_EXPANDED}px`,
+      }}
+      transition="left 0.3s ease"
       right={0}
       bottom={0}
       zIndex={100}

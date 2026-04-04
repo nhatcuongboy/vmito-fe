@@ -1554,19 +1554,20 @@
               "addCrossover": "Thêm đấu chéo",
               "crossoverPoolsDescription": "Đấu chéo cho phép các đội thi đấu với đội từ bảng khác thay vì bảng của mình.",
               "editSeeds": "Chỉnh thứ tự hạt giống",
-              "editSeedsButton": "Chỉnh hạt giống",
-              "bracket": "Nhánh đấu",
-              "bracketSubtitle": "Thiết lập nhánh đấu và trận đấu.",
-              "configureAndConfirmMatches": "Cấu hình nhánh đấu và xác nhận trận đấu.",
-              "consolationMatch": "Trận an ủi",
-              "consolations": "An ủi",
-              "whenMatchPlayed": "Trận đấu sẽ diễn ra khi nào?",
-              "whoHomeTeam": "Đội chủ nhà là ai?",
-              "whoAwayTeam": "Đội khách là ai?"
+              "editSeedsButton": "Chỉnh hạt giống"
             },
             "venues": {
               "title": "Địa điểm",
-              "noVenue": "Chưa có địa điểm nào được gán cho giải đấu này."
+              "addVenue": "Thêm địa điểm",
+              "createVenue": "Tạo địa điểm",
+              "noVenue": "Chưa có địa điểm nào được gán cho giải đấu này.",
+              "address": "Nhập địa chỉ",
+              "name": "Tên địa điểm",
+              "acronym": "Tên viết tắt",
+              "howManyCourts": "Bao nhiêu sân?",
+              "court": "Sân",
+              "back": "Quay lại",
+              "save": "Lưu"
             },
             "schedule": {
               "title": "Lịch thi đấu",

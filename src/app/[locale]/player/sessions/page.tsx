@@ -43,7 +43,7 @@ function PlayerSessionsContent() {
   const PAGE_SIZE = 12;
 
   const [filters, setFilters] = useState<ISessionFilterState>({});
-  const [sortBy, setSortBy] = useState<SessionSortBy>('status');
+  const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
 
   const { ref, inView } = useInView({
     threshold: 0.1,

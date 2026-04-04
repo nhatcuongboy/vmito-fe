@@ -992,65 +992,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 </Text>
               )}
               <Stack gap={2}>
-                {/* Analysis - Moved to Other section */}
-                {isAuthenticated && canAccessHostFeatures && (
-                  <VTooltip
-                    content={nav('statistics')}
-                    positioning={{
-                      placement: 'right',
-                      offset: { mainAxis: 12 },
-                    }}
-                    disabled={!isCollapsed}
-                    showArrow
-                    openDelay={200}
-                  >
-                    <NextLinkButton
-                      href={
-                        canAccessHostFeatures
-                          ? ROUTES.HOST.DASHBOARD
-                          : ROUTES.HOME
-                      }
-                      variant="ghost"
-                      justifyContent={{
-                        base: 'flex-start',
-                        md: isCollapsed ? 'center' : 'flex-start',
-                      }}
-                      onClick={onClose}
-                      w="full"
-                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                      {...getActiveProps(
-                        canAccessHostFeatures
-                          ? ROUTES.HOST.DASHBOARD
-                          : ROUTES.HOME
-                      )}
-                    >
-                      <Flex
-                        align="center"
-                        gap={3}
-                        w="full"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                      >
-                        <BarChart3
-                          size={18}
-                          color={
-                            pathname.startsWith(ROUTES.HOST.DASHBOARD)
-                              ? 'var(--chakra-colors-green-500)'
-                              : 'currentColor'
-                          }
-                        />
-                        {!isCollapsed && (
-                          <Text display={{ base: 'block', md: 'block' }}>
-                            {nav('statistics')}
-                          </Text>
-                        )}
-                      </Flex>
-                    </NextLinkButton>
-                  </VTooltip>
-                )}
-
                 <VTooltip
                   content={common('about')}
                   positioning={{

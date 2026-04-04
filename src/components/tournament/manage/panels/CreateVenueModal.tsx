@@ -43,7 +43,7 @@ export default function CreateVenueModal({
   onBack,
 }: CreateVenueModalProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
-
+  console.log('CreateVenueModal');
   const [location, setLocation] = useState<LocationData | null>(null);
   const [name, setName] = useState('');
   const [acronym, setAcronym] = useState('');

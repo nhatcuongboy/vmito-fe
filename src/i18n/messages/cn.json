@@ -1522,15 +1522,7 @@
               "addCrossover": "添加交叉",
               "crossoverPoolsDescription": "交叉小组允许队伍与其他小组的队伍进行比赛，而不是只在自己的小组内比赛。",
               "editSeeds": "编辑种子排序",
-              "editSeedsButton": "编辑种子",
-              "bracket": "对阵表",
-              "bracketSubtitle": "设置对阵表和比赛。",
-              "configureAndConfirmMatches": "配置对阵表并确认比赛。",
-              "consolationMatch": "安慰赛",
-              "consolations": "安慰赛",
-              "whenMatchPlayed": "比赛什么时候进行？",
-              "whoHomeTeam": "主队是谁？",
-              "whoAwayTeam": "客队是谁？"
+              "editSeedsButton": "编辑种子"
             },
             "venues": {
               "title": "场地",

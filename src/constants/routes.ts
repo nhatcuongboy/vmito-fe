@@ -24,7 +24,6 @@ export const ROUTES = {
 
   // Host Routes
   HOST: {
-    DASHBOARD: '/host/dashboard',
     SESSIONS: {
       LIST: '/host/sessions',
       DETAIL: (id: string) => `/host/sessions/${id}`,
@@ -55,7 +54,6 @@ export const ROUTES = {
 
   // Player Routes
   PLAYER: {
-    DASHBOARD: '/player/dashboard',
     HOST_FEATURE: '/host/sessions',
     SUGGESTIONS: '/player/suggestions',
     SESSIONS: {
@@ -153,11 +151,9 @@ export const ROUTES = {
 export const ROUTE_GROUPS = {
   // Routes that require authentication
   PROTECTED: [
-    ROUTES.HOST.DASHBOARD,
     ROUTES.HOST.SESSIONS.LIST,
     ROUTES.HOST.TRANSACTIONS,
     ROUTES.HOST.PAYMENT_SETTINGS,
-    ROUTES.PLAYER.DASHBOARD,
     ROUTES.HOST.SESSIONS.LIST,
     ROUTES.PLAYER.SESSIONS.LIST,
     ROUTES.PLAYER.TRANSACTIONS,
@@ -182,19 +178,13 @@ export const ROUTE_GROUPS = {
 
   // Host-only routes
   HOST_ONLY: [
-    ROUTES.HOST.DASHBOARD,
     ROUTES.HOST.SESSIONS.LIST,
     ROUTES.HOST.TRANSACTIONS,
     ROUTES.HOST.PAYMENT_SETTINGS,
   ],
 
   // Player-only routes
-  PLAYER_ONLY: [
-    ROUTES.PLAYER.DASHBOARD,
-
-    ROUTES.PLAYER.SESSIONS.LIST,
-    ROUTES.PLAYER.TRANSACTIONS,
-  ],
+  PLAYER_ONLY: [ROUTES.PLAYER.SESSIONS.LIST, ROUTES.PLAYER.TRANSACTIONS],
 
   // Admin-only routes
   ADMIN_ONLY: [
@@ -292,12 +282,10 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Home',
   [ROUTES.AUTH.SIGNIN]: 'Sign In',
   [ROUTES.AUTH.SIGNUP]: 'Sign Up',
-  [ROUTES.HOST.DASHBOARD]: 'Analysis',
   [ROUTES.HOST.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.HOST.TRANSACTIONS]: 'Transactions',
   [ROUTES.HOST.PAYMENT_SETTINGS]: 'Payment Settings',
   [ROUTES.HOST.PENDING_JOIN_REQUESTS]: 'Pending Join Requests',
-  [ROUTES.PLAYER.DASHBOARD]: 'Analysis',
 
   [ROUTES.PLAYER.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.PLAYER.TRANSACTIONS]: 'Transactions',

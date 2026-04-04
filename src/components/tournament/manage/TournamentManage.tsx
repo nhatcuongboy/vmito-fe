@@ -207,7 +207,9 @@ export default function TournamentManage({
       case 'venues':
         return <VenuePanel tournament={tournament} />;
       case 'schedule':
-        return <SchedulePanel categories={categories} />;
+        return (
+          <SchedulePanel categories={categories} tournament={tournament} />
+        );
       case 'sponsors':
         return <SponsorsPanel />;
       default:

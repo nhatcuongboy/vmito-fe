@@ -33,6 +33,8 @@ export default function PlayerStatusTab({
       overflow="hidden"
       boxShadow="md"
       transition="all 0.2s"
+      bg="white"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
     >
       {/* Card Header */}

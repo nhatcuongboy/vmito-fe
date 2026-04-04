@@ -321,10 +321,10 @@ export default function SessionForm({
     initialData?.feeConfig?.feeType || FeeType.FIXED
   );
   const [maleFee, setMaleFee] = useState<number | undefined>(
-    initialData?.feeConfig?.maleFee
+    initialData?.feeConfig?.maleFee ?? undefined
   );
   const [femaleFee, setFemaleFee] = useState<number | undefined>(
-    initialData?.feeConfig?.femaleFee
+    initialData?.feeConfig?.femaleFee ?? undefined
   );
   const [feeNotes, setFeeNotes] = useState(initialData?.feeConfig?.notes || '');
 
@@ -545,9 +545,9 @@ export default function SessionForm({
         if (data.feeConfig.feeType)
           setFeeType(data.feeConfig.feeType as FeeType);
         if (data.feeConfig.maleFee !== undefined)
-          setMaleFee(data.feeConfig.maleFee);
+          setMaleFee(data.feeConfig.maleFee ?? undefined);
         if (data.feeConfig.femaleFee !== undefined)
-          setFemaleFee(data.feeConfig.femaleFee);
+          setFemaleFee(data.feeConfig.femaleFee ?? undefined);
         if (data.feeConfig.notes) setFeeNotes(data.feeConfig.notes);
       }
 

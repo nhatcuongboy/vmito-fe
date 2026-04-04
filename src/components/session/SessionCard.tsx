@@ -100,6 +100,24 @@ const SessionCard = ({
     }
   };
 
+  // Calculate slot availability
+  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+  const approvedPlayersCount = session._count?.players || 0;
+  const isFull = approvedPlayersCount >= maxPlayers;
+  const availableSlots = maxPlayers - approvedPlayersCount;
+
+  // Slot availability badge
+  const slotAvailabilityBadge = (
+    <Badge
+      colorPalette={isFull ? 'gray' : 'teal'}
+      variant="solid"
+      borderWidth="1px"
+      borderColor={isFull ? 'gray.400' : 'teal.400'}
+    >
+      {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
+    </Badge>
+  );
+
   // Registration status badge (owner/player view of their status)
   const registrationBadge = (() => {
     const status = session.players?.[0]?.registrationStatus;
@@ -126,6 +144,14 @@ const SessionCard = ({
     }
     return null;
   })();
+
+  // Combine badges
+  const combinedBadges = (
+    <Flex gap={1}>
+      {slotAvailabilityBadge}
+      {registrationBadge}
+    </Flex>
+  );
 
   // Location/venue display
   const locationRow =
@@ -251,7 +277,7 @@ const SessionCard = ({
     <BaseSessionCard
       session={session}
       variant={variant}
-      registrationBadgeContent={registrationBadge}
+      registrationBadgeContent={combinedBadges}
       extraInfoRows={locationRow}
       actions={actions}
       onHostClick={onHostClick}
