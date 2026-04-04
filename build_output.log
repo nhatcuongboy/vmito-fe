@@ -1,0 +1,391 @@
+
+> badminton-app@0.1.0 build
+> next build
+
+   ▲ Next.js 15.3.8
+   - Environments: .env.production, .env
+
+   Creating an optimized production build ...
+> [PWA] Compile server
+> [PWA] Compile server
+> [PWA] Compile client (static)
+> [PWA] Auto register service worker with: /Users/cuongvnnguyen/Documents/badminton-frontend/node_modules/.pnpm/next-pwa@5.6.0_@babel+core@7.28.0_next@15.3.8_@babel+core@7.28.0_react-dom@19.1.0_react_c8b27dc88956b2f7c17093ec53479cf3/node_modules/next-pwa/register.js
+> [PWA] Service worker: /Users/cuongvnnguyen/Documents/badminton-frontend/public/sw.js
+> [PWA]   url: /sw.js
+> [PWA]   scope: /
+Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled successfully in 28.0s
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./src/app/[locale]/about/AboutClient.tsx
+62:47  Warning: '_locale' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/admin/notifications/page.tsx
+42:9  Warning: 't' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/admin/venues/page.tsx
+950:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+1029:31  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/[locale]/auth/signin/SignInClient.tsx
+91:13  Warning: 'loginResponse' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+346:40  Warning: 'locale' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/auth/signup/SignUpClient.tsx
+21:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+41:40  Warning: 'locale' is defined but never used.  @typescript-eslint/no-unused-vars
+44:9  Warning: 'localeFromParams' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+74:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/clubs/page.tsx
+37:10  Warning: 'totalPages' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+117:55  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+165:19  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/guest/join/status/page.tsx
+11:8  Warning: 'PlayerStatistics' is defined but never used.  @typescript-eslint/no-unused-vars
+56:10  Warning: '_refreshInterval' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+57:10  Warning: '_lastRefreshed' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+234:6  Warning: React Hook useEffect has a missing dependency: 'fetchPlayerData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/[locale]/host/clubs/[id]/edit/page.tsx
+74:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+167:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+169:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+193:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+346:57  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/host/clubs/[id]/fees/page.tsx
+5:15  Warning: 'Container' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/host/clubs/[id]/members/page.tsx
+8:3  Warning: 'Container' is defined but never used.  @typescript-eslint/no-unused-vars
+300:74  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+380:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/host/clubs/create/page.tsx
+153:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/host/pending-join-requests/page.tsx
+17:8  Warning: 'TopBar' is defined but never used.  @typescript-eslint/no-unused-vars
+18:8  Warning: 'PageWrapper' is defined but never used.  @typescript-eslint/no-unused-vars
+20:26  Warning: 'UserRole' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/host/sessions/[id]/page.tsx
+4:38  Warning: 'Container' is defined but never used.  @typescript-eslint/no-unused-vars
+132:37  Warning: 'courtId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/host/tournaments/new/page.tsx
+58:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/host/tournaments/page.tsx
+76:9  Warning: 't' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+105:14  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/join/page.tsx
+39:9  Warning: 'common' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+51:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+52:56  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+74:6  Warning: React Hook useEffect has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+77:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+105:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/join/status/page.tsx
+65:10  Warning: 'refreshInterval' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+68:10  Warning: 'lastRefreshed' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+99:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+125:9  Warning: 'getActiveCourts' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+199:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+239:6  Warning: React Hook useEffect has a missing dependency: 'fetchPlayerData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+254:6  Warning: React Hook useEffect has a missing dependency: 'fetchPlayerData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/[locale]/join-by-code/JoinByCodeClient.tsx
+38:11  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+38:17  Warning: 'isAuthenticated' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:9  Warning: 'locale' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+50:9  Warning: 'checkCodeType' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+54:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+188:44  Warning: 'locale' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/my-clubs/page.tsx
+21:10  Warning: 'UserRole' is defined but never used.  @typescript-eslint/no-unused-vars
+162:75  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/page.tsx
+4:10  Warning: 'Box' is defined but never used.  @typescript-eslint/no-unused-vars
+4:21  Warning: 'Icon' is defined but never used.  @typescript-eslint/no-unused-vars
+4:36  Warning: 'Text' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/player/clubs/[id]/page.tsx
+10:3  Warning: 'Stack' is defined but never used.  @typescript-eslint/no-unused-vars
+16:3  Warning: 'Icon' is defined but never used.  @typescript-eslint/no-unused-vars
+101:51  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+483:80  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/[locale]/player/sessions/[id]/page.tsx
+4:38  Warning: 'Container' is defined but never used.  @typescript-eslint/no-unused-vars
+112:37  Warning: 'courtId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/player/sessions/join/confirm/page.tsx
+78:6  Warning: React Hook useEffect has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/[locale]/player-status/page.tsx
+16:43  Warning: 'ExternalLink' is defined but never used.  @typescript-eslint/no-unused-vars
+82:6  Warning: React Hook useEffect has a missing dependency: 'fetchPlayerStatus'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/[locale]/sessions/[id]/PublicSessionDetailClient.tsx
+6:10  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'SessionService' is defined but never used.  @typescript-eslint/no-unused-vars
+18:8  Warning: 'JoinSessionModal' is defined but never used.  @typescript-eslint/no-unused-vars
+32:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+33:9  Warning: 'pathname' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:11  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+37:10  Warning: 'session' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+37:19  Warning: 'setSession' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+42:13  Warning: 'isJoinModalOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+43:13  Warning: 'onOpenJoinModal' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+44:14  Warning: 'onCloseJoinModal' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/[locale]/sessions/[id]/page.tsx
+22:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/QRCodeGenerator.tsx
+68:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/clubs/ClubCard.tsx
+26:65  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/court/BadmintonCourt.tsx
+38:3  Warning: 'elapsedTime' is defined but never used.  @typescript-eslint/no-unused-vars
+39:3  Warning: 'courtName' is defined but never used.  @typescript-eslint/no-unused-vars
+40:3  Warning: 'courtNumber' is defined but never used.  @typescript-eslint/no-unused-vars
+42:3  Warning: 'showTimeInCenter' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+47:3  Warning: 'onPlayerSelect' is defined but never used.  @typescript-eslint/no-unused-vars
+53:3  Warning: 'preSelectedPlayers' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+55:9  Warning: 't' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+96:17  Warning: 'pairNumber' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/court/CourtPlayer.tsx
+6:44  Warning: 'UserX' is defined but never used.  @typescript-eslint/no-unused-vars
+64:3  Warning: 'players' is defined but never used.  @typescript-eslint/no-unused-vars
+70:11  Warning: 'getLevelLabel' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/court/CourtSelectionMode.tsx
+31:25  Warning: 'players' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/court/PlayerTooltip.tsx
+108:9  Warning: 'pairName' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fee/FeeDetailPopover.tsx
+10:3  Warning: 'Badge' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/layout/Footer.tsx
+3:39  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/layout/MainLayout.tsx
+4:8  Warning: 'Footer' is defined but never used.  @typescript-eslint/no-unused-vars
+7:3  Warning: 'TOP_BAR_HEIGHT' is defined but never used.  @typescript-eslint/no-unused-vars
+21:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/notification/NotificationPanel.tsx
+41:5  Warning: 'fetchUnreadCount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/payment/SessionPaymentList.tsx
+58:9  Warning: The 'paymentsArray' conditional could make the dependencies of useMemo Hook (at line 79) change on every render. To fix this, wrap the initialization of 'paymentsArray' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+58:9  Warning: The 'paymentsArray' conditional could make the dependencies of useMemo Hook (at line 101) change on every render. To fix this, wrap the initialization of 'paymentsArray' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+
+./src/components/payment/TransactionSummaryList.tsx
+13:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/player/BulkPlayersForm.tsx
+20:3  Warning: 'EXAMPLE_CSV' is defined but never used.  @typescript-eslint/no-unused-vars
+212:9  Warning: 'handleImportCSV' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/player/PlayerDetailModal.tsx
+23:3  Warning: 'X' is defined but never used.  @typescript-eslint/no-unused-vars
+68:10  Warning: 'joinCode' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+108:6  Warning: React Hook useEffect has a missing dependency: 'locale'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/player/PlayerGrid.tsx
+4:10  Warning: 'SessionService' is defined but never used.  @typescript-eslint/no-unused-vars
+7:22  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'VModal' is defined but never used.  @typescript-eslint/no-unused-vars
+140:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+141:30  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/player/PlayerSessionsList.tsx
+33:6  Warning: React Hook useEffect has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/rating/RatePlayersSection.tsx
+57:6  Warning: React Hook useEffect has a missing dependency: 'fetchEligibility'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+70:9  Warning: 'getPlayerRating' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/rating/RatingList.tsx
+38:3  Warning: 'showRated' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/AppHostDetail.tsx
+27:3  Warning: 'hideHeader' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/BaseSessionCard.old.tsx
+111:3  Warning: 'sessionDistance' is defined but never used.  @typescript-eslint/no-unused-vars
+129:16  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/BulkSessionDateSelector.tsx
+209:1  Warning: Delete `····`  prettier/prettier
+221:1  Warning: Delete `··········`  prettier/prettier
+231:1  Warning: Delete `····`  prettier/prettier
+
+./src/components/session/FindSessionList.tsx
+214:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/session/LevelRequirementsCard.tsx
+28:20  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/session/MyRegistrationModal.tsx
+38:6  Warning: React Hook useEffect has a missing dependency: 'fetchPlayers'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/session/PlayerSessionBottomNav.tsx
+4:3  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+5:3  Warning: 'Users' is defined but never used.  @typescript-eslint/no-unused-vars
+25:9  Warning: 'navT' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/PublicSessionDetailContent.tsx
+46:9  Warning: 'locale' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+146:70  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/session/QuickCreateSessionBar.tsx
+10:10  Warning: 'UserRole' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/ResultsHeader.tsx
+72:3  Warning: 'isLoading' is defined but never used.  @typescript-eslint/no-unused-vars
+90:9  Warning: 'ActiveIcon' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/SessionCourtsTab.tsx
+17:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+64:23  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/session/SessionFilterDrawer.tsx
+41:3  Warning: 'userLocation' is defined but never used.  @typescript-eslint/no-unused-vars
+59:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/session/SessionFilters.tsx
+33:3  Warning: 'resultCount' is defined but never used.  @typescript-eslint/no-unused-vars
+95:9  Warning: 'removeStatusFilter' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+99:9  Warning: 'removeDateFilter' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+103:9  Warning: 'removeLevelFilter' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+110:9  Warning: 'hasActiveFilters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+125:9  Warning: 'getStatusLabel' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/SessionForm.tsx
+16:3  Warning: 'Container' is defined but never used.  @typescript-eslint/no-unused-vars
+78:3  Warning: 'Minus' is defined but never used.  @typescript-eslint/no-unused-vars
+98:8  Warning: 'TopBar' is defined but never used.  @typescript-eslint/no-unused-vars
+136:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+144:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+197:3  Warning: 'backHref' is defined but never used.  @typescript-eslint/no-unused-vars
+200:3  Warning: 'showTopBar' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+201:3  Warning: 'title' is defined but never used.  @typescript-eslint/no-unused-vars
+478:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+985:34  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+1018:34  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/SessionManagement.tsx
+4:28  Warning: 'Court' is defined but never used.  @typescript-eslint/no-unused-vars
+66:12  Warning: '_session' is defined but never used.  @typescript-eslint/no-unused-vars
+67:20  Warning: '_onSessionUpdate' is defined but never used.  @typescript-eslint/no-unused-vars
+110:13  Warning: '_result' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+143:13  Warning: '_result' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/SessionSettingsTab.tsx
+20:23  Warning: 'updatedSession' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/SessionsList.tsx
+33:3  Warning: 'onHostClick' is defined but never used.  @typescript-eslint/no-unused-vars
+46:9  Warning: The 'sessions' conditional could make the dependencies of useMemo Hook (at line 110) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'sessions' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+
+./src/components/session/SuggestionsList.tsx
+13:21  Warning: 'RefreshCw' is defined but never used.  @typescript-eslint/no-unused-vars
+17:18  Warning: 'IconButton' is defined but never used.  @typescript-eslint/no-unused-vars
+27:8  Warning: 'ViewModeToggle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/session/player-management/usePlayerManagement.ts
+8:42  Warning: 'UserRole' is defined but never used.  @typescript-eslint/no-unused-vars
+20:11  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/tournament/TournamentLayout.tsx
+35:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+36:11  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/tournament/format-wizard/components/FormatCard.tsx
+4:32  Warning: 'Layers' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/tournament/format-wizard/components/FormatSidebar.tsx
+7:32  Warning: 'FilterCategory' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/tournament/manage/TournamentManage.tsx
+111:6  Warning: React Hook useEffect has a missing dependency: 'loadCategories'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/tournament/manage/panels/ManageStandingsModal.tsx
+172:63  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/tournament/manage/panels/SelectVenueModal.tsx
+4:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/tournament/manage/panels/SponsorsPanel.tsx
+3:10  Warning: 'Box' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/tournament/manage/panels/TeamsPanel.tsx
+98:6  Warning: React Hook useEffect has a missing dependency: 'activeCategory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/tournament/manage/panels/VenuePanel.tsx
+11:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+68:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ui/NotificationBell.tsx
+16:3  Warning: 'Separator' is defined but never used.  @typescript-eslint/no-unused-vars
+21:3  Warning: 'LuCheckCheck' is defined but never used.  @typescript-eslint/no-unused-vars
+28:3  Warning: 'LuCalendarClock' is defined but never used.  @typescript-eslint/no-unused-vars
+269:18  Error: 'LuCheck' is not defined.  react/jsx-no-undef
+529:20  Error: 'LuClipboardCheck' is not defined.  react/jsx-no-undef
+
+./src/components/ui/SearchableSelect.tsx
+110:11  Warning: 'textLower' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+200:6  Warning: React Hook useMemo has a missing dependency: 'fuzzyMatch'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+292:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+430:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ui/SlideOutMenu.tsx
+11:3  Warning: 'BarChart3' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ui/UserProfileModal.tsx
+173:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ui/VDrawer.tsx
+106:3  Warning: 'primaryColorScheme' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ui/VModal.tsx
+121:3  Warning: 'primaryColorScheme' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+243:48  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/venue/VenueCardSkeleton.tsx
+3:31  Warning: 'SkeletonText' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/constants/routes.ts
+82:35  Warning: 'playerId' is defined but never used.  @typescript-eslint/no-unused-vars
+87:30  Warning: 'categoryId' is defined but never used.  @typescript-eslint/no-unused-vars
+94:32  Warning: 'categoryId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/contexts/RatingStatsContext.tsx
+61:6  Warning: React Hook useEffect has a missing dependency: 'userIds'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+61:7  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps
+
+./src/contexts/SocketContext.tsx
+113:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+122:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+194:6  Warning: React Hook useEffect has a missing dependency: 'user?.id'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

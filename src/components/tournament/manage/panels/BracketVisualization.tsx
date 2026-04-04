@@ -71,6 +71,14 @@ export interface IBracketVisualizationProps {
   customSlots?: string[];
   /** Fires when the user reorders first-round seeds via drag-and-drop */
   onSlotsChange?: (slots: string[]) => void;
+  /** Optional consolation matches to render below the bracket */
+  consolationMatches?: IConsolationMatchInfo[];
+}
+
+interface IConsolationMatchInfo {
+  matchNumber: number;
+  participant1Label: string;
+  participant2Label: string;
 }
 
 interface IThirdPlaceInfo {
@@ -414,6 +422,7 @@ export default function BracketVisualization({
   compact = false,
   customSlots: externalCustomSlots,
   onSlotsChange,
+  consolationMatches,
 }: IBracketVisualizationProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
 
@@ -672,6 +681,19 @@ export default function BracketVisualization({
             title={t('panels.rounds.thirdPlace')}
           />
         )}
+
+        {/* Consolation matches */}
+        {consolationMatches &&
+          consolationMatches.length > 0 &&
+          !compact &&
+          consolationMatches.map((cm, i) => (
+            <ThirdPlaceCard
+              key={`consolation-${i}`}
+              match={cm}
+              compact={compact}
+              title={t('panels.rounds.consolationMatch')}
+            />
+          ))}
       </Box>
     </BracketCtx.Provider>
   );

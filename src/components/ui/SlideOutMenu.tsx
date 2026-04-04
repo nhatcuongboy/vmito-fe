@@ -16,7 +16,6 @@ import {
   Bell,
   MapPin,
   UserPlus,
-  ClipboardCheck,
   Trophy,
   Swords,
 } from 'lucide-react';
@@ -466,56 +465,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       </NextLinkButton>
                     </VTooltip>
 
-                    <VTooltip
-                      content={nav('pendingJoinRequests')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={ROUTES.HOST.PENDING_JOIN_REQUESTS}
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <ClipboardCheck
-                            size={18}
-                            color={
-                              pathname.startsWith(
-                                ROUTES.HOST.PENDING_JOIN_REQUESTS
-                              )
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('pendingJoinRequests')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
-
                     {/* Redundant 'My Clubs' removed from here and moved to Management section */}
                   </Stack>
                 </Box>
@@ -641,6 +590,115 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </Flex>
                       </NextLinkButton>
                     </VTooltip>
+                    <VTooltip
+                      content={nav('transactions')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={
+                          canAccessHostFeatures
+                            ? ROUTES.HOST.TRANSACTIONS
+                            : ROUTES.PLAYER.TRANSACTIONS
+                        }
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(
+                          canAccessHostFeatures
+                            ? ROUTES.HOST.TRANSACTIONS
+                            : ROUTES.PLAYER.TRANSACTIONS
+                        )}
+                      >
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
+                          <Receipt
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.HOST.TRANSACTIONS) ||
+                              pathname.startsWith(ROUTES.PLAYER.TRANSACTIONS)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('transactions')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </VTooltip>
+
+                    {canAccessHostFeatures && (
+                      <VTooltip
+                        content={nav('paymentSettings')}
+                        positioning={{
+                          placement: 'right',
+                          offset: { mainAxis: 12 },
+                        }}
+                        disabled={!isCollapsed}
+                        showArrow
+                        openDelay={200}
+                      >
+                        <NextLinkButton
+                          href={ROUTES.HOST.PAYMENT_SETTINGS}
+                          variant="ghost"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                          onClick={onClose}
+                          w="full"
+                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                          {...getActiveProps(ROUTES.HOST.PAYMENT_SETTINGS)}
+                        >
+                          <Flex
+                            align="center"
+                            gap={3}
+                            w="full"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                          >
+                            <CreditCard
+                              size={18}
+                              color={
+                                pathname.startsWith(
+                                  ROUTES.HOST.PAYMENT_SETTINGS
+                                )
+                                  ? 'var(--chakra-colors-green-500)'
+                                  : 'currentColor'
+                              }
+                            />
+                            {!isCollapsed && (
+                              <Text display={{ base: 'block', md: 'block' }}>
+                                {nav('paymentSettings')}
+                              </Text>
+                            )}
+                          </Flex>
+                        </NextLinkButton>
+                      </VTooltip>
+                    )}
+
                     {user?.role === UserRole.ADMIN && (
                       <>
                         <VTooltip
@@ -837,138 +895,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           </NextLinkButton>
                         </VTooltip>
                       </>
-                    )}
-                  </Stack>
-                </Box>
-
-                {/* Separator */}
-                <Separator />
-              </>
-            )}
-
-            {/* Finance Section */}
-            {isAuthenticated && (
-              <>
-                <Box>
-                  {!isCollapsed && (
-                    <Text
-                      fontSize="sm"
-                      fontWeight="semibold"
-                      color="fg.muted"
-                      mb={3}
-                      display={{ base: 'block', md: 'block' }}
-                    >
-                      {common('finance')}
-                    </Text>
-                  )}
-                  <Stack gap={2}>
-                    <VTooltip
-                      content={nav('transactions')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={
-                          canAccessHostFeatures
-                            ? ROUTES.HOST.TRANSACTIONS
-                            : ROUTES.PLAYER.TRANSACTIONS
-                        }
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(
-                          canAccessHostFeatures
-                            ? ROUTES.HOST.TRANSACTIONS
-                            : ROUTES.PLAYER.TRANSACTIONS
-                        )}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <Receipt
-                            size={18}
-                            color={
-                              pathname.startsWith(ROUTES.HOST.TRANSACTIONS) ||
-                              pathname.startsWith(ROUTES.PLAYER.TRANSACTIONS)
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('transactions')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
-
-                    {canAccessHostFeatures && (
-                      <VTooltip
-                        content={nav('paymentSettings')}
-                        positioning={{
-                          placement: 'right',
-                          offset: { mainAxis: 12 },
-                        }}
-                        disabled={!isCollapsed}
-                        showArrow
-                        openDelay={200}
-                      >
-                        <NextLinkButton
-                          href={ROUTES.HOST.PAYMENT_SETTINGS}
-                          variant="ghost"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                          onClick={onClose}
-                          w="full"
-                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                          {...getActiveProps(ROUTES.HOST.PAYMENT_SETTINGS)}
-                        >
-                          <Flex
-                            align="center"
-                            gap={3}
-                            w="full"
-                            justifyContent={{
-                              base: 'flex-start',
-                              md: isCollapsed ? 'center' : 'flex-start',
-                            }}
-                          >
-                            <CreditCard
-                              size={18}
-                              color={
-                                pathname.startsWith(
-                                  ROUTES.HOST.PAYMENT_SETTINGS
-                                )
-                                  ? 'var(--chakra-colors-green-500)'
-                                  : 'currentColor'
-                              }
-                            />
-                            {!isCollapsed && (
-                              <Text display={{ base: 'block', md: 'block' }}>
-                                {nav('paymentSettings')}
-                              </Text>
-                            )}
-                          </Flex>
-                        </NextLinkButton>
-                      </VTooltip>
                     )}
                   </Stack>
                 </Box>

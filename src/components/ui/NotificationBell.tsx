@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Flex,
@@ -17,13 +17,12 @@ import {
 import { Button } from '@/components/ui/chakra-compat';
 import {
   LuBell,
-  LuCheck,
+  LuCheckCheck,
   LuTrash2,
   LuInbox,
   LuShield,
   LuMail,
   LuCreditCard,
-  LuClipboardCheck,
   LuUserCheck,
 } from 'react-icons/lu';
 import {
@@ -46,14 +45,17 @@ import { vi, enUS } from 'date-fns/locale';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
+import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
-
-type TActiveTab = 'notifications' | 'approval';
 
 interface NotificationBellProps {
   color?: string;
   _hover?: SystemStyleObject;
 }
+
+type TUnifiedItem =
+  | { kind: 'notification'; data: INotification; timestamp: number }
+  | { kind: 'approval'; data: PendingRequest; timestamp: number };
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -93,16 +95,16 @@ export default function NotificationBell({
   const params = useParams();
   const t = useTranslations('notification');
   const locale = (params.locale as string) || 'en';
+  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TActiveTab>('notifications');
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [isPendingLoading, setIsPendingLoading] = useState(false);
   const [pendingActionLoading, setPendingActionLoading] = useState<
     string | null
   >(null);
   const [pendingCount, setPendingCount] = useState(0);
-  const [pendingLoaded, setPendingLoaded] = useState(false);
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
 
   const {
     notifications,
@@ -129,30 +131,42 @@ export default function NotificationBell({
     if (open && user) {
       fetchNotifications(true);
       fetchUnreadCount();
-      PlayerService.getPendingRequestsCount()
-        .then((count) => setPendingCount(count))
-        .catch(() => {});
-    }
-    if (!open) {
-      setActiveTab('notifications');
-      setPendingLoaded(false);
-    }
-  };
-
-  const handleTabChange = (tab: TActiveTab) => {
-    setActiveTab(tab);
-    if (tab === 'approval' && !pendingLoaded) {
       setIsPendingLoading(true);
       PlayerService.getPendingRequests({ limit: 20 })
         .then((result) => {
           setPendingRequests(result.data);
           setPendingCount(result.data.length);
-          setPendingLoaded(true);
         })
         .catch(() => {})
         .finally(() => setIsPendingLoading(false));
     }
   };
+
+  // Merge notifications + pending requests into a single chronological list
+  const unifiedItems = useMemo<TUnifiedItem[]>(() => {
+    const items: TUnifiedItem[] = [];
+
+    for (const n of notifications) {
+      items.push({
+        kind: 'notification',
+        data: n,
+        timestamp: new Date(n.createdAt).getTime(),
+      });
+    }
+
+    for (const r of pendingRequests) {
+      // Use session startTime as timestamp for pending requests
+      items.push({
+        kind: 'approval',
+        data: r,
+        timestamp: new Date(r.session.startTime).getTime(),
+      });
+    }
+
+    // Sort by timestamp descending (newest first)
+    items.sort((a, b) => b.timestamp - a.timestamp);
+    return items;
+  }, [notifications, pendingRequests]);
 
   const handleNotificationClick = (notification: INotification) => {
     if (!notification.isRead) {
@@ -165,11 +179,32 @@ export default function NotificationBell({
     deleteNotification(id);
   };
 
+  const handleMarkAllAsRead = async () => {
+    try {
+      setIsMarkingAll(true);
+      await markAllAsRead();
+    } catch {
+      toaster.error({ title: t('approvalActionFailed') });
+    } finally {
+      setIsMarkingAll(false);
+    }
+  };
+
+  const handleApprovalClick = (request: PendingRequest) => {
+    // Remove from local list immediately so badge count drops
+    setPendingRequests((prev) => prev.filter((r) => r.id !== request.id));
+    setPendingCount((prev) => Math.max(0, prev - 1));
+    setIsOpen(false);
+    router.push(`/host/approval/${request.sessionId}/${request.id}`);
+  };
+
   const handleApprovalAction = async (
+    e: React.MouseEvent,
     playerId: string,
     sessionId: string,
     status: 'APPROVED' | 'REJECTED'
   ) => {
+    e.stopPropagation();
     try {
       setPendingActionLoading(playerId);
       await PlayerService.updatePlayerStatus(sessionId, playerId, status);
@@ -199,7 +234,11 @@ export default function NotificationBell({
   if (!user) return null;
 
   const totalBadgeCount = unreadCount + pendingCount;
-  const badgeColor = unreadCount > 0 ? 'red.500' : 'orange.500';
+  const isEmpty =
+    notifications.length === 0 &&
+    pendingRequests.length === 0 &&
+    !isPendingLoading &&
+    !isLoading;
 
   return (
     <PopoverRoot
@@ -229,7 +268,7 @@ export default function NotificationBell({
               right="-4px"
               minW="18px"
               h="18px"
-              bg={badgeColor}
+              bg="red.500"
               color="white"
               borderRadius="full"
               border="2px solid white"
@@ -263,404 +302,398 @@ export default function NotificationBell({
           borderBottomWidth="1px"
           borderColor="gray.100"
           _dark={{ borderColor: 'gray.800' }}
-          p={4}
-          pb={0}
+          px={4}
+          py={3}
         >
-          <Flex justify="space-between" align="center" mb={3}>
-            <Heading size="xs" fontSize="md" fontWeight="bold">
-              {activeTab === 'notifications'
-                ? t('notificationsTab')
-                : t('approvalRequestsTab')}
-            </Heading>
-            {activeTab === 'notifications' && (
-              <Button
-                size="xs"
-                variant="ghost"
-                colorPalette="brand"
-                onClick={markAllAsRead}
-                fontSize="xs"
-                h="24px"
-                opacity={unreadCount > 0 ? 1 : 0.35}
-                disabled={unreadCount === 0}
-              >
-                <LuCheck size={14} style={{ marginRight: '4px' }} />
-                {t('markAllAsRead')}
-              </Button>
-            )}
-          </Flex>
-
-          {/* Tab underline bar */}
-          <HStack gap={0}>
-            <Box
-              as="button"
-              onClick={() => handleTabChange('notifications')}
-              display="flex"
-              alignItems="center"
-              gap="6px"
-              px={4}
-              py={2}
-              fontSize="sm"
-              fontWeight="medium"
-              borderBottom="2px solid"
-              borderColor={
-                activeTab === 'notifications' ? 'brand.500' : 'transparent'
-              }
-              color={activeTab === 'notifications' ? 'brand.600' : 'gray.500'}
-              _dark={{
-                color: activeTab === 'notifications' ? 'brand.300' : 'gray.400',
-                borderColor:
-                  activeTab === 'notifications' ? 'brand.400' : 'transparent',
-              }}
-              transition="all 0.15s"
-              _hover={{ color: 'brand.600', _dark: { color: 'brand.300' } }}
-              cursor="pointer"
-              bg="transparent"
-              borderWidth="0 0 2px 0"
-              outline="none"
-            >
-              {t('notificationsTab')}
+          <Flex justify="space-between" align="center">
+            <HStack gap={2}>
+              <Heading size="xs" fontSize="md" fontWeight="bold">
+                {t('notifications')}
+              </Heading>
               {unreadCount > 0 && (
                 <Badge
                   bg="red.500"
                   color="white"
                   borderRadius="full"
-                  fontSize="9px"
-                  px="6px"
+                  fontSize="10px"
+                  px="7px"
                   py="1px"
                   lineHeight="normal"
-                  minW="18px"
-                  textAlign="center"
+                  title={t('unreadNotifications')}
                 >
-                  {unreadCount > 9 ? '9+' : unreadCount}
+                  {unreadCount}
                 </Badge>
               )}
-            </Box>
-
-            <Box
-              as="button"
-              onClick={() => handleTabChange('approval')}
-              display="flex"
-              alignItems="center"
-              gap="6px"
-              px={4}
-              py={2}
-              fontSize="sm"
-              fontWeight="medium"
-              borderBottom="2px solid"
-              borderColor={
-                activeTab === 'approval' ? 'orange.500' : 'transparent'
-              }
-              color={activeTab === 'approval' ? 'orange.600' : 'gray.500'}
-              _dark={{
-                color: activeTab === 'approval' ? 'orange.300' : 'gray.400',
-                borderColor:
-                  activeTab === 'approval' ? 'orange.400' : 'transparent',
-              }}
-              transition="all 0.15s"
-              _hover={{ color: 'orange.600', _dark: { color: 'orange.300' } }}
-              cursor="pointer"
-              bg="transparent"
-              borderWidth="0 0 2px 0"
-              outline="none"
-            >
-              {t('approvalRequestsTab')}
               {pendingCount > 0 && (
                 <Badge
-                  bg="orange.500"
+                  bg="orange.400"
                   color="white"
                   borderRadius="full"
-                  fontSize="9px"
-                  px="6px"
+                  fontSize="10px"
+                  px="7px"
                   py="1px"
                   lineHeight="normal"
-                  minW="18px"
-                  textAlign="center"
+                  title={t('approvalRequestsTab')}
                 >
-                  {pendingCount > 9 ? '9+' : pendingCount}
+                  {pendingCount}
                 </Badge>
               )}
-            </Box>
-          </HStack>
+            </HStack>
+            <Button
+              size="xs"
+              variant="ghost"
+              colorPalette="brand"
+              onClick={handleMarkAllAsRead}
+              loading={isMarkingAll}
+              fontSize="xs"
+              h="24px"
+              opacity={unreadCount > 0 ? 1 : 0.35}
+              disabled={unreadCount === 0 || isMarkingAll}
+            >
+              <LuCheckCheck size={14} style={{ marginRight: '4px' }} />
+              {t('markAllAsRead')}
+            </Button>
+          </Flex>
         </PopoverHeader>
 
         <PopoverBody p={0}>
-          {/* Notifications Tab */}
-          {activeTab === 'notifications' && (
-            <Box maxH="440px" overflowY="auto">
-              {isLoading && notifications.length === 0 ? (
-                <Flex justify="center" align="center" py={12}>
-                  <Spinner size="md" color="brand.500" />
-                </Flex>
-              ) : notifications.length === 0 ? (
-                <VStack gap={3} p={10} color="gray.400">
-                  <LuInbox size={48} strokeWidth={1} />
-                  <Text fontSize="sm" fontWeight="medium">
-                    {t('noNotifications')}
-                  </Text>
-                </VStack>
-              ) : (
-                <Stack gap={0}>
-                  {notifications.map((notification) => {
-                    const Icon = getNotificationIcon(notification.type);
-                    const colorScheme = getNotificationColor(notification.type);
-
+          <Box maxH="500px" overflowY="auto">
+            {(isLoading || isPendingLoading) && unifiedItems.length === 0 ? (
+              <Flex justify="center" align="center" py={12}>
+                <Spinner size="md" color="brand.500" />
+              </Flex>
+            ) : isEmpty ? (
+              <VStack gap={3} p={10} color="gray.400">
+                <LuInbox size={48} strokeWidth={1} />
+                <Text fontSize="sm" fontWeight="medium">
+                  {t('noNotifications')}
+                </Text>
+              </VStack>
+            ) : (
+              <Stack gap={0}>
+                {unifiedItems.map((item) => {
+                  if (item.kind === 'approval') {
+                    const request = item.data;
                     return (
                       <Box
-                        key={notification.id}
-                        onClick={() => handleNotificationClick(notification)}
+                        key={`approval-${request.id}`}
+                        onClick={() => handleApprovalClick(request)}
                         w="100%"
-                        p={4}
-                        bg={notification.isRead ? 'transparent' : 'brand.50/30'}
-                        _dark={{
-                          bg: notification.isRead
-                            ? 'transparent'
-                            : 'whiteAlpha.50',
-                          borderColor: 'gray.800',
-                        }}
+                        px={4}
+                        py={3}
+                        bg="orange.50/40"
                         borderBottom="1px solid"
-                        borderColor="gray.50"
+                        borderColor="orange.100"
+                        _dark={{
+                          bg: 'rgba(251,146,60,0.07)',
+                          borderColor: 'rgba(251,146,60,0.15)',
+                        }}
                         transition="all 0.15s"
                         _hover={{
-                          bg: 'gray.50',
-                          _dark: { bg: 'whiteAlpha.50' },
+                          bg: 'orange.50',
+                          _dark: { bg: 'rgba(251,146,60,0.12)' },
                           cursor: 'pointer',
                         }}
                         position="relative"
-                        role="group"
                       >
-                        {!notification.isRead && (
-                          <Box
-                            position="absolute"
-                            left={0}
-                            top={0}
-                            bottom={0}
-                            width="3px"
-                            bg="brand.500"
-                            borderRadius="0 2px 2px 0"
-                          />
-                        )}
+                        {/* Orange left accent */}
+                        <Box
+                          position="absolute"
+                          left={0}
+                          top={0}
+                          bottom={0}
+                          width="3px"
+                          bg="orange.400"
+                          borderRadius="0 2px 2px 0"
+                        />
 
                         <HStack gap={3} align="start">
+                          {/* Icon */}
                           <Box
-                            mt={0.5}
-                            p={2}
+                            w="36px"
+                            h="36px"
                             borderRadius="xl"
-                            bg={`${colorScheme}.50`}
-                            _dark={{ bg: `${colorScheme}.900/30` }}
-                            color={`${colorScheme}.600`}
+                            bg="orange.100"
+                            _dark={{ bg: 'rgba(251,146,60,0.25)' }}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            color="orange.500"
                             flexShrink={0}
+                            mt="1px"
                           >
-                            <Icon size={17} />
+                            <LuUserCheck size={17} />
                           </Box>
 
+                          {/* Content — same 3-row structure as regular notifications */}
                           <VStack align="start" gap={0.5} flex={1} minW={0}>
-                            <HStack
-                              justify="space-between"
-                              w="100%"
-                              align="center"
-                            >
+                            {/* Row 1: name + badge */}
+                            <HStack gap={1.5} w="100%" align="center">
                               <Text
                                 fontSize="sm"
-                                fontWeight={
-                                  notification.isRead ? 'medium' : 'semibold'
-                                }
-                                color={
-                                  notification.isRead ? 'gray.600' : 'gray.900'
-                                }
-                                _dark={{
-                                  color: notification.isRead
-                                    ? 'gray.400'
-                                    : 'white',
-                                }}
+                                fontWeight="semibold"
+                                color="gray.900"
+                                _dark={{ color: 'white' }}
                                 lineHeight="short"
+                                flex={1}
                                 truncate
                               >
-                                {notification.title}
+                                {request.name}
                               </Text>
-                              {!notification.isRead && (
-                                <Box
-                                  w="7px"
-                                  h="7px"
-                                  bg="brand.500"
-                                  borderRadius="full"
-                                  flexShrink={0}
-                                />
-                              )}
+                              <Badge
+                                bg="orange.400"
+                                color="white"
+                                size="xs"
+                                borderRadius="md"
+                                px={1.5}
+                                fontSize="9px"
+                                flexShrink={0}
+                                lineHeight="normal"
+                                py="1px"
+                              >
+                                {t('approvalPending')}
+                              </Badge>
                             </HStack>
 
+                            {/* Row 2: session info */}
                             <Text
                               fontSize="xs"
                               color="gray.500"
                               _dark={{ color: 'gray.400' }}
                               lineHeight="normal"
-                              lineClamp={2}
+                              truncate
+                              w="100%"
                             >
-                              {notification.message}
+                              {request.session.name} · Lv.{request.level} ·{' '}
+                              {dayjs(request.session.startTime).format(
+                                'DD/MM, HH:mm'
+                              )}
                             </Text>
 
-                            <HStack justify="space-between" w="100%" mt={0.5}>
-                              <Text
-                                fontSize="10px"
-                                fontWeight="medium"
-                                color="gray.400"
-                              >
-                                {formatTimeAgo(notification.createdAt)}
-                              </Text>
-
-                              <IconButton
-                                aria-label="Delete"
+                            {/* Row 3: action buttons */}
+                            <HStack
+                              gap={1.5}
+                              mt={0.5}
+                              w="100%"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button
                                 size="xs"
-                                variant="ghost"
                                 colorPalette="red"
-                                opacity={0}
-                                _groupHover={{ opacity: 1 }}
+                                variant="outline"
                                 onClick={(e) =>
-                                  handleDeleteNotification(e, notification.id)
+                                  handleApprovalAction(
+                                    e,
+                                    request.id,
+                                    request.sessionId,
+                                    'REJECTED'
+                                  )
                                 }
-                                h="22px"
-                                w="22px"
-                                borderRadius="md"
+                                disabled={pendingActionLoading === request.id}
+                                h="24px"
+                                fontSize="xs"
+                                px={3}
                               >
-                                <LuTrash2 size={12} />
-                              </IconButton>
+                                {t('reject')}
+                              </Button>
+                              <Button
+                                size="xs"
+                                colorPalette="green"
+                                onClick={(e) =>
+                                  handleApprovalAction(
+                                    e,
+                                    request.id,
+                                    request.sessionId,
+                                    'APPROVED'
+                                  )
+                                }
+                                loading={pendingActionLoading === request.id}
+                                h="24px"
+                                fontSize="xs"
+                                px={3}
+                              >
+                                {t('approve')}
+                              </Button>
                             </HStack>
                           </VStack>
                         </HStack>
                       </Box>
                     );
-                  })}
-                </Stack>
-              )}
-            </Box>
-          )}
+                  }
 
-          {/* Approval Requests Tab */}
-          {activeTab === 'approval' && (
-            <Box maxH="440px" overflowY="auto">
-              {isPendingLoading ? (
-                <Flex justify="center" align="center" py={12}>
-                  <Spinner size="md" color="orange.500" />
-                </Flex>
-              ) : pendingRequests.length === 0 ? (
-                <VStack gap={3} p={10} color="gray.400">
-                  <LuClipboardCheck size={48} strokeWidth={1} />
-                  <Text fontSize="sm" fontWeight="medium">
-                    {t('approvalRequestsEmpty')}
-                  </Text>
-                </VStack>
-              ) : (
-                <Stack gap={0}>
-                  {pendingRequests.map((request) => (
+                  // Regular notification
+                  const notification = item.data;
+                  const Icon = getNotificationIcon(notification.type);
+                  const colorScheme = getNotificationColor(notification.type);
+                  const isUnread = !notification.isRead;
+
+                  return (
                     <Box
-                      key={request.id}
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification)}
                       w="100%"
-                      p={4}
+                      px={4}
+                      py={3}
+                      bg={isUnread ? `${colorScheme}.50/60` : 'transparent'}
                       borderBottom="1px solid"
-                      borderColor="gray.50"
-                      _dark={{ borderColor: 'gray.800' }}
-                      transition="background 0.15s"
-                      _hover={{ bg: 'gray.50', _dark: { bg: 'whiteAlpha.50' } }}
+                      borderColor={
+                        isUnread ? `${colorScheme}.100/60` : 'gray.50'
+                      }
+                      _dark={{
+                        bg: isUnread ? `${colorScheme}.900/15` : 'transparent',
+                        borderColor: isUnread
+                          ? `${colorScheme}.800/40`
+                          : 'gray.800',
+                      }}
+                      transition="all 0.15s"
+                      _hover={{
+                        bg: isUnread ? `${colorScheme}.50` : 'gray.50',
+                        _dark: {
+                          bg: isUnread
+                            ? `${colorScheme}.900/20`
+                            : 'rgba(255,255,255,0.05)',
+                        },
+                        cursor: 'pointer',
+                      }}
+                      position="relative"
+                      role="group"
                     >
-                      <HStack gap={3} align="start">
+                      {/* Unread left accent */}
+                      {isUnread && (
                         <Box
-                          mt={0.5}
-                          p={2}
+                          position="absolute"
+                          left={0}
+                          top={0}
+                          bottom={0}
+                          width="3px"
+                          bg={`${colorScheme}.500`}
+                          borderRadius="0 2px 2px 0"
+                        />
+                      )}
+
+                      <HStack gap={3} align="start">
+                        {/* Type icon */}
+                        <Box
+                          w="36px"
+                          h="36px"
                           borderRadius="xl"
-                          bg="green.50"
-                          _dark={{ bg: 'green.900/30' }}
-                          color="green.600"
+                          bg={
+                            isUnread
+                              ? `${colorScheme}.100`
+                              : `${colorScheme}.50`
+                          }
+                          _dark={{
+                            bg: isUnread
+                              ? `${colorScheme}.800/50`
+                              : `${colorScheme}.900/20`,
+                          }}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          color={
+                            isUnread
+                              ? `${colorScheme}.600`
+                              : `${colorScheme}.400`
+                          }
                           flexShrink={0}
+                          mt="1px"
                         >
-                          <LuUserCheck size={17} />
+                          <Icon size={17} />
                         </Box>
 
-                        <VStack align="start" gap={1} flex={1} minW={0}>
-                          <Text
-                            fontSize="sm"
-                            fontWeight="semibold"
-                            color="gray.900"
-                            _dark={{ color: 'white' }}
-                            truncate
+                        <VStack align="start" gap={0.5} flex={1} minW={0}>
+                          {/* Title row */}
+                          <HStack
+                            justify="space-between"
+                            w="100%"
+                            align="center"
                           >
-                            {request.name}
-                          </Text>
-
-                          <Text
-                            fontSize="xs"
-                            color="gray.500"
-                            _dark={{ color: 'gray.400' }}
-                            truncate
-                          >
-                            {t('approvalSession')}: {request.session.name} ·{' '}
-                            {dayjs(request.session.startTime).format(
-                              'MMM D, HH:mm'
+                            <Text
+                              fontSize="sm"
+                              fontWeight={isUnread ? 'semibold' : 'medium'}
+                              color={isUnread ? 'gray.900' : 'gray.700'}
+                              _dark={{
+                                color: isUnread ? 'white' : 'gray.200',
+                              }}
+                              lineHeight="short"
+                              flex={1}
+                              truncate
+                            >
+                              {notification.title}
+                            </Text>
+                            {isUnread && (
+                              <Box
+                                w="7px"
+                                h="7px"
+                                bg={`${colorScheme}.500`}
+                                borderRadius="full"
+                                flexShrink={0}
+                                ml={1.5}
+                              />
                             )}
-                          </Text>
-
-                          <HStack gap={1.5} flexWrap="wrap">
-                            <Badge
-                              colorPalette="purple"
-                              size="sm"
-                              borderRadius="md"
-                              px={2}
-                              fontSize="10px"
-                            >
-                              {t('approvalLevel')} {request.level}
-                            </Badge>
-                            <Badge
-                              size="sm"
-                              borderRadius="md"
-                              px={2}
-                              fontSize="10px"
-                            >
-                              {t('approvalPlayer')}
-                              {request.playerNumber}
-                            </Badge>
                           </HStack>
 
-                          <HStack gap={2} mt={1}>
-                            <Button
+                          {/* Message */}
+                          <Text
+                            fontSize="xs"
+                            color={isUnread ? 'gray.600' : 'gray.500'}
+                            _dark={{
+                              color: isUnread ? 'gray.300' : 'gray.400',
+                            }}
+                            lineHeight="normal"
+                            lineClamp={2}
+                          >
+                            {notification.message}
+                          </Text>
+
+                          {/* Footer: time + delete */}
+                          <HStack justify="space-between" w="100%" mt={0.5}>
+                            <Text
+                              fontSize="10px"
+                              fontWeight="medium"
+                              color={
+                                isUnread ? `${colorScheme}.500` : 'gray.500'
+                              }
+                              _dark={{
+                                color: isUnread
+                                  ? `${colorScheme}.400`
+                                  : 'gray.400',
+                              }}
+                            >
+                              {formatTimeAgo(notification.createdAt)}
+                            </Text>
+
+                            <IconButton
+                              aria-label="Delete"
                               size="xs"
+                              variant="ghost"
                               colorPalette="red"
-                              variant="outline"
-                              onClick={() =>
-                                handleApprovalAction(
-                                  request.id,
-                                  request.sessionId,
-                                  'REJECTED'
-                                )
+                              opacity={0}
+                              _groupHover={{ opacity: 1 }}
+                              onClick={(e) =>
+                                handleDeleteNotification(e, notification.id)
                               }
-                              disabled={pendingActionLoading === request.id}
-                              h="26px"
-                              fontSize="xs"
+                              h="22px"
+                              w="22px"
+                              borderRadius="md"
                             >
-                              {t('reject')}
-                            </Button>
-                            <Button
-                              size="xs"
-                              colorPalette="green"
-                              onClick={() =>
-                                handleApprovalAction(
-                                  request.id,
-                                  request.sessionId,
-                                  'APPROVED'
-                                )
-                              }
-                              loading={pendingActionLoading === request.id}
-                              h="26px"
-                              fontSize="xs"
-                            >
-                              {t('approve')}
-                            </Button>
+                              <LuTrash2 size={12} />
+                            </IconButton>
                           </HStack>
                         </VStack>
                       </HStack>
                     </Box>
-                  ))}
-                </Stack>
-              )}
-            </Box>
-          )}
+                  );
+                })}
+
+                {isLoading && (
+                  <Flex justify="center" py={4}>
+                    <Spinner size="sm" color="brand.500" />
+                  </Flex>
+                )}
+              </Stack>
+            )}
+          </Box>
         </PopoverBody>
       </PopoverContent>
     </PopoverRoot>

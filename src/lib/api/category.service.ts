@@ -12,6 +12,7 @@ import {
   CreateCategoryRegistrationRequest,
   CreateCategoryMatchRequest,
   EndCategoryMatchRequest,
+  IBulkScheduleItem,
 } from './types';
 
 export const CategoryService = {
@@ -346,5 +347,12 @@ export const CategoryService = {
     );
     toaster.success({ title: 'Group stage completed successfully' });
     return response.data.data!;
+  },
+
+  bulkUpdateSchedule: async (updates: IBulkScheduleItem[]): Promise<void> => {
+    await api.put<ApiResponse<null>>('/category-matches/bulk/schedule', {
+      updates,
+    });
+    toaster.success({ title: 'Schedule updated successfully' });
   },
 };

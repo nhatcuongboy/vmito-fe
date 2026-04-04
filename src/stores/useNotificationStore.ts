@@ -132,6 +132,7 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       }));
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
+      throw error;
     }
   },
 
