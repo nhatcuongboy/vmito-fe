@@ -12,6 +12,7 @@ import {
   requestNotificationPermission,
 } from '@/utils/notifications';
 import { toaster } from '@/components/ui/toaster';
+import useUniversalVmitoAudio from '@/hooks/useUniversalVmitoAudio';
 import {
   type Court,
   type Player,
@@ -50,6 +51,11 @@ export function usePlayerSession({
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
+  const { playAttention } = useUniversalVmitoAudio({
+    title: 'Court Call',
+    artist: 'Vmito',
+    album: 'Badminton Session',
+  });
 
   const showCourtCall = useCourtCallStore((s) => s.showCourtCall);
 
@@ -260,6 +266,13 @@ export function usePlayerSession({
             t('courtCall.goToCourt') + ' ' + courtDisplayName
           );
 
+          void playAttention(3).catch((error) => {
+            console.warn(
+              '[usePlayerSession] Failed to play court-call attention tone',
+              error
+            );
+          });
+
           // TTS announcement in Vietnamese — repeat 3 times with a short pause
           if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.cancel();
@@ -332,7 +345,15 @@ export function usePlayerSession({
       socket.off('match_started', handleGenericEvent);
       socket.off('match_ended', handleGenericEvent);
     };
-  }, [socket, session?.id, session?.courts, player?.id, t, fetchPlayerData]);
+  }, [
+    socket,
+    session?.id,
+    session?.courts,
+    player?.id,
+    t,
+    fetchPlayerData,
+    playAttention,
+  ]);
 
   // Initial data fetch and auto-refresh
   useEffect(() => {

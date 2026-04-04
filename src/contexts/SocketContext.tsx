@@ -9,6 +9,7 @@ import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useCourtCallStore } from '@/stores/useCourtCallStore';
 import { INotification } from '@/lib/api/types';
 import { sendSystemNotification } from '@/utils/notifications';
+import useUniversalVmitoAudio from '@/hooks/useUniversalVmitoAudio';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -52,6 +53,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<Error | null>(null);
   const { user } = useAuthStore();
+  const { playAttention } = useUniversalVmitoAudio({
+    title: 'Court Call',
+    artist: 'Vmito',
+    album: 'Badminton Session',
+  });
 
   useEffect(() => {
     // Initialize socket connection
@@ -219,6 +225,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         `Trận đấu của bạn sắp bắt đầu.`
       );
 
+      // Play alert tone via MediaSession-based audio pipeline.
+      // This improves Bluetooth routing consistency on iOS/PWA.
+      void playAttention(3).catch((error) => {
+        console.warn(
+          '[Socket] Failed to play court-call attention tone',
+          error
+        );
+      });
+
       // TTS announcement — repeat 3 times
       if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.cancel();
@@ -248,7 +263,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleGlobalPlayersSelected
       );
     };
-  }, [socket, user?.id]);
+  }, [socket, user?.id, playAttention]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {
