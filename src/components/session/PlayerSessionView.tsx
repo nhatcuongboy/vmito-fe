@@ -1,6 +1,5 @@
 'use client';
 
-import CourtCallModal from '@/components/session/CourtCallModal';
 import SessionCourtsTab from '@/components/session/SessionCourtsTab';
 import PlayerSessionBottomNav from '@/components/session/PlayerSessionBottomNav';
 import PlayerStatusTab from '@/components/session/PlayerStatusTab';
@@ -99,9 +98,6 @@ export default function PlayerSessionView({
     currentMatch,
     currentCourt,
     courtPlayers,
-    courtCallModalOpen,
-    courtCallCourtName,
-    setCourtCallModalOpen,
     fetchPlayerData,
   } = usePlayerSession({
     mode,
@@ -653,13 +649,6 @@ export default function PlayerSessionView({
           />
         </Container>
       </PageWrapper>
-
-      {/* Court Call Modal */}
-      <CourtCallModal
-        isOpen={courtCallModalOpen}
-        onClose={() => setCourtCallModalOpen(false)}
-        courtName={courtCallCourtName}
-      />
 
       {/* Rate Host Modal */}
       {session && (

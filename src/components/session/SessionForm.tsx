@@ -390,14 +390,17 @@ export default function SessionForm({
   // Computed session duration
   const sessionDuration = useMemo(() => {
     try {
+      if (!startTime || !endTime) return 0;
       const start = new Date(startTime);
       const end = new Date(endTime);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+
       const durationMinutes = Math.round(
         (end.getTime() - start.getTime()) / (60 * 1000)
       );
-      return durationMinutes > 0 ? durationMinutes : 120;
+      return durationMinutes > 0 ? durationMinutes : 0;
     } catch {
-      return 120;
+      return 0;
     }
   }, [startTime, endTime]);
 
@@ -475,11 +478,11 @@ export default function SessionForm({
     if (shouldFocusNewCourt.current && fields.length > 0) {
       shouldFocusNewCourt.current = false;
       const newIndex = fields.length - 1;
-      const inputName = `courts.${newIndex}.courtNumber`;
-      const el = document.querySelector<HTMLInputElement>(
-        `input[name="${inputName}"]`
-      );
-      el?.focus();
+      // Use setTimeout to wait for React to finish rendering the new row
+      setTimeout(() => {
+        const el = document.getElementById(`court-number-input-${newIndex}`);
+        if (el) el.focus();
+      }, 0);
     }
   }, [fields.length]);
 
@@ -1417,6 +1420,7 @@ export default function SessionForm({
                             name={`courts.${index}.courtNumber`}
                             render={({ field }) => (
                               <Input
+                                id={`court-number-input-${index}`}
                                 type="number"
                                 value={field.value === 0 ? '' : field.value}
                                 onChange={(
@@ -1757,6 +1761,7 @@ export default function SessionForm({
                 type="submit"
                 colorPalette="green"
                 loading={isSubmitting || isNavigating}
+                disabled={sessionDuration === 0}
                 loadingText={
                   isNavigating
                     ? tc('loading')

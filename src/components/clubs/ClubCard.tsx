@@ -70,9 +70,12 @@ export default function ClubCard({ club }: ClubCardProps) {
       }}
       cursor="pointer"
       onClick={handleViewDetails}
+      display="flex"
+      flexDirection="column"
+      height="100%"
     >
       {/* Cover Photo */}
-      <Box position="relative" h="140px" overflow="hidden">
+      <Box position="relative" h="140px" overflow="hidden" flexShrink={0}>
         <Image
           src={club.image || DEFAULT_COVER_PHOTO}
           alt={club.name}
@@ -102,54 +105,105 @@ export default function ClubCard({ club }: ClubCardProps) {
         )}
       </Box>
 
-      {/* Header Section */}
-      <Box px={5} pt={5} pb={3}>
-        <Flex justify="space-between" align="flex-start" gap={3} mb={3}>
-          <Box flex="1" minW={0}>
-            <Text
-              fontWeight="bold"
-              fontSize="xl"
-              lineClamp={1}
-              color="blue.600"
-              _dark={{ color: 'blue.400' }}
-              letterSpacing="tight"
-              mb={3}
-            >
-              {club.name}
-            </Text>
-
-            {/* Description */}
-            {club.description && (
+      {/* Content Section - Flex grow to push button to bottom */}
+      <Box flex="1">
+        {/* Header Section */}
+        <Box px={5} pt={5} pb={3}>
+          <Flex justify="space-between" align="flex-start" gap={3} mb={3}>
+            <Box flex="1" minW={0}>
               <Text
-                fontSize="sm"
-                color="gray.600"
-                _dark={{ color: 'gray.400' }}
-                lineClamp={2}
+                fontWeight="bold"
+                fontSize="xl"
+                lineClamp={1}
+                color="blue.600"
+                _dark={{ color: 'blue.400' }}
+                letterSpacing="tight"
                 mb={3}
               >
-                {club.description}
+                {club.name}
               </Text>
+
+              {/* Description */}
+              {club.description && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                  lineClamp={2}
+                  mb={3}
+                >
+                  {club.description}
+                </Text>
+              )}
+            </Box>
+          </Flex>
+        </Box>
+
+        {/* Divider */}
+        <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
+
+        {/* Info Section */}
+        <Box px={5} py={4}>
+          <Stack gap={3}>
+            {/* Venue/Location */}
+            {venueName && (
+              <Flex align="center" gap={2.5}>
+                <Box
+                  p={2}
+                  borderRadius="lg"
+                  bg="green.50"
+                  _dark={{ bg: 'green.900/20' }}
+                >
+                  <MapPin size={16} color="#38A169" style={{ flexShrink: 0 }} />
+                </Box>
+                <Box flex="1">
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                    fontWeight="medium"
+                    lineClamp={1}
+                  >
+                    {venueName}
+                  </Text>
+                </Box>
+              </Flex>
             )}
-          </Box>
-        </Flex>
-      </Box>
 
-      {/* Divider */}
-      <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
+            {/* Schedule */}
+            {scheduleText && (
+              <Flex align="flex-start" gap={2.5}>
+                <Box
+                  p={2}
+                  borderRadius="lg"
+                  bg="purple.50"
+                  _dark={{ bg: 'purple.900/20' }}
+                >
+                  <Clock size={16} color="#805AD5" style={{ flexShrink: 0 }} />
+                </Box>
+                <Box flex="1">
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                    fontWeight="medium"
+                    whiteSpace="pre-line"
+                  >
+                    {scheduleText}
+                  </Text>
+                </Box>
+              </Flex>
+            )}
 
-      {/* Info Section */}
-      <Box px={5} py={4}>
-        <Stack gap={3}>
-          {/* Venue/Location */}
-          {venueName && (
+            {/* Host info */}
             <Flex align="center" gap={2.5}>
               <Box
                 p={2}
                 borderRadius="lg"
-                bg="green.50"
-                _dark={{ bg: 'green.900/20' }}
+                bg="orange.50"
+                _dark={{ bg: 'orange.900/20' }}
               >
-                <MapPin size={16} color="#38A169" style={{ flexShrink: 0 }} />
+                <Crown size={16} color="#DD6B20" style={{ flexShrink: 0 }} />
               </Box>
               <Box flex="1">
                 <Text
@@ -157,24 +211,21 @@ export default function ClubCard({ club }: ClubCardProps) {
                   color="gray.700"
                   _dark={{ color: 'gray.300' }}
                   fontWeight="medium"
-                  lineClamp={1}
                 >
-                  {venueName}
+                  {t('clubs.hostedBy')} {club.host.name}
                 </Text>
               </Box>
             </Flex>
-          )}
 
-          {/* Schedule */}
-          {scheduleText && (
-            <Flex align="flex-start" gap={2.5}>
+            {/* Member count */}
+            <Flex align="center" gap={2.5}>
               <Box
                 p={2}
                 borderRadius="lg"
-                bg="purple.50"
-                _dark={{ bg: 'purple.900/20' }}
+                bg="blue.50"
+                _dark={{ bg: 'blue.900/20' }}
               >
-                <Clock size={16} color="#805AD5" style={{ flexShrink: 0 }} />
+                <Users size={16} color="#3182CE" style={{ flexShrink: 0 }} />
               </Box>
               <Box flex="1">
                 <Text
@@ -182,63 +233,24 @@ export default function ClubCard({ club }: ClubCardProps) {
                   color="gray.700"
                   _dark={{ color: 'gray.300' }}
                   fontWeight="medium"
-                  whiteSpace="pre-line"
                 >
-                  {scheduleText}
+                  {club.memberCount} {t('clubs.members')}
                 </Text>
               </Box>
             </Flex>
-          )}
-
-          {/* Host info */}
-          <Flex align="center" gap={2.5}>
-            <Box
-              p={2}
-              borderRadius="lg"
-              bg="orange.50"
-              _dark={{ bg: 'orange.900/20' }}
-            >
-              <Crown size={16} color="#DD6B20" style={{ flexShrink: 0 }} />
-            </Box>
-            <Box flex="1">
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
-                fontWeight="medium"
-              >
-                {t('clubs.hostedBy')} {club.host.name}
-              </Text>
-            </Box>
-          </Flex>
-
-          {/* Member count */}
-          <Flex align="center" gap={2.5}>
-            <Box
-              p={2}
-              borderRadius="lg"
-              bg="blue.50"
-              _dark={{ bg: 'blue.900/20' }}
-            >
-              <Users size={16} color="#3182CE" style={{ flexShrink: 0 }} />
-            </Box>
-            <Box flex="1">
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
-                fontWeight="medium"
-              >
-                {club.memberCount} {t('clubs.members')}
-              </Text>
-            </Box>
-          </Flex>
-        </Stack>
+          </Stack>
+        </Box>
       </Box>
 
       {/* Action Button */}
-      <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
-      <Box px={5} py={4}>
+      <Box
+        h="1px"
+        bg="gray.100"
+        _dark={{ bg: 'gray.700' }}
+        mx={5}
+        flexShrink={0}
+      />
+      <Box px={5} py={4} flexShrink={0}>
         <Button
           w="100%"
           variant="solid"

@@ -130,6 +130,7 @@ import { SocketProvider } from '@/contexts/SocketContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
 import { Toaster } from '@/components/ui/toaster';
 import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
+import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -144,6 +145,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               {children}
               <Toaster />
               <GlobalErrorModal />
+              <GlobalCourtCallModal />
             </SocketProvider>
           </AuthProvider>
         </SidebarProvider>

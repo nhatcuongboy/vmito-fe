@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSocket } from '@/contexts/SocketContext';
 import { useTranslations } from 'next-intl';
+import { useCourtCallStore } from '@/stores/useCourtCallStore';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { PlayerService } from '@/lib/api/player.service';
@@ -50,9 +51,7 @@ export function usePlayerSession({
   const [currentCourt, setCurrentCourt] = useState<Court | null>(null);
   const [courtPlayers, setCourtPlayers] = useState<Player[]>([]);
 
-  // Court call modal state
-  const [courtCallModalOpen, setCourtCallModalOpen] = useState(false);
-  const [courtCallCourtName, setCourtCallCourtName] = useState<string>('');
+  const showCourtCall = useCourtCallStore((s) => s.showCourtCall);
 
   // Function to fetch player data
   const fetchPlayerData = useCallback(
@@ -246,12 +245,11 @@ export function usePlayerSession({
       if (isCurrentPlayerSelected) {
         const court = session.courts?.find((c) => c.id === data.courtId);
         const courtDisplayName = court
-          ? court.courtName || `Court ${court.courtNumber}`
-          : 'Court';
+          ? court.courtName || t('court.title', { number: court.courtNumber })
+          : t('court.title', { number: '?' });
         const courtNumber = court?.courtNumber;
 
-        setCourtCallCourtName(courtDisplayName);
-        setCourtCallModalOpen(true);
+        showCourtCall(courtDisplayName);
 
         sendSystemNotification(
           t('events.youWereSelected', { court: courtDisplayName }),
@@ -364,9 +362,6 @@ export function usePlayerSession({
     currentMatch,
     currentCourt,
     courtPlayers,
-    courtCallModalOpen,
-    courtCallCourtName,
-    setCourtCallModalOpen,
     fetchPlayerData,
     setError,
   };

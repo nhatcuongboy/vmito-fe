@@ -91,7 +91,7 @@ export default function BadmintonCourt({
 
     const pair1Names = pair1.map(getPlayerName).join(' và ');
     const pair2Names = pair2.map(getPlayerName).join(' và ');
-    const allNames = pair1Names + (pair2Names ? `, ${pair2Names}` : '');
+    const allNames = pair1Names + (pair2Names ? ` , ${pair2Names}` : '');
 
     const courtNum = courtNumber ?? '';
     const intro =
