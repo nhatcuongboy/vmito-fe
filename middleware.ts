@@ -41,6 +41,20 @@ export function middleware(request: NextRequest) {
       );
     }
 
+    // /host/pending-join-requests -> /host/sessions/pending
+    if (pathWithoutLocale === '/host/pending-join-requests') {
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}/host/sessions/pending`, request.url)
+      );
+    }
+
+    // /player/sessions (list only, not detail pages) -> /host/sessions/joined
+    if (pathWithoutLocale === '/player/sessions') {
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}/host/sessions/joined`, request.url)
+      );
+    }
+
     // /tournaments/[id] -> /browse/tournaments/[id]
     const tournamentDetailMatch = pathWithoutLocale.match(
       /^\/tournaments\/([^/]+)$/

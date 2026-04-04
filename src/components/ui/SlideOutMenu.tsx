@@ -344,7 +344,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
             {/* Separator */}
             <Separator />
 
-            {/* Sessions Section */}
+            {/* Management Section */}
             {isAuthenticated && (
               <>
                 <Box>
@@ -356,12 +356,12 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       mb={3}
                       display={{ base: 'block', md: 'block' }}
                     >
-                      {common('sessions')}
+                      {common('admin')}
                     </Text>
                   )}
                   <Stack gap={2}>
                     <VTooltip
-                      content={nav('host')}
+                      content="Kèo"
                       positioning={{
                         placement: 'right',
                         offset: { mainAxis: 12 },
@@ -410,86 +410,13 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('host')}
+                              Kèo
                             </Text>
                           )}
                         </Flex>
                       </NextLinkButton>
                     </VTooltip>
 
-                    <VTooltip
-                      content={nav('joined')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={ROUTES.PLAYER.SESSIONS.LIST}
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(ROUTES.PLAYER.SESSIONS.LIST)}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <Ticket
-                            size={18}
-                            color={
-                              pathname.startsWith(ROUTES.PLAYER.SESSIONS.LIST)
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('joined')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
-
-                    {/* Redundant 'My Clubs' removed from here and moved to Management section */}
-                  </Stack>
-                </Box>
-
-                {/* Separator */}
-                <Separator />
-              </>
-            )}
-
-            {/* Management Section */}
-            {isAuthenticated && (
-              <>
-                <Box>
-                  {!isCollapsed && (
-                    <Text
-                      fontSize="sm"
-                      fontWeight="semibold"
-                      color="fg.muted"
-                      mb={3}
-                      display={{ base: 'block', md: 'block' }}
-                    >
-                      {common('admin')}
-                    </Text>
-                  )}
-                  <Stack gap={2}>
                     {canAccessHostFeatures &&
                       (user?.role === UserRole.ADMIN ||
                         user?.role === UserRole.HOST) && (

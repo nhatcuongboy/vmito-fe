@@ -137,7 +137,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   return (
     <MainLayout
       title={t('title')}
-      showBackButton={true}
+      showBackButton={false}
       backHref="/host/sessions"
       contentPadding={0}
     >
@@ -193,6 +193,8 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             isToggleStatusLoading={isToggleStatusLoading}
             onToggleSessionStatus={toggleSessionStatus}
             onRefreshData={refreshSessionData}
+            showBackButton={true}
+            backHref="/host/sessions"
           />
 
           <Flex

@@ -38,7 +38,7 @@ export const ROUTES = {
       MEMBERS: (id: string) => `/host/clubs/${id}/members`,
       FEES: (id: string) => `/host/clubs/${id}/fees`,
     },
-    PENDING_JOIN_REQUESTS: '/host/pending-join-requests',
+    PENDING_JOIN_REQUESTS: '/host/sessions/pending',
     TOURNAMENTS: {
       LIST: '/host/tournaments',
       NEW: '/host/tournaments/new',
@@ -57,7 +57,7 @@ export const ROUTES = {
     HOST_FEATURE: '/host/sessions',
     SUGGESTIONS: '/player/suggestions',
     SESSIONS: {
-      LIST: '/player/sessions',
+      LIST: '/host/sessions/joined',
       DETAIL: (id: string) => `/player/sessions/${id}`,
       JOIN_CONFIRM: '/player/sessions/join/confirm',
     },

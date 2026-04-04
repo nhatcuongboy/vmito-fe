@@ -4,6 +4,7 @@ import { CourtDirection } from '@/lib/api/types';
 import { Box, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { Volume2 } from 'lucide-react';
 import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
 
 interface BadmintonCourtProps {
@@ -55,6 +56,63 @@ export default function BadmintonCourt({
   const t = useTranslations('SessionDetail');
   const [clickedPlayer, setClickedPlayer] = useState<string | null>(null);
   const aspectRatio = 13.4 / 6.1;
+
+  const handleAnnounce = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    const sortedPlayers = [...players].sort(
+      (a, b) => (a.courtPosition ?? 0) - (b.courtPosition ?? 0)
+    );
+
+    const getPlayerName = (p: BadmintonCourtPlayer | undefined | null) =>
+      p?.name || `Người chơi ${p?.playerNumber ?? ''}`;
+
+    // Group by pairs based on visual column (HORIZONTAL vs VERTICAL)
+    let pair1: BadmintonCourtPlayer[];
+    let pair2: BadmintonCourtPlayer[];
+    if (direction === CourtDirection.HORIZONTAL) {
+      // HORIZONTAL mapping: sorted[0] & [1] → left column (pair 1), sorted[2] & [3] → right column (pair 2)
+      pair1 = [sortedPlayers[0], sortedPlayers[1]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+      pair2 = [sortedPlayers[2], sortedPlayers[3]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+    } else {
+      // VERTICAL mapping: sorted[0] & [2] → left column (pair 1), sorted[1] & [3] → right column (pair 2)
+      pair1 = [sortedPlayers[0], sortedPlayers[2]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+      pair2 = [sortedPlayers[1], sortedPlayers[3]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+    }
+
+    const pair1Names = pair1.map(getPlayerName).join(' và ');
+    const pair2Names = pair2.map(getPlayerName).join(' và ');
+    const allNames = pair1Names + (pair2Names ? `, ${pair2Names}` : '');
+
+    const courtNum = courtNumber ?? '';
+    const intro =
+      status === 'READY'
+        ? `Mời những người chơi sau vào sân số`
+        : `Những người chơi sau đang chơi trên sân số`;
+    const detail = `${courtNum}: ${allNames}`;
+
+    window.speechSynthesis.cancel();
+
+    const utterance1 = new SpeechSynthesisUtterance(intro);
+    utterance1.lang = 'vi-VN';
+    utterance1.rate = 1.1;
+
+    const utterance2 = new SpeechSynthesisUtterance(detail);
+    utterance2.lang = 'vi-VN';
+    utterance2.rate = 0.85;
+
+    utterance1.onend = () => window.speechSynthesis.speak(utterance2);
+    window.speechSynthesis.speak(utterance1);
+  };
 
   // Create placeholder players for selection mode
   const getDisplayPlayers = () => {
@@ -477,6 +535,29 @@ export default function BadmintonCourt({
           gap={2}
         >
           <Spinner size="md" />
+        </Box>
+      )}
+      {/* Speaker icon for court announcements - only visible when READY or IN_USE and in manage mode */}
+      {(status === 'READY' || status === 'IN_USE') && mode === 'manage' && (
+        <Box
+          position="absolute"
+          bottom="4%"
+          right="2%"
+          zIndex={10}
+          cursor="pointer"
+          onClick={handleAnnounce}
+          bg="blackAlpha.600"
+          borderRadius="full"
+          w="28px"
+          h="28px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          _hover={{ bg: 'blackAlpha.800', transform: 'scale(1.1)' }}
+          transition="all 0.2s"
+          title="Thông báo qua loa"
+        >
+          <Volume2 size={15} color="white" />
         </Box>
       )}
     </Box>

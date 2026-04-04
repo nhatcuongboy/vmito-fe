@@ -326,7 +326,7 @@ export default function PlayerSessionView({
   if (loading && !player) {
     return (
       <>
-        <TopBar title={t('title')} />
+        <TopBar title={t('title')} showBackButton={false} />
         <Container
           maxW="md"
           py={12}
@@ -356,7 +356,7 @@ export default function PlayerSessionView({
     const errorMessage = getErrorMessage();
     return (
       <>
-        <TopBar title={t('title')} />
+        <TopBar title={t('title')} showBackButton={false} />
         <Container
           maxW="md"
           py={12}
@@ -416,7 +416,7 @@ export default function PlayerSessionView({
 
   return (
     <>
-      <TopBar title={t('title')} showBackButton={mode !== 'guest'} />
+      <TopBar title={t('title')} showBackButton={false} />
 
       <PageWrapper>
         {session && (
@@ -434,6 +434,8 @@ export default function PlayerSessionView({
               base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
               md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
             }}
+            showBackButton={mode !== 'guest'}
+            backHref="/host/sessions/joined"
           />
         )}
 

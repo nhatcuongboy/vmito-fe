@@ -245,17 +245,38 @@ export function usePlayerSession({
 
       if (isCurrentPlayerSelected) {
         const court = session.courts?.find((c) => c.id === data.courtId);
-        const courtName = court
+        const courtDisplayName = court
           ? court.courtName || `Court ${court.courtNumber}`
           : 'Court';
+        const courtNumber = court?.courtNumber;
 
-        setCourtCallCourtName(courtName);
+        setCourtCallCourtName(courtDisplayName);
         setCourtCallModalOpen(true);
 
         sendSystemNotification(
-          t('events.youWereSelected', { court: courtName }),
-          t('courtCall.goToCourt') + ' ' + courtName
+          t('events.youWereSelected', { court: courtDisplayName }),
+          t('courtCall.goToCourt') + ' ' + courtDisplayName
         );
+
+        // TTS announcement in Vietnamese — repeat 3 times with a short pause
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          const text = `Mời bạn vào sân số ${courtNumber ?? courtDisplayName}`;
+          const speak = () => {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'vi-VN';
+            u.rate = 1.0;
+            return u;
+          };
+          const u1 = speak();
+          const u2 = speak();
+          const u3 = speak();
+          u1.onend = () =>
+            setTimeout(() => window.speechSynthesis.speak(u2), 1500);
+          u2.onend = () =>
+            setTimeout(() => window.speechSynthesis.speak(u3), 1500);
+          window.speechSynthesis.speak(u1);
+        }
       }
       fetchPlayerData(true);
     };

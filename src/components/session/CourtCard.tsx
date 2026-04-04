@@ -255,6 +255,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 court.courtName,
                 court.courtNumber
               )}
+              courtNumber={court.courtNumber}
               width="100%"
               showTimeInCenter={true}
               isLoading={isRefreshing}

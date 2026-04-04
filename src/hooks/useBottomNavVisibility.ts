@@ -14,6 +14,14 @@ export function useBottomNavVisibility() {
     if (pathname.match(/\/host\/tournaments\/[^/]+$/)) return true;
     if (pathname.match(/\/tournament\/[^/]+/)) return true;
 
+    // host/sessions pages have their own HostSessionsNavPanel bottom nav
+    if (
+      pathname === '/host/sessions' ||
+      pathname === '/host/sessions/pending' ||
+      pathname === '/host/sessions/joined'
+    )
+      return true;
+
     return (
       // Exclude auth pages - they have their own full-screen layout (no MainLayout)
       // Prevents bottom nav from showing during "Redirecting..." state after login

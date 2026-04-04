@@ -197,8 +197,8 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
   return (
     <MainLayout
       title={t('title')}
-      showBackButton={true}
-      backHref="/player/sessions"
+      showBackButton={false}
+      backHref="/host/sessions/joined"
       contentPadding={0}
     >
       {/* Auto-update wait times for IN_PROGRESS sessions */}
@@ -211,6 +211,8 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         isToggleStatusLoading={isToggleStatusLoading}
         onToggleSessionStatus={toggleSessionStatus}
         onRefreshData={refreshSessionData}
+        showBackButton={true}
+        backHref="/host/sessions/joined"
       />
 
       <Flex

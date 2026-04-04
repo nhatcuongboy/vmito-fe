@@ -459,13 +459,29 @@ export default function SessionForm({
   }, [searchParams, t]);
 
   // Court management handlers
+  const shouldFocusNewCourt = useRef(false);
+
   const handleAddCourt = () => {
+    shouldFocusNewCourt.current = true;
     append({
       courtNumber: 0,
       courtName: '',
       direction: CourtDirection.HORIZONTAL,
     });
   };
+
+  // Focus the courtNumber input of the newly added court row
+  useEffect(() => {
+    if (shouldFocusNewCourt.current && fields.length > 0) {
+      shouldFocusNewCourt.current = false;
+      const newIndex = fields.length - 1;
+      const inputName = `courts.${newIndex}.courtNumber`;
+      const el = document.querySelector<HTMLInputElement>(
+        `input[name="${inputName}"]`
+      );
+      el?.focus();
+    }
+  }, [fields.length]);
 
   const handleRemoveCourt = (index: number) => {
     if (fields.length > 1) {

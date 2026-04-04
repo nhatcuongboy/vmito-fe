@@ -1558,8 +1558,11 @@
             },
             "venues": {
               "title": "Địa điểm",
+              "selectVenue": "Chọn địa điểm",
               "addVenue": "Thêm địa điểm",
               "createVenue": "Tạo địa điểm",
+              "createVenueDesc": "Tạo một địa điểm mới nếu bạn không tìm thấy trong danh sách.",
+              "recommendedVenues": "Địa điểm gợi ý",
               "noVenue": "Chưa có địa điểm nào được gán cho giải đấu này.",
               "address": "Nhập địa chỉ",
               "name": "Tên địa điểm",

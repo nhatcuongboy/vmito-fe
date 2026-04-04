@@ -4,6 +4,7 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
+
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState, useMemo } from 'react';
@@ -22,6 +23,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import QuickCreateFAB from '@/components/session/QuickCreateFAB';
+import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
@@ -171,54 +173,62 @@ function HostSessionsContent() {
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
     >
-      <SessionFilters
-        onFilterChange={handleFilterChange}
-        showStatusFilter={true}
-        showDateFilter={true}
-        showSearchFilter={true}
-        showLevelFilter={false}
-        resultCount={totalCount}
-      />
+      <Flex gap={6} alignItems="flex-start">
+        <HostSessionsNavPanel />
 
-      <Box mb={4}>
-        <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
-      </Box>
-      <ResultsHeader
-        count={totalCount}
-        sortOptions={HOST_SORT_OPTIONS}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-      />
-      <SessionsList
-        sessions={filteredSessions}
-        isLoading={loading}
-        mode="manage"
-        onRefresh={fetchHostedSessions}
-      />
+        <Box flex={1} minW={0}>
+          <SessionFilters
+            onFilterChange={handleFilterChange}
+            showStatusFilter={true}
+            showDateFilter={true}
+            showSearchFilter={true}
+            showLevelFilter={false}
+            resultCount={totalCount}
+          />
 
-      {/* Infinite Scroll Trigger */}
-      {hasMore && filteredSessions.length >= PAGE_SIZE && (
-        <Box ref={ref} mt={8} mb={10} width="full">
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={6}
-          >
-            {Array.from({ length: 3 }).map((_, index) => (
-              <SessionCardSkeleton key={index} />
-            ))}
-          </Grid>
-          <Flex justify="center" mt={4}>
-            <Spinner size="sm" color="green.500" mr={2} />
-            <Text color="gray.500" fontSize="sm">
-              {tSession('loadingMore')}
-            </Text>
-          </Flex>
+          <Box mb={4}>
+            <QuickCreateSessionBar
+              onInputClick={() => setIsAIModalOpen(true)}
+            />
+          </Box>
+          <ResultsHeader
+            count={totalCount}
+            sortOptions={HOST_SORT_OPTIONS}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
+          <SessionsList
+            sessions={filteredSessions}
+            isLoading={loading}
+            mode="manage"
+            onRefresh={fetchHostedSessions}
+          />
+
+          {/* Infinite Scroll Trigger */}
+          {hasMore && filteredSessions.length >= PAGE_SIZE && (
+            <Box ref={ref} mt={8} mb={10} width="full">
+              <Grid
+                templateColumns={{
+                  base: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                }}
+                gap={6}
+              >
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <SessionCardSkeleton key={index} />
+                ))}
+              </Grid>
+              <Flex justify="center" mt={4}>
+                <Spinner size="sm" color="green.500" mr={2} />
+                <Text color="gray.500" fontSize="sm">
+                  {tSession('loadingMore')}
+                </Text>
+              </Flex>
+            </Box>
+          )}
         </Box>
-      )}
+      </Flex>
 
       {user && <QuickCreateFAB bottom="90px" />}
 

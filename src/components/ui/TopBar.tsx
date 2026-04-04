@@ -5,7 +5,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
   ROUTES,
 } from '@/constants';
-import { useRouter } from '@/i18n/config';
+import { Link, useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -19,9 +19,8 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { LogIn, Menu } from 'lucide-react';
+import { LogIn, Menu, ArrowLeft } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import SlideOutMenu from './SlideOutMenu';
@@ -35,7 +34,13 @@ interface TopBarProps {
   rightContent?: React.ReactNode;
 }
 
-export default function TopBar({ title, icon, rightContent }: TopBarProps) {
+export default function TopBar({
+  title,
+  icon,
+  rightContent,
+  showBackButton = false,
+  backHref = '/',
+}: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
   const { isAuthenticated, isLoading, isHydrated } = useAuthStore();
@@ -86,6 +91,21 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
           <Flex justify="space-between" align="center" height="100%" py={0}>
             {/* Left side - Menu, Logo & Back button */}
             <Flex height="100%" alignItems="center" gap={2}>
+              {showBackButton && (
+                <Link href={backHref}>
+                  <IconButton
+                    aria-label={common('back')}
+                    variant="ghost"
+                    color="fg"
+                    _hover={{ bg: 'bg.muted' }}
+                    borderRadius="full"
+                    size="md"
+                  >
+                    <ArrowLeft size={20} />
+                  </IconButton>
+                </Link>
+              )}
+
               <IconButton
                 aria-label="Open menu"
                 onClick={() => {
@@ -106,7 +126,7 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
               </IconButton>
 
               <Link
-                href={`/${locale}`}
+                href="/"
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 {icon || (
@@ -126,19 +146,6 @@ export default function TopBar({ title, icon, rightContent }: TopBarProps) {
                   Vmito
                 </Text>
               </Link>
-
-              {/* {showBackButton && (
-                <NextLinkButton
-                  href={backHref}
-                  variant="ghost"
-                  size="sm"
-                  color="black"
-                  _hover={{ bg: 'gray.100' }}
-                  aria-label={common('back')}
-                >
-                  <ArrowLeft size={20} />
-                </NextLinkButton>
-              )} */}
             </Flex>
 
             {/* Center - App title */}

@@ -4,8 +4,9 @@
 
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { IconButton, Button } from '@/components/ui/chakra-compat';
-import { Play, RefreshCw, Square, MoreVertical } from 'lucide-react';
+import { Play, RefreshCw, Square, MoreVertical, ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/config';
 import { useState, useRef, useEffect } from 'react';
 
 interface SessionStatusHeaderProps {
@@ -22,6 +23,8 @@ interface SessionStatusHeaderProps {
   /** Top offset for sticky positioning */
   stickyTop?: any;
   mt?: any;
+  showBackButton?: boolean;
+  backHref?: string;
 }
 
 const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
@@ -33,8 +36,11 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   onRefreshData,
   stickyTop = 0,
   mt,
+  showBackButton = false,
+  backHref = '/',
 }) => {
   const t = useTranslations('SessionDetail');
+  const common = useTranslations('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -95,8 +101,25 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
       alignItems="center"
     >
       <Flex align="center" justify="space-between" position="relative" w="100%">
-        {/* Left spacer for centering title */}
-        <Box width="40px" />
+        {/* Left Back Button or spacer */}
+        {showBackButton ? (
+          <Box width="40px">
+            <Link href={backHref}>
+              <IconButton
+                aria-label={common('back')}
+                variant="ghost"
+                size="sm"
+                borderRadius="full"
+                color="white"
+                _hover={{ bg: 'whiteAlpha.200' }}
+              >
+                <ArrowLeft size={18} />
+              </IconButton>
+            </Link>
+          </Box>
+        ) : (
+          <Box width="40px" />
+        )}
 
         {/* Session Name & Status - Centered */}
         <Flex
