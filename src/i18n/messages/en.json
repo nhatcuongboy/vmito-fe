@@ -2706,7 +2706,9 @@
     "rejectPaymentFailed": "Failed to reject payment",
     "bulkApprovePaymentsFailed": "Failed to bulk approve payments",
     "invalidAmount": "Invalid amount",
-    "setSplitAmountFailed": "Failed to set split amount"
+    "setSplitAmountFailed": "Failed to set split amount",
+    "transfer": "Pay Now",
+    "amountRequired": "Please enter an amount"
   },
   "rating": {
     "loading": "Loading...",

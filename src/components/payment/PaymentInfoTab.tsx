@@ -15,6 +15,7 @@ import { FeeService } from '@/lib/api/fee.service';
 import { CreditCard, QrCode, Building2, User, Send } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import SubmitPaymentModal from './SubmitPaymentModal';
+import FastTransferModal from './FastTransferModal';
 import { PaymentMethod } from '@/lib/api/types';
 
 interface PaymentInfoTabProps {
@@ -44,6 +45,8 @@ export default function PaymentInfoTab({
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
     null
   );
+
+  const [isFastTransferOpen, setIsFastTransferOpen] = useState(false);
 
   const totalAmount = paymentRecords.reduce((sum, p) => sum + p.amount, 0);
   const paidAmount = paymentRecords
@@ -135,9 +138,21 @@ export default function PaymentInfoTab({
           borderRadius="lg"
           p={4}
         >
-          <HStack mb={3}>
-            <CreditCard size={18} color="#3182ce" />
-            <Text fontWeight="semibold">{t('hostPaymentInfo')}</Text>
+          <HStack mb={3} justify="space-between">
+            <HStack>
+              <CreditCard size={18} color="#3182ce" />
+              <Text fontWeight="semibold">{t('hostPaymentInfo')}</Text>
+            </HStack>
+            {hostPaymentSettings.bankName &&
+              hostPaymentSettings.bankAccountNumber && (
+                <Button
+                  size="sm"
+                  colorPalette="blue"
+                  onClick={() => setIsFastTransferOpen(true)}
+                >
+                  {t('transfer')}
+                </Button>
+              )}
           </HStack>
 
           {hostPaymentSettings.qrCodeUrl && (
@@ -277,6 +292,16 @@ export default function PaymentInfoTab({
           hostPaymentSettings={hostPaymentSettings}
           onSubmit={handleSubmit}
           onUploadProof={onUploadProof}
+        />
+      )}
+
+      {/* Fast Transfer Modal */}
+      {hostPaymentSettings && (
+        <FastTransferModal
+          isOpen={isFastTransferOpen}
+          onClose={() => setIsFastTransferOpen(false)}
+          pendingAmount={pendingAmount}
+          hostPaymentSettings={hostPaymentSettings}
         />
       )}
     </VStack>

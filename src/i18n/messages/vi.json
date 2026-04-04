@@ -2706,7 +2706,9 @@
     "rejectPaymentFailed": "Không thể từ chối thanh toán",
     "bulkApprovePaymentsFailed": "Không thể duyệt hàng loạt",
     "invalidAmount": "Số tiền không hợp lệ",
-    "setSplitAmountFailed": "Không thể thiết lập phí chia đều"
+    "setSplitAmountFailed": "Không thể thiết lập phí chia đều",
+    "transfer": "Thanh toán",
+    "amountRequired": "Vui lòng nhập số tiền"
   },
   "rating": {
     "loading": "Đang tải...",
