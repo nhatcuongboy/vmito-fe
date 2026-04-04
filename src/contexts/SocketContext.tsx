@@ -6,7 +6,9 @@ import { io, Socket } from 'socket.io-client';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
+import { useCourtCallStore } from '@/stores/useCourtCallStore';
 import { INotification } from '@/lib/api/types';
+import { sendSystemNotification } from '@/utils/notifications';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -192,6 +194,61 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       );
     };
   }, [socket]);
+
+  // Global listener for court-call (players_selected) via user room.
+  // This fires even when the player is NOT on the session detail page.
+  useEffect(() => {
+    if (!socket || !user?.id) return;
+
+    const handleGlobalPlayersSelected = (data: {
+      sessionId: string;
+      courtId: string;
+      courtName?: string;
+      courtNumber?: number;
+      playerIds?: string[];
+    }) => {
+      const courtDisplayName =
+        data.courtName || `Sân ${data.courtNumber ?? ''}`;
+
+      // Show the global court-call modal
+      useCourtCallStore.getState().showCourtCall(courtDisplayName);
+
+      // System notification
+      sendSystemNotification(
+        `🏸 Đến lượt bạn! Vui lòng di chuyển đến ${courtDisplayName}`,
+        `Trận đấu của bạn sắp bắt đầu.`
+      );
+
+      // TTS announcement — repeat 3 times
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const text = `Mời bạn vào sân số ${data.courtNumber ?? courtDisplayName}`;
+        const speak = () => {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'vi-VN';
+          u.rate = 1.0;
+          return u;
+        };
+        const u1 = speak();
+        const u2 = speak();
+        const u3 = speak();
+        u1.onend = () =>
+          setTimeout(() => window.speechSynthesis.speak(u2), 1500);
+        u2.onend = () =>
+          setTimeout(() => window.speechSynthesis.speak(u3), 1500);
+        window.speechSynthesis.speak(u1);
+      }
+    };
+
+    socket.on(SessionEventType.PLAYERS_SELECTED, handleGlobalPlayersSelected);
+
+    return () => {
+      socket.off(
+        SessionEventType.PLAYERS_SELECTED,
+        handleGlobalPlayersSelected
+      );
+    };
+  }, [socket, user?.id]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

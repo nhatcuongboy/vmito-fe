@@ -249,31 +249,36 @@ export function usePlayerSession({
           : t('court.title', { number: '?' });
         const courtNumber = court?.courtNumber;
 
-        showCourtCall(courtDisplayName);
+        // For authenticated users (mode === 'player'), the global listener in
+        // SocketContext handles the modal via the user room. For guests, we
+        // trigger the store directly since they have no user room.
+        if (mode === 'guest') {
+          showCourtCall(courtDisplayName);
 
-        sendSystemNotification(
-          t('events.youWereSelected', { court: courtDisplayName }),
-          t('courtCall.goToCourt') + ' ' + courtDisplayName
-        );
+          sendSystemNotification(
+            t('events.youWereSelected', { court: courtDisplayName }),
+            t('courtCall.goToCourt') + ' ' + courtDisplayName
+          );
 
-        // TTS announcement in Vietnamese — repeat 3 times with a short pause
-        if (typeof window !== 'undefined' && window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-          const text = `Mời bạn vào sân số ${courtNumber ?? courtDisplayName}`;
-          const speak = () => {
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'vi-VN';
-            u.rate = 1.0;
-            return u;
-          };
-          const u1 = speak();
-          const u2 = speak();
-          const u3 = speak();
-          u1.onend = () =>
-            setTimeout(() => window.speechSynthesis.speak(u2), 1500);
-          u2.onend = () =>
-            setTimeout(() => window.speechSynthesis.speak(u3), 1500);
-          window.speechSynthesis.speak(u1);
+          // TTS announcement in Vietnamese — repeat 3 times with a short pause
+          if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            const text = `Mời bạn vào sân số ${courtNumber ?? courtDisplayName}`;
+            const speak = () => {
+              const u = new SpeechSynthesisUtterance(text);
+              u.lang = 'vi-VN';
+              u.rate = 1.0;
+              return u;
+            };
+            const u1 = speak();
+            const u2 = speak();
+            const u3 = speak();
+            u1.onend = () =>
+              setTimeout(() => window.speechSynthesis.speak(u2), 1500);
+            u2.onend = () =>
+              setTimeout(() => window.speechSynthesis.speak(u3), 1500);
+            window.speechSynthesis.speak(u1);
+          }
         }
       }
       fetchPlayerData(true);
