@@ -2060,7 +2060,7 @@
       "notAvailable": "N/A"
     },
     "tabOverview": "Tổng quan",
-    "tabStatus": "Hoạt động",
+    "tabStatus": "Trạng thái",
     "tabCourts": "Sân",
     "tabResults": "Kết quả",
     "tabPayment": "Thanh toán",
@@ -2603,7 +2603,7 @@
     "calculateSplit": "Tính & Phân bổ",
     "splitCalculated": "Đã chia: {amount} mỗi người",
     "paymentInfo": "Thông tin thanh toán",
-    "hostPaymentInfo": "Thông tin thanh toán của Host",
+    "hostPaymentInfo": "Thông tin thanh toán",
     "scanQrCode": "Quét mã QR hoặc dùng thông tin ngân hàng bên dưới",
     "paymentTab": "Thanh toán",
     "paymentsTab": "Quản lý thanh toán",

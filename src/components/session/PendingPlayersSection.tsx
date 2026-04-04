@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import {
-  Box,
-  Flex,
-  Heading,
-  Badge,
-  Text,
-  Image,
-  Stack,
-} from '@chakra-ui/react';
+import { Box, Flex, Badge, Text, Image, Stack } from '@chakra-ui/react';
 import { Button, HStack } from '@/components/ui/chakra-compat';
 import { ChevronDown, ChevronUp, Check, X, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -97,206 +89,189 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
 
   return (
     <Box
-      borderLeft="4px solid"
-      borderColor="purple.500"
+      borderLeft="3px solid"
+      borderColor="purple.400"
       bg="purple.50"
-      _dark={{ bg: 'rgba(168, 85, 247, 0.1)' }}
-      borderRadius="md"
-      p={4}
+      _dark={{ bg: 'rgba(168, 85, 247, 0.08)' }}
+      borderRadius="lg"
+      overflow="hidden"
       mb={4}
     >
       {/* Section Header */}
-      <Flex
-        justify="space-between"
-        align={{ base: 'flex-start', md: 'center' }}
-        direction={{ base: 'column', sm: 'row' }}
-        gap={2}
-        mb={isExpanded ? 4 : 0}
+      <Box
+        px={3}
+        pt={2}
+        pb={isExpanded ? 2 : 2}
+        _hover={{ bg: 'purple.100', _dark: { bg: 'rgba(168, 85, 247, 0.15)' } }}
+        transition="background 0.15s"
       >
-        <Button
-          size="sm"
-          variant="ghost"
+        {/* Row 1: toggle + title */}
+        <Flex
+          align="center"
+          gap={2}
+          cursor="pointer"
           onClick={() => setIsExpanded(!isExpanded)}
-          leftIcon={
-            isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-          }
-          p={1}
-          _hover={{ bg: 'purple.100', _dark: { bg: 'purple.900' } }}
         >
-          <Heading
-            size="sm"
+          {isExpanded ? (
+            <ChevronUp size={15} className="text-purple-500" />
+          ) : (
+            <ChevronDown size={15} className="text-purple-500" />
+          )}
+          <Text
+            fontSize="sm"
             fontWeight="600"
             color="purple.700"
-            _dark={{ color: 'purple.200' }}
+            _dark={{ color: 'purple.300' }}
           >
             {t('pendingRequestsCount', { count: pendingPlayers.length })}
-          </Heading>
-        </Button>
+          </Text>
+        </Flex>
 
+        {/* Row 2: bulk action buttons */}
         {isExpanded && (
-          <HStack gap={2} w={{ base: '100%', sm: 'auto' }}>
+          <HStack gap={2} mt={2}>
             <Button
-              size="sm"
+              size="xs"
               colorPalette="green"
               variant="outline"
-              leftIcon={<Check size={14} />}
+              leftIcon={<Check size={12} />}
               onClick={() => handleBulkAction('APPROVED')}
               loading={bulkActionLoading === 'approve'}
               disabled={bulkActionLoading !== null}
-              fontSize="xs"
-              flex={{ base: 1, sm: 'unset' }}
             >
               {t('approveAll')}
             </Button>
             <Button
-              size="sm"
+              size="xs"
               colorPalette="red"
               variant="outline"
-              leftIcon={<X size={14} />}
+              leftIcon={<X size={12} />}
               onClick={() => handleBulkAction('REJECTED')}
               loading={bulkActionLoading === 'reject'}
               disabled={bulkActionLoading !== null}
-              fontSize="xs"
-              flex={{ base: 1, sm: 'unset' }}
             >
               {t('rejectAll')}
             </Button>
           </HStack>
         )}
-      </Flex>
+      </Box>
 
-      {/* Vertical Stack for Pending Players */}
+      {/* Player List */}
       {isExpanded && (
-        <Stack gap={3}>
-          {pendingPlayers.map((player) => (
-            <Box
+        <Stack gap={0} divideColor="purple.100">
+          {pendingPlayers.map((player, idx) => (
+            <Flex
               key={player.id}
+              align="center"
+              gap={3}
+              px={3}
+              py={2}
               bg="white"
               _dark={{ bg: 'gray.800' }}
+              borderTopWidth={idx === 0 ? '1px' : '0'}
+              borderBottomWidth="1px"
               borderColor="purple.100"
-              borderWidth="1px"
-              shadow="sm"
-              transition="all 0.2s"
-              _hover={{
-                shadow: 'md',
-                borderColor: 'purple.300',
-              }}
-              borderRadius="xl"
-              p={3}
             >
-              <Flex
-                direction={{ base: 'column', md: 'row' }}
-                align={{ base: 'flex-start', md: 'center' }}
-                gap={4}
-                justify="space-between"
+              {/* Avatar */}
+              <Box
+                boxSize="36px"
+                borderRadius="full"
+                overflow="hidden"
+                bg="gray.100"
+                flexShrink={0}
+                borderWidth="1.5px"
+                borderColor="purple.200"
               >
-                {/* User Info */}
-                <Flex align="center" gap={3} flex={1}>
-                  <Box
-                    boxSize="48px"
-                    borderRadius="full"
+                {player.user?.image ? (
+                  <Image
+                    src={player.user.image}
+                    alt={player.name}
+                    width="100%"
+                    height="100%"
+                    objectFit="cover"
+                  />
+                ) : (
+                  <Flex align="center" justify="center" h="100%">
+                    <User size={18} className="text-gray-400" />
+                  </Flex>
+                )}
+              </Box>
+
+              {/* Info */}
+              <Box flex={1} minW={0}>
+                <Flex align="center" gap={1.5} flexWrap="wrap">
+                  <Text
+                    fontSize="sm"
+                    fontWeight="600"
+                    color="gray.800"
+                    _dark={{ color: 'white' }}
                     overflow="hidden"
-                    bg="gray.100"
-                    flexShrink={0}
-                    borderWidth="2px"
-                    borderColor="purple.100"
+                    textOverflow="ellipsis"
+                    whiteSpace="nowrap"
                   >
-                    {player.user?.image ? (
-                      <Image
-                        src={player.user.image}
-                        alt={player.name}
-                        width="100%"
-                        height="100%"
-                        objectFit="cover"
-                      />
-                    ) : (
-                      <Flex align="center" justify="center" h="100%">
-                        <User size={24} className="text-gray-400" />
-                      </Flex>
-                    )}
-                  </Box>
-
-                  <Box>
-                    <HStack gap={2} mb={1}>
-                      <Text
-                        fontSize="md"
-                        fontWeight="bold"
-                        color="gray.800"
-                        _dark={{ color: 'white' }}
-                      >
-                        {player.name || 'N/A'}
-                      </Text>
-                      {player.gender && (
-                        <Badge
-                          colorPalette={
-                            player.gender === 'MALE'
-                              ? 'blue'
-                              : player.gender === 'FEMALE'
-                                ? 'pink'
-                                : 'gray'
-                          }
-                          variant="solid"
-                          size="sm"
-                        >
-                          {player.gender === 'MALE'
-                            ? tCommon('male')
-                            : player.gender === 'FEMALE'
-                              ? tCommon('female')
-                              : tCommon('other')}
-                        </Badge>
-                      )}
-                    </HStack>
-                    <HStack gap={2}>
-                      <Badge colorPalette="purple" variant="subtle" size="sm">
-                        {player.level
-                          ? tCommon(`levelShorts.${player.level}`)
-                          : '?'}
-                      </Badge>
-                      <Text fontSize="xs" color="gray.500">
-                        #{player.playerNumber}
-                      </Text>
-                    </HStack>
-                  </Box>
+                    {player.name || 'N/A'}
+                  </Text>
+                  {player.gender && (
+                    <Badge
+                      colorPalette={
+                        player.gender === 'MALE'
+                          ? 'blue'
+                          : player.gender === 'FEMALE'
+                            ? 'pink'
+                            : 'gray'
+                      }
+                      variant="solid"
+                      size="xs"
+                    >
+                      {player.gender === 'MALE'
+                        ? tCommon('male')
+                        : player.gender === 'FEMALE'
+                          ? tCommon('female')
+                          : tCommon('other')}
+                    </Badge>
+                  )}
                 </Flex>
+                <Flex align="center" gap={1.5} mt={0.5}>
+                  <Badge colorPalette="purple" variant="subtle" size="xs">
+                    {player.level
+                      ? tCommon(`levelShorts.${player.level}`)
+                      : '?'}
+                  </Badge>
+                  <Text fontSize="xs" color="gray.400">
+                    #{player.playerNumber}
+                  </Text>
+                </Flex>
+              </Box>
 
-                {/* Actions */}
-                <HStack
-                  gap={3}
-                  w={{ base: '100%', md: 'auto' }}
-                  pt={{ base: 2, md: 0 }}
-                  borderTopWidth={{ base: '1px', md: '0px' }}
-                  borderTopColor="gray.100"
+              {/* Actions */}
+              <HStack gap={1.5} flexShrink={0}>
+                <Button
+                  size="xs"
+                  colorPalette="green"
+                  variant="solid"
+                  onClick={() => handleAction(player.id, 'APPROVED')}
+                  loading={actionLoading === player.id}
+                  disabled={
+                    actionLoading !== null || bulkActionLoading !== null
+                  }
+                  leftIcon={<Check size={13} />}
                 >
-                  <Button
-                    size="sm"
-                    colorPalette="green"
-                    variant="solid"
-                    flex={1}
-                    minW={{ md: '120px' }}
-                    onClick={() => handleAction(player.id, 'APPROVED')}
-                    loading={actionLoading === player.id}
-                    disabled={
-                      actionLoading !== null || bulkActionLoading !== null
-                    }
-                    leftIcon={<Check size={16} />}
-                  >
-                    {t('approve')}
-                  </Button>
-                  <Button
-                    size="sm"
-                    colorPalette="red"
-                    variant="outline"
-                    onClick={() => handleAction(player.id, 'REJECTED')}
-                    disabled={
-                      actionLoading !== null || bulkActionLoading !== null
-                    }
-                    leftIcon={<X size={16} />}
-                  >
-                    {t('reject')}
-                  </Button>
-                </HStack>
-              </Flex>
-            </Box>
+                  {t('approve')}
+                </Button>
+                <Button
+                  size="xs"
+                  colorPalette="red"
+                  variant="outline"
+                  onClick={() => handleAction(player.id, 'REJECTED')}
+                  disabled={
+                    actionLoading !== null || bulkActionLoading !== null
+                  }
+                  leftIcon={<X size={13} />}
+                >
+                  {t('reject')}
+                </Button>
+              </HStack>
+            </Flex>
           ))}
         </Stack>
       )}

@@ -72,6 +72,12 @@ function HostSessionContent({ params }: { params: { id: string } }) {
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
+
   const isGlobalBottomNavVisible = useBottomNavVisibility();
 
   const { refreshSessionData, isRefreshing } = useSessionRefresh({

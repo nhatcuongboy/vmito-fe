@@ -109,6 +109,11 @@ export default function PlayerSessionView({
 
   const [activeTab, setActiveTab] = useState<number>(0); // 0: Overview, 1: Status, 2: Courts, 3: Results, 4: Payment
 
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
+
   // Payment state
   const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
   const [hostPaymentSettings, setHostPaymentSettings] =

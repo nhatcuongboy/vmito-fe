@@ -117,7 +117,7 @@ export default function PaymentInfoTab({
           <HStack justify="space-between">
             <Text color="gray.600">{t('paidAmount')}</Text>
             <Text fontWeight="bold" color="green.600">
-              {FeeService.formatFee(paidAmount)}
+              {paidAmount === 0 ? '0' : FeeService.formatFee(paidAmount)}
             </Text>
           </HStack>
           <HStack justify="space-between">

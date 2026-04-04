@@ -40,9 +40,16 @@ interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
   label: string;
   children: React.ReactNode;
+  isTruncated?: boolean;
 }
 
-const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
+const InfoRow = ({
+  icon,
+  label,
+  children,
+  isTruncated,
+  ...props
+}: InfoRowProps) => (
   <Flex align="start" mb={3} {...props}>
     <Box
       as={icon}
@@ -67,6 +74,8 @@ const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
       color="gray.800"
       _dark={{ color: 'gray.100' }}
       fontWeight="medium"
+      minW={0}
+      lineClamp={isTruncated ? 1 : undefined}
     >
       {children}
     </Box>
@@ -151,7 +160,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         {session.venue?.name || t('common.notAvailable')}
       </InfoRow>
 
-      <InfoRow icon={MapPin} label={t('location')}>
+      <InfoRow icon={MapPin} label={t('location')} isTruncated>
         {session.venue?.address || session.location || t('noLocation')}
       </InfoRow>
 

@@ -216,7 +216,7 @@ export default function SessionPaymentList({
               {t('totalFee')}
             </Text>
             <Text fontSize="lg" fontWeight="bold">
-              {FeeService.formatFee(totalAmount)}
+              {totalAmount === 0 ? '0' : FeeService.formatFee(totalAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="120px">
@@ -224,7 +224,9 @@ export default function SessionPaymentList({
               {t('paidAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="green.600">
-              {FeeService.formatFee(approvedAmount)}
+              {approvedAmount === 0
+                ? '0'
+                : FeeService.formatFee(approvedAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="120px">
@@ -232,7 +234,9 @@ export default function SessionPaymentList({
               {t('pendingAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="yellow.600">
-              {FeeService.formatFee(totalAmount - approvedAmount)}
+              {totalAmount - approvedAmount === 0
+                ? '0'
+                : FeeService.formatFee(totalAmount - approvedAmount)}
             </Text>
           </Box>
         </Flex>

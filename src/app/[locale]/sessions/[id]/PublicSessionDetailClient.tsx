@@ -19,6 +19,7 @@ import JoinSessionModal from '@/components/session/JoinSessionModal';
 import { useModal } from '@/components/ui/VModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
+import { useSocket, SessionEventType } from '@/contexts/SocketContext';
 
 interface PublicSessionDetailClientProps {
   initialSession?: ISession | null;
@@ -33,10 +34,39 @@ const PublicSessionDetailClient = ({
   const pathname = usePathname();
   const { user } = useAuthStore();
   const t = useTranslations('session');
+  const { socket } = useSocket();
 
   const [session, setSession] = useState<ISession | null>(
     initialSession || null
   );
+
+  const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  // Listen for registration status updates via socket
+  useEffect(() => {
+    if (!socket || !sessionId) return;
+
+    const handleStatusUpdate = async (data: any) => {
+      // Refresh session data if the update is for this session
+      if (data.sessionId === sessionId) {
+        try {
+          const updatedSession = await SessionService.getSession(sessionId);
+          setSession(updatedSession);
+        } catch (error) {
+          console.error('Failed to refresh session data:', error);
+        }
+      }
+    };
+
+    socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
+
+    return () => {
+      socket.off(
+        SessionEventType.REGISTRATION_STATUS_UPDATED,
+        handleStatusUpdate
+      );
+    };
+  }, [socket, sessionId]);
 
   const {
     isOpen: isJoinModalOpen,
@@ -45,7 +75,6 @@ const PublicSessionDetailClient = ({
   } = useModal();
 
   const registerParam = searchParams.get('register');
-  const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   return (
     <PageWrapper>
@@ -62,7 +91,7 @@ const PublicSessionDetailClient = ({
         <Container maxW="4xl" px={CONTAINER_PX} pb={8}>
           <PublicSessionDetailContent
             sessionId={sessionId || ''}
-            initialSession={initialSession}
+            initialSession={session}
             showViewMore
             defaultOpenRegister={registerParam === 'true'}
           />

@@ -71,6 +71,11 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
 
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
+
   const { refreshSessionData, isRefreshing } = useSessionRefresh({
     sessionId: session?.id || sessionId,
     sessionStatus: session?.status || SessionStatus.PREPARING,

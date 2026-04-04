@@ -2060,7 +2060,7 @@
       "notAvailable": "N/A"
     },
     "tabOverview": "Overview",
-    "tabStatus": "Activity",
+    "tabStatus": "Status",
     "tabCourts": "Courts",
     "tabResults": "Results",
     "tabPayment": "Payment",
@@ -2603,7 +2603,7 @@
     "calculateSplit": "Calculate & Assign",
     "splitCalculated": "Split amount calculated: {amount} per player",
     "paymentInfo": "Payment Information",
-    "hostPaymentInfo": "Host's Payment Information",
+    "hostPaymentInfo": "Payment Information",
     "scanQrCode": "Scan QR code or use bank details below",
     "paymentTab": "Payment",
     "paymentsTab": "Manage Payments",
