@@ -308,7 +308,7 @@ export const VModal: React.FC<VModalProps> = ({
                   {primaryActionText && (
                     <Button
                       type="button"
-                      // colorPalette={primaryColorScheme}
+                      colorPalette={primaryColorScheme}
                       onClick={onPrimaryAction}
                       loading={isPrimaryLoading}
                       disabled={isPrimaryDisabled || isPrimaryLoading}

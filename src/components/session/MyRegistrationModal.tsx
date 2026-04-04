@@ -174,7 +174,7 @@ export default function MyRegistrationModal({
         isPrimaryLoading={isWithdrawing}
         primaryColorScheme="red"
         size="sm"
-        zIndex={1100}
+        zIndex={1500}
       >
         <Text>{t('withdrawConfirmation')}</Text>
       </VModal>

@@ -52,7 +52,6 @@ export const PlayerService = {
       `/sessions/${sessionId}/players`,
       data
     );
-    toaster.success({ title: 'Player created successfully' });
     return response.data.data!;
   },
 
@@ -65,11 +64,6 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/bulk`,
       playersData
     );
-    toaster.success({
-      title: `${
-        response.data.data!.createdPlayers.length
-      } players created successfully`,
-    });
     return response.data.data!;
   },
 
@@ -86,14 +80,12 @@ export const PlayerService = {
   // Update player
   updatePlayer: async (id: string, data: Partial<Player>): Promise<Player> => {
     const response = await api.put<ApiResponse<Player>>(`/players/${id}`, data);
-    toaster.success({ title: 'Player information updated' });
     return response.data.data!;
   },
 
   // Delete player
   deletePlayer: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/players/${id}`);
-    toaster.success({ title: 'Player removed successfully' });
   },
 
   // Confirm player
@@ -132,7 +124,6 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/${playerId}`,
       data
     );
-    toaster.success({ title: 'Player updated successfully' });
     return response.data.data!;
   },
 
@@ -144,7 +135,6 @@ export const PlayerService = {
     await api.delete<ApiResponse<null>>(
       `/sessions/${sessionId}/players/${playerId}`
     );
-    toaster.success({ title: 'Player deleted successfully' });
   },
 
   // Bulk update players
@@ -156,7 +146,6 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/bulk-update`,
       { players }
     );
-    toaster.success({ title: 'Players updated successfully' });
     return response.data.data!;
   },
 
@@ -225,7 +214,6 @@ export const PlayerService = {
       `/sessions/${sessionId}/players/${playerId}/status`,
       { status }
     );
-    toaster.success({ title: `Player ${status.toLowerCase()} successfully` });
     return response.data.data!;
   },
 

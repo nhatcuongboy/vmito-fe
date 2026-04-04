@@ -252,7 +252,7 @@ export default function JoinSessionForm({
                     padding: '10px 12px',
                     borderRadius: '6px',
                     border: errors[index]?.level
-                      ? '1px solid var(--chakra-colors-border-error)'
+                      ? '1px solid var(--chakra-colors-red-500)'
                       : '1px solid var(--chakra-colors-border)',
                     backgroundColor: 'transparent',
                     color: 'inherit',

@@ -42,63 +42,15 @@ const SessionCard = ({
   } = useModal();
 
   const {
-    isOpen: isWithdrawModalOpen,
-    onOpen: onOpenWithdrawModal,
-    onClose: onCloseWithdrawModal,
-  } = useModal();
-
-  const {
     isOpen: isViewRegistrationModalOpen,
     onOpen: onOpenViewRegistrationModal,
     onClose: onCloseViewRegistrationModal,
   } = useModal();
 
-  const [isWithdrawing, setIsWithdrawing] = useState(false);
-
   // Check if current user is the session owner or has ADMIN role
   const isOwner = session.hostId === user?.id;
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
-
-  // Handle withdraw request
-  const handleWithdrawRequest = async () => {
-    if (!user) return;
-
-    try {
-      setIsWithdrawing(true);
-
-      // Get user's players for this session from backend
-      const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
-
-      // Find pending players to delete
-      const pendingPlayers = myPlayers.filter(
-        (p) => p.registrationStatus === 'PENDING'
-      );
-
-      if (pendingPlayers.length === 0) {
-        toaster.warning({ title: t('noPendingRequest') });
-        onCloseWithdrawModal();
-        return;
-      }
-
-      // Delete all pending players
-      await Promise.all(
-        pendingPlayers.map((p) =>
-          PlayerService.deletePlayerBySession(session.id, p.id)
-        )
-      );
-
-      toaster.success({ title: t('requestWithdrawn') });
-      onCloseWithdrawModal();
-      // Refresh to update UI
-      window.location.reload();
-    } catch (error) {
-      console.error('Error withdrawing request:', error);
-      toaster.error({ title: tCommon('error') });
-    } finally {
-      setIsWithdrawing(false);
-    }
-  };
 
   // Calculate slot availability
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -244,22 +196,6 @@ const SessionCard = ({
     </VModal>
   ) : null;
 
-  // Withdraw confirmation modal
-  const withdrawModal = (
-    <VModal
-      isOpen={isWithdrawModalOpen}
-      onClose={onCloseWithdrawModal}
-      title={t('withdrawRequest')}
-      primaryActionText={tCommon('confirm')}
-      secondaryActionText={tCommon('cancel')}
-      onPrimaryAction={handleWithdrawRequest}
-      primaryColorScheme="red"
-      isPrimaryLoading={isWithdrawing}
-    >
-      <Text>{t('withdrawConfirmation')}</Text>
-    </VModal>
-  );
-
   // View Registration modal
   const viewRegistrationModal = (
     <MyRegistrationModal
@@ -268,7 +204,7 @@ const SessionCard = ({
       session={session}
       onWithdraw={() => {
         onCloseViewRegistrationModal();
-        onOpenWithdrawModal();
+        window.location.reload();
       }}
     />
   );
@@ -284,7 +220,6 @@ const SessionCard = ({
       modalContent={
         <>
           {deleteModal}
-          {withdrawModal}
           {viewRegistrationModal}
           {/* Hidden SessionShareCards for image generation */}
           {canManage && (

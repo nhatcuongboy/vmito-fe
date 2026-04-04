@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { io, Socket } from 'socket.io-client';
 
 import { toaster } from '@/components/ui/toaster';
@@ -113,6 +114,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [socket, isConnected, user?.id]);
 
+  const t = useTranslations('session');
+
   // Global event listeners for notifications
   useEffect(() => {
     if (!socket) return;
@@ -120,8 +123,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // Listener for Registration Requests (Host)
     const handleRegistrationRequest = (data: any) => {
       toaster.success({
-        title: 'New Registration Request',
-        description: `${data.playerName} requested to join ${data.sessionName}`,
+        title: t('newRegistrationRequest'),
+        description: t('requestedToJoin', {
+          playerName: data.playerName,
+          sessionName: data.sessionName,
+        }),
         duration: 5000,
       });
     };
@@ -130,8 +136,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const handleStatusUpdate = (data: any) => {
       const isApproved = data.status === 'APPROVED';
       toaster.create({
-        title: `Registration ${data.status}`,
-        description: `Your registration for ${data.sessionName} has been ${data.status.toLowerCase()}`,
+        title: isApproved ? t('requestApproved') : t('requestRejected'),
+        description: t('registrationStatusMessage', {
+          sessionName: data.sessionName,
+          status: isApproved
+            ? t('registrationApprovedStatus')
+            : t('registrationRejectedStatus'),
+        }),
         type: isApproved ? 'success' : 'error',
         duration: 5000,
       });

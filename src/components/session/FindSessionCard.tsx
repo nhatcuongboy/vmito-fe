@@ -52,19 +52,13 @@ const FindSessionCard = ({
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
-  const [isWithdrawing, setIsWithdrawing] = useState(false);
+
   const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     isOpen: isLoginModalOpen,
     onOpen: onOpenLoginModal,
     onClose: onCloseLoginModal,
-  } = useModal();
-
-  const {
-    isOpen: isWithdrawModalOpen,
-    onOpen: onOpenWithdrawModal,
-    onClose: onCloseWithdrawModal,
   } = useModal();
 
   const {
@@ -88,45 +82,6 @@ const FindSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const approvedPlayersCount = session._count?.players || 0;
   const isFull = approvedPlayersCount >= maxPlayers;
-
-  // Handle withdraw request
-  const handleWithdrawRequest = async () => {
-    if (!user) return;
-
-    try {
-      setIsWithdrawing(true);
-
-      // Get user's players for this session from backend
-      const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
-
-      // Find pending players to delete
-      const pendingPlayers = myPlayers.filter(
-        (p) => p.registrationStatus === 'PENDING'
-      );
-
-      if (pendingPlayers.length === 0) {
-        toaster.warning({ title: t('noPendingRequest') });
-        onCloseWithdrawModal();
-        return;
-      }
-
-      // Delete all pending players
-      await Promise.all(
-        pendingPlayers.map((p) =>
-          PlayerService.deletePlayerBySession(session.id, p.id)
-        )
-      );
-
-      toaster.success({ title: t('requestWithdrawn') });
-      onCloseWithdrawModal();
-      onRegistrationUpdate?.();
-    } catch (error) {
-      console.error('Error withdrawing request:', error);
-      toaster.error({ title: tCommon('error') });
-    } finally {
-      setIsWithdrawing(false);
-    }
-  };
 
   // Handle delete session
   const handleDeleteSession = async () => {
@@ -322,28 +277,13 @@ const FindSessionCard = ({
         returnUrl={`/sessions/${session.id}?register=true`}
       />
 
-      {/* Withdraw confirmation modal */}
-      <VModal
-        isOpen={isWithdrawModalOpen}
-        onClose={onCloseWithdrawModal}
-        title={t('withdrawRequest')}
-        primaryActionText={tCommon('confirm')}
-        secondaryActionText={tCommon('cancel')}
-        onPrimaryAction={handleWithdrawRequest}
-        primaryColorScheme="red"
-        isPrimaryLoading={isWithdrawing}
-      >
-        <Text>{t('withdrawConfirmation')}</Text>
-      </VModal>
-
-      {/* View Registration modal */}
       <MyRegistrationModal
         isOpen={isViewRegistrationModalOpen}
         onClose={onCloseViewRegistrationModal}
         session={session}
         onWithdraw={() => {
-          onCloseViewRegistrationModal(); // Close registration modal first
-          onOpenWithdrawModal(); // Then open withdraw confirmation
+          onCloseViewRegistrationModal();
+          onRegistrationUpdate?.();
         }}
       />
 
