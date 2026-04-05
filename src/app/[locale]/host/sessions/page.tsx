@@ -26,11 +26,9 @@ import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
-  { value: 'status', labelKey: 'sort.status' },
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
   { value: 'date_desc', labelKey: 'sort.dateFurthest' },
-  { value: 'created_desc', labelKey: 'sort.createdNewest' },
-  { value: 'created_asc', labelKey: 'sort.createdOldest' },
+  { value: 'status', labelKey: 'sort.status' },
   { value: 'price_asc', labelKey: 'sort.priceLow' },
   { value: 'price_desc', labelKey: 'sort.priceHigh' },
   { value: 'distance', labelKey: 'sort.distance' },
@@ -186,11 +184,13 @@ function HostSessionsContent() {
             resultCount={totalCount}
           />
 
-          <Box mb={4}>
-            <QuickCreateSessionBar
-              onInputClick={() => setIsAIModalOpen(true)}
-            />
-          </Box>
+          <Flex justify="center">
+            <Box w="100%" maxW="500px" mb={4}>
+              <QuickCreateSessionBar
+                onInputClick={() => setIsAIModalOpen(true)}
+              />
+            </Box>
+          </Flex>
           <ResultsHeader
             count={totalCount}
             sortOptions={HOST_SORT_OPTIONS}

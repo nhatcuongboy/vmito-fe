@@ -109,10 +109,9 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     setShowAddPlayerModal(false);
   };
 
-  // Handle cancel from warning modal - also close Add Player modal
+  // Handle cancel from warning modal - only close warning modal
   const handleCancelWarning = () => {
     cancelAddPlayer();
-    setShowAddPlayerModal(false);
   };
 
   // Edit Player Modal handlers
@@ -149,7 +148,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
 
       {/* Add Player Modal */}
       <AddPlayerModal
-        isOpen={showAddPlayerModal && !showMaxPlayersWarning}
+        isOpen={showAddPlayerModal}
         onClose={closeAddPlayerModal}
         newPlayers={newPlayers}
         availableUsers={availableUsers}

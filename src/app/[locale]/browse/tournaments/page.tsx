@@ -24,6 +24,8 @@ import { format, isSameDay } from 'date-fns';
 
 const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
+import { AppSearchBar } from '@/components/common/AppSearchBar';
+
 function TournamentsContent() {
   const t = useTranslations('pages.tournaments');
   const router = useRouter();
@@ -141,30 +143,12 @@ function TournamentsContent() {
       <VStack gap={6} alignItems="stretch">
         {/* Search Bar */}
         <Flex justify="center" pt={2}>
-          <Box position="relative" w="100%" maxW="500px">
-            <Box
-              position="absolute"
-              left="14px"
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex={1}
-              color="gray.400"
-              pointerEvents="none"
-            >
-              <Search size={18} />
-            </Box>
-            <Input
+          <Box w="100%" maxW="500px">
+            <AppSearchBar
               placeholder={t('searchEvents')}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                paddingLeft: '42px',
-                borderRadius: '24px',
-                height: '44px',
-                border: '1px solid #CBD5E0',
-                background: 'white',
-                fontSize: '15px',
-              }}
+              onChange={setSearchTerm}
+              showFilter={false}
             />
           </Box>
         </Flex>

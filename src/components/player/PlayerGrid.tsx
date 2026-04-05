@@ -20,29 +20,29 @@ const PLAYER_COLORS = {
     scheme: 'blue',
   },
   READY: {
-    bg: { base: 'yellow.100', _dark: 'yellow.900/30' },
-    border: 'yellow.300',
-    scheme: 'green',
+    bg: { base: 'yellow.200', _dark: 'yellow.800/40' },
+    border: 'yellow.500',
+    scheme: 'yellow',
   },
   WAITING: {
-    bg: { base: 'orange.100', _dark: 'orange.900/40' },
-    border: 'orange.400',
+    bg: { base: 'orange.200', _dark: 'orange.800/40' },
+    border: 'orange.500',
     scheme: 'orange',
   },
   PLAYING: {
-    bg: { base: 'green.100', _dark: 'green.900/30' },
-    border: 'green.400',
-    scheme: 'blue',
+    bg: { base: 'green.200', _dark: 'green.800/40' },
+    border: 'green.500',
+    scheme: 'green',
   },
   INACTIVE: {
-    bg: { base: 'gray.100', _dark: 'whiteAlpha.100' },
-    border: 'gray.300',
+    bg: { base: 'gray.200', _dark: 'whiteAlpha.200' },
+    border: 'gray.400',
     scheme: 'gray',
   },
   DEFAULT: {
-    bg: { base: 'orange.50', _dark: 'whiteAlpha.50' },
-    border: 'orange.200',
-    scheme: 'orange',
+    bg: { base: 'gray.50', _dark: 'whiteAlpha.50' },
+    border: 'gray.200',
+    scheme: 'gray',
   },
 };
 

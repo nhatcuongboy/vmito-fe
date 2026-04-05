@@ -335,9 +335,13 @@ export default function SuggestionsList({
 
       {/* Quick Create Bar */}
       {user && (
-        <Box mb={4}>
-          <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
-        </Box>
+        <Flex justify="center">
+          <Box w="100%" maxW="500px" mb={4}>
+            <QuickCreateSessionBar
+              onInputClick={() => setIsAIModalOpen(true)}
+            />
+          </Box>
+        </Flex>
       )}
 
       {/* Results Header: Count + Mode Toggles + View Toggle + Refresh */}

@@ -424,8 +424,8 @@
       "clearAll": "Xóa bộ lọc sân"
     },
     "sort": {
-      "dateFurthest": "Ngày xa nhất",
-      "dateNearest": "Ngày gần nhất",
+      "dateFurthest": "Xa nhất",
+      "dateNearest": "Gần nhất",
       "priceLow": "Giá thấp → cao",
       "priceHigh": "Giá cao → thấp",
       "distance": "Sân gần nhất",

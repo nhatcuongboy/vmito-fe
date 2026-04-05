@@ -459,12 +459,11 @@ export default function FindSessionList({
   };
 
   const activeFilterCount =
-    (filters.searchQuery ? 1 : 0) +
     (filters.date ? 1 : 0) +
-    filters.levels.length +
-    filters.timeRanges.length +
-    filters.cities.length +
-    filters.districts.length +
+    (filters.levels.length > 0 ? 1 : 0) +
+    (filters.timeRanges.length > 0 ? 1 : 0) +
+    (filters.cities.length > 0 ? 1 : 0) +
+    (filters.districts.length > 0 ? 1 : 0) +
     (filters.hasSlots ? 1 : 0) +
     (filters.minAvailableSlots > 0 ? 1 : 0) +
     (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
@@ -472,18 +471,7 @@ export default function FindSessionList({
     (sortByDistance ? 1 : 0);
 
   // Count of non-search filters for showing the clear-all button
-  const nonSearchFilterCount =
-    (filters.venueId ? 1 : 0) +
-    (filters.date ? 1 : 0) +
-    filters.levels.length +
-    filters.timeRanges.length +
-    filters.cities.length +
-    filters.districts.length +
-    (filters.hasSlots ? 1 : 0) +
-    (filters.minAvailableSlots > 0 ? 1 : 0) +
-    (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
-    (filters.splitEvenly ? 1 : 0) +
-    (sortByDistance ? 1 : 0);
+  const nonSearchFilterCount = activeFilterCount;
 
   // Handle Join Actions
   const handleJoinClick = (session: ISession) => {
@@ -566,9 +554,13 @@ export default function FindSessionList({
 
       {/* Quick Create Bar */}
       {user && (
-        <Box mb={4}>
-          <QuickCreateSessionBar onInputClick={() => setIsAIModalOpen(true)} />
-        </Box>
+        <Flex justify="center">
+          <Box w="100%" maxW="500px" mb={4}>
+            <QuickCreateSessionBar
+              onInputClick={() => setIsAIModalOpen(true)}
+            />
+          </Box>
+        </Flex>
       )}
 
       {/* Results Header: Count + Mode Toggles + View Toggle */}

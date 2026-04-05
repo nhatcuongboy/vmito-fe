@@ -43,11 +43,9 @@ const SORT_ICONS: Record<SessionSortBy, LucideIcon> = {
 };
 
 const DEFAULT_SORT_OPTIONS: SortOption[] = [
-  { value: 'status', labelKey: 'sort.status' },
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
   { value: 'date_desc', labelKey: 'sort.dateFurthest' },
-  { value: 'created_desc', labelKey: 'sort.createdNewest' },
-  { value: 'created_asc', labelKey: 'sort.createdOldest' },
+  { value: 'status', labelKey: 'sort.status' },
   { value: 'price_asc', labelKey: 'sort.priceLow' },
   { value: 'price_desc', labelKey: 'sort.priceHigh' },
   { value: 'distance', labelKey: 'sort.distance' },

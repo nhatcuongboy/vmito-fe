@@ -14,13 +14,18 @@ interface BadmintonCourtPlayer extends Player {
 }
 
 function formatWaitTime(waitTimeInMinutes?: number): string {
-  if (!waitTimeInMinutes) return '0m';
+  if (
+    waitTimeInMinutes === undefined ||
+    waitTimeInMinutes === null ||
+    waitTimeInMinutes === 0
+  )
+    return '0';
   const hours = Math.floor(waitTimeInMinutes / 60);
   const minutes = waitTimeInMinutes % 60;
   if (hours > 0) {
-    return `${hours}h${minutes}m`;
+    return `${hours} giờ ${minutes} phút`;
   }
-  return `${minutes}m`;
+  return `${minutes} phút`;
 }
 
 function getPairColor(player?: BadmintonCourtPlayer, playerIndex?: number) {
@@ -142,7 +147,13 @@ export default function PlayerTooltip({
           >
             <Text color="gray.400">{t('gender')}:</Text>
             <Text color="white" fontWeight="medium">
-              {player.gender ? player.gender.toUpperCase() : 'UNKNOWN'}
+              {player.gender === 'MALE'
+                ? t('male')
+                : player.gender === 'FEMALE'
+                  ? t('female')
+                  : player.gender === 'OTHER'
+                    ? t('other')
+                    : t('preferNotToSay')}
             </Text>
           </Box>
 
@@ -199,7 +210,7 @@ export default function PlayerTooltip({
           >
             <Text color="gray.400">{t('pair')}:</Text>
             <Text color={pairColors.border} fontWeight="bold">
-              {t('pair')} {pairNumber}
+              {pairNumber}
             </Text>
           </Box>
         </Box>

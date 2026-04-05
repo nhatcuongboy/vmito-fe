@@ -157,7 +157,7 @@ export default function SessionFilterDrawer({
               <Heading size="md">{t('filters.title') || 'Bộ lọc'}</Heading>
               {activeFilterCount > 0 && (
                 <Badge
-                  colorPalette="green"
+                  colorPalette="red"
                   variant="solid"
                   borderRadius="full"
                   px={2}
@@ -748,7 +748,7 @@ export default function SessionFilterDrawer({
             </Button>
             <Button
               flex="1"
-              variant="outline"
+              variant="subtle"
               colorPalette="red"
               onClick={onReset}
               leftIcon={<X size={18} />}

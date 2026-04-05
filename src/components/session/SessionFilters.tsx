@@ -5,6 +5,7 @@ import { useDisclosure } from '@/components/ui/ChakraHooks';
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
+import SessionSearchBar from './SessionSearchBar';
 import {
   Badge,
   Box,
@@ -14,7 +15,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Calendar, Check, Filter, Search, X } from 'lucide-react';
+import { Calendar, Check, Filter, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   ISessionFiltersProps,
@@ -30,7 +31,6 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   showSearchFilter = true,
   showStatusFilter = true,
   initialFilters = {},
-  resultCount,
 }) => {
   const t = useTranslations('session.filters');
   const tStatus = useTranslations('session.status');
@@ -92,24 +92,8 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     setPendingLevel(undefined);
   };
 
-  const removeStatusFilter = () => {
-    setFilters((prev) => ({ ...prev, status: undefined }));
-  };
-
-  const removeDateFilter = () => {
-    setFilters((prev) => ({ ...prev, date: undefined }));
-  };
-
-  const removeLevelFilter = () => {
-    setFilters((prev) => ({ ...prev, level: undefined }));
-  };
-
   const activeFilterCount =
     (filters.status ? 1 : 0) + (filters.date ? 1 : 0) + (filters.level ? 1 : 0);
-
-  const hasActiveFilters =
-    activeFilterCount > 0 ||
-    (filters.searchQuery && filters.searchQuery !== '');
 
   const statusItems = [
     { value: SessionStatus.PREPARING, label: tStatus('preparing') },
@@ -122,203 +106,17 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     label: tCommon(`levels.${i + 1}`),
   }));
 
-  const getStatusLabel = (status: string) => {
-    const item = statusItems.find((s) => s.value === status);
-    return item?.label || status;
-  };
-
   return (
     <Box>
       {/* Sticky Search Bar */}
-      <Box
-        position="sticky"
-        top={{
-          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
-          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
-        }}
-        zIndex={100}
-        mb={4}
-      >
-        <Flex
-          gap={2}
-          align="center"
-          bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          px={3}
-          h="48px"
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-        >
-          {showSearchFilter && (
-            <Box flex="1" minW="200px">
-              <Input
-                h="36px"
-                placeholder={t('searchSessions')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                bg="white"
-                _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                borderRadius="md"
-                leftElement={
-                  <Box color="gray.400">
-                    <Search size={18} />
-                  </Box>
-                }
-                _focus={{
-                  borderColor: 'brand.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  bg: 'white',
-                  _dark: { bg: 'gray.600' },
-                }}
-                fontSize="sm"
-                transition="all 0.2s"
-                _placeholder={{ color: 'gray.400' }}
-              />
-            </Box>
-          )}
-
-          <Box position="relative">
-            <IconButton
-              h="36px"
-              w="36px"
-              minW="36px"
-              variant="solid"
-              colorPalette="green"
-              onClick={toggleDrawer}
-              aria-label={t('clearFilters')}
-              icon={<Filter size={18} />}
-              borderRadius="md"
-              transition="all 0.2s"
-              _hover={{ transform: 'scale(1.05)' }}
-            />
-            {activeFilterCount > 0 && (
-              <Badge
-                position="absolute"
-                top="-6px"
-                right="-6px"
-                borderRadius="full"
-                colorPalette="red"
-                variant="solid"
-                px={1.5}
-                minW="20px"
-                h="20px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="xs"
-                fontWeight="bold"
-                border="2px solid"
-                borderColor="white"
-                _dark={{ borderColor: 'gray.800' }}
-                zIndex={1}
-                boxShadow="sm"
-              >
-                {activeFilterCount}
-              </Badge>
-            )}
-          </Box>
-        </Flex>
-      </Box>
-
-      {/* Active Filter Chips */}
-      {/* {(activeFilterCount > 0 || resultCount !== undefined) && (
-        <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
-          {resultCount !== undefined && (
-            <Text
-              fontSize="sm"
-              color="gray.500"
-              _dark={{ color: 'gray.400' }}
-              flexShrink={0}
-            >
-              {resultCount} kết quả
-            </Text>
-          )}
-
-          {filters.status && (
-            <Badge
-              colorPalette="green"
-              variant="subtle"
-              borderRadius="full"
-              px={3}
-              py={1}
-              fontSize="xs"
-              fontWeight="semibold"
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-            >
-              {getStatusLabel(filters.status)}
-              <Box
-                as="span"
-                cursor="pointer"
-                display="inline-flex"
-                alignItems="center"
-                onClick={removeStatusFilter}
-                _hover={{ color: 'green.700' }}
-              >
-                <X size={12} />
-              </Box>
-            </Badge>
-          )}
-
-          {filters.date && (
-            <Badge
-              colorPalette="blue"
-              variant="subtle"
-              borderRadius="full"
-              px={3}
-              py={1}
-              fontSize="xs"
-              fontWeight="semibold"
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-            >
-              <Calendar size={11} />
-              {new Date(filters.date).toLocaleDateString('vi-VN')}
-              <Box
-                as="span"
-                cursor="pointer"
-                display="inline-flex"
-                alignItems="center"
-                onClick={removeDateFilter}
-                _hover={{ color: 'blue.700' }}
-              >
-                <X size={12} />
-              </Box>
-            </Badge>
-          )}
-
-          {filters.level && (
-            <Badge
-              colorPalette="purple"
-              variant="subtle"
-              borderRadius="full"
-              px={3}
-              py={1}
-              fontSize="xs"
-              fontWeight="semibold"
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-            >
-              {tCommon(`levels.${filters.level}`)}
-              <Box
-                as="span"
-                cursor="pointer"
-                display="inline-flex"
-                alignItems="center"
-                onClick={removeLevelFilter}
-                _hover={{ color: 'purple.700' }}
-              >
-                <X size={12} />
-              </Box>
-            </Badge>
-          )}
-        </Flex>
-      )} */}
+      {showSearchFilter && (
+        <SessionSearchBar
+          searchQuery={searchTerm}
+          onSearchChange={setSearchTerm}
+          onToggleFilters={toggleDrawer}
+          activeFilterCount={activeFilterCount}
+        />
+      )}
 
       {/* Filter Drawer Overlay */}
       {showDrawer && (

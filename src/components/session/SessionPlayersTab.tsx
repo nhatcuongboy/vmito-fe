@@ -121,7 +121,6 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
 
   const handleCancelWarning = () => {
     cancelAddPlayer();
-    setShowAddPlayerModal(false);
   };
 
   // State for modals in Grid view
@@ -231,6 +230,8 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             size="sm"
             borderRadius="md"
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
           />
         </InputGroup>
 
@@ -336,7 +337,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
 
       {/* Add Player Modal */}
       <AddPlayerModal
-        isOpen={showAddPlayerModal && !showMaxPlayersWarning}
+        isOpen={showAddPlayerModal}
         onClose={closeAddPlayerModal}
         newPlayers={newPlayers}
         availableUsers={availableUsers}

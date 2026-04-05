@@ -1,7 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
 import {
   Button,
@@ -63,6 +63,19 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
   const { getLevelLabel } = useLevelLabel();
+
+  const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const prevPlayersLength = useRef(newPlayers.length);
+
+  useEffect(() => {
+    if (newPlayers.length > prevPlayersLength.current) {
+      const lastIndex = newPlayers.length - 1;
+      setTimeout(() => {
+        nameInputRefs.current[lastIndex]?.focus();
+      }, 50);
+    }
+    prevPlayersLength.current = newPlayers.length;
+  }, [newPlayers.length]);
 
   const handleClose = () => {
     onCancelAll();
@@ -154,7 +167,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       padding: '12px',
                       borderRadius: '6px',
                       border: '1px solid var(--chakra-colors-border)',
-                      backgroundColor: 'transparent',
+                      backgroundColor: 'var(--chakra-colors-bg-panel, white)',
                       color: 'inherit',
                       fontSize: '14px',
                     }}
@@ -192,6 +205,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     {t('playerName')}
                   </Text>
                   <Input
+                    ref={(el) => {
+                      nameInputRefs.current[index] = el;
+                    }}
                     placeholder={t('enterPlayerName')}
                     value={player.name}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,7 +255,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         padding: '12px',
                         borderRadius: '6px',
                         border: '1px solid var(--chakra-colors-border)',
-                        backgroundColor: 'transparent',
+                        backgroundColor: 'var(--chakra-colors-bg-panel, white)',
                         color: 'inherit',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
@@ -278,7 +294,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         padding: '12px',
                         borderRadius: '6px',
                         border: '1px solid var(--chakra-colors-border)',
-                        backgroundColor: 'transparent',
+                        backgroundColor: 'var(--chakra-colors-bg-panel, white)',
                         color: 'inherit',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
@@ -411,7 +427,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                             padding: '8px',
                             borderRadius: '6px',
                             border: '1px solid var(--chakra-colors-border)',
-                            backgroundColor: 'transparent',
+                            backgroundColor:
+                              'var(--chakra-colors-bg-panel, white)',
                             color: 'inherit',
                             fontSize: '14px',
                           }}
