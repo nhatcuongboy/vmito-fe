@@ -202,7 +202,7 @@ const GroupMembersPage = () => {
           </Button>
           <Box>
             <Heading size="lg">{group.name}</Heading>
-            <Text color="gray.500" display="flex" alignItems="center" gap={2}>
+            <Text color="fg.muted" display="flex" alignItems="center" gap={2}>
               <Users size={16} /> {members.length} {t('members')}
               {joinRequests.length > 0 && (
                 <Badge
@@ -249,11 +249,11 @@ const GroupMembersPage = () => {
               <Box
                 p={8}
                 textAlign="center"
-                bg="gray.50"
+                bg="bg.muted"
                 _dark={{ bg: 'gray.900/40' }}
                 borderRadius="lg"
               >
-                <Text color="gray.500">{t('noMembersYet')}</Text>
+                <Text color="fg.muted">{t('noMembersYet')}</Text>
                 <Button
                   mt={4}
                   colorPalette="green"
@@ -268,7 +268,7 @@ const GroupMembersPage = () => {
                 <Flex
                   key={member.id}
                   p={4}
-                  bg="white"
+                  bg="bg"
                   _dark={{ bg: 'gray.800' }}
                   borderRadius="lg"
                   borderWidth="1px"
@@ -301,7 +301,7 @@ const GroupMembersPage = () => {
                           )}
                         </Badge>
                       </HStack>
-                      <Text fontSize="sm" color="gray.500">
+                      <Text fontSize="sm" color="fg.muted">
                         {member.user.email}
                       </Text>
                       <HStack mt={1} gap={4}>
@@ -367,7 +367,7 @@ const GroupMembersPage = () => {
               <Box
                 p={8}
                 textAlign="center"
-                bg="gray.50"
+                bg="bg.muted"
                 _dark={{ bg: 'gray.900/40' }}
                 borderRadius="lg"
               >
@@ -376,7 +376,7 @@ const GroupMembersPage = () => {
                   color="#CBD5E0"
                   style={{ margin: '0 auto 16px' }}
                 />
-                <Text color="gray.500">
+                <Text color="fg.muted">
                   {t_clubs('noPendingRequest' as any) ||
                     'No pending join requests'}
                 </Text>
@@ -386,7 +386,7 @@ const GroupMembersPage = () => {
                 <Flex
                   key={request.id}
                   p={4}
-                  bg="white"
+                  bg="bg"
                   _dark={{ bg: 'gray.800' }}
                   borderRadius="lg"
                   borderWidth="1px"
@@ -403,14 +403,14 @@ const GroupMembersPage = () => {
                     </Avatar.Root>
                     <Box>
                       <Text fontWeight="bold">{request.user.name}</Text>
-                      <Text fontSize="sm" color="gray.500">
+                      <Text fontSize="sm" color="fg.muted">
                         {request.user.email}
                       </Text>
                       {request.message && (
                         <Box
                           mt={2}
                           p={2}
-                          bg="gray.50"
+                          bg="bg.muted"
                           _dark={{ bg: 'gray.700' }}
                           borderRadius="md"
                           fontSize="xs"
@@ -419,7 +419,7 @@ const GroupMembersPage = () => {
                           "{request.message}"
                         </Box>
                       )}
-                      <Text fontSize="xs" color="gray.400" mt={1}>
+                      <Text fontSize="xs" color="fg.muted" mt={1}>
                         {new Date(request.createdAt).toLocaleDateString()}
                       </Text>
                     </Box>
@@ -497,7 +497,7 @@ const GroupMembersPage = () => {
                       </Avatar.Root>
                       <Box>
                         <Text fontWeight="medium">{user.name}</Text>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="fg.muted">
                           {user.email}
                         </Text>
                       </Box>
@@ -519,7 +519,7 @@ const GroupMembersPage = () => {
                 );
               })}
               {searchQuery && searchResults.length === 0 && !isSearching && (
-                <Text textAlign="center" color="gray.500" py={4}>
+                <Text textAlign="center" color="fg.muted" py={4}>
                   {t('noUsersFound')}
                 </Text>
               )}

@@ -48,7 +48,7 @@ export default function FAQSection() {
               </AccordionItemTrigger>
               <AccordionItemContent px={6} pb={4}>
                 <Text
-                  color="gray.600"
+                  color="fg.muted"
                   _dark={{ color: 'gray.400' }}
                   fontSize="md"
                   lineHeight="tall"

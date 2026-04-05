@@ -27,13 +27,12 @@ export function SearchFilterBar({
     <Flex
       gap={2}
       align="center"
-      bg="white"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      bg="bg"
       px={3}
       h="48px"
       borderRadius="lg"
       borderWidth="1px"
-      borderColor="gray.200"
+      borderColor="border"
       boxShadow="sm"
     >
       <Box flex="1" minW="200px">
@@ -44,15 +43,15 @@ export function SearchFilterBar({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onKeywordChange(e.target.value)
           }
-          bg="white"
-          _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+          bg="bg"
           borderRadius="md"
-          leftElement={<Search size={18} />}
+          leftElement={
+            <Search size={18} color="var(--chakra-colors-fg-muted)" />
+          }
           _focus={{
             borderColor: 'brand.500',
             boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-            bg: 'white',
-            _dark: { bg: 'gray.600' },
+            bg: 'bg',
           }}
           fontSize="sm"
           transition="all 0.2s"
@@ -90,8 +89,7 @@ export function SearchFilterBar({
             fontSize="xs"
             fontWeight="bold"
             border="2px solid"
-            borderColor="white"
-            _dark={{ borderColor: 'gray.800' }}
+            borderColor="bg"
             zIndex={1}
             boxShadow="sm"
           >

@@ -1183,8 +1183,8 @@ export default function SessionForm({
                         min={
                           !isEditMode ? formatDateOnly(new Date()) : undefined
                         }
-                        color="gray.800"
-                        bg="white"
+                        color="fg"
+                        bg="bg"
                         _dark={{ color: 'white', bg: 'gray.700' }}
                         css={{
                           '&::-webkit-date-and-time-value': {
@@ -1217,8 +1217,8 @@ export default function SessionForm({
                             handleStartHourChange(e.target.value)
                           }
                           disabled={!canEditTime}
-                          color="gray.800"
-                          bg="white"
+                          color="fg"
+                          bg="bg"
                           _dark={{ color: 'white', bg: 'gray.700' }}
                           css={{
                             '&::-webkit-date-and-time-value': {
@@ -1249,8 +1249,8 @@ export default function SessionForm({
                           value={endHour}
                           onChange={(e) => handleEndHourChange(e.target.value)}
                           disabled={!canEditTime}
-                          color="gray.800"
-                          bg="white"
+                          color="fg"
+                          bg="bg"
                           _dark={{ color: 'white', bg: 'gray.700' }}
                           css={{
                             '&::-webkit-date-and-time-value': {
@@ -1285,8 +1285,8 @@ export default function SessionForm({
                         type="datetime-local"
                         {...register('startTime')}
                         disabled={!canEditTime}
-                        color="gray.800"
-                        bg="white"
+                        color="fg"
+                        bg="bg"
                         _dark={{ color: 'white', bg: 'gray.700' }}
                         css={{
                           '&::-webkit-date-and-time-value': {
@@ -1317,8 +1317,8 @@ export default function SessionForm({
                         type="datetime-local"
                         {...register('endTime')}
                         disabled={!canEditTime}
-                        color="gray.800"
-                        bg="white"
+                        color="fg"
+                        bg="bg"
                         _dark={{ color: 'white', bg: 'gray.700' }}
                         css={{
                           '&::-webkit-date-and-time-value': {
@@ -1629,7 +1629,7 @@ export default function SessionForm({
 
             {/* Session Settings Section - Temporarily hidden */}
             {false && user?.role !== UserRole.PLAYER && (
-              <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              <Box bg="bg" p={6} borderRadius="lg" boxShadow="sm">
                 <Heading size="md" mb={4}>
                   {t('generalSettings.sessionSettings')}
                 </Heading>
@@ -1640,7 +1640,7 @@ export default function SessionForm({
                     control={control}
                     name="requirePlayerInfo"
                     render={({ field }) => (
-                      <Box p={4} bg="gray.50" borderRadius="md">
+                      <Box p={4} bg="bg.muted" borderRadius="md">
                         <Flex align="center" justify="space-between">
                           <Box>
                             <HStack mb={1}>
@@ -1649,7 +1649,7 @@ export default function SessionForm({
                                 {t('generalSettings.requirePlayerInfo')}
                               </Text>
                             </HStack>
-                            <Text fontSize="sm" color="gray.500">
+                            <Text fontSize="sm" color="fg.muted">
                               {t('generalSettings.requirePlayerInfoDesc')}
                             </Text>
                           </Box>
@@ -1667,7 +1667,7 @@ export default function SessionForm({
                     control={control}
                     name="allowGuestJoin"
                     render={({ field }) => (
-                      <Box p={4} bg="gray.50" borderRadius="md">
+                      <Box p={4} bg="bg.muted" borderRadius="md">
                         <Flex align="center" justify="space-between">
                           <Box>
                             <HStack mb={1}>
@@ -1676,7 +1676,7 @@ export default function SessionForm({
                                 {t('generalSettings.allowGuestJoin')}
                               </Text>
                             </HStack>
-                            <Text fontSize="sm" color="gray.500">
+                            <Text fontSize="sm" color="fg.muted">
                               {t('generalSettings.allowGuestJoinDesc')}
                             </Text>
                           </Box>
@@ -1694,7 +1694,7 @@ export default function SessionForm({
                     control={control}
                     name="allowNewPlayers"
                     render={({ field }) => (
-                      <Box p={4} bg="gray.50" borderRadius="md">
+                      <Box p={4} bg="bg.muted" borderRadius="md">
                         <Flex align="center" justify="space-between">
                           <Box>
                             <HStack mb={1}>
@@ -1703,7 +1703,7 @@ export default function SessionForm({
                                 {t('generalSettings.allowNewPlayers')}
                               </Text>
                             </HStack>
-                            <Text fontSize="sm" color="gray.500">
+                            <Text fontSize="sm" color="fg.muted">
                               {t('generalSettings.allowNewPlayersDesc')}
                             </Text>
                           </Box>

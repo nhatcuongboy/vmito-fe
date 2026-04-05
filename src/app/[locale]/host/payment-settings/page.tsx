@@ -118,7 +118,7 @@ function PaymentSettingsContent() {
     return (
       <Box textAlign="center" py={10}>
         <Spinner size="lg" />
-        <Text mt={4} color="gray.500">
+        <Text mt={4} color="fg.muted">
           {tCommon('loading')}
         </Text>
       </Box>
@@ -140,7 +140,7 @@ function PaymentSettingsContent() {
         )}
       </HStack>
 
-      <Text color="gray.600">{t('settingsDescription')}</Text>
+      <Text color="fg.muted">{t('settingsDescription')}</Text>
 
       {/* Existing Settings */}
       {settings.map((setting) => (
@@ -158,10 +158,10 @@ function PaymentSettingsContent() {
           ) : (
             <Box
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="border"
               borderRadius="lg"
               p={4}
-              bg="white"
+              bg="bg"
             >
               <HStack justify="space-between" mb={3}>
                 <HStack>
@@ -193,12 +193,12 @@ function PaymentSettingsContent() {
 
               <VStack align="stretch" gap={1}>
                 {setting.bankAccountNumber && (
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="fg.muted">
                     {t('accountNumber')}: {setting.bankAccountNumber}
                   </Text>
                 )}
                 {setting.accountHolderName && (
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="fg.muted">
                     {t('accountHolderName')}: {setting.accountHolderName}
                   </Text>
                 )}
@@ -239,11 +239,11 @@ function PaymentSettingsContent() {
           textAlign="center"
           py={10}
           border="2px dashed"
-          borderColor="gray.200"
+          borderColor="border"
           borderRadius="lg"
         >
           <CreditCard size={48} color="#A0AEC0" style={{ margin: '0 auto' }} />
-          <Text mt={4} mb={4} color="gray.500">
+          <Text mt={4} mb={4} color="fg.muted">
             {t('noSettings')}
           </Text>
           <Button colorPalette="green" onClick={() => setIsCreating(true)}>

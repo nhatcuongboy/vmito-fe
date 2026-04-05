@@ -125,7 +125,7 @@ const ClubFeesPage = () => {
           </Button>
         </Flex>
 
-        <Box bg="white" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
+        <Box bg="bg" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
           <VStack spacing={6} align="stretch">
             <Box>
               <Heading size="md" mb={4}>
@@ -209,7 +209,7 @@ const ClubFeesPage = () => {
               <Heading size="sm" mt={4}>
                 {t('perSessionFeeConfig')}
               </Heading>
-              <Text fontSize="sm" color="gray.500" mb={4}>
+              <Text fontSize="sm" color="fg.muted" mb={4}>
                 {t('perSessionFeeDescription')}
               </Text>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>

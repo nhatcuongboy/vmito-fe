@@ -29,7 +29,7 @@ export function AppSearchBar({
         top="50%"
         transform="translateY(-50%)"
         zIndex={1}
-        color="gray.400"
+        color="fg.muted"
         pointerEvents="none"
       >
         <Search size={18} />
@@ -39,18 +39,19 @@ export function AppSearchBar({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{
-          paddingLeft: '42px',
-          paddingRight: showFilter ? '48px' : '16px',
-          borderRadius: '24px',
-          height: '44px',
-          border: '1px solid #CBD5E0',
-          background: 'white',
-          fontSize: '15px',
-        }}
-        _dark={{
-          background: 'gray.800',
-          borderColor: 'gray.600',
+        pl="42px"
+        pr={showFilter ? '48px' : '16px'}
+        borderRadius="24px"
+        h="44px"
+        border="1px solid"
+        borderColor="border"
+        bg="bg"
+        fontSize="15px"
+        color="fg"
+        _placeholder={{ color: 'fg.muted' }}
+        _focus={{
+          borderColor: 'green.500',
+          boxShadow: '0 0 0 1px var(--chakra-colors-green-500)',
         }}
       />
 
@@ -70,12 +71,9 @@ export function AppSearchBar({
             align="center"
             justify="center"
             borderRadius="full"
-            color="gray.500"
+            color="fg.muted"
             transition="all 0.2s"
-            _hover={{ bg: 'gray.100', color: 'gray.700' }}
-            _dark={{
-              _hover: { bg: 'gray.700', color: 'gray.300' },
-            }}
+            _hover={{ bg: 'bg.muted', color: 'fg' }}
             cursor="pointer"
             position="relative"
           >
@@ -99,8 +97,7 @@ export function AppSearchBar({
                 fontSize="10px"
                 fontWeight="bold"
                 border="2px solid"
-                borderColor="white"
-                _dark={{ borderColor: 'gray.800' }}
+                borderColor="bg.panel"
                 zIndex={1}
               >
                 {activeFilterCount}

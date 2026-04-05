@@ -59,7 +59,7 @@ function HostTransactionsContent() {
     return (
       <Box textAlign="center" py={10}>
         <Spinner size="lg" />
-        <Text mt={4} color="gray.500">
+        <Text mt={4} color="fg.muted">
           {tCommon('loading')}
         </Text>
       </Box>
@@ -73,7 +73,7 @@ function HostTransactionsContent() {
         <Heading size="lg">{t('transactionHistory')}</Heading>
       </HStack>
 
-      <Text color="gray.600" mb={6}>
+      <Text color="fg.muted" mb={6}>
         {t('hostTransactionsDescription')}
       </Text>
 

@@ -139,7 +139,7 @@ function TournamentsContent() {
   ];
 
   return (
-    <PageLayout title={t('title')} maxW="7xl" bg="gray.50">
+    <PageLayout title={t('title')} maxW="7xl" bg="bg.muted">
       <VStack gap={6} alignItems="stretch">
         {/* Search Bar */}
         <Flex justify="center" pt={2}>
@@ -157,7 +157,7 @@ function TournamentsContent() {
         <Text
           textAlign="center"
           fontSize="sm"
-          color="gray.600"
+          color="fg.muted"
           fontWeight="medium"
           cursor="pointer"
           _hover={{ textDecoration: 'underline' }}
@@ -168,7 +168,7 @@ function TournamentsContent() {
 
         {/* Explore Section */}
         <Flex justify="space-between" alignItems="center" pt={4}>
-          <Heading size="lg" fontWeight="bold" color="gray.900">
+          <Heading size="lg" fontWeight="bold" color="fg">
             {t('explore')}
           </Heading>
 
@@ -179,9 +179,9 @@ function TournamentsContent() {
               size="sm"
               onClick={() => setIsFilterOpen(!isFilterOpen)}
               borderRadius="full"
-              borderColor="gray.300"
-              bg="white"
-              color="gray.700"
+              borderColor="border"
+              bg="bg"
+              color="fg.muted"
               fontWeight="medium"
               px={4}
               _hover={{ bg: 'gray.50' }}
@@ -197,11 +197,11 @@ function TournamentsContent() {
                 right={0}
                 top="100%"
                 mt={1}
-                bg="white"
+                bg="bg"
                 borderRadius="md"
                 boxShadow="lg"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor="border"
                 zIndex={10}
                 minW="180px"
                 overflow="hidden"
@@ -244,7 +244,7 @@ function TournamentsContent() {
             {/* Tournament Cards Grid */}
             {filteredTournaments.length === 0 ? (
               <Box textAlign="center" py={10}>
-                <Text color="gray.500" fontSize="lg">
+                <Text color="fg.muted" fontSize="lg">
                   {t('noTournamentsFound')}
                 </Text>
               </Box>
@@ -260,11 +260,11 @@ function TournamentsContent() {
                   return (
                     <Box
                       key={tournament.id}
-                      bg="white"
+                      bg="bg"
                       borderRadius="xl"
                       overflow="hidden"
                       border="1px solid"
-                      borderColor="gray.200"
+                      borderColor="border"
                       cursor="pointer"
                       transition="all 0.25s ease"
                       _hover={{
@@ -279,7 +279,7 @@ function TournamentsContent() {
                       <Box
                         position="relative"
                         h="180px"
-                        bg="gray.100"
+                        bg="bg.muted"
                         overflow="hidden"
                       >
                         <Image
@@ -318,7 +318,7 @@ function TournamentsContent() {
                           {/* Date Range */}
                           <Text
                             fontSize="xs"
-                            color="gray.500"
+                            color="fg.muted"
                             fontWeight="medium"
                           >
                             {formatDateRange(
@@ -330,7 +330,7 @@ function TournamentsContent() {
                           {/* Tournament Name */}
                           <Heading
                             size="sm"
-                            color="gray.900"
+                            color="fg"
                             fontWeight="bold"
                             lineClamp={2}
                           >
@@ -349,7 +349,7 @@ function TournamentsContent() {
                             gap={0}
                             pt={2}
                             borderTop="1px solid"
-                            borderColor="gray.100"
+                            borderColor="border"
                             mt={1}
                           >
                             <HStack
@@ -367,7 +367,7 @@ function TournamentsContent() {
                               <Heart size={14} color="#6B7280" />
                               <Text
                                 fontSize="xs"
-                                color="gray.500"
+                                color="fg.muted"
                                 fontWeight="medium"
                               >
                                 {t('follow')}
@@ -389,7 +389,7 @@ function TournamentsContent() {
                               <Share2 size={14} color="#6B7280" />
                               <Text
                                 fontSize="xs"
-                                color="gray.500"
+                                color="fg.muted"
                                 fontWeight="medium"
                               >
                                 {t('share')}

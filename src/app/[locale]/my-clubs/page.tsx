@@ -77,7 +77,7 @@ export default function MyClubsPage() {
 
   return (
     <PageLayout title={t('clubs.myClubs')}>
-      <Text color="gray.600" _dark={{ color: 'gray.400' }} mb={8}>
+      <Text color="fg.muted" _dark={{ color: 'gray.400' }} mb={8}>
         {t('clubs.manageMyClubsDescription')}
       </Text>
 
@@ -111,7 +111,7 @@ export default function MyClubsPage() {
         {myClubs.length === 0 ? (
           <VStack
             py={12}
-            bg="gray.50"
+            bg="bg.muted"
             _dark={{ bg: 'gray.900/40' }}
             borderRadius="2xl"
             gap={4}
@@ -119,7 +119,7 @@ export default function MyClubsPage() {
             borderStyle="dashed"
           >
             <Users size={48} color="#A0AEC0" />
-            <Text color="gray.500">{t('clubs.noClubsFound')}</Text>
+            <Text color="fg.muted">{t('clubs.noClubsFound')}</Text>
             <Button
               colorPalette="green"
               variant="outline"
@@ -134,11 +134,11 @@ export default function MyClubsPage() {
               <Box
                 key={club.id}
                 p={6}
-                bg="white"
+                bg="bg"
                 _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                 borderRadius="2xl"
                 borderWidth="1px"
-                borderColor="gray.100"
+                borderColor="border"
                 cursor="pointer"
                 onClick={() => router.push(`/player/clubs/${club.id}`)}
                 transition="all 0.2s"
@@ -156,7 +156,7 @@ export default function MyClubsPage() {
                     <UserCircle size={16} />
                     <Text
                       fontSize="sm"
-                      color="gray.600"
+                      color="fg.muted"
                       _dark={{ color: 'gray.400' }}
                     >
                       {t(`clubs.memberRole.${club.role.toLowerCase()}` as any)}
@@ -166,7 +166,7 @@ export default function MyClubsPage() {
                     <Users size={16} />
                     <Text
                       fontSize="sm"
-                      color="gray.600"
+                      color="fg.muted"
                       _dark={{ color: 'gray.400' }}
                     >
                       {club.memberCount} {t('clubs.members')}
@@ -174,7 +174,7 @@ export default function MyClubsPage() {
                   </HStack>
                   <HStack gap={2}>
                     <Clock size={16} />
-                    <Text fontSize="xs" color="gray.500">
+                    <Text fontSize="xs" color="fg.muted">
                       Joined {new Date(club.joinedAt).toLocaleDateString()}
                     </Text>
                   </HStack>
@@ -183,7 +183,7 @@ export default function MyClubsPage() {
                 <Separator mb={4} />
 
                 <HStack>
-                  <Text fontSize="xs" color="gray.500">
+                  <Text fontSize="xs" color="fg.muted">
                     Hosted by
                   </Text>
                   <Text fontSize="xs" fontWeight="bold">
@@ -216,11 +216,11 @@ export default function MyClubsPage() {
         {joinRequests.length === 0 ? (
           <VStack
             py={10}
-            bg="gray.50"
+            bg="bg.muted"
             _dark={{ bg: 'gray.900/40' }}
             borderRadius="2xl"
           >
-            <Text color="gray.500">{t('clubs.noPendingRequests')}</Text>
+            <Text color="fg.muted">{t('clubs.noPendingRequests')}</Text>
           </VStack>
         ) : (
           <VStack gap={4} align="stretch">
@@ -228,11 +228,11 @@ export default function MyClubsPage() {
               <Flex
                 key={request.id}
                 p={5}
-                bg="white"
+                bg="bg"
                 _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                 borderRadius="xl"
                 borderWidth="1px"
-                borderColor="gray.100"
+                borderColor="border"
                 align="center"
                 justify="space-between"
               >
@@ -249,7 +249,7 @@ export default function MyClubsPage() {
                     <Heading size="sm" mb={1}>
                       {request.club?.name}
                     </Heading>
-                    <Text fontSize="xs" color="gray.500">
+                    <Text fontSize="xs" color="fg.muted">
                       Requested on{' '}
                       {new Date(request.createdAt).toLocaleDateString()}
                     </Text>

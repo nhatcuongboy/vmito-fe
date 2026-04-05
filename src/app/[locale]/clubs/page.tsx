@@ -242,13 +242,13 @@ export default function BrowseClubsPage() {
         <Flex
           gap={2}
           align="center"
-          bg="white"
+          bg="bg"
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           px={3}
           h="48px"
           borderRadius="lg"
           borderWidth="1px"
-          borderColor="gray.200"
+          borderColor="border"
           boxShadow="sm"
         >
           <Box flex="1" minW="200px">
@@ -257,7 +257,7 @@ export default function BrowseClubsPage() {
               placeholder={t('clubs.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              bg="white"
+              bg="bg"
               _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
               borderRadius="md"
               leftElement={<Search size={18} />}
@@ -325,7 +325,7 @@ export default function BrowseClubsPage() {
             {totalCount !== null && (
               <Text
                 fontSize="sm"
-                color="gray.500"
+                color="fg.muted"
                 _dark={{ color: 'gray.400' }}
                 flexShrink={0}
               >
@@ -448,7 +448,7 @@ export default function BrowseClubsPage() {
         right={0}
         bottom={0}
         width={{ base: '90%', md: '480px', lg: '520px' }}
-        bg="white"
+        bg="bg"
         _dark={{ bg: 'gray.800' }}
         shadow="2xl"
         zIndex={2100}
@@ -468,7 +468,7 @@ export default function BrowseClubsPage() {
           display="flex"
           alignItems="center"
           borderBottomWidth="1px"
-          borderColor="gray.200"
+          borderColor="border"
           _dark={{ borderColor: 'gray.700' }}
         >
           <Flex justify="space-between" align="center" width="full">
@@ -493,7 +493,7 @@ export default function BrowseClubsPage() {
               <Text
                 fontSize="xs"
                 fontWeight="semibold"
-                color="gray.500"
+                color="fg.muted"
                 mb={2}
                 textTransform="uppercase"
               >
@@ -531,7 +531,7 @@ export default function BrowseClubsPage() {
                   <Text
                     fontSize="sm"
                     fontWeight="bold"
-                    color="gray.700"
+                    color="fg.muted"
                     _dark={{ color: 'gray.200' }}
                   >
                     Khu vực
@@ -600,7 +600,7 @@ export default function BrowseClubsPage() {
                     <Text
                       fontSize="sm"
                       fontWeight="bold"
-                      color="gray.700"
+                      color="fg.muted"
                       _dark={{ color: 'gray.200' }}
                     >
                       Quận / Huyện
@@ -686,8 +686,8 @@ export default function BrowseClubsPage() {
           p={4}
           pb={{ base: 'calc(16px + env(safe-area-inset-bottom))', md: 4 }}
           borderTopWidth="1px"
-          borderColor="gray.200"
-          bg="gray.50"
+          borderColor="border"
+          bg="bg.muted"
           _dark={{ borderColor: 'gray.700', bg: 'gray.900' }}
         >
           <Flex gap={3}>
@@ -723,19 +723,19 @@ export default function BrowseClubsPage() {
           textAlign="center"
           py={16}
           px={6}
-          bg="gray.50"
+          bg="bg.muted"
           _dark={{ bg: 'gray.800' }}
           borderRadius="2xl"
         >
           <Text
             fontSize="xl"
             fontWeight="medium"
-            color="gray.600"
+            color="fg.muted"
             _dark={{ color: 'gray.400' }}
           >
             {t('clubs.noClubsFound')}
           </Text>
-          <Text mt={2} color="gray.500" _dark={{ color: 'gray.500' }}>
+          <Text mt={2} color="fg.muted" _dark={{ color: 'gray.500' }}>
             {t('clubs.noClubsFoundDescription')}
           </Text>
           {activeFilterCount > 0 && (

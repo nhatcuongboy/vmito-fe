@@ -25,6 +25,7 @@ import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import SlideOutMenu from './SlideOutMenu';
 import UserMenu from './UserMenu';
+import SubNavigation, { NavItem } from './SubNavigation';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -32,6 +33,7 @@ interface TopBarProps {
   title?: string;
   icon?: React.ReactNode;
   rightContent?: React.ReactNode;
+  navItems?: NavItem[];
 }
 
 export default function TopBar({
@@ -40,6 +42,7 @@ export default function TopBar({
   rightContent,
   showBackButton = false,
   backHref = '/',
+  navItems,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -75,20 +78,42 @@ export default function TopBar({
         backdropFilter="blur(10px)"
         borderBottom="1px solid"
         borderColor="border"
-        height={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-        }}
-        minHeight={{
-          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
-          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
-        }}
+        height={
+          navItems
+            ? {
+                base: `calc(${TOP_BAR_HEIGHT_MOBILE + 40}px + env(safe-area-inset-top))`,
+                md: `calc(${TOP_BAR_HEIGHT_DESKTOP + 40}px + env(safe-area-inset-top))`,
+              }
+            : {
+                base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+                md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+              }
+        }
+        minHeight={
+          navItems
+            ? {
+                base: `${TOP_BAR_HEIGHT_MOBILE + 40}px`,
+                md: `${TOP_BAR_HEIGHT_DESKTOP + 40}px`,
+              }
+            : {
+                base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+                md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+              }
+        }
         paddingTop="env(safe-area-inset-top)"
         color="fg"
         transition="all 0.3s ease"
       >
-        <Container maxW="full" height="100%" px="16px">
-          <Flex justify="space-between" align="center" height="100%" py={0}>
+        <Container maxW="full" height="auto" px="0">
+          <Flex
+            justify="space-between"
+            align="center"
+            height={{
+              base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+              md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+            }}
+            px="16px"
+          >
             {/* Left side - Menu, Logo & Back button */}
             <Flex height="100%" alignItems="center" gap={2}>
               {showBackButton && (
@@ -202,6 +227,7 @@ export default function TopBar({
               )}
             </Box>
           </Flex>
+          {navItems && <SubNavigation items={navItems} />}
         </Container>
       </Box>
 

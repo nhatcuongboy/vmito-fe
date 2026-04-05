@@ -53,7 +53,7 @@ export default function HeroSection() {
             <Text
               fontSize={{ base: 'lg', md: '2xl' }}
               maxW="2xl"
-              color="gray.600"
+              color="fg.muted"
               _dark={{ color: 'gray.300' }}
             >
               {t('subtitle')}

@@ -36,7 +36,7 @@ export default function UseCasesSection() {
         <SimpleGrid columns={{ base: 1, lg: 2 }} gap={12}>
           {/* Players Column */}
           <Box
-            bg="white"
+            bg="bg"
             _dark={{ bg: 'gray.800' }}
             p={8}
             borderRadius="2xl"
@@ -53,7 +53,7 @@ export default function UseCasesSection() {
             <Text
               fontSize="lg"
               mb={8}
-              color="gray.600"
+              color="fg.muted"
               _dark={{ color: 'gray.400' }}
             >
               {tPlayers('description')}
@@ -83,7 +83,7 @@ export default function UseCasesSection() {
 
           {/* Hosts Column */}
           <Box
-            bg="white"
+            bg="bg"
             _dark={{ bg: 'gray.800' }}
             p={8}
             borderRadius="2xl"
@@ -100,7 +100,7 @@ export default function UseCasesSection() {
             <Text
               fontSize="lg"
               mb={8}
-              color="gray.600"
+              color="fg.muted"
               _dark={{ color: 'gray.400' }}
             >
               {tHosts('description')}
@@ -144,7 +144,7 @@ function FeatureItem({ icon: Icon, title, desc, color }: any) {
         <Heading size="md" mb={1}>
           {title}
         </Heading>
-        <Text color="gray.500" fontSize="sm">
+        <Text color="fg.muted" fontSize="sm">
           {desc}
         </Text>
       </Box>

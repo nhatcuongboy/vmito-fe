@@ -24,7 +24,7 @@ export default function CTASection() {
             py={8}
             fontSize="2xl"
             fontWeight="bold"
-            bg="white"
+            bg="bg"
             color="green.600"
             _hover={{ bg: 'gray.100', transform: 'scale(1.05)' }}
           >

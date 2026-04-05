@@ -39,7 +39,7 @@ function TournamentIcon() {
       w="56px"
       h="56px"
       borderRadius="lg"
-      bg="gray.100"
+      bg="bg.muted"
       _dark={{ bg: 'gray.700' }}
       display="flex"
       alignItems="center"
@@ -142,7 +142,7 @@ export default function HostTournamentsPage() {
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            bg="gray.50"
+            bg="bg.muted"
             _dark={{ bg: 'gray.800' }}
             border="none"
             flex={1}

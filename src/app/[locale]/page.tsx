@@ -21,8 +21,8 @@ function HomeContent() {
     <PageLayout
       title={t('findSession')}
       icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
-      bg="green.50"
-      _dark={{ bg: 'gray.900' }}
+      bg="bg.subtle"
+      minH="100vh"
     >
       {mode === 'browse' || !user ? (
         <FindSessionList mode={mode} onModeChange={setMode} />

@@ -39,7 +39,7 @@ function AboutContent() {
 
         {/* Footer */}
         <Box
-          bg="gray.100"
+          bg="bg.muted"
           _dark={{ bg: 'gray.900' }}
           py={10}
           pb="calc(64px + env(safe-area-inset-bottom) + 40px)"
@@ -47,7 +47,7 @@ function AboutContent() {
         >
           <Container maxW="container.xl">
             <Flex direction="column" align="center">
-              <Text color="gray.500" fontSize="sm" suppressHydrationWarning>
+              <Text color="fg.muted" fontSize="sm" suppressHydrationWarning>
                 © {new Date().getFullYear()} {common('appName')}.{' '}
                 {t('copyright')}
               </Text>

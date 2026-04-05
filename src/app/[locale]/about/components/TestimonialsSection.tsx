@@ -20,7 +20,7 @@ export default function TestimonialsSection() {
   ];
 
   return (
-    <Box py={20} bg="gray.50" _dark={{ bg: 'gray.900' }}>
+    <Box py={20} bg="bg.muted" _dark={{ bg: 'gray.900' }}>
       <Container maxW="container.xl">
         <Heading textAlign="center" mb={16} size="2xl">
           {t('title')}
@@ -29,7 +29,7 @@ export default function TestimonialsSection() {
           {testimonials.map((review, index) => (
             <Box
               key={index}
-              bg="white"
+              bg="bg"
               _dark={{ bg: 'gray.800' }}
               p={8}
               borderRadius="xl"
@@ -40,7 +40,7 @@ export default function TestimonialsSection() {
                 position="absolute"
                 top={6}
                 right={8}
-                color="gray.200"
+                color="fg"
                 _dark={{ color: 'gray.700' }}
               >
                 <Quote size={48} />

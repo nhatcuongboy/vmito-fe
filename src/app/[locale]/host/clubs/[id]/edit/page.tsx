@@ -206,7 +206,7 @@ const EditClubPage = () => {
       <Box
         as="form"
         onSubmit={handleSubmit(onSubmit)}
-        bg="white"
+        bg="bg"
         _dark={{ bg: 'gray.800' }}
         p={8}
         borderRadius="lg"
@@ -309,7 +309,7 @@ const EditClubPage = () => {
                     {...register(`schedules.${index}.startTime`)}
                     w="130px"
                   />
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="sm" color="fg.muted">
                     -
                   </Text>
                   <Input
@@ -386,7 +386,7 @@ const EditClubPage = () => {
               />
               <Box>
                 <Text fontWeight="bold">Public Club</Text>
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="xs" color="fg.muted">
                   Visible to everyone in discovery
                 </Text>
               </Box>
