@@ -135,6 +135,15 @@ export interface PaymentRecord {
   session?: ISession;
 }
 
+export interface ISessionExpense {
+  id: string;
+  sessionId: string;
+  name: string;
+  amount: number; // VND
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Transaction summary (player xem theo host)
 export interface TransactionSummary {
   hostId: string;
@@ -220,6 +229,8 @@ export interface SubmitPaymentRequest {
 
 export interface ApprovePaymentRequest {
   hostNotes?: string;
+  amount?: number;
+  paymentMethod?: PaymentMethod;
 }
 
 export interface RejectPaymentRequest {

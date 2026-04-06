@@ -33,11 +33,18 @@ import {
   ISession,
   HostPaymentSettings,
   PaymentRecord,
+  PaymentMethod,
+  ISessionExpense,
   FeeType,
 } from '@/lib/api/types';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { PaymentService } from '@/lib/api/payment.service';
-import { PaymentSettingsForm, SessionPaymentList } from '@/components/payment';
+import { SessionExpensesService } from '@/lib/api/session-expenses.service';
+import {
+  PaymentSettingsForm,
+  SessionPaymentList,
+  SessionExpenseSection,
+} from '@/components/payment';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
@@ -74,6 +81,10 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   // Split amount state
   const [splitAmount, setSplitAmount] = useState('');
   const [isSettingSplit, setIsSettingSplit] = useState(false);
+
+  // Expenses state
+  const [expenses, setExpenses] = useState<ISessionExpense[]>([]);
+  const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
 
   const loadPaymentSettings = useCallback(async () => {
     if (!session.hostId) return;
@@ -123,10 +134,25 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     }
   }, [session.id, t, tCommon, loadStats]);
 
+  const loadExpenses = useCallback(async () => {
+    if (!session.id) return;
+
+    setIsLoadingExpenses(true);
+    try {
+      const data = await SessionExpensesService.getSessionExpenses(session.id);
+      setExpenses(data);
+    } catch (error) {
+      console.error('Failed to load expenses:', error);
+    } finally {
+      setIsLoadingExpenses(false);
+    }
+  }, [session.id]);
+
   useEffect(() => {
     loadPaymentSettings();
     loadPayments();
-  }, [loadPaymentSettings, loadPayments]);
+    loadExpenses();
+  }, [loadPaymentSettings, loadPayments, loadExpenses]);
 
   const handleSave = async (
     data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
@@ -175,9 +201,18 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   };
 
   // Payment management handlers
-  const handleApprove = async (paymentId: string, notes?: string) => {
+  const handleApprove = async (
+    paymentId: string,
+    notes?: string,
+    amount?: number,
+    paymentMethod?: PaymentMethod
+  ) => {
     try {
-      await PaymentService.approvePayment(paymentId, { hostNotes: notes });
+      await PaymentService.approvePayment(paymentId, {
+        hostNotes: notes,
+        amount,
+        paymentMethod,
+      });
       await loadPayments(); // Refresh payment list
     } catch (error) {
       console.error('Failed to approve payment:', error);
@@ -215,6 +250,78 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
       });
     }
   };
+
+  // Expense handlers
+  const handleAddExpense = async (name: string, amount: number) => {
+    try {
+      const newExpense = await SessionExpensesService.createExpense(
+        session.id,
+        name,
+        amount
+      );
+      setExpenses((prev) => [...prev, newExpense]);
+      toaster.success({
+        title: tCommon('success'),
+        description: t('expenseCreated'),
+      });
+    } catch (error) {
+      console.error('Failed to create expense:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('createExpenseFailed'),
+      });
+      throw error;
+    }
+  };
+
+  const handleUpdateExpense = async (
+    expenseId: string,
+    name: string,
+    amount: number
+  ) => {
+    try {
+      const updated = await SessionExpensesService.updateExpense(
+        session.id,
+        expenseId,
+        name,
+        amount
+      );
+      setExpenses((prev) =>
+        prev.map((e) => (e.id === expenseId ? updated : e))
+      );
+      toaster.success({
+        title: tCommon('success'),
+        description: t('expenseUpdated'),
+      });
+    } catch (error) {
+      console.error('Failed to update expense:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('updateExpenseFailed'),
+      });
+      throw error;
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    try {
+      await SessionExpensesService.deleteExpense(session.id, expenseId);
+      setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
+      toaster.success({
+        title: tCommon('success'),
+        description: t('expenseDeleted'),
+      });
+    } catch (error) {
+      console.error('Failed to delete expense:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('deleteExpenseFailed'),
+      });
+      throw error;
+    }
+  };
+
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   const handleSetSplitAmount = async () => {
     const amount = parseFloat(splitAmount);
@@ -724,6 +831,19 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         <Heading size="md" mb={4}>
           {t('paymentManagement')}
         </Heading>
+
+        {/* Expense section */}
+        <Box mb={4}>
+          <SessionExpenseSection
+            sessionId={session.id}
+            expenses={expenses}
+            onAdd={handleAddExpense}
+            onUpdate={handleUpdateExpense}
+            onDelete={handleDeleteExpense}
+            isLoading={isLoadingExpenses}
+          />
+        </Box>
+
         {isLoadingPayments ? (
           <Center py={10}>
             <Spinner size="lg" color="green.500" />
@@ -735,6 +855,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
             onApprove={handleApprove}
             onReject={handleReject}
             onBulkApprove={handleBulkApprove}
+            totalExpenses={totalExpenses}
             isLoading={false}
           />
         )}

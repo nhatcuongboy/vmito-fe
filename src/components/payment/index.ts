@@ -7,3 +7,4 @@ export { default as SessionPaymentList } from './SessionPaymentList';
 export { default as PaymentInfoTab } from './PaymentInfoTab';
 export { default as TransactionSummaryList } from './TransactionSummaryList';
 export { default as FastTransferModal } from './FastTransferModal';
+export { default as SessionExpenseSection } from './SessionExpenseSection';

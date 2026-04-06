@@ -8,12 +8,15 @@ import {
   Image,
   Textarea,
   Avatar,
+  NativeSelectRoot,
+  NativeSelectField,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
-import { PaymentRecord, PaymentStatus } from '@/lib/api/types';
+import { Input } from '@/components/ui/Input';
+import { PaymentRecord, PaymentMethod, PaymentStatus } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import { Check, X, User } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
@@ -22,7 +25,11 @@ interface PaymentApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
   paymentRecord: PaymentRecord;
-  onApprove: (notes?: string) => Promise<void>;
+  onApprove: (
+    notes?: string,
+    amount?: number,
+    paymentMethod?: PaymentMethod
+  ) => Promise<void>;
   onReject: (notes?: string) => Promise<void>;
 }
 
@@ -36,13 +43,24 @@ export default function PaymentApprovalModal({
   const t = useTranslations('payment');
 
   const [hostNotes, setHostNotes] = useState('');
+  const [customAmount, setCustomAmount] = useState(
+    String(paymentRecord.amount)
+  );
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    PaymentMethod | ''
+  >(paymentRecord.paymentMethod ?? '');
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
 
   const handleApprove = async () => {
     setIsApproving(true);
     try {
-      await onApprove(hostNotes.trim() || undefined);
+      const amount = parseInt(customAmount, 10);
+      await onApprove(
+        hostNotes.trim() || undefined,
+        !isNaN(amount) ? amount : undefined,
+        selectedPaymentMethod || undefined
+      );
       onClose();
     } catch (error) {
       console.error('Approve failed:', error);
@@ -134,10 +152,24 @@ export default function PaymentApprovalModal({
         {/* Payment Details */}
         <Box border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
           <HStack justify="space-between" mb={2}>
-            <Text color="gray.600">{t('amount')}</Text>
-            <Text fontSize="lg" fontWeight="bold" color="green.600">
-              {FeeService.formatFee(paymentRecord.amount)}
-            </Text>
+            <Text color="gray.600">{t('customAmount')}</Text>
+            {canApproveOrReject ? (
+              <Input
+                size="sm"
+                type="number"
+                value={customAmount}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setCustomAmount(e.target.value)
+                }
+                w="120px"
+                textAlign="right"
+                disabled={isLoading}
+              />
+            ) : (
+              <Text fontSize="lg" fontWeight="bold" color="green.600">
+                {FeeService.formatFee(paymentRecord.amount)}
+              </Text>
+            )}
           </HStack>
 
           <HStack justify="space-between" mb={2}>
@@ -145,14 +177,37 @@ export default function PaymentApprovalModal({
             <PaymentStatusBadge status={paymentRecord.status} />
           </HStack>
 
-          {paymentRecord.paymentMethod && (
-            <HStack justify="space-between" mb={2}>
-              <Text color="gray.600">{t('paymentMethod')}</Text>
+          <HStack
+            justify="space-between"
+            mb={paymentRecord.submittedAt ? 2 : 0}
+          >
+            <Text color="gray.600">{t('selectPaymentMethod')}</Text>
+            {canApproveOrReject ? (
+              <NativeSelectRoot size="sm" w="160px">
+                <NativeSelectField
+                  value={selectedPaymentMethod}
+                  onChange={(e) =>
+                    setSelectedPaymentMethod(
+                      e.target.value as PaymentMethod | ''
+                    )
+                  }
+                  disabled={isLoading}
+                >
+                  <option value="">{t('selectPaymentMethod')}</option>
+                  <option value={PaymentMethod.BANK_TRANSFER}>
+                    {t('method.bank_transfer')}
+                  </option>
+                  <option value={PaymentMethod.CASH}>{t('method.cash')}</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
+            ) : (
               <Text fontWeight="medium">
-                {t(`method.${paymentRecord.paymentMethod.toLowerCase()}`)}
+                {paymentRecord.paymentMethod
+                  ? t(`method.${paymentRecord.paymentMethod.toLowerCase()}`)
+                  : '—'}
               </Text>
-            </HStack>
-          )}
+            )}
+          </HStack>
 
           {paymentRecord.submittedAt && (
             <HStack justify="space-between">

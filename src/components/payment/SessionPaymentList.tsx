@@ -16,6 +16,7 @@ import { NativeSelectRoot, NativeSelectField } from '@chakra-ui/react';
 import {
   PaymentRecord,
   PaymentStatus,
+  PaymentMethod,
   ISession,
   FeeType,
 } from '@/lib/api/types';
@@ -28,9 +29,15 @@ import { VTooltip } from '@/components/ui/VTooltip';
 interface SessionPaymentListProps {
   session: ISession;
   payments: PaymentRecord[];
-  onApprove: (paymentId: string, notes?: string) => Promise<void>;
+  onApprove: (
+    paymentId: string,
+    notes?: string,
+    amount?: number,
+    paymentMethod?: PaymentMethod
+  ) => Promise<void>;
   onReject: (paymentId: string, notes?: string) => Promise<void>;
   onBulkApprove?: (paymentIds: string[]) => Promise<void>;
+  totalExpenses?: number;
   isLoading?: boolean;
 }
 
@@ -43,6 +50,7 @@ export default function SessionPaymentList({
   onApprove,
   onReject,
   onBulkApprove,
+  totalExpenses = 0,
   isLoading = false,
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
@@ -127,9 +135,13 @@ export default function SessionPaymentList({
     }
   };
 
-  const handleApprove = async (notes?: string) => {
+  const handleApprove = async (
+    notes?: string,
+    amount?: number,
+    paymentMethod?: PaymentMethod
+  ) => {
     if (!selectedPayment) return;
-    await onApprove(selectedPayment.id, notes);
+    await onApprove(selectedPayment.id, notes, amount, paymentMethod);
   };
 
   const handleReject = async (notes?: string) => {
@@ -240,6 +252,46 @@ export default function SessionPaymentList({
             </Text>
           </Box>
         </Flex>
+
+        {/* Income / Expense / Net summary */}
+        <Box mt={3} pt={3} borderTop="1px solid" borderColor="gray.100">
+          <Flex gap={4} wrap="wrap">
+            <Box flex={1} minW="120px">
+              <Text fontSize="sm" color="gray.500">
+                {t('income')}
+              </Text>
+              <Text fontSize="md" fontWeight="semibold" color="green.600">
+                {approvedAmount === 0
+                  ? '0'
+                  : FeeService.formatFee(approvedAmount)}
+              </Text>
+            </Box>
+            <Box flex={1} minW="120px">
+              <Text fontSize="sm" color="gray.500">
+                {t('totalExpenses')}
+              </Text>
+              <Text fontSize="md" fontWeight="semibold" color="red.500">
+                {totalExpenses === 0
+                  ? '0'
+                  : FeeService.formatFee(totalExpenses)}
+              </Text>
+            </Box>
+            <Box flex={1} minW="120px">
+              <Text fontSize="sm" color="gray.500">
+                {t('netTotal')}
+              </Text>
+              <Text
+                fontSize="md"
+                fontWeight="bold"
+                color={
+                  approvedAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
+                }
+              >
+                {FeeService.formatFee(approvedAmount - totalExpenses)}
+              </Text>
+            </Box>
+          </Flex>
+        </Box>
       </Box>
 
       {/* Filters & Actions */}
