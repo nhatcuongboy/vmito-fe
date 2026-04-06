@@ -183,7 +183,7 @@ export default function PaymentApprovalModal({
           >
             <Text color="gray.600">{t('selectPaymentMethod')}</Text>
             {canApproveOrReject ? (
-              <NativeSelectRoot size="sm" w="160px">
+              <NativeSelectRoot size="sm" w="160px" disabled={isLoading}>
                 <NativeSelectField
                   value={selectedPaymentMethod}
                   onChange={(e) =>
@@ -191,7 +191,6 @@ export default function PaymentApprovalModal({
                       e.target.value as PaymentMethod | ''
                     )
                   }
-                  disabled={isLoading}
                 >
                   <option value="">{t('selectPaymentMethod')}</option>
                   <option value={PaymentMethod.BANK_TRANSFER}>
