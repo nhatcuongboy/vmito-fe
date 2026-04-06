@@ -12,7 +12,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
-import { NativeSelectRoot, NativeSelectField } from '@chakra-ui/react';
+import { VSelect } from '@/components/ui/VSelect';
 import {
   PaymentRecord,
   PaymentStatus,
@@ -163,7 +163,7 @@ export default function SessionPaymentList({
     if (!isFixed) {
       return (
         <Text fontWeight="semibold" color="green.600">
-          {FeeService.formatFee(payment.amount)}
+          {FeeService.formatFeeExact(payment.amount)}
         </Text>
       );
     }
@@ -178,14 +178,15 @@ export default function SessionPaymentList({
               {tFixed('clubMember')}: {groupName}
             </Text>
             <Text fontSize="sm">
-              {tFixed('perSessionFee')}: {FeeService.formatFee(payment.amount)}
+              {tFixed('perSessionFee')}:{' '}
+              {FeeService.formatFeeExact(payment.amount)}
             </Text>
           </Box>
         }
       >
         <HStack gap={1} cursor="help">
           <Text fontWeight="semibold" color="teal.600">
-            {FeeService.formatFee(payment.amount)}
+            {FeeService.formatFeeExact(payment.amount)}
           </Text>
           <Badge colorPalette="teal" variant="subtle" fontSize="2xs" px={1}>
             {groupName}
@@ -228,7 +229,7 @@ export default function SessionPaymentList({
               {t('totalFee')}
             </Text>
             <Text fontSize="lg" fontWeight="bold">
-              {totalAmount === 0 ? '0' : FeeService.formatFee(totalAmount)}
+              {totalAmount === 0 ? '0' : FeeService.formatFeeExact(totalAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="120px">
@@ -238,7 +239,7 @@ export default function SessionPaymentList({
             <Text fontSize="lg" fontWeight="bold" color="green.600">
               {approvedAmount === 0
                 ? '0'
-                : FeeService.formatFee(approvedAmount)}
+                : FeeService.formatFeeExact(approvedAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="120px">
@@ -248,7 +249,7 @@ export default function SessionPaymentList({
             <Text fontSize="lg" fontWeight="bold" color="yellow.600">
               {totalAmount - approvedAmount === 0
                 ? '0'
-                : FeeService.formatFee(totalAmount - approvedAmount)}
+                : FeeService.formatFeeExact(totalAmount - approvedAmount)}
             </Text>
           </Box>
         </Flex>
@@ -263,7 +264,7 @@ export default function SessionPaymentList({
               <Text fontSize="md" fontWeight="semibold" color="green.600">
                 {approvedAmount === 0
                   ? '0'
-                  : FeeService.formatFee(approvedAmount)}
+                  : FeeService.formatFeeExact(approvedAmount)}
               </Text>
             </Box>
             <Box flex={1} minW="120px">
@@ -273,7 +274,7 @@ export default function SessionPaymentList({
               <Text fontSize="md" fontWeight="semibold" color="red.500">
                 {totalExpenses === 0
                   ? '0'
-                  : FeeService.formatFee(totalExpenses)}
+                  : FeeService.formatFeeExact(totalExpenses)}
               </Text>
             </Box>
             <Box flex={1} minW="120px">
@@ -287,7 +288,7 @@ export default function SessionPaymentList({
                   approvedAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
                 }
               >
-                {FeeService.formatFee(approvedAmount - totalExpenses)}
+                {FeeService.formatFeeExact(approvedAmount - totalExpenses)}
               </Text>
             </Box>
           </Flex>
@@ -333,10 +334,12 @@ export default function SessionPaymentList({
 
           {/* Fixed Member Filter */}
           {fixedMemberGroups.length > 0 && (
-            <NativeSelectRoot size="sm" minW="150px">
-              <NativeSelectField
+            <Box minW="150px">
+              <VSelect
+                size="sm"
                 value={memberFilter}
                 onChange={(e) => setMemberFilter(e.target.value)}
+                placeholder={tFixed('allMembers')}
               >
                 <option value="all">{tFixed('allMembers')}</option>
                 <option value="fixed">{tFixed('fixedMembersOnly')}</option>
@@ -346,8 +349,8 @@ export default function SessionPaymentList({
                     {group.name}
                   </option>
                 ))}
-              </NativeSelectField>
-            </NativeSelectRoot>
+              </VSelect>
+            </Box>
           )}
         </HStack>
 

@@ -8,14 +8,13 @@ import {
   Image,
   Textarea,
   Avatar,
-  NativeSelectRoot,
-  NativeSelectField,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
+import { VSelect } from '@/components/ui/VSelect';
 import { PaymentRecord, PaymentMethod, PaymentStatus } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import { Check, X, User } from 'lucide-react';
@@ -86,6 +85,14 @@ export default function PaymentApprovalModal({
   const canApproveOrReject =
     paymentRecord.status === PaymentStatus.SUBMITTED ||
     paymentRecord.status === PaymentStatus.PENDING;
+
+  const getPaymentMethodLabel = (method?: PaymentMethod) => {
+    if (!method) return '—';
+    if (method === PaymentMethod.BANK_TRANSFER) {
+      return t('method.bankTransfer');
+    }
+    return t('method.cash');
+  };
 
   return (
     <VModal
@@ -167,13 +174,13 @@ export default function PaymentApprovalModal({
               />
             ) : (
               <Text fontSize="lg" fontWeight="bold" color="green.600">
-                {FeeService.formatFee(paymentRecord.amount)}
+                {FeeService.formatFeeExact(paymentRecord.amount)}
               </Text>
             )}
           </HStack>
 
           <HStack justify="space-between" mb={2}>
-            <Text color="gray.600">{t('status')}</Text>
+            <Text color="gray.600">{t('currentStatus')}</Text>
             <PaymentStatusBadge status={paymentRecord.status} />
           </HStack>
 
@@ -183,27 +190,28 @@ export default function PaymentApprovalModal({
           >
             <Text color="gray.600">{t('selectPaymentMethod')}</Text>
             {canApproveOrReject ? (
-              <NativeSelectRoot size="sm" w="160px" disabled={isLoading}>
-                <NativeSelectField
+              <Box w="160px">
+                <VSelect
+                  size="sm"
                   value={selectedPaymentMethod}
                   onChange={(e) =>
                     setSelectedPaymentMethod(
                       e.target.value as PaymentMethod | ''
                     )
                   }
+                  disabled={isLoading}
+                  placeholder={t('selectPaymentMethod')}
                 >
                   <option value="">{t('selectPaymentMethod')}</option>
                   <option value={PaymentMethod.BANK_TRANSFER}>
-                    {t('method.bank_transfer')}
+                    {t('method.bankTransfer')}
                   </option>
                   <option value={PaymentMethod.CASH}>{t('method.cash')}</option>
-                </NativeSelectField>
-              </NativeSelectRoot>
+                </VSelect>
+              </Box>
             ) : (
               <Text fontWeight="medium">
-                {paymentRecord.paymentMethod
-                  ? t(`method.${paymentRecord.paymentMethod.toLowerCase()}`)
-                  : '—'}
+                {getPaymentMethodLabel(paymentRecord.paymentMethod)}
               </Text>
             )}
           </HStack>

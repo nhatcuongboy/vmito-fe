@@ -82,6 +82,12 @@ export const FeeService = {
     return `${amount.toLocaleString('vi-VN')}đ`;
   },
 
+  // Format fee as exact number with vi-VN locale (e.g., "85.000đ")
+  formatFeeExact: (amount: number): string => {
+    if (amount === 0) return '0đ';
+    return `${amount.toLocaleString('vi-VN')}đ`;
+  },
+
   // Get fee display text for session card
   getFeeDisplayText: (
     feeConfig: SessionFeeConfig | null | undefined

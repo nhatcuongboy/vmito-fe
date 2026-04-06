@@ -152,7 +152,7 @@ export default function SessionExpenseSection({
           <Text fontWeight="semibold">{t('expenses')}</Text>
           {expenses.length > 0 && (
             <Text fontSize="sm" color="red.600" fontWeight="medium">
-              ({FeeService.formatFee(totalExpenses)})
+              ({FeeService.formatFeeExact(totalExpenses)})
             </Text>
           )}
         </HStack>
@@ -234,7 +234,7 @@ export default function SessionExpenseSection({
               <Text fontSize="sm">{expense.name}</Text>
               <HStack gap={2}>
                 <Text fontSize="sm" fontWeight="medium" color="red.600">
-                  {FeeService.formatFee(expense.amount)}
+                  {FeeService.formatFeeExact(expense.amount)}
                 </Text>
                 <IconButton
                   size="xs"
