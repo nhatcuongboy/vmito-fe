@@ -23,6 +23,8 @@
     "clubsAdmin": "审核俱乐部",
     "createClub": "创建群组",
     "pendingJoinRequests": "加入请求",
+    "endedSessions": "已结束场次",
+    "endedJoinedSessions": "已结束的已加入场次",
     "suggestions": "推荐"
   },
   "common": {
@@ -2101,6 +2103,7 @@
     "qrScanToView": "扫描查看场次",
     "cancel": "取消",
     "endSession": "结束场次",
+    "startSession": "开始场次",
     "failedToSavePlayerChanges": "保存玩家更改失败",
     "failedToUpdatePlayer": "更新玩家失败",
     "unknownError": "未知错误",
@@ -2634,6 +2637,8 @@
     "playerTransactionsDescription": "查看您与每位主持人的支付历史",
     "hostTransactionsDescription": "查看玩家的支付历史",
     "manageSettings": "管理设置",
+    "savedAccounts": "已保存账户",
+    "selectSavedAccount": "选择账户",
     "paymentInfoDescription": "为此场次配置支付信息，以便玩家知道如何付款",
     "sessionFeeConfig": "场次费用配置",
     "feeType": "费用类型",
@@ -2678,6 +2683,8 @@
     "createExpenseFailed": "添加支出失败",
     "updateExpenseFailed": "更新支出失败",
     "deleteExpenseFailed": "删除支出失败",
+    "settingsSwitched": "已切换支付设置",
+    "switchSettingsFailed": "切换支付设置失败",
     "customAmount": "实收金额",
     "selectPaymentMethod": "付款方式"
   },

@@ -8,6 +8,8 @@ import {
   Avatar,
   Flex,
   Badge,
+  Skeleton,
+  Stack,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
@@ -371,9 +373,31 @@ export default function SessionPaymentList({
 
       {/* Payment List */}
       {isLoading ? (
-        <Box textAlign="center" py={8}>
-          <Text color="gray.500">{t('loading')}</Text>
-        </Box>
+        <Stack gap={2.5}>
+          {[...Array(5)].map((_, i) => (
+            <Box
+              key={i}
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="lg"
+              p={3}
+            >
+              <HStack justify="space-between">
+                <HStack gap={3}>
+                  <Skeleton height="32px" width="32px" borderRadius="full" />
+                  <Stack gap={1}>
+                    <Skeleton height="14px" width="110px" borderRadius="md" />
+                    <Skeleton height="11px" width="60px" borderRadius="md" />
+                  </Stack>
+                </HStack>
+                <HStack gap={2}>
+                  <Skeleton height="16px" width="72px" borderRadius="md" />
+                  <Skeleton height="22px" width="64px" borderRadius="full" />
+                </HStack>
+              </HStack>
+            </Box>
+          ))}
+        </Stack>
       ) : filteredPayments.length === 0 ? (
         <Box textAlign="center" py={8}>
           <Text color="gray.500">{t('noPayments')}</Text>

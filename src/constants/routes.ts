@@ -26,6 +26,7 @@ export const ROUTES = {
   HOST: {
     SESSIONS: {
       LIST: '/host/sessions',
+      ENDED: '/host/sessions/ended',
       DETAIL: (id: string) => `/host/sessions/${id}`,
     },
     TRANSACTIONS: '/host/transactions',
@@ -58,6 +59,7 @@ export const ROUTES = {
     SUGGESTIONS: '/player/suggestions',
     SESSIONS: {
       LIST: '/host/sessions/joined',
+      ENDED: '/host/sessions/joined/ended',
       DETAIL: (id: string) => `/player/sessions/${id}`,
       JOIN_CONFIRM: '/player/sessions/join/confirm',
     },

@@ -1,6 +1,7 @@
 'use client';
 
-import { ISession, UserRole } from '@/lib/api/types';
+import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
+import { SessionService } from '@/lib/api/session.service';
 import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
@@ -19,6 +20,7 @@ import MyRegistrationModal from './MyRegistrationModal';
 interface SessionCardProps {
   session: ISession;
   onDelete?: (id: string) => void;
+  onRefresh?: () => void;
   mode?: 'view' | 'manage';
   onHostClick?: () => void;
   variant?: 'full' | 'compact';
@@ -27,6 +29,7 @@ interface SessionCardProps {
 const SessionCard = ({
   session,
   onDelete,
+  onRefresh,
   mode = 'view',
   onHostClick,
   variant = 'full',
@@ -46,6 +49,14 @@ const SessionCard = ({
     onOpen: onOpenViewRegistrationModal,
     onClose: onCloseViewRegistrationModal,
   } = useModal();
+
+  const {
+    isOpen: isEndConfirmModalOpen,
+    onOpen: onOpenEndConfirmModal,
+    onClose: onCloseEndConfirmModal,
+  } = useModal();
+
+  const [isStartEndLoading, setIsStartEndLoading] = useState(false);
 
   // Check if current user is the session owner or has ADMIN role
   const isOwner = session.hostId === user?.id;
@@ -69,6 +80,41 @@ const SessionCard = ({
       {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
     </Badge>
   );
+
+  // Handle start session
+  const handleStart = async () => {
+    try {
+      setIsStartEndLoading(true);
+      await SessionService.startSession(session.id);
+      toaster.success({ title: t('sessionStarted') || 'Session started' });
+      onRefresh?.();
+    } catch (err) {
+      console.error('Error starting session:', err);
+      toaster.error({
+        title: t('errorUpdatingSessionStatus') || 'Failed to start session',
+      });
+    } finally {
+      setIsStartEndLoading(false);
+    }
+  };
+
+  // Handle end session (called after confirmation)
+  const handleEndConfirmed = async () => {
+    onCloseEndConfirmModal();
+    try {
+      setIsStartEndLoading(true);
+      await SessionService.endSession(session.id);
+      toaster.success({ title: t('sessionEnded') || 'Session ended' });
+      onRefresh?.();
+    } catch (err) {
+      console.error('Error ending session:', err);
+      toaster.error({
+        title: t('errorUpdatingSessionStatus') || 'Failed to end session',
+      });
+    } finally {
+      setIsStartEndLoading(false);
+    }
+  };
 
   // Registration status badge (owner/player view of their status)
   const registrationBadge = (() => {
@@ -153,9 +199,19 @@ const SessionCard = ({
     showDownloadButton: canManage,
     showShareButton: true,
 
-    // Bottom actions
+    // Bottom actions - 3-dot menu
     showDeleteButton: (mode === 'manage' || canManage) && !!onDelete,
     onDelete: onDelete ? () => onOpenDeleteModal() : undefined,
+
+    // Start session - only for PREPARING sessions when user can manage
+    showStartButton: canManage && session.status === SessionStatus.PREPARING,
+    onStart: handleStart,
+
+    // End session - only for IN_PROGRESS sessions when user can manage
+    showEndButton: canManage && session.status === SessionStatus.IN_PROGRESS,
+    onEnd: onOpenEndConfirmModal,
+
+    isStartEndLoading,
 
     // View registration button (for non-owners with registration)
     showViewRegistrationButton:
@@ -209,6 +265,21 @@ const SessionCard = ({
     />
   );
 
+  // End session confirmation modal
+  const endConfirmModal = (
+    <VModal
+      isOpen={isEndConfirmModalOpen}
+      onClose={onCloseEndConfirmModal}
+      title={t('confirmEndSession')}
+      primaryActionText={t('endSession')}
+      secondaryActionText={tCommon('cancel')}
+      onPrimaryAction={handleEndConfirmed}
+      primaryColorScheme="orange"
+    >
+      <Text>{t('confirmEndSessionMessage')}</Text>
+    </VModal>
+  );
+
   return (
     <BaseSessionCard
       session={session}
@@ -221,6 +292,7 @@ const SessionCard = ({
         <>
           {deleteModal}
           {viewRegistrationModal}
+          {endConfirmModal}
           {/* Hidden SessionShareCards for image generation */}
           {canManage && (
             <Portal>

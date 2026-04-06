@@ -32,6 +32,8 @@
     "clubsAdmin": "Approve Clubs",
     "createClub": "Create Group",
     "pendingJoinRequests": "Join Requests",
+    "endedSessions": "Ended Sessions",
+    "endedJoinedSessions": "Ended Joined Sessions",
     "suggestions": "For You"
   },
   "common": {
@@ -2149,6 +2151,7 @@
     "qrScanToView": "Scan to view session",
     "cancel": "Cancel",
     "endSession": "End Session",
+    "startSession": "Start Session",
     "failedToSavePlayerChanges": "Failed to save player changes",
     "failedToUpdatePlayer": "Failed to update player",
     "unknownError": "Unknown error",
@@ -2683,6 +2686,8 @@
     "playerTransactionsDescription": "View your payment history with each host",
     "hostTransactionsDescription": "View payment history from your players",
     "manageSettings": "Manage Settings",
+    "savedAccounts": "Saved Accounts",
+    "selectSavedAccount": "Select an account",
     "paymentInfoDescription": "Configure payment information for this session so players know how to pay you",
     "sessionFeeConfig": "Session Fee Configuration",
     "feeType": "Fee Type",
@@ -2727,6 +2732,8 @@
     "createExpenseFailed": "Failed to create expense",
     "updateExpenseFailed": "Failed to update expense",
     "deleteExpenseFailed": "Failed to delete expense",
+    "settingsSwitched": "Payment settings switched",
+    "switchSettingsFailed": "Failed to switch payment settings",
     "customAmount": "Actual received amount",
     "selectPaymentMethod": "Payment method"
   },

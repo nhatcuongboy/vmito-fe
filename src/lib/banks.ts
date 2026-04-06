@@ -316,11 +316,77 @@ export const vietnamBanks = [
   },
 ];
 
+// Autofill-capable apps (autofill=1 per VietQR.io data) listed first, then popular banks
 export const RECOMMENDED_BANK_CODES = [
-  'OCB',
-  'TPB',
-  'TCB',
-  'VPB',
+  'ICB', // VietinBank - autofill supported
+  'BIDV', // BIDV - autofill supported
+  'OCB', // OCB - autofill supported
+  'ACB', // ACB - autofill supported
+  'MB',
   'VCB',
-  'ICB',
+  'TCB',
+  'TPB',
+  'VPB',
 ];
+
+/**
+ * Fuzzy-match a freetext bank name (as entered by host) to a bank in the list.
+ * Returns the bank entry or null.
+ */
+export const findBankByName = (bankName: string) => {
+  if (!bankName) return null;
+  const q = bankName.toLowerCase().trim();
+  return (
+    vietnamBanks.find(
+      (b) =>
+        b.code.toLowerCase() === q ||
+        b.shortName.toLowerCase() === q ||
+        q.includes(b.shortName.toLowerCase()) ||
+        q.includes(b.code.toLowerCase()) ||
+        b.name.toLowerCase().includes(q)
+    ) ?? null
+  );
+};
+
+/**
+ * Generate a VietQR image URL for a bank account.
+ * Uses https://img.vietqr.io/image/{bankCode}-{accountNo}-{template}.png
+ *
+ * @param bankName     Freetext bank name as entered by the host
+ * @param accountNumber  Bank account number
+ * @param options.template  'compact' (default) | 'qr_only' | 'print'
+ * @param options.accountName  Account holder name to embed in QR
+ * @param options.addInfo  Transfer description to embed in QR
+ * @param options.amount  Amount to embed in QR
+ */
+export const getVietQRImageUrl = (
+  bankName: string,
+  accountNumber: string,
+  options?: {
+    template?: 'compact' | 'qr_only' | 'print';
+    accountName?: string;
+    addInfo?: string;
+    amount?: number;
+  }
+): string | null => {
+  if (!bankName || !accountNumber) return null;
+  const bank = findBankByName(bankName);
+  if (!bank) return null;
+
+  const template = options?.template ?? 'compact';
+  const url = new URL(
+    `https://img.vietqr.io/image/${bank.code.toLowerCase()}-${accountNumber}-${template}.png`
+  );
+
+  if (options?.accountName) {
+    url.searchParams.set('accountName', options.accountName);
+  }
+  if (options?.addInfo) {
+    url.searchParams.set('addInfo', options.addInfo);
+  }
+  if (options?.amount) {
+    url.searchParams.set('amount', String(options.amount));
+  }
+
+  return url.toString();
+};

@@ -8,11 +8,12 @@ import {
   HStack,
   Text,
   Heading,
-  Spinner,
-  Center,
   Image,
   Flex,
   SimpleGrid,
+  Skeleton,
+  Stack,
+  Badge,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
@@ -24,14 +25,12 @@ import {
   Plus,
   ExternalLink,
   AlertCircle,
-  Users,
-  DollarSign,
-  CheckCircle,
-  Clock,
+  Calculator,
 } from 'lucide-react';
 import {
   ISession,
   HostPaymentSettings,
+  UpdateHostPaymentSettingsRequest,
   PaymentRecord,
   PaymentMethod,
   ISessionExpense,
@@ -48,6 +47,7 @@ import {
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
+import { getVietQRImageUrl } from '@/lib/banks';
 
 interface SessionPaymentTabProps {
   session: ISession;
@@ -60,23 +60,17 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
 
   const [paymentSettings, setPaymentSettings] =
     useState<HostPaymentSettings | null>(null);
+  const [myPaymentSettings, setMyPaymentSettings] = useState<
+    HostPaymentSettings[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSwitchingSettings, setIsSwitchingSettings] = useState(false);
 
   // Payment management state
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
-  const [stats, setStats] = useState<{
-    totalPlayers: number;
-    totalAmount: number;
-    paidAmount: number;
-    pendingAmount: number;
-    submittedCount: number;
-    approvedCount: number;
-    pendingCount: number;
-    rejectedCount: number;
-  } | null>(null);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(true);
 
   // Split amount state
   const [splitAmount, setSplitAmount] = useState('');
@@ -84,34 +78,42 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
 
   // Expenses state
   const [expenses, setExpenses] = useState<ISessionExpense[]>([]);
-  const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
+  const [isLoadingExpenses, setIsLoadingExpenses] = useState(true);
 
-  const loadPaymentSettings = useCallback(async () => {
-    if (!session.hostId) return;
+  const loadPaymentSettings = useCallback(
+    async (showLoading = true) => {
+      if (!session.hostId) return;
 
-    setIsLoading(true);
-    try {
-      const settings = await PaymentSettingsService.getHostPaymentSettings(
-        session.hostId
-      );
-      setPaymentSettings(settings);
-    } catch (error) {
-      console.error('Failed to load payment settings:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session.hostId]);
+      if (showLoading) {
+        setIsLoading(true);
+      }
+      try {
+        const settings = await PaymentSettingsService.getMyPaymentSettings();
+        setMyPaymentSettings(settings);
 
-  const loadStats = useCallback(async () => {
-    if (!session.id) return;
-
-    try {
-      const data = await PaymentService.getSessionPaymentStats(session.id);
-      setStats(data);
-    } catch (error) {
-      console.error('Failed to load payment stats:', error);
-    }
-  }, [session.id]);
+        if (settings.length > 0) {
+          const current =
+            settings.find((item) => item.isDefault) ?? settings[0];
+          setPaymentSettings(current);
+        } else {
+          const hostDefault =
+            await PaymentSettingsService.getHostPaymentSettings(session.hostId);
+          setPaymentSettings(hostDefault);
+        }
+      } catch (error) {
+        console.error('Failed to load payment settings:', error);
+        toaster.error({
+          title: tCommon('error'),
+          description: t('loadSettingsFailed'),
+        });
+      } finally {
+        if (showLoading) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [session.hostId, t, tCommon]
+  );
 
   const loadPayments = useCallback(async () => {
     if (!session.id) return;
@@ -119,10 +121,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     setIsLoadingPayments(true);
     try {
       const data = await PaymentService.getSessionPayments(session.id);
-      console.log('Loaded payments:', data);
       setPayments(data);
-      // Load stats after payments are loaded
-      await loadStats();
     } catch (error) {
       console.error('Failed to load payments:', error);
       toaster.error({
@@ -132,7 +131,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     } finally {
       setIsLoadingPayments(false);
     }
-  }, [session.id, t, tCommon, loadStats]);
+  }, [session.id, t, tCommon]);
 
   const loadExpenses = useCallback(async () => {
     if (!session.id) return;
@@ -154,24 +153,20 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     loadExpenses();
   }, [loadPaymentSettings, loadPayments, loadExpenses]);
 
-  const handleSave = async (
-    data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
-  ) => {
+  const handleSave = async (data: UpdateHostPaymentSettingsRequest) => {
     setIsSaving(true);
     try {
       if (paymentSettings?.id) {
         // Update existing
-        const updated = await PaymentSettingsService.updatePaymentSettings(
+        await PaymentSettingsService.updatePaymentSettings(
           paymentSettings.id,
           data
         );
-        setPaymentSettings(updated);
       } else {
         // Create new
-        const created =
-          await PaymentSettingsService.createPaymentSettings(data);
-        setPaymentSettings(created);
+        await PaymentSettingsService.createPaymentSettings(data);
       }
+      await loadPaymentSettings(false);
       setIsEditing(false);
       toaster.success({
         title: tCommon('success'),
@@ -189,6 +184,39 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSelectPaymentSettings = async (settingId: string) => {
+    if (!settingId || settingId === paymentSettings?.id) {
+      return;
+    }
+
+    setIsSwitchingSettings(true);
+    try {
+      const updatedDefault =
+        await PaymentSettingsService.setDefaultPaymentSettings(settingId);
+
+      setPaymentSettings(updatedDefault);
+      setMyPaymentSettings((prev) =>
+        prev.map((item) => ({
+          ...item,
+          isDefault: item.id === updatedDefault.id,
+        }))
+      );
+
+      toaster.success({
+        title: tCommon('success'),
+        description: t('settingsSwitched'),
+      });
+    } catch (error) {
+      console.error('Failed to switch payment settings:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('switchSettingsFailed'),
+      });
+    } finally {
+      setIsSwitchingSettings(false);
     }
   };
 
@@ -354,29 +382,132 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   };
 
   if (isLoading) {
+    // Skeleton layout — no full-page spinner
     return (
-      <Center py={10}>
-        <Spinner size="lg" color="green.500" />
-      </Center>
+      <VStack gap={4} align="stretch" pb={4}>
+        {/* Header skeleton */}
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="lg"
+          p={5}
+          shadow="sm"
+          border="1px solid"
+          borderColor="gray.100"
+        >
+          <HStack justify="space-between">
+            <HStack gap={3}>
+              <Skeleton height="24px" width="24px" borderRadius="md" />
+              <Skeleton height="22px" width="180px" borderRadius="md" />
+            </HStack>
+            <Skeleton height="32px" width="120px" borderRadius="md" />
+          </HStack>
+          <Skeleton height="14px" width="60%" borderRadius="md" mt={3} />
+        </Box>
+
+        {/* Info grid skeleton */}
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+          <Box
+            bg="green.50"
+            _dark={{ bg: 'green.900' }}
+            borderRadius="lg"
+            p={4}
+            border="1px solid"
+            borderColor="green.200"
+          >
+            <Skeleton height="18px" width="140px" borderRadius="md" mb={3} />
+            <Stack gap={2}>
+              <Skeleton height="14px" width="70%" borderRadius="md" />
+              <Skeleton height="14px" width="55%" borderRadius="md" />
+              <Skeleton height="14px" width="60%" borderRadius="md" />
+            </Stack>
+          </Box>
+          <Box
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="lg"
+            p={5}
+            shadow="sm"
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <HStack justify="space-between" mb={4}>
+              <Skeleton height="18px" width="140px" borderRadius="md" />
+              <Skeleton height="30px" width="60px" borderRadius="md" />
+            </HStack>
+            <HStack gap={4} align="start">
+              <Skeleton
+                height="100px"
+                width="100px"
+                borderRadius="md"
+                flexShrink={0}
+              />
+              <Stack gap={2} flex={1}>
+                <Skeleton height="14px" width="80%" borderRadius="md" />
+                <Skeleton height="14px" width="65%" borderRadius="md" />
+                <Skeleton height="14px" width="70%" borderRadius="md" />
+              </Stack>
+            </HStack>
+          </Box>
+        </SimpleGrid>
+
+        {/* Payment list skeleton */}
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="lg"
+          p={5}
+          shadow="sm"
+          border="1px solid"
+          borderColor="gray.100"
+        >
+          <Skeleton height="22px" width="160px" borderRadius="md" mb={4} />
+          <Stack gap={3}>
+            {[...Array(4)].map((_, i) => (
+              <Box
+                key={i}
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="lg"
+                p={3}
+              >
+                <HStack justify="space-between">
+                  <HStack gap={3}>
+                    <Skeleton height="32px" width="32px" borderRadius="full" />
+                    <Stack gap={1}>
+                      <Skeleton height="14px" width="100px" borderRadius="md" />
+                      <Skeleton height="12px" width="60px" borderRadius="md" />
+                    </Stack>
+                  </HStack>
+                  <HStack gap={2}>
+                    <Skeleton height="16px" width="70px" borderRadius="md" />
+                    <Skeleton height="22px" width="60px" borderRadius="full" />
+                  </HStack>
+                </HStack>
+              </Box>
+            ))}
+          </Stack>
+        </Box>
+      </VStack>
     );
   }
 
   return (
-    <VStack gap={6} align="stretch" pb={4}>
+    <VStack gap={4} align="stretch" pb={4}>
       {/* Header */}
       <Box
         bg="white"
         _dark={{ bg: 'gray.800' }}
         borderRadius="lg"
-        p={6}
+        p={5}
         shadow="sm"
         border="1px solid"
         borderColor="gray.100"
       >
-        <Flex justify="space-between" align="start" mb={2}>
-          <HStack>
-            <CreditCard size={24} color="#3182ce" />
-            <Heading size="md">{t('hostPaymentInfo')}</Heading>
+        <Flex justify="space-between" align="center">
+          <HStack gap={2}>
+            <CreditCard size={20} color="#3182ce" />
+            <Heading size="sm">{t('hostPaymentInfo')}</Heading>
           </HStack>
           <Button
             size="sm"
@@ -388,254 +519,377 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
             <Text ml={1}>{t('manageSettings')}</Text>
           </Button>
         </Flex>
-        <Text fontSize="sm" color="gray.600" mt={2}>
+        <Text fontSize="xs" color="gray.500" mt={2}>
           {t('paymentInfoDescription')}
         </Text>
       </Box>
 
-      {/* Fee Configuration Info */}
-      {session.feeConfig && (
-        <Box
-          bg="brand.50"
-          _dark={{ bg: 'brand.900' }}
-          borderRadius="lg"
-          p={4}
-          border="1px solid"
-          borderColor="brand.200"
-        >
-          <HStack mb={2}>
-            <Text
-              fontWeight="semibold"
-              color="green.700"
-              _dark={{ color: 'brand.200' }}
-            >
-              {t('sessionFeeConfig')}
-            </Text>
-          </HStack>
-          <VStack align="stretch" gap={1}>
-            <Text
-              fontSize="sm"
-              color="green.600"
-              _dark={{ color: 'brand.300' }}
-            >
-              {t('feeType')}:{' '}
-              {session.feeConfig.feeType === 'FIXED'
-                ? t('fixed')
-                : t('splitEvenly')}
-            </Text>
-            {session.feeConfig.feeType === 'FIXED' && (
-              <>
-                {session.feeConfig.maleFee && (
-                  <Text
-                    fontSize="sm"
-                    color="green.600"
-                    _dark={{ color: 'brand.300' }}
-                  >
-                    {t('maleFee')}:{' '}
-                    {session.feeConfig.maleFee.toLocaleString('vi-VN')} VND
-                  </Text>
-                )}
-                {session.feeConfig.femaleFee && (
-                  <Text
-                    fontSize="sm"
-                    color="green.600"
-                    _dark={{ color: 'brand.300' }}
-                  >
-                    {t('femaleFee')}:{' '}
-                    {session.feeConfig.femaleFee.toLocaleString('vi-VN')} VND
-                  </Text>
-                )}
-              </>
-            )}
-            {session.feeConfig.notes && (
+      {/* Fee Config + Payment Settings — side by side on desktop */}
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+        {/* Fee Configuration */}
+        {session.feeConfig ? (
+          <Box
+            bg="green.50"
+            _dark={{ bg: 'green.950' }}
+            borderRadius="lg"
+            p={4}
+            border="1px solid"
+            borderColor="green.200"
+          >
+            <HStack mb={3}>
               <Text
                 fontSize="sm"
-                color="green.600"
-                _dark={{ color: 'brand.300' }}
+                fontWeight="semibold"
+                color="green.700"
+                _dark={{ color: 'green.200' }}
               >
-                {t('notes')}: {session.feeConfig.notes}
+                {t('sessionFeeConfig')}
               </Text>
-            )}
-          </VStack>
-        </Box>
-      )}
+              <Badge
+                colorPalette={
+                  session.feeConfig.feeType === FeeType.FIXED
+                    ? 'green'
+                    : 'purple'
+                }
+                variant="subtle"
+                fontSize="xs"
+              >
+                {session.feeConfig.feeType === FeeType.FIXED
+                  ? t('fixed')
+                  : t('splitEvenly')}
+              </Badge>
+            </HStack>
+            <VStack align="stretch" gap={1.5}>
+              {session.feeConfig.feeType === FeeType.FIXED && (
+                <>
+                  {session.feeConfig.maleFee ? (
+                    <HStack gap={2}>
+                      <Text
+                        fontSize="xs"
+                        color="gray.500"
+                        _dark={{ color: 'gray.400' }}
+                        minW="70px"
+                      >
+                        {t('maleFee')}:
+                      </Text>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="green.700"
+                        _dark={{ color: 'green.300' }}
+                      >
+                        {session.feeConfig.maleFee.toLocaleString('vi-VN')} ₫
+                      </Text>
+                    </HStack>
+                  ) : null}
+                  {session.feeConfig.femaleFee ? (
+                    <HStack gap={2}>
+                      <Text
+                        fontSize="xs"
+                        color="gray.500"
+                        _dark={{ color: 'gray.400' }}
+                        minW="70px"
+                      >
+                        {t('femaleFee')}:
+                      </Text>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="green.700"
+                        _dark={{ color: 'green.300' }}
+                      >
+                        {session.feeConfig.femaleFee.toLocaleString('vi-VN')} ₫
+                      </Text>
+                    </HStack>
+                  ) : null}
+                </>
+              )}
+              {session.feeConfig.notes && (
+                <Text
+                  fontSize="xs"
+                  color="green.600"
+                  _dark={{ color: 'green.400' }}
+                  mt={1}
+                >
+                  {session.feeConfig.notes}
+                </Text>
+              )}
+            </VStack>
+          </Box>
+        ) : (
+          <Box
+            bg="gray.50"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="lg"
+            p={4}
+            border="1px dashed"
+            borderColor="gray.300"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Text fontSize="sm" color="gray.400">
+              {t('sessionFeeConfig')}
+            </Text>
+          </Box>
+        )}
 
-      {/* Payment Settings */}
-      {!paymentSettings && !isEditing ? (
-        // No payment settings - show empty state
-        <Box
-          bg="orange.50"
-          _dark={{ bg: 'orange.900' }}
-          borderRadius="lg"
-          p={6}
-          border="2px dashed"
-          borderColor="orange.200"
-          textAlign="center"
-        >
-          <AlertCircle
-            size={48}
-            color="#F97316"
-            style={{ margin: '0 auto 16px' }}
-          />
-          <Heading
-            size="sm"
-            mb={2}
-            color="orange.700"
-            _dark={{ color: 'orange.200' }}
+        {/* Payment Settings card */}
+        {isEditing ? (
+          <Box
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="lg"
+            p={5}
+            shadow="sm"
+            border="1px solid"
+            borderColor="gray.100"
           >
-            {t('noPaymentSettings')}
-          </Heading>
-          <Text
-            fontSize="sm"
-            color="orange.600"
-            _dark={{ color: 'orange.300' }}
-            mb={4}
+            <HStack justify="space-between" mb={4}>
+              <Heading size="sm">
+                {paymentSettings ? t('editSettings') : t('addSettings')}
+              </Heading>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsEditing(false)}
+              >
+                {tCommon('cancel')}
+              </Button>
+            </HStack>
+            <PaymentSettingsForm
+              initialData={paymentSettings || undefined}
+              onSubmit={handleSave}
+              onUploadQR={handleUploadQR}
+              isLoading={isSaving}
+            />
+          </Box>
+        ) : !paymentSettings ? (
+          <Box
+            bg="orange.50"
+            _dark={{ bg: 'orange.950' }}
+            borderRadius="lg"
+            p={5}
+            border="2px dashed"
+            borderColor="orange.200"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            gap={3}
           >
-            {t('noPaymentSettingsDescription')}
-          </Text>
-          <Button colorPalette="orange" onClick={() => setIsEditing(true)}>
-            <Plus size={16} />
-            <Text ml={1}>{t('addSettings')}</Text>
-          </Button>
-        </Box>
-      ) : isEditing ? (
-        // Edit/Create mode
-        <Box>
-          <HStack justify="space-between" mb={4}>
-            <Heading size="sm">
-              {paymentSettings ? t('editSettings') : t('addSettings')}
-            </Heading>
+            <AlertCircle size={36} color="#F97316" />
+            <Box>
+              <Text
+                fontWeight="semibold"
+                fontSize="sm"
+                color="orange.700"
+                _dark={{ color: 'orange.200' }}
+                mb={1}
+              >
+                {t('noPaymentSettings')}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="orange.600"
+                _dark={{ color: 'orange.300' }}
+              >
+                {t('noPaymentSettingsDescription')}
+              </Text>
+            </Box>
             <Button
               size="sm"
-              variant="ghost"
-              onClick={() => setIsEditing(false)}
-            >
-              {tCommon('cancel')}
-            </Button>
-          </HStack>
-          <PaymentSettingsForm
-            initialData={paymentSettings || undefined}
-            onSubmit={handleSave}
-            onUploadQR={handleUploadQR}
-            isLoading={isSaving}
-          />
-        </Box>
-      ) : (
-        // Display mode
-        <Box
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-          borderRadius="lg"
-          p={6}
-          shadow="sm"
-          border="1px solid"
-          borderColor="gray.100"
-        >
-          <HStack justify="space-between" mb={4}>
-            <Heading size="sm">{t('currentSettings')}</Heading>
-            <Button
-              size="sm"
-              variant="outline"
+              colorPalette="orange"
               onClick={() => setIsEditing(true)}
             >
-              {tCommon('edit')}
+              <Plus size={14} />
+              <Text ml={1}>{t('addSettings')}</Text>
             </Button>
-          </HStack>
+          </Box>
+        ) : (
+          <Box
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="lg"
+            p={5}
+            shadow="sm"
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <HStack justify="space-between" mb={3}>
+              <Text fontSize="sm" fontWeight="semibold">
+                {t('currentSettings')}
+              </Text>
+              <Button
+                size="xs"
+                variant="outline"
+                onClick={() => setIsEditing(true)}
+              >
+                {tCommon('edit')}
+              </Button>
+            </HStack>
 
-          {paymentSettings?.qrCodeUrl && (
-            <Box mb={4} textAlign="center">
-              <HStack justify="center" mb={2}>
-                <QrCode size={16} color="#718096" />
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  {t('qrCode')}
+            {myPaymentSettings.length > 1 && (
+              <Box mb={3}>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  {t('savedAccounts')}
                 </Text>
-              </HStack>
-              <Image
-                src={paymentSettings.qrCodeUrl}
-                alt="QR Code"
-                maxH="200px"
-                mx="auto"
-                borderRadius="md"
-                border="1px solid"
-                borderColor="gray.200"
-              />
-            </Box>
-          )}
+                <Box
+                  as="select"
+                  value={paymentSettings.id}
+                  onChange={(e) => handleSelectPaymentSettings(e.target.value)}
+                  disabled={isSwitchingSettings}
+                  w="full"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  px={3}
+                  py={2}
+                  bg="white"
+                  fontSize="sm"
+                >
+                  <option value="">{t('selectSavedAccount')}</option>
+                  {myPaymentSettings.map((item) => {
+                    const label = [
+                      item.bankName || t('noBank'),
+                      item.bankAccountNumber
+                        ? `- ${item.bankAccountNumber}`
+                        : null,
+                      item.isDefault ? `(${t('default')})` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' ');
 
-          <VStack gap={3} align="stretch">
-            {paymentSettings?.bankName && (
-              <HStack>
-                <Building2 size={16} color="#718096" />
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                  minW="120px"
-                >
-                  {t('bankName')}:
-                </Text>
-                <Text fontSize="sm" fontWeight="medium">
-                  {paymentSettings.bankName}
-                </Text>
-              </HStack>
+                    return (
+                      <option key={item.id} value={item.id}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                </Box>
+              </Box>
             )}
 
-            {paymentSettings?.bankAccountNumber && (
-              <HStack>
-                <CreditCard size={16} color="#718096" />
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                  minW="120px"
-                >
-                  {t('accountNumber')}:
-                </Text>
-                <Text fontSize="sm" fontWeight="medium" fontFamily="mono">
-                  {paymentSettings.bankAccountNumber}
-                </Text>
-              </HStack>
-            )}
+            <HStack gap={4} align="start">
+              {/* QR Code thumbnail: prefer uploaded, fall back to auto-generated */}
+              {(() => {
+                const qrUrl =
+                  paymentSettings.qrCodeUrl ||
+                  getVietQRImageUrl(
+                    paymentSettings.bankName ?? '',
+                    paymentSettings.bankAccountNumber ?? '',
+                    { accountName: paymentSettings.accountHolderName }
+                  );
+                if (!qrUrl) return null;
+                return (
+                  <Box flexShrink={0}>
+                    <HStack gap={1} mb={1}>
+                      <QrCode size={12} color="#718096" />
+                      <Text fontSize="xs" color="gray.500">
+                        {t('qrCode')}
+                      </Text>
+                    </HStack>
+                    <Image
+                      src={qrUrl}
+                      alt="QR Code"
+                      boxSize="100px"
+                      objectFit="contain"
+                      borderRadius="md"
+                      border="1px solid"
+                      borderColor="gray.200"
+                    />
+                  </Box>
+                );
+              })()}
 
-            {paymentSettings?.accountHolderName && (
-              <HStack>
-                <User size={16} color="#718096" />
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                  minW="120px"
-                >
-                  {t('accountHolderName')}:
-                </Text>
-                <Text fontSize="sm" fontWeight="medium">
-                  {paymentSettings.accountHolderName}
-                </Text>
-              </HStack>
-            )}
-          </VStack>
-        </Box>
-      )}
+              {/* Bank info */}
+              <VStack gap={2} align="stretch" flex={1} minW={0}>
+                {paymentSettings.bankName && (
+                  <HStack gap={2} align="start">
+                    <Building2
+                      size={14}
+                      color="#718096"
+                      style={{ flexShrink: 0, marginTop: 2 }}
+                    />
+                    <Box>
+                      <Text fontSize="xs" color="gray.500">
+                        {t('bankName')}
+                      </Text>
+                      <Text fontSize="sm" fontWeight="medium">
+                        {paymentSettings.bankName}
+                      </Text>
+                    </Box>
+                  </HStack>
+                )}
+                {paymentSettings.bankAccountNumber && (
+                  <HStack gap={2} align="start">
+                    <CreditCard
+                      size={14}
+                      color="#718096"
+                      style={{ flexShrink: 0, marginTop: 2 }}
+                    />
+                    <Box>
+                      <Text fontSize="xs" color="gray.500">
+                        {t('accountNumber')}
+                      </Text>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="medium"
+                        fontFamily="mono"
+                        wordBreak="break-all"
+                      >
+                        {paymentSettings.bankAccountNumber}
+                      </Text>
+                    </Box>
+                  </HStack>
+                )}
+                {paymentSettings.accountHolderName && (
+                  <HStack gap={2} align="start">
+                    <User
+                      size={14}
+                      color="#718096"
+                      style={{ flexShrink: 0, marginTop: 2 }}
+                    />
+                    <Box>
+                      <Text fontSize="xs" color="gray.500">
+                        {t('accountHolderName')}
+                      </Text>
+                      <Text fontSize="sm" fontWeight="medium">
+                        {paymentSettings.accountHolderName}
+                      </Text>
+                    </Box>
+                  </HStack>
+                )}
+              </VStack>
+            </HStack>
+          </Box>
+        )}
+      </SimpleGrid>
 
-      {/* Split Amount Calculator - Only for SPLIT_EVENLY sessions */}
+      {/* Split Amount Calculator — only for SPLIT_EVENLY sessions */}
       {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
         <Box
           bg="purple.50"
-          _dark={{ bg: 'purple.900' }}
+          _dark={{ bg: 'purple.950' }}
           borderRadius="lg"
           p={4}
           border="1px solid"
           borderColor="purple.200"
         >
-          <Heading size="sm" mb={2}>
-            {t('splitAmountCalculator')}
-          </Heading>
+          <HStack mb={2}>
+            <Calculator size={16} color="#805AD5" />
+            <Text
+              fontSize="sm"
+              fontWeight="semibold"
+              color="purple.700"
+              _dark={{ color: 'purple.200' }}
+            >
+              {t('splitAmountCalculator')}
+            </Text>
+          </HStack>
           <Text
-            fontSize="sm"
+            fontSize="xs"
             color="purple.600"
             _dark={{ color: 'purple.300' }}
             mb={3}
@@ -651,9 +905,11 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
               disabled={isSettingSplit}
               bg="white"
               _dark={{ bg: 'gray.700' }}
+              size="sm"
             />
             <Button
               colorPalette="purple"
+              size="sm"
               onClick={handleSetSplitAmount}
               loading={isSettingSplit}
               disabled={!splitAmount || isSettingSplit}
@@ -664,191 +920,30 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         </Box>
       )}
 
-      {/* Info Box */}
-      <Box
-        bg="gray.50"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="lg"
-        p={4}
-        border="1px solid"
-        borderColor="gray.200"
-      >
-        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-          💡 {t('paymentTabTip')}
-        </Text>
-      </Box>
-
-      {/* Payment Statistics */}
-      {stats && (
-        <Box
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-          borderRadius="lg"
-          p={6}
-          shadow="sm"
-          border="1px solid"
-          borderColor="gray.100"
-        >
-          <Heading size="md" mb={4}>
-            {t('paymentStatistics')}
-          </Heading>
-          <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
-            <Box
-              bg="brand.50"
-              _dark={{ bg: 'brand.900' }}
-              p={4}
-              borderRadius="md"
-              border="1px solid"
-              borderColor="brand.200"
-            >
-              <HStack mb={2}>
-                <Users size={16} color="#3182ce" />
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {t('totalPlayers')}
-                </Text>
-              </HStack>
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                color="green.600"
-                _dark={{ color: 'brand.300' }}
-              >
-                {stats.totalPlayers}
-              </Text>
-            </Box>
-            <Box
-              bg="brand.50"
-              _dark={{ bg: 'brand.900' }}
-              p={4}
-              borderRadius="md"
-              border="1px solid"
-              borderColor="brand.200"
-            >
-              <HStack mb={2}>
-                <DollarSign size={16} color="#3182ce" />
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {t('totalAmount')}
-                </Text>
-              </HStack>
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                color="green.600"
-                _dark={{ color: 'brand.300' }}
-              >
-                {stats.totalAmount.toLocaleString('vi-VN')}
-              </Text>
-              <Text fontSize="xs" color="gray.500">
-                VND
-              </Text>
-            </Box>
-            <Box
-              bg="green.50"
-              _dark={{ bg: 'green.900' }}
-              p={4}
-              borderRadius="md"
-              border="1px solid"
-              borderColor="green.200"
-            >
-              <HStack mb={2}>
-                <CheckCircle size={16} color="#38a169" />
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {t('paidAmount')}
-                </Text>
-              </HStack>
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                color="green.600"
-                _dark={{ color: 'green.300' }}
-              >
-                {stats.paidAmount.toLocaleString('vi-VN')}
-              </Text>
-              <Text fontSize="xs" color="gray.500">
-                {stats.approvedCount} {t('approvedPayments')}
-              </Text>
-            </Box>
-            <Box
-              bg="orange.50"
-              _dark={{ bg: 'orange.900' }}
-              p={4}
-              borderRadius="md"
-              border="1px solid"
-              borderColor="orange.200"
-            >
-              <HStack mb={2}>
-                <Clock size={16} color="#d69e2e" />
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {t('pendingAmount')}
-                </Text>
-              </HStack>
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                color="orange.600"
-                _dark={{ color: 'orange.300' }}
-              >
-                {stats.pendingAmount.toLocaleString('vi-VN')}
-              </Text>
-              <Text fontSize="xs" color="gray.500">
-                {stats.pendingCount + stats.submittedCount} {t('waiting')}
-              </Text>
-            </Box>
-          </SimpleGrid>
-        </Box>
-      )}
-
-      {/* Payment Management Section */}
+      {/* Payment Management */}
       <Box
         bg="white"
         _dark={{ bg: 'gray.800' }}
         borderRadius="lg"
-        p={6}
+        p={5}
         shadow="sm"
         border="1px solid"
         borderColor="gray.100"
       >
-        <Heading size="md" mb={4}>
+        <Heading size="sm" mb={4}>
           {t('paymentManagement')}
         </Heading>
 
-        {/* Expense section */}
-        <Box mb={4}>
-          <SessionExpenseSection
-            sessionId={session.id}
-            expenses={expenses}
-            onAdd={handleAddExpense}
-            onUpdate={handleUpdateExpense}
-            onDelete={handleDeleteExpense}
-            isLoading={isLoadingExpenses}
-          />
-        </Box>
+        <SessionExpenseSection
+          sessionId={session.id}
+          expenses={expenses}
+          onAdd={handleAddExpense}
+          onUpdate={handleUpdateExpense}
+          onDelete={handleDeleteExpense}
+          isLoading={isLoadingExpenses}
+        />
 
-        {isLoadingPayments ? (
-          <Center py={10}>
-            <Spinner size="lg" color="green.500" />
-          </Center>
-        ) : (
+        <Box mt={4}>
           <SessionPaymentList
             session={session}
             payments={payments}
@@ -856,9 +951,9 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
             onReject={handleReject}
             onBulkApprove={handleBulkApprove}
             totalExpenses={totalExpenses}
-            isLoading={false}
+            isLoading={isLoadingPayments}
           />
-        )}
+        </Box>
       </Box>
     </VStack>
   );

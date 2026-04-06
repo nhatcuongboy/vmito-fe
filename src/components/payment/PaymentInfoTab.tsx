@@ -17,6 +17,7 @@ import PaymentStatusBadge from './PaymentStatusBadge';
 import SubmitPaymentModal from './SubmitPaymentModal';
 import FastTransferModal from './FastTransferModal';
 import { PaymentMethod } from '@/lib/api/types';
+import { getVietQRImageUrl } from '@/lib/banks';
 
 interface PaymentInfoTabProps {
   session: ISession;
@@ -155,25 +156,36 @@ export default function PaymentInfoTab({
               )}
           </HStack>
 
-          {hostPaymentSettings.qrCodeUrl && (
-            <Box mb={4} textAlign="center">
-              <HStack justify="center" mb={2}>
-                <QrCode size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600">
-                  {t('scanQrCode')}
-                </Text>
-              </HStack>
-              <Image
-                src={hostPaymentSettings.qrCodeUrl}
-                alt="QR Code"
-                maxH="180px"
-                mx="auto"
-                borderRadius="md"
-                border="1px solid"
-                borderColor="gray.200"
-              />
-            </Box>
-          )}
+          {/* QR Code: prefer uploaded, fall back to auto-generated from bank info */}
+          {(() => {
+            const qrUrl =
+              hostPaymentSettings.qrCodeUrl ||
+              getVietQRImageUrl(
+                hostPaymentSettings.bankName ?? '',
+                hostPaymentSettings.bankAccountNumber ?? '',
+                { accountName: hostPaymentSettings.accountHolderName }
+              );
+            if (!qrUrl) return null;
+            return (
+              <Box mb={4} textAlign="center">
+                <HStack justify="center" mb={2}>
+                  <QrCode size={16} color="#718096" />
+                  <Text fontSize="sm" color="gray.600">
+                    {t('scanQrCode')}
+                  </Text>
+                </HStack>
+                <Image
+                  src={qrUrl}
+                  alt="QR Code"
+                  maxH="200px"
+                  mx="auto"
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="gray.200"
+                />
+              </Box>
+            );
+          })()}
 
           <VStack gap={2} align="stretch">
             {hostPaymentSettings.bankName && (

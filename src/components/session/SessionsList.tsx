@@ -193,6 +193,7 @@ export default function SessionsList({
             key={session.id}
             session={session}
             onDelete={mode === 'manage' ? handleDelete : undefined}
+            onRefresh={onRefresh}
             mode={mode}
             variant={viewMode}
             onHostClick={() => {

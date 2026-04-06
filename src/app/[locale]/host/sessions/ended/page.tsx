@@ -12,22 +12,17 @@ import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import PageLayout from '@/components/layout/PageLayout';
-import { useRouter } from '@/i18n/config';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
-import { QuickCreateSessionBar } from '@/components/session/QuickCreateSessionBar';
-import AISessionModal from '@/components/session/AISessionModal';
-import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
-import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
-  { value: 'date_asc', labelKey: 'sort.dateNearest' },
-  { value: 'date_desc', labelKey: 'sort.dateFurthest' },
+  { value: 'date_desc', labelKey: 'sort.dateNearest' }, // date_desc is newest (closest to NOW)
+  { value: 'date_asc', labelKey: 'sort.dateFurthest' }, // date_asc is oldest (furthest from NOW)
   { value: 'status', labelKey: 'sort.status' },
   { value: 'price_asc', labelKey: 'sort.priceLow' },
   { value: 'price_desc', labelKey: 'sort.priceHigh' },
@@ -35,10 +30,9 @@ const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'slots_desc', labelKey: 'sort.slotsAvailable' },
 ];
 
-function HostSessionsContent() {
+function HostEndedSessionsContent() {
   const tNav = useTranslations('navigation');
   const tSession = useTranslations('session');
-  const router = useRouter();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -49,8 +43,7 @@ function HostSessionsContent() {
   const PAGE_SIZE = 12;
 
   const [filters, setFilters] = useState<ISessionFilterState>({});
-  const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
-  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<SessionSortBy>('date_desc');
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -60,7 +53,7 @@ function HostSessionsContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const fetchHostedSessions = async (isLoadMore = false) => {
+  const fetchEndedSessions = async (isLoadMore = false) => {
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -76,20 +69,24 @@ function HostSessionsContent() {
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
         searchQuery: debouncedSearchQuery,
+        status: SessionStatus.FINISHED,
         ...apiSortParams,
       });
 
+      // Sessions are already filtered by the API
+      const finishedSessions = response.data;
+
       if (isLoadMore) {
-        setSessions((prev) => [...prev, ...response.data]);
+        setSessions((prev) => [...prev, ...finishedSessions]);
         setPage(currentPage);
       } else {
-        setSessions(response.data);
+        setSessions(finishedSessions);
         setTotalCount(response.total);
       }
 
       setHasMore(currentPage < response.totalPages);
     } catch (err) {
-      console.error('Error fetching hosted sessions:', err);
+      console.error('Error fetching ended sessions:', err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -98,7 +95,7 @@ function HostSessionsContent() {
 
   useEffect(() => {
     if (user?.id) {
-      fetchHostedSessions();
+      fetchEndedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, debouncedSearchQuery, sortBy]);
@@ -106,7 +103,7 @@ function HostSessionsContent() {
   // Trigger load more when in view
   useEffect(() => {
     if (inView && hasMore && !loading && !loadingMore) {
-      fetchHostedSessions(true);
+      fetchEndedSessions(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, hasMore, loading, loadingMore]);
@@ -114,16 +111,6 @@ function HostSessionsContent() {
   // Apply filters whenever filters or sessions change
   const filteredSessions = useMemo(() => {
     let result = [...sessions];
-
-    // Exclude FINISHED sessions - they are shown in the Ended Sessions tab
-    result = result.filter(
-      (session) => session.status !== SessionStatus.FINISHED
-    );
-
-    // Status filter
-    if (filters.status) {
-      result = result.filter((session) => session.status === filters.status);
-    }
 
     // Date filter
     if (filters.date) {
@@ -163,16 +150,10 @@ function HostSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleAISuccess = (data: ExtractedSessionData) => {
-    // Save AI-extracted data to sessionStorage so SessionForm can pick it up
-    sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
-    router.push('/sessions/new');
-  };
-
   return (
     <PageLayout
       showBackButton={false}
-      title={tNav('myHostedSessions')}
+      title={tNav('endedSessions')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
     >
@@ -182,22 +163,15 @@ function HostSessionsContent() {
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={true}
+            showStatusFilter={false}
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
-            resultCount={totalCount}
+            resultCount={filteredSessions.length}
           />
 
-          <Flex justify="center">
-            <Box w="100%" maxW="500px" mb={4}>
-              <QuickCreateSessionBar
-                onInputClick={() => setIsAIModalOpen(true)}
-              />
-            </Box>
-          </Flex>
           <ResultsHeader
-            count={totalCount}
+            count={filteredSessions.length}
             sortOptions={HOST_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
@@ -206,7 +180,7 @@ function HostSessionsContent() {
             sessions={filteredSessions}
             isLoading={loading}
             mode="manage"
-            onRefresh={fetchHostedSessions}
+            onRefresh={fetchEndedSessions}
           />
 
           {/* Infinite Scroll Trigger */}
@@ -234,19 +208,11 @@ function HostSessionsContent() {
           )}
         </Box>
       </Flex>
-
-      {user && <QuickCreateFAB bottom="90px" />}
-
-      <AISessionModal
-        isOpen={isAIModalOpen}
-        onClose={() => setIsAIModalOpen(false)}
-        onSuccess={handleAISuccess}
-      />
     </PageLayout>
   );
 }
 
-export default function HostSessionsPage() {
+export default function HostEndedSessionsPage() {
   return (
     <ProtectedRouteGuard
       requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
@@ -258,7 +224,7 @@ export default function HostSessionsPage() {
           </Flex>
         }
       >
-        <HostSessionsContent />
+        <HostEndedSessionsContent />
       </Suspense>
     </ProtectedRouteGuard>
   );

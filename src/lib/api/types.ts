@@ -208,7 +208,7 @@ export interface CreateHostPaymentSettingsRequest {
   bankName?: string;
   bankAccountNumber?: string;
   accountHolderName?: string;
-  qrCodeUrl?: string;
+  qrCodeUrl?: string | null;
   isDefault?: boolean;
 }
 
@@ -216,7 +216,7 @@ export interface UpdateHostPaymentSettingsRequest {
   bankName?: string;
   bankAccountNumber?: string;
   accountHolderName?: string;
-  qrCodeUrl?: string;
+  qrCodeUrl?: string | null;
   isDefault?: boolean;
 }
 

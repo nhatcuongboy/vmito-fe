@@ -36,6 +36,33 @@ export interface SessionActionConfig {
    */
   onDelete?: (sessionId: string) => void;
 
+  /**
+   * Show start button in 3-dot menu (only for PREPARING sessions, owner only)
+   * Transitions session status from PREPARING -> IN_PROGRESS
+   */
+  showStartButton?: boolean;
+
+  /**
+   * Callback when start button is clicked
+   */
+  onStart?: () => void;
+
+  /**
+   * Show end button in 3-dot menu (only for IN_PROGRESS sessions, owner only)
+   * Transitions session status from IN_PROGRESS -> FINISHED
+   */
+  showEndButton?: boolean;
+
+  /**
+   * Callback when end button is clicked
+   */
+  onEnd?: () => void;
+
+  /**
+   * Loading state for start/end operations
+   */
+  isStartEndLoading?: boolean;
+
   // Bottom action buttons - Right side
   /**
    * Show manage button (for session owner)

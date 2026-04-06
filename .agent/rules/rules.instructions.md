@@ -3,3 +3,4 @@
 - On FE side, always call API from services in `@/lib/api`.
 - Always generate documents in /docs by English.
 - Always use common UI components when available instead of creating or using one-off UI elements.
+- Use Skeletons to improve perceived performance and prevent Cumulative Layout Shift (CLS). Skeletons should be used for initial data fetching, while Spinners/Loading states should be used for user-triggered actions.

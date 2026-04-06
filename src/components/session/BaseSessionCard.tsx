@@ -43,6 +43,8 @@ import {
   UserPlus,
   ClipboardList,
   Feather,
+  Play,
+  Square,
 } from 'lucide-react';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -328,6 +330,44 @@ const BaseSessionCard = ({
     const menuItems: React.ReactNode[] = [];
     const rightButtons: React.ReactNode[] = [];
 
+    // Menu items: Start session button (owner or admin, PREPARING only)
+    if (actions.showStartButton && canManage && actions.onStart) {
+      menuItems.push(
+        <MenuItem
+          key="start"
+          value="start"
+          color="green.600"
+          _hover={{ bg: 'green.50' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            actions.onStart?.();
+          }}
+        >
+          <Icon as={Play} mr={2} />
+          {t('startSession')}
+        </MenuItem>
+      );
+    }
+
+    // Menu items: End session button (owner or admin, IN_PROGRESS only)
+    if (actions.showEndButton && canManage && actions.onEnd) {
+      menuItems.push(
+        <MenuItem
+          key="end"
+          value="end"
+          color="orange.600"
+          _hover={{ bg: 'orange.50' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            actions.onEnd?.();
+          }}
+        >
+          <Icon as={Square} mr={2} />
+          {t('endSession')}
+        </MenuItem>
+      );
+    }
+
     // Menu items: Delete button (owner or admin)
     if (actions.showDeleteButton && canManage && actions.onDelete) {
       menuItems.push(
@@ -445,6 +485,7 @@ const BaseSessionCard = ({
                   colorPalette="gray"
                   aria-label="Actions"
                   shadow="md"
+                  loading={actions?.isStartEndLoading}
                   icon={<Icon as={MoreVertical} />}
                   onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 />

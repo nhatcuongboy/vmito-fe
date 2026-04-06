@@ -2,7 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { PlayerService } from '@/lib/api/player.service';
-import { ISession, UserRole } from '@/lib/api/types';
+import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState, useMemo } from 'react';
@@ -107,6 +107,11 @@ function PlayerSessionsContent() {
   // Apply filters whenever filters or sessions change
   const filteredSessions = useMemo(() => {
     let result = [...sessions];
+
+    // Exclude FINISHED sessions - they are shown in the Ended Joined Sessions tab
+    result = result.filter(
+      (session) => session.status !== SessionStatus.FINISHED
+    );
 
     // Status filter
     if (filters.status) {

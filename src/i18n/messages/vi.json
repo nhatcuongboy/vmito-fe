@@ -32,6 +32,8 @@
     "clubsAdmin": "Duyệt nhóm",
     "createClub": "Tạo nhóm",
     "pendingJoinRequests": "Yêu cầu tham gia",
+    "endedSessions": "Kèo đã kết thúc",
+    "endedJoinedSessions": "Kèo tham gia đã kết thúc",
     "suggestions": "Gợi ý"
   },
   "common": {
@@ -565,7 +567,14 @@
       "sessionsCreated": "kèo đã tạo"
     },
     "loadMore": "Xem thêm",
-    "loadingMore": "Đang tải thêm..."
+    "loadingMore": "Đang tải thêm...",
+    "confirmEndSession": "Xác nhận kết thúc kèo",
+    "confirmEndSessionMessage": "Bạn có chắc chắn muốn kết thúc kèo này? Hành động này không thể hoàn tác và sẽ kết thúc tất cả các trận đấu đang diễn ra.",
+    "endSession": "Kết thúc kèo",
+    "startSession": "Bắt đầu kèo",
+    "sessionStarted": "Kèo đã bắt đầu",
+    "sessionEnded": "Kèo đã kết thúc",
+    "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo"
   },
   "court": {
     "title": "Sân",
@@ -2149,6 +2158,7 @@
     "qrScanToView": "Quét để xem kèo",
     "cancel": "Hủy",
     "endSession": "Kết thúc kèo",
+    "startSession": "Bắt đầu kèo",
     "failedToSavePlayerChanges": "Không thể lưu thay đổi người chơi",
     "failedToUpdatePlayer": "Không thể cập nhật người chơi",
     "unknownError": "Lỗi không xác định",
@@ -2683,6 +2693,8 @@
     "playerTransactionsDescription": "Xem lịch sử thanh toán với từng host",
     "hostTransactionsDescription": "Xem lịch sử thanh toán từ người chơi",
     "manageSettings": "Quản lý cài đặt",
+    "savedAccounts": "Tài khoản đã lưu",
+    "selectSavedAccount": "Chọn tài khoản",
     "paymentInfoDescription": "Cấu hình thông tin thanh toán cho kèo này để người chơi biết cách chuyển tiền cho bạn",
     "sessionFeeConfig": "Cấu hình phí kèo",
     "feeType": "Loại phí",
@@ -2727,6 +2739,8 @@
     "createExpenseFailed": "Không thể tạo khoản chi",
     "updateExpenseFailed": "Không thể cập nhật khoản chi",
     "deleteExpenseFailed": "Không thể xóa khoản chi",
+    "settingsSwitched": "Đã chuyển cài đặt thanh toán",
+    "switchSettingsFailed": "Không thể chuyển cài đặt thanh toán",
     "customAmount": "Số tiền thực nhận",
     "selectPaymentMethod": "Phương thức thanh toán"
   },

@@ -15,7 +15,6 @@ import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { HostPaymentSettings } from '@/lib/api/types';
 import { ChevronDown } from 'lucide-react';
-import { FeeService } from '@/lib/api/fee.service';
 import { vietnamBanks, RECOMMENDED_BANK_CODES } from '@/lib/banks';
 import { toaster } from '@/components/ui/toaster';
 
@@ -76,6 +75,21 @@ export default function FastTransferModal({
     setAmount(val.toString());
   };
 
+  // Find the recipient bank entry by matching the host's freetext bankName
+  const recipientBank = useMemo(() => {
+    const name = hostPaymentSettings.bankName?.toLowerCase() ?? '';
+    if (!name) return null;
+    return (
+      vietnamBanks.find(
+        (b) =>
+          b.shortName.toLowerCase() === name ||
+          b.code.toLowerCase() === name ||
+          name.includes(b.shortName.toLowerCase()) ||
+          name.includes(b.code.toLowerCase())
+      ) ?? null
+    );
+  }, [hostPaymentSettings.bankName]);
+
   const handleTransfer = () => {
     if (!amount || parseInt(amount) === 0) {
       toaster.error({
@@ -85,32 +99,41 @@ export default function FastTransferModal({
       return;
     }
 
-    if (!selectedBank) {
+    if (!selectedBank?.deepLink) {
+      toaster.error({
+        title: tCommon('error'),
+        description: 'Ngân hàng này chưa hỗ trợ mở app trực tiếp',
+      });
       return;
     }
 
-    // Try to deep link to the bank app.
-    // This uses vietqr intent schema or deep link if available.
-    // For many apps, there isn't a direct generic web-to-app deep link that works universally
-    // without using Napas VietQR gateway.
-    // We will simulate deep linking or use app prefixes.
-    const urlScheme = `${selectedBank.code.toLowerCase()}://`;
+    // Build VietQR deeplink: https://dl.vietqr.io/pay?app={appId}&ba=ACCOUNT@BANK&am=AMOUNT&tn=MSG&bn=NAME
+    const url = new URL(selectedBank.deepLink);
 
-    // In a real app we might construct a VietQR string and pass it.
-    // For now we just open the scheme or show a message.
-    try {
-      window.location.href = urlScheme;
-      // Also close modal after a short delay
-      setTimeout(() => {
-        onClose();
-      }, 500);
-    } catch (e) {
-      console.error(e);
-      toaster.error({
-        title: tCommon('error'),
-        description: 'Không thể mở ngân hàng này',
-      });
+    // Recipient bank account (format: accountNumber@bankCode)
+    if (hostPaymentSettings.bankAccountNumber) {
+      const bankCode = recipientBank?.code.toLowerCase() ?? '';
+      const ba = bankCode
+        ? `${hostPaymentSettings.bankAccountNumber}@${bankCode}`
+        : hostPaymentSettings.bankAccountNumber;
+      url.searchParams.set('ba', ba);
     }
+
+    // Amount in VND
+    url.searchParams.set('am', amount);
+
+    // Transfer message
+    if (message) {
+      url.searchParams.set('tn', message);
+    }
+
+    // Recipient account holder name
+    if (hostPaymentSettings.accountHolderName) {
+      url.searchParams.set('bn', hostPaymentSettings.accountHolderName);
+    }
+
+    window.location.href = url.toString();
+    setTimeout(() => onClose(), 500);
   };
 
   return (
@@ -225,6 +248,7 @@ export default function FastTransferModal({
                   >
                     <Image
                       src={selectedBank.logo}
+                      alt={selectedBank.shortName}
                       w="20px"
                       h="20px"
                       objectFit="contain"
