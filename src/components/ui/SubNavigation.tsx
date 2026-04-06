@@ -43,31 +43,34 @@ export default function SubNavigation({ items }: SubNavigationProps) {
           }
 
           return (
-            <Box
+            <Link
               key={item.href}
-              as={Link}
               href={item.href}
-              position="relative"
-              color={isActive ? 'fg' : 'fg.muted'}
-              fontWeight={isActive ? '600' : '500'}
-              whiteSpace="nowrap"
-              _hover={{ color: 'fg' }}
-              transition="color 0.2s"
+              style={{ textDecoration: 'none' }}
             >
-              {item.label}
-              {isActive && (
-                <Box
-                  position="absolute"
-                  bottom="-8px"
-                  left={0}
-                  right={0}
-                  height="2px"
-                  bg="black"
-                  _dark={{ bg: 'white' }}
-                  borderTopRadius="md"
-                />
-              )}
-            </Box>
+              <Box
+                position="relative"
+                color={isActive ? 'fg' : 'fg.muted'}
+                fontWeight={isActive ? '600' : '500'}
+                whiteSpace="nowrap"
+                _hover={{ color: 'fg' }}
+                transition="color 0.2s"
+              >
+                {item.label}
+                {isActive && (
+                  <Box
+                    position="absolute"
+                    bottom="-8px"
+                    left={0}
+                    right={0}
+                    height="2px"
+                    bg="black"
+                    _dark={{ bg: 'white' }}
+                    borderTopRadius="md"
+                  />
+                )}
+              </Box>
+            </Link>
           );
         })}
       </Flex>
