@@ -93,10 +93,23 @@ export default function PageLayout({
   children,
   isLoading = false,
   loadingComponent,
+  bg,
+  background,
+  bgColor,
+  backgroundColor,
+  _dark,
+  minH,
   ...containerProps
 }: PageLayoutProps) {
   return (
-    <PageWrapper>
+    <PageWrapper
+      bg={bg}
+      background={background}
+      bgColor={bgColor}
+      backgroundColor={backgroundColor}
+      _dark={_dark}
+      minH={minH ?? '100vh'}
+    >
       <TopBar
         title={title}
         icon={icon}
@@ -107,6 +120,7 @@ export default function PageLayout({
       <Container
         maxW={maxW}
         px={CONTAINER_PX}
+        minH={minH ?? '100vh'}
         pt={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,

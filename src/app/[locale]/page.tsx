@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense, useState } from 'react';
-import { Box, Flex, Icon, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import FindSessionList from '@/components/session/FindSessionList';
 import SuggestionsList from '@/components/session/SuggestionsList';
@@ -21,7 +21,8 @@ function HomeContent() {
     <PageLayout
       title={t('findSession')}
       icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
-      bg="bg.subtle"
+      bg="green.50"
+      _dark={{ bg: 'gray.900' }}
       minH="100vh"
     >
       {mode === 'browse' || !user ? (

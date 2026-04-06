@@ -12,14 +12,13 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { SimpleGrid, Button } from '@/components/ui/chakra-compat';
-import { Input } from '@/components/ui/Input';
 import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
-import { Search, Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
+import { Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
 
 const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
@@ -139,7 +138,13 @@ function TournamentsContent() {
   ];
 
   return (
-    <PageLayout title={t('title')} maxW="7xl" bg="bg.muted">
+    <PageLayout
+      title={t('title')}
+      maxW="7xl"
+      bg="green.50"
+      _dark={{ bg: 'gray.900' }}
+      minH="100vh"
+    >
       <VStack gap={6} alignItems="stretch">
         {/* Search Bar */}
         <Flex justify="center" pt={2}>
