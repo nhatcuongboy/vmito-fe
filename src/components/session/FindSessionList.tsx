@@ -535,6 +535,7 @@ export default function FindSessionList({
         onSearchChange={handleSearchQueryChange}
         onToggleFilters={toggleFilters}
         activeFilterCount={activeFilterCount}
+        onCreateClick={user ? () => setIsAIModalOpen(true) : undefined}
       />
 
       {/* Filter Drawer */}
@@ -551,17 +552,6 @@ export default function FindSessionList({
         userLocation={pendingUserLocation}
         setUserLocation={setPendingUserLocation}
       />
-
-      {/* Quick Create Bar */}
-      {user && (
-        <Flex justify="center">
-          <Box w="100%" maxW="500px" mb={4}>
-            <QuickCreateSessionBar
-              onInputClick={() => setIsAIModalOpen(true)}
-            />
-          </Box>
-        </Flex>
-      )}
 
       {/* Results Header: Count + Mode Toggles + View Toggle */}
       <ResultsHeader

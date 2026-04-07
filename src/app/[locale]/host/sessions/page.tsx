@@ -76,6 +76,8 @@ function HostSessionsContent() {
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
         searchQuery: debouncedSearchQuery,
+        excludeStatus: filters.status ? undefined : SessionStatus.FINISHED,
+        status: filters.status,
         ...apiSortParams,
       });
 
@@ -101,7 +103,7 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, debouncedSearchQuery, sortBy]);
+  }, [user?.id, debouncedSearchQuery, sortBy, filters.status]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -115,10 +117,9 @@ function HostSessionsContent() {
   const filteredSessions = useMemo(() => {
     let result = [...sessions];
 
+    // Status filter is now handled on the server by excludeStatus or status param
     // Exclude FINISHED sessions - they are shown in the Ended Sessions tab
-    result = result.filter(
-      (session) => session.status !== SessionStatus.FINISHED
-    );
+    // We only filter client-side if the API support was missing, but it's now added.
 
     // Status filter
     if (filters.status) {
@@ -187,15 +188,9 @@ function HostSessionsContent() {
             showSearchFilter={true}
             showLevelFilter={false}
             resultCount={totalCount}
+            onCreateClick={() => setIsAIModalOpen(true)}
           />
 
-          <Flex justify="center">
-            <Box w="100%" maxW="500px" mb={4}>
-              <QuickCreateSessionBar
-                onInputClick={() => setIsAIModalOpen(true)}
-              />
-            </Box>
-          </Flex>
           <ResultsHeader
             count={totalCount}
             sortOptions={HOST_SORT_OPTIONS}
@@ -210,7 +205,7 @@ function HostSessionsContent() {
           />
 
           {/* Infinite Scroll Trigger */}
-          {hasMore && filteredSessions.length >= PAGE_SIZE && (
+          {hasMore && sessions.length >= PAGE_SIZE && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={{

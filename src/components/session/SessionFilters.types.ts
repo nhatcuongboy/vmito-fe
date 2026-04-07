@@ -13,4 +13,5 @@ export interface ISessionFiltersProps {
   showStatusFilter?: boolean;
   initialFilters?: ISessionFilterState;
   resultCount?: number;
+  onCreateClick?: () => void;
 }

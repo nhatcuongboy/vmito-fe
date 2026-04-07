@@ -619,6 +619,7 @@ const BaseSessionCard = ({
             }
       }
       maxW="400px"
+      minW="300px"
       w="100%"
       display="flex"
       flexDirection="column"

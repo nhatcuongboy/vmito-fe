@@ -3,4 +3,5 @@ export interface SessionSearchBarProps {
   onSearchChange: (value: string) => void;
   onToggleFilters: () => void;
   activeFilterCount: number;
+  onCreateClick?: () => void;
 }

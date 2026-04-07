@@ -31,6 +31,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   showSearchFilter = true,
   showStatusFilter = true,
   initialFilters = {},
+  onCreateClick,
 }) => {
   const t = useTranslations('session.filters');
   const tStatus = useTranslations('session.status');
@@ -115,6 +116,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           onSearchChange={setSearchTerm}
           onToggleFilters={toggleDrawer}
           activeFilterCount={activeFilterCount}
+          onCreateClick={onCreateClick}
         />
       )}
 

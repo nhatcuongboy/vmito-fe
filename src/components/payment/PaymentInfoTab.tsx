@@ -2,7 +2,7 @@
 
 import { Box, Text, VStack, HStack, Image, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
 import {
   PaymentRecord,
@@ -57,6 +57,24 @@ export default function PaymentInfoTab({
 
   const canSubmit = (payment: PaymentRecord) =>
     payment.status === PaymentStatus.PENDING;
+
+  // Construct a default message for transfer: "Name - Date - PlayerName"
+  const defaultMessage = useMemo(() => {
+    // Session name (max 10 chars to avoid overflow in bank apps)
+    const sName = session.name?.substring(0, 15).trim() || '';
+
+    // Short date: DD/MM
+    let sDate = '';
+    if (session.startTime) {
+      const d = new Date(session.startTime);
+      sDate = `${d.getDate()}/${d.getMonth() + 1}`;
+    }
+
+    // Player name (assuming current user is the first record)
+    const pName = paymentRecords[0]?.player?.name?.split(' ').pop() || ''; // Take last name only for brevity
+
+    return `${sName} ${sDate} ${pName}`.trim();
+  }, [session.name, session.startTime, paymentRecords]);
 
   const handleSubmit = async (data: {
     paymentMethod: PaymentMethod;
@@ -314,6 +332,7 @@ export default function PaymentInfoTab({
           onClose={() => setIsFastTransferOpen(false)}
           pendingAmount={pendingAmount}
           hostPaymentSettings={hostPaymentSettings}
+          defaultMessage={defaultMessage}
         />
       )}
     </VStack>

@@ -26,6 +26,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
         bg="bg"
         borderColor="border"
         p={3}
+        minW="300px"
       >
         <Flex justify="space-between" align="flex-start">
           <Skeleton height="22px" width="60%" borderRadius="md" />
@@ -64,6 +65,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
         p={4}
         width="100%"
         maxW="400px"
+        minW="300px"
       >
         <Skeleton height="160px" borderRadius="lg" mb={4} />
         <Skeleton height="24px" width="70%" mb={2} />
@@ -89,6 +91,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
       bg="bg"
       borderColor="border"
       p={6}
+      minW="300px"
     >
       {/* Header - Title and Status Badge */}
       <Flex justify="space-between" align="flex-start">

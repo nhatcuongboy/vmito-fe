@@ -23,6 +23,7 @@ interface FastTransferModalProps {
   onClose: () => void;
   pendingAmount: number;
   hostPaymentSettings: HostPaymentSettings;
+  defaultMessage?: string;
 }
 
 export default function FastTransferModal({
@@ -30,12 +31,13 @@ export default function FastTransferModal({
   onClose,
   pendingAmount,
   hostPaymentSettings,
+  defaultMessage = '',
 }: FastTransferModalProps) {
   const t = useTranslations('payment');
   const tCommon = useTranslations('common');
 
   const [amount, setAmount] = useState<string>(pendingAmount.toString());
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState<string>(defaultMessage);
 
   // Default to TPBank (or first available recommended)
   const defaultBankCode = 'TPB';
@@ -99,40 +101,47 @@ export default function FastTransferModal({
       return;
     }
 
-    if (!selectedBank?.deepLink) {
-      toaster.error({
-        title: tCommon('error'),
-        description: 'Ngân hàng này chưa hỗ trợ mở app trực tiếp',
-      });
-      return;
-    }
+    // Build VietQR deeplink correctly according to documentation
+    // format: vietqr://pay?app={appId}&ba={account}@{bank}&am={amount}&tn={msg}&bn={name}&url={callback}
+    const searchParams = new URLSearchParams();
 
-    // Build VietQR deeplink: https://dl.vietqr.io/pay?app={appId}&ba=ACCOUNT@BANK&am=AMOUNT&tn=MSG&bn=NAME
-    const url = new URL(selectedBank.deepLink);
+    // 1. App ID (from selectedBank)
+    const appId =
+      new URL(
+        selectedBank.deepLink || 'https://dl.vietqr.io/pay?app='
+      ).searchParams.get('app') || selectedBank.code.toLowerCase();
+    searchParams.set('app', appId);
 
-    // Recipient bank account (format: accountNumber@bankCode)
+    // 2. Recipient Account (ba: accountNumber@bankCode)
     if (hostPaymentSettings.bankAccountNumber) {
-      const bankCode = recipientBank?.code.toLowerCase() ?? '';
-      const ba = bankCode
-        ? `${hostPaymentSettings.bankAccountNumber}@${bankCode}`
+      const bankCodeForBa = recipientBank?.code.toLowerCase() ?? '';
+      const ba = bankCodeForBa
+        ? `${hostPaymentSettings.bankAccountNumber}@${bankCodeForBa}`
         : hostPaymentSettings.bankAccountNumber;
-      url.searchParams.set('ba', ba);
+      searchParams.set('ba', ba);
     }
 
-    // Amount in VND
-    url.searchParams.set('am', amount);
+    // 3. Amount (am)
+    searchParams.set('am', amount);
 
-    // Transfer message
+    // 4. Message (tn)
     if (message) {
-      url.searchParams.set('tn', message);
+      searchParams.set('tn', message);
     }
 
-    // Recipient account holder name
+    // 5. Receiver Name (bn)
     if (hostPaymentSettings.accountHolderName) {
-      url.searchParams.set('bn', hostPaymentSettings.accountHolderName);
+      searchParams.set('bn', hostPaymentSettings.accountHolderName);
     }
 
-    window.location.href = url.toString();
+    // 6. Callback URL (url) - return to app after success
+    searchParams.set('url', window.location.href);
+
+    // Construct the direct deeplink
+    const deeplink = `vietqr://pay?${searchParams.toString()}`;
+
+    // Execute transfer
+    window.location.href = deeplink;
     setTimeout(() => onClose(), 500);
   };
 
@@ -186,7 +195,6 @@ export default function FastTransferModal({
                   placeholder="0"
                   value={amount ? parseInt(amount).toLocaleString('vi-VN') : ''}
                   onChange={handleAmountChange}
-                  autoFocus
                 />
                 <Text fontWeight="semibold" color="gray.600">
                   VND

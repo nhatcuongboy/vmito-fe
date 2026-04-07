@@ -71,6 +71,7 @@ export const SessionService = {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     status?: string;
+    excludeStatus?: string;
   }): Promise<{
     data: ISession[];
     total: number;
@@ -86,6 +87,8 @@ export const SessionService = {
     if (filters?.sortBy) params.append('sortBy', filters.sortBy);
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
     if (filters?.status) params.append('status', filters.status);
+    if (filters?.excludeStatus)
+      params.append('excludeStatus', filters.excludeStatus);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`
