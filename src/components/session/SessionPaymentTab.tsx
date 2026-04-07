@@ -15,7 +15,7 @@ import {
   Stack,
   Badge,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, LegacySelect } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import {
   CreditCard,
@@ -735,19 +735,11 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                 <Text fontSize="xs" color="gray.500" mb={1}>
                   {t('savedAccounts')}
                 </Text>
-                <Box
-                  as="select"
-                  value={paymentSettings.id}
+                <LegacySelect
+                  value={paymentSettings?.id || ''}
                   onChange={(e) => handleSelectPaymentSettings(e.target.value)}
                   disabled={isSwitchingSettings}
-                  w="full"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="md"
-                  px={3}
-                  py={2}
-                  bg="white"
-                  fontSize="sm"
+                  style={{ width: '100%', backgroundColor: 'white' }}
                 >
                   <option value="">{t('selectSavedAccount')}</option>
                   {myPaymentSettings.map((item) => {
@@ -767,101 +759,105 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                       </option>
                     );
                   })}
-                </Box>
+                </LegacySelect>
               </Box>
             )}
 
             <HStack gap={4} align="start">
-              {/* QR Code thumbnail: prefer uploaded, fall back to auto-generated */}
-              {(() => {
-                const qrUrl =
-                  paymentSettings.qrCodeUrl ||
-                  getVietQRImageUrl(
-                    paymentSettings.bankName ?? '',
-                    paymentSettings.bankAccountNumber ?? '',
-                    { accountName: paymentSettings.accountHolderName }
-                  );
-                if (!qrUrl) return null;
-                return (
-                  <Box flexShrink={0}>
-                    <HStack gap={1} mb={1}>
-                      <QrCode size={12} color="#718096" />
-                      <Text fontSize="xs" color="gray.500">
-                        {t('qrCode')}
-                      </Text>
-                    </HStack>
-                    <Image
-                      src={qrUrl}
-                      alt="QR Code"
-                      boxSize="100px"
-                      objectFit="contain"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                    />
-                  </Box>
-                );
-              })()}
+              {paymentSettings && (
+                <>
+                  {/* QR Code thumbnail: prefer uploaded, fall back to auto-generated */}
+                  {(() => {
+                    const qrUrl =
+                      paymentSettings.qrCodeUrl ||
+                      getVietQRImageUrl(
+                        paymentSettings.bankName ?? '',
+                        paymentSettings.bankAccountNumber ?? '',
+                        { accountName: paymentSettings.accountHolderName }
+                      );
+                    if (!qrUrl) return null;
+                    return (
+                      <Box flexShrink={0}>
+                        <HStack gap={1} mb={1}>
+                          <QrCode size={12} color="#718096" />
+                          <Text fontSize="xs" color="gray.500">
+                            {t('qrCode')}
+                          </Text>
+                        </HStack>
+                        <Image
+                          src={qrUrl}
+                          alt="QR Code"
+                          boxSize="100px"
+                          objectFit="contain"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor="gray.200"
+                        />
+                      </Box>
+                    );
+                  })()}
 
-              {/* Bank info */}
-              <VStack gap={2} align="stretch" flex={1} minW={0}>
-                {paymentSettings.bankName && (
-                  <HStack gap={2} align="start">
-                    <Building2
-                      size={14}
-                      color="#718096"
-                      style={{ flexShrink: 0, marginTop: 2 }}
-                    />
-                    <Box>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('bankName')}
-                      </Text>
-                      <Text fontSize="sm" fontWeight="medium">
-                        {paymentSettings.bankName}
-                      </Text>
-                    </Box>
-                  </HStack>
-                )}
-                {paymentSettings.bankAccountNumber && (
-                  <HStack gap={2} align="start">
-                    <CreditCard
-                      size={14}
-                      color="#718096"
-                      style={{ flexShrink: 0, marginTop: 2 }}
-                    />
-                    <Box>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('accountNumber')}
-                      </Text>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="medium"
-                        fontFamily="mono"
-                        wordBreak="break-all"
-                      >
-                        {paymentSettings.bankAccountNumber}
-                      </Text>
-                    </Box>
-                  </HStack>
-                )}
-                {paymentSettings.accountHolderName && (
-                  <HStack gap={2} align="start">
-                    <User
-                      size={14}
-                      color="#718096"
-                      style={{ flexShrink: 0, marginTop: 2 }}
-                    />
-                    <Box>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('accountHolderName')}
-                      </Text>
-                      <Text fontSize="sm" fontWeight="medium">
-                        {paymentSettings.accountHolderName}
-                      </Text>
-                    </Box>
-                  </HStack>
-                )}
-              </VStack>
+                  {/* Bank info */}
+                  <VStack gap={2} align="stretch" flex={1} minW={0}>
+                    {paymentSettings.bankName && (
+                      <HStack gap={2} align="start">
+                        <Building2
+                          size={14}
+                          color="#718096"
+                          style={{ flexShrink: 0, marginTop: 2 }}
+                        />
+                        <Box>
+                          <Text fontSize="xs" color="gray.500">
+                            {t('bankName')}
+                          </Text>
+                          <Text fontSize="sm" fontWeight="medium">
+                            {paymentSettings.bankName}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    )}
+                    {paymentSettings.bankAccountNumber && (
+                      <HStack gap={2} align="start">
+                        <CreditCard
+                          size={14}
+                          color="#718096"
+                          style={{ flexShrink: 0, marginTop: 2 }}
+                        />
+                        <Box>
+                          <Text fontSize="xs" color="gray.500">
+                            {t('accountNumber')}
+                          </Text>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="medium"
+                            fontFamily="mono"
+                            wordBreak="break-all"
+                          >
+                            {paymentSettings.bankAccountNumber}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    )}
+                    {paymentSettings.accountHolderName && (
+                      <HStack gap={2} align="start">
+                        <User
+                          size={14}
+                          color="#718096"
+                          style={{ flexShrink: 0, marginTop: 2 }}
+                        />
+                        <Box>
+                          <Text fontSize="xs" color="gray.500">
+                            {t('accountHolderName')}
+                          </Text>
+                          <Text fontSize="sm" fontWeight="medium">
+                            {paymentSettings.accountHolderName}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    )}
+                  </VStack>
+                </>
+              )}
             </HStack>
           </Box>
         )}

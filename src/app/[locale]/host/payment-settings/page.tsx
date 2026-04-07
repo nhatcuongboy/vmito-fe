@@ -8,7 +8,12 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { Button } from '@/components/ui/chakra-compat';
 import { PaymentSettingsForm } from '@/components/payment';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
-import { HostPaymentSettings, UserRole } from '@/lib/api/types';
+import {
+  CreateHostPaymentSettingsRequest,
+  HostPaymentSettings,
+  UpdateHostPaymentSettingsRequest,
+  UserRole,
+} from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import PageLayout from '@/components/layout/PageLayout';
 
@@ -42,9 +47,7 @@ function PaymentSettingsContent() {
     loadSettings();
   }, [loadSettings]);
 
-  const handleCreate = async (
-    data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
-  ) => {
+  const handleCreate = async (data: CreateHostPaymentSettingsRequest) => {
     try {
       const newSettings =
         await PaymentSettingsService.createPaymentSettings(data);
@@ -65,7 +68,7 @@ function PaymentSettingsContent() {
 
   const handleUpdate = async (
     id: string,
-    data: Omit<HostPaymentSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+    data: UpdateHostPaymentSettingsRequest
   ) => {
     setSavingId(id);
     try {
