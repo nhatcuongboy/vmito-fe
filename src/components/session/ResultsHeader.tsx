@@ -67,7 +67,6 @@ export default function ResultsHeader({
   count,
   mode,
   onModeChange,
-  isLoading,
   children,
   sortOptions,
   sortBy: controlledSortBy,
@@ -86,7 +85,6 @@ export default function ResultsHeader({
   const options = sortOptions ?? DEFAULT_SORT_OPTIONS;
   const activeOption =
     options.find((o) => o.value === currentSortBy) ?? options[0];
-  const ActiveIcon = SORT_ICONS[activeOption?.value] ?? ArrowUpDown;
 
   const handleSelect = (value: SessionSortBy) => {
     if (onSortChange) {
@@ -113,17 +111,53 @@ export default function ResultsHeader({
   return (
     <Box mb={4}>
       <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
-        {/* Left: Results count */}
-        <Text
-          fontSize="sm"
-          color="gray.600"
-          _dark={{ color: 'gray.400' }}
-          whiteSpace="nowrap"
-        >
-          {`${count} ${tCommon('sessions')}`}
-        </Text>
+        {/* Left: Results count + Mode Toggle Button */}
+        <HStack gap={2} flexShrink={0} flexWrap="wrap">
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            _dark={{ color: 'gray.400' }}
+            whiteSpace="nowrap"
+          >
+            {`${count} ${tCommon('sessions')}`}
+          </Text>
 
-        {/* Right: Sort + Mode toggle + View mode toggle */}
+          {/* Mode Toggle Button (On/Off) */}
+          {mode && onModeChange && isAuthenticated && (
+            <Button
+              size="sm"
+              variant={mode === 'auto' ? 'solid' : 'outline'}
+              colorPalette={mode === 'auto' ? 'yellow' : 'gray'}
+              onClick={() => onModeChange(mode === 'auto' ? 'browse' : 'auto')}
+              borderRadius="full"
+              gap={1.5}
+              px={3}
+              h="32px"
+              borderColor={mode === 'auto' ? 'transparent' : 'gray.200'}
+              _light={{
+                bg: mode === 'auto' ? 'yellow.400' : 'white',
+                color: mode === 'auto' ? 'yellow.900' : 'gray.600',
+                _hover: {
+                  bg: mode === 'auto' ? 'yellow.500' : 'gray.50',
+                },
+              }}
+            >
+              <Icon
+                as={Sparkles}
+                boxSize={4}
+                fill={mode === 'auto' ? 'currentColor' : 'none'}
+              />
+              <Text
+                fontSize="sm"
+                fontWeight={mode === 'auto' ? 'bold' : 'normal'}
+              >
+                {tSuggestions('modeAuto')}
+              </Text>
+            </Button>
+          )}
+        </HStack>
+
+        {/* Right: Sort + View mode toggle */}
         <HStack gap={2} flexShrink={0}>
           {/* Sort Dropdown */}
           <Box position="relative" ref={dropdownRef}>
@@ -212,40 +246,6 @@ export default function ResultsHeader({
               </Box>
             )}
           </Box>
-
-          {/* Mode Toggle Button (On/Off) */}
-          {mode && onModeChange && isAuthenticated && (
-            <Button
-              size="sm"
-              variant={mode === 'auto' ? 'solid' : 'outline'}
-              colorPalette={mode === 'auto' ? 'yellow' : 'gray'}
-              onClick={() => onModeChange(mode === 'auto' ? 'browse' : 'auto')}
-              borderRadius="full"
-              gap={1.5}
-              px={3}
-              h="32px"
-              borderColor={mode === 'auto' ? 'transparent' : 'gray.200'}
-              _light={{
-                bg: mode === 'auto' ? 'yellow.400' : 'white',
-                color: mode === 'auto' ? 'yellow.900' : 'gray.600',
-                _hover: {
-                  bg: mode === 'auto' ? 'yellow.500' : 'gray.50',
-                },
-              }}
-            >
-              <Icon
-                as={Sparkles}
-                boxSize={4}
-                fill={mode === 'auto' ? 'currentColor' : 'none'}
-              />
-              <Text
-                fontSize="sm"
-                fontWeight={mode === 'auto' ? 'bold' : 'normal'}
-              >
-                {tSuggestions('modeAuto')}
-              </Text>
-            </Button>
-          )}
 
           {/* View Mode Toggle */}
           <ViewModeToggle />
