@@ -4,6 +4,10 @@ import withPWA from 'next-pwa';
 const nextConfig = {
   output: 'standalone' as const,
   transpilePackages: ['react-tournament-brackets'],
+  experimental: {
+    optimizePackageImports: ['@chakra-ui/react', 'react-icons', 'lucide-react'],
+    serverComponentsHmrCache: true,
+  },
 };
 
 export default withPWA({
