@@ -148,6 +148,12 @@ interface BaseSessionCardProps {
 
   // Disable card-level link (e.g. on detail page to prevent re-navigation)
   disableCardLink?: boolean;
+
+  // Show year in date format (e.g., "Hôm nay, 09/04/26" instead of "Hôm nay, 09/04")
+  showYearInDate?: boolean;
+
+  // Always show full day name instead of "Hôm nay"/"Ngày mai" (e.g., "Thứ năm, 09/04/26")
+  alwaysShowDayName?: boolean;
 }
 
 const BaseSessionCard = ({
@@ -167,6 +173,8 @@ const BaseSessionCard = ({
   onHostClick,
   compactTopContent,
   disableCardLink = false,
+  showYearInDate = false,
+  alwaysShowDayName = false,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const isCompact = variant === 'compact';
   const t = useTranslations('session');
@@ -566,11 +574,29 @@ const BaseSessionCard = ({
     const date = dayjs(dateString).locale(
       locale === Locale.VI ? Locale.VI : Locale.EN
     );
-    const formattedDate =
-      locale === Locale.VI
-        ? date.format('dddd, DD/MM')
-        : date.format('ddd, MM/DD');
-    return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+    const today = dayjs().startOf('day');
+    const tomorrow = today.add(1, 'day');
+    const dateToCompare = date.startOf('day');
+
+    let dateLabel = '';
+    if (!alwaysShowDayName && dateToCompare.isSame(today)) {
+      dateLabel = locale === Locale.VI ? 'Hôm nay' : 'Today';
+    } else if (!alwaysShowDayName && dateToCompare.isSame(tomorrow)) {
+      dateLabel = locale === Locale.VI ? 'Ngày mai' : 'Tomorrow';
+    } else {
+      dateLabel =
+        locale === Locale.VI ? date.format('dddd') : date.format('ddd');
+      dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+    }
+
+    const dateFormat = showYearInDate
+      ? locale === Locale.VI
+        ? 'DD/MM/YY'
+        : 'MM/DD/YY'
+      : locale === Locale.VI
+        ? 'DD/MM'
+        : 'MM/DD';
+    return `${dateLabel}, ${date.format(dateFormat)}`;
   };
 
   const compactDate = session.startTime

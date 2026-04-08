@@ -535,7 +535,9 @@ export default function FindSessionList({
         onSearchChange={handleSearchQueryChange}
         onToggleFilters={toggleFilters}
         activeFilterCount={activeFilterCount}
-        onCreateClick={user ? () => setIsAIModalOpen(true) : undefined}
+        onCreateClick={
+          user ? () => router.push(ROUTES.SESSIONS.NEW) : undefined
+        }
       />
 
       {/* Filter Drawer */}

@@ -109,6 +109,26 @@ export default function SessionsList({
     return result;
   }, [sessions, status]);
 
+  // Separate expired sessions from normal sessions
+  const { normalSessions, expiredSessions } = useMemo(() => {
+    const expired: ISession[] = [];
+    const normal: ISession[] = [];
+
+    filteredSessions.forEach((session) => {
+      if (
+        session.status === 'PREPARING' &&
+        session.endTime &&
+        new Date(session.endTime) < new Date()
+      ) {
+        expired.push(session);
+      } else {
+        normal.push(session);
+      }
+    });
+
+    return { normalSessions: normal, expiredSessions: expired };
+  }, [filteredSessions]);
+
   // Extract unique host IDs for batch rating stats loading
   const hostIds = useMemo(() => {
     const ids = filteredSessions
@@ -116,6 +136,9 @@ export default function SessionsList({
       .filter((id): id is string => id !== null && id !== undefined);
     return [...new Set(ids)];
   }, [filteredSessions]);
+
+  // Combine for empty check
+  const allDisplaySessions = [...normalSessions, ...expiredSessions];
 
   if (loading) {
     return (
@@ -171,38 +194,124 @@ export default function SessionsList({
 
   return (
     <RatingStatsProvider userIds={hostIds}>
-      <Grid
-        templateColumns={
-          viewMode === 'compact'
-            ? {
-                base: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(4, 1fr)',
+      <>
+        {/* Expired Sessions Alert Section */}
+        {mode === 'manage' && expiredSessions.length > 0 && (
+          <Box
+            mb={8}
+            p={4}
+            bg="orange.50"
+            borderWidth="1px"
+            borderColor="orange.200"
+            borderRadius="lg"
+            _dark={{ bg: 'orange.900', borderColor: 'orange.700' }}
+          >
+            <Heading
+              size="sm"
+              mb={3}
+              color="orange.700"
+              _dark={{ color: 'orange.200' }}
+            >
+              ⚠️ {t('expiredSessionsNeedAction') || 'Kèo cần xử lý'}
+            </Heading>
+            <Text
+              fontSize="sm"
+              color="orange.600"
+              mb={4}
+              _dark={{ color: 'orange.300' }}
+            >
+              {t('expiredSessionsDescription') ||
+                'Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.'}
+            </Text>
+            <Grid
+              templateColumns={
+                viewMode === 'compact'
+                  ? {
+                      base: '1fr',
+                      sm: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
+                      lg: 'repeat(4, 1fr)',
+                    }
+                  : {
+                      base: '1fr',
+                      md: 'repeat(2, 1fr)',
+                      lg: 'repeat(3, 1fr)',
+                    }
               }
-            : {
-                base: '1fr',
-                md: 'repeat(2, 1fr)',
-                lg: 'repeat(3, 1fr)',
-              }
-        }
-        gap={viewMode === 'compact' ? 4 : 6}
-      >
-        {filteredSessions.map((session) => (
-          <SessionCard
-            key={session.id}
-            session={session}
-            onDelete={mode === 'manage' ? handleDelete : undefined}
-            onRefresh={onRefresh}
-            mode={mode}
-            variant={viewMode}
-            onHostClick={() => {
-              setSelectedSessionForDetail(session);
-              setIsDetailModalOpen(true);
-            }}
-          />
-        ))}
-      </Grid>
+              gap={viewMode === 'compact' ? 4 : 6}
+            >
+              {expiredSessions.map((session) => (
+                <SessionCard
+                  key={session.id}
+                  session={session}
+                  onDelete={mode === 'manage' ? handleDelete : undefined}
+                  onRefresh={onRefresh}
+                  mode={mode}
+                  variant={viewMode}
+                  onHostClick={() => {
+                    setSelectedSessionForDetail(session);
+                    setIsDetailModalOpen(true);
+                  }}
+                />
+              ))}
+            </Grid>
+          </Box>
+        )}
+
+        {/* Normal Sessions Section */}
+        {normalSessions.length > 0 && (
+          <Grid
+            templateColumns={
+              viewMode === 'compact'
+                ? {
+                    base: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)',
+                  }
+                : {
+                    base: '1fr',
+                    md: 'repeat(2, 1fr)',
+                    lg: 'repeat(3, 1fr)',
+                  }
+            }
+            gap={viewMode === 'compact' ? 4 : 6}
+          >
+            {normalSessions.map((session) => (
+              <SessionCard
+                key={session.id}
+                session={session}
+                onDelete={mode === 'manage' ? handleDelete : undefined}
+                onRefresh={onRefresh}
+                mode={mode}
+                variant={viewMode}
+                onHostClick={() => {
+                  setSelectedSessionForDetail(session);
+                  setIsDetailModalOpen(true);
+                }}
+              />
+            ))}
+          </Grid>
+        )}
+
+        {/* Empty State for Normal Sessions */}
+        {normalSessions.length === 0 && expiredSessions.length > 0 && (
+          <Box
+            textAlign="center"
+            py={10}
+            px={6}
+            borderWidth="1px"
+            borderRadius="lg"
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+          >
+            <Heading size="md" mb={2}>
+              {t('noActiveSessions')}
+            </Heading>
+            <Text color="gray.500">{t('noActiveSessionsDescription')}</Text>
+          </Box>
+        )}
+      </>
 
       {/* Session Host Detail Modal */}
       <VModal

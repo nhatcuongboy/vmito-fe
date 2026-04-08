@@ -42,11 +42,22 @@ const formatDate = (dateString: string | Date, locale: string): string => {
   const date = dayjs(dateString).locale(
     locale === Locale.VI ? Locale.VI : Locale.EN
   );
-  const formattedDate =
-    locale === Locale.VI
-      ? date.format('dddd, DD/MM')
-      : date.format('ddd, MM/DD');
-  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  const today = dayjs().startOf('day');
+  const tomorrow = today.add(1, 'day');
+  const dateToCompare = date.startOf('day');
+
+  let dateLabel = '';
+  if (dateToCompare.isSame(today)) {
+    dateLabel = locale === Locale.VI ? 'Hôm nay' : 'Today';
+  } else if (dateToCompare.isSame(tomorrow)) {
+    dateLabel = locale === Locale.VI ? 'Ngày mai' : 'Tomorrow';
+  } else {
+    dateLabel = locale === Locale.VI ? date.format('dddd') : date.format('ddd');
+    dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+  }
+
+  const dateFormat = locale === Locale.VI ? 'DD/MM' : 'MM/DD';
+  return `${dateLabel}, ${date.format(dateFormat)}`;
 };
 
 const formatTime = (dateString: string | Date, locale: string): string => {

@@ -75,6 +75,7 @@ export default function ResultsHeader({
 }: ResultsHeaderProps) {
   const t = useTranslations('session');
   const tSuggestions = useTranslations('suggestions');
+  const tCommon = useTranslations('common');
   const { isAuthenticated } = useAuthStore();
   const store = useSessionFilterStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -119,7 +120,7 @@ export default function ResultsHeader({
           _dark={{ color: 'gray.400' }}
           whiteSpace="nowrap"
         >
-          {t('resultsCount', { count })}
+          {`${count} ${tCommon('sessions')}`}
         </Text>
 
         {/* Right: Sort + Mode toggle + View mode toggle */}

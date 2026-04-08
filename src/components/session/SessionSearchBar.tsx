@@ -41,9 +41,9 @@ export default function SessionSearchBar({
       onClick={onCreateClick}
       size={{ base: 'sm', md: 'md' }}
       shadow="md"
-      h={{ base: '40px', md: '44px' }}
-      px={6}
-      borderRadius="lg"
+      h={{ base: '32px', md: '36px' }}
+      px={4}
+      borderRadius="full"
       fontWeight="bold"
       whiteSpace="nowrap"
     >
@@ -53,14 +53,18 @@ export default function SessionSearchBar({
   );
 
   return (
-    <Box mb={4}>
-      {/* Sticky Area: Search (Mobile/Desktop) + Button (Desktop only) */}
+    <Box mb={4} position="relative" width="100%">
+      {/* Sticky Area: Search (Mobile/Desktop) */}
       <Box
         position="sticky"
         top={{
           base: `${TOP_BAR_HEIGHT_MOBILE}px`,
           md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
         }}
+        left={0}
+        right={0}
+        width="100vw"
+        marginLeft="calc(50% - 50vw)"
         zIndex={100}
         bg="bg.page"
         py={2}
@@ -77,13 +81,20 @@ export default function SessionSearchBar({
               showFilter={true}
             />
           </Box>
-
-          {/* Desktop Create Button (Sticky) */}
-          <Box display={{ base: 'none', md: 'block' }}>{createBtn}</Box>
         </Flex>
       </Box>
 
-      {/* Mobile Create Button (NON-Sticky, scrolls away) */}
+      {/* Desktop Create Button (Sticky, centered) */}
+      <Flex
+        display={{ base: 'none', md: 'flex' }}
+        justify="center"
+        mt={2}
+        w="100%"
+      >
+        {createBtn}
+      </Flex>
+
+      {/* Mobile Create Button (NON-Sticky, right-aligned) */}
       <Box display={{ base: 'block', md: 'none' }} mt={2}>
         <Flex justify="flex-end" w="100%" maxW="650px" mx="auto">
           {createBtn}

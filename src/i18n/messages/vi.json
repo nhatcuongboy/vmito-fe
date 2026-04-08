@@ -574,6 +574,8 @@
     "endSession": "Kết thúc kèo",
     "startSession": "Bắt đầu kèo",
     "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
+    "expiredSessionsNeedAction": "Kèo cần xử lý",
+    "expiredSessionsDescription": "Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "sessionStarted": "Kèo đã bắt đầu",
     "sessionEnded": "Kèo đã kết thúc",
     "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo"

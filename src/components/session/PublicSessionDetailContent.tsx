@@ -319,6 +319,8 @@ export const PublicSessionDetailContent = ({
             actions={actions}
             onHostClick={onOpenHostDetailModal}
             disableCardLink
+            showYearInDate
+            alwaysShowDayName
           />
         </Flex>
 

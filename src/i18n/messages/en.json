@@ -2157,6 +2157,8 @@
     "endSession": "End Session",
     "startSession": "Start Session",
     "pastEndWarning": "This session has passed its end time. Please update the time or cancel it.",
+    "expiredSessionsNeedAction": "Sessions Need Action",
+    "expiredSessionsDescription": "The sessions below have passed their end time but have not been started or ended. Please update the time or cancel the session.",
     "failedToSavePlayerChanges": "Failed to save player changes",
     "failedToUpdatePlayer": "Failed to update player",
     "unknownError": "Unknown error",

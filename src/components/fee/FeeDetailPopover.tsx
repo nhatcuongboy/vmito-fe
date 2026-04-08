@@ -31,8 +31,8 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
   const t = useTranslations('fee');
   const { isOpen, onOpen, onClose } = useModal();
 
-  const formatCurrency = (amount: number | undefined) => {
-    if (amount === undefined) return '0 VND';
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (!amount) return '0 VND';
     return amount.toLocaleString('vi-VN') + ' VND';
   };
 

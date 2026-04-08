@@ -26,9 +26,12 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { ISession, Player, PlayerStatistics } from '@/lib/api/types';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatTime } from '@/utils/session-helpers';
 import dayjs from '@/lib/dayjs';
+import 'dayjs/locale/en';
+import 'dayjs/locale/vi';
+import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { useState, useEffect } from 'react';
 import { SessionService } from '@/lib/api/session.service';
@@ -89,6 +92,7 @@ interface SessionInfoProps {
 
 export default function SessionInfo({ session, player }: SessionInfoProps) {
   const t = useTranslations('SessionDetail');
+  const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
   const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
@@ -167,7 +171,9 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
       <InfoRow icon={Calendar} label={t('date')}>
         <Text textTransform="capitalize">
           {session.startTime
-            ? dayjs(session.startTime).format('dddd, DD MMMM YYYY')
+            ? dayjs(session.startTime)
+                .locale(locale === Locale.VI ? Locale.VI : Locale.EN)
+                .format('dddd, DD/MM/YY')
             : t('notScheduled')}
         </Text>
       </InfoRow>
