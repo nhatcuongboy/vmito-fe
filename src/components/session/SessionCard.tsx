@@ -2,7 +2,7 @@
 
 import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { SessionService } from '@/lib/api/session.service';
-import { Box, Text, Icon, Flex, Badge } from '@chakra-ui/react';
+import { Box, Text, Icon, Flex, Badge, Alert } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -62,6 +62,10 @@ const SessionCard = ({
   const isOwner = session.hostId === user?.id;
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
+
+  const isPastEndTime = session.endTime
+    ? new Date(session.endTime) < new Date()
+    : false;
 
   // Calculate slot availability
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -192,6 +196,28 @@ const SessionCard = ({
       </Flex>
     ) : null;
 
+  const combinedExtraInfo = (
+    <Flex direction="column" gap={2}>
+      {locationRow}
+      {canManage &&
+        session.status === SessionStatus.PREPARING &&
+        isPastEndTime && (
+          <Alert.Root
+            status="warning"
+            size="sm"
+            mt={locationRow ? 0 : 2}
+            borderRadius="md"
+            py={2}
+            px={3}
+          >
+            <Alert.Title fontSize="11px" fontWeight="medium">
+              {t('pastEndWarning')}
+            </Alert.Title>
+          </Alert.Root>
+        )}
+    </Flex>
+  );
+
   // Action configuration for session card
   const actions: SessionActionConfig = {
     // Top actions
@@ -285,7 +311,7 @@ const SessionCard = ({
       session={session}
       variant={variant}
       registrationBadgeContent={combinedBadges}
-      extraInfoRows={locationRow}
+      extraInfoRows={combinedExtraInfo}
       actions={actions}
       onHostClick={onHostClick}
       modalContent={

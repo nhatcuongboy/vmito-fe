@@ -231,6 +231,7 @@
     "status": {
       "all": "All",
       "preparing": "Upcoming",
+      "expired": "Expired",
       "inProgress": "In Progress",
       "finished": "Finished"
     },
@@ -783,6 +784,7 @@
       "sessionStatus": {
         "all": "All",
         "preparing": "Upcoming",
+        "expired": "Expired",
         "inProgress": "In Progress",
         "finished": "Finished"
       },
@@ -940,6 +942,7 @@
       "sessionStatus": {
         "all": "All",
         "preparing": "Upcoming",
+        "expired": "Expired",
         "inProgress": "In Progress",
         "finished": "Finished"
       },
@@ -975,6 +978,7 @@
       "allStatus": "All Status",
       "status": {
         "preparing": "Upcoming",
+        "expired": "Expired",
         "inProgress": "In Progress",
         "finished": "Finished",
         "cancelled": "Cancelled"
@@ -2152,6 +2156,7 @@
     "cancel": "Cancel",
     "endSession": "End Session",
     "startSession": "Start Session",
+    "pastEndWarning": "This session has passed its end time. Please update the time or cancel it.",
     "failedToSavePlayerChanges": "Failed to save player changes",
     "failedToUpdatePlayer": "Failed to update player",
     "unknownError": "Unknown error",

@@ -2104,6 +2104,7 @@
     "cancel": "取消",
     "endSession": "结束场次",
     "startSession": "开始场次",
+    "pastEndWarning": "此场次已超过结束时间。请更新时间或取消场次。",
     "failedToSavePlayerChanges": "保存玩家更改失败",
     "failedToUpdatePlayer": "更新玩家失败",
     "unknownError": "未知错误",

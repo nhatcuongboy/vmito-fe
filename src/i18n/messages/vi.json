@@ -231,6 +231,7 @@
     "status": {
       "all": "Tất cả",
       "preparing": "Sắp diễn ra",
+      "expired": "Đã quá hạn",
       "inProgress": "Đang diễn ra",
       "finished": "Đã kết thúc"
     },
@@ -572,6 +573,7 @@
     "confirmEndSessionMessage": "Bạn có chắc chắn muốn kết thúc kèo này? Hành động này không thể hoàn tác và sẽ kết thúc tất cả các trận đấu đang diễn ra.",
     "endSession": "Kết thúc kèo",
     "startSession": "Bắt đầu kèo",
+    "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "sessionStarted": "Kèo đã bắt đầu",
     "sessionEnded": "Kèo đã kết thúc",
     "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo"
@@ -790,6 +792,7 @@
       "sessionStatus": {
         "all": "Tất cả",
         "preparing": "Sắp diễn ra",
+        "expired": "Đã quá hạn",
         "inProgress": "Đang diễn ra",
         "finished": "Đã kết thúc"
       },
@@ -947,6 +950,7 @@
       "sessionStatus": {
         "all": "Tất cả",
         "preparing": "Sắp diễn ra",
+        "expired": "Đã quá hạn",
         "inProgress": "Đang diễn ra",
         "finished": "Đã kết thúc"
       },
@@ -982,6 +986,7 @@
       "allStatus": "Tất cả trạng thái",
       "status": {
         "preparing": "Sắp diễn ra",
+        "expired": "Đã quá hạn",
         "inProgress": "Đang diễn ra",
         "finished": "Đã kết thúc",
         "cancelled": "Đã hủy"

@@ -98,7 +98,14 @@ export const statusColors: Record<string, string> = {
   FINISHED: 'gray',
 };
 
-export const getStatusLabel = (status: string, t: (key: string) => string) => {
+export const getStatusLabel = (
+  status: string,
+  t: (key: string) => string,
+  endTime?: string | Date | null
+) => {
+  if (status === 'PREPARING' && endTime && new Date(endTime) < new Date()) {
+    return t('status.expired') || 'Đã quá hạn';
+  }
   switch (status) {
     case 'PREPARING':
       return t('status.preparing');
@@ -330,8 +337,16 @@ const BaseSessionCard = ({
     const menuItems: React.ReactNode[] = [];
     const rightButtons: React.ReactNode[] = [];
 
-    // Menu items: Start session button (owner or admin, PREPARING only)
-    if (actions.showStartButton && canManage && actions.onStart) {
+    // Menu items: Start session button (owner or admin, PREPARING only and not past end time)
+    const isPastEndTime = session.endTime
+      ? new Date(session.endTime) < new Date()
+      : false;
+    if (
+      actions.showStartButton &&
+      canManage &&
+      actions.onStart &&
+      !isPastEndTime
+    ) {
       menuItems.push(
         <MenuItem
           key="start"
@@ -657,7 +672,13 @@ const BaseSessionCard = ({
           <Box position="absolute" top={3} right={3}>
             {statusBadgeContent || (
               <Badge
-                colorPalette={statusColors[convertedSession.status] || 'gray'}
+                colorPalette={
+                  convertedSession.status === 'PREPARING' &&
+                  session.endTime &&
+                  new Date(session.endTime) < new Date()
+                    ? 'gray'
+                    : statusColors[convertedSession.status] || 'gray'
+                }
                 fontSize="sm"
                 px={4}
                 py={1.5}
@@ -666,7 +687,7 @@ const BaseSessionCard = ({
                 boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
                 backdropFilter="blur(8px)"
               >
-                {getStatusLabel(convertedSession.status, t)}
+                {getStatusLabel(convertedSession.status, t, session.endTime)}
               </Badge>
             )}
           </Box>
