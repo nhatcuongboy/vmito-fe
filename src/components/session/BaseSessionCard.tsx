@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { ISession, UserRole } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import dayjs from '@/lib/dayjs';
@@ -21,6 +22,7 @@ import {
   MenuItem,
   MenuPositioner,
   Portal,
+  Spinner,
 } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
@@ -184,6 +186,7 @@ const BaseSessionCard = ({
   const { user } = useAuthStore();
   const { getRatingStats } = useRatingStats();
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -635,7 +638,12 @@ const BaseSessionCard = ({
 
   const handleCardClick = () => {
     if (!disableCardLink) {
+      setIsLoading(true);
       router.push(cardHref);
+      // Reset loading after a delay just in case navigation fails or user comes back
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 5000);
     }
   };
 
@@ -1122,6 +1130,24 @@ const BaseSessionCard = ({
           </Stack>
         </Stack>
       </Box>
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <Flex
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="whiteAlpha.700"
+          _dark={{ bg: 'blackAlpha.700' }}
+          align="center"
+          justify="center"
+          zIndex={10}
+        >
+          <Spinner size="xl" color="green.500" />
+        </Flex>
+      )}
     </Box>
   );
 

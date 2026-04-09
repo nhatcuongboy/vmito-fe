@@ -22,10 +22,10 @@ export function AppSearchBar({
   showFilter = true,
 }: AppSearchBarProps) {
   return (
-    <Box position="relative" w="100%">
+    <Box position="relative" w="100%" px="16px">
       <Box
         position="absolute"
-        left="14px"
+        left="30px"
         top="50%"
         transform="translateY(-50%)"
         zIndex={1}
@@ -58,7 +58,7 @@ export function AppSearchBar({
       {showFilter && (
         <Box
           position="absolute"
-          right="6px"
+          right="20px"
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}

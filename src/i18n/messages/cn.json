@@ -551,7 +551,19 @@
       "sessionsCreated": "场次已创建"
     },
     "loadMore": "Load More",
-    "loadingMore": "Loading More..."
+    "loadingMore": "Loading More...",
+    "confirmEndSession": "确认结束场次",
+    "confirmEndSessionMessage": "您确定要结束此场次吗？此操作无法撤销，且将结束所有正在进行的比赛。",
+    "endSession": "结束场次",
+    "startSession": "开始场次",
+    "pastEndWarning": "此场次已超过结束时间。请更新时间或取消场次。",
+    "expiredSessionsNeedAction": "需要处理的场次",
+    "expiredSessionsDescription": "以下场次已超过结束时间，但尚未开始或结束。请更新时间或取消场次。",
+    "sessionStarted": "场次已开始",
+    "sessionEnded": "场次已结束",
+    "errorUpdatingSessionStatus": "更新场次状态时出错",
+    "collapse": "收起",
+    "expand": "展开"
   },
   "court": {
     "title": "场地",
@@ -2101,6 +2113,7 @@
     "confirmEndSession": "确认结束场次",
     "confirmEndSessionMessage": "您确定要结束此场次吗？此操作无法撤销，且将结束所有正在进行的比赛。",
     "qrScanToView": "扫描查看场次",
+    "qrScanToJoin": "扫描加入场次",
     "cancel": "取消",
     "endSession": "结束场次",
     "startSession": "开始场次",

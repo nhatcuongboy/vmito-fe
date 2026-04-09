@@ -156,9 +156,10 @@ LegacySelect.displayName = 'LegacySelect';
  */
 export interface VSelectProps
   extends Omit<
-    React.SelectHTMLAttributes<HTMLSelectElement>,
-    'size' | 'onChange'
-  > {
+      React.SelectHTMLAttributes<HTMLSelectElement>,
+      'size' | 'onChange' | 'width' | 'minWidth'
+    >,
+    Pick<import('@chakra-ui/react').BoxProps, 'width' | 'minWidth'> {
   isDisabled?: boolean;
   children?: React.ReactNode;
   /**
@@ -207,7 +208,12 @@ function extractOptionsFromChildren(
         disabled?: boolean;
       };
       const value = String(props.value ?? '');
-      const label = props.children as string;
+      let label = '';
+      React.Children.forEach(props.children, (child) => {
+        if (typeof child === 'string' || typeof child === 'number') {
+          label += String(child);
+        }
+      });
       const disabled = props.disabled;
 
       // Skip empty placeholder options
@@ -245,6 +251,8 @@ export const VSelect = ({
   placeholder,
   value,
   onChange,
+  width,
+  minWidth,
   ...props
 }: VSelectProps) => {
   const isSelectDisabled = isDisabled || disabled;
@@ -322,6 +330,8 @@ export const VSelect = ({
       onValueChange={handleValueChange}
       name={props.name}
       positioning={{ strategy: 'fixed' }}
+      width={width}
+      minWidth={minWidth}
     >
       <Box position="relative" width="100%">
         {props.leftElement && (

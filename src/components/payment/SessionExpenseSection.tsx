@@ -23,11 +23,6 @@ interface DraftRow {
   amount: string;
 }
 
-const DEFAULT_EXPENSES: DraftRow[] = [
-  { name: 'Tiền sân', amount: '' },
-  { name: 'Tiền cầu', amount: '' },
-];
-
 export default function SessionExpenseSection({
   expenses,
   onAdd,
@@ -86,11 +81,7 @@ export default function SessionExpenseSection({
   };
 
   const handleOpenAdd = () => {
-    const initialRows =
-      expenses.length === 0
-        ? [...DEFAULT_EXPENSES]
-        : [{ name: '', amount: '' }];
-    setDraftRows(initialRows);
+    setDraftRows([{ name: '', amount: '' }]);
     setIsAdding(true);
   };
 

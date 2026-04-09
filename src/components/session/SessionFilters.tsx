@@ -108,7 +108,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   }));
 
   return (
-    <Box>
+    <>
       {/* Sticky Search Bar */}
       {showSearchFilter && (
         <SessionSearchBar
@@ -411,7 +411,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           </Flex>
         </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

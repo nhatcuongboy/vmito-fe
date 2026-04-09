@@ -20,6 +20,7 @@ import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
 import { Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
+import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
@@ -147,16 +148,32 @@ function TournamentsContent() {
     >
       <VStack gap={6} alignItems="stretch">
         {/* Search Bar */}
-        <Flex justify="center" pt={2}>
-          <Box w="100%" maxW="500px">
-            <AppSearchBar
-              placeholder={t('searchEvents')}
-              value={searchTerm}
-              onChange={setSearchTerm}
-              showFilter={false}
-            />
-          </Box>
-        </Flex>
+        <Box
+          position="sticky"
+          top={{
+            base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+            md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+          }}
+          left={0}
+          right={0}
+          width="100vw"
+          marginLeft="calc(50% - 50vw)"
+          zIndex={100}
+          bg="transparent"
+          py={2}
+          transition="all 0.2s"
+        >
+          <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
+            <Box flex={1} w="100%">
+              <AppSearchBar
+                placeholder={t('searchEvents')}
+                value={searchTerm}
+                onChange={setSearchTerm}
+                showFilter={false}
+              />
+            </Box>
+          </Flex>
+        </Box>
 
         {/* Run your own event link */}
         <Text

@@ -10,12 +10,17 @@ import {
   SimpleGrid,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { HostPaymentSettings } from '@/lib/api/types';
 import { ChevronDown } from 'lucide-react';
-import { vietnamBanks, RECOMMENDED_BANK_CODES } from '@/lib/banks';
+import {
+  getVietnamBanks,
+  RECOMMENDED_BANK_CODES,
+  Bank,
+  findBankInList,
+} from '@/lib/banks';
 import { toaster } from '@/components/ui/toaster';
 
 interface FastTransferModalProps {
@@ -38,6 +43,21 @@ export default function FastTransferModal({
 
   const [amount, setAmount] = useState<string>(pendingAmount.toString());
   const [message, setMessage] = useState<string>(defaultMessage);
+  const [banks, setBanks] = useState<Bank[]>([]);
+
+  // Fetch banks on mount
+  useEffect(() => {
+    getVietnamBanks().then(setBanks);
+  }, []);
+
+  // Sync amount when pendingAmount changes (e.g. modal opens with new amount)
+  useEffect(() => {
+    setAmount(pendingAmount.toString());
+  }, [pendingAmount]);
+
+  useEffect(() => {
+    setMessage(defaultMessage);
+  }, [defaultMessage]);
 
   // Default to TPBank (or first available recommended)
   const defaultBankCode = 'TPB';
@@ -48,24 +68,29 @@ export default function FastTransferModal({
 
   const selectedBank = useMemo(() => {
     return (
-      vietnamBanks.find((b) => b.code === selectedBankListCode) ||
-      vietnamBanks[0]
+      banks.find((b) => b.code === selectedBankListCode) ||
+      banks[0] ||
+      ({
+        code: 'TPB',
+        shortName: 'TPBank',
+        logo: 'https://cdn.vietqr.io/img/TPB.png',
+      } as Bank)
     );
-  }, [selectedBankListCode]);
+  }, [selectedBankListCode, banks]);
 
   const recommendedBanks = useMemo(() => {
-    return vietnamBanks.filter((b) => RECOMMENDED_BANK_CODES.includes(b.code));
-  }, []);
+    return banks.filter((b) => RECOMMENDED_BANK_CODES.includes(b.code));
+  }, [banks]);
 
   const otherBanks = useMemo(() => {
-    return vietnamBanks
+    return banks
       .filter((b) => !RECOMMENDED_BANK_CODES.includes(b.code))
       .filter(
         (b) =>
           b.shortName.toLowerCase().includes(bankSearchQuery.toLowerCase()) ||
           b.name.toLowerCase().includes(bankSearchQuery.toLowerCase())
       );
-  }, [bankSearchQuery]);
+  }, [bankSearchQuery, banks]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numbers
@@ -79,18 +104,8 @@ export default function FastTransferModal({
 
   // Find the recipient bank entry by matching the host's freetext bankName
   const recipientBank = useMemo(() => {
-    const name = hostPaymentSettings.bankName?.toLowerCase() ?? '';
-    if (!name) return null;
-    return (
-      vietnamBanks.find(
-        (b) =>
-          b.shortName.toLowerCase() === name ||
-          b.code.toLowerCase() === name ||
-          name.includes(b.shortName.toLowerCase()) ||
-          name.includes(b.code.toLowerCase())
-      ) ?? null
-    );
-  }, [hostPaymentSettings.bankName]);
+    return findBankInList(hostPaymentSettings.bankName || '', banks);
+  }, [hostPaymentSettings.bankName, banks]);
 
   const handleTransfer = () => {
     if (!amount || parseInt(amount) === 0) {
@@ -100,6 +115,8 @@ export default function FastTransferModal({
       });
       return;
     }
+
+    if (!selectedBank) return;
 
     // Build VietQR deeplink correctly according to documentation
     // format: vietqr://pay?app={appId}&ba={account}@{bank}&am={amount}&tn={msg}&bn={name}&url={callback}
@@ -138,7 +155,7 @@ export default function FastTransferModal({
     searchParams.set('url', window.location.href);
 
     // Construct the direct deeplink
-    const deeplink = `vietqr://pay?${searchParams.toString()}`;
+    const deeplink = `https://dl.vietqr.io/pay?${searchParams.toString()}`;
 
     // Execute transfer
     window.location.href = deeplink;

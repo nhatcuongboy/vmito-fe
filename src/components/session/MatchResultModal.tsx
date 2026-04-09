@@ -248,13 +248,14 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
               <Box
                 flex={1}
                 p={3}
-                border="2px"
+                borderWidth={selectedWinnerPair === 1 ? '2px' : '1px'}
+                borderStyle="solid"
                 borderColor={
                   selectedWinnerPair === 1
-                    ? 'green.400'
+                    ? 'green.500'
                     : selectedWinnerPair === 2
-                      ? 'red.300'
-                      : 'gray.300'
+                      ? 'red.200'
+                      : 'gray.200'
                 }
                 borderRadius="lg"
                 bg={
@@ -266,6 +267,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 }
                 position="relative"
                 boxShadow={selectedWinnerPair === 1 ? 'md' : 'sm'}
+                transform={selectedWinnerPair === 1 ? 'scale(1.02)' : 'none'}
                 transition="all 0.2s"
               >
                 {selectedWinnerPair === 1 && (
@@ -275,13 +277,25 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                     right={2}
                     as={Trophy}
                     boxSize={4}
-                    color="green.500"
+                    color="green.600"
                   />
                 )}
                 <VStack gap={2}>
                   <HStack gap={1} justify="center">
-                    <Box as={Users} boxSize={3} color="green.500" />
-                    <Text fontSize="sm" fontWeight="semibold" color="green.600">
+                    <Box
+                      as={Users}
+                      boxSize={3}
+                      color={
+                        selectedWinnerPair === 1 ? 'green.600' : 'gray.500'
+                      }
+                    />
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color={
+                        selectedWinnerPair === 1 ? 'green.700' : 'gray.600'
+                      }
+                    >
                       {t('matchResult.pair1')}
                     </Text>
                   </HStack>
@@ -289,8 +303,11 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                     {pair1.map((player) => (
                       <VStack key={player.id} gap={0}>
                         <Text
-                          fontSize="xs"
-                          fontWeight="medium"
+                          fontSize="sm"
+                          fontWeight={
+                            selectedWinnerPair === 1 ? 'bold' : 'medium'
+                          }
+                          color={selectedWinnerPair === 1 ? 'green.800' : 'fg'}
                           textAlign="center"
                         >
                           #{player.player.playerNumber} -{' '}
@@ -307,13 +324,14 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
               <Box
                 flex={1}
                 p={3}
-                border="2px"
+                borderWidth={selectedWinnerPair === 2 ? '2px' : '1px'}
+                borderStyle="solid"
                 borderColor={
                   selectedWinnerPair === 2
-                    ? 'green.400'
+                    ? 'green.500'
                     : selectedWinnerPair === 1
-                      ? 'red.300'
-                      : 'gray.300'
+                      ? 'red.200'
+                      : 'gray.200'
                 }
                 borderRadius="lg"
                 bg={
@@ -325,6 +343,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 }
                 position="relative"
                 boxShadow={selectedWinnerPair === 2 ? 'md' : 'sm'}
+                transform={selectedWinnerPair === 2 ? 'scale(1.02)' : 'none'}
                 transition="all 0.2s"
               >
                 {selectedWinnerPair === 2 && (
@@ -334,13 +353,25 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                     right={2}
                     as={Trophy}
                     boxSize={4}
-                    color="green.500"
+                    color="green.600"
                   />
                 )}
                 <VStack gap={2}>
                   <HStack gap={1} justify="center">
-                    <Box as={Users} boxSize={3} color="red.500" />
-                    <Text fontSize="sm" fontWeight="semibold" color="red.600">
+                    <Box
+                      as={Users}
+                      boxSize={3}
+                      color={
+                        selectedWinnerPair === 2 ? 'green.600' : 'gray.500'
+                      }
+                    />
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color={
+                        selectedWinnerPair === 2 ? 'green.700' : 'gray.600'
+                      }
+                    >
                       {t('matchResult.pair2')}
                     </Text>
                   </HStack>
@@ -348,8 +379,11 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                     {pair2.map((player) => (
                       <VStack key={player.id} gap={0}>
                         <Text
-                          fontSize="xs"
-                          fontWeight="medium"
+                          fontSize="sm"
+                          fontWeight={
+                            selectedWinnerPair === 2 ? 'bold' : 'medium'
+                          }
+                          color={selectedWinnerPair === 2 ? 'green.800' : 'fg'}
                           textAlign="center"
                         >
                           #{player.player.playerNumber} -{' '}

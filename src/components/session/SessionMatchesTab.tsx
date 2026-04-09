@@ -21,6 +21,8 @@ import {
 } from '@/components/session/HistoryMatchCard';
 
 // ... (rest of the file)
+import { ChevronDown } from 'lucide-react';
+import VSelect from '@/components/ui/VSelect';
 
 interface SessionMatchesTabProps {
   sessionId: string;
@@ -289,89 +291,64 @@ export default function SessionMatchesTab({
         {t('matches')}
       </Text>
 
-      {/* ... (Filters) */}
-      <Box
-        mb={6}
-        p={4}
-        bg="gray.50"
-        _dark={{ bg: 'gray.700' }}
-        borderRadius="lg"
-      >
-        <Flex gap={4} flexWrap="wrap">
-          {/* Player Filter */}
-          <Box minW="150px" maxW="250px" flex="1">
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              _dark={{ color: 'gray.400' }}
-              mb={1}
-            >
-              {t('player')}
-            </Text>
-            <select
-              value={selectedPlayerId}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                setSelectedPlayerId(e.target.value)
-              }
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--chakra-colors-border)',
-                fontSize: '14px',
-                backgroundColor: 'transparent',
-                color: 'inherit',
-              }}
-            >
-              <option value="">{t('allPlayers')}</option>
-              {players.map((player) => (
-                <option key={player.id} value={player.id}>
-                  #{player.playerNumber} - {player.name || t('unnamed')}
-                </option>
-              ))}
-            </select>
-          </Box>
+      <Flex gap={3} mb={6} mt={2} flexWrap="wrap" align="center">
+        {/* Player Filter */}
+        <Box
+          width={{ base: 'calc(50% - 6px)', sm: '180px' }}
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="md"
+          boxShadow="sm"
+        >
+          <VSelect
+            value={selectedPlayerId}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setSelectedPlayerId(e.target.value)
+            }
+            size="sm"
+            variant="outline"
+            rightElement={<ChevronDown size={14} color="gray" />}
+          >
+            <option value="">{t('allPlayers')}</option>
+            {players.map((player) => (
+              <option key={player.id} value={player.id}>
+                #{player.playerNumber} - {player.name || t('unnamed')}
+              </option>
+            ))}
+          </VSelect>
+        </Box>
 
-          {/* Court Filter */}
-          <Box minW="150px" maxW="250px" flex="1">
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              _dark={{ color: 'gray.400' }}
-              mb={1}
-            >
-              {t('court')}
-            </Text>
-            <select
-              value={selectedCourtId}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                setSelectedCourtId(e.target.value)
-              }
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--chakra-colors-border)',
-                fontSize: '14px',
-                backgroundColor: 'transparent',
-                color: 'inherit',
-              }}
-            >
-              <option value="">{t('allCourts')}</option>
-              {courts.map((court) => (
-                <option key={court.id} value={court.id}>
-                  {court.courtName
-                    ? t('courtNumberWithName', {
-                        number: court.courtNumber,
-                        name: court.courtName,
-                      })
-                    : t('courtNumber', { number: court.courtNumber })}
-                </option>
-              ))}
-            </select>
-          </Box>
-        </Flex>
-      </Box>
+        {/* Court Filter */}
+        <Box
+          width={{ base: 'calc(50% - 6px)', sm: '150px' }}
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="md"
+          boxShadow="sm"
+        >
+          <VSelect
+            value={selectedCourtId}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setSelectedCourtId(e.target.value)
+            }
+            size="sm"
+            variant="outline"
+            rightElement={<ChevronDown size={14} color="gray" />}
+          >
+            <option value="">{t('allCourts')}</option>
+            {courts.map((court) => (
+              <option key={court.id} value={court.id}>
+                {court.courtName
+                  ? t('courtNumberWithName', {
+                      number: court.courtNumber,
+                      name: court.courtName,
+                    })
+                  : t('courtNumber', { number: court.courtNumber })}
+              </option>
+            ))}
+          </VSelect>
+        </Box>
+      </Flex>
 
       {/* Results */}
       {loading ? (

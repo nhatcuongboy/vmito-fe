@@ -5,6 +5,7 @@ export type Player = IPlayer;
 export interface NewPlayer {
   playerNumber: number;
   name: string;
+  phone?: string;
   gender: GenderType;
   level: number | null;
   levelDescription?: string;

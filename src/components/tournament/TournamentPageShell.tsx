@@ -242,11 +242,7 @@ export default function TournamentPageShell({
 
   if (loading) {
     return (
-      <PageLayout
-        title={t('title')}
-        showBackButton={true}
-        backHref="/browse/tournaments"
-      >
+      <PageLayout title={t('title')} showBackButton={false}>
         <Flex justify="center" align="center" minH="50vh">
           <Spinner size="xl" />
         </Flex>
@@ -256,11 +252,7 @@ export default function TournamentPageShell({
 
   if (!tournament) {
     return (
-      <PageLayout
-        title={t('title')}
-        showBackButton={true}
-        backHref="/browse/tournaments"
-      >
+      <PageLayout title={t('title')} showBackButton={false}>
         <Text>{t('notFound')}</Text>
       </PageLayout>
     );
@@ -393,8 +385,7 @@ export default function TournamentPageShell({
     <>
       <PageLayout
         title={tournament.name}
-        showBackButton={true}
-        backHref="/browse/tournaments"
+        showBackButton={false}
         maxW="container.xl"
         pb={{
           base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',

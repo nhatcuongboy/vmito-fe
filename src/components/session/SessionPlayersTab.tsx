@@ -1,18 +1,11 @@
 import React from 'react';
-import {
-  VStack,
-  Flex,
-  Heading,
-  HStack,
-  Text,
-  Box,
-  Input,
-  InputGroup,
-} from '@chakra-ui/react';
+import { VStack, Flex, Heading, HStack, Text, Box } from '@chakra-ui/react';
+import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import PlayerManagement from '@/components/session/PlayerManagement';
-import { LayoutGrid, List, Search } from 'lucide-react';
+import { LayoutGrid, List } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, Player, PlayerStatus } from '@/lib/api/types';
 import AddPlayerModal from '@/components/session/player-management/AddPlayerModal';
@@ -220,34 +213,39 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         />
       )}
 
-      {/* Search + Filter row */}
-      <Flex gap={2} align="center">
-        {/* Search bar */}
-        <InputGroup flex={1} startElement={<Search size={14} color="gray" />}>
-          <Input
-            placeholder={t('playersTab.searchPlayers')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            size="sm"
-            borderRadius="md"
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-          />
-        </InputGroup>
+      {/* Sticky Search Bar Row */}
+      <Box
+        position="sticky"
+        top={{
+          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
+          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+        }}
+        zIndex={10}
+        bg="transparent"
+        py={2}
+        mx="-4"
+      >
+        <AppSearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={t('playersTab.searchPlayers')}
+          showFilter={false}
+        />
+      </Box>
 
-        {/* Filter button */}
+      {/* Filter and View Mode row */}
+      <Flex justify="space-between" align="center">
+        {/* Filter button aligned left */}
         <PlayerStatusFilter
           selected={playerFilter}
           onChange={setPlayerFilter}
           counts={counts}
           totalCount={approvedPlayers.length}
         />
-      </Flex>
 
-      {/* Sub-tabs: Grid / List — aligned right */}
-      <Flex justify="flex-end">
+        {/* Sub-tabs: Grid / List — aligned right */}
         <HStack
-          bg="gray.100"
+          bg="bg.muted"
           _dark={{ bg: 'gray.700' }}
           borderRadius="lg"
           p={1}

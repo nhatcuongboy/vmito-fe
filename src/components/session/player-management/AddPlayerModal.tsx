@@ -122,8 +122,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             border="1px solid"
             borderColor={{ base: 'gray.100', _dark: 'whiteAlpha.100' }}
           >
-            <CardBody p={{ base: 4, md: 5 }}>
-              <VStack spacing={4} align="stretch">
+            <CardBody p={{ base: 3, md: 4 }}>
+              <VStack spacing={3} align="stretch">
                 {/* Header with player number and delete button */}
                 <Flex justify="space-between" align="center">
                   <HStack spacing={3}>
@@ -153,7 +153,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 <Box>
                   <Text
                     fontSize="sm"
-                    mb={2}
+                    mb={1}
                     color="fg.muted"
                     fontWeight="medium"
                   >
@@ -164,7 +164,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     onChange={(e) => onUserSelect(index, e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '12px',
+                      padding: '10px 12px',
+                      height: '40px',
                       borderRadius: '6px',
                       border: '1px solid var(--chakra-colors-border)',
                       backgroundColor: 'var(--chakra-colors-bg-panel, white)',
@@ -194,52 +195,78 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   </select>
                 </Box>
 
-                {/* Player name */}
-                <Box>
-                  <Text
-                    fontSize="sm"
-                    mb={2}
-                    color="fg.muted"
-                    fontWeight="medium"
-                  >
-                    {t('playerName')}
-                  </Text>
-                  <Input
-                    ref={(el) => {
-                      nameInputRefs.current[index] = el;
-                    }}
-                    placeholder={t('enterPlayerName')}
-                    value={player.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      onUpdatePlayer(index, 'name', e.target.value);
-                    }}
-                    size="md"
-                    bg="white"
-                    borderColor={errors[index] ? 'red.400' : undefined}
-                    boxShadow={errors[index] ? '0 0 0 1px #F56565' : undefined}
-                    _focus={{
-                      borderColor: errors[index] ? 'red.400' : 'green.500',
-                      boxShadow: errors[index]
-                        ? '0 0 0 1px #F56565'
-                        : '0 0 0 1px #38a169',
-                    }}
-                    disabled={!!player.userId}
-                    opacity={player.userId ? 0.6 : 1}
-                    cursor={player.userId ? 'not-allowed' : 'text'}
-                  />
-                  {errors[index] && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
-                      {errors[index]}
-                    </Text>
-                  )}
-                </Box>
-
-                {/* Gender and Level - responsive grid */}
-                <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+                {/* Player name and phone */}
+                <Grid templateColumns="1fr 1fr" gap={3}>
                   <Box>
                     <Text
                       fontSize="sm"
-                      mb={2}
+                      mb={1}
+                      color="fg.muted"
+                      fontWeight="medium"
+                    >
+                      {t('playerName')}
+                    </Text>
+                    <Input
+                      ref={(el) => {
+                        nameInputRefs.current[index] = el;
+                      }}
+                      placeholder={t('enterPlayerName')}
+                      value={player.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        onUpdatePlayer(index, 'name', e.target.value);
+                      }}
+                      size="md"
+                      bg="white"
+                      borderColor={errors[index] ? 'red.400' : undefined}
+                      boxShadow={
+                        errors[index] ? '0 0 0 1px #F56565' : undefined
+                      }
+                      _focus={{
+                        borderColor: errors[index] ? 'red.400' : 'green.500',
+                        boxShadow: errors[index]
+                          ? '0 0 0 1px #F56565'
+                          : '0 0 0 1px #38a169',
+                      }}
+                      disabled={!!player.userId}
+                      opacity={player.userId ? 0.6 : 1}
+                      cursor={player.userId ? 'not-allowed' : 'text'}
+                    />
+                    {errors[index] && (
+                      <Text fontSize="xs" color="red.500" mt={1}>
+                        {errors[index]}
+                      </Text>
+                    )}
+                  </Box>
+                  <Box>
+                    <Text
+                      fontSize="sm"
+                      mb={1}
+                      color="fg.muted"
+                      fontWeight="medium"
+                    >
+                      {tCommon('phone')} ({tCommon('optional')})
+                    </Text>
+                    <Input
+                      placeholder={tCommon('phone')}
+                      value={player.phone || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        onUpdatePlayer(index, 'phone', e.target.value);
+                      }}
+                      size="md"
+                      bg="white"
+                      disabled={!!player.userId}
+                      opacity={player.userId ? 0.6 : 1}
+                      cursor={player.userId ? 'not-allowed' : 'text'}
+                    />
+                  </Box>
+                </Grid>
+
+                {/* Gender and Level - responsive grid */}
+                <Grid templateColumns="1fr 1fr" gap={3}>
+                  <Box>
+                    <Text
+                      fontSize="sm"
+                      mb={1}
                       color="fg.muted"
                       fontWeight="medium"
                     >
@@ -252,10 +279,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       }
                       style={{
                         width: '100%',
-                        padding: '12px',
+                        padding: '10px 12px',
+                        height: '40px',
                         borderRadius: '6px',
                         border: '1px solid var(--chakra-colors-border)',
-                        backgroundColor: 'var(--chakra-colors-bg-panel, white)',
+                        backgroundColor: 'var(--chakra-colors-bg)',
                         color: 'inherit',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
@@ -263,10 +291,28 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       }}
                       disabled={!!player.userId}
                     >
-                      <option value="MALE">{t('male')}</option>
-                      <option value="FEMALE">{t('female')}</option>
-                      <option value="OTHER">{t('other')}</option>
-                      <option value="PREFER_NOT_TO_SAY">
+                      <option
+                        value="MALE"
+                        style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                      >
+                        {t('male')}
+                      </option>
+                      <option
+                        value="FEMALE"
+                        style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                      >
+                        {t('female')}
+                      </option>
+                      <option
+                        value="OTHER"
+                        style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                      >
+                        {t('other')}
+                      </option>
+                      <option
+                        value="PREFER_NOT_TO_SAY"
+                        style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                      >
                         {t('preferNotToSay')}
                       </option>
                     </select>
@@ -274,7 +320,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   <Box>
                     <Text
                       fontSize="sm"
-                      mb={2}
+                      mb={1}
                       color="fg.muted"
                       fontWeight="medium"
                     >
@@ -291,10 +337,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       }
                       style={{
                         width: '100%',
-                        padding: '12px',
+                        padding: '10px 12px',
+                        height: '40px',
                         borderRadius: '6px',
                         border: '1px solid var(--chakra-colors-border)',
-                        backgroundColor: 'var(--chakra-colors-bg-panel, white)',
+                        backgroundColor: 'var(--chakra-colors-bg)',
                         color: 'inherit',
                         fontSize: '14px',
                         opacity: player.userId ? 0.6 : 1,
@@ -302,9 +349,18 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       }}
                       disabled={!!player.userId}
                     >
-                      <option value="">{t('selectLevel')}</option>
+                      <option
+                        value=""
+                        style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                      >
+                        {t('selectLevel')}
+                      </option>
                       {Array.from(new Set(availableLevels)).map((level) => (
-                        <option key={level} value={level}>
+                        <option
+                          key={level}
+                          value={level}
+                          style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                        >
                           {getLevelLabel(level)}
                         </option>
                       ))}
@@ -316,7 +372,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 <Box>
                   <Text
                     fontSize="sm"
-                    mb={2}
+                    mb={1}
                     color="fg.muted"
                     fontWeight="medium"
                   >

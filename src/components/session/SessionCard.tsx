@@ -63,9 +63,19 @@ const SessionCard = ({
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
 
-  const isPastEndTime = session.endTime
-    ? new Date(session.endTime) < new Date()
-    : false;
+  const isPastEndTime = (() => {
+    if (session.endTime) {
+      return new Date(session.endTime) < new Date();
+    }
+    if (session.startTime) {
+      const computedEndTime = new Date(session.startTime);
+      computedEndTime.setMinutes(
+        computedEndTime.getMinutes() + (session.sessionDuration || 120)
+      );
+      return computedEndTime < new Date();
+    }
+    return false;
+  })();
 
   // Calculate slot availability
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -230,7 +240,8 @@ const SessionCard = ({
     onDelete: onDelete ? () => onOpenDeleteModal() : undefined,
 
     // Start session - only for PREPARING sessions when user can manage
-    showStartButton: canManage && session.status === SessionStatus.PREPARING,
+    showStartButton:
+      canManage && session.status === SessionStatus.PREPARING && !isPastEndTime,
     onStart: handleStart,
 
     // End session - only for IN_PROGRESS sessions when user can manage

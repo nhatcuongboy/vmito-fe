@@ -578,7 +578,9 @@
     "expiredSessionsDescription": "Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "sessionStarted": "Kèo đã bắt đầu",
     "sessionEnded": "Kèo đã kết thúc",
-    "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo"
+    "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng"
   },
   "court": {
     "title": "Sân",
@@ -2163,9 +2165,11 @@
     "confirmEndSession": "Xác nhận kết thúc kèo",
     "confirmEndSessionMessage": "Bạn có chắc chắn muốn kết thúc kèo này? Hành động này không thể hoàn tác và sẽ kết thúc tất cả các trận đấu đang diễn ra.",
     "qrScanToView": "Quét để xem kèo",
+    "qrScanToJoin": "Quét để tham gia",
     "cancel": "Hủy",
     "endSession": "Kết thúc kèo",
     "startSession": "Bắt đầu kèo",
+    "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "failedToSavePlayerChanges": "Không thể lưu thay đổi người chơi",
     "failedToUpdatePlayer": "Không thể cập nhật người chơi",
     "unknownError": "Lỗi không xác định",
@@ -2604,6 +2608,7 @@
     "rejectPayment": "Từ chối",
     "rejectReason": "Lý do từ chối",
     "rejectReasonRequired": "Vui lòng nhập lý do từ chối",
+    "optional": "Tùy chọn",
     "viewProof": "Xem bằng chứng",
     "noProof": "Không có bằng chứng",
     "yourFee": "Phí của bạn",

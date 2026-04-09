@@ -568,7 +568,19 @@
       "sessionsCreated": "sessions created"
     },
     "loadMore": "Load More",
-    "loadingMore": "Loading More..."
+    "loadingMore": "Loading More...",
+    "confirmEndSession": "Confirm End Session",
+    "confirmEndSessionMessage": "Are you sure you want to end this session? This action cannot be undone and will end all ongoing matches.",
+    "endSession": "End Session",
+    "startSession": "Start Session",
+    "pastEndWarning": "This session has passed its scheduled end time. Please update the time or cancel it.",
+    "expiredSessionsNeedAction": "Sessions Needing Action",
+    "expiredSessionsDescription": "The sessions below have passed their end time but haven't been started or ended. Please update the time or cancel them.",
+    "sessionStarted": "Session started",
+    "sessionEnded": "Session ended",
+    "errorUpdatingSessionStatus": "Error updating session status",
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "court": {
     "title": "Court",
@@ -2153,6 +2165,7 @@
     "confirmEndSession": "Confirm End Session",
     "confirmEndSessionMessage": "Are you sure you want to end this session? This action cannot be undone and will finish all active matches.",
     "qrScanToView": "Scan to view session",
+    "qrScanToJoin": "Scan to join session",
     "cancel": "Cancel",
     "endSession": "End Session",
     "startSession": "Start Session",

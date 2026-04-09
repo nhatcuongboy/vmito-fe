@@ -55,14 +55,14 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
         shadow: 'md',
       }}
     >
-      <Flex gap={2} align="center" h="40px">
+      <Flex gap={2} align="center" h="44px">
         {/* AI Trigger Area (Looks like an input) */}
         <Flex
           flex={1}
           bg={inputBg}
           borderRadius="full"
           px={3}
-          h="40px"
+          h="44px"
           cursor="pointer"
           onClick={onInputClick}
           _hover={{ bg: inputHoverBg }}
@@ -87,10 +87,10 @@ export const QuickCreateSessionBar: React.FC<QuickCreateSessionBarProps> = ({
         <Button
           onClick={handleCreateClick}
           colorPalette="green"
-          borderRadius="full"
+          borderRadius="lg"
           size="sm"
-          px={4}
-          h="40px"
+          px={5}
+          h="44px"
           display="flex"
           transition="all 0.2s"
           _hover={{

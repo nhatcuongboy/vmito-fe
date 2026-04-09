@@ -39,6 +39,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   onSave,
 }) => {
   const t = useTranslations('pages.playerManagement');
+  const tCommon = useTranslations('common');
   const { getLevelLabel } = useLevelLabel();
 
   if (!player || !editingData) return null;
@@ -65,11 +66,11 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
       primaryActionText={t('saveChanges')}
       onPrimaryAction={handleSave}
       isPrimaryLoading={isSaving}
-      primaryColorScheme="brand"
+      primaryColorScheme="green"
       secondaryActionText={t('cancelEditing')}
       onSecondaryAction={onClose}
     >
-      <VStack spacing={4} align="stretch">
+      <VStack spacing={3} align="stretch">
         {/* Header with player number */}
         <HStack spacing={3}>
           <Badge
@@ -85,24 +86,42 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           </Text>
         </HStack>
 
-        {/* Player name */}
-        <Box>
-          <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
-            {t('playerName')}
-          </Text>
-          <Input
-            value={editingData.name}
-            onChange={(e) => onUpdateEditing(player.id, 'name', e.target.value)}
-            size="md"
-            bg="white"
-            placeholder={t('enterPlayerName')}
-          />
-        </Box>
+        {/* Player name and phone */}
+        <Grid templateColumns="1fr 1fr" gap={3}>
+          <Box>
+            <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
+              {t('playerName')}
+            </Text>
+            <Input
+              value={editingData.name}
+              onChange={(e) =>
+                onUpdateEditing(player.id, 'name', e.target.value)
+              }
+              size="md"
+              bg="white"
+              placeholder={t('enterPlayerName')}
+            />
+          </Box>
+          <Box>
+            <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
+              {tCommon('phone')} ({tCommon('optional')})
+            </Text>
+            <Input
+              placeholder={tCommon('phone')}
+              value={editingData.phone || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onUpdateEditing(player.id, 'phone', e.target.value);
+              }}
+              size="md"
+              bg="white"
+            />
+          </Box>
+        </Grid>
 
         {/* Gender and Level */}
-        <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+        <Grid templateColumns="1fr 1fr" gap={3}>
           <Box>
-            <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
+            <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
               {t('gender')}
             </Text>
             <select
@@ -112,21 +131,43 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               }
               style={{
                 width: '100%',
-                padding: '12px',
+                padding: '10px 12px',
+                height: '40px',
                 borderRadius: '6px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: 'white',
+                border: '1px solid var(--chakra-colors-border)',
+                backgroundColor: 'var(--chakra-colors-bg)',
+                color: 'inherit',
                 fontSize: '14px',
               }}
             >
-              <option value="MALE">{t('male')}</option>
-              <option value="FEMALE">{t('female')}</option>
-              <option value="OTHER">{t('other')}</option>
-              <option value="PREFER_NOT_TO_SAY">{t('preferNotToSay')}</option>
+              <option
+                value="MALE"
+                style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+              >
+                {t('male')}
+              </option>
+              <option
+                value="FEMALE"
+                style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+              >
+                {t('female')}
+              </option>
+              <option
+                value="OTHER"
+                style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+              >
+                {t('other')}
+              </option>
+              <option
+                value="PREFER_NOT_TO_SAY"
+                style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+              >
+                {t('preferNotToSay')}
+              </option>
             </select>
           </Box>
           <Box>
-            <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
+            <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
               {t('level')}
             </Text>
             <select
@@ -140,16 +181,27 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               }
               style={{
                 width: '100%',
-                padding: '12px',
+                padding: '10px 12px',
+                height: '40px',
                 borderRadius: '6px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: 'white',
+                border: '1px solid var(--chakra-colors-border)',
+                backgroundColor: 'var(--chakra-colors-bg)',
+                color: 'inherit',
                 fontSize: '14px',
               }}
             >
-              <option value="">{t('selectLevel')}</option>
+              <option
+                value=""
+                style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+              >
+                {t('selectLevel')}
+              </option>
               {availableLevels.map((level) => (
-                <option key={level} value={level}>
+                <option
+                  key={level}
+                  value={level}
+                  style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                >
                   {getLevelLabel(level)}
                 </option>
               ))}
@@ -159,7 +211,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
 
         {/* Level description */}
         <Box>
-          <Text fontSize="sm" mb={2} color="gray.600" fontWeight="medium">
+          <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
             {t('levelDescription')}
           </Text>
           <Textarea
@@ -170,7 +222,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
             onChange={(e) =>
               onUpdateEditing(player.id, 'levelDescription', e.target.value)
             }
-            rows={3}
+            rows={2}
           />
         </Box>
 

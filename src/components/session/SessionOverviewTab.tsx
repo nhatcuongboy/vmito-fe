@@ -4,6 +4,7 @@ import { useState } from 'react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
 import { VDrawer } from '@/components/ui/VDrawer';
+import { VModal } from '@/components/ui/VModal';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
 import {
   Badge,
@@ -87,6 +88,16 @@ export default function SessionOverviewTab({
   const locale = useLocale();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [selectedQrUrl, setSelectedQrUrl] = useState('');
+  const [selectedQrLabel, setSelectedQrLabel] = useState('');
+
+  const handleQrClick = (url: string, label: string) => {
+    setSelectedQrUrl(url);
+    setSelectedQrLabel(label);
+    setIsQrModalOpen(true);
+  };
+
   const joinCode = session.id.slice(-8).toUpperCase();
 
   const totalPlayers = session.players?.length || 0;
@@ -149,6 +160,41 @@ export default function SessionOverviewTab({
               </Button>
             </Flex>
 
+            {(() => {
+              let isExpired = false;
+              if (session.status === 'PREPARING') {
+                if (session.endTime) {
+                  isExpired = new Date(session.endTime) < new Date();
+                } else if (session.startTime) {
+                  const computed = new Date(session.startTime);
+                  computed.setMinutes(
+                    computed.getMinutes() + (session.sessionDuration || 120)
+                  );
+                  isExpired = computed < new Date();
+                }
+              }
+              return (
+                isExpired && (
+                  <Box
+                    mb={4}
+                    p={3}
+                    bg="orange.50"
+                    _dark={{ bg: 'orange.900/30' }}
+                    borderRadius="md"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color="orange.800"
+                      _dark={{ color: 'orange.200' }}
+                      fontWeight="medium"
+                    >
+                      {t('pastEndWarning')}
+                    </Text>
+                  </Box>
+                )
+              );
+            })()}
+
             <SessionInfo session={session} />
 
             {onToggleSessionStatus && session.status !== 'FINISHED' && (
@@ -159,6 +205,21 @@ export default function SessionOverviewTab({
                   }
                   size="lg"
                   px={8}
+                  disabled={(() => {
+                    if (session.status === 'PREPARING') {
+                      if (session.endTime)
+                        return new Date(session.endTime) < new Date();
+                      if (session.startTime) {
+                        const computed = new Date(session.startTime);
+                        computed.setMinutes(
+                          computed.getMinutes() +
+                            (session.sessionDuration || 120)
+                        );
+                        return computed < new Date();
+                      }
+                    }
+                    return false;
+                  })()}
                   onClick={onToggleSessionStatus}
                   loading={isToggleStatusLoading}
                   leftIcon={
@@ -244,14 +305,53 @@ export default function SessionOverviewTab({
               display="flex"
               flexDirection="column"
               justifyContent="center"
+              w="full"
             >
-              <QRCodeGenerator
-                joinCode={joinCode}
-                size={200}
-                url={`/${locale}/sessions/${session.id}`}
-                label={t('qrScanToView')}
-                hideCode
-              />
+              <Grid
+                templateColumns={{ base: 'repeat(2, 1fr)', md: '1fr' }}
+                gap={{ base: 2, md: 6 }}
+                justifyItems="center"
+                alignItems="center"
+              >
+                <Box
+                  cursor="pointer"
+                  _hover={{ opacity: 0.8, transform: 'scale(1.02)' }}
+                  transition="all 0.2s"
+                  onClick={() =>
+                    handleQrClick(
+                      `/${locale}/browse/sessions/${session.id}`,
+                      t('qrScanToView')
+                    )
+                  }
+                >
+                  <QRCodeGenerator
+                    joinCode={joinCode}
+                    size={140}
+                    url={`/${locale}/browse/sessions/${session.id}`}
+                    label={t('qrScanToView')}
+                    hideCode
+                  />
+                </Box>
+                <Box
+                  cursor="pointer"
+                  _hover={{ opacity: 0.8, transform: 'scale(1.02)' }}
+                  transition="all 0.2s"
+                  onClick={() =>
+                    handleQrClick(
+                      `/${locale}/browse/sessions/${session.id}/join`,
+                      t('qrScanToJoin')
+                    )
+                  }
+                >
+                  <QRCodeGenerator
+                    joinCode={joinCode}
+                    size={140}
+                    url={`/${locale}/browse/sessions/${session.id}/join`}
+                    label={t('qrScanToJoin')}
+                    hideCode
+                  />
+                </Box>
+              </Grid>
             </Box>
           </Box>
         </Box>
@@ -487,6 +587,24 @@ export default function SessionOverviewTab({
           }}
         />
       </VDrawer>
+
+      {/* QR Code Expansion Modal */}
+      <VModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        title={selectedQrLabel}
+        size="md"
+      >
+        <Flex justify="center" align="center" p={4} pb={8}>
+          <QRCodeGenerator
+            joinCode={joinCode}
+            size={300}
+            url={selectedQrUrl}
+            hideCode
+            label={selectedQrLabel}
+          />
+        </Flex>
+      </VModal>
     </Box>
   );
 }

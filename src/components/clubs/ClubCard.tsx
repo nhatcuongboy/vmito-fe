@@ -1,7 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { IClubListItem, IClubSchedule } from '@/types/club';
-import { Badge, Box, Flex, Image, Stack, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Image,
+  Stack,
+  Text,
+  Spinner,
+} from '@chakra-ui/react';
 import { Crown, MapPin, Clock, ArrowRight, Users } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
@@ -41,9 +50,12 @@ const formatScheduleDisplay = (
 export default function ClubCard({ club }: ClubCardProps) {
   const router = useRouter();
   const t = useTranslations();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleViewDetails = () => {
+    setIsLoading(true);
     router.push(`/player/clubs/${club.id}`);
+    setTimeout(() => setIsLoading(false), 5000);
   };
 
   const venueName = club.defaultVenue?.name || club.location;
@@ -269,6 +281,24 @@ export default function ClubCard({ club }: ClubCardProps) {
           </Flex>
         </Button>
       </Box>
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <Flex
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="whiteAlpha.700"
+          _dark={{ bg: 'blackAlpha.700' }}
+          align="center"
+          justify="center"
+          zIndex={10}
+        >
+          <Spinner size="xl" color="green.500" />
+        </Flex>
+      )}
     </Box>
   );
 }

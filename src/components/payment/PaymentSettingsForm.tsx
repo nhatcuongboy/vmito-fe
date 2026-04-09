@@ -27,7 +27,12 @@ import {
   UpdateHostPaymentSettingsRequest,
 } from '@/lib/api/types';
 import QRCodeUploader from './QRCodeUploader';
-import { getVietQRImageUrl, findBankByName, vietnamBanks } from '@/lib/banks';
+import {
+  getVietQRImageUrl,
+  findBankInList,
+  getVietnamBanks,
+  Bank,
+} from '@/lib/banks';
 
 interface PaymentSettingsFormProps {
   initialData?: Partial<HostPaymentSettings>;
@@ -63,26 +68,32 @@ export default function PaymentSettingsForm({
   const [hasRemovedExistingQr, setHasRemovedExistingQr] = useState(false);
   const [isDefault, setIsDefault] = useState(initialData?.isDefault ?? true);
 
+  // Bank list state
+  const [banks, setBanks] = useState<Bank[]>([]);
+  useEffect(() => {
+    getVietnamBanks().then(setBanks);
+  }, []);
+
   // Bank selector combobox state
   const [isBankOpen, setIsBankOpen] = useState(false);
   const [bankSearch, setBankSearch] = useState('');
   const bankRef = useRef<HTMLDivElement>(null);
 
   const selectedBank = useMemo(
-    () => (bankName ? findBankByName(bankName) : null),
-    [bankName]
+    () => (bankName ? findBankInList(bankName, banks) : null),
+    [bankName, banks]
   );
 
   const filteredBanks = useMemo(() => {
-    if (!bankSearch.trim()) return vietnamBanks;
+    if (!bankSearch.trim()) return banks;
     const q = bankSearch.toLowerCase();
-    return vietnamBanks.filter(
+    return banks.filter(
       (b) =>
         b.shortName.toLowerCase().includes(q) ||
         b.name.toLowerCase().includes(q) ||
         b.code.toLowerCase().includes(q)
     );
-  }, [bankSearch]);
+  }, [bankSearch, banks]);
 
   useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
@@ -95,7 +106,7 @@ export default function PaymentSettingsForm({
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  const handleBankSelect = (bank: (typeof vietnamBanks)[number]) => {
+  const handleBankSelect = (bank: Bank) => {
     setBankName(bank.shortName);
     setIsBankOpen(false);
     setBankSearch('');
@@ -143,9 +154,10 @@ export default function PaymentSettingsForm({
       !qrCodeUrl
         ? getVietQRImageUrl(bankName, bankAccountNumber, {
             accountName: accountHolderName || undefined,
+            bankList: banks,
           })
         : null,
-    [bankName, bankAccountNumber, accountHolderName, qrCodeUrl]
+    [bankName, bankAccountNumber, accountHolderName, qrCodeUrl, banks]
   );
 
   return (

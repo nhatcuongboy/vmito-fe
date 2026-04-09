@@ -159,7 +159,7 @@ export default function JoinSessionForm({
 
           <VStack spacing={3} align="stretch">
             {/* Player Information Grid */}
-            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={3}>
+            <Grid templateColumns="1fr 1fr" gap={3}>
               {/* Player name */}
               <FormControl isRequired isInvalid={!!errors[index]?.name}>
                 <FormLabel fontSize="sm" fontWeight="medium" color="fg.muted">
@@ -206,7 +206,7 @@ export default function JoinSessionForm({
             </Grid>
 
             {/* Gender and Level - responsive grid */}
-            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={3}>
+            <Grid templateColumns="1fr 1fr" gap={3}>
               <Box>
                 <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
                   {tPlayer('gender')}
@@ -221,14 +221,18 @@ export default function JoinSessionForm({
                     padding: '10px 12px',
                     borderRadius: '6px',
                     border: '1px solid var(--chakra-colors-border)',
-                    backgroundColor: 'transparent',
+                    backgroundColor: 'var(--chakra-colors-bg)',
                     color: 'inherit',
                     fontSize: '14px',
                     height: '40px', // Match Chakra Input height
                   }}
                 >
                   {genderOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
+                    <option
+                      key={option.value}
+                      value={option.value}
+                      style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                    >
                       {tPlayer(option.labelKey)}
                     </option>
                   ))}
@@ -254,15 +258,24 @@ export default function JoinSessionForm({
                     border: errors[index]?.level
                       ? '1px solid var(--chakra-colors-red-500)'
                       : '1px solid var(--chakra-colors-border)',
-                    backgroundColor: 'transparent',
+                    backgroundColor: 'var(--chakra-colors-bg)',
                     color: 'inherit',
                     fontSize: '14px',
                     height: '40px', // Match Chakra Input height
                   }}
                 >
-                  <option value={0}>{tPlayer('selectLevel')}</option>
+                  <option
+                    value={0}
+                    style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                  >
+                    {tPlayer('selectLevel')}
+                  </option>
                   {availableLevels.map((l) => (
-                    <option key={l} value={l}>
+                    <option
+                      key={l}
+                      value={l}
+                      style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
+                    >
                       {getLevelShortLabel(l)}
                     </option>
                   ))}

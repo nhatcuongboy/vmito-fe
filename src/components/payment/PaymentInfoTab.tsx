@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Image, Badge } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Image,
+  Badge,
+  SimpleGrid,
+} from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
@@ -17,7 +25,8 @@ import PaymentStatusBadge from './PaymentStatusBadge';
 import SubmitPaymentModal from './SubmitPaymentModal';
 import FastTransferModal from './FastTransferModal';
 import { PaymentMethod } from '@/lib/api/types';
-import { getVietQRImageUrl } from '@/lib/banks';
+import { getVietQRImageUrl, getVietnamBanks, Bank } from '@/lib/banks';
+import { useEffect } from 'react';
 
 interface PaymentInfoTabProps {
   session: ISession;
@@ -48,6 +57,12 @@ export default function PaymentInfoTab({
   );
 
   const [isFastTransferOpen, setIsFastTransferOpen] = useState(false);
+
+  // Bank list state
+  const [banks, setBanks] = useState<Bank[]>([]);
+  useEffect(() => {
+    getVietnamBanks().then(setBanks);
+  }, []);
 
   const totalAmount = paymentRecords.reduce((sum, p) => sum + p.amount, 0);
   const paidAmount = paymentRecords
@@ -87,163 +102,189 @@ export default function PaymentInfoTab({
 
   return (
     <VStack gap={4} align="stretch">
-      {/* Fee Type Info */}
-      {session.feeConfig && (
-        <Box
-          bg="blue.50"
-          border="1px solid"
-          borderColor="blue.200"
-          borderRadius="lg"
-          p={4}
-        >
-          <HStack justify="space-between" mb={2}>
-            <Text fontWeight="semibold" color="green.700">
-              {session.feeConfig.feeType === FeeType.FIXED
-                ? t('fixedFee')
-                : t('splitEvenly')}
-            </Text>
-            {session.feeConfig.feeType === FeeType.SPLIT_EVENLY && (
-              <Badge colorPalette="purple">{t('calculatedAfterSession')}</Badge>
-            )}
-          </HStack>
-          <Text fontSize="sm" color="green.600">
-            {session.feeConfig.feeType === FeeType.FIXED
-              ? t('fixedFeeDescription')
-              : t('splitEvenlyDescription')}
-          </Text>
-        </Box>
-      )}
-
-      {/* Payment Summary */}
-      <Box
-        bg="white"
-        border="1px solid"
-        borderColor="gray.200"
-        borderRadius="lg"
-        p={4}
-      >
-        <Text fontWeight="semibold" mb={3}>
-          {t('yourPaymentSummary')}
-        </Text>
-
-        <VStack gap={2} align="stretch">
-          <HStack justify="space-between">
-            <Text color="gray.600">{t('totalFee')}</Text>
-            <Text fontWeight="bold" fontSize="lg">
-              {FeeService.formatFee(totalAmount)}
-            </Text>
-          </HStack>
-          <HStack justify="space-between">
-            <Text color="gray.600">{t('paidAmount')}</Text>
-            <Text fontWeight="bold" color="green.600">
-              {paidAmount === 0 ? '0' : FeeService.formatFee(paidAmount)}
-            </Text>
-          </HStack>
-          <HStack justify="space-between">
-            <Text color="gray.600">{t('pendingAmount')}</Text>
-            <Text fontWeight="bold" color="yellow.600">
-              {FeeService.formatFee(pendingAmount)}
-            </Text>
-          </HStack>
-        </VStack>
-      </Box>
-
-      {/* Host Payment Info */}
-      {hostPaymentSettings && (
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+        {/* Payment Summary */}
         <Box
           bg="white"
           border="1px solid"
           borderColor="gray.200"
           borderRadius="lg"
           p={4}
+          display="flex"
+          flexDirection="column"
         >
-          <HStack mb={3} justify="space-between">
-            <HStack>
-              <CreditCard size={18} color="#3182ce" />
-              <Text fontWeight="semibold">{t('hostPaymentInfo')}</Text>
-            </HStack>
-            {hostPaymentSettings.bankName &&
-              hostPaymentSettings.bankAccountNumber && (
-                <Button
-                  size="sm"
-                  colorPalette="blue"
-                  onClick={() => setIsFastTransferOpen(true)}
+          <Text fontWeight="semibold" mb={3}>
+            {t('yourPaymentSummary')}
+          </Text>
+
+          {/* Fee Type Info moved here */}
+          {session.feeConfig && (
+            <Box
+              bg="green.50"
+              _dark={{ bg: 'green.900' }}
+              border="1px solid"
+              borderColor="green.200"
+              borderRadius="md"
+              p={3}
+              mb={4}
+            >
+              <HStack justify="space-between" mb={1}>
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="green.700"
+                  _dark={{ color: 'green.200' }}
                 >
-                  {t('transfer')}
-                </Button>
-              )}
-          </HStack>
-
-          {/* QR Code: prefer uploaded, fall back to auto-generated from bank info */}
-          {(() => {
-            const qrUrl =
-              hostPaymentSettings.qrCodeUrl ||
-              getVietQRImageUrl(
-                hostPaymentSettings.bankName ?? '',
-                hostPaymentSettings.bankAccountNumber ?? '',
-                { accountName: hostPaymentSettings.accountHolderName }
-              );
-            if (!qrUrl) return null;
-            return (
-              <Box mb={4} textAlign="center">
-                <HStack justify="center" mb={2}>
-                  <QrCode size={16} color="#718096" />
-                  <Text fontSize="sm" color="gray.600">
-                    {t('scanQrCode')}
-                  </Text>
-                </HStack>
-                <Image
-                  src={qrUrl}
-                  alt="QR Code"
-                  maxH="200px"
-                  mx="auto"
-                  borderRadius="md"
-                  border="1px solid"
-                  borderColor="gray.200"
-                />
-              </Box>
-            );
-          })()}
-
-          <VStack gap={2} align="stretch">
-            {hostPaymentSettings.bankName && (
-              <HStack>
-                <Building2 size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" minW="100px">
-                  {t('bankName')}
+                  {session.feeConfig.feeType === FeeType.FIXED
+                    ? t('fixedFee')
+                    : t('splitEvenly')}
                 </Text>
-                <Text fontSize="sm" fontWeight="medium">
-                  {hostPaymentSettings.bankName}
-                </Text>
+                {session.feeConfig.feeType === FeeType.SPLIT_EVENLY && (
+                  <Badge colorPalette="purple" size="xs">
+                    {t('calculatedAfterSession')}
+                  </Badge>
+                )}
               </HStack>
-            )}
+              <Text
+                fontSize="xs"
+                color="green.600"
+                _dark={{ color: 'green.300' }}
+              >
+                {session.feeConfig.feeType === FeeType.FIXED
+                  ? t('fixedFeeDescription')
+                  : t('splitEvenlyDescription')}
+              </Text>
+            </Box>
+          )}
 
-            {hostPaymentSettings.bankAccountNumber && (
-              <HStack>
-                <CreditCard size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" minW="100px">
-                  {t('accountNumber')}
-                </Text>
-                <Text fontSize="sm" fontWeight="medium" fontFamily="mono">
-                  {hostPaymentSettings.bankAccountNumber}
-                </Text>
-              </HStack>
-            )}
-
-            {hostPaymentSettings.accountHolderName && (
-              <HStack>
-                <User size={16} color="#718096" />
-                <Text fontSize="sm" color="gray.600" minW="100px">
-                  {t('accountHolderName')}
-                </Text>
-                <Text fontSize="sm" fontWeight="medium">
-                  {hostPaymentSettings.accountHolderName}
-                </Text>
-              </HStack>
-            )}
+          <VStack gap={2} align="stretch" flex={1} justify="center">
+            <HStack justify="space-between">
+              <Text color="gray.600" fontSize="sm">
+                {t('totalFee')}
+              </Text>
+              <Text fontWeight="bold" fontSize="lg">
+                {FeeService.formatFee(totalAmount)}
+              </Text>
+            </HStack>
+            <HStack justify="space-between">
+              <Text color="gray.600" fontSize="sm">
+                {t('paidAmount')}
+              </Text>
+              <Text fontWeight="bold" color="green.600" fontSize="lg">
+                {paidAmount === 0 ? '0' : FeeService.formatFee(paidAmount)}
+              </Text>
+            </HStack>
+            <HStack justify="space-between">
+              <Text color="gray.600" fontSize="sm">
+                {t('pendingAmount')}
+              </Text>
+              <Text fontWeight="bold" color="yellow.600" fontSize="lg">
+                {FeeService.formatFee(pendingAmount)}
+              </Text>
+            </HStack>
           </VStack>
         </Box>
-      )}
+
+        {/* Host Payment Info */}
+        {hostPaymentSettings && (
+          <Box
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="lg"
+            p={4}
+          >
+            <HStack mb={3} justify="space-between">
+              <HStack>
+                <CreditCard size={18} color="#3182ce" />
+                <Text fontWeight="semibold">{t('hostPaymentInfo')}</Text>
+              </HStack>
+              {hostPaymentSettings.bankName &&
+                hostPaymentSettings.bankAccountNumber && (
+                  <Button
+                    size="sm"
+                    colorPalette="blue"
+                    onClick={() => setIsFastTransferOpen(true)}
+                  >
+                    {t('transfer')}
+                  </Button>
+                )}
+            </HStack>
+
+            {/* QR Code */}
+            {(() => {
+              const qrUrl =
+                hostPaymentSettings.qrCodeUrl ||
+                getVietQRImageUrl(
+                  hostPaymentSettings.bankName ?? '',
+                  hostPaymentSettings.bankAccountNumber ?? '',
+                  {
+                    accountName: hostPaymentSettings.accountHolderName,
+                    bankList: banks,
+                  }
+                );
+              if (!qrUrl) return null;
+              return (
+                <Box mb={4} textAlign="center">
+                  <HStack justify="center" mb={2}>
+                    <QrCode size={16} color="#718096" />
+                    <Text fontSize="xs" color="gray.600">
+                      {t('scanQrCode')}
+                    </Text>
+                  </HStack>
+                  <Image
+                    src={qrUrl}
+                    alt="QR Code"
+                    maxH="160px"
+                    mx="auto"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor="gray.200"
+                  />
+                </Box>
+              );
+            })()}
+
+            <VStack gap={2} align="stretch">
+              {hostPaymentSettings.bankName && (
+                <HStack>
+                  <Building2 size={16} color="#718096" />
+                  <Text fontSize="xs" color="gray.600" minW="100px">
+                    {t('bankName')}
+                  </Text>
+                  <Text fontSize="xs" fontWeight="medium" isTruncated>
+                    {hostPaymentSettings.bankName}
+                  </Text>
+                </HStack>
+              )}
+
+              {hostPaymentSettings.bankAccountNumber && (
+                <HStack>
+                  <CreditCard size={16} color="#718096" />
+                  <Text fontSize="xs" color="gray.600" minW="100px">
+                    {t('accountNumber')}
+                  </Text>
+                  <Text fontSize="xs" fontWeight="medium" fontFamily="mono">
+                    {hostPaymentSettings.bankAccountNumber}
+                  </Text>
+                </HStack>
+              )}
+
+              {hostPaymentSettings.accountHolderName && (
+                <HStack>
+                  <User size={16} color="#718096" />
+                  <Text fontSize="xs" color="gray.600" minW="100px">
+                    {t('accountHolderName')}
+                  </Text>
+                  <Text fontSize="xs" fontWeight="medium" isTruncated>
+                    {hostPaymentSettings.accountHolderName}
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
+          </Box>
+        )}
+      </SimpleGrid>
 
       {/* Payment Records */}
       <Box>

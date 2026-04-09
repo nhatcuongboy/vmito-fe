@@ -1,8 +1,17 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Venue } from '@/lib/api/types';
-import { Badge, Box, Flex, HStack, Image, Stack, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  HStack,
+  Image,
+  Stack,
+  Text,
+  Spinner,
+} from '@chakra-ui/react';
 import {
   BadgeCheck,
   Banknote,
@@ -34,6 +43,7 @@ function formatPrice(amount?: number) {
 export default function VenueCard({ venue }: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNavigate = () => {
     const query = encodeURIComponent(venue.address || venue.name);
@@ -45,12 +55,16 @@ export default function VenueCard({ venue }: VenueCardProps) {
 
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsLoading(true);
     router.push(`/browse/venues/${venue.id}`);
+    setTimeout(() => setIsLoading(false), 5000);
   };
 
   const handleFindSessions = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsLoading(true);
     router.push(`/?venueId=${venue.id}`);
+    setTimeout(() => setIsLoading(false), 5000);
   };
 
   return (
@@ -502,6 +516,24 @@ export default function VenueCard({ venue }: VenueCardProps) {
           </Button>
         </Flex>
       </Box>
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <Flex
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="whiteAlpha.700"
+          _dark={{ bg: 'blackAlpha.700' }}
+          align="center"
+          justify="center"
+          zIndex={10}
+        >
+          <Spinner size="xl" color="green.500" />
+        </Flex>
+      )}
     </Box>
   );
 }

@@ -26,6 +26,7 @@ import ClubCard from '@/components/clubs/ClubCard';
 import { IClubListItem } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
+import { AppSearchBar } from '@/components/common/AppSearchBar';
 
 export default function BrowseClubsPage() {
   const t = useTranslations();
@@ -236,81 +237,25 @@ export default function BrowseClubsPage() {
           base: `${TOP_BAR_HEIGHT_MOBILE}px`,
           md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
         }}
+        left={0}
+        right={0}
+        width="100vw"
+        marginLeft="calc(50% - 50vw)"
         zIndex={100}
-        mb={6}
+        bg="transparent"
+        py={2}
+        transition="all 0.2s"
       >
-        <Flex
-          gap={2}
-          align="center"
-          bg="bg"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          px={3}
-          h="48px"
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="border"
-          boxShadow="sm"
-        >
-          <Box flex="1" minW="200px">
-            <Input
-              h="36px"
-              placeholder={t('clubs.searchPlaceholder')}
+        <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
+          <Box flex={1} w="100%">
+            <AppSearchBar
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              bg="bg"
-              _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-              borderRadius="md"
-              leftElement={<Search size={18} />}
-              _focus={{
-                borderColor: 'brand.500',
-                boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                bg: 'white',
-                _dark: { bg: 'gray.600' },
-              }}
-              fontSize="sm"
-              transition="all 0.2s"
+              onChange={setSearch}
+              placeholder={t('clubs.searchPlaceholder')}
+              onFilterClick={toggleFilters}
+              activeFilterCount={activeFilterCount}
+              showFilter={true}
             />
-          </Box>
-
-          <Box position="relative">
-            <IconButton
-              h="36px"
-              w="36px"
-              minW="36px"
-              variant="solid"
-              colorPalette="green"
-              onClick={toggleFilters}
-              aria-label={t('common.filter') || 'Bộ lọc'}
-              icon={<Filter size={18} />}
-              borderRadius="md"
-              transition="all 0.2s"
-              _hover={{ transform: 'scale(1.05)' }}
-            />
-            {activeFilterCount > 0 && (
-              <Badge
-                position="absolute"
-                top="-6px"
-                right="-6px"
-                borderRadius="full"
-                colorPalette="red"
-                variant="solid"
-                px={1.5}
-                minW="20px"
-                h="20px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="xs"
-                fontWeight="bold"
-                border="2px solid"
-                borderColor="white"
-                _dark={{ borderColor: 'gray.800' }}
-                zIndex={1}
-                boxShadow="sm"
-              >
-                {activeFilterCount}
-              </Badge>
-            )}
           </Box>
         </Flex>
       </Box>

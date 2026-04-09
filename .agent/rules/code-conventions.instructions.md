@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+applyTo: '*'
 ---
 
 # Code Conventions
@@ -13,6 +13,12 @@ trigger: always_on
 - Always use internationalization for all texts.
 - Always comment by English.
 - Always write documents by English.
+
+## Translation & i18n Guidelines
+
+- **Cross-Locale Consistency:** Whenever adding or modifying a translation key, you MUST apply the change equally to all available languages (e.g. `en.json`, `vi.json`, `cn.json`).
+- **Namespace Verification:** Before inserting a new i18n key into a JSON file, always read the file (or use contextual search) to ensure you are inserting the key into the exact same nested object (namespace) as the other language files, rather than dumping it at the root of the file.
+- **Context Search:** Always `grep` the translation key in the JSON files beforehand to see where and if it already exists, avoiding unintentional duplicates.
 - Always return messages by English to APIs
 - Don't start app to check issues unless otherwise specified.
 

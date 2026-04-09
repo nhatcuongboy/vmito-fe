@@ -47,7 +47,7 @@ import {
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
-import { getVietQRImageUrl } from '@/lib/banks';
+import { getVietQRImageUrl, getVietnamBanks, Bank } from '@/lib/banks';
 
 interface SessionPaymentTabProps {
   session: ISession;
@@ -79,6 +79,12 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   // Expenses state
   const [expenses, setExpenses] = useState<ISessionExpense[]>([]);
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(true);
+
+  // Bank list state
+  const [banks, setBanks] = useState<Bank[]>([]);
+  useEffect(() => {
+    getVietnamBanks().then(setBanks);
+  }, []);
 
   const loadPaymentSettings = useCallback(
     async (showLoading = true) => {
@@ -156,6 +162,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   const handleSave = async (data: UpdateHostPaymentSettingsRequest) => {
     setIsSaving(true);
     try {
+      const isCreating = !paymentSettings?.id;
       if (paymentSettings?.id) {
         // Update existing
         await PaymentSettingsService.updatePaymentSettings(
@@ -170,9 +177,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
       setIsEditing(false);
       toaster.success({
         title: tCommon('success'),
-        description: paymentSettings?.id
-          ? t('settingsUpdated')
-          : t('settingsCreated'),
+        description: isCreating ? t('settingsCreated') : t('settingsUpdated'),
       });
     } catch (error) {
       console.error('Failed to save payment settings:', error);
@@ -773,7 +778,10 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                       getVietQRImageUrl(
                         paymentSettings.bankName ?? '',
                         paymentSettings.bankAccountNumber ?? '',
-                        { accountName: paymentSettings.accountHolderName }
+                        {
+                          accountName: paymentSettings.accountHolderName,
+                          bankList: banks,
+                        }
                       );
                     if (!qrUrl) return null;
                     return (

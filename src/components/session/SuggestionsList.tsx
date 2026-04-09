@@ -381,7 +381,11 @@ export default function SuggestionsList({
           gap={viewMode === 'compact' ? 4 : 6}
         >
           {Array.from({ length: 6 }).map((_, index) => (
-            <SessionCardSkeleton key={index} variant={viewMode} />
+            <SessionCardSkeleton
+              key={index}
+              variant={viewMode}
+              isAi={mode === 'auto'}
+            />
           ))}
         </Grid>
       ) : error ? (
@@ -490,7 +494,11 @@ export default function SuggestionsList({
                 gap={viewMode === 'compact' ? 4 : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} variant={viewMode} />
+                  <SessionCardSkeleton
+                    key={index}
+                    variant={viewMode}
+                    isAi={mode === 'auto'}
+                  />
                 ))}
               </Grid>
               <Flex justify="center" mt={4}>

@@ -65,7 +65,10 @@ export default function SessionPaymentList({
   const [memberFilter, setMemberFilter] = useState<MemberFilterType>('all');
   const [isBulkApproving, setIsBulkApproving] = useState(false);
 
-  const paymentsArray = Array.isArray(payments) ? payments : [];
+  const paymentsArray = useMemo(
+    () => (Array.isArray(payments) ? payments : []),
+    [payments]
+  );
 
   // Extract unique fixed member groups from payments
   const fixedMemberGroups = useMemo(() => {
@@ -300,48 +303,39 @@ export default function SessionPaymentList({
       {/* Filters & Actions */}
       <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
         <HStack gap={2} wrap="wrap">
-          <HStack gap={1}>
-            <Filter size={16} />
-            <HStack gap={1}>
-              {(
-                [
-                  'all',
-                  PaymentStatus.PENDING,
-                  PaymentStatus.SUBMITTED,
-                  PaymentStatus.APPROVED,
-                ] as FilterType[]
-              ).map((f) => (
-                <Button
-                  key={f}
-                  size="sm"
-                  variant={filter === f ? 'solid' : 'outline'}
-                  colorPalette={filter === f ? 'blue' : 'gray'}
-                  onClick={() => setFilter(f)}
-                >
-                  {f === 'all' ? t('all') : t(`status.${f.toLowerCase()}`)}
-                  {f === PaymentStatus.PENDING && pendingCount > 0 && (
-                    <Badge ml={1} colorPalette="yellow">
-                      {pendingCount}
-                    </Badge>
-                  )}
-                  {f === PaymentStatus.SUBMITTED && submittedCount > 0 && (
-                    <Badge ml={1} colorPalette="green">
-                      {submittedCount}
-                    </Badge>
-                  )}
-                </Button>
-              ))}
-            </HStack>
-          </HStack>
+          {/* Status Filter Button */}
+          <VSelect
+            size="sm"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as FilterType)}
+            width={{ base: '100%', md: '200px' }}
+            minWidth="200px"
+            leftElement={<Filter size={16} />}
+          >
+            <option value="all">{t('all')}</option>
+            <option value={PaymentStatus.PENDING}>
+              {t('status.pending')}{' '}
+              {pendingCount > 0 ? `(${pendingCount})` : ''}
+            </option>
+            <option value={PaymentStatus.SUBMITTED}>
+              {t('status.submitted')}{' '}
+              {submittedCount > 0 ? `(${submittedCount})` : ''}
+            </option>
+            <option value={PaymentStatus.APPROVED}>
+              {t('status.approved')}
+            </option>
+          </VSelect>
 
           {/* Fixed Member Filter */}
           {fixedMemberGroups.length > 0 && (
-            <Box minW="150px">
+            <Box minW="220px">
               <VSelect
                 size="sm"
                 value={memberFilter}
                 onChange={(e) => setMemberFilter(e.target.value)}
                 placeholder={tFixed('allMembers')}
+                width="100%"
+                minWidth="220px"
               >
                 <option value="all">{tFixed('allMembers')}</option>
                 <option value="fixed">{tFixed('fixedMembersOnly')}</option>

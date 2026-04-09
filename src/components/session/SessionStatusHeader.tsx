@@ -13,6 +13,9 @@ interface SessionStatusHeaderProps {
   session: {
     name: string;
     status: string;
+    startTime?: string | Date | null;
+    endTime?: string | Date | null;
+    sessionDuration?: number;
   };
   /** Read-only mode for player view - hides action menu */
   readOnly?: boolean;
@@ -211,20 +214,62 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                   justifyContent="flex-start"
                   gap={3}
                   _hover={{ bg: 'bg.muted' }}
-                  disabled={
-                    session.status === 'FINISHED' || isToggleStatusLoading
-                  }
+                  disabled={(() => {
+                    if (session.status === 'FINISHED' || isToggleStatusLoading)
+                      return true;
+                    if (session.status === 'PREPARING') {
+                      if (session.endTime)
+                        return new Date(session.endTime) < new Date();
+                      if (session.startTime) {
+                        const computed = new Date(session.startTime);
+                        computed.setMinutes(
+                          computed.getMinutes() +
+                            (session.sessionDuration || 120)
+                        );
+                        return computed < new Date();
+                      }
+                    }
+                    return false;
+                  })()}
                   onClick={handleToggleStatus}
-                  opacity={
-                    session.status === 'FINISHED' || isToggleStatusLoading
-                      ? 0.5
-                      : 1
-                  }
-                  cursor={
-                    session.status === 'FINISHED' || isToggleStatusLoading
-                      ? 'not-allowed'
-                      : 'pointer'
-                  }
+                  opacity={(() => {
+                    if (session.status === 'FINISHED' || isToggleStatusLoading)
+                      return 0.5;
+                    if (session.status === 'PREPARING') {
+                      let isExpired = false;
+                      if (session.endTime)
+                        isExpired = new Date(session.endTime) < new Date();
+                      else if (session.startTime) {
+                        const computed = new Date(session.startTime);
+                        computed.setMinutes(
+                          computed.getMinutes() +
+                            (session.sessionDuration || 120)
+                        );
+                        isExpired = computed < new Date();
+                      }
+                      if (isExpired) return 0.5;
+                    }
+                    return 1;
+                  })()}
+                  cursor={(() => {
+                    if (session.status === 'FINISHED' || isToggleStatusLoading)
+                      return 'not-allowed';
+                    if (session.status === 'PREPARING') {
+                      let isExpired = false;
+                      if (session.endTime)
+                        isExpired = new Date(session.endTime) < new Date();
+                      else if (session.startTime) {
+                        const computed = new Date(session.startTime);
+                        computed.setMinutes(
+                          computed.getMinutes() +
+                            (session.sessionDuration || 120)
+                        );
+                        isExpired = computed < new Date();
+                      }
+                      if (isExpired) return 'not-allowed';
+                    }
+                    return 'pointer';
+                  })()}
                   fontWeight="normal"
                   borderRadius="0"
                 >

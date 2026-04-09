@@ -48,7 +48,6 @@ export const PaymentSettingsService = {
       '/payment-settings',
       data
     );
-    toaster.success({ title: 'Đã tạo cài đặt thanh toán' });
     return response.data.data!;
   },
 
@@ -61,14 +60,12 @@ export const PaymentSettingsService = {
       `/payment-settings/${id}`,
       data
     );
-    toaster.success({ title: 'Đã cập nhật cài đặt thanh toán' });
     return response.data.data!;
   },
 
   // Delete payment settings
   deletePaymentSettings: async (id: string): Promise<void> => {
     await api.delete(`/payment-settings/${id}`);
-    toaster.success({ title: 'Đã xóa cài đặt thanh toán' });
   },
 
   // Set as default payment settings
@@ -79,7 +76,6 @@ export const PaymentSettingsService = {
       `/payment-settings/${id}/set-default`,
       {}
     );
-    toaster.success({ title: 'Đã đặt làm mặc định' });
     return response.data.data!;
   },
 
