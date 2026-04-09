@@ -252,7 +252,7 @@ export default function PaymentInfoTab({
                   <Text fontSize="xs" color="gray.600" minW="100px">
                     {t('bankName')}
                   </Text>
-                  <Text fontSize="xs" fontWeight="medium" isTruncated>
+                  <Text fontSize="xs" fontWeight="medium" truncate>
                     {hostPaymentSettings.bankName}
                   </Text>
                 </HStack>
@@ -276,7 +276,7 @@ export default function PaymentInfoTab({
                   <Text fontSize="xs" color="gray.600" minW="100px">
                     {t('accountHolderName')}
                   </Text>
-                  <Text fontSize="xs" fontWeight="medium" isTruncated>
+                  <Text fontSize="xs" fontWeight="medium" truncate>
                     {hostPaymentSettings.accountHolderName}
                   </Text>
                 </HStack>
