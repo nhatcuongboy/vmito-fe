@@ -154,18 +154,12 @@ export default function FastTransferModal({
     // 6. Callback URL (url) - return to app after success
     searchParams.set('url', window.location.href);
 
-    // Construct the direct deeplink using the native vietqr scheme
-    const deeplink = `vietqr://pay?${searchParams.toString()}`;
-    const fallbackLink = `https://dl.vietqr.io/pay?${searchParams.toString()}`;
+    // Construct the direct deeplink
+    const deeplink = `https://dl.vietqr.io/pay?${searchParams.toString()}`;
 
-    // Execute transfer by first trying the native scheme
+    // Execute transfer
     window.location.href = deeplink;
-
-    // Add a fallback in case the device/bank doesn't support the vietqr:// scheme natively
-    setTimeout(() => {
-      window.location.href = fallbackLink;
-      setTimeout(() => onClose(), 500);
-    }, 800);
+    setTimeout(() => onClose(), 500);
   };
 
   return (
