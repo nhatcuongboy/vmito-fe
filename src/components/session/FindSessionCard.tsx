@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { ViewMode } from '@/stores/useSessionFilterStore';
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -22,12 +22,12 @@ import { Portal } from '@chakra-ui/react';
 interface FindSessionCardProps {
   session: ISession;
   variant?: ViewMode;
-  onJoin: () => void;
+  onJoin: (session: ISession) => void;
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void | Promise<void>;
   onDeleteSuccess?: () => void;
-  onHostClick?: () => void;
+  onHostClick?: (session: ISession) => void;
   distance?: number;
   coverPhotoOverlay?: React.ReactNode;
   compactTopContent?: React.ReactNode;
@@ -218,7 +218,7 @@ const FindSessionCard = ({
       onOpenLoginModal();
       return;
     }
-    onJoin();
+    onJoin(session);
   };
 
   // Action configuration for find session card
@@ -267,7 +267,7 @@ const FindSessionCard = ({
         coverPhotoOverlay={coverPhotoOverlay}
         compactTopContent={compactTopContent}
         actions={actions}
-        onHostClick={onHostClick}
+        onHostClick={onHostClick ? () => onHostClick(session) : undefined}
       />
 
       {/* Login prompt modal */}
@@ -324,4 +324,4 @@ const FindSessionCard = ({
   );
 };
 
-export default FindSessionCard;
+export default memo(FindSessionCard);

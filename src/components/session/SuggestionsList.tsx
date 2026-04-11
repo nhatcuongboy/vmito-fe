@@ -138,6 +138,11 @@ export default function SuggestionsList({
     );
   }, []);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+  const handleRegistrationUpdate = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
+
   const fetchSuggestions = useCallback(
     async (isLoadMore = false) => {
       try {
@@ -214,7 +219,7 @@ export default function SuggestionsList({
     );
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocation, locationDenied]);
+  }, [userLocation, locationDenied, refreshKey]);
 
   // Infinite scroll
   useEffect(() => {
@@ -224,19 +229,25 @@ export default function SuggestionsList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, hasMore, loading, loadingMore]);
 
-  const handleJoinClick = (session: ISession) => {
-    if (!user) {
-      router.push(ROUTES.AUTH.SIGNIN);
-      return;
-    }
-    setSelectedSession(session);
-    setIsJoinModalOpen(true);
-  };
+  const handleJoinClick = useCallback(
+    (session: ISession) => {
+      if (!user) {
+        router.push(ROUTES.AUTH.SIGNIN);
+        return;
+      }
+      setSelectedSession(session);
+      setIsJoinModalOpen(true);
+    },
+    [user, router]
+  );
 
-  const handleHostClick = (session: ISession) => {
-    setSelectedSessionForDetail(session);
-    onOpenDetailModal();
-  };
+  const handleHostClick = useCallback(
+    (session: ISession) => {
+      setSelectedSessionForDetail(session);
+      onOpenDetailModal();
+    },
+    [onOpenDetailModal]
+  );
 
   const hostIds = useMemo(() => {
     const ids = sessions
@@ -458,18 +469,25 @@ export default function SuggestionsList({
             gap={viewMode === 'compact' ? 4 : 6}
           >
             {filteredSessions.map((session) => (
-              <SuggestionSessionCard
+              <Box
                 key={session.id}
-                session={session}
-                variant={viewMode}
-                onJoin={() => handleJoinClick(session)}
-                isJoined={joinedSessionIds.has(session.id)}
-                userRegistrationStatus={
-                  registrationStatusMap[session.id] || null
-                }
-                onRegistrationUpdate={() => fetchSuggestions()}
-                onHostClick={() => handleHostClick(session)}
-              />
+                css={{
+                  contentVisibility: 'auto',
+                  containIntrinsicSize: 'auto 400px',
+                }}
+              >
+                <SuggestionSessionCard
+                  session={session}
+                  variant={viewMode}
+                  onJoin={handleJoinClick}
+                  isJoined={joinedSessionIds.has(session.id)}
+                  userRegistrationStatus={
+                    registrationStatusMap[session.id] || null
+                  }
+                  onRegistrationUpdate={handleRegistrationUpdate}
+                  onHostClick={handleHostClick}
+                />
+              </Box>
             ))}
           </Grid>
 

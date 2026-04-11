@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { ISession } from '@/lib/api/types';
 import { ViewMode } from '@/stores/useSessionFilterStore';
 import { Box, Flex, Badge, Icon } from '@chakra-ui/react';
@@ -14,11 +15,11 @@ interface SuggestionSessionCardProps {
     matchReasons: string[];
   };
   variant?: ViewMode;
-  onJoin: () => void;
+  onJoin: (session: ISession) => void;
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void | Promise<void>;
-  onHostClick?: () => void;
+  onHostClick?: (session: ISession) => void;
 }
 
 const REASON_CONFIG: Record<
@@ -171,4 +172,4 @@ const SuggestionSessionCard = ({
   );
 };
 
-export default SuggestionSessionCard;
+export default memo(SuggestionSessionCard);

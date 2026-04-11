@@ -40,7 +40,7 @@ import {
 } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { AISessionModal } from './AISessionModal';
 import AppHostDetail from './AppHostDetail';
@@ -160,6 +160,10 @@ export default function FindSessionList({
   const [selectedVenueName, setSelectedVenueName] = useState<string | null>(
     null
   );
+  const [refreshKey, setRefreshKey] = useState(0);
+  const handleRegistrationUpdate = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
   const router = useRouter();
 
   const t = useTranslations('session');
@@ -392,6 +396,7 @@ export default function FindSessionList({
     userLocation,
     filters.searchQuery,
     sortBy,
+    refreshKey,
   ]);
 
   // Trigger load more when in view
@@ -474,19 +479,22 @@ export default function FindSessionList({
   const nonSearchFilterCount = activeFilterCount;
 
   // Handle Join Actions
-  const handleJoinClick = (session: ISession) => {
-    if (!user) {
-      router.push(ROUTES.AUTH.SIGNIN);
-      return;
-    }
-    setSelectedSession(session);
-    setIsJoinModalOpen(true);
-  };
+  const handleJoinClick = useCallback(
+    (session: ISession) => {
+      if (!user) {
+        router.push(ROUTES.AUTH.SIGNIN);
+        return;
+      }
+      setSelectedSession(session);
+      setIsJoinModalOpen(true);
+    },
+    [user, router]
+  );
 
-  const handleHostClick = (session: ISession) => {
+  const handleHostClick = useCallback((session: ISession) => {
     setSelectedSessionForDetail(session);
     setIsDetailModalOpen(true);
-  };
+  }, []);
 
   // Sort sessions: API handles most sorts, client-side only for distance and slots
   const sortedSessions = useMemo(() => {
@@ -902,19 +910,26 @@ export default function FindSessionList({
             gap={viewMode === 'compact' ? 4 : 6}
           >
             {sortedSessions.map((session) => (
-              <FindSessionCard
+              <Box
                 key={session.id}
-                session={session}
-                variant={viewMode}
-                onJoin={() => handleJoinClick(session)}
-                isJoined={joinedSessionIds.has(session.id)}
-                userRegistrationStatus={
-                  registrationStatusMap[session.id] || null
-                }
-                onRegistrationUpdate={() => fetchSessions()}
-                distance={session.distance}
-                onHostClick={() => handleHostClick(session)}
-              />
+                css={{
+                  contentVisibility: 'auto',
+                  containIntrinsicSize: 'auto 400px',
+                }}
+              >
+                <FindSessionCard
+                  session={session}
+                  variant={viewMode}
+                  onJoin={handleJoinClick}
+                  isJoined={joinedSessionIds.has(session.id)}
+                  userRegistrationStatus={
+                    registrationStatusMap[session.id] || null
+                  }
+                  onRegistrationUpdate={handleRegistrationUpdate}
+                  distance={session.distance}
+                  onHostClick={handleHostClick}
+                />
+              </Box>
             ))}
           </Grid>
 
