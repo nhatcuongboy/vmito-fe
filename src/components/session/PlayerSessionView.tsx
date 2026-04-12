@@ -3,7 +3,7 @@
 import SessionCourtsTab from '@/components/session/SessionCourtsTab';
 import PlayerSessionBottomNav from '@/components/session/PlayerSessionBottomNav';
 import PlayerStatusTab from '@/components/session/PlayerStatusTab';
-import PlayerMatchHistory from '@/components/session/PlayerMatchHistory';
+import SessionMatchesTab from '@/components/session/SessionMatchesTab';
 import SessionInfo from '@/components/session/SessionInfo';
 import OverviewPlayerTable from '@/components/session/OverviewPlayerTable';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
@@ -567,9 +567,14 @@ export default function PlayerSessionView({
 
               {/* Results Tab */}
               {activeTab === 3 && (
-                <PlayerMatchHistory
+                <SessionMatchesTab
                   sessionId={session.id}
-                  playerId={player.id}
+                  sessionData={{
+                    players: session.players || [],
+                    courts: session.courts || [],
+                  }}
+                  defaultPlayerId={player.id}
+                  readOnly={true}
                 />
               )}
 

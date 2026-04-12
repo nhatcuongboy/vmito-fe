@@ -421,6 +421,11 @@ export const SessionService = {
     return response.data.data!;
   },
 
+  // Delete match
+  deleteMatch: async (id: string): Promise<void> => {
+    await api.delete<ApiResponse<null>>(`/matches/${id}`);
+  },
+
   // Upload cover photo for session
   uploadCoverPhoto: async (
     sessionId: string,

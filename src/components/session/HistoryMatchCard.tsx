@@ -1,7 +1,7 @@
 import { CourtDirection } from '@/lib/api/types';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { Badge, Box, Flex, Icon, Stack, Text } from '@chakra-ui/react';
-import { Edit, Clock, MapPin } from 'lucide-react';
+import { Edit, Clock, MapPin, Trash2 } from 'lucide-react';
 import React from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -21,6 +21,7 @@ export type HistoryMatch = {
   };
   winningPair?: 1 | 2;
   isExtra?: boolean;
+  notes?: string;
 };
 
 // Helper functions
@@ -62,12 +63,16 @@ interface HistoryMatchCardProps {
   match: HistoryMatch;
   direction?: CourtDirection;
   onEdit?: (match: HistoryMatch) => void;
+  onDelete?: (match: HistoryMatch) => void;
+  onToggleExtra?: (match: HistoryMatch) => void;
 }
 
 export const HistoryMatchCard = ({
   match,
   direction = CourtDirection.HORIZONTAL,
   onEdit,
+  onDelete,
+  onToggleExtra,
 }: HistoryMatchCardProps) => {
   const t = useTranslations('SessionDetail.matchs');
   let pair1: string[], pair2: string[];
@@ -109,18 +114,32 @@ export const HistoryMatchCard = ({
         boxShadow: 'md',
       }}
       position="relative"
+      data-group
     >
-      {onEdit && (
-        <Box position="absolute" top={2} right={2}>
-          <IconButton
-            aria-label={t('editMatch')}
-            icon={<Edit size={16} />}
-            size="sm"
-            variant="ghost"
-            color="gray.400"
-            _hover={{ color: 'brand.500', bg: 'brand.50' }}
-            onClick={() => onEdit(match)}
-          />
+      {(onEdit || onDelete) && (
+        <Box position="absolute" top={2} right={2} display="flex" gap={1}>
+          {onEdit && (
+            <IconButton
+              aria-label={t('editMatch')}
+              icon={<Edit size={16} />}
+              size="sm"
+              variant="ghost"
+              color="gray.400"
+              _hover={{ color: 'brand.500', bg: 'brand.50' }}
+              onClick={() => onEdit(match)}
+            />
+          )}
+          {onDelete && (
+            <IconButton
+              aria-label={t('delete')}
+              icon={<Trash2 size={16} />}
+              size="sm"
+              variant="ghost"
+              color="gray.400"
+              _hover={{ color: 'red.500', bg: 'red.50' }}
+              onClick={() => onDelete(match)}
+            />
+          )}
         </Box>
       )}
 
@@ -129,17 +148,38 @@ export const HistoryMatchCard = ({
           <Flex align="center" gap={2}>
             <Icon as={MapPin} boxSize={5} color="gray.500" />
             <Text fontWeight="bold">{match.court}</Text>
-            {match.isExtra && (
-              <Badge
-                colorPalette="orange"
-                variant="solid"
+            {onToggleExtra ? (
+              <Box
+                as="button"
+                onClick={() => onToggleExtra(match)}
+                bg={match.isExtra ? 'orange.500' : 'brand.600'}
+                color="white"
                 fontSize="xs"
                 px={2}
                 py={1}
                 borderRadius="md"
+                cursor="pointer"
+                _hover={{ opacity: 0.8 }}
+                border="none"
+                fontWeight="bold"
+                display={match.isExtra ? 'block' : 'none'}
+                _groupHover={{ display: 'block' }}
               >
-                {t('extra')}
-              </Badge>
+                {match.isExtra ? t('extra') : t('main')}
+              </Box>
+            ) : (
+              match.isExtra && (
+                <Badge
+                  colorPalette="orange"
+                  variant="solid"
+                  fontSize="xs"
+                  px={2}
+                  py={1}
+                  borderRadius="md"
+                >
+                  {t('extra')}
+                </Badge>
+              )
             )}
           </Flex>
         </Flex>
@@ -247,6 +287,21 @@ export const HistoryMatchCard = ({
           <Box borderTopWidth="1px" pt={4} mt={2}>
             <Text color="gray.600" _dark={{ color: 'gray.400' }}>
               {t('winner', { name: match.winner })}
+            </Text>
+          </Box>
+        )}
+
+        {match.notes && (
+          <Box
+            p={2}
+            bg="orange.50"
+            _dark={{ bg: 'orange.900/30' }}
+            borderRadius="md"
+            borderLeftWidth="4px"
+            borderLeftColor="orange.400"
+          >
+            <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+              {match.notes}
             </Text>
           </Box>
         )}

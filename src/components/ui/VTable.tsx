@@ -219,7 +219,17 @@ export const Th = ({
       onClick={isSortable ? () => onSort(sortKey) : undefined}
       {...props}
     >
-      <Flex align="center" gap="1">
+      <Flex
+        align="center"
+        gap="1"
+        justify={
+          props.textAlign === 'center'
+            ? 'center'
+            : props.textAlign === 'right'
+              ? 'flex-end'
+              : 'flex-start'
+        }
+      >
         {children}
         {isSortable && <SortIcon sortKey={sortKey} sortConfig={sortConfig} />}
         {isFilterable && (

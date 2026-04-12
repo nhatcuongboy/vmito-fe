@@ -2342,7 +2342,8 @@
     "resting": "休息中",
     "resetFilters": "重置",
     "playerCount": "{count} 位球员",
-    "playerCountSingular": "{count} 位球员"
+    "playerCountSingular": "{count} 位球员",
+    "exportImage": "导出图片"
   },
   "auth": {
     "signin": {

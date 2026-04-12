@@ -2293,8 +2293,32 @@
       "rejectAllShort": "Từ chối hết"
     },
     "matchs": {
+      "main": "Chính",
+      "confirmDeleteMatch": "Bạn có chắc chắn muốn xoá trận đấu này không?",
+      "delete": "Xoá",
+      "deleteConfirm": "Xác nhận xoá",
+      "cancel": "Huỷ",
+      "deleteMatchSuccess": "Đã xoá trận đấu",
+      "deleteMatchError": "Không thể xoá trận đấu",
+      "updateMatchSuccess": "Cập nhật trận đấu thành công",
+      "updateMatchError": "Lỗi cập nhật trận đấu",
       "tabTitle": "Kết quả",
       "matches": "Trận đấu",
+      "matchCount": "{count} trận",
+      "editMatchTitle": "Chỉnh sửa trận đấu",
+      "score": "Tỉ số",
+      "pair1": "Cặp 1",
+      "pair2": "Cặp 2",
+      "players": "Người chơi (Cặp 1 vs Cặp 2)",
+      "position1": "Cặp 1 (Vị trí 1)",
+      "position2": "Cặp 1 (Vị trí 2)",
+      "position3": "Cặp 2 (Vị trí 3)",
+      "position4": "Cặp 2 (Vị trí 4)",
+      "selectPlayer": "Chọn người chơi",
+      "extraMatch": "Trận Phụ",
+      "notes": "Ghi chú",
+      "notesPlaceholder": "Nhập ghi chú cho trận đấu...",
+      "saveChanges": "Lưu thay đổi",
       "player": "Người chơi",
       "allPlayers": "Tất cả người chơi",
       "unnamed": "Chưa đặt tên",
@@ -2392,7 +2416,8 @@
     "resting": "Đang nghỉ",
     "resetFilters": "Đặt lại",
     "playerCount": "{count} người chơi",
-    "playerCountSingular": "{count} người chơi"
+    "playerCountSingular": "{count} người chơi",
+    "exportImage": "Xuất ảnh"
   },
   "auth": {
     "signin": {

@@ -313,42 +313,34 @@ export default function SessionOverviewTab({
                 justifyItems="center"
                 alignItems="center"
               >
-                <Box
-                  cursor="pointer"
-                  _hover={{ opacity: 0.8, transform: 'scale(1.02)' }}
-                  transition="all 0.2s"
-                  onClick={() =>
-                    handleQrClick(
-                      `/${locale}/browse/sessions/${session.id}`,
-                      t('qrScanToView')
-                    )
-                  }
-                >
+                <Box>
                   <QRCodeGenerator
                     joinCode={joinCode}
                     size={140}
-                    url={`/${locale}/browse/sessions/${session.id}`}
+                    url={`/${locale}/sessions/${session.id}`}
                     label={t('qrScanToView')}
                     hideCode
+                    onQrClick={() =>
+                      handleQrClick(
+                        `/${locale}/sessions/${session.id}`,
+                        t('qrScanToView')
+                      )
+                    }
                   />
                 </Box>
-                <Box
-                  cursor="pointer"
-                  _hover={{ opacity: 0.8, transform: 'scale(1.02)' }}
-                  transition="all 0.2s"
-                  onClick={() =>
-                    handleQrClick(
-                      `/${locale}/browse/sessions/${session.id}/join`,
-                      t('qrScanToJoin')
-                    )
-                  }
-                >
+                <Box>
                   <QRCodeGenerator
                     joinCode={joinCode}
                     size={140}
-                    url={`/${locale}/browse/sessions/${session.id}/join`}
+                    url={`/${locale}/sessions/${session.id}/join`}
                     label={t('qrScanToJoin')}
                     hideCode
+                    onQrClick={() =>
+                      handleQrClick(
+                        `/${locale}/sessions/${session.id}/join`,
+                        t('qrScanToJoin')
+                      )
+                    }
                   />
                 </Box>
               </Grid>
@@ -566,7 +558,7 @@ export default function SessionOverviewTab({
         <Heading size="md" mb={4}>
           {t('playersTab.playerStatistics')}
         </Heading>
-        <SessionPlayers sessionId={session.id} />
+        <SessionPlayers sessionId={session.id} session={session} />
       </Box>
 
       {/* Edit Session Drawer */}

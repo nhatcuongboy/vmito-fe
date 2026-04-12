@@ -57,6 +57,7 @@ export default function SessionPaymentList({
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
   const tFixed = useTranslations('clubs');
+  const tCommon = useTranslations('common');
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
     null
@@ -154,6 +155,35 @@ export default function SessionPaymentList({
     await onReject(selectedPayment.id, notes);
   };
 
+  // Helper to get registration group info for a payment
+  const getGroupInfo = (payment: PaymentRecord) => {
+    const payerId = payment.registeredByUserId || payment.playerId;
+    const group = paymentsArray.filter(
+      (p) => (p.registeredByUserId || p.playerId) === payerId
+    );
+    const total = group.length;
+    const males = group.filter((p) => p.player?.gender === 'MALE').length;
+    const females = group.filter((p) => p.player?.gender === 'FEMALE').length;
+    return { total, males, females };
+  };
+
+  // Helper to get gender translation
+  const getGenderText = (gender?: string) => {
+    if (!gender) return '';
+    switch (gender) {
+      case 'MALE':
+        return tCommon('male');
+      case 'FEMALE':
+        return tCommon('female');
+      case 'OTHER':
+        return tCommon('other');
+      case 'PREFER_NOT_TO_SAY':
+        return tCommon('preferNotToSay');
+      default:
+        return gender;
+    }
+  };
+
   // Calculate totals
   const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
   const approvedAmount = paymentsArray
@@ -189,7 +219,7 @@ export default function SessionPaymentList({
           </Box>
         }
       >
-        <HStack gap={1} cursor="help">
+        <HStack gap={1} cursor="help" justify="flex-end">
           <Text fontWeight="semibold" color="teal.600">
             {FeeService.formatFeeExact(payment.amount)}
           </Text>
@@ -413,8 +443,8 @@ export default function SessionPaymentList({
               _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
               onClick={() => setSelectedPayment(payment)}
             >
-              <HStack justify="space-between">
-                <HStack gap={3}>
+              <Flex align="center" justify="space-between">
+                <HStack gap={3} flex={1}>
                   <Avatar.Root size="sm">
                     {payment.player?.user?.image ? (
                       <Avatar.Image src={payment.player.user.image} />
@@ -448,17 +478,34 @@ export default function SessionPaymentList({
                     </HStack>
                     {payment.player?.gender && (
                       <Text fontSize="xs" color="gray.500">
-                        {payment.player.gender}
+                        {getGenderText(payment.player.gender)}
                       </Text>
                     )}
                   </Box>
                 </HStack>
 
-                <HStack gap={3}>
-                  {renderFixedMemberAmount(payment)}
-                  <PaymentStatusBadge status={payment.status} size="sm" />
+                {/* Slots Column */}
+                <Box flex={1} display={{ base: 'none', sm: 'block' }} px={4}>
+                  {(() => {
+                    const { total, males, females } = getGroupInfo(payment);
+                    return (
+                      <Text fontSize="sm" color="gray.600" textAlign="center">
+                        {total} slot ({males} {tCommon('male')}, {females}{' '}
+                        {tCommon('female')})
+                      </Text>
+                    );
+                  })()}
+                </Box>
+
+                <HStack gap={3} flex={1} justify="flex-end">
+                  <Box minW="100px" textAlign="right">
+                    {renderFixedMemberAmount(payment)}
+                  </Box>
+                  <Box minW="100px" display="flex" justifyContent="flex-end">
+                    <PaymentStatusBadge status={payment.status} size="sm" />
+                  </Box>
                 </HStack>
-              </HStack>
+              </Flex>
 
               {payment.proofImageUrl && (
                 <HStack mt={2} ml={10}>
