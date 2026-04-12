@@ -150,10 +150,10 @@ export default function SessionMatchesTab({
         let playerNames: string[] = [];
         let playerIds: string[] = [];
         if (Array.isArray(matchData.players)) {
-          // Sort by courtPosition (actual visual position) for correct pairing
+          // Sort by match_player position for correct pairing
           const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
-            const posA = a.player?.courtPosition ?? a.position ?? 0;
-            const posB = b.player?.courtPosition ?? b.position ?? 0;
+            const posA = a.position ?? 0;
+            const posB = b.position ?? 0;
             return posA - posB;
           });
           playerNames = sortedMatchPlayers.map((mp) => mp.player?.name || '?');
@@ -184,12 +184,12 @@ export default function SessionMatchesTab({
           }
         }
 
-        // Use courtPosition for pair calculation to match visual layout
+        // Use match player's position for pair calculation
         const playersWithPosition = Array.isArray(matchData.players)
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             matchData.players.map((mp: any, index: number) => ({
               playerId: mp.player?.id || mp.playerId,
-              position: mp.player?.courtPosition ?? mp.position ?? index,
+              position: mp.position ?? index,
             }))
           : [];
 

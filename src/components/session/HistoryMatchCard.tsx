@@ -216,21 +216,26 @@ export const HistoryMatchCard = ({
         </Stack>
 
         <Box mt={2}>
-          <Text fontWeight="semibold" mb={1}>
-            {t('players')}
-          </Text>
           <Flex gap={4}>
-            <Box {...pair1WonStyle}>
+            <Box {...pair1WonStyle} flex={1}>
               <Text color="gray.600" fontSize="sm">
                 {t('pair1')}
               </Text>
-              <Text fontWeight="semibold">{pair1.join(' & ')}</Text>
+              {pair1.map((p, i) => (
+                <Text key={i} fontWeight="semibold">
+                  {p}
+                </Text>
+              ))}
             </Box>
-            <Box {...pair2WonStyle}>
+            <Box {...pair2WonStyle} flex={1}>
               <Text color="gray.600" fontSize="sm">
                 {t('pair2')}
               </Text>
-              <Text fontWeight="semibold">{pair2.join(' & ')}</Text>
+              {pair2.map((p, i) => (
+                <Text key={i} fontWeight="semibold">
+                  {p}
+                </Text>
+              ))}
             </Box>
           </Flex>
         </Box>

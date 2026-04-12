@@ -83,10 +83,8 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   // Apply visual mapping based on direction prop, then determine pairs by column
 
   const playersWithPair = (match.players ?? []).map((matchPlayer) => {
-    // Use courtPosition to determine the actual visual position on the court
-    // courtPosition 0 = top-left, 1 = top-right (or bottom-left in horizontal), etc.
-    const courtPosition =
-      matchPlayer.player.courtPosition ?? matchPlayer.position;
+    // Use match player's recorded position
+    const courtPosition = matchPlayer.position;
 
     // Determine pair by courtPosition:
     // In horizontal layout: positions 0, 2 are on the left (Pair 1), positions 1, 3 are on the right (Pair 2)
@@ -109,18 +107,17 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   const pair1 = playersWithPair
     .filter((p) => p.pairNumber === 1)
     .sort((a, b) => {
-      // Sort by courtPosition to maintain top/bottom order within each pair
-      const posA = a.player.courtPosition ?? a.position;
-      const posB = b.player.courtPosition ?? b.position;
+      // Sort by position to maintain top/bottom order within each pair
+      const posA = a.position;
+      const posB = b.position;
       return posA - posB;
     });
   const pair2 = playersWithPair
     .filter((p) => p.pairNumber === 2)
     .sort((a, b) => {
-      // Sort by courtPosition to maintain top/bottom order within each pair
-      const posA = a.player.courtPosition ?? a.position;
-      const posB = b.player.courtPosition ?? b.position;
-      return posA - posB;
+      // Sort by position to maintain top/bottom order within each pair
+      const posA = a.position;
+      const posB = b.position;
     });
 
   const handleConfirm = () => {

@@ -253,7 +253,7 @@ const StatsTable = ({
           </Tr>
         </Thead>
         <Tbody>
-          {sortedData.map((p) => {
+          {sortedData.map((p, index) => {
             const isNA = p.wins === 0 && p.losses === 0;
             return (
               <Tr
@@ -270,7 +270,7 @@ const StatsTable = ({
               >
                 <Td textAlign="center" {...tdProps}>
                   <Text fontSize="xs" fontWeight="bold" color="fg.muted">
-                    {p.playerNumber}
+                    {index + 1}
                   </Text>
                 </Td>
                 <Td
@@ -535,33 +535,35 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
               </Box>
             </Box>
 
-            <Flex justify="center" align="center" pt={0}>
-              <HStack gap={3}>
-                <VStack align="center" gap={0}>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="bold"
-                    color="green.600"
-                    textAlign="center"
-                  >
-                    Vmito App
-                  </Text>
-                  <Text
-                    fontSize="xs"
-                    color="fg.muted"
-                    textAlign="center"
-                    mt="-1px"
-                  >
-                    Nền tảng quản lý giao lưu cầu lông
-                  </Text>
-                </VStack>
-                {qrCodeUrl && (
-                  <Box>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrCodeUrl} alt="QR Code" width={36} height={36} />
-                  </Box>
-                )}
-              </HStack>
+            <Flex justify="space-between" align="center" pt={2}>
+              <Box w="64px" />{' '}
+              {/* Spacer to balance QR code for text centering */}
+              <VStack align="center" gap={0}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="green.600"
+                  textAlign="center"
+                >
+                  Vmito App
+                </Text>
+                <Text
+                  fontSize="xs"
+                  color="fg.muted"
+                  textAlign="center"
+                  mt="-1px"
+                >
+                  Nền tảng quản lý giao lưu cầu lông
+                </Text>
+              </VStack>
+              {qrCodeUrl ? (
+                <Box>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={qrCodeUrl} alt="QR Code" width={48} height={48} />
+                </Box>
+              ) : (
+                <Box w="64px" />
+              )}
             </Flex>
           </VStack>
         </Box>

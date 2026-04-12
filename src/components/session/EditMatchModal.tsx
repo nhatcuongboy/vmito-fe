@@ -5,8 +5,9 @@ import {
   VStack,
   HStack,
   VSelect,
+  SimpleGrid,
 } from '@/components/ui/chakra-compat';
-import { Text } from '@chakra-ui/react';
+import { Text, Box, Flex } from '@chakra-ui/react';
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
@@ -38,16 +39,22 @@ export function EditMatchModal({
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [isExtra, setIsExtra] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
+  const [isNoResult, setIsNoResult] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (match && isOpen) {
       // Initialize scores
-      if (match.scores) {
+      const hasScores =
+        match.scores &&
+        (match.scores.pair1Score !== null || match.scores.pair2Score !== null);
+
+      setIsNoResult(!hasScores);
+
+      if (hasScores) {
         setPair1Score(match.scores.pair1Score?.toString() || '0');
         setPair2Score(match.scores.pair2Score?.toString() || '0');
       } else {
-        // Try to parse legacy score if needed, or default to empty/0
         setPair1Score('0');
         setPair2Score('0');
       }
@@ -69,10 +76,12 @@ export function EditMatchModal({
       setIsSubmitting(true);
 
       const payload: any = {
-        score: JSON.stringify({
-          pair1: parseInt(pair1Score) || 0,
-          pair2: parseInt(pair2Score) || 0,
-        }),
+        score: isNoResult
+          ? null
+          : JSON.stringify({
+              pair1: parseInt(pair1Score) || 0,
+              pair2: parseInt(pair2Score) || 0,
+            }),
         isExtra,
         notes,
       };
@@ -127,10 +136,30 @@ export function EditMatchModal({
     >
       <VStack spacing={4} align="stretch" pb={2}>
         <FormControl>
-          <FormLabel>{t('score')}</FormLabel>
-          <HStack>
-            <VStack>
-              <Text fontSize="sm" fontWeight="bold" color="green.600">
+          <Flex align="center" justify="space-between" mb={2}>
+            <FormLabel fontSize="sm" fontWeight="semibold" mb={0}>
+              {t('score')}
+            </FormLabel>
+            <HStack spacing={2}>
+              <Text fontSize="xs" color="gray.500">
+                {t('noResult')}
+              </Text>
+              <VSwitch
+                checked={isNoResult}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setIsNoResult(e.target.checked)
+                }
+              />
+            </HStack>
+          </Flex>
+          <SimpleGrid
+            columns={2}
+            gap={4}
+            opacity={isNoResult ? 0.5 : 1}
+            transition="opacity 0.2s"
+          >
+            <Box>
+              <Text fontSize="xs" fontWeight="bold" color="green.600" mb={1}>
                 {t('pair1')}
               </Text>
               <Input
@@ -139,11 +168,14 @@ export function EditMatchModal({
                   setPair1Score(e.target.value)
                 }
                 type="number"
+                placeholder="0"
+                bg="white"
+                _dark={{ bg: 'gray.800' }}
+                disabled={isNoResult}
               />
-            </VStack>
-            <Text fontWeight="bold">-</Text>
-            <VStack>
-              <Text fontSize="sm" fontWeight="bold" color="red.600">
+            </Box>
+            <Box>
+              <Text fontSize="xs" fontWeight="bold" color="red.600" mb={1}>
                 {t('pair2')}
               </Text>
               <Input
@@ -152,94 +184,178 @@ export function EditMatchModal({
                   setPair2Score(e.target.value)
                 }
                 type="number"
+                placeholder="0"
+                bg="white"
+                _dark={{ bg: 'gray.800' }}
+                disabled={isNoResult}
               />
-            </VStack>
-          </HStack>
+            </Box>
+          </SimpleGrid>
         </FormControl>
 
         <FormControl>
-          <FormLabel>{t('players')}</FormLabel>
-          <VStack spacing={2}>
-            <HStack width="100%" spacing={2}>
-              <VStack flex={1} spacing={2} align="stretch">
-                <Text fontSize="xs" color="gray.500">
-                  {t('position1')}
-                </Text>
-                <VSelect
-                  value={selectedPlayerIds[0] || ''}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    handlePlayerChange(0, e.target.value)
-                  }
-                >
-                  <option value="" disabled>
-                    {t('selectPlayer')}
-                  </option>
-                  {players.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      #{p.playerNumber} {p.name}
+          <FormLabel fontSize="sm" fontWeight="semibold" mb={2}>
+            {t('players')}
+          </FormLabel>
+          <SimpleGrid columns={2} gap={4}>
+            {/* Pair 1 Column */}
+            <VStack
+              align="stretch"
+              spacing={3}
+              p={3}
+              bg="green.50"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="green.100"
+              _dark={{ bg: 'green.950/20', borderColor: 'green.900/30' }}
+            >
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                color="green.700"
+                _dark={{ color: 'green.300' }}
+              >
+                {t('pair1')}
+              </Text>
+              <VStack spacing={2} align="stretch">
+                <Box>
+                  <Text
+                    fontSize="2xs"
+                    color="gray.500"
+                    mb={1}
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    {t('position1')}
+                  </Text>
+                  <VSelect
+                    value={selectedPlayerIds[0] || ''}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                      handlePlayerChange(0, e.target.value)
+                    }
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
+                  >
+                    <option value="" disabled>
+                      {t('selectPlayer')}
                     </option>
-                  ))}
-                </VSelect>
-                <Text fontSize="xs" color="gray.500">
-                  {t('position2')}
-                </Text>
-                <VSelect
-                  value={selectedPlayerIds[1] || ''}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    handlePlayerChange(1, e.target.value)
-                  }
-                >
-                  <option value="" disabled>
-                    {t('selectPlayer')}
-                  </option>
-                  {players.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      #{p.playerNumber} {p.name}
+                    {players.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        #{p.playerNumber} {p.name}
+                      </option>
+                    ))}
+                  </VSelect>
+                </Box>
+                <Box>
+                  <Text
+                    fontSize="2xs"
+                    color="gray.500"
+                    mb={1}
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    {t('position2')}
+                  </Text>
+                  <VSelect
+                    value={selectedPlayerIds[1] || ''}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                      handlePlayerChange(1, e.target.value)
+                    }
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
+                  >
+                    <option value="" disabled>
+                      {t('selectPlayer')}
                     </option>
-                  ))}
-                </VSelect>
+                    {players.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        #{p.playerNumber} {p.name}
+                      </option>
+                    ))}
+                  </VSelect>
+                </Box>
               </VStack>
+            </VStack>
 
-              <VStack flex={1} spacing={2} align="stretch">
-                <Text fontSize="xs" color="gray.500">
-                  {t('position3')}
-                </Text>
-                <VSelect
-                  value={selectedPlayerIds[2] || ''}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    handlePlayerChange(2, e.target.value)
-                  }
-                >
-                  <option value="" disabled>
-                    {t('selectPlayer')}
-                  </option>
-                  {players.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      #{p.playerNumber} {p.name}
+            {/* Pair 2 Column */}
+            <VStack
+              align="stretch"
+              spacing={3}
+              p={3}
+              bg="red.50"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="red.100"
+              _dark={{ bg: 'red.950/20', borderColor: 'red.900/30' }}
+            >
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                color="red.700"
+                _dark={{ color: 'red.300' }}
+              >
+                {t('pair2')}
+              </Text>
+              <VStack spacing={2} align="stretch">
+                <Box>
+                  <Text
+                    fontSize="2xs"
+                    color="gray.500"
+                    mb={1}
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    {t('position3')}
+                  </Text>
+                  <VSelect
+                    value={selectedPlayerIds[2] || ''}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                      handlePlayerChange(2, e.target.value)
+                    }
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
+                  >
+                    <option value="" disabled>
+                      {t('selectPlayer')}
                     </option>
-                  ))}
-                </VSelect>
-                <Text fontSize="xs" color="gray.500">
-                  {t('position4')}
-                </Text>
-                <VSelect
-                  value={selectedPlayerIds[3] || ''}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    handlePlayerChange(3, e.target.value)
-                  }
-                >
-                  <option value="" disabled>
-                    {t('selectPlayer')}
-                  </option>
-                  {players.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      #{p.playerNumber} {p.name}
+                    {players.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        #{p.playerNumber} {p.name}
+                      </option>
+                    ))}
+                  </VSelect>
+                </Box>
+                <Box>
+                  <Text
+                    fontSize="2xs"
+                    color="gray.500"
+                    mb={1}
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    {t('position4')}
+                  </Text>
+                  <VSelect
+                    value={selectedPlayerIds[3] || ''}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                      handlePlayerChange(3, e.target.value)
+                    }
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
+                  >
+                    <option value="" disabled>
+                      {t('selectPlayer')}
                     </option>
-                  ))}
-                </VSelect>
+                    {players.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        #{p.playerNumber} {p.name}
+                      </option>
+                    ))}
+                  </VSelect>
+                </Box>
               </VStack>
-            </HStack>
-          </VStack>
+            </VStack>
+          </SimpleGrid>
         </FormControl>
 
         <FormControl>

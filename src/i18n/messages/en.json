@@ -2307,6 +2307,7 @@
       "matchCount": "{count} matches",
       "editMatchTitle": "Edit Match",
       "score": "Score",
+      "noResult": "No result",
       "pair1": "Pair 1",
       "pair2": "Pair 2",
       "players": "Players (Pair 1 vs Pair 2)",

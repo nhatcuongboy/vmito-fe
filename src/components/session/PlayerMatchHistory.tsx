@@ -77,13 +77,13 @@ export default function PlayerMatchHistory({
           courtName = matchData.courtId;
         }
 
-        // Get player names and IDs sorted by courtPosition
+        // Get player names and IDs sorted by match player position
         let playerNames: string[] = [];
         let playerIds: string[] = [];
         if (Array.isArray(matchData.players)) {
           const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
-            const posA = a.player?.courtPosition ?? a.position ?? 0;
-            const posB = b.player?.courtPosition ?? b.position ?? 0;
+            const posA = a.position ?? 0;
+            const posB = b.position ?? 0;
             return posA - posB;
           });
           playerNames = sortedMatchPlayers.map((mp) => mp.player?.name || '?');
@@ -93,8 +93,8 @@ export default function PlayerMatchHistory({
         }
 
         // Parse Scores
-        let scores;
-        let winningPair;
+        let scores: { pair1Score: number; pair2Score: number } | undefined;
+        let winningPair: 1 | 2 | undefined;
 
         // Ensure score is parsed if it arrives as a string
         if (typeof matchData.score === 'string') {
@@ -114,17 +114,25 @@ export default function PlayerMatchHistory({
         }
 
         const playersWithPosition = Array.isArray(matchData.players)
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            matchData.players.map((mp: any, index: number) => ({
-              playerId: mp.player?.id || mp.playerId,
-              position: mp.player?.courtPosition ?? mp.position ?? index,
-            }))
+          ? matchData.players.map(
+              (
+                mp: {
+                  player?: { id: string };
+                  playerId: string;
+                  position?: number;
+                },
+                index: number
+              ) => ({
+                playerId: mp.player?.id || mp.playerId,
+                position: mp.position ?? index,
+              })
+            )
           : [];
 
         const matchResult = parseScoreData(matchData, playersWithPosition);
         if (matchResult) {
           scores = matchResult.scores;
-          winningPair = matchResult.winningPair;
+          winningPair = matchResult.winningPair as 1 | 2 | undefined;
         }
 
         allMatches.push({
