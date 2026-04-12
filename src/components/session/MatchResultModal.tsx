@@ -118,6 +118,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       // Sort by position to maintain top/bottom order within each pair
       const posA = a.position;
       const posB = b.position;
+      return posA - posB;
     });
 
   const handleConfirm = () => {

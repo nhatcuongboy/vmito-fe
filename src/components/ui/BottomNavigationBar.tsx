@@ -104,7 +104,7 @@ export default function BottomNavigationBar({
               <Text
                 fontSize={{ base: '2xs', sm: 'xs' }}
                 fontWeight={isActive ? 'semibold' : 'medium'}
-                noOfLines={1}
+                lineClamp={1}
                 textAlign="center"
                 px={0.5}
               >

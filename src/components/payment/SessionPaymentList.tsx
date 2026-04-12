@@ -490,8 +490,14 @@ export default function SessionPaymentList({
                     const { total, males, females } = getGroupInfo(payment);
                     return (
                       <Text fontSize="sm" color="gray.600" textAlign="center">
-                        {total} slot ({males} {tCommon('male')}, {females}{' '}
-                        {tCommon('female')})
+                        {total} slot (
+                        {[
+                          males > 0 && `${males} ${tCommon('male')}`,
+                          females > 0 && `${females} ${tCommon('female')}`,
+                        ]
+                          .filter(Boolean)
+                          .join(', ')}
+                        )
                       </Text>
                     );
                   })()}

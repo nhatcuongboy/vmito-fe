@@ -231,8 +231,6 @@ export function EditMatchModal({
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       handlePlayerChange(0, e.target.value)
                     }
-                    bg="white"
-                    _dark={{ bg: 'gray.800' }}
                   >
                     <option value="" disabled>
                       {t('selectPlayer')}
@@ -259,8 +257,6 @@ export function EditMatchModal({
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       handlePlayerChange(1, e.target.value)
                     }
-                    bg="white"
-                    _dark={{ bg: 'gray.800' }}
                   >
                     <option value="" disabled>
                       {t('selectPlayer')}
@@ -310,8 +306,6 @@ export function EditMatchModal({
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       handlePlayerChange(2, e.target.value)
                     }
-                    bg="white"
-                    _dark={{ bg: 'gray.800' }}
                   >
                     <option value="" disabled>
                       {t('selectPlayer')}
@@ -338,8 +332,6 @@ export function EditMatchModal({
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       handlePlayerChange(3, e.target.value)
                     }
-                    bg="white"
-                    _dark={{ bg: 'gray.800' }}
                   >
                     <option value="" disabled>
                       {t('selectPlayer')}
