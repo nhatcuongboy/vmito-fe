@@ -23,8 +23,6 @@ interface IUseUniversalVmitoAudioReturn {
   unlock: () => Promise<void>;
   /** Play an audio file from a URL. Reuses a single <audio> element. */
   play: (src: string) => Promise<void>;
-  /** Play a short attention tone (can repeat) through the media pipeline. */
-  playAttention: (repeatCount?: number) => Promise<void>;
   /** Stop currently playing audio immediately. */
   stop: () => void;
   /** Whether the audio engine has been unlocked by a user gesture. */
@@ -39,69 +37,6 @@ interface IUseUniversalVmitoAudioReturn {
 let singletonAudio: HTMLAudioElement | null = null;
 let singletonCtx: AudioContext | null = null;
 let isGloballyUnlocked = false;
-let isKeepAlivePlaying = false;
-
-const SILENT_WAV_DATA_URI =
-  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
-
-let attentionToneDataUri: string | null = null;
-
-const createAttentionToneDataUri = (): string => {
-  if (attentionToneDataUri) {
-    return attentionToneDataUri;
-  }
-
-  const sampleRate = 16000;
-  const durationSeconds = 0.32;
-  const frequency = 880;
-  const sampleCount = Math.floor(sampleRate * durationSeconds);
-
-  const pcmBytes = new Uint8Array(sampleCount * 2);
-  const pcmView = new DataView(pcmBytes.buffer);
-
-  for (let i = 0; i < sampleCount; i++) {
-    const envelope = Math.exp((-3 * i) / sampleCount);
-    const value = Math.sin((2 * Math.PI * frequency * i) / sampleRate);
-    const sample = Math.max(-1, Math.min(1, value * 0.35 * envelope));
-    pcmView.setInt16(i * 2, Math.floor(sample * 32767), true);
-  }
-
-  const header = new ArrayBuffer(44);
-  const headerView = new DataView(header);
-  const writeText = (offset: number, text: string) => {
-    for (let i = 0; i < text.length; i++) {
-      headerView.setUint8(offset + i, text.charCodeAt(i));
-    }
-  };
-
-  writeText(0, 'RIFF');
-  headerView.setUint32(4, 36 + pcmBytes.length, true);
-  writeText(8, 'WAVE');
-  writeText(12, 'fmt ');
-  headerView.setUint32(16, 16, true);
-  headerView.setUint16(20, 1, true);
-  headerView.setUint16(22, 1, true);
-  headerView.setUint32(24, sampleRate, true);
-  headerView.setUint32(28, sampleRate * 2, true);
-  headerView.setUint16(32, 2, true);
-  headerView.setUint16(34, 16, true);
-  writeText(36, 'data');
-  headerView.setUint32(40, pcmBytes.length, true);
-
-  const wavBytes = new Uint8Array(44 + pcmBytes.length);
-  wavBytes.set(new Uint8Array(header), 0);
-  wavBytes.set(pcmBytes, 44);
-
-  const chunkSize = 0x8000;
-  let binary = '';
-  for (let i = 0; i < wavBytes.length; i += chunkSize) {
-    const chunk = wavBytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode(...chunk);
-  }
-
-  attentionToneDataUri = `data:audio/wav;base64,${btoa(binary)}`;
-  return attentionToneDataUri;
-};
 
 const getSingletonAudio = (): HTMLAudioElement => {
   if (!singletonAudio) {
@@ -198,27 +133,6 @@ const useUniversalVmitoAudio = (
     });
   }, [title, artist, album]);
 
-  const startKeepAliveStream = useCallback(async () => {
-    if (!isGloballyUnlocked) return;
-
-    const audio = getSingletonAudio();
-    audio.pause();
-    audio.currentTime = 0;
-    audio.loop = true;
-    audio.volume = 0;
-    if (audio.src !== SILENT_WAV_DATA_URI) {
-      audio.src = SILENT_WAV_DATA_URI;
-    }
-
-    try {
-      await audio.play();
-      isKeepAlivePlaying = true;
-      applyMediaSession();
-    } catch {
-      isKeepAlivePlaying = false;
-    }
-  }, [applyMediaSession]);
-
   // ------------------------------------------------------------------
   // unlock() — MUST be called from a user-gesture callback (onClick etc.)
   // ------------------------------------------------------------------
@@ -237,7 +151,9 @@ const useUniversalVmitoAudio = (
     //    Safari requires an actual .play() call inside a gesture before it
     //    will allow future programmatic plays.
     //    We use an inline base64 WAV (0.01 s silence) to avoid a network hit.
-    audio.src = SILENT_WAV_DATA_URI;
+    const SILENT_WAV =
+      'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+    audio.src = SILENT_WAV;
     audio.volume = 0;
     try {
       await audio.play();
@@ -250,37 +166,6 @@ const useUniversalVmitoAudio = (
 
     isGloballyUnlocked = true;
     isUnlockedRef.current = true;
-
-    await startKeepAliveStream();
-  }, [startKeepAliveStream]);
-
-  // Auto-unlock on the first user gesture so notification audio can play later.
-  useEffect(() => {
-    if (typeof window === 'undefined' || isGloballyUnlocked) return;
-
-    let isHandled = false;
-
-    const removeListeners = () => {
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('touchstart', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
-    };
-
-    const handleFirstGesture = () => {
-      if (isHandled) return;
-      isHandled = true;
-      void unlock().finally(removeListeners);
-    };
-
-    window.addEventListener('pointerdown', handleFirstGesture, {
-      passive: true,
-    });
-    window.addEventListener('touchstart', handleFirstGesture, {
-      passive: true,
-    });
-    window.addEventListener('keydown', handleFirstGesture);
-
-    return removeListeners;
   }, []);
 
   // ------------------------------------------------------------------
@@ -289,12 +174,6 @@ const useUniversalVmitoAudio = (
   const play = useCallback(
     async (src: string) => {
       const audio = getSingletonAudio();
-
-      if (isKeepAlivePlaying) {
-        audio.pause();
-        audio.currentTime = 0;
-        isKeepAlivePlaying = false;
-      }
 
       // If not unlocked yet, try to resume context (best-effort).
       if (!isGloballyUnlocked) {
@@ -324,9 +203,6 @@ const useUniversalVmitoAudio = (
           '[useUniversalVmitoAudio] play() failed. Did you call unlock() on a user gesture first?',
           err
         );
-        if (isGloballyUnlocked) {
-          void startKeepAliveStream();
-        }
         throw err;
       }
 
@@ -335,27 +211,9 @@ const useUniversalVmitoAudio = (
         if (navigator.mediaSession) {
           navigator.mediaSession.playbackState = 'paused';
         }
-        if (isGloballyUnlocked) {
-          void startKeepAliveStream();
-        }
       };
     },
-    [applyMediaSession, startKeepAliveStream]
-  );
-
-  const playAttention = useCallback(
-    async (repeatCount: number = 1) => {
-      const safeRepeatCount = Math.max(1, Math.min(5, repeatCount));
-      const toneSrc = createAttentionToneDataUri();
-
-      for (let i = 0; i < safeRepeatCount; i++) {
-        await play(toneSrc);
-        await new Promise((resolve) => {
-          window.setTimeout(resolve, i < safeRepeatCount - 1 ? 350 : 0);
-        });
-      }
-    },
-    [play]
+    [applyMediaSession]
   );
 
   // ------------------------------------------------------------------
@@ -383,7 +241,6 @@ const useUniversalVmitoAudio = (
   return {
     unlock,
     play,
-    playAttention,
     stop,
     isUnlocked: isUnlockedRef.current,
   };
