@@ -146,9 +146,7 @@ export function EditMatchModal({
               </Text>
               <VSwitch
                 checked={isNoResult}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setIsNoResult(e.target.checked)
-                }
+                onCheckedChange={(details) => setIsNoResult(details.checked)}
               />
             </HStack>
           </Flex>
