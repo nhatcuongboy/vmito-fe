@@ -30,7 +30,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
 import { PlayerService } from '@/lib/api/player.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -48,12 +48,12 @@ interface SessionPlayersProps {
 /** Sortable + filterable statistics table using VTable */
 const StatsTable = ({
   stats,
-  filters,
-  handleFilter,
+  filters: externalFilters,
+  handleFilter: externalHandleFilter,
   onPlayerClick,
   t,
   exportMode = false,
-  sortConfig: currentSortConfig,
+  sortConfig: externalSortConfig = null,
   onSort,
 }: {
   stats: PlayerStatistics[];
@@ -65,22 +65,86 @@ const StatsTable = ({
   sortConfig?: ISortConfig<keyof PlayerStatistics> | null;
   onSort?: (config: ISortConfig<keyof PlayerStatistics> | null) => void;
 }) => {
-  const { sortedData, sortConfig, handleSort } = useSortable<PlayerStatistics>(
-    stats,
-    currentSortConfig ?? undefined
-  );
+  // Use filterable with the stats passed. If externalFilters is provided, it should be used.
+  const {
+    filteredData,
+    filters: internalFilters,
+    handleFilter: internalHandleFilter,
+  } = useFilterable<PlayerStatistics>(stats);
 
-  // Sync back state changes if onSort is provided
+  const activeFilters = exportMode ? externalFilters : internalFilters;
+
+  // Manual filtering for exportMode since we want to reuse the logic
+  const displayedData = useMemo(() => {
+    if (!exportMode) return filteredData;
+    return stats.filter((item) =>
+      Object.entries(externalFilters).every(([key, value]) => {
+        if (!value) return true;
+        const itemValue = item[key as keyof PlayerStatistics];
+        return String(itemValue) === value;
+      })
+    );
+  }, [stats, filteredData, exportMode, externalFilters]);
+
+  // Sorting
+  const [sortConfig, setSortConfig] = useState<ISortConfig<
+    keyof PlayerStatistics
+  > | null>(externalSortConfig);
+
+  // Sync internal sort state with external if external changes (e.g. for export)
   useEffect(() => {
-    if (onSort) {
-      onSort(sortConfig);
-    }
-  }, [sortConfig, onSort]);
+    setSortConfig(externalSortConfig);
+  }, [externalSortConfig]);
+
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return displayedData;
+
+    return [...displayedData].sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+
+      const aStr = String(aVal);
+      const bStr = String(bVal);
+      const cmp = aStr.localeCompare(bStr);
+      return sortConfig.direction === 'asc' ? cmp : -cmp;
+    });
+  }, [displayedData, sortConfig]);
+
+  const handleSort = useCallback(
+    (key: keyof PlayerStatistics) => {
+      let newConfig: ISortConfig<keyof PlayerStatistics> | null = null;
+      if (sortConfig?.key === key) {
+        if (sortConfig.direction === 'asc') {
+          newConfig = { key, direction: 'desc' as const };
+        } else {
+          newConfig = null;
+        }
+      } else {
+        newConfig = { key, direction: 'asc' as const };
+      }
+      setSortConfig(newConfig);
+      if (onSort) onSort(newConfig);
+    },
+    [sortConfig, onSort]
+  );
 
   const { getLevelShortLabel } = useLevelLabel();
 
   const sortHandler = (key: string) =>
     handleSort(key as keyof PlayerStatistics);
+
+  const onFilterHandler = (key: string, value: string) => {
+    internalHandleFilter(key, value);
+    if (externalHandleFilter) externalHandleFilter(key, value);
+  };
 
   const genderFilterOptions = [
     { label: t('allGenders'), value: '' },
@@ -128,8 +192,10 @@ const StatsTable = ({
               onSort={exportMode ? undefined : sortHandler}
               filterKey={exportMode ? undefined : 'gender'}
               filterOptions={exportMode ? undefined : genderFilterOptions}
-              filterValue={exportMode ? undefined : (filters.gender ?? '')}
-              onFilter={exportMode ? undefined : handleFilter}
+              filterValue={
+                exportMode ? undefined : (activeFilters.gender ?? '')
+              }
+              onFilter={exportMode ? undefined : onFilterHandler}
               textAlign="center"
               {...thProps}
             >
@@ -187,7 +253,7 @@ const StatsTable = ({
           </Tr>
         </Thead>
         <Tbody>
-          {sortedData.map((p, index) => {
+          {sortedData.map((p) => {
             const isNA = p.wins === 0 && p.losses === 0;
             return (
               <Tr
@@ -204,7 +270,7 @@ const StatsTable = ({
               >
                 <Td textAlign="center" {...tdProps}>
                   <Text fontSize="xs" fontWeight="bold" color="fg.muted">
-                    {index + 1}
+                    {p.playerNumber}
                   </Text>
                 </Td>
                 <Td
@@ -330,7 +396,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
         `${window.location.origin}/${currentLocale}/sessions/${session.id}`,
         {
           margin: 0,
-          width: 64,
+          width: 48,
           color: {
             dark: '#179a3b', // green.600
             light: '#FFFFFF',
@@ -391,11 +457,11 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
           px={8}
           pb={4}
         >
-          <VStack align="stretch" gap={3}>
-            <Box borderBottom="2px solid" borderColor="green.100" pb={4}>
-              <VStack align="center" gap={2}>
+          <VStack align="stretch" gap={2}>
+            <Box borderBottom="2px solid" borderColor="green.100" pb={2}>
+              <VStack align="center" gap={1.5}>
                 <Text
-                  fontSize="2xl"
+                  fontSize="xl"
                   fontWeight="bold"
                   color="green.600"
                   textAlign="center"
@@ -447,7 +513,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
             </Box>
 
             <Box>
-              <Heading size="md" textAlign="center" mb={3} color="green.700">
+              <Heading size="md" textAlign="center" mb={1.5} color="green.700">
                 📊 BẢNG THỐNG KÊ NGƯỜI CHƠI
               </Heading>
 
@@ -469,8 +535,8 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
               </Box>
             </Box>
 
-            <Flex justify="center" align="center" pt={1}>
-              <HStack gap={4}>
+            <Flex justify="center" align="center" pt={0}>
+              <HStack gap={3}>
                 <VStack align="center" gap={0}>
                   <Text
                     fontSize="sm"
@@ -480,14 +546,19 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                   >
                     Vmito App
                   </Text>
-                  <Text fontSize="xs" color="fg.muted" textAlign="center">
+                  <Text
+                    fontSize="xs"
+                    color="fg.muted"
+                    textAlign="center"
+                    mt="-1px"
+                  >
                     Nền tảng quản lý giao lưu cầu lông
                   </Text>
                 </VStack>
                 {qrCodeUrl && (
                   <Box>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrCodeUrl} alt="QR Code" width={48} height={48} />
+                    <img src={qrCodeUrl} alt="QR Code" width={36} height={36} />
                   </Box>
                 )}
               </HStack>
