@@ -32,7 +32,6 @@ import {
   LayoutGrid,
   Users,
   Shield,
-  Star,
   Banknote,
   Phone,
   Share2,
@@ -54,7 +53,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import { useRatingStats } from '@/contexts/RatingStatsContext';
+import { AppPlayerRating } from '@/components/rating';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
@@ -184,9 +183,12 @@ const BaseSessionCard = ({
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
-  const { getRatingStats } = useRatingStats();
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
   const [isLoading, setIsLoading] = useState(false);
+
+  console.log(
+    `[BaseSessionCard] Rendering session: ${session.id} | Host: ${session.hostId}`
+  );
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -543,11 +545,6 @@ const BaseSessionCard = ({
     return null;
   };
 
-  // Get rating stats from context (batch loaded)
-  const hostRatingStats = session.hostId
-    ? getRatingStats(session.hostId)
-    : null;
-
   const displayHostName = session.hostName || session.host?.name || '';
 
   const convertedSession = {
@@ -816,19 +813,7 @@ const BaseSessionCard = ({
               >
                 {displayHostName}
               </Text>
-              {hostRatingStats && hostRatingStats.totalRatings > 0 && (
-                <Flex align="center" gap={0.5} flexShrink={0}>
-                  <Icon
-                    as={Star}
-                    boxSize={3}
-                    color="yellow.500"
-                    fill="yellow.500"
-                  />
-                  <Text fontSize="xs" fontWeight="semibold">
-                    {hostRatingStats.averageRating.toFixed(1)}
-                  </Text>
-                </Flex>
-              )}
+              <AppPlayerRating userId={session.hostId} size="xs" />
             </Flex>
           ) : (
             <Flex align="center" gap={3}>
@@ -866,22 +851,7 @@ const BaseSessionCard = ({
               >
                 {displayHostName}
               </Text>
-              {hostRatingStats && hostRatingStats.totalRatings > 0 && (
-                <Flex align="center" gap={1}>
-                  <Text fontSize="sm" color="gray.500">
-                    •
-                  </Text>
-                  <Icon
-                    as={Star}
-                    boxSize={4}
-                    color="yellow.500"
-                    fill="yellow.500"
-                  />
-                  <Text fontSize="sm" fontWeight="semibold">
-                    {hostRatingStats.averageRating.toFixed(1)}
-                  </Text>
-                </Flex>
-              )}
+              <AppPlayerRating userId={session.hostId} showBullet />
               {hostActions}
             </Flex>
           )}

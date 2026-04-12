@@ -103,6 +103,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
           </Text>
           <Link
             href={ROUTES.SESSIONS.NEW}
+            prefetch={false}
             style={{
               fontSize: '12px',
               color: 'var(--chakra-colors-purple-500)',

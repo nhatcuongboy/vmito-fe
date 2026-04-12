@@ -10,14 +10,23 @@ import { SessionActionConfig } from './BaseSessionCard.types';
 import { ViewMode } from '@/stores/useSessionFilterStore';
 import React, { useState, memo } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
-import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
-import MyRegistrationModal from './MyRegistrationModal';
-import SessionShareCard from './SessionShareCard';
 import { Portal } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
+
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
+const MyRegistrationModal = dynamic(() => import('./MyRegistrationModal'), {
+  ssr: false,
+});
+const SessionShareCard = dynamic(() => import('./SessionShareCard'), {
+  ssr: false,
+});
 
 interface FindSessionCardProps {
   session: ISession;

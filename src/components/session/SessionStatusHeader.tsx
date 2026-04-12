@@ -107,7 +107,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
         {/* Left Back Button or spacer */}
         {showBackButton ? (
           <Box width="40px">
-            <Link href={backHref}>
+            <Link href={backHref} prefetch={false}>
               <IconButton
                 aria-label={common('back')}
                 variant="ghost"

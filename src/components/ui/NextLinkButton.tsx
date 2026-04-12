@@ -56,7 +56,12 @@ export const NextLinkButton: React.FC<NextLinkButtonProps> = ({
 
   // We don't use as={Link} directly to avoid nested <a> tags
   return (
-    <Link href={href} style={{ textDecoration: 'none' }} tabIndex={-1}>
+    <Link
+      href={href}
+      style={{ textDecoration: 'none' }}
+      tabIndex={-1}
+      prefetch={false}
+    >
       <Button
         isWithinLink
         loading={isPending || (props as any).loading}

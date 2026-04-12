@@ -16,12 +16,22 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
-import { AISessionModal } from './AISessionModal';
-import AppHostDetail from './AppHostDetail';
-import JoinSessionModal from './JoinSessionModal';
+import dynamic from 'next/dynamic';
+
+const AISessionModal = dynamic(
+  () => import('./AISessionModal').then((mod) => mod.AISessionModal),
+  { ssr: false }
+);
+const AppHostDetail = dynamic(() => import('./AppHostDetail'), { ssr: false });
+const JoinSessionModal = dynamic(() => import('./JoinSessionModal'), {
+  ssr: false,
+});
+const SessionFilterDrawer = dynamic(() => import('./SessionFilterDrawer'), {
+  ssr: false,
+});
+
 import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
-import SessionFilterDrawer from './SessionFilterDrawer';
 import SessionSearchBar from './SessionSearchBar';
 import SuggestionSessionCard from './SuggestionSessionCard';
 import ViewModeToggle from './ViewModeToggle';

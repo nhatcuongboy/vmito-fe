@@ -42,13 +42,22 @@ import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { AISessionModal } from './AISessionModal';
-import AppHostDetail from './AppHostDetail';
+import dynamic from 'next/dynamic';
+
+const AISessionModal = dynamic(
+  () => import('./AISessionModal').then((mod) => mod.AISessionModal),
+  { ssr: false }
+);
+const AppHostDetail = dynamic(() => import('./AppHostDetail'), { ssr: false });
+const JoinSessionModal = dynamic(() => import('./JoinSessionModal'), {
+  ssr: false,
+});
+const SessionFilterDrawer = dynamic(() => import('./SessionFilterDrawer'), {
+  ssr: false,
+});
+
 import FindSessionCard from './FindSessionCard';
-import JoinSessionModal from './JoinSessionModal';
-import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
-import SessionFilterDrawer from './SessionFilterDrawer';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 
@@ -200,11 +209,6 @@ export default function FindSessionList({
       } else {
         setLoading(true);
         setPage(1); // Reset to first page on filter change
-
-        // Scroll to top on new search/filter
-        if (typeof window !== 'undefined') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
       }
       setError(null);
 
