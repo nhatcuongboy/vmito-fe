@@ -261,7 +261,7 @@ export default function SessionPaymentList({
         <Flex gap={4} wrap="wrap">
           <Box flex={1} minW="120px">
             <Text fontSize="sm" color="gray.600">
-              {t('totalFee')}
+              {t('income')}
             </Text>
             <Text fontSize="lg" fontWeight="bold">
               {totalAmount === 0 ? '0' : FeeService.formatFeeExact(totalAmount)}
@@ -287,6 +287,16 @@ export default function SessionPaymentList({
                 : FeeService.formatFeeExact(totalAmount - approvedAmount)}
             </Text>
           </Box>
+          <Box flex={1} minW="120px">
+            <Text fontSize="sm" color="gray.600">
+              {t('remainingAmount')}
+            </Text>
+            <Text fontSize="lg" fontWeight="bold" color="blue.600">
+              {totalAmount - approvedAmount === 0
+                ? '0'
+                : FeeService.formatFeeExact(totalAmount - approvedAmount)}
+            </Text>
+          </Box>
         </Flex>
 
         {/* Income / Expense / Net summary */}
@@ -297,9 +307,9 @@ export default function SessionPaymentList({
                 {t('income')}
               </Text>
               <Text fontSize="md" fontWeight="semibold" color="green.600">
-                {approvedAmount === 0
+                {totalAmount === 0
                   ? '0'
-                  : FeeService.formatFeeExact(approvedAmount)}
+                  : FeeService.formatFeeExact(totalAmount)}
               </Text>
             </Box>
             <Box flex={1} minW="120px">

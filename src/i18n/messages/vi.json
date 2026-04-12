@@ -2641,6 +2641,7 @@
     "totalFee": "Tổng phí",
     "paidAmount": "Đã thanh toán",
     "pendingAmount": "Chờ thanh toán",
+    "remainingAmount": "Còn lại",
     "transactions": "Giao dịch",
     "transactionHistory": "Lịch sử giao dịch",
     "noTransactions": "Không có giao dịch",
