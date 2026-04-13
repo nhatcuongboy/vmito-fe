@@ -13,6 +13,7 @@ import {
 import { Button, Card, CardBody } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { ClipboardCheck } from 'lucide-react';
+import { useRouter } from '@/i18n/config';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import TopBar from '@/components/ui/TopBar';
 import PageWrapper from '@/components/layout/PageWrapper';
@@ -24,11 +25,15 @@ import PageLayout from '@/components/layout/PageLayout';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 
 function PendingJoinRequestsContent() {
+  const router = useRouter();
   const t = useTranslations('common');
   const tSession = useTranslations('session');
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [batchActionLoading, setBatchActionLoading] = useState<string | null>(
+    null
+  );
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [total, setTotal] = useState(0);
@@ -71,6 +76,28 @@ function PendingJoinRequestsContent() {
     }
   };
 
+  const handleBatchAction = async (status: 'APPROVED' | 'REJECTED') => {
+    if (requests.length === 0) return;
+    try {
+      setBatchActionLoading(status);
+      const playerIds = requests.map((r) => r.id);
+      await PlayerService.batchUpdateStatus(playerIds, status);
+
+      const count = playerIds.length;
+      setRequests([]);
+      setTotal((prev) => Math.max(0, prev - count));
+      toaster.success({
+        title: status === 'APPROVED' ? t('success') : t('success'),
+      });
+      fetchRequests(); // Refetch to get next page if available
+    } catch (error) {
+      console.error(error);
+      toaster.error({ title: t('error') });
+    } finally {
+      setBatchActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <Center py={20}>
@@ -98,13 +125,44 @@ function PendingJoinRequestsContent() {
 
   return (
     <Box px={{ base: 4, md: 6 }} py={4} maxW="container.md" mx="auto">
-      <Text color="fg.muted" mb={4}>
-        {t('pendingRequests', { count: total })}
-      </Text>
+      <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
+        <Text color="fg.muted">{t('pendingRequests', { count: total })}</Text>
+        {requests.length > 0 && (
+          <Flex gap={2}>
+            <Button
+              size="sm"
+              colorPalette="red"
+              variant="outline"
+              loading={batchActionLoading === 'REJECTED'}
+              disabled={!!batchActionLoading}
+              onClick={() => handleBatchAction('REJECTED')}
+            >
+              {t.has('rejectAll') ? t('rejectAll') : 'Từ chối tất cả'}
+            </Button>
+            <Button
+              size="sm"
+              colorPalette="green"
+              loading={batchActionLoading === 'APPROVED'}
+              disabled={!!batchActionLoading}
+              onClick={() => handleBatchAction('APPROVED')}
+            >
+              {t.has('approveAll') ? t('approveAll') : 'Duyệt tất cả'}
+            </Button>
+          </Flex>
+        )}
+      </Flex>
 
       <Flex direction="column" gap={4}>
         {requests.map((request) => (
-          <Card key={request.id}>
+          <Card
+            key={request.id}
+            cursor="pointer"
+            onClick={() =>
+              router.push(`/host/approval/${request.sessionId}/${request.id}`)
+            }
+            _hover={{ bg: 'blackAlpha.50' }}
+            transition="background 0.2s"
+          >
             <CardBody>
               <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
                 <Box>
@@ -123,7 +181,7 @@ function PendingJoinRequestsContent() {
                     <Badge>Player #{request.playerNumber}</Badge>
                   </Flex>
                 </Box>
-                <Flex gap={2}>
+                <Flex gap={2} onClick={(e) => e.stopPropagation()}>
                   <Button
                     size="sm"
                     colorPalette="red"
@@ -131,7 +189,9 @@ function PendingJoinRequestsContent() {
                     onClick={() =>
                       handleAction(request.id, request.sessionId, 'REJECTED')
                     }
-                    disabled={actionLoading === request.id}
+                    disabled={
+                      actionLoading === request.id || !!batchActionLoading
+                    }
                   >
                     {t('reject')}
                   </Button>
@@ -142,6 +202,7 @@ function PendingJoinRequestsContent() {
                       handleAction(request.id, request.sessionId, 'APPROVED')
                     }
                     loading={actionLoading === request.id}
+                    disabled={!!batchActionLoading}
                   >
                     {t('approve')}
                   </Button>

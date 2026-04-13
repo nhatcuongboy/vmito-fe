@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Text, VStack } from '@chakra-ui/react';
-import { ClipboardList, ClipboardCheck, Ticket, History } from 'lucide-react';
+import { ClipboardList, ClipboardCheck, Ticket } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
@@ -25,27 +25,15 @@ const NAV_ITEMS: INavItem[] = [
   },
   {
     id: 1,
-    labelKey: 'pendingJoinRequests',
-    icon: ClipboardCheck,
-    href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
-  },
-  {
-    id: 2,
     labelKey: 'joined',
     icon: Ticket,
     href: ROUTES.PLAYER.SESSIONS.LIST,
   },
   {
-    id: 3,
-    labelKey: 'endedSessions',
-    icon: History,
-    href: ROUTES.HOST.SESSIONS.ENDED,
-  },
-  {
-    id: 4,
-    labelKey: 'endedJoinedSessions',
-    icon: History,
-    href: ROUTES.PLAYER.SESSIONS.ENDED,
+    id: 2,
+    labelKey: 'pendingJoinRequests',
+    icon: ClipboardCheck,
+    href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
   },
 ];
 
