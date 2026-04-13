@@ -278,19 +278,21 @@ const StatsTable = ({
                     <Text fontWeight="semibold" fontSize="sm" color="fg">
                       {p.name || t('unnamed')}
                     </Text>
-                    {p.totalMatches > 0 && p.winRate === maxWinRate && (
-                      <Badge
-                        colorPalette="yellow"
-                        variant="solid"
-                        size="xs"
-                        fontSize="9px"
-                        px={1}
-                        borderRadius="sm"
-                        whiteSpace="nowrap"
-                      >
-                        MVP
-                      </Badge>
-                    )}
+                    {p.totalMatches > 0 &&
+                      p.winRate > 0 &&
+                      p.winRate === maxWinRate && (
+                        <Badge
+                          colorPalette="yellow"
+                          variant="solid"
+                          size="xs"
+                          fontSize="9px"
+                          px={1}
+                          borderRadius="sm"
+                          whiteSpace="nowrap"
+                        >
+                          MVP
+                        </Badge>
+                      )}
                   </HStack>
                 </Td>
                 <Td textAlign="center" {...tdProps}>

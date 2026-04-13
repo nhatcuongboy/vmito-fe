@@ -66,7 +66,11 @@ export function EditMatchModal({
       if (match.playerIds && Array.isArray(match.playerIds)) {
         setSelectedPlayerIds([...match.playerIds]);
       } else if (match.players && match.players.length === 4) {
-        setSelectedPlayerIds(Array(4).fill(''));
+        // match.players is an array of objects which might have player.id or playerId
+        const ids = match.players.map(
+          (mp: any) => mp.player?.id || mp.playerId || ''
+        );
+        setSelectedPlayerIds(ids);
       }
     }
   }, [match, isOpen]);
@@ -75,16 +79,30 @@ export function EditMatchModal({
     try {
       setIsSubmitting(true);
 
+      const s1 = parseInt(pair1Score) || 0;
+      const s2 = parseInt(pair2Score) || 0;
+
       const payload: any = {
         score: isNoResult
           ? null
           : JSON.stringify({
-              pair1: parseInt(pair1Score) || 0,
-              pair2: parseInt(pair2Score) || 0,
+              pair1: s1,
+              pair2: s2,
             }),
         isExtra,
         notes,
+        isDraw: !isNoResult && s1 === s2,
       };
+
+      if (!isNoResult && s1 !== s2) {
+        if (s1 > s2) {
+          payload.winnerIds = [selectedPlayerIds[0], selectedPlayerIds[1]];
+        } else {
+          payload.winnerIds = [selectedPlayerIds[2], selectedPlayerIds[3]];
+        }
+      } else {
+        payload.winnerIds = [];
+      }
 
       if (
         selectedPlayerIds.length === 4 &&
