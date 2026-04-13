@@ -30,7 +30,7 @@ function HomeContent() {
       ) : (
         <SuggestionsList mode={mode} onModeChange={setMode} />
       )}
-      {user && <QuickCreateFAB bottom="90px" />}
+      <QuickCreateFAB bottom="90px" />
     </PageLayout>
   );
 }

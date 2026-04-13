@@ -261,14 +261,6 @@ export default function SessionPaymentList({
         <Flex gap={4} wrap="wrap">
           <Box flex={1} minW="120px">
             <Text fontSize="sm" color="gray.600">
-              {t('income')}
-            </Text>
-            <Text fontSize="lg" fontWeight="bold">
-              {totalAmount === 0 ? '0' : FeeService.formatFeeExact(totalAmount)}
-            </Text>
-          </Box>
-          <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600">
               {t('paidAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="green.600">
@@ -330,10 +322,10 @@ export default function SessionPaymentList({
                 fontSize="md"
                 fontWeight="bold"
                 color={
-                  approvedAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
+                  totalAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
                 }
               >
-                {FeeService.formatFeeExact(approvedAmount - totalExpenses)}
+                {FeeService.formatFeeExact(totalAmount - totalExpenses)}
               </Text>
             </Box>
           </Flex>
@@ -491,27 +483,32 @@ export default function SessionPaymentList({
                         {getGenderText(payment.player.gender)}
                       </Text>
                     )}
+                    {/* Slot info for all screens, but formatted for small spaces if needed */}
+                    <Box mt={1}>
+                      {(() => {
+                        const { total, males, females } = getGroupInfo(payment);
+                        return (
+                          <Text
+                            fontSize="xs"
+                            color="blue.600"
+                            fontWeight="medium"
+                          >
+                            {total} slot (
+                            {[
+                              males > 0 && `${males} ${tCommon('male')}`,
+                              females > 0 && `${females} ${tCommon('female')}`,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
+                            )
+                          </Text>
+                        );
+                      })()}
+                    </Box>
                   </Box>
                 </HStack>
 
-                {/* Slots Column */}
-                <Box flex={1} display={{ base: 'none', sm: 'block' }} px={4}>
-                  {(() => {
-                    const { total, males, females } = getGroupInfo(payment);
-                    return (
-                      <Text fontSize="sm" color="gray.600" textAlign="center">
-                        {total} slot (
-                        {[
-                          males > 0 && `${males} ${tCommon('male')}`,
-                          females > 0 && `${females} ${tCommon('female')}`,
-                        ]
-                          .filter(Boolean)
-                          .join(', ')}
-                        )
-                      </Text>
-                    );
-                  })()}
-                </Box>
+                {/* Hide the separate desktop-only slots column since we added it above */}
 
                 <HStack gap={3} flex={1} justify="flex-end">
                   <Box minW="100px" textAlign="right">
@@ -543,6 +540,16 @@ export default function SessionPaymentList({
           paymentRecord={selectedPayment}
           onApprove={handleApprove}
           onReject={handleReject}
+          slotInfo={(() => {
+            const { total, males, females } = getGroupInfo(selectedPayment);
+            const details = [
+              males > 0 && `${males} ${tCommon('male')}`,
+              females > 0 && `${females} ${tCommon('female')}`,
+            ]
+              .filter(Boolean)
+              .join(', ');
+            return `${total} slot (${details})`;
+          })()}
         />
       )}
     </VStack>

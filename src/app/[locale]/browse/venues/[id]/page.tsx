@@ -7,6 +7,7 @@ import {
   Box,
   Flex,
   Grid,
+  GridItem,
   Heading,
   Image,
   Skeleton,
@@ -31,6 +32,14 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useRouter } from '@/i18n/config';
 import { toaster } from '@/components/ui/toaster';
+import {
+  trimPhone,
+  normalizePhoneForTel,
+  normalizePhoneForZalo,
+} from '@/utils/phone-utils';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { Pencil } from 'lucide-react';
+import { QuickVenueEditModal } from '@/components/venue/QuickVenueEditModal';
 
 function formatPrice(amount?: number) {
   if (!amount) return null;
@@ -40,8 +49,12 @@ function formatPrice(amount?: number) {
 export default function VenueDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -132,12 +145,22 @@ export default function VenueDetailPage() {
         {/* Cover Photo */}
         <Box
           position="relative"
-          h={{ base: '250px', md: '400px' }}
+          h={{ base: '200px', md: '240px' }}
           borderRadius="2xl"
           overflow="hidden"
           mb={6}
           boxShadow="lg"
         >
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="blackAlpha.300"
+            zIndex={1}
+            pointerEvents="none"
+          />
           <Image
             src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
             alt={venue.name}
@@ -146,9 +169,17 @@ export default function VenueDetailPage() {
             objectFit="cover"
           />
 
-          {/* Verified Badge */}
-          {venue.isVerified && (
-            <Box position="absolute" top={4} right={4}>
+          <Flex
+            position="absolute"
+            top={4}
+            right={4}
+            zIndex={2}
+            gap={2}
+            direction={{ base: 'column', sm: 'row' }}
+            align={{ base: 'flex-end', sm: 'center' }}
+          >
+            {/* Verified Badge */}
+            {venue.isVerified && (
               <Badge
                 colorPalette="green"
                 variant="solid"
@@ -165,26 +196,57 @@ export default function VenueDetailPage() {
                 <BadgeCheck size={20} />
                 <Text>Verified</Text>
               </Badge>
-            </Box>
-          )}
+            )}
+
+            {/* Edit Button inside Banner */}
+            {isAdmin && (
+              <Button
+                colorPalette="white"
+                variant="solid"
+                bg="white"
+                color="gray.800"
+                size="sm"
+                shadow="lg"
+                _hover={{ bg: 'gray.100' }}
+                onClick={() => setIsEditModalOpen(true)}
+                leftIcon={<Pencil size={16} />}
+                borderRadius="full"
+              >
+                Chỉnh sửa sân
+              </Button>
+            )}
+          </Flex>
         </Box>
 
         {/* Main Content */}
-        <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6} mb={6}>
-          {/* Left Column - Details */}
-          <Box>
-            {/* Header */}
+        <Grid
+          templateColumns={{ base: '1fr', lg: '2fr 1fr' }}
+          templateAreas={{
+            base: `
+              "header"
+              "contact"
+              "info"
+            `,
+            lg: `
+              "header contact"
+              "info contact"
+            `,
+          }}
+          gap={6}
+          mb={6}
+        >
+          {/* Header */}
+          <GridItem gridArea="header">
             <Box
               bg="white"
               _dark={{ bg: 'gray.800' }}
               borderRadius="2xl"
               p={6}
-              mb={6}
               boxShadow="md"
             >
-              <Heading size="2xl" mb={4}>
-                {venue.name}
-              </Heading>
+              <Box mb={4}>
+                <Heading size="2xl">{venue.name}</Heading>
+              </Box>
 
               {/* Location */}
               {(venue.district || venue.city) && (
@@ -248,8 +310,10 @@ export default function VenueDetailPage() {
                 Tìm kèo tại sân này
               </Button>
             </Box>
+          </GridItem>
 
-            {/* Information */}
+          {/* Information */}
+          <GridItem gridArea="info">
             <Box
               bg="white"
               _dark={{ bg: 'gray.800' }}
@@ -366,10 +430,10 @@ export default function VenueDetailPage() {
                 )}
               </Stack>
             </Box>
-          </Box>
+          </GridItem>
 
           {/* Right Column - Contact */}
-          <Box>
+          <GridItem gridArea="contact">
             <Box
               bg="white"
               _dark={{ bg: 'gray.800' }}
@@ -385,40 +449,78 @@ export default function VenueDetailPage() {
 
               <Stack gap={3}>
                 {venue.phone && (
-                  <a href={`tel:${venue.phone}`}>
-                    <Flex
-                      align="center"
-                      gap={3}
-                      px={4}
-                      py={3}
-                      borderRadius="xl"
-                      bg="gray.50"
-                      _dark={{ bg: 'gray.700' }}
-                      _hover={{
-                        bg: 'blue.50',
-                        _dark: { bg: 'blue.900/30' },
-                      }}
-                      transition="all 0.2s"
-                      cursor="pointer"
-                    >
-                      <Box
-                        p={2}
-                        borderRadius="lg"
-                        bg="blue.100"
-                        _dark={{ bg: 'blue.900/40' }}
+                  <Box>
+                    <a href={`tel:${normalizePhoneForTel(venue.phone)}`}>
+                      <Flex
+                        align="center"
+                        gap={3}
+                        px={4}
+                        py={3}
+                        borderRadius="xl"
+                        bg="gray.50"
+                        _dark={{ bg: 'gray.700' }}
+                        _hover={{
+                          bg: 'blue.50',
+                          _dark: { bg: 'blue.900/30' },
+                        }}
+                        transition="all 0.2s"
+                        cursor="pointer"
                       >
-                        <Phone size={20} color="#3182CE" />
-                      </Box>
-                      <Box>
-                        <Text fontSize="xs" color="gray.500" mb={0.5}>
-                          Điện thoại
-                        </Text>
-                        <Text fontSize="md" fontWeight="semibold">
-                          {venue.phone}
-                        </Text>
-                      </Box>
+                        <Box
+                          p={2}
+                          borderRadius="lg"
+                          bg="blue.100"
+                          _dark={{ bg: 'blue.900/40' }}
+                        >
+                          <Phone size={20} color="#3182CE" />
+                        </Box>
+                        <Box>
+                          <Text fontSize="xs" color="gray.500" mb={0.5}>
+                            Điện thoại
+                          </Text>
+                          <Text fontSize="md" fontWeight="semibold">
+                            {trimPhone(venue.phone)}
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </a>
+
+                    <Flex gap={2} mt={3}>
+                      <Button
+                        flex={1}
+                        size="md"
+                        colorPalette="blue"
+                        variant="subtle"
+                        onClick={() =>
+                          window.open(
+                            `https://zalo.me/${normalizePhoneForZalo(venue.phone)}`,
+                            '_blank'
+                          )
+                        }
+                        leftIcon={
+                          <Image
+                            src="/icons/zalo.png"
+                            alt="Zalo"
+                            boxSize="16px"
+                          />
+                        }
+                      >
+                        Zalo
+                      </Button>
+                      <Button
+                        flex={1}
+                        size="md"
+                        colorPalette="green"
+                        variant="subtle"
+                        onClick={() =>
+                          (window.location.href = `tel:${normalizePhoneForTel(venue.phone)}`)
+                        }
+                        leftIcon={<Phone size={16} />}
+                      >
+                        Gọi ngay
+                      </Button>
                     </Flex>
-                  </a>
+                  </Box>
                 )}
 
                 {venue.website && (
@@ -469,9 +571,18 @@ export default function VenueDetailPage() {
                 )}
               </Stack>
             </Box>
-          </Box>
+          </GridItem>
         </Grid>
       </Box>
+
+      {isAdmin && isEditModalOpen && (
+        <QuickVenueEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          venue={venue}
+          onUpdated={(updatedVenue) => setVenue(updatedVenue)}
+        />
+      )}
     </PageLayout>
   );
 }

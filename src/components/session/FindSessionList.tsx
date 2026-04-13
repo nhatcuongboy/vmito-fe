@@ -55,6 +55,9 @@ const JoinSessionModal = dynamic(() => import('./JoinSessionModal'), {
 const SessionFilterDrawer = dynamic(() => import('./SessionFilterDrawer'), {
   ssr: false,
 });
+const LoginPromptModal = dynamic(() => import('../auth/LoginPromptModal'), {
+  ssr: false,
+});
 
 import FindSessionCard from './FindSessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
@@ -162,6 +165,7 @@ export default function FindSessionList({
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [pendingUserLocation, setPendingUserLocation] = useState<{
     lat: number;
     lng: number;
@@ -495,6 +499,14 @@ export default function FindSessionList({
     [user, router]
   );
 
+  const handleCreateSessionClick = useCallback(() => {
+    if (!user) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
+    router.push(ROUTES.SESSIONS.NEW);
+  }, [user, router]);
+
   const handleHostClick = useCallback((session: ISession) => {
     setSelectedSessionForDetail(session);
     setIsDetailModalOpen(true);
@@ -547,9 +559,7 @@ export default function FindSessionList({
         onSearchChange={handleSearchQueryChange}
         onToggleFilters={toggleFilters}
         activeFilterCount={activeFilterCount}
-        onCreateClick={
-          user ? () => router.push(ROUTES.SESSIONS.NEW) : undefined
-        }
+        onCreateClick={handleCreateSessionClick}
       />
 
       {/* Filter Drawer */}
@@ -1012,6 +1022,14 @@ export default function FindSessionList({
           />
         )}
       </VModal>
+      {isLoginPromptOpen && (
+        <LoginPromptModal
+          isOpen={isLoginPromptOpen}
+          onClose={() => setIsLoginPromptOpen(false)}
+          featureName={t('loginRequiredCreateSession')}
+          returnUrl="/"
+        />
+      )}
     </Box>
   );
 }

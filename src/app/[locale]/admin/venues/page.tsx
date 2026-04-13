@@ -48,6 +48,7 @@ import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 import { VIETNAM_CITIES as CITY_HIERARCHY } from '@/constants/vietnam-locations';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
+import { trimPhone } from '@/utils/phone-utils';
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { FilterChip } from '@/components/ui/FilterChip';
@@ -315,7 +316,11 @@ function AdminVenuesContent() {
 
   const handleCreate = async (data: VenueFormValues) => {
     try {
-      await VenueService.createVenue(data);
+      const payload = {
+        ...data,
+        phone: trimPhone(data.phone),
+      };
+      await VenueService.createVenue(payload);
       toaster.success({ title: t('venueCreatedSuccess') });
       setIsCreateOpen(false);
       form.reset();
@@ -329,7 +334,11 @@ function AdminVenuesContent() {
   const handleUpdate = async (data: VenueFormValues) => {
     if (!selectedVenue) return;
     try {
-      await VenueService.updateVenue(selectedVenue.id, data);
+      const payload = {
+        ...data,
+        phone: trimPhone(data.phone),
+      };
+      await VenueService.updateVenue(selectedVenue.id, payload);
       toaster.success({ title: t('venueUpdatedSuccess') });
       setIsEditOpen(false);
       fetchVenues();

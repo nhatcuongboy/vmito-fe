@@ -30,6 +30,7 @@ interface PaymentApprovalModalProps {
     paymentMethod?: PaymentMethod
   ) => Promise<void>;
   onReject: (notes?: string) => Promise<void>;
+  slotInfo?: string;
 }
 
 export default function PaymentApprovalModal({
@@ -38,6 +39,7 @@ export default function PaymentApprovalModal({
   paymentRecord,
   onApprove,
   onReject,
+  slotInfo,
 }: PaymentApprovalModalProps) {
   const t = useTranslations('payment');
 
@@ -151,6 +153,12 @@ export default function PaymentApprovalModal({
             {player?.gender && (
               <Text fontSize="sm" color="gray.600">
                 {player.gender}
+                {slotInfo && ` • ${slotInfo}`}
+              </Text>
+            )}
+            {!player?.gender && slotInfo && (
+              <Text fontSize="sm" color="gray.600">
+                {slotInfo}
               </Text>
             )}
           </Box>

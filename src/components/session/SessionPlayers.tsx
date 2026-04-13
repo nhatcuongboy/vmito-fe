@@ -96,6 +96,14 @@ const StatsTable = ({
     setSortConfig(externalSortConfig);
   }, [externalSortConfig]);
 
+  const maxWinRate = useMemo(() => {
+    if (displayedData.length === 0) return 0;
+    const rates = displayedData
+      .filter((p) => p.totalMatches > 0)
+      .map((p) => p.winRate);
+    return rates.length > 0 ? Math.max(...rates) : 0;
+  }, [displayedData]);
+
   const sortedData = useMemo(() => {
     if (!sortConfig) return displayedData;
 
@@ -154,10 +162,10 @@ const StatsTable = ({
 
   // Helper properties to reduce spacing on table cells
   const thProps = exportMode
-    ? { px: 1, py: 1.5, fontSize: 'xs' }
+    ? { px: 1, py: 1, fontSize: 'xs' }
     : { px: { base: 2, md: 3 }, py: 2 };
   const tdProps = exportMode
-    ? { px: 1, py: 1.5, fontSize: 'sm' }
+    ? { px: 1, py: 1, fontSize: 'sm' }
     : { px: { base: 2, md: 3 }, py: 2 };
 
   return (
@@ -179,9 +187,7 @@ const StatsTable = ({
               sortKey={exportMode ? undefined : 'name'}
               sortConfig={exportMode ? undefined : sortConfig}
               onSort={exportMode ? undefined : sortHandler}
-              minW={exportMode ? undefined : '140px'}
-              w={exportMode ? '1%' : undefined}
-              whiteSpace={exportMode ? 'nowrap' : 'normal'}
+              minW="120px"
               {...thProps}
             >
               {t('columnName')}
@@ -190,12 +196,6 @@ const StatsTable = ({
               sortKey={exportMode ? undefined : 'gender'}
               sortConfig={exportMode ? undefined : sortConfig}
               onSort={exportMode ? undefined : sortHandler}
-              filterKey={exportMode ? undefined : 'gender'}
-              filterOptions={exportMode ? undefined : genderFilterOptions}
-              filterValue={
-                exportMode ? undefined : (activeFilters.gender ?? '')
-              }
-              onFilter={exportMode ? undefined : onFilterHandler}
               textAlign="center"
               {...thProps}
             >
@@ -273,19 +273,42 @@ const StatsTable = ({
                     {index + 1}
                   </Text>
                 </Td>
-                <Td
-                  {...tdProps}
-                  w={exportMode ? '1%' : undefined}
-                  whiteSpace={exportMode ? 'nowrap' : 'normal'}
-                >
-                  <Text fontWeight="semibold" fontSize="sm" color="fg">
-                    {p.name || t('unnamed')}
-                  </Text>
+                <Td {...tdProps}>
+                  <HStack gap={1.5} align="center">
+                    <Text fontWeight="semibold" fontSize="sm" color="fg">
+                      {p.name || t('unnamed')}
+                    </Text>
+                    {p.totalMatches > 0 && p.winRate === maxWinRate && (
+                      <Badge
+                        colorPalette="yellow"
+                        variant="solid"
+                        size="xs"
+                        fontSize="9px"
+                        px={1}
+                        borderRadius="sm"
+                        whiteSpace="nowrap"
+                      >
+                        MVP
+                      </Badge>
+                    )}
+                  </HStack>
                 </Td>
                 <Td textAlign="center" {...tdProps}>
-                  <Text fontSize="sm" color="fg.muted">
-                    {p.gender ? t(p.gender.toLowerCase()) : t('N/A')}
-                  </Text>
+                  {p.gender ? (
+                    <Badge
+                      colorPalette={p.gender === 'MALE' ? 'blue' : 'pink'}
+                      variant="subtle"
+                      size="sm"
+                      px={2}
+                      borderRadius="md"
+                    >
+                      {t(p.gender.toLowerCase())}
+                    </Badge>
+                  ) : (
+                    <Text fontSize="sm" color="fg.muted">
+                      {t('N/A')}
+                    </Text>
+                  )}
                 </Td>
                 {!exportMode && (
                   <Td textAlign="center" {...tdProps}>
@@ -450,12 +473,12 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
       <Box position="absolute" left="-9999px" top="-9999px">
         <Box
           id="session-stats-export-area"
-          w="1000px"
+          w="700px"
           bg="white"
           _dark={{ bg: 'gray.800' }}
-          pt={4}
+          pt={3}
           px={8}
-          pb={4}
+          pb={2}
         >
           <VStack align="stretch" gap={2}>
             <Box borderBottom="2px solid" borderColor="green.100" pb={2}>
@@ -484,16 +507,15 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                         minute: '2-digit',
                         hour12: false,
                       })}
-                      {session?.endTime
-                        ? ` - ${new Date(session.endTime).toLocaleString(
-                            'vi-VN',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            }
-                          )}`
-                        : ''}
+                      {'-'}
+                      {new Date(
+                        new Date(session.startTime).getTime() +
+                          (session.sessionDuration || 120) * 60 * 1000
+                      ).toLocaleString('vi-VN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })}
                       {', '}
                       {new Date(session.startTime).toLocaleString('vi-VN', {
                         day: '2-digit',
@@ -513,8 +535,14 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
             </Box>
 
             <Box>
-              <Heading size="md" textAlign="center" mb={1.5} color="green.700">
-                📊 BẢNG THỐNG KÊ NGƯỜI CHƠI
+              <Heading
+                size="sm"
+                textAlign="center"
+                mb={1}
+                color="green.700"
+                fontWeight="bold"
+              >
+                📊 THỐNG KÊ NGƯỜI CHƠI
               </Heading>
 
               <Box
@@ -535,35 +563,43 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
               </Box>
             </Box>
 
-            <Flex justify="space-between" align="center" pt={2}>
-              <Box w="64px" />{' '}
-              {/* Spacer to balance QR code for text centering */}
-              <VStack align="center" gap={0}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="bold"
-                  color="green.600"
-                  textAlign="center"
-                >
-                  Vmito App
-                </Text>
-                <Text
-                  fontSize="xs"
-                  color="fg.muted"
-                  textAlign="center"
-                  mt="-1px"
-                >
-                  Nền tảng quản lý giao lưu cầu lông
-                </Text>
-              </VStack>
-              {qrCodeUrl ? (
-                <Box>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={qrCodeUrl} alt="QR Code" width={48} height={48} />
-                </Box>
-              ) : (
-                <Box w="64px" />
-              )}
+            <Flex justify="flex-end" align="center" pt={2} pb={0} w="full">
+              <HStack gap={3} align="center">
+                <HStack gap={2.5} align="center">
+                  <VStack align="flex-end" gap={0}>
+                    <Text
+                      fontSize="xs"
+                      fontWeight="bold"
+                      color="green.600"
+                      lineHeight="1"
+                    >
+                      Vmito App
+                    </Text>
+                    <Text
+                      fontSize="9px"
+                      color="fg.muted"
+                      fontWeight="medium"
+                      lineHeight="1"
+                      mt="1px"
+                    >
+                      Nền tảng quản lý giao lưu cầu lông
+                    </Text>
+                  </VStack>
+                  <Box w="1.2px" h="18px" bg="green.100" />
+                  {qrCodeUrl && (
+                    <Box borderRadius="none" overflow="hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={qrCodeUrl}
+                        alt="QR Code"
+                        width={36}
+                        height={36}
+                        style={{ display: 'block' }}
+                      />
+                    </Box>
+                  )}
+                </HStack>
+              </HStack>
             </Flex>
           </VStack>
         </Box>

@@ -30,6 +30,10 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useTranslations } from 'next-intl';
+import {
+  normalizePhoneForTel,
+  normalizePhoneForZalo,
+} from '@/utils/phone-utils';
 
 interface VenueCardProps {
   venue: Venue;
@@ -410,7 +414,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   icon={<Phone size={16} />}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
-                    window.location.href = `tel:${venue.phone}`;
+                    window.location.href = `tel:${normalizePhoneForTel(venue.phone)}`;
                   }}
                 />
               )}
@@ -424,7 +428,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     window.open(
-                      `https://zalo.me/${venue.phone!.replace(/^0/, '84')}`,
+                      `https://zalo.me/${normalizePhoneForZalo(venue.phone)}`,
                       '_blank'
                     );
                   }}
