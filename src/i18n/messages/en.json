@@ -3029,6 +3029,7 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
-    "findSessionsAtVenue": "Find Sessions"
+    "findSessionsAtVenue": "Find Sessions",
+    "nameFormat": "{name} Badminton Court"
   }
 }

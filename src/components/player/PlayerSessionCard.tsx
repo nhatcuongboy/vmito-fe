@@ -4,6 +4,7 @@ import { Box, Flex, Icon, Text, Stack } from '@chakra-ui/react';
 import { MapPin, Navigation } from 'lucide-react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import 'dayjs/locale/vi';
 import 'dayjs/locale/en';
 import { ISession } from '@/lib/api/types';
@@ -16,6 +17,7 @@ interface PlayerSessionCardProps {
 
 export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
 
   // Location row for PlayerSessionCard
   const locationRow =
@@ -25,7 +27,12 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
         <Box flex="1" overflow="hidden">
           <Flex align="center" gap={1}>
             <Text fontWeight="medium" lineClamp={1}>
-              {session.venue?.name || session.location}
+              {session.venue?.name
+                ? formatVenueName(
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
+                : session.location}
             </Text>
             <IconButton
               size="xs"
@@ -36,7 +43,12 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
                 e.stopPropagation();
                 const address =
                   session.venue?.address ||
-                  session.venue?.name ||
+                  (session.venue?.name
+                    ? formatVenueName(
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : session.location) ||
                   session.location;
                 if (address) {
                   window.open(

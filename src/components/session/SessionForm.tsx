@@ -27,6 +27,7 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { formatVenueName } from '@/utils';
 import { Input } from '@/components/ui/chakra-compat';
 import { Check } from 'lucide-react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -204,6 +205,7 @@ export default function SessionForm({
   const searchParams = useSearchParams();
   const t = useTranslations('session');
   const tc = useTranslations('common');
+  const tVenue = useTranslations('venue');
   const { user } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const isEditMode = mode === 'edit';
@@ -408,12 +410,12 @@ export default function SessionForm({
   const venueOptions = useMemo(() => {
     const opts = venues.map((v) => ({
       value: v.id,
-      label: `${v.name} - ${v.address}`,
+      label: `${formatVenueName(v.name, tVenue('nameFormat', { name: '{name}' }))} - ${v.address}`,
     }));
     if (selectedVenueObj && !venues.find((v) => v.id === selectedVenueObj.id)) {
       opts.unshift({
         value: selectedVenueObj.id,
-        label: `${selectedVenueObj.name} - ${selectedVenueObj.address}`,
+        label: `${formatVenueName(selectedVenueObj.name, tVenue('nameFormat', { name: '{name}' }))} - ${selectedVenueObj.address}`,
       });
     }
     return opts;

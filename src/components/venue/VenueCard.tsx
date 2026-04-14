@@ -30,6 +30,8 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useTranslations } from 'next-intl';
+
+import { formatVenueName } from '@/utils';
 import {
   normalizePhoneForTel,
   normalizePhoneForZalo,
@@ -49,8 +51,13 @@ export default function VenueCard({ venue }: VenueCardProps) {
   const t = useTranslations('venue');
   const [isLoading, setIsLoading] = useState(false);
 
+  const displayName = formatVenueName(
+    venue.name,
+    t('nameFormat', { name: '{name}' })
+  );
+
   const handleNavigate = () => {
-    const query = encodeURIComponent(venue.address || venue.name);
+    const query = encodeURIComponent(venue.address || displayName);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       '_blank'
@@ -93,7 +100,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
       <Box position="relative" h="140px" overflow="hidden">
         <Image
           src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
-          alt={venue.name}
+          alt={displayName}
           w="100%"
           h="100%"
           objectFit="cover"
@@ -134,7 +141,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                 _dark={{ color: 'white' }}
                 letterSpacing="tight"
               >
-                {venue.name}
+                {displayName}
               </Text>
             </Flex>
 
@@ -465,7 +472,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                 onClick={async (e: React.MouseEvent) => {
                   e.stopPropagation();
                   const shareData = {
-                    title: venue.name,
+                    title: displayName,
                     url: `${window.location.origin}/browse/venues/${venue.id}`,
                   };
                   try {

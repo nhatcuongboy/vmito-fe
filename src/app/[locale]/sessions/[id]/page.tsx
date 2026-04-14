@@ -4,6 +4,7 @@ import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
 import { cache } from 'react';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { formatVenueName } from '@/utils';
 
 interface PageProps {
   params: Promise<{
@@ -28,7 +29,10 @@ const getSession = cache(async (id: string): Promise<ISession | null> => {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
+  const messages = (await import(`@/i18n/messages/${locale || 'vi'}.json`))
+    .default;
+  const nameFormat = messages.venue.nameFormat;
 
   // Attempt to get session. Use a slightly shorter timeout for metadata if possible,
   // but here we rely on the global axios timeout.
@@ -56,7 +60,9 @@ export async function generateMetadata({
 
   const title = `${session.name || 'Kèo cầu lông'}`;
   const locationName =
-    session.venue?.name || session.location || 'Địa điểm chưa xác định';
+    (session.venue?.name
+      ? formatVenueName(session.venue.name, nameFormat)
+      : session.location) || 'Địa điểm chưa xác định';
   const description = `Tham gia giao lưu cầu lông cùng ${session.host?.name || 'host'} tại ${locationName}. Chi tiết: ${session.description || 'Bấm để xem chi tiết.'}`;
 
   const images = session.coverPhoto
@@ -82,8 +88,11 @@ export async function generateMetadata({
 }
 
 export default async function PublicSessionDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const session = await getSession(id);
+  const messages = (await import(`@/i18n/messages/${locale || 'vi'}.json`))
+    .default;
+  const nameFormat = messages.venue.nameFormat;
 
   // If session not found, we still render the client component which handles its own "not found" state or loading
   // calling it with null initialSession will trigger client-side fetch (which will also fail, consistent behavior)
@@ -114,13 +123,17 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
         ? 'https://schema.org/SoldOut'
         : 'https://schema.org/InStock';
 
+    const locationName =
+      (session.venue?.name
+        ? formatVenueName(session.venue.name, nameFormat)
+        : session.location) || 'Địa điểm chưa xác định';
+
     jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'SportsEvent',
       name: session.name,
       description:
-        session.description ||
-        `Giao lưu cầu lông tại ${session.venue?.name || session.location}`,
+        session.description || `Giao lưu cầu lông tại ${locationName}`,
       startDate: startTime,
       endDate: endTime,
       image: session.coverPhoto ? [session.coverPhoto] : [DEFAULT_COVER_PHOTO],
@@ -128,7 +141,7 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
       eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
       location: {
         '@type': 'Place',
-        name: session.venue?.name || session.location,
+        name: locationName,
         address: {
           '@type': 'PostalAddress',
           streetAddress: session.venue?.address || session.location,

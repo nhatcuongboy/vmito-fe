@@ -38,6 +38,8 @@ import {
   normalizePhoneForZalo,
 } from '@/utils/phone-utils';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { formatVenueName } from '@/utils';
+import { useTranslations } from 'next-intl';
 import { Pencil } from 'lucide-react';
 import { QuickVenueEditModal } from '@/components/venue/QuickVenueEditModal';
 
@@ -49,6 +51,7 @@ function formatPrice(amount?: number) {
 export default function VenueDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations('venue');
   const { user } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
 
@@ -81,7 +84,10 @@ export default function VenueDetailPage() {
 
   const handleNavigate = () => {
     if (!venue) return;
-    const query = encodeURIComponent(venue.address || venue.name);
+    const query = encodeURIComponent(
+      venue.address ||
+        formatVenueName(venue.name, t('nameFormat', { name: '{name}' }))
+    );
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       '_blank'
@@ -140,7 +146,11 @@ export default function VenueDetailPage() {
   }
 
   return (
-    <PageLayout title={venue.name} bg="gray.50" _dark={{ bg: 'gray.900' }}>
+    <PageLayout
+      title={formatVenueName(venue.name, t('nameFormat', { name: '{name}' }))}
+      bg="gray.50"
+      _dark={{ bg: 'gray.900' }}
+    >
       <Box maxW="1200px" mx="auto">
         {/* Cover Photo */}
         <Box
@@ -163,7 +173,10 @@ export default function VenueDetailPage() {
           />
           <Image
             src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
-            alt={venue.name}
+            alt={formatVenueName(
+              venue.name,
+              t('nameFormat', { name: '{name}' })
+            )}
             w="100%"
             h="100%"
             objectFit="cover"
@@ -245,7 +258,12 @@ export default function VenueDetailPage() {
               boxShadow="md"
             >
               <Box mb={4}>
-                <Heading size="2xl">{venue.name}</Heading>
+                <Heading size="2xl">
+                  {formatVenueName(
+                    venue.name,
+                    t('nameFormat', { name: '{name}' })
+                  )}
+                </Heading>
               </Box>
 
               {/* Location */}

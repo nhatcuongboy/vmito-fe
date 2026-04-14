@@ -13,6 +13,7 @@ import {
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -45,6 +46,7 @@ export const PublicSessionDetailContent = ({
 }: PublicSessionDetailContentProps) => {
   const locale = useLocale();
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -272,7 +274,12 @@ export const PublicSessionDetailContent = ({
         <Box flex="1" overflow="hidden">
           <Flex align="center" gap={1}>
             <Text fontWeight="medium" lineClamp={1}>
-              {session.venue?.name || session.location}
+              {session.venue?.name
+                ? formatVenueName(
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
+                : session.location}
             </Text>
             <IconButton
               size="xs"
@@ -283,8 +290,12 @@ export const PublicSessionDetailContent = ({
                 e.stopPropagation();
                 const address =
                   session.venue?.address ||
-                  session.venue?.name ||
-                  session.location;
+                  (session.venue?.name
+                    ? formatVenueName(
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : session.location);
                 if (address) {
                   window.open(
                     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,

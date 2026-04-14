@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { Button, Card, CardBody } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import {
   LuUserCheck,
   LuCalendarClock,
@@ -38,6 +39,7 @@ import { useParams } from 'next/navigation';
 const ApprovalDetailContent = () => {
   const t = useTranslations('notification');
   const tCommon = useTranslations('common');
+  const tVenue = useTranslations('venue');
   const router = useRouter();
   const params = useParams();
   const sessionId = params.sessionId as string;
@@ -216,7 +218,10 @@ const ApprovalDetailContent = () => {
                       {t('approvalVenue')}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium">
-                      {request.session.venue.name}
+                      {formatVenueName(
+                        request.session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )}
                     </Text>
                   </VStack>
                 </HStack>

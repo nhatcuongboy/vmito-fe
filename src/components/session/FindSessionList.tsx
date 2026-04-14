@@ -12,6 +12,7 @@ import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { VenueService } from '@/lib/api/venue.service';
+import { formatVenueName } from '@/utils';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -180,6 +181,7 @@ export default function FindSessionList({
   const router = useRouter();
 
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
   const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
 
@@ -605,7 +607,12 @@ export default function FindSessionList({
                   {t('filters.atVenue')}:
                 </Text>
                 <Text fontSize="xs" fontWeight="semibold" maxW="160px" truncate>
-                  {selectedVenueName || '...'}
+                  {selectedVenueName
+                    ? formatVenueName(
+                        selectedVenueName,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : '...'}
                 </Text>
                 <Icon
                   as={X}

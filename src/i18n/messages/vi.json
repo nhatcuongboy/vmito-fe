@@ -3031,6 +3031,7 @@
     "share": "Chia sẻ",
     "view": "Xem",
     "viewDetails": "Xem chi tiết",
-    "findSessionsAtVenue": "Tìm kèo tại sân"
+    "findSessionsAtVenue": "Tìm kèo tại sân",
+    "nameFormat": "Sân {name}"
   }
 }
