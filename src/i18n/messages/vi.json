@@ -2813,6 +2813,26 @@
     "cancel": "Hủy",
     "rated": "Đã đánh giá"
   },
+  "userProfilePage": {
+    "title": "Trang cá nhân",
+    "loadFailed": "Không thể tải trang cá nhân",
+    "profileNotFound": "Không tìm thấy người dùng",
+    "hostedSessions": "Kèo đã host",
+    "reviews": "Đánh giá",
+    "joinedAt": "Tham gia",
+    "joinedDateLabel": "Tham gia từ {date}",
+    "verifiedHost": "Host xác thực",
+    "activeHosted": "Đang hoạt động",
+    "endedHosted": "Đã kết thúc",
+    "allHosted": "Tất cả",
+    "noHostedSessions": "Người dùng này chưa host kèo nào",
+    "noActiveHostedSessions": "Không có kèo đang hoạt động",
+    "noEndedHostedSessions": "Không có kèo đã kết thúc",
+    "viewAllReviews": "Xem tất cả",
+    "allReviews": "Tất cả đánh giá",
+    "noReviews": "Chưa có đánh giá nào",
+    "pagination": "Trang {page}/{totalPages}"
+  },
   "notification": {
     "notifications": "Thông báo",
     "noNotifications": "Chưa có thông báo",

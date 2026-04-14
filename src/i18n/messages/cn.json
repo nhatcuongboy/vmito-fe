@@ -2732,6 +2732,26 @@
     "cancel": "取消",
     "rated": "已评价"
   },
+  "userProfilePage": {
+    "title": "个人主页",
+    "loadFailed": "无法加载个人主页",
+    "profileNotFound": "未找到该用户",
+    "hostedSessions": "已主持场次",
+    "reviews": "评价",
+    "joinedAt": "加入时间",
+    "joinedDateLabel": "加入于 {date}",
+    "verifiedHost": "认证主办方",
+    "activeHosted": "进行中",
+    "endedHosted": "已结束",
+    "allHosted": "全部",
+    "noHostedSessions": "该用户尚未主持任何场次",
+    "noActiveHostedSessions": "暂无进行中的场次",
+    "noEndedHostedSessions": "暂无已结束场次",
+    "viewAllReviews": "查看全部",
+    "allReviews": "全部评价",
+    "noReviews": "暂无评价",
+    "pagination": "第 {page}/{totalPages} 页"
+  },
   "notification": {
     "notifications": "通知",
     "noNotifications": "暂无通知",

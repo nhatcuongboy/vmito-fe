@@ -2811,6 +2811,26 @@
     "cancel": "Cancel",
     "rated": "Rated"
   },
+  "userProfilePage": {
+    "title": "Profile",
+    "loadFailed": "Unable to load profile",
+    "profileNotFound": "User not found",
+    "hostedSessions": "Hosted sessions",
+    "reviews": "Reviews",
+    "joinedAt": "Joined",
+    "joinedDateLabel": "Joined since {date}",
+    "verifiedHost": "Verified host",
+    "activeHosted": "Active",
+    "endedHosted": "Ended",
+    "allHosted": "All",
+    "noHostedSessions": "This user has not hosted any sessions yet",
+    "noActiveHostedSessions": "No active hosted sessions",
+    "noEndedHostedSessions": "No ended hosted sessions",
+    "viewAllReviews": "View all",
+    "allReviews": "All reviews",
+    "noReviews": "No reviews yet",
+    "pagination": "Page {page}/{totalPages}"
+  },
   "notification": {
     "notifications": "Notifications",
     "noNotifications": "No notifications yet",

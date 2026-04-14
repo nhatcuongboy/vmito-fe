@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, ArrowRight, ArrowLeft } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { formatVenueName } from '@/utils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
@@ -44,7 +44,6 @@ export const PublicSessionDetailContent = ({
   showViewMore = false,
   defaultOpenRegister = false,
 }: PublicSessionDetailContentProps) => {
-  const locale = useLocale();
   const t = useTranslations('session');
   const tVenue = useTranslations('venue');
   const router = useRouter();
@@ -145,7 +144,16 @@ export const PublicSessionDetailContent = ({
       setIsRegistrationLoading(true);
       const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
       if (myPlayers && myPlayers.length > 0) {
-        setUserRegistrationStatus(myPlayers[0].registrationStatus as any);
+        const status = myPlayers[0].registrationStatus;
+        if (
+          status === 'PENDING' ||
+          status === 'APPROVED' ||
+          status === 'REJECTED'
+        ) {
+          setUserRegistrationStatus(status);
+        } else {
+          setUserRegistrationStatus(null);
+        }
       } else {
         setUserRegistrationStatus(null);
       }
@@ -423,14 +431,29 @@ export const PublicSessionDetailContent = ({
           hideSecondaryAction={true}
           maxBodyHeight="80vh"
         >
-          <AppHostDetail
-            userId={session.hostId}
-            name={session.hostName || session.host?.name}
-            image={session.host?.image || undefined}
-            phone={session.hostPhone}
-            email={session.host?.email}
-            hideHeader={true}
-          />
+          <Box>
+            <AppHostDetail
+              userId={session.hostId}
+              name={session.hostName || session.host?.name}
+              image={session.host?.image || undefined}
+              phone={session.hostPhone}
+              email={session.host?.email}
+              hideHeader={true}
+            />
+
+            <Button
+              mt={4}
+              width="full"
+              variant="outline"
+              colorPalette="green"
+              onClick={() => {
+                onCloseHostDetailModal();
+                router.push(`/user/${session.hostId}`);
+              }}
+            >
+              {t('viewDetails') || 'Xem chi tiết'}
+            </Button>
+          </Box>
         </VModal>
 
         {canManage && (
