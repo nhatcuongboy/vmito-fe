@@ -57,6 +57,7 @@ export default function SessionPaymentList({
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
   const tFixed = useTranslations('clubs');
+  const tCommon = useTranslations('common');
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
     null
@@ -154,6 +155,35 @@ export default function SessionPaymentList({
     await onReject(selectedPayment.id, notes);
   };
 
+  // Helper to get registration group info for a payment
+  const getGroupInfo = (payment: PaymentRecord) => {
+    const payerId = payment.registeredByUserId || payment.playerId;
+    const group = paymentsArray.filter(
+      (p) => (p.registeredByUserId || p.playerId) === payerId
+    );
+    const total = group.length;
+    const males = group.filter((p) => p.player?.gender === 'MALE').length;
+    const females = group.filter((p) => p.player?.gender === 'FEMALE').length;
+    return { total, males, females };
+  };
+
+  // Helper to get gender translation
+  const getGenderText = (gender?: string) => {
+    if (!gender) return '';
+    switch (gender) {
+      case 'MALE':
+        return tCommon('male');
+      case 'FEMALE':
+        return tCommon('female');
+      case 'OTHER':
+        return tCommon('other');
+      case 'PREFER_NOT_TO_SAY':
+        return tCommon('preferNotToSay');
+      default:
+        return gender;
+    }
+  };
+
   // Calculate totals
   const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
   const approvedAmount = paymentsArray
@@ -189,7 +219,7 @@ export default function SessionPaymentList({
           </Box>
         }
       >
-        <HStack gap={1} cursor="help">
+        <HStack gap={1} cursor="help" justify="flex-end">
           <Text fontWeight="semibold" color="teal.600">
             {FeeService.formatFeeExact(payment.amount)}
           </Text>
@@ -231,14 +261,6 @@ export default function SessionPaymentList({
         <Flex gap={4} wrap="wrap">
           <Box flex={1} minW="120px">
             <Text fontSize="sm" color="gray.600">
-              {t('totalFee')}
-            </Text>
-            <Text fontSize="lg" fontWeight="bold">
-              {totalAmount === 0 ? '0' : FeeService.formatFeeExact(totalAmount)}
-            </Text>
-          </Box>
-          <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600">
               {t('paidAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="green.600">
@@ -257,6 +279,16 @@ export default function SessionPaymentList({
                 : FeeService.formatFeeExact(totalAmount - approvedAmount)}
             </Text>
           </Box>
+          <Box flex={1} minW="120px">
+            <Text fontSize="sm" color="gray.600">
+              {t('remainingAmount')}
+            </Text>
+            <Text fontSize="lg" fontWeight="bold" color="blue.600">
+              {totalAmount - approvedAmount === 0
+                ? '0'
+                : FeeService.formatFeeExact(totalAmount - approvedAmount)}
+            </Text>
+          </Box>
         </Flex>
 
         {/* Income / Expense / Net summary */}
@@ -267,9 +299,9 @@ export default function SessionPaymentList({
                 {t('income')}
               </Text>
               <Text fontSize="md" fontWeight="semibold" color="green.600">
-                {approvedAmount === 0
+                {totalAmount === 0
                   ? '0'
-                  : FeeService.formatFeeExact(approvedAmount)}
+                  : FeeService.formatFeeExact(totalAmount)}
               </Text>
             </Box>
             <Box flex={1} minW="120px">
@@ -290,10 +322,10 @@ export default function SessionPaymentList({
                 fontSize="md"
                 fontWeight="bold"
                 color={
-                  approvedAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
+                  totalAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
                 }
               >
-                {FeeService.formatFeeExact(approvedAmount - totalExpenses)}
+                {FeeService.formatFeeExact(totalAmount - totalExpenses)}
               </Text>
             </Box>
           </Flex>
@@ -413,8 +445,8 @@ export default function SessionPaymentList({
               _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
               onClick={() => setSelectedPayment(payment)}
             >
-              <HStack justify="space-between">
-                <HStack gap={3}>
+              <Flex align="center" justify="space-between">
+                <HStack gap={3} flex={1}>
                   <Avatar.Root size="sm">
                     {payment.player?.user?.image ? (
                       <Avatar.Image src={payment.player.user.image} />
@@ -448,17 +480,45 @@ export default function SessionPaymentList({
                     </HStack>
                     {payment.player?.gender && (
                       <Text fontSize="xs" color="gray.500">
-                        {payment.player.gender}
+                        {getGenderText(payment.player.gender)}
                       </Text>
                     )}
+                    {/* Slot info for all screens, but formatted for small spaces if needed */}
+                    <Box mt={1}>
+                      {(() => {
+                        const { total, males, females } = getGroupInfo(payment);
+                        return (
+                          <Text
+                            fontSize="xs"
+                            color="blue.600"
+                            fontWeight="medium"
+                          >
+                            {total} slot (
+                            {[
+                              males > 0 && `${males} ${tCommon('male')}`,
+                              females > 0 && `${females} ${tCommon('female')}`,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
+                            )
+                          </Text>
+                        );
+                      })()}
+                    </Box>
                   </Box>
                 </HStack>
 
-                <HStack gap={3}>
-                  {renderFixedMemberAmount(payment)}
-                  <PaymentStatusBadge status={payment.status} size="sm" />
+                {/* Hide the separate desktop-only slots column since we added it above */}
+
+                <HStack gap={3} flex={1} justify="flex-end">
+                  <Box minW="100px" textAlign="right">
+                    {renderFixedMemberAmount(payment)}
+                  </Box>
+                  <Box minW="100px" display="flex" justifyContent="flex-end">
+                    <PaymentStatusBadge status={payment.status} size="sm" />
+                  </Box>
                 </HStack>
-              </HStack>
+              </Flex>
 
               {payment.proofImageUrl && (
                 <HStack mt={2} ml={10}>
@@ -480,6 +540,16 @@ export default function SessionPaymentList({
           paymentRecord={selectedPayment}
           onApprove={handleApprove}
           onReject={handleReject}
+          slotInfo={(() => {
+            const { total, males, females } = getGroupInfo(selectedPayment);
+            const details = [
+              males > 0 && `${males} ${tCommon('male')}`,
+              females > 0 && `${females} ${tCommon('female')}`,
+            ]
+              .filter(Boolean)
+              .join(', ');
+            return `${total} slot (${details})`;
+          })()}
         />
       )}
     </VStack>

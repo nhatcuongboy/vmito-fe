@@ -61,15 +61,16 @@ export default function BottomNavigationBar({
         const isLoading = loadingTabId === tab.id;
 
         return (
-          <Box key={tab.id} position="relative" flex={1}>
+          <Box key={tab.id} position="relative" flex={1} minW={0}>
             <Button
               onClick={() => !isLoading && onTabChange(tab.id)}
               variant="ghost"
               width="100%"
               height="100%"
               py={2}
+              px={1}
               flexDirection="column"
-              gap={1}
+              gap={0.5}
               color={isActive ? 'green.500' : 'fg.muted'}
               bg="transparent"
               _active={{
@@ -100,7 +101,13 @@ export default function BottomNavigationBar({
                   }}
                 />
               )}
-              <Text fontSize="xs" fontWeight={isActive ? 'semibold' : 'medium'}>
+              <Text
+                fontSize={{ base: '2xs', sm: 'xs' }}
+                fontWeight={isActive ? 'semibold' : 'medium'}
+                lineClamp={1}
+                textAlign="center"
+                px={0.5}
+              >
                 {tab.label}
               </Text>
             </Button>

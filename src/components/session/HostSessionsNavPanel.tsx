@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Text, VStack } from '@chakra-ui/react';
-import { ClipboardList, ClipboardCheck, Ticket, History } from 'lucide-react';
+import { ClipboardList, ClipboardCheck, Ticket } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
@@ -25,27 +25,15 @@ const NAV_ITEMS: INavItem[] = [
   },
   {
     id: 1,
-    labelKey: 'pendingJoinRequests',
-    icon: ClipboardCheck,
-    href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
-  },
-  {
-    id: 2,
     labelKey: 'joined',
     icon: Ticket,
     href: ROUTES.PLAYER.SESSIONS.LIST,
   },
   {
-    id: 3,
-    labelKey: 'endedSessions',
-    icon: History,
-    href: ROUTES.HOST.SESSIONS.ENDED,
-  },
-  {
-    id: 4,
-    labelKey: 'endedJoinedSessions',
-    icon: History,
-    href: ROUTES.PLAYER.SESSIONS.ENDED,
+    id: 2,
+    labelKey: 'pendingJoinRequests',
+    icon: ClipboardCheck,
+    href: ROUTES.HOST.PENDING_JOIN_REQUESTS,
   },
 ];
 
@@ -60,7 +48,14 @@ export default function HostSessionsNavPanel() {
 
   const handleNavigate = (id: number) => {
     const item = NAV_ITEMS.find((i) => i.id === id);
-    if (!item || pathname === item.href) return;
+    if (!item) return;
+
+    // Normalize paths for comparison (remove trailing slashes)
+    const normalizedPathname = pathname.replace(/\/$/, '') || '/';
+    const normalizedHref = item.href.replace(/\/$/, '') || '/';
+
+    if (normalizedPathname === normalizedHref) return;
+
     setPendingTabId(id);
     startTransition(() => {
       router.push(item.href);
@@ -81,7 +76,7 @@ export default function HostSessionsNavPanel() {
     <>
       {/* Desktop left sidebar panel */}
       <Box
-        display={{ base: 'none', md: 'block' }}
+        display="none"
         w="220px"
         flexShrink={0}
         position="sticky"
@@ -94,6 +89,7 @@ export default function HostSessionsNavPanel() {
         borderColor="gray.200"
         boxShadow="sm"
         overflow="hidden"
+        zIndex={10}
       >
         <VStack gap={1} align="stretch" p={2}>
           {NAV_ITEMS.map((item) => {
@@ -103,7 +99,7 @@ export default function HostSessionsNavPanel() {
             return (
               <Flex
                 key={item.id}
-                as="button"
+                role="button"
                 align="center"
                 gap={3}
                 px={3}
@@ -120,9 +116,15 @@ export default function HostSessionsNavPanel() {
                 borderLeft="4px solid"
                 borderLeftColor={isActive ? 'green.500' : 'transparent'}
                 _hover={{ bg: isActive ? 'green.50' : 'gray.50' }}
-                onClick={() => handleNavigate(item.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigate(item.id);
+                }}
                 textAlign="left"
                 w="full"
+                transition="all 0.2s"
+                position="relative"
+                zIndex={isActive ? 2 : 1}
               >
                 <Icon
                   size={18}
@@ -145,6 +147,7 @@ export default function HostSessionsNavPanel() {
         activeTab={activeId}
         loadingTabId={pendingTabId}
         onTabChange={handleNavigate}
+        alwaysVisible={true}
       />
     </>
   );

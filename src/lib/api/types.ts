@@ -403,6 +403,7 @@ export interface Match {
   court?: Court;
   isDraw: boolean;
   notes: string;
+  isExtra?: boolean;
   score: {
     playerId: string;
     score: number;

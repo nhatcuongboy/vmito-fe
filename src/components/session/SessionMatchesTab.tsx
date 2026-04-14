@@ -15,6 +15,8 @@ import {
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { EditMatchModal } from './EditMatchModal';
+import { toaster } from '@/components/ui/toaster';
+import { VModal } from '@/components/ui/VModal';
 import {
   HistoryMatchCard,
   HistoryMatch,
@@ -38,21 +40,34 @@ interface SessionMatchesTabProps {
       courtName?: string;
     }>;
   };
+  defaultPlayerId?: string;
+  readOnly?: boolean;
 }
 
 export default function SessionMatchesTab({
   sessionId,
   sessionData,
+  defaultPlayerId,
+  readOnly,
 }: SessionMatchesTabProps) {
   const t = useTranslations('SessionDetail.matchs');
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string>(
+    defaultPlayerId || ''
+  );
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
   const [players, setPlayers] = useState<
     (Player | { id: string; playerNumber: number; name?: string })[]
   >(sessionData?.players || []);
+
+  // Sync defaultPlayerId when it changes and selectedPlayerId is empty
+  useEffect(() => {
+    if (defaultPlayerId) {
+      setSelectedPlayerId(defaultPlayerId);
+    }
+  }, [defaultPlayerId]);
   const [courts, setCourts] = useState<
     (Court | { id: string; courtNumber: number; courtName?: string })[]
   >(sessionData?.courts || []);
@@ -60,6 +75,11 @@ export default function SessionMatchesTab({
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<HistoryMatch | null>(null);
+
+  // Delete modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [matchToDelete, setMatchToDelete] = useState<HistoryMatch | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Use ref to store sessionData to avoid triggering effect on object reference changes
   const sessionDataRef = useRef(sessionData);
@@ -130,10 +150,10 @@ export default function SessionMatchesTab({
         let playerNames: string[] = [];
         let playerIds: string[] = [];
         if (Array.isArray(matchData.players)) {
-          // Sort by courtPosition (actual visual position) for correct pairing
+          // Sort by match_player position for correct pairing
           const sortedMatchPlayers = [...matchData.players].sort((a, b) => {
-            const posA = a.player?.courtPosition ?? a.position ?? 0;
-            const posB = b.player?.courtPosition ?? b.position ?? 0;
+            const posA = a.position ?? 0;
+            const posB = b.position ?? 0;
             return posA - posB;
           });
           playerNames = sortedMatchPlayers.map((mp) => mp.player?.name || '?');
@@ -164,12 +184,12 @@ export default function SessionMatchesTab({
           }
         }
 
-        // Use courtPosition for pair calculation to match visual layout
+        // Use match player's position for pair calculation
         const playersWithPosition = Array.isArray(matchData.players)
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             matchData.players.map((mp: any, index: number) => ({
               playerId: mp.player?.id || mp.playerId,
-              position: mp.player?.courtPosition ?? mp.position ?? index,
+              position: mp.position ?? index,
             }))
           : [];
 
@@ -247,6 +267,7 @@ export default function SessionMatchesTab({
           scores,
           winningPair,
           isExtra: Boolean(matchData.isExtra),
+          notes: matchData.notes || matchData.note,
         });
       }
 
@@ -285,69 +306,136 @@ export default function SessionMatchesTab({
     loadData(); // Refresh data
   };
 
+  const handleDeleteMatch = (match: HistoryMatch) => {
+    setMatchToDelete(match);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteMatch = async () => {
+    if (!matchToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await SessionService.deleteMatch(matchToDelete.id);
+      toaster.create({
+        title: t('deleteMatchSuccess') || 'Đã xoá trận đấu',
+        type: 'success',
+        duration: 3000,
+        closable: true,
+      });
+      loadData();
+      setIsDeleteModalOpen(false);
+      setMatchToDelete(null);
+    } catch (err) {
+      console.error('Error deleting match:', err);
+      toaster.create({
+        title: t('deleteMatchError') || 'Không thể xoá trận đấu',
+        type: 'error',
+        duration: 3000,
+        closable: true,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleToggleExtra = async (match: HistoryMatch) => {
+    try {
+      await SessionService.updateMatch(match.id, { isExtra: !match.isExtra });
+      toaster.create({
+        title: t('updateMatchSuccess') || 'Cập nhật trận đấu thành công',
+        type: 'success',
+        duration: 3000,
+        closable: true,
+      });
+      loadData();
+    } catch (err) {
+      console.error('Error toggling extra status:', err);
+      toaster.create({
+        title: t('updateMatchError') || 'Lỗi cập nhật trận đấu',
+        type: 'error',
+        duration: 3000,
+        closable: true,
+      });
+    }
+  };
+
   return (
     <Box>
-      <Text fontWeight="semibold" mb={3}>
+      {/* <Text fontWeight="semibold" mb={3}>
         {t('matches')}
-      </Text>
+      </Text> */}
 
-      <Flex gap={3} mb={6} mt={2} flexWrap="wrap" align="center">
-        {/* Player Filter */}
-        <Box
-          width={{ base: 'calc(50% - 6px)', sm: '180px' }}
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-          borderRadius="md"
-          boxShadow="sm"
-        >
-          <VSelect
-            value={selectedPlayerId}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              setSelectedPlayerId(e.target.value)
-            }
-            size="sm"
-            variant="outline"
-            rightElement={<ChevronDown size={14} color="gray" />}
-          >
-            <option value="">{t('allPlayers')}</option>
-            {players.map((player) => (
-              <option key={player.id} value={player.id}>
-                #{player.playerNumber} - {player.name || t('unnamed')}
-              </option>
-            ))}
-          </VSelect>
-        </Box>
+      <Flex
+        mb={6}
+        mt={2}
+        flexDirection={{ base: 'column', md: 'row' }}
+        align={{ base: 'flex-start', md: 'center' }}
+        justify="space-between"
+        gap={4}
+      >
+        <Heading size="md">
+          {t('matchCount', { count: matches.length })}
+        </Heading>
 
-        {/* Court Filter */}
-        <Box
-          width={{ base: 'calc(50% - 6px)', sm: '150px' }}
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-          borderRadius="md"
-          boxShadow="sm"
-        >
-          <VSelect
-            value={selectedCourtId}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              setSelectedCourtId(e.target.value)
-            }
-            size="sm"
-            variant="outline"
-            rightElement={<ChevronDown size={14} color="gray" />}
+        <Flex gap={3} flexWrap="wrap" width={{ base: '100%', md: 'auto' }}>
+          {/* Player Filter */}
+          <Box
+            width={{ base: 'calc(50% - 6px)', sm: '180px' }}
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="md"
+            boxShadow="sm"
           >
-            <option value="">{t('allCourts')}</option>
-            {courts.map((court) => (
-              <option key={court.id} value={court.id}>
-                {court.courtName
-                  ? t('courtNumberWithName', {
-                      number: court.courtNumber,
-                      name: court.courtName,
-                    })
-                  : t('courtNumber', { number: court.courtNumber })}
-              </option>
-            ))}
-          </VSelect>
-        </Box>
+            <VSelect
+              value={selectedPlayerId}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setSelectedPlayerId(e.target.value)
+              }
+              size="sm"
+              variant="outline"
+              rightElement={<ChevronDown size={14} color="gray" />}
+            >
+              <option value="">{t('allPlayers')}</option>
+              {players.map((player) => (
+                <option key={player.id} value={player.id}>
+                  #{player.playerNumber} - {player.name || t('unnamed')}
+                </option>
+              ))}
+            </VSelect>
+          </Box>
+
+          {/* Court Filter */}
+          <Box
+            width={{ base: 'calc(50% - 6px)', sm: '150px' }}
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="md"
+            boxShadow="sm"
+          >
+            <VSelect
+              value={selectedCourtId}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setSelectedCourtId(e.target.value)
+              }
+              size="sm"
+              variant="outline"
+              rightElement={<ChevronDown size={14} color="gray" />}
+            >
+              <option value="">{t('allCourts')}</option>
+              {courts.map((court) => (
+                <option key={court.id} value={court.id}>
+                  {court.courtName
+                    ? t('courtNumberWithName', {
+                        number: court.courtNumber,
+                        name: court.courtName,
+                      })
+                    : t('courtNumber', { number: court.courtNumber })}
+                </option>
+              ))}
+            </VSelect>
+          </Box>
+        </Flex>
       </Flex>
 
       {/* Results */}
@@ -400,7 +488,9 @@ export default function SessionMatchesTab({
               key={match.id}
               match={match}
               direction={CourtDirection.HORIZONTAL}
-              onEdit={handleEditMatch}
+              onEdit={readOnly ? undefined : handleEditMatch}
+              onDelete={readOnly ? undefined : handleDeleteMatch}
+              onToggleExtra={readOnly ? undefined : handleToggleExtra}
             />
           ))}
         </Grid>
@@ -417,6 +507,26 @@ export default function SessionMatchesTab({
           onUpdate={handleMatchUpdate}
         />
       )}
+
+      {/* Delete Match Confirmation Modal */}
+      <VModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setMatchToDelete(null);
+        }}
+        title={t('deleteConfirm')}
+        primaryActionText={t('delete')}
+        onPrimaryAction={confirmDeleteMatch}
+        isPrimaryLoading={isDeleting}
+        primaryColorScheme="red"
+        secondaryActionText={t('cancel')}
+      >
+        <Text>
+          {t('confirmDeleteMatch') ||
+            'Bạn có chắc chắn muốn xoá trận đấu này không?'}
+        </Text>
+      </VModal>
     </Box>
   );
 }

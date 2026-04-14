@@ -10,6 +10,11 @@ import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 import { useAuthStore } from '@/stores/useAuthStore';
+import dynamic from 'next/dynamic';
+
+const LoginPromptModal = dynamic(() => import('../auth/LoginPromptModal'), {
+  ssr: false,
+});
 
 interface QuickCreateFABProps {
   bottom?: string | number;
@@ -22,15 +27,22 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
 }) => {
   const t = useTranslations('session');
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const router = useRouter();
   const { user } = useAuthStore();
-
-  if (!user) return null;
 
   const handleSuccess = (data: ExtractedSessionData) => {
     // Save AI-extracted data to sessionStorage so SessionForm can pick it up
     sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
     router.push(ROUTES.SESSIONS.NEW);
+  };
+
+  const handleOpenAIModal = () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    setIsOpen(true);
   };
 
   return (
@@ -55,7 +67,7 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
               boxShadow: '0 6px 20px rgba(128, 90, 213, 0.6)',
             }}
             _active={{ transform: 'scale(0.95)' }}
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpenAIModal}
             aria-label={t('quickCreate.aiPlaceholder')}
           >
             <Icon as={Sparkles} boxSize={7} />
@@ -68,6 +80,16 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
         onClose={() => setIsOpen(false)}
         onSuccess={handleSuccess}
       />
+
+      {/* Lazy load login prompt */}
+      {isLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          featureName={t('loginRequiredCreateSessionAI')}
+          returnUrl="/"
+        />
+      )}
     </>
   );
 };

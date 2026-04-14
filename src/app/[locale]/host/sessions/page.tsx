@@ -16,7 +16,6 @@ import { useRouter } from '@/i18n/config';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
-import { QuickCreateSessionBar } from '@/components/session/QuickCreateSessionBar';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -24,6 +23,8 @@ import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
+
+import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
@@ -48,6 +49,9 @@ function HostSessionsContent() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 12;
 
+  const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
+    'active'
+  );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
@@ -76,8 +80,16 @@ function HostSessionsContent() {
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
         searchQuery: debouncedSearchQuery,
-        excludeStatus: filters.status ? undefined : SessionStatus.FINISHED,
-        status: filters.status,
+        excludeStatus:
+          sessionStatusTab === 'active'
+            ? filters.status
+              ? undefined
+              : SessionStatus.FINISHED
+            : undefined,
+        status:
+          sessionStatusTab === 'ended'
+            ? SessionStatus.FINISHED
+            : filters.status,
         ...apiSortParams,
       });
 
@@ -103,7 +115,13 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, debouncedSearchQuery, sortBy, filters.status]);
+  }, [
+    user?.id,
+    debouncedSearchQuery,
+    sortBy,
+    filters.status,
+    sessionStatusTab,
+  ]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -183,12 +201,18 @@ function HostSessionsContent() {
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={true}
+            showStatusFilter={sessionStatusTab === 'active'}
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
             resultCount={totalCount}
             onCreateClick={() => setIsAIModalOpen(true)}
+            topAddon={
+              <StatusTabSwitch
+                activeTab={sessionStatusTab}
+                onChange={setSessionStatusTab}
+              />
+            }
           />
 
           <ResultsHeader

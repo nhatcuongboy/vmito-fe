@@ -141,7 +141,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     <>
       {/* Courts Section */}
       <Box>
-        <Box paddingY="3" width="100%">
+        {/* <Box paddingY="3" width="100%">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack gap={2} alignItems="center">
               <Heading size="md">{t('courtsTab.activeCourts')}</Heading>
@@ -150,7 +150,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
               {session.status === 'IN_PROGRESS' && <HStack gap={2}></HStack>}
             </HStack>
           </Flex>
-        </Box>
+        </Box> */}
         {session.status !== SessionStatus.IN_PROGRESS && (
           <Text fontSize="lg" color="fg.muted" textAlign="center" mt={4}>
             {session.status === SessionStatus.PREPARING

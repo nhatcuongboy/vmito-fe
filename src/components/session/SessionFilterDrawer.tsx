@@ -499,26 +499,7 @@ export default function SessionFilterDrawer({
                     </Button>
                   )}
                 </Flex>
-                <Flex
-                  gap={2}
-                  flexWrap="wrap"
-                  maxH="120px"
-                  overflowY="auto"
-                  css={{
-                    '&::-webkit-scrollbar': { width: '6px' },
-                    '&::-webkit-scrollbar-track': {
-                      background: '#f1f1f1',
-                      borderRadius: '10px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      background: '#888',
-                      borderRadius: '10px',
-                    },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                      background: '#555',
-                    },
-                  }}
-                >
+                <Flex gap={2} flexWrap="wrap">
                   {availableDistricts.map((district) => (
                     <Badge
                       key={district.code}

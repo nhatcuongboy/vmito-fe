@@ -30,6 +30,7 @@ interface PaymentApprovalModalProps {
     paymentMethod?: PaymentMethod
   ) => Promise<void>;
   onReject: (notes?: string) => Promise<void>;
+  slotInfo?: string;
 }
 
 export default function PaymentApprovalModal({
@@ -38,10 +39,11 @@ export default function PaymentApprovalModal({
   paymentRecord,
   onApprove,
   onReject,
+  slotInfo,
 }: PaymentApprovalModalProps) {
   const t = useTranslations('payment');
 
-  const [hostNotes, setHostNotes] = useState('');
+  const [hostNotes, setHostNotes] = useState(paymentRecord.hostNotes || '');
   const [customAmount, setCustomAmount] = useState(
     String(paymentRecord.amount)
   );
@@ -82,9 +84,9 @@ export default function PaymentApprovalModal({
 
   const player = paymentRecord.player;
   const isLoading = isApproving || isRejecting;
-  const canApproveOrReject =
-    paymentRecord.status === PaymentStatus.SUBMITTED ||
-    paymentRecord.status === PaymentStatus.PENDING;
+  // Previously: Only allowed if status was SUBMITTED or PENDING
+  // Now: Always allow updating/re-approving even if already APPROVED or REJECTED
+  const canApproveOrReject = true;
 
   const getPaymentMethodLabel = (method?: PaymentMethod) => {
     if (!method) return '—';
@@ -151,6 +153,12 @@ export default function PaymentApprovalModal({
             {player?.gender && (
               <Text fontSize="sm" color="gray.600">
                 {player.gender}
+                {slotInfo && ` • ${slotInfo}`}
+              </Text>
+            )}
+            {!player?.gender && slotInfo && (
+              <Text fontSize="sm" color="gray.600">
+                {slotInfo}
               </Text>
             )}
           </Box>
@@ -261,42 +269,21 @@ export default function PaymentApprovalModal({
           </Box>
         )}
 
-        {/* Host Notes Input */}
-        {canApproveOrReject && (
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>
-              {t('hostNotes')}
-            </Text>
-            <Textarea
-              placeholder={t('hostNotesPlaceholder')}
-              value={hostNotes}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setHostNotes(e.target.value)
-              }
-              rows={2}
-              resize="none"
-              disabled={isLoading}
-            />
-          </Box>
-        )}
-
-        {/* Existing Host Notes (if already processed) */}
-        {!canApproveOrReject && paymentRecord.hostNotes && (
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>
-              {t('hostNotes')}
-            </Text>
-            <Box
-              p={3}
-              bg="gray.50"
-              borderRadius="md"
-              fontSize="sm"
-              color="gray.700"
-            >
-              {paymentRecord.hostNotes}
-            </Box>
-          </Box>
-        )}
+        <Box>
+          <Text fontSize="sm" fontWeight="medium" mb={1}>
+            {t('hostNotes')}
+          </Text>
+          <Textarea
+            placeholder={t('hostNotesPlaceholder')}
+            value={hostNotes}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+              setHostNotes(e.target.value)
+            }
+            rows={2}
+            resize="none"
+            disabled={isLoading}
+          />
+        </Box>
       </VStack>
     </VModal>
   );

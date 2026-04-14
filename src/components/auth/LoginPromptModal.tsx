@@ -9,12 +9,14 @@ interface LoginPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   returnUrl?: string;
+  featureName?: string;
 }
 
 const LoginPromptModal = ({
   isOpen,
   onClose,
   returnUrl,
+  featureName,
 }: LoginPromptModalProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -35,7 +37,11 @@ const LoginPromptModal = ({
       onPrimaryAction={handleLogin}
       primaryColorScheme="blue"
     >
-      <Text>{t('loginRequiredDescription')}</Text>
+      <Text>
+        {featureName
+          ? t('loginRequiredFeature', { feature: featureName })
+          : t('loginRequiredDescription')}
+      </Text>
     </VModal>
   );
 };

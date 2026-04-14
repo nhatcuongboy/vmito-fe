@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface ISessionFilterState {
   status?: string;
   date?: string;
@@ -14,4 +16,5 @@ export interface ISessionFiltersProps {
   initialFilters?: ISessionFilterState;
   resultCount?: number;
   onCreateClick?: () => void;
+  topAddon?: React.ReactNode;
 }

@@ -16,6 +16,8 @@ interface QRCodeGeneratorProps {
   label?: string;
   /** Hide the join code text below the label. */
   hideCode?: boolean;
+  /** Optional click handler specifically for the generated QR code image wrapper */
+  onQrClick?: () => void;
 }
 
 export default function QRCodeGenerator({
@@ -24,6 +26,7 @@ export default function QRCodeGenerator({
   url: urlOverride,
   label = 'Scan to join session',
   hideCode = false,
+  onQrClick,
 }: QRCodeGeneratorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
@@ -79,6 +82,10 @@ export default function QRCodeGenerator({
         boxShadow="md"
         border="1px solid"
         borderColor="gray.200"
+        cursor={onQrClick ? 'pointer' : 'default'}
+        _hover={onQrClick ? { transform: 'scale(1.02)' } : {}}
+        transition="all 0.2s"
+        onClick={onQrClick}
       >
         <canvas ref={canvasRef} />
       </Box>

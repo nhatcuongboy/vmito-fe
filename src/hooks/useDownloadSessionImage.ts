@@ -47,7 +47,7 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
 
         const link = document.createElement('a');
         const shortId = session.id.slice(0, 8);
-        link.download = `TuyenVangLai-${shortId}.png`;
+        link.download = `ThongKeTranDau-${shortId}.png`;
         link.href = dataUrl;
         link.click();
 

@@ -15,6 +15,7 @@ export default function SessionSearchBar({
   onToggleFilters,
   activeFilterCount,
   onCreateClick,
+  topAddon,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
 
@@ -70,17 +71,27 @@ export default function SessionSearchBar({
         py={2}
         transition="all 0.2s"
       >
-        <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
-          <Box flex={1} w="100%">
-            <AppSearchBar
-              value={localValue}
-              onChange={handleChange}
-              placeholder={t('searchPlaceholder')}
-              onFilterClick={onToggleFilters}
-              activeFilterCount={activeFilterCount}
-              showFilter={true}
-            />
-          </Box>
+        <Flex
+          direction="column"
+          align="center"
+          gap={1.5}
+          w="100%"
+          maxW="650px"
+          mx="auto"
+        >
+          {topAddon && <Box w="100%">{topAddon}</Box>}
+          <Flex align="center" gap={2} w="100%">
+            <Box flex={1} w="100%">
+              <AppSearchBar
+                value={localValue}
+                onChange={handleChange}
+                placeholder={t('searchPlaceholder')}
+                onFilterClick={onToggleFilters}
+                activeFilterCount={activeFilterCount}
+                showFilter={true}
+              />
+            </Box>
+          </Flex>
         </Flex>
       </Box>
 

@@ -32,6 +32,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   showStatusFilter = true,
   initialFilters = {},
   onCreateClick,
+  topAddon,
 }) => {
   const t = useTranslations('session.filters');
   const tStatus = useTranslations('session.status');
@@ -117,6 +118,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           onToggleFilters={toggleDrawer}
           activeFilterCount={activeFilterCount}
           onCreateClick={onCreateClick}
+          topAddon={topAddon}
         />
       )}
 

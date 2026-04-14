@@ -210,7 +210,7 @@ export default function SessionsList({
               </IconButton>
             </Flex>
 
-            <Text
+            {/* <Text
               fontSize="sm"
               color="orange.600"
               mb={4}
@@ -218,7 +218,7 @@ export default function SessionsList({
             >
               {t('expiredSessionsDescription') ||
                 'Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.'}
-            </Text>
+            </Text> */}
 
             {isExpiredSectionsExpanded && (
               <Grid
@@ -356,7 +356,7 @@ export default function SessionsList({
               </IconButton>
             </Flex>
 
-            <Text
+            {/* <Text
               fontSize="sm"
               color="orange.600"
               mb={4}
@@ -364,7 +364,7 @@ export default function SessionsList({
             >
               {t('expiredSessionsDescription') ||
                 'Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.'}
-            </Text>
+            </Text> */}
 
             {isExpiredSectionsExpanded && (
               <Grid

@@ -18,6 +18,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
+import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 
 const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
@@ -43,6 +44,9 @@ function PlayerSessionsContent() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 12;
 
+  const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
+    'active'
+  );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
 
@@ -69,6 +73,10 @@ function PlayerSessionsContent() {
         page: currentPage,
         limit: PAGE_SIZE,
         searchQuery: debouncedSearchQuery,
+        status:
+          sessionStatusTab === 'ended'
+            ? SessionStatus.FINISHED
+            : filters.status,
         ...apiSortParams,
       });
 
@@ -94,7 +102,13 @@ function PlayerSessionsContent() {
       fetchPlayerSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, debouncedSearchQuery, sortBy]);
+  }, [
+    user?.id,
+    debouncedSearchQuery,
+    sortBy,
+    filters.status,
+    sessionStatusTab,
+  ]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -108,13 +122,15 @@ function PlayerSessionsContent() {
   const filteredSessions = useMemo(() => {
     let result = [...sessions];
 
-    // Exclude FINISHED sessions - they are shown in the Ended Joined Sessions tab
-    result = result.filter(
-      (session) => session.status !== SessionStatus.FINISHED
-    );
+    // Exclude FINISHED sessions from active tab - they are shown in the Ended Joined Sessions tab
+    if (sessionStatusTab === 'active') {
+      result = result.filter(
+        (session) => session.status !== SessionStatus.FINISHED
+      );
+    }
 
     // Status filter
-    if (filters.status) {
+    if (filters.status && sessionStatusTab === 'active') {
       result = result.filter((session) => session.status === filters.status);
     }
 
@@ -169,10 +185,16 @@ function PlayerSessionsContent() {
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={true}
+            showStatusFilter={sessionStatusTab === 'active'}
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
+            topAddon={
+              <StatusTabSwitch
+                activeTab={sessionStatusTab}
+                onChange={setSessionStatusTab}
+              />
+            }
           />
 
           <ResultsHeader
