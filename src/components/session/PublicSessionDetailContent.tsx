@@ -10,8 +10,8 @@ import {
   Portal,
   Spinner,
 } from '@chakra-ui/react';
-import { IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Navigation, ArrowRight } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { MapPin, Navigation, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatVenueName } from '@/utils';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -319,20 +319,50 @@ export const PublicSessionDetailContent = ({
   // Get host ID for rating stats provider
   const hostIds = session.hostId ? [session.hostId] : [];
 
+  const backLabel = t.has('back') ? t('back') : 'Quay lại';
+
   return (
     <RatingStatsProvider userIds={hostIds}>
-      <Box>
-        <Flex justify="center">
-          <BaseSessionCard
-            session={session}
-            extraInfoRows={locationRow}
-            registrationBadgeContent={combinedBadges}
-            actions={actions}
-            onHostClick={onOpenHostDetailModal}
-            disableCardLink
-            showYearInDate
-            alwaysShowDayName
-          />
+      <Box
+        maxW="800px"
+        mx="auto"
+        w="full"
+        px={{ base: 2, md: 4 }}
+        pt={2}
+        pb={4}
+      >
+        {/* Nút Quay Lại */}
+        <Flex mb={2} align="center" justify="flex-start">
+          <Button
+            variant="ghost"
+            colorPalette="gray"
+            size="sm"
+            onClick={() => router.back()}
+            px={2}
+            h="8"
+            color="gray.600"
+            _hover={{ bg: 'gray.100', color: 'gray.900' }}
+          >
+            <Icon as={ArrowLeft} mr={1} boxSize={4} />
+            <Text fontSize="sm" fontWeight="medium">
+              {backLabel}
+            </Text>
+          </Button>
+        </Flex>
+
+        <Flex justify="center" align="center" direction="column">
+          <Box w="full" maxW="400px">
+            <BaseSessionCard
+              session={session}
+              extraInfoRows={locationRow}
+              registrationBadgeContent={combinedBadges}
+              actions={actions}
+              onHostClick={onOpenHostDetailModal}
+              disableCardLink
+              showYearInDate
+              alwaysShowDayName
+            />
+          </Box>
         </Flex>
 
         {showViewMore && (
