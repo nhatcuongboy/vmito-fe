@@ -47,6 +47,7 @@ import { VSwitch } from '@/components/ui/VSwitch';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 import { VIETNAM_CITIES as CITY_HIERARCHY } from '@/constants/vietnam-locations';
+import BulkCreateVenueModal from '@/components/venue/BulkCreateVenueModal';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { trimPhone } from '@/utils/phone-utils';
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
@@ -132,6 +133,11 @@ function AdminVenuesContent() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const {
+    isOpen: isBulkOpen,
+    onOpen: openBulkOpen,
+    onClose: closeBulkOpen,
+  } = useDisclosure();
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
 
   // Forms
@@ -391,28 +397,38 @@ function AdminVenuesContent() {
           {/* Header */}
           <Flex justify="space-between" align="center">
             <Heading size="lg">{t('venueManagement')}</Heading>
-            <VButton
-              colorPalette="green"
-              leftIcon={<Plus size={18} />}
-              onClick={() => {
-                form.reset({
-                  name: '',
-                  placeId: '',
-                  address: '',
-                  district: '',
-                  city: '',
-                  lat: undefined,
-                  lng: undefined,
-                  phone: '',
-                  isVerified: false,
-                  coverPhoto: '',
-                  images: [],
-                });
-                setIsCreateOpen(true);
-              }}
-            >
-              {t('addVenue')}
-            </VButton>
+            <HStack gap={3}>
+              <VButton
+                variant="outline"
+                colorPalette="green"
+                leftIcon={<Plus size={18} />}
+                onClick={openBulkOpen}
+              >
+                Tạo Nhanh Bằng Text/Excel
+              </VButton>
+              <VButton
+                colorPalette="green"
+                leftIcon={<Plus size={18} />}
+                onClick={() => {
+                  form.reset({
+                    name: '',
+                    placeId: '',
+                    address: '',
+                    district: '',
+                    city: '',
+                    lat: undefined,
+                    lng: undefined,
+                    phone: '',
+                    isVerified: false,
+                    coverPhoto: '',
+                    images: [],
+                  });
+                  setIsCreateOpen(true);
+                }}
+              >
+                {t('addVenue')}
+              </VButton>
+            </HStack>
           </Flex>
 
           {/* Search Bar - Sticky */}
@@ -1100,6 +1116,15 @@ function AdminVenuesContent() {
             {t('deleteConfirmation', { name: selectedVenue?.name || '' })}
           </Text>
         </VModal>
+
+        {/* Bulk Create Venues Modal */}
+        {isBulkOpen && (
+          <BulkCreateVenueModal
+            isOpen={isBulkOpen}
+            onClose={closeBulkOpen}
+            onSuccess={fetchVenues}
+          />
+        )}
       </Container>
     </MainLayout>
   );

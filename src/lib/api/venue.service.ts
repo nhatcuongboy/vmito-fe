@@ -54,6 +54,16 @@ export const VenueService = {
     return response.data.data!;
   },
 
+  // Create multiple venues
+  createBulkVenues: async (
+    venues: Omit<Venue, 'id'>[]
+  ): Promise<{ count: number; message: string }> => {
+    const response = await api.post<
+      ApiResponse<{ count: number; message: string }>
+    >('/venues/bulk', { venues });
+    return response.data.data!;
+  },
+
   // Update venue
   updateVenue: async (id: string, venue: Partial<Venue>): Promise<Venue> => {
     const response = await api.patch<ApiResponse<Venue>>(
