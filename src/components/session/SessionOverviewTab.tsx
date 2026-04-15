@@ -6,6 +6,7 @@ import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
 import { VDrawer } from '@/components/ui/VDrawer';
 import { VModal } from '@/components/ui/VModal';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
+import AppImageGallery from '@/components/session/AppImageGallery';
 import {
   Badge,
   Box,
@@ -14,7 +15,6 @@ import {
   Grid,
   Heading,
   Text,
-  Image,
 } from '@chakra-ui/react';
 import {
   Activity,
@@ -113,17 +113,14 @@ export default function SessionOverviewTab({
 
   return (
     <Box>
-      {/* Cover Photo Section */}
-      {session.coverPhoto && (
-        <Box mb={8} borderRadius="xl" overflow="hidden" boxShadow="md">
-          <Image
-            src={session.coverPhoto}
-            alt={session.name}
-            w="100%"
-            h={{ base: '200px', md: '300px' }}
-            objectFit="cover"
-          />
-        </Box>
+      {/* Cover Photo / Image Gallery Section */}
+      {(session.coverPhoto ||
+        (session.images && session.images.length > 0)) && (
+        <AppImageGallery
+          images={session.images || []}
+          coverPhoto={session.coverPhoto}
+          alt={session.name}
+        />
       )}
 
       <Grid templateColumns={{ base: '1fr', md: '3fr 2fr' }} gap={8} mb={8}>

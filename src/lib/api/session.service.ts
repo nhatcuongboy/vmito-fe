@@ -454,6 +454,32 @@ export const SessionService = {
     return response.data.data!;
   },
 
+  // Update session images (max 5)
+  updateSessionImages: async (
+    sessionId: string,
+    images: string[],
+    imagePublicIds: string[]
+  ): Promise<ISession> => {
+    const response = await api.put<ApiResponse<ISession>>(
+      `/sessions/${sessionId}/images`,
+      { images, imagePublicIds }
+    );
+    return response.data.data!;
+  },
+
+  // Set session banner image
+  updateSessionBanner: async (
+    sessionId: string,
+    coverPhoto: string,
+    coverPhotoPublicId: string
+  ): Promise<ISession> => {
+    const response = await api.put<ApiResponse<ISession>>(
+      `/sessions/${sessionId}/banner`,
+      { coverPhoto, coverPhotoPublicId }
+    );
+    return response.data.data!;
+  },
+
   // Get suggested sessions for current user
   getSuggestedSessions: async (filters?: {
     lat?: number;

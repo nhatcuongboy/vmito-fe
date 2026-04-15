@@ -42,6 +42,7 @@ export const Tab = ({ children, ...props }: TabProps) => {
   return (
     <Box
       as="button"
+      type="button"
       px="4"
       py="2"
       minW="fit-content"
