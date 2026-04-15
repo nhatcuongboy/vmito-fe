@@ -6,6 +6,7 @@ import TopBar from '@/components/ui/TopBar';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useRouter, usePathname } from '@/i18n/config';
+import { useCanGoBack } from '@/hooks/useCanGoBack';
 import { SessionService } from '@/lib/api/session.service';
 import PublicSessionDetailContent from '@/components/session/PublicSessionDetailContent';
 import PageWrapper from '@/components/layout/PageWrapper';
@@ -33,6 +34,7 @@ const PublicSessionDetailClient = ({
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuthStore();
+  const canGoBack = useCanGoBack();
   const t = useTranslations('session');
   const { socket } = useSocket();
 
@@ -81,6 +83,8 @@ const PublicSessionDetailClient = ({
       <TopBar
         title={t('header')}
         icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
+        showBackButton={canGoBack}
+        onBack={() => router.back()}
       />
       <Box
         pt={{

@@ -34,7 +34,8 @@
     "pendingJoinRequests": "Join Requests",
     "endedSessions": "Ended Sessions",
     "endedJoinedSessions": "Ended Joined Sessions",
-    "suggestions": "For You"
+    "suggestions": "For You",
+    "createSession": "Create"
   },
   "common": {
     "browse": "Analysis",

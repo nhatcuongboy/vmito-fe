@@ -25,7 +25,8 @@
     "pendingJoinRequests": "加入请求",
     "endedSessions": "已结束场次",
     "endedJoinedSessions": "已结束的已加入场次",
-    "suggestions": "推荐"
+    "suggestions": "推荐",
+    "createSession": "创建"
   },
   "common": {
     "browse": "统计分析",

@@ -15,6 +15,7 @@ export default function SessionSearchBar({
   onToggleFilters,
   activeFilterCount,
   onCreateClick,
+  isLoadingCreate,
   topAddon,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
@@ -47,6 +48,8 @@ export default function SessionSearchBar({
       borderRadius="lg"
       fontWeight="bold"
       whiteSpace="nowrap"
+      loading={isLoadingCreate}
+      disabled={isLoadingCreate}
     >
       <Icon as={Plus} mr={1} boxSize={4} />
       {t('createSession')}

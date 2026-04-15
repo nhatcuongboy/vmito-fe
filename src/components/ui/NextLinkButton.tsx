@@ -5,6 +5,7 @@
 import React from 'react';
 import { Link, useRouter } from '../../i18n/config';
 import { Button, ButtonProps } from './chakra-compat';
+import { Spinner } from '@chakra-ui/react';
 
 interface NextLinkButtonProps extends Omit<ButtonProps, 'href'> {
   href: string;
@@ -54,6 +55,8 @@ export const NextLinkButton: React.FC<NextLinkButtonProps> = ({
     });
   };
 
+  const isLoading = isPending || (props as any).loading;
+
   // We don't use as={Link} directly to avoid nested <a> tags
   return (
     <Link
@@ -64,11 +67,26 @@ export const NextLinkButton: React.FC<NextLinkButtonProps> = ({
     >
       <Button
         isWithinLink
-        loading={isPending || (props as any).loading}
         onClick={handleClick}
         {...props}
+        // Keep content visible while loading — just dim & show wait cursor
+        // so users can still see which item they clicked
+        opacity={isLoading ? 0.6 : ((props as any).opacity ?? 1)}
+        cursor={isLoading ? 'wait' : (props as any).cursor}
+        pointerEvents={isLoading ? 'none' : (props as any).pointerEvents}
+        position="relative"
       >
         {children}
+        {isLoading && (
+          <Spinner
+            size="xs"
+            color="green.500"
+            position="absolute"
+            right="6px"
+            top="50%"
+            transform="translateY(-50%)"
+          />
+        )}
       </Button>
     </Link>
   );

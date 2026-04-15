@@ -41,7 +41,13 @@ import {
 } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
 
@@ -501,12 +507,16 @@ export default function FindSessionList({
     [user, router]
   );
 
+  const [isPendingCreate, startCreateTransition] = useTransition();
+
   const handleCreateSessionClick = useCallback(() => {
     if (!user) {
       setIsLoginPromptOpen(true);
       return;
     }
-    router.push(ROUTES.SESSIONS.NEW);
+    startCreateTransition(() => {
+      router.push(ROUTES.SESSIONS.NEW);
+    });
   }, [user, router]);
 
   const handleHostClick = useCallback((session: ISession) => {
@@ -562,6 +572,7 @@ export default function FindSessionList({
         onToggleFilters={toggleFilters}
         activeFilterCount={activeFilterCount}
         onCreateClick={handleCreateSessionClick}
+        isLoadingCreate={isPendingCreate}
       />
 
       {/* Filter Drawer */}
