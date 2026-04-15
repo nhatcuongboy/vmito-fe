@@ -17,6 +17,10 @@ import { Search, ChevronDown, Check } from 'lucide-react';
 export interface SearchableSelectOption {
   value: string;
   label: string;
+  /**
+   * Optional secondary line shown below the label (e.g. address for venue options)
+   */
+  sublabel?: string;
   disabled?: boolean;
 }
 
@@ -185,11 +189,19 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     // Map options with their match scores
     const scoredOptions = safeOptions
       .map((option) => {
-        const result = fuzzyMatch(String(option.label || ''), query);
+        const labelResult = fuzzyMatch(String(option.label || ''), query);
+        const sublabelResult = option.sublabel
+          ? fuzzyMatch(String(option.sublabel), query)
+          : { matches: false, score: 0 };
+        const matches = labelResult.matches || sublabelResult.matches;
+        // Use the higher score; sublabel matches get a slight penalty to prefer label matches
+        const score = labelResult.matches
+          ? labelResult.score
+          : sublabelResult.score * 0.8;
         return {
           option,
-          matches: result.matches,
-          score: result.score,
+          matches,
+          score,
         };
       })
       .filter((item) => item.matches)
@@ -433,7 +445,8 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                       }
                       width="100%"
                       textAlign="left"
-                      p="2"
+                      px="2"
+                      py={option.sublabel ? '1.5' : '2'}
                       borderRadius="sm"
                       fontSize="sm"
                       cursor={option.disabled ? 'not-allowed' : 'pointer'}
@@ -458,12 +471,31 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
+                      gap="2"
                     >
-                      <Text truncate>{option.label}</Text>
+                      <Box flex="1" overflow="hidden">
+                        <Text
+                          truncate
+                          fontWeight={option.sublabel ? 'medium' : 'normal'}
+                        >
+                          {option.label}
+                        </Text>
+                        {option.sublabel && (
+                          <Text
+                            truncate
+                            fontSize="xs"
+                            color="fg.muted"
+                            mt="0.5"
+                          >
+                            {option.sublabel}
+                          </Text>
+                        )}
+                      </Box>
                       {option.value === value && (
                         <Check
                           size={16}
                           color="var(--chakra-colors-brand-600)"
+                          style={{ flexShrink: 0 }}
                         />
                       )}
                     </Box>

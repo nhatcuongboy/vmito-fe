@@ -118,7 +118,8 @@ const CreateClubPage = () => {
     () =>
       venues.map((v) => ({
         value: v.id,
-        label: `${v.name} - ${v.address}`,
+        label: v.name,
+        sublabel: v.address,
       })),
     [venues]
   );

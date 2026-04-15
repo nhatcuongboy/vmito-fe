@@ -427,12 +427,17 @@ export default function SessionForm({
   const venueOptions = useMemo(() => {
     const opts = venues.map((v) => ({
       value: v.id,
-      label: `${formatVenueName(v.name, tVenue('nameFormat', { name: '{name}' }))} - ${v.address}`,
+      label: formatVenueName(v.name, tVenue('nameFormat', { name: '{name}' })),
+      sublabel: v.address,
     }));
     if (selectedVenueObj && !venues.find((v) => v.id === selectedVenueObj.id)) {
       opts.unshift({
         value: selectedVenueObj.id,
-        label: `${formatVenueName(selectedVenueObj.name, tVenue('nameFormat', { name: '{name}' }))} - ${selectedVenueObj.address}`,
+        label: formatVenueName(
+          selectedVenueObj.name,
+          tVenue('nameFormat', { name: '{name}' })
+        ),
+        sublabel: selectedVenueObj.address,
       });
     }
     return opts;
