@@ -3,7 +3,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, chakra } from '@chakra-ui/react';
+
+const ChakraButton = chakra('button');
 
 export const TabPanel = ({
   children,
@@ -40,8 +42,7 @@ export const Tab = ({ children, ...props }: TabProps) => {
   const isSelected = props['data-selected'];
 
   return (
-    <Box
-      as="button"
+    <ChakraButton
       type="button"
       px="4"
       py="2"
@@ -54,10 +55,13 @@ export const Tab = ({ children, ...props }: TabProps) => {
       transition="all 0.2s"
       _hover={{ color: isSelected ? 'brand.600' : 'gray.700' }}
       fontSize="sm"
-      {...props}
+      background="none"
+      border="none"
+      cursor="pointer"
+      {...(props as any)}
     >
       {children}
-    </Box>
+    </ChakraButton>
   );
 };
 

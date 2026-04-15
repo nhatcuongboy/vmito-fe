@@ -32,7 +32,7 @@ export const Modal = ({ isOpen, onClose, size, children }: ModalProps) => {
       right={0}
       bottom={0}
       bg="blackAlpha.600"
-      zIndex={1000}
+      zIndex={1300}
       display="flex"
       alignItems="center"
       justifyContent="center"
