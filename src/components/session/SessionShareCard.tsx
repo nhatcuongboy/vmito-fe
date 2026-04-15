@@ -24,6 +24,7 @@ import {
   Phone,
   User,
 } from 'lucide-react';
+import { formatVenueName } from '@/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import { FeeService } from '@/lib/api/fee.service';
@@ -63,6 +64,7 @@ const SessionShareCard = ({
   mode = 'portrait',
 }: SessionShareCardProps) => {
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
   const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
@@ -370,7 +372,12 @@ const SessionShareCard = ({
               <Icon as={MapPin} boxSize={5} mr={2} color="green.500" mt={1} />
               <Box flex="1">
                 <Text fontWeight="semibold" color="gray.700" fontSize="sm">
-                  {session.venue?.name || session.location}
+                  {session.venue?.name
+                    ? formatVenueName(
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : session.location}
                 </Text>
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (

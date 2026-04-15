@@ -9,6 +9,7 @@ import { Avatar, Box, Grid, Icon, Image, Text } from '@chakra-ui/react';
 import { Check, Copy, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useRouter } from '@/i18n/config';
 
 interface AppHostDetailProps {
   userId: string;
@@ -17,6 +18,7 @@ interface AppHostDetailProps {
   phone?: string;
   email?: string;
   hideHeader?: boolean;
+  onClose?: () => void;
 }
 
 export const AppHostDetail = ({
@@ -25,8 +27,11 @@ export const AppHostDetail = ({
   image,
   phone,
   hideHeader = false,
+  onClose,
 }: AppHostDetailProps) => {
   const t = useTranslations('session.hostDetail');
+  const tSession = useTranslations('session');
+  const router = useRouter();
   const [stats, setStats] = useState<UserRatingStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [totalSessions, setTotalSessions] = useState<number>(0);
@@ -232,6 +237,23 @@ export const AppHostDetail = ({
             </Button>
           </HStack>
         )}
+
+        <Button
+          mt={2}
+          width="full"
+          height="48px"
+          variant="outline"
+          colorPalette="green"
+          borderRadius="xl"
+          fontSize="sm"
+          fontWeight="bold"
+          onClick={() => {
+            if (onClose) onClose();
+            router.push(`/user/${userId}`);
+          }}
+        >
+          {tSession('viewDetails') || 'Xem chi tiết'}
+        </Button>
       </VStack>
     </Box>
   );

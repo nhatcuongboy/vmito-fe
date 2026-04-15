@@ -5,6 +5,7 @@ import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { ViewMode } from '@/stores/useSessionFilterStore';
@@ -60,6 +61,7 @@ const FindSessionCard = ({
   const isCompact = variant === 'compact';
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
+  const tVenue = useTranslations('venue');
   const { user } = useAuthStore();
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -151,7 +153,12 @@ const FindSessionCard = ({
               fontSize={isCompact ? 'sm' : 'md'}
               lineClamp={1}
             >
-              {session.venue?.name || session.location}
+              {session.venue?.name
+                ? formatVenueName(
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
+                : session.location}
             </Text>
             {distance !== undefined && (
               <Badge colorPalette="green" variant="subtle" size="sm">
@@ -246,9 +253,9 @@ const FindSessionCard = ({
     showManageButton: canManage,
     // manageButtonHref:
     //   user?.role === UserRole.PLAYER
-    //     ? `/player/sessions/${session.id}`
-    //     : `/host/sessions/${session.id}`,
-    manageButtonHref: `/host/sessions/${session.id}`,
+    //     ? `/player/sessions/${session.slug || session.id}`
+    //     : `/host/sessions/${session.slug || session.id}`,
+    manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
     // For players with registration: show view registration modal
     showViewRegistrationButton:
@@ -283,7 +290,7 @@ const FindSessionCard = ({
       <LoginPromptModal
         isOpen={isLoginModalOpen}
         onClose={onCloseLoginModal}
-        returnUrl={`/sessions/${session.id}?register=true`}
+        returnUrl={`/sessions/${session.slug || session.id}?register=true`}
       />
 
       <MyRegistrationModal

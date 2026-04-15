@@ -25,7 +25,8 @@
     "pendingJoinRequests": "加入请求",
     "endedSessions": "已结束场次",
     "endedJoinedSessions": "已结束的已加入场次",
-    "suggestions": "推荐"
+    "suggestions": "推荐",
+    "createSession": "创建"
   },
   "common": {
     "browse": "统计分析",
@@ -126,6 +127,7 @@
     "fileSizeTooLarge": "文件大小必须小于 5MB",
     "imageProcessingFailed": "处理图片失败。请尝试其他文件。",
     "uploadImage": "Upload Image",
+    "selected": "已选",
     "clickToUpload": "Click to upload",
     "maxSize": "Max size",
     "appearance": "外观",
@@ -468,6 +470,25 @@
     "coverPhotoUploadFailed": "上传封面图片失败",
     "coverPhotoRemoved": "封面图片已移除",
     "coverPhotoRemoveFailed": "移除封面图片失败",
+    "sessionImages": "赛场图片",
+    "myImages": "我的图片",
+    "uploadNew": "上传新图片",
+    "setAsBanner": "设为横幅",
+    "currentBanner": "横幅",
+    "maxImages": "最多 {max} 张图片",
+    "selectFromGallery": "从图库选择",
+    "addImages": "添加图片",
+    "removeImage": "移除图片",
+    "deleteImageConfirm": "确定要从图库中删除这张图片吗？",
+    "imageDeleted": "图片删除成功",
+    "imageDeleteFailed": "删除图片失败",
+    "imagesUpdated": "赛场图片更新成功",
+    "imagesUpdateFailed": "更新赛场图片失败",
+    "bannerUpdated": "横幅更新成功",
+    "bannerUpdateFailed": "更新横幅失败",
+    "noImagesYet": "您还没有图片。上传一张吧！",
+    "dragToReorder": "拖放以重新排序",
+    "imageOf": "{current}/{total}",
     "aiModal": {
       "title": "AI 快速创建赛场",
       "description": "粘贴招募贴内容，AI 将自动为您填写赛场信息。",
@@ -2732,6 +2753,26 @@
     "cancel": "取消",
     "rated": "已评价"
   },
+  "userProfilePage": {
+    "title": "个人主页",
+    "loadFailed": "无法加载个人主页",
+    "profileNotFound": "未找到该用户",
+    "hostedSessions": "已主持场次",
+    "reviews": "评价",
+    "joinedAt": "加入时间",
+    "joinedDateLabel": "加入于 {date}",
+    "verifiedHost": "认证主办方",
+    "activeHosted": "进行中",
+    "endedHosted": "已结束",
+    "allHosted": "全部",
+    "noHostedSessions": "该用户尚未主持任何场次",
+    "noActiveHostedSessions": "暂无进行中的场次",
+    "noEndedHostedSessions": "暂无已结束场次",
+    "viewAllReviews": "查看全部",
+    "allReviews": "全部评价",
+    "noReviews": "暂无评价",
+    "pagination": "第 {page}/{totalPages} 页"
+  },
   "notification": {
     "notifications": "通知",
     "noNotifications": "暂无通知",
@@ -2950,6 +2991,7 @@
     "share": "分享",
     "view": "查看",
     "viewDetails": "查看详情",
-    "findSessionsAtVenue": "查找场次"
+    "findSessionsAtVenue": "查找场次",
+    "nameFormat": "{name} 羽毛球场"
   }
 }

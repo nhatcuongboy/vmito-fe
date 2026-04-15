@@ -6,6 +6,7 @@ import { Box, Text, Icon, Flex, Badge, Alert } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import { VModal, useModal } from '@/components/ui/VModal';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
@@ -36,6 +37,7 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
+  const tVenue = useTranslations('venue');
   const { user } = useAuthStore();
 
   const {
@@ -173,7 +175,12 @@ const SessionCard = ({
         <Box flex="1" overflow="hidden">
           <Flex align="center" gap={1}>
             <Text fontWeight="medium" lineClamp={1}>
-              {session.venue?.name || session.location}
+              {session.venue?.name
+                ? formatVenueName(
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
+                : session.location}
             </Text>
             <IconButton
               size="xs"
@@ -185,7 +192,12 @@ const SessionCard = ({
                 e.stopPropagation();
                 const address =
                   session.venue?.address ||
-                  session.venue?.name ||
+                  (session.venue?.name
+                    ? formatVenueName(
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : session.location) ||
                   session.location;
                 if (address) {
                   window.open(
@@ -261,14 +273,14 @@ const SessionCard = ({
     showManageButton: canManage,
     // manageButtonHref:
     //   user?.role === UserRole.PLAYER
-    //     ? `/player/sessions/${session.id}`
-    //     : `/host/sessions/${session.id}`,
-    manageButtonHref: `/host/sessions/${session.id}`,
+    //     ? `/player/sessions/${session.slug || session.id}`
+    //     : `/host/sessions/${session.slug || session.id}`,
+    manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
     // View session button (for approved players, NOT for owners)
     showViewSessionButton:
       session.players?.[0]?.registrationStatus === 'APPROVED' && !isOwner,
-    viewSessionHref: `/player/sessions/${session.id}`,
+    viewSessionHref: `/player/sessions/${session.slug || session.id}`,
   };
 
   // Delete modal

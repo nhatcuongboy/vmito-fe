@@ -34,7 +34,8 @@
     "pendingJoinRequests": "Join Requests",
     "endedSessions": "Ended Sessions",
     "endedJoinedSessions": "Ended Joined Sessions",
-    "suggestions": "For You"
+    "suggestions": "For You",
+    "createSession": "Create"
   },
   "common": {
     "browse": "Analysis",
@@ -137,6 +138,7 @@
     "fileSizeTooLarge": "File size must be less than 5MB",
     "imageProcessingFailed": "Failed to process image. Please try another file.",
     "uploadImage": "Upload Image",
+    "selected": "selected",
     "clickToUpload": "Click to upload",
     "maxSize": "Max size",
     "appearance": "Appearance",
@@ -189,6 +191,7 @@
     "hostName": "Host Name",
     "hostNamePlaceholder": "Enter host name",
     "hostPhone": "Host Phone",
+    "viewDetails": "View Details",
     "hostPhonePlaceholder": "Enter phone number",
     "time": "Time",
     "start": "Start Time",
@@ -488,6 +491,25 @@
     "coverPhotoUploadFailed": "Failed to upload cover photo",
     "coverPhotoRemoved": "Cover photo removed successfully",
     "coverPhotoRemoveFailed": "Failed to remove cover photo",
+    "sessionImages": "Session Images",
+    "myImages": "My Images",
+    "uploadNew": "Upload New",
+    "setAsBanner": "Set as Banner",
+    "currentBanner": "Banner",
+    "maxImages": "Maximum {max} images",
+    "selectFromGallery": "Select from Gallery",
+    "addImages": "Add Images",
+    "removeImage": "Remove Image",
+    "deleteImageConfirm": "Are you sure you want to delete this image from your gallery?",
+    "imageDeleted": "Image deleted successfully",
+    "imageDeleteFailed": "Failed to delete image",
+    "imagesUpdated": "Session images updated successfully",
+    "imagesUpdateFailed": "Failed to update session images",
+    "bannerUpdated": "Banner updated successfully",
+    "bannerUpdateFailed": "Failed to update banner",
+    "noImagesYet": "You have no images yet. Upload one!",
+    "dragToReorder": "Drag to reorder",
+    "imageOf": "{current}/{total}",
     "aiModal": {
       "title": "Quick create session by AI",
       "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
@@ -2811,6 +2833,26 @@
     "cancel": "Cancel",
     "rated": "Rated"
   },
+  "userProfilePage": {
+    "title": "Profile",
+    "loadFailed": "Unable to load profile",
+    "profileNotFound": "User not found",
+    "hostedSessions": "Hosted sessions",
+    "reviews": "Reviews",
+    "joinedAt": "Joined",
+    "joinedDateLabel": "Joined since {date}",
+    "verifiedHost": "Verified host",
+    "activeHosted": "Active",
+    "endedHosted": "Ended",
+    "allHosted": "All",
+    "noHostedSessions": "This user has not hosted any sessions yet",
+    "noActiveHostedSessions": "No active hosted sessions",
+    "noEndedHostedSessions": "No ended hosted sessions",
+    "viewAllReviews": "View all",
+    "allReviews": "All reviews",
+    "noReviews": "No reviews yet",
+    "pagination": "Page {page}/{totalPages}"
+  },
   "notification": {
     "notifications": "Notifications",
     "noNotifications": "No notifications yet",
@@ -3029,6 +3071,7 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
-    "findSessionsAtVenue": "Find Sessions"
+    "findSessionsAtVenue": "Find Sessions",
+    "nameFormat": "{name} Badminton Court"
   }
 }

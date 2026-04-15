@@ -30,6 +30,7 @@ import SubNavigation, { NavItem } from './SubNavigation';
 interface TopBarProps {
   showBackButton?: boolean;
   backHref?: string;
+  onBack?: () => void;
   title?: string;
   icon?: React.ReactNode;
   rightContent?: React.ReactNode;
@@ -42,6 +43,7 @@ export default function TopBar({
   rightContent,
   showBackButton = false,
   backHref = '/',
+  onBack,
   navItems,
 }: TopBarProps) {
   const common = useTranslations('common');
@@ -116,8 +118,8 @@ export default function TopBar({
           >
             {/* Left side - Menu, Logo & Back button */}
             <Flex height="100%" alignItems="center" gap={2}>
-              {showBackButton && (
-                <Link href={backHref}>
+              {showBackButton &&
+                (onBack ? (
                   <IconButton
                     aria-label={common('back')}
                     variant="ghost"
@@ -125,11 +127,24 @@ export default function TopBar({
                     _hover={{ bg: 'bg.muted' }}
                     borderRadius="full"
                     size="md"
+                    onClick={onBack}
                   >
                     <ArrowLeft size={20} />
                   </IconButton>
-                </Link>
-              )}
+                ) : (
+                  <Link href={backHref}>
+                    <IconButton
+                      aria-label={common('back')}
+                      variant="ghost"
+                      color="fg"
+                      _hover={{ bg: 'bg.muted' }}
+                      borderRadius="full"
+                      size="md"
+                    >
+                      <ArrowLeft size={20} />
+                    </IconButton>
+                  </Link>
+                ))}
 
               <IconButton
                 aria-label="Open menu"

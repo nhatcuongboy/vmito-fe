@@ -44,9 +44,6 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
-      '@types/papaparse':
-        specifier: ^5.5.2
-        version: 5.5.2
       '@zxing/library':
         specifier: ^0.21.3
         version: 0.21.3
@@ -156,6 +153,9 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.19.4
+      '@types/papaparse':
+        specifier: ^5.5.2
+        version: 5.5.2
       '@types/qrcode':
         specifier: ^1.5.5
         version: 1.5.5

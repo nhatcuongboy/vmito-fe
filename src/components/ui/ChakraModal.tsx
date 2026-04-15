@@ -15,7 +15,14 @@ interface ModalProps {
 export const Modal = ({ isOpen, onClose, size, children }: ModalProps) => {
   if (!isOpen) return null;
 
-  const maxWidth = size === 'lg' ? '600px' : size === 'md' ? '500px' : '400px';
+  const maxWidth =
+    size === 'xl'
+      ? '800px'
+      : size === 'lg'
+        ? '600px'
+        : size === 'md'
+          ? '500px'
+          : '400px';
 
   return (
     <Box
@@ -25,7 +32,7 @@ export const Modal = ({ isOpen, onClose, size, children }: ModalProps) => {
       right={0}
       bottom={0}
       bg="blackAlpha.600"
-      zIndex={1000}
+      zIndex={1300}
       display="flex"
       alignItems="center"
       justifyContent="center"

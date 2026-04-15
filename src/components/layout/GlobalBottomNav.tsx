@@ -27,6 +27,7 @@ export default function GlobalBottomNav() {
 
   const [isPending, startTransition] = useTransition();
   const [pendingTabId, setPendingTabId] = useState<number | null>(null);
+  const [isPendingCreate, startCreateTransition] = useTransition();
 
   // Check visibility using the hook
   const isBottomNavVisible = useBottomNavVisibility();
@@ -124,6 +125,21 @@ export default function GlobalBottomNav() {
     return matched ? matched.id : 0;
   }, [pathname, tabs]);
 
+  // Determine if center "Tạo kèo" action should be shown (Home and host/sessions on mobile)
+  const showCenterAction = useMemo(
+    () =>
+      isAuthenticated &&
+      !isAdminContext &&
+      (pathname === ROUTES.HOME || pathname === ROUTES.HOST.SESSIONS.LIST),
+    [isAuthenticated, isAdminContext, pathname]
+  );
+
+  const handleCreateSession = () => {
+    startCreateTransition(() => {
+      router.push(ROUTES.SESSIONS.NEW);
+    });
+  };
+
   if (!isBottomNavVisible || tabs.length === 0) {
     return null;
   }
@@ -134,6 +150,15 @@ export default function GlobalBottomNav() {
       activeTab={activeTab}
       loadingTabId={pendingTabId}
       onTabChange={handleTabChange}
+      centerAction={
+        showCenterAction
+          ? {
+              label: t('createSession'),
+              onClick: handleCreateSession,
+              loading: isPendingCreate,
+            }
+          : undefined
+      }
     />
   );
 }

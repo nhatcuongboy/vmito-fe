@@ -10,9 +10,10 @@ import {
   Portal,
   Spinner,
 } from '@chakra-ui/react';
-import { IconButton } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, ArrowRight } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -43,8 +44,8 @@ export const PublicSessionDetailContent = ({
   showViewMore = false,
   defaultOpenRegister = false,
 }: PublicSessionDetailContentProps) => {
-  const locale = useLocale();
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -143,7 +144,16 @@ export const PublicSessionDetailContent = ({
       setIsRegistrationLoading(true);
       const myPlayers = await PlayerService.getMyPlayersForSession(session.id);
       if (myPlayers && myPlayers.length > 0) {
-        setUserRegistrationStatus(myPlayers[0].registrationStatus as any);
+        const status = myPlayers[0].registrationStatus;
+        if (
+          status === 'PENDING' ||
+          status === 'APPROVED' ||
+          status === 'REJECTED'
+        ) {
+          setUserRegistrationStatus(status);
+        } else {
+          setUserRegistrationStatus(null);
+        }
       } else {
         setUserRegistrationStatus(null);
       }
@@ -250,8 +260,8 @@ export const PublicSessionDetailContent = ({
     showManageButton: canManage,
     manageButtonHref:
       user?.role === UserRole.PLAYER
-        ? `/player/sessions/${session.id}`
-        : `/host/sessions/${session.id}`,
+        ? `/player/sessions/${session.slug || session.id}`
+        : `/host/sessions/${session.slug || session.id}`,
     showViewRegistrationButton:
       !isOwner &&
       !!userRegistrationStatus &&
@@ -272,7 +282,12 @@ export const PublicSessionDetailContent = ({
         <Box flex="1" overflow="hidden">
           <Flex align="center" gap={1}>
             <Text fontWeight="medium" lineClamp={1}>
-              {session.venue?.name || session.location}
+              {session.venue?.name
+                ? formatVenueName(
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
+                : session.location}
             </Text>
             <IconButton
               size="xs"
@@ -283,8 +298,12 @@ export const PublicSessionDetailContent = ({
                 e.stopPropagation();
                 const address =
                   session.venue?.address ||
-                  session.venue?.name ||
-                  session.location;
+                  (session.venue?.name
+                    ? formatVenueName(
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : session.location);
                 if (address) {
                   window.open(
                     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
@@ -310,18 +329,27 @@ export const PublicSessionDetailContent = ({
 
   return (
     <RatingStatsProvider userIds={hostIds}>
-      <Box>
-        <Flex justify="center">
-          <BaseSessionCard
-            session={session}
-            extraInfoRows={locationRow}
-            registrationBadgeContent={combinedBadges}
-            actions={actions}
-            onHostClick={onOpenHostDetailModal}
-            disableCardLink
-            showYearInDate
-            alwaysShowDayName
-          />
+      <Box
+        maxW="800px"
+        mx="auto"
+        w="full"
+        px={{ base: 2, md: 4 }}
+        pt={2}
+        pb={4}
+      >
+        <Flex justify="center" align="center" direction="column">
+          <Box w="full" maxW="400px">
+            <BaseSessionCard
+              session={session}
+              extraInfoRows={locationRow}
+              registrationBadgeContent={combinedBadges}
+              actions={actions}
+              onHostClick={onOpenHostDetailModal}
+              disableCardLink
+              showYearInDate
+              alwaysShowDayName
+            />
+          </Box>
         </Flex>
 
         {showViewMore && (
@@ -354,7 +382,7 @@ export const PublicSessionDetailContent = ({
         <LoginPromptModal
           isOpen={isLoginModalOpen}
           onClose={onCloseLoginModal}
-          returnUrl={`/sessions/${session.id}?register=true`}
+          returnUrl={`/sessions/${session.slug || session.id}?register=true`}
         />
 
         <JoinSessionModal
@@ -382,14 +410,17 @@ export const PublicSessionDetailContent = ({
           hideSecondaryAction={true}
           maxBodyHeight="80vh"
         >
-          <AppHostDetail
-            userId={session.hostId}
-            name={session.hostName || session.host?.name}
-            image={session.host?.image || undefined}
-            phone={session.hostPhone}
-            email={session.host?.email}
-            hideHeader={true}
-          />
+          <Box>
+            <AppHostDetail
+              userId={session.hostId}
+              name={session.hostName || session.host?.name}
+              image={session.host?.image || undefined}
+              phone={session.hostPhone}
+              email={session.host?.email}
+              hideHeader={true}
+              onClose={onCloseHostDetailModal}
+            />
+          </Box>
         </VModal>
 
         {canManage && (

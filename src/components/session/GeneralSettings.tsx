@@ -9,6 +9,7 @@ import { Venue, UserRole } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { formatVenueName } from '@/utils';
 import {
   Badge,
   Box,
@@ -46,6 +47,7 @@ interface GeneralSettingsProps {
 const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
   const t = useTranslations('session.generalSettings');
   const tValidation = useTranslations('session.validation');
+  const tVenue = useTranslations('venue');
   const { getLevelLabel } = useLevelLabel();
   const { user } = useAuthStore();
 
@@ -314,7 +316,11 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   </option>
                   {venues.map((venue) => (
                     <option key={venue.id} value={venue.id}>
-                      {venue.name} - {venue.address}
+                      {formatVenueName(
+                        venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )}{' '}
+                      - {venue.address}
                     </option>
                   ))}
                 </VSelect>

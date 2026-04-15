@@ -15,7 +15,9 @@ export default function NewSessionPage() {
       <PageLayout title={t('createSession')}>
         <NewSessionForm
           backHref="/host/sessions"
-          onSuccess={(session) => router.push(`/sessions/${session.id}`)}
+          onSuccess={(session) =>
+            router.push(`/sessions/${session.slug || session.id}`)
+          }
         />
       </PageLayout>
     </Suspense>

@@ -27,6 +27,7 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { formatVenueName } from '@/utils';
 import { Input } from '@/components/ui/chakra-compat';
 import { Check } from 'lucide-react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -96,7 +97,9 @@ import AISessionModal from '@/components/session/AISessionModal';
 import { VTooltip } from '@/components/ui/VTooltip';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import TopBar from '@/components/ui/TopBar';
-import CoverPhotoUpload from '@/components/session/CoverPhotoUpload';
+import AppMultiImageUpload, {
+  ISessionImage,
+} from '@/components/session/AppMultiImageUpload';
 import LevelRequirementsCard from '@/components/session/LevelRequirementsCard';
 import { BulkSessionDateSelector } from '@/components/session/BulkSessionDateSelector';
 import {
@@ -204,6 +207,7 @@ export default function SessionForm({
   const searchParams = useSearchParams();
   const t = useTranslations('session');
   const tc = useTranslations('common');
+  const tVenue = useTranslations('venue');
   const { user } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const isEditMode = mode === 'edit';
@@ -328,15 +332,30 @@ export default function SessionForm({
   );
   const [feeNotes, setFeeNotes] = useState(initialData?.feeConfig?.notes || '');
 
-  // Cover photo state
-  const [coverPhotoFile, setCoverPhotoFile] = useState<File | null>(null);
-  const [isUploadingCover, setIsUploadingCover] = useState(false);
-  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | undefined>(
-    initialData?.coverPhoto
-  );
-  const [coverPhotoPublicId, setCoverPhotoPublicId] = useState<
-    string | undefined
-  >(initialData?.coverPhotoPublicId);
+  // Session images state (multi-image support)
+  const [sessionImages, setSessionImages] = useState<ISessionImage[]>(() => {
+    const imgs: ISessionImage[] = [];
+    // Add banner image first if it exists
+    if (initialData?.coverPhoto && initialData?.coverPhotoPublicId) {
+      imgs.push({
+        url: initialData.coverPhoto,
+        publicId: initialData.coverPhotoPublicId,
+      });
+    }
+    // Add other images
+    if (initialData?.images && initialData?.imagePublicIds) {
+      initialData.images.forEach((url, i) => {
+        const publicId = initialData.imagePublicIds?.[i];
+        if (publicId && !imgs.some((img) => img.publicId === publicId)) {
+          imgs.push({ url, publicId });
+        }
+      });
+    }
+    return imgs;
+  });
+  const [bannerIndex, setBannerIndex] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   // Single-day time picker state
   const [isMultiDay, setIsMultiDay] = useState(() => {
@@ -408,12 +427,17 @@ export default function SessionForm({
   const venueOptions = useMemo(() => {
     const opts = venues.map((v) => ({
       value: v.id,
-      label: `${v.name} - ${v.address}`,
+      label: formatVenueName(v.name, tVenue('nameFormat', { name: '{name}' })),
+      sublabel: v.address,
     }));
     if (selectedVenueObj && !venues.find((v) => v.id === selectedVenueObj.id)) {
       opts.unshift({
         value: selectedVenueObj.id,
-        label: `${selectedVenueObj.name} - ${selectedVenueObj.address}`,
+        label: formatVenueName(
+          selectedVenueObj.name,
+          tVenue('nameFormat', { name: '{name}' })
+        ),
+        sublabel: selectedVenueObj.address,
       });
     }
     return opts;
@@ -679,8 +703,10 @@ export default function SessionForm({
               : undefined,
           courtColor: data.courtColor,
           shuttlecock: data.shuttlecock?.trim() || '',
-          coverPhoto: !coverPhotoFile ? coverPhotoUrl : undefined,
-          coverPhotoPublicId: !coverPhotoFile ? coverPhotoPublicId : undefined,
+          coverPhoto: sessionImages[bannerIndex]?.url,
+          coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
+          images: sessionImages.map((img) => img.url),
+          imagePublicIds: sessionImages.map((img) => img.publicId),
           venue: venueData,
           feeConfig: feeConfigData,
 
@@ -723,8 +749,10 @@ export default function SessionForm({
           endTime: new Date(data.endTime),
           courtColor: data.courtColor,
           shuttlecock: data.shuttlecock?.trim() || '',
-          coverPhoto: !coverPhotoFile ? coverPhotoUrl : undefined,
-          coverPhotoPublicId: !coverPhotoFile ? coverPhotoPublicId : undefined,
+          coverPhoto: sessionImages[bannerIndex]?.url,
+          coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
+          images: sessionImages.map((img) => img.url),
+          imagePublicIds: sessionImages.map((img) => img.publicId),
           venue: venueData,
           courts: data.courts.map((court) => ({
             courtNumber: court.courtNumber,
@@ -765,36 +793,21 @@ export default function SessionForm({
         }
       }
 
-      // Handle default cover photo upload for new session
-      if (coverPhotoFile) {
+      // For bulk creation, sync images to all other sessions
+      if (bulkCreatedSessions.length > 1 && sessionImages.length > 0) {
         try {
-          const updatedSession = await SessionService.uploadCoverPhoto(
-            session!.id,
-            coverPhotoFile
+          await Promise.all(
+            bulkCreatedSessions.slice(1).map((s) =>
+              SessionService.updateSession(s.id, {
+                coverPhoto: sessionImages[bannerIndex]?.url,
+                coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
+                images: sessionImages.map((img) => img.url),
+                imagePublicIds: sessionImages.map((img) => img.publicId),
+              })
+            )
           );
-          session = updatedSession;
-
-          // For bulk creation, reuse the same cover photo URL for all other sessions
-          if (bulkCreatedSessions.length > 1 && updatedSession.coverPhoto) {
-            await Promise.all(
-              bulkCreatedSessions.slice(1).map((s) =>
-                SessionService.updateSession(s.id, {
-                  coverPhoto: updatedSession.coverPhoto,
-                  coverPhotoPublicId: updatedSession.coverPhotoPublicId,
-                })
-              )
-            );
-          }
-        } catch (photoError) {
-          console.error(
-            'Failed to upload cover photo for new session:',
-            photoError
-          );
-          toaster.error({
-            title:
-              t('sessionCreatedButPhotoFailed') ||
-              'Session created but cover photo upload failed',
-          });
+        } catch (syncError) {
+          console.error('Failed to sync images to bulk sessions:', syncError);
         }
       }
 
@@ -977,79 +990,15 @@ export default function SessionForm({
                   </Field.ErrorText>
                 </Field.Root>
 
-                {/* Cover Photo */}
+                {/* Session Images */}
                 <Box>
-                  <CoverPhotoUpload
-                    currentPhotoUrl={coverPhotoUrl}
-                    onPhotoSelect={async (file) => {
-                      if (isEditMode && sessionId) {
-                        // Edit mode: Upload immediately
-                        setCoverPhotoFile(file);
-                        setIsUploadingCover(true);
-                        try {
-                          const updatedSession =
-                            await SessionService.uploadCoverPhoto(
-                              sessionId,
-                              file
-                            );
-                          setCoverPhotoUrl(updatedSession.coverPhoto);
-                          setCoverPhotoPublicId(
-                            updatedSession.coverPhotoPublicId
-                          );
-                          toaster.success({
-                            title:
-                              t('coverPhotoUploaded') ||
-                              'Cover photo uploaded successfully',
-                          });
-                        } catch (error) {
-                          toaster.error({
-                            title:
-                              t('coverPhotoUploadFailed') ||
-                              'Failed to upload cover photo',
-                          });
-                        } finally {
-                          setIsUploadingCover(false);
-                          setCoverPhotoFile(null);
-                        }
-                      } else {
-                        // Create mode: Store locally
-                        setCoverPhotoFile(file);
-                        // Create a local preview URL
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setCoverPhotoUrl(reader.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    onPhotoRemove={async () => {
-                      if (isEditMode && sessionId) {
-                        // Edit mode: Delete immediately
-                        setIsUploadingCover(true);
-                        try {
-                          await SessionService.deleteCoverPhoto(sessionId);
-                          setCoverPhotoUrl(undefined);
-                          toaster.success({
-                            title:
-                              t('coverPhotoRemoved') ||
-                              'Cover photo removed successfully',
-                          });
-                        } catch (error) {
-                          toaster.error({
-                            title:
-                              t('coverPhotoRemoveFailed') ||
-                              'Failed to remove cover photo',
-                          });
-                        } finally {
-                          setIsUploadingCover(false);
-                        }
-                      } else {
-                        // Create mode: Clear local state
-                        setCoverPhotoFile(null);
-                        setCoverPhotoUrl(undefined);
-                      }
-                    }}
-                    isUploading={isUploadingCover}
+                  <AppMultiImageUpload
+                    images={sessionImages}
+                    bannerIndex={bannerIndex}
+                    onImagesChange={setSessionImages}
+                    onBannerChange={setBannerIndex}
+                    isUploading={isUploadingImages}
+                    maxImages={5}
                   />
                 </Box>
 

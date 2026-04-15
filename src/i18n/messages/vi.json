@@ -34,7 +34,8 @@
     "pendingJoinRequests": "Yêu cầu tham gia",
     "endedSessions": "Kèo đã kết thúc",
     "endedJoinedSessions": "Kèo tham gia đã kết thúc",
-    "suggestions": "Gợi ý"
+    "suggestions": "Gợi ý",
+    "createSession": "Tạo kèo"
   },
   "common": {
     "browse": "Thống kê",
@@ -136,6 +137,7 @@
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
     "uploadImage": "Tải ảnh lên",
+    "selected": "đã chọn",
     "clickToUpload": "Click để tải lên",
     "maxSize": "Kích thước tối đa",
     "appearance": "Giao diện",
@@ -189,6 +191,7 @@
     "hostName": "Tên Host",
     "hostNamePlaceholder": "Nhập tên host",
     "hostPhone": "SĐT Host",
+    "viewDetails": "Xem chi tiết",
     "hostPhonePlaceholder": "Nhập số điện thoại",
     "time": "Thời gian",
     "start": "Bắt đầu",
@@ -488,6 +491,25 @@
     "coverPhotoUploadFailed": "Không thể tải ảnh bìa lên",
     "coverPhotoRemoved": "Ảnh bìa đã được xóa thành công",
     "coverPhotoRemoveFailed": "Không thể xóa ảnh bìa",
+    "sessionImages": "Ảnh kèo",
+    "myImages": "Ảnh của tôi",
+    "uploadNew": "Tải ảnh mới",
+    "setAsBanner": "Đặt làm ảnh bìa",
+    "currentBanner": "Ảnh bìa",
+    "maxImages": "Tối đa {max} ảnh",
+    "selectFromGallery": "Chọn từ thư viện",
+    "addImages": "Thêm ảnh",
+    "removeImage": "Xóa ảnh",
+    "deleteImageConfirm": "Bạn có chắc muốn xóa ảnh này khỏi thư viện?",
+    "imageDeleted": "Đã xóa ảnh thành công",
+    "imageDeleteFailed": "Không thể xóa ảnh",
+    "imagesUpdated": "Đã cập nhật ảnh kèo thành công",
+    "imagesUpdateFailed": "Không thể cập nhật ảnh kèo",
+    "bannerUpdated": "Đã cập nhật ảnh bìa thành công",
+    "bannerUpdateFailed": "Không thể cập nhật ảnh bìa",
+    "noImagesYet": "Bạn chưa có ảnh nào. Hãy tải ảnh lên!",
+    "dragToReorder": "Kéo thả để sắp xếp",
+    "imageOf": "{current}/{total}",
     "aiModal": {
       "title": "Tạo kèo nhanh bằng AI",
       "description": "Dán nội dung bài đăng tuyển vãng lai, AI sẽ tự động điền thông tin kèo cho bạn.",
@@ -2173,6 +2195,8 @@
     "endSession": "Kết thúc kèo",
     "startSession": "Bắt đầu kèo",
     "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
+    "expiredSessionsNeedAction": "Kèo cần xử lý",
+    "expiredSessionsDescription": "Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "failedToSavePlayerChanges": "Không thể lưu thay đổi người chơi",
     "failedToUpdatePlayer": "Không thể cập nhật người chơi",
     "unknownError": "Lỗi không xác định",
@@ -2813,6 +2837,26 @@
     "cancel": "Hủy",
     "rated": "Đã đánh giá"
   },
+  "userProfilePage": {
+    "title": "Trang cá nhân",
+    "loadFailed": "Không thể tải trang cá nhân",
+    "profileNotFound": "Không tìm thấy người dùng",
+    "hostedSessions": "Kèo đã host",
+    "reviews": "Đánh giá",
+    "joinedAt": "Tham gia",
+    "joinedDateLabel": "Tham gia từ {date}",
+    "verifiedHost": "Host xác thực",
+    "activeHosted": "Đang hoạt động",
+    "endedHosted": "Đã kết thúc",
+    "allHosted": "Tất cả",
+    "noHostedSessions": "Người dùng này chưa host kèo nào",
+    "noActiveHostedSessions": "Không có kèo đang hoạt động",
+    "noEndedHostedSessions": "Không có kèo đã kết thúc",
+    "viewAllReviews": "Xem tất cả",
+    "allReviews": "Tất cả đánh giá",
+    "noReviews": "Chưa có đánh giá nào",
+    "pagination": "Trang {page}/{totalPages}"
+  },
   "notification": {
     "notifications": "Thông báo",
     "noNotifications": "Chưa có thông báo",
@@ -3031,6 +3075,7 @@
     "share": "Chia sẻ",
     "view": "Xem",
     "viewDetails": "Xem chi tiết",
-    "findSessionsAtVenue": "Tìm kèo tại sân"
+    "findSessionsAtVenue": "Tìm kèo tại sân",
+    "nameFormat": "Sân {name}"
   }
 }

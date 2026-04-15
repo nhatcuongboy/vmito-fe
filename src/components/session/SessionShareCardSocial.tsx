@@ -25,6 +25,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { formatVenueName } from '@/utils';
 import { Locale } from '@/i18n/locales';
 import { FeeService } from '@/lib/api/fee.service';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -69,6 +70,7 @@ const formatTime = (dateString: string | Date, locale: string): string => {
 
 const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
   const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
@@ -152,7 +154,12 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
               <Icon as={MapPin} boxSize={14} color="green.500" mt={1} />
               <Box flex="1">
                 <Text fontWeight="semibold" color="gray.700" fontSize="4xl">
-                  {session.venue?.name || session.location}
+                  {session.venue?.name
+                    ? formatVenueName(
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : session.location}
                 </Text>
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (

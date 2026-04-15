@@ -46,7 +46,9 @@ import {
   Feather,
   Play,
   Square,
+  ChevronRight,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
@@ -439,7 +441,8 @@ const BaseSessionCard = ({
     // Right side: View Session button (for approved players)
     if (actions.showViewSessionButton) {
       const viewSessionHref =
-        actions.viewSessionHref || `/player/sessions/${session.id}`;
+        actions.viewSessionHref ||
+        `/player/sessions/${session.slug || session.id}`;
       rightButtons.push(
         <NextLinkButton
           key="view-session"
@@ -460,8 +463,8 @@ const BaseSessionCard = ({
       const manageHref =
         actions.manageButtonHref ||
         (user?.role === UserRole.PLAYER
-          ? `/player/sessions/${session.id}`
-          : `/host/sessions/${session.id}`);
+          ? `/player/sessions/${session.slug || session.id}`
+          : `/host/sessions/${session.slug || session.id}`);
       rightButtons.push(
         <NextLinkButton
           key="manage"
@@ -631,7 +634,7 @@ const BaseSessionCard = ({
 
   const levelSegments = getLevelSegments();
 
-  const cardHref = `/sessions/${session.id}`;
+  const cardHref = `/sessions/${session.slug || session.id}`;
 
   const handleCardClick = () => {
     if (!disableCardLink) {
@@ -645,480 +648,503 @@ const BaseSessionCard = ({
   };
 
   const cardContent = (
-    <Box
-      position="relative"
-      borderWidth="1px"
-      borderRadius="2xl"
-      overflow="hidden"
-      bg="white"
-      _dark={{ bg: 'gray.800' }}
-      boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
-      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-      _hover={
-        disableCardLink
-          ? {}
-          : {
-              transform: 'translateY(-6px)',
-              boxShadow:
-                '0 12px 24px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
-              borderColor: 'green.200',
-            }
-      }
-      maxW="400px"
-      minW="300px"
-      w="100%"
-      display="flex"
-      flexDirection="column"
-      height="100%"
-      cursor={disableCardLink ? 'default' : 'pointer'}
+    <motion.div
+      whileTap={disableCardLink ? undefined : { scale: 0.98, opacity: 0.95 }}
+      style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
       onClick={handleCardClick}
     >
-      {/* Level Color Strip */}
-      <Flex
-        position="absolute"
-        left={0}
-        top={0}
-        bottom={0}
-        w={isCompact ? '4px' : '6px'}
-        direction="column"
-        zIndex={2}
-        opacity={0.9}
-      >
-        {levelSegments.map((color, index) => (
-          <Box key={index} flex={1} bg={color} />
-        ))}
-      </Flex>
-
-      {/* Cover Image Section - hidden in compact mode */}
-      {!isCompact && (
-        <Box position="relative" h="180px" overflow="hidden">
-          <Image
-            src={session.coverPhoto || DEFAULT_COVER_PHOTO}
-            alt={session.name}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-          />
-          {/* Status Badge Overlay */}
-          <Box position="absolute" top={3} right={3}>
-            {statusBadgeContent || (
-              <Badge
-                colorPalette={
-                  convertedSession.status === 'PREPARING' &&
-                  session.endTime &&
-                  new Date(session.endTime) < new Date()
-                    ? 'gray'
-                    : statusColors[convertedSession.status] || 'gray'
-                }
-                fontSize="sm"
-                px={4}
-                py={1.5}
-                borderRadius="full"
-                fontWeight="600"
-                boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
-                backdropFilter="blur(8px)"
-              >
-                {getStatusLabel(convertedSession.status, t, session.endTime)}
-              </Badge>
-            )}
-          </Box>
-          {/* Registration Status Overlay */}
-          {registrationBadgeContent && (
-            <Box position="absolute" top={3} left={3}>
-              {registrationBadgeContent}
-            </Box>
-          )}
-          {/* Custom Cover Photo Overlay */}
-          {coverPhotoOverlay}
-        </Box>
-      )}
-
-      {/* Content Section */}
       <Box
-        p={isCompact ? 3 : 5}
-        pb={isCompact ? 3 : 5}
-        flex="1"
+        position="relative"
+        borderWidth="1px"
+        borderRadius="2xl"
+        overflow="hidden"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        _hover={
+          disableCardLink
+            ? {}
+            : {
+                transform: 'translateY(-6px)',
+                boxShadow:
+                  '0 12px 24px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
+                borderColor: 'green.200',
+              }
+        }
+        maxW="400px"
+        minW="300px"
+        w="100%"
         display="flex"
         flexDirection="column"
+        height="100%"
+        cursor={disableCardLink ? 'default' : 'pointer'}
       >
-        <Stack gap={isCompact ? 2 : 4} flex="1">
-          {/* Compact-only top content (e.g. suggestion badges) */}
-          {isCompact && compactTopContent}
+        {/* Level Color Strip */}
+        <Flex
+          position="absolute"
+          left={0}
+          top={0}
+          bottom={0}
+          w={isCompact ? '4px' : '6px'}
+          direction="column"
+          zIndex={2}
+          opacity={0.9}
+        >
+          {levelSegments.map((color, index) => (
+            <Box key={index} flex={1} bg={color} />
+          ))}
+        </Flex>
 
-          {/* Title row - in compact mode includes status + registration badges inline */}
-          {isCompact ? (
-            <Flex justify="space-between" align="flex-start" gap={2}>
-              <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
-                {convertedSession.title}
-              </Heading>
-              <Flex gap={1} flexShrink={0}>
+        {/* Cover Image Section - hidden in compact mode */}
+        {!isCompact && (
+          <Box position="relative" h="180px" overflow="hidden">
+            <Image
+              src={session.coverPhoto || DEFAULT_COVER_PHOTO}
+              alt={session.name}
+              w="100%"
+              h="100%"
+              objectFit="cover"
+            />
+            {/* Status Badge Overlay */}
+            <Box position="absolute" top={3} right={3}>
+              {statusBadgeContent || (
+                <Badge
+                  colorPalette={
+                    convertedSession.status === 'PREPARING' &&
+                    session.endTime &&
+                    new Date(session.endTime) < new Date()
+                      ? 'gray'
+                      : statusColors[convertedSession.status] || 'gray'
+                  }
+                  fontSize="sm"
+                  px={4}
+                  py={1.5}
+                  borderRadius="full"
+                  fontWeight="600"
+                  boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
+                  backdropFilter="blur(8px)"
+                >
+                  {getStatusLabel(convertedSession.status, t, session.endTime)}
+                </Badge>
+              )}
+            </Box>
+            {/* Registration Status Overlay */}
+            {registrationBadgeContent && (
+              <Box position="absolute" top={3} left={3}>
                 {registrationBadgeContent}
-                {statusBadgeContent || (
-                  <Badge
-                    colorPalette={
-                      statusColors[convertedSession.status] || 'gray'
-                    }
-                    fontSize="xs"
-                    px={2}
-                    py={0.5}
-                    borderRadius="full"
-                    fontWeight="600"
-                  >
-                    {getStatusLabel(convertedSession.status, t)}
-                  </Badge>
+              </Box>
+            )}
+            {/* Custom Cover Photo Overlay */}
+            {coverPhotoOverlay}
+          </Box>
+        )}
+
+        {/* Content Section */}
+        <Box
+          p={isCompact ? 3 : 5}
+          pb={isCompact ? 3 : 5}
+          flex="1"
+          display="flex"
+          flexDirection="column"
+        >
+          <Stack gap={isCompact ? 2 : 4} flex="1">
+            {/* Compact-only top content (e.g. suggestion badges) */}
+            {isCompact && compactTopContent}
+
+            {/* Title row - in compact mode includes status + registration badges inline */}
+            {isCompact ? (
+              <Flex justify="space-between" align="flex-start" gap={2}>
+                <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
+                  {convertedSession.title}
+                </Heading>
+                <Flex gap={1} flexShrink={0} align="center">
+                  {registrationBadgeContent}
+                  {statusBadgeContent || (
+                    <Badge
+                      colorPalette={
+                        statusColors[convertedSession.status] || 'gray'
+                      }
+                      fontSize="xs"
+                      px={2}
+                      py={0.5}
+                      borderRadius="full"
+                      fontWeight="600"
+                    >
+                      {getStatusLabel(convertedSession.status, t)}
+                    </Badge>
+                  )}
+                  {!disableCardLink && (
+                    <Icon
+                      as={ChevronRight}
+                      boxSize={4}
+                      color="gray.400"
+                      ml={1}
+                    />
+                  )}
+                </Flex>
+              </Flex>
+            ) : (
+              <Flex justify="space-between" align="flex-start" gap={2}>
+                <Heading size="lg" fontWeight="bold">
+                  {convertedSession.title}
+                </Heading>
+                {!disableCardLink && (
+                  <Icon as={ChevronRight} boxSize={6} color="gray.400" mt={1} />
                 )}
               </Flex>
-            </Flex>
-          ) : (
-            <Heading size="lg" fontWeight="bold">
-              {convertedSession.title}
-            </Heading>
-          )}
+            )}
 
-          {/* Host Info with Avatar and Rating */}
-          {isCompact ? (
-            <Flex align="center" gap={2}>
-              <Box
-                cursor={onHostClick ? 'pointer' : 'default'}
-                onClick={(e) => {
-                  if (onHostClick) {
-                    e.stopPropagation();
-                    onHostClick(e);
-                  }
-                }}
-              >
-                <Avatar.Root size="xs" bg="brand.500">
-                  <Avatar.Fallback name={displayHostName}>
-                    {displayHostName
-                      ? displayHostName.charAt(0).toUpperCase()
-                      : ''}
-                  </Avatar.Fallback>
-                  {session.host?.image && (
-                    <Avatar.Image src={session.host.image} />
-                  )}
-                </Avatar.Root>
-              </Box>
-              <Text
-                fontSize="xs"
-                fontWeight="medium"
-                lineClamp={1}
-                cursor={onHostClick ? 'pointer' : 'default'}
-                _hover={onHostClick ? { textDecoration: 'underline' } : {}}
-                onClick={(e) => {
-                  if (onHostClick) {
-                    e.stopPropagation();
-                    onHostClick(e);
-                  }
-                }}
-              >
-                {displayHostName}
-              </Text>
-              <AppPlayerRating userId={session.hostId} size="xs" />
-            </Flex>
-          ) : (
-            <Flex align="center" gap={3}>
-              <Box
-                cursor={onHostClick ? 'pointer' : 'default'}
-                onClick={(e) => {
-                  if (onHostClick) {
-                    e.stopPropagation();
-                    onHostClick(e);
-                  }
-                }}
-              >
-                <Avatar.Root size="sm" bg="brand.500">
-                  <Avatar.Fallback name={displayHostName}>
-                    {displayHostName
-                      ? displayHostName.charAt(0).toUpperCase()
-                      : ''}
-                  </Avatar.Fallback>
-                  {session.host?.image && (
-                    <Avatar.Image src={session.host.image} />
-                  )}
-                </Avatar.Root>
-              </Box>
-              <Text
-                fontSize="sm"
-                fontWeight="medium"
-                cursor={onHostClick ? 'pointer' : 'default'}
-                _hover={onHostClick ? { textDecoration: 'underline' } : {}}
-                onClick={(e) => {
-                  if (onHostClick) {
-                    e.stopPropagation();
-                    onHostClick(e);
-                  }
-                }}
-              >
-                {displayHostName}
-              </Text>
-              <AppPlayerRating userId={session.hostId} showBullet />
-              {hostActions}
-            </Flex>
-          )}
-
-          {!isCompact && afterStatusContent}
-
-          {/* Location */}
-          {extraInfoRows && <Box>{extraInfoRows}</Box>}
-
-          {/* Date & Time + Courts & Players */}
-          {isCompact ? (
-            <>
-              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
-                <Flex align="center" gap={1}>
-                  <Icon as={Calendar} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">{compactDate}</Text>
-                </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={Clock} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">{compactTime}</Text>
-                </Flex>
+            {/* Host Info with Avatar and Rating */}
+            {isCompact ? (
+              <Flex align="center" gap={2}>
+                <Box
+                  cursor={onHostClick ? 'pointer' : 'default'}
+                  onClick={(e) => {
+                    if (onHostClick) {
+                      e.stopPropagation();
+                      onHostClick(e);
+                    }
+                  }}
+                >
+                  <Avatar.Root size="xs" bg="brand.500">
+                    <Avatar.Fallback name={displayHostName}>
+                      {displayHostName
+                        ? displayHostName.charAt(0).toUpperCase()
+                        : ''}
+                    </Avatar.Fallback>
+                    {session.host?.image && (
+                      <Avatar.Image src={session.host.image} />
+                    )}
+                  </Avatar.Root>
+                </Box>
+                <Text
+                  fontSize="xs"
+                  fontWeight="medium"
+                  lineClamp={1}
+                  cursor={onHostClick ? 'pointer' : 'default'}
+                  _hover={onHostClick ? { textDecoration: 'underline' } : {}}
+                  onClick={(e) => {
+                    if (onHostClick) {
+                      e.stopPropagation();
+                      onHostClick(e);
+                    }
+                  }}
+                >
+                  {displayHostName}
+                </Text>
+                <AppPlayerRating userId={session.hostId} size="xs" />
               </Flex>
-              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
-                <Flex align="center" gap={1}>
-                  <Icon as={LayoutGrid} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
+            ) : (
+              <Flex align="center" gap={3}>
+                <Box
+                  cursor={onHostClick ? 'pointer' : 'default'}
+                  onClick={(e) => {
+                    if (onHostClick) {
+                      e.stopPropagation();
+                      onHostClick(e);
+                    }
+                  }}
+                >
+                  <Avatar.Root size="sm" bg="brand.500">
+                    <Avatar.Fallback name={displayHostName}>
+                      {displayHostName
+                        ? displayHostName.charAt(0).toUpperCase()
+                        : ''}
+                    </Avatar.Fallback>
+                    {session.host?.image && (
+                      <Avatar.Image src={session.host.image} />
+                    )}
+                  </Avatar.Root>
+                </Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  cursor={onHostClick ? 'pointer' : 'default'}
+                  _hover={onHostClick ? { textDecoration: 'underline' } : {}}
+                  onClick={(e) => {
+                    if (onHostClick) {
+                      e.stopPropagation();
+                      onHostClick(e);
+                    }
+                  }}
+                >
+                  {displayHostName}
+                </Text>
+                <AppPlayerRating userId={session.hostId} showBullet />
+                {hostActions}
+              </Flex>
+            )}
+
+            {!isCompact && afterStatusContent}
+
+            {/* Location */}
+            {extraInfoRows && <Box>{extraInfoRows}</Box>}
+
+            {/* Date & Time + Courts & Players */}
+            {isCompact ? (
+              <>
+                <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+                  <Flex align="center" gap={1}>
+                    <Icon as={Calendar} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">{compactDate}</Text>
+                  </Flex>
+                  <Flex align="center" gap={1}>
+                    <Icon as={Clock} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">{compactTime}</Text>
+                  </Flex>
+                </Flex>
+                <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+                  <Flex align="center" gap={1}>
+                    <Icon as={LayoutGrid} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">
+                      {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                    </Text>
+                  </Flex>
+                  <Flex align="center" gap={1}>
+                    <Icon as={Users} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">
+                      {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                    </Text>
+                  </Flex>
+                </Flex>
+                <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+                  <Flex align="center" gap={1}>
+                    <Icon as={UserCheck} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">
+                      {convertedSession.totalPlayers}/
+                      {convertedSession.maxPlayers} {t('players')}
+                    </Text>
+                  </Flex>
+                  {session.shuttlecock && (
+                    <Flex align="center" gap={1}>
+                      <Icon as={Feather} boxSize={4} color="green.500" />
+                      <Text fontSize="xs" lineClamp={1}>
+                        {session.shuttlecock}
+                      </Text>
+                    </Flex>
+                  )}
+                </Flex>
+              </>
+            ) : (
+              <Grid templateColumns="1fr 1fr" gap={2}>
+                {/* Row 1: Date & Time */}
+                <Flex align="center" gap={2}>
+                  <Icon as={Calendar} boxSize={5} color="green.500" />
+                  <Text fontSize="sm">{compactDate}</Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={Clock} boxSize={5} color="green.500" />
+                  <Text fontSize="sm">{compactTime}</Text>
+                </Flex>
+
+                {/* Row 2: Number of Courts & Max Players */}
+                <Flex align="center" gap={2}>
+                  <Icon as={LayoutGrid} boxSize={5} color="green.500" />
+                  <Text fontSize="sm">
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                    {session.courts && session.courts.length > 0 && (
+                      <Text as="span" ml={1}>
+                        (
+                        {session.courts
+                          .slice()
+                          .sort((a, b) => a.courtNumber - b.courtNumber)
+                          .map((c) => c.courtName || c.courtNumber)
+                          .join(', ')}
+                        )
+                      </Text>
+                    )}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={Users} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
+                <Flex align="center" gap={2}>
+                  <Icon as={Users} boxSize={5} color="green.500" />
+                  <Text fontSize="sm">
                     {t('maxPlayers', { count: convertedSession.maxPlayers })}
                   </Text>
                 </Flex>
-              </Flex>
-              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
-                <Flex align="center" gap={1}>
-                  <Icon as={UserCheck} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
+
+                <Flex align="center" gap={2}>
+                  <Icon as={UserCheck} boxSize={5} color="green.500" />
+                  <Text fontSize="sm">
                     {convertedSession.totalPlayers}/
                     {convertedSession.maxPlayers} {t('players')}
                   </Text>
                 </Flex>
                 {session.shuttlecock && (
-                  <Flex align="center" gap={1}>
-                    <Icon as={Feather} boxSize={4} color="green.500" />
-                    <Text fontSize="xs" lineClamp={1}>
-                      {session.shuttlecock}
+                  <Flex align="center" gap={2}>
+                    <Icon as={Feather} boxSize={5} color="green.500" />
+                    <Text fontSize="sm">
+                      {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>
                 )}
-              </Flex>
-            </>
-          ) : (
-            <Grid templateColumns="1fr 1fr" gap={2}>
-              {/* Row 1: Date & Time */}
-              <Flex align="center" gap={2}>
-                <Icon as={Calendar} boxSize={5} color="green.500" />
-                <Text fontSize="sm">{compactDate}</Text>
-              </Flex>
-              <Flex align="center" gap={2}>
-                <Icon as={Clock} boxSize={5} color="green.500" />
-                <Text fontSize="sm">{compactTime}</Text>
-              </Flex>
+              </Grid>
+            )}
 
-              {/* Row 2: Number of Courts & Max Players */}
-              <Flex align="center" gap={2}>
-                <Icon as={LayoutGrid} boxSize={5} color="green.500" />
-                <Text fontSize="sm">
-                  {convertedSession.numberOfCourts} {t('courtsAvailable')}
-                  {session.courts && session.courts.length > 0 && (
-                    <Text as="span" ml={1}>
-                      (
-                      {session.courts
-                        .slice()
-                        .sort((a, b) => a.courtNumber - b.courtNumber)
-                        .map((c) => c.courtName || c.courtNumber)
-                        .join(', ')}
-                      )
-                    </Text>
-                  )}
-                </Text>
-              </Flex>
-              <Flex align="center" gap={2}>
-                <Icon as={Users} boxSize={5} color="green.500" />
-                <Text fontSize="sm">
-                  {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                </Text>
-              </Flex>
-
-              <Flex align="center" gap={2}>
-                <Icon as={UserCheck} boxSize={5} color="green.500" />
-                <Text fontSize="sm">
-                  {convertedSession.totalPlayers}/{convertedSession.maxPlayers}{' '}
-                  {t('players')}
-                </Text>
-              </Flex>
-              {session.shuttlecock && (
-                <Flex align="center" gap={2}>
-                  <Icon as={Feather} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {t('shuttlecock') + ' ' + session.shuttlecock}
-                  </Text>
-                </Flex>
-              )}
-            </Grid>
-          )}
-
-          {/* Skill Levels */}
-          <Flex align="center" gap={isCompact ? 2 : 3}>
-            <Icon
-              as={Shield}
-              boxSize={isCompact ? 4 : 5}
-              color={skillLevelColor.color}
-            />
-            <Wrap gap={1}>
-              {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels))
-                  .sort((a, b) => a - b)
-                  .map((level) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        variant="solid"
-                        size={isCompact ? 'sm' : 'md'}
-                        fontSize="xs"
-                        fontWeight="bold"
-                        px={isCompact ? 2 : 2.5}
-                        py={0.5}
-                        borderRadius="full"
-                        borderWidth="1px"
-                        borderColor={levelColor.borderColor}
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })
-              ) : (
-                <Badge
-                  colorPalette="gray"
-                  variant="subtle"
-                  size={isCompact ? 'sm' : 'md'}
-                  fontSize="xs"
-                  fontWeight="bold"
-                  px={isCompact ? 2 : 2.5}
-                  py={0.5}
-                  borderRadius="full"
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                >
-                  {t('allLevels')}
-                </Badge>
-              )}
-            </Wrap>
-          </Flex>
-
-          {/* Description/Notes - hidden in compact mode */}
-          {!isCompact && session.description && (
-            <Text
-              fontSize="sm"
-              color="gray.500"
-              _dark={{ color: 'gray.400' }}
-              overflow="hidden"
-              display="-webkit-box"
-              style={{
-                WebkitLineClamp: '2',
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {session.description}
-            </Text>
-          )}
-
-          {/* Footer: Price + Actions */}
-          <Stack
-            gap={isCompact ? 2 : 3}
-            pt={isCompact ? 2 : 3}
-            mt="auto"
-            borderTopWidth="1px"
-            borderTopColor="gray.200"
-            _dark={{ borderTopColor: 'gray.700' }}
-          >
-            {/* Row 1: Price and Top Actions */}
-            <Flex align="flex-start" justify="space-between" gap={3}>
-              {/* Price Section */}
-              <Box flexShrink={0} pt={0.5}>
-                {session.feeConfig && (
-                  <Flex align="center" gap={1.5}>
-                    <Icon
-                      as={Banknote}
-                      boxSize={isCompact ? 4 : 5}
-                      color="red.600"
-                    />
-                    <Flex align="center" gap={1.5}>
-                      <Text
-                        fontSize={isCompact ? 'md' : 'lg'}
-                        fontWeight="bold"
-                        color="red.600"
-                        whiteSpace="nowrap"
-                      >
-                        {FeeService.getFeeDisplayText(session.feeConfig)}
-                      </Text>
-                      {session.feeConfig.feeType === FeeType.FIXED && (
-                        <Text
-                          fontSize="sm"
-                          color="gray.500"
-                          fontWeight="normal"
-                          whiteSpace="nowrap"
+            {/* Skill Levels */}
+            <Flex align="center" gap={isCompact ? 2 : 3}>
+              <Icon
+                as={Shield}
+                boxSize={isCompact ? 4 : 5}
+                color={skillLevelColor.color}
+              />
+              <Wrap gap={1}>
+                {session.requiredLevels && session.requiredLevels.length > 0 ? (
+                  Array.from(new Set(session.requiredLevels))
+                    .sort((a, b) => a - b)
+                    .map((level) => {
+                      const levelColor = getSkillLevelColor([level]);
+                      return (
+                        <Badge
+                          key={level}
+                          colorPalette={levelColor.colorPalette}
+                          variant="solid"
+                          size={isCompact ? 'sm' : 'md'}
+                          fontSize="xs"
+                          fontWeight="bold"
+                          px={isCompact ? 2 : 2.5}
+                          py={0.5}
+                          borderRadius="full"
+                          borderWidth="1px"
+                          borderColor={levelColor.borderColor}
                         >
-                          /slot
-                        </Text>
-                      )}
-                      {!isCompact && (
-                        <FeeDetailPopover feeConfig={session.feeConfig} />
-                      )}
-                    </Flex>
-                  </Flex>
+                          {getLevelShortLabel(level)}
+                        </Badge>
+                      );
+                    })
+                ) : (
+                  <Badge
+                    colorPalette="gray"
+                    variant="subtle"
+                    size={isCompact ? 'sm' : 'md'}
+                    fontSize="xs"
+                    fontWeight="bold"
+                    px={isCompact ? 2 : 2.5}
+                    py={0.5}
+                    borderRadius="full"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                  >
+                    {t('allLevels')}
+                  </Badge>
                 )}
-              </Box>
-
-              {/* Top Action Buttons (e.g. Call, Share, Download) - hidden in compact mode */}
-              {!isCompact && (topActionsRendered || oldTopActions) && (
-                <Box flex="1" textAlign="right">
-                  <Flex justify="flex-end" gap={2}>
-                    {topActionsRendered || oldTopActions || actionButtons}
-                  </Flex>
-                </Box>
-              )}
+              </Wrap>
             </Flex>
 
-            {/* Row 2: Bottom Action Buttons */}
-            {(actions ? renderBottomActions() : bottomActionButtons) && (
-              <>
-                {actions ? (
-                  renderBottomActions()
-                ) : (
-                  <Flex justify="flex-end" gap={2}>
-                    {bottomActionButtons}
-                  </Flex>
-                )}
-              </>
+            {/* Description/Notes - hidden in compact mode */}
+            {!isCompact && session.description && (
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                overflow="hidden"
+                display="-webkit-box"
+                style={{
+                  WebkitLineClamp: '2',
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                {session.description}
+              </Text>
             )}
-          </Stack>
-        </Stack>
-      </Box>
 
-      {/* Loading Overlay */}
-      {isLoading && (
-        <Flex
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="whiteAlpha.700"
-          _dark={{ bg: 'blackAlpha.700' }}
-          align="center"
-          justify="center"
-          zIndex={10}
-        >
-          <Spinner size="xl" color="green.500" />
-        </Flex>
-      )}
-    </Box>
+            {/* Footer: Price + Actions */}
+            <Stack
+              gap={isCompact ? 2 : 3}
+              pt={isCompact ? 2 : 3}
+              mt="auto"
+              borderTopWidth="1px"
+              borderTopColor="gray.200"
+              _dark={{ borderTopColor: 'gray.700' }}
+            >
+              {/* Row 1: Price and Top Actions */}
+              <Flex align="flex-start" justify="space-between" gap={3}>
+                {/* Price Section */}
+                <Box flexShrink={0} pt={0.5}>
+                  {session.feeConfig && (
+                    <Flex align="center" gap={1.5}>
+                      <Icon
+                        as={Banknote}
+                        boxSize={isCompact ? 4 : 5}
+                        color="red.600"
+                      />
+                      <Flex align="center" gap={1.5}>
+                        <Text
+                          fontSize={isCompact ? 'md' : 'lg'}
+                          fontWeight="bold"
+                          color="red.600"
+                          whiteSpace="nowrap"
+                        >
+                          {FeeService.getFeeDisplayText(session.feeConfig)}
+                        </Text>
+                        {session.feeConfig.feeType === FeeType.FIXED && (
+                          <Text
+                            fontSize="sm"
+                            color="gray.500"
+                            fontWeight="normal"
+                            whiteSpace="nowrap"
+                          >
+                            /slot
+                          </Text>
+                        )}
+                        {!isCompact && (
+                          <FeeDetailPopover feeConfig={session.feeConfig} />
+                        )}
+                      </Flex>
+                    </Flex>
+                  )}
+                </Box>
+
+                {/* Top Action Buttons (e.g. Call, Share, Download) - hidden in compact mode */}
+                {!isCompact && (topActionsRendered || oldTopActions) && (
+                  <Box flex="1" textAlign="right">
+                    <Flex justify="flex-end" gap={2}>
+                      {topActionsRendered || oldTopActions || actionButtons}
+                    </Flex>
+                  </Box>
+                )}
+              </Flex>
+
+              {/* Row 2: Bottom Action Buttons */}
+              {(actions ? renderBottomActions() : bottomActionButtons) && (
+                <>
+                  {actions ? (
+                    renderBottomActions()
+                  ) : (
+                    <Flex justify="flex-end" gap={2}>
+                      {bottomActionButtons}
+                    </Flex>
+                  )}
+                </>
+              )}
+            </Stack>
+          </Stack>
+        </Box>
+
+        {/* Loading Overlay */}
+        {isLoading && (
+          <Flex
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="whiteAlpha.700"
+            _dark={{ bg: 'blackAlpha.700' }}
+            align="center"
+            justify="center"
+            zIndex={10}
+          >
+            <Spinner size="xl" color="green.500" />
+          </Flex>
+        )}
+      </Box>
+    </motion.div>
   );
 
   return (

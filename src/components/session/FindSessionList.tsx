@@ -12,6 +12,7 @@ import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { VenueService } from '@/lib/api/venue.service';
+import { formatVenueName } from '@/utils';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -40,7 +41,13 @@ import {
 } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
 
@@ -180,6 +187,7 @@ export default function FindSessionList({
   const router = useRouter();
 
   const t = useTranslations('session');
+  const tVenue = useTranslations('venue');
   const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
 
@@ -499,12 +507,16 @@ export default function FindSessionList({
     [user, router]
   );
 
+  const [isPendingCreate, startCreateTransition] = useTransition();
+
   const handleCreateSessionClick = useCallback(() => {
     if (!user) {
       setIsLoginPromptOpen(true);
       return;
     }
-    router.push(ROUTES.SESSIONS.NEW);
+    startCreateTransition(() => {
+      router.push(ROUTES.SESSIONS.NEW);
+    });
   }, [user, router]);
 
   const handleHostClick = useCallback((session: ISession) => {
@@ -560,6 +572,7 @@ export default function FindSessionList({
         onToggleFilters={toggleFilters}
         activeFilterCount={activeFilterCount}
         onCreateClick={handleCreateSessionClick}
+        isLoadingCreate={isPendingCreate}
       />
 
       {/* Filter Drawer */}
@@ -605,7 +618,12 @@ export default function FindSessionList({
                   {t('filters.atVenue')}:
                 </Text>
                 <Text fontSize="xs" fontWeight="semibold" maxW="160px" truncate>
-                  {selectedVenueName || '...'}
+                  {selectedVenueName
+                    ? formatVenueName(
+                        selectedVenueName,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
+                    : '...'}
                 </Text>
                 <Icon
                   as={X}
@@ -988,7 +1006,9 @@ export default function FindSessionList({
           session={selectedSession}
           onSuccess={() => {
             fetchSessions();
-            router.push(ROUTES.SESSIONS.DETAIL(selectedSession.id));
+            router.push(
+              ROUTES.SESSIONS.DETAIL(selectedSession.id, selectedSession.slug)
+            );
           }}
         />
       )}
@@ -1019,6 +1039,7 @@ export default function FindSessionList({
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}
             hideHeader={true}
+            onClose={() => setIsDetailModalOpen(false)}
           />
         )}
       </VModal>

@@ -6,5 +6,6 @@ export interface SessionSearchBarProps {
   onToggleFilters: () => void;
   activeFilterCount: number;
   onCreateClick?: () => void;
+  isLoadingCreate?: boolean;
   topAddon?: React.ReactNode;
 }

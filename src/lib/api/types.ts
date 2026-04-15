@@ -281,6 +281,7 @@ export interface SearchVenueResponse {
 // Session types
 export interface ISession {
   id: string;
+  slug?: string;
   name: string;
   hostId: string;
   host: {
@@ -301,6 +302,8 @@ export interface ISession {
   courtColor?: string;
   coverPhoto?: string;
   coverPhotoPublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   shuttlecock?: string;
   status: SessionStatus;
   startTime?: Date;
@@ -496,6 +499,8 @@ export interface CreateSessionRequest {
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration
   coverPhoto?: string;
   coverPhotoPublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
 }
 
 // Bulk session creation types
@@ -1002,4 +1007,40 @@ export interface IBulkScheduleItem {
   courtId?: string | null;
   startTime?: string | null;
   endTime?: string | null;
+}
+
+// Image category enum
+export enum EImageCategory {
+  SESSION_COVER = 'SESSION_COVER',
+  AVATAR = 'AVATAR',
+  CLUB = 'CLUB',
+  QR_CODE = 'QR_CODE',
+  PAYMENT_PROOF = 'PAYMENT_PROOF',
+  OTHER = 'OTHER',
+}
+
+// User image types
+export interface IUserImage {
+  id: string;
+  userId: string;
+  url: string;
+  publicId: string;
+  originalName?: string;
+  format?: string;
+  width?: number;
+  height?: number;
+  bytes?: number;
+  category: EImageCategory;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IUserImageListResponse {
+  data: IUserImage[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

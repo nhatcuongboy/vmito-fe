@@ -547,7 +547,9 @@ export default function SuggestionsList({
           session={selectedSession}
           onSuccess={() => {
             fetchSuggestions();
-            router.push(ROUTES.SESSIONS.DETAIL(selectedSession.id));
+            router.push(
+              ROUTES.SESSIONS.DETAIL(selectedSession.id, selectedSession.slug)
+            );
           }}
         />
       )}
@@ -578,6 +580,7 @@ export default function SuggestionsList({
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}
             hideHeader={true}
+            onClose={onCloseDetailModal}
           />
         )}
       </VModal>
