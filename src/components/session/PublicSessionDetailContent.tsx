@@ -260,8 +260,8 @@ export const PublicSessionDetailContent = ({
     showManageButton: canManage,
     manageButtonHref:
       user?.role === UserRole.PLAYER
-        ? `/player/sessions/${session.id}`
-        : `/host/sessions/${session.id}`,
+        ? `/player/sessions/${session.slug || session.id}`
+        : `/host/sessions/${session.slug || session.id}`,
     showViewRegistrationButton:
       !isOwner &&
       !!userRegistrationStatus &&
@@ -403,7 +403,7 @@ export const PublicSessionDetailContent = ({
         <LoginPromptModal
           isOpen={isLoginModalOpen}
           onClose={onCloseLoginModal}
-          returnUrl={`/sessions/${session.id}?register=true`}
+          returnUrl={`/sessions/${session.slug || session.id}?register=true`}
         />
 
         <JoinSessionModal

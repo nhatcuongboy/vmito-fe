@@ -995,7 +995,9 @@ export default function FindSessionList({
           session={selectedSession}
           onSuccess={() => {
             fetchSessions();
-            router.push(ROUTES.SESSIONS.DETAIL(selectedSession.id));
+            router.push(
+              ROUTES.SESSIONS.DETAIL(selectedSession.id, selectedSession.slug)
+            );
           }}
         />
       )}

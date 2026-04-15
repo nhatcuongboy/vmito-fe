@@ -547,7 +547,9 @@ export default function SuggestionsList({
           session={selectedSession}
           onSuccess={() => {
             fetchSuggestions();
-            router.push(ROUTES.SESSIONS.DETAIL(selectedSession.id));
+            router.push(
+              ROUTES.SESSIONS.DETAIL(selectedSession.id, selectedSession.slug)
+            );
           }}
         />
       )}

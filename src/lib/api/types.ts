@@ -281,6 +281,7 @@ export interface SearchVenueResponse {
 // Session types
 export interface ISession {
   id: string;
+  slug?: string;
   name: string;
   hostId: string;
   host: {

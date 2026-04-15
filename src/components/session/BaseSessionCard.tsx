@@ -441,7 +441,8 @@ const BaseSessionCard = ({
     // Right side: View Session button (for approved players)
     if (actions.showViewSessionButton) {
       const viewSessionHref =
-        actions.viewSessionHref || `/player/sessions/${session.id}`;
+        actions.viewSessionHref ||
+        `/player/sessions/${session.slug || session.id}`;
       rightButtons.push(
         <NextLinkButton
           key="view-session"
@@ -462,8 +463,8 @@ const BaseSessionCard = ({
       const manageHref =
         actions.manageButtonHref ||
         (user?.role === UserRole.PLAYER
-          ? `/player/sessions/${session.id}`
-          : `/host/sessions/${session.id}`);
+          ? `/player/sessions/${session.slug || session.id}`
+          : `/host/sessions/${session.slug || session.id}`);
       rightButtons.push(
         <NextLinkButton
           key="manage"
@@ -633,7 +634,7 @@ const BaseSessionCard = ({
 
   const levelSegments = getLevelSegments();
 
-  const cardHref = `/sessions/${session.id}`;
+  const cardHref = `/sessions/${session.slug || session.id}`;
 
   const handleCardClick = () => {
     if (!disableCardLink) {

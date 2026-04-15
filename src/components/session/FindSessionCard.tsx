@@ -253,9 +253,9 @@ const FindSessionCard = ({
     showManageButton: canManage,
     // manageButtonHref:
     //   user?.role === UserRole.PLAYER
-    //     ? `/player/sessions/${session.id}`
-    //     : `/host/sessions/${session.id}`,
-    manageButtonHref: `/host/sessions/${session.id}`,
+    //     ? `/player/sessions/${session.slug || session.id}`
+    //     : `/host/sessions/${session.slug || session.id}`,
+    manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
     // For players with registration: show view registration modal
     showViewRegistrationButton:
@@ -290,7 +290,7 @@ const FindSessionCard = ({
       <LoginPromptModal
         isOpen={isLoginModalOpen}
         onClose={onCloseLoginModal}
-        returnUrl={`/sessions/${session.id}?register=true`}
+        returnUrl={`/sessions/${session.slug || session.id}?register=true`}
       />
 
       <MyRegistrationModal

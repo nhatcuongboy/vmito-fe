@@ -273,14 +273,14 @@ const SessionCard = ({
     showManageButton: canManage,
     // manageButtonHref:
     //   user?.role === UserRole.PLAYER
-    //     ? `/player/sessions/${session.id}`
-    //     : `/host/sessions/${session.id}`,
-    manageButtonHref: `/host/sessions/${session.id}`,
+    //     ? `/player/sessions/${session.slug || session.id}`
+    //     : `/host/sessions/${session.slug || session.id}`,
+    manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
     // View session button (for approved players, NOT for owners)
     showViewSessionButton:
       session.players?.[0]?.registrationStatus === 'APPROVED' && !isOwner,
-    viewSessionHref: `/player/sessions/${session.id}`,
+    viewSessionHref: `/player/sessions/${session.slug || session.id}`,
   };
 
   // Delete modal

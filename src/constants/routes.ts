@@ -19,7 +19,7 @@ export const ROUTES = {
   // Sessions - Generic/Shared
   SESSIONS: {
     NEW: '/sessions/new',
-    DETAIL: (id: string) => `/sessions/${id}`,
+    DETAIL: (id: string, slug?: string) => `/sessions/${slug || id}`,
   },
 
   // Host Routes
@@ -27,7 +27,7 @@ export const ROUTES = {
     SESSIONS: {
       LIST: '/host/sessions',
       ENDED: '/host/sessions/ended',
-      DETAIL: (id: string) => `/host/sessions/${id}`,
+      DETAIL: (id: string, slug?: string) => `/host/sessions/${slug || id}`,
     },
     TRANSACTIONS: '/host/transactions',
     PAYMENT_SETTINGS: '/host/payment-settings',
@@ -60,7 +60,7 @@ export const ROUTES = {
     SESSIONS: {
       LIST: '/host/sessions/joined',
       ENDED: '/host/sessions/joined/ended',
-      DETAIL: (id: string) => `/player/sessions/${id}`,
+      DETAIL: (id: string, slug?: string) => `/player/sessions/${slug || id}`,
       JOIN_CONFIRM: '/player/sessions/join/confirm',
     },
     TRANSACTIONS: '/player/transactions',
@@ -73,7 +73,7 @@ export const ROUTES = {
       LIST: '/browse/venues',
     },
     SESSIONS: {
-      DETAIL: (id: string) => `/browse/sessions/${id}`,
+      DETAIL: (id: string, slug?: string) => `/browse/sessions/${slug || id}`,
       JOIN: (id: string) => `/browse/sessions/${id}/join`,
     },
     TOURNAMENTS: {

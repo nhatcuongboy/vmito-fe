@@ -76,7 +76,7 @@ export default function PublicHostedSessionCard({
       bg="white"
       p={3}
       cursor="pointer"
-      onClick={() => router.push(`/sessions/${session.id}`)}
+      onClick={() => router.push(`/sessions/${session.slug || session.id}`)}
       _hover={{ borderColor: 'green.300', shadow: 'sm' }}
       transition="all 0.2s"
     >
