@@ -259,7 +259,7 @@ export default function PublicUserProfileContent({
 
   return (
     <>
-      <PageLayout title={t('title')} showBackButton={true} bg="gray.50">
+      <PageLayout title={t('title')} bg="gray.50">
         <VStack gap={6} align="stretch" pb={6}>
           <Box
             borderWidth="1px"

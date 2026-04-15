@@ -477,6 +477,7 @@ export default function SessionsList({
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}
             hideHeader={true}
+            onClose={() => setIsDetailModalOpen(false)}
           />
         )}
       </VModal>

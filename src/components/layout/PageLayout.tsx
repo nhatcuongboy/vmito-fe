@@ -114,7 +114,7 @@ export default function PageLayout({
         title={title}
         icon={icon}
         rightContent={rightContent}
-        showBackButton={showBackButton}
+        showBackButton={false}
         backHref={backHref}
       />
       <Container

@@ -439,20 +439,8 @@ export const PublicSessionDetailContent = ({
               phone={session.hostPhone}
               email={session.host?.email}
               hideHeader={true}
+              onClose={onCloseHostDetailModal}
             />
-
-            <Button
-              mt={4}
-              width="full"
-              variant="outline"
-              colorPalette="green"
-              onClick={() => {
-                onCloseHostDetailModal();
-                router.push(`/user/${session.hostId}`);
-              }}
-            >
-              {t('viewDetails') || 'Xem chi tiết'}
-            </Button>
           </Box>
         </VModal>
 
