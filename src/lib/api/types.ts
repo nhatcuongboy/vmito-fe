@@ -252,6 +252,7 @@ export interface Venue {
   id: string;
   placeId: string;
   name: string;
+  description?: string;
   address: string;
   lat?: number;
   lng?: number;
@@ -277,6 +278,8 @@ export interface Venue {
   distance?: number;
   coverPhoto?: string;
   coverPhotoPublicId?: string;
+  courtLayoutImage?: string;
+  courtLayoutImagePublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
 }
