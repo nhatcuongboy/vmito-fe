@@ -181,6 +181,7 @@ export default function VenueSearchList() {
               : undefined,
           district:
             filters.district.length === 1 ? filters.district[0] : undefined,
+          closureStatus: 'OPERATING',
           page: currentPage,
           limit: PAGE_SIZE,
         };

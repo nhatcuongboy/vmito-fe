@@ -17,14 +17,20 @@ import {
 import {
   BadgeCheck,
   Banknote,
+  Car,
   Clock,
   Globe,
+  Info,
   LayoutGrid,
   MapPin,
   Navigation,
   Phone,
   Search,
+  UtensilsCrossed,
+  Wifi,
+  XCircle,
 } from 'lucide-react';
+import { ClosureStatus } from '@/lib/api/types';
 import { VenueService } from '@/lib/api/venue.service';
 import { Venue } from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
@@ -210,6 +216,35 @@ export default function VenueDetailPage() {
                 <Text>Verified</Text>
               </Badge>
             )}
+
+            {/* Closure Status Badge */}
+            {venue.closureStatus &&
+              venue.closureStatus !== ClosureStatus.OPERATING && (
+                <Badge
+                  colorPalette={
+                    venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
+                      ? 'red'
+                      : 'orange'
+                  }
+                  variant="solid"
+                  size="lg"
+                  borderRadius="full"
+                  px={4}
+                  py={2}
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  shadow="lg"
+                  fontSize="md"
+                >
+                  <XCircle size={20} />
+                  <Text>
+                    {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
+                      ? 'Đóng cửa vĩnh viễn'
+                      : 'Tạm đóng cửa'}
+                  </Text>
+                </Badge>
+              )}
 
             {/* Edit Button inside Banner */}
             {isAdmin && (
@@ -443,6 +478,131 @@ export default function VenueDetailPage() {
                           </Flex>
                         )}
                       </Stack>
+                    </Box>
+                  </Flex>
+                )}
+
+                {/* Located Within */}
+                {venue.locatedWithin && (
+                  <Flex align="center" gap={4}>
+                    <Box
+                      p={3}
+                      borderRadius="xl"
+                      bg="teal.50"
+                      _dark={{ bg: 'teal.900/20' }}
+                    >
+                      <Info size={24} color="#319795" />
+                    </Box>
+                    <Box flex="1">
+                      <Text fontSize="sm" color="gray.500" mb={1}>
+                        Nằm trong
+                      </Text>
+                      <Text fontSize="lg" fontWeight="semibold">
+                        {venue.locatedWithin}
+                      </Text>
+                    </Box>
+                  </Flex>
+                )}
+
+                {/* Amenities */}
+                {(venue.hasCarParking !== undefined ||
+                  venue.hasCanteen !== undefined) && (
+                  <Flex align="flex-start" gap={4}>
+                    <Box
+                      p={3}
+                      borderRadius="xl"
+                      bg="purple.50"
+                      _dark={{ bg: 'purple.900/20' }}
+                    >
+                      <Car size={24} color="#805AD5" />
+                    </Box>
+                    <Box flex="1">
+                      <Text fontSize="sm" color="gray.500" mb={2}>
+                        Tiện ích
+                      </Text>
+                      <Flex gap={2} flexWrap="wrap">
+                        {venue.hasCarParking !== undefined && (
+                          <Badge
+                            colorPalette={venue.hasCarParking ? 'green' : 'red'}
+                            variant="subtle"
+                            size="lg"
+                            borderRadius="lg"
+                            px={3}
+                            py={1.5}
+                            display="flex"
+                            alignItems="center"
+                            gap={1.5}
+                          >
+                            <Car size={14} />
+                            <Text>Bãi đậu xe</Text>
+                          </Badge>
+                        )}
+                        {venue.hasCanteen !== undefined && (
+                          <Badge
+                            colorPalette={venue.hasCanteen ? 'green' : 'red'}
+                            variant="subtle"
+                            size="lg"
+                            borderRadius="lg"
+                            px={3}
+                            py={1.5}
+                            display="flex"
+                            alignItems="center"
+                            gap={1.5}
+                          >
+                            <UtensilsCrossed size={14} />
+                            <Text>Căn tin</Text>
+                          </Badge>
+                        )}
+                      </Flex>
+                    </Box>
+                  </Flex>
+                )}
+
+                {/* WiFi */}
+                {venue.wifiName && (
+                  <Flex align="center" gap={4}>
+                    <Box
+                      p={3}
+                      borderRadius="xl"
+                      bg="cyan.50"
+                      _dark={{ bg: 'cyan.900/20' }}
+                    >
+                      <Wifi size={24} color="#0987A0" />
+                    </Box>
+                    <Box flex="1">
+                      <Text fontSize="sm" color="gray.500" mb={1}>
+                        WiFi
+                      </Text>
+                      <Text fontSize="md" fontWeight="semibold">
+                        {venue.wifiName}
+                      </Text>
+                      {venue.wifiPassword && (
+                        <Text fontSize="sm" color="gray.500">
+                          Mật khẩu: {venue.wifiPassword}
+                        </Text>
+                      )}
+                    </Box>
+                  </Flex>
+                )}
+
+                {/* Booking Policy */}
+                {venue.bookingPolicy && (
+                  <Flex align="flex-start" gap={4}>
+                    <Box
+                      p={3}
+                      borderRadius="xl"
+                      bg="yellow.50"
+                      _dark={{ bg: 'yellow.900/20' }}
+                    >
+                      <Info size={24} color="#D69E2E" />
+                    </Box>
+                    <Box flex="1">
+                      <Text fontSize="sm" color="gray.500" mb={1}>
+                        Chính sách đặt sân
+                      </Text>
+                      <Text fontSize="md" whiteSpace="pre-wrap">
+                        {venue.bookingPolicy}
+                      </Text>
                     </Box>
                   </Flex>
                 )}
