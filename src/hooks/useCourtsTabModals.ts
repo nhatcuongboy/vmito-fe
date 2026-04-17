@@ -2,18 +2,13 @@ import { useState } from 'react';
 import { Court, Match } from '@/types/session';
 
 export const useCourtsTabModals = () => {
-  // Auto-assign modal state
-  const [autoAssignModalOpen, setAutoAssignModalOpen] = useState(false);
-  const [selectedAutoAssignCourt, setSelectedAutoAssignCourt] =
+  // Unified player selection modal state (replaces separate auto-assign + manual selection)
+  const [playerSelectionModalOpen, setPlayerSelectionModalOpen] =
+    useState(false);
+  const [selectedPlayerSelectionCourt, setSelectedPlayerSelectionCourt] =
     useState<Court | null>(null);
   const [loadingConfirmAutoAssign, setLoadingConfirmAutoAssign] =
     useState(false);
-
-  // Manual selection modal state
-  const [manualSelectModalOpen, setManualSelectModalOpen] = useState(false);
-  const [selectedManualCourt, setSelectedManualCourt] = useState<Court | null>(
-    null
-  );
   const [manualSelectedPlayers, setManualSelectedPlayers] = useState<
     (string | null)[]
   >([null, null, null, null]);
@@ -51,28 +46,17 @@ export const useCourtsTabModals = () => {
     string | null
   >(null);
 
-  // Auto-assign modal handlers
-  const openAutoAssignModal = (court: Court) => {
-    setSelectedAutoAssignCourt(court);
-    setAutoAssignModalOpen(true);
-  };
-
-  const closeAutoAssignModal = () => {
-    setAutoAssignModalOpen(false);
-    setSelectedAutoAssignCourt(null);
-  };
-
-  // Manual selection modal handlers
-  const openManualSelectionModal = (court: Court) => {
-    setSelectedManualCourt(court);
+  // Unified player selection modal handlers
+  const openPlayerSelectionModal = (court: Court) => {
+    setSelectedPlayerSelectionCourt(court);
     setManualSelectedPlayers([null, null, null, null]);
     setManualCurrentPosition(0);
-    setManualSelectModalOpen(true);
+    setPlayerSelectionModalOpen(true);
   };
 
-  const closeManualSelectionModal = () => {
-    setManualSelectModalOpen(false);
-    setSelectedManualCourt(null);
+  const closePlayerSelectionModal = () => {
+    setPlayerSelectionModalOpen(false);
+    setSelectedPlayerSelectionCourt(null);
     setManualSelectedPlayers([null, null, null, null]);
     setManualCurrentPosition(0);
   };
@@ -228,14 +212,12 @@ export const useCourtsTabModals = () => {
   };
 
   return {
-    // States
-    autoAssignModalOpen,
-    selectedAutoAssignCourt,
+    // Unified player selection modal states
+    playerSelectionModalOpen,
+    selectedPlayerSelectionCourt,
     loadingConfirmAutoAssign,
     setLoadingConfirmAutoAssign,
 
-    manualSelectModalOpen,
-    selectedManualCourt,
     manualSelectedPlayers,
     manualCurrentPosition,
     setManualCurrentPosition,
@@ -263,10 +245,8 @@ export const useCourtsTabModals = () => {
     setLoadingCancelPreSelect,
 
     // Handlers
-    openAutoAssignModal,
-    closeAutoAssignModal,
-    openManualSelectionModal,
-    closeManualSelectionModal,
+    openPlayerSelectionModal,
+    closePlayerSelectionModal,
     openPreSelectModal,
     closePreSelectModal,
     openMatchResultModal,

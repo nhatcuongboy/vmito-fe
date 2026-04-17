@@ -29,8 +29,7 @@ interface CourtCardProps {
   waitingPlayers: Player[];
 
   // Handlers
-  onAutoAssignClick: (court: Court) => void;
-  onManualSelectionClick: (court: Court) => void;
+  onAssignPlayersClick: (court: Court) => void;
   onPreSelectClick: (court: Court) => void;
   onStartMatch: (courtId: string) => Promise<void>;
   onDeselectPlayers: (courtId: string) => Promise<void>;
@@ -50,9 +49,6 @@ interface CourtCardProps {
   loadingCancelCourtId: string | null;
   loadingCancelPreSelect: string | null;
   loadingEndMatchId: string | null;
-
-  // Optional props
-  startManualMatchCreation?: (courtId: string) => void;
 }
 
 const CourtCard: React.FC<CourtCardProps> = ({
@@ -62,8 +58,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
   mode,
   isRefreshing,
   waitingPlayers,
-  onAutoAssignClick,
-  onManualSelectionClick,
+  onAssignPlayersClick,
   onPreSelectClick,
   onStartMatch,
   onDeselectPlayers,
@@ -76,7 +71,6 @@ const CourtCard: React.FC<CourtCardProps> = ({
   loadingCancelCourtId,
   loadingCancelPreSelect,
   loadingEndMatchId,
-  startManualMatchCreation,
 }) => {
   const t = useTranslations('SessionDetail');
 
@@ -376,27 +370,14 @@ const CourtCard: React.FC<CourtCardProps> = ({
               <VStack gap={2}>
                 <CompatButton
                   colorPalette="green"
-                  onClick={() => onAutoAssignClick(court)}
+                  onClick={() => onAssignPlayersClick(court)}
                   size="sm"
                   width="full"
                   disabled={waitingPlayers.length < 4 || isRefreshing}
                 >
                   <Box as={Shuffle} boxSize={4} mr={1} />
-                  {t('courtsTab.autoAssignMatch')}
+                  {t('courtsTab.assignPlayers')}
                 </CompatButton>
-                {startManualMatchCreation && (
-                  <CompatButton
-                    colorPalette="green"
-                    onClick={() => onManualSelectionClick(court)}
-                    size="sm"
-                    width="full"
-                    variant="outline"
-                    disabled={waitingPlayers.length < 4 || isRefreshing}
-                  >
-                    <Box as={Plus} boxSize={4} mr={1} />
-                    {t('courtsTab.manualSelection')}
-                  </CompatButton>
-                )}
               </VStack>
             ) : session.status === 'IN_PROGRESS' ? (
               <Text fontSize="sm" color="fg.muted" textAlign="center" mt={2}>
