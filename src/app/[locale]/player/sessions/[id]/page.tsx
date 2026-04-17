@@ -255,7 +255,6 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
               waitingPlayers={waitingPlayers}
               getCurrentMatch={getCurrentMatch}
               getCourtDisplayName={getCourtDisplayName}
-              startManualMatchCreation={startManualMatchCreation}
               onDataRefresh={refreshSessionData}
               isRefreshing={isRefreshing}
               formatWaitTime={formatWaitTime}

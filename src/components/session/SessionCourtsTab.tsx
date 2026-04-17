@@ -1,12 +1,15 @@
 import { SimpleGrid } from '@/components/ui/chakra-compat';
-import { CourtDirection, SessionStatus } from '@/lib/api/types';
+import {
+  CourtDirection,
+  SessionStatus,
+  SuggestedPlayersResponse,
+} from '@/lib/api/types';
 import { Court, Match, Player } from '@/types/session';
-import { Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
-import ManualSelectPlayersModal from './ManualSelectPlayersModal';
-import MatchPreviewModal from './MatchPreviewModal';
+import CourtPlayerSelectionModal from './CourtPlayerSelectionModal';
 import MatchResultModal from './MatchResultModal';
 import CourtCard from './CourtCard';
 import WaitingPlayers from './WaitingPlayers';
@@ -21,12 +24,11 @@ interface SessionCourtsTabProps {
     courtName: string | undefined,
     courtNumber: number
   ) => string;
-  mode?: 'manage' | 'view'; // New prop: "manage" (default) allows actions, "view" is read-only
-  startManualMatchCreation?: (courtId: string) => void;
+  mode?: 'manage' | 'view';
   onDataRefresh?: () => void;
   isRefreshing?: boolean;
   formatWaitTime: (waitTimeInMinutes: number) => string;
-  selectedPlayers: string[]; // Only needed for WaitingPlayers component
+  selectedPlayers: string[];
 }
 
 const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
@@ -36,21 +38,17 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
   getCurrentMatch,
   getCourtDisplayName,
   mode = 'manage',
-  startManualMatchCreation,
   onDataRefresh,
   isRefreshing = false,
   formatWaitTime,
 }) => {
   const t = useTranslations('SessionDetail');
 
-  // Create formatter function if not provided via props
   const elapsedTimeFormatter = createCourtElapsedTimeFormatter(t);
 
-  // Custom hooks for modals and actions
   const modals = useCourtsTabModals();
   const actions = useCourtsTabActions({ onDataRefresh });
 
-  // Helper function to check if court has valid pre-selected players
   const hasPreSelectedPlayers = (court: Court): boolean => {
     return !!(
       court.preSelectedPlayers &&
@@ -59,35 +57,31 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     );
   };
 
-  // Wrapper functions that connect hooks with actions
+  // Unified modal: auto-assign confirm handler
   const handleConfirmAutoAssign = (
     suggestedPlayers: any,
     direction: CourtDirection = CourtDirection.HORIZONTAL
   ) => {
     actions.handleConfirmAutoAssign(
       suggestedPlayers,
-      modals.selectedAutoAssignCourt,
+      modals.selectedPlayerSelectionCourt,
       direction,
       modals.setLoadingConfirmAutoAssign,
-      modals.closeAutoAssignModal
+      modals.closePlayerSelectionModal
     );
   };
 
-  const handleChoosePlayersForCourt = (
-    playersData: string[] | Array<{ playerId: string; position: number }>,
-    courtId: string
+  // Unified modal: manual confirm handler
+  const handleConfirmManual = (
+    playersWithPosition: Array<{ playerId: string; position: number }>
   ) => {
-    const closeModals = () => {
-      modals.closeAutoAssignModal();
-      modals.closeManualSelectionModal();
-    };
-
+    if (!modals.selectedPlayerSelectionCourt) return;
     actions.handleChoosePlayersForCourt(
-      playersData,
-      courtId,
+      playersWithPosition,
+      modals.selectedPlayerSelectionCourt.id,
       modals.setLoadingConfirmAutoAssign,
       modals.setConfirmingManualMatch,
-      closeModals
+      modals.closePlayerSelectionModal
     );
   };
 
@@ -100,6 +94,30 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
       modals.setConfirmingPreSelect,
       modals.closePreSelectModal
     );
+  };
+
+  // Auto-assign confirm for pre-select flow
+  const handlePreSelectAutoConfirm = (
+    suggestedPlayers: SuggestedPlayersResponse,
+    direction: CourtDirection = CourtDirection.HORIZONTAL
+  ) => {
+    const playersWithPosition: Array<{ playerId: string; position: number }> = [
+      ...suggestedPlayers.pair1.players.map((p, index) => ({
+        playerId: p.id,
+        position:
+          direction === CourtDirection.HORIZONTAL ? index : index === 0 ? 0 : 2,
+      })),
+      ...suggestedPlayers.pair2.players.map((p, index) => ({
+        playerId: p.id,
+        position:
+          direction === CourtDirection.HORIZONTAL
+            ? index + 2
+            : index === 0
+              ? 1
+              : 3,
+      })),
+    ];
+    handleConfirmPreSelect(playersWithPosition);
   };
 
   const handleCancelCourtPreSelect = async (courtId: string) => {
@@ -137,20 +155,19 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     );
   };
 
+  const waitTimeFormatter = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
   return (
     <>
       {/* Courts Section */}
       <Box>
-        {/* <Box paddingY="3" width="100%">
-          <Flex justifyContent="space-between" alignItems="center">
-            <HStack gap={2} alignItems="center">
-              <Heading size="md">{t('courtsTab.activeCourts')}</Heading>
-            </HStack>
-            <HStack gap={2}>
-              {session.status === 'IN_PROGRESS' && <HStack gap={2}></HStack>}
-            </HStack>
-          </Flex>
-        </Box> */}
         {session.status !== SessionStatus.IN_PROGRESS && (
           <Text fontSize="lg" color="fg.muted" textAlign="center" mt={4}>
             {session.status === SessionStatus.PREPARING
@@ -171,8 +188,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
                   mode={mode}
                   isRefreshing={isRefreshing}
                   waitingPlayers={waitingPlayers}
-                  onAutoAssignClick={modals.openAutoAssignModal}
-                  onManualSelectionClick={modals.openManualSelectionModal}
+                  onAssignPlayersClick={modals.openPlayerSelectionModal}
                   onPreSelectClick={modals.openPreSelectModal}
                   onStartMatch={handleStartMatch}
                   onDeselectPlayers={handleDeselectPlayers}
@@ -185,7 +201,6 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
                   loadingCancelCourtId={modals.loadingCancelCourtId}
                   loadingCancelPreSelect={modals.loadingCancelPreSelect}
                   loadingEndMatchId={modals.loadingEndMatchId}
-                  startManualMatchCreation={startManualMatchCreation}
                 />
               );
             })}
@@ -193,70 +208,48 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         </Box>
       </Box>
 
-      {/* Auto Assign Match Modal */}
-      <MatchPreviewModal
-        isOpen={modals.autoAssignModalOpen}
-        court={modals.selectedAutoAssignCourt}
+      {/* Unified Player Selection Modal (Auto + Manual) */}
+      <CourtPlayerSelectionModal
+        isOpen={modals.playerSelectionModalOpen}
+        court={modals.selectedPlayerSelectionCourt}
+        waitingPlayers={waitingPlayers}
         waitingPlayersCount={waitingPlayers.length}
         numberOfCourts={session.numberOfCourts}
-        onConfirm={handleConfirmAutoAssign}
-        onCancel={modals.closeAutoAssignModal}
-        getCourtDisplayName={getCourtDisplayName}
-        isLoadingConfirm={modals.loadingConfirmAutoAssign}
-        title={
-          modals.selectedAutoAssignCourt
-            ? t('courtsTab.autoAssignMatchTitle', {
-                courtNumber: modals.selectedAutoAssignCourt.courtNumber,
-              })
-            : undefined
-        }
-        description={t('courtsTab.autoAssignMatchDescription')}
-        courtColor={session.courtColor}
-      />
-
-      {/* Manual Selection Modal */}
-      <ManualSelectPlayersModal
-        isOpen={modals.manualSelectModalOpen}
-        court={modals.selectedManualCourt}
-        waitingPlayers={waitingPlayers}
         selectedPlayers={modals.manualSelectedPlayers}
         currentPosition={modals.manualCurrentPosition}
         onPlayerToggle={modals.toggleManualPlayer}
         onPositionSelect={modals.setManualCurrentPosition}
         onPlayerRemove={modals.clearManualPlayerAtPosition}
-        onConfirm={(playersWithPosition) => {
-          if (modals.selectedManualCourt) {
-            handleChoosePlayersForCourt(
-              playersWithPosition,
-              modals.selectedManualCourt.id
-            );
-          }
-        }}
-        onCancel={modals.closeManualSelectionModal}
-        isLoading={modals.confirmingManualMatch}
-        formatWaitTime={(minutes) => {
-          const hours = Math.floor(minutes / 60);
-          const mins = minutes % 60;
-          if (hours > 0) {
-            return `${hours}h${mins}m`;
-          }
-          return `${mins}m`;
-        }}
+        onConfirmAuto={handleConfirmAutoAssign}
+        onConfirmManual={handleConfirmManual}
+        onCancel={modals.closePlayerSelectionModal}
+        getCourtDisplayName={getCourtDisplayName}
+        formatWaitTime={waitTimeFormatter}
+        isLoadingAutoConfirm={modals.loadingConfirmAutoAssign}
+        isLoadingManualConfirm={modals.confirmingManualMatch}
+        courtColor={session.courtColor}
       />
 
-      {/* Pre-select Players Modal */}
-      <ManualSelectPlayersModal
+      {/* Pre-select Players Modal (unified auto + manual) */}
+      <CourtPlayerSelectionModal
         isOpen={modals.preSelectModalOpen}
         court={modals.selectedPreSelectCourt}
         waitingPlayers={waitingPlayers}
+        waitingPlayersCount={waitingPlayers.length}
+        numberOfCourts={session.numberOfCourts}
         selectedPlayers={modals.preSelectPlayers}
         currentPosition={modals.preSelectCurrentPosition}
         onPlayerToggle={modals.togglePreSelectPlayer}
         onPositionSelect={modals.setPreSelectCurrentPosition}
         onPlayerRemove={modals.clearPreSelectPlayerAtPosition}
-        onConfirm={handleConfirmPreSelect}
+        onConfirmAuto={handlePreSelectAutoConfirm}
+        onConfirmManual={handleConfirmPreSelect}
         onCancel={modals.closePreSelectModal}
-        isLoading={modals.confirmingPreSelect}
+        getCourtDisplayName={getCourtDisplayName}
+        formatWaitTime={waitTimeFormatter}
+        isLoadingAutoConfirm={modals.confirmingPreSelect}
+        isLoadingManualConfirm={modals.confirmingPreSelect}
+        courtColor={session.courtColor}
         title={
           modals.selectedPreSelectCourt
             ? t('courtsTab.preSelectTitle', {
@@ -264,14 +257,6 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
               })
             : undefined
         }
-        formatWaitTime={(minutes) => {
-          const hours = Math.floor(minutes / 60);
-          const mins = minutes % 60;
-          if (hours > 0) {
-            return `${hours}h${mins}m`;
-          }
-          return `${mins}m`;
-        }}
       />
 
       {/* Match Result Modal */}

@@ -299,6 +299,17 @@ export default function VenueDetailPage() {
                     t('nameFormat', { name: '{name}' })
                   )}
                 </Heading>
+                {venue.description && (
+                  <Text
+                    mt={2}
+                    fontSize="md"
+                    color="gray.600"
+                    _dark={{ color: 'gray.400' }}
+                    whiteSpace="pre-wrap"
+                  >
+                    {venue.description}
+                  </Text>
+                )}
               </Box>
 
               {/* Location */}
@@ -605,6 +616,34 @@ export default function VenueDetailPage() {
                       </Text>
                     </Box>
                   </Flex>
+                )}
+
+                {/* Court Layout */}
+                {venue.courtLayoutImage && (
+                  <Box>
+                    <Text fontSize="sm" color="gray.500" mb={2}>
+                      Sơ đồ sân
+                    </Text>
+                    <Box
+                      borderRadius="xl"
+                      overflow="hidden"
+                      borderWidth="1px"
+                      borderColor="gray.200"
+                      _dark={{ borderColor: 'gray.600' }}
+                      cursor="pointer"
+                      onClick={() =>
+                        window.open(venue.courtLayoutImage, '_blank')
+                      }
+                    >
+                      <Image
+                        src={venue.courtLayoutImage}
+                        alt="Sơ đồ sân"
+                        w="100%"
+                        objectFit="contain"
+                        maxH="320px"
+                      />
+                    </Box>
+                  </Box>
                 )}
               </Stack>
             </Box>
