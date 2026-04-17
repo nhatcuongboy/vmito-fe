@@ -40,10 +40,10 @@ interface SessionShareCardSocialProps {
 }
 
 const formatDate = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
-  const today = dayjs().startOf('day');
+  const date = dayjs
+    .tz(dateString)
+    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+  const today = dayjs.tz().startOf('day');
   const tomorrow = today.add(1, 'day');
   const dateToCompare = date.startOf('day');
 
@@ -62,9 +62,9 @@ const formatDate = (dateString: string | Date, locale: string): string => {
 };
 
 const formatTime = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
+  const date = dayjs
+    .tz(dateString)
+    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
   return date.format('HH:mm');
 };
 

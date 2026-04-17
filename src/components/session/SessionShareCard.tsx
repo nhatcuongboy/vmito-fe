@@ -42,9 +42,9 @@ interface SessionShareCardProps {
 }
 
 const formatDate = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
+  const date = dayjs
+    .tz(dateString)
+    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
   const formattedDate =
     locale === Locale.VI
       ? date.format('dddd, DD/MM')
@@ -53,9 +53,9 @@ const formatDate = (dateString: string | Date, locale: string): string => {
 };
 
 const formatTime = (dateString: string | Date, locale: string): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
+  const date = dayjs
+    .tz(dateString)
+    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
   return date.format('HH:mm');
 };
 
