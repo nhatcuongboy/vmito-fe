@@ -2563,7 +2563,19 @@
     "no": "Không",
     "noVenuesFound": "Không tìm thấy địa điểm nào",
     "district": "Quận/Huyện",
-    "city": "Thành phố"
+    "city": "Thành phố",
+    "hasCarParking": "Bãi đậu xe ô tô",
+    "hasCanteen": "Căn tin",
+    "wifiName": "Tên WiFi",
+    "wifiPassword": "Mật khẩu WiFi",
+    "closureStatus": "Trạng thái hoạt động",
+    "closureStatusValues": {
+      "OPERATING": "Đang hoạt động",
+      "PERMANENTLY_CLOSED": "Đóng cửa vĩnh viễn",
+      "TEMPORARILY_CLOSED": "Tạm đóng cửa"
+    },
+    "bookingPolicy": "Chính sách đặt sân",
+    "locatedWithin": "Nằm trong"
   },
   "PlayerDetailModal": {
     "status": "Trạng thái",

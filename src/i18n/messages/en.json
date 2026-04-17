@@ -2561,7 +2561,19 @@
     "no": "No",
     "noVenuesFound": "No venues found",
     "district": "District",
-    "city": "City"
+    "city": "City",
+    "hasCarParking": "Car Parking",
+    "hasCanteen": "Canteen",
+    "wifiName": "WiFi Name",
+    "wifiPassword": "WiFi Password",
+    "closureStatus": "Closure Status",
+    "closureStatusValues": {
+      "OPERATING": "Operating",
+      "PERMANENTLY_CLOSED": "Permanently Closed",
+      "TEMPORARILY_CLOSED": "Temporarily Closed"
+    },
+    "bookingPolicy": "Booking Policy",
+    "locatedWithin": "Located Within"
   },
   "PlayerDetailModal": {
     "status": "Status",

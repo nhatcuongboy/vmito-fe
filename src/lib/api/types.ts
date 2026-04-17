@@ -242,6 +242,12 @@ export enum VenueStatus {
   INACTIVE = 'INACTIVE',
 }
 
+export enum ClosureStatus {
+  OPERATING = 'OPERATING',
+  PERMANENTLY_CLOSED = 'PERMANENTLY_CLOSED',
+  TEMPORARILY_CLOSED = 'TEMPORARILY_CLOSED',
+}
+
 export interface Venue {
   id: string;
   placeId: string;
@@ -259,6 +265,13 @@ export interface Venue {
   website?: string;
   hourlyRateFixed?: number;
   hourlyRateWalkIn?: number;
+  hasCarParking?: boolean;
+  hasCanteen?: boolean;
+  wifiName?: string;
+  wifiPassword?: string;
+  closureStatus?: ClosureStatus;
+  bookingPolicy?: string;
+  locatedWithin?: string;
   createdAt?: Date;
   updatedAt?: Date;
   distance?: number;

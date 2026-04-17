@@ -2481,7 +2481,19 @@
     "no": "No",
     "noVenuesFound": "No venues found",
     "district": "区",
-    "city": "城市"
+    "city": "城市",
+    "hasCarParking": "停车场",
+    "hasCanteen": "食堂",
+    "wifiName": "WiFi名称",
+    "wifiPassword": "WiFi密码",
+    "closureStatus": "营业状态",
+    "closureStatusValues": {
+      "OPERATING": "营业中",
+      "PERMANENTLY_CLOSED": "永久关闭",
+      "TEMPORARILY_CLOSED": "暂时关闭"
+    },
+    "bookingPolicy": "预订政策",
+    "locatedWithin": "位于"
   },
   "PlayerDetailModal": {
     "status": "状态",
