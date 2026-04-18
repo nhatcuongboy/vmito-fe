@@ -17,25 +17,12 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import {
-  MapPin,
-  Users,
-  Calendar,
-  Crown,
-  ChevronLeft,
-  ShieldCheck,
-  Unlock,
-  Lock,
-  UserPlus,
-  UserMinus,
-  MessageSquare,
-  UserCog,
-} from 'lucide-react';
+import { MapPin, Users, Calendar, Crown, MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
-import { IClub, EClubJoinPolicy, EMemberRole } from '@/types/club';
+import { IClub, EMemberRole } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
@@ -56,8 +43,6 @@ export default function ClubDetailClient({
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
-  const [isJoining, setIsJoining] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
 
   const loadClubDetails = useCallback(async () => {
     try {
@@ -79,44 +64,6 @@ export default function ClubDetailClient({
       loadClubDetails();
     }
   }, [clubId, loadClubDetails, initialClub]);
-
-  const handleJoin = async () => {
-    if (!currentUser) {
-      router.push('/auth/signin');
-      return;
-    }
-
-    try {
-      setIsJoining(true);
-      const response = await ClubsService.requestToJoin(clubId);
-      if (response.status === 'joined') {
-        toaster.success({ title: t('clubs.joinedSuccessfully') });
-        loadClubDetails();
-      } else {
-        toaster.success({ title: t('clubs.joinRequestSent') });
-        loadClubDetails();
-      }
-    } catch (error) {
-      console.error('Failed to join club:', error);
-    } finally {
-      setIsJoining(false);
-    }
-  };
-
-  const handleLeave = async () => {
-    if (!confirm(t('clubs.leaveClub') + '?')) return;
-
-    try {
-      setIsLeaving(true);
-      await ClubsService.leaveClub(clubId);
-      toaster.success({ title: t('clubs.leftSuccessfully') });
-      loadClubDetails();
-    } catch (error) {
-      console.error('Failed to leave club:', error);
-    } finally {
-      setIsLeaving(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -144,55 +91,9 @@ export default function ClubDetailClient({
     );
   }
 
-  const isMember = club.members?.some((m) => m.user.id === currentUser?.id);
-  const memberInfo = club.members?.find((m) => m.user.id === currentUser?.id);
-  const isAdminProvisioned = !!club.hostName;
-
-  const getJoinPolicyBadge = (policy: EClubJoinPolicy) => {
-    switch (policy) {
-      case EClubJoinPolicy.OPEN:
-        return {
-          icon: Unlock,
-          label: t('clubs.joinPolicy.open'),
-          colorPalette: 'green',
-        };
-      case EClubJoinPolicy.APPROVAL_REQUIRED:
-        return {
-          icon: ShieldCheck,
-          label: t('clubs.joinPolicy.approvalRequired'),
-          colorPalette: 'orange',
-        };
-      case EClubJoinPolicy.INVITATION_ONLY:
-        return {
-          icon: Lock,
-          label: t('clubs.joinPolicy.invitationOnly'),
-          colorPalette: 'red',
-        };
-      default:
-        return {
-          icon: ShieldCheck,
-          label: t('clubs.joinPolicy.approvalRequired'),
-          colorPalette: 'orange',
-        };
-    }
-  };
-
-  const joinPolicy = getJoinPolicyBadge(club.joinPolicy);
-  const JoinPolicyIcon = joinPolicy.icon;
-
   return (
     <PageLayout title={club.name}>
       <Container maxW="container.xl" py={6}>
-        {/* Back button */}
-        <Button
-          variant="ghost"
-          mb={5}
-          onClick={() => router.push(ROUTES.CLUBS.BROWSE)}
-          leftIcon={<ChevronLeft size={18} />}
-        >
-          {t('common.back')}
-        </Button>
-
         {/* Main card */}
         <Box
           bg="white"
@@ -203,14 +104,33 @@ export default function ClubDetailClient({
           borderWidth="1px"
           borderColor="gray.100"
         >
-          {/* Color accent header */}
-          <Box
-            h="6px"
-            bgGradient="to-r"
-            gradientFrom={club.color ? `${club.color}.400` : 'green.400'}
-            gradientVia="teal.400"
-            gradientTo="blue.400"
-          />
+          {/* Cover photo */}
+          {club.image ? (
+            <Box h="200px" overflow="hidden" position="relative">
+              <Image
+                src={club.image}
+                alt={club.name}
+                w="full"
+                h="full"
+                objectFit="cover"
+              />
+              <Box
+                position="absolute"
+                inset={0}
+                bgGradient="to-b"
+                gradientFrom="transparent"
+                gradientTo="blackAlpha.400"
+              />
+            </Box>
+          ) : (
+            <Box
+              h="160px"
+              bgGradient="to-r"
+              gradientFrom={club.color ? `${club.color}.400` : 'green.400'}
+              gradientVia="teal.400"
+              gradientTo="blue.400"
+            />
+          )}
 
           {/* Club header row */}
           <Box px={{ base: 5, md: 8 }} pt={{ base: 6, md: 8 }} pb={4}>
@@ -218,7 +138,6 @@ export default function ClubDetailClient({
               direction={{ base: 'column', sm: 'row' }}
               gap={5}
               align={{ base: 'flex-start', sm: 'center' }}
-              justify="space-between"
             >
               {/* Club avatar + name */}
               <HStack gap={4} align="center">
@@ -272,71 +191,8 @@ export default function ClubDetailClient({
                   >
                     {club.name}
                   </Heading>
-                  <HStack gap={2} flexWrap="wrap">
-                    <Badge
-                      colorPalette={joinPolicy.colorPalette}
-                      variant="subtle"
-                      px={2}
-                      py={0.5}
-                      borderRadius="full"
-                      display="flex"
-                      alignItems="center"
-                      gap={1}
-                    >
-                      <JoinPolicyIcon size={12} />
-                      <Text fontSize="2xs">{joinPolicy.label}</Text>
-                    </Badge>
-                    {isAdminProvisioned && (
-                      <Badge
-                        colorPalette="purple"
-                        variant="subtle"
-                        px={2}
-                        py={0.5}
-                        borderRadius="full"
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                      >
-                        <UserCog size={12} />
-                        <Text fontSize="2xs">
-                          {t('clubs.adminApproval.adminCreated')}
-                        </Text>
-                      </Badge>
-                    )}
-                  </HStack>
                 </VStack>
               </HStack>
-
-              {/* Action button — hidden for admin-provisioned clubs */}
-              {!isAdminProvisioned && (
-                <Box flexShrink={0}>
-                  {isMember ? (
-                    <Button
-                      colorPalette="red"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLeave}
-                      loading={isLeaving}
-                      leftIcon={<UserMinus size={16} />}
-                    >
-                      {t('clubs.leaveClub')}
-                    </Button>
-                  ) : (
-                    <Button
-                      colorPalette="green"
-                      size="sm"
-                      onClick={handleJoin}
-                      loading={isJoining}
-                      leftIcon={<UserPlus size={16} />}
-                      disabled={
-                        club.joinPolicy === EClubJoinPolicy.INVITATION_ONLY
-                      }
-                    >
-                      {t('clubs.joinClub')}
-                    </Button>
-                  )}
-                </Box>
-              )}
             </Flex>
 
             {club.location && (
@@ -356,7 +212,7 @@ export default function ClubDetailClient({
 
           {/* Stats row */}
           <SimpleGrid
-            columns={{ base: 2, sm: 4 }}
+            columns={{ base: 2, sm: 3 }}
             px={{ base: 5, md: 8 }}
             py={5}
             gap={0}
@@ -373,6 +229,28 @@ export default function ClubDetailClient({
               _dark={{ borderColor: 'gray.700' }}
               _first={{ pl: 0 }}
             >
+              <HStack color="orange.500" gap={1.5}>
+                <Crown size={14} />
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
+                >
+                  {t('clubs.hostedBy')}
+                </Text>
+              </HStack>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'white' }}
+              >
+                {club.host.name}
+              </Text>
+            </VStack>
+
+            <VStack align="start" gap={0.5} px={4}>
               <HStack color="green.500" gap={1.5}>
                 <Users size={14} />
                 <Text
@@ -405,7 +283,14 @@ export default function ClubDetailClient({
               </Text>
             </VStack>
 
-            <VStack align="start" gap={0.5} px={4}>
+            <VStack
+              align="start"
+              gap={0.5}
+              px={4}
+              borderLeftWidth={{ base: 0, sm: '1px' }}
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
+            >
               <HStack color="blue.500" gap={1.5}>
                 <Calendar size={14} />
                 <Text
@@ -414,7 +299,7 @@ export default function ClubDetailClient({
                   textTransform="uppercase"
                   letterSpacing="wide"
                 >
-                  {t('clubs.sessions')}
+                  Kèo đang mở
                 </Text>
               </HStack>
               <Text
@@ -425,58 +310,6 @@ export default function ClubDetailClient({
               >
                 {club.sessionCount || 0}
               </Text>
-            </VStack>
-
-            <VStack
-              align="start"
-              gap={0.5}
-              px={4}
-              borderLeftWidth={{ base: 0, sm: '1px' }}
-              borderColor="gray.100"
-              _dark={{ borderColor: 'gray.700' }}
-            >
-              <HStack color="orange.500" gap={1.5}>
-                <Crown size={14} />
-                <Text
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  {t('clubs.hostedBy')}
-                </Text>
-              </HStack>
-              <Text
-                fontSize="sm"
-                fontWeight="bold"
-                color="gray.800"
-                _dark={{ color: 'white' }}
-              >
-                {club.host.name}
-              </Text>
-            </VStack>
-
-            <VStack align="start" gap={0.5} px={4}>
-              <HStack color="purple.500" gap={1.5}>
-                <UserCog size={14} />
-                <Text
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  {t('common.status')}
-                </Text>
-              </HStack>
-              <Badge
-                colorPalette={isMember ? 'green' : 'gray'}
-                variant="subtle"
-                fontSize="xs"
-              >
-                {isMember
-                  ? memberInfo?.role || t('clubs.memberRole.member')
-                  : t('common.notAvailable')}
-              </Badge>
             </VStack>
           </SimpleGrid>
 
