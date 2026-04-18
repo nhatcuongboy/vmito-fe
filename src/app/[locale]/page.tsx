@@ -1,50 +1,52 @@
-'use client';
+import { Metadata } from 'next';
+import HomePageContent from './HomePageContent';
 
-import React, { Suspense, useState } from 'react';
-import { Flex, Spinner } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
-import FindSessionList from '@/components/session/FindSessionList';
-import SuggestionsList from '@/components/session/SuggestionsList';
-import PageLayout from '@/components/layout/PageLayout';
-import { Image } from '@chakra-ui/react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import QuickCreateFAB from '@/components/session/QuickCreateFAB';
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
 
-type HomeMode = 'browse' | 'auto';
+const localeDescriptions: Record<string, string> = {
+  vi: 'Tìm kèo cầu lông, giao lưu, quản lý giải đấu chuyên nghiệp tại Việt Nam. Dạy sớm healthy, cầu lông dưỡng sinh, giao lưu cuối tuần.',
+  en: 'Find badminton sessions, join games, and manage tournaments in Vietnam. Browse courts and connect with players near you.',
+  cn: '在越南寻找羽毛球场次、加入比赛和管理锦标赛。浏览球场并与附近球员联系。',
+};
 
-function HomeContent() {
-  const t = useTranslations('session');
-  const [mode, setMode] = useState<HomeMode>('browse');
-  const { user } = useAuthStore();
+const localeTitles: Record<string, string> = {
+  vi: 'Tìm kèo cầu lông',
+  en: 'Find Badminton Sessions',
+  cn: '寻找羽毛球场次',
+};
 
-  return (
-    <PageLayout
-      title={t('findSession')}
-      icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
-      bg="green.50"
-      _dark={{ bg: 'gray.900' }}
-      minH="100vh"
-    >
-      {mode === 'browse' || !user ? (
-        <FindSessionList mode={mode} onModeChange={setMode} />
-      ) : (
-        <SuggestionsList mode={mode} onModeChange={setMode} />
-      )}
-      <QuickCreateFAB bottom="90px" />
-    </PageLayout>
-  );
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+
+  const title = localeTitles[locale] ?? localeTitles.vi;
+  const description = localeDescriptions[locale] ?? localeDescriptions.vi;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `https://vmito.com/${locale}`,
+      languages: {
+        vi: 'https://vmito.com/vi',
+        en: 'https://vmito.com/en',
+        'zh-Hans': 'https://vmito.com/cn',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
 }
 
 export default function HomePage() {
-  return (
-    <Suspense
-      fallback={
-        <Flex justify="center" align="center" minH="100vh">
-          <Spinner size="xl" color="green.500" />
-        </Flex>
-      }
-    >
-      <HomeContent />
-    </Suspense>
-  );
+  return <HomePageContent />;
 }

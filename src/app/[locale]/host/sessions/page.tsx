@@ -23,6 +23,7 @@ import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
+import { ROUTES } from '@/constants';
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 
@@ -226,7 +227,7 @@ function HostSessionsContent() {
             showSearchFilter={true}
             showLevelFilter={false}
             resultCount={totalCount}
-            onCreateClick={() => setIsAIModalOpen(true)}
+            onCreateClick={() => router.push(ROUTES.SESSIONS.NEW)}
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}

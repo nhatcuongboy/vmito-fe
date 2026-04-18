@@ -1,25 +1,36 @@
 import type { Metadata, Viewport } from 'next';
 
+const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging';
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === 'production'
-      ? process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : 'https://vmito.com/'
+      ? 'https://vmito.com'
       : 'http://localhost:3000'
   ),
-  title: 'Vmito',
-  description: 'Quản lý kèo, giải đấu cầu lông chuyên nghiệp',
+  ...(isStaging && { robots: { index: false, follow: false } }),
+  title: {
+    default: 'Vmito — Tìm kèo cầu lông',
+    template: '%s | Vmito',
+  },
+  description:
+    'Tìm kèo cầu lông, giao lưu, quản lý giải đấu chuyên nghiệp tại Việt Nam. Dạy sớm healthy, cầu lông dưỡng sinh, giao lưu cuối tuần.',
   manifest: '/manifest.json',
   keywords: [
+    'cầu lông',
+    'tìm kèo',
+    'giao lưu cầu lông',
+    'giải đấu cầu lông',
+    'sân cầu lông',
+    'kèo cầu lông',
+    'quản lý kèo',
+    'cầu lông dưỡng sinh',
+    'giao lưu cuối tuần',
     'badminton',
-    'session',
-    'management',
-    'sports',
-    'court',
-    'players',
+    'badminton Vietnam',
     'tournament',
-    'match',
+    'sports',
+    'Vmito',
   ],
   authors: [{ name: 'Vmito' }],
   creator: 'Vmito',
@@ -44,21 +55,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Vmito',
-    title: 'Vmito',
-    description: 'Quản lý kèo, giải đấu cầu lông chuyên nghiệp',
+    title: 'Vmito — Tìm kèo cầu lông',
+    description:
+      'Tìm kèo cầu lông, giao lưu, quản lý giải đấu chuyên nghiệp tại Việt Nam.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Vmito',
+        alt: 'Vmito — Tìm kèo cầu lông',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vmito',
-    description: 'Quản lý kèo, giải đấu cầu lông chuyên nghiệp',
+    title: 'Vmito — Tìm kèo cầu lông',
+    description:
+      'Tìm kèo cầu lông, giao lưu, quản lý giải đấu chuyên nghiệp tại Việt Nam.',
     images: ['/og-image.png'],
   },
 };
