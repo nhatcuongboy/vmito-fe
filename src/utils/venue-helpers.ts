@@ -29,3 +29,35 @@ export const formatVenueName = (
   // Format using the provided pattern
   return formatPattern.replace('{name}', name);
 };
+
+export interface MapUrlOptions {
+  address?: string | null;
+  name?: string | null;
+  placeId?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+}
+
+export const getGoogleMapsUrl = ({
+  address,
+  name,
+  placeId,
+  lat,
+  lng,
+}: MapUrlOptions): string => {
+  const query = encodeURIComponent(address || name || '');
+
+  if (placeId && query) {
+    return `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${placeId}`;
+  }
+
+  if (lat && lng) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  }
+
+  if (query) {
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+  }
+
+  return '';
+};

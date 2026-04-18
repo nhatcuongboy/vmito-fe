@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { toaster } from '@/components/ui/toaster';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
@@ -26,7 +26,6 @@ import {
   Filter,
   Grid2X2,
   MapPin,
-  Search,
   TrendingUp,
   X,
 } from 'lucide-react';
@@ -131,6 +130,8 @@ export default function VenueSearchList() {
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
+  const loadingMoreRef = useRef(false);
+
   const { ref, inView } = useInView({
     threshold: 0.1,
     rootMargin: '100px',
@@ -155,6 +156,8 @@ export default function VenueSearchList() {
   const fetchVenues = async (isLoadMore = false) => {
     try {
       if (isLoadMore) {
+        if (loadingMoreRef.current) return;
+        loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
         setLoading(true);
@@ -228,19 +231,27 @@ export default function VenueSearchList() {
       }
 
       if (isLoadMore) {
-        setVenues((prev) => [...prev, ...venueData]);
+        setVenues((prev) => {
+          const existingIds = new Set(prev.map((v) => v.id));
+          const newVenues = venueData.filter((v) => !existingIds.has(v.id));
+          return [...prev, ...newVenues];
+        });
         setPage(currentPage);
       } else {
         setVenues(venueData);
       }
 
-      setHasMore(result.data.length === PAGE_SIZE);
+      setHasMore(result.data.length === PAGE_SIZE && venueData.length > 0);
     } catch (err) {
       setError('Không thể tải danh sách sân. Vui lòng thử lại.');
       console.error(err);
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (isLoadMore) {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -274,7 +285,13 @@ export default function VenueSearchList() {
 
   // Trigger load more when in view
   useEffect(() => {
-    if (inView && hasMore && !loading && !loadingMore) {
+    if (
+      inView &&
+      hasMore &&
+      !loading &&
+      !loadingMore &&
+      !loadingMoreRef.current
+    ) {
       fetchVenues(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

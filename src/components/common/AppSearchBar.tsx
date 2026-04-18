@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Badge } from '@chakra-ui/react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { Input } from '@/components/ui/chakra-compat';
 
 export interface AppSearchBarProps {
@@ -21,6 +21,14 @@ export function AppSearchBar({
   activeFilterCount = 0,
   showFilter = true,
 }: AppSearchBarProps) {
+  const hasClear = value.length > 0;
+
+  const getPaddingRight = () => {
+    if (hasClear && showFilter) return '84px';
+    if (hasClear || showFilter) return '48px';
+    return '16px';
+  };
+
   return (
     <Box position="relative" w="100%" px="16px">
       <Box
@@ -40,7 +48,7 @@ export function AppSearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         pl="42px"
-        pr={showFilter ? '48px' : '16px'}
+        pr={getPaddingRight()}
         borderRadius="24px"
         h="44px"
         border="1px solid"
@@ -54,6 +62,33 @@ export function AppSearchBar({
           boxShadow: '0 0 0 1px var(--chakra-colors-green-500)',
         }}
       />
+
+      {hasClear && (
+        <Box
+          position="absolute"
+          right={showFilter ? '56px' : '20px'}
+          top="50%"
+          transform="translateY(-50%)"
+          zIndex={1}
+        >
+          <Flex
+            as="button"
+            onClick={() => onChange('')}
+            h="32px"
+            w="32px"
+            align="center"
+            justify="center"
+            borderRadius="full"
+            color="fg.muted"
+            transition="all 0.2s"
+            _hover={{ bg: 'bg.muted', color: 'fg' }}
+            cursor="pointer"
+            aria-label="Clear search"
+          >
+            <X size={16} />
+          </Flex>
+        </Box>
+      )}
 
       {showFilter && (
         <Box

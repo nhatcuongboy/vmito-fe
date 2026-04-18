@@ -5,14 +5,13 @@ import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { formatVenueName } from '@/utils';
+import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { ViewMode } from '@/stores/useSessionFilterStore';
 import React, { useState, memo } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import { Portal } from '@chakra-ui/react';
@@ -123,14 +122,14 @@ const FindSessionCard = ({
         icon={<Icon as={Navigation} />}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
-          const address =
-            session.venue?.address || session.venue?.name || session.location;
-          if (address) {
-            window.open(
-              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-              '_blank'
-            );
-          }
+          const url = getGoogleMapsUrl({
+            address: session.venue?.address,
+            name: session.venue?.name || session.location,
+            placeId: session.venue?.placeId,
+            lat: session.venue?.lat,
+            lng: session.venue?.lng,
+          });
+          if (url) window.open(url, '_blank');
         }}
       />
     ) : null;

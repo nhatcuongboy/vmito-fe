@@ -31,7 +31,7 @@ import { useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useTranslations } from 'next-intl';
 
-import { formatVenueName } from '@/utils';
+import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import {
   normalizePhoneForTel,
   normalizePhoneForZalo,
@@ -57,11 +57,14 @@ export default function VenueCard({ venue }: VenueCardProps) {
   );
 
   const handleNavigate = () => {
-    const query = encodeURIComponent(venue.address || displayName);
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${query}`,
-      '_blank'
-    );
+    const url = getGoogleMapsUrl({
+      address: venue.address,
+      name: displayName,
+      placeId: venue.placeId,
+      lat: venue.lat,
+      lng: venue.lng,
+    });
+    if (url) window.open(url, '_blank');
   };
 
   const handleViewDetails = (e: React.MouseEvent) => {
@@ -95,6 +98,9 @@ export default function VenueCard({ venue }: VenueCardProps) {
         _dark: { borderColor: 'blue.500' },
       }}
       cursor="pointer"
+      display="flex"
+      flexDirection="column"
+      h="100%"
     >
       {/* Cover Photo */}
       <Box position="relative" h="140px" overflow="hidden">
@@ -404,6 +410,9 @@ export default function VenueCard({ venue }: VenueCardProps) {
           </Stack>
         </Box>
       )}
+
+      {/* Spacer — pushes contact + action buttons to bottom */}
+      <Box flex="1" />
 
       {/* Contact Section */}
       {(venue.phone || venue.website) && (

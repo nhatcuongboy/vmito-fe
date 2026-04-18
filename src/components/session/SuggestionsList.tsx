@@ -12,7 +12,7 @@ import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
 import { MapPinOff, RefreshCw, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
@@ -122,6 +122,8 @@ export default function SuggestionsList({
   const { user } = useAuthStore();
   const { viewMode } = useSessionFilterStore();
 
+  const loadingMoreRef = useRef(false);
+
   const { ref, inView } = useInView({
     threshold: 0.1,
     rootMargin: '100px',
@@ -157,6 +159,8 @@ export default function SuggestionsList({
     async (isLoadMore = false) => {
       try {
         if (isLoadMore) {
+          if (loadingMoreRef.current) return;
+          loadingMoreRef.current = true;
           setLoadingMore(true);
         } else {
           setLoading(true);
@@ -174,14 +178,23 @@ export default function SuggestionsList({
         });
 
         if (isLoadMore) {
-          setSessions((prev) => [...prev, ...result.data]);
+          setSessions((prev) => {
+            const existingIds = new Set(prev.map((s) => s.id));
+            const newSessions = result.data.filter(
+              (s) => !existingIds.has(s.id)
+            );
+            return [...prev, ...newSessions];
+          });
           setPage(currentPage);
         } else {
           setSessions(result.data);
         }
 
         setTotal(result.pagination.total);
-        setHasMore(currentPage * PAGE_SIZE < result.pagination.total);
+        setHasMore(
+          currentPage * PAGE_SIZE < result.pagination.total &&
+            result.data.length > 0
+        );
 
         // Fetch user-specific data
         if (user) {
@@ -211,8 +224,12 @@ export default function SuggestionsList({
         setError(t('loadingError'));
         console.error(err);
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        if (isLoadMore) {
+          loadingMoreRef.current = false;
+          setLoadingMore(false);
+        } else {
+          setLoading(false);
+        }
       }
     },
     [userLocation, page, user, t]
@@ -233,7 +250,13 @@ export default function SuggestionsList({
 
   // Infinite scroll
   useEffect(() => {
-    if (inView && hasMore && !loading && !loadingMore) {
+    if (
+      inView &&
+      hasMore &&
+      !loading &&
+      !loadingMore &&
+      !loadingMoreRef.current
+    ) {
       fetchSuggestions(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

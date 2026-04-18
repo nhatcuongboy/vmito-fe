@@ -44,7 +44,7 @@ import {
   normalizePhoneForZalo,
 } from '@/utils/phone-utils';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { formatVenueName } from '@/utils';
+import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import { Pencil } from 'lucide-react';
 import { QuickVenueEditModal } from '@/components/venue/QuickVenueEditModal';
@@ -64,6 +64,8 @@ export default function VenueDetailPage() {
   const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
+  const DESC_LINE_LIMIT = 4;
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -90,14 +92,14 @@ export default function VenueDetailPage() {
 
   const handleNavigate = () => {
     if (!venue) return;
-    const query = encodeURIComponent(
-      venue.address ||
-        formatVenueName(venue.name, t('nameFormat', { name: '{name}' }))
-    );
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${query}`,
-      '_blank'
-    );
+    const url = getGoogleMapsUrl({
+      address: venue.address,
+      name: formatVenueName(venue.name, t('nameFormat', { name: '{name}' })),
+      placeId: venue.placeId,
+      lat: venue.lat,
+      lng: venue.lng,
+    });
+    if (url) window.open(url, '_blank');
   };
 
   const handleFindSessions = () => {
@@ -186,6 +188,7 @@ export default function VenueDetailPage() {
             w="100%"
             h="100%"
             objectFit="cover"
+            fetchPriority="high"
           />
 
           <Flex
@@ -300,15 +303,33 @@ export default function VenueDetailPage() {
                   )}
                 </Heading>
                 {venue.description && (
-                  <Text
-                    mt={2}
-                    fontSize="md"
-                    color="gray.600"
-                    _dark={{ color: 'gray.400' }}
-                    whiteSpace="pre-wrap"
-                  >
-                    {venue.description}
-                  </Text>
+                  <Box mt={2}>
+                    <Text
+                      fontSize="md"
+                      color="gray.600"
+                      _dark={{ color: 'gray.400' }}
+                      whiteSpace="pre-wrap"
+                      wordBreak="break-word"
+                      lineClamp={isDescExpanded ? undefined : DESC_LINE_LIMIT}
+                    >
+                      {venue.description}
+                    </Text>
+                    {venue.description.split('\n').length > DESC_LINE_LIMIT ||
+                    venue.description.length > 200 ? (
+                      <Text
+                        as="button"
+                        mt={1}
+                        fontSize="sm"
+                        color="green.500"
+                        fontWeight="medium"
+                        cursor="pointer"
+                        _hover={{ color: 'green.600' }}
+                        onClick={() => setIsDescExpanded((v) => !v)}
+                      >
+                        {isDescExpanded ? 'Thu gọn' : 'Xem thêm'}
+                      </Text>
+                    ) : null}
+                  </Box>
                 )}
               </Box>
 
@@ -344,12 +365,16 @@ export default function VenueDetailPage() {
 
               {/* Address */}
               <Flex align="center" gap={2} mb={6}>
-                <MapPin size={20} color="var(--chakra-colors-gray-600)" />
+                <Box flexShrink={0}>
+                  <MapPin size={20} color="var(--chakra-colors-gray-600)" />
+                </Box>
                 <Text
                   fontSize="md"
                   color="gray.600"
                   _dark={{ color: 'gray.400' }}
                   flex="1"
+                  minW={0}
+                  wordBreak="break-word"
                 >
                   {venue.address}
                 </Text>
@@ -401,11 +426,15 @@ export default function VenueDetailPage() {
                     >
                       <Clock size={24} color="#3182CE" />
                     </Box>
-                    <Box flex="1">
+                    <Box flex="1" minW={0}>
                       <Text fontSize="sm" color="gray.500" mb={1}>
                         Giờ mở cửa
                       </Text>
-                      <Text fontSize="lg" fontWeight="semibold">
+                      <Text
+                        fontSize="lg"
+                        fontWeight="semibold"
+                        wordBreak="break-word"
+                      >
                         {venue.openingHours}
                       </Text>
                     </Box>
@@ -504,11 +533,15 @@ export default function VenueDetailPage() {
                     >
                       <Info size={24} color="#319795" />
                     </Box>
-                    <Box flex="1">
+                    <Box flex="1" minW={0}>
                       <Text fontSize="sm" color="gray.500" mb={1}>
                         Nằm trong
                       </Text>
-                      <Text fontSize="lg" fontWeight="semibold">
+                      <Text
+                        fontSize="lg"
+                        fontWeight="semibold"
+                        wordBreak="break-word"
+                      >
                         {venue.locatedWithin}
                       </Text>
                     </Box>
@@ -580,15 +613,23 @@ export default function VenueDetailPage() {
                     >
                       <Wifi size={24} color="#0987A0" />
                     </Box>
-                    <Box flex="1">
+                    <Box flex="1" minW={0}>
                       <Text fontSize="sm" color="gray.500" mb={1}>
                         WiFi
                       </Text>
-                      <Text fontSize="md" fontWeight="semibold">
+                      <Text
+                        fontSize="md"
+                        fontWeight="semibold"
+                        wordBreak="break-all"
+                      >
                         {venue.wifiName}
                       </Text>
                       {venue.wifiPassword && (
-                        <Text fontSize="sm" color="gray.500">
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                          wordBreak="break-all"
+                        >
                           Mật khẩu: {venue.wifiPassword}
                         </Text>
                       )}
@@ -607,11 +648,17 @@ export default function VenueDetailPage() {
                     >
                       <Info size={24} color="#D69E2E" />
                     </Box>
-                    <Box flex="1">
+                    <Box flex="1" minW={0}>
                       <Text fontSize="sm" color="gray.500" mb={1}>
                         Chính sách đặt sân
                       </Text>
-                      <Text fontSize="md" whiteSpace="pre-wrap">
+                      <Text
+                        fontSize="md"
+                        whiteSpace="pre-wrap"
+                        wordBreak="break-word"
+                        maxH="160px"
+                        overflowY="auto"
+                      >
                         {venue.bookingPolicy}
                       </Text>
                     </Box>
@@ -641,6 +688,7 @@ export default function VenueDetailPage() {
                         w="100%"
                         objectFit="contain"
                         maxH="320px"
+                        loading="lazy"
                       />
                     </Box>
                   </Box>

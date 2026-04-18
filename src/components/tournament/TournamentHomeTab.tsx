@@ -16,6 +16,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { Tournament, CategoryType } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
+import { getGoogleMapsUrl } from '@/utils';
 
 interface ICategoryHomeItem {
   id: string;
@@ -71,12 +72,15 @@ export default function TournamentHomeTab({
   };
 
   const handleOpenDirections = () => {
-    if (venue?.lat && venue?.lng) {
-      window.open(
-        `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}`,
-        '_blank',
-        'noopener,noreferrer'
-      );
+    const url = getGoogleMapsUrl({
+      address: venue?.address,
+      name: venue?.name,
+      placeId: venue?.placeId,
+      lat: venue?.lat,
+      lng: venue?.lng,
+    });
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 
