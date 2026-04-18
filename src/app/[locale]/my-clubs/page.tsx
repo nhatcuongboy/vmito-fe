@@ -140,7 +140,7 @@ export default function MyClubsPage() {
                 borderWidth="1px"
                 borderColor="border"
                 cursor="pointer"
-                onClick={() => router.push(`/player/clubs/${club.id}`)}
+                onClick={() => router.push(`/clubs/${club.id}`)}
                 transition="all 0.2s"
                 _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
               >
@@ -271,9 +271,7 @@ export default function MyClubsPage() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() =>
-                      router.push(`/player/clubs/${request.club?.id}`)
-                    }
+                    onClick={() => router.push(`/clubs/${request.club?.id}`)}
                   >
                     {t('common.view')}
                   </Button>

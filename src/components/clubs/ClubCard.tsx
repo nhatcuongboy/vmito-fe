@@ -54,7 +54,7 @@ export default function ClubCard({ club }: ClubCardProps) {
 
   const handleViewDetails = () => {
     setIsLoading(true);
-    router.push(`/player/clubs/${club.id}`);
+    router.push(`/clubs/${club.id}`);
     setTimeout(() => setIsLoading(false), 5000);
   };
 

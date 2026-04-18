@@ -54,20 +54,28 @@ function formatPrice(amount?: number) {
   return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 }
 
-export default function VenueDetailPage() {
+interface VenueDetailClientProps {
+  initialVenue: Venue | null;
+}
+
+export default function VenueDetailClient({
+  initialVenue,
+}: VenueDetailClientProps) {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations('venue');
   const { user } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
 
-  const [venue, setVenue] = useState<Venue | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [venue, setVenue] = useState<Venue | null>(initialVenue);
+  const [loading, setLoading] = useState(!initialVenue);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const DESC_LINE_LIMIT = 4;
 
   useEffect(() => {
+    if (initialVenue) return;
+
     const fetchVenue = async () => {
       try {
         setLoading(true);
@@ -88,7 +96,7 @@ export default function VenueDetailPage() {
     if (params.id) {
       fetchVenue();
     }
-  }, [params.id]);
+  }, [params.id, initialVenue]);
 
   const handleNavigate = () => {
     if (!venue) return;

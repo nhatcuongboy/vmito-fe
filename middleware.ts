@@ -48,6 +48,28 @@ export function middleware(request: NextRequest) {
       );
     }
 
+    // /browse/venues/[id] -> /venues/[id]
+    const venueDetailMatch = pathWithoutLocale.match(
+      /^\/browse\/venues\/([^/]+)$/
+    );
+    if (venueDetailMatch) {
+      const id = venueDetailMatch[1];
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}/venues/${id}`, request.url)
+      );
+    }
+
+    // /player/clubs/[id] -> /clubs/[id]
+    const clubDetailMatch = pathWithoutLocale.match(
+      /^\/player\/clubs\/([^/]+)$/
+    );
+    if (clubDetailMatch) {
+      const id = clubDetailMatch[1];
+      return NextResponse.redirect(
+        new URL(`/${firstSegment}/clubs/${id}`, request.url)
+      );
+    }
+
     // /player/sessions (list only, not detail pages) -> /host/sessions/joined
     if (pathWithoutLocale === '/player/sessions') {
       return NextResponse.redirect(
