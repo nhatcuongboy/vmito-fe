@@ -5,7 +5,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState, useMemo } from 'react';
+import { Suspense, useEffect, useState, useMemo, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
@@ -50,6 +50,8 @@ function PlayerSessionsContent() {
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
 
+  const loadingMoreRef = useRef(false);
+
   const { ref, inView } = useInView({
     threshold: 0.1,
     rootMargin: '100px',
@@ -61,6 +63,8 @@ function PlayerSessionsContent() {
   const fetchPlayerSessions = async (isLoadMore = false) => {
     try {
       if (isLoadMore) {
+        if (loadingMoreRef.current) return;
+        loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
         setLoading(true);
@@ -81,19 +85,29 @@ function PlayerSessionsContent() {
       });
 
       if (isLoadMore) {
-        setSessions((prev) => [...prev, ...response.data]);
+        setSessions((prev) => {
+          const existingIds = new Set(prev.map((s) => s.id));
+          const newSessions = response.data.filter(
+            (s) => !existingIds.has(s.id)
+          );
+          return [...prev, ...newSessions];
+        });
         setPage(currentPage);
       } else {
         setSessions(response.data);
         setTotalCount(response.total);
       }
 
-      setHasMore(currentPage < response.totalPages);
+      setHasMore(currentPage < response.totalPages && response.data.length > 0);
     } catch (err) {
       console.error('Error fetching player sessions:', err);
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (isLoadMore) {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -112,7 +126,13 @@ function PlayerSessionsContent() {
 
   // Trigger load more when in view
   useEffect(() => {
-    if (inView && hasMore && !loading && !loadingMore) {
+    if (
+      inView &&
+      hasMore &&
+      !loading &&
+      !loadingMore &&
+      !loadingMoreRef.current
+    ) {
       fetchPlayerSessions(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

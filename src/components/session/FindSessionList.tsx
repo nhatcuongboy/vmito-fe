@@ -47,6 +47,7 @@ import {
   useMemo,
   useState,
   useTransition,
+  useRef,
 } from 'react';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
@@ -196,6 +197,8 @@ export default function FindSessionList({
     rootMargin: '100px',
   });
 
+  const loadingMoreRef = useRef(false);
+
   // Fetch venue name if filtered by venue
   useEffect(() => {
     const fetchVenueName = async () => {
@@ -217,6 +220,8 @@ export default function FindSessionList({
   const fetchSessions = async (isLoadMore = false) => {
     try {
       if (isLoadMore) {
+        if (loadingMoreRef.current) return;
+        loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
         setLoading(true);
@@ -351,14 +356,22 @@ export default function FindSessionList({
       }
 
       if (isLoadMore) {
-        setSessions((prev) => [...prev, ...filteredData]);
+        setSessions((prev) => {
+          const existingIds = new Set(prev.map((s) => s.id));
+          const newSessions = filteredData.filter(
+            (s) => !existingIds.has(s.id)
+          );
+          return [...prev, ...newSessions];
+        });
         setPage(currentPage);
       } else {
         setSessions(filteredData);
         setTotalCount(pagination.total);
       }
 
-      setHasMore(currentPage < pagination.totalPages);
+      setHasMore(
+        currentPage < pagination.totalPages && filteredData.length > 0
+      );
 
       // Fetch user specific data
       if (user) {
@@ -386,8 +399,12 @@ export default function FindSessionList({
       setError(t('loadingError'));
       console.error(err);
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (isLoadMore) {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -417,7 +434,13 @@ export default function FindSessionList({
 
   // Trigger load more when in view
   useEffect(() => {
-    if (inView && hasMore && !loading && !loadingMore) {
+    if (
+      inView &&
+      hasMore &&
+      !loading &&
+      !loadingMore &&
+      !loadingMoreRef.current
+    ) {
       fetchSessions(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
