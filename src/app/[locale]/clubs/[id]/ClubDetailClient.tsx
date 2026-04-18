@@ -41,15 +41,21 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { ROUTES } from '@/constants';
 
-export default function ClubDetailsPage() {
+interface ClubDetailClientProps {
+  initialClub: IClub | null;
+}
+
+export default function ClubDetailClient({
+  initialClub,
+}: ClubDetailClientProps) {
   const t = useTranslations();
   const router = useRouter();
   const params = useParams();
   const clubId = params.id as string;
   const { user: currentUser } = useAuthStore();
 
-  const [club, setClub] = useState<IClub | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [club, setClub] = useState<IClub | null>(initialClub);
+  const [isLoading, setIsLoading] = useState(!initialClub);
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
@@ -67,10 +73,12 @@ export default function ClubDetailsPage() {
   }, [clubId, t]);
 
   useEffect(() => {
+    if (initialClub) return;
+
     if (clubId) {
       loadClubDetails();
     }
-  }, [clubId, loadClubDetails]);
+  }, [clubId, loadClubDetails, initialClub]);
 
   const handleJoin = async () => {
     if (!currentUser) {
@@ -127,7 +135,7 @@ export default function ClubDetailsPage() {
           <Heading mb={4}>{t('common.error')}</Heading>
           <Button
             colorPalette="green"
-            onClick={() => router.push('/player/clubs')}
+            onClick={() => router.push(ROUTES.CLUBS.BROWSE)}
           >
             {t('common.back')}
           </Button>

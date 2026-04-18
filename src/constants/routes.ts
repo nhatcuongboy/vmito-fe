@@ -67,6 +67,11 @@ export const ROUTES = {
     PROFILE: (playerId: string) => `/player/${playerId}`,
   },
 
+  // Venues
+  VENUES: {
+    DETAIL: (id: string) => `/venues/${id}`,
+  },
+
   // Browse/Public Routes
   BROWSE: {
     VENUES: {
@@ -113,6 +118,7 @@ export const ROUTES = {
   // Clubs Routes
   CLUBS: {
     BROWSE: '/clubs',
+    DETAIL: (id: string) => `/clubs/${id}`,
     MY_CLUBS: '/my-clubs',
   },
 
