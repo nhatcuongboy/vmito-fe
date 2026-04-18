@@ -113,6 +113,7 @@ export interface IClub {
   id: string;
   hostId: string;
   name: string;
+  hostName?: string; // Provisional host name for admin-created clubs
   description?: string;
   color?: string;
   image?: string;
@@ -200,6 +201,7 @@ export interface IClubJoinRequest {
 
 export interface ICreateClubDto {
   name: string;
+  hostName?: string; // Provisional host name for admin-created clubs
   description?: string;
   color?: string;
   isPublic?: boolean;

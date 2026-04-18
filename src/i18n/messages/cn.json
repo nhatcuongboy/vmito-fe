@@ -2857,7 +2857,7 @@
     "manageMyClubsDescription": "Manage the clubs you've joined and your join requests",
     "joinClub": "加入俱乐部",
     "leaveClub": "退出俱乐部",
-    "pendingRequest": "等待审核",
+    "pendingRequest": "加入申请待审批",
     "clubStatus": {
       "pending": "审核中",
       "approved": "已批准",
@@ -2870,7 +2870,14 @@
       "pendingClubs": "待审批俱乐部",
       "noPendingClubs": "没有待审批的俱乐部",
       "approveSuccess": "俱乐部审批成功",
-      "rejectSuccess": "俱乐部已拒绝"
+      "rejectSuccess": "俱乐部已拒绝",
+      "createClub": "创建俱乐部",
+      "createClubTitle": "创建俱乐部 (管理员)",
+      "provisionalHostName": "俱乐部负责人姓名（临时）",
+      "provisionalHostNamePlaceholder": "输入负责人姓名...",
+      "provisionalHostNameHelp": "此名称将显示为俱乐部负责人。成员列表将为空，直到添加成员。",
+      "adminCreated": "管理员创建",
+      "noMembersYet": "暂无成员"
     },
     "clubDetails": "俱乐部详情",
     "clubMembers": "俱乐部成员",
@@ -2973,6 +2980,9 @@
     "searchVenue": "Search venue...",
     "noVenueSelected": "No venue selected",
     "clubImage": "Club Image",
+    "noImageSelected": "No image selected",
+    "selectImage": "Select Image",
+    "removeImage": "Remove image",
     "dayNames": {
       "0": "Sunday",
       "1": "Monday",

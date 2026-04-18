@@ -13,7 +13,14 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
-import { Check, X, Shield, MapPin, Users as UsersIcon } from 'lucide-react';
+import {
+  Check,
+  X,
+  Shield,
+  MapPin,
+  Users as UsersIcon,
+  Plus,
+} from 'lucide-react';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { IClub } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
@@ -21,9 +28,11 @@ import PageLayout from '@/components/layout/PageLayout';
 import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { Field } from '@/components/ui/Field';
 import VModal from '@/components/ui/VModal';
+import { useRouter } from '@/i18n/config';
 
 const AdminClubApprovalPage = () => {
   const t = useTranslations();
+  const router = useRouter();
   const [pendingClubs, setPendingClubs] = useState<IClub[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -104,6 +113,16 @@ const AdminClubApprovalPage = () => {
 
   return (
     <PageLayout title={t('clubs.adminApproval.title')}>
+      {/* Page actions */}
+      <Flex justify="flex-end" mb={5}>
+        <Button
+          colorPalette="green"
+          onClick={() => router.push('/admin/clubs/create')}
+          leftIcon={<Plus size={16} />}
+        >
+          {t('clubs.adminApproval.createClub')}
+        </Button>
+      </Flex>
       {isLoading ? (
         <Flex justify="center" align="center" minH="300px">
           <Spinner size="xl" colorPalette="green" />

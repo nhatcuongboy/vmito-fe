@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Icon } from '@chakra-ui/react';
 import { VTooltip } from '@/components/ui/VTooltip';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AISessionModal } from './AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
-import { useRouter } from '@/i18n/config';
+import { useRouter, usePathname } from '@/i18n/config';
+import { useSearchParams } from 'next/navigation';
 import { ROUTES } from '@/constants';
 import { useAuthStore } from '@/stores/useAuthStore';
 import dynamic from 'next/dynamic';
@@ -29,7 +30,23 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
+
+  // After login, if action=openAIModal is in URL, open the AI modal
+  useEffect(() => {
+    if (user && searchParams.get('action') === 'openAIModal') {
+      setIsOpen(true);
+      // Clean the URL param without re-render
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('action');
+      const newUrl = params.toString()
+        ? `${pathname}?${params.toString()}`
+        : pathname;
+      router.replace(newUrl);
+    }
+  }, [user, searchParams, pathname, router]);
 
   const handleSuccess = (data: ExtractedSessionData) => {
     // Save AI-extracted data to sessionStorage so SessionForm can pick it up
@@ -87,7 +104,7 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
           isOpen={isLoginModalOpen}
           onClose={() => setIsLoginModalOpen(false)}
           featureName={t('loginRequiredCreateSessionAI')}
-          returnUrl="/"
+          returnUrl="/?action=openAIModal"
         />
       )}
     </>

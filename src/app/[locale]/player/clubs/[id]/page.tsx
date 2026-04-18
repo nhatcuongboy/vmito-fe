@@ -7,15 +7,14 @@ import {
   Flex,
   Heading,
   Text,
-  Stack,
   HStack,
   Badge,
   SimpleGrid,
   Spinner,
   VStack,
-  Icon,
   Separator,
   Avatar,
+  Image,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import {
@@ -23,7 +22,6 @@ import {
   Users,
   Calendar,
   Crown,
-  Info,
   ChevronLeft,
   ShieldCheck,
   Unlock,
@@ -31,6 +29,7 @@ import {
   UserPlus,
   UserMinus,
   MessageSquare,
+  UserCog,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
@@ -97,10 +96,7 @@ export default function ClubDetailsPage() {
   };
 
   const handleLeave = async () => {
-    if (
-      !confirm(t('clubs.leaveClubConfirmation' as any) || t('common.confirm'))
-    )
-      return;
+    if (!confirm(t('clubs.leaveClub') + '?')) return;
 
     try {
       setIsLeaving(true);
@@ -142,6 +138,7 @@ export default function ClubDetailsPage() {
 
   const isMember = club.members?.some((m) => m.user.id === currentUser?.id);
   const memberInfo = club.members?.find((m) => m.user.id === currentUser?.id);
+  const isAdminProvisioned = !!club.hostName;
 
   const getJoinPolicyBadge = (policy: EClubJoinPolicy) => {
     switch (policy) {
@@ -177,298 +174,462 @@ export default function ClubDetailsPage() {
 
   return (
     <PageLayout title={club.name}>
-      <Container maxW="container.xl" py={8}>
+      <Container maxW="container.xl" py={6}>
         {/* Back button */}
         <Button
           variant="ghost"
-          mb={6}
+          mb={5}
           onClick={() => router.push(ROUTES.CLUBS.BROWSE)}
           leftIcon={<ChevronLeft size={18} />}
         >
           {t('common.back')}
         </Button>
 
+        {/* Main card */}
         <Box
           bg="white"
-          _dark={{ bg: 'gray.800' }}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           borderRadius="2xl"
           overflow="hidden"
           shadow="sm"
           borderWidth="1px"
           borderColor="gray.100"
         >
-          {/* Header Gradient */}
+          {/* Color accent header */}
           <Box
-            h="8px"
+            h="6px"
             bgGradient="to-r"
-            gradientFrom="green.400"
+            gradientFrom={club.color ? `${club.color}.400` : 'green.400'}
             gradientVia="teal.400"
             gradientTo="blue.400"
           />
 
-          <Box p={{ base: 6, md: 10 }}>
-            <Flex direction={{ base: 'column', lg: 'row' }} gap={10}>
-              {/* Club Identity */}
-              <VStack align="start" flex="1" gap={6}>
-                <VStack align="start" gap={2} w="full">
-                  <HStack justify="space-between" w="full" align="flex-start">
-                    <VStack align="start" gap={2}>
-                      <Heading
-                        size="3xl"
-                        color="gray.900"
-                        _dark={{ color: 'white' }}
-                      >
-                        {club.name}
-                      </Heading>
-                      <HStack gap={3}>
-                        <Badge
-                          colorPalette={joinPolicy.colorPalette}
-                          variant="subtle"
-                          px={3}
-                          py={1}
-                          borderRadius="full"
-                          display="flex"
-                          alignItems="center"
-                          gap={1}
-                        >
-                          <JoinPolicyIcon size={14} />
-                          <Text fontSize="xs">{joinPolicy.label}</Text>
-                        </Badge>
-                        {club.color && (
-                          <Box
-                            w={4}
-                            h={4}
-                            borderRadius="full"
-                            bg={club.color}
-                          />
-                        )}
-                      </HStack>
-                    </VStack>
-
-                    {/* Action Button */}
-                    <Box>
-                      {isMember ? (
-                        <Button
-                          colorPalette="red"
-                          variant="outline"
-                          onClick={handleLeave}
-                          loading={isLeaving}
-                          leftIcon={<UserMinus size={18} />}
-                        >
-                          {t('clubs.leaveClub')}
-                        </Button>
-                      ) : (
-                        <Button
-                          colorPalette="green"
-                          onClick={handleJoin}
-                          loading={isJoining}
-                          leftIcon={<UserPlus size={18} />}
-                          disabled={
-                            club.joinPolicy === EClubJoinPolicy.INVITATION_ONLY
-                          }
-                        >
-                          {t('clubs.joinClub')}
-                        </Button>
-                      )}
-                    </Box>
-                  </HStack>
-
-                  {club.location && (
-                    <Flex
-                      align="center"
-                      gap={2}
-                      color="gray.600"
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      <MapPin size={18} />
-                      <Text fontWeight="medium">{club.location}</Text>
-                    </Flex>
-                  )}
-                </VStack>
-
-                {club.description && (
-                  <Box>
-                    <Heading
-                      size="sm"
-                      mb={2}
-                      color="gray.700"
-                      _dark={{ color: 'gray.300' }}
-                    >
-                      {t('session.description')}
-                    </Heading>
-                    <Text
-                      color="gray.600"
-                      _dark={{ color: 'gray.400' }}
-                      lineHeight="tall"
-                    >
-                      {club.description}
-                    </Text>
+          {/* Club header row */}
+          <Box px={{ base: 5, md: 8 }} pt={{ base: 6, md: 8 }} pb={4}>
+            <Flex
+              direction={{ base: 'column', sm: 'row' }}
+              gap={5}
+              align={{ base: 'flex-start', sm: 'center' }}
+              justify="space-between"
+            >
+              {/* Club avatar + name */}
+              <HStack gap={4} align="center">
+                {club.image ? (
+                  <Box
+                    w="64px"
+                    h="64px"
+                    borderRadius="xl"
+                    overflow="hidden"
+                    flexShrink={0}
+                    borderWidth="2px"
+                    borderColor="gray.100"
+                  >
+                    <Image
+                      src={club.image}
+                      alt={club.name}
+                      w="full"
+                      h="full"
+                      objectFit="cover"
+                    />
                   </Box>
+                ) : (
+                  <Flex
+                    w="64px"
+                    h="64px"
+                    borderRadius="xl"
+                    bg={club.color ? `${club.color}.100` : 'green.100'}
+                    _dark={{
+                      bg: club.color ? `${club.color}.900` : 'green.900',
+                    }}
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                  >
+                    <Text
+                      fontSize="2xl"
+                      fontWeight="bold"
+                      color={club.color ? `${club.color}.600` : 'green.600'}
+                    >
+                      {club.name.charAt(0).toUpperCase()}
+                    </Text>
+                  </Flex>
                 )}
 
-                <Separator />
-
-                {/* Stats Grid */}
-                <SimpleGrid columns={{ base: 2, sm: 4 }} gap={6} w="full">
-                  <VStack align="start" gap={1}>
-                    <HStack color="green.500">
-                      <Users size={16} />
-                      <Text
-                        fontSize="xs"
-                        fontWeight="bold"
-                        textTransform="uppercase"
-                      >
-                        {t('clubs.members')}
-                      </Text>
-                    </HStack>
-                    <Text fontSize="2xl" fontWeight="bold">
-                      {club.memberCount}
-                      {club.maxMembers ? ` / ${club.maxMembers}` : ''}
-                    </Text>
-                  </VStack>
-                  <VStack align="start" gap={1}>
-                    <HStack color="green.500">
-                      <Calendar size={16} />
-                      <Text
-                        fontSize="xs"
-                        fontWeight="bold"
-                        textTransform="uppercase"
-                      >
-                        {t('clubs.sessions')}
-                      </Text>
-                    </HStack>
-                    <Text fontSize="2xl" fontWeight="bold">
-                      {club.sessionCount || 0}
-                    </Text>
-                  </VStack>
-                  <VStack align="start" gap={1}>
-                    <HStack color="orange.500">
-                      <Crown size={16} />
-                      <Text
-                        fontSize="xs"
-                        fontWeight="bold"
-                        textTransform="uppercase"
-                      >
-                        {t('clubs.hostedBy')}
-                      </Text>
-                    </HStack>
-                    <Text fontSize="md" fontWeight="bold">
-                      {club.host.name}
-                    </Text>
-                  </VStack>
-                  <VStack align="start" gap={1}>
-                    <HStack color="purple.500">
-                      <Info size={16} />
-                      <Text
-                        fontSize="xs"
-                        fontWeight="bold"
-                        textTransform="uppercase"
-                      >
-                        {t('common.status')}
-                      </Text>
-                    </HStack>
-                    <Badge colorPalette={isMember ? 'green' : 'gray'}>
-                      {isMember
-                        ? memberInfo?.role || t('clubs.memberRole.member')
-                        : t('common.notAvailable')}
+                <VStack align="start" gap={1}>
+                  <Heading
+                    size="xl"
+                    color="gray.900"
+                    _dark={{ color: 'white' }}
+                    lineHeight="tight"
+                  >
+                    {club.name}
+                  </Heading>
+                  <HStack gap={2} flexWrap="wrap">
+                    <Badge
+                      colorPalette={joinPolicy.colorPalette}
+                      variant="subtle"
+                      px={2}
+                      py={0.5}
+                      borderRadius="full"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                    >
+                      <JoinPolicyIcon size={12} />
+                      <Text fontSize="2xs">{joinPolicy.label}</Text>
                     </Badge>
-                  </VStack>
-                </SimpleGrid>
-              </VStack>
-
-              {/* Recent Announcements */}
-              <Box
-                w={{ base: 'full', lg: '350px' }}
-                p={6}
-                bg="gray.50"
-                _dark={{ bg: 'gray.900/40' }}
-                borderRadius="xl"
-              >
-                <Flex align="center" gap={2} mb={4}>
-                  <MessageSquare size={20} color="#3182CE" />
-                  <Heading size="md">{t('clubs.recentAnnouncements')}</Heading>
-                </Flex>
-
-                <VStack gap={4} align="stretch">
-                  {club.announcements && club.announcements.length > 0 ? (
-                    club.announcements.map((announcement) => (
-                      <Box
-                        key={announcement.id}
-                        p={4}
-                        bg="white"
-                        _dark={{ bg: 'gray.800' }}
-                        borderRadius="lg"
-                        shadow="sm"
-                        borderWidth="1px"
-                        borderColor="gray.100"
+                    {isAdminProvisioned && (
+                      <Badge
+                        colorPalette="purple"
+                        variant="subtle"
+                        px={2}
+                        py={0.5}
+                        borderRadius="full"
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
                       >
-                        <Text fontWeight="bold" fontSize="sm" mb={1}>
-                          {announcement.title}
+                        <UserCog size={12} />
+                        <Text fontSize="2xs">
+                          {t('clubs.adminApproval.adminCreated')}
                         </Text>
-                        <Text
-                          fontSize="xs"
-                          color="gray.600"
-                          _dark={{ color: 'gray.400' }}
-                          lineClamp={3}
-                        >
-                          {announcement.content}
-                        </Text>
-                        <Flex justify="space-between" align="center" mt={3}>
-                          <HStack gap={2}>
-                            <Avatar.Root size="xs">
-                              <Avatar.Image src={announcement.author.image} />
-                              <Avatar.Fallback>
-                                {announcement.author.name[0]}
-                              </Avatar.Fallback>
-                            </Avatar.Root>
-                            <Text fontSize="2xs" color="gray.500">
-                              {announcement.author.name}
-                            </Text>
-                          </HStack>
-                          <Text fontSize="2xs" color="gray.400">
-                            {new Date(
-                              announcement.createdAt
-                            ).toLocaleDateString()}
-                          </Text>
-                        </Flex>
-                      </Box>
-                    ))
-                  ) : (
-                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
-                      {t('clubs.noAnnouncements')}
-                    </Text>
-                  )}
+                      </Badge>
+                    )}
+                  </HStack>
                 </VStack>
-              </Box>
+              </HStack>
+
+              {/* Action button — hidden for admin-provisioned clubs */}
+              {!isAdminProvisioned && (
+                <Box flexShrink={0}>
+                  {isMember ? (
+                    <Button
+                      colorPalette="red"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleLeave}
+                      loading={isLeaving}
+                      leftIcon={<UserMinus size={16} />}
+                    >
+                      {t('clubs.leaveClub')}
+                    </Button>
+                  ) : (
+                    <Button
+                      colorPalette="green"
+                      size="sm"
+                      onClick={handleJoin}
+                      loading={isJoining}
+                      leftIcon={<UserPlus size={16} />}
+                      disabled={
+                        club.joinPolicy === EClubJoinPolicy.INVITATION_ONLY
+                      }
+                    >
+                      {t('clubs.joinClub')}
+                    </Button>
+                  )}
+                </Box>
+              )}
             </Flex>
 
-            {/* Member List Section */}
-            <Box mt={12}>
-              <Flex align="center" gap={3} mb={6}>
-                <Users size={24} />
-                <Heading size="lg">{t('clubs.clubMembers')}</Heading>
-              </Flex>
+            {club.location && (
+              <HStack
+                mt={3}
+                gap={1.5}
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
+                <MapPin size={15} />
+                <Text fontSize="sm">{club.location}</Text>
+              </HStack>
+            )}
+          </Box>
 
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
-                {club.members?.map((member) => (
+          <Separator />
+
+          {/* Stats row */}
+          <SimpleGrid
+            columns={{ base: 2, sm: 4 }}
+            px={{ base: 5, md: 8 }}
+            py={5}
+            gap={0}
+            borderBottomWidth="1px"
+            borderColor="gray.100"
+            _dark={{ borderColor: 'gray.700' }}
+          >
+            <VStack
+              align="start"
+              gap={0.5}
+              px={4}
+              borderRightWidth={{ base: '1px', sm: '1px' }}
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
+              _first={{ pl: 0 }}
+            >
+              <HStack color="green.500" gap={1.5}>
+                <Users size={14} />
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
+                >
+                  {t('clubs.members')}
+                </Text>
+              </HStack>
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'white' }}
+              >
+                {club.memberCount}
+                {club.maxMembers ? (
+                  <Text
+                    as="span"
+                    fontSize="sm"
+                    color="gray.400"
+                    fontWeight="normal"
+                  >
+                    {' '}
+                    / {club.maxMembers}
+                  </Text>
+                ) : null}
+              </Text>
+            </VStack>
+
+            <VStack align="start" gap={0.5} px={4}>
+              <HStack color="blue.500" gap={1.5}>
+                <Calendar size={14} />
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
+                >
+                  {t('clubs.sessions')}
+                </Text>
+              </HStack>
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'white' }}
+              >
+                {club.sessionCount || 0}
+              </Text>
+            </VStack>
+
+            <VStack
+              align="start"
+              gap={0.5}
+              px={4}
+              borderLeftWidth={{ base: 0, sm: '1px' }}
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
+            >
+              <HStack color="orange.500" gap={1.5}>
+                <Crown size={14} />
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
+                >
+                  {t('clubs.hostedBy')}
+                </Text>
+              </HStack>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'white' }}
+              >
+                {club.host.name}
+              </Text>
+            </VStack>
+
+            <VStack align="start" gap={0.5} px={4}>
+              <HStack color="purple.500" gap={1.5}>
+                <UserCog size={14} />
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
+                >
+                  {t('common.status')}
+                </Text>
+              </HStack>
+              <Badge
+                colorPalette={isMember ? 'green' : 'gray'}
+                variant="subtle"
+                fontSize="xs"
+              >
+                {isMember
+                  ? memberInfo?.role || t('clubs.memberRole.member')
+                  : t('common.notAvailable')}
+              </Badge>
+            </VStack>
+          </SimpleGrid>
+
+          {/* Body: description + announcements */}
+          <Flex direction={{ base: 'column', lg: 'row' }} gap={0}>
+            {/* Left: description */}
+            <Box flex="1" px={{ base: 5, md: 8 }} py={6}>
+              {club.description ? (
+                <Box>
+                  <Heading
+                    size="sm"
+                    mb={3}
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                  >
+                    {t('session.description')}
+                  </Heading>
+                  <Text
+                    color="gray.600"
+                    _dark={{ color: 'gray.400' }}
+                    lineHeight="tall"
+                    fontSize="sm"
+                  >
+                    {club.description}
+                  </Text>
+                </Box>
+              ) : (
+                <Text fontSize="sm" color="gray.400" fontStyle="italic">
+                  {t('clubs.noDescription')}
+                </Text>
+              )}
+            </Box>
+
+            {/* Right: announcements sidebar */}
+            <Box
+              w={{ base: 'full', lg: '320px' }}
+              flexShrink={0}
+              px={{ base: 5, md: 6 }}
+              py={6}
+              bg="gray.50"
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+              borderLeftWidth={{ base: 0, lg: '1px' }}
+              borderTopWidth={{ base: '1px', lg: 0 }}
+              borderColor="gray.100"
+            >
+              <HStack gap={2} mb={4}>
+                <MessageSquare size={18} color="#3182CE" />
+                <Heading
+                  size="sm"
+                  color="gray.700"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  {t('clubs.recentAnnouncements')}
+                </Heading>
+              </HStack>
+
+              <VStack gap={3} align="stretch">
+                {club.announcements && club.announcements.length > 0 ? (
+                  club.announcements.map((announcement) => (
+                    <Box
+                      key={announcement.id}
+                      p={4}
+                      bg="white"
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                      borderRadius="lg"
+                      shadow="xs"
+                      borderWidth="1px"
+                      borderColor="gray.100"
+                    >
+                      <Text fontWeight="semibold" fontSize="sm" mb={1}>
+                        {announcement.title}
+                      </Text>
+                      <Text
+                        fontSize="xs"
+                        color="gray.600"
+                        _dark={{ color: 'gray.400' }}
+                        lineClamp={3}
+                      >
+                        {announcement.content}
+                      </Text>
+                      <Flex justify="space-between" align="center" mt={3}>
+                        <HStack gap={1.5}>
+                          <Avatar.Root size="xs">
+                            <Avatar.Image src={announcement.author.image} />
+                            <Avatar.Fallback>
+                              {announcement.author.name[0]}
+                            </Avatar.Fallback>
+                          </Avatar.Root>
+                          <Text fontSize="2xs" color="gray.500">
+                            {announcement.author.name}
+                          </Text>
+                        </HStack>
+                        <Text fontSize="2xs" color="gray.400">
+                          {new Date(
+                            announcement.createdAt
+                          ).toLocaleDateString()}
+                        </Text>
+                      </Flex>
+                    </Box>
+                  ))
+                ) : (
+                  <Text fontSize="sm" color="gray.400" fontStyle="italic">
+                    {t('clubs.noAnnouncements')}
+                  </Text>
+                )}
+              </VStack>
+            </Box>
+          </Flex>
+        </Box>
+
+        {/* Member list card */}
+        <Box
+          mt={5}
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          borderRadius="2xl"
+          overflow="hidden"
+          shadow="sm"
+          borderWidth="1px"
+          borderColor="gray.100"
+        >
+          <Box px={{ base: 5, md: 8 }} py={5}>
+            <HStack gap={2} mb={5}>
+              <Users size={20} />
+              <Heading size="md">{t('clubs.clubMembers')}</Heading>
+              <Badge colorPalette="gray" variant="subtle" ml={1}>
+                {club.memberCount}
+              </Badge>
+            </HStack>
+
+            {club.members && club.members.length > 0 ? (
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={3}>
+                {club.members.map((member) => (
                   <Flex
                     key={member.id}
                     p={4}
-                    bg="white"
-                    _dark={{ bg: 'gray.800' }}
+                    bg="gray.50"
                     borderRadius="xl"
                     borderWidth="1px"
                     borderColor="gray.100"
+                    _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                     align="center"
-                    gap={4}
+                    gap={3}
+                    transition="background 0.15s"
+                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
                   >
-                    <Avatar.Root>
+                    <Avatar.Root size="md">
                       <Avatar.Image src={member.user.image} />
                       <Avatar.Fallback>{member.user.name[0]}</Avatar.Fallback>
                     </Avatar.Root>
-                    <Box flex="1">
-                      <Text fontWeight="bold">{member.user.name}</Text>
-                      <HStack gap={2}>
+                    <Box flex="1" minW={0}>
+                      <Text
+                        fontWeight="semibold"
+                        fontSize="sm"
+                        lineClamp={1}
+                        color="gray.800"
+                        _dark={{ color: 'white' }}
+                      >
+                        {member.user.name}
+                      </Text>
+                      <HStack gap={2} mt={0.5}>
                         <Badge
                           size="xs"
                           colorPalette={
@@ -478,13 +639,14 @@ export default function ClubDetailsPage() {
                                 ? 'blue'
                                 : 'gray'
                           }
+                          variant="subtle"
                         >
                           {t(
-                            `clubs.memberRole.${member.role.toLowerCase()}` as any
+                            `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
                           )}
                         </Badge>
                         {member.user.level && (
-                          <Text fontSize="xs" color="gray.500">
+                          <Text fontSize="2xs" color="gray.500">
                             Lv.{member.user.level}
                           </Text>
                         )}
@@ -493,7 +655,21 @@ export default function ClubDetailsPage() {
                   </Flex>
                 ))}
               </SimpleGrid>
-            </Box>
+            ) : (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                py={10}
+                color="gray.400"
+                gap={2}
+              >
+                <Users size={40} strokeWidth={1.2} />
+                <Text fontSize="sm" fontStyle="italic">
+                  {t('clubs.adminApproval.noMembersYet')}
+                </Text>
+              </Flex>
+            )}
           </Box>
         </Box>
       </Container>

@@ -8,7 +8,7 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Image, Text, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Text, Textarea } from '@chakra-ui/react';
 import {
   Button,
   VStack,
@@ -27,10 +27,10 @@ import { VenueService } from '@/lib/api/venue.service';
 import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
-import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
+import ImageUploader from '@/components/cloudinary/ImageUploader';
 import PageLayout from '@/components/layout/PageLayout';
-import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
-import { EImageCategory, Venue } from '@/lib/api/types';
+import { Plus, Trash2, Info } from 'lucide-react';
+import { Venue } from '@/lib/api/types';
 
 const scheduleSchema = z.object({
   dayOfWeek: z.coerce.number().min(0).max(6),
@@ -39,7 +39,8 @@ const scheduleSchema = z.object({
 });
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'Club name is required'),
+  hostName: z.string().min(1, 'Host name is required'),
   description: z.string().optional(),
   color: z.string().optional(),
   image: z.string().optional(),
@@ -49,13 +50,12 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const CreateClubPage = () => {
+const AdminCreateClubPage = () => {
   const t = useTranslations('clubs');
   const router = useRouter();
   const [selectedVenueId, setSelectedVenueId] = useState<string>('');
   const [venues, setVenues] = useState<Venue[]>([]);
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -81,9 +81,7 @@ const CreateClubPage = () => {
   });
 
   const imageValue = watch('image');
-  const imagePublicIdValue = watch('imagePublicId');
 
-  // Debounced server-side venue search
   const handleVenueSearch = useCallback((query: string) => {
     if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
     venueSearchTimerRef.current = setTimeout(async () => {
@@ -102,7 +100,15 @@ const CreateClubPage = () => {
     }, 300);
   }, []);
 
-  // Load initial venues when dropdown first receives focus (lazy)
+  const handleUploadImage = useCallback(
+    async (file: File): Promise<string> => {
+      const result = await ClubsService.uploadClubImage(file);
+      setValue('imagePublicId', result.publicId);
+      return result.url;
+    },
+    [setValue]
+  );
+
   useEffect(() => {
     handleVenueSearch('');
   }, [handleVenueSearch]);
@@ -124,7 +130,7 @@ const CreateClubPage = () => {
         defaultVenueId: selectedVenueId || undefined,
       });
       toaster.success({ title: t('clubCreatedSuccess') });
-      router.push(ROUTES.CLUBS.BROWSE);
+      router.push(ROUTES.ADMIN.CLUBS);
     } catch (error) {
       console.error('Failed to create club:', error);
       toaster.error({ title: t('failedToCreateClub') });
@@ -144,15 +150,11 @@ const CreateClubPage = () => {
 
   const dayOptions = Array.from({ length: 7 }, (_, i) => ({
     value: i,
-    label: t(`dayNames.${i as 0 | 1 | 2 | 3 | 4 | 5 | 6}`),
+    label: t(`dayNames.${i}` as any),
   }));
 
   return (
-    <PageLayout
-      title={t('createClub')}
-      showBackButton
-      backHref={ROUTES.HOST.CLUBS.LIST}
-    >
+    <PageLayout title={t('adminApproval.createClubTitle')}>
       <Box
         as="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -178,6 +180,19 @@ const CreateClubPage = () => {
             />
           </Field>
 
+          {/* Provisional Host Name */}
+          <Field
+            label={t('adminApproval.provisionalHostName')}
+            invalid={!!errors.hostName}
+            errorText={errors.hostName?.message}
+            helperText={t('adminApproval.provisionalHostNameHelp')}
+          >
+            <Input
+              {...register('hostName')}
+              placeholder={t('adminApproval.provisionalHostNamePlaceholder')}
+            />
+          </Field>
+
           {/* Description */}
           <Field
             label={t('description')}
@@ -192,76 +207,16 @@ const CreateClubPage = () => {
 
           {/* Club Image */}
           <Field label={t('clubImage')}>
-            {imageValue ? (
-              <Box position="relative" display="inline-block">
-                <Image
-                  src={imageValue}
-                  alt="Club image"
-                  maxH="200px"
-                  maxW="100%"
-                  borderRadius="md"
-                  objectFit="cover"
-                />
-                <IconButton
-                  size="xs"
-                  position="absolute"
-                  top={1}
-                  right={1}
-                  colorPalette="red"
-                  variant="solid"
-                  borderRadius="full"
-                  aria-label={t('removeImage')}
-                  onClick={() => {
-                    setValue('image', undefined);
-                    setValue('imagePublicId', undefined);
-                  }}
-                >
-                  <X size={12} />
-                </IconButton>
-              </Box>
-            ) : (
-              <Box
-                borderWidth="2px"
-                borderStyle="dashed"
-                borderColor="gray.300"
-                _dark={{ borderColor: 'gray.600', color: 'gray.400' }}
-                borderRadius="md"
-                p={6}
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                gap={2}
-                color="gray.500"
-              >
-                <ImageIcon size={32} />
-                <Text fontSize="sm">{t('noImageSelected')}</Text>
-              </Box>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              mt={2}
-              onClick={() => setIsGalleryOpen(true)}
-            >
-              <ImageIcon size={16} />
-              {t('selectImage')}
-            </Button>
-            <AppImageGalleryPicker
-              isOpen={isGalleryOpen}
-              onClose={() => setIsGalleryOpen(false)}
-              onSelect={(imgs) => {
-                if (imgs.length > 0) {
-                  setValue('image', imgs[0].url);
-                  setValue('imagePublicId', imgs[0].publicId);
-                }
+            <ImageUploader
+              value={imageValue}
+              onChange={(url) => {
+                setValue('image', url || undefined);
+                if (!url) setValue('imagePublicId', undefined);
               }}
-              selectedImages={
-                imageValue && imagePublicIdValue
-                  ? [{ url: imageValue, publicId: imagePublicIdValue }]
-                  : []
-              }
-              maxSelect={1}
-              category={EImageCategory.CLUB}
+              onUpload={handleUploadImage}
+              maxSizeMB={5}
+              maxWidth={400}
+              maxHeight={400}
             />
           </Field>
 
@@ -375,7 +330,7 @@ const CreateClubPage = () => {
               {t('cancel')}
             </Button>
             <Button type="submit" colorPalette="green" loading={isSubmitting}>
-              {t('createClub')}
+              {t('adminApproval.createClub')}
             </Button>
           </Flex>
         </VStack>
@@ -384,4 +339,4 @@ const CreateClubPage = () => {
   );
 };
 
-export default CreateClubPage;
+export default AdminCreateClubPage;

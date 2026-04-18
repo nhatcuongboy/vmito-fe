@@ -172,7 +172,9 @@ const FindSessionCard = ({
             session.venue?.address &&
             session.venue.address !== session.venue.name && (
               <Text fontSize="xs" color="gray.500" lineClamp={1}>
-                {session.venue.address}
+                {[session.venue.address, session.venue.district]
+                  .filter(Boolean)
+                  .join(', ')}
               </Text>
             )}
         </Box>

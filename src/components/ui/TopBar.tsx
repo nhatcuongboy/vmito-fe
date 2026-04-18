@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { LogIn, Menu, ArrowLeft } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import SlideOutMenu from './SlideOutMenu';
@@ -49,7 +49,6 @@ export default function TopBar({
   const common = useTranslations('common');
   const appName = common('appName');
   const { isAuthenticated, isLoading, isHydrated } = useAuthStore();
-  const locale = useLocale();
   const router = useRouter();
   const { toggleCollapse } = useSidebar();
 
@@ -118,34 +117,6 @@ export default function TopBar({
           >
             {/* Left side - Menu, Logo & Back button */}
             <Flex height="100%" alignItems="center" gap={2}>
-              {showBackButton &&
-                (onBack ? (
-                  <IconButton
-                    aria-label={common('back')}
-                    variant="ghost"
-                    color="fg"
-                    _hover={{ bg: 'bg.muted' }}
-                    borderRadius="full"
-                    size="md"
-                    onClick={onBack}
-                  >
-                    <ArrowLeft size={20} />
-                  </IconButton>
-                ) : (
-                  <Link href={backHref}>
-                    <IconButton
-                      aria-label={common('back')}
-                      variant="ghost"
-                      color="fg"
-                      _hover={{ bg: 'bg.muted' }}
-                      borderRadius="full"
-                      size="md"
-                    >
-                      <ArrowLeft size={20} />
-                    </IconButton>
-                  </Link>
-                ))}
-
               <IconButton
                 aria-label="Open menu"
                 onClick={() => {
@@ -186,6 +157,34 @@ export default function TopBar({
                   Vmito
                 </Text>
               </Link>
+
+              {showBackButton &&
+                (onBack ? (
+                  <IconButton
+                    aria-label={common('back')}
+                    variant="ghost"
+                    color="fg"
+                    _hover={{ bg: 'bg.muted' }}
+                    borderRadius="full"
+                    size="md"
+                    onClick={onBack}
+                  >
+                    <ArrowLeft size={20} />
+                  </IconButton>
+                ) : (
+                  <Link href={backHref}>
+                    <IconButton
+                      aria-label={common('back')}
+                      variant="ghost"
+                      color="fg"
+                      _hover={{ bg: 'bg.muted' }}
+                      borderRadius="full"
+                      size="md"
+                    >
+                      <ArrowLeft size={20} />
+                    </IconButton>
+                  </Link>
+                ))}
             </Flex>
 
             {/* Center - App title */}

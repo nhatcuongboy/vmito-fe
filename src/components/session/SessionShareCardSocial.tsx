@@ -164,7 +164,9 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (
                     <Text fontSize="3xl" color="gray.500" mt={1}>
-                      {session.venue.address}
+                      {[session.venue.address, session.venue.district]
+                        .filter(Boolean)
+                        .join(', ')}
                     </Text>
                   )}
               </Box>
