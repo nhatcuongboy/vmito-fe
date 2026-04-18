@@ -111,6 +111,7 @@ export interface IClubAnnouncement {
 
 export interface IClub {
   id: string;
+  slug?: string;
   hostId: string;
   name: string;
   hostName?: string; // Provisional host name for admin-created clubs
@@ -139,6 +140,7 @@ export interface IClub {
 
 export interface IClubListItem {
   id: string;
+  slug?: string;
   name: string;
   description?: string;
   color?: string;
@@ -159,6 +161,7 @@ export interface IClubListItem {
 
 export interface IMyClub {
   id: string;
+  slug?: string;
   name: string;
   description?: string;
   color?: string;
@@ -182,6 +185,7 @@ export interface IClubJoinRequest {
   updatedAt: string;
   club?: {
     id: string;
+    slug?: string;
     name: string;
     image?: string;
     host: {

@@ -294,7 +294,9 @@ function TournamentsContent() {
                         transform: 'translateY(-3px)',
                       }}
                       onClick={() =>
-                        router.push(`/tournament/${tournament.id}`)
+                        router.push(
+                          `/tournament/${tournament.slug ?? tournament.id}`
+                        )
                       }
                     >
                       {/* Cover Image */}

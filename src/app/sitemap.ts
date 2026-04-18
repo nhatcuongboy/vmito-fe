@@ -69,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const club of clubs) {
       for (const locale of LOCALES) {
         entries.push({
-          url: `${BASE_URL}/${locale}/clubs/${club.id}`,
+          url: `${BASE_URL}/${locale}/clubs/${club.slug ?? club.id}`,
           lastModified: now,
           changeFrequency: 'weekly',
           priority: 0.7,
