@@ -98,6 +98,9 @@ export default function VenueCard({ venue }: VenueCardProps) {
         _dark: { borderColor: 'blue.500' },
       }}
       cursor="pointer"
+      display="flex"
+      flexDirection="column"
+      h="100%"
     >
       {/* Cover Photo */}
       <Box position="relative" h="140px" overflow="hidden">
@@ -407,6 +410,9 @@ export default function VenueCard({ venue }: VenueCardProps) {
           </Stack>
         </Box>
       )}
+
+      {/* Spacer — pushes contact + action buttons to bottom */}
+      <Box flex="1" />
 
       {/* Contact Section */}
       {(venue.phone || venue.website) && (

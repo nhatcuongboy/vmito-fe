@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,7 +13,14 @@ import {
   NativeSelectRoot,
   NativeSelectField,
   Text,
+  Box,
+  Flex,
+  Image,
 } from '@chakra-ui/react';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { Upload, X } from 'lucide-react';
+import { EImageCategory } from '@/lib/api/types';
+import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 
 import { ClosureStatus, Venue } from '@/lib/api/types';
 import { VenueService } from '@/lib/api/venue.service';
@@ -38,8 +45,8 @@ const venueSchema = z.object({
   website: z.string().optional(),
   openingHours: z.string().optional(),
   numberOfCourts: z.number().int().min(1).optional(),
-  hourlyRateFixed: z.number().int().min(0).optional(),
-  hourlyRateWalkIn: z.number().int().min(0).optional(),
+  hourlyRateFixed: z.number().int().min(0).nullable().optional(),
+  hourlyRateWalkIn: z.number().int().min(0).nullable().optional(),
   isVerified: z.boolean(),
   hasCarParking: z.boolean().optional(),
   hasCanteen: z.boolean().optional(),
@@ -50,6 +57,8 @@ const venueSchema = z.object({
   locatedWithin: z.string().optional(),
   courtLayoutImage: z.string().optional(),
   courtLayoutImagePublicId: z.string().optional(),
+  coverPhoto: z.string().optional(),
+  coverPhotoPublicId: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -69,7 +78,10 @@ export function QuickVenueEditModal({
 }: QuickVenueEditModalProps) {
   const t = useTranslations('admin');
   const tCommon = useTranslations('common');
-
+  const [isCoverPickerOpen, setIsCoverPickerOpen] = useState(false);
+  const [isLayoutPickerOpen, setIsLayoutPickerOpen] = useState(false);
+  const [coverUrlInput, setCoverUrlInput] = useState('');
+  const [layoutUrlInput, setLayoutUrlInput] = useState('');
   const form = useForm<VenueFormValues>({
     resolver: zodResolver(venueSchema),
     defaultValues: {
@@ -97,6 +109,8 @@ export function QuickVenueEditModal({
       locatedWithin: venue.locatedWithin || '',
       courtLayoutImage: venue.courtLayoutImage || '',
       courtLayoutImagePublicId: venue.courtLayoutImagePublicId || '',
+      coverPhoto: venue.coverPhoto || '',
+      coverPhotoPublicId: venue.coverPhotoPublicId || '',
     },
   });
 
@@ -535,19 +549,255 @@ export function QuickVenueEditModal({
           )}
         />
 
-        <Controller
-          control={form.control}
-          name="courtLayoutImage"
-          render={({ field }) => (
-            <Field.Root>
-              <Field.Label>
-                {t('courtLayoutImage') || 'Sơ đồ sân (URL ảnh)'}
-              </Field.Label>
-              <Input {...field} placeholder="https://..." />
-            </Field.Root>
-          )}
-        />
+        {/* Cover Photo Upload */}
+        <Field.Root w="full">
+          <Field.Label>Ảnh bìa</Field.Label>
+          <Controller
+            control={form.control}
+            name="coverPhoto"
+            render={({ field }) => (
+              <Box w="full">
+                {field.value ? (
+                  <Box position="relative" borderRadius="lg" overflow="hidden">
+                    <Image
+                      src={field.value}
+                      alt="Ảnh bìa"
+                      w="100%"
+                      h="160px"
+                      objectFit="cover"
+                      borderRadius="lg"
+                    />
+                    <Flex position="absolute" top={2} right={2} gap={2}>
+                      <IconButton
+                        aria-label="Remove cover photo"
+                        size="sm"
+                        colorPalette="red"
+                        onClick={() => {
+                          form.setValue('coverPhoto', '');
+                          form.setValue('coverPhotoPublicId', '');
+                          setCoverUrlInput('');
+                        }}
+                      >
+                        <X size={14} />
+                      </IconButton>
+                      <IconButton
+                        aria-label="Change cover photo"
+                        size="sm"
+                        colorPalette="green"
+                        onClick={() => setIsCoverPickerOpen(true)}
+                      >
+                        <Upload size={14} />
+                      </IconButton>
+                    </Flex>
+                  </Box>
+                ) : (
+                  <Flex direction="column" gap={2}>
+                    <Flex
+                      direction="column"
+                      align="center"
+                      justify="center"
+                      h="100px"
+                      borderWidth={2}
+                      borderStyle="dashed"
+                      borderColor="gray.300"
+                      borderRadius="lg"
+                      cursor="pointer"
+                      bg="gray.50"
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
+                      _hover={{ borderColor: 'green.400', bg: 'gray.100' }}
+                      transition="all 0.2s"
+                      onClick={() => setIsCoverPickerOpen(true)}
+                    >
+                      <Upload size={22} color="gray" />
+                      <Text mt={1.5} fontSize="sm" color="gray.500">
+                        Chọn hoặc tải ảnh bìa lên
+                      </Text>
+                    </Flex>
+                    <Flex align="center" gap={2}>
+                      <Box flex={1} h="1px" bg="gray.200" />
+                      <Text fontSize="xs" color="gray.400">
+                        hoặc
+                      </Text>
+                      <Box flex={1} h="1px" bg="gray.200" />
+                    </Flex>
+                    <Input
+                      placeholder="Dán link ảnh bìa..."
+                      value={coverUrlInput}
+                      onChange={(e) => setCoverUrlInput(e.target.value)}
+                      onBlur={() => {
+                        const url = coverUrlInput.trim();
+                        if (url) {
+                          form.setValue('coverPhoto', url);
+                          form.setValue('coverPhotoPublicId', '');
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const url = coverUrlInput.trim();
+                          if (url) {
+                            form.setValue('coverPhoto', url);
+                            form.setValue('coverPhotoPublicId', '');
+                          }
+                        }
+                      }}
+                    />
+                  </Flex>
+                )}
+              </Box>
+            )}
+          />
+        </Field.Root>
+
+        {/* Court Layout Image Upload */}
+        <Field.Root w="full">
+          <Field.Label>Sơ đồ sân</Field.Label>
+          <Controller
+            control={form.control}
+            name="courtLayoutImage"
+            render={({ field }) => (
+              <Box w="full">
+                {field.value ? (
+                  <Box position="relative" borderRadius="lg" overflow="hidden">
+                    <Image
+                      src={field.value}
+                      alt="Sơ đồ sân"
+                      w="100%"
+                      h="160px"
+                      objectFit="contain"
+                      bg="gray.100"
+                      borderRadius="lg"
+                    />
+                    <Flex position="absolute" top={2} right={2} gap={2}>
+                      <IconButton
+                        aria-label="Remove court layout"
+                        size="sm"
+                        colorPalette="red"
+                        onClick={() => {
+                          form.setValue('courtLayoutImage', '');
+                          form.setValue('courtLayoutImagePublicId', '');
+                          setLayoutUrlInput('');
+                        }}
+                      >
+                        <X size={14} />
+                      </IconButton>
+                      <IconButton
+                        aria-label="Change court layout"
+                        size="sm"
+                        colorPalette="green"
+                        onClick={() => setIsLayoutPickerOpen(true)}
+                      >
+                        <Upload size={14} />
+                      </IconButton>
+                    </Flex>
+                  </Box>
+                ) : (
+                  <Flex direction="column" gap={2}>
+                    <Flex
+                      direction="column"
+                      align="center"
+                      justify="center"
+                      h="100px"
+                      borderWidth={2}
+                      borderStyle="dashed"
+                      borderColor="gray.300"
+                      borderRadius="lg"
+                      cursor="pointer"
+                      bg="gray.50"
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
+                      _hover={{ borderColor: 'green.400', bg: 'gray.100' }}
+                      transition="all 0.2s"
+                      onClick={() => setIsLayoutPickerOpen(true)}
+                    >
+                      <Upload size={22} color="gray" />
+                      <Text mt={1.5} fontSize="sm" color="gray.500">
+                        Chọn hoặc tải sơ đồ sân lên
+                      </Text>
+                    </Flex>
+                    <Flex align="center" gap={2}>
+                      <Box flex={1} h="1px" bg="gray.200" />
+                      <Text fontSize="xs" color="gray.400">
+                        hoặc
+                      </Text>
+                      <Box flex={1} h="1px" bg="gray.200" />
+                    </Flex>
+                    <Input
+                      placeholder="Dán link sơ đồ sân..."
+                      value={layoutUrlInput}
+                      onChange={(e) => setLayoutUrlInput(e.target.value)}
+                      onBlur={() => {
+                        const url = layoutUrlInput.trim();
+                        if (url) {
+                          form.setValue('courtLayoutImage', url);
+                          form.setValue('courtLayoutImagePublicId', '');
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const url = layoutUrlInput.trim();
+                          if (url) {
+                            form.setValue('courtLayoutImage', url);
+                            form.setValue('courtLayoutImagePublicId', '');
+                          }
+                        }
+                      }}
+                    />
+                  </Flex>
+                )}
+              </Box>
+            )}
+          />
+        </Field.Root>
       </VStack>
+
+      <AppImageGalleryPicker
+        isOpen={isCoverPickerOpen}
+        onClose={() => setIsCoverPickerOpen(false)}
+        maxSelect={1}
+        category={EImageCategory.OTHER}
+        selectedImages={
+          form.watch('coverPhoto')
+            ? [
+                {
+                  url: form.watch('coverPhoto')!,
+                  publicId: form.watch('coverPhotoPublicId') || '',
+                },
+              ]
+            : []
+        }
+        onSelect={(imgs) => {
+          if (imgs[0]) {
+            form.setValue('coverPhoto', imgs[0].url);
+            form.setValue('coverPhotoPublicId', imgs[0].publicId);
+          }
+          setIsCoverPickerOpen(false);
+        }}
+      />
+
+      <AppImageGalleryPicker
+        isOpen={isLayoutPickerOpen}
+        onClose={() => setIsLayoutPickerOpen(false)}
+        maxSelect={1}
+        category={EImageCategory.OTHER}
+        selectedImages={
+          form.watch('courtLayoutImage')
+            ? [
+                {
+                  url: form.watch('courtLayoutImage')!,
+                  publicId: form.watch('courtLayoutImagePublicId') || '',
+                },
+              ]
+            : []
+        }
+        onSelect={(imgs) => {
+          if (imgs[0]) {
+            form.setValue('courtLayoutImage', imgs[0].url);
+            form.setValue('courtLayoutImagePublicId', imgs[0].publicId);
+          }
+          setIsLayoutPickerOpen(false);
+        }}
+      />
     </VModal>
   );
 }
