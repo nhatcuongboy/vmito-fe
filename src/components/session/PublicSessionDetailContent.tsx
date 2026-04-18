@@ -10,7 +10,7 @@ import {
   Portal,
   Spinner,
 } from '@chakra-ui/react';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';

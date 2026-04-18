@@ -236,7 +236,9 @@ export default function FindSessionList({
       const currentPage = isLoadMore ? page + 1 : 1;
 
       // Prepare filters for API
-      const apiFilters: any = {
+      const apiFilters: Parameters<
+        typeof SessionService.getAvailableSessions
+      >[0] = {
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME instead of CODE

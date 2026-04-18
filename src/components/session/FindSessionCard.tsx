@@ -12,7 +12,6 @@ import { ViewMode } from '@/stores/useSessionFilterStore';
 import React, { useState, memo } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import { Portal } from '@chakra-ui/react';

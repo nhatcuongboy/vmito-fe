@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { toaster } from '@/components/ui/toaster';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
@@ -26,7 +26,6 @@ import {
   Filter,
   Grid2X2,
   MapPin,
-  Search,
   TrendingUp,
   X,
 } from 'lucide-react';

@@ -119,6 +119,8 @@ export function QuickVenueEditModal({
       const payload = {
         ...data,
         phone: trimPhone(data.phone),
+        hourlyRateFixed: data.hourlyRateFixed ?? undefined,
+        hourlyRateWalkIn: data.hourlyRateWalkIn ?? undefined,
       };
       const updated = await VenueService.updateVenue(venue.id, payload);
       toaster.success({
