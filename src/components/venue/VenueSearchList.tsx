@@ -179,11 +179,18 @@ export default function VenueSearchList() {
         {
           keyword: filters.q || undefined,
           city:
-            filters.city.length === 1
-              ? VIETNAM_CITIES.find((c) => c.code === filters.city[0])?.name
+            filters.city.length > 0
+              ? filters.city
+                  .map(
+                    (code) =>
+                      VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code
+                  )
+                  .join(',')
               : undefined,
           district:
-            filters.district.length === 1 ? filters.district[0] : undefined,
+            filters.district.length > 0
+              ? filters.district.join(',')
+              : undefined,
           closureStatus: 'OPERATING',
           page: currentPage,
           limit: PAGE_SIZE,
@@ -202,33 +209,7 @@ export default function VenueSearchList() {
 
       const result = await VenueService.searchVenues(apiFilters);
       setTotalCount(result.pagination.total);
-      let venueData = result.data;
-
-      // Client-side multi-city filter
-      if (filters.city.length > 1) {
-        venueData = venueData.filter((venue) => {
-          const venueCity = venue.city || '';
-          return filters.city.some((cityCode) => {
-            const cityName = VIETNAM_CITIES.find(
-              (c) => c.code === cityCode
-            )?.name;
-            return (
-              venueCity.includes(cityCode) ||
-              (cityName && venueCity.includes(cityName))
-            );
-          });
-        });
-      }
-
-      // Client-side multi-district filter
-      if (filters.district.length > 1) {
-        venueData = venueData.filter((venue) => {
-          const venueDistrict = venue.district || '';
-          return filters.district.some(
-            (d) => venueDistrict.toLowerCase() === d.toLowerCase()
-          );
-        });
-      }
+      const venueData = result.data;
 
       if (isLoadMore) {
         setVenues((prev) => {

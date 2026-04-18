@@ -241,15 +241,20 @@ export default function FindSessionList({
       >[0] = {
         date: filters.date,
         searchQuery: filters.searchQuery,
-        // Send City NAME instead of CODE
+        // Send City NAME(s) instead of CODE(s) — comma-separated for multi-select
         city:
-          filters.cities.length === 1
-            ? VIETNAM_CITIES.find((c) => c.code === filters.cities[0])?.name
+          filters.cities.length > 0
+            ? filters.cities
+                .map(
+                  (code) =>
+                    VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code
+                )
+                .join(',')
             : undefined,
-        // Send cleaned District name
+        // Send cleaned District name(s) — comma-separated for multi-select
         district:
-          filters.districts.length === 1
-            ? normalizeLocation(filters.districts[0])
+          filters.districts.length > 0
+            ? filters.districts.map(normalizeLocation).join(',')
             : undefined,
         venueId: filters.venueId || undefined,
         hasSlots: filters.hasSlots ? true : undefined,
@@ -292,38 +297,8 @@ export default function FindSessionList({
       const response = await SessionService.getAvailableSessions(apiFilters);
       const { data, pagination } = response;
 
-      // Client-side post-filtering for complex logic (multiple levels, time ranges, multi-city/district)
+      // Client-side post-filtering for complex logic (time ranges, levels)
       let filteredData = data;
-
-      // 1. Multi-city filter (if multiple cities selected)
-      if (filters.cities.length > 1) {
-        filteredData = filteredData.filter((session) => {
-          const sessionCity = session.venue?.city || session.location || '';
-          return filters.cities.some((cityCode) => {
-            const cityName = VIETNAM_CITIES.find(
-              (c) => c.code === cityCode
-            )?.name;
-            return (
-              sessionCity.includes(cityCode) ||
-              (cityName && sessionCity.includes(cityName))
-            );
-          });
-        });
-      }
-
-      // 2. Multi-district filter (if multiple districts selected)
-      if (filters.districts.length > 1) {
-        filteredData = filteredData.filter((session) => {
-          const sessionDistrict = session.venue?.district || '';
-          return filters.districts.some((districtFilter) => {
-            const cleanFilter = normalizeLocation(districtFilter);
-            const cleanSession = normalizeLocation(sessionDistrict);
-            return cleanSession.includes(cleanFilter);
-          });
-        });
-      }
-
-      // 3. Time range filter
       if (filters.timeRanges.length > 0) {
         filteredData = filteredData.filter((session) => {
           if (!session.startTime) return false;
@@ -341,7 +316,7 @@ export default function FindSessionList({
         });
       }
 
-      // 4. Multi-level filter (if backend didn't handle it or multiple selected)
+      // 1. Multi-level filter (if backend didn't handle it or multiple selected)
       if (filters.levels.length > 0) {
         filteredData = filteredData.filter((session) => {
           const sessionLevels = session.requiredLevels || [];
@@ -350,7 +325,7 @@ export default function FindSessionList({
         });
       }
 
-      // 5. Split evenly filter (filter sessions with split evenly fee type)
+      // 2. Split evenly filter (filter sessions with split evenly fee type)
       if (filters.splitEvenly) {
         filteredData = filteredData.filter((session) => {
           return session.feeConfig?.feeType === 'SPLIT_EVENLY';
