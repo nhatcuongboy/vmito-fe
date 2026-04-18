@@ -1048,7 +1048,7 @@ export default function FindSessionList({
           isOpen={isLoginPromptOpen}
           onClose={() => setIsLoginPromptOpen(false)}
           featureName={t('loginRequiredCreateSession')}
-          returnUrl="/"
+          returnUrl={ROUTES.SESSIONS.NEW}
         />
       )}
     </Box>

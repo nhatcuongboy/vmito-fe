@@ -1,12 +1,4 @@
 'use client';
-import { Input } from '@/components/ui/Input';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { useDisclosure } from '@/components/ui/ChakraHooks';
-import { toaster } from '@/components/ui/toaster';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
-import { getUserLocation } from '@/lib/utils/geolocation.utils';
-
 import { useState, useEffect, useMemo } from 'react';
 import {
   Badge,
@@ -19,8 +11,21 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Check, Filter, MapPin, RefreshCw, Search, X } from 'lucide-react';
+import { Check, Filter, MapPin, Plus, RefreshCw, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
+import { toaster } from '@/components/ui/toaster';
+import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+  ROUTES,
+} from '@/constants';
+import { getUserLocation } from '@/lib/utils/geolocation.utils';
+import { useRouter } from '@/i18n/config';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import { IClubListItem } from '@/types/club';
@@ -28,14 +33,21 @@ import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
+
 export default function BrowseClubsPage() {
   const t = useTranslations();
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
   // Active filters
@@ -115,7 +127,9 @@ export default function BrowseClubsPage() {
       // Client-side multi-district filter
       if (districts.length > 1) {
         items = items.filter((club) => {
-          const venueDistrict = (club.defaultVenue as any)?.district || '';
+          const venueDistrict =
+            (club.defaultVenue as { district?: string } | undefined)
+              ?.district ?? '';
           return districts.some(
             (d) => venueDistrict.toLowerCase() === d.toLowerCase()
           );
@@ -130,7 +144,6 @@ export default function BrowseClubsPage() {
       }
 
       setTotalCount(response.total);
-      setTotalPages(response.totalPages || 1);
       setHasMore(pageNum < (response.totalPages || 0));
     } catch (error) {
       console.error('Failed to fetch clubs:', error);
@@ -163,10 +176,10 @@ export default function BrowseClubsPage() {
       const location = await getUserLocation();
       setPendingUserLocation(location);
       setPendingSortByDistance(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toaster.error({
         title: 'Không thể lấy vị trí',
-        description: err.message,
+        description: err instanceof Error ? err.message : undefined,
       });
     }
   };
@@ -254,6 +267,21 @@ export default function BrowseClubsPage() {
               showFilter={true}
             />
           </Box>
+          <Button
+            colorPalette="green"
+            size="sm"
+            flexShrink={0}
+            onClick={() => {
+              if (user) {
+                router.push(ROUTES.HOST.CLUBS.CREATE);
+              } else {
+                setIsLoginModalOpen(true);
+              }
+            }}
+          >
+            <Plus size={16} />
+            {t('navigation.createClub')}
+          </Button>
         </Flex>
       </Box>
 
@@ -704,6 +732,14 @@ export default function BrowseClubsPage() {
             </Flex>
           )}
         </>
+      )}
+      {isLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          featureName={t('navigation.createClub')}
+          returnUrl={ROUTES.HOST.CLUBS.CREATE}
+        />
       )}
     </PageLayout>
   );
