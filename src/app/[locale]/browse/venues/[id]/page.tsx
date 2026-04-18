@@ -44,7 +44,7 @@ import {
   normalizePhoneForZalo,
 } from '@/utils/phone-utils';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { formatVenueName } from '@/utils';
+import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import { Pencil } from 'lucide-react';
 import { QuickVenueEditModal } from '@/components/venue/QuickVenueEditModal';
@@ -90,14 +90,14 @@ export default function VenueDetailPage() {
 
   const handleNavigate = () => {
     if (!venue) return;
-    const query = encodeURIComponent(
-      venue.address ||
-        formatVenueName(venue.name, t('nameFormat', { name: '{name}' }))
-    );
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${query}`,
-      '_blank'
-    );
+    const url = getGoogleMapsUrl({
+      address: venue.address,
+      name: formatVenueName(venue.name, t('nameFormat', { name: '{name}' })),
+      placeId: venue.placeId,
+      lat: venue.lat,
+      lng: venue.lng,
+    });
+    if (url) window.open(url, '_blank');
   };
 
   const handleFindSessions = () => {

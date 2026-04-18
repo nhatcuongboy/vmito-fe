@@ -13,7 +13,7 @@ import {
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { formatVenueName } from '@/utils';
+import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -296,20 +296,19 @@ export const PublicSessionDetailContent = ({
               aria-label="Google Maps"
               onClick={(e) => {
                 e.stopPropagation();
-                const address =
-                  session.venue?.address ||
-                  (session.venue?.name
+                const url = getGoogleMapsUrl({
+                  address: session.venue?.address,
+                  name: session.venue?.name
                     ? formatVenueName(
                         session.venue.name,
                         tVenue('nameFormat', { name: '{name}' })
                       )
-                    : session.location);
-                if (address) {
-                  window.open(
-                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-                    '_blank'
-                  );
-                }
+                    : session.location,
+                  placeId: session.venue?.placeId,
+                  lat: session.venue?.lat,
+                  lng: session.venue?.lng,
+                });
+                if (url) window.open(url, '_blank');
               }}
               icon={<Icon as={Navigation} />}
             />
