@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 
+const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging';
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === 'production'
       ? 'https://vmito.com'
       : 'http://localhost:3000'
   ),
+  ...(isStaging && { robots: { index: false, follow: false } }),
   title: {
     default: 'Vmito — Tìm kèo cầu lông',
     template: '%s | Vmito',
