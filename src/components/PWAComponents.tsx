@@ -108,16 +108,19 @@ export function PWAStatus() {
 
   useEffect(() => {
     // Update theme-color meta tag based on color mode
-    // Removes all existing theme-color meta tags (including media-query variants from SSR)
-    // and replaces with a single tag matching the current app color mode
-    const themeColor = colorMode === 'dark' ? '#000000' : '#ffffff';
-    document
-      .querySelectorAll('meta[name="theme-color"]')
-      .forEach((el) => el.remove());
-    const meta = document.createElement('meta');
-    meta.name = 'theme-color';
-    meta.content = themeColor;
-    document.head.appendChild(meta);
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    // Dark mode color matches chakra theme 'bg' token (#1a202c)
+    // Light mode color matches chakra theme 'bg' token (#ffffff)
+    const newThemeColor = colorMode === 'dark' ? '#1a202c' : '#ffffff';
+
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', newThemeColor);
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = newThemeColor;
+      document.head.appendChild(meta);
+    }
   }, [colorMode]);
 
   useEffect(() => {
