@@ -4,7 +4,14 @@
 
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { IconButton, Button } from '@/components/ui/chakra-compat';
-import { Play, RefreshCw, Square, MoreVertical, ArrowLeft } from 'lucide-react';
+import {
+  Play,
+  RefreshCw,
+  Square,
+  MoreVertical,
+  ArrowLeft,
+  XCircle,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/config';
 import { useState, useRef, useEffect } from 'react';
@@ -16,12 +23,15 @@ interface SessionStatusHeaderProps {
     startTime?: string | Date | null;
     endTime?: string | Date | null;
     sessionDuration?: number;
+    scheduledEndTime?: Date | string;
+    gracePeriodEnd?: Date | string;
   };
   /** Read-only mode for player view - hides action menu */
   readOnly?: boolean;
   isRefreshing?: boolean;
   isToggleStatusLoading?: boolean;
   onToggleSessionStatus?: () => void;
+  onCancelSession?: () => void;
   onRefreshData?: () => void;
   /** Top offset for sticky positioning */
   stickyTop?: any;
@@ -36,6 +46,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   isRefreshing = false,
   isToggleStatusLoading = false,
   onToggleSessionStatus,
+  onCancelSession,
   onRefreshData,
   stickyTop = 0,
   mt,
@@ -46,6 +57,12 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   const common = useTranslations('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Compute overtime state
+  const isOvertime =
+    session.status === 'IN_PROGRESS' &&
+    !!session.scheduledEndTime &&
+    new Date() > new Date(session.scheduledEndTime);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -64,6 +81,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
 
   // Get status color for icons
   const getStatusBg = (status: string) => {
+    if (isOvertime) return 'orange.500';
     switch (status) {
       case 'PREPARING':
         return 'green.500';
@@ -71,13 +89,27 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
         return 'red.500';
       case 'FINISHED':
         return 'gray.400';
+      case 'CANCELLED':
+        return 'gray.500';
       default:
         return 'brand.500';
     }
   };
 
+  // Get header background color
+  const getHeaderBg = () => {
+    if (isOvertime) return 'orange.500';
+    if (session.status === 'CANCELLED') return 'gray.500';
+    return 'brand.500';
+  };
+
   const handleToggleStatus = () => {
     onToggleSessionStatus?.();
+    setIsMenuOpen(false);
+  };
+
+  const handleCancel = () => {
+    onCancelSession?.();
     setIsMenuOpen(false);
   };
 
@@ -86,16 +118,34 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
     setIsMenuOpen(false);
   };
 
+  // Get status label
+  const getStatusLabel = () => {
+    if (isOvertime) return t('overtime');
+    return '';
+  };
+
   return (
     <Box
       position="sticky"
       top={stickyTop}
       zIndex={50}
-      bg="brand.500"
-      _dark={{ bg: 'brand.600' }}
+      bg={getHeaderBg()}
+      _dark={{
+        bg: isOvertime
+          ? 'orange.600'
+          : session.status === 'CANCELLED'
+            ? 'gray.600'
+            : 'brand.600',
+      }}
       mt={mt}
       borderBottomWidth="1px"
-      borderColor="brand.600"
+      borderColor={
+        isOvertime
+          ? 'orange.600'
+          : session.status === 'CANCELLED'
+            ? 'gray.600'
+            : 'brand.600'
+      }
       shadow="md"
       py={1}
       px={4}
@@ -145,6 +195,9 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
             border="1.5px solid"
             borderColor="whiteAlpha.400"
             flexShrink={0}
+            {...(isOvertime && {
+              animation: 'pulse 2s infinite',
+            })}
           >
             <Box
               w="6px"
@@ -164,11 +217,21 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
             textOverflow="ellipsis"
           >
             {session.name}
+            {isOvertime && (
+              <Text as="span" fontSize="xs" ml={2} opacity={0.9}>
+                ({getStatusLabel()})
+              </Text>
+            )}
+            {session.status === 'CANCELLED' && (
+              <Text as="span" fontSize="xs" ml={2} opacity={0.9}>
+                ({t('cancelled')})
+              </Text>
+            )}
           </Text>
         </Flex>
 
         {/* Action Button & Dropdown - Hidden in readOnly mode */}
-        {!readOnly ? (
+        {!readOnly && session.status !== 'CANCELLED' ? (
           <Box
             width="40px"
             display="flex"
@@ -279,9 +342,36 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                     color={getStatusBg(session.status)}
                   />
                   <Text fontSize="sm" fontWeight="medium">
-                    {session.status === 'IN_PROGRESS' ? t('end') : t('start')}
+                    {session.status === 'IN_PROGRESS'
+                      ? isOvertime
+                        ? t('endAndFinalize')
+                        : t('end')
+                      : t('start')}
                   </Text>
                 </Button>
+
+                {/* Cancel Action - Only for PREPARING */}
+                {session.status === 'PREPARING' && onCancelSession && (
+                  <Button
+                    variant="ghost"
+                    width="100%"
+                    px={4}
+                    py={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={3}
+                    _hover={{ bg: 'bg.muted' }}
+                    onClick={handleCancel}
+                    fontWeight="normal"
+                    borderRadius="0"
+                  >
+                    <Box as={XCircle} boxSize={4} color="red.500" />
+                    <Text fontSize="sm" fontWeight="medium" color="red.500">
+                      {t('cancelSession')}
+                    </Text>
+                  </Button>
+                )}
 
                 {/* Refresh Action */}
                 {session.status === 'IN_PROGRESS' && (
@@ -312,7 +402,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
             )}
           </Box>
         ) : (
-          /* Right spacer for centering title in readOnly mode */
+          /* Right spacer for centering title in readOnly/cancelled mode */
           <Box width="40px" />
         )}
       </Flex>

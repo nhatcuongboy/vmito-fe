@@ -4,7 +4,7 @@ import { SessionData } from './useSessionData';
 import { SessionStatus } from '@/lib/api/types';
 
 interface UseSessionManagementProps {
-  session: SessionData;
+  session: SessionData | null;
   onSessionUpdate: (updates: Partial<SessionData>) => void;
   onRefreshData: () => Promise<void>;
   t: (key: string) => string;
@@ -19,16 +19,20 @@ interface UseSessionManagementProps {
 
 interface UseSessionManagementReturn {
   isToggleStatusLoading: boolean;
+  isCancelLoading: boolean;
   showConfirmDialog: boolean;
   pendingAction: string;
+  isOvertime: boolean;
   toggleSessionStatus: () => Promise<void>;
+  cancelSession: () => Promise<void>;
   handleConfirmAction: () => Promise<void>;
   handleCancelAction: () => void;
 }
 
 /**
  * Custom hook for managing session status transitions
- * Handles start/end session logic with confirmation dialogs
+ * Handles start/end/cancel session logic with confirmation dialogs
+ * Supports overtime detection based on scheduledEndTime
  *
  * @param props - Configuration including session, callbacks, and utilities
  * @returns Object containing status management functions and state
@@ -42,11 +46,20 @@ export function useSessionManagement({
 }: UseSessionManagementProps): UseSessionManagementReturn {
   const [isToggleStatusLoading, setIsToggleStatusLoading] =
     useState<boolean>(false);
+  const [isCancelLoading, setIsCancelLoading] = useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [pendingAction, setPendingAction] = useState<string>('');
 
+  // Compute overtime: session is IN_PROGRESS and past scheduledEndTime
+  const isOvertime =
+    !!session &&
+    session.status === SessionStatus.IN_PROGRESS &&
+    !!session.scheduledEndTime &&
+    new Date() > new Date(session.scheduledEndTime);
+
   // Execute the actual status change
   const executeStatusChange = async (nextStatus: string) => {
+    if (!session) return;
     try {
       setIsToggleStatusLoading(true);
 
@@ -85,15 +98,6 @@ export function useSessionManagement({
             : undefined,
         });
       }
-
-      // toaster.create({
-      //   title:
-      //     nextStatus === SessionStatus.IN_PROGRESS
-      //       ? t('sessionStarted')
-      //       : t('sessionEnded'),
-      //   type: 'success',
-      //   duration: 3000,
-      // });
     } catch (error) {
       console.error('Error updating session status:', error);
       toaster.create({
@@ -108,6 +112,7 @@ export function useSessionManagement({
 
   // Toggle session status (Start/End session)
   const toggleSessionStatus = async () => {
+    if (!session) return;
     // Determine the next status
     let nextStatus = session.status;
     if (session.status === SessionStatus.PREPARING) {
@@ -115,7 +120,7 @@ export function useSessionManagement({
     } else if (session.status === SessionStatus.IN_PROGRESS) {
       nextStatus = SessionStatus.FINISHED;
     } else {
-      return; // No change if already FINISHED
+      return; // No change if already FINISHED or CANCELLED
     }
 
     // Show confirmation dialog for ending session
@@ -129,11 +134,35 @@ export function useSessionManagement({
     await executeStatusChange(nextStatus);
   };
 
+  // Cancel a PREPARING session
+  const cancelSession = async () => {
+    setPendingAction('cancel');
+    setShowConfirmDialog(true);
+  };
+
   // Handle confirmation dialog
   const handleConfirmAction = async () => {
     setShowConfirmDialog(false);
     if (pendingAction === 'end') {
       await executeStatusChange(SessionStatus.FINISHED);
+    } else if (pendingAction === 'cancel') {
+      if (!session) return;
+      try {
+        setIsCancelLoading(true);
+        const updatedSession = await SessionService.cancelSession(session.id);
+        onSessionUpdate({
+          status: updatedSession.status as SessionStatus,
+        });
+      } catch (error) {
+        console.error('Error cancelling session:', error);
+        toaster.create({
+          title: t('errorCancellingSession'),
+          type: 'error',
+          duration: 3000,
+        });
+      } finally {
+        setIsCancelLoading(false);
+      }
     }
     setPendingAction('');
   };
@@ -145,9 +174,12 @@ export function useSessionManagement({
 
   return {
     isToggleStatusLoading,
+    isCancelLoading,
     showConfirmDialog,
     pendingAction,
+    isOvertime,
     toggleSessionStatus,
+    cancelSession,
     handleConfirmAction,
     handleCancelAction,
   };

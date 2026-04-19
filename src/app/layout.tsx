@@ -41,10 +41,13 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: [{ url: '/icons/app-logo.png?v=1', type: 'image/png' }],
-    shortcut: ['/icons/app-logo.png?v=1'],
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icons/app-logo.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: ['/favicon.ico'],
     apple: [
-      { url: '/icons/app-logo.png?v=1', type: 'image/png', sizes: '180x180' },
+      { url: '/icons/app-logo.png', type: 'image/png', sizes: '180x180' },
     ],
   },
   appleWebApp: {
