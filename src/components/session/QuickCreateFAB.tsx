@@ -18,12 +18,10 @@ const LoginPromptModal = dynamic(() => import('../auth/LoginPromptModal'), {
 });
 
 interface QuickCreateFABProps {
-  bottom?: string | number;
   right?: string | number;
 }
 
 export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
-  bottom = '160px',
   right = '4',
 }) => {
   const t = useTranslations('session');
@@ -64,14 +62,22 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
 
   return (
     <>
-      <Box position="fixed" bottom={bottom} right={right} zIndex={1001}>
+      <Box
+        position="fixed"
+        bottom={{
+          base: 'calc(64px + env(safe-area-inset-bottom) + 12px)',
+          md: '24px',
+        }}
+        right={right}
+        zIndex={1001}
+      >
         <VTooltip content={t('quickCreate.aiPlaceholder')}>
           <Box
             as="button"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            boxSize="56px"
+            boxSize="44px"
             borderRadius="full"
             bg="purple.500"
             color="white"
@@ -87,7 +93,7 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
             onClick={handleOpenAIModal}
             aria-label={t('quickCreate.aiPlaceholder')}
           >
-            <Icon as={Sparkles} boxSize={7} />
+            <Icon as={Sparkles} boxSize={5} />
           </Box>
         </VTooltip>
       </Box>
