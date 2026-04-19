@@ -6,7 +6,7 @@ import { Court, Match } from '@/lib/api/types';
 
 interface UseSessionRefreshProps {
   sessionId: string;
-  sessionStatus: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED';
+  sessionStatus: 'PREPARING' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
   onSessionUpdate: (session: SessionData) => void;
   initialInterval?: number;
 }

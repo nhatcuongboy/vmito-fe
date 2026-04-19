@@ -942,26 +942,19 @@ export default function FindSessionList({
             gap={viewMode === 'compact' ? 4 : 6}
           >
             {sortedSessions.map((session) => (
-              <Box
+              <FindSessionCard
                 key={session.id}
-                css={{
-                  contentVisibility: 'auto',
-                  containIntrinsicSize: 'auto 400px',
-                }}
-              >
-                <FindSessionCard
-                  session={session}
-                  variant={viewMode}
-                  onJoin={handleJoinClick}
-                  isJoined={joinedSessionIds.has(session.id)}
-                  userRegistrationStatus={
-                    registrationStatusMap[session.id] || null
-                  }
-                  onRegistrationUpdate={handleRegistrationUpdate}
-                  distance={session.distance}
-                  onHostClick={handleHostClick}
-                />
-              </Box>
+                session={session}
+                variant={viewMode}
+                onJoin={handleJoinClick}
+                isJoined={joinedSessionIds.has(session.id)}
+                userRegistrationStatus={
+                  registrationStatusMap[session.id] || null
+                }
+                onRegistrationUpdate={handleRegistrationUpdate}
+                distance={session.distance}
+                onHostClick={handleHostClick}
+              />
             ))}
           </Grid>
 

@@ -35,6 +35,7 @@ export enum SessionStatus {
   PREPARING = 'PREPARING',
   IN_PROGRESS = 'IN_PROGRESS',
   FINISHED = 'FINISHED',
+  CANCELLED = 'CANCELLED',
 }
 
 export enum CourtStatus {
@@ -334,6 +335,11 @@ export interface ISession {
   pendingPlayers?: Player[];
   feeConfig?: SessionFeeConfig; // Fee configuration for the session
   distance?: number; // Distance from user location in kilometers (calculated when sorted by distance)
+  // Scheduling fields
+  scheduledStartTime?: Date;
+  scheduledEndTime?: Date;
+  gracePeriodEnd?: Date;
+  cancelledAt?: Date;
   _count?: {
     players: number;
     courts: number;

@@ -275,6 +275,14 @@ export const SessionService = {
     return response.data.data!;
   },
 
+  // Cancel session (PREPARING only)
+  cancelSession: async (id: string): Promise<ISession> => {
+    const response = await api.post<ApiResponse<ISession>>(
+      `/sessions/${id}/cancel`
+    );
+    return response.data.data as ISession;
+  },
+
   // Migrate/fix old ended sessions
   migrateEndedSession: async (
     id: string

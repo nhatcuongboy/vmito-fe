@@ -275,7 +275,7 @@ function HostSessionsContent() {
         </Box>
       </Flex>
 
-      {user && <QuickCreateFAB bottom="90px" />}
+      {user && <QuickCreateFAB />}
 
       <AISessionModal
         isOpen={isAIModalOpen}

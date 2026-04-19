@@ -27,6 +27,8 @@ import {
   Square,
   UserPlus,
   Users,
+  XCircle,
+  AlertTriangle,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
@@ -74,14 +76,18 @@ const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
 interface SessionOverviewTabProps {
   session: ISession;
   onToggleSessionStatus?: () => void;
+  onCancelSession?: () => void;
   isToggleStatusLoading?: boolean;
+  isOvertime?: boolean;
   refreshSessionData?: () => void;
 }
 
 export default function SessionOverviewTab({
   session,
   onToggleSessionStatus,
+  onCancelSession,
   isToggleStatusLoading,
+  isOvertime = false,
   refreshSessionData,
 }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
@@ -113,6 +119,74 @@ export default function SessionOverviewTab({
 
   return (
     <Box>
+      {/* Overtime Banner */}
+      {isOvertime && session.status === SessionStatus.IN_PROGRESS && (
+        <Box
+          mb={4}
+          p={4}
+          bg="orange.50"
+          _dark={{ bg: 'orange.900/20', borderColor: 'orange.800' }}
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="orange.200"
+        >
+          <Flex align="center" gap={3}>
+            <Box as={AlertTriangle} boxSize={5} color="orange.500" />
+            <Box>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="orange.700"
+                _dark={{ color: 'orange.300' }}
+              >
+                {t('overtimeTitle')}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="orange.600"
+                _dark={{ color: 'orange.400' }}
+              >
+                {t('overtimeMessage')}
+              </Text>
+            </Box>
+          </Flex>
+        </Box>
+      )}
+
+      {/* Cancelled Banner */}
+      {session.status === SessionStatus.CANCELLED && (
+        <Box
+          mb={4}
+          p={4}
+          bg="gray.50"
+          _dark={{ bg: 'gray.900/20', borderColor: 'gray.700' }}
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <Flex align="center" gap={3}>
+            <Box as={XCircle} boxSize={5} color="gray.500" />
+            <Box>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="gray.700"
+                _dark={{ color: 'gray.300' }}
+              >
+                {t('cancelledTitle')}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+              >
+                {t('cancelledMessage')}
+              </Text>
+            </Box>
+          </Flex>
+        </Box>
+      )}
+
       {/* Cover Photo / Image Gallery Section */}
       {(session.coverPhoto ||
         (session.images && session.images.length > 0)) && (
@@ -194,45 +268,67 @@ export default function SessionOverviewTab({
 
             <SessionInfo session={session} />
 
-            {onToggleSessionStatus && session.status !== 'FINISHED' && (
-              <Flex mt={6} justify="center">
-                <Button
-                  colorPalette={
-                    session.status === 'PREPARING' ? 'green' : 'red'
-                  }
-                  size="lg"
-                  px={8}
-                  disabled={(() => {
-                    if (session.status === 'PREPARING') {
-                      if (session.endTime)
-                        return new Date(session.endTime) < new Date();
-                      if (session.startTime) {
-                        const computed = new Date(session.startTime);
-                        computed.setMinutes(
-                          computed.getMinutes() +
-                            (session.sessionDuration || 120)
-                        );
-                        return computed < new Date();
-                      }
+            {onToggleSessionStatus &&
+              session.status !== 'FINISHED' &&
+              session.status !== 'CANCELLED' && (
+                <Flex mt={6} justify="center" gap={3} wrap="wrap">
+                  <Button
+                    colorPalette={
+                      session.status === 'PREPARING'
+                        ? 'green'
+                        : isOvertime
+                          ? 'orange'
+                          : 'red'
                     }
-                    return false;
-                  })()}
-                  onClick={onToggleSessionStatus}
-                  loading={isToggleStatusLoading}
-                  leftIcon={
-                    session.status === 'PREPARING' ? (
-                      <Play size={20} />
-                    ) : (
-                      <Square size={20} />
-                    )
-                  }
-                >
-                  {session.status === 'PREPARING'
-                    ? `${t('start')}`
-                    : t('endSession')}
-                </Button>
-              </Flex>
-            )}
+                    size="lg"
+                    px={8}
+                    disabled={(() => {
+                      if (session.status === 'PREPARING') {
+                        if (session.endTime)
+                          return new Date(session.endTime) < new Date();
+                        if (session.startTime) {
+                          const computed = new Date(session.startTime);
+                          computed.setMinutes(
+                            computed.getMinutes() +
+                              (session.sessionDuration || 120)
+                          );
+                          return computed < new Date();
+                        }
+                      }
+                      return false;
+                    })()}
+                    onClick={onToggleSessionStatus}
+                    loading={isToggleStatusLoading}
+                    leftIcon={
+                      session.status === 'PREPARING' ? (
+                        <Play size={20} />
+                      ) : (
+                        <Square size={20} />
+                      )
+                    }
+                  >
+                    {session.status === 'PREPARING'
+                      ? t('start')
+                      : isOvertime
+                        ? t('endAndFinalize')
+                        : t('endSession')}
+                  </Button>
+
+                  {/* Cancel button for PREPARING */}
+                  {session.status === 'PREPARING' && onCancelSession && (
+                    <Button
+                      colorPalette="red"
+                      variant="outline"
+                      size="lg"
+                      px={6}
+                      onClick={onCancelSession}
+                      leftIcon={<XCircle size={20} />}
+                    >
+                      {t('cancelSession')}
+                    </Button>
+                  )}
+                </Flex>
+              )}
           </Box>
         </Box>
 

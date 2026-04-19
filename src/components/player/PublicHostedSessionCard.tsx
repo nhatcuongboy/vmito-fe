@@ -14,6 +14,7 @@ const STATUS_COLOR_MAP: Record<SessionStatus, string> = {
   [SessionStatus.PREPARING]: 'yellow',
   [SessionStatus.IN_PROGRESS]: 'green',
   [SessionStatus.FINISHED]: 'gray',
+  [SessionStatus.CANCELLED]: 'red',
 };
 
 const getSessionStatusLabel = (
