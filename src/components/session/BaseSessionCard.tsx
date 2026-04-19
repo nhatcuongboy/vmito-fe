@@ -70,8 +70,8 @@ export const formatDate = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs
-    .tz(dateString)
+  const date = dayjs(dateString)
+    .tz('Asia/Ho_Chi_Minh')
     .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
 
   let formattedDate: string;
@@ -89,8 +89,8 @@ export const formatTime = (
   dateString: string | Date,
   locale: string
 ): string => {
-  const date = dayjs
-    .tz(dateString)
+  const date = dayjs(dateString)
+    .tz('Asia/Ho_Chi_Minh')
     .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
   return date.format('HH:mm');
 };
@@ -574,8 +574,8 @@ const BaseSessionCard = ({
 
   // Format date and time for compact display
   const formatCompactDate = (dateString: string | Date): string => {
-    const date = dayjs
-      .tz(dateString)
+    const date = dayjs(dateString)
+      .tz('Asia/Ho_Chi_Minh')
       .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
     const today = dayjs.tz().startOf('day');
     const tomorrow = today.add(1, 'day');
