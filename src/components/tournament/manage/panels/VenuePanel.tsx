@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Flex, Heading, Text, IconButton } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { IconButton } from '@/components/ui/chakra-compat';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { MapPin, Plus, Edit2, Trash2, GripVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';

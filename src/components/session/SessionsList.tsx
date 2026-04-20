@@ -2,7 +2,8 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
-import { Box, Grid, Heading, Text, Flex, IconButton } from '@chakra-ui/react';
+import { Box, Grid, Heading, Text, Flex } from '@chakra-ui/react';
+import { IconButton } from '@/components/ui/chakra-compat';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';

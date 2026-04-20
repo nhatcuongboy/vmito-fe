@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { Box, Text, VStack, Button, HStack } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { Copy, Check } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
 import { Locale } from '@/i18n/locales';

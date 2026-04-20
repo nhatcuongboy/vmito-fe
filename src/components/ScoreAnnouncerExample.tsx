@@ -1,7 +1,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react';
+import { Box, HStack, Text, VStack } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 
 import useUniversalVmitoAudio from '@/hooks/useUniversalVmitoAudio';
 

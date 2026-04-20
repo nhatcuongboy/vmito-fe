@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Text, HStack, IconButton, Badge } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Box, Text, HStack, Badge } from '@chakra-ui/react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import {
   LuCheck,
   LuTrash2,
