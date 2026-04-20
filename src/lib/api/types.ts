@@ -251,6 +251,7 @@ export enum ClosureStatus {
 
 export interface Venue {
   id: string;
+  slug?: string;
   placeId: string;
   name: string;
   description?: string;

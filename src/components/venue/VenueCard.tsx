@@ -70,7 +70,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsLoading(true);
-    router.push(`/venues/${venue.id}`);
+    router.push(`/venues/${venue.slug || venue.id}`);
     setTimeout(() => setIsLoading(false), 5000);
   };
 
@@ -482,7 +482,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                   e.stopPropagation();
                   const shareData = {
                     title: displayName,
-                    url: `${window.location.origin}/venues/${venue.id}`,
+                    url: `${window.location.origin}/venues/${venue.slug || venue.id}`,
                   };
                   try {
                     if (navigator.share) {

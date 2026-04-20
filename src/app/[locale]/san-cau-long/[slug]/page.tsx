@@ -117,7 +117,7 @@ export default async function VenueDistrictPage({ params }: PageProps) {
           addressRegion: entry.city,
           addressCountry: 'VN',
         },
-        url: `https://vmito.com/${locale}/venues/${venue.id}`,
+        url: `https://vmito.com/${locale}/venues/${venue.slug ?? venue.id}`,
         ...(venue.coverPhoto ? { image: venue.coverPhoto } : {}),
       },
     })),
@@ -156,7 +156,7 @@ export default async function VenueDistrictPage({ params }: PageProps) {
             {venues.map((venue) => (
               <Link
                 key={venue.id}
-                href={`/${locale}/venues/${venue.id}`}
+                href={`/${locale}/venues/${venue.slug ?? venue.id}`}
                 style={{ textDecoration: 'none' }}
               >
                 <Box
