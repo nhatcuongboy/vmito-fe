@@ -2,7 +2,7 @@
 
 import { Box, Flex, Badge } from '@chakra-ui/react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { Input } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 
 export interface AppSearchBarProps {
   value: string;

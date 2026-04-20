@@ -28,7 +28,7 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 import { formatVenueName } from '@/utils';
-import { Input } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { Check } from 'lucide-react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

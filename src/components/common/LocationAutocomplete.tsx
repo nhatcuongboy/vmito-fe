@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Text, Spinner } from '@chakra-ui/react';
-import { Input } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { MapPin } from 'lucide-react';
 import usePlacesAutocomplete, {
   getGeocode,
