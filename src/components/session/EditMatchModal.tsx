@@ -42,6 +42,9 @@ export function EditMatchModal({
   const [isNoResult, setIsNoResult] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isSingles =
+    match?.players?.length <= 2 || (match?.playerIds?.length ?? 0) <= 2;
+
   useEffect(() => {
     if (match && isOpen) {
       // Initialize scores
@@ -95,17 +98,23 @@ export function EditMatchModal({
       };
 
       if (!isNoResult && s1 !== s2) {
-        if (s1 > s2) {
-          payload.winnerIds = [selectedPlayerIds[0], selectedPlayerIds[1]];
+        if (isSingles) {
+          // Singles: position 0 = side 1, position 1 = side 2
+          payload.winnerIds =
+            s1 > s2 ? [selectedPlayerIds[0]] : [selectedPlayerIds[1]];
         } else {
-          payload.winnerIds = [selectedPlayerIds[2], selectedPlayerIds[3]];
+          if (s1 > s2) {
+            payload.winnerIds = [selectedPlayerIds[0], selectedPlayerIds[1]];
+          } else {
+            payload.winnerIds = [selectedPlayerIds[2], selectedPlayerIds[3]];
+          }
         }
       } else {
         payload.winnerIds = [];
       }
 
       if (
-        selectedPlayerIds.length === 4 &&
+        selectedPlayerIds.length >= (isSingles ? 2 : 4) &&
         selectedPlayerIds.every((id) => id)
       ) {
         payload.playerIds = selectedPlayerIds;
@@ -176,7 +185,7 @@ export function EditMatchModal({
           >
             <Box>
               <Text fontSize="xs" fontWeight="bold" color="green.600" mb={1}>
-                {t('pair1')}
+                {isSingles ? t('player1') : t('pair1')}
               </Text>
               <Input
                 value={pair1Score}
@@ -192,7 +201,7 @@ export function EditMatchModal({
             </Box>
             <Box>
               <Text fontSize="xs" fontWeight="bold" color="red.600" mb={1}>
-                {t('pair2')}
+                {isSingles ? t('player2') : t('pair2')}
               </Text>
               <Input
                 value={pair2Score}
@@ -231,7 +240,7 @@ export function EditMatchModal({
                 color="green.700"
                 _dark={{ color: 'green.300' }}
               >
-                {t('pair1')}
+                {isSingles ? t('player1') : t('pair1')}
               </Text>
               <VStack spacing={2} align="stretch">
                 <Box>
@@ -260,32 +269,34 @@ export function EditMatchModal({
                     ))}
                   </VSelect>
                 </Box>
-                <Box>
-                  <Text
-                    fontSize="2xs"
-                    color="gray.500"
-                    mb={1}
-                    textTransform="uppercase"
-                    letterSpacing="wider"
-                  >
-                    {t('position2')}
-                  </Text>
-                  <VSelect
-                    value={selectedPlayerIds[1] || ''}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                      handlePlayerChange(1, e.target.value)
-                    }
-                  >
-                    <option value="" disabled>
-                      {t('selectPlayer')}
-                    </option>
-                    {players.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        #{p.playerNumber} {p.name}
+                {!isSingles && (
+                  <Box>
+                    <Text
+                      fontSize="2xs"
+                      color="gray.500"
+                      mb={1}
+                      textTransform="uppercase"
+                      letterSpacing="wider"
+                    >
+                      {t('position2')}
+                    </Text>
+                    <VSelect
+                      value={selectedPlayerIds[1] || ''}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                        handlePlayerChange(1, e.target.value)
+                      }
+                    >
+                      <option value="" disabled>
+                        {t('selectPlayer')}
                       </option>
-                    ))}
-                  </VSelect>
-                </Box>
+                      {players.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          #{p.playerNumber} {p.name}
+                        </option>
+                      ))}
+                    </VSelect>
+                  </Box>
+                )}
               </VStack>
             </VStack>
 
@@ -306,7 +317,7 @@ export function EditMatchModal({
                 color="red.700"
                 _dark={{ color: 'red.300' }}
               >
-                {t('pair2')}
+                {isSingles ? t('player2') : t('pair2')}
               </Text>
               <VStack spacing={2} align="stretch">
                 <Box>
@@ -317,12 +328,12 @@ export function EditMatchModal({
                     textTransform="uppercase"
                     letterSpacing="wider"
                   >
-                    {t('position3')}
+                    {isSingles ? t('position1') : t('position3')}
                   </Text>
                   <VSelect
-                    value={selectedPlayerIds[2] || ''}
+                    value={selectedPlayerIds[isSingles ? 1 : 2] || ''}
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                      handlePlayerChange(2, e.target.value)
+                      handlePlayerChange(isSingles ? 1 : 2, e.target.value)
                     }
                   >
                     <option value="" disabled>
@@ -335,32 +346,34 @@ export function EditMatchModal({
                     ))}
                   </VSelect>
                 </Box>
-                <Box>
-                  <Text
-                    fontSize="2xs"
-                    color="gray.500"
-                    mb={1}
-                    textTransform="uppercase"
-                    letterSpacing="wider"
-                  >
-                    {t('position4')}
-                  </Text>
-                  <VSelect
-                    value={selectedPlayerIds[3] || ''}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                      handlePlayerChange(3, e.target.value)
-                    }
-                  >
-                    <option value="" disabled>
-                      {t('selectPlayer')}
-                    </option>
-                    {players.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        #{p.playerNumber} {p.name}
+                {!isSingles && (
+                  <Box>
+                    <Text
+                      fontSize="2xs"
+                      color="gray.500"
+                      mb={1}
+                      textTransform="uppercase"
+                      letterSpacing="wider"
+                    >
+                      {t('position4')}
+                    </Text>
+                    <VSelect
+                      value={selectedPlayerIds[3] || ''}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                        handlePlayerChange(3, e.target.value)
+                      }
+                    >
+                      <option value="" disabled>
+                        {t('selectPlayer')}
                       </option>
-                    ))}
-                  </VSelect>
-                </Box>
+                      {players.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          #{p.playerNumber} {p.name}
+                        </option>
+                      ))}
+                    </VSelect>
+                  </Box>
+                )}
               </VStack>
             </VStack>
           </SimpleGrid>

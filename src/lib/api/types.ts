@@ -318,6 +318,7 @@ export interface ISession {
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
   courtColor?: string;
+  defaultMatchType?: 'SINGLES' | 'DOUBLES';
   coverPhoto?: string;
   coverPhotoPublicId?: string;
   images?: string[];
@@ -517,6 +518,7 @@ export interface CreateSessionRequest {
   endTime?: Date;
   courtColor?: string;
   shuttlecock?: string;
+  defaultMatchType?: 'SINGLES' | 'DOUBLES';
   courts?: CourtConfig[];
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration

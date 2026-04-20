@@ -7,6 +7,7 @@ import {
 } from '@/lib/api/types';
 import { Court, Player, Match } from '@/types/session';
 import { useTranslations } from 'next-intl';
+import { TMatchType } from '@/hooks/useCourtsTabModals';
 
 interface UseCourtsTabActionsProps {
   onDataRefresh?: () => void;
@@ -23,20 +24,37 @@ export const useCourtsTabActions = ({
     selectedAutoAssignCourt: Court | null,
     direction: CourtDirection = CourtDirection.HORIZONTAL,
     setLoadingConfirmAutoAssign: (loading: boolean) => void,
-    closeModal: () => void
+    closeModal: () => void,
+    matchType: TMatchType = 'doubles'
   ) => {
     if (!selectedAutoAssignCourt) return;
 
     try {
       setLoadingConfirmAutoAssign(true);
 
+      const isSingles = matchType === 'singles';
+
       const playerIds = [
         ...suggestedPlayers.pair1.players.map((p: Player) => p.id),
         ...suggestedPlayers.pair2.players.map((p: Player) => p.id),
       ];
 
-      const playersWithPosition: Array<{ playerId: string; position: number }> =
-        [
+      let playersWithPosition: Array<{ playerId: string; position: number }>;
+
+      if (isSingles) {
+        // Singles: pair1 has 1 player (position 0), pair2 has 1 player (position 1)
+        playersWithPosition = [
+          ...suggestedPlayers.pair1.players.map((p: Player) => ({
+            playerId: p.id,
+            position: 0,
+          })),
+          ...suggestedPlayers.pair2.players.map((p: Player) => ({
+            playerId: p.id,
+            position: 1,
+          })),
+        ];
+      } else {
+        playersWithPosition = [
           ...suggestedPlayers.pair1.players.map((p: Player, index: number) => ({
             playerId: p.id,
             position:
@@ -56,6 +74,7 @@ export const useCourtsTabActions = ({
                   : 3,
           })),
         ];
+      }
 
       await CourtService.selectPlayers(
         selectedAutoAssignCourt.id,

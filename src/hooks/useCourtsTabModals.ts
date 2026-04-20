@@ -1,7 +1,28 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Court, Match } from '@/types/session';
 
-export const useCourtsTabModals = () => {
+export type TMatchType = 'singles' | 'doubles';
+
+const toMatchType = (dbValue?: 'SINGLES' | 'DOUBLES' | string): TMatchType => {
+  if (dbValue === 'SINGLES') return 'singles';
+  return 'doubles';
+};
+
+const createEmptySlots = (matchType: TMatchType): (string | null)[] =>
+  matchType === 'singles' ? [null, null] : [null, null, null, null];
+
+interface IUseCourtsTabModalsOptions {
+  defaultMatchType?: 'SINGLES' | 'DOUBLES';
+}
+
+export const useCourtsTabModals = (options?: IUseCourtsTabModalsOptions) => {
+  const defaultType = toMatchType(options?.defaultMatchType);
+
+  // Match type state
+  const [matchType, setMatchType] = useState<TMatchType>(defaultType);
+  const [preSelectMatchType, setPreSelectMatchType] =
+    useState<TMatchType>(defaultType);
+
   // Unified player selection modal state (replaces separate auto-assign + manual selection)
   const [playerSelectionModalOpen, setPlayerSelectionModalOpen] =
     useState(false);
@@ -11,7 +32,7 @@ export const useCourtsTabModals = () => {
     useState(false);
   const [manualSelectedPlayers, setManualSelectedPlayers] = useState<
     (string | null)[]
-  >([null, null, null, null]);
+  >(createEmptySlots(defaultType));
   const [manualCurrentPosition, setManualCurrentPosition] = useState(0);
   const [confirmingManualMatch, setConfirmingManualMatch] = useState(false);
 
@@ -49,7 +70,8 @@ export const useCourtsTabModals = () => {
   // Unified player selection modal handlers
   const openPlayerSelectionModal = (court: Court) => {
     setSelectedPlayerSelectionCourt(court);
-    setManualSelectedPlayers([null, null, null, null]);
+    setMatchType(defaultType);
+    setManualSelectedPlayers(createEmptySlots(defaultType));
     setManualCurrentPosition(0);
     setPlayerSelectionModalOpen(true);
   };
@@ -57,14 +79,28 @@ export const useCourtsTabModals = () => {
   const closePlayerSelectionModal = () => {
     setPlayerSelectionModalOpen(false);
     setSelectedPlayerSelectionCourt(null);
-    setManualSelectedPlayers([null, null, null, null]);
+    setManualSelectedPlayers(createEmptySlots(matchType));
     setManualCurrentPosition(0);
   };
+
+  // Handle match type change
+  const handleMatchTypeChange = useCallback((newType: TMatchType) => {
+    setMatchType(newType);
+    setManualSelectedPlayers(createEmptySlots(newType));
+    setManualCurrentPosition(0);
+  }, []);
+
+  const handlePreSelectMatchTypeChange = useCallback((newType: TMatchType) => {
+    setPreSelectMatchType(newType);
+    setPreSelectPlayers(createEmptySlots(newType));
+    setPreSelectCurrentPosition(0);
+  }, []);
 
   // Pre-select modal handlers
   const openPreSelectModal = (court: Court) => {
     setSelectedPreSelectCourt(court);
-    setPreSelectPlayers([null, null, null, null]);
+    setPreSelectMatchType(defaultType);
+    setPreSelectPlayers(createEmptySlots(defaultType));
     setPreSelectCurrentPosition(0);
     setPreSelectModalOpen(true);
   };
@@ -72,7 +108,7 @@ export const useCourtsTabModals = () => {
   const closePreSelectModal = () => {
     setPreSelectModalOpen(false);
     setSelectedPreSelectCourt(null);
-    setPreSelectPlayers([null, null, null, null]);
+    setPreSelectPlayers(createEmptySlots(preSelectMatchType));
     setPreSelectCurrentPosition(0);
   };
 
@@ -212,6 +248,12 @@ export const useCourtsTabModals = () => {
   };
 
   return {
+    // Match type
+    matchType,
+    preSelectMatchType,
+    handleMatchTypeChange,
+    handlePreSelectMatchTypeChange,
+
     // Unified player selection modal states
     playerSelectionModalOpen,
     selectedPlayerSelectionCourt,

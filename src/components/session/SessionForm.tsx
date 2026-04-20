@@ -144,7 +144,7 @@ function createCourtSchema(t: any) {
   });
 }
 
-function createSessionFormSchema(t: any) {
+function createSessionFormSchema(t: any, isEditMode: boolean = false) {
   const courtSchema = createCourtSchema(t);
   return z
     .object({
@@ -152,7 +152,7 @@ function createSessionFormSchema(t: any) {
       name: z.string().min(1, t('validation.sessionNameRequired')),
       selectedVenueId: z.string().min(1, t('validation.locationRequired')),
       hostName: z.string().min(1, t('validation.hostNameRequired')),
-      hostPhone: z.string().min(1, t('validation.hostPhoneRequired')),
+      hostPhone: z.string().optional(),
       startTime: z.string().min(1, t('validation.startTimeRequired')),
       endTime: z.string().min(1, t('validation.endTimeRequired')),
       courts: z
@@ -174,11 +174,26 @@ function createSessionFormSchema(t: any) {
       allLevelsSelected: z.boolean(),
       requiredLevels: z.array(z.number()).optional(),
       shuttlecock: z.string().optional(),
+      defaultMatchType: z.enum(['SINGLES', 'DOUBLES']),
     })
     .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
       message: t('validation.endTimeMustBeAfterStartTime'),
       path: ['endTime'],
-    });
+    })
+    .refine(
+      (data) => {
+        if (isEditMode) return true;
+        const now = new Date();
+        // Allow up to a 1-minute buffer in the past to account for user input time
+        return new Date(data.startTime) >= new Date(now.getTime() - 60000);
+      },
+      {
+        message:
+          t('validation.startTimeMustBeInFuture') ||
+          'Thời gian bắt đầu không được trong quá khứ',
+        path: ['startTime'],
+      }
+    );
 }
 
 interface SessionFormProps {
@@ -251,6 +266,7 @@ export default function SessionForm({
           initialData.requiredLevels?.length === 0,
         requiredLevels: initialData.requiredLevels || [],
         shuttlecock: initialData.shuttlecock || '',
+        defaultMatchType: initialData.defaultMatchType || 'DOUBLES',
       };
     }
 
@@ -277,10 +293,14 @@ export default function SessionForm({
       allLevelsSelected: true,
       requiredLevels: [],
       shuttlecock: '',
+      defaultMatchType: 'DOUBLES' as const,
     };
   }, [isEditMode, initialData, user]);
 
-  const sessionFormSchema = useMemo(() => createSessionFormSchema(t), [t]);
+  const sessionFormSchema = useMemo(
+    () => createSessionFormSchema(t, isEditMode),
+    [t, isEditMode]
+  );
 
   // React Hook Form setup
   const {
@@ -691,7 +711,7 @@ export default function SessionForm({
           name: data.name,
           description: data.description?.trim() || '',
           hostName: data.hostName.trim(),
-          hostPhone: data.hostPhone.trim(),
+          hostPhone: data.hostPhone?.trim() || '',
           maxPlayersPerCourt: data.maxPlayersPerCourt,
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
@@ -702,6 +722,7 @@ export default function SessionForm({
               ? data.requiredLevels
               : undefined,
           courtColor: data.courtColor,
+          defaultMatchType: data.defaultMatchType,
           shuttlecock: data.shuttlecock?.trim() || '',
           coverPhoto: sessionImages[bannerIndex]?.url,
           coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
@@ -733,7 +754,7 @@ export default function SessionForm({
           name: data.name,
           description: data.description?.trim() || '',
           hostName: data.hostName.trim(),
-          hostPhone: data.hostPhone.trim(),
+          hostPhone: data.hostPhone?.trim() || '',
           numberOfCourts: data.courts.length,
           sessionDuration,
           maxPlayersPerCourt: data.maxPlayersPerCourt,
@@ -748,6 +769,7 @@ export default function SessionForm({
           startTime: new Date(data.startTime),
           endTime: new Date(data.endTime),
           courtColor: data.courtColor,
+          defaultMatchType: data.defaultMatchType,
           shuttlecock: data.shuttlecock?.trim() || '',
           coverPhoto: sessionImages[bannerIndex]?.url,
           coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
@@ -1069,12 +1091,7 @@ export default function SessionForm({
                 </Box>
                 <Box flex={1}>
                   <Field.Root id="field-hostPhone" invalid={!!errors.hostPhone}>
-                    <Field.Label>
-                      {t('hostPhone')}{' '}
-                      <Text as="span" color="red.500">
-                        *
-                      </Text>
-                    </Field.Label>
+                    <Field.Label>{t('hostPhone')}</Field.Label>
                     <Input
                       {...register('hostPhone')}
                       placeholder={t('hostPhonePlaceholder')}
@@ -1570,6 +1587,47 @@ export default function SessionForm({
                     {errors.shuttlecock?.message}
                   </Field.ErrorText>
                 </Field.Root>
+
+                {/* Default Match Type */}
+                <Controller
+                  control={control}
+                  name="defaultMatchType"
+                  render={({ field }) => (
+                    <Field.Root>
+                      <Field.Label>
+                        <Heading size="md">{t('defaultMatchType')}</Heading>
+                      </Field.Label>
+                      <HStack gap={3}>
+                        <Button
+                          variant={
+                            field.value === 'DOUBLES' ? 'solid' : 'outline'
+                          }
+                          colorPalette={
+                            field.value === 'DOUBLES' ? 'blue' : 'gray'
+                          }
+                          size="sm"
+                          onClick={() => field.onChange('DOUBLES')}
+                        >
+                          <Box as={Users} boxSize={4} mr={1} />
+                          {t('doubles')}
+                        </Button>
+                        <Button
+                          variant={
+                            field.value === 'SINGLES' ? 'solid' : 'outline'
+                          }
+                          colorPalette={
+                            field.value === 'SINGLES' ? 'blue' : 'gray'
+                          }
+                          size="sm"
+                          onClick={() => field.onChange('SINGLES')}
+                        >
+                          <Box as={User} boxSize={4} mr={1} />
+                          {t('singles')}
+                        </Button>
+                      </HStack>
+                    </Field.Root>
+                  )}
+                />
               </Grid>
             </Box>
 

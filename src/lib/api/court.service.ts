@@ -22,12 +22,14 @@ export const CourtService = {
     courtId: string,
     topCount?: number,
     useAi?: boolean,
-    language?: Locale
+    language?: Locale,
+    matchType?: 'SINGLES' | 'DOUBLES'
   ): Promise<SuggestedPlayersResponse> => {
     const params: Record<string, string> = {};
     if (topCount) params.topCount = topCount.toString();
     if (useAi) params.useAi = 'true';
     if (language) params.language = language;
+    if (matchType) params.matchType = matchType;
 
     const response = await api.get<ApiResponse<SuggestedPlayersResponse>>(
       `/courts/${courtId}/suggested-players`,

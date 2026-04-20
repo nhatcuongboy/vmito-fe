@@ -75,15 +75,22 @@ export const HistoryMatchCard = ({
   onToggleExtra,
 }: HistoryMatchCardProps) => {
   const t = useTranslations('SessionDetail.matchs');
+  const isSingles = match.players.length <= 2;
   let pair1: string[], pair2: string[];
 
-  if (direction === CourtDirection.HORIZONTAL) {
+  if (isSingles) {
+    pair1 = [match.players[0]].filter(Boolean);
+    pair2 = [match.players[1]].filter(Boolean);
+  } else if (direction === CourtDirection.HORIZONTAL) {
     pair1 = match.players.slice(0, 2);
     pair2 = match.players.slice(2, 4);
   } else {
     pair1 = [match.players[0], match.players[2]];
     pair2 = [match.players[1], match.players[3]];
   }
+
+  const side1Label = isSingles ? t('player1') : t('pair1');
+  const side2Label = isSingles ? t('player2') : t('pair2');
 
   const winningPair = match.winningPair;
   // Winning pair: blue, losing pair: red
@@ -219,7 +226,7 @@ export const HistoryMatchCard = ({
           <Flex gap={4}>
             <Box {...pair1WonStyle} flex={1}>
               <Text color="gray.600" fontSize="sm">
-                {t('pair1')}
+                {side1Label}
               </Text>
               {pair1.map((p, i) => (
                 <Text key={i} fontWeight="semibold">
@@ -229,7 +236,7 @@ export const HistoryMatchCard = ({
             </Box>
             <Box {...pair2WonStyle} flex={1}>
               <Text color="gray.600" fontSize="sm">
-                {t('pair2')}
+                {side2Label}
               </Text>
               {pair2.map((p, i) => (
                 <Text key={i} fontWeight="semibold">
@@ -271,8 +278,12 @@ export const HistoryMatchCard = ({
               {match.scores.pair1Score === match.scores.pair2Score
                 ? t('draw')
                 : winningPair === 1
-                  ? t('pair1Won')
-                  : t('pair2Won')}
+                  ? isSingles
+                    ? t('player1Won')
+                    : t('pair1Won')
+                  : isSingles
+                    ? t('player2Won')
+                    : t('pair2Won')}
             </Text>
           </Box>
         ) : (

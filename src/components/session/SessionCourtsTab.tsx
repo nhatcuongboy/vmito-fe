@@ -46,7 +46,9 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
 
   const elapsedTimeFormatter = createCourtElapsedTimeFormatter(t);
 
-  const modals = useCourtsTabModals();
+  const modals = useCourtsTabModals({
+    defaultMatchType: session.defaultMatchType,
+  });
   const actions = useCourtsTabActions({ onDataRefresh });
 
   const hasPreSelectedPlayers = (court: Court): boolean => {
@@ -67,7 +69,8 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
       modals.selectedPlayerSelectionCourt,
       direction,
       modals.setLoadingConfirmAutoAssign,
-      modals.closePlayerSelectionModal
+      modals.closePlayerSelectionModal,
+      modals.matchType
     );
   };
 
@@ -215,6 +218,8 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         waitingPlayers={waitingPlayers}
         waitingPlayersCount={waitingPlayers.length}
         numberOfCourts={session.numberOfCourts}
+        matchType={modals.matchType}
+        onMatchTypeChange={modals.handleMatchTypeChange}
         selectedPlayers={modals.manualSelectedPlayers}
         currentPosition={modals.manualCurrentPosition}
         onPlayerToggle={modals.toggleManualPlayer}
@@ -237,6 +242,8 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         waitingPlayers={waitingPlayers}
         waitingPlayersCount={waitingPlayers.length}
         numberOfCourts={session.numberOfCourts}
+        matchType={modals.preSelectMatchType}
+        onMatchTypeChange={modals.handlePreSelectMatchTypeChange}
         selectedPlayers={modals.preSelectPlayers}
         currentPosition={modals.preSelectCurrentPosition}
         onPlayerToggle={modals.togglePreSelectPlayer}

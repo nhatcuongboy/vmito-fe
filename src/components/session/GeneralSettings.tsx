@@ -30,6 +30,7 @@ import {
   MapPin,
   Shield,
   Palette,
+  User,
   UserCheck,
   UserPlus,
   Users,
@@ -77,6 +78,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
       : '',
     courtColor: session.courtColor || '#179a3b',
     shuttlecock: session.shuttlecock || '',
+    defaultMatchType: session.defaultMatchType || 'DOUBLES',
   });
 
   // Fetch venues on component mount
@@ -380,6 +382,56 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
                   />
+                </Box>
+
+                {/* Default Match Type */}
+                <Box>
+                  <HStack mb={3}>
+                    <Users size={16} color="fg.muted" />
+                    <Text fontSize="sm" fontWeight="semibold" color="fg">
+                      {t('defaultMatchType')}
+                    </Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Button
+                      variant={
+                        formData.defaultMatchType === 'DOUBLES'
+                          ? 'solid'
+                          : 'outline'
+                      }
+                      colorPalette={
+                        formData.defaultMatchType === 'DOUBLES'
+                          ? 'blue'
+                          : 'gray'
+                      }
+                      size="sm"
+                      onClick={() =>
+                        handleInputChange('defaultMatchType', 'DOUBLES')
+                      }
+                    >
+                      <Box as={Users} boxSize={4} mr={1} />
+                      {t('doubles')}
+                    </Button>
+                    <Button
+                      variant={
+                        formData.defaultMatchType === 'SINGLES'
+                          ? 'solid'
+                          : 'outline'
+                      }
+                      colorPalette={
+                        formData.defaultMatchType === 'SINGLES'
+                          ? 'blue'
+                          : 'gray'
+                      }
+                      size="sm"
+                      onClick={() =>
+                        handleInputChange('defaultMatchType', 'SINGLES')
+                      }
+                    >
+                      <Box as={User} boxSize={4} mr={1} />
+                      {t('singles')}
+                    </Button>
+                  </HStack>
                 </Box>
               </Grid>
 

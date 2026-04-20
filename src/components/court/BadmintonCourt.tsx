@@ -5,6 +5,7 @@ import { Box, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Volume2 } from 'lucide-react';
+import { TMatchType } from '@/hooks/useCourtsTabModals';
 import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
 
 interface BadmintonCourtProps {
@@ -19,6 +20,7 @@ interface BadmintonCourtProps {
   status?: 'IN_USE' | 'READY' | 'EMPTY';
   mode?: 'manage' | 'view' | 'selection';
   courtColor?: string;
+  matchType?: TMatchType;
   // Selection mode props
   onPlayerSelect?: (player: BadmintonCourtPlayer, position: number) => void;
   onPlayerRemove?: (position: number) => void;
@@ -45,6 +47,7 @@ export default function BadmintonCourt({
   status,
   mode = 'manage',
   courtColor = '#179a3b',
+  matchType = 'doubles',
   onPlayerSelect,
   onPlayerRemove,
   onPositionSelect,
@@ -71,7 +74,11 @@ export default function BadmintonCourt({
     // Group by pairs based on visual column (HORIZONTAL vs VERTICAL)
     let pair1: BadmintonCourtPlayer[];
     let pair2: BadmintonCourtPlayer[];
-    if (direction === CourtDirection.HORIZONTAL) {
+    if (sortedPlayers.length <= 2) {
+      // Singles: 1 player per side
+      pair1 = [sortedPlayers[0]].filter(Boolean) as BadmintonCourtPlayer[];
+      pair2 = [sortedPlayers[1]].filter(Boolean) as BadmintonCourtPlayer[];
+    } else if (direction === CourtDirection.HORIZONTAL) {
       // HORIZONTAL mapping: sorted[0] & [1] → left column (pair 1), sorted[2] & [3] → right column (pair 2)
       pair1 = [sortedPlayers[0], sortedPlayers[1]].filter(
         Boolean
@@ -124,6 +131,11 @@ export default function BadmintonCourt({
         return posA - posB;
       });
 
+      // Singles: 2 players → return directly (CourtPlayer handles positioning)
+      if (sortedPlayers.length <= 2) {
+        return sortedPlayers;
+      }
+
       // Visual mapping based on direction prop
       let visualMapping: number[];
       if (direction === CourtDirection.HORIZONTAL) {
@@ -164,6 +176,24 @@ export default function BadmintonCourt({
 
     // In selection mode, use selectedPositions array
     // Apply same visual mapping based on direction
+    const isSingles = matchType === 'singles';
+
+    if (isSingles) {
+      // Singles: 2 positions → visual index 0 (left center) and 1 (right center)
+      const displayPlayers: (BadmintonCourtPlayer | null)[] = [null, null];
+      selectedPositions.forEach((player, i) => {
+        if (i < 2 && player) {
+          const courtPlayer: BadmintonCourtPlayer = {
+            ...player,
+            pairNumber: i + 1,
+            isCurrentPlayer: i === currentPlayerPosition,
+          };
+          displayPlayers[i] = courtPlayer;
+        }
+      });
+      return displayPlayers;
+    }
+
     const displayPlayers: (BadmintonCourtPlayer | null)[] = [
       null,
       null,
@@ -196,6 +226,12 @@ export default function BadmintonCourt({
   };
 
   const displayPlayers = getDisplayPlayers();
+
+  // Determine effective match type: infer singles from player count in non-selection mode
+  const effectiveMatchType: TMatchType =
+    mode !== 'selection' && players.length > 0 && players.length <= 2
+      ? 'singles'
+      : matchType;
 
   // Handle player removal in selection mode
   const handlePlayerRemove = (position: number) => {
@@ -360,17 +396,21 @@ export default function BadmintonCourt({
       {mode === 'selection'
         ? // Selection mode: Show placeholders and highlight current position
           displayPlayers.map((player, visualIndex) => {
+            const isSingles = matchType === 'singles';
             // Calculate selection index from visual index based on direction
-            let reverseMapping: number[];
-            if (direction === CourtDirection.HORIZONTAL) {
-              // HORIZONTAL: visual [0,1,2,3] -> selection [0,2,1,3]
-              // Reverse: visual 0->selection 0, visual 1->selection 2, visual 2->selection 1, visual 3->selection 3
-              reverseMapping = [0, 2, 1, 3];
+            let selectionIndex: number;
+            if (isSingles) {
+              // Singles: visual index maps directly to selection index (0, 1)
+              selectionIndex = visualIndex;
             } else {
-              // VERTICAL: visual positions map directly to selection
-              reverseMapping = [0, 1, 2, 3];
+              let reverseMapping: number[];
+              if (direction === CourtDirection.HORIZONTAL) {
+                reverseMapping = [0, 2, 1, 3];
+              } else {
+                reverseMapping = [0, 1, 2, 3];
+              }
+              selectionIndex = reverseMapping[visualIndex];
             }
-            const selectionIndex = reverseMapping[visualIndex];
 
             if (player) {
               // Render actual player
@@ -386,6 +426,7 @@ export default function BadmintonCourt({
                     displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
                   }
                   mode={mode}
+                  matchType={matchType}
                   isClicked={clickedPlayer === player.id}
                   onPlayerClick={setClickedPlayer}
                   onRemovePlayer={() => handlePlayerRemove(selectionIndex)}
@@ -393,12 +434,19 @@ export default function BadmintonCourt({
               );
             } else {
               // Render placeholder for empty position
-              // Use the same selectionIndex calculated above
               return (
                 <Box
                   key={`placeholder-${visualIndex}`}
                   position="absolute"
                   {...(() => {
+                    if (isSingles) {
+                      // Singles: 2 positions, centered vertically on each side
+                      const singlesPositions = [
+                        { top: '50%', left: '25%' }, // Left center
+                        { top: '50%', left: '75%' }, // Right center
+                      ];
+                      return singlesPositions[visualIndex];
+                    }
                     const positions = [
                       { top: '30%', left: '25%' }, // Top-left
                       { top: '30%', left: '75%' }, // Top-right
@@ -509,6 +557,7 @@ export default function BadmintonCourt({
                   displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
                 }
                 mode={mode}
+                matchType={effectiveMatchType}
                 isClicked={clickedPlayer === player.id}
                 onPlayerClick={setClickedPlayer}
               />
