@@ -71,6 +71,7 @@ function getRRConfig(category: Category | null): RoundRobinConfig {
     tiebreakers: (rr.tiebreakers as TiebreakerItem[]) ?? [
       ...DEFAULT_RR_CONFIG.tiebreakers,
     ],
+    headToHeadTiebreakers: (rr.headToHeadTiebreakers as TiebreakerItem[]) ?? [],
     statistics: (rr.statistics as StatisticItem[]) ?? [
       ...DEFAULT_RR_CONFIG.statistics,
     ],

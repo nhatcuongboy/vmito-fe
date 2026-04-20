@@ -359,7 +359,6 @@ export default function TournamentManage({
             );
             setCategories(updatedCategories);
             setSelectedCategory(updated);
-            formatModal.onClose();
           } catch (error) {
             console.error('Error updating category format:', error);
           }

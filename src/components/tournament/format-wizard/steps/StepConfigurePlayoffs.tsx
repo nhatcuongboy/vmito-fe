@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useFormatWizard } from '../FormatWizardContext';
 import FormatSidebar from '../components/FormatSidebar';
 import { RoundRobinToSEConfig as RRToSEConfigType } from '../types';
-import { Minus, Plus } from 'lucide-react';
+import { Minus, Plus, RefreshCw, GitBranch } from 'lucide-react';
 
 export default function StepConfigurePlayoffs() {
   const t = useTranslations('pages.tournaments.detail.formatWizard');
@@ -85,7 +85,7 @@ export default function StepConfigurePlayoffs() {
               </Flex>
             </Box>
 
-            {/* Format diagram */}
+            {/* Format diagram - N bracket flows based on count */}
             <Box
               borderWidth="1px"
               borderColor="gray.200"
@@ -93,47 +93,81 @@ export default function StepConfigurePlayoffs() {
               p={4}
               mb={5}
             >
-              <Flex gap={3} align="center">
-                <Flex
-                  bg="blue.50"
-                  borderWidth="1px"
-                  borderColor="blue.100"
-                  borderRadius="md"
-                  px={3}
-                  py={2}
-                  align="center"
-                  gap={2}
-                >
-                  <Box w="20px" h="20px" bg="blue.100" borderRadius="sm" />
-                  <Box>
-                    <Text fontSize="xs" fontWeight="bold">
-                      Pool Play
+              <Flex direction="column" gap={3}>
+                {Array.from({ length: config.qualifiersPerGroup }, (_, i) => (
+                  <Flex key={i} align="center" gap={3}>
+                    {/* Pool Play */}
+                    <Flex
+                      bg="blue.50"
+                      borderWidth="1px"
+                      borderColor="blue.100"
+                      borderRadius="md"
+                      px={3}
+                      py={2}
+                      align="center"
+                      gap={2}
+                      flex={1}
+                    >
+                      <Flex
+                        w="28px"
+                        h="28px"
+                        bg="blue.100"
+                        borderRadius="md"
+                        align="center"
+                        justify="center"
+                        flexShrink={0}
+                      >
+                        <RefreshCw size={13} color="#3182CE" />
+                      </Flex>
+                      <Box>
+                        <Text fontSize="xs" fontWeight="bold">
+                          {t('formats.ROUND_ROBIN.cardLabel')}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {t('formats.ROUND_ROBIN.subtitle')}
+                        </Text>
+                      </Box>
+                    </Flex>
+
+                    {/* Arrow */}
+                    <Text color="gray.400" fontSize="sm" flexShrink={0}>
+                      →
                     </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      Round Robin
-                    </Text>
-                  </Box>
-                </Flex>
-                <Flex
-                  bg="orange.50"
-                  borderWidth="1px"
-                  borderColor="orange.100"
-                  borderRadius="md"
-                  px={3}
-                  py={2}
-                  align="center"
-                  gap={2}
-                >
-                  <Box w="20px" h="20px" bg="orange.100" borderRadius="sm" />
-                  <Box>
-                    <Text fontSize="xs" fontWeight="bold">
-                      Playoffs
-                    </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      Single Elimination
-                    </Text>
-                  </Box>
-                </Flex>
+
+                    {/* Playoffs */}
+                    <Flex
+                      bg="orange.50"
+                      borderWidth="1px"
+                      borderColor="orange.100"
+                      borderRadius="md"
+                      px={3}
+                      py={2}
+                      align="center"
+                      gap={2}
+                      flex={1}
+                    >
+                      <Flex
+                        w="28px"
+                        h="28px"
+                        bg="orange.100"
+                        borderRadius="md"
+                        align="center"
+                        justify="center"
+                        flexShrink={0}
+                      >
+                        <GitBranch size={13} color="#DD6B20" />
+                      </Flex>
+                      <Box>
+                        <Text fontSize="xs" fontWeight="bold">
+                          {t('config.playoffs.title')}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {t('formats.SINGLE_ELIMINATION.subtitle')}
+                        </Text>
+                      </Box>
+                    </Flex>
+                  </Flex>
+                ))}
               </Flex>
             </Box>
 
