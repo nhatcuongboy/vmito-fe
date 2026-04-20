@@ -47,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const venue of venues) {
       for (const locale of LOCALES) {
         entries.push({
-          url: `${BASE_URL}/${locale}/venues/${venue.id}`,
+          url: `${BASE_URL}/${locale}/venues/${venue.slug ?? venue.id}`,
           lastModified: venue.updatedAt ? new Date(venue.updatedAt) : now,
           changeFrequency: 'weekly',
           priority: 0.7,

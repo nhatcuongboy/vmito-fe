@@ -58,6 +58,51 @@ export const AVAILABLE_TIEBREAKERS: TiebreakerItem[] = [
     description: 'headToHeadDesc',
   },
   {
+    id: 'matchups',
+    label: 'matchups',
+    description: 'matchupsDesc',
+  },
+  {
+    id: 'average_game_differential',
+    label: 'averageGameDifferential',
+    description: 'averageGameDifferentialDesc',
+  },
+  {
+    id: 'most_games_for',
+    label: 'mostGamesFor',
+    description: 'mostGamesForDesc',
+  },
+  {
+    id: 'highest_average_games_for',
+    label: 'highestAverageGamesFor',
+    description: 'highestAverageGamesForDesc',
+  },
+  {
+    id: 'least_games_against',
+    label: 'leastGamesAgainst',
+    description: 'leastGamesAgainstDesc',
+  },
+  {
+    id: 'lowest_average_games_against',
+    label: 'lowestAverageGamesAgainst',
+    description: 'lowestAverageGamesAgainstDesc',
+  },
+  {
+    id: 'least_matches_forfeited',
+    label: 'leastMatchesForfeited',
+    description: 'leastMatchesForfeitedDesc',
+  },
+  {
+    id: 'least_losses',
+    label: 'leastLosses',
+    description: 'leastLossesDesc',
+  },
+  {
+    id: 'highest_game_ratio',
+    label: 'highestGameRatio',
+    description: 'highestGameRatioDesc',
+  },
+  {
     id: 'points_for',
     label: 'pointsFor',
     description: 'pointsForDesc',
@@ -66,6 +111,36 @@ export const AVAILABLE_TIEBREAKERS: TiebreakerItem[] = [
     id: 'points_against',
     label: 'pointsAgainst',
     description: 'pointsAgainstDesc',
+  },
+  {
+    id: 'point_differential_detail',
+    label: 'pointDifferentialDetail',
+    description: 'pointDifferentialDetailDesc',
+  },
+  {
+    id: 'average_point_differential',
+    label: 'averagePointDifferential',
+    description: 'averagePointDifferentialDesc',
+  },
+  {
+    id: 'least_points_against',
+    label: 'leastPointsAgainst',
+    description: 'leastPointsAgainstDesc',
+  },
+  {
+    id: 'lowest_average_points_against',
+    label: 'lowestAveragePointsAgainst',
+    description: 'lowestAveragePointsAgainstDesc',
+  },
+  {
+    id: 'most_points_for',
+    label: 'mostPointsFor',
+    description: 'mostPointsForDesc',
+  },
+  {
+    id: 'highest_average_points_for',
+    label: 'highestAveragePointsFor',
+    description: 'highestAveragePointsForDesc',
   },
 ];
 
@@ -77,7 +152,15 @@ export const AVAILABLE_STATISTICS: StatisticItem[] = [
   ...DEFAULT_STATISTICS,
   { id: 'games_won', label: 'gamesWon', abbreviation: 'GW' },
   { id: 'games_lost', label: 'gamesLost', abbreviation: 'GL' },
+  { id: 'games_played', label: 'gamesPlayed', abbreviation: 'GP' },
   { id: 'game_differential', label: 'gameDifferential', abbreviation: 'GD' },
+  { id: 'points_for_stat', label: 'pointsForStat', abbreviation: 'PF' },
+  { id: 'points_against_stat', label: 'pointsAgainstStat', abbreviation: 'PA' },
+  {
+    id: 'points_differential_stat',
+    label: 'pointsDifferentialStat',
+    abbreviation: '+/-',
+  },
 ];
 
 export const DEFAULT_STANDINGS_COLUMNS: StandingsColumn[] = [
@@ -94,9 +177,15 @@ export const DEFAULT_STANDINGS_COLUMNS: StandingsColumn[] = [
 
 export const AVAILABLE_STANDINGS_COLUMNS: StandingsColumn[] = [
   ...DEFAULT_STANDINGS_COLUMNS,
+  { id: 'cancelled', label: 'cancelled', abbreviation: 'C' },
+  { id: 'forfeits', label: 'forfeits', abbreviation: 'F' },
+  { id: 'games_ratio', label: 'gamesRatio', abbreviation: 'GW:GL' },
   { id: 'games_won', label: 'gamesWon', abbreviation: 'GW' },
   { id: 'games_lost', label: 'gamesLost', abbreviation: 'GL' },
+  { id: 'games_played', label: 'gamesPlayed', abbreviation: 'GP' },
   { id: 'game_differential', label: 'gameDifferential', abbreviation: 'GD' },
+  { id: 'points_for_col', label: 'pointsForCol', abbreviation: 'PF' },
+  { id: 'points_against_col', label: 'pointsAgainstCol', abbreviation: 'PA' },
 ];
 
 export const DEFAULT_RR_CONFIG: RoundRobinConfig = {
@@ -110,6 +199,7 @@ export const DEFAULT_RR_CONFIG: RoundRobinConfig = {
   forfeitWinPoints: 0,
   forfeitLossPoints: 0,
   tiebreakers: [...DEFAULT_TIEBREAKERS],
+  headToHeadTiebreakers: [],
   statistics: [...DEFAULT_STATISTICS],
   standingsColumns: [...DEFAULT_STANDINGS_COLUMNS],
 };
@@ -135,6 +225,7 @@ export function getDefaultConfig(
       return {
         ...DEFAULT_RR_CONFIG,
         tiebreakers: [...DEFAULT_TIEBREAKERS],
+        headToHeadTiebreakers: [],
         statistics: [...DEFAULT_STATISTICS],
         standingsColumns: [...DEFAULT_STANDINGS_COLUMNS],
       };
@@ -146,6 +237,7 @@ export function getDefaultConfig(
         roundRobin: {
           ...DEFAULT_RR_CONFIG,
           tiebreakers: [...DEFAULT_TIEBREAKERS],
+          headToHeadTiebreakers: [],
           statistics: [...DEFAULT_STATISTICS],
           standingsColumns: [...DEFAULT_STANDINGS_COLUMNS],
         },

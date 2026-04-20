@@ -71,6 +71,7 @@ function getRRConfig(category: Category | null): RoundRobinConfig {
     tiebreakers: (rr.tiebreakers as TiebreakerItem[]) ?? [
       ...DEFAULT_RR_CONFIG.tiebreakers,
     ],
+    headToHeadTiebreakers: (rr.headToHeadTiebreakers as TiebreakerItem[]) ?? [],
     statistics: (rr.statistics as StatisticItem[]) ?? [
       ...DEFAULT_RR_CONFIG.statistics,
     ],
@@ -364,6 +365,9 @@ export default function ManageStandingsModal({
   const [standingsColumns, setStandingsColumns] = useState<StandingsColumn[]>(
     initialConfig.standingsColumns
   );
+  const [headToHeadTiebreakers, setHeadToHeadTiebreakers] = useState<
+    TiebreakerItem[]
+  >(initialConfig.headToHeadTiebreakers);
   const [isSaving, setIsSaving] = useState(false);
 
   // Reset state when category changes
@@ -379,6 +383,7 @@ export default function ManageStandingsModal({
     setForfeitWinPoints(cfg.forfeitWinPoints);
     setForfeitLossPoints(cfg.forfeitLossPoints);
     setTiebreakers(cfg.tiebreakers);
+    setHeadToHeadTiebreakers(cfg.headToHeadTiebreakers);
     setStatistics(cfg.statistics);
     setStandingsColumns(cfg.standingsColumns);
   }, [category]);
@@ -455,6 +460,7 @@ export default function ManageStandingsModal({
         forfeitWinPoints,
         forfeitLossPoints,
         tiebreakers,
+        headToHeadTiebreakers,
         statistics,
         standingsColumns,
       });

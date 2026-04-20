@@ -80,7 +80,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   const locale = useLocale() as Locale;
 
   // Tab / mode state
-  const [mode, setMode] = useState<SelectionMode>('auto');
+  const [mode, setMode] = useState<SelectionMode>('manual');
 
   // Auto-assign internal state
   const [suggestedPlayers, setSuggestedPlayers] =
@@ -148,7 +148,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   useEffect(() => {
     if (isOpen && court?.id) {
       setTopCount(defaultTopCount);
-      setMode('auto');
+      setMode('manual');
       fetchSuggestedPlayers(court.id, defaultTopCount, false);
     } else if (!isOpen) {
       // Reset state when modal closes
@@ -268,16 +268,16 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           size="sm"
         >
           <Tabs.List mb={2}>
-            <Tabs.Trigger value="auto">
-              <HStack gap={1.5}>
-                <Box as={Shuffle} boxSize={3.5} />
-                <Text fontSize="sm">{t('courtsTab.autoAssignMatch')}</Text>
-              </HStack>
-            </Tabs.Trigger>
             <Tabs.Trigger value="manual">
               <HStack gap={1.5}>
                 <Box as={UserPlus} boxSize={3.5} />
                 <Text fontSize="sm">{t('courtsTab.manualSelection')}</Text>
+              </HStack>
+            </Tabs.Trigger>
+            <Tabs.Trigger value="auto">
+              <HStack gap={1.5}>
+                <Box as={Shuffle} boxSize={3.5} />
+                <Text fontSize="sm">{t('courtsTab.autoAssignMatch')}</Text>
               </HStack>
             </Tabs.Trigger>
           </Tabs.List>

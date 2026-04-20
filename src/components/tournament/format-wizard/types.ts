@@ -36,6 +36,7 @@ export interface RoundRobinConfig {
   forfeitWinPoints: number;
   forfeitLossPoints: number;
   tiebreakers: TiebreakerItem[];
+  headToHeadTiebreakers: TiebreakerItem[];
   statistics: StatisticItem[];
   standingsColumns: StandingsColumn[];
 }

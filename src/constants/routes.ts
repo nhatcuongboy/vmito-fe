@@ -69,7 +69,7 @@ export const ROUTES = {
 
   // Venues
   VENUES: {
-    DETAIL: (id: string) => `/venues/${id}`,
+    DETAIL: (id: string, slug?: string) => `/venues/${slug || id}`,
   },
 
   // Browse/Public Routes
