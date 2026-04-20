@@ -2839,6 +2839,21 @@
       "SESSION": "场次",
       "REGISTRATION": "注册",
       "PAYMENT": "支付"
+    },
+    "messages": {
+      "viewSession": "查看场次",
+      "startReminderTitle": "场次即将开始！",
+      "startReminderMessage": "\u201c{sessionName}\u201d 时间到了。您到场地了吗？点击开始场次。",
+      "playerStartReminderTitle": "您的场次即将开始！",
+      "playerStartReminderMessage": "\u201c{sessionName}\u201d 即将开始，请前往场地！",
+      "autoCancelledTitle": "场次已自动取消",
+      "autoCancelledMessage": "\u201c{sessionName}\u201d 因未在计划时间后30分钟内开始，已被自动取消。",
+      "sessionCancelledTitle": "场次已取消",
+      "sessionCancelledMessage": "\u201c{sessionName}\u201d 已被系统取消。主持人未按时开始场次。",
+      "endWarningTitle": "场次即将结束",
+      "endWarningMessage": "\u201c{sessionName}\u201d 将在约15分钟后结束。",
+      "autoFinalizedTitle": "场次已自动结束",
+      "autoFinalizedMessage": "\u201c{sessionName}\u201d 已在宽限期到期后被系统自动结束。"
     }
   },
   "clubs": {

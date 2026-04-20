@@ -2916,6 +2916,21 @@
       "SESSION": "Session",
       "REGISTRATION": "Registration",
       "PAYMENT": "Payment"
+    },
+    "messages": {
+      "viewSession": "View session",
+      "startReminderTitle": "Session is ready to start!",
+      "startReminderMessage": "It\u2019s time for \u201c{sessionName}\u201d. Are you at the court? Tap to start the session.",
+      "playerStartReminderTitle": "Your session is starting!",
+      "playerStartReminderMessage": "\u201c{sessionName}\u201d is about to start. Head to the court!",
+      "autoCancelledTitle": "Session auto-cancelled",
+      "autoCancelledMessage": "\u201c{sessionName}\u201d was automatically cancelled because it was not started within 30 minutes.",
+      "sessionCancelledTitle": "Session cancelled",
+      "sessionCancelledMessage": "\u201c{sessionName}\u201d has been cancelled by the system. The host did not start the session on time.",
+      "endWarningTitle": "Session ending soon",
+      "endWarningMessage": "\u201c{sessionName}\u201d is ending in about 15 minutes.",
+      "autoFinalizedTitle": "Session auto-finalized",
+      "autoFinalizedMessage": "\u201c{sessionName}\u201d has been automatically finalized because the grace period expired."
     }
   },
   "clubs": {

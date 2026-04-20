@@ -2920,6 +2920,21 @@
       "SESSION": "Kèo",
       "REGISTRATION": "Đăng ký",
       "PAYMENT": "Thanh toán"
+    },
+    "messages": {
+      "viewSession": "Xem kèo",
+      "startReminderTitle": "Kèo sắp bắt đầu!",
+      "startReminderMessage": "Đã đến giờ cho kèo \u201c{sessionName}\u201d. Bạn đã có mặt tại sân chưa? Nhấn để bắt đầu.",
+      "playerStartReminderTitle": "Kèo sắp bắt đầu!",
+      "playerStartReminderMessage": "Kèo \u201c{sessionName}\u201d sắp bắt đầu. Hãy di chuyển ra sân!",
+      "autoCancelledTitle": "Kèo đã bị huỷ tự động",
+      "autoCancelledMessage": "Kèo \u201c{sessionName}\u201d đã bị huỷ tự động vì không được bắt đầu trong vòng 30 phút.",
+      "sessionCancelledTitle": "Kèo đã bị huỷ",
+      "sessionCancelledMessage": "Kèo \u201c{sessionName}\u201d đã bị hệ thống huỷ. Chủ kèo không bắt đầu đúng giờ.",
+      "endWarningTitle": "Kèo sắp kết thúc",
+      "endWarningMessage": "Kèo \u201c{sessionName}\u201d sẽ kết thúc sau khoảng 15 phút.",
+      "autoFinalizedTitle": "Kèo đã được hoàn tất",
+      "autoFinalizedMessage": "Kèo \u201c{sessionName}\u201d đã được hệ thống tự động hoàn tất sau khi hết thời gian gia hạn."
     }
   },
   "clubs": {

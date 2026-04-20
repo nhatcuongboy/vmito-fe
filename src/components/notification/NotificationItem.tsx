@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Text, HStack, IconButton, Badge } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import {
   LuCheck,
   LuTrash2,
@@ -8,12 +9,14 @@ import {
   LuMail,
   LuShield,
   LuCreditCard,
+  LuExternalLink,
 } from 'react-icons/lu';
 import { INotification, NotificationType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
 import { formatDistanceToNow } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 
 interface INotificationItemProps {
   notification: INotification;
@@ -21,6 +24,39 @@ interface INotificationItemProps {
   onDelete: (id: string) => void;
   onClick?: (notification: INotification) => void;
 }
+
+const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
+  {
+    start_reminder: {
+      titleKey: 'messages.startReminderTitle',
+      messageKey: 'messages.startReminderMessage',
+    },
+    player_start_reminder: {
+      titleKey: 'messages.playerStartReminderTitle',
+      messageKey: 'messages.playerStartReminderMessage',
+    },
+    auto_cancelled: {
+      titleKey: 'messages.autoCancelledTitle',
+      messageKey: 'messages.autoCancelledMessage',
+    },
+    session_cancelled: {
+      titleKey: 'messages.sessionCancelledTitle',
+      messageKey: 'messages.sessionCancelledMessage',
+    },
+    end_warning: {
+      titleKey: 'messages.endWarningTitle',
+      messageKey: 'messages.endWarningMessage',
+    },
+    auto_finalized: {
+      titleKey: 'messages.autoFinalizedTitle',
+      messageKey: 'messages.autoFinalizedMessage',
+    },
+  };
+
+const VIEW_SESSION_ACTIONS = new Set([
+  'start_reminder',
+  'player_start_reminder',
+]);
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -60,6 +96,7 @@ export const NotificationItem = ({
 }: INotificationItemProps) => {
   const t = useTranslations('notification');
   const params = useParams();
+  const router = useRouter();
   const locale = (params.locale as string) || 'en';
 
   const Icon = getNotificationIcon(notification.type);
@@ -70,11 +107,37 @@ export const NotificationItem = ({
     locale: locale === 'vi' ? vi : enUS,
   });
 
+  const action = notification.data?.action as string | undefined;
+  const sessionName = notification.data?.sessionName as string | undefined;
+  const sessionId = notification.data?.sessionId as string | undefined;
+  const keys = action ? ACTION_TO_KEYS[action] : undefined;
+
+  const displayTitle =
+    keys && sessionName
+      ? t(keys.titleKey as Parameters<typeof t>[0])
+      : notification.title;
+
+  const displayMessage =
+    keys && sessionName
+      ? t(keys.messageKey as Parameters<typeof t>[0], { sessionName })
+      : notification.message;
+
+  const showViewSession =
+    action && VIEW_SESSION_ACTIONS.has(action) && !!sessionId;
+
   const handleClick = () => {
     if (!notification.isRead) {
       onMarkAsRead(notification.id);
     }
     onClick?.(notification);
+  };
+
+  const handleViewSession = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!notification.isRead) {
+      onMarkAsRead(notification.id);
+    }
+    router.push(`/sessions/${sessionId}`);
   };
 
   return (
@@ -109,7 +172,7 @@ export const NotificationItem = ({
               fontSize="sm"
               lineClamp={1}
             >
-              {notification.title}
+              {displayTitle}
             </Text>
             {!notification.isRead && (
               <Badge colorPalette="green" size="xs">
@@ -124,8 +187,21 @@ export const NotificationItem = ({
             _dark={{ color: 'gray.400' }}
             lineClamp={2}
           >
-            {notification.message}
+            {displayMessage}
           </Text>
+
+          {showViewSession && (
+            <Button
+              size="xs"
+              variant="ghost"
+              colorPalette="blue"
+              mt={1}
+              onClick={handleViewSession}
+            >
+              <LuExternalLink size={12} />
+              {t('messages.viewSession')}
+            </Button>
+          )}
 
           <Text fontSize="xs" color="gray.500" mt={1}>
             {timeAgo}
