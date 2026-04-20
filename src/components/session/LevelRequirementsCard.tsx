@@ -24,30 +24,33 @@ import { useTranslations } from 'next-intl';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 
+interface ILevelRequirementsFormValues {
+  allLevelsSelected: boolean;
+  requiredLevels?: number[];
+  name: string;
+  selectedVenueId: string;
+  hostName: string;
+  hostPhone?: string;
+  startTime: string;
+  endTime: string;
+  courts: {
+    direction: CourtDirection;
+    courtNumber: number;
+    courtName?: string;
+  }[];
+  courtColor: string;
+  maxPlayersPerCourt: number;
+  description?: string;
+  requirePlayerInfo: boolean;
+  allowGuestJoin: boolean;
+  allowNewPlayers: boolean;
+  shuttlecock?: string;
+  defaultMatchType: 'SINGLES' | 'DOUBLES';
+}
+
 interface LevelRequirementsCardProps {
-  control: Control<any>;
-  setValue: UseFormSetValue<{
-    allLevelsSelected: boolean;
-    requiredLevels?: number[];
-    name: string;
-    selectedVenueId: string;
-    hostName: string;
-    hostPhone: string;
-    startTime: string;
-    endTime: string;
-    courts: {
-      direction: CourtDirection;
-      courtNumber: number;
-      courtName?: string;
-    }[];
-    courtColor: string;
-    maxPlayersPerCourt: number;
-    description?: string;
-    requirePlayerInfo: boolean;
-    allowGuestJoin: boolean;
-    allowNewPlayers: boolean;
-    shuttlecock?: string;
-  }>;
+  control: Control<ILevelRequirementsFormValues>;
+  setValue: UseFormSetValue<ILevelRequirementsFormValues>;
 }
 
 export default function LevelRequirementsCard({

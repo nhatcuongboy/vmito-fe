@@ -306,12 +306,14 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             <Box
               mt={2}
               p={2}
-              bg="white"
+              bg="purple.100"
               borderRadius="md"
               fontSize="xs"
-              color="purple.600"
+              color="purple.700"
+              borderWidth="1px"
+              borderColor="purple.200"
             >
-              <Text fontWeight="medium">AI Reasoning:</Text>
+              <Text fontWeight="semibold">{t('courtsTab.aiReasoning')}:</Text>
               <Text>{suggestedPlayers.aiReason}</Text>
             </Box>
           )}

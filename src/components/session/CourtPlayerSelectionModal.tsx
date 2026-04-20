@@ -6,10 +6,11 @@ import { Court, Player } from '@/types/session';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { Badge, Box, Flex, HStack, Tabs, Text } from '@chakra-ui/react';
-import { Play, Shuffle, Sparkles, UserPlus } from 'lucide-react';
+import { Play, Shuffle, Sparkles, User, UserPlus, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Locale } from '@/i18n/locales';
+import { TMatchType } from '@/hooks/useCourtsTabModals';
 
 type SelectionMode = 'auto' | 'manual';
 
@@ -19,6 +20,10 @@ interface ICourtPlayerSelectionModalProps {
   waitingPlayers: Player[];
   waitingPlayersCount: number;
   numberOfCourts: number;
+
+  // Match type
+  matchType: TMatchType;
+  onMatchTypeChange: (type: TMatchType) => void;
 
   // Manual selection state (managed by parent hook)
   selectedPlayers: (string | null)[];
@@ -60,6 +65,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   waitingPlayers,
   waitingPlayersCount,
   numberOfCourts,
+  matchType,
+  onMatchTypeChange,
   selectedPlayers,
   currentPosition,
   onPlayerToggle,
@@ -89,13 +96,14 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   const [useAi, setUseAi] = useState(false);
 
   // Calculate default topCount
+  const playersPerCourt = matchType === 'singles' ? 2 : 4;
   const defaultTopCount = useMemo(() => {
     if (!numberOfCourts || !waitingPlayersCount) {
-      return waitingPlayersCount || 4;
+      return waitingPlayersCount || playersPerCourt;
     }
-    const calculatedDefault = 4 * numberOfCourts;
+    const calculatedDefault = playersPerCourt * numberOfCourts;
     return Math.min(calculatedDefault, waitingPlayersCount);
-  }, [numberOfCourts, waitingPlayersCount]);
+  }, [numberOfCourts, waitingPlayersCount, playersPerCourt]);
 
   const [topCount, setTopCount] = useState(defaultTopCount);
 
@@ -104,11 +112,13 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     async (courtId: string, count: number, enableAi: boolean = false) => {
       try {
         setIsLoadingSuggestion(true);
+        const apiMatchType = matchType === 'singles' ? 'SINGLES' : 'DOUBLES';
         const response = await CourtService.getSuggestedPlayersForCourt(
           courtId,
           count,
           enableAi,
-          locale
+          locale,
+          apiMatchType
         );
         setSuggestedPlayers(response);
       } catch (error) {
@@ -117,32 +127,32 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
         setIsLoadingSuggestion(false);
       }
     },
-    [locale]
+    [locale, matchType]
   );
 
   // Combine players from both pairs for court visualization
   const autoAssignPlayers = useMemo(() => {
-    return suggestedPlayers
-      ? [
-          ...suggestedPlayers.pair1.players.map(
-            (player: Player, index: number) => ({
-              ...player,
-              pairNumber: 1,
-              isCurrentPlayer: false,
-              courtPosition: index,
-            })
-          ),
-          ...suggestedPlayers.pair2.players.map(
-            (player: Player, index: number) => ({
-              ...player,
-              pairNumber: 2,
-              isCurrentPlayer: false,
-              courtPosition: index + 2,
-            })
-          ),
-        ]
-      : [];
-  }, [suggestedPlayers]);
+    if (!suggestedPlayers) return [];
+    const isSingles = matchType === 'singles';
+    return [
+      ...suggestedPlayers.pair1.players.map(
+        (player: Player, index: number) => ({
+          ...player,
+          pairNumber: 1,
+          isCurrentPlayer: false,
+          courtPosition: isSingles ? 0 : index,
+        })
+      ),
+      ...suggestedPlayers.pair2.players.map(
+        (player: Player, index: number) => ({
+          ...player,
+          pairNumber: 2,
+          isCurrentPlayer: false,
+          courtPosition: isSingles ? 1 : index + 2,
+        })
+      ),
+    ];
+  }, [suggestedPlayers, matchType]);
 
   // Fetch when modal opens
   useEffect(() => {
@@ -191,7 +201,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   // Handle manual confirm
   const handleConfirmManual = () => {
     const selectedCount = selectedPlayers.filter((p) => p !== null).length;
-    if (selectedCount === 4) {
+    const requiredCount = matchType === 'singles' ? 2 : 4;
+    if (selectedCount === requiredCount) {
       const playersWithPosition = selectedPlayers
         .map((playerId, index) => ({
           playerId: playerId as string,
@@ -219,9 +230,10 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
   const isAutoMode = mode === 'auto';
   const isLoading = isAutoMode ? isLoadingAutoConfirm : isLoadingManualConfirm;
+  const requiredPlayerCount = matchType === 'singles' ? 2 : 4;
   const isConfirmDisabled = isAutoMode
     ? isLoadingSuggestion || !suggestedPlayers
-    : selectedCount !== 4;
+    : selectedCount !== requiredPlayerCount;
 
   return (
     <VModal
@@ -253,13 +265,80 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             <Box as={Play} boxSize={4} mr={1} />
             {isAutoMode
               ? t('courtsTab.confirmMatch')
-              : t('courtsTab.confirmMatchManual', { count: selectedCount })}
+              : t('courtsTab.confirmMatchManual', {
+                  count: selectedCount,
+                  total: playersPerCourt,
+                })}
           </CompatButton>
         </Flex>
       }
       maxBodyHeight="75vh"
     >
       <Box>
+        {/* Match Type Tab Selector */}
+        <Flex justify="center" mb={4}>
+          <Flex
+            bg="gray.100"
+            p={1}
+            borderRadius="full"
+            borderWidth="1px"
+            borderColor="gray.200"
+            _dark={{
+              bg: 'whiteAlpha.100',
+              borderColor: 'whiteAlpha.200',
+            }}
+          >
+            <Flex
+              cursor="pointer"
+              align="center"
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              transition="all 0.2s"
+              bg={matchType === 'doubles' ? 'white' : 'transparent'}
+              color={matchType === 'doubles' ? 'blue.600' : 'gray.500'}
+              _dark={{
+                bg: matchType === 'doubles' ? 'whiteAlpha.200' : 'transparent',
+                color: matchType === 'doubles' ? 'blue.300' : 'gray.400',
+              }}
+              boxShadow={matchType === 'doubles' ? 'sm' : 'none'}
+              onClick={() => onMatchTypeChange('doubles')}
+            >
+              <Box as={Users} boxSize={3.5} mr={2} />
+              <Text
+                fontSize="sm"
+                fontWeight={matchType === 'doubles' ? 'bold' : 'medium'}
+              >
+                {t('courtsTab.doubles')}
+              </Text>
+            </Flex>
+            <Flex
+              cursor="pointer"
+              align="center"
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              transition="all 0.2s"
+              bg={matchType === 'singles' ? 'white' : 'transparent'}
+              color={matchType === 'singles' ? 'blue.600' : 'gray.500'}
+              _dark={{
+                bg: matchType === 'singles' ? 'whiteAlpha.200' : 'transparent',
+                color: matchType === 'singles' ? 'blue.300' : 'gray.400',
+              }}
+              boxShadow={matchType === 'singles' ? 'sm' : 'none'}
+              onClick={() => onMatchTypeChange('singles')}
+            >
+              <Box as={User} boxSize={3.5} mr={2} />
+              <Text
+                fontSize="sm"
+                fontWeight={matchType === 'singles' ? 'bold' : 'medium'}
+              >
+                {t('courtsTab.singles')}
+              </Text>
+            </Flex>
+          </Flex>
+        </Flex>
+
         {/* Tab Switcher */}
         <Tabs.Root
           value={mode}
@@ -309,6 +388,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               selectedPositions={selectedPositions}
               selectedCount={selectedCount}
               currentPosition={currentPosition}
+              matchType={matchType}
               onPlayerToggle={onPlayerToggle}
               onPositionSelect={onPositionSelect}
               onPlayerRemove={onPlayerRemove}
@@ -446,12 +526,17 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
           <Box
             mt={1.5}
             p={2}
-            bg="white"
+            bg="purple.100"
             borderRadius="md"
             fontSize="xs"
-            color="purple.600"
+            color="purple.700"
+            borderWidth="1px"
+            borderColor="purple.200"
           >
-            <Text fontWeight="medium">{t('courtsTab.aiReasoning')}:</Text>
+            <HStack gap={1} mb={0.5}>
+              <Box as={Sparkles} boxSize={3} color="purple.500" />
+              <Text fontWeight="semibold">{t('courtsTab.aiReasoning')}:</Text>
+            </HStack>
             <Text>{suggestedPlayers.aiReason}</Text>
           </Box>
         )}
@@ -635,6 +720,7 @@ interface IManualSelectContentProps {
   selectedPositions: (Player | undefined)[];
   selectedCount: number;
   currentPosition: number;
+  matchType: TMatchType;
   onPlayerToggle: (playerId: string) => void;
   onPositionSelect: (position: number) => void;
   onPlayerRemove: (position: number) => void;
@@ -653,6 +739,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   selectedPositions,
   selectedCount,
   currentPosition,
+  matchType,
   onPlayerToggle,
   onPositionSelect,
   onPlayerRemove,
@@ -661,9 +748,26 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   t,
 }) => {
   // Calculate pair stats from selected positions
-  // Positions 0,1 = pair 1; positions 2,3 = pair 2
+  // Doubles: Positions 0,1 = pair 1; positions 2,3 = pair 2
+  // Singles: Position 0 = player 1; position 1 = player 2
   const manualPairStats = useMemo(() => {
     const getLevelScore = (player?: Player) => player?.level ?? 3;
+
+    if (matchType === 'singles') {
+      const p1 = selectedPositions[0];
+      const p2 = selectedPositions[1];
+      if (!p1 || !p2) return null;
+      const pair1Score = getLevelScore(p1);
+      const pair2Score = getLevelScore(p2);
+      return {
+        pair1Score,
+        pair2Score,
+        scoreDifference: Math.abs(pair1Score - pair2Score),
+        pair1Players: [p1],
+        pair2Players: [p2],
+      };
+    }
+
     const p1 = selectedPositions[0];
     const p2 = selectedPositions[1];
     const p3 = selectedPositions[2];
@@ -684,20 +788,24 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
           pair2Players,
         }
       : null;
-  }, [selectedPositions]);
+  }, [selectedPositions, matchType]);
 
   return (
     <Box>
       {/* Court Preview — sticky while scrolling the player list */}
       <Box position="sticky" top={0} zIndex={10} bg="white" pb={2} mb={1}>
         <Text fontSize="sm" fontWeight="medium" mb={2}>
-          {t('courtsTab.selectedPlayersCount', { count: selectedCount })}
+          {t('courtsTab.selectedPlayersCount', {
+            count: selectedCount,
+            total: matchType === 'singles' ? 2 : 4,
+          })}
         </Text>
         <Box maxW="400px" mx="auto">
           <BadmintonCourt
             players={[]}
             isActive={false}
             mode="selection"
+            matchType={matchType}
             selectedPositions={selectedPositions}
             currentPlayerPosition={currentPosition}
             onPlayerRemove={onPlayerRemove}

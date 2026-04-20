@@ -7,6 +7,8 @@ import { Mars, User, Venus, X, HelpCircle, UserX } from 'lucide-react';
 import { useRef } from 'react';
 import PlayerTooltip from './PlayerTooltip';
 
+import { TMatchType } from '@/hooks/useCourtsTabModals';
+
 interface BadmintonCourtPlayer extends Player {
   pairNumber?: number; // Add pair number for explicit pair assignment
   isCurrentPlayer?: boolean; // Add highlighting for current player
@@ -53,6 +55,7 @@ interface CourtPlayerProps {
   index: number;
   players: BadmintonCourtPlayer[];
   mode: 'manage' | 'view' | 'selection';
+  matchType?: TMatchType;
   isClicked: boolean;
   onPlayerClick: (id: string | null) => void;
   onRemovePlayer?: (position: number) => void; // Remove callback with position
@@ -63,6 +66,7 @@ export default function CourtPlayer({
   index,
   players,
   mode,
+  matchType = 'doubles',
   isClicked,
   onPlayerClick,
   onRemovePlayer,
@@ -83,16 +87,19 @@ export default function CourtPlayer({
     positionIndex = index;
   }
 
-  // Calculate positions: 4 centers of 4 equal parts of the court
-  // Each part: width 50%, height 50%
-  // Centers: (25%,25%), (75%,25%), (25%,75%), (75%,75%)
-  // index 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right
-  const positions = [
-    { top: '30%', left: '25%' }, // Top-left (1)
-    { top: '30%', left: '75%' }, // Top-right (2)
-    { top: '72%', left: '25%' }, // Bottom-left (3)
-    { top: '72%', left: '75%' }, // Bottom-right (4)
-  ];
+  // Calculate positions based on match type
+  const positions =
+    matchType === 'singles'
+      ? [
+          { top: '50%', left: '25%' }, // Left center
+          { top: '50%', left: '75%' }, // Right center
+        ]
+      : [
+          { top: '30%', left: '25%' }, // Top-left (1)
+          { top: '30%', left: '75%' }, // Top-right (2)
+          { top: '72%', left: '25%' }, // Bottom-left (3)
+          { top: '72%', left: '75%' }, // Bottom-right (4)
+        ];
   const position = positions[positionIndex] || positions[0];
   const pairColors = getPairColor(player, index);
   const GenderIcon = getGenderIcon(player.gender);

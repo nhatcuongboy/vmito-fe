@@ -3,7 +3,7 @@ import { VModal } from '@/components/ui/VModal';
 import { CourtDirection } from '@/lib/api/types';
 import { Match } from '@/types/session';
 import { Box, HStack, Text, Textarea, VStack } from '@chakra-ui/react';
-import { Trophy, Users } from 'lucide-react';
+import { Trophy, User, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
@@ -79,18 +79,18 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
 
   if (!isOpen || !match) return null;
 
-  // Group players into pairs using same logic as BadmintonCourt
-  // Apply visual mapping based on direction prop, then determine pairs by column
+  // Group players into pairs/sides using same logic as BadmintonCourt
+  const matchPlayers = match.players ?? [];
+  const isSingles = matchPlayers.length <= 2;
 
-  const playersWithPair = (match.players ?? []).map((matchPlayer) => {
-    // Use match player's recorded position
+  const playersWithPair = matchPlayers.map((matchPlayer) => {
     const courtPosition = matchPlayer.position;
 
-    // Determine pair by courtPosition:
-    // In horizontal layout: positions 0, 2 are on the left (Pair 1), positions 1, 3 are on the right (Pair 2)
-    // This is based on visual columns, not rows
     let pairNumber: 1 | 2;
-    if (direction === CourtDirection.HORIZONTAL) {
+    if (isSingles) {
+      // Singles: position 0 = side 1, position 1 = side 2
+      pairNumber = courtPosition === 0 ? 1 : 2;
+    } else if (direction === CourtDirection.HORIZONTAL) {
       // Horizontal: Pair 1 = positions 0, 1 (left side), Pair 2 = positions 2, 3 (right side)
       pairNumber = courtPosition < 2 ? 1 : 2;
     } else {
@@ -103,6 +103,15 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       pairNumber,
     };
   });
+
+  // Labels based on match type
+  const side1Label = isSingles
+    ? t('matchResult.player1')
+    : t('matchResult.pair1');
+  const side2Label = isSingles
+    ? t('matchResult.player2')
+    : t('matchResult.pair2');
+  const SideIcon = isSingles ? User : Users;
 
   const pair1 = playersWithPair
     .filter((p) => p.pairNumber === 1)
@@ -199,7 +208,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
               {/* Pair 1 Score */}
               <VStack gap={2} align="center">
                 <Text fontSize="sm" color="green.600" fontWeight="semibold">
-                  {t('matchResult.pair1')}
+                  {side1Label}
                 </Text>
                 <Input
                   type="number"
@@ -220,7 +229,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
               {/* Pair 2 Score */}
               <VStack gap={2} align="center">
                 <Text fontSize="sm" color="red.600" fontWeight="semibold">
-                  {t('matchResult.pair2')}
+                  {side2Label}
                 </Text>
                 <Input
                   type="number"
@@ -281,7 +290,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 <VStack gap={2}>
                   <HStack gap={1} justify="center">
                     <Box
-                      as={Users}
+                      as={SideIcon}
                       boxSize={3}
                       color={
                         selectedWinnerPair === 1 ? 'green.600' : 'gray.500'
@@ -294,7 +303,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                         selectedWinnerPair === 1 ? 'green.700' : 'gray.600'
                       }
                     >
-                      {t('matchResult.pair1')}
+                      {side1Label}
                     </Text>
                   </HStack>
                   <VStack gap={1}>
@@ -357,7 +366,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 <VStack gap={2}>
                   <HStack gap={1} justify="center">
                     <Box
-                      as={Users}
+                      as={SideIcon}
                       boxSize={3}
                       color={
                         selectedWinnerPair === 2 ? 'green.600' : 'gray.500'
@@ -370,7 +379,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                         selectedWinnerPair === 2 ? 'green.700' : 'gray.600'
                       }
                     >
-                      {t('matchResult.pair2')}
+                      {side2Label}
                     </Text>
                   </HStack>
                   <VStack gap={1}>
