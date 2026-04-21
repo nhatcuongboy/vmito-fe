@@ -17,8 +17,16 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { MapPin, Users, Calendar, Crown, MessageSquare } from 'lucide-react';
+import {
+  MapPin,
+  Users,
+  Calendar,
+  Crown,
+  MessageSquare,
+  Settings,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { UserRole } from '@/lib/api/types';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
@@ -193,6 +201,27 @@ export default function ClubDetailClient({
                   </Heading>
                 </VStack>
               </HStack>
+
+              {/* Edit Button for Host/Admin */}
+              {currentUser &&
+                (currentUser.id === club.host.id ||
+                  currentUser.role === UserRole.ADMIN ||
+                  club.members?.some(
+                    (m) =>
+                      m.user.id === currentUser.id &&
+                      m.role === EMemberRole.ADMIN
+                  )) && (
+                  <Button
+                    ml="auto"
+                    variant="outline"
+                    colorPalette="gray"
+                    size="sm"
+                    onClick={() => router.push(`/host/clubs/${club.id}/edit`)}
+                  >
+                    <Settings size={16} />
+                    {t('common.edit')}
+                  </Button>
+                )}
             </Flex>
 
             {club.location && (
@@ -340,6 +369,44 @@ export default function ClubDetailClient({
                 <Text fontSize="sm" color="gray.400" fontStyle="italic">
                   {t('clubs.noDescription')}
                 </Text>
+              )}
+              {/* Multiple Images Gallery */}
+              {club.images && club.images.length > 0 && (
+                <Box mt={6}>
+                  <Heading
+                    size="sm"
+                    mb={3}
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                  >
+                    {t('clubs.clubImage')}
+                  </Heading>
+                  <Flex
+                    gap={3}
+                    overflowX="auto"
+                    pb={2}
+                    css={{ '&::-webkit-scrollbar': { display: 'none' } }}
+                  >
+                    {club.images.map((imgUrl, idx) => (
+                      <Box
+                        key={idx}
+                        flexShrink={0}
+                        w="150px"
+                        h="150px"
+                        borderRadius="md"
+                        overflow="hidden"
+                      >
+                        <Image
+                          src={imgUrl}
+                          alt={`${club.name} photo ${idx + 1}`}
+                          w="full"
+                          h="full"
+                          objectFit="cover"
+                        />
+                      </Box>
+                    ))}
+                  </Flex>
+                </Box>
               )}
             </Box>
 

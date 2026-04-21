@@ -6,7 +6,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import { UserRole, Venue } from '@/lib/api/types';
+import { UserRole, Venue, VenueStatus, ClosureStatus } from '@/lib/api/types';
 import {
   Badge,
   Box,
@@ -400,9 +400,11 @@ function AdminVenuesContent() {
     try {
       const payload = {
         ...data,
+        status: data.status as VenueStatus,
+        closureStatus: data.closureStatus as ClosureStatus,
         phone: trimPhone(data.phone),
       };
-      await VenueService.createVenue(payload);
+      await VenueService.createVenue(payload as any);
       toaster.success({ title: t('venueCreatedSuccess') });
       setIsCreateOpen(false);
       form.reset();
@@ -418,9 +420,11 @@ function AdminVenuesContent() {
     try {
       const payload = {
         ...data,
+        status: data.status as VenueStatus,
+        closureStatus: data.closureStatus as ClosureStatus,
         phone: trimPhone(data.phone),
       };
-      await VenueService.updateVenue(selectedVenue.id, payload);
+      await VenueService.updateVenue(selectedVenue.id, payload as any);
       toaster.success({ title: t('venueUpdatedSuccess') });
       setIsEditOpen(false);
       fetchVenues();
@@ -552,7 +556,7 @@ function AdminVenuesContent() {
                       variant="outline"
                       h="36px"
                       px={3}
-                      justify="space-between"
+                      justifyContent="space-between"
                     >
                       <Flex align="center" gap={2}>
                         {filters.sort === 'createdAt' ? (
