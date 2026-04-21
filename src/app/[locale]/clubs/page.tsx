@@ -28,6 +28,8 @@ import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
+import AppViewModeToggle from '@/components/common/AppViewModeToggle';
+import { useViewModeStore } from '@/stores/useViewModeStore';
 import { IClubListItem } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -43,6 +45,9 @@ export default function BrowseClubsPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const { getViewMode } = useViewModeStore();
+  const viewMode = getViewMode('clubs');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
@@ -216,6 +221,11 @@ export default function BrowseClubsPage() {
     setPendingDistricts([]);
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
+    setCities([]);
+    setDistricts([]);
+    setSortByDistance(false);
+    setUserLocation(null);
+    toggleFilters();
   };
 
   const removeCity = (cityCode: string) => {
@@ -285,27 +295,59 @@ export default function BrowseClubsPage() {
         </Flex>
       </Box>
 
-      {/* Results info + active filter chips */}
-      {!isLoading &&
-        (cities.length > 0 ||
-          districts.length > 0 ||
-          sortByDistance ||
-          totalCount !== null) && (
-          <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
-            {totalCount !== null && (
-              <Text
-                fontSize="sm"
-                color="fg.muted"
-                _dark={{ color: 'gray.400' }}
-                flexShrink={0}
-              >
-                {totalCount} kết quả
-              </Text>
-            )}
+      {/* Results info + view mode */}
+      {!isLoading && (
+        <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
+          {totalCount !== null && (
+            <Text
+              fontSize="sm"
+              color="fg.muted"
+              _dark={{ color: 'gray.400' }}
+              flexShrink={0}
+              flex="1"
+            >
+              {totalCount} kết quả
+            </Text>
+          )}
 
-            {sortByDistance && (
+          {sortByDistance && (
+            <Badge
+              colorPalette="blue"
+              variant="subtle"
+              borderRadius="full"
+              px={3}
+              py={1}
+              fontSize="xs"
+              fontWeight="semibold"
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+            >
+              <MapPin size={11} />
+              Gần tôi
+              <Box
+                as="span"
+                cursor="pointer"
+                display="inline-flex"
+                alignItems="center"
+                onClick={() => {
+                  setSortByDistance(false);
+                  setUserLocation(null);
+                }}
+                _hover={{ color: 'blue.700' }}
+              >
+                <X size={12} />
+              </Box>
+            </Badge>
+          )}
+
+          {cities.map((cityCode) => {
+            const cityName =
+              VIETNAM_CITIES.find((c) => c.code === cityCode)?.name ?? cityCode;
+            return (
               <Badge
-                colorPalette="blue"
+                key={cityCode}
+                colorPalette="green"
                 variant="subtle"
                 borderRadius="full"
                 px={3}
@@ -316,86 +358,52 @@ export default function BrowseClubsPage() {
                 alignItems="center"
                 gap={1.5}
               >
-                <MapPin size={11} />
-                Gần tôi
+                {cityName}
                 <Box
                   as="span"
                   cursor="pointer"
                   display="inline-flex"
                   alignItems="center"
-                  onClick={() => {
-                    setSortByDistance(false);
-                    setUserLocation(null);
-                  }}
-                  _hover={{ color: 'blue.700' }}
+                  onClick={() => removeCity(cityCode)}
+                  _hover={{ color: 'green.700' }}
                 >
                   <X size={12} />
                 </Box>
               </Badge>
-            )}
+            );
+          })}
 
-            {cities.map((cityCode) => {
-              const cityName =
-                VIETNAM_CITIES.find((c) => c.code === cityCode)?.name ??
-                cityCode;
-              return (
-                <Badge
-                  key={cityCode}
-                  colorPalette="green"
-                  variant="subtle"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  display="flex"
-                  alignItems="center"
-                  gap={1.5}
-                >
-                  {cityName}
-                  <Box
-                    as="span"
-                    cursor="pointer"
-                    display="inline-flex"
-                    alignItems="center"
-                    onClick={() => removeCity(cityCode)}
-                    _hover={{ color: 'green.700' }}
-                  >
-                    <X size={12} />
-                  </Box>
-                </Badge>
-              );
-            })}
-
-            {districts.map((districtName) => (
-              <Badge
-                key={districtName}
-                colorPalette="purple"
-                variant="subtle"
-                borderRadius="full"
-                px={3}
-                py={1}
-                fontSize="xs"
-                fontWeight="semibold"
-                display="flex"
+          {districts.map((districtName) => (
+            <Badge
+              key={districtName}
+              colorPalette="purple"
+              variant="subtle"
+              borderRadius="full"
+              px={3}
+              py={1}
+              fontSize="xs"
+              fontWeight="semibold"
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+            >
+              {districtName}
+              <Box
+                as="span"
+                cursor="pointer"
+                display="inline-flex"
                 alignItems="center"
-                gap={1.5}
+                onClick={() => removeDistrict(districtName)}
+                _hover={{ color: 'purple.700' }}
               >
-                {districtName}
-                <Box
-                  as="span"
-                  cursor="pointer"
-                  display="inline-flex"
-                  alignItems="center"
-                  onClick={() => removeDistrict(districtName)}
-                  _hover={{ color: 'purple.700' }}
-                >
-                  <X size={12} />
-                </Box>
-              </Badge>
-            ))}
-          </Flex>
-        )}
+                <X size={12} />
+              </Box>
+            </Badge>
+          ))}
+
+          <AppViewModeToggle scope="clubs" />
+        </Flex>
+      )}
 
       {/* Filter Drawer Overlay */}
       {showFilters && (
@@ -711,9 +719,13 @@ export default function BrowseClubsPage() {
         </Box>
       ) : (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
             {clubs.map((club) => (
-              <ClubCard key={club.id} club={club} />
+              <ClubCard
+                key={club.id}
+                club={club}
+                variant={viewMode === 'list' ? 'list' : 'grid'}
+              />
             ))}
           </SimpleGrid>
 

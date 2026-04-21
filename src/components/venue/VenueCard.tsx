@@ -16,7 +16,6 @@ import {
   BadgeCheck,
   Banknote,
   Clock,
-  Eye,
   Globe,
   LayoutGrid,
   MapPin,
@@ -25,6 +24,7 @@ import {
   Phone,
   Search,
   Share2,
+  ChevronRight,
 } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
@@ -39,6 +39,7 @@ import {
 
 interface VenueCardProps {
   venue: Venue;
+  variant?: 'grid' | 'list';
 }
 
 function formatPrice(amount?: number) {
@@ -46,7 +47,7 @@ function formatPrice(amount?: number) {
   return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 }
 
-export default function VenueCard({ venue }: VenueCardProps) {
+export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +82,187 @@ export default function VenueCard({ venue }: VenueCardProps) {
     setTimeout(() => setIsLoading(false), 5000);
   };
 
+  if (variant === 'list') {
+    return (
+      <Box
+        position="relative"
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        borderRadius="2xl"
+        borderWidth="1px"
+        borderColor="gray.200"
+        overflow="hidden"
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        _hover={{
+          shadow: 'xl',
+          transform: 'translateY(-2px)',
+          borderColor: 'blue.400',
+          _dark: { borderColor: 'blue.500' },
+        }}
+        cursor="pointer"
+        display="flex"
+        flexDirection="column"
+        w="100%"
+        onClick={handleViewDetails}
+      >
+        {/* Cover Photo (Banner) */}
+        <Box position="relative" h="140px" overflow="hidden">
+          <Image
+            src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
+            alt={displayName}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+
+          {/* Badges Overlay */}
+          <Box position="absolute" top={3} left={3}>
+            <HStack gap={0} borderRadius="full" overflow="hidden">
+              <Box
+                bg="green.400"
+                color="white"
+                px={3}
+                py={1}
+                pl={4}
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                fontSize="xs"
+                fontWeight="bold"
+              >
+                <BadgeCheck size={14} />
+                <Text>{t('verified')}</Text>
+              </Box>
+            </HStack>
+          </Box>
+
+          <HStack position="absolute" top={3} right={3} gap={2}>
+            <IconButton
+              size="sm"
+              w="32px"
+              h="32px"
+              bg="white"
+              color="gray.600"
+              borderRadius="full"
+              shadow="sm"
+              aria-label="Navigate"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNavigate();
+              }}
+              icon={<MapPinned size={16} />}
+              _hover={{ bg: 'gray.50', color: 'green.500' }}
+            />
+          </HStack>
+        </Box>
+
+        {/* Content Row below Banner */}
+        <Flex px={4} py={4} gap={4} alignItems="center" position="relative">
+          {/* Left Avatar (Logo) */}
+          <Box
+            w="52px"
+            h="52px"
+            borderRadius="full"
+            overflow="hidden"
+            borderWidth="2px"
+            borderColor="white"
+            _dark={{ borderColor: 'gray.800' }}
+            flexShrink={0}
+            bg="white"
+            shadow="md"
+          >
+            <Image
+              src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
+              alt={displayName}
+              w="100%"
+              h="100%"
+              objectFit="cover"
+            />
+          </Box>
+
+          {/* Center Info */}
+          <Box flex="1" minW={0}>
+            <Text
+              fontWeight="bold"
+              fontSize="md"
+              lineClamp={1}
+              color="green.800"
+              _dark={{ color: 'green.300' }}
+              letterSpacing="tight"
+            >
+              {displayName}
+            </Text>
+
+            <HStack
+              fontSize="sm"
+              color="gray.600"
+              _dark={{ color: 'gray.400' }}
+              mt={0.5}
+              gap={1}
+            >
+              {venue.distance !== undefined && venue.distance !== null && (
+                <Text color="orange.500" fontWeight="medium">
+                  ({venue.distance}km)
+                </Text>
+              )}
+              <Text lineClamp={1}>{venue.address}</Text>
+            </HStack>
+
+            {venue.openingHours && (
+              <Flex
+                align="center"
+                gap={1.5}
+                mt={1}
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+              >
+                <Clock size={14} />
+                <Text fontSize="sm" fontWeight="medium">
+                  {venue.openingHours}
+                </Text>
+              </Flex>
+            )}
+          </Box>
+
+          {/* Right Button */}
+          <Button
+            size="sm"
+            bg="#DEB841"
+            color="white"
+            fontWeight="bold"
+            px={4}
+            h="32px"
+            fontSize="sm"
+            flexShrink={0}
+            onClick={handleFindSessions}
+            _hover={{ bg: '#C9A332' }}
+            shadow="sm"
+          >
+            {t('findSessions')}
+          </Button>
+        </Flex>
+
+        {/* Loading Overlay */}
+        {isLoading && (
+          <Flex
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="whiteAlpha.700"
+            _dark={{ bg: 'blackAlpha.700' }}
+            justify="center"
+            align="center"
+            zIndex={10}
+          >
+            <Spinner color="green.500" size="lg" />
+          </Flex>
+        )}
+      </Box>
+    );
+  }
+
   return (
     <Box
       position="relative"
@@ -101,6 +283,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
       display="flex"
       flexDirection="column"
       h="100%"
+      onClick={handleViewDetails}
     >
       {/* Cover Photo */}
       <Box position="relative" h="140px" overflow="hidden">
@@ -138,18 +321,17 @@ export default function VenueCard({ venue }: VenueCardProps) {
       <Box px={5} pt={5} pb={3}>
         <Flex justify="space-between" align="flex-start" gap={3} mb={3}>
           <Box flex="1" minW={0}>
-            <Flex align="center" gap={2} mb={2}>
-              <Text
-                fontWeight="bold"
-                fontSize="xl"
-                lineClamp={1}
-                color="gray.900"
-                _dark={{ color: 'white' }}
-                letterSpacing="tight"
-              >
-                {displayName}
-              </Text>
-            </Flex>
+            <Text
+              fontWeight="bold"
+              fontSize="xl"
+              lineClamp={1}
+              color="gray.900"
+              _dark={{ color: 'white' }}
+              letterSpacing="tight"
+              mb={2}
+            >
+              {displayName}
+            </Text>
 
             {/* Location badges */}
             {(venue.district || venue.city) && (
@@ -210,47 +392,37 @@ export default function VenueCard({ venue }: VenueCardProps) {
                 icon={<Navigation size={14} />}
               />
             </Flex>
-
-            {/* Phone number inline */}
-            {/* {venue.phone && (
-              <Flex align="center" gap={1.5} mt={1.5}>
-                <Phone
-                  size={13}
-                  style={{ flexShrink: 0 }}
-                  color="var(--chakra-colors-gray-500)"
-                />
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  {venue.phone}
-                </Text>
-              </Flex>
-            )} */}
           </Box>
 
           {/* Distance badge */}
-          {venue.distance !== undefined && venue.distance !== null && (
-            <Badge
-              colorPalette="green"
-              variant="surface"
-              borderRadius="full"
-              px={3}
-              py={1.5}
-              fontSize="xs"
-              fontWeight="bold"
+          <HStack gap={2} align="center">
+            {venue.distance !== undefined && venue.distance !== null && (
+              <Badge
+                colorPalette="green"
+                variant="surface"
+                borderRadius="full"
+                px={3}
+                py={1.5}
+                fontSize="xs"
+                fontWeight="bold"
+                flexShrink={0}
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                shadow="sm"
+              >
+                <Navigation size={14} />
+                <Text>{venue.distance} km</Text>
+              </Badge>
+            )}
+            <Box
+              as={ChevronRight}
+              color="gray.400"
+              w={5}
+              h={5}
               flexShrink={0}
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-              shadow="sm"
-            >
-              <Navigation size={14} />
-              <Text>{venue.distance} km</Text>
-            </Badge>
-          )}
+            />
+          </HStack>
         </Flex>
       </Box>
 
@@ -503,38 +675,24 @@ export default function VenueCard({ venue }: VenueCardProps) {
       {/* Action Buttons */}
       <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
       <Box px={5} py={4}>
-        <Flex gap={3}>
-          <Button
-            flex="1"
-            variant="outline"
-            colorPalette="blue"
-            size="md"
-            onClick={handleViewDetails}
-            leftIcon={<Eye size={16} />}
-            _hover={{
-              transform: 'translateY(-2px)',
-              shadow: 'md',
-            }}
-            transition="all 0.2s"
-          >
-            {t('view')}
-          </Button>
-          <Button
-            flex="1"
-            variant="solid"
-            colorPalette="green"
-            size="md"
-            onClick={handleFindSessions}
-            leftIcon={<Search size={16} />}
-            _hover={{
-              transform: 'translateY(-2px)',
-              shadow: 'lg',
-            }}
-            transition="all 0.2s"
-          >
-            {t('findSessionsAtVenue')}
-          </Button>
-        </Flex>
+        <Button
+          w="100%"
+          variant="solid"
+          colorPalette="green"
+          size="md"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleFindSessions(e);
+          }}
+          leftIcon={<Search size={16} />}
+          _hover={{
+            transform: 'translateY(-2px)',
+            shadow: 'lg',
+          }}
+          transition="all 0.2s"
+        >
+          {t('findSessionsAtVenue')}
+        </Button>
       </Box>
 
       {/* Loading Overlay */}

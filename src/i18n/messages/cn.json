@@ -3104,7 +3104,8 @@
     "share": "分享",
     "view": "查看",
     "viewDetails": "查看详情",
-    "findSessionsAtVenue": "查找场次",
+    "findSessions": "查找场次",
+    "findSessionsAtVenue": "在该场地查找场次",
     "nameFormat": "{name} 羽毛球场"
   }
 }
