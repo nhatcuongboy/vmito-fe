@@ -82,10 +82,6 @@ const CreateClubPage = () => {
     name: 'schedules',
   });
 
-  const imageValue = watch('image');
-  const imagePublicIdValue = watch('imagePublicId');
-  const coverPhotoValue = watch("coverPhoto");
-  const coverPhotoPublicIdValue = watch("coverPhotoPublicId");
   const imagesValue = watch('images') || [];
   const imagePublicIdsValue = watch('imagePublicIds') || [];
 
