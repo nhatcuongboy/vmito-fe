@@ -18,6 +18,11 @@ import {
   IconButton,
   Text,
   VStack,
+  MenuRoot,
+  MenuTrigger,
+  MenuContent,
+  MenuRadioItemGroup,
+  MenuRadioItem,
 } from '@chakra-ui/react';
 import {
   Table,
@@ -31,7 +36,17 @@ import {
 } from '@/components/ui/VTable';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
-import { Pencil, Trash2, Plus, MapPin, X } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  MapPin,
+  X,
+  Eye,
+  ListFilter,
+  Star,
+  ArrowDownAZ,
+} from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -61,6 +76,10 @@ const ADMIN_VENUE_FILTERS_SCHEMA = {
   city: stringArrayField(),
   district: stringArrayField(),
   isVerified: stringField(''),
+  status: stringField(''),
+  closureStatus: stringField(''),
+  sort: stringField('createdAt'), // Default new venues first
+  order: stringField('desc'),
 };
 
 // Schema definitions
@@ -76,6 +95,21 @@ const venueSchema = z.object({
   isVerified: z.boolean(),
   coverPhoto: z.string().optional(),
   images: z.array(z.string()).optional(),
+  description: z.string().optional(),
+  openingHours: z.string().optional(),
+  numberOfCourts: z.number().optional(),
+  status: z.string().optional(),
+  closureStatus: z.string().optional(),
+  website: z.string().optional(),
+  hourlyRateFixed: z.number().optional(),
+  hourlyRateWalkIn: z.number().optional(),
+  hasCarParking: z.boolean().optional(),
+  hasCanteen: z.boolean().optional(),
+  wifiName: z.string().optional(),
+  wifiPassword: z.string().optional(),
+  bookingPolicy: z.string().optional(),
+  locatedWithin: z.string().optional(),
+  courtLayoutImage: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -108,6 +142,8 @@ function AdminVenuesContent() {
   const [pendingCities, setPendingCities] = useState<string[]>([]);
   const [pendingDistricts, setPendingDistricts] = useState<string[]>([]);
   const [pendingIsVerified, setPendingIsVerified] = useState('');
+  const [pendingStatus, setPendingStatus] = useState('');
+  const [pendingClosureStatus, setPendingClosureStatus] = useState('');
 
   // Stable keys for dependency arrays
   const citiesKey = filters.city.join(',');
@@ -125,6 +161,8 @@ function AdminVenuesContent() {
       setPendingCities(filters.city);
       setPendingDistricts(filters.district);
       setPendingIsVerified(filters.isVerified);
+      setPendingStatus(filters.status);
+      setPendingClosureStatus(filters.closureStatus);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showFilters]);
@@ -155,6 +193,21 @@ function AdminVenuesContent() {
       isVerified: false,
       coverPhoto: '',
       images: [],
+      description: '',
+      openingHours: '',
+      numberOfCourts: undefined,
+      status: 'ACTIVE',
+      closureStatus: 'OPERATING',
+      website: '',
+      hourlyRateFixed: undefined,
+      hourlyRateWalkIn: undefined,
+      hasCarParking: false,
+      hasCanteen: false,
+      wifiName: '',
+      wifiPassword: '',
+      bookingPolicy: '',
+      locatedWithin: '',
+      courtLayoutImage: '',
     },
   });
 
@@ -180,9 +233,15 @@ function AdminVenuesContent() {
               : filters.isVerified === '0'
                 ? false
                 : undefined,
+          status: filters.status || undefined,
+          closureStatus: filters.closureStatus || undefined,
+          sortBy:
+            filters.q && filters.sort === 'createdAt'
+              ? 'relevance'
+              : filters.sort,
+          sortOrder: filters.order,
           page: targetPage,
           limit: PAGE_SIZE,
-          status: undefined,
         };
 
         const result = await VenueService.searchVenues(apiFilters);
@@ -225,7 +284,18 @@ function AdminVenuesContent() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filters.q, citiesKey, districtsKey, filters.isVerified, page, t]
+    [
+      filters.q,
+      citiesKey,
+      districtsKey,
+      filters.isVerified,
+      filters.status,
+      filters.closureStatus,
+      filters.sort,
+      filters.order,
+      page,
+      t,
+    ]
   );
 
   useEffect(() => {
@@ -264,7 +334,9 @@ function AdminVenuesContent() {
   const activeFilterCount =
     filters.city.length +
     filters.district.length +
-    (filters.isVerified ? 1 : 0);
+    (filters.isVerified ? 1 : 0) +
+    (filters.status ? 1 : 0) +
+    (filters.closureStatus ? 1 : 0);
 
   const availableDistricts = useMemo(() => {
     if (pendingCities.length === 0) return [];
@@ -295,6 +367,8 @@ function AdminVenuesContent() {
       city: pendingCities,
       district: pendingDistricts,
       isVerified: pendingIsVerified,
+      status: pendingStatus,
+      closureStatus: pendingClosureStatus,
     });
     setPage(1);
     toggleFilters();
@@ -304,6 +378,8 @@ function AdminVenuesContent() {
     setPendingCities([]);
     setPendingDistricts([]);
     setPendingIsVerified('');
+    setPendingStatus('');
+    setPendingClosureStatus('');
   };
 
   const removeCity = (cityCode: string) => {
@@ -375,12 +451,27 @@ function AdminVenuesContent() {
       address: venue.address,
       district: venue.district || '',
       city: venue.city || '',
-      lat: venue.lat,
-      lng: venue.lng,
+      lat: venue.lat ?? undefined,
+      lng: venue.lng ?? undefined,
       phone: venue.phone || '',
       isVerified: venue.isVerified ?? false,
       coverPhoto: venue.coverPhoto || '',
       images: venue.images || [],
+      description: venue.description || '',
+      openingHours: venue.openingHours || '',
+      numberOfCourts: venue.numberOfCourts ?? undefined,
+      status: venue.status || 'ACTIVE',
+      closureStatus: venue.closureStatus || 'OPERATING',
+      website: venue.website || '',
+      hourlyRateFixed: venue.hourlyRateFixed ?? undefined,
+      hourlyRateWalkIn: venue.hourlyRateWalkIn ?? undefined,
+      hasCarParking: venue.hasCarParking ?? false,
+      hasCanteen: venue.hasCanteen ?? false,
+      wifiName: venue.wifiName || '',
+      wifiPassword: venue.wifiPassword || '',
+      bookingPolicy: venue.bookingPolicy || '',
+      locatedWithin: venue.locatedWithin || '',
+      courtLayoutImage: venue.courtLayoutImage || '',
     });
     setIsEditOpen(true);
   };
@@ -422,6 +513,21 @@ function AdminVenuesContent() {
                     isVerified: false,
                     coverPhoto: '',
                     images: [],
+                    description: '',
+                    openingHours: '',
+                    numberOfCourts: undefined,
+                    status: 'ACTIVE',
+                    closureStatus: 'OPERATING',
+                    website: '',
+                    hourlyRateFixed: undefined,
+                    hourlyRateWalkIn: undefined,
+                    hasCarParking: false,
+                    hasCanteen: false,
+                    wifiName: '',
+                    wifiPassword: '',
+                    bookingPolicy: '',
+                    locatedWithin: '',
+                    courtLayoutImage: '',
                   });
                   setIsCreateOpen(true);
                 }}
@@ -439,6 +545,61 @@ function AdminVenuesContent() {
               placeholder={t('searchPlaceholder')}
               activeFilterCount={activeFilterCount}
               onFilterToggle={toggleFilters}
+              trailing={
+                <MenuRoot positioning={{ placement: 'bottom-end' }}>
+                  <MenuTrigger asChild>
+                    <VButton
+                      variant="outline"
+                      h="36px"
+                      px={3}
+                      justify="space-between"
+                    >
+                      <Flex align="center" gap={2}>
+                        {filters.sort === 'createdAt' ? (
+                          <ListFilter size={16} />
+                        ) : filters.sort === 'relevance' ? (
+                          <Star size={16} />
+                        ) : (
+                          <ArrowDownAZ size={16} />
+                        )}
+                        <Text fontSize="sm" fontWeight="medium">
+                          {filters.sort === 'createdAt'
+                            ? 'Mới nhất'
+                            : filters.sort === 'relevance'
+                              ? 'Phù hợp'
+                              : filters.sort === 'numberOfCourts'
+                                ? 'Số sân'
+                                : 'Tên'}
+                        </Text>
+                      </Flex>
+                    </VButton>
+                  </MenuTrigger>
+                  <MenuContent minW="180px" zIndex={1100}>
+                    <MenuRadioItemGroup
+                      value={`${filters.sort}|${filters.order}`}
+                      onValueChange={(e) => {
+                        const [s, o] = e.value.split('|');
+                        setFilters({ sort: s, order: o });
+                        setPage(1);
+                      }}
+                    >
+                      <MenuRadioItem value="createdAt|desc">
+                        Mới nhất
+                      </MenuRadioItem>
+                      <MenuRadioItem value="name|asc">Tên (A-Z)</MenuRadioItem>
+                      <MenuRadioItem value="name|desc">Tên (Z-A)</MenuRadioItem>
+                      <MenuRadioItem value="numberOfCourts|desc">
+                        Nhiều sân nhất
+                      </MenuRadioItem>
+                      {filters.q && (
+                        <MenuRadioItem value="relevance|desc">
+                          Phù hợp nhất
+                        </MenuRadioItem>
+                      )}
+                    </MenuRadioItemGroup>
+                  </MenuContent>
+                </MenuRoot>
+              }
             />
           </Box>
 
@@ -493,6 +654,54 @@ function AdminVenuesContent() {
             onReset={handleResetFilters}
           >
             <VStack align="stretch" gap={5}>
+              {/* status Filter */}
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  Trạng thái kinh doanh
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {[
+                    { value: '', label: 'Tất cả' },
+                    { value: 'OPERATING', label: 'Đang mở cửa' },
+                    { value: 'TEMPORARILY_CLOSED', label: 'Đóng cửa tạm thời' },
+                    {
+                      value: 'PERMANENTLY_CLOSED',
+                      label: 'Đóng cửa vĩnh viễn',
+                    },
+                  ].map((opt) => (
+                    <Badge
+                      key={opt.value || 'all'}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={
+                        pendingClosureStatus === opt.value ? 'solid' : 'outline'
+                      }
+                      colorPalette={
+                        pendingClosureStatus === opt.value ? 'cyan' : 'gray'
+                      }
+                      onClick={() => setPendingClosureStatus(opt.value)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      borderWidth={
+                        pendingClosureStatus === opt.value ? '0' : '2px'
+                      }
+                    >
+                      {opt.label}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+
+              <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
               {/* isVerified Filter */}
               <Box>
                 <Text
@@ -650,23 +859,7 @@ function AdminVenuesContent() {
                       </Box>
                     )}
                   </Flex>
-                  <Flex
-                    gap={2}
-                    flexWrap="wrap"
-                    maxH="120px"
-                    overflowY="auto"
-                    css={{
-                      '&::-webkit-scrollbar': { width: '6px' },
-                      '&::-webkit-scrollbar-track': {
-                        background: '#f1f1f1',
-                        borderRadius: '10px',
-                      },
-                      '&::-webkit-scrollbar-thumb': {
-                        background: '#888',
-                        borderRadius: '10px',
-                      },
-                    }}
-                  >
+                  <Flex gap={2} flexWrap="wrap">
                     {availableDistricts.map((district) => (
                       <Badge
                         key={district.code}
@@ -707,23 +900,49 @@ function AdminVenuesContent() {
             <Table>
               <Thead>
                 <Tr>
-                  <Th>{t('name')}</Th>
-                  <Th>{t('address')}</Th>
-                  <Th>{t('isVerified')}</Th>
-                  <Th textAlign="right">{t('actions')}</Th>
+                  <Th>Thông tin</Th>
+                  <Th>Địa chỉ</Th>
+                  <Th>Quy mô</Th>
+                  <Th>Trạng thái</Th>
+                  <Th>Ngày tạo</Th>
+                  <Th>Hành động</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {venues.map((venue) => (
                   <Tr key={venue.id}>
                     <Td fontWeight="medium">
-                      <HStack gap={2}>
-                        <MapPin size={16} color="#179a3b" />
-                        <Text>{venue.name}</Text>
-                      </HStack>
+                      <VStack align="flex-start" gap={1}>
+                        <HStack gap={2}>
+                          <Text fontWeight="bold">{venue.name}</Text>
+                          {venue.isVerified && (
+                            <Badge
+                              colorPalette="green"
+                              size="sm"
+                              variant="solid"
+                              px={1.5}
+                              py={0.5}
+                            >
+                              ✓
+                            </Badge>
+                          )}
+                        </HStack>
+                        {venue.phone && (
+                          <Text fontSize="xs" color="gray.500">
+                            📞 {venue.phone}
+                          </Text>
+                        )}
+                      </VStack>
                     </Td>
                     <Td color="gray.600">
-                      <Text fontSize="sm">{venue.address}</Text>
+                      <Text
+                        fontSize="sm"
+                        truncate
+                        maxW="200px"
+                        title={venue.address}
+                      >
+                        {venue.address}
+                      </Text>
                       {venue.district && venue.city && (
                         <Text fontSize="xs" color="gray.400">
                           {venue.district}, {venue.city}
@@ -731,12 +950,64 @@ function AdminVenuesContent() {
                       )}
                     </Td>
                     <Td>
-                      <Badge colorPalette={venue.isVerified ? 'green' : 'gray'}>
-                        {venue.isVerified ? t('yes') : t('no')}
-                      </Badge>
+                      <Text fontSize="sm">
+                        {venue.numberOfCourts
+                          ? `${venue.numberOfCourts} sân`
+                          : '-'}
+                      </Text>
                     </Td>
-                    <Td textAlign="right">
-                      <HStack gap={2} justify="flex-end">
+                    <Td>
+                      <VStack align="flex-start" gap={1}>
+                        <Badge
+                          colorPalette={
+                            venue.status === 'ACTIVE' ? 'green' : 'gray'
+                          }
+                          size="sm"
+                        >
+                          {venue.status === 'ACTIVE'
+                            ? 'Đang hoạt động'
+                            : 'Tạm ngừng'}
+                        </Badge>
+                        <Badge
+                          colorPalette={
+                            venue.closureStatus === 'OPERATING'
+                              ? 'green'
+                              : venue.closureStatus === 'TEMPORARILY_CLOSED'
+                                ? 'orange'
+                                : 'red'
+                          }
+                          size="sm"
+                          variant="outline"
+                        >
+                          {venue.closureStatus === 'OPERATING'
+                            ? 'Đang mở cửa'
+                            : venue.closureStatus === 'TEMPORARILY_CLOSED'
+                              ? 'Đóng cửa tạm'
+                              : 'Đóng vĩnh viễn'}
+                        </Badge>
+                      </VStack>
+                    </Td>
+                    <Td color="gray.500" fontSize="sm">
+                      {venue.createdAt
+                        ? new Date(venue.createdAt).toLocaleDateString('vi-VN')
+                        : '-'}
+                    </Td>
+                    <Td>
+                      <HStack gap={2}>
+                        <IconButton
+                          aria-label="View venue"
+                          size="sm"
+                          variant="ghost"
+                          colorPalette="blue"
+                          onClick={() => {
+                            window.open(
+                              `/san-cau-long/${venue.slug || venue.id}`,
+                              '_blank'
+                            );
+                          }}
+                        >
+                          <Eye size={16} />
+                        </IconButton>
                         <IconButton
                           aria-label="Edit venue"
                           size="sm"
@@ -848,6 +1119,61 @@ function AdminVenuesContent() {
               )}
             />
 
+            <HStack width="full" gap={4}>
+              <Controller
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Trạng thái</Field.Label>
+                    <SearchableSelect
+                      options={[
+                        { value: 'ACTIVE', label: 'Hoạt động' },
+                        { value: 'INACTIVE', label: 'Tạm ngừng' },
+                      ]}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </Field.Root>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="closureStatus"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Tình trạng đóng cửa</Field.Label>
+                    <SearchableSelect
+                      options={[
+                        { value: 'OPERATING', label: 'Đang mở cửa' },
+                        {
+                          value: 'TEMPORARILY_CLOSED',
+                          label: 'Đóng cửa tạm thời',
+                        },
+                        {
+                          value: 'PERMANENTLY_CLOSED',
+                          label: 'Đóng cửa vĩnh viễn',
+                        },
+                      ]}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </Field.Root>
+                )}
+              />
+            </HStack>
+
+            <Controller
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Field.Root>
+                  <Field.Label>Mô tả</Field.Label>
+                  <Input {...field} />
+                </Field.Root>
+              )}
+            />
+
             <HStack width="full" gap={4} align="flex-start">
               <Controller
                 control={form.control}
@@ -951,6 +1277,173 @@ function AdminVenuesContent() {
               />
             </HStack>
 
+            <HStack width="full" gap={4}>
+              <Controller
+                control={form.control}
+                name="openingHours"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Giờ hoạt động</Field.Label>
+                    <Input {...field} placeholder="VD: 6:00 - 22:00" />
+                  </Field.Root>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="numberOfCourts"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Số lượng sân</Field.Label>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value
+                            ? parseInt(e.target.value, 10)
+                            : undefined
+                        )
+                      }
+                      value={field.value ?? ''}
+                    />
+                  </Field.Root>
+                )}
+              />
+            </HStack>
+
+            <HStack width="full" gap={4}>
+              <Controller
+                control={form.control}
+                name="hourlyRateFixed"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Giá thuê cố định (VND)</Field.Label>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value
+                            ? parseInt(e.target.value, 10)
+                            : undefined
+                        )
+                      }
+                      value={field.value ?? ''}
+                    />
+                  </Field.Root>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="hourlyRateWalkIn"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Giá thuê vãng lai (VND)</Field.Label>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value
+                            ? parseInt(e.target.value, 10)
+                            : undefined
+                        )
+                      }
+                      value={field.value ?? ''}
+                    />
+                  </Field.Root>
+                )}
+              />
+            </HStack>
+
+            <HStack width="full" gap={4}>
+              <Controller
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Website</Field.Label>
+                    <Input {...field} />
+                  </Field.Root>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="locatedWithin"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Vị trí trực thuộc</Field.Label>
+                    <Input {...field} placeholder="VD: Nhà thi đấu A" />
+                  </Field.Root>
+                )}
+              />
+            </HStack>
+
+            <HStack width="full" gap={4}>
+              <Controller
+                control={form.control}
+                name="wifiName"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Tên WiFi</Field.Label>
+                    <Input {...field} />
+                  </Field.Root>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="wifiPassword"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Mật khẩu WiFi</Field.Label>
+                    <Input {...field} />
+                  </Field.Root>
+                )}
+              />
+            </HStack>
+
+            <Controller
+              control={form.control}
+              name="bookingPolicy"
+              render={({ field }) => (
+                <Field.Root>
+                  <Field.Label>Chính sách đặt sân</Field.Label>
+                  <Input {...field} />
+                </Field.Root>
+              )}
+            />
+
+            <HStack width="full" gap={4} py={2}>
+              <Controller
+                control={form.control}
+                name="hasCarParking"
+                render={({ field }) => (
+                  <VSwitch
+                    checked={!!field.value}
+                    onCheckedChange={(details) =>
+                      field.onChange(details.checked)
+                    }
+                    label="Có bãi đậu ô tô"
+                    colorPalette="blue"
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="hasCanteen"
+                render={({ field }) => (
+                  <VSwitch
+                    checked={!!field.value}
+                    onCheckedChange={(details) =>
+                      field.onChange(details.checked)
+                    }
+                    label="Có căn tin/bán nước"
+                    colorPalette="blue"
+                  />
+                )}
+              />
+            </HStack>
+
             <Controller
               control={form.control}
               name="coverPhoto"
@@ -979,6 +1472,51 @@ function AdminVenuesContent() {
                             width: '100%',
                             maxHeight: '200px',
                             objectFit: 'cover',
+                            display: 'block',
+                          }}
+                          onError={(e) => {
+                            (
+                              e.target as HTMLImageElement
+                            ).parentElement!.style.display = 'none';
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </VStack>
+                </Field.Root>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="courtLayoutImage"
+              render={({ field }) => (
+                <Field.Root width="full">
+                  <Field.Label fontWeight="bold">
+                    Sơ đồ sân (URL hình ảnh)
+                  </Field.Label>
+                  <VStack align="stretch" gap={3} width="full">
+                    <Input
+                      {...field}
+                      placeholder="Enter court layout image URL..."
+                      width="full"
+                    />
+                    {field.value && (
+                      <Box
+                        borderRadius="lg"
+                        overflow="hidden"
+                        borderWidth="1px"
+                        borderColor="gray.200"
+                        bg="gray.50"
+                        _dark={{ borderColor: 'gray.700', bg: 'gray.900' }}
+                      >
+                        <img
+                          src={field.value}
+                          alt="Layout preview"
+                          style={{
+                            width: '100%',
+                            maxHeight: '200px',
+                            objectFit: 'contain',
                             display: 'block',
                           }}
                           onError={(e) => {

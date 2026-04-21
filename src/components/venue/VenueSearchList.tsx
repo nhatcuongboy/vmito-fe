@@ -28,6 +28,7 @@ import {
   MapPin,
   TrendingUp,
   X,
+  Star,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -47,12 +48,24 @@ const PAGE_SIZE = 12;
 interface ISortOption {
   value: string;
   label: string;
-  sortBy: 'name' | 'createdAt' | 'numberOfCourts' | 'hourlyRateFixed';
+  sortBy:
+    | 'name'
+    | 'createdAt'
+    | 'numberOfCourts'
+    | 'hourlyRateFixed'
+    | 'relevance';
   sortOrder: 'asc' | 'desc';
   icon: React.ComponentType<{ size?: number }>;
 }
 
 const SORT_OPTIONS: ISortOption[] = [
+  {
+    value: 'relevance',
+    label: 'Phù hợp nhất',
+    sortBy: 'relevance',
+    sortOrder: 'desc',
+    icon: Star,
+  },
   {
     value: 'newest',
     label: 'Mới nhất',
@@ -94,7 +107,7 @@ const VENUE_FILTERS_SCHEMA = {
   city: stringArrayField(),
   district: stringArrayField(),
   near: booleanField(false),
-  sort: stringField('name_asc'),
+  sort: stringField('relevance'),
 };
 
 export default function VenueSearchList() {
