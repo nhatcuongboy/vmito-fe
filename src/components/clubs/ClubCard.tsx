@@ -6,19 +6,20 @@ import {
   Badge,
   Box,
   Flex,
+  HStack,
   Image,
   Stack,
   Text,
   Spinner,
 } from '@chakra-ui/react';
-import { Crown, MapPin, Clock, ArrowRight, Users } from 'lucide-react';
+import { Crown, MapPin, Clock, ChevronRight, Users } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
-import { Button } from '../ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 
 interface ClubCardProps {
   club: IClubListItem;
+  variant?: 'grid' | 'list';
 }
 
 // Helper function to format schedule display
@@ -47,7 +48,7 @@ const formatScheduleDisplay = (
   return scheduleLines.join('\n');
 };
 
-export default function ClubCard({ club }: ClubCardProps) {
+export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
   const router = useRouter();
   const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +64,150 @@ export default function ClubCard({ club }: ClubCardProps) {
 
   // Determine status badge
   const isActive = club.status === 'APPROVED';
+
+  if (variant === 'list') {
+    return (
+      <Box
+        position="relative"
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        borderRadius="2xl"
+        borderWidth="1px"
+        borderColor="gray.200"
+        overflow="hidden"
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        _hover={{
+          shadow: 'xl',
+          transform: 'translateY(-2px)',
+          borderColor: 'blue.400',
+          _dark: { borderColor: 'blue.500' },
+        }}
+        cursor="pointer"
+        display="flex"
+        flexDirection="column"
+        w="100%"
+        onClick={handleViewDetails}
+      >
+        {/* Cover Photo (Banner) */}
+        <Box position="relative" h="140px" overflow="hidden">
+          {/* Note: Clubs don't have separate banner, using avatar as banner with objectFit="cover" and blur, or just using typical image */}
+          <Image
+            src={club.image || DEFAULT_COVER_PHOTO}
+            alt={club.name}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+
+          {/* Status Badge Overlay */}
+          {isActive && (
+            <Box position="absolute" top={3} left={3}>
+              <HStack gap={0} borderRadius="full" overflow="hidden">
+                <Box
+                  bg="green.400"
+                  color="white"
+                  px={3}
+                  py={1}
+                  display="flex"
+                  alignItems="center"
+                  gap={1.5}
+                  fontSize="xs"
+                  fontWeight="bold"
+                >
+                  <Text>{t('clubs.active')}</Text>
+                </Box>
+              </HStack>
+            </Box>
+          )}
+        </Box>
+
+        {/* Content Row below Banner */}
+        <Flex px={4} py={4} gap={4} alignItems="center" position="relative">
+          {/* Left Avatar (Logo) */}
+          <Box
+            w="52px"
+            h="52px"
+            borderRadius="full"
+            overflow="hidden"
+            borderWidth="2px"
+            borderColor="white"
+            _dark={{ borderColor: 'gray.800' }}
+            flexShrink={0}
+            bg="white"
+            shadow="md"
+          >
+            <Image
+              src={club.image || DEFAULT_COVER_PHOTO}
+              alt={club.name}
+              w="100%"
+              h="100%"
+              objectFit="cover"
+            />
+          </Box>
+
+          {/* Center Info */}
+          <Box flex="1" minW={0}>
+            <Text
+              fontWeight="bold"
+              fontSize="md"
+              lineClamp={1}
+              color="blue.600"
+              _dark={{ color: 'blue.400' }}
+              letterSpacing="tight"
+            >
+              {club.name}
+            </Text>
+
+            {venueName && (
+              <HStack
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+                mt={0.5}
+                gap={1.5}
+              >
+                <MapPin size={14} style={{ flexShrink: 0 }} />
+                <Text lineClamp={1}>{venueName}</Text>
+              </HStack>
+            )}
+
+            {scheduleText && (
+              <Flex
+                align="center"
+                gap={1.5}
+                mt={1}
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+              >
+                <Clock size={14} style={{ flexShrink: 0 }} />
+                <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
+                  {scheduleText.split('\n')[0]}
+                  {scheduleText.includes('\n') ? '...' : ''}
+                </Text>
+              </Flex>
+            )}
+          </Box>
+        </Flex>
+
+        {isLoading && (
+          <Flex
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="whiteAlpha.700"
+            _dark={{ bg: 'blackAlpha.700' }}
+            justify="center"
+            align="center"
+            zIndex={10}
+          >
+            <Spinner color="blue.500" size="lg" />
+          </Flex>
+        )}
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -134,21 +279,28 @@ export default function ClubCard({ club }: ClubCardProps) {
               >
                 {club.name}
               </Text>
-
-              {/* Description */}
-              {club.description && (
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                  lineClamp={2}
-                  mb={3}
-                >
-                  {club.description}
-                </Text>
-              )}
             </Box>
+            <Box
+              as={ChevronRight}
+              color="gray.400"
+              w={5}
+              h={5}
+              flexShrink={0}
+              mt={1}
+            />
           </Flex>
+          {/* Description */}
+          {club.description && (
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              _dark={{ color: 'gray.400' }}
+              lineClamp={2}
+              mb={3}
+            >
+              {club.description}
+            </Text>
+          )}
         </Box>
 
         {/* Divider */}
@@ -252,34 +404,6 @@ export default function ClubCard({ club }: ClubCardProps) {
             </Flex>
           </Stack>
         </Box>
-      </Box>
-
-      {/* Action Button */}
-      <Box
-        h="1px"
-        bg="gray.100"
-        _dark={{ bg: 'gray.700' }}
-        mx={5}
-        flexShrink={0}
-      />
-      <Box px={5} py={4} flexShrink={0}>
-        <Button
-          w="100%"
-          variant="solid"
-          colorPalette="green"
-          size="md"
-          onClick={handleViewDetails}
-          _hover={{
-            transform: 'translateY(-2px)',
-            shadow: 'lg',
-          }}
-          transition="all 0.2s"
-        >
-          <Flex align="center" justify="center" gap={2}>
-            <Text>Xem</Text>
-            <ArrowRight size={16} />
-          </Flex>
-        </Button>
       </Box>
 
       {/* Loading Overlay */}

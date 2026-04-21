@@ -2,7 +2,8 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
-import { Box, Grid, Heading, Text, Flex, IconButton } from '@chakra-ui/react';
+import { Box, Grid, Heading, Text, Flex } from '@chakra-ui/react';
+import { IconButton } from '@/components/ui/chakra-compat';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';
@@ -145,112 +146,18 @@ export default function SessionsList({
 
   if (loading) {
     return (
-      <>
-        {/* Expired Sessions Skeleton Section */}
-        {mode === 'manage' && (
-          <Box
-            mb={8}
-            p={4}
-            bg="orange.50"
-            borderWidth="1px"
-            borderColor="orange.200"
-            borderRadius="lg"
-            _dark={{ bg: 'orange.900', borderColor: 'orange.700' }}
-          >
-            <Flex alignItems="center" justifyContent="space-between" mb={3}>
-              <Flex alignItems="center" gap={3} flex={1}>
-                <Heading
-                  size="sm"
-                  color="orange.700"
-                  _dark={{ color: 'orange.200' }}
-                  mb={0}
-                >
-                  ⚠️ {t('expiredSessionsNeedAction') || 'Kèo cần xử lý'}
-                </Heading>
-                <Text
-                  fontSize="xs"
-                  fontWeight="bold"
-                  bg="orange.100"
-                  _dark={{ bg: 'orange.800' }}
-                  color="orange.700"
-                  px={2}
-                  py={1}
-                  borderRadius="full"
-                >
-                  {expiredSessions.length}
-                </Text>
-              </Flex>
-              <IconButton
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  setIsExpiredSectionsExpanded(!isExpiredSectionsExpanded)
-                }
-                aria-label={
-                  isExpiredSectionsExpanded
-                    ? t('collapse') || 'Collapse'
-                    : t('expand') || 'Expand'
-                }
-                color="orange.700"
-                _dark={{ color: 'orange.200' }}
-                _hover={{
-                  bg: 'orange.100',
-                  _dark: { bg: 'orange.800' },
-                }}
-              >
-                <ChevronDown
-                  size={20}
-                  style={{
-                    transform: isExpiredSectionsExpanded
-                      ? 'rotate(0deg)'
-                      : 'rotate(-90deg)',
-                    transition: 'transform 0.2s',
-                  }}
-                />
-              </IconButton>
-            </Flex>
-
-            {/* <Text
-              fontSize="sm"
-              color="orange.600"
-              mb={4}
-              _dark={{ color: 'orange.300' }}
-            >
-              {t('expiredSessionsDescription') ||
-                'Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.'}
-            </Text> */}
-
-            {isExpiredSectionsExpanded && (
-              <Grid
-                templateColumns={{
-                  base: '1fr',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }}
-                gap={6}
-              >
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} />
-                ))}
-              </Grid>
-            )}
-          </Box>
-        )}
-
-        {/* Normal Sessions Skeleton Section */}
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
-          }}
-          gap={6}
-        >
-          {Array.from({ length: 6 }).map((_, index) => (
-            <SessionCardSkeleton key={index} />
-          ))}
-        </Grid>
-      </>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        }}
+        gap={6}
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <SessionCardSkeleton key={index} />
+        ))}
+      </Grid>
     );
   }
 

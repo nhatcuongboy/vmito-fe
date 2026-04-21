@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, HStack, Text, Textarea, VStack } from '@chakra-ui/react';
-import { Input } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { useTranslations } from 'next-intl';
 import { FeeType } from '@/lib/api/types';
 import { DollarSign } from 'lucide-react';

@@ -44,6 +44,8 @@ const schema = z.object({
   color: z.string().optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  imagePublicIds: z.array(z.string()).optional(),
   schedules: z.array(scheduleSchema).optional(),
 });
 
@@ -80,8 +82,8 @@ const CreateClubPage = () => {
     name: 'schedules',
   });
 
-  const imageValue = watch('image');
-  const imagePublicIdValue = watch('imagePublicId');
+  const imagesValue = watch('images') || [];
+  const imagePublicIdsValue = watch('imagePublicIds') || [];
 
   // Debounced server-side venue search
   const handleVenueSearch = useCallback((query: string) => {
@@ -190,35 +192,52 @@ const CreateClubPage = () => {
             />
           </Field>
 
-          {/* Club Image */}
+          {/* Club Image(s) */}
           <Field label={t('clubImage')}>
-            {imageValue ? (
-              <Box position="relative" display="inline-block">
-                <Image
-                  src={imageValue}
-                  alt="Club image"
-                  maxH="200px"
-                  maxW="100%"
-                  borderRadius="md"
-                  objectFit="cover"
-                />
-                <IconButton
-                  size="xs"
-                  position="absolute"
-                  top={1}
-                  right={1}
-                  colorPalette="red"
-                  variant="solid"
-                  borderRadius="full"
-                  aria-label={t('removeImage')}
-                  onClick={() => {
-                    setValue('image', undefined);
-                    setValue('imagePublicId', undefined);
-                  }}
-                >
-                  <X size={12} />
-                </IconButton>
-              </Box>
+            {imagesValue.length > 0 ? (
+              <Flex gap={2} flexWrap="wrap">
+                {imagesValue.map((url, idx) => (
+                  <Box key={url} position="relative" display="inline-block">
+                    <Image
+                      src={url}
+                      alt={`Club image ${idx + 1}`}
+                      boxSize="100px"
+                      borderRadius="md"
+                      objectFit="cover"
+                    />
+                    <IconButton
+                      size="xs"
+                      position="absolute"
+                      top={1}
+                      right={1}
+                      colorPalette="red"
+                      variant="solid"
+                      borderRadius="full"
+                      aria-label={t('removeImage')}
+                      onClick={() => {
+                        const newImages = [...imagesValue];
+                        newImages.splice(idx, 1);
+                        const newPublicIds = [...imagePublicIdsValue];
+                        newPublicIds.splice(idx, 1);
+
+                        setValue('images', newImages);
+                        setValue('imagePublicIds', newPublicIds);
+
+                        // Sync primary image
+                        if (newImages.length > 0) {
+                          setValue('image', newImages[0]);
+                          setValue('imagePublicId', newPublicIds[0]);
+                        } else {
+                          setValue('image', undefined);
+                          setValue('imagePublicId', undefined);
+                        }
+                      }}
+                    >
+                      <X size={12} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Flex>
             ) : (
               <Box
                 borderWidth="2px"
@@ -250,17 +269,25 @@ const CreateClubPage = () => {
               isOpen={isGalleryOpen}
               onClose={() => setIsGalleryOpen(false)}
               onSelect={(imgs) => {
+                const urls = imgs.map((i) => i.url);
+                const publicIds = imgs.map((i) => i.publicId);
+
+                setValue('images', urls);
+                setValue('imagePublicIds', publicIds);
+
                 if (imgs.length > 0) {
-                  setValue('image', imgs[0].url);
-                  setValue('imagePublicId', imgs[0].publicId);
+                  setValue('image', urls[0]);
+                  setValue('imagePublicId', publicIds[0]);
+                } else {
+                  setValue('image', undefined);
+                  setValue('imagePublicId', undefined);
                 }
               }}
-              selectedImages={
-                imageValue && imagePublicIdValue
-                  ? [{ url: imageValue, publicId: imagePublicIdValue }]
-                  : []
-              }
-              maxSelect={1}
+              selectedImages={imagesValue.map((url, idx) => ({
+                url,
+                publicId: imagePublicIdsValue[idx] || '',
+              }))}
+              maxSelect={10}
               category={EImageCategory.CLUB}
             />
           </Field>

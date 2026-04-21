@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Flex, Heading, Text, Input } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Category } from '@/lib/api/types';

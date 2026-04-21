@@ -73,6 +73,13 @@ function PlayerSessionsContent() {
 
       const currentPage = isLoadMore ? page + 1 : 1;
       const apiSortParams = toApiSort(sortBy);
+
+      // Invert date sort order for ended sessions to show most recently ended first
+      if (sessionStatusTab === 'ended' && apiSortParams.sortBy === 'date') {
+        apiSortParams.sortOrder =
+          apiSortParams.sortOrder === 'asc' ? 'desc' : 'asc';
+      }
+
       const response = await PlayerService.getMySessions({
         page: currentPage,
         limit: PAGE_SIZE,

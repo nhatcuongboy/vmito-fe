@@ -28,6 +28,7 @@ import {
   Plus,
   UserCircle,
   Users,
+  Settings,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -148,7 +149,23 @@ export default function MyClubsPage() {
                   <Heading size="md" lineClamp={1}>
                     {club.name}
                   </Heading>
-                  <ChevronRight size={18} color="#CBD5E0" />
+                  <HStack>
+                    {(club.role === 'ADMIN' ||
+                      club.host.id === currentUser?.id) && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        colorPalette="gray"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/host/clubs/${club.id}/edit`);
+                        }}
+                      >
+                        <Settings size={16} />
+                      </Button>
+                    )}
+                    <ChevronRight size={18} color="#CBD5E0" />
+                  </HStack>
                 </HStack>
 
                 <VStack align="start" gap={3} mb={4}>

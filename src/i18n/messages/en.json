@@ -3182,7 +3182,8 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
-    "findSessionsAtVenue": "Find Sessions",
+    "findSessions": "Find Sessions",
+    "findSessionsAtVenue": "Find Sessions at Venue",
     "nameFormat": "{name} Badminton Court"
   }
 }

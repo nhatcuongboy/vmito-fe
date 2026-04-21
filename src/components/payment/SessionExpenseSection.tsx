@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Flex, IconButton } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Flex } from '@chakra-ui/react';
+import { IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { Button } from '@/components/ui/chakra-compat';

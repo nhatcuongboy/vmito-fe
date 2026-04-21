@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Text, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Text, Textarea, Image } from '@chakra-ui/react';
 import {
   Button,
   VStack,
@@ -22,12 +22,12 @@ import { VenueService } from '@/lib/api/venue.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import ImageUploader from '@/components/cloudinary/ImageUploader';
+import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import { EClubJoinPolicy } from '@/types/club';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
-import { Plus, Trash2 } from 'lucide-react';
-import { Venue } from '@/lib/api/types';
+import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
+import { EImageCategory, Venue } from '@/lib/api/types';
 import { VSwitch } from '@/components/ui/VSwitch';
 
 const scheduleSchema = z.object({
@@ -48,6 +48,8 @@ const schema = z.object({
   location: z.string().optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  imagePublicIds: z.array(z.string()).optional(),
   schedules: z.array(scheduleSchema).optional(),
 });
 
@@ -62,6 +64,7 @@ const EditClubPage = () => {
 
   const [selectedVenueId, setSelectedVenueId] = useState<string>('');
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const {
     register,
@@ -90,15 +93,9 @@ const EditClubPage = () => {
   });
 
   const imageValue = watch('image');
-
-  const handleUploadImage = useCallback(
-    async (file: File): Promise<string> => {
-      const result = await ClubsService.uploadClubImage(file);
-      setValue('imagePublicId', result.publicId);
-      return result.url;
-    },
-    [setValue]
-  );
+  const imagePublicIdValue = watch('imagePublicId');
+  const imagesValue = watch('images') || [];
+  const imagePublicIdsValue = watch('imagePublicIds') || [];
 
   useEffect(() => {
     VenueService.getAllVenues()
@@ -132,6 +129,8 @@ const EditClubPage = () => {
         setValue('location', group.location || '');
         setValue('image', group.image || undefined);
         setValue('imagePublicId', group.imagePublicId || undefined);
+        setValue('images', group.images || []);
+        setValue('imagePublicIds', group.imagePublicIds || []);
 
         // Load schedules
         if (group.schedules && group.schedules.length > 0) {
@@ -253,18 +252,103 @@ const EditClubPage = () => {
             />
           </Field>
 
-          {/* Club Image */}
+          {/* Club Image(s) */}
           <Field label={t('clubImage')}>
-            <ImageUploader
-              value={imageValue}
-              onChange={(url) => {
-                setValue('image', url || undefined);
-                if (!url) setValue('imagePublicId', undefined);
+            {imagesValue.length > 0 ? (
+              <Flex gap={2} flexWrap="wrap">
+                {imagesValue.map((url, idx) => (
+                  <Box key={url} position="relative" display="inline-block">
+                    <Image
+                      src={url}
+                      alt={`Club image ${idx + 1}`}
+                      boxSize="100px"
+                      borderRadius="md"
+                      objectFit="cover"
+                    />
+                    <IconButton
+                      size="xs"
+                      position="absolute"
+                      top={1}
+                      right={1}
+                      colorPalette="red"
+                      variant="solid"
+                      borderRadius="full"
+                      aria-label={t('removeImage')}
+                      onClick={() => {
+                        const newImages = [...imagesValue];
+                        newImages.splice(idx, 1);
+                        const newPublicIds = [...imagePublicIdsValue];
+                        newPublicIds.splice(idx, 1);
+
+                        setValue('images', newImages);
+                        setValue('imagePublicIds', newPublicIds);
+
+                        // Sync primary image
+                        if (newImages.length > 0) {
+                          setValue('image', newImages[0]);
+                          setValue('imagePublicId', newPublicIds[0]);
+                        } else {
+                          setValue('image', undefined);
+                          setValue('imagePublicId', undefined);
+                        }
+                      }}
+                    >
+                      <X size={12} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Flex>
+            ) : (
+              <Box
+                borderWidth="2px"
+                borderStyle="dashed"
+                borderColor="gray.300"
+                _dark={{ borderColor: 'gray.600', color: 'gray.400' }}
+                borderRadius="md"
+                p={6}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                gap={2}
+                color="gray.500"
+              >
+                <ImageIcon size={32} />
+                <Text fontSize="sm">{t('noImageSelected')}</Text>
+              </Box>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              mt={2}
+              onClick={() => setIsGalleryOpen(true)}
+            >
+              <ImageIcon size={16} />
+              {t('selectImage')}
+            </Button>
+            <AppImageGalleryPicker
+              isOpen={isGalleryOpen}
+              onClose={() => setIsGalleryOpen(false)}
+              onSelect={(imgs) => {
+                const urls = imgs.map((i) => i.url);
+                const publicIds = imgs.map((i) => i.publicId);
+
+                setValue('images', urls);
+                setValue('imagePublicIds', publicIds);
+
+                if (imgs.length > 0) {
+                  setValue('image', urls[0]);
+                  setValue('imagePublicId', publicIds[0]);
+                } else {
+                  setValue('image', undefined);
+                  setValue('imagePublicId', undefined);
+                }
               }}
-              onUpload={handleUploadImage}
-              maxSizeMB={5}
-              maxWidth={400}
-              maxHeight={400}
+              selectedImages={imagesValue.map((url, idx) => ({
+                url,
+                publicId: imagePublicIdsValue[idx] || '',
+              }))}
+              maxSelect={10}
+              category={EImageCategory.CLUB}
             />
           </Field>
 

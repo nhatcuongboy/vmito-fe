@@ -28,11 +28,14 @@ import {
   MapPin,
   TrendingUp,
   X,
+  Star,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
+import AppViewModeToggle from '@/components/common/AppViewModeToggle';
+import { useViewModeStore } from '@/stores/useViewModeStore';
 import {
   useUrlFilters,
   stringField,
@@ -47,12 +50,24 @@ const PAGE_SIZE = 12;
 interface ISortOption {
   value: string;
   label: string;
-  sortBy: 'name' | 'createdAt' | 'numberOfCourts' | 'hourlyRateFixed';
+  sortBy:
+    | 'name'
+    | 'createdAt'
+    | 'numberOfCourts'
+    | 'hourlyRateFixed'
+    | 'relevance';
   sortOrder: 'asc' | 'desc';
   icon: React.ComponentType<{ size?: number }>;
 }
 
 const SORT_OPTIONS: ISortOption[] = [
+  {
+    value: 'relevance',
+    label: 'Phù hợp nhất',
+    sortBy: 'relevance',
+    sortOrder: 'desc',
+    icon: Star,
+  },
   {
     value: 'newest',
     label: 'Mới nhất',
@@ -94,7 +109,7 @@ const VENUE_FILTERS_SCHEMA = {
   city: stringArrayField(),
   district: stringArrayField(),
   near: booleanField(false),
-  sort: stringField('name_asc'),
+  sort: stringField('relevance'),
 };
 
 export default function VenueSearchList() {
@@ -109,6 +124,9 @@ export default function VenueSearchList() {
   // URL-synced applied filters
   const [filters, setFilters, resetFilters] =
     useUrlFilters(VENUE_FILTERS_SCHEMA);
+
+  const { getViewMode } = useViewModeStore();
+  const viewMode = getViewMode('venues');
 
   // Local keyword state drives the search input; synced to URL with debounce.
   const [keyword, setKeyword] = useState(filters.q);
@@ -331,6 +349,13 @@ export default function VenueSearchList() {
     setPendingDistricts([]);
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
+    setFilters({
+      city: [],
+      district: [],
+      near: false,
+    });
+    setUserLocation(null);
+    toggleFilters();
   };
 
   const clearAllFilters = () => {
@@ -449,100 +474,107 @@ export default function VenueSearchList() {
             color="gray.500"
             _dark={{ color: 'gray.400' }}
             flexShrink={0}
+            flex="1"
           >
-            {totalCount !== null ? `${totalCount} kết quả` : ''}
+            {totalCount !== null ? `${totalCount} ${'kết quả'}` : ''}
           </Text>
 
-          {/* Sort dropdown */}
-          <Box position="relative" ref={sortDropdownRef}>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsSortOpen((v) => !v)}
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-              h="32px"
-              px={3}
-              borderRadius="full"
-              borderColor="gray.200"
-              bg={{ base: 'white', _dark: 'gray.800' }}
-              color={{ base: 'gray.700', _dark: 'gray.200' }}
-              fontWeight="normal"
-              fontSize="sm"
-              _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
-              _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
-            >
-              <SortButtonIcon size={14} />
-              <Text as="span" maxW="110px" truncate>
-                {sortButtonLabel}
-              </Text>
-              <ChevronDown
-                size={13}
-                style={{
-                  transition: 'transform 0.2s',
-                  transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                }}
-              />
-            </Button>
-
-            {isSortOpen && (
-              <Box
-                position="absolute"
-                top="calc(100% + 6px)"
-                right={0}
-                zIndex={200}
+          <Flex align="center" gap={2}>
+            {/* Sort dropdown */}
+            <Box position="relative" ref={sortDropdownRef}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsSortOpen((v) => !v)}
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                h="32px"
+                px={3}
+                borderRadius="full"
+                borderColor="gray.200"
                 bg={{ base: 'white', _dark: 'gray.800' }}
-                border="1px solid"
-                borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-                borderRadius="xl"
-                boxShadow="lg"
-                minW="180px"
-                overflow="hidden"
-                py={1}
+                color={{ base: 'gray.700', _dark: 'gray.200' }}
+                fontWeight="normal"
+                fontSize="sm"
+                _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
+                _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
               >
-                {SORT_OPTIONS.map((opt) => {
-                  const OptionIcon = opt.icon;
-                  const isActive = !filters.near && opt.value === filters.sort;
-                  return (
-                    <Flex
-                      key={opt.value}
-                      align="center"
-                      gap={2.5}
-                      px={3}
-                      py={2}
-                      cursor="pointer"
-                      bg={
-                        isActive
-                          ? { base: 'green.50', _dark: 'green.900' }
-                          : 'transparent'
-                      }
-                      color={
-                        isActive
-                          ? 'green.600'
-                          : { base: 'gray.700', _dark: 'gray.200' }
-                      }
-                      fontWeight={isActive ? 'semibold' : 'normal'}
-                      fontSize="sm"
-                      _hover={{
-                        bg: isActive
-                          ? { base: 'green.100', _dark: 'green.800' }
-                          : { base: 'gray.50', _dark: 'gray.700' },
-                      }}
-                      onClick={() => {
-                        handleSortChange(opt.value);
-                        setIsSortOpen(false);
-                      }}
-                    >
-                      <OptionIcon size={14} />
-                      <Text flex={1}>{opt.label}</Text>
-                      {isActive && <Check size={13} />}
-                    </Flex>
-                  );
-                })}
-              </Box>
-            )}
-          </Box>
+                <SortButtonIcon size={14} />
+                <Text as="span" maxW="110px" truncate>
+                  {sortButtonLabel}
+                </Text>
+                <ChevronDown
+                  size={13}
+                  style={{
+                    transition: 'transform 0.2s',
+                    transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </Button>
+
+              {isSortOpen && (
+                <Box
+                  position="absolute"
+                  top="calc(100% + 6px)"
+                  right={0}
+                  zIndex={200}
+                  bg={{ base: 'white', _dark: 'gray.800' }}
+                  border="1px solid"
+                  borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+                  borderRadius="xl"
+                  boxShadow="lg"
+                  minW="180px"
+                  overflow="hidden"
+                  py={1}
+                >
+                  {SORT_OPTIONS.map((opt) => {
+                    const OptionIcon = opt.icon;
+                    const isActive =
+                      !filters.near && opt.value === filters.sort;
+                    return (
+                      <Flex
+                        key={opt.value}
+                        align="center"
+                        gap={2.5}
+                        px={3}
+                        py={2}
+                        cursor="pointer"
+                        bg={
+                          isActive
+                            ? { base: 'green.50', _dark: 'green.900' }
+                            : 'transparent'
+                        }
+                        color={
+                          isActive
+                            ? 'green.600'
+                            : { base: 'gray.700', _dark: 'gray.200' }
+                        }
+                        fontWeight={isActive ? 'semibold' : 'normal'}
+                        fontSize="sm"
+                        _hover={{
+                          bg: isActive
+                            ? { base: 'green.100', _dark: 'green.800' }
+                            : { base: 'gray.50', _dark: 'gray.700' },
+                        }}
+                        onClick={() => {
+                          handleSortChange(opt.value);
+                          setIsSortOpen(false);
+                        }}
+                      >
+                        <OptionIcon size={14} />
+                        <Text flex={1}>{opt.label}</Text>
+                        {isActive && <Check size={13} />}
+                      </Flex>
+                    );
+                  })}
+                </Box>
+              )}
+            </Box>
+
+            {/* View Mode Toggle */}
+            <AppViewModeToggle scope="venues" />
+          </Flex>
         </Flex>
       )}
 
@@ -924,7 +956,7 @@ export default function VenueSearchList() {
             md: 'repeat(2, 1fr)',
             lg: 'repeat(3, 1fr)',
           }}
-          gap={6}
+          gap={4}
         >
           {Array.from({ length: 6 }).map((_, i) => (
             <VenueCardSkeleton key={i} />
@@ -976,10 +1008,14 @@ export default function VenueSearchList() {
               md: 'repeat(2, 1fr)',
               lg: 'repeat(3, 1fr)',
             }}
-            gap={6}
+            gap={4}
           >
             {venues.map((venue) => (
-              <VenueCard key={venue.id} venue={venue} />
+              <VenueCard
+                key={venue.id}
+                venue={venue}
+                variant={viewMode === 'list' ? 'list' : 'grid'}
+              />
             ))}
           </Grid>
 
@@ -992,7 +1028,7 @@ export default function VenueSearchList() {
                   md: 'repeat(2, 1fr)',
                   lg: 'repeat(3, 1fr)',
                 }}
-                gap={6}
+                gap={4}
               >
                 {Array.from({ length: 3 }).map((_, i) => (
                   <VenueCardSkeleton key={i} />
