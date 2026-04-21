@@ -7,6 +7,7 @@ import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import { VModal, useModal } from '@/components/ui/VModal';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
@@ -177,9 +178,9 @@ const SessionCard = ({
             <Text fontWeight="medium" lineClamp={1}>
               {session.venue?.name
                 ? formatVenueName(
-                    session.venue.name,
-                    tVenue('nameFormat', { name: '{name}' })
-                  )
+                  session.venue.name,
+                  tVenue('nameFormat', { name: '{name}' })
+                )
                 : session.location}
             </Text>
             <IconButton
@@ -194,9 +195,9 @@ const SessionCard = ({
                   address: session.venue?.address,
                   name: session.venue?.name
                     ? formatVenueName(
-                        session.venue.name,
-                        tVenue('nameFormat', { name: '{name}' })
-                      )
+                      session.venue.name,
+                      tVenue('nameFormat', { name: '{name}' })
+                    )
                     : session.location,
                   placeId: session.venue?.placeId,
                   lat: session.venue?.lat,
@@ -208,11 +209,11 @@ const SessionCard = ({
           </Flex>
           {session.venue?.address &&
             session.venue.address !== session.venue.name && (
-              <Text fontSize="xs" color="gray.500" lineClamp={1}>
-                {[session.venue.address, session.venue.district]
-                  .filter(Boolean)
-                  .join(', ')}
-              </Text>
+              <AppAddressDisplay
+                address={session.venue.address}
+                newAddress={session.venue.newAddress}
+                lineClamp={1}
+              />
             )}
         </Box>
       </Flex>

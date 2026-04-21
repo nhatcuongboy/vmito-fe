@@ -2650,7 +2650,11 @@
       "TEMPORARILY_CLOSED": "Tạm đóng cửa"
     },
     "bookingPolicy": "Chính sách đặt sân",
-    "locatedWithin": "Nằm trong"
+    "locatedWithin": "Nằm trong",
+    "newAddressSection": "Địa chỉ mới (NQ60)",
+    "newAddress": "Địa chỉ mới",
+    "newDistrict": "Phường/Xã mới",
+    "newCity": "Tỉnh/Thành phố mới"
   },
   "PlayerDetailModal": {
     "status": "Trạng thái",

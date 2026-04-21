@@ -59,6 +59,9 @@ const venueSchema = z.object({
   courtLayoutImagePublicId: z.string().optional(),
   coverPhoto: z.string().optional(),
   coverPhotoPublicId: z.string().optional(),
+  newAddress: z.string().optional(),
+  newDistrict: z.string().optional(),
+  newCity: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -111,6 +114,9 @@ export function QuickVenueEditModal({
       courtLayoutImagePublicId: venue.courtLayoutImagePublicId || '',
       coverPhoto: venue.coverPhoto || '',
       coverPhotoPublicId: venue.coverPhotoPublicId || '',
+      newAddress: venue.newAddress || '',
+      newDistrict: venue.newDistrict || '',
+      newCity: venue.newCity || '',
     },
   });
 
@@ -308,6 +314,50 @@ export function QuickVenueEditModal({
                   }
                   value={field.value ?? ''}
                 />
+              </Field.Root>
+            )}
+          />
+        </HStack>
+
+        {/* === New Address (Nghị quyết 60) === */}
+        <Text fontWeight="semibold" w="full" color="blue.500" fontSize="sm">
+          {t('newAddressSection') || 'New Admin Address'}
+        </Text>
+
+        <Controller
+          control={form.control}
+          name="newAddress"
+          render={({ field }) => (
+            <Field.Root>
+              <Field.Label>{t('newAddress') || 'New Address'}</Field.Label>
+              <Input
+                {...field}
+                placeholder="e.g. Phường Cầu Kiệu, TP Hồ Chí Minh"
+              />
+            </Field.Root>
+          )}
+        />
+
+        <HStack width="full" gap={4}>
+          <Controller
+            control={form.control}
+            name="newDistrict"
+            render={({ field }) => (
+              <Field.Root flex={1}>
+                <Field.Label>
+                  {t('newDistrict') || 'New Ward/District'}
+                </Field.Label>
+                <Input {...field} placeholder="e.g. Cầu Kiệu" />
+              </Field.Root>
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="newCity"
+            render={({ field }) => (
+              <Field.Root flex={1}>
+                <Field.Label>{t('newCity') || 'New City'}</Field.Label>
+                <Input {...field} placeholder="e.g. TP Hồ Chí Minh" />
               </Field.Root>
             )}
           />
@@ -761,11 +811,11 @@ export function QuickVenueEditModal({
         selectedImages={
           form.watch('coverPhoto')
             ? [
-                {
-                  url: form.watch('coverPhoto')!,
-                  publicId: form.watch('coverPhotoPublicId') || '',
-                },
-              ]
+              {
+                url: form.watch('coverPhoto')!,
+                publicId: form.watch('coverPhotoPublicId') || '',
+              },
+            ]
             : []
         }
         onSelect={(imgs) => {
@@ -785,11 +835,11 @@ export function QuickVenueEditModal({
         selectedImages={
           form.watch('courtLayoutImage')
             ? [
-                {
-                  url: form.watch('courtLayoutImage')!,
-                  publicId: form.watch('courtLayoutImagePublicId') || '',
-                },
-              ]
+              {
+                url: form.watch('courtLayoutImage')!,
+                publicId: form.watch('courtLayoutImagePublicId') || '',
+              },
+            ]
             : []
         }
         onSelect={(imgs) => {

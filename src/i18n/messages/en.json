@@ -2648,7 +2648,11 @@
       "TEMPORARILY_CLOSED": "Temporarily Closed"
     },
     "bookingPolicy": "Booking Policy",
-    "locatedWithin": "Located Within"
+    "locatedWithin": "Located Within",
+    "newAddressSection": "New Admin Address (NQ60)",
+    "newAddress": "New Address",
+    "newDistrict": "New Ward/District",
+    "newCity": "New City"
   },
   "PlayerDetailModal": {
     "status": "Status",

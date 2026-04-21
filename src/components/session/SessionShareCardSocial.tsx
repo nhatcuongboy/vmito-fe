@@ -1,6 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Box,
   Flex,
@@ -156,18 +157,19 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                 <Text fontWeight="semibold" color="gray.700" fontSize="4xl">
                   {session.venue?.name
                     ? formatVenueName(
-                        session.venue.name,
-                        tVenue('nameFormat', { name: '{name}' })
-                      )
+                      session.venue.name,
+                      tVenue('nameFormat', { name: '{name}' })
+                    )
                     : session.location}
                 </Text>
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (
-                    <Text fontSize="3xl" color="gray.500" mt={1}>
-                      {[session.venue.address, session.venue.district]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </Text>
+                    <AppAddressDisplay
+                      address={session.venue.address}
+                      newAddress={session.venue.newAddress}
+                      fontSize="3xl"
+                      color="gray.500"
+                    />
                   )}
               </Box>
             </Flex>
@@ -259,7 +261,7 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                 <Icon as={Shield} boxSize={14} color={skillLevelColor.color} />
                 <Wrap gap={4}>
                   {session.requiredLevels &&
-                  session.requiredLevels.length > 0 ? (
+                    session.requiredLevels.length > 0 ? (
                     Array.from(new Set(session.requiredLevels))
                       .sort((a, b) =>
                         typeof a === 'number' && typeof b === 'number'
@@ -303,11 +305,11 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                       {session.feeConfig.feeType === 'SPLIT_EVENLY'
                         ? session.feeConfig.splitPerPlayer
                           ? FeeService.formatFee(
-                              session.feeConfig.splitPerPlayer
-                            )
+                            session.feeConfig.splitPerPlayer
+                          )
                           : 'Chia đều'
                         : session.feeConfig.maleFee ===
-                            session.feeConfig.femaleFee
+                          session.feeConfig.femaleFee
                           ? FeeService.formatFee(session.feeConfig.maleFee || 0)
                           : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig.maleFee || 0)} - ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig.femaleFee || 0)}`}
                     </Text>
