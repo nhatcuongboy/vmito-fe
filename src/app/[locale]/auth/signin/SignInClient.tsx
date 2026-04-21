@@ -343,13 +343,10 @@ function SignInForm() {
                 textDecoration: 'none',
               }}
             >
-              <Box
-                as="img"
+              <img
                 src="/icons/zalo.png"
                 alt="Zalo"
-                w="18px"
-                h="18px"
-                borderRadius="sm"
+                style={{ width: '18px', height: '18px', borderRadius: '4px' }}
               />
               {t('continueWithZalo')}
             </Link>
