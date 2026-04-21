@@ -323,6 +323,37 @@ function SignInForm() {
               {t('continueWithGoogle')}
             </Link>
 
+            <Link
+              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/zalo?locale=${locale}${searchParams.get('returnUrl') ? `&returnUrl=${encodeURIComponent(searchParams.get('returnUrl')!)}` : ''}`}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap={2}
+              width="full"
+              py={3}
+              px={4}
+              borderRadius="md"
+              border="1px solid"
+              borderColor="border"
+              fontWeight="semibold"
+              color="fg"
+              bg={{ base: 'white', _dark: 'gray.700' }}
+              _hover={{
+                bg: { base: 'gray.50', _dark: 'gray.600' },
+                textDecoration: 'none',
+              }}
+            >
+              <Box
+                as="img"
+                src="/icons/zalo.png"
+                alt="Zalo"
+                w="18px"
+                h="18px"
+                borderRadius="sm"
+              />
+              {t('continueWithZalo')}
+            </Link>
+
             <VStack gap={2}>
               <Text color="fg.muted">
                 {t('noAccount')}{' '}
