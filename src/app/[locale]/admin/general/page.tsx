@@ -211,10 +211,9 @@ export default function AdminGeneralPage() {
                     p={4}
                     borderRadius="md"
                     bg="green.50"
-                    _dark={{ bg: 'green.900/20' }}
+                    _dark={{ bg: 'green.900/20', borderColor: 'green.700' }}
                     borderWidth="1px"
                     borderColor="green.200"
-                    _dark_borderColor="green.700"
                   >
                     <Text fontWeight="semibold" mb={2} color="green.700">
                       Kết quả migration

@@ -246,6 +246,7 @@
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Xóa",
+    "delete": "Xóa",
     "deleteAllExpired": "Xóa tất cả kèo quá hạn",
     "batchDeleteConfirmText": "Bạn có chắc chắn muốn XÓA tất cả các kèo quá hạn không? Hành động này không thể hoàn tác.",
     "sessionsDeleted": "Đã xóa các kèo quá hạn",
