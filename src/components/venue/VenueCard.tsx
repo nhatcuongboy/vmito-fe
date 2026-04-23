@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 
 import { Venue } from '@/lib/api/types';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Badge,
   Box,
@@ -227,15 +228,13 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
           {/* Right Button */}
           <Button
             size="sm"
-            bg="#DEB841"
-            color="white"
+            colorPalette="green"
             fontWeight="bold"
             px={4}
             h="32px"
             fontSize="sm"
             flexShrink={0}
             onClick={handleFindSessions}
-            _hover={{ bg: '#C9A332' }}
             shadow="sm"
           >
             {t('findSessions')}
@@ -370,16 +369,13 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
                 style={{ flexShrink: 0 }}
                 color="var(--chakra-colors-gray-600)"
               />
-              <Text
+              <AppAddressDisplay
+                address={venue.address}
+                newAddress={venue.newAddress}
                 fontSize="sm"
-                lineClamp={2}
-                fontWeight="medium"
-                flex="1"
                 color="gray.600"
-                _dark={{ color: 'gray.400' }}
-              >
-                {venue.address}
-              </Text>
+                lineClamp={2}
+              />
               <IconButton
                 size="xs"
                 colorPalette="green"
@@ -675,24 +671,26 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
       {/* Action Buttons */}
       <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
       <Box px={5} py={4}>
-        <Button
-          w="100%"
-          variant="solid"
-          colorPalette="green"
-          size="md"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleFindSessions(e);
-          }}
-          leftIcon={<Search size={16} />}
-          _hover={{
-            transform: 'translateY(-2px)',
-            shadow: 'lg',
-          }}
-          transition="all 0.2s"
-        >
-          {t('findSessionsAtVenue')}
-        </Button>
+        <Flex justify="flex-end">
+          <Button
+            variant="solid"
+            colorPalette="green"
+            size="sm"
+            px={4}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleFindSessions(e);
+            }}
+            leftIcon={<Search size={15} />}
+            _hover={{
+              transform: 'translateY(-2px)',
+              shadow: 'lg',
+            }}
+            transition="all 0.2s"
+          >
+            {t('findSessionsAtVenue')}
+          </Button>
+        </Flex>
       </Box>
 
       {/* Loading Overlay */}

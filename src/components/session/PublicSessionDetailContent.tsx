@@ -1,6 +1,7 @@
 'use client';
 
 import { ISession, UserRole } from '@/lib/api/types';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Box,
   Flex,
@@ -284,9 +285,9 @@ export const PublicSessionDetailContent = ({
             <Text fontWeight="medium" lineClamp={1}>
               {session.venue?.name
                 ? formatVenueName(
-                    session.venue.name,
-                    tVenue('nameFormat', { name: '{name}' })
-                  )
+                  session.venue.name,
+                  tVenue('nameFormat', { name: '{name}' })
+                )
                 : session.location}
             </Text>
             <IconButton
@@ -300,9 +301,9 @@ export const PublicSessionDetailContent = ({
                   address: session.venue?.address,
                   name: session.venue?.name
                     ? formatVenueName(
-                        session.venue.name,
-                        tVenue('nameFormat', { name: '{name}' })
-                      )
+                      session.venue.name,
+                      tVenue('nameFormat', { name: '{name}' })
+                    )
                     : session.location,
                   placeId: session.venue?.placeId,
                   lat: session.venue?.lat,
@@ -315,11 +316,11 @@ export const PublicSessionDetailContent = ({
           </Flex>
           {session.venue?.address &&
             session.venue.address !== session.venue.name && (
-              <Text fontSize="xs" color="gray.500" lineClamp={1}>
-                {[session.venue.address, session.venue.district]
-                  .filter(Boolean)
-                  .join(', ')}
-              </Text>
+              <AppAddressDisplay
+                address={session.venue.address}
+                newAddress={session.venue.newAddress}
+                lineClamp={1}
+              />
             )}
         </Box>
       </Flex>

@@ -38,6 +38,7 @@ import { SessionService } from '@/lib/api/session.service';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { FeeService } from '@/lib/api/fee.service';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
@@ -164,8 +165,16 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         {session.venue?.name || t('common.notAvailable')}
       </InfoRow>
 
-      <InfoRow icon={MapPin} label={t('location')} isTruncated>
-        {session.venue?.address || session.location || t('noLocation')}
+      <InfoRow icon={MapPin} label={t('location')}>
+        <AppAddressDisplay
+          address={
+            session.venue?.address || session.location || t('noLocation')
+          }
+          newAddress={session.venue?.newAddress}
+          fontSize="md"
+          color="inherit"
+          newAddressColor="blue.500"
+        />
       </InfoRow>
 
       <InfoRow icon={Calendar} label={t('date')}>

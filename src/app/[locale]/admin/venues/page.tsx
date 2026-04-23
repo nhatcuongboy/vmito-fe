@@ -1,6 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import MainLayout from '@/components/layout/MainLayout';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -939,19 +940,12 @@ function AdminVenuesContent() {
                       </VStack>
                     </Td>
                     <Td color="gray.600">
-                      <Text
+                      <AppAddressDisplay
+                        address={venue.address}
+                        newAddress={venue.newAddress}
                         fontSize="sm"
-                        truncate
-                        maxW="200px"
-                        title={venue.address}
-                      >
-                        {venue.address}
-                      </Text>
-                      {venue.district && venue.city && (
-                        <Text fontSize="xs" color="gray.400">
-                          {venue.district}, {venue.city}
-                        </Text>
-                      )}
+                        color="gray.600"
+                      />
                     </Td>
                     <Td>
                       <Text fontSize="sm">
