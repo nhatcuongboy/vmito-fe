@@ -246,6 +246,9 @@
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Delete",
+    "deleteAllExpired": "Delete all expired sessions",
+    "batchDeleteConfirmText": "Are you sure you want to DELETE all expired sessions? This action cannot be undone.",
+    "sessionsDeleted": "Expired sessions deleted",
     "viewSession": "Board",
     "view": "View",
     "deleteConfirmation": "Are you sure you want to delete this session?",
@@ -2648,7 +2651,11 @@
       "TEMPORARILY_CLOSED": "Temporarily Closed"
     },
     "bookingPolicy": "Booking Policy",
-    "locatedWithin": "Located Within"
+    "locatedWithin": "Located Within",
+    "newAddressSection": "New Admin Address (NQ60)",
+    "newAddress": "New Address",
+    "newDistrict": "New Ward/District",
+    "newCity": "New City"
   },
   "PlayerDetailModal": {
     "status": "Status",

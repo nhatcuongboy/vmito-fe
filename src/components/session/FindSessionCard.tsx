@@ -6,6 +6,7 @@ import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { ViewMode } from '@/stores/useSessionFilterStore';
@@ -154,9 +155,9 @@ const FindSessionCard = ({
             >
               {session.venue?.name
                 ? formatVenueName(
-                    session.venue.name,
-                    tVenue('nameFormat', { name: '{name}' })
-                  )
+                  session.venue.name,
+                  tVenue('nameFormat', { name: '{name}' })
+                )
                 : session.location}
             </Text>
             {distance !== undefined && (
@@ -171,11 +172,11 @@ const FindSessionCard = ({
           {!isCompact &&
             session.venue?.address &&
             session.venue.address !== session.venue.name && (
-              <Text fontSize="xs" color="gray.500" lineClamp={1}>
-                {[session.venue.address, session.venue.district]
-                  .filter(Boolean)
-                  .join(', ')}
-              </Text>
+              <AppAddressDisplay
+                address={session.venue.address}
+                newAddress={session.venue.newAddress}
+                lineClamp={1}
+              />
             )}
         </Box>
       </Flex>

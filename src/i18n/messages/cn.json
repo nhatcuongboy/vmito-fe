@@ -233,6 +233,9 @@
     "manageSession": "Host",
     "host": "主办方",
     "deleteSession": "删除",
+    "deleteAllExpired": "删除所有过期场次",
+    "batchDeleteConfirmText": "您确定要删除所有过期场次吗？此操作无法撤销。",
+    "sessionsDeleted": "已删除过期场次",
     "viewSession": "进入球场",
     "view": "查看",
     "deleteConfirmation": "您确定要删除此场次吗？",
@@ -2570,7 +2573,11 @@
       "TEMPORARILY_CLOSED": "暂时关闭"
     },
     "bookingPolicy": "预订政策",
-    "locatedWithin": "位于"
+    "locatedWithin": "位于",
+    "newAddressSection": "新行政地址 (NQ60)",
+    "newAddress": "新地址",
+    "newDistrict": "新区/坊",
+    "newCity": "新城市"
   },
   "PlayerDetailModal": {
     "status": "状态",

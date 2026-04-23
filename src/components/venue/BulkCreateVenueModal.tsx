@@ -40,6 +40,9 @@ const venueSchema = z.object({
   address: z.string().min(5, 'Address is required'),
   district: z.string().min(1, 'District is required'),
   city: z.string().min(1, 'City is required'),
+  newAddress: z.string().optional(),
+  newDistrict: z.string().optional(),
+  newCity: z.string().optional(),
   phone: z.string().optional(),
   lat: z.number().optional(),
   lng: z.number().optional(),
@@ -86,6 +89,9 @@ export default function BulkCreateVenueModal({
           district: '',
           city: 'Hồ Chí Minh',
           phone: '',
+          newAddress: '',
+          newDistrict: '',
+          newCity: '',
           isVerified: false,
         },
       ],
@@ -117,6 +123,9 @@ export default function BulkCreateVenueModal({
       address: row.address || '',
       district: row.district || '',
       city: row.city || 'Hồ Chí Minh',
+      newAddress: row.newAddress || undefined,
+      newDistrict: row.newDistrict || undefined,
+      newCity: row.newCity || undefined,
       phone: row.phone || undefined,
       lat: row.lat ? parseFloat(row.lat) : undefined,
       lng: row.lng ? parseFloat(row.lng) : undefined,
@@ -330,6 +339,54 @@ export default function BulkCreateVenueModal({
                       </Field>
                     </Box>
                   </Flex>
+
+                  {/* Địa chỉ mới — optional, backend auto-fills if empty */}
+                  <Box
+                    mt={3}
+                    p={3}
+                    borderRadius="md"
+                    bg="blue.50"
+                    _dark={{ bg: 'blue.900' }}
+                  >
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="blue.600"
+                      _dark={{ color: 'blue.300' }}
+                      mb={2}
+                    >
+                      Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
+                    </Text>
+                    <Flex gap={3}>
+                      <Box flex={2}>
+                        <Field label="Địa chỉ mới">
+                          <Input
+                            {...register(`venues.${index}.newAddress`)}
+                            placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
+                            size="sm"
+                          />
+                        </Field>
+                      </Box>
+                      <Box flex={1}>
+                        <Field label="Phường/Xã mới">
+                          <Input
+                            {...register(`venues.${index}.newDistrict`)}
+                            placeholder="VD: Cầu Kiệu"
+                            size="sm"
+                          />
+                        </Field>
+                      </Box>
+                      <Box flex={1}>
+                        <Field label="Tỉnh/TP mới">
+                          <Input
+                            {...register(`venues.${index}.newCity`)}
+                            placeholder="VD: TP Hồ Chí Minh"
+                            size="sm"
+                          />
+                        </Field>
+                      </Box>
+                    </Flex>
+                  </Box>
                 </Box>
               ))}
 
@@ -343,6 +400,9 @@ export default function BulkCreateVenueModal({
                     district: '',
                     city: 'Hồ Chí Minh',
                     phone: '',
+                    newAddress: '',
+                    newDistrict: '',
+                    newCity: '',
                     isVerified: false,
                   })
                 }

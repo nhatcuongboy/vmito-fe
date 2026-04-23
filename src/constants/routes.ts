@@ -141,6 +141,7 @@ export const ROUTES = {
   ADMIN: {
     USERS: '/admin/users',
     NOTIFICATIONS: '/admin/notifications',
+    GENERAL: '/admin/general',
     VENUES: '/admin/venues',
     CLUBS: '/admin/clubs/pending',
   },
@@ -167,6 +168,7 @@ export const ROUTE_GROUPS = {
     ROUTES.PLAYER.TRANSACTIONS,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.NOTIFICATIONS,
+    ROUTES.ADMIN.GENERAL,
     ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
   ],

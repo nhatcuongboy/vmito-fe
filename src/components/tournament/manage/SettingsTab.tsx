@@ -43,7 +43,7 @@ export default function SettingsTab({
   );
 
   const location = tournament.venue
-    ? `${tournament.venue.city || tournament.venue.address}`
+    ? `${tournament.venue.city || tournament.venue.address}${tournament.venue.newCity && tournament.venue.newCity !== tournament.venue.city ? ` (${tournament.venue.newCity})` : ''}`
     : undefined;
 
   return (

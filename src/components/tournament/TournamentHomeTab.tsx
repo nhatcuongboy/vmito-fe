@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Users,
   CalendarDays,
@@ -315,9 +316,13 @@ export default function TournamentHomeTab({
                   </Box>
                 )}
               </Flex>
-              <Text fontSize="sm" color="gray.500" mt={0.5} lineClamp={2}>
-                {venue.address}
-              </Text>
+              <AppAddressDisplay
+                address={venue.address}
+                newAddress={venue.newAddress}
+                fontSize="sm"
+                color="gray.500"
+                lineClamp={2}
+              />
             </Box>
 
             {venue.lat && venue.lng && (

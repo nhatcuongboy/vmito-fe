@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Badge,
   Box,
@@ -372,20 +373,16 @@ export default function VenueDetailClient({
               )}
 
               {/* Address */}
-              <Flex align="center" gap={2} mb={6}>
-                <Box flexShrink={0}>
-                  <MapPin size={20} color="var(--chakra-colors-gray-600)" />
+              <Flex align="flex-start" gap={2} mb={6}>
+                <MapPin size={20} color="var(--chakra-colors-gray-600)" />
+                <Box flex="1">
+                  <AppAddressDisplay
+                    address={venue.address}
+                    newAddress={venue.newAddress}
+                    fontSize="md"
+                    color="gray.600"
+                  />
                 </Box>
-                <Text
-                  fontSize="md"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
-                  flex="1"
-                  minW={0}
-                  wordBreak="break-word"
-                >
-                  {venue.address}
-                </Text>
                 <IconButton
                   size="md"
                   colorPalette="green"

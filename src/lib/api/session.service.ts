@@ -257,6 +257,17 @@ export const SessionService = {
     await api.delete<ApiResponse<null>>(`/sessions/${id}`);
   },
 
+  // Bulk delete sessions
+  deleteBulkSessions: async (
+    sessionIds: string[]
+  ): Promise<{ count: number }> => {
+    const response = await api.delete<ApiResponse<{ count: number }>>(
+      `/sessions/bulk`,
+      { data: { sessionIds } }
+    );
+    return response.data.data!;
+  },
+
   // Start session
   startSession: async (id: string): Promise<ISession> => {
     const response = await api.post<ApiResponse<unknown>>(
@@ -314,6 +325,18 @@ export const SessionService = {
     const response = await api.patch<ApiResponse<ISession>>(
       `/sessions/${id}/status`,
       { status }
+    );
+    return response.data.data!;
+  },
+
+  // Bulk update session status
+  updateBulkSessionStatus: async (
+    sessionIds: string[],
+    status: string
+  ): Promise<{ count: number }> => {
+    const response = await api.patch<ApiResponse<{ count: number }>>(
+      `/sessions/bulk/status`,
+      { sessionIds, status }
     );
     return response.data.data!;
   },

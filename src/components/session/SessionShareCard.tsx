@@ -1,6 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Box,
   Flex,
@@ -196,9 +197,12 @@ const SessionShareCard = ({
                     <Text fontWeight="bold" color="gray.700" fontSize="2xl">
                       {session.venue?.name || session.location}
                     </Text>
-                    <Text fontSize="md" color="gray.500">
-                      {session.venue?.address}
-                    </Text>
+                    <AppAddressDisplay
+                      address={session.venue?.address}
+                      newAddress={session.venue?.newAddress}
+                      fontSize="md"
+                      color="gray.500"
+                    />
                   </Box>
                 </Flex>
 
@@ -302,14 +306,14 @@ const SessionShareCard = ({
                       {session.feeConfig?.feeType === 'SPLIT_EVENLY'
                         ? session.feeConfig.splitPerPlayer
                           ? FeeService.formatFee(
-                              session.feeConfig.splitPerPlayer
-                            )
+                            session.feeConfig.splitPerPlayer
+                          )
                           : 'Chia đều'
                         : session.feeConfig?.maleFee ===
-                            session.feeConfig?.femaleFee
+                          session.feeConfig?.femaleFee
                           ? FeeService.formatFee(
-                              session.feeConfig?.maleFee || 0
-                            )
+                            session.feeConfig?.maleFee || 0
+                          )
                           : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig?.maleFee || 0)}, ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig?.femaleFee || 0)}`}
                     </Text>
                   </Flex>
@@ -374,18 +378,18 @@ const SessionShareCard = ({
                 <Text fontWeight="semibold" color="gray.700" fontSize="sm">
                   {session.venue?.name
                     ? formatVenueName(
-                        session.venue.name,
-                        tVenue('nameFormat', { name: '{name}' })
-                      )
+                      session.venue.name,
+                      tVenue('nameFormat', { name: '{name}' })
+                    )
                     : session.location}
                 </Text>
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (
-                    <Text fontSize="xs" color="gray.500">
-                      {[session.venue.address, session.venue.district]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </Text>
+                    <AppAddressDisplay
+                      address={session.venue.address}
+                      newAddress={session.venue.newAddress}
+                      color="gray.500"
+                    />
                   )}
               </Box>
             </Flex>

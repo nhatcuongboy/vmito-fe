@@ -260,6 +260,9 @@ export interface Venue {
   lng?: number;
   district?: string;
   city?: string;
+  newAddress?: string;
+  newDistrict?: string;
+  newCity?: string;
   isVerified?: boolean;
   openingHours?: string;
   numberOfCourts?: number;
