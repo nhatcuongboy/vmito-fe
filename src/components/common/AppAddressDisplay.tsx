@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Text } from '@chakra-ui/react';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 
 export interface IAppAddressDisplayProps {
   address?: string;
@@ -21,7 +22,8 @@ export const AppAddressDisplay = ({
   newAddressColor = 'blue.500',
   lineClamp,
 }: IAppAddressDisplayProps) => {
-  const hasNewAddress = newAddress && newAddress !== address;
+  const { showNewAddress } = useAppSettings();
+  const hasNewAddress = showNewAddress && newAddress && newAddress !== address;
 
   return (
     <Box>

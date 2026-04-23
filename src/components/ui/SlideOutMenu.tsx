@@ -13,11 +13,11 @@ import {
   Ticket,
   Users,
   UserSearch,
-  Bell,
   MapPin,
   UserPlus,
   Trophy,
   Swords,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
@@ -677,7 +677,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </VTooltip>
 
                         <VTooltip
-                          content={nav('notifications')}
+                          content="Cài đặt chung"
                           positioning={{
                             placement: 'right',
                             offset: { mainAxis: 12 },
@@ -687,7 +687,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           openDelay={200}
                         >
                           <NextLinkButton
-                            href={ROUTES.ADMIN.NOTIFICATIONS}
+                            href={ROUTES.ADMIN.GENERAL}
                             variant="ghost"
                             justifyContent={{
                               base: 'flex-start',
@@ -696,7 +696,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             onClick={onClose}
                             w="full"
                             px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                            {...getActiveProps(ROUTES.ADMIN.NOTIFICATIONS)}
+                            {...getActiveProps(ROUTES.ADMIN.GENERAL)}
                           >
                             <Flex
                               align="center"
@@ -707,19 +707,17 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                                 md: isCollapsed ? 'center' : 'flex-start',
                               }}
                             >
-                              <Bell
+                              <SlidersHorizontal
                                 size={18}
                                 color={
-                                  pathname.startsWith(
-                                    ROUTES.ADMIN.NOTIFICATIONS
-                                  )
+                                  pathname.startsWith(ROUTES.ADMIN.GENERAL)
                                     ? 'var(--chakra-colors-green-500)'
                                     : 'currentColor'
                                 }
                               />
                               {!isCollapsed && (
                                 <Text display={{ base: 'block', md: 'block' }}>
-                                  {nav('notifications')}
+                                  Cài đặt chung
                                 </Text>
                               )}
                             </Flex>
@@ -768,54 +766,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                               {!isCollapsed && (
                                 <Text display={{ base: 'block', md: 'block' }}>
                                   {nav('venues')}
-                                </Text>
-                              )}
-                            </Flex>
-                          </NextLinkButton>
-                        </VTooltip>
-
-                        <VTooltip
-                          content={nav('clubsAdmin') || 'Duyệt nhóm'}
-                          positioning={{
-                            placement: 'right',
-                            offset: { mainAxis: 12 },
-                          }}
-                          disabled={!isCollapsed}
-                          showArrow
-                          openDelay={200}
-                        >
-                          <NextLinkButton
-                            href={ROUTES.ADMIN.CLUBS}
-                            variant="ghost"
-                            justifyContent={{
-                              base: 'flex-start',
-                              md: isCollapsed ? 'center' : 'flex-start',
-                            }}
-                            onClick={onClose}
-                            w="full"
-                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                            {...getActiveProps(ROUTES.ADMIN.CLUBS)}
-                          >
-                            <Flex
-                              align="center"
-                              gap={3}
-                              w="full"
-                              justifyContent={{
-                                base: 'flex-start',
-                                md: isCollapsed ? 'center' : 'flex-start',
-                              }}
-                            >
-                              <Users
-                                size={18}
-                                color={
-                                  pathname.startsWith(ROUTES.ADMIN.CLUBS)
-                                    ? 'var(--chakra-colors-green-500)'
-                                    : 'currentColor'
-                                }
-                              />
-                              {!isCollapsed && (
-                                <Text display={{ base: 'block', md: 'block' }}>
-                                  {nav('clubsAdmin') || 'Duyệt nhóm'}
                                 </Text>
                               )}
                             </Flex>

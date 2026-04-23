@@ -90,6 +90,9 @@ const venueSchema = z.object({
   address: z.string().min(5, 'Address must be at least 5 characters'),
   district: z.string().min(1, 'District is required'),
   city: z.string().min(1, 'City is required'),
+  newAddress: z.string().optional(),
+  newDistrict: z.string().optional(),
+  newCity: z.string().optional(),
   lat: z.number().optional(),
   lng: z.number().optional(),
   phone: z.string().optional(),
@@ -188,6 +191,9 @@ function AdminVenuesContent() {
       address: '',
       district: '',
       city: '',
+      newAddress: '',
+      newDistrict: '',
+      newCity: '',
       lat: undefined,
       lng: undefined,
       phone: '',
@@ -456,6 +462,9 @@ function AdminVenuesContent() {
       address: venue.address,
       district: venue.district || '',
       city: venue.city || '',
+      newAddress: venue.newAddress || '',
+      newDistrict: venue.newDistrict || '',
+      newCity: venue.newCity || '',
       lat: venue.lat ?? undefined,
       lng: venue.lng ?? undefined,
       phone: venue.phone || '',
@@ -512,6 +521,9 @@ function AdminVenuesContent() {
                     address: '',
                     district: '',
                     city: '',
+                    newAddress: '',
+                    newDistrict: '',
+                    newCity: '',
                     lat: undefined,
                     lng: undefined,
                     phone: '',
@@ -1106,6 +1118,62 @@ function AdminVenuesContent() {
               )}
             />
 
+            <HStack width="full" gap={4} align="flex-start">
+              <Controller
+                control={form.control}
+                name="city"
+                render={({ field, fieldState }) => (
+                  <Field.Root flex={1} invalid={!!fieldState.error} required>
+                    <Field.Label>
+                      {t('city')} <Field.RequiredIndicator />
+                    </Field.Label>
+                    <SearchableSelect
+                      options={VIETNAM_CITIES}
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        form.setValue('district', '');
+                      }}
+                      placeholder={t('city')}
+                      isInvalid={!!fieldState.error}
+                    />
+                    <Field.ErrorText>
+                      {fieldState.error?.message}
+                    </Field.ErrorText>
+                  </Field.Root>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="district"
+                render={({ field, fieldState }) => {
+                  const selectedCity = form.watch('city');
+                  const districtOptions = getDistrictsByCity(selectedCity);
+                  return (
+                    <Field.Root flex={1} invalid={!!fieldState.error} required>
+                      <Field.Label>
+                        {t('district')} <Field.RequiredIndicator />
+                      </Field.Label>
+                      <SearchableSelect
+                        options={districtOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={
+                          selectedCity ? t('district') : 'Chọn thành phố trước'
+                        }
+                        isDisabled={!selectedCity}
+                        isInvalid={!!fieldState.error}
+                        noOptionsMessage="Không tìm thấy quận/huyện"
+                      />
+                      <Field.ErrorText>
+                        {fieldState.error?.message}
+                      </Field.ErrorText>
+                    </Field.Root>
+                  );
+                }}
+              />
+            </HStack>
+
             <Controller
               control={form.control}
               name="phone"
@@ -1172,59 +1240,45 @@ function AdminVenuesContent() {
               )}
             />
 
-            <HStack width="full" gap={4} align="flex-start">
+            {/* === Địa chỉ mới (Nghị quyết 60) === */}
+            <Text fontWeight="semibold" w="full" color="blue.500" fontSize="sm">
+              Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
+            </Text>
+
+            <Controller
+              control={form.control}
+              name="newAddress"
+              render={({ field }) => (
+                <Field.Root>
+                  <Field.Label>Địa chỉ mới</Field.Label>
+                  <Input
+                    {...field}
+                    placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
+                  />
+                </Field.Root>
+              )}
+            />
+
+            <HStack width="full" gap={4}>
               <Controller
                 control={form.control}
-                name="city"
-                render={({ field, fieldState }) => (
-                  <Field.Root flex={1} invalid={!!fieldState.error} required>
-                    <Field.Label>
-                      {t('city')} <Field.RequiredIndicator />
-                    </Field.Label>
-                    <SearchableSelect
-                      options={VIETNAM_CITIES}
-                      value={field.value}
-                      onChange={(val) => {
-                        field.onChange(val);
-                        form.setValue('district', '');
-                      }}
-                      placeholder={t('city')}
-                      isInvalid={!!fieldState.error}
-                    />
-                    <Field.ErrorText>
-                      {fieldState.error?.message}
-                    </Field.ErrorText>
+                name="newDistrict"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Phường/Xã mới</Field.Label>
+                    <Input {...field} placeholder="VD: Cầu Kiệu" />
                   </Field.Root>
                 )}
               />
               <Controller
                 control={form.control}
-                name="district"
-                render={({ field, fieldState }) => {
-                  const selectedCity = form.watch('city');
-                  const districtOptions = getDistrictsByCity(selectedCity);
-                  return (
-                    <Field.Root flex={1} invalid={!!fieldState.error} required>
-                      <Field.Label>
-                        {t('district')} <Field.RequiredIndicator />
-                      </Field.Label>
-                      <SearchableSelect
-                        options={districtOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={
-                          selectedCity ? t('district') : 'Chọn thành phố trước'
-                        }
-                        isDisabled={!selectedCity}
-                        isInvalid={!!fieldState.error}
-                        noOptionsMessage="Không tìm thấy quận/huyện"
-                      />
-                      <Field.ErrorText>
-                        {fieldState.error?.message}
-                      </Field.ErrorText>
-                    </Field.Root>
-                  );
-                }}
+                name="newCity"
+                render={({ field }) => (
+                  <Field.Root flex={1}>
+                    <Field.Label>Tỉnh/Thành phố mới</Field.Label>
+                    <Input {...field} placeholder="VD: TP Hồ Chí Minh" />
+                  </Field.Root>
+                )}
               />
             </HStack>
 

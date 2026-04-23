@@ -266,34 +266,34 @@ export default function BrowseClubsPage() {
         py={2}
         transition="all 0.2s"
       >
-        <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
-          <Box flex={1} w="100%">
-            <AppSearchBar
-              value={search}
-              onChange={setSearch}
-              placeholder={t('clubs.searchPlaceholder')}
-              onFilterClick={toggleFilters}
-              activeFilterCount={activeFilterCount}
-              showFilter={true}
-            />
-          </Box>
-          <Button
-            colorPalette="green"
-            size="sm"
-            flexShrink={0}
-            onClick={() => {
-              if (user) {
-                router.push(ROUTES.HOST.CLUBS.CREATE);
-              } else {
-                setIsLoginModalOpen(true);
-              }
-            }}
-          >
-            <Plus size={16} />
-            {t('navigation.createClub')}
-          </Button>
-        </Flex>
+        <Box w="100%" maxW="650px" mx="auto">
+          <AppSearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder={t('clubs.searchPlaceholder')}
+            onFilterClick={toggleFilters}
+            activeFilterCount={activeFilterCount}
+            showFilter={true}
+          />
+        </Box>
       </Box>
+
+      <Flex justify="center" mt={2} mb={3}>
+        <Button
+          colorPalette="green"
+          size="sm"
+          onClick={() => {
+            if (user) {
+              router.push(ROUTES.HOST.CLUBS.CREATE);
+            } else {
+              setIsLoginModalOpen(true);
+            }
+          }}
+        >
+          <Plus size={16} />
+          {t('navigation.createClub')}
+        </Button>
+      </Flex>
 
       {/* Results info + view mode */}
       {!isLoading && (

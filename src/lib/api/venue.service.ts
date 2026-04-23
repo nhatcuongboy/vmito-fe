@@ -77,4 +77,23 @@ export const VenueService = {
   deleteVenue: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<void>>(`/venues/${id}`);
   },
+
+  migrateAddresses: async (): Promise<{
+    message: string;
+    total: number;
+    matched: number;
+    cityOnly: number;
+    unmatched: number;
+  }> => {
+    const response = await api.post<
+      ApiResponse<{
+        message: string;
+        total: number;
+        matched: number;
+        cityOnly: number;
+        unmatched: number;
+      }>
+    >('/venues/migrate-addresses');
+    return response.data.data!;
+  },
 };

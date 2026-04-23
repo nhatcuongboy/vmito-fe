@@ -11,9 +11,13 @@ import { useEffect, useState, useMemo } from 'react';
 import SessionCard from './SessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay'; // Keep other imports intact
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
+import { VButton } from '@/components/ui/VButton';
+import { toaster } from '@/components/ui/toaster';
+import { SessionStatus } from '@/lib/api/types';
 
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 
@@ -45,6 +49,9 @@ export default function SessionsList({
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isExpiredSectionsExpanded, setIsExpiredSectionsExpanded] =
     useState(true);
+  const [isBatchCompleteModalOpen, setIsBatchCompleteModalOpen] =
+    useState(false);
+  const [isBatchCompleting, setIsBatchCompleting] = useState(false);
 
   const isExternalControl = externalSessions !== undefined;
   const sessions = isExternalControl
@@ -75,6 +82,36 @@ export default function SessionsList({
       if (!isExternalControl) {
         setInternalLoading(false);
       }
+    }
+  };
+
+  // Batch delete expired sessions handler
+  const handleBatchComplete = async () => {
+    if (expiredSessions.length === 0) return;
+    setIsBatchCompleting(true);
+    try {
+      const sessionIds = expiredSessions.map((session) => session.id);
+      await SessionService.deleteBulkSessions(sessionIds);
+
+      toaster.create({
+        title: t('sessionsDeleted') || 'Đã xóa các kèo quá hạn',
+        type: 'success',
+      });
+      if (isExternalControl && onRefresh) {
+        onRefresh();
+      } else if (!isExternalControl) {
+        const response = await SessionService.getAllSessions();
+        setInternalSessions(response.data);
+      }
+    } catch (_err) {
+      toaster.create({
+        title: t('error') || 'Lỗi xử lý',
+        description: t('loadingError') || 'Đã có lỗi xảy ra',
+        type: 'error',
+      });
+    } finally {
+      setIsBatchCompleting(false);
+      setIsBatchCompleteModalOpen(false);
     }
   };
 
@@ -211,7 +248,7 @@ export default function SessionsList({
             _dark={{ bg: 'orange.900', borderColor: 'orange.700' }}
           >
             <Flex alignItems="center" justifyContent="space-between" mb={3}>
-              <Flex alignItems="center" gap={3} flex={1}>
+              <Flex alignItems="center" gap={3}>
                 <Heading
                   size="sm"
                   color="orange.700"
@@ -233,34 +270,45 @@ export default function SessionsList({
                   {expiredSessions.length}
                 </Text>
               </Flex>
-              <IconButton
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  setIsExpiredSectionsExpanded(!isExpiredSectionsExpanded)
-                }
-                aria-label={
-                  isExpiredSectionsExpanded
-                    ? t('collapse') || 'Collapse'
-                    : t('expand') || 'Expand'
-                }
-                color="orange.700"
-                _dark={{ color: 'orange.200' }}
-                _hover={{
-                  bg: 'orange.100',
-                  _dark: { bg: 'orange.800' },
-                }}
-              >
-                <ChevronDown
-                  size={20}
-                  style={{
-                    transform: isExpiredSectionsExpanded
-                      ? 'rotate(0deg)'
-                      : 'rotate(-90deg)',
-                    transition: 'transform 0.2s',
+              <Flex alignItems="center" gap={2}>
+                <VButton
+                  size="sm"
+                  colorPalette="red"
+                  variant="outline"
+                  leftIcon={<Trash2 size={16} />}
+                  onClick={() => setIsBatchCompleteModalOpen(true)}
+                >
+                  {t('deleteAllExpired') || 'Xóa tất cả'}
+                </VButton>
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setIsExpiredSectionsExpanded(!isExpiredSectionsExpanded)
+                  }
+                  aria-label={
+                    isExpiredSectionsExpanded
+                      ? t('collapse') || 'Collapse'
+                      : t('expand') || 'Expand'
+                  }
+                  color="orange.700"
+                  _dark={{ color: 'orange.200' }}
+                  _hover={{
+                    bg: 'orange.100',
+                    _dark: { bg: 'orange.800' },
                   }}
-                />
-              </IconButton>
+                >
+                  <ChevronDown
+                    size={20}
+                    style={{
+                      transform: isExpiredSectionsExpanded
+                        ? 'rotate(0deg)'
+                        : 'rotate(-90deg)',
+                      transition: 'transform 0.2s',
+                    }}
+                  />
+                </IconButton>
+              </Flex>
             </Flex>
 
             {/* <Text
@@ -387,6 +435,23 @@ export default function SessionsList({
             onClose={() => setIsDetailModalOpen(false)}
           />
         )}
+      </VModal>
+
+      {/* Batch Delete Confirm Modal */}
+      <VModal
+        isOpen={isBatchCompleteModalOpen}
+        onClose={() => setIsBatchCompleteModalOpen(false)}
+        title={t('deleteAllExpired') || 'Xóa tất cả kèo quá hạn'}
+        primaryActionText={t('delete') || 'Xóa'}
+        onPrimaryAction={handleBatchComplete}
+        isPrimaryLoading={isBatchCompleting}
+        primaryColorScheme="red"
+      >
+        <Text>
+          {t('batchDeleteConfirmText') ||
+            'Bạn có chắc chắn muốn XÓA tất cả các kèo quá hạn không? Hành động này không thể hoàn tác.'}{' '}
+          ({expiredSessions.length} {t('sessions') || 'kèo'})
+        </Text>
       </VModal>
     </RatingStatsProvider>
   );

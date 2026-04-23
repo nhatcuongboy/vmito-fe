@@ -128,6 +128,7 @@ const system = createSystem(defaultConfig, {
 
 import { SocketProvider } from '@/contexts/SocketContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
+import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { Toaster } from '@/components/ui/toaster';
 import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
 import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
@@ -139,16 +140,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProviderWrapper>
       <ChakraProvider value={system}>
-        <SidebarProvider>
-          <AuthProvider>
-            <SocketProvider>
-              {children}
-              <Toaster />
-              <GlobalErrorModal />
-              <GlobalCourtCallModal />
-            </SocketProvider>
-          </AuthProvider>
-        </SidebarProvider>
+        <AppSettingsProvider>
+          <SidebarProvider>
+            <AuthProvider>
+              <SocketProvider>
+                {children}
+                <Toaster />
+                <GlobalErrorModal />
+                <GlobalCourtCallModal />
+              </SocketProvider>
+            </AuthProvider>
+          </SidebarProvider>
+        </AppSettingsProvider>
       </ChakraProvider>
     </ThemeProviderWrapper>
   );
