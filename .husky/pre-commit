@@ -1,1 +1,27 @@
-pnpm exec lint-staged
+#!/usr/bin/env sh
+
+# Fast path when node is already available.
+if command -v node >/dev/null 2>&1; then
+	pnpm exec lint-staged
+	exit $?
+fi
+
+# Fallback for non-interactive Git hook shells (for example VS Code Git integration).
+if command -v bash >/dev/null 2>&1 && [ -s "$HOME/.nvm/nvm.sh" ]; then
+	bash -lc '
+		set -e
+		export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+		. "$NVM_DIR/nvm.sh" --no-use
+		if [ -f ".nvmrc" ]; then
+			nvm use --silent >/dev/null 2>&1 || nvm install >/dev/null 2>&1
+		else
+			nvm use --silent default >/dev/null 2>&1 || true
+		fi
+		pnpm exec lint-staged
+	'
+	exit $?
+fi
+
+echo "pre-commit: node is not available in PATH."
+echo "Install Node and make it visible to git hooks (or install nvm at $HOME/.nvm)."
+exit 127

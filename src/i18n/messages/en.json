@@ -246,6 +246,7 @@
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Delete",
+    "delete": "Delete",
     "deleteAllExpired": "Delete all expired sessions",
     "batchDeleteConfirmText": "Are you sure you want to DELETE all expired sessions? This action cannot be undone.",
     "sessionsDeleted": "Expired sessions deleted",

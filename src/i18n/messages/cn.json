@@ -233,6 +233,7 @@
     "manageSession": "Host",
     "host": "主办方",
     "deleteSession": "删除",
+    "delete": "删除",
     "deleteAllExpired": "删除所有过期场次",
     "batchDeleteConfirmText": "您确定要删除所有过期场次吗？此操作无法撤销。",
     "sessionsDeleted": "已删除过期场次",
