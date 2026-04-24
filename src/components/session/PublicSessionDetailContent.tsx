@@ -217,7 +217,12 @@ export const PublicSessionDetailContent = ({
 
   const availableSlots = maxPlayers - approvedPlayersCount;
 
-  const slotAvailabilityBadge = (
+  // Slot availability badge - hidden if session is expired
+  const isExpired =
+    session.status === 'PREPARING' &&
+    session.endTime &&
+    new Date(session.endTime) < new Date();
+  const slotAvailabilityBadge = !isExpired ? (
     <Badge
       colorPalette={isFull ? 'gray' : 'teal'}
       variant="solid"
@@ -226,7 +231,7 @@ export const PublicSessionDetailContent = ({
     >
       {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
     </Badge>
-  );
+  ) : null;
 
   const registrationStatusBadge = userRegistrationStatus ? (
     <Badge
@@ -285,9 +290,9 @@ export const PublicSessionDetailContent = ({
             <Text fontWeight="medium" lineClamp={1}>
               {session.venue?.name
                 ? formatVenueName(
-                  session.venue.name,
-                  tVenue('nameFormat', { name: '{name}' })
-                )
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
                 : session.location}
             </Text>
             <IconButton
@@ -301,9 +306,9 @@ export const PublicSessionDetailContent = ({
                   address: session.venue?.address,
                   name: session.venue?.name
                     ? formatVenueName(
-                      session.venue.name,
-                      tVenue('nameFormat', { name: '{name}' })
-                    )
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
                     : session.location,
                   placeId: session.venue?.placeId,
                   lat: session.venue?.lat,

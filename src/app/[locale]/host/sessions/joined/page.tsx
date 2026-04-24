@@ -11,6 +11,8 @@ import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
+import { useRouter } from '@/i18n/config';
+import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
@@ -35,6 +37,8 @@ const PLAYER_SORT_OPTIONS: SortOption[] = [
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
   const tSession = useTranslations('session');
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -44,8 +48,9 @@ function PlayerSessionsContent() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 12;
 
+  // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
-    'active'
+    (searchParams.get('tab') as 'active' | 'ended') || 'active'
   );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -84,6 +89,10 @@ function PlayerSessionsContent() {
         page: currentPage,
         limit: PAGE_SIZE,
         searchQuery: debouncedSearchQuery,
+        excludeStatuses:
+          sessionStatusTab === 'active' && !filters.status
+            ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
+            : undefined,
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
@@ -199,6 +208,14 @@ function PlayerSessionsContent() {
     setFilters(newFilters);
   };
 
+  const handleTabChange = (newTab: 'active' | 'ended') => {
+    setSessionStatusTab(newTab);
+    // Update URL with new tab param
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', newTab);
+    router.push(`?${params.toString()}`);
+  };
+
   return (
     <PageLayout
       showBackButton={false}
@@ -219,7 +236,7 @@ function PlayerSessionsContent() {
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
-                onChange={setSessionStatusTab}
+                onChange={handleTabChange}
               />
             }
           />

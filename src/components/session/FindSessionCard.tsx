@@ -155,9 +155,9 @@ const FindSessionCard = ({
             >
               {session.venue?.name
                 ? formatVenueName(
-                  session.venue.name,
-                  tVenue('nameFormat', { name: '{name}' })
-                )
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
                 : session.location}
             </Text>
             {distance !== undefined && (
@@ -182,9 +182,13 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
-  // Slot availability badge
+  // Slot availability badge - hidden if session is expired
+  const isExpired =
+    session.status === 'PREPARING' &&
+    session.endTime &&
+    new Date(session.endTime) < new Date();
   const availableSlots = maxPlayers - approvedPlayersCount;
-  const slotAvailabilityBadge = (
+  const slotAvailabilityBadge = !isExpired ? (
     <Badge
       colorPalette={isFull ? 'gray' : 'teal'}
       variant="solid"
@@ -193,7 +197,7 @@ const FindSessionCard = ({
     >
       {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
     </Badge>
-  );
+  ) : null;
 
   // Registration status badge
   const registrationStatusBadge = userRegistrationStatus ? (

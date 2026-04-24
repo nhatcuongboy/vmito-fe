@@ -480,8 +480,8 @@ const BaseSessionCard = ({
       );
     }
 
-    // Right side: Register button (for non-registered users)
-    if (actions.showRegisterButton && actions.onRegister) {
+    // Right side: Register button (for non-registered users, excluding hosts/admins)
+    if (actions.showRegisterButton && actions.onRegister && !canManage) {
       rightButtons.push(
         <Button
           key="register"
@@ -758,18 +758,34 @@ const BaseSessionCard = ({
             {/* Compact-only top content (e.g. suggestion badges) */}
             {isCompact && compactTopContent}
 
-            {/* Title row - in compact mode includes status + registration badges inline */}
+            {/* Title row - in compact mode title is full-width, badges go below */}
             {isCompact ? (
-              <Flex justify="space-between" align="flex-start" gap={2}>
-                <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
-                  {convertedSession.title}
-                </Heading>
-                <Flex gap={1} flexShrink={0} align="center">
+              <>
+                <Flex justify="space-between" align="flex-start" gap={2}>
+                  <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
+                    {convertedSession.title}
+                  </Heading>
+                  {!disableCardLink && (
+                    <Icon
+                      as={ChevronRight}
+                      boxSize={4}
+                      color="gray.400"
+                      flexShrink={0}
+                      mt={0.5}
+                    />
+                  )}
+                </Flex>
+                {/* Badges row below title */}
+                <Flex gap={1} align="center" wrap="wrap">
                   {registrationBadgeContent}
                   {statusBadgeContent || (
                     <Badge
                       colorPalette={
-                        statusColors[convertedSession.status] || 'gray'
+                        convertedSession.status === 'PREPARING' &&
+                        session.endTime &&
+                        new Date(session.endTime) < new Date()
+                          ? 'gray'
+                          : statusColors[convertedSession.status] || 'gray'
                       }
                       fontSize="xs"
                       px={2}
@@ -777,19 +793,15 @@ const BaseSessionCard = ({
                       borderRadius="full"
                       fontWeight="600"
                     >
-                      {getStatusLabel(convertedSession.status, t)}
+                      {getStatusLabel(
+                        convertedSession.status,
+                        t,
+                        session.endTime
+                      )}
                     </Badge>
                   )}
-                  {!disableCardLink && (
-                    <Icon
-                      as={ChevronRight}
-                      boxSize={4}
-                      color="gray.400"
-                      ml={1}
-                    />
-                  )}
                 </Flex>
-              </Flex>
+              </>
             ) : (
               <Flex justify="space-between" align="flex-start" gap={2}>
                 <Heading size="lg" fontWeight="bold">

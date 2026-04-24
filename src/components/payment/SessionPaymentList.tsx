@@ -23,7 +23,14 @@ import {
   FeeType,
 } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { User, CheckCheck, Filter, UserCheck } from 'lucide-react';
+import {
+  User,
+  CheckCheck,
+  Filter,
+  UserCheck,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import PaymentApprovalModal from './PaymentApprovalModal';
 import { VTooltip } from '@/components/ui/VTooltip';
@@ -65,6 +72,10 @@ export default function SessionPaymentList({
   const [filter, setFilter] = useState<FilterType>('all');
   const [memberFilter, setMemberFilter] = useState<MemberFilterType>('all');
   const [isBulkApproving, setIsBulkApproving] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [groupBulkLoading, setGroupBulkLoading] = useState<string | null>(null);
 
   const paymentsArray = useMemo(
     () => (Array.isArray(payments) ? payments : []),
@@ -113,6 +124,42 @@ export default function SessionPaymentList({
 
     return filtered;
   }, [paymentsArray, filter, memberFilter]);
+
+  // Group filtered payments by registeredByUserId (multi-slot registrations)
+  const groupedPayments = useMemo(() => {
+    const groups = new Map<string, PaymentRecord[]>();
+    for (const payment of filteredPayments) {
+      const key = payment.registeredByUserId || payment.playerId;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(payment);
+    }
+    // Multi-slot groups first, then singles
+    return Array.from(groups.entries())
+      .map(([key, payments]) => ({ key, payments }))
+      .sort((a, b) => b.payments.length - a.payments.length);
+  }, [filteredPayments]);
+
+  const toggleGroup = (key: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const handleGroupBulkApprove = async (
+    key: string,
+    group: PaymentRecord[]
+  ) => {
+    if (!onBulkApprove) return;
+    setGroupBulkLoading(key);
+    try {
+      await onBulkApprove(group.map((p) => p.id));
+    } finally {
+      setGroupBulkLoading(null);
+    }
+  };
 
   const pendingCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.PENDING
@@ -430,105 +477,276 @@ export default function SessionPaymentList({
         </Box>
       ) : (
         <VStack gap={2} align="stretch">
-          {filteredPayments.map((payment) => (
-            <Box
-              key={payment.id}
-              bg="white"
-              border="1px solid"
-              borderColor={
-                payment.player?.isClubMember ? 'teal.200' : 'gray.200'
-              }
-              borderRadius="lg"
-              p={3}
-              cursor="pointer"
-              transition="all 0.2s"
-              _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
-              onClick={() => setSelectedPayment(payment)}
-            >
-              <Flex align="center" justify="space-between">
-                <HStack gap={3} flex={1}>
-                  <Avatar.Root size="sm">
-                    {payment.player?.user?.image ? (
-                      <Avatar.Image src={payment.player.user.image} />
-                    ) : (
-                      <Avatar.Fallback>
-                        <User size={16} />
-                      </Avatar.Fallback>
-                    )}
-                  </Avatar.Root>
-                  <Box>
-                    <HStack gap={2}>
-                      <Text fontWeight="medium" fontSize="sm">
-                        {payment.player?.name ||
-                          payment.player?.user?.name ||
-                          t('unknownPlayer')}
-                      </Text>
-                      {/* Fixed Member Badge */}
-                      {payment.player?.isClubMember && (
-                        <Badge
-                          colorPalette="teal"
-                          variant="subtle"
-                          fontSize="2xs"
-                          px={1}
-                        >
-                          <UserCheck size={10} />
-                          <Text ml={0.5}>
-                            {payment.player?.club?.name || tFixed('clubMember')}
+          {groupedPayments.map(({ key, payments: group }) => {
+            const isMulti = group.length > 1;
+            const representative = group[0];
+            const isExpanded = isMulti && !expandedGroups.has(key);
+            const totalGroupAmount = group.reduce(
+              (sum, p) => sum + p.amount,
+              0
+            );
+            const males = group.filter(
+              (p) => p.player?.gender === 'MALE'
+            ).length;
+            const females = group.filter(
+              (p) => p.player?.gender === 'FEMALE'
+            ).length;
+            const allApproved = group.every(
+              (p) => p.status === PaymentStatus.APPROVED
+            );
+
+            if (!isMulti) {
+              // Single slot — render individual card
+              const payment = representative;
+              return (
+                <Box
+                  key={payment.id}
+                  bg="white"
+                  border="1px solid"
+                  borderColor={
+                    payment.player?.isClubMember ? 'teal.200' : 'gray.200'
+                  }
+                  borderRadius="lg"
+                  p={3}
+                  cursor="pointer"
+                  transition="all 0.2s"
+                  _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
+                  onClick={() => setSelectedPayment(payment)}
+                >
+                  <Flex align="center" justify="space-between">
+                    <HStack gap={3} flex={1}>
+                      <Avatar.Root size="sm">
+                        {payment.player?.user?.image ? (
+                          <Avatar.Image src={payment.player.user.image} />
+                        ) : (
+                          <Avatar.Fallback>
+                            <User size={16} />
+                          </Avatar.Fallback>
+                        )}
+                      </Avatar.Root>
+                      <Box>
+                        <HStack gap={2}>
+                          <Text fontWeight="medium" fontSize="sm">
+                            {payment.player?.name ||
+                              payment.player?.user?.name ||
+                              t('unknownPlayer')}
                           </Text>
-                        </Badge>
-                      )}
+                          {payment.player?.isClubMember && (
+                            <Badge
+                              colorPalette="teal"
+                              variant="subtle"
+                              fontSize="2xs"
+                              px={1}
+                            >
+                              <UserCheck size={10} />
+                              <Text ml={0.5}>
+                                {payment.player?.club?.name ||
+                                  tFixed('clubMember')}
+                              </Text>
+                            </Badge>
+                          )}
+                        </HStack>
+                        {payment.player?.gender && (
+                          <Text fontSize="xs" color="gray.500">
+                            {getGenderText(payment.player.gender)}
+                          </Text>
+                        )}
+                      </Box>
                     </HStack>
-                    {payment.player?.gender && (
+                    <HStack gap={3} flex={1} justify="flex-end">
+                      <Box minW="100px" textAlign="right">
+                        {renderFixedMemberAmount(payment)}
+                      </Box>
+                      <Box
+                        minW="100px"
+                        display="flex"
+                        justifyContent="flex-end"
+                      >
+                        <PaymentStatusBadge status={payment.status} size="sm" />
+                      </Box>
+                    </HStack>
+                  </Flex>
+                  {payment.proofImageUrl && (
+                    <HStack mt={2} ml={10}>
+                      <Badge
+                        colorPalette="green"
+                        variant="subtle"
+                        fontSize="xs"
+                      >
+                        {t('hasProof')}
+                      </Badge>
+                    </HStack>
+                  )}
+                </Box>
+              );
+            }
+
+            // Multi-slot group card
+            return (
+              <Box
+                key={key}
+                border="1px solid"
+                borderColor="blue.200"
+                borderRadius="lg"
+                overflow="hidden"
+              >
+                {/* Group header */}
+                <Flex
+                  px={3}
+                  py={2.5}
+                  bg="blue.50"
+                  _dark={{ bg: 'blue.900/20' }}
+                  align="center"
+                  justify="space-between"
+                  cursor="pointer"
+                  onClick={() => toggleGroup(key)}
+                >
+                  <HStack gap={3}>
+                    <Avatar.Root size="sm">
+                      {representative.player?.user?.image ? (
+                        <Avatar.Image src={representative.player.user.image} />
+                      ) : (
+                        <Avatar.Fallback>
+                          <User size={16} />
+                        </Avatar.Fallback>
+                      )}
+                    </Avatar.Root>
+                    <Box>
+                      <HStack gap={1.5}>
+                        <Text fontWeight="semibold" fontSize="sm">
+                          {representative.player?.name ||
+                            representative.player?.user?.name ||
+                            t('unknownPlayer')}
+                        </Text>
+                        <Badge colorPalette="blue" size="xs">
+                          {group.length} slot
+                        </Badge>
+                      </HStack>
                       <Text fontSize="xs" color="gray.500">
-                        {getGenderText(payment.player.gender)}
+                        {[
+                          males > 0 && `${males} ${tCommon('male')}`,
+                          females > 0 && `${females} ${tCommon('female')}`,
+                        ]
+                          .filter(Boolean)
+                          .join(', ')}
                       </Text>
-                    )}
-                    {/* Slot info for all screens, but formatted for small spaces if needed */}
-                    <Box mt={1}>
-                      {(() => {
-                        const { total, males, females } = getGroupInfo(payment);
-                        return (
-                          <Text
-                            fontSize="xs"
-                            color="blue.600"
-                            fontWeight="medium"
-                          >
-                            {total} slot (
-                            {[
-                              males > 0 && `${males} ${tCommon('male')}`,
-                              females > 0 && `${females} ${tCommon('female')}`,
-                            ]
-                              .filter(Boolean)
-                              .join(', ')}
-                            )
-                          </Text>
-                        );
-                      })()}
                     </Box>
-                  </Box>
-                </HStack>
+                  </HStack>
+                  <HStack gap={2}>
+                    <Text fontWeight="semibold" color="green.600" fontSize="sm">
+                      {FeeService.formatFeeExact(totalGroupAmount)}
+                    </Text>
+                    {!allApproved && onBulkApprove && (
+                      <Button
+                        size="xs"
+                        colorPalette="green"
+                        loading={groupBulkLoading === key}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGroupBulkApprove(key, group);
+                        }}
+                      >
+                        <CheckCheck size={12} />
+                        <Text ml={1}>{t('approveAll')}</Text>
+                      </Button>
+                    )}
+                    <Box color="gray.500">
+                      {isExpanded ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
+                    </Box>
+                  </HStack>
+                </Flex>
 
-                {/* Hide the separate desktop-only slots column since we added it above */}
-
-                <HStack gap={3} flex={1} justify="flex-end">
-                  <Box minW="100px" textAlign="right">
-                    {renderFixedMemberAmount(payment)}
-                  </Box>
-                  <Box minW="100px" display="flex" justifyContent="flex-end">
-                    <PaymentStatusBadge status={payment.status} size="sm" />
-                  </Box>
-                </HStack>
-              </Flex>
-
-              {payment.proofImageUrl && (
-                <HStack mt={2} ml={10}>
-                  <Badge colorPalette="green" variant="subtle" fontSize="xs">
-                    {t('hasProof')}
-                  </Badge>
-                </HStack>
-              )}
-            </Box>
-          ))}
+                {/* Individual slot rows */}
+                {isExpanded && (
+                  <VStack gap={0} align="stretch">
+                    {group.map((payment, idx) => (
+                      <Box
+                        key={payment.id}
+                        px={3}
+                        py={2.5}
+                        bg="white"
+                        _dark={{ bg: 'gray.800' }}
+                        borderTop="1px solid"
+                        borderColor={idx === 0 ? 'blue.100' : 'gray.100'}
+                        cursor="pointer"
+                        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.750' } }}
+                        transition="background 0.15s"
+                        onClick={() => setSelectedPayment(payment)}
+                      >
+                        <Flex align="center" justify="space-between">
+                          <HStack gap={2.5}>
+                            <Text
+                              fontSize="xs"
+                              color="gray.400"
+                              fontWeight="medium"
+                              minW="20px"
+                            >
+                              #{payment.player?.playerNumber}
+                            </Text>
+                            <Box>
+                              <HStack gap={1.5}>
+                                <Text fontSize="sm" fontWeight="medium">
+                                  {payment.player?.name || t('unknownPlayer')}
+                                </Text>
+                                {payment.player?.gender && (
+                                  <Badge
+                                    colorPalette={
+                                      payment.player.gender === 'MALE'
+                                        ? 'blue'
+                                        : payment.player.gender === 'FEMALE'
+                                          ? 'pink'
+                                          : 'gray'
+                                    }
+                                    variant="subtle"
+                                    size="xs"
+                                  >
+                                    {getGenderText(payment.player.gender)}
+                                  </Badge>
+                                )}
+                                {payment.player?.isClubMember && (
+                                  <Badge
+                                    colorPalette="teal"
+                                    variant="subtle"
+                                    fontSize="2xs"
+                                    px={1}
+                                  >
+                                    {payment.player?.club?.name ||
+                                      tFixed('clubMember')}
+                                  </Badge>
+                                )}
+                              </HStack>
+                            </Box>
+                          </HStack>
+                          <HStack gap={3}>
+                            {renderFixedMemberAmount(payment)}
+                            <PaymentStatusBadge
+                              status={payment.status}
+                              size="sm"
+                            />
+                          </HStack>
+                        </Flex>
+                        {payment.proofImageUrl && (
+                          <HStack mt={1} ml={8}>
+                            <Badge
+                              colorPalette="green"
+                              variant="subtle"
+                              fontSize="xs"
+                            >
+                              {t('hasProof')}
+                            </Badge>
+                          </HStack>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                )}
+              </Box>
+            );
+          })}
         </VStack>
       )}
 
@@ -540,16 +758,6 @@ export default function SessionPaymentList({
           paymentRecord={selectedPayment}
           onApprove={handleApprove}
           onReject={handleReject}
-          slotInfo={(() => {
-            const { total, males, females } = getGroupInfo(selectedPayment);
-            const details = [
-              males > 0 && `${males} ${tCommon('male')}`,
-              females > 0 && `${females} ${tCommon('female')}`,
-            ]
-              .filter(Boolean)
-              .join(', ');
-            return `${total} slot (${details})`;
-          })()}
         />
       )}
     </VStack>

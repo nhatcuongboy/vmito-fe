@@ -32,7 +32,15 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
     async (playerId: string, status: 'APPROVED' | 'REJECTED') => {
       try {
         setActionLoading(playerId);
-        await PlayerService.updatePlayerStatus(sessionId, playerId, status);
+        const target = pendingPlayers.find((p) => p.id === playerId);
+        // Approve/reject all slots of the same user in this session at once
+        const groupId = target?.createdByUserId ?? target?.userId;
+        const playerIds = groupId
+          ? pendingPlayers
+              .filter((p) => (p.createdByUserId ?? p.userId) === groupId)
+              .map((p) => p.id)
+          : [playerId];
+        await PlayerService.batchUpdateStatus(playerIds, status);
         const message =
           status === 'APPROVED' ? t('playerApproved') : t('playerRejected');
         toaster.success({ title: message });
@@ -44,33 +52,19 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
         setActionLoading(null);
       }
     },
-    [sessionId, onPlayerUpdate, t]
+    [pendingPlayers, onPlayerUpdate, t]
   );
 
   const handleBulkAction = useCallback(
     async (status: 'APPROVED' | 'REJECTED') => {
       try {
         setBulkActionLoading(status === 'APPROVED' ? 'approve' : 'reject');
-        // Process each player sequentially
-        for (const player of pendingPlayers) {
-          try {
-            await PlayerService.updatePlayerStatus(
-              sessionId,
-              player.id,
-              status
-            );
-          } catch (error) {
-            console.error(
-              `Failed to ${status.toLowerCase()} player ${player.id}:`,
-              error
-            );
-          }
-        }
+        const playerIds = pendingPlayers.map((p) => p.id);
+        await PlayerService.batchUpdateStatus(playerIds, status);
         const message =
           status === 'APPROVED'
             ? t('allPlayersApproved')
             : t('allPlayersRejected');
-
         toaster.success({ title: message });
         onPlayerUpdate();
       } catch (error) {
@@ -80,7 +74,7 @@ const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
         setBulkActionLoading(null);
       }
     },
-    [sessionId, pendingPlayers, onPlayerUpdate, t]
+    [pendingPlayers, onPlayerUpdate, t]
   );
 
   if (pendingPlayers.length === 0) {

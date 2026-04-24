@@ -11,6 +11,7 @@ import {
   MoreVertical,
   ArrowLeft,
   XCircle,
+  QrCode,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/config';
@@ -33,6 +34,8 @@ interface SessionStatusHeaderProps {
   onToggleSessionStatus?: () => void;
   onCancelSession?: () => void;
   onRefreshData?: () => void;
+  onShowQrView?: () => void;
+  onShowQrJoin?: () => void;
   /** Top offset for sticky positioning */
   stickyTop?: any;
   mt?: any;
@@ -48,6 +51,8 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   onToggleSessionStatus,
   onCancelSession,
   onRefreshData,
+  onShowQrView,
+  onShowQrJoin,
   stickyTop = 0,
   mt,
   showBackButton = false,
@@ -395,6 +400,58 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                     <Box as={RefreshCw} boxSize={4} color="green.500" />
                     <Text fontSize="sm" fontWeight="medium">
                       {t('refresh')}
+                    </Text>
+                  </Button>
+                )}
+
+                {/* QR Code - Show Session */}
+                {onShowQrView && (
+                  <Button
+                    variant="ghost"
+                    width="100%"
+                    px={4}
+                    py={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={3}
+                    _hover={{ bg: 'bg.muted' }}
+                    onClick={() => {
+                      onShowQrView();
+                      setIsMenuOpen(false);
+                    }}
+                    fontWeight="normal"
+                    borderRadius="0"
+                  >
+                    <Box as={QrCode} boxSize={4} color="blue.500" />
+                    <Text fontSize="sm" fontWeight="medium">
+                      {t('qrScanToView')}
+                    </Text>
+                  </Button>
+                )}
+
+                {/* QR Code - Join Session */}
+                {onShowQrJoin && (
+                  <Button
+                    variant="ghost"
+                    width="100%"
+                    px={4}
+                    py={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={3}
+                    _hover={{ bg: 'bg.muted' }}
+                    onClick={() => {
+                      onShowQrJoin();
+                      setIsMenuOpen(false);
+                    }}
+                    fontWeight="normal"
+                    borderRadius="0"
+                  >
+                    <Box as={QrCode} boxSize={4} color="purple.500" />
+                    <Text fontSize="sm" fontWeight="medium">
+                      {t('qrScanToJoin')}
                     </Text>
                   </Button>
                 )}

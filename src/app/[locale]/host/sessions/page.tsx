@@ -13,6 +13,7 @@ import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
+import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
@@ -41,6 +42,7 @@ function HostSessionsContent() {
   const tNav = useTranslations('navigation');
   const tSession = useTranslations('session');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -50,8 +52,9 @@ function HostSessionsContent() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 12;
 
+  // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
-    'active'
+    (searchParams.get('tab') as 'active' | 'ended') || 'active'
   );
   const loadingMoreRef = useRef(false);
   const [filters, setFilters] = useState<ISessionFilterState>({});
@@ -91,12 +94,11 @@ function HostSessionsContent() {
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
         searchQuery: debouncedSearchQuery,
-        excludeStatus:
-          sessionStatusTab === 'active'
-            ? filters.status
-              ? undefined
-              : SessionStatus.FINISHED
+        excludeStatuses:
+          sessionStatusTab === 'active' && !filters.status
+            ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
             : undefined,
+        excludeStatus: undefined,
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
@@ -210,6 +212,14 @@ function HostSessionsContent() {
     setFilters(newFilters);
   };
 
+  const handleTabChange = (newTab: 'active' | 'ended') => {
+    setSessionStatusTab(newTab);
+    // Update URL with new tab param
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', newTab);
+    router.push(`?${params.toString()}`);
+  };
+
   const handleAISuccess = (data: ExtractedSessionData) => {
     // Save AI-extracted data to sessionStorage so SessionForm can pick it up
     sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
@@ -238,7 +248,7 @@ function HostSessionsContent() {
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
-                onChange={setSessionStatusTab}
+                onChange={handleTabChange}
               />
             }
           />

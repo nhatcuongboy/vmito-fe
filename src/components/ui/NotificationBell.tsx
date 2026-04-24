@@ -55,7 +55,12 @@ interface NotificationBellProps {
 
 type TUnifiedItem =
   | { kind: 'notification'; data: INotification; timestamp: number }
-  | { kind: 'approval'; data: PendingRequest; timestamp: number };
+  | {
+      kind: 'approval';
+      data: PendingRequest;
+      allSlots: PendingRequest[];
+      timestamp: number;
+    };
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -154,12 +159,24 @@ export default function NotificationBell({
       });
     }
 
+    // Group pending requests by userId+sessionId to show as one item per user per session
+    const groups = new Map<string, PendingRequest[]>();
     for (const r of pendingRequests) {
-      // Use session startTime as timestamp for pending requests
+      // Group by createdByUserId (who registered), fallback to userId, then individual id
+      const groupKey = r.createdByUserId
+        ? `${r.createdByUserId}-${r.sessionId}`
+        : r.userId
+          ? `${r.userId}-${r.sessionId}`
+          : r.id;
+      if (!groups.has(groupKey)) groups.set(groupKey, []);
+      groups.get(groupKey)!.push(r);
+    }
+    for (const group of groups.values()) {
       items.push({
         kind: 'approval',
-        data: r,
-        timestamp: new Date(r.session.startTime).getTime(),
+        data: group[0],
+        allSlots: group,
+        timestamp: new Date(group[0].session.startTime).getTime(),
       });
     }
 
@@ -190,26 +207,32 @@ export default function NotificationBell({
     }
   };
 
-  const handleApprovalClick = (request: PendingRequest) => {
-    // Remove from local list immediately so badge count drops
-    setPendingRequests((prev) => prev.filter((r) => r.id !== request.id));
-    setPendingCount((prev) => Math.max(0, prev - 1));
+  const handleApprovalClick = (
+    request: PendingRequest,
+    allSlots: PendingRequest[]
+  ) => {
+    const ids = allSlots.map((r) => r.id);
+    setPendingRequests((prev) => prev.filter((r) => !ids.includes(r.id)));
+    setPendingCount((prev) => Math.max(0, prev - ids.length));
     setIsOpen(false);
     router.push(`/host/approval/${request.sessionId}/${request.id}`);
   };
 
   const handleApprovalAction = async (
     e: React.MouseEvent,
-    playerId: string,
-    sessionId: string,
+    allSlots: PendingRequest[],
     status: 'APPROVED' | 'REJECTED'
   ) => {
     e.stopPropagation();
+    const playerIds = allSlots.map((r) => r.id);
+    const representative = allSlots[0];
     try {
-      setPendingActionLoading(playerId);
-      await PlayerService.updatePlayerStatus(sessionId, playerId, status);
-      setPendingRequests((prev) => prev.filter((p) => p.id !== playerId));
-      setPendingCount((prev) => Math.max(0, prev - 1));
+      setPendingActionLoading(representative.id);
+      await PlayerService.batchUpdateStatus(playerIds, status);
+      setPendingRequests((prev) =>
+        prev.filter((p) => !playerIds.includes(p.id))
+      );
+      setPendingCount((prev) => Math.max(0, prev - playerIds.length));
       toaster.success({
         title: status === 'APPROVED' ? t('approveSuccess') : t('rejectSuccess'),
       });
@@ -374,10 +397,12 @@ export default function NotificationBell({
                 {unifiedItems.map((item) => {
                   if (item.kind === 'approval') {
                     const request = item.data;
+                    const allSlots = item.allSlots;
+                    const slotCount = allSlots.length;
                     return (
                       <Box
                         key={`approval-${request.id}`}
-                        onClick={() => handleApprovalClick(request)}
+                        onClick={() => handleApprovalClick(request, allSlots)}
                         w="100%"
                         px={4}
                         py={3}
@@ -455,7 +480,7 @@ export default function NotificationBell({
                               </Badge>
                             </HStack>
 
-                            {/* Row 2: session info */}
+                            {/* Row 2: session info + slot count */}
                             <Text
                               fontSize="xs"
                               color="gray.500"
@@ -468,6 +493,7 @@ export default function NotificationBell({
                               {dayjs(request.session.startTime).format(
                                 'DD/MM, HH:mm'
                               )}
+                              {slotCount > 1 && ` · ${slotCount} slot`}
                             </Text>
 
                             {/* Row 3: action buttons */}
@@ -482,12 +508,7 @@ export default function NotificationBell({
                                 colorPalette="red"
                                 variant="outline"
                                 onClick={(e) =>
-                                  handleApprovalAction(
-                                    e,
-                                    request.id,
-                                    request.sessionId,
-                                    'REJECTED'
-                                  )
+                                  handleApprovalAction(e, allSlots, 'REJECTED')
                                 }
                                 disabled={pendingActionLoading === request.id}
                                 h="24px"
@@ -500,12 +521,7 @@ export default function NotificationBell({
                                 size="xs"
                                 colorPalette="green"
                                 onClick={(e) =>
-                                  handleApprovalAction(
-                                    e,
-                                    request.id,
-                                    request.sessionId,
-                                    'APPROVED'
-                                  )
+                                  handleApprovalAction(e, allSlots, 'APPROVED')
                                 }
                                 loading={pendingActionLoading === request.id}
                                 h="24px"
