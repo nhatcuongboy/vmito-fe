@@ -7,7 +7,7 @@ import AiAssistant from '@/components/session/AiAssistant';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
 // Pages where AI button should NOT appear
-const HIDDEN_PATHS = ['/auth', '/admin', '/guest', '/join'];
+const HIDDEN_PATHS = ['/auth', '/admin', '/guest', '/join', '/sessions/new'];
 
 // Bottom nav bar height (matches BottomNavigationBar: 64px + safe-area)
 const BOTTOM_NAV_HEIGHT = 64;
