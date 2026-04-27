@@ -8,7 +8,6 @@ import SuggestionsList from '@/components/session/SuggestionsList';
 import PageLayout from '@/components/layout/PageLayout';
 import { Image } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
-import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 
 type HomeMode = 'browse' | 'auto';
 
@@ -30,7 +29,6 @@ function HomeContent() {
       ) : (
         <SuggestionsList mode={mode} onModeChange={setMode} />
       )}
-      <QuickCreateFAB />
     </PageLayout>
   );
 }

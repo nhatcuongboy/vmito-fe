@@ -5,6 +5,8 @@ import { PWAStatus } from '../../components/PWAComponents';
 import '../globals.css';
 import { Providers } from '../providers';
 import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
+import GlobalAiButton from '../../components/layout/GlobalAiButton';
+import ThemeColorSync from '../../components/layout/ThemeColorSync';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 
 const geistSans = Geist({
@@ -23,7 +25,10 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#ffffff',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#1a202c' },
+  ],
 };
 
 export async function generateStaticParams() {
@@ -69,10 +74,12 @@ export default async function LocaleLayout({
         <LocaleValidator locale={locale} validLocales={SUPPORTED_LOCALES} />
         <IntlClientProvider messages={messages} locale={locale}>
           <Providers>
+            <ThemeColorSync />
             <PWAStatus />
             {children}
             {/* <Footer /> */}
             <GlobalBottomNav />
+            <GlobalAiButton />
             {/* <PWAInstallPrompt /> */}
           </Providers>
         </IntlClientProvider>
