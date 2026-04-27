@@ -146,7 +146,7 @@ export default function MyClubsPage() {
 
   if (isLoading) {
     return (
-      <PageLayout title={t('clubs.myClubs')}>
+      <PageLayout title={t('navigation.manageGroups')}>
         <Flex justify="center" align="center" minH="400px">
           <Spinner size="xl" colorPalette="green" />
         </Flex>
@@ -155,7 +155,7 @@ export default function MyClubsPage() {
   }
 
   return (
-    <PageLayout title={t('clubs.myClubs')}>
+    <PageLayout title={t('navigation.manageGroups')}>
       <Text color="fg.muted" _dark={{ color: 'gray.400' }} mb={8}>
         {t('clubs.manageMyClubsDescription')}
       </Text>

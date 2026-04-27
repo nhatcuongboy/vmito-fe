@@ -386,14 +386,21 @@ export default function TournamentPageShell({
       <PageLayout
         title={tournament.name}
         showBackButton={false}
-        maxW="container.xl"
+        maxW="full"
+        px={{ base: '24px', md: 0 }}
         pb={{
           base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
           md: '24px',
         }}
       >
         {/* Desktop: sidebar + content */}
-        <Flex display={{ base: 'none', md: 'flex' }} gap={8}>
+        <Flex
+          display={{ base: 'none', md: 'flex' }}
+          gap={6}
+          pt={{ md: 6 }}
+          pl={{ md: 4 }}
+          pr={{ md: 6 }}
+        >
           <TournamentSidebar
             tournament={tournament}
             tabs={tabs}

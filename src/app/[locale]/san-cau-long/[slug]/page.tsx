@@ -245,10 +245,8 @@ export default async function VenueDistrictPage({ params }: PageProps) {
             </Text>
             <Text color="fg.muted" fontSize="sm" mt={2}>
               Bạn có thể{' '}
-              <Link href={`/${locale}/browse/venues`}>
-                tìm kiếm sân cầu lông
-              </Link>{' '}
-              theo địa điểm khác.
+              <Link href={`/${locale}/venues`}>tìm kiếm sân cầu lông</Link> theo
+              địa điểm khác.
             </Text>
           </Box>
         )}

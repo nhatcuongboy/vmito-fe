@@ -32,10 +32,17 @@
     "clubsAdmin": "Approve Clubs",
     "createClub": "Create Group",
     "pendingJoinRequests": "Join Requests",
-    "endedSessions": "Ended Sessions",
+    "endedSessions": "Ended",
     "endedJoinedSessions": "Ended Joined Sessions",
     "suggestions": "For You",
-    "createSession": "Create"
+    "createSession": "Create",
+    "mainHome": "Home",
+    "sessions": "Sessions",
+    "personal": "Profile",
+    "findSessions": "Find Sessions",
+    "findVenues": "Find Venues",
+    "findClubs": "Find Groups",
+    "findTournaments": "Find Tournaments"
   },
   "common": {
     "browse": "Analysis",
@@ -453,7 +460,7 @@
     },
     "noSessionsFound": "No sessions found",
     "noSessionsDescription": "You haven't joined any badminton sessions yet. Join a session to see it here!",
-    "activeSessions": "Active Sessions",
+    "activeSessions": "Active",
     "pastSessions": "Past Sessions",
     "tryAdjustingFilters": "Try adjusting your filters",
     "submitRegistration": "Submit Registration",

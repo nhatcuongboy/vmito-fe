@@ -151,10 +151,7 @@ export default function VenueDetailClient({
           <Text color="gray.500" mb={4}>
             Sân bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
           </Text>
-          <Button
-            onClick={() => router.push('/browse/venues')}
-            colorPalette="green"
-          >
+          <Button onClick={() => router.push('/venues')} colorPalette="green">
             Quay lại danh sách sân
           </Button>
         </Box>

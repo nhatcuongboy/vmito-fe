@@ -29,11 +29,11 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      canonical: `https://vmito.com/${locale}/browse/tournaments`,
+      canonical: `https://vmito.com/${locale}/tournaments`,
       languages: {
-        vi: 'https://vmito.com/vi/browse/tournaments',
-        en: 'https://vmito.com/en/browse/tournaments',
-        'zh-Hans': 'https://vmito.com/cn/browse/tournaments',
+        vi: 'https://vmito.com/vi/tournaments',
+        en: 'https://vmito.com/en/tournaments',
+        'zh-Hans': 'https://vmito.com/cn/tournaments',
       },
     },
     openGraph: { title, description },

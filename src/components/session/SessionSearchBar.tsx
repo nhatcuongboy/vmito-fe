@@ -17,6 +17,8 @@ export default function SessionSearchBar({
   onCreateClick,
   isLoadingCreate,
   topAddon,
+  hideCreateOnMobile = false,
+  topOffset = 0,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
 
@@ -62,8 +64,8 @@ export default function SessionSearchBar({
       <Box
         position="sticky"
         top={{
-          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
-          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE + topOffset}px + env(safe-area-inset-top))`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         left={0}
         right={0}
@@ -71,19 +73,19 @@ export default function SessionSearchBar({
         marginLeft="calc(50% - 50vw)"
         zIndex={100}
         bg="transparent"
-        py={2}
+        pt={topAddon ? 0 : 2}
+        pb={2}
         transition="all 0.2s"
       >
-        <Flex
-          direction="column"
-          align="center"
-          gap={1.5}
-          w="100%"
-          maxW="650px"
-          mx="auto"
-        >
-          {topAddon && <Box w="100%">{topAddon}</Box>}
-          <Flex align="center" gap={2} w="100%">
+        <Flex direction="column" align="center" gap={1.5} w="100%">
+          {topAddon && (
+            <Box w="100%">
+              <Box maxW="1280px" mx="auto">
+                {topAddon}
+              </Box>
+            </Box>
+          )}
+          <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto" px={4}>
             <Box flex={1} w="100%">
               <AppSearchBar
                 value={localValue}
@@ -110,7 +112,11 @@ export default function SessionSearchBar({
       </Flex>
 
       {/* Mobile Create Button (NON-Sticky, right-aligned) */}
-      <Box display={{ base: 'block', md: 'none' }} mt={2} mb={4}>
+      <Box
+        display={hideCreateOnMobile ? 'none' : { base: 'block', md: 'none' }}
+        mt={2}
+        mb={4}
+      >
         <Flex justify="flex-end" w="100%" maxW="650px" mx="auto">
           {createBtn}
         </Flex>

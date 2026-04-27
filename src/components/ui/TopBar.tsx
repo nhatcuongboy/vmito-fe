@@ -5,7 +5,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
   ROUTES,
 } from '@/constants';
-import { Link, useRouter } from '@/i18n/config';
+import { Link, useRouter, usePathname } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -19,7 +19,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { LogIn, Menu, ArrowLeft } from 'lucide-react';
+import { LogIn, Menu, ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -35,6 +35,8 @@ interface TopBarProps {
   icon?: React.ReactNode;
   rightContent?: React.ReactNode;
   navItems?: NavItem[];
+  /** 'secondary' hides menu/logo/notification/profile on mobile, shows back button */
+  variant?: 'main' | 'secondary';
 }
 
 export default function TopBar({
@@ -45,12 +47,21 @@ export default function TopBar({
   backHref = '/',
   onBack,
   navItems,
+  variant = 'main',
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
   const { isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
   const { toggleCollapse } = useSidebar();
+
+  const normalizedPath =
+    pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
+  const isLeftAlignedTitle =
+    /^\/(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
+      normalizedPath
+    );
 
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -114,9 +125,10 @@ export default function TopBar({
               md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
             }}
             px="16px"
+            position="relative"
           >
             {/* Left side - Menu, Logo & Back button */}
-            <Flex height="100%" alignItems="center" gap={2}>
+            <Flex height="100%" alignItems="center" gap={2} zIndex={1}>
               <IconButton
                 aria-label="Open menu"
                 onClick={() => {
@@ -132,47 +144,57 @@ export default function TopBar({
                 _hover={{ bg: 'bg.muted' }}
                 borderRadius="full"
                 size="md"
+                display={
+                  variant === 'secondary'
+                    ? { base: 'none', md: 'flex' }
+                    : 'flex'
+                }
               >
                 <Menu size={20} />
               </IconButton>
 
-              <Link
-                href="/"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              <Box
+                display={
+                  variant === 'secondary'
+                    ? { base: 'none', md: 'flex' }
+                    : 'flex'
+                }
+                alignItems="center"
               >
-                {icon || (
-                  <Image
-                    src="/icons/app-logo.png"
-                    h="32px"
-                    w="auto"
-                    alt={appName}
-                  />
-                )}
-                <Text
-                  display={{ base: 'none', md: 'block' }}
-                  fontSize={{ base: 'md', md: 'lg' }}
-                  fontWeight="bold"
-                  color="green.600"
+                <Link
+                  href="/"
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  Vmito
-                </Text>
-              </Link>
-
-              {showBackButton &&
-                (onBack ? (
-                  <IconButton
-                    aria-label={common('back')}
-                    variant="ghost"
-                    color="fg"
-                    _hover={{ bg: 'bg.muted' }}
-                    borderRadius="full"
-                    size="md"
-                    onClick={onBack}
+                  {icon || (
+                    <Image
+                      src="/icons/app-logo.png"
+                      h="32px"
+                      w="auto"
+                      alt={appName}
+                    />
+                  )}
+                  <Text
+                    display={{ base: 'none', md: 'block' }}
+                    fontSize={{ base: 'md', md: 'lg' }}
+                    fontWeight="bold"
+                    color="green.600"
                   >
-                    <ArrowLeft size={20} />
-                  </IconButton>
-                ) : (
-                  <Link href={backHref}>
+                    Vmito
+                  </Text>
+                </Link>
+              </Box>
+
+              {/* Back button logic */}
+              {(showBackButton || variant === 'secondary') && (
+                <Box
+                  display={
+                    variant === 'secondary'
+                      ? { base: 'flex', md: 'none' }
+                      : 'flex'
+                  }
+                  alignItems="center"
+                >
+                  {onBack ? (
                     <IconButton
                       aria-label={common('back')}
                       variant="ghost"
@@ -180,32 +202,63 @@ export default function TopBar({
                       _hover={{ bg: 'bg.muted' }}
                       borderRadius="full"
                       size="md"
+                      onClick={onBack}
                     >
-                      <ArrowLeft size={20} />
+                      <ChevronLeft size={24} strokeWidth={2.5} />
                     </IconButton>
-                  </Link>
-                ))}
-            </Flex>
+                  ) : (
+                    <Link href={backHref}>
+                      <IconButton
+                        aria-label={common('back')}
+                        variant="ghost"
+                        color="fg"
+                        _hover={{ bg: 'bg.muted' }}
+                        borderRadius="full"
+                        size="md"
+                      >
+                        <ChevronLeft size={24} strokeWidth={2.5} />
+                      </IconButton>
+                    </Link>
+                  )}
+                </Box>
+              )}
 
-            {/* Center - App title */}
-            {title && (
-              <Heading
-                size={{ base: 'md', md: 'lg' }}
-                color="fg"
-                fontWeight="bold"
-                textAlign="center"
-                maxWidth={{ base: '60vw', md: '500px' }}
-                whiteSpace="nowrap"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                px={2}
-                height="100%"
-                display="flex"
-                alignItems="center"
-              >
-                {title}
-              </Heading>
-            )}
+              {/* App title */}
+              {title && (
+                <Heading
+                  size={{ base: 'md', md: 'lg' }}
+                  color="fg"
+                  fontWeight="bold"
+                  maxWidth={{ base: '50vw', md: '500px' }}
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  height="100%"
+                  display="flex"
+                  alignItems="center"
+                  position={{
+                    base: isLeftAlignedTitle ? 'static' : 'absolute',
+                    md: 'absolute',
+                  }}
+                  left={{
+                    base: isLeftAlignedTitle ? 'auto' : '50%',
+                    md: '50%',
+                  }}
+                  transform={{
+                    base: isLeftAlignedTitle ? 'none' : 'translateX(-50%)',
+                    md: 'translateX(-50%)',
+                  }}
+                  textAlign={{
+                    base: isLeftAlignedTitle ? 'left' : 'center',
+                    md: 'center',
+                  }}
+                  px={isLeftAlignedTitle ? 2 : 0}
+                  pointerEvents={isLeftAlignedTitle ? 'auto' : 'none'}
+                >
+                  {title}
+                </Heading>
+              )}
+            </Flex>
 
             {/* Right side - Actions */}
             <Box
@@ -214,13 +267,16 @@ export default function TopBar({
               alignItems="center"
               justifyContent="flex-end"
               gap={2}
+              zIndex={1}
             >
               {rightContent}
 
               {!isHydrated || isLoading ? null : isAuthenticated ? (
                 <>
-                  <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
-                  <UserMenu onLogout={handleLogout} />
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
+                    <UserMenu onLogout={handleLogout} />
+                  </Box>
                 </>
               ) : (
                 <Button

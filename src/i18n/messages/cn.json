@@ -23,10 +23,13 @@
     "clubsAdmin": "审核俱乐部",
     "createClub": "创建群组",
     "pendingJoinRequests": "加入请求",
-    "endedSessions": "已结束场次",
+    "endedSessions": "已结束",
     "endedJoinedSessions": "已结束的已加入场次",
     "suggestions": "推荐",
-    "createSession": "创建"
+    "createSession": "创建",
+    "mainHome": "首页",
+    "sessions": "场次",
+    "personal": "个人"
   },
   "common": {
     "browse": "统计分析",
@@ -439,7 +442,7 @@
     },
     "noSessionsFound": "未找到场次",
     "noSessionsDescription": "您尚未加入任何羽毛球场次。加入一个场次即可在此处查看！",
-    "activeSessions": "活动场次",
+    "activeSessions": "进行中",
     "pastSessions": "历史场次",
     "tryAdjustingFilters": "尝试调整您的过滤器",
     "submitRegistration": "提交注册",

@@ -73,6 +73,7 @@ export const SessionService = {
     status?: string;
     excludeStatus?: string;
     excludeStatuses?: string[];
+    endTimeBefore?: string;
   }): Promise<{
     data: ISession[];
     total: number;
@@ -92,6 +93,8 @@ export const SessionService = {
       params.append('excludeStatuses', filters.excludeStatuses.join(','));
     else if (filters?.excludeStatus)
       params.append('excludeStatus', filters.excludeStatus);
+    if (filters?.endTimeBefore)
+      params.append('endTimeBefore', filters.endTimeBefore);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`

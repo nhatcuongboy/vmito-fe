@@ -151,8 +151,8 @@ function TournamentsContent() {
         <Box
           position="sticky"
           top={{
-            base: `${TOP_BAR_HEIGHT_MOBILE}px`,
-            md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
           }}
           left={0}
           right={0}
@@ -177,6 +177,7 @@ function TournamentsContent() {
 
         {/* Run your own event link */}
         <Text
+          display={{ base: 'none', md: 'block' }}
           textAlign="center"
           fontSize="sm"
           color="fg.muted"

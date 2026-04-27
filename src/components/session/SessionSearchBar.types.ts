@@ -8,4 +8,6 @@ export interface SessionSearchBarProps {
   onCreateClick?: () => void;
   isLoadingCreate?: boolean;
   topAddon?: React.ReactNode;
+  hideCreateOnMobile?: boolean;
+  topOffset?: number;
 }

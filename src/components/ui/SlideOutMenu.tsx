@@ -291,7 +291,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 {(user?.role === UserRole.ADMIN ||
                   user?.role === UserRole.HOST) && (
                   <VTooltip
-                    content={nav('browseTournaments') || 'Giải đấu'}
+                    content={nav('browseTournaments') || 'Tra cứu giải'}
                     positioning={{
                       placement: 'right',
                       offset: { mainAxis: 12 },

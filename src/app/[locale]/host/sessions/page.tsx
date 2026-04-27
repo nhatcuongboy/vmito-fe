@@ -24,7 +24,11 @@ import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
-import { ROUTES } from '@/constants';
+import {
+  ROUTES,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 
@@ -50,12 +54,13 @@ function HostSessionsContent() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [expiredCount, setExpiredCount] = useState<number | null>(null);
   const PAGE_SIZE = 12;
 
   // Initialize sessionStatusTab from URL param, default to 'active'
-  const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
-    (searchParams.get('tab') as 'active' | 'ended') || 'active'
-  );
+  const [sessionStatusTab, setSessionStatusTab] = useState<
+    'active' | 'ended' | 'pending'
+  >((searchParams.get('tab') as 'active' | 'ended' | 'pending') || 'active');
   const loadingMoreRef = useRef(false);
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -147,6 +152,20 @@ function HostSessionsContent() {
     sessionStatusTab,
   ]);
 
+  // Fetch expired sessions count once on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    SessionService.getAllSessions({
+      hostId: user.role === UserRole.ADMIN ? undefined : user.id,
+      status: SessionStatus.PREPARING,
+      endTimeBefore: new Date().toISOString(),
+      limit: 1,
+    })
+      .then((res) => setExpiredCount(res.total))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
   // Trigger load more when in view
   useEffect(() => {
     if (
@@ -212,7 +231,11 @@ function HostSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (newTab: 'active' | 'ended') => {
+  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
+    if (newTab === 'pending') {
+      router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
+      return;
+    }
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
@@ -229,13 +252,25 @@ function HostSessionsContent() {
   return (
     <PageLayout
       showBackButton={false}
+      topBarVariant="secondary"
       title={tNav('myHostedSessions')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
+      pt={{
+        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+      }}
+      maxW="full"
+      px={{ base: '24px', md: 0 }}
     >
-      <Flex gap={6} alignItems="flex-start">
+      <Flex
+        gap={6}
+        alignItems="flex-start"
+        pt={{ md: 6 }}
+        pl={{ md: 4 }}
+        pr={{ md: 6 }}
+      >
         <HostSessionsNavPanel />
-
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
@@ -245,6 +280,7 @@ function HostSessionsContent() {
             showLevelFilter={false}
             resultCount={totalCount}
             onCreateClick={() => router.push(ROUTES.SESSIONS.NEW)}
+            hideCreateOnMobile={true}
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
@@ -262,12 +298,15 @@ function HostSessionsContent() {
           <SessionsList
             sessions={filteredSessions}
             isLoading={loading}
+            isLoadingMore={loadingMore}
             mode="manage"
             onRefresh={fetchHostedSessions}
+            hasMoreSessions={hasMore}
+            expiredCount={expiredCount ?? undefined}
           />
 
           {/* Infinite Scroll Trigger */}
-          {hasMore && sessions.length >= PAGE_SIZE && (
+          {hasMore && sessions.length >= PAGE_SIZE && !loading && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={{
@@ -292,7 +331,11 @@ function HostSessionsContent() {
         </Box>
       </Flex>
 
-      {user && <QuickCreateFAB />}
+      {user && (
+        <Box display={{ base: 'none', md: 'block' }}>
+          <QuickCreateFAB />
+        </Box>
+      )}
 
       <AISessionModal
         isOpen={isAIModalOpen}

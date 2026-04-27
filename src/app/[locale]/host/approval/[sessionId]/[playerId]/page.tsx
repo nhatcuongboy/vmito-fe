@@ -35,6 +35,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
 import { useParams } from 'next/navigation';
+import { ROUTES } from '@/constants';
 
 const ApprovalDetailContent = () => {
   const t = useTranslations('notification');
@@ -148,7 +149,10 @@ const ApprovalDetailContent = () => {
           <Text fontSize="lg" fontWeight="semibold" textAlign="center">
             {t('approvalActionCompleted')}
           </Text>
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button
+            variant="outline"
+            onClick={() => router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
+          >
             <LuArrowLeft size={16} style={{ marginRight: '6px' }} />
             {tCommon('back')}
           </Button>
@@ -378,7 +382,11 @@ export default function ApprovalDetailPage() {
   return (
     <ProtectedRouteGuard>
       <Suspense>
-        <PageLayout title={t('approvalDetailTitle')} showBackButton>
+        <PageLayout
+          title={t('approvalDetailTitle')}
+          showBackButton
+          backHref={ROUTES.HOST.PENDING_JOIN_REQUESTS}
+        >
           <ApprovalDetailContent />
         </PageLayout>
       </Suspense>

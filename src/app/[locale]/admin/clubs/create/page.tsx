@@ -238,13 +238,14 @@ const AdminCreateClubPage = () => {
           <Field label={t('schedule')}>
             <VStack spacing={3} align="stretch">
               {fields.map((field, index) => (
-                <Flex key={field.id} gap={3} align="center" flexWrap="wrap">
-                  <Box flex="1" minW="120px">
+                <Flex key={field.id} gap={1} align="center">
+                  <Box flex="1" minW={{ base: '70px', md: '120px' }}>
                     <Controller
                       name={`schedules.${index}.dayOfWeek`}
                       control={control}
                       render={({ field: f }) => (
                         <LegacySelect
+                          size="sm"
                           value={String(f.value)}
                           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                             f.onChange(Number(e.target.value))
@@ -261,16 +262,20 @@ const AdminCreateClubPage = () => {
                   </Box>
                   <Input
                     type="time"
+                    size="sm"
                     {...register(`schedules.${index}.startTime`)}
-                    w="130px"
+                    w={{ base: '100px', md: '120px' }}
+                    px={1}
                   />
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="xs" color="gray.500">
                     -
                   </Text>
                   <Input
                     type="time"
+                    size="sm"
                     {...register(`schedules.${index}.endTime`)}
-                    w="130px"
+                    w={{ base: '100px', md: '120px' }}
+                    px={1}
                   />
                   <IconButton
                     size="sm"

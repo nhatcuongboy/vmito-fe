@@ -81,7 +81,7 @@ export default function NewTournamentPage() {
       <PageLayout
         title={t('title')}
         showBackButton={true}
-        backHref="/browse/tournaments"
+        backHref="/tournaments"
         maxW="4xl"
       >
         <form onSubmit={handleSubmit}>

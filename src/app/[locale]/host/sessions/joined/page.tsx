@@ -12,6 +12,7 @@ import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
+import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
@@ -208,7 +209,8 @@ function PlayerSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (newTab: 'active' | 'ended') => {
+  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
+    if (newTab === 'pending') return; // Should not happen with showPending={false}
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
@@ -222,8 +224,20 @@ function PlayerSessionsContent() {
       title={t('joined')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
+      pt={{
+        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+      }}
+      maxW="full"
+      px={{ base: '24px', md: 0 }}
     >
-      <Flex gap={6} alignItems="flex-start">
+      <Flex
+        gap={6}
+        alignItems="flex-start"
+        pt={{ md: 6 }}
+        pl={{ md: 4 }}
+        pr={{ md: 6 }}
+      >
         <HostSessionsNavPanel />
 
         <Box flex={1} minW={0}>
@@ -237,6 +251,7 @@ function PlayerSessionsContent() {
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
+                showPending={false}
               />
             }
           />
@@ -250,12 +265,13 @@ function PlayerSessionsContent() {
           <SessionsList
             sessions={filteredSessions}
             isLoading={loading}
+            isLoadingMore={loadingMore}
             mode="view"
             onRefresh={fetchPlayerSessions}
           />
 
           {/* Infinite Scroll Trigger */}
-          {hasMore && filteredSessions.length >= PAGE_SIZE && (
+          {hasMore && filteredSessions.length >= PAGE_SIZE && !loading && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={{

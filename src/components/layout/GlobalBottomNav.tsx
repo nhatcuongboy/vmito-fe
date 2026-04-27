@@ -3,18 +3,8 @@
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
-import { UserRole } from '@/lib/api/types';
-import BottomNavigationBar, {
-  NavigationTab,
-} from '@/components/ui/BottomNavigationBar';
-import {
-  Search,
-  Ticket,
-  ClipboardList,
-  Users,
-  MapPin,
-  CheckCircle,
-} from 'lucide-react';
+import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
+import { Home, ClipboardList, Users, User } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
@@ -29,110 +19,43 @@ export default function GlobalBottomNav() {
   const [pendingTabId, setPendingTabId] = useState<number | null>(null);
   const [isPendingCreate, startCreateTransition] = useTransition();
 
-  // Check visibility using the hook
-  const isBottomNavVisible = useBottomNavVisibility();
+  const isVisible = useBottomNavVisibility();
 
-  const isAdminContext = useMemo(
-    () => !!pathname?.startsWith('/admin'),
-    [pathname]
-  );
-
-  const tabs = useMemo<NavigationTab[]>(() => {
+  const tabs = useMemo(() => {
     if (!isAuthenticated || !user) return [];
-
-    // ADMIN on admin pages → admin management tabs
-    if (user.role === UserRole.ADMIN && isAdminContext) {
-      return [
-        { id: 10, label: t('home'), icon: Search, href: ROUTES.HOME },
-        {
-          id: 11,
-          label: t('venues'),
-          icon: MapPin,
-          href: ROUTES.ADMIN.VENUES,
-        },
-        {
-          id: 12,
-          label: t('users'),
-          icon: Users,
-          href: ROUTES.ADMIN.USERS,
-        },
-        {
-          id: 13,
-          label: t('clubsAdmin'),
-          icon: CheckCircle,
-          href: ROUTES.ADMIN.CLUBS,
-        },
-      ];
-    }
-
-    // PLAYER, HOST and ADMIN (on non-admin pages) share the same tabs
     return [
-      { id: 1, label: t('home'), icon: Search, href: ROUTES.HOME },
+      { id: 1, label: t('mainHome'), icon: Home, href: ROUTES.HOME },
       {
         id: 2,
-        label: t('host'),
+        label: t('sessions'),
         icon: ClipboardList,
         href: ROUTES.HOST.SESSIONS.LIST,
       },
-      {
-        id: 3,
-        label: t('joined'),
-        icon: Ticket,
-        href: ROUTES.PLAYER.SESSIONS.LIST,
-      },
-      {
-        id: 4,
-        label: t('myClubs'),
-        icon: Users,
-        href: ROUTES.CLUBS.MY_CLUBS,
-      },
+      { id: 3, label: t('myClubs'), icon: Users, href: ROUTES.CLUBS.MY_CLUBS },
+      { id: 4, label: t('personal'), icon: User, href: `/user/${user.id}` },
     ];
-  }, [isAuthenticated, user, isAdminContext, t]);
+  }, [isAuthenticated, user, t]);
 
-  // Handle Tab Change
   const handleTabChange = (tabId: number) => {
     const tab = tabs.find((t) => t.id === tabId);
-    if (tab && tab.href) {
-      if (pathname === tab.href) return; // Already on this page
-
-      setPendingTabId(tabId);
-      startTransition(() => {
-        router.push(tab.href!);
-      });
-    }
+    if (!tab?.href || pathname === tab.href) return;
+    setPendingTabId(tabId);
+    startTransition(() => {
+      router.push(tab.href!);
+    });
   };
 
-  // Reset pending state when navigation is complete or path changes
   useEffect(() => {
-    if (!isPending) {
-      setPendingTabId(null);
-    }
+    if (!isPending) setPendingTabId(null);
   }, [isPending, pathname]);
 
-  // Determine current active tab
   const activeTab = useMemo(() => {
     if (!pathname) return 0;
-
-    // Find the matching tab based on pathname prefix
-    // We reverse sort by href length to match the refined paths first
-    const sortedTabs = [...tabs].sort(
+    const sorted = [...tabs].sort(
       (a, b) => (b.href?.length || 0) - (a.href?.length || 0)
     );
-
-    const matched = sortedTabs.find((tab) =>
-      pathname.startsWith(tab.href || '')
-    );
-    return matched ? matched.id : 0;
+    return sorted.find((tab) => pathname.startsWith(tab.href || ''))?.id ?? 0;
   }, [pathname, tabs]);
-
-  // Determine if center "Tạo kèo" action should be shown (Home and host/sessions on mobile)
-  const showCenterAction = useMemo(
-    () =>
-      isAuthenticated &&
-      !isAdminContext &&
-      (pathname === ROUTES.HOME || pathname === ROUTES.HOST.SESSIONS.LIST),
-    [isAuthenticated, isAdminContext, pathname]
-  );
 
   const handleCreateSession = () => {
     startCreateTransition(() => {
@@ -140,9 +63,37 @@ export default function GlobalBottomNav() {
     });
   };
 
-  if (!isBottomNavVisible || tabs.length === 0) {
-    return null;
-  }
+  const centerAction = useMemo(() => {
+    if (pathname.startsWith(ROUTES.CLUBS.BROWSE)) {
+      return {
+        label: t('createClub'),
+        onClick: () => {
+          startCreateTransition(() => {
+            router.push(ROUTES.HOST.CLUBS.CREATE);
+          });
+        },
+        loading: isPendingCreate,
+      };
+    }
+    if (pathname.startsWith(ROUTES.BROWSE.TOURNAMENTS.LIST)) {
+      return {
+        label: t('createTournament'),
+        onClick: () => {
+          startCreateTransition(() => {
+            router.push(ROUTES.HOST.TOURNAMENTS.NEW);
+          });
+        },
+        loading: isPendingCreate,
+      };
+    }
+    return {
+      label: t('createSession'),
+      onClick: handleCreateSession,
+      loading: isPendingCreate,
+    };
+  }, [pathname, t, isPendingCreate, handleCreateSession, router]);
+
+  if (!isVisible || tabs.length === 0) return null;
 
   return (
     <BottomNavigationBar
@@ -150,15 +101,7 @@ export default function GlobalBottomNav() {
       activeTab={activeTab}
       loadingTabId={pendingTabId}
       onTabChange={handleTabChange}
-      centerAction={
-        showCenterAction
-          ? {
-              label: t('createSession'),
-              onClick: handleCreateSession,
-              loading: isPendingCreate,
-            }
-          : undefined
-      }
+      centerAction={centerAction}
     />
   );
 }

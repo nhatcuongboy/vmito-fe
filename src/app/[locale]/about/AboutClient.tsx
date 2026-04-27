@@ -23,7 +23,7 @@ function AboutContent() {
   const t = useTranslations('pages.home');
   return (
     <PageWrapper>
-      <TopBar showBackButton />
+      <TopBar showBackButton={false} />
       <Box
         pt={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,

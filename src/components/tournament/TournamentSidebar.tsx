@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, Flex, Image, Text, VStack } from '@chakra-ui/react';
+import { Box, Image, Text } from '@chakra-ui/react';
 import { LucideIcon } from 'lucide-react';
 import { Tournament } from '@/lib/api/types';
+import SidebarNav from '@/components/ui/SidebarNav';
 
 interface SidebarTab {
   id: number;
@@ -34,28 +35,12 @@ export default function TournamentSidebar({
   );
 
   const statusLabel = tournament.isPublished ? 'Published' : 'Draft';
-
   const statusColor = tournament.isPublished ? 'green' : 'gray';
 
-  return (
-    <Box
-      w="250px"
-      flexShrink={0}
-      position="sticky"
-      top="80px"
-      alignSelf="flex-start"
-      height="calc(100vh - 100px)"
-      bg="white"
-      borderRadius="2xl"
-      borderWidth="1px"
-      borderColor="gray.200"
-      boxShadow="sm"
-      overflow="hidden"
-      display="flex"
-      flexDirection="column"
-    >
+  const header = (
+    <>
       {/* Tournament banner image */}
-      <Box position="relative" bg="gray.100" h="130px" flexShrink={0}>
+      <Box position="relative" bg="gray.100" h="130px">
         {tournament.venue?.coverPhoto || tournament.venue?.images?.[0] ? (
           <Image
             src={tournament.venue.coverPhoto || tournament.venue.images![0]}
@@ -84,59 +69,26 @@ export default function TournamentSidebar({
         </Box>
       </Box>
 
-      {/* Content Area */}
-      <Box
-        px={4}
-        pb={4}
-        pt={4}
-        display="flex"
-        flexDirection="column"
-        gap={0}
-        flex={1}
-        overflowY="auto"
-      >
-        <Box mb={5}>
-          {/* Tournament name & date */}
-          <Text fontWeight="bold" fontSize="lg" mb={1} lineClamp={2}>
-            {tournament.name}
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            {formattedDate}
-          </Text>
-        </Box>
-
-        {/* Navigation items */}
-        <VStack gap={1} align="stretch" pb={2}>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-
-            return (
-              <Flex
-                key={tab.id}
-                as="button"
-                align="center"
-                gap={3}
-                px={3}
-                py={2.5}
-                borderRadius="lg"
-                cursor="pointer"
-                fontWeight={isActive ? 'semibold' : 'medium'}
-                color={isActive ? 'gray.900' : 'gray.600'}
-                bg={isActive ? 'gray.100' : 'transparent'}
-                _hover={{ bg: isActive ? 'gray.100' : 'gray.50' }}
-                transition="all 0.15s"
-                onClick={() => onTabChange(tab.id)}
-                w="full"
-                textAlign="left"
-              >
-                <Icon size={18} />
-                <Text fontSize="sm">{tab.label}</Text>
-              </Flex>
-            );
-          })}
-        </VStack>
+      {/* Tournament name & date */}
+      <Box px={4} pt={4} pb={2}>
+        <Text fontWeight="bold" fontSize="lg" mb={1} lineClamp={2}>
+          {tournament.name}
+        </Text>
+        <Text fontSize="sm" color="gray.500">
+          {formattedDate}
+        </Text>
       </Box>
-    </Box>
+    </>
+  );
+
+  return (
+    <SidebarNav
+      header={header}
+      items={tabs}
+      activeId={activeTab}
+      onItemClick={(id) => onTabChange(Number(id))}
+      width="250px"
+      topOffset="80px"
+    />
   );
 }

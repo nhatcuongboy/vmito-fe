@@ -1,88 +1,35 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Container, ContainerProps } from '@chakra-ui/react';
+import { Box, Container, ContainerProps } from '@chakra-ui/react';
 import PageWrapper from './PageWrapper';
 import TopBar from '../ui/TopBar';
+import { DiscoveryTabNav } from '../navigation/DiscoveryTabNav';
+import { useRouter, usePathname } from '@/i18n/config';
+import { ROUTES } from '@/constants';
 import {
   CONTAINER_PX,
   CONTENT_PT_OFFSET,
   TOP_BAR_HEIGHT_DESKTOP,
   TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
+import { useIsMainPage } from '@/hooks/useBottomNavVisibility';
 
 interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
-  /**
-   * Page title to display in the TopBar
-   */
   title?: string;
-
-  /**
-   * Optional icon to display in the TopBar
-   */
   icon?: ReactNode;
-
-  /**
-   * Optional content to display on the right side of the TopBar
-   */
   rightContent?: ReactNode;
-
-  /**
-   * Whether to show a back button in the TopBar
-   */
   showBackButton?: boolean;
-
-  /**
-   * Optional href for the back button
-   */
   backHref?: string;
-
-  /**
-   * Maximum width of the container
-   * @default "container.xl"
-   */
   maxW?: string;
-
-  /**
-   * Page content
-   */
   children?: ReactNode;
-
-  /**
-   * Whether to show a loading spinner instead of content
-   */
   isLoading?: boolean;
-
-  /**
-   * Custom loading component to show when isLoading is true
-   */
   loadingComponent?: ReactNode;
+  /** Override top bar variant. Auto-detected from pathname if not provided. */
+  topBarVariant?: 'main' | 'secondary';
+  subHeader?: ReactNode;
 }
 
-/**
- * PageLayout component that combines PageWrapper, TopBar, and Container
- * with proper spacing and responsive design.
- *
- * Use this for standard pages with a top bar and centered content.
- * For more complex layouts, use PageWrapper directly.
- *
- * @example
- * ```tsx
- * <PageLayout title="My Page">
- *   <Heading>Content here</Heading>
- * </PageLayout>
- * ```
- *
- * @example With right content
- * ```tsx
- * <PageLayout
- *   title="Sessions"
- *   rightContent={<Button>Create</Button>}
- * >
- *   <SessionList />
- * </PageLayout>
- * ```
- */
 export default function PageLayout({
   title,
   icon,
@@ -99,8 +46,26 @@ export default function PageLayout({
   backgroundColor,
   _dark,
   minH,
+  topBarVariant,
+  subHeader,
   ...containerProps
 }: PageLayoutProps) {
+  const isMainPage = useIsMainPage();
+  const variant = topBarVariant ?? (isMainPage ? 'main' : 'secondary');
+  const pathname = usePathname();
+
+  const isDiscoveryPage = [
+    '/',
+    ROUTES.BROWSE.VENUES.LIST,
+    ROUTES.CLUBS.BROWSE,
+  ].some((path) => {
+    const normalized =
+      pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
+    return normalized === path;
+  });
+
+  const hasSubHeader = isDiscoveryPage || !!subHeader;
+
   return (
     <PageWrapper
       bg={bg}
@@ -114,16 +79,32 @@ export default function PageLayout({
         title={title}
         icon={icon}
         rightContent={rightContent}
-        showBackButton={false}
+        showBackButton={showBackButton ?? variant === 'secondary'}
         backHref={backHref}
+        variant={variant}
       />
+      {isDiscoveryPage && <DiscoveryTabNav />}
+      {!isDiscoveryPage && subHeader && (
+        <Box
+          pt={{
+            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+          }}
+          w="100%"
+        >
+          {subHeader}
+        </Box>
+      )}
       <Container
         maxW={maxW}
         px={CONTAINER_PX}
         minH={minH ?? '100vh'}
         pt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          base: hasSubHeader
+            ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 44px)`
+            : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: subHeader
+            ? CONTENT_PT_OFFSET
+            : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
         {...containerProps}
