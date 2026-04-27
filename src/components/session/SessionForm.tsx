@@ -234,6 +234,7 @@ export default function SessionForm({
   const canEditCourts =
     !isEditMode || initialData?.status === SessionStatus.PREPARING;
   const canEditTime = !isEditMode || !isSessionActive;
+  const canEditVenue = !isEditMode || !isSessionActive;
 
   // Default values
   const defaultValues: SessionFormData = useMemo(() => {
@@ -960,15 +961,6 @@ export default function SessionForm({
                             </Alert.Root>
                         )} */}
 
-            {isEditMode && !canEditTime && (
-              <Alert.Root status="warning">
-                <Alert.Indicator />
-                <Alert.Title>
-                  {t('validation.cannotEditTimeWhenActive')}
-                </Alert.Title>
-              </Alert.Root>
-            )}
-
             {/* Basic Info Section */}
             <Box
               bg={{ base: 'white', _dark: 'gray.800' }}
@@ -1025,7 +1017,11 @@ export default function SessionForm({
                 </Box>
 
                 {/* Location */}
-                <Field.Root id="field-venue" invalid={!!errors.selectedVenueId}>
+                <Field.Root
+                  id="field-venue"
+                  invalid={!!errors.selectedVenueId}
+                  disabled={!canEditVenue}
+                >
                   <Field.Label>
                     {t('location')}{' '}
                     <Text as="span" color="red.500">
@@ -1049,6 +1045,7 @@ export default function SessionForm({
                         searchPlaceholder={t('generalSettings.searchVenue')}
                         onSearchChange={handleVenueSearch}
                         isLoading={isVenueLoading}
+                        isDisabled={!canEditVenue}
                       />
                     )}
                   />

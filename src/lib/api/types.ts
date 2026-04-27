@@ -356,6 +356,7 @@ export interface Player {
   id: string;
   sessionId: string;
   userId?: string;
+  createdByUserId?: string; // User who registered this player (for multi-slot grouping)
   playerNumber: number;
   name?: string;
   gender?: GenderType;

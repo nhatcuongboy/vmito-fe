@@ -35,6 +35,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
 import { useParams } from 'next/navigation';
+import { ROUTES } from '@/constants';
 
 const ApprovalDetailContent = () => {
   const t = useTranslations('notification');
@@ -46,6 +47,7 @@ const ApprovalDetailContent = () => {
   const playerId = params.playerId as string;
 
   const [request, setRequest] = useState<PendingRequest | null>(null);
+  const [sameUserPlayerIds, setSameUserPlayerIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<
     'APPROVED' | 'REJECTED' | null
@@ -60,6 +62,21 @@ const ApprovalDetailContent = () => {
         (r) => r.id === playerId && r.sessionId === sessionId
       );
       setRequest(found || null);
+      // Collect all slots of the same user in the same session
+      // Prefer createdByUserId (who registered), fallback to userId
+      const groupId = found?.createdByUserId ?? found?.userId;
+      if (found && groupId) {
+        const ids = result.data
+          .filter(
+            (r) =>
+              (r.createdByUserId ?? r.userId) === groupId &&
+              r.sessionId === found.sessionId
+          )
+          .map((r) => r.id);
+        setSameUserPlayerIds(ids);
+      } else {
+        setSameUserPlayerIds(found ? [found.id] : []);
+      }
     } catch {
       toaster.error({ title: tCommon('error') });
     } finally {
@@ -74,7 +91,8 @@ const ApprovalDetailContent = () => {
   const handleAction = async (status: 'APPROVED' | 'REJECTED') => {
     try {
       setActionLoading(status);
-      await PlayerService.updatePlayerStatus(sessionId, playerId, status);
+      const ids = sameUserPlayerIds.length > 0 ? sameUserPlayerIds : [playerId];
+      await PlayerService.batchUpdateStatus(ids, status);
       setIsActioned(true);
       toaster.success({
         title: status === 'APPROVED' ? t('approveSuccess') : t('rejectSuccess'),
@@ -131,7 +149,10 @@ const ApprovalDetailContent = () => {
           <Text fontSize="lg" fontWeight="semibold" textAlign="center">
             {t('approvalActionCompleted')}
           </Text>
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button
+            variant="outline"
+            onClick={() => router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
+          >
             <LuArrowLeft size={16} style={{ marginRight: '6px' }} />
             {tCommon('back')}
           </Button>
@@ -242,6 +263,21 @@ const ApprovalDetailContent = () => {
                 </HStack>
               )}
 
+              {/* Slot count — shown when user registered multiple slots */}
+              {sameUserPlayerIds.length > 1 && (
+                <HStack gap={3}>
+                  <LuHash size={16} color="gray" />
+                  <VStack align="start" gap={0}>
+                    <Text fontSize="xs" color="gray.500">
+                      {t('approvalSlotCount')}
+                    </Text>
+                    <Text fontSize="sm" fontWeight="medium">
+                      {sameUserPlayerIds.length} slot
+                    </Text>
+                  </VStack>
+                </HStack>
+              )}
+
               {/* Player Number */}
               <HStack gap={3}>
                 <LuHash size={16} color="gray" />
@@ -251,6 +287,12 @@ const ApprovalDetailContent = () => {
                   </Text>
                   <Text fontSize="sm" fontWeight="medium">
                     #{request.playerNumber}
+                    {sameUserPlayerIds.length > 1 && (
+                      <Text as="span" fontSize="xs" color="gray.400" ml={1}>
+                        ({sameUserPlayerIds.indexOf(request.id) + 1}/
+                        {sameUserPlayerIds.length})
+                      </Text>
+                    )}
                   </Text>
                 </VStack>
               </HStack>
@@ -340,7 +382,11 @@ export default function ApprovalDetailPage() {
   return (
     <ProtectedRouteGuard>
       <Suspense>
-        <PageLayout title={t('approvalDetailTitle')} showBackButton>
+        <PageLayout
+          title={t('approvalDetailTitle')}
+          showBackButton
+          backHref={ROUTES.HOST.PENDING_JOIN_REQUESTS}
+        >
           <ApprovalDetailContent />
         </PageLayout>
       </Suspense>

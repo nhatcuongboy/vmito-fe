@@ -17,4 +17,5 @@ export interface ISessionFiltersProps {
   resultCount?: number;
   onCreateClick?: () => void;
   topAddon?: React.ReactNode;
+  hideCreateOnMobile?: boolean;
 }

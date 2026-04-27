@@ -428,8 +428,8 @@ export default function VenueSearchList() {
       <Box
         position="sticky"
         top={{
-          base: `${TOP_BAR_HEIGHT_MOBILE}px`,
-          md: `${TOP_BAR_HEIGHT_DESKTOP}px`,
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         left={0}
         right={0}

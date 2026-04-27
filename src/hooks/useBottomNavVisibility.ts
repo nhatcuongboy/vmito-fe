@@ -1,53 +1,46 @@
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePathname } from '@/i18n/config';
 import { UserRole } from '@/lib/api/types';
+import { MAIN_PAGE_PATHS } from '@/constants';
 import { useMemo } from 'react';
 
+// Pages that use their own bottom nav (HostSessionsNavPanel)
+const CUSTOM_BOTTOM_NAV_PATHS = [
+  '/host/sessions',
+  '/host/sessions/pending',
+  '/host/sessions/joined',
+];
+
+// Returns true if current page is a "main" page (shows main top bar)
+export function useIsMainPage(): boolean {
+  const pathname = usePathname();
+  return useMemo(() => {
+    if (!pathname) return false;
+    // Normalize: strip locale prefix if present (e.g. /vi/host/sessions → /host/sessions)
+    const normalized =
+      pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
+    if ((MAIN_PAGE_PATHS as readonly string[]).includes(normalized))
+      return true;
+    // /user/[id] is also a main page
+    if (/^\/user\/[^/]+$/.test(normalized)) return true;
+    return false;
+  }, [pathname]);
+}
+
+// Returns true if GlobalBottomNav should be visible
 export function useBottomNavVisibility() {
   const { user, isAuthenticated } = useAuthStore();
   const pathname = usePathname();
+  const isMainPage = useIsMainPage();
 
-  const isExcluded = useMemo(() => {
-    if (!pathname) return false;
-
-    // Explicitly exclude pages that have their own bottom tabs
-    if (pathname.match(/\/host\/tournaments\/[^/]+$/)) return true;
-    if (pathname.match(/\/tournament\/[^/]+/)) return true;
-
-    // host/sessions pages have their own HostSessionsNavPanel bottom nav
-    if (
-      pathname === '/host/sessions' ||
-      pathname === '/host/sessions/pending' ||
-      pathname === '/host/sessions/joined'
-    )
-      return true;
-
-    return (
-      // Exclude auth pages - they have their own full-screen layout (no MainLayout)
-      // Prevents bottom nav from showing during "Redirecting..." state after login
-      pathname.includes('/auth/') ||
-      // Exclude session detail pages
-      pathname.includes('/player/sessions/') ||
-      // Public session detail
-      pathname.match(/\/sessions\/[^/]+$/) ||
-      // Exclude about page (static)
-      pathname.includes('/about') ||
-      // Also potentially exclude specific full-screen flows like /join/confirm if needed
-      pathname.includes('/join/confirm')
-    );
-  }, [pathname]);
-
-  const isVisible = useMemo(() => {
-    if (!isAuthenticated || isExcluded || user?.role === UserRole.GUEST) {
-      return false;
-    }
-
-    // Check if role has tabs defined (mimicking the logic in GlobalBottomNav)
-    if (!user) return false;
-
-    // All roles seem to have tabs in the original logic except GUEST (handled above)
+  return useMemo(() => {
+    if (!isAuthenticated || !user || user.role === UserRole.GUEST) return false;
+    if (!isMainPage) return false;
+    // /host/sessions and sub-pages use HostSessionsNavPanel instead
+    const normalized = pathname
+      ? pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/'
+      : '';
+    if (CUSTOM_BOTTOM_NAV_PATHS.includes(normalized)) return false;
     return true;
-  }, [isAuthenticated, isExcluded, user]);
-
-  return isVisible;
+  }, [isAuthenticated, user, isMainPage, pathname]);
 }

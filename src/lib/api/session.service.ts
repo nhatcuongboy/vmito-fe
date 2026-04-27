@@ -72,6 +72,8 @@ export const SessionService = {
     sortOrder?: 'asc' | 'desc';
     status?: string;
     excludeStatus?: string;
+    excludeStatuses?: string[];
+    endTimeBefore?: string;
   }): Promise<{
     data: ISession[];
     total: number;
@@ -87,8 +89,12 @@ export const SessionService = {
     if (filters?.sortBy) params.append('sortBy', filters.sortBy);
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
     if (filters?.status) params.append('status', filters.status);
-    if (filters?.excludeStatus)
+    if (filters?.excludeStatuses && filters.excludeStatuses.length > 0)
+      params.append('excludeStatuses', filters.excludeStatuses.join(','));
+    else if (filters?.excludeStatus)
       params.append('excludeStatus', filters.excludeStatus);
+    if (filters?.endTimeBefore)
+      params.append('endTimeBefore', filters.endTimeBefore);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`

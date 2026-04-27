@@ -19,6 +19,18 @@ interface SessionExpenseSectionProps {
   isLoading?: boolean;
 }
 
+const formatAmountDisplay = (raw: string): string => {
+  const stripped = raw.replace(/[^\d]/g, '');
+  if (!stripped) return '';
+  const num = parseInt(stripped, 10);
+  if (isNaN(num)) return raw;
+  return num.toLocaleString('vi-VN');
+};
+
+const parseAmountInput = (input: string): string => {
+  return input.replace(/[^\d]/g, '');
+};
+
 interface DraftRow {
   name: string;
   amount: string;
@@ -186,11 +198,12 @@ export default function SessionExpenseSection({
               />
               <Input
                 size="sm"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={editAmount}
+                value={formatAmountDisplay(editAmount)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setEditAmount(e.target.value)
+                  setEditAmount(parseAmountInput(e.target.value))
                 }
                 w="110px"
                 disabled={savingId === expense.id}
@@ -280,11 +293,16 @@ export default function SessionExpenseSection({
                   />
                   <Input
                     size="sm"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="0"
-                    value={row.amount}
+                    value={formatAmountDisplay(row.amount)}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleDraftChange(idx, 'amount', e.target.value)
+                      handleDraftChange(
+                        idx,
+                        'amount',
+                        parseAmountInput(e.target.value)
+                      )
                     }
                     w="110px"
                     disabled={isSavingDrafts}

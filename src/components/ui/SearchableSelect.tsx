@@ -211,12 +211,30 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     return scoredOptions;
   }, [options, searchQuery, onSearchChange]);
 
+  // Cache the selected option so we can still show its label if it disappears from options (e.g., async search cleared)
+  const [cachedSelectedOption, setCachedSelectedOption] =
+    useState<SearchableSelectOption | null>(null);
+
+  useEffect(() => {
+    if (value) {
+      const safeOptions = Array.isArray(options) ? options : [];
+      const selected = safeOptions.find((opt) => opt.value === value);
+      if (selected) {
+        setCachedSelectedOption(selected);
+      }
+    } else {
+      setCachedSelectedOption(null);
+    }
+  }, [value, options]);
+
   // Find selected option label
   const selectedLabel = useMemo(() => {
     const safeOptions = Array.isArray(options) ? options : [];
-    const selected = safeOptions.find((opt) => opt.value === value);
+    const selected =
+      safeOptions.find((opt) => opt.value === value) ||
+      (cachedSelectedOption?.value === value ? cachedSelectedOption : null);
     return selected?.label || '';
-  }, [options, value]);
+  }, [options, value, cachedSelectedOption]);
 
   // Close dropdown and reset search state (including parent's server-side search)
   const closeDropdown = useCallback(() => {

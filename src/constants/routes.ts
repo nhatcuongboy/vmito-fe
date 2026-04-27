@@ -75,14 +75,14 @@ export const ROUTES = {
   // Browse/Public Routes
   BROWSE: {
     VENUES: {
-      LIST: '/browse/venues',
+      LIST: '/venues',
     },
     SESSIONS: {
       DETAIL: (id: string, slug?: string) => `/browse/sessions/${slug || id}`,
       JOIN: (id: string) => `/browse/sessions/${id}/join`,
     },
     TOURNAMENTS: {
-      LIST: '/browse/tournaments',
+      LIST: '/tournaments',
       DETAIL: (id: string) => `/tournament/${id}`,
       MATCHES: (id: string) => `/tournament/${id}/schedule`,
       PLAYERS: (id: string) => `/tournament/${id}/teams`,
@@ -320,6 +320,8 @@ export const ROUTE_REDIRECTS: Record<string, string> = {
   '/tournaments': ROUTES.BROWSE.TOURNAMENTS.LIST,
   '/tournaments/new': ROUTES.HOST.TOURNAMENTS.NEW,
   '/browse/tournaments/:id(.*)': '/tournament/:id$1',
+  '/browse/venues': ROUTES.BROWSE.VENUES.LIST,
+  '/browse/tournaments': ROUTES.BROWSE.TOURNAMENTS.LIST,
 } as const;
 
 // ==================== LOCALE ROUTES ====================

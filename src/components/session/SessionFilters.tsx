@@ -33,6 +33,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   initialFilters = {},
   onCreateClick,
   topAddon,
+  hideCreateOnMobile = false,
 }) => {
   const t = useTranslations('session.filters');
   const tStatus = useTranslations('session.status');
@@ -119,6 +120,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           activeFilterCount={activeFilterCount}
           onCreateClick={onCreateClick}
           topAddon={topAddon}
+          hideCreateOnMobile={hideCreateOnMobile}
         />
       )}
 

@@ -86,8 +86,12 @@ const SessionCard = ({
   const isFull = approvedPlayersCount >= maxPlayers;
   const availableSlots = maxPlayers - approvedPlayersCount;
 
-  // Slot availability badge
-  const slotAvailabilityBadge = (
+  // Slot availability badge - hidden if session is expired
+  const isExpired =
+    session.status === 'PREPARING' &&
+    session.endTime &&
+    new Date(session.endTime) < new Date();
+  const slotAvailabilityBadge = !isExpired ? (
     <Badge
       colorPalette={isFull ? 'gray' : 'teal'}
       variant="solid"
@@ -96,7 +100,7 @@ const SessionCard = ({
     >
       {isFull ? t('slotsFull') : t('slotsAvailable', { count: availableSlots })}
     </Badge>
-  );
+  ) : null;
 
   // Handle start session
   const handleStart = async () => {
@@ -178,9 +182,9 @@ const SessionCard = ({
             <Text fontWeight="medium" lineClamp={1}>
               {session.venue?.name
                 ? formatVenueName(
-                  session.venue.name,
-                  tVenue('nameFormat', { name: '{name}' })
-                )
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
                 : session.location}
             </Text>
             <IconButton
@@ -195,9 +199,9 @@ const SessionCard = ({
                   address: session.venue?.address,
                   name: session.venue?.name
                     ? formatVenueName(
-                      session.venue.name,
-                      tVenue('nameFormat', { name: '{name}' })
-                    )
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
                     : session.location,
                   placeId: session.venue?.placeId,
                   lat: session.venue?.lat,

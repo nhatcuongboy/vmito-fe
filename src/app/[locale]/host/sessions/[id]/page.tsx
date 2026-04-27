@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect, Suspense } from 'react';
 import { Spinner, Center, Box, Text, Container, Flex } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Info, Square, Trophy, Users, DollarSign } from 'lucide-react';
 
 // Hooks
@@ -25,6 +25,7 @@ import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import SessionPaymentTab from '@/components/session/SessionPaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
+import QRCodeGenerator from '@/components/QRCodeGenerator';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
@@ -69,6 +70,12 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   // Store filter as array of statuses. Empty array means 'ALL'
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>([]);
+
+  // State for QR code modals
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [selectedQrUrl, setSelectedQrUrl] = useState('');
+  const [selectedQrLabel, setSelectedQrLabel] = useState('');
+  const locale = useLocale();
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
@@ -139,6 +146,20 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     setSelectedPlayers([]);
   };
 
+  // Handle showing QR code for viewing session
+  const handleShowQrView = () => {
+    setSelectedQrUrl(`/${locale}/sessions/${session?.id}`);
+    setSelectedQrLabel(t('qrScanToView'));
+    setIsQrModalOpen(true);
+  };
+
+  // Handle showing QR code for joining session
+  const handleShowQrJoin = () => {
+    setSelectedQrUrl(`/${locale}/sessions/${session?.id}/join`);
+    setSelectedQrLabel(t('qrScanToJoin'));
+    setIsQrModalOpen(true);
+  };
+
   // Render session detail content
   return (
     <MainLayout
@@ -199,6 +220,8 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             isToggleStatusLoading={isToggleStatusLoading}
             onToggleSessionStatus={toggleSessionStatus}
             onRefreshData={refreshSessionData}
+            onShowQrView={handleShowQrView}
+            onShowQrJoin={handleShowQrJoin}
             showBackButton={true}
             backHref="/host/sessions"
           />
@@ -293,6 +316,24 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             <Text color="gray.600" _dark={{ color: 'gray.300' }}>
               {t('confirmEndSessionMessage')}
             </Text>
+          </VModal>
+
+          {/* QR Code Modal */}
+          <VModal
+            isOpen={isQrModalOpen}
+            onClose={() => setIsQrModalOpen(false)}
+            title={selectedQrLabel}
+            size="md"
+          >
+            <Flex justify="center" align="center" p={4} pb={8}>
+              <QRCodeGenerator
+                joinCode={session.id.slice(-8).toUpperCase()}
+                size={300}
+                url={selectedQrUrl}
+                hideCode
+                label={selectedQrLabel}
+              />
+            </Flex>
           </VModal>
         </>
       )}

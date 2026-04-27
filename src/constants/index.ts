@@ -12,6 +12,14 @@ export const CONTENT_PT_OFFSET = '16px';
 export const SIDEBAR_WIDTH_EXPANDED = 240;
 export const SIDEBAR_WIDTH_COLLAPSED = 72;
 
+export const MAIN_PAGE_PATHS = [
+  '/',
+  '/my-clubs',
+  '/venues',
+  '/clubs',
+  '/tournaments',
+] as const;
+
 // Time range definitions
 export const TIME_RANGES = [
   { key: 'morning', start: 5, end: 12 },

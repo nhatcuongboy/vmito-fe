@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Image } from '@chakra-ui/react';
+import { Container, Box, Image, IconButton } from '@chakra-ui/react';
 import TopBar from '@/components/ui/TopBar';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -21,6 +21,7 @@ import { useModal } from '@/components/ui/VModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useSocket, SessionEventType } from '@/contexts/SocketContext';
+import { Search } from 'lucide-react';
 
 interface PublicSessionDetailClientProps {
   initialSession?: ISession | null;
@@ -38,18 +39,26 @@ const PublicSessionDetailClient = ({
   const t = useTranslations('session');
   const { socket } = useSocket();
 
+  const [backHref, setBackHref] = useState('/');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer;
+      if (referrer.includes('/host/sessions')) {
+        setBackHref('/host/sessions');
+      }
+    }
+  }, []);
+
   const [session, setSession] = useState<ISession | null>(
     initialSession || null
   );
 
   const sessionId = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  // Listen for registration status updates via socket
   useEffect(() => {
     if (!socket || !sessionId) return;
-
     const handleStatusUpdate = async (data: any) => {
-      // Refresh session data if the update is for this session
       if (data.sessionId === sessionId) {
         try {
           const updatedSession = await SessionService.getSession(sessionId);
@@ -59,9 +68,7 @@ const PublicSessionDetailClient = ({
         }
       }
     };
-
     socket.on(SessionEventType.REGISTRATION_STATUS_UPDATED, handleStatusUpdate);
-
     return () => {
       socket.off(
         SessionEventType.REGISTRATION_STATUS_UPDATED,
@@ -81,10 +88,25 @@ const PublicSessionDetailClient = ({
   return (
     <PageWrapper>
       <TopBar
-        title={t('header')}
-        icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
-        showBackButton={canGoBack}
-        onBack={() => router.back()}
+        title={session?.name || t('header')}
+        showBackButton={true}
+        onBack={canGoBack ? () => router.back() : undefined}
+        backHref={backHref}
+        variant="secondary"
+        rightContent={
+          <Box display="flex" alignItems="center" gap={1}>
+            <IconButton
+              aria-label="Search"
+              variant="ghost"
+              color="fg"
+              _hover={{ bg: 'bg.muted' }}
+              borderRadius="full"
+              size="md"
+            >
+              <Search size={20} />
+            </IconButton>
+          </Box>
+        }
       />
       <Box
         pt={{

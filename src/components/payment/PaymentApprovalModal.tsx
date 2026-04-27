@@ -171,10 +171,11 @@ export default function PaymentApprovalModal({
             {canApproveOrReject ? (
               <Input
                 size="sm"
-                type="number"
-                value={customAmount}
+                type="text"
+                inputMode="numeric"
+                value={Number(customAmount || 0).toLocaleString('vi-VN')}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setCustomAmount(e.target.value)
+                  setCustomAmount(e.target.value.replace(/[^\d]/g, ''))
                 }
                 w="120px"
                 textAlign="right"
@@ -198,7 +199,7 @@ export default function PaymentApprovalModal({
           >
             <Text color="gray.600">{t('selectPaymentMethod')}</Text>
             {canApproveOrReject ? (
-              <Box w="160px">
+              <Box minW="200px">
                 <VSelect
                   size="sm"
                   value={selectedPaymentMethod}

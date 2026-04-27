@@ -11,6 +11,9 @@ import SessionsList from '@/components/session/SessionsList';
 import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
+import { useRouter } from '@/i18n/config';
+import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
@@ -35,6 +38,8 @@ const PLAYER_SORT_OPTIONS: SortOption[] = [
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
   const tSession = useTranslations('session');
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -44,8 +49,9 @@ function PlayerSessionsContent() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 12;
 
+  // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
-    'active'
+    (searchParams.get('tab') as 'active' | 'ended') || 'active'
   );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -84,6 +90,10 @@ function PlayerSessionsContent() {
         page: currentPage,
         limit: PAGE_SIZE,
         searchQuery: debouncedSearchQuery,
+        excludeStatuses:
+          sessionStatusTab === 'active' && !filters.status
+            ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
+            : undefined,
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
@@ -199,14 +209,35 @@ function PlayerSessionsContent() {
     setFilters(newFilters);
   };
 
+  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
+    if (newTab === 'pending') return; // Should not happen with showPending={false}
+    setSessionStatusTab(newTab);
+    // Update URL with new tab param
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', newTab);
+    router.push(`?${params.toString()}`);
+  };
+
   return (
     <PageLayout
       showBackButton={false}
       title={t('joined')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
+      pt={{
+        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+      }}
+      maxW="full"
+      px={{ base: '24px', md: 0 }}
     >
-      <Flex gap={6} alignItems="flex-start">
+      <Flex
+        gap={6}
+        alignItems="flex-start"
+        pt={{ md: 6 }}
+        pl={{ md: 4 }}
+        pr={{ md: 6 }}
+      >
         <HostSessionsNavPanel />
 
         <Box flex={1} minW={0}>
@@ -219,7 +250,8 @@ function PlayerSessionsContent() {
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
-                onChange={setSessionStatusTab}
+                onChange={handleTabChange}
+                showPending={false}
               />
             }
           />
@@ -233,12 +265,13 @@ function PlayerSessionsContent() {
           <SessionsList
             sessions={filteredSessions}
             isLoading={loading}
+            isLoadingMore={loadingMore}
             mode="view"
             onRefresh={fetchPlayerSessions}
           />
 
           {/* Infinite Scroll Trigger */}
-          {hasMore && filteredSessions.length >= PAGE_SIZE && (
+          {hasMore && filteredSessions.length >= PAGE_SIZE && !loading && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={{

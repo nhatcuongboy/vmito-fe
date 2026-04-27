@@ -26,8 +26,12 @@ interface SessionsListProps {
   mode?: 'view' | 'manage';
   sessions?: ISession[];
   isLoading?: boolean;
+  isLoadingMore?: boolean;
   onRefresh?: () => void;
   onHostClick?: (session: ISession) => void;
+  hasMoreSessions?: boolean;
+  /** Accurate total count of expired sessions from API, overrides client-side count */
+  expiredCount?: number;
 }
 
 export default function SessionsList({
@@ -35,8 +39,11 @@ export default function SessionsList({
   mode = 'view',
   sessions: externalSessions,
   isLoading: externalLoading,
+  isLoadingMore: externalLoadingMore,
   onRefresh,
   onHostClick,
+  hasMoreSessions = false,
+  expiredCount,
 }: SessionsListProps) {
   const { viewMode } = useSessionFilterStore();
   const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
@@ -60,6 +67,7 @@ export default function SessionsList({
   const loading = isExternalControl
     ? externalLoading || false
     : internalLoading;
+  const loadingMore = externalLoadingMore || false;
 
   // Delete handler
   const handleDelete = async (id: string) => {
@@ -214,7 +222,7 @@ export default function SessionsList({
     );
   }
 
-  if (filteredSessions.length === 0) {
+  if (!loading && !loadingMore && filteredSessions.length === 0) {
     return (
       <Box
         textAlign="center"
@@ -267,7 +275,8 @@ export default function SessionsList({
                   py={1}
                   borderRadius="full"
                 >
-                  {expiredSessions.length}
+                  {expiredCount ?? expiredSessions.length}
+                  {expiredCount === undefined && hasMoreSessions ? '+' : ''}
                 </Text>
               </Flex>
               <Flex alignItems="center" gap={2}>
@@ -395,22 +404,25 @@ export default function SessionsList({
         )}
 
         {/* Empty State for Normal Sessions */}
-        {normalSessions.length === 0 && expiredSessions.length > 0 && (
-          <Box
-            textAlign="center"
-            py={10}
-            px={6}
-            borderWidth="1px"
-            borderRadius="lg"
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-          >
-            <Heading size="md" mb={2}>
-              {t('noActiveSessions')}
-            </Heading>
-            <Text color="gray.500">{t('noActiveSessionsDescription')}</Text>
-          </Box>
-        )}
+        {!loading &&
+          !loadingMore &&
+          normalSessions.length === 0 &&
+          expiredSessions.length > 0 && (
+            <Box
+              textAlign="center"
+              py={10}
+              px={6}
+              borderWidth="1px"
+              borderRadius="lg"
+              bg="white"
+              _dark={{ bg: 'gray.800' }}
+            >
+              <Heading size="md" mb={2}>
+                {t('noActiveSessions')}
+              </Heading>
+              <Text color="gray.500">{t('noActiveSessionsDescription')}</Text>
+            </Box>
+          )}
       </>
 
       {/* Session Host Detail Modal */}

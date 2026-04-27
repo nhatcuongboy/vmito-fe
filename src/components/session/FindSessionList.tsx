@@ -573,6 +573,8 @@ export default function FindSessionList({
         activeFilterCount={activeFilterCount}
         onCreateClick={handleCreateSessionClick}
         isLoadingCreate={isPendingCreate}
+        hideCreateOnMobile={true}
+        topOffset={44}
       />
 
       {/* Filter Drawer */}

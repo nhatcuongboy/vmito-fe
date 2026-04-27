@@ -157,6 +157,7 @@ export const PlayerService = {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     status?: string;
+    excludeStatuses?: string[];
   }): Promise<{
     data: ISession[];
     total: number;
@@ -171,6 +172,8 @@ export const PlayerService = {
     if (filters?.sortBy) params.append('sortBy', filters.sortBy);
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
     if (filters?.status) params.append('status', filters.status);
+    if (filters?.excludeStatuses && filters.excludeStatuses.length > 0)
+      params.append('excludeStatuses', filters.excludeStatuses.join(','));
 
     const url = params.toString()
       ? `/players/me/sessions?${params.toString()}`
