@@ -375,7 +375,9 @@ export default function VenueDetailClient({
                 <Box flex="1">
                   <AppAddressDisplay
                     address={venue.address}
+                    district={venue.district}
                     newAddress={venue.newAddress}
+                    newDistrict={venue.newDistrict}
                     fontSize="md"
                     color="gray.600"
                   />

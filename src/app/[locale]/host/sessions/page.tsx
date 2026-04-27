@@ -278,7 +278,7 @@ function HostSessionsContent() {
             showSearchFilter={true}
             showLevelFilter={false}
             resultCount={totalCount}
-            onCreateClick={() => router.push(ROUTES.SESSIONS.NEW)}
+            onCreateClick={() => setIsAIModalOpen(true)}
             hideCreateOnMobile={true}
             topAddon={
               <StatusTabSwitch

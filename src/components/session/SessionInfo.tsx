@@ -170,7 +170,9 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
           address={
             session.venue?.address || session.location || t('noLocation')
           }
+          district={session.venue?.district}
           newAddress={session.venue?.newAddress}
+          newDistrict={session.venue?.newDistrict}
           fontSize="md"
           color="inherit"
           newAddressColor="blue.500"

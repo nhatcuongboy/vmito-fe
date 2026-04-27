@@ -318,7 +318,9 @@ export default function TournamentHomeTab({
               </Flex>
               <AppAddressDisplay
                 address={venue.address}
+                district={venue.district}
                 newAddress={venue.newAddress}
+                newDistrict={venue.newDistrict}
                 fontSize="sm"
                 color="gray.500"
                 lineClamp={2}
