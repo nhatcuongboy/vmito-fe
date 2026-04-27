@@ -209,7 +209,9 @@ export default async function VenueDistrictPage({ params }: PageProps) {
                             style={{ marginTop: 2, flexShrink: 0 }}
                           />
                           <Text fontSize="xs" color="fg.muted" lineClamp={2}>
-                            {venue.address}
+                            {[venue.address, venue.district]
+                              .filter(Boolean)
+                              .join(', ')}
                           </Text>
                         </Flex>
                       )}

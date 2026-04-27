@@ -209,6 +209,7 @@ export interface IClubJoinRequest {
 export interface ICreateClubDto {
   name: string;
   hostName?: string; // Provisional host name for admin-created clubs
+  hostUserId?: string; // Admin can assign a specific user as the initial ADMIN member
   description?: string;
   color?: string;
   isPublic?: boolean;

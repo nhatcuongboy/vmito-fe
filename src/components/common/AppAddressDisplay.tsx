@@ -5,7 +5,9 @@ import { useAppSettings } from '@/contexts/AppSettingsContext';
 
 export interface IAppAddressDisplayProps {
   address?: string;
+  district?: string;
   newAddress?: string;
+  newDistrict?: string;
   fontSize?: string;
   newAddressFontSize?: string;
   color?: string;
@@ -15,7 +17,9 @@ export interface IAppAddressDisplayProps {
 
 export const AppAddressDisplay = ({
   address,
+  district,
   newAddress,
+  newDistrict,
   fontSize = 'xs',
   newAddressFontSize,
   color = 'gray.500',
@@ -23,27 +27,35 @@ export const AppAddressDisplay = ({
   lineClamp,
 }: IAppAddressDisplayProps) => {
   const { showNewAddress } = useAppSettings();
-  const hasNewAddress = showNewAddress && newAddress && newAddress !== address;
+
+  const fullAddress = [address, district].filter(Boolean).join(', ');
+  const fullNewAddress = [newAddress, newDistrict].filter(Boolean).join(', ');
+
+  const hasNewAddress =
+    showNewAddress &&
+    fullNewAddress &&
+    (fullNewAddress !== fullAddress || (newAddress && !address));
 
   return (
     <Box>
       <Text fontSize={fontSize} color={color} lineClamp={lineClamp}>
-        {address}
+        {fullAddress}
       </Text>
       {hasNewAddress && (
-        <Text
+        <Box
           fontSize={newAddressFontSize || fontSize}
           color={newAddressColor}
           fontStyle="italic"
           display="inline-flex"
           alignItems="center"
           gap={1}
+          flexWrap="wrap"
         >
-          ({newAddress})
+          <Text as="span">({fullNewAddress})</Text>
           <Text as="span" color="red.500" fontWeight="semibold">
             (New)
           </Text>
-        </Text>
+        </Box>
       )}
     </Box>
   );

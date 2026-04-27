@@ -514,10 +514,8 @@ export default function FindSessionList({
       setIsLoginPromptOpen(true);
       return;
     }
-    startCreateTransition(() => {
-      router.push(ROUTES.SESSIONS.NEW);
-    });
-  }, [user, router]);
+    setIsAIModalOpen(true);
+  }, [user]);
 
   const handleHostClick = useCallback((session: ISession) => {
     setSelectedSessionForDetail(session);

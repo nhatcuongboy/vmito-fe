@@ -206,7 +206,9 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
                   ({venue.distance}km)
                 </Text>
               )}
-              <Text lineClamp={1}>{venue.address}</Text>
+              <Text lineClamp={1}>
+                {[venue.address, venue.district].filter(Boolean).join(', ')}
+              </Text>
             </HStack>
 
             {venue.openingHours && (
@@ -371,7 +373,9 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
               />
               <AppAddressDisplay
                 address={venue.address}
+                district={venue.district}
                 newAddress={venue.newAddress}
+                newDistrict={venue.newDistrict}
                 fontSize="sm"
                 color="gray.600"
                 lineClamp={2}

@@ -30,9 +30,9 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
             <Text fontWeight="medium" lineClamp={1}>
               {session.venue?.name
                 ? formatVenueName(
-                  session.venue.name,
-                  tVenue('nameFormat', { name: '{name}' })
-                )
+                    session.venue.name,
+                    tVenue('nameFormat', { name: '{name}' })
+                  )
                 : session.location}
             </Text>
             <IconButton
@@ -46,9 +46,9 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
                   session.venue?.address ||
                   (session.venue?.name
                     ? formatVenueName(
-                      session.venue.name,
-                      tVenue('nameFormat', { name: '{name}' })
-                    )
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
                     : session.location) ||
                   session.location;
                 if (address) {
@@ -65,7 +65,9 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
             session.venue.address !== session.venue.name && (
               <AppAddressDisplay
                 address={session.venue.address}
+                district={session.venue.district}
                 newAddress={session.venue.newAddress}
+                newDistrict={session.venue.newDistrict}
                 lineClamp={1}
               />
             )}

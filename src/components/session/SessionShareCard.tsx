@@ -199,7 +199,9 @@ const SessionShareCard = ({
                     </Text>
                     <AppAddressDisplay
                       address={session.venue?.address}
+                      district={session.venue?.district}
                       newAddress={session.venue?.newAddress}
+                      newDistrict={session.venue?.newDistrict}
                       fontSize="md"
                       color="gray.500"
                     />
@@ -306,14 +308,14 @@ const SessionShareCard = ({
                       {session.feeConfig?.feeType === 'SPLIT_EVENLY'
                         ? session.feeConfig.splitPerPlayer
                           ? FeeService.formatFee(
-                            session.feeConfig.splitPerPlayer
-                          )
+                              session.feeConfig.splitPerPlayer
+                            )
                           : 'Chia đều'
                         : session.feeConfig?.maleFee ===
-                          session.feeConfig?.femaleFee
+                            session.feeConfig?.femaleFee
                           ? FeeService.formatFee(
-                            session.feeConfig?.maleFee || 0
-                          )
+                              session.feeConfig?.maleFee || 0
+                            )
                           : `${tCommon('male')}: ${FeeService.formatFee(session.feeConfig?.maleFee || 0)}, ${tCommon('female')}: ${FeeService.formatFee(session.feeConfig?.femaleFee || 0)}`}
                     </Text>
                   </Flex>
@@ -378,16 +380,18 @@ const SessionShareCard = ({
                 <Text fontWeight="semibold" color="gray.700" fontSize="sm">
                   {session.venue?.name
                     ? formatVenueName(
-                      session.venue.name,
-                      tVenue('nameFormat', { name: '{name}' })
-                    )
+                        session.venue.name,
+                        tVenue('nameFormat', { name: '{name}' })
+                      )
                     : session.location}
                 </Text>
                 {session.venue?.address &&
                   session.venue.address !== session.venue.name && (
                     <AppAddressDisplay
                       address={session.venue.address}
+                      district={session.venue.district}
                       newAddress={session.venue.newAddress}
+                      newDistrict={session.venue.newDistrict}
                       color="gray.500"
                     />
                   )}

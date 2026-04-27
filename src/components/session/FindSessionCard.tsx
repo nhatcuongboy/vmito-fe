@@ -174,7 +174,9 @@ const FindSessionCard = ({
             session.venue.address !== session.venue.name && (
               <AppAddressDisplay
                 address={session.venue.address}
+                district={session.venue.district}
                 newAddress={session.venue.newAddress}
+                newDistrict={session.venue.newDistrict}
                 lineClamp={1}
               />
             )}

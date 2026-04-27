@@ -98,6 +98,7 @@ function TournamentsContent() {
       const parts: string[] = [];
       if (tournament.venue.name) parts.push(tournament.venue.name);
       if (tournament.venue.address) parts.push(tournament.venue.address);
+      if (tournament.venue.district) parts.push(tournament.venue.district);
       return parts.join(', ') || null;
     }
     return null;
