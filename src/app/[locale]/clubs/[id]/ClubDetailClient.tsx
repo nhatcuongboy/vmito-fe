@@ -275,7 +275,7 @@ export default function ClubDetailClient({
                 color="gray.800"
                 _dark={{ color: 'white' }}
               >
-                {club.host.name}
+                {club.hostName || club.host.name}
               </Text>
             </VStack>
 

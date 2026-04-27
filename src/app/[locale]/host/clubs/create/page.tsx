@@ -12,13 +12,12 @@ import { Box, Flex, Image, Text, Textarea } from '@chakra-ui/react';
 import {
   Button,
   VStack,
-  SimpleGrid,
   Input,
   IconButton,
 } from '@/components/ui/chakra-compat';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
@@ -32,32 +31,36 @@ import PageLayout from '@/components/layout/PageLayout';
 import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
 import { EImageCategory, Venue } from '@/lib/api/types';
 
-const scheduleSchema = z.object({
-  dayOfWeek: z.coerce.number().min(0).max(6),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'HH:mm'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'HH:mm'),
-});
-
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'Tên nhóm là bắt buộc'),
+  hostName: z.string().min(1, 'Trưởng nhóm là bắt buộc'),
   description: z.string().optional(),
-  color: z.string().optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
   images: z.array(z.string()).optional(),
   imagePublicIds: z.array(z.string()).optional(),
-  schedules: z.array(scheduleSchema).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
+interface ScheduleEntry {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}
+
+interface VenueGroup {
+  venueId: string;
+  schedules: ScheduleEntry[];
+}
+
 const CreateClubPage = () => {
   const t = useTranslations('clubs');
   const router = useRouter();
-  const [selectedVenueId, setSelectedVenueId] = useState<string>('');
   const [venues, setVenues] = useState<Venue[]>([]);
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
   const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -65,27 +68,16 @@ const CreateClubPage = () => {
   const {
     register,
     handleSubmit,
-    control,
     setValue,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      color: 'blue',
-      schedules: [],
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'schedules',
   });
 
   const imagesValue = watch('images') || [];
   const imagePublicIdsValue = watch('imagePublicIds') || [];
 
-  // Debounced server-side venue search
   const handleVenueSearch = useCallback((query: string) => {
     if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
     venueSearchTimerRef.current = setTimeout(async () => {
@@ -104,26 +96,91 @@ const CreateClubPage = () => {
     }, 300);
   }, []);
 
-  // Load initial venues when dropdown first receives focus (lazy)
   useEffect(() => {
     handleVenueSearch('');
   }, [handleVenueSearch]);
 
   const venueOptions = useMemo(
     () =>
-      venues.map((v) => ({
-        value: v.id,
-        label: v.name,
-        sublabel: v.address,
-      })),
+      venues.map((v) => ({ value: v.id, label: v.name, sublabel: v.address })),
     [venues]
   );
 
+  const addVenueGroup = () =>
+    setVenueGroups((prev) => [
+      ...prev,
+      {
+        venueId: '',
+        schedules: [{ dayOfWeek: 1, startTime: '19:00', endTime: '21:00' }],
+      },
+    ]);
+
+  const removeVenueGroup = (idx: number) =>
+    setVenueGroups((prev) => prev.filter((_, i) => i !== idx));
+
+  const updateVenueId = (idx: number, venueId: string) =>
+    setVenueGroups((prev) =>
+      prev.map((g, i) => (i === idx ? { ...g, venueId } : g))
+    );
+
+  const addSchedule = (groupIdx: number) =>
+    setVenueGroups((prev) =>
+      prev.map((g, i) =>
+        i === groupIdx
+          ? {
+              ...g,
+              schedules: [
+                ...g.schedules,
+                { dayOfWeek: 1, startTime: '19:00', endTime: '21:00' },
+              ],
+            }
+          : g
+      )
+    );
+
+  const removeSchedule = (groupIdx: number, schedIdx: number) =>
+    setVenueGroups((prev) =>
+      prev.map((g, i) =>
+        i === groupIdx
+          ? { ...g, schedules: g.schedules.filter((_, si) => si !== schedIdx) }
+          : g
+      )
+    );
+
+  const updateSchedule = (
+    groupIdx: number,
+    schedIdx: number,
+    field: keyof ScheduleEntry,
+    value: string | number
+  ) =>
+    setVenueGroups((prev) =>
+      prev.map((g, i) =>
+        i === groupIdx
+          ? {
+              ...g,
+              schedules: g.schedules.map((s, si) =>
+                si === schedIdx ? { ...s, [field]: value } : s
+              ),
+            }
+          : g
+      )
+    );
+
+  const dayOptions = Array.from({ length: 7 }, (_, i) => ({
+    value: i,
+    label: t(`dayNames.${i as 0 | 1 | 2 | 3 | 4 | 5 | 6}`),
+  }));
+
   const onSubmit = async (data: FormData) => {
     try {
+      const schedules = venueGroups.flatMap((g) => {
+        const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
+        return g.schedules.map((s) => ({ ...s, notes: venueName }));
+      });
       await ClubsService.createClub({
         ...data,
-        defaultVenueId: selectedVenueId || undefined,
+        defaultVenueId: venueGroups[0]?.venueId || undefined,
+        schedules: schedules.length > 0 ? schedules : undefined,
       });
       toaster.success({ title: t('clubCreatedSuccess') });
       router.push(ROUTES.CLUBS.BROWSE);
@@ -132,22 +189,6 @@ const CreateClubPage = () => {
       toaster.error({ title: t('failedToCreateClub') });
     }
   };
-
-  const colors = [
-    'blue',
-    'green',
-    'purple',
-    'orange',
-    'red',
-    'teal',
-    'cyan',
-    'pink',
-  ];
-
-  const dayOptions = Array.from({ length: 7 }, (_, i) => ({
-    value: i,
-    label: t(`dayNames.${i as 0 | 1 | 2 | 3 | 4 | 5 | 6}`),
-  }));
 
   return (
     <PageLayout
@@ -171,12 +212,26 @@ const CreateClubPage = () => {
           {/* Club Name */}
           <Field
             label={t('clubName')}
+            required
             invalid={!!errors.name}
             errorText={errors.name?.message}
           >
             <Input
               {...register('name')}
               placeholder={t('clubNamePlaceholder')}
+            />
+          </Field>
+
+          {/* Trưởng nhóm */}
+          <Field
+            label="Trưởng nhóm"
+            required
+            invalid={!!errors.hostName}
+            errorText={errors.hostName?.message}
+          >
+            <Input
+              {...register('hostName')}
+              placeholder="Nhập tên trưởng nhóm"
             />
           </Field>
 
@@ -219,11 +274,8 @@ const CreateClubPage = () => {
                         newImages.splice(idx, 1);
                         const newPublicIds = [...imagePublicIdsValue];
                         newPublicIds.splice(idx, 1);
-
                         setValue('images', newImages);
                         setValue('imagePublicIds', newPublicIds);
-
-                        // Sync primary image
                         if (newImages.length > 0) {
                           setValue('image', newImages[0]);
                           setValue('imagePublicId', newPublicIds[0]);
@@ -271,10 +323,8 @@ const CreateClubPage = () => {
               onSelect={(imgs) => {
                 const urls = imgs.map((i) => i.url);
                 const publicIds = imgs.map((i) => i.publicId);
-
                 setValue('images', urls);
                 setValue('imagePublicIds', publicIds);
-
                 if (imgs.length > 0) {
                   setValue('image', urls[0]);
                   setValue('imagePublicId', publicIds[0]);
@@ -292,114 +342,132 @@ const CreateClubPage = () => {
             />
           </Field>
 
-          {/* Venue Selector */}
-          <Field label={t('venue')}>
-            <SearchableSelect
-              options={venueOptions}
-              value={selectedVenueId}
-              onChange={setSelectedVenueId}
-              placeholder={t('searchVenue')}
-              searchPlaceholder={t('searchVenue')}
-              noOptionsMessage={t('noVenueSelected')}
-              onSearchChange={handleVenueSearch}
-              isLoading={venueSearchLoading}
-            />
-          </Field>
+          {/* Multi-Venue + Schedule */}
+          <Field label="Sân hoạt động">
+            <VStack spacing={4} align="stretch">
+              {venueGroups.map((group, groupIdx) => (
+                <Box
+                  key={groupIdx}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+                  p={4}
+                >
+                  <Flex gap={2} align="center" mb={3}>
+                    <Box flex="1">
+                      <SearchableSelect
+                        options={venueOptions}
+                        value={group.venueId}
+                        onChange={(val) => updateVenueId(groupIdx, val)}
+                        placeholder={t('searchVenue')}
+                        searchPlaceholder={t('searchVenue')}
+                        noOptionsMessage={t('noVenueSelected')}
+                        onSearchChange={handleVenueSearch}
+                        isLoading={venueSearchLoading}
+                      />
+                    </Box>
+                    <IconButton
+                      size="sm"
+                      variant="ghost"
+                      colorPalette="red"
+                      onClick={() => removeVenueGroup(groupIdx)}
+                      aria-label="Xóa sân"
+                    >
+                      <Trash2 size={16} />
+                    </IconButton>
+                  </Flex>
 
-          {/* Schedule */}
-          <Field label={t('schedule')}>
-            <VStack spacing={3} align="stretch">
-              {fields.map((field, index) => (
-                <Flex key={field.id} gap={1} align="center">
-                  <Box flex="1" minW={{ base: '70px', md: '120px' }}>
-                    <Controller
-                      name={`schedules.${index}.dayOfWeek`}
-                      control={control}
-                      render={({ field: f }) => (
-                        <LegacySelect
+                  <VStack spacing={2} align="stretch">
+                    {group.schedules.map((sched, schedIdx) => (
+                      <Flex key={schedIdx} gap={1} align="center">
+                        <Box flex="1" minW={{ base: '70px', md: '120px' }}>
+                          <LegacySelect
+                            size="sm"
+                            value={String(sched.dayOfWeek)}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLSelectElement>
+                            ) =>
+                              updateSchedule(
+                                groupIdx,
+                                schedIdx,
+                                'dayOfWeek',
+                                Number(e.target.value)
+                              )
+                            }
+                          >
+                            {dayOptions.map((d) => (
+                              <option key={d.value} value={d.value}>
+                                {d.label}
+                              </option>
+                            ))}
+                          </LegacySelect>
+                        </Box>
+                        <Input
+                          type="time"
                           size="sm"
-                          value={String(f.value)}
-                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                            f.onChange(Number(e.target.value))
+                          value={sched.startTime}
+                          onChange={(e) =>
+                            updateSchedule(
+                              groupIdx,
+                              schedIdx,
+                              'startTime',
+                              e.target.value
+                            )
                           }
+                          w={{ base: '100px', md: '120px' }}
+                          px={1}
+                        />
+                        <Text fontSize="xs" color="gray.500">
+                          -
+                        </Text>
+                        <Input
+                          type="time"
+                          size="sm"
+                          value={sched.endTime}
+                          onChange={(e) =>
+                            updateSchedule(
+                              groupIdx,
+                              schedIdx,
+                              'endTime',
+                              e.target.value
+                            )
+                          }
+                          w={{ base: '100px', md: '120px' }}
+                          px={1}
+                        />
+                        <IconButton
+                          size="sm"
+                          variant="ghost"
+                          colorPalette="red"
+                          onClick={() => removeSchedule(groupIdx, schedIdx)}
+                          aria-label={t('removeSchedule')}
                         >
-                          {dayOptions.map((d) => (
-                            <option key={d.value} value={d.value}>
-                              {d.label}
-                            </option>
-                          ))}
-                        </LegacySelect>
-                      )}
-                    />
-                  </Box>
-                  <Input
-                    type="time"
-                    size="sm"
-                    {...register(`schedules.${index}.startTime`)}
-                    w={{ base: '100px', md: '120px' }}
-                    px={1}
-                  />
-                  <Text fontSize="xs" color="gray.500">
-                    -
-                  </Text>
-                  <Input
-                    type="time"
-                    size="sm"
-                    {...register(`schedules.${index}.endTime`)}
-                    w={{ base: '100px', md: '120px' }}
-                    px={1}
-                  />
-                  <IconButton
-                    size="sm"
-                    variant="ghost"
-                    colorPalette="red"
-                    onClick={() => remove(index)}
-                    aria-label={t('removeSchedule')}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
-                </Flex>
+                          <Trash2 size={16} />
+                        </IconButton>
+                      </Flex>
+                    ))}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => addSchedule(groupIdx)}
+                      w="fit-content"
+                    >
+                      <Plus size={14} />
+                      {t('addSchedule')}
+                    </Button>
+                  </VStack>
+                </Box>
               ))}
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() =>
-                  append({ dayOfWeek: 1, startTime: '19:00', endTime: '21:00' })
-                }
+                onClick={addVenueGroup}
                 w="fit-content"
               >
                 <Plus size={16} />
-                {t('addSchedule')}
+                Thêm sân
               </Button>
             </VStack>
-          </Field>
-
-          {/* Color Picker */}
-          <Field label={t('colorLabel')}>
-            <SimpleGrid columns={4} spacing={4}>
-              {colors.map((color) => (
-                <Box
-                  key={color}
-                  as="label"
-                  cursor="pointer"
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2}
-                  bg={{ base: `${color}.50`, _dark: `${color}.900` }}
-                  borderColor={{ base: `${color}.200`, _dark: `${color}.700` }}
-                  _hover={{
-                    bg: { base: `${color}.100`, _dark: `${color}.800` },
-                  }}
-                >
-                  <Flex align="center" gap={2}>
-                    <input type="radio" value={color} {...register('color')} />
-                    <Text textTransform="capitalize" fontSize="sm">
-                      {color}
-                    </Text>
-                  </Flex>
-                </Box>
-              ))}
-            </SimpleGrid>
           </Field>
 
           <Flex justify="flex-end" gap={4} mt={4}>
