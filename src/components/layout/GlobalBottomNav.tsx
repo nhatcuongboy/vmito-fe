@@ -8,6 +8,8 @@ import { Home, ClipboardList, Users, User } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
+import { AISessionModal } from '@/components/session/AISessionModal';
+import type { ExtractedSessionData } from '@/lib/api/ai.service';
 
 export default function GlobalBottomNav() {
   const { user, isAuthenticated } = useAuthStore();
@@ -18,6 +20,9 @@ export default function GlobalBottomNav() {
   const [isPending, startTransition] = useTransition();
   const [pendingTabId, setPendingTabId] = useState<number | null>(null);
   const [isPendingCreate, startCreateTransition] = useTransition();
+
+  // AI Session Modal state (for the default "Tạo kèo" center action)
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const isVisible = useBottomNavVisibility();
 
@@ -57,7 +62,9 @@ export default function GlobalBottomNav() {
     return sorted.find((tab) => pathname.startsWith(tab.href || ''))?.id ?? 0;
   }, [pathname, tabs]);
 
-  const handleCreateSession = () => {
+  const handleAISuccess = (data: ExtractedSessionData) => {
+    sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
+    setIsAIModalOpen(false);
     startCreateTransition(() => {
       router.push(ROUTES.SESSIONS.NEW);
     });
@@ -86,22 +93,32 @@ export default function GlobalBottomNav() {
         loading: isPendingCreate,
       };
     }
+    // Default: open AI session creation modal
     return {
       label: t('createSession'),
-      onClick: handleCreateSession,
+      onClick: () => setIsAIModalOpen(true),
       loading: isPendingCreate,
     };
-  }, [pathname, t, isPendingCreate, handleCreateSession, router]);
+  }, [pathname, t, isPendingCreate, router]);
 
   if (!isVisible || tabs.length === 0) return null;
 
   return (
-    <BottomNavigationBar
-      tabs={tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon }))}
-      activeTab={activeTab}
-      loadingTabId={pendingTabId}
-      onTabChange={handleTabChange}
-      centerAction={centerAction}
-    />
+    <>
+      <BottomNavigationBar
+        tabs={tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon }))}
+        activeTab={activeTab}
+        loadingTabId={pendingTabId}
+        onTabChange={handleTabChange}
+        centerAction={centerAction}
+      />
+
+      {/* AI Session creation modal triggered by center "Tạo kèo" button */}
+      <AISessionModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onSuccess={handleAISuccess}
+      />
+    </>
   );
 }

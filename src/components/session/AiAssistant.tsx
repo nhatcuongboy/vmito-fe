@@ -1,206 +1,120 @@
-import { useState } from 'react';
-import {
-  Box,
-  VStack,
-  Text,
-  Badge,
-  Heading,
-  useDisclosure,
-  Spinner,
-  Flex,
-} from '@chakra-ui/react';
-import {
-  Button,
-  IconButton,
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerContent,
-  Card,
-  CardBody,
-} from '@/components/ui/chakra-v3-compat';
-import { Sparkles, RefreshCw, X } from 'lucide-react';
-import { api, ApiResponse } from '@/lib/api/base';
-import { toaster } from '@/components/ui/toaster';
+'use client';
 
-interface TaskSuggestion {
-  title: string;
-  description: string;
-  type: 'CREATE_MATCH' | 'MOVE_PLAYER' | 'OTHER';
-  reason: string;
+import { useState } from 'react';
+import { Box, Portal } from '@chakra-ui/react';
+import { Sparkles } from 'lucide-react';
+import AiAssistantPanel from '@/components/ai/AiAssistantPanel';
+import { usePathname } from '@/i18n/config';
+
+interface AiAssistantProps {
+  /** Optional bottom offset for the float button (e.g. to avoid bottom nav) */
+  bottomOffset?: string;
+  /** Optional session/page context passed to AI */
+  pageContext?: string;
 }
 
-export default function AiAssistant({ sessionId }: { sessionId: string }) {
-  const { open: isOpen, onOpen, onClose } = useDisclosure();
-  const [tasks, setTasks] = useState<TaskSuggestion[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+export default function AiAssistant({
+  bottomOffset = '80px',
+  pageContext,
+}: AiAssistantProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
-  const fetchSuggestions = async () => {
-    setLoading(true);
-    try {
-      const response = await api.post<ApiResponse<TaskSuggestion[]>>(
-        `/sessions/${sessionId}/tasks/suggest`
-      );
-      if (response.data.data) {
-        setTasks(response.data.data);
-      }
-      setHasFetched(true);
-    } catch (error) {
-      console.error('Failed to fetch AI tasks', error);
-      toaster.create({
-        title: 'Failed to get suggestions',
-        type: 'error',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpen = () => {
-    onOpen();
-    if (!hasFetched) {
-      fetchSuggestions();
-    }
-  };
-
-  const getColorForType = (type: string) => {
-    switch (type) {
-      case 'CREATE_MATCH':
-        return 'green';
-      case 'MOVE_PLAYER':
-        return 'brand';
-      default:
-        return 'gray';
-    }
-  };
+  // Auto-generate page context from pathname if not provided
+  const resolvedContext =
+    pageContext ??
+    (() => {
+      if (pathname.includes('/host/sessions'))
+        return 'Trang quản lý kèo (Host Sessions)';
+      if (pathname.includes('/sessions')) return 'Trang kèo';
+      if (pathname.includes('/clubs')) return 'Trang câu lạc bộ';
+      if (pathname.includes('/tournaments')) return 'Trang giải đấu';
+      if (pathname.includes('/venues')) return 'Trang sân thể thao';
+      if (pathname.includes('/user')) return 'Trang hồ sơ người dùng';
+      return 'Trang chủ Vmito';
+    })();
 
   return (
     <>
-      <Box position="fixed" bottom="90px" right="4" zIndex="1000">
-        <IconButton
-          aria-label="AI Assistant"
-          onClick={handleOpen}
-          colorPalette="purple"
-          size="xl"
-          rounded="full"
-          boxShadow="lg"
-        >
-          <Sparkles />
-        </IconButton>
-      </Box>
-
-      {isOpen && (
+      {/* Float trigger button */}
+      <Portal>
         <Box
           position="fixed"
-          top="0"
-          left="0"
-          width="100vw"
-          height="100vh"
-          bg="blackAlpha.600"
-          zIndex="999"
-          onClick={onClose}
-        />
-      )}
+          bottom={bottomOffset}
+          right="20px"
+          zIndex={isOpen ? 1201 : 1000}
+          opacity={isOpen ? 0 : 1}
+          transform={
+            isOpen ? 'scale(0.5) rotate(90deg)' : 'scale(1) rotate(0deg)'
+          }
+          pointerEvents={isOpen ? 'none' : 'auto'}
+          transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+        >
+          <Box
+            as="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            w={{ base: '44px', md: '52px' }}
+            h={{ base: '44px', md: '52px' }}
+            borderRadius="full"
+            bgGradient="to-br"
+            gradientFrom="purple.500"
+            gradientTo="purple.700"
+            color="white"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            boxShadow={
+              isOpen
+                ? '0 0 0 3px rgba(128,90,213,0.4), 0 4px 20px rgba(128,90,213,0.5)'
+                : '0 4px 14px rgba(128,90,213,0.45)'
+            }
+            _hover={{
+              transform: 'scale(1.08)',
+              boxShadow: '0 6px 20px rgba(128,90,213,0.55)',
+            }}
+            _active={{ transform: 'scale(0.95)' }}
+            transition="all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
+            aria-label="Mở AI Assistant"
+            title="AI Assistant"
+          >
+            <span
+              style={{
+                display: 'flex',
+                transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.3s ease',
+              }}
+            >
+              <Sparkles size={20} />
+            </span>
 
-      {isOpen && (
-        <Drawer isOpen={isOpen} onClose={onClose}>
-          <DrawerContent bg="white" boxShadow="xl" height="100%">
-            <DrawerHeader borderBottomWidth="1px">
-              <Flex align="center" justify="space-between">
-                <Flex align="center" gap={2}>
-                  <Sparkles color="purple" />
-                  <Text>AI Assistant</Text>
-                </Flex>
-                <IconButton
-                  aria-label="Close"
-                  size="sm"
-                  variant="ghost"
-                  onClick={onClose}
-                >
-                  <X size={20} />
-                </IconButton>
-              </Flex>
-            </DrawerHeader>
+            {/* Pulse ring when closed */}
+            {!isOpen && (
+              <Box
+                position="absolute"
+                inset={0}
+                borderRadius="full"
+                border="2px solid"
+                borderColor="purple.400"
+                animation="pingOnce 2s ease-out infinite"
+                css={{
+                  '@keyframes pingOnce': {
+                    '0%': { transform: 'scale(1)', opacity: 0.6 },
+                    '70%': { transform: 'scale(1.4)', opacity: 0 },
+                    '100%': { transform: 'scale(1.4)', opacity: 0 },
+                  },
+                }}
+              />
+            )}
+          </Box>
+        </Box>
+      </Portal>
 
-            <DrawerBody bg="gray.50" p={4}>
-              {loading ? (
-                <Flex
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  h="200px"
-                  gap={4}
-                >
-                  <Spinner size="xl" color="purple.500" />
-                  <Text color="gray.500">Analyzing session...</Text>
-                </Flex>
-              ) : tasks.length === 0 ? (
-                <Flex
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  h="200px"
-                  gap={4}
-                >
-                  <Text color="gray.500">No suggestions at the moment.</Text>
-                  <Button
-                    size="sm"
-                    onClick={fetchSuggestions}
-                    variant="outline"
-                  >
-                    Analyze Again
-                  </Button>
-                </Flex>
-              ) : (
-                <VStack gap={4} align="stretch">
-                  {tasks.map((task, index) => (
-                    <Card key={index} variant="outline" bg="white" shadow="sm">
-                      <CardBody p={4}>
-                        <Flex justify="space-between" align="start" mb={2}>
-                          <Heading size="sm" fontSize="md">
-                            {task.title}
-                          </Heading>
-                          <Badge colorPalette={getColorForType(task.type)}>
-                            {task.type.replace('_', ' ')}
-                          </Badge>
-                        </Flex>
-                        <Text fontSize="sm" color="gray.600" mb={3}>
-                          {task.description}
-                        </Text>
-                        <Box
-                          bg="purple.50"
-                          p={2}
-                          rounded="md"
-                          fontSize="xs"
-                          color="purple.700"
-                        >
-                          <strong>Why:</strong> {task.reason}
-                        </Box>
-                      </CardBody>
-                    </Card>
-                  ))}
-                </VStack>
-              )}
-            </DrawerBody>
-
-            <DrawerFooter borderTopWidth="1px">
-              <Button variant="outline" mr={3} onClick={onClose}>
-                Close
-              </Button>
-              <Button
-                colorPalette="purple"
-                onClick={fetchSuggestions}
-                loading={loading}
-              >
-                <RefreshCw size={16} style={{ marginRight: '8px' }} />
-                Refresh
-              </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      )}
+      {/* AI Chat Panel */}
+      <AiAssistantPanel
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        pageContext={resolvedContext}
+      />
     </>
   );
 }

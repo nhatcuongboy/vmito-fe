@@ -22,7 +22,6 @@ import { ExtractedSessionData } from '@/lib/api/ai.service';
 import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
-import QuickCreateFAB from '@/components/session/QuickCreateFAB';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import {
   ROUTES,
@@ -330,12 +329,6 @@ function HostSessionsContent() {
           )}
         </Box>
       </Flex>
-
-      {user && (
-        <Box display={{ base: 'none', md: 'block' }}>
-          <QuickCreateFAB />
-        </Box>
-      )}
 
       <AISessionModal
         isOpen={isAIModalOpen}

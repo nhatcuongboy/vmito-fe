@@ -5,6 +5,7 @@ import { PWAStatus } from '../../components/PWAComponents';
 import '../globals.css';
 import { Providers } from '../providers';
 import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
+import GlobalAiButton from '../../components/layout/GlobalAiButton';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 
 const geistSans = Geist({
@@ -73,6 +74,7 @@ export default async function LocaleLayout({
             {children}
             {/* <Footer /> */}
             <GlobalBottomNav />
+            <GlobalAiButton />
             {/* <PWAInstallPrompt /> */}
           </Providers>
         </IntlClientProvider>
