@@ -373,6 +373,8 @@ export default function SuggestionsList({
               }
             : undefined
         }
+        hideCreateOnMobile={true}
+        topOffset={44}
       />
 
       {/* Filter Drawer */}
