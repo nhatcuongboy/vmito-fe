@@ -8,7 +8,7 @@ import { usePathname } from '@/i18n/config';
 
 interface AiAssistantProps {
   /** Optional bottom offset for the float button (e.g. to avoid bottom nav) */
-  bottomOffset?: string;
+  bottomOffset?: string | Record<string, string>;
   /** Optional session/page context passed to AI */
   pageContext?: string;
 }

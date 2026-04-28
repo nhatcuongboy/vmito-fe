@@ -244,10 +244,10 @@
     "startYourBadmintonJourney": "Bắt đầu hành trình cầu lông của bạn",
     "status": {
       "all": "Tất cả",
-      "preparing": "Sắp tới",
+      "preparing": "Sắp diễn ra",
       "expired": "Quá hạn",
-      "inProgress": "Đang đấu",
-      "finished": "Đã xong"
+      "inProgress": "Đang diễn ra",
+      "finished": "Đã kết thúc"
     },
     "courtsAvailable": "sân",
     "players": "người chơi",

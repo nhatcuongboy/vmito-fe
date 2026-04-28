@@ -898,11 +898,50 @@ export default function SessionForm({
       )} */}
 
       {!isEditMode && (
-        <AISessionModal
-          isOpen={isAIModalOpen}
-          onClose={() => setIsAIModalOpen(false)}
-          onSuccess={handleAISuccess}
-        />
+        <>
+          <AISessionModal
+            isOpen={isAIModalOpen}
+            onClose={() => setIsAIModalOpen(false)}
+            onSuccess={handleAISuccess}
+          />
+          <Box
+            position="fixed"
+            bottom="calc(env(safe-area-inset-bottom) + 24px)"
+            right="20px"
+            zIndex={1000}
+            opacity={isAIModalOpen ? 0 : 1}
+            transform={isAIModalOpen ? 'scale(0.5)' : 'scale(1)'}
+            pointerEvents={isAIModalOpen ? 'none' : 'auto'}
+            transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+          >
+            <Box
+              as="button"
+              {...({ type: 'button' } as any)}
+              onClick={() => setIsAIModalOpen(true)}
+              w={{ base: '44px', md: '52px' }}
+              h={{ base: '44px', md: '52px' }}
+              borderRadius="full"
+              bgGradient="to-br"
+              gradientFrom="purple.500"
+              gradientTo="purple.700"
+              color="white"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              boxShadow="0 4px 14px rgba(128,90,213,0.45)"
+              _hover={{
+                transform: 'scale(1.08)',
+                boxShadow: '0 6px 20px rgba(128,90,213,0.55)',
+              }}
+              _active={{ transform: 'scale(0.95)' }}
+              transition="all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
+              aria-label={t('createByAI')}
+              title={t('createByAI')}
+            >
+              <Sparkles size={20} />
+            </Box>
+          </Box>
+        </>
       )}
 
       <Box
@@ -943,22 +982,6 @@ export default function SessionForm({
                 gap={2}
               >
                 <Heading size="md">{t('basicInfo')}</Heading>
-                {!isEditMode && (
-                  <Button
-                    size="xs"
-                    variant="surface"
-                    colorPalette="purple"
-                    onClick={() => setIsAIModalOpen(true)}
-                    px={3}
-                    height="32px"
-                    borderRadius="full"
-                  >
-                    <Icon as={Sparkles} size="sm" mr={1.5} />
-                    <Text fontSize="xs" fontWeight="bold">
-                      {t('createByAI')}
-                    </Text>
-                  </Button>
-                )}
               </Flex>
               <Stack gap={4}>
                 {/* Session Name */}

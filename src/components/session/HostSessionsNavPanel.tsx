@@ -8,6 +8,8 @@ import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
 import SidebarNav, { SidebarNavItem } from '@/components/ui/SidebarNav';
 import { useState, useTransition, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
+import { AISessionModal } from '@/components/session/AISessionModal';
+import type { ExtractedSessionData } from '@/lib/api/ai.service';
 
 export default function HostSessionsNavPanel() {
   const t = useTranslations('navigation');
@@ -15,6 +17,9 @@ export default function HostSessionsNavPanel() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingTabId, setPendingTabId] = useState<number | null>(null);
+
+  // AI Session Modal state
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const activeId = (() => {
     if (
@@ -67,6 +72,12 @@ export default function HostSessionsNavPanel() {
   }, [isPending, pathname]);
 
   const handleCreateSession = () => {
+    setIsAIModalOpen(true);
+  };
+
+  const handleAISuccess = (data: ExtractedSessionData) => {
+    sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
+    setIsAIModalOpen(false);
     startTransition(() => {
       router.push(ROUTES.SESSIONS.NEW);
     });
@@ -101,6 +112,13 @@ export default function HostSessionsNavPanel() {
           label: t('createSession'),
           onClick: handleCreateSession,
         }}
+      />
+
+      {/* AI Session creation modal */}
+      <AISessionModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onSuccess={handleAISuccess}
       />
     </>
   );

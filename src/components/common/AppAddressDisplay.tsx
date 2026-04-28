@@ -29,7 +29,7 @@ export const AppAddressDisplay = ({
   const { showNewAddress } = useAppSettings();
 
   const fullAddress = [address, district].filter(Boolean).join(', ');
-  const fullNewAddress = [newAddress, newDistrict].filter(Boolean).join(', ');
+  const fullNewAddress = newAddress || '';
 
   const hasNewAddress =
     showNewAddress &&
@@ -42,20 +42,22 @@ export const AppAddressDisplay = ({
         {fullAddress}
       </Text>
       {hasNewAddress && (
-        <Box
+        <Text
           fontSize={newAddressFontSize || fontSize}
           color={newAddressColor}
           fontStyle="italic"
-          display="inline-flex"
-          alignItems="center"
-          gap={1}
-          flexWrap="wrap"
+          lineClamp={lineClamp}
         >
-          <Text as="span">({fullNewAddress})</Text>
-          <Text as="span" color="red.500" fontWeight="semibold">
+          ({fullNewAddress}){' '}
+          <Text
+            as="span"
+            color="red.500"
+            fontWeight="semibold"
+            fontStyle="normal"
+          >
             (New)
           </Text>
-        </Box>
+        </Text>
       )}
     </Box>
   );

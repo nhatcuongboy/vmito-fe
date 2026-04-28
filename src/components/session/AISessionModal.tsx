@@ -3,13 +3,15 @@
 import React, { useState } from 'react';
 import { Box, Text, Textarea } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, SquarePen } from 'lucide-react';
 import { VModal } from '@/components/ui/VModal';
 import { AIService, ExtractedSessionData } from '@/lib/api/ai.service';
 import { toaster } from '@/components/ui/toaster';
 import { Locale } from '@/i18n/locales';
-import { Link } from '@/i18n/config';
+import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
+import { Flex } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 
 export interface AISessionModalProps {
   isOpen: boolean;
@@ -24,6 +26,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
 }) => {
   const t = useTranslations('session');
   const locale = useLocale() as Locale;
+  const router = useRouter();
   const [articleContent, setArticleContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -70,13 +73,52 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
       }
       description={t('aiModal.description')}
       size="lg"
-      primaryActionText={t('aiModal.generate')}
-      onPrimaryAction={handleGenerate}
-      isPrimaryLoading={isLoading}
-      isPrimaryDisabled={!articleContent.trim()}
-      primaryColorScheme="purple"
-      secondaryActionText={t('aiModal.cancel')}
       closeOnOverlayClick={!isLoading}
+      footer={
+        <Flex
+          width="100%"
+          justify="space-between"
+          align="center"
+          direction={{ base: 'column-reverse', sm: 'row' }}
+          gap={3}
+        >
+          <Button
+            variant="subtle"
+            colorPalette="purple"
+            onClick={() => {
+              handleClose();
+              router.push(ROUTES.SESSIONS.NEW);
+            }}
+            w={{ base: 'full', sm: 'auto' }}
+          >
+            <SquarePen size={16} style={{ marginRight: '6px' }} />
+            {t('aiModal.manualLink')}
+          </Button>
+          <Flex
+            gap={3}
+            w={{ base: 'full', sm: 'auto' }}
+            direction={{ base: 'column-reverse', sm: 'row' }}
+          >
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={isLoading}
+              w={{ base: 'full', sm: 'auto' }}
+            >
+              {t('aiModal.cancel')}
+            </Button>
+            <Button
+              colorPalette="purple"
+              onClick={handleGenerate}
+              loading={isLoading}
+              disabled={!articleContent.trim() || isLoading}
+              w={{ base: 'full', sm: 'auto' }}
+            >
+              {t('aiModal.generate')}
+            </Button>
+          </Flex>
+        </Flex>
+      }
     >
       <Box>
         <Textarea
@@ -92,27 +134,10 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
             boxShadow: '0 0 0 1px var(--chakra-colors-purple-400)',
           }}
         />
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mt={2}
-        >
+        <Box mt={2}>
           <Text fontSize="xs" color="gray.500">
             {t('aiModal.hint')}
           </Text>
-          <Link
-            href={ROUTES.SESSIONS.NEW}
-            prefetch={false}
-            style={{
-              fontSize: '12px',
-              color: 'var(--chakra-colors-purple-500)',
-              textDecoration: 'underline',
-              fontWeight: 500,
-            }}
-          >
-            {t('aiModal.manualLink')}
-          </Link>
         </Box>
       </Box>
     </VModal>
