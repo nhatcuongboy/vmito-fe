@@ -3058,7 +3058,7 @@
     "manageMyClubsDescription": "Quản lý các nhóm bạn đã tham gia và lời mời tham gia của bạn",
     "joinClub": "Tham gia nhóm",
     "leaveClub": "Rời nhóm",
-    "pendingRequest": "Yêu cầu tham gia vào nhóm của tôi",
+    "pendingRequest": "Yêu cầu tham gia vào nhóm",
     "clubStatus": {
       "pending": "Chờ duyệt",
       "approved": "Đã duyệt",
