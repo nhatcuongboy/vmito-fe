@@ -11,6 +11,7 @@ import { useRouter, usePathname } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
 import { ROUTES } from '@/constants';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(() => import('../auth/LoginPromptModal'), {
@@ -31,6 +32,7 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
+  const { useAiForCreation } = usePreferenceStore();
 
   // After login, if action=openAIModal is in URL, open the AI modal
   useEffect(() => {
@@ -57,7 +59,11 @@ export const QuickCreateFAB: React.FC<QuickCreateFABProps> = ({
       setIsLoginModalOpen(true);
       return;
     }
-    setIsOpen(true);
+    if (useAiForCreation) {
+      setIsOpen(true);
+    } else {
+      router.push(ROUTES.SESSIONS.NEW);
+    }
   };
 
   return (

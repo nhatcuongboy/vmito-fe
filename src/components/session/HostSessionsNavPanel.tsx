@@ -10,6 +10,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import { AISessionModal } from '@/components/session/AISessionModal';
 import type { ExtractedSessionData } from '@/lib/api/ai.service';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 
 export default function HostSessionsNavPanel() {
   const t = useTranslations('navigation');
@@ -20,6 +21,7 @@ export default function HostSessionsNavPanel() {
 
   // AI Session Modal state
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const { useAiForCreation } = usePreferenceStore();
 
   const activeId = (() => {
     if (
@@ -72,7 +74,13 @@ export default function HostSessionsNavPanel() {
   }, [isPending, pathname]);
 
   const handleCreateSession = () => {
-    setIsAIModalOpen(true);
+    if (useAiForCreation) {
+      setIsAIModalOpen(true);
+    } else {
+      startTransition(() => {
+        router.push(ROUTES.SESSIONS.NEW);
+      });
+    }
   };
 
   const handleAISuccess = (data: ExtractedSessionData) => {

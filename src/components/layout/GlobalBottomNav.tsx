@@ -10,6 +10,7 @@ import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
 import { AISessionModal } from '@/components/session/AISessionModal';
 import type { ExtractedSessionData } from '@/lib/api/ai.service';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 
 export default function GlobalBottomNav() {
   const { user, isAuthenticated } = useAuthStore();
@@ -23,6 +24,7 @@ export default function GlobalBottomNav() {
 
   // AI Session Modal state (for the default "Tạo kèo" center action)
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const { useAiForCreation } = usePreferenceStore();
 
   const isVisible = useBottomNavVisibility();
 
@@ -96,7 +98,15 @@ export default function GlobalBottomNav() {
     // Default: open AI session creation modal
     return {
       label: t('createSession'),
-      onClick: () => setIsAIModalOpen(true),
+      onClick: () => {
+        if (useAiForCreation) {
+          setIsAIModalOpen(true);
+        } else {
+          startCreateTransition(() => {
+            router.push(ROUTES.SESSIONS.NEW);
+          });
+        }
+      },
       loading: isPendingCreate,
     };
   }, [pathname, t, isPendingCreate, router]);

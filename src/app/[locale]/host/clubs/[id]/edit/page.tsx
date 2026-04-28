@@ -192,23 +192,56 @@ const EditClubPage = () => {
         setValue('images', group.images || []);
         setValue('imagePublicIds', group.imagePublicIds || []);
 
-        // Pin the defaultVenue so it always appears in the select options,
-        // even if it doesn't show up in the regular search results.
-        if (group.defaultVenue) {
-          setPinnedVenues((prev) => {
-            const next = new Map(prev);
-            next.set(group.defaultVenue!.id, group.defaultVenue as Venue);
-            return next;
+        // Collect all unique venue names from schedules so we can resolve them
+        const uniqueVenueNames = new Set<string>();
+        if (group.schedules) {
+          group.schedules.forEach((s) => {
+            if (s.notes) uniqueVenueNames.add(s.notes);
           });
         }
+        if (group.defaultVenue?.name) {
+          uniqueVenueNames.add(group.defaultVenue.name);
+        }
+
+        // Fetch a broader venue list covering all schedule venue names
+        // We do one search per unique name that isn't the defaultVenue
+        const nameToVenue = new Map<
+          string,
+          { id: string; name: string; address: string }
+        >();
+        if (group.defaultVenue) {
+          nameToVenue.set(group.defaultVenue.name, group.defaultVenue);
+        }
+
+        await Promise.all(
+          Array.from(uniqueVenueNames).map(async (venueName) => {
+            if (nameToVenue.has(venueName)) return;
+            try {
+              const result = await VenueService.searchVenues({
+                keyword: venueName,
+                limit: 10,
+              });
+              const matched = (result.data ?? []).find(
+                (v) => v.name === venueName
+              );
+              if (matched) nameToVenue.set(venueName, matched);
+            } catch {
+              // ignore individual search errors
+            }
+          })
+        );
+
+        // Pin all resolved venues so they always appear in the select options
+        setPinnedVenues((prev) => {
+          const next = new Map(prev);
+          nameToVenue.forEach((v) => next.set(v.id, v as any));
+          return next;
+        });
 
         // Reconstruct venueGroups from schedules
-        // Schedules store the venue name in `notes`. We try to group by defaultVenue
-        // if only one venue exists; otherwise we create one group per unique notes value.
         if (group.schedules && group.schedules.length > 0) {
           const defaultVenueId = group.defaultVenue?.id || '';
 
-          // Group schedules by their `notes` (venue name)
           const noteGroups = new Map<
             string,
             { venueId: string; schedules: ScheduleEntry[] }
@@ -217,14 +250,10 @@ const EditClubPage = () => {
           group.schedules.forEach((s) => {
             const key = s.notes || '__default__';
             if (!noteGroups.has(key)) {
-              // Try to match venue by name
-              const matchedVenue =
-                group.defaultVenue?.name === s.notes
-                  ? group.defaultVenue
-                  : null;
+              const resolvedVenue = s.notes ? nameToVenue.get(s.notes) : null;
               noteGroups.set(key, {
                 venueId:
-                  matchedVenue?.id ||
+                  resolvedVenue?.id ||
                   (key === '__default__' ? defaultVenueId : ''),
                 schedules: [],
               });
@@ -375,7 +404,7 @@ const EditClubPage = () => {
         as="form"
         onSubmit={handleSubmit(onSubmit)}
         bg={{ base: 'white', _dark: 'gray.900' }}
-        p={8}
+        p={{ base: 4, md: 6 }}
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
@@ -414,7 +443,15 @@ const EditClubPage = () => {
               <SearchableSelect
                 options={hostUserOptions}
                 value={selectedHostUserId}
-                onChange={setSelectedHostUserId}
+                onChange={(val) => {
+                  setSelectedHostUserId(val);
+                  if (val) {
+                    const selectedUser = hostUsers.find((u) => u.id === val);
+                    if (selectedUser) {
+                      setValue('hostName', selectedUser.name);
+                    }
+                  }
+                }}
                 placeholder="Tìm user theo tên hoặc email"
                 searchPlaceholder="Tìm user..."
                 noOptionsMessage="Không tìm thấy user"
@@ -543,7 +580,7 @@ const EditClubPage = () => {
                   p={4}
                 >
                   <Flex gap={2} align="center" mb={3}>
-                    <Box flex="1">
+                    <Box flex="1" minW={0} overflow="hidden">
                       <SearchableSelect
                         options={venueOptions}
                         value={group.venueId}
@@ -569,7 +606,7 @@ const EditClubPage = () => {
                   <VStack spacing={2} align="stretch">
                     {group.schedules.map((sched, schedIdx) => (
                       <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '70px', md: '120px' }}>
+                        <Box flex="1" minW={{ base: '100px', md: '120px' }}>
                           <LegacySelect
                             size="sm"
                             value={String(sched.dayOfWeek)}

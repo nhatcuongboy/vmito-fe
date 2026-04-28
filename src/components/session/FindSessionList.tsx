@@ -21,6 +21,7 @@ import {
   SessionSortBy,
   SessionFilters,
 } from '@/stores/useSessionFilterStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import {
   useUrlFilters,
   stringField,
@@ -191,6 +192,7 @@ export default function FindSessionList({
   const tVenue = useTranslations('venue');
   const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
+  const { useAiForCreation } = usePreferenceStore();
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -514,8 +516,12 @@ export default function FindSessionList({
       setIsLoginPromptOpen(true);
       return;
     }
-    setIsAIModalOpen(true);
-  }, [user]);
+    if (useAiForCreation) {
+      setIsAIModalOpen(true);
+    } else {
+      router.push(ROUTES.SESSIONS.NEW);
+    }
+  }, [user, useAiForCreation, router]);
 
   const handleHostClick = useCallback((session: ISession) => {
     setSelectedSessionForDetail(session);

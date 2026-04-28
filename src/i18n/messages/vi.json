@@ -541,7 +541,9 @@
       "emptyContent": "Vui lòng nhập nội dung bài đăng",
       "hint": "AI sẽ trích xuất: tên kèo, địa điểm, thời gian, trình độ, thông tin...",
       "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}",
-      "manualLink": "Hoặc tạo thủ công tại đây"
+      "manualLink": "Hoặc tạo thủ công tại đây",
+      "alwaysManual": "Mặc định tạo thủ công",
+      "switchToAi": "Sử dụng AI để tạo nhanh"
     },
     "linkCopied": "Đã sao chép link",
     "shareCardHeader": "Tuyển vãng lai cầu lông",

@@ -12,6 +12,8 @@ import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 import { Flex } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
+import { VSwitch } from '@/components/ui/VSwitch';
 
 export interface AISessionModalProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
   const router = useRouter();
   const [articleContent, setArticleContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { useAiForCreation, setUseAiForCreation } = usePreferenceStore();
 
   const handleGenerate = async () => {
     if (!articleContent.trim()) {
@@ -82,18 +85,21 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
           direction={{ base: 'column-reverse', sm: 'row' }}
           gap={3}
         >
-          <Button
-            variant="subtle"
-            colorPalette="purple"
-            onClick={() => {
-              handleClose();
-              router.push(ROUTES.SESSIONS.NEW);
-            }}
-            w={{ base: 'full', sm: 'auto' }}
-          >
-            <SquarePen size={16} style={{ marginRight: '6px' }} />
-            {t('aiModal.manualLink')}
-          </Button>
+          <Flex align="center" gap={2}>
+            <VSwitch
+              colorPalette="purple"
+              size="sm"
+              checked={useAiForCreation}
+              onCheckedChange={(details) =>
+                setUseAiForCreation(details.checked)
+              }
+            />
+            <Text fontSize="xs" color="gray.600">
+              {useAiForCreation
+                ? t('aiModal.title')
+                : t('aiModal.alwaysManual')}
+            </Text>
+          </Flex>
           <Flex
             gap={3}
             w={{ base: 'full', sm: 'auto' }}
