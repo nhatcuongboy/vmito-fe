@@ -29,7 +29,9 @@ import { Field } from '@/components/ui/Field';
 import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import PageLayout from '@/components/layout/PageLayout';
 import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
-import { EImageCategory, Venue } from '@/lib/api/types';
+import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
+import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
@@ -57,11 +59,22 @@ interface VenueGroup {
 const CreateClubPage = () => {
   const t = useTranslations('clubs');
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === UserRole.ADMIN;
+
   const [venues, setVenues] = useState<Venue[]>([]);
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
+
+  const [selectedHostUserId, setSelectedHostUserId] = useState('');
+  const [hostUsers, setHostUsers] = useState<AdminUser[]>([]);
+  const [hostUserSearchLoading, setHostUserSearchLoading] = useState(false);
+
   const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const hostUserSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
 
@@ -96,14 +109,41 @@ const CreateClubPage = () => {
     }, 300);
   }, []);
 
+  const handleHostUserSearch = useCallback((query: string) => {
+    if (hostUserSearchTimerRef.current)
+      clearTimeout(hostUserSearchTimerRef.current);
+    hostUserSearchTimerRef.current = setTimeout(async () => {
+      setHostUserSearchLoading(true);
+      try {
+        const users = await AdminService.getUsers({
+          search: query || undefined,
+        });
+        setHostUsers(users);
+      } catch {
+        setHostUsers([]);
+      } finally {
+        setHostUserSearchLoading(false);
+      }
+    }, 300);
+  }, []);
+
   useEffect(() => {
     handleVenueSearch('');
-  }, [handleVenueSearch]);
+    if (isAdmin) {
+      handleHostUserSearch('');
+    }
+  }, [handleVenueSearch, handleHostUserSearch, isAdmin]);
 
   const venueOptions = useMemo(
     () =>
       venues.map((v) => ({ value: v.id, label: v.name, sublabel: v.address })),
     [venues]
+  );
+
+  const hostUserOptions = useMemo(
+    () =>
+      hostUsers.map((u) => ({ value: u.id, label: u.name, sublabel: u.email })),
+    [hostUsers]
   );
 
   const addVenueGroup = () =>
@@ -181,6 +221,7 @@ const CreateClubPage = () => {
         ...data,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
+        hostUserId: selectedHostUserId || undefined,
       });
       toaster.success({ title: t('clubCreatedSuccess') });
       router.push(ROUTES.CLUBS.BROWSE);
@@ -234,6 +275,25 @@ const CreateClubPage = () => {
               placeholder="Nhập tên trưởng nhóm"
             />
           </Field>
+
+          {/* Host User (ADMIN only) */}
+          {isAdmin && (
+            <Field
+              label="Host user trong hệ thống"
+              helperText="Nếu chọn, user này sẽ được thêm vào nhóm với vai trò Admin"
+            >
+              <SearchableSelect
+                options={hostUserOptions}
+                value={selectedHostUserId}
+                onChange={setSelectedHostUserId}
+                placeholder="Tìm user theo tên hoặc email"
+                searchPlaceholder="Tìm user..."
+                noOptionsMessage="Không tìm thấy user"
+                onSearchChange={handleHostUserSearch}
+                isLoading={hostUserSearchLoading}
+              />
+            </Field>
+          )}
 
           {/* Description */}
           <Field
