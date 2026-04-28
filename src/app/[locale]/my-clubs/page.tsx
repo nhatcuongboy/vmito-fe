@@ -218,15 +218,30 @@ export default function MyClubsPage() {
                 borderRadius="2xl"
                 borderWidth="1px"
                 borderColor="border"
-                cursor="pointer"
-                onClick={() => router.push(`/clubs/${club.slug ?? club.id}`)}
+                cursor={club.status === 'PENDING' ? 'default' : 'pointer'}
+                onClick={() => {
+                  if (club.status !== 'PENDING') {
+                    router.push(`/clubs/${club.slug ?? club.id}`);
+                  }
+                }}
                 transition="all 0.2s"
-                _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                _hover={
+                  club.status === 'PENDING'
+                    ? {}
+                    : { shadow: 'md', transform: 'translateY(-2px)' }
+                }
               >
                 <HStack justify="space-between" mb={4}>
-                  <Heading size="md" lineClamp={1}>
-                    {club.name}
-                  </Heading>
+                  <HStack gap={2}>
+                    <Heading size="md" lineClamp={1}>
+                      {club.name}
+                    </Heading>
+                    {club.status === 'PENDING' && (
+                      <Badge colorPalette="yellow" size="sm">
+                        {t('clubs.clubStatus.pending')}
+                      </Badge>
+                    )}
+                  </HStack>
                   <HStack>
                     {(club.role === 'ADMIN' ||
                       club.host.id === currentUser?.id) && (
@@ -242,7 +257,9 @@ export default function MyClubsPage() {
                         <Settings size={16} />
                       </Button>
                     )}
-                    <ChevronRight size={18} color="#CBD5E0" />
+                    {club.status !== 'PENDING' && (
+                      <ChevronRight size={18} color="#CBD5E0" />
+                    )}
                   </HStack>
                 </HStack>
 

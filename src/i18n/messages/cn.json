@@ -2904,6 +2904,13 @@
     "approveSuccess": "请求已批准",
     "rejectSuccess": "请求已拒绝",
     "approvalActionFailed": "操作失败",
+    "club": {
+      "creationPending": "您的俱乐部创建请求正在审核中",
+      "creationSuccess": "俱乐部创建成功",
+      "newPendingClub": "新俱乐部待审批",
+      "clubApproved": "俱乐部已批准",
+      "clubRejected": "俱乐部已被拒绝"
+    },
     "approvalPending": "待审批",
     "approvalDetailTitle": "请求详情",
     "approvalNotFound": "未找到请求",

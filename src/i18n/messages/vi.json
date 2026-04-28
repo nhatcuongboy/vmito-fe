@@ -3001,6 +3001,13 @@
     "approvalPlayer": "Số vãng lai",
     "approvalSlotCount": "Số slot đăng ký",
     "approveSuccess": "Đã duyệt yêu cầu",
+    "club": {
+      "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",
+      "creationSuccess": "Nhóm đã được tạo thành công",
+      "newPendingClub": "Nhóm mới đang chờ duyệt",
+      "clubApproved": "Nhóm đã được phê duyệt",
+      "clubRejected": "Nhóm đã bị từ chối"
+    },
     "rejectSuccess": "Đã từ chối yêu cầu",
     "approvalActionFailed": "Thao tác thất bại",
     "approvalPending": "Chờ duyệt",

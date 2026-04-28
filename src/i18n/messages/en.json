@@ -2986,6 +2986,13 @@
     "approvalPlayer": "Player Slot",
     "approvalSlotCount": "Slots registered",
     "approveSuccess": "Request approved",
+    "club": {
+      "creationPending": "Your club creation request is under review",
+      "creationSuccess": "Club created successfully",
+      "newPendingClub": "New club pending approval",
+      "clubApproved": "Club has been approved",
+      "clubRejected": "Club has been rejected"
+    },
     "rejectSuccess": "Request rejected",
     "approvalActionFailed": "Action failed",
     "approvalPending": "Pending",

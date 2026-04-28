@@ -169,6 +169,7 @@ export interface IMyClub {
   description?: string;
   color?: string;
   image?: string;
+  status?: EClubStatus;
   role: EMemberRole;
   memberCount: number;
   host: IClubHost;

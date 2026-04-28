@@ -24,6 +24,7 @@ import {
   LuMail,
   LuCreditCard,
   LuUserCheck,
+  LuUsers,
 } from 'react-icons/lu';
 import {
   PopoverRoot,
@@ -72,6 +73,8 @@ const getNotificationIcon = (type: NotificationType) => {
       return LuMail;
     case NotificationType.PAYMENT:
       return LuCreditCard;
+    case NotificationType.CLUB:
+      return LuUsers;
     default:
       return LuBell;
   }
@@ -87,6 +90,8 @@ const getNotificationColor = (type: NotificationType) => {
       return 'green';
     case NotificationType.PAYMENT:
       return 'orange';
+    case NotificationType.CLUB:
+      return 'teal';
     default:
       return 'gray';
   }

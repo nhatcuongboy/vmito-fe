@@ -9,6 +9,7 @@ import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
 import { MapPinOff, RefreshCw, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -120,6 +121,7 @@ export default function SuggestionsList({
   const t = useTranslations('suggestions');
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
+  const { useAiForCreation } = usePreferenceStore();
   const { viewMode } = useSessionFilterStore();
 
   const loadingMoreRef = useRef(false);
@@ -360,7 +362,17 @@ export default function SuggestionsList({
         onSearchChange={handleSearchQueryChange}
         onToggleFilters={toggleFilters}
         activeFilterCount={activeFilterCount}
-        onCreateClick={user ? () => setIsAIModalOpen(true) : undefined}
+        onCreateClick={
+          user
+            ? () => {
+                if (useAiForCreation) {
+                  setIsAIModalOpen(true);
+                } else {
+                  router.push(ROUTES.SESSIONS.NEW);
+                }
+              }
+            : undefined
+        }
       />
 
       {/* Filter Drawer */}

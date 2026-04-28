@@ -23,6 +23,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import {
   ROUTES,
   TOP_BAR_HEIGHT_MOBILE,
@@ -47,6 +48,7 @@ function HostSessionsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
+  const { useAiForCreation } = usePreferenceStore();
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -278,7 +280,13 @@ function HostSessionsContent() {
             showSearchFilter={true}
             showLevelFilter={false}
             resultCount={totalCount}
-            onCreateClick={() => setIsAIModalOpen(true)}
+            onCreateClick={() => {
+              if (useAiForCreation) {
+                setIsAIModalOpen(true);
+              } else {
+                router.push(ROUTES.SESSIONS.NEW);
+              }
+            }}
             hideCreateOnMobile={true}
             topAddon={
               <StatusTabSwitch

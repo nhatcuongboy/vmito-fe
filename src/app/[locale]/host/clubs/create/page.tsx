@@ -244,14 +244,21 @@ const CreateClubPage = () => {
         const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
         return g.schedules.map((s) => ({ ...s, notes: venueName }));
       });
-      await ClubsService.createClub({
+      const club = await ClubsService.createClub({
         ...data,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
         hostUserId: selectedHostUserId || undefined,
       });
-      toaster.success({ title: t('clubCreatedSuccess') });
-      router.push(ROUTES.CLUBS.BROWSE);
+
+      // Show appropriate toast based on club status
+      if (club.status === 'PENDING') {
+        toaster.success({ title: t('notification.club.creationPending') });
+      } else {
+        toaster.success({ title: t('notification.club.creationSuccess') });
+      }
+
+      router.push(ROUTES.MY_CLUBS);
     } catch (error) {
       console.error('Failed to create club:', error);
       toaster.error({ title: t('failedToCreateClub') });

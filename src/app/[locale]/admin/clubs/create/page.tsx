@@ -243,13 +243,15 @@ const AdminCreateClubPage = () => {
         const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
         return g.schedules.map((s) => ({ ...s, notes: venueName }));
       });
-      await ClubsService.createClub({
+      const club = await ClubsService.createClub({
         ...data,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
         hostUserId: selectedHostUserId || undefined,
       });
-      toaster.success({ title: t('clubCreatedSuccess') });
+
+      // Admin-created clubs are auto-approved
+      toaster.success({ title: t('notification.club.creationSuccess') });
       router.push(ROUTES.ADMIN.CLUBS);
     } catch (error) {
       console.error('Failed to create club:', error);
