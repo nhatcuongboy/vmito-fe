@@ -29,7 +29,9 @@ import { Field } from '@/components/ui/Field';
 import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import PageLayout from '@/components/layout/PageLayout';
 import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
-import { EImageCategory, Venue } from '@/lib/api/types';
+import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
+import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
@@ -57,11 +59,25 @@ interface VenueGroup {
 const CreateClubPage = () => {
   const t = useTranslations('clubs');
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === UserRole.ADMIN;
+
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [pinnedVenues, setPinnedVenues] = useState<Map<string, Venue>>(
+    new Map()
+  );
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
+
+  const [selectedHostUserId, setSelectedHostUserId] = useState('');
+  const [hostUsers, setHostUsers] = useState<AdminUser[]>([]);
+  const [hostUserSearchLoading, setHostUserSearchLoading] = useState(false);
+
   const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const hostUserSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
 
@@ -78,32 +94,72 @@ const CreateClubPage = () => {
   const imagesValue = watch('images') || [];
   const imagePublicIdsValue = watch('imagePublicIds') || [];
 
-  const handleVenueSearch = useCallback((query: string) => {
-    if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
-    venueSearchTimerRef.current = setTimeout(async () => {
-      setVenueSearchLoading(true);
+  const handleVenueSearch = useCallback(
+    (query: string) => {
+      if (venueSearchTimerRef.current)
+        clearTimeout(venueSearchTimerRef.current);
+      venueSearchTimerRef.current = setTimeout(async () => {
+        setVenueSearchLoading(true);
+        try {
+          const result = await VenueService.searchVenues({
+            keyword: query || undefined,
+            limit: 50,
+          });
+          const fetched = result.data ?? [];
+          const pinnedNotInFetched = Array.from(pinnedVenues.values()).filter(
+            (pv) => !fetched.find((v) => v.id === pv.id)
+          );
+          setVenues([...fetched, ...pinnedNotInFetched]);
+        } catch {
+          setVenues(Array.from(pinnedVenues.values()));
+        } finally {
+          setVenueSearchLoading(false);
+        }
+      }, 300);
+    },
+    [pinnedVenues]
+  );
+
+  const handleHostUserSearch = useCallback((query: string) => {
+    if (hostUserSearchTimerRef.current)
+      clearTimeout(hostUserSearchTimerRef.current);
+    hostUserSearchTimerRef.current = setTimeout(async () => {
+      setHostUserSearchLoading(true);
       try {
-        const result = await VenueService.searchVenues({
-          keyword: query || undefined,
-          limit: 50,
+        const users = await AdminService.getUsers({
+          search: query || undefined,
         });
-        setVenues(result.data ?? []);
+        setHostUsers(users);
       } catch {
-        setVenues([]);
+        setHostUsers([]);
       } finally {
-        setVenueSearchLoading(false);
+        setHostUserSearchLoading(false);
       }
     }, 300);
   }, []);
 
   useEffect(() => {
     handleVenueSearch('');
-  }, [handleVenueSearch]);
+    if (isAdmin) {
+      handleHostUserSearch('');
+    }
+  }, [handleVenueSearch, handleHostUserSearch, isAdmin]);
 
-  const venueOptions = useMemo(
+  const venueOptions = useMemo(() => {
+    const merged = new Map<string, Venue>();
+    venues.forEach((v) => merged.set(v.id, v));
+    pinnedVenues.forEach((v) => merged.set(v.id, v));
+    return Array.from(merged.values()).map((v) => ({
+      value: v.id,
+      label: v.name,
+      sublabel: v.address,
+    }));
+  }, [venues, pinnedVenues]);
+
+  const hostUserOptions = useMemo(
     () =>
-      venues.map((v) => ({ value: v.id, label: v.name, sublabel: v.address })),
-    [venues]
+      hostUsers.map((u) => ({ value: u.id, label: u.name, sublabel: u.email })),
+    [hostUsers]
   );
 
   const addVenueGroup = () =>
@@ -118,10 +174,21 @@ const CreateClubPage = () => {
   const removeVenueGroup = (idx: number) =>
     setVenueGroups((prev) => prev.filter((_, i) => i !== idx));
 
-  const updateVenueId = (idx: number, venueId: string) =>
+  const updateVenueId = (idx: number, venueId: string) => {
     setVenueGroups((prev) =>
       prev.map((g, i) => (i === idx ? { ...g, venueId } : g))
     );
+    if (venueId) {
+      const found = venues.find((v) => v.id === venueId);
+      if (found) {
+        setPinnedVenues((prev) => {
+          const next = new Map(prev);
+          next.set(venueId, found);
+          return next;
+        });
+      }
+    }
+  };
 
   const addSchedule = (groupIdx: number) =>
     setVenueGroups((prev) =>
@@ -177,13 +244,21 @@ const CreateClubPage = () => {
         const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
         return g.schedules.map((s) => ({ ...s, notes: venueName }));
       });
-      await ClubsService.createClub({
+      const club = await ClubsService.createClub({
         ...data,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
+        hostUserId: selectedHostUserId || undefined,
       });
-      toaster.success({ title: t('clubCreatedSuccess') });
-      router.push(ROUTES.CLUBS.BROWSE);
+
+      // Show appropriate toast based on club status
+      if (club.status === 'PENDING') {
+        toaster.success({ title: t('notification.club.creationPending') });
+      } else {
+        toaster.success({ title: t('notification.club.creationSuccess') });
+      }
+
+      router.push(ROUTES.CLUBS.MY_CLUBS);
     } catch (error) {
       console.error('Failed to create club:', error);
       toaster.error({ title: t('failedToCreateClub') });
@@ -200,7 +275,7 @@ const CreateClubPage = () => {
         as="form"
         onSubmit={handleSubmit(onSubmit)}
         bg={{ base: 'white', _dark: 'gray.900' }}
-        p={8}
+        p={{ base: 4, md: 6 }}
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
@@ -234,6 +309,33 @@ const CreateClubPage = () => {
               placeholder="Nhập tên trưởng nhóm"
             />
           </Field>
+
+          {/* Host User (ADMIN only) */}
+          {isAdmin && (
+            <Field
+              label="Host user trong hệ thống"
+              helperText="Nếu chọn, user này sẽ được thêm vào nhóm với vai trò Admin"
+            >
+              <SearchableSelect
+                options={hostUserOptions}
+                value={selectedHostUserId}
+                onChange={(val) => {
+                  setSelectedHostUserId(val);
+                  if (val) {
+                    const selectedUser = hostUsers.find((u) => u.id === val);
+                    if (selectedUser) {
+                      setValue('hostName', selectedUser.name);
+                    }
+                  }
+                }}
+                placeholder="Tìm user theo tên hoặc email"
+                searchPlaceholder="Tìm user..."
+                noOptionsMessage="Không tìm thấy user"
+                onSearchChange={handleHostUserSearch}
+                isLoading={hostUserSearchLoading}
+              />
+            </Field>
+          )}
 
           {/* Description */}
           <Field
@@ -354,7 +456,7 @@ const CreateClubPage = () => {
                   p={4}
                 >
                   <Flex gap={2} align="center" mb={3}>
-                    <Box flex="1">
+                    <Box flex="1" minW={0} overflow="hidden">
                       <SearchableSelect
                         options={venueOptions}
                         value={group.venueId}
@@ -380,7 +482,7 @@ const CreateClubPage = () => {
                   <VStack spacing={2} align="stretch">
                     {group.schedules.map((sched, schedIdx) => (
                       <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '70px', md: '120px' }}>
+                        <Box flex="1" minW={{ base: '100px', md: '120px' }}>
                           <LegacySelect
                             size="sm"
                             value={String(sched.dayOfWeek)}

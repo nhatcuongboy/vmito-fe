@@ -22,14 +22,15 @@
     "clubs": "俱乐部",
     "clubsAdmin": "审核俱乐部",
     "createClub": "创建群组",
-    "pendingJoinRequests": "加入请求",
+    "pendingJoinRequests": "待处理请求",
     "endedSessions": "已结束",
     "endedJoinedSessions": "已结束的已加入场次",
     "suggestions": "推荐",
     "createSession": "创建",
     "mainHome": "首页",
     "sessions": "场次",
-    "personal": "个人"
+    "personal": "个人",
+    "generalSettings": "常规设置"
   },
   "common": {
     "browse": "统计分析",
@@ -2904,6 +2905,13 @@
     "approveSuccess": "请求已批准",
     "rejectSuccess": "请求已拒绝",
     "approvalActionFailed": "操作失败",
+    "club": {
+      "creationPending": "您的俱乐部创建请求正在审核中",
+      "creationSuccess": "俱乐部创建成功",
+      "newPendingClub": "新俱乐部待审批",
+      "clubApproved": "俱乐部已批准",
+      "clubRejected": "俱乐部已被拒绝"
+    },
     "approvalPending": "待审批",
     "approvalDetailTitle": "请求详情",
     "approvalNotFound": "未找到请求",
@@ -2937,8 +2945,14 @@
     }
   },
   "clubs": {
-    "browseClubs": "探索俱乐部",
-    "browseClubsDescription": "发现您所在地区的羽毛球俱乐部并加入社区",
+    "notification": {
+      "club": {
+        "creationPending": "您的俱乐部创建请求正在审核中",
+        "creationSuccess": "俱乐部创建成功"
+      }
+    },
+    "browseClubs": "查找俱乐部",
+    "browseClubsDescription": "查找您所在地区的羽毛球俱乐部并加入社区",
     "searchPlaceholder": "按俱乐部名称或地点搜索...",
     "noClubsFound": "未找到俱乐部",
     "noClubsFoundDescription": "尝试调整您的搜索或稍后查看新俱乐部",

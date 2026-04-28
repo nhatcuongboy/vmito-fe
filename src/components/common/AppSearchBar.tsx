@@ -52,14 +52,15 @@ export function AppSearchBar({
         borderRadius="24px"
         h="44px"
         border="1px solid"
-        borderColor="border"
+        borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
         bg="bg"
         fontSize="15px"
         color="fg"
+        boxShadow="0 1px 4px 0 rgba(0,0,0,0.08)"
         _placeholder={{ color: 'fg.muted' }}
         _focus={{
           borderColor: 'green.500',
-          boxShadow: '0 0 0 1px var(--chakra-colors-green-500)',
+          boxShadow: '0 0 0 2px var(--chakra-colors-green-500)',
         }}
       />
 

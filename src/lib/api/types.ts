@@ -996,6 +996,7 @@ export enum NotificationType {
   SESSION = 'SESSION', // Session-related notifications
   REGISTRATION = 'REGISTRATION', // Registration status updates
   PAYMENT = 'PAYMENT', // Payment-related notifications
+  CLUB = 'CLUB', // Club-related notifications
 }
 
 export interface INotification {

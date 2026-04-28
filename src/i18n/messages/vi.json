@@ -13,7 +13,7 @@
     "join": "Tham gia",
     "home": "Tìm kèo",
     "tournaments": "Giải đấu",
-    "browseTournaments": "Tra cứu giải đấu",
+    "browseTournaments": "Tìm giải đấu",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -24,14 +24,14 @@
     "myHostedSessions": "Quản lý kèo",
     "notifications": "Thông báo",
     "venues": "Sân bãi",
-    "browseVenues": "Tra cứu sân",
-    "browseClubs": "Tra cứu nhóm",
+    "browseVenues": "Tìm sân",
+    "browseClubs": "Tìm nhóm",
     "myClubs": "Nhóm",
     "manageGroups": "Quản lý nhóm",
     "clubs": "Câu lạc bộ",
     "clubsAdmin": "Duyệt nhóm",
     "createClub": "Tạo nhóm",
-    "pendingJoinRequests": "Chờ duyệt",
+    "pendingJoinRequests": "Yêu cầu tham gia",
     "endedSessions": "Đã kết thúc",
     "endedJoinedSessions": "Kèo tham gia đã kết thúc",
     "suggestions": "Gợi ý",
@@ -43,7 +43,8 @@
     "findVenues": "Tìm sân",
     "findClubs": "Tìm nhóm",
     "findTournaments": "Tìm giải",
-    "createTournament": "Tạo giải"
+    "createTournament": "Tạo giải",
+    "generalSettings": "Cài đặt chung"
   },
   "common": {
     "browse": "Thống kê",
@@ -244,10 +245,10 @@
     "startYourBadmintonJourney": "Bắt đầu hành trình cầu lông của bạn",
     "status": {
       "all": "Tất cả",
-      "preparing": "Sắp tới",
+      "preparing": "Sắp diễn ra",
       "expired": "Quá hạn",
-      "inProgress": "Đang đấu",
-      "finished": "Đã xong"
+      "inProgress": "Đang diễn ra",
+      "finished": "Đã kết thúc"
     },
     "courtsAvailable": "sân",
     "players": "người chơi",
@@ -541,7 +542,9 @@
       "emptyContent": "Vui lòng nhập nội dung bài đăng",
       "hint": "AI sẽ trích xuất: tên kèo, địa điểm, thời gian, trình độ, thông tin...",
       "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}",
-      "manualLink": "Hoặc tạo thủ công tại đây"
+      "manualLink": "Hoặc tạo thủ công tại đây",
+      "alwaysManual": "Mặc định tạo thủ công",
+      "switchToAi": "Sử dụng AI để tạo nhanh"
     },
     "linkCopied": "Đã sao chép link",
     "shareCardHeader": "Tuyển vãng lai cầu lông",
@@ -2999,6 +3002,13 @@
     "approvalPlayer": "Số vãng lai",
     "approvalSlotCount": "Số slot đăng ký",
     "approveSuccess": "Đã duyệt yêu cầu",
+    "club": {
+      "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",
+      "creationSuccess": "Nhóm đã được tạo thành công",
+      "newPendingClub": "Nhóm mới đang chờ duyệt",
+      "clubApproved": "Nhóm đã được phê duyệt",
+      "clubRejected": "Nhóm đã bị từ chối"
+    },
     "rejectSuccess": "Đã từ chối yêu cầu",
     "approvalActionFailed": "Thao tác thất bại",
     "approvalPending": "Chờ duyệt",
@@ -3034,8 +3044,14 @@
     }
   },
   "clubs": {
-    "browseClubs": "Khám phá nhóm",
-    "browseClubsDescription": "Khám phá các nhóm cầu lông trong khu vực của bạn và tham gia cộng đồng",
+    "notification": {
+      "club": {
+        "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",
+        "creationSuccess": "Nhóm đã được tạo thành công"
+      }
+    },
+    "browseClubs": "Tìm nhóm",
+    "browseClubsDescription": "Tìm kiếm các nhóm cầu lông trong khu vực của bạn và tham gia cộng đồng",
     "searchPlaceholder": "Tìm kiếm theo tên nhóm hoặc địa điểm...",
     "noClubsFound": "Không tìm thấy nhóm nào",
     "noClubsFoundDescription": "Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau để xem các nhóm mới",
@@ -3049,7 +3065,7 @@
     "manageMyClubsDescription": "Quản lý các nhóm bạn đã tham gia và lời mời tham gia của bạn",
     "joinClub": "Tham gia nhóm",
     "leaveClub": "Rời nhóm",
-    "pendingRequest": "Yêu cầu tham gia vào nhóm của tôi",
+    "pendingRequest": "Yêu cầu tham gia vào nhóm",
     "clubStatus": {
       "pending": "Chờ duyệt",
       "approved": "Đã duyệt",

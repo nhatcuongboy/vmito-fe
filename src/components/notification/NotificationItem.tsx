@@ -10,6 +10,7 @@ import {
   LuShield,
   LuCreditCard,
   LuExternalLink,
+  LuUsers,
 } from 'react-icons/lu';
 import { INotification, NotificationType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
@@ -68,6 +69,8 @@ const getNotificationIcon = (type: NotificationType) => {
       return LuMail;
     case NotificationType.PAYMENT:
       return LuCreditCard;
+    case NotificationType.CLUB:
+      return LuUsers;
     default:
       return LuBell;
   }
@@ -83,6 +86,8 @@ const getNotificationColor = (type: NotificationType) => {
       return 'green';
     case NotificationType.PAYMENT:
       return 'orange';
+    case NotificationType.CLUB:
+      return 'teal';
     default:
       return 'gray';
   }

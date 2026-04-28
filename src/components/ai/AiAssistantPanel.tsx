@@ -88,7 +88,8 @@ export default function AiAssistantPanel({
         align="center"
         justify="space-between"
         px={4}
-        py={3}
+        pt={isMobile ? 5 : 3}
+        pb={3}
         borderBottom="1px solid"
         borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
         bgGradient="to-r"
@@ -447,24 +448,17 @@ export default function AiAssistantPanel({
         {/* Drag handle */}
         <Flex
           justify="center"
-          py={2}
-          bg={{ base: 'white', _dark: 'gray.800' }}
+          pt={2}
+          pb={1}
           position="absolute"
           top={0}
           left={0}
           right={0}
-          zIndex={1}
+          zIndex={10}
         >
-          <Box
-            w="36px"
-            h="4px"
-            borderRadius="full"
-            bg={{ base: 'gray.200', _dark: 'gray.600' }}
-          />
+          <Box w="36px" h="4px" borderRadius="full" bg="whiteAlpha.500" />
         </Flex>
-        <Box h="100%" pt="20px">
-          {panelContent}
-        </Box>
+        <Box h="100%">{panelContent}</Box>
       </Box>
     </Portal>
   );

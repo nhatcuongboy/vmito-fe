@@ -133,7 +133,8 @@ export default function ResultsHeader({
               gap={1.5}
               px={3}
               h="32px"
-              borderColor={mode === 'auto' ? 'transparent' : 'gray.200'}
+              borderColor={mode === 'auto' ? 'transparent' : 'gray.300'}
+              shadow={mode === 'auto' ? 'sm' : 'xs'}
               _light={{
                 bg: mode === 'auto' ? 'yellow.400' : 'white',
                 color: mode === 'auto' ? 'yellow.900' : 'gray.600',
@@ -171,11 +172,12 @@ export default function ResultsHeader({
               h="32px"
               px={3}
               borderRadius="full"
-              borderColor="gray.200"
+              borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
               bg={{ base: 'white', _dark: 'gray.800' }}
               color={{ base: 'gray.700', _dark: 'gray.200' }}
               fontWeight="normal"
               fontSize="sm"
+              shadow="xs"
               _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
               _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
             >

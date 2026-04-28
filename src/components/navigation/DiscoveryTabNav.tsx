@@ -18,10 +18,10 @@ export function DiscoveryTabNav() {
   const t = useTranslations('navigation');
 
   const tabs = [
-    { id: ROUTES.HOME, label: t('findSessions') || 'Tìm kèo' },
-    { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') || 'Tìm sân' },
-    { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') || 'Tìm nhóm' },
-    // { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') || 'Tìm giải' },
+    { id: ROUTES.HOME, label: t('findSessions') },
+    { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') },
+    { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') },
+    // { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
   ];
 
   // Helper to check which tab is active

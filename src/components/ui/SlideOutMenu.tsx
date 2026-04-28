@@ -195,7 +195,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   </NextLinkButton>
                 </VTooltip>
                 <VTooltip
-                  content={nav('venues') || 'Tìm sân'}
+                  content={nav('browseVenues')}
                   positioning={{
                     placement: 'right',
                     offset: { mainAxis: 12 },
@@ -242,7 +242,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   </NextLinkButton>
                 </VTooltip>
                 <VTooltip
-                  content={nav('browseClubs') || 'Tra cứu nhóm'}
+                  content={nav('browseClubs')}
                   positioning={{
                     placement: 'right',
                     offset: { mainAxis: 12 },
@@ -291,7 +291,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 {(user?.role === UserRole.ADMIN ||
                   user?.role === UserRole.HOST) && (
                   <VTooltip
-                    content={nav('browseTournaments') || 'Tra cứu giải'}
+                    content={nav('browseTournaments')}
                     positioning={{
                       placement: 'right',
                       offset: { mainAxis: 12 },
@@ -361,7 +361,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   )}
                   <Stack gap={2}>
                     <VTooltip
-                      content="Kèo"
+                      content={nav('sessions')}
                       positioning={{
                         placement: 'right',
                         offset: { mainAxis: 12 },
@@ -410,7 +410,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           />
                           {!isCollapsed && (
                             <Text display={{ base: 'block', md: 'block' }}>
-                              Kèo
+                              {nav('sessions')}
                             </Text>
                           )}
                         </Flex>
@@ -421,7 +421,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       (user?.role === UserRole.ADMIN ||
                         user?.role === UserRole.HOST) && (
                         <VTooltip
-                          content={nav('tournaments') || 'Giải đấu'}
+                          content={nav('tournaments')}
                           positioning={{
                             placement: 'right',
                             offset: { mainAxis: 12 },
@@ -677,7 +677,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </VTooltip>
 
                         <VTooltip
-                          content="Cài đặt chung"
+                          content={nav('generalSettings')}
                           positioning={{
                             placement: 'right',
                             offset: { mainAxis: 12 },
@@ -717,7 +717,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                               />
                               {!isCollapsed && (
                                 <Text display={{ base: 'block', md: 'block' }}>
-                                  Cài đặt chung
+                                  {nav('generalSettings')}
                                 </Text>
                               )}
                             </Flex>

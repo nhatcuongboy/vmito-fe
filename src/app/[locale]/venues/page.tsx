@@ -6,15 +6,15 @@ interface PageProps {
 }
 
 const localeTitles: Record<string, string> = {
-  vi: 'Tra cứu sân cầu lông',
-  en: 'Browse Badminton Courts',
-  cn: '浏览羽毛球场',
+  vi: 'Tìm sân cầu lông',
+  en: 'Find Badminton Courts',
+  cn: '查找羽毛球场',
 };
 
 const localeDescriptions: Record<string, string> = {
-  vi: 'Tìm kiếm và khám phá các sân cầu lông tại Việt Nam. Xem thông tin, giờ mở cửa, giá thuê sân.',
-  en: 'Find and explore badminton courts in Vietnam. View details, opening hours, and court rental prices.',
-  cn: '在越南查找和探索羽毛球场。查看详情、开放时间和场地租用价格。',
+  vi: 'Tìm kiếm các sân cầu lông. Xem thông tin, giờ mở cửa, giá thuê sân.',
+  en: 'Find badminton courts. View details, opening hours, and court rental prices.',
+  cn: '查找羽毛球场。查看详情、开放时间和场地租用价格。',
 };
 
 export async function generateMetadata({

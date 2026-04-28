@@ -4,14 +4,14 @@ import { useState, useRef, useEffect, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Locale } from '@/i18n/locales';
-import { Box, Text, Flex } from '@chakra-ui/react';
+import { Box, Text, Flex, Image } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { ChevronDown, Languages } from 'lucide-react';
 
 const locales = [
-  { code: Locale.EN, label: 'English', flag: '🇺🇸' },
-  { code: Locale.VI, label: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: Locale.CN, label: '中文', flag: '🇨🇳' },
+  { code: Locale.EN, label: 'English', countryCode: 'us' },
+  { code: Locale.VI, label: 'Tiếng Việt', countryCode: 'vn' },
+  { code: Locale.CN, label: '中文', countryCode: 'cn' },
 ];
 
 type LanguageSwitcherProps = {
@@ -107,16 +107,29 @@ export default function LanguageSwitcher({
       >
         <Flex align="center" gap={2}>
           {isCollapsed ? (
-            <Text fontSize="lg" lineHeight="1">
-              {currentLocale.flag}
-            </Text>
+            <Image
+              src={`https://flagcdn.com/${currentLocale.countryCode}.svg`}
+              alt={currentLocale.label}
+              w="20px"
+              h="15px"
+              objectFit="cover"
+              borderRadius="sm"
+            />
           ) : (
             <Languages size={16} />
           )}
           {!isCollapsed && (
-            <Text fontSize="sm">
-              {currentLocale.flag} {currentLocale.label}
-            </Text>
+            <Flex align="center" gap={2}>
+              <Image
+                src={`https://flagcdn.com/${currentLocale.countryCode}.svg`}
+                alt={currentLocale.label}
+                w="18px"
+                h="13px"
+                objectFit="cover"
+                borderRadius="xs"
+              />
+              <Text fontSize="sm">{currentLocale.label}</Text>
+            </Flex>
           )}
         </Flex>
         {!isCollapsed && <ChevronDown size={16} />}
@@ -149,7 +162,14 @@ export default function LanguageSwitcher({
               onClick={() => handleLocaleChange(loc.code)}
             >
               <Flex align="center" gap={2}>
-                <Text>{loc.flag}</Text>
+                <Image
+                  src={`https://flagcdn.com/${loc.countryCode}.svg`}
+                  alt={loc.label}
+                  w="18px"
+                  h="13px"
+                  objectFit="cover"
+                  borderRadius="xs"
+                />
                 <Text>{loc.label}</Text>
               </Flex>
             </Box>
