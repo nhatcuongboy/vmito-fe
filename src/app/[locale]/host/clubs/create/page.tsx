@@ -258,7 +258,7 @@ const CreateClubPage = () => {
         toaster.success({ title: t('notification.club.creationSuccess') });
       }
 
-      router.push(ROUTES.MY_CLUBS);
+      router.push(ROUTES.CLUBS.MY_CLUBS);
     } catch (error) {
       console.error('Failed to create club:', error);
       toaster.error({ title: t('failedToCreateClub') });
