@@ -29,7 +29,8 @@
     "createSession": "创建",
     "mainHome": "首页",
     "sessions": "场次",
-    "personal": "个人"
+    "personal": "个人",
+    "generalSettings": "常规设置"
   },
   "common": {
     "browse": "统计分析",
@@ -2944,8 +2945,14 @@
     }
   },
   "clubs": {
-    "browseClubs": "探索俱乐部",
-    "browseClubsDescription": "发现您所在地区的羽毛球俱乐部并加入社区",
+    "notification": {
+      "club": {
+        "creationPending": "您的俱乐部创建请求正在审核中",
+        "creationSuccess": "俱乐部创建成功"
+      }
+    },
+    "browseClubs": "查找俱乐部",
+    "browseClubsDescription": "查找您所在地区的羽毛球俱乐部并加入社区",
     "searchPlaceholder": "按俱乐部名称或地点搜索...",
     "noClubsFound": "未找到俱乐部",
     "noClubsFoundDescription": "尝试调整您的搜索或稍后查看新俱乐部",

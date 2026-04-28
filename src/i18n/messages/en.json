@@ -13,7 +13,7 @@
     "join": "Join",
     "home": "Find Sessions",
     "tournaments": "Tournaments",
-    "browseTournaments": "Browse Tournaments",
+    "browseTournaments": "Find Tournaments",
     "browse": "Analysis",
     "statistics": "Statistics",
     "users": "Users",
@@ -24,8 +24,8 @@
     "myHostedSessions": "Manage Sessions",
     "notifications": "Notifications",
     "venues": "Venues",
-    "browseVenues": "Browse Venues",
-    "browseClubs": "Browse Clubs",
+    "browseVenues": "Find Venues",
+    "browseClubs": "Find Clubs",
     "myClubs": "Clubs",
     "manageGroups": "Manage Groups",
     "clubs": "Clubs",
@@ -42,7 +42,8 @@
     "findSessions": "Find Sessions",
     "findVenues": "Find Venues",
     "findClubs": "Find Groups",
-    "findTournaments": "Find Tournaments"
+    "findTournaments": "Find Tournaments",
+    "generalSettings": "General Settings"
   },
   "common": {
     "browse": "Analysis",
@@ -449,7 +450,7 @@
     },
     "sort": {
       "dateFurthest": "Furthest date",
-      "dateNearest": "Nearest date",
+      "dateNearest": "Nearest",
       "priceLow": "Price: low → high",
       "priceHigh": "Price: high → low",
       "distance": "Nearest venue",
@@ -3028,7 +3029,13 @@
     }
   },
   "clubs": {
-    "browseClubs": "Browse Clubs",
+    "notification": {
+      "club": {
+        "creationPending": "Your club creation request is under review",
+        "creationSuccess": "Club created successfully"
+      }
+    },
+    "browseClubs": "Find Clubs",
     "browseClubsDescription": "Discover badminton clubs in your area and join the community",
     "searchPlaceholder": "Search by club name or location...",
     "noClubsFound": "No Clubs Found",
@@ -3193,7 +3200,7 @@
     "reasonPreferredTime": "Preferred time",
     "reasonAvailableSlots": "Slots available",
     "modeBrowse": "All",
-    "modeAuto": "Suggestions"
+    "modeAuto": "Suggest"
   },
   "venue": {
     "verified": "Verified",

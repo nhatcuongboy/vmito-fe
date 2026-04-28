@@ -13,7 +13,7 @@
     "join": "Tham gia",
     "home": "Tìm kèo",
     "tournaments": "Giải đấu",
-    "browseTournaments": "Tra cứu giải đấu",
+    "browseTournaments": "Tìm giải đấu",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -24,8 +24,8 @@
     "myHostedSessions": "Quản lý kèo",
     "notifications": "Thông báo",
     "venues": "Sân bãi",
-    "browseVenues": "Tra cứu sân",
-    "browseClubs": "Tra cứu nhóm",
+    "browseVenues": "Tìm sân",
+    "browseClubs": "Tìm nhóm",
     "myClubs": "Nhóm",
     "manageGroups": "Quản lý nhóm",
     "clubs": "Câu lạc bộ",
@@ -43,7 +43,8 @@
     "findVenues": "Tìm sân",
     "findClubs": "Tìm nhóm",
     "findTournaments": "Tìm giải",
-    "createTournament": "Tạo giải"
+    "createTournament": "Tạo giải",
+    "generalSettings": "Cài đặt chung"
   },
   "common": {
     "browse": "Thống kê",
@@ -3043,8 +3044,14 @@
     }
   },
   "clubs": {
-    "browseClubs": "Khám phá nhóm",
-    "browseClubsDescription": "Khám phá các nhóm cầu lông trong khu vực của bạn và tham gia cộng đồng",
+    "notification": {
+      "club": {
+        "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",
+        "creationSuccess": "Nhóm đã được tạo thành công"
+      }
+    },
+    "browseClubs": "Tìm nhóm",
+    "browseClubsDescription": "Tìm kiếm các nhóm cầu lông trong khu vực của bạn và tham gia cộng đồng",
     "searchPlaceholder": "Tìm kiếm theo tên nhóm hoặc địa điểm...",
     "noClubsFound": "Không tìm thấy nhóm nào",
     "noClubsFoundDescription": "Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau để xem các nhóm mới",

@@ -15,8 +15,8 @@ export default function ViewModeToggle() {
       borderRadius="lg"
       p={0.5}
       borderWidth="1px"
-      borderColor="gray.200"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
       shadow="sm"
     >
       <IconButton
