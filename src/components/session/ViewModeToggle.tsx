@@ -3,7 +3,7 @@
 import { IconButton } from '@/components/ui/chakra-compat';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { Flex } from '@chakra-ui/react';
-import { LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List, MapPin } from 'lucide-react';
 
 export default function ViewModeToggle() {
   const { viewMode, setViewMode } = useSessionFilterStore();
@@ -39,6 +39,17 @@ export default function ViewModeToggle() {
         aria-label="Compact view"
         icon={<List size={16} />}
         onClick={() => setViewMode('compact')}
+        borderRadius="md"
+      />
+      <IconButton
+        size="xs"
+        h="32px"
+        w="32px"
+        variant={viewMode === 'map' ? 'solid' : 'ghost'}
+        colorPalette="green"
+        aria-label="Map view"
+        icon={<MapPin size={16} />}
+        onClick={() => setViewMode('map')}
         borderRadius="md"
       />
     </Flex>

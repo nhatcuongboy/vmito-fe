@@ -3,7 +3,7 @@
 import { IconButton } from '@/components/ui/chakra-compat';
 import { useViewModeStore } from '@/stores/useViewModeStore';
 import { Flex } from '@chakra-ui/react';
-import { LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List, MapPin } from 'lucide-react';
 
 interface AppViewModeToggleProps {
   scope: string;
@@ -45,6 +45,17 @@ export default function AppViewModeToggle({ scope }: AppViewModeToggleProps) {
         aria-label="List view"
         icon={<List size={16} />}
         onClick={() => setViewMode(scope, 'list')}
+        borderRadius="md"
+      />
+      <IconButton
+        size="xs"
+        h="32px"
+        w="32px"
+        variant={viewMode === 'map' ? 'solid' : 'ghost'}
+        colorPalette="green"
+        aria-label="Map view"
+        icon={<MapPin size={16} />}
+        onClick={() => setViewMode(scope, 'map')}
         borderRadius="md"
       />
     </Flex>

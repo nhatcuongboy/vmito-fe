@@ -72,6 +72,7 @@ import FindSessionCard from './FindSessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
+import SessionMap from './SessionMap';
 
 const PAGE_SIZE = 12;
 
@@ -910,6 +911,8 @@ export default function FindSessionList({
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
+      ) : viewMode === 'map' ? (
+        <SessionMap sessions={sortedSessions} userLocation={userLocation} />
       ) : sortedSessions.length === 0 ? (
         <Box
           textAlign="center"

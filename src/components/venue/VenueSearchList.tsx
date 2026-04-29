@@ -34,6 +34,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
+import VenueMap from './VenueMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import { useViewModeStore } from '@/stores/useViewModeStore';
 import {
@@ -1000,6 +1001,8 @@ export default function VenueSearchList() {
             </Button>
           )}
         </Box>
+      ) : viewMode === 'map' ? (
+        <VenueMap venues={venues} userLocation={userLocation} />
       ) : (
         <>
           <Grid
