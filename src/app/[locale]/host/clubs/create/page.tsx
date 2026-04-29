@@ -30,6 +30,9 @@ import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import PageLayout from '@/components/layout/PageLayout';
 import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
 import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
+import AppMultiImageUpload, {
+  ISessionImage,
+} from '@/components/session/AppMultiImageUpload';
 import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -67,8 +70,10 @@ const CreateClubPage = () => {
     new Map()
   );
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
+
+  const [clubImages, setClubImages] = useState<ISessionImage[]>([]);
+  const [bannerIndex, setBannerIndex] = useState(0);
 
   const [selectedHostUserId, setSelectedHostUserId] = useState('');
   const [hostUsers, setHostUsers] = useState<AdminUser[]>([]);
@@ -90,9 +95,6 @@ const CreateClubPage = () => {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
-
-  const imagesValue = watch('images') || [];
-  const imagePublicIdsValue = watch('imagePublicIds') || [];
 
   const handleVenueSearch = useCallback(
     (query: string) => {
@@ -244,8 +246,19 @@ const CreateClubPage = () => {
         const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
         return g.schedules.map((s) => ({ ...s, notes: venueName }));
       });
+
+      // Map clubImages to form data
+      const images = clubImages.map((img) => img.url);
+      const imagePublicIds = clubImages.map((img) => img.publicId);
+      const image = clubImages[bannerIndex]?.url;
+      const imagePublicId = clubImages[bannerIndex]?.publicId;
+
       const club = await ClubsService.createClub({
         ...data,
+        image,
+        imagePublicId,
+        images,
+        imagePublicIds,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
         hostUserId: selectedHostUserId || undefined,
@@ -351,96 +364,14 @@ const CreateClubPage = () => {
 
           {/* Club Image(s) */}
           <Field label={t('clubImage')}>
-            {imagesValue.length > 0 ? (
-              <Flex gap={2} flexWrap="wrap">
-                {imagesValue.map((url, idx) => (
-                  <Box key={url} position="relative" display="inline-block">
-                    <Image
-                      src={url}
-                      alt={`Club image ${idx + 1}`}
-                      boxSize="100px"
-                      borderRadius="md"
-                      objectFit="cover"
-                    />
-                    <IconButton
-                      size="xs"
-                      position="absolute"
-                      top={1}
-                      right={1}
-                      colorPalette="red"
-                      variant="solid"
-                      borderRadius="full"
-                      aria-label={t('removeImage')}
-                      onClick={() => {
-                        const newImages = [...imagesValue];
-                        newImages.splice(idx, 1);
-                        const newPublicIds = [...imagePublicIdsValue];
-                        newPublicIds.splice(idx, 1);
-                        setValue('images', newImages);
-                        setValue('imagePublicIds', newPublicIds);
-                        if (newImages.length > 0) {
-                          setValue('image', newImages[0]);
-                          setValue('imagePublicId', newPublicIds[0]);
-                        } else {
-                          setValue('image', undefined);
-                          setValue('imagePublicId', undefined);
-                        }
-                      }}
-                    >
-                      <X size={12} />
-                    </IconButton>
-                  </Box>
-                ))}
-              </Flex>
-            ) : (
-              <Box
-                borderWidth="2px"
-                borderStyle="dashed"
-                borderColor="gray.300"
-                _dark={{ borderColor: 'gray.600', color: 'gray.400' }}
-                borderRadius="md"
-                p={6}
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                gap={2}
-                color="gray.500"
-              >
-                <ImageIcon size={32} />
-                <Text fontSize="sm">{t('noImageSelected')}</Text>
-              </Box>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              mt={2}
-              onClick={() => setIsGalleryOpen(true)}
-            >
-              <ImageIcon size={16} />
-              {t('selectImage')}
-            </Button>
-            <AppImageGalleryPicker
-              isOpen={isGalleryOpen}
-              onClose={() => setIsGalleryOpen(false)}
-              onSelect={(imgs) => {
-                const urls = imgs.map((i) => i.url);
-                const publicIds = imgs.map((i) => i.publicId);
-                setValue('images', urls);
-                setValue('imagePublicIds', publicIds);
-                if (imgs.length > 0) {
-                  setValue('image', urls[0]);
-                  setValue('imagePublicId', publicIds[0]);
-                } else {
-                  setValue('image', undefined);
-                  setValue('imagePublicId', undefined);
-                }
-              }}
-              selectedImages={imagesValue.map((url, idx) => ({
-                url,
-                publicId: imagePublicIdsValue[idx] || '',
-              }))}
-              maxSelect={10}
+            <AppMultiImageUpload
+              images={clubImages}
+              bannerIndex={bannerIndex}
+              onImagesChange={setClubImages}
+              onBannerChange={setBannerIndex}
+              maxImages={10}
               category={EImageCategory.CLUB}
+              label={null}
             />
           </Field>
 

@@ -69,6 +69,9 @@ import { trimPhone } from '@/utils/phone-utils';
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { FilterChip } from '@/components/ui/FilterChip';
+import AppMultiImageUpload, {
+  ISessionImage,
+} from '@/components/session/AppMultiImageUpload';
 
 const PAGE_SIZE = 20;
 
@@ -181,6 +184,10 @@ function AdminVenuesContent() {
     onClose: closeBulkOpen,
   } = useDisclosure();
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+
+  // Venue images state
+  const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
+  const [venueBannerIndex, setVenueBannerIndex] = useState(0);
 
   // Forms
   const form = useForm<VenueFormValues>({
@@ -405,8 +412,18 @@ function AdminVenuesContent() {
 
   const handleCreate = async (data: VenueFormValues) => {
     try {
+      // Map venueImages to coverPhoto and images
+      const images = venueImages.map((img) => img.url);
+      const imagePublicIds = venueImages.map((img) => img.publicId);
+      const coverPhoto = venueImages[venueBannerIndex]?.url;
+      const coverPhotoPublicId = venueImages[venueBannerIndex]?.publicId;
+
       const payload = {
         ...data,
+        coverPhoto,
+        coverPhotoPublicId,
+        images,
+        imagePublicIds,
         status: data.status as VenueStatus,
         closureStatus: data.closureStatus as ClosureStatus,
         phone: trimPhone(data.phone),
@@ -415,6 +432,8 @@ function AdminVenuesContent() {
       toaster.success({ title: t('venueCreatedSuccess') });
       setIsCreateOpen(false);
       form.reset();
+      setVenueImages([]);
+      setVenueBannerIndex(0);
       fetchVenues();
     } catch (error) {
       console.error('Failed to create venue:', error);
@@ -425,8 +444,18 @@ function AdminVenuesContent() {
   const handleUpdate = async (data: VenueFormValues) => {
     if (!selectedVenue) return;
     try {
+      // Map venueImages to coverPhoto and images
+      const images = venueImages.map((img) => img.url);
+      const imagePublicIds = venueImages.map((img) => img.publicId);
+      const coverPhoto = venueImages[venueBannerIndex]?.url;
+      const coverPhotoPublicId = venueImages[venueBannerIndex]?.publicId;
+
       const payload = {
         ...data,
+        coverPhoto,
+        coverPhotoPublicId,
+        images,
+        imagePublicIds,
         status: data.status as VenueStatus,
         closureStatus: data.closureStatus as ClosureStatus,
         phone: trimPhone(data.phone),
@@ -487,6 +516,33 @@ function AdminVenuesContent() {
       locatedWithin: venue.locatedWithin || '',
       courtLayoutImage: venue.courtLayoutImage || '',
     });
+
+    // Initialize venueImages from venue data
+    const loadedImages: ISessionImage[] = [];
+
+    // Add coverPhoto first if it exists
+    if (venue.coverPhoto && venue.coverPhotoPublicId) {
+      loadedImages.push({
+        url: venue.coverPhoto,
+        publicId: venue.coverPhotoPublicId,
+      });
+    }
+
+    // Add other images
+    if (venue.images && venue.imagePublicIds) {
+      venue.images.forEach((url, idx) => {
+        const publicId = venue.imagePublicIds?.[idx];
+        if (
+          publicId &&
+          !loadedImages.some((img) => img.publicId === publicId)
+        ) {
+          loadedImages.push({ url, publicId });
+        }
+      });
+    }
+
+    setVenueImages(loadedImages);
+    setVenueBannerIndex(0); // coverPhoto is always first
     setIsEditOpen(true);
   };
 
@@ -546,6 +602,8 @@ function AdminVenuesContent() {
                     locatedWithin: '',
                     courtLayoutImage: '',
                   });
+                  setVenueImages([]);
+                  setVenueBannerIndex(0);
                   setIsCreateOpen(true);
                 }}
               >
@@ -1501,40 +1559,16 @@ function AdminVenuesContent() {
               name="coverPhoto"
               render={({ field }) => (
                 <Field.Root width="full">
-                  <Field.Label fontWeight="bold">{t('coverPhoto')}</Field.Label>
-                  <VStack align="stretch" gap={3} width="full">
-                    <Input
-                      {...field}
-                      placeholder="Enter cover photo URL..."
-                      width="full"
-                    />
-                    {field.value && (
-                      <Box
-                        borderRadius="lg"
-                        overflow="hidden"
-                        borderWidth="1px"
-                        borderColor="gray.200"
-                        bg="gray.50"
-                        _dark={{ borderColor: 'gray.700', bg: 'gray.900' }}
-                      >
-                        <img
-                          src={field.value}
-                          alt="Cover preview"
-                          style={{
-                            width: '100%',
-                            maxHeight: '200px',
-                            objectFit: 'cover',
-                            display: 'block',
-                          }}
-                          onError={(e) => {
-                            (
-                              e.target as HTMLImageElement
-                            ).parentElement!.style.display = 'none';
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </VStack>
+                  <Field.Label fontWeight="bold">Ảnh sân</Field.Label>
+                  <AppMultiImageUpload
+                    images={venueImages}
+                    bannerIndex={venueBannerIndex}
+                    onImagesChange={setVenueImages}
+                    onBannerChange={setVenueBannerIndex}
+                    maxImages={10}
+                    category={EImageCategory.VENUE_COVER}
+                    label={null}
+                  />
                 </Field.Root>
               )}
             />
@@ -1579,99 +1613,6 @@ function AdminVenuesContent() {
                         />
                       </Box>
                     )}
-                  </VStack>
-                </Field.Root>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="images"
-              render={({ field }) => (
-                <Field.Root>
-                  <Field.Label fontWeight="bold">{t('images')}</Field.Label>
-                  <VStack align="stretch" gap={4}>
-                    <VStack align="stretch" gap={3}>
-                      {(field.value || []).map((url, index) => (
-                        <Box
-                          key={index}
-                          p={3}
-                          borderRadius="lg"
-                          borderWidth="1px"
-                          borderColor="gray.200"
-                          bg="white"
-                          _dark={{ borderColor: 'gray.700', bg: 'gray.800' }}
-                        >
-                          <Flex gap={3} align="start">
-                            <Box flex="1">
-                              <Input
-                                value={url}
-                                size="sm"
-                                variant="flushed"
-                                onChange={(e) => {
-                                  const newImages = [...(field.value || [])];
-                                  newImages[index] = e.target.value;
-                                  field.onChange(newImages);
-                                }}
-                                placeholder="Paste image URL here..."
-                                mb={url ? 2 : 0}
-                              />
-                            </Box>
-                            <IconButton
-                              aria-label="Remove image"
-                              size="xs"
-                              colorPalette="red"
-                              variant="ghost"
-                              onClick={() => {
-                                const newImages = (field.value || []).filter(
-                                  (_, i) => i !== index
-                                );
-                                field.onChange(newImages);
-                              }}
-                            >
-                              <Trash2 size={16} />
-                            </IconButton>
-                          </Flex>
-                          {url && (
-                            <Box
-                              mt={2}
-                              borderRadius="md"
-                              overflow="hidden"
-                              maxH="120px"
-                              bg="gray.50"
-                              _dark={{ bg: 'gray.900' }}
-                            >
-                              <img
-                                src={url}
-                                alt={`Gallery ${index + 1}`}
-                                style={{
-                                  width: '100%',
-                                  height: '120px',
-                                  objectFit: 'cover',
-                                }}
-                                onError={(e) => {
-                                  (
-                                    e.target as HTMLImageElement
-                                  ).parentElement!.style.display = 'none';
-                                }}
-                              />
-                            </Box>
-                          )}
-                        </Box>
-                      ))}
-                    </VStack>
-                    <VButton
-                      size="sm"
-                      variant="outline"
-                      colorPalette="brand"
-                      leftIcon={<Plus size={16} />}
-                      onClick={() =>
-                        field.onChange([...(field.value || []), ''])
-                      }
-                      width="fit-content"
-                    >
-                      Thêm ảnh
-                    </VButton>
                   </VStack>
                 </Field.Root>
               )}

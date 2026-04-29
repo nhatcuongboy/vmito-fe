@@ -48,6 +48,8 @@ interface IAppMultiImageUploadProps {
   disabled?: boolean;
   isUploading?: boolean;
   maxImages?: number;
+  category?: EImageCategory;
+  label?: string | null;
 }
 
 const SortableImageItem = ({
@@ -173,6 +175,8 @@ const AppMultiImageUpload = ({
   disabled = false,
   isUploading = false,
   maxImages = 5,
+  category = EImageCategory.SESSION_COVER,
+  label,
 }: IAppMultiImageUploadProps) => {
   const t = useTranslations('session');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -245,14 +249,16 @@ const AppMultiImageUpload = ({
 
   return (
     <Box>
-      <Flex justify="space-between" align="center" mb={2}>
-        <Text fontSize="sm" fontWeight="medium">
-          {t('sessionImages')}
-        </Text>
-        <Text fontSize="xs" color="gray.500">
-          {t('maxImages', { max: maxImages })} — {images.length}/{maxImages}
-        </Text>
-      </Flex>
+      {label !== null && (
+        <Flex justify="space-between" align="center" mb={2}>
+          <Text fontSize="sm" fontWeight="medium">
+            {label || t('sessionImages')}
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            {t('maxImages', { max: maxImages })} — {images.length}/{maxImages}
+          </Text>
+        </Flex>
+      )}
 
       {images.length > 0 ? (
         <DndContext
@@ -266,7 +272,7 @@ const AppMultiImageUpload = ({
           >
             <Box
               display="grid"
-              gridTemplateColumns="repeat(auto-fill, minmax(140px, 1fr))"
+              gridTemplateColumns="repeat(auto-fill, minmax(120px, 1fr))"
               gap={3}
               mb={3}
             >
@@ -332,7 +338,7 @@ const AppMultiImageUpload = ({
         onSelect={handleGallerySelect}
         selectedImages={images}
         maxSelect={maxImages}
-        category={EImageCategory.SESSION_COVER}
+        category={category}
       />
     </Box>
   );
