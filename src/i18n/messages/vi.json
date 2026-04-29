@@ -105,6 +105,7 @@
     "editProfile": "Chỉnh sửa hồ sơ",
     "name": "Tên",
     "phone": "Số điện thoại",
+    "aiAssistant": "Trợ lý AI",
     "giveFeedback": "Gửi phản hồi",
     "levels": {
       "1": "Yếu",
@@ -532,6 +533,7 @@
     "imageOf": "{current}/{total}",
     "aiModal": {
       "title": "Tạo kèo nhanh bằng AI",
+      "or": "hoặc",
       "description": "Dán nội dung bài đăng tuyển vãng lai, AI sẽ tự động điền thông tin kèo cho bạn.",
       "placeholder": "Ví dụ:\nTuyển 2 bạn đánh cầu lông tại sân ABC, Quận 1, HCM. \nThời gian 18h-20h ngày 27/1/2026. \nTrình độ TB-K. \nLiên hệ: Minh 0912345678.",
       "generate": "Tạo kèo",
@@ -543,7 +545,7 @@
       "hint": "AI sẽ trích xuất: tên kèo, địa điểm, thời gian, trình độ, thông tin...",
       "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}",
       "manualLink": "Hoặc tạo thủ công tại đây",
-      "alwaysManual": "Mặc định tạo thủ công",
+      "alwaysManual": "Tạo thủ công",
       "switchToAi": "Sử dụng AI để tạo nhanh"
     },
     "linkCopied": "Đã sao chép link",

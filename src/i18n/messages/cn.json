@@ -505,6 +505,7 @@
     "imageOf": "{current}/{total}",
     "aiModal": {
       "title": "AI 快速创建赛场",
+      "or": "或",
       "description": "粘贴招募贴内容，AI 将自动为您填写赛场信息。",
       "placeholder": "在此处粘贴招募贴内容...\n\n例如：\nHCM 第一区 ABC 球场招募 2 名羽毛球手。时间：2026年1月27日 18:00-20:00。联系人：Minh 0912345678。等级：中级-高级。",
       "generate": "创建赛场",

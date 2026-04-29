@@ -105,6 +105,7 @@
     "editProfile": "Edit Profile",
     "name": "Name",
     "phone": "Phone",
+    "aiAssistant": "AI Assistant",
     "giveFeedback": "Give Feedback",
     "levels": {
       "1": "Weak",
@@ -531,6 +532,7 @@
     "imageOf": "{current}/{total}",
     "aiModal": {
       "title": "Quick create session by AI",
+      "or": "or",
       "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
       "placeholder": "Paste article content here...\n\nExample:\nLooking for 2 players for badminton at ABC Court, District 1, HCM. Time: 6pm-8pm on Jan 27, 2026. Contact: Minh 0912345678. Level: Intermediate-Advanced.",
       "generate": "Create Session",
@@ -542,7 +544,7 @@
       "hint": "AI will extract: session name, location, time, levels, host info...",
       "venueMatched": "Venue matched: {venueName}",
       "manualLink": "Or create manually here",
-      "alwaysManual": "Default to manual creation",
+      "alwaysManual": "Create manually",
       "switchToAi": "Use AI for quick creation"
     },
     "linkCopied": "Link copied to clipboard",

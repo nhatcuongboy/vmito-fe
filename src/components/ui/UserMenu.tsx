@@ -22,6 +22,7 @@ import {
   Moon,
   Sun,
   Monitor,
+  Sparkles,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { UserRole } from '@/lib/api/types';
@@ -30,6 +31,7 @@ import UserProfileModal from './UserProfileModal';
 import { useRouter, usePathname } from '@/i18n/config';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 import { useColorMode } from './color-mode-provider';
+import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -175,6 +177,32 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           </Text>
         </Box>
         <ChevronRight size={20} color="gray" />
+      </Flex>
+
+      {/* AI Assistant */}
+      <Flex
+        align="center"
+        gap={3}
+        px={4}
+        py={3}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          useAiAssistantStore.getState().open();
+        }}
+      >
+        <Box
+          bg="purple.50"
+          _dark={{ bg: 'purple.900/40' }}
+          p={2}
+          borderRadius="full"
+        >
+          <Sparkles size={20} color="var(--chakra-colors-purple-500)" />
+        </Box>
+        <Text fontSize="md" fontWeight="medium" flex={1}>
+          {common('aiAssistant')}
+        </Text>
       </Flex>
 
       {/* Give Feedback */}

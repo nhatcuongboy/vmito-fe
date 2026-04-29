@@ -179,8 +179,8 @@ api.interceptors.response.use(
           toaster.error({ title: message });
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error
-          // Skip automatic error reporting for auth requests as they are handled locally in pages
-          if (!isAuthRequest) {
+          // Skip automatic error reporting for auth requests or requests that explicitly skip it
+          if (!isAuthRequest && !(error.config as any)?.skipGlobalError) {
             useAppStore.getState().setError(message);
           }
         }

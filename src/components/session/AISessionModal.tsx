@@ -12,8 +12,6 @@ import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 import { Flex } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import { VSwitch } from '@/components/ui/VSwitch';
 
 export interface AISessionModalProps {
   isOpen: boolean;
@@ -31,7 +29,6 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
   const router = useRouter();
   const [articleContent, setArticleContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { useAiForCreation, setUseAiForCreation } = usePreferenceStore();
 
   const handleGenerate = async () => {
     if (!articleContent.trim()) {
@@ -64,6 +61,14 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
     }
   };
 
+  const handleManualCreate = () => {
+    if (!isLoading) {
+      setArticleContent('');
+      onClose();
+      router.push(ROUTES.SESSIONS.NEW);
+    }
+  };
+
   return (
     <VModal
       isOpen={isOpen}
@@ -80,47 +85,40 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
       footer={
         <Flex
           width="100%"
-          justify="space-between"
+          justify="center"
           align="center"
-          direction={{ base: 'column-reverse', sm: 'row' }}
+          direction="column"
           gap={3}
+          pb={2}
         >
-          <Flex align="center" gap={2}>
-            <VSwitch
-              colorPalette="purple"
-              size="sm"
-              checked={useAiForCreation}
-              onCheckedChange={(details) =>
-                setUseAiForCreation(details.checked)
-              }
-            />
-            <Text fontSize="xs" color="gray.600">
-              {useAiForCreation
-                ? t('aiModal.title')
-                : t('aiModal.alwaysManual')}
-            </Text>
-          </Flex>
-          <Flex
-            gap={3}
-            w={{ base: 'full', sm: 'auto' }}
-            direction={{ base: 'column-reverse', sm: 'row' }}
+          <Button
+            colorPalette="purple"
+            onClick={handleGenerate}
+            loading={isLoading}
+            disabled={articleContent.trim() === '' || isLoading}
+            size="md"
+            fontWeight="bold"
+            w="full"
           >
+            <Sparkles size={16} />
+            {t('aiModal.generate')}
+          </Button>
+
+          <Flex direction="column" align="center" gap={1}>
+            <Text fontSize="xs" color="gray.500" fontWeight="medium">
+              {t('aiModal.or')}
+            </Text>
             <Button
-              variant="outline"
-              onClick={handleClose}
+              variant="ghost"
+              size="sm"
+              onClick={handleManualCreate}
               disabled={isLoading}
-              w={{ base: 'full', sm: 'auto' }}
+              color="purple.600"
+              _hover={{ bg: 'purple.50' }}
+              fontWeight="semibold"
             >
-              {t('aiModal.cancel')}
-            </Button>
-            <Button
-              colorPalette="purple"
-              onClick={handleGenerate}
-              loading={isLoading}
-              disabled={!articleContent.trim() || isLoading}
-              w={{ base: 'full', sm: 'auto' }}
-            >
-              {t('aiModal.generate')}
+              <SquarePen size={16} />
+              {t('aiModal.alwaysManual')}
             </Button>
           </Flex>
         </Flex>

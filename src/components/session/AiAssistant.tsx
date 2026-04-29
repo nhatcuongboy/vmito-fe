@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Box, Portal } from '@chakra-ui/react';
-import { Sparkles } from 'lucide-react';
+import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import AiAssistantPanel from '@/components/ai/AiAssistantPanel';
 import { usePathname } from '@/i18n/config';
+import { Box, Portal } from '@chakra-ui/react';
+import { Sparkles } from 'lucide-react';
 
 interface AiAssistantProps {
   /** Optional bottom offset for the float button (e.g. to avoid bottom nav) */
@@ -17,12 +17,19 @@ export default function AiAssistant({
   bottomOffset = '80px',
   pageContext,
 }: AiAssistantProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    isOpen,
+    open,
+    close,
+    toggle,
+    pageContext: storeContext,
+  } = useAiAssistantStore();
   const pathname = usePathname();
 
   // Auto-generate page context from pathname if not provided
   const resolvedContext =
     pageContext ??
+    storeContext ??
     (() => {
       if (pathname.includes('/host/sessions'))
         return 'Trang quản lý kèo (Host Sessions)';
@@ -52,7 +59,7 @@ export default function AiAssistant({
         >
           <Box
             as="button"
-            onClick={() => setIsOpen((prev) => !prev)}
+            onClick={() => toggle(resolvedContext)}
             w={{ base: '44px', md: '52px' }}
             h={{ base: '44px', md: '52px' }}
             borderRadius="full"
@@ -112,7 +119,7 @@ export default function AiAssistant({
       {/* AI Chat Panel */}
       <AiAssistantPanel
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={close}
         pageContext={resolvedContext}
       />
     </>

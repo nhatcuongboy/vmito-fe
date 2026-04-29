@@ -642,6 +642,7 @@ export default function SessionForm({
 
         if (matchedVenue) {
           setValue('selectedVenueId', matchedVenue.id);
+          setSelectedVenueObj(matchedVenue);
         } else {
           console.log('No matching venue found for:', data.venue);
         }
