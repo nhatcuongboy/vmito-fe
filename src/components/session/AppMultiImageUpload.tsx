@@ -95,6 +95,8 @@ const SortableImageItem = ({
       borderWidth={isBanner ? 3 : 1}
       borderColor={isBanner ? 'green.500' : 'gray.200'}
       _dark={{ borderColor: isBanner ? 'green.400' : 'gray.600' }}
+      w={{ base: 'calc(50% - 6px)', sm: '120px' }}
+      flexShrink={0}
     >
       <ChakraImage
         src={image.url}
@@ -270,12 +272,7 @@ const AppMultiImageUpload = ({
             items={images.map((img) => img.publicId)}
             strategy={rectSortingStrategy}
           >
-            <Box
-              display="grid"
-              gridTemplateColumns="repeat(auto-fill, minmax(120px, 1fr))"
-              gap={3}
-              mb={3}
-            >
+            <Flex wrap="wrap" gap={3} mb={3}>
               {images.map((image, index) => (
                 <SortableImageItem
                   key={image.publicId}
@@ -288,7 +285,7 @@ const AppMultiImageUpload = ({
                   t={t}
                 />
               ))}
-            </Box>
+            </Flex>
           </SortableContext>
         </DndContext>
       ) : (

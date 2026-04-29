@@ -8,13 +8,14 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Image, Text, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Image, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
   Input,
   IconButton,
 } from '@/components/ui/chakra-compat';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -24,6 +25,7 @@ import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { VenueService } from '@/lib/api/venue.service';
+import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
@@ -34,17 +36,22 @@ import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
-import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
-import { useAuthStore } from '@/stores/useAuthStore';
+import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
+import { useAuthStore } from '@/stores';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
   hostName: z.string().min(1, 'Trưởng nhóm là bắt buộc'),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(5000, 'Mô tả quá dài (tối đa 5000 ký tự)')
+    .optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
   images: z.array(z.string()).optional(),
   imagePublicIds: z.array(z.string()).optional(),
+  requiredLevels: z.array(z.number()).optional(),
+  allLevelsSelected: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -88,6 +95,7 @@ const CreateClubPage = () => {
   );
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -95,6 +103,13 @@ const CreateClubPage = () => {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      name: '',
+      hostName: isAdmin ? '' : user?.name || '',
+      description: '',
+      requiredLevels: [],
+      allLevelsSelected: true,
+    },
   });
 
   const handleVenueSearch = useCallback(
@@ -244,15 +259,21 @@ const CreateClubPage = () => {
   const onSubmit = async (data: FormData) => {
     try {
       const schedules = venueGroups.flatMap((g) => {
-        const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
-        return g.schedules.map((s) => ({ ...s, notes: venueName }));
+        const venue = venues.find((v) => v.id === g.venueId);
+        const venueInfo = venue ? `${venue.name} | ${venue.address}` : '';
+        return g.schedules.map((s) => ({ ...s, notes: venueInfo }));
       });
 
       // Map clubImages to form data
       const images = clubImages.map((img) => img.url);
       const imagePublicIds = clubImages.map((img) => img.publicId);
-      const image = clubImages[bannerIndex]?.url;
-      const imagePublicId = clubImages[bannerIndex]?.publicId;
+
+      // Ensure bannerIndex is within bounds
+      const validBannerIndex = Math.min(bannerIndex, clubImages.length - 1);
+      const image =
+        clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.url;
+      const imagePublicId =
+        clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
       const club = await ClubsService.createClub({
         ...data,
@@ -263,6 +284,7 @@ const CreateClubPage = () => {
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
         hostUserId: selectedHostUserId || undefined,
+        requiredLevels: data.requiredLevels,
       });
 
       // Show appropriate toast based on club status
@@ -351,14 +373,18 @@ const CreateClubPage = () => {
             </Field>
           )}
 
+          {/* Trình độ */}
+          <ClubLevelRequirements control={control} setValue={setValue} />
+
           {/* Description */}
           <Field
             label={t('description')}
             invalid={!!errors.description}
             errorText={errors.description?.message}
           >
-            <Textarea
-              {...register('description')}
+            <RichTextEditor
+              value={watch('description')}
+              onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
             />
           </Field>

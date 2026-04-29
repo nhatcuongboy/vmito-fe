@@ -17,19 +17,20 @@ export const compressImage = async (
   } = options;
 
   try {
+    // browser-image-compression automatically maintains aspect ratio
+    // maxWidthOrHeight scales down proportionally without cropping
     const compressedFile = await imageCompression(file, {
       maxSizeMB,
       maxWidthOrHeight,
       useWebWorker,
     });
 
-    // Maintain the original filename and extension
     return new File([compressedFile], file.name, {
       type: file.type,
       lastModified: Date.now(),
     });
   } catch (error) {
     console.error('Image compression failed:', error);
-    return file; // Return original file if compression fails
+    return file;
   }
 };

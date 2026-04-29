@@ -19,6 +19,7 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import {
   MapPin,
   Users,
@@ -44,6 +45,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 interface ClubDetailClientProps {
   initialClub: IClub | null;
@@ -57,6 +59,7 @@ export default function ClubDetailClient({
   const params = useParams();
   const clubId = params.id as string;
   const { user: currentUser } = useAuthStore();
+  const { getLevelLabel } = useLevelLabel();
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
@@ -85,14 +88,26 @@ export default function ClubDetailClient({
   }, [clubId, loadClubDetails, initialClub]);
 
   const getLevelRange = () => {
+    // Priority 1: Use manual settings if available
+    if (club?.requiredLevels && club.requiredLevels.length > 0) {
+      return club.requiredLevels
+        .sort((a, b) => a - b)
+        .map((l) => getLevelLabel(l))
+        .join(', ');
+    }
+
+    // Fallback: Calculate from members
     if (!club?.members || club.members.length === 0) return null;
     const levels = club.members
       .map((m) => m.user.level)
       .filter((l): l is number => l !== undefined && l !== null);
+
     if (levels.length === 0) return null;
     const min = Math.min(...levels);
     const max = Math.max(...levels);
-    return min === max ? `Lv. ${min}` : `Lv. ${min}-${max}`;
+
+    if (min === max) return getLevelLabel(min);
+    return `${getLevelLabel(min)} - ${getLevelLabel(max)}`;
   };
 
   const isUserMember = club?.members?.some(
@@ -256,7 +271,38 @@ export default function ClubDetailClient({
                 >
                   <MapPin size={16} />
                   <Text fontSize="sm" lineClamp={1}>
-                    {club.location || t('clubs.notUpdated')}
+                    {(() => {
+                      // Collect all venues: scheduleVenues first, fallback to defaultVenue
+                      const venues =
+                        club.scheduleVenues && club.scheduleVenues.length > 0
+                          ? club.scheduleVenues
+                          : club.defaultVenue
+                            ? [club.defaultVenue]
+                            : [];
+
+                      if (venues.length === 0)
+                        return club.location || t('clubs.notUpdated');
+
+                      // Group districts by city
+                      const cityMap = new Map<string, Set<string>>();
+                      for (const v of venues) {
+                        const city = v.city || '';
+                        const district = v.district || '';
+                        if (!cityMap.has(city)) cityMap.set(city, new Set());
+                        if (district) cityMap.get(city)!.add(district);
+                      }
+
+                      return Array.from(cityMap.entries())
+                        .map(([city, districts]) => {
+                          const dList = Array.from(districts).join(', ');
+                          return city
+                            ? dList
+                              ? `${dList} (${city})`
+                              : city
+                            : dList;
+                        })
+                        .join(' · ');
+                    })()}
                   </Text>
                 </HStack>
               </Box>
@@ -415,6 +461,22 @@ export default function ClubDetailClient({
                 </Badge>
               )}
             </Tabs.Trigger>
+            <Tabs.Trigger
+              value="photos"
+              gap={2}
+              borderRadius="xl"
+              px={5}
+              py={2}
+              flexShrink={0}
+              whiteSpace="nowrap"
+              _selected={{ bg: 'green.100', color: 'green.700', shadow: 'sm' }}
+              _dark={{ _selected: { bg: 'green.900/40', color: 'green.300' } }}
+            >
+              <ImageIcon size={16} />
+              <Text fontSize="sm" fontWeight="semibold">
+                {t('clubs.clubImage')}
+              </Text>
+            </Tabs.Trigger>
           </Tabs.List>
 
           {/* Grid Layout 7:3 */}
@@ -426,9 +488,8 @@ export default function ClubDetailClient({
             {/* Main Content - Left Column */}
             <Box>
               {/* Tab Content: About */}
-              <Tabs.Content value="about">
+              <Tabs.Content value="about" pt={0}>
                 <VStack gap={6} align="stretch">
-                  {/* Consolidated Info Card */}
                   <Box
                     p={6}
                     bg="white"
@@ -439,7 +500,7 @@ export default function ClubDetailClient({
                     shadow="sm"
                   >
                     {/* Description */}
-                    <Box mb={6}>
+                    <Box>
                       <Heading
                         size="md"
                         mb={4}
@@ -449,70 +510,11 @@ export default function ClubDetailClient({
                         Giới thiệu về nhóm
                       </Heading>
                       {club.description ? (
-                        <Text
-                          color="gray.600"
-                          _dark={{ color: 'gray.400' }}
-                          lineHeight="tall"
-                          fontSize="md"
-                          fontFamily="var(--font-geist-sans)"
-                        >
-                          {club.description}
-                        </Text>
+                        <RichTextDisplay content={club.description} />
                       ) : (
                         <Text fontSize="sm" color="gray.400" fontStyle="italic">
                           {t('clubs.noDescription')}
                         </Text>
-                      )}
-                    </Box>
-
-                    {/* Gallery Section */}
-                    <Box>
-                      <Heading size="md" mb={4}>
-                        {t('clubs.clubImage')}
-                      </Heading>
-
-                      {club.images && club.images.length > 0 ? (
-                        <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
-                          {club.images.map((imgUrl, idx) => (
-                            <Box
-                              key={idx}
-                              aspectRatio={1}
-                              borderRadius="2xl"
-                              overflow="hidden"
-                              borderWidth="1px"
-                              borderColor="gray.100"
-                              _dark={{ borderColor: 'gray.700' }}
-                              transition="all 0.2s"
-                              _hover={{
-                                shadow: 'lg',
-                                transform: 'scale(1.02)',
-                              }}
-                              cursor="pointer"
-                            >
-                              <Image
-                                src={imgUrl}
-                                alt={`${club.name} photo ${idx + 1}`}
-                                w="full"
-                                h="full"
-                                objectFit="cover"
-                              />
-                            </Box>
-                          ))}
-                        </SimpleGrid>
-                      ) : (
-                        <Flex
-                          direction="column"
-                          align="center"
-                          justify="center"
-                          py={10}
-                          color="gray.400"
-                          gap={2}
-                        >
-                          <ImageIcon size={40} strokeWidth={1.2} />
-                          <Text fontSize="sm" fontStyle="italic">
-                            {t('clubs.noImages')}
-                          </Text>
-                        </Flex>
                       )}
                     </Box>
                   </Box>
@@ -520,7 +522,7 @@ export default function ClubDetailClient({
               </Tabs.Content>
 
               {/* Tab Content: Members */}
-              <Tabs.Content value="members">
+              <Tabs.Content value="members" pt={0}>
                 <Box
                   p={6}
                   bg="white"
@@ -528,6 +530,7 @@ export default function ClubDetailClient({
                   borderRadius="2xl"
                   borderWidth="1px"
                   borderColor="gray.100"
+                  shadow="sm"
                 >
                   <Flex justify="space-between" align="center" mb={5}>
                     <Heading size="md">{t('clubs.clubMembers')}</Heading>
@@ -588,7 +591,7 @@ export default function ClubDetailClient({
                               </Badge>
                               {member.user.level && (
                                 <Text fontSize="xs" color="gray.500">
-                                  Lv.{member.user.level}
+                                  {getLevelLabel(member.user.level)}
                                 </Text>
                               )}
                             </HStack>
@@ -615,7 +618,7 @@ export default function ClubDetailClient({
               </Tabs.Content>
 
               {/* Tab Content: Schedule */}
-              <Tabs.Content value="schedule">
+              <Tabs.Content value="schedule" pt={0}>
                 <Box
                   p={6}
                   bg="white"
@@ -623,6 +626,7 @@ export default function ClubDetailClient({
                   borderRadius="2xl"
                   borderWidth="1px"
                   borderColor="gray.100"
+                  shadow="sm"
                 >
                   <Heading size="md" mb={5}>
                     {t('clubs.schedule')}
@@ -673,9 +677,27 @@ export default function ClubDetailClient({
                                 {schedule.startTime} - {schedule.endTime}
                               </Text>
                               {schedule.notes && (
-                                <Text fontSize="xs" color="gray.500" mt={1}>
-                                  {schedule.notes}
-                                </Text>
+                                <Box mt={1}>
+                                  {schedule.notes.includes('|') ? (
+                                    <>
+                                      <Text
+                                        fontWeight="medium"
+                                        fontSize="xs"
+                                        color="gray.700"
+                                        _dark={{ color: 'gray.300' }}
+                                      >
+                                        {schedule.notes.split('|')[0].trim()}
+                                      </Text>
+                                      <Text fontSize="2xs" color="gray.500">
+                                        {schedule.notes.split('|')[1].trim()}
+                                      </Text>
+                                    </>
+                                  ) : (
+                                    <Text fontSize="xs" color="gray.500">
+                                      {schedule.notes}
+                                    </Text>
+                                  )}
+                                </Box>
                               )}
                             </Box>
                           </Flex>
@@ -700,7 +722,7 @@ export default function ClubDetailClient({
               </Tabs.Content>
 
               {/* Tab Content: Announcements */}
-              <Tabs.Content value="announcements">
+              <Tabs.Content value="announcements" pt={0}>
                 <Box
                   p={6}
                   bg="white"
@@ -708,6 +730,7 @@ export default function ClubDetailClient({
                   borderRadius="2xl"
                   borderWidth="1px"
                   borderColor="gray.100"
+                  shadow="sm"
                 >
                   <Heading size="md" mb={5}>
                     {t('clubs.recentAnnouncements')}
@@ -781,6 +804,63 @@ export default function ClubDetailClient({
                   )}
                 </Box>
               </Tabs.Content>
+
+              {/* Tab Content: Photos */}
+              <Tabs.Content value="photos" pt={0}>
+                <Box
+                  p={6}
+                  bg="white"
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                  borderRadius="2xl"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  shadow="sm"
+                >
+                  <Heading size="md" mb={5}>
+                    {t('clubs.clubImage')}
+                  </Heading>
+                  {club.images && club.images.length > 0 ? (
+                    <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
+                      {club.images.map((imgUrl, idx) => (
+                        <Box
+                          key={idx}
+                          aspectRatio={1}
+                          borderRadius="2xl"
+                          overflow="hidden"
+                          borderWidth="1px"
+                          borderColor="gray.100"
+                          _dark={{ borderColor: 'gray.700' }}
+                          transition="all 0.2s"
+                          _hover={{ shadow: 'lg', transform: 'scale(1.02)' }}
+                          cursor="pointer"
+                        >
+                          <Image
+                            src={imgUrl}
+                            alt={`${club.name} photo ${idx + 1}`}
+                            w="full"
+                            h="full"
+                            objectFit="cover"
+                          />
+                        </Box>
+                      ))}
+                    </SimpleGrid>
+                  ) : (
+                    <Flex
+                      direction="column"
+                      align="center"
+                      justify="center"
+                      py={10}
+                      color="gray.400"
+                      gap={2}
+                    >
+                      <ImageIcon size={40} strokeWidth={1.2} />
+                      <Text fontSize="sm" fontStyle="italic">
+                        {t('clubs.noImages')}
+                      </Text>
+                    </Flex>
+                  )}
+                </Box>
+              </Tabs.Content>
             </Box>
 
             {/* Sticky Sidebar - Right Column */}
@@ -833,38 +913,6 @@ export default function ClubDetailClient({
                       </Box>
                     </HStack>
 
-                    {/* Sessions */}
-                    <HStack gap={3}>
-                      <Flex
-                        w="40px"
-                        h="40px"
-                        borderRadius="lg"
-                        bg="blue.100"
-                        _dark={{ bg: 'blue.900' }}
-                        align="center"
-                        justify="center"
-                        flexShrink={0}
-                      >
-                        <Calendar
-                          size={20}
-                          color="var(--chakra-colors-blue-600)"
-                        />
-                      </Flex>
-                      <Box flex="1">
-                        <Text
-                          fontSize="xs"
-                          color="gray.500"
-                          _dark={{ color: 'gray.400' }}
-                          textTransform="capitalize"
-                        >
-                          {t('clubs.sessions')}
-                        </Text>
-                        <Text fontWeight="semibold" fontSize="sm">
-                          {club.sessionCount || 0}
-                        </Text>
-                      </Box>
-                    </HStack>
-
                     {/* Level Range */}
                     <HStack gap={3}>
                       <Flex
@@ -897,74 +945,116 @@ export default function ClubDetailClient({
                       </Box>
                     </HStack>
 
-                    {/* Fee */}
-                    <HStack gap={3}>
-                      <Flex
-                        w="40px"
-                        h="40px"
-                        borderRadius="lg"
-                        bg="orange.100"
-                        _dark={{ bg: 'orange.900' }}
-                        align="center"
-                        justify="center"
-                        flexShrink={0}
-                      >
-                        <DollarSign
-                          size={20}
-                          color="var(--chakra-colors-orange-600)"
-                        />
-                      </Flex>
-                      <Box flex="1">
-                        <Text
-                          fontSize="xs"
-                          color="gray.500"
-                          _dark={{ color: 'gray.400' }}
-                          textTransform="capitalize"
-                        >
-                          {t('clubs.fee')}
-                        </Text>
-                        <Text fontWeight="semibold" fontSize="sm">
-                          {club.currentMonthFee
-                            ? `${club.currentMonthFee.maleFeePerSession || 0}k / ${club.currentMonthFee.femaleFeePerSession || 0}k`
-                            : 'Liên hệ chủ nhóm'}
-                        </Text>
-                      </Box>
-                    </HStack>
-
-                    {/* Venue */}
-                    <HStack gap={3}>
-                      <Flex
-                        w="40px"
-                        h="40px"
-                        borderRadius="lg"
-                        bg="blue.100"
-                        _dark={{ bg: 'blue.900' }}
-                        align="center"
-                        justify="center"
-                        flexShrink={0}
-                      >
-                        <MapPin
-                          size={20}
-                          color="var(--chakra-colors-blue-600)"
-                        />
-                      </Flex>
-                      <Box flex="1">
-                        <Text
-                          fontSize="xs"
-                          color="gray.500"
-                          _dark={{ color: 'gray.400' }}
-                          textTransform="capitalize"
-                        >
-                          {t('clubs.venue')}
-                        </Text>
-                        <Text fontWeight="semibold" fontSize="sm" lineClamp={2}>
-                          {club.defaultVenue?.name ||
-                            club.location ||
-                            t('clubs.notUpdated')}
-                        </Text>
-                      </Box>
-                    </HStack>
+                    {/* Venue(s) */}
+                    {(() => {
+                      // Collect unique venue names from schedules
+                      const venueNames = club.schedules
+                        ? [
+                            ...new Set(
+                              club.schedules
+                                .map((s) => s.notes)
+                                .filter(Boolean) as string[]
+                            ),
+                          ]
+                        : [];
+                      const displayVenues =
+                        venueNames.length > 0
+                          ? venueNames
+                          : club.defaultVenue?.name
+                            ? [club.defaultVenue.name]
+                            : club.location
+                              ? [club.location]
+                              : [];
+                      return (
+                        <HStack gap={3} align="start">
+                          <Flex
+                            w="40px"
+                            h="40px"
+                            borderRadius="lg"
+                            bg="blue.100"
+                            _dark={{ bg: 'blue.900' }}
+                            align="center"
+                            justify="center"
+                            flexShrink={0}
+                          >
+                            <MapPin
+                              size={20}
+                              color="var(--chakra-colors-blue-600)"
+                            />
+                          </Flex>
+                          <Box flex="1">
+                            <Text
+                              fontSize="xs"
+                              color="gray.500"
+                              _dark={{ color: 'gray.400' }}
+                              textTransform="capitalize"
+                            >
+                              Sân Sinh Hoạt
+                            </Text>
+                            {displayVenues.length > 0 ? (
+                              <VStack gap={0.5} align="start">
+                                {displayVenues.map((v, i) => (
+                                  <Text
+                                    key={i}
+                                    fontWeight="semibold"
+                                    fontSize="sm"
+                                    lineClamp={2}
+                                  >
+                                    {v}
+                                  </Text>
+                                ))}
+                              </VStack>
+                            ) : (
+                              <Text fontWeight="semibold" fontSize="sm">
+                                {t('clubs.notUpdated')}
+                              </Text>
+                            )}
+                          </Box>
+                        </HStack>
+                      );
+                    })()}
                   </VStack>
+                </Box>
+
+                {/* Admin Info Card */}
+                <Box
+                  bg="white"
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                  borderRadius="2xl"
+                  p={5}
+                  shadow="sm"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                >
+                  <Heading size="sm" mb={4}>
+                    Trưởng nhóm
+                  </Heading>
+                  <HStack gap={4} align="center">
+                    <Avatar.Root size="lg" flexShrink={0}>
+                      <Avatar.Image src={club.host.image} />
+                      <Avatar.Fallback>
+                        {(hostRealName || club.host.name || '?')
+                          .charAt(0)
+                          .toUpperCase()}
+                      </Avatar.Fallback>
+                    </Avatar.Root>
+                    <Box flex="1" minW="0">
+                      <HStack gap={1.5}>
+                        <Crown
+                          size={16}
+                          color="var(--chakra-colors-orange-500)"
+                        />
+                        <Text
+                          fontWeight="bold"
+                          fontSize="md"
+                          lineClamp={1}
+                          color="orange.600"
+                        >
+                          {hostRealName || t('clubs.admin')}
+                        </Text>
+                      </HStack>
+                    </Box>
+                  </HStack>
                 </Box>
 
                 {/* Mini Map */}
@@ -1022,47 +1112,6 @@ export default function ClubDetailClient({
                     )}
                   </Box>
                 )}
-
-                {/* Admin Info Card */}
-                <Box
-                  bg="white"
-                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                  borderRadius="2xl"
-                  p={5}
-                  shadow="sm"
-                  borderWidth="1px"
-                  borderColor="gray.100"
-                >
-                  <Heading size="sm" mb={4}>
-                    Trưởng nhóm
-                  </Heading>
-                  <HStack gap={4} align="center">
-                    <Avatar.Root size="lg" flexShrink={0}>
-                      <Avatar.Image src={club.host.image} />
-                      <Avatar.Fallback>
-                        {(hostRealName || club.host.name || '?')
-                          .charAt(0)
-                          .toUpperCase()}
-                      </Avatar.Fallback>
-                    </Avatar.Root>
-                    <Box flex="1" minW="0">
-                      <HStack gap={1.5}>
-                        <Crown
-                          size={16}
-                          color="var(--chakra-colors-orange-500)"
-                        />
-                        <Text
-                          fontWeight="bold"
-                          fontSize="md"
-                          lineClamp={1}
-                          color="orange.600"
-                        >
-                          {hostRealName || t('clubs.admin')}
-                        </Text>
-                      </HStack>
-                    </Box>
-                  </HStack>
-                </Box>
 
                 {/* CTA Button */}
                 {isUserAdmin && (

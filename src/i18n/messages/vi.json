@@ -3206,6 +3206,8 @@
     },
     "quickInfo": "Thông tin nhanh",
     "levelRange": "Trình độ",
+    "minLevel": "Từ",
+    "maxLevel": "Đến",
     "fee": "Chi phí",
     "contactAdmin": "Liên hệ Admin",
     "noLevelInfo": "Chưa có thông tin",

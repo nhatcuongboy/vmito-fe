@@ -63,30 +63,28 @@ const AppImageGalleryPicker = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const fetchImages = useCallback(
-    async (pageNum: number, append = false) => {
-      setIsLoading(true);
-      try {
-        const response = await UserImageService.getMyImages(
-          category,
-          pageNum,
-          20
-        );
-        const items = Array.isArray(response?.data) ? response.data : [];
-        if (append) {
-          setGalleryImages((prev) => [...prev, ...items]);
-        } else {
-          setGalleryImages(items);
-        }
-        setHasMore(pageNum < (response?.meta?.totalPages ?? 0));
-      } catch {
-        console.error('Failed to fetch images');
-      } finally {
-        setIsLoading(false);
+  const fetchImages = useCallback(async (pageNum: number, append = false) => {
+    setIsLoading(true);
+    try {
+      // Fetch all images regardless of category
+      const response = await UserImageService.getMyImages(
+        undefined,
+        pageNum,
+        20
+      );
+      const items = Array.isArray(response?.data) ? response.data : [];
+      if (append) {
+        setGalleryImages((prev) => [...prev, ...items]);
+      } else {
+        setGalleryImages(items);
       }
-    },
-    [category]
-  );
+      setHasMore(pageNum < (response?.meta?.totalPages ?? 0));
+    } catch {
+      console.error('Failed to fetch images');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -345,6 +343,22 @@ const AppImageGalleryPicker = ({
                         >
                           {selectedIndex + 1}
                         </Flex>
+                      )}
+
+                      {/* Category Badge */}
+                      {!imgSelected && img.category && (
+                        <Badge
+                          position="absolute"
+                          top={2}
+                          left={2}
+                          size="xs"
+                          colorPalette="gray"
+                          variant="solid"
+                          fontSize="2xs"
+                          pointerEvents="none"
+                        >
+                          {img.category}
+                        </Badge>
                       )}
 
                       {/* Selected checkmark circle — top right */}

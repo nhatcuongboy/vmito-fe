@@ -19,3 +19,4 @@ export {
 } from './standings';
 export * from './time-helpers';
 export * from './venue-helpers';
+export * from './string-utils';

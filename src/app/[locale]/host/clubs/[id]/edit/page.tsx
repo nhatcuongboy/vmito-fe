@@ -8,13 +8,14 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Text, Textarea, Image } from '@chakra-ui/react';
+import { Box, Flex, Text, Image } from '@chakra-ui/react';
 import {
   Button,
   VStack,
   Input,
   IconButton,
 } from '@/components/ui/chakra-compat';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useForm } from 'react-hook-form';
@@ -24,6 +25,7 @@ import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { VenueService } from '@/lib/api/venue.service';
+import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -35,17 +37,22 @@ import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
-import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuthStore } from '@/stores';
+import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
   hostName: z.string().optional(),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(5000, 'Mô tả quá dài (tối đa 5000 ký tự)')
+    .optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
   images: z.array(z.string()).optional(),
   imagePublicIds: z.array(z.string()).optional(),
+  requiredLevels: z.array(z.number()).optional(),
+  allLevelsSelected: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -94,6 +101,7 @@ const EditClubPage = () => {
   );
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -105,6 +113,8 @@ const EditClubPage = () => {
       name: '',
       hostName: '',
       description: '',
+      requiredLevels: [],
+      allLevelsSelected: true,
     },
   });
 
@@ -193,6 +203,11 @@ const EditClubPage = () => {
         setValue('imagePublicId', group.imagePublicId || undefined);
         setValue('images', group.images || []);
         setValue('imagePublicIds', group.imagePublicIds || []);
+        setValue('requiredLevels', group.requiredLevels || []);
+        setValue(
+          'allLevelsSelected',
+          !group.requiredLevels || group.requiredLevels.length === 0
+        );
 
         // Initialize clubImages from group data
         const loadedImages: ISessionImage[] = [];
@@ -392,15 +407,21 @@ const EditClubPage = () => {
   const onSubmit = async (data: FormData) => {
     try {
       const schedules = venueGroups.flatMap((g) => {
-        const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
-        return g.schedules.map((s) => ({ ...s, notes: venueName }));
+        const venue = venues.find((v) => v.id === g.venueId);
+        const venueInfo = venue ? `${venue.name} | ${venue.address}` : '';
+        return g.schedules.map((s) => ({ ...s, notes: venueInfo }));
       });
 
       // Map clubImages to form data
       const images = clubImages.map((img) => img.url);
       const imagePublicIds = clubImages.map((img) => img.publicId);
-      const image = clubImages[bannerIndex]?.url;
-      const imagePublicId = clubImages[bannerIndex]?.publicId;
+
+      // Ensure bannerIndex is within bounds
+      const validBannerIndex = Math.min(bannerIndex, clubImages.length - 1);
+      const image =
+        clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.url;
+      const imagePublicId =
+        clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
       await ClubsService.updateClub(groupId, {
         ...data,
@@ -410,6 +431,7 @@ const EditClubPage = () => {
         imagePublicIds,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
+        requiredLevels: data.requiredLevels,
       });
       toaster.success({ title: t('clubUpdatedSuccess') });
       router.push(ROUTES.CLUBS.BROWSE);
@@ -494,14 +516,18 @@ const EditClubPage = () => {
             </Field>
           )}
 
+          {/* Trình độ */}
+          <ClubLevelRequirements control={control} setValue={setValue} />
+
           {/* Description */}
           <Field
             label={t('description')}
             invalid={!!errors.description}
             errorText={errors.description?.message}
           >
-            <Textarea
-              {...register('description')}
+            <RichTextEditor
+              value={watch('description')}
+              onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
             />
           </Field>
