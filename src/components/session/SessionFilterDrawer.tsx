@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { toaster } from '@/components/ui/toaster';
 import { VALID_LEVELS } from '@/constants/levels';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
@@ -193,7 +194,7 @@ export default function SessionFilterDrawer({
                   </Text>
                   <Flex align="center" gap={2}>
                     <Box position="relative" flex="1">
-                      <Input
+                      <VDateTimeInput
                         type="date"
                         size="md"
                         width="auto"
@@ -226,49 +227,8 @@ export default function SessionFilterDrawer({
                           borderColor: 'gray.600',
                           _hover: { borderColor: 'brand.400' },
                         }}
-                        css={{
-                          '&::-webkit-date-and-time-value': {
-                            minHeight: '1.5em',
-                            display: 'flex',
-                            alignItems: 'center',
-                          },
-                          '&::-webkit-datetime-edit': {
-                            minHeight: '1.5em',
-                          },
-                          '&::-webkit-datetime-edit-fields-wrapper': {
-                            padding: '0',
-                          },
-                          // Hide native placeholder fields when empty to show custom overlay
-                          '&::-webkit-datetime-edit-text': {
-                            color: !filters.date ? 'transparent' : 'inherit',
-                            padding: '0 1px',
-                          },
-                          '&::-webkit-datetime-edit-month-field': {
-                            color: !filters.date ? 'transparent' : 'inherit',
-                          },
-                          '&::-webkit-datetime-edit-day-field': {
-                            color: !filters.date ? 'transparent' : 'inherit',
-                          },
-                          '&::-webkit-datetime-edit-year-field': {
-                            color: !filters.date ? 'transparent' : 'inherit',
-                          },
-                        }}
+                        placeholder={t('filters.allDays')}
                       />
-                      {/* Placeholder overlay for iOS */}
-                      {!filters.date && (
-                        <Box
-                          position="absolute"
-                          left="12px"
-                          top="50%"
-                          transform="translateY(-50%)"
-                          color="gray.400"
-                          pointerEvents="none"
-                          fontSize="md"
-                          userSelect="none"
-                        >
-                          {t('filters.allDays')}
-                        </Box>
-                      )}
                     </Box>
                     {/* Clear date button */}
                     {filters.date && (

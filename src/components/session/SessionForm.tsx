@@ -29,6 +29,7 @@ import {
 } from '@chakra-ui/react';
 import { formatVenueName } from '@/utils';
 import { Input } from '@/components/ui/Input';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { Check } from 'lucide-react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -1149,7 +1150,7 @@ export default function SessionForm({
                           *
                         </Text>
                       </Field.Label>
-                      <Input
+                      <VDateTimeInput
                         type="date"
                         value={sessionDate}
                         onChange={(e) => handleDateChange(e.target.value)}
@@ -1160,13 +1161,7 @@ export default function SessionForm({
                         color="fg"
                         bg="bg"
                         _dark={{ color: 'white', bg: 'gray.700' }}
-                        css={{
-                          '&::-webkit-date-and-time-value': {
-                            minHeight: '1.5em',
-                            display: 'flex',
-                            alignItems: 'center',
-                          },
-                        }}
+                        placeholder={t('date')}
                       />
                     </Field.Root>
                   </Box>
@@ -1184,7 +1179,7 @@ export default function SessionForm({
                             *
                           </Text>
                         </Field.Label>
-                        <Input
+                        <VDateTimeInput
                           type="time"
                           value={startHour}
                           onChange={(e) =>
@@ -1194,13 +1189,7 @@ export default function SessionForm({
                           color="fg"
                           bg="bg"
                           _dark={{ color: 'white', bg: 'gray.700' }}
-                          css={{
-                            '&::-webkit-date-and-time-value': {
-                              minHeight: '1.5em',
-                              display: 'flex',
-                              alignItems: 'center',
-                            },
-                          }}
+                          placeholder={t('start')}
                         />
                         <Field.ErrorText color="fg.error">
                           {errors.startTime?.message}
@@ -1218,7 +1207,7 @@ export default function SessionForm({
                             *
                           </Text>
                         </Field.Label>
-                        <Input
+                        <VDateTimeInput
                           type="time"
                           value={endHour}
                           onChange={(e) => handleEndHourChange(e.target.value)}
@@ -1226,13 +1215,7 @@ export default function SessionForm({
                           color="fg"
                           bg="bg"
                           _dark={{ color: 'white', bg: 'gray.700' }}
-                          css={{
-                            '&::-webkit-date-and-time-value': {
-                              minHeight: '1.5em',
-                              display: 'flex',
-                              alignItems: 'center',
-                            },
-                          }}
+                          placeholder={t('end')}
                         />
                         <Field.ErrorText color="fg.error">
                           {errors.endTime?.message}
@@ -1255,21 +1238,15 @@ export default function SessionForm({
                           *
                         </Text>
                       </Field.Label>
-                      <Input
+                      <VDateTimeInput
                         type="datetime-local"
                         {...register('startTime')}
                         disabled={!canEditTime}
                         color="fg"
                         bg="bg"
                         _dark={{ color: 'white', bg: 'gray.700' }}
-                        css={{
-                          '&::-webkit-date-and-time-value': {
-                            minHeight: '1.5em',
-                            display: 'flex',
-                            alignItems: 'center',
-                          },
-                        }}
                         onInvalid={(e) => e.preventDefault()}
+                        placeholder={t('start')}
                       />
                       <Field.ErrorText color="fg.error">
                         {errors.startTime?.message}
@@ -1287,21 +1264,15 @@ export default function SessionForm({
                           *
                         </Text>
                       </Field.Label>
-                      <Input
+                      <VDateTimeInput
                         type="datetime-local"
                         {...register('endTime')}
                         disabled={!canEditTime}
                         color="fg"
                         bg="bg"
                         _dark={{ color: 'white', bg: 'gray.700' }}
-                        css={{
-                          '&::-webkit-date-and-time-value': {
-                            minHeight: '1.5em',
-                            display: 'flex',
-                            alignItems: 'center',
-                          },
-                        }}
                         onInvalid={(e) => e.preventDefault()}
+                        placeholder={t('end')}
                       />
                       <Field.ErrorText color="fg.error">
                         {errors.endTime?.message}

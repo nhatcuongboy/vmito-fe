@@ -1,5 +1,6 @@
 'use client';
 import { Input } from '@/components/ui/Input';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 
 import { useState, useEffect, ChangeEvent } from 'react';
 import {
@@ -263,13 +264,14 @@ export function BulkSessionDateSelector({
                   <Box mt={4} ml={8}>
                     <VStack align="stretch" gap={4}>
                       <HStack gap={2}>
-                        <Input
+                        <VDateTimeInput
                           type="date"
                           value={tempDate}
                           onChange={(e) => setTempDate(e.target.value)}
                           size="sm"
                           min={dayjs().format('YYYY-MM-DD')}
                           leftElement={<CalendarIcon size={16} />}
+                          placeholder={t('addDate') || 'Add date'}
                         />
                         <Button
                           size="sm"

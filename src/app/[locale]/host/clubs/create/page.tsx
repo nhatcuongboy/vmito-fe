@@ -15,6 +15,7 @@ import {
   Input,
   IconButton,
 } from '@/components/ui/chakra-compat';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useForm, Controller } from 'react-hook-form';
@@ -435,7 +436,7 @@ const CreateClubPage = () => {
                             ))}
                           </LegacySelect>
                         </Box>
-                        <Input
+                        <VDateTimeInput
                           type="time"
                           size="sm"
                           value={sched.startTime}
@@ -449,11 +450,12 @@ const CreateClubPage = () => {
                           }
                           w={{ base: '100px', md: '120px' }}
                           px={1}
+                          placeholder="--:--"
                         />
                         <Text fontSize="xs" color="gray.500">
                           -
                         </Text>
-                        <Input
+                        <VDateTimeInput
                           type="time"
                           size="sm"
                           value={sched.endTime}
@@ -467,6 +469,7 @@ const CreateClubPage = () => {
                           }
                           w={{ base: '100px', md: '120px' }}
                           px={1}
+                          placeholder="--:--"
                         />
                         <IconButton
                           size="sm"

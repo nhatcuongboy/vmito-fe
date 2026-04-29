@@ -1,5 +1,6 @@
 'use client';
 import { Input } from '@/components/ui/Input';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 
@@ -295,7 +296,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                     </Button>
                   )}
                 </Flex>
-                <Input
+                <VDateTimeInput
                   type="date"
                   value={pendingDate || ''}
                   onChange={(e) => setPendingDate(e.target.value || undefined)}
@@ -306,6 +307,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                   _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
                   leftElement={<Calendar size={16} style={{ opacity: 0.6 }} />}
                   borderRadius="lg"
+                  placeholder={t('date')}
                 />
               </Box>
             )}
