@@ -194,7 +194,7 @@ export default function SessionMap({
                   </Text>
                   <HStack gap={1} mt={1}>
                     <MapPin size={12} color="#718096" />
-                    <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                    <Text fontSize="xs" color="gray.600" lineClamp={1}>
                       {selectedGroup.venue.address}
                     </Text>
                   </HStack>
@@ -225,7 +225,7 @@ export default function SessionMap({
                           <Text
                             fontWeight="semibold"
                             fontSize="sm"
-                            noOfLines={1}
+                            lineClamp={1}
                             flex={1}
                           >
                             {session.name}
@@ -269,7 +269,6 @@ export default function SessionMap({
                   size="xs"
                   variant="outline"
                   w="full"
-                  leftIcon={<Navigation size={12} />}
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(
@@ -278,6 +277,7 @@ export default function SessionMap({
                     );
                   }}
                 >
+                  <Navigation size={12} />
                   Chỉ đường đến sân
                 </Button>
               </VStack>
