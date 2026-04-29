@@ -7,7 +7,13 @@ import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import { UserRole, Venue, VenueStatus, ClosureStatus } from '@/lib/api/types';
+import {
+  UserRole,
+  Venue,
+  VenueStatus,
+  ClosureStatus,
+  EImageCategory,
+} from '@/lib/api/types';
 import {
   Badge,
   Box,
