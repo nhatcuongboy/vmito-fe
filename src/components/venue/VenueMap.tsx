@@ -159,12 +159,12 @@ export default function VenueMap({ venues, userLocation }: VenueMapProps) {
                   />
                 )}
                 <Box>
-                  <Text fontWeight="bold" fontSize="md" noOfLines={1}>
+                  <Text fontWeight="bold" fontSize="md" lineClamp={1}>
                     {selectedVenue.name}
                   </Text>
                   <HStack gap={1} mt={1}>
                     <MapPin size={12} color="#718096" />
-                    <Text fontSize="xs" color="gray.600" noOfLines={2}>
+                    <Text fontSize="xs" color="gray.600" lineClamp={2}>
                       {selectedVenue.address}
                     </Text>
                   </HStack>

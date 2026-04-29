@@ -355,7 +355,7 @@ export default function SessionsList({
                     onDelete={mode === 'manage' ? handleDelete : undefined}
                     onRefresh={onRefresh}
                     mode={mode}
-                    variant={viewMode}
+                    variant={viewMode !== 'map' ? viewMode : 'full'}
                     onHostClick={() => {
                       setSelectedSessionForDetail(session);
                       setIsDetailModalOpen(true);
@@ -393,7 +393,7 @@ export default function SessionsList({
                 onDelete={mode === 'manage' ? handleDelete : undefined}
                 onRefresh={onRefresh}
                 mode={mode}
-                variant={viewMode}
+                variant={viewMode !== 'map' ? viewMode : 'full'}
                 onHostClick={() => {
                   setSelectedSessionForDetail(session);
                   setIsDetailModalOpen(true);
