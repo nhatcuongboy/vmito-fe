@@ -46,6 +46,7 @@ import {
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 
 const PAGE_SIZE = 12;
+const MAP_PAGE_SIZE = 500; // fetch all for map view
 
 // Sort option definition
 interface ISortOption {
@@ -187,7 +188,9 @@ export default function VenueSearchList() {
       }
       setError(null);
 
-      const currentPage = isLoadMore ? page + 1 : 1;
+      const isMapMode = viewMode === 'map';
+      const effectiveLimit = isMapMode ? MAP_PAGE_SIZE : PAGE_SIZE;
+      const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Resolve the active sort option
       const activeSortOption =
@@ -212,7 +215,7 @@ export default function VenueSearchList() {
               : undefined,
           closureStatus: 'OPERATING',
           page: currentPage,
-          limit: PAGE_SIZE,
+          limit: effectiveLimit,
         };
 
       if (filters.near && userLocation) {
@@ -230,7 +233,7 @@ export default function VenueSearchList() {
       setTotalCount(result.pagination.total);
       const venueData = result.data;
 
-      if (isLoadMore) {
+      if (isLoadMore && !isMapMode) {
         setVenues((prev) => {
           const existingIds = new Set(prev.map((v) => v.id));
           const newVenues = venueData.filter((v) => !existingIds.has(v.id));
@@ -241,7 +244,10 @@ export default function VenueSearchList() {
         setVenues(venueData);
       }
 
-      setHasMore(result.data.length === PAGE_SIZE && venueData.length > 0);
+      // In map mode: no infinite scroll — all data already fetched
+      setHasMore(
+        !isMapMode && result.data.length === PAGE_SIZE && venueData.length > 0
+      );
     } catch (err) {
       setError('Không thể tải danh sách sân. Vui lòng thử lại.');
       console.error(err);
@@ -281,6 +287,7 @@ export default function VenueSearchList() {
     filters.near,
     filters.sort,
     userLocation,
+    viewMode, // re-fetch with larger limit when switching to/from map mode
   ]);
 
   // Trigger load more when in view

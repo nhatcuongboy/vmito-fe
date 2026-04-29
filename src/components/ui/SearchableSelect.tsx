@@ -245,7 +245,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
 
   // Handle click outside and scroll to close dropdown
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target as Node) &&
@@ -257,6 +257,16 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     };
 
     const handleScroll = (event: Event) => {
+      // On mobile/touch devices, opening the keyboard often triggers a scroll event.
+      // We should ignore scroll events on touch devices to prevent the dropdown from closing immediately.
+      const isTouchDevice =
+        typeof window !== 'undefined' &&
+        (window.matchMedia('(pointer: coarse)').matches ||
+          'ontouchstart' in window);
+      if (isTouchDevice) {
+        return;
+      }
+
       // Close unless the scroll is inside the dropdown itself
       if (
         dropdownRef.current &&
@@ -269,9 +279,11 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
       document.addEventListener('scroll', handleScroll, true);
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('touchstart', handleClickOutside);
         document.removeEventListener('scroll', handleScroll, true);
       };
     }
@@ -407,7 +419,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
               bg={{ base: 'white', _dark: 'gray.800' }}
               zIndex="1"
             >
-              <Box position="relative">
+              <Box position="relative" onClick={(e) => e.stopPropagation()}>
                 <Box
                   position="absolute"
                   left="3"

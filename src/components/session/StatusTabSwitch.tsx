@@ -8,8 +8,8 @@ import { Button } from '../ui/chakra-compat';
 import { UnderlineTabs } from '../ui/UnderlineTabs';
 
 export interface StatusTabSwitchProps {
-  activeTab: 'active' | 'ended' | 'pending';
-  onChange: (tab: 'active' | 'ended' | 'pending') => void;
+  activeTab: 'active' | 'ended' | 'pending' | 'expired';
+  onChange: (tab: 'active' | 'ended' | 'pending' | 'expired') => void;
   activeLabel?: string;
   endedLabel?: string;
   pendingLabel?: string;
@@ -55,6 +55,7 @@ export function StatusTabSwitch({
   const defaultActiveLabel = tSession('activeSessions');
   const defaultEndedLabel = tNav('endedSessions');
   const defaultPendingLabel = tNav('pendingJoinRequests');
+  const defaultExpiredLabel = tSession('expiredSessions');
 
   const tabs = [
     { id: 'active', label: activeLabel || defaultActiveLabel },
@@ -68,6 +69,7 @@ export function StatusTabSwitch({
           },
         ]
       : []),
+    { id: 'expired', label: defaultExpiredLabel },
   ];
 
   return (

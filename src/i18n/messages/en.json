@@ -625,6 +625,7 @@
     "startSession": "Start Session",
     "pastEndWarning": "This session has passed its scheduled end time. Please update the time or cancel it.",
     "expiredSessionsNeedAction": "Sessions Needing Action",
+    "expiredSessions": "Expired Sessions",
     "expiredSessionsDescription": "The sessions below have passed their end time but haven't been started or ended. Please update the time or cancel them.",
     "sessionStarted": "Session started",
     "sessionEnded": "Session ended",

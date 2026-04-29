@@ -2,8 +2,7 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
-import { Box, Grid, Heading, Text, Flex } from '@chakra-ui/react';
-import { IconButton } from '@/components/ui/chakra-compat';
+import { Box, Grid, Heading, Text } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';
@@ -11,13 +10,8 @@ import { useEffect, useState, useMemo } from 'react';
 import SessionCard from './SessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
-import { AppAddressDisplay } from '@/components/common/AppAddressDisplay'; // Keep other imports intact
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
-import { ChevronDown, Trash2 } from 'lucide-react';
-import { VButton } from '@/components/ui/VButton';
-import { toaster } from '@/components/ui/toaster';
-import { SessionStatus } from '@/lib/api/types';
 
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 
@@ -54,11 +48,6 @@ export default function SessionsList({
   const [selectedSessionForDetail, setSelectedSessionForDetail] =
     useState<ISession | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isExpiredSectionsExpanded, setIsExpiredSectionsExpanded] =
-    useState(true);
-  const [isBatchCompleteModalOpen, setIsBatchCompleteModalOpen] =
-    useState(false);
-  const [isBatchCompleting, setIsBatchCompleting] = useState(false);
 
   const isExternalControl = externalSessions !== undefined;
   const sessions = isExternalControl
@@ -90,36 +79,6 @@ export default function SessionsList({
       if (!isExternalControl) {
         setInternalLoading(false);
       }
-    }
-  };
-
-  // Batch delete expired sessions handler
-  const handleBatchComplete = async () => {
-    if (expiredSessions.length === 0) return;
-    setIsBatchCompleting(true);
-    try {
-      const sessionIds = expiredSessions.map((session) => session.id);
-      await SessionService.deleteBulkSessions(sessionIds);
-
-      toaster.create({
-        title: t('sessionsDeleted') || 'Đã xóa các kèo quá hạn',
-        type: 'success',
-      });
-      if (isExternalControl && onRefresh) {
-        onRefresh();
-      } else if (!isExternalControl) {
-        const response = await SessionService.getAllSessions();
-        setInternalSessions(response.data);
-      }
-    } catch (_err) {
-      toaster.create({
-        title: t('error') || 'Lỗi xử lý',
-        description: t('loadingError') || 'Đã có lỗi xảy ra',
-        type: 'error',
-      });
-    } finally {
-      setIsBatchCompleting(false);
-      setIsBatchCompleteModalOpen(false);
     }
   };
 
@@ -158,26 +117,6 @@ export default function SessionsList({
     return result;
   }, [sessions, status]);
 
-  // Separate expired sessions from normal sessions
-  const { normalSessions, expiredSessions } = useMemo(() => {
-    const expired: ISession[] = [];
-    const normal: ISession[] = [];
-
-    filteredSessions.forEach((session) => {
-      if (
-        session.status === 'PREPARING' &&
-        session.endTime &&
-        new Date(session.endTime) < new Date()
-      ) {
-        expired.push(session);
-      } else {
-        normal.push(session);
-      }
-    });
-
-    return { normalSessions: normal, expiredSessions: expired };
-  }, [filteredSessions]);
-
   // Extract unique host IDs for batch rating stats loading
   const hostIds = useMemo(() => {
     const ids = filteredSessions
@@ -185,9 +124,6 @@ export default function SessionsList({
       .filter((id): id is string => id !== null && id !== undefined);
     return [...new Set(ids)];
   }, [filteredSessions]);
-
-  // Combine for empty check
-  const allDisplaySessions = [...normalSessions, ...expiredSessions];
 
   if (loading) {
     return (
@@ -244,131 +180,8 @@ export default function SessionsList({
   return (
     <RatingStatsProvider userIds={hostIds}>
       <>
-        {/* Expired Sessions Alert Section */}
-        {mode === 'manage' && expiredSessions.length > 0 && (
-          <Box
-            mb={8}
-            p={4}
-            bg="orange.50"
-            borderWidth="1px"
-            borderColor="orange.200"
-            borderRadius="lg"
-            _dark={{ bg: 'orange.900', borderColor: 'orange.700' }}
-          >
-            <Flex alignItems="center" justifyContent="space-between" mb={3}>
-              <Flex alignItems="center" gap={3}>
-                <Heading
-                  size="sm"
-                  color="orange.700"
-                  _dark={{ color: 'orange.200' }}
-                  mb={0}
-                >
-                  ⚠️ {t('expiredSessionsNeedAction') || 'Kèo cần xử lý'}
-                </Heading>
-                <Text
-                  fontSize="xs"
-                  fontWeight="bold"
-                  bg="orange.100"
-                  _dark={{ bg: 'orange.800' }}
-                  color="orange.700"
-                  px={2}
-                  py={1}
-                  borderRadius="full"
-                >
-                  {expiredCount ?? expiredSessions.length}
-                  {expiredCount === undefined && hasMoreSessions ? '+' : ''}
-                </Text>
-              </Flex>
-              <Flex alignItems="center" gap={2}>
-                <VButton
-                  size="sm"
-                  colorPalette="red"
-                  variant="outline"
-                  leftIcon={<Trash2 size={16} />}
-                  onClick={() => setIsBatchCompleteModalOpen(true)}
-                >
-                  {t('deleteAllExpired') || 'Xóa tất cả'}
-                </VButton>
-                <IconButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    setIsExpiredSectionsExpanded(!isExpiredSectionsExpanded)
-                  }
-                  aria-label={
-                    isExpiredSectionsExpanded
-                      ? t('collapse') || 'Collapse'
-                      : t('expand') || 'Expand'
-                  }
-                  color="orange.700"
-                  _dark={{ color: 'orange.200' }}
-                  _hover={{
-                    bg: 'orange.100',
-                    _dark: { bg: 'orange.800' },
-                  }}
-                >
-                  <ChevronDown
-                    size={20}
-                    style={{
-                      transform: isExpiredSectionsExpanded
-                        ? 'rotate(0deg)'
-                        : 'rotate(-90deg)',
-                      transition: 'transform 0.2s',
-                    }}
-                  />
-                </IconButton>
-              </Flex>
-            </Flex>
-
-            {/* <Text
-              fontSize="sm"
-              color="orange.600"
-              mb={4}
-              _dark={{ color: 'orange.300' }}
-            >
-              {t('expiredSessionsDescription') ||
-                'Những kèo dưới đây đã quá giờ kết thúc nhưng chưa được bắt đầu hoặc kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.'}
-            </Text> */}
-
-            {isExpiredSectionsExpanded && (
-              <Grid
-                templateColumns={
-                  viewMode === 'compact'
-                    ? {
-                        base: '1fr',
-                        sm: 'repeat(2, 1fr)',
-                        md: 'repeat(3, 1fr)',
-                        lg: 'repeat(4, 1fr)',
-                      }
-                    : {
-                        base: '1fr',
-                        md: 'repeat(2, 1fr)',
-                        lg: 'repeat(3, 1fr)',
-                      }
-                }
-                gap={viewMode === 'compact' ? 4 : 6}
-              >
-                {expiredSessions.map((session) => (
-                  <SessionCard
-                    key={session.id}
-                    session={session}
-                    onDelete={mode === 'manage' ? handleDelete : undefined}
-                    onRefresh={onRefresh}
-                    mode={mode}
-                    variant={viewMode !== 'map' ? viewMode : 'full'}
-                    onHostClick={() => {
-                      setSelectedSessionForDetail(session);
-                      setIsDetailModalOpen(true);
-                    }}
-                  />
-                ))}
-              </Grid>
-            )}
-          </Box>
-        )}
-
-        {/* Normal Sessions Section */}
-        {normalSessions.length > 0 && (
+        {/* Sessions Grid */}
+        {filteredSessions.length > 0 && (
           <Grid
             templateColumns={
               viewMode === 'compact'
@@ -386,7 +199,7 @@ export default function SessionsList({
             }
             gap={viewMode === 'compact' ? 4 : 6}
           >
-            {normalSessions.map((session) => (
+            {filteredSessions.map((session) => (
               <SessionCard
                 key={session.id}
                 session={session}
@@ -402,27 +215,6 @@ export default function SessionsList({
             ))}
           </Grid>
         )}
-
-        {/* Empty State for Normal Sessions */}
-        {!loading &&
-          !loadingMore &&
-          normalSessions.length === 0 &&
-          expiredSessions.length > 0 && (
-            <Box
-              textAlign="center"
-              py={10}
-              px={6}
-              borderWidth="1px"
-              borderRadius="lg"
-              bg="white"
-              _dark={{ bg: 'gray.800' }}
-            >
-              <Heading size="md" mb={2}>
-                {t('noActiveSessions')}
-              </Heading>
-              <Text color="gray.500">{t('noActiveSessionsDescription')}</Text>
-            </Box>
-          )}
       </>
 
       {/* Session Host Detail Modal */}
@@ -447,23 +239,6 @@ export default function SessionsList({
             onClose={() => setIsDetailModalOpen(false)}
           />
         )}
-      </VModal>
-
-      {/* Batch Delete Confirm Modal */}
-      <VModal
-        isOpen={isBatchCompleteModalOpen}
-        onClose={() => setIsBatchCompleteModalOpen(false)}
-        title={t('deleteAllExpired') || 'Xóa tất cả kèo quá hạn'}
-        primaryActionText={t('delete') || 'Xóa'}
-        onPrimaryAction={handleBatchComplete}
-        isPrimaryLoading={isBatchCompleting}
-        primaryColorScheme="red"
-      >
-        <Text>
-          {t('batchDeleteConfirmText') ||
-            'Bạn có chắc chắn muốn XÓA tất cả các kèo quá hạn không? Hành động này không thể hoàn tác.'}{' '}
-          ({expiredSessions.length} {t('sessions') || 'kèo'})
-        </Text>
       </VModal>
     </RatingStatsProvider>
   );

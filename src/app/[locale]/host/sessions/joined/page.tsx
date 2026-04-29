@@ -209,8 +209,10 @@ function PlayerSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
-    if (newTab === 'pending') return; // Should not happen with showPending={false}
+  const handleTabChange = (
+    newTab: 'active' | 'ended' | 'pending' | 'expired'
+  ) => {
+    if (newTab === 'pending' || newTab === 'expired') return; // Should not happen with showPending={false}
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);

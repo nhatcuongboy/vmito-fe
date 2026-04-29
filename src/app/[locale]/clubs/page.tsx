@@ -28,9 +28,10 @@ import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
+import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import { useViewModeStore } from '@/stores/useViewModeStore';
-import { IClubListItem } from '@/types/club';
+import { IClubListItem, IClub } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
@@ -50,8 +51,10 @@ export default function BrowseClubsPage() {
   const viewMode = getViewMode('clubs');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
+  const [fullClubs, setFullClubs] = useState<IClub[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingFullDetails, setIsLoadingFullDetails] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
@@ -163,6 +166,27 @@ export default function BrowseClubsPage() {
     fetchClubs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, cities, districts, sortByDistance, userLocation]);
+
+  // Fetch full club details when in map mode
+  useEffect(() => {
+    if (viewMode === 'map' && clubs.length > 0) {
+      const fetchFullDetails = async () => {
+        setIsLoadingFullDetails(true);
+        try {
+          const detailsPromises = clubs.map((club) =>
+            ClubsService.getClubDetails(club.id)
+          );
+          const details = await Promise.all(detailsPromises);
+          setFullClubs(details);
+        } catch (error) {
+          console.error('Failed to fetch full club details:', error);
+        } finally {
+          setIsLoadingFullDetails(false);
+        }
+      };
+      fetchFullDetails();
+    }
+  }, [viewMode, clubs]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -722,6 +746,14 @@ export default function BrowseClubsPage() {
             </Button>
           )}
         </Box>
+      ) : viewMode === 'map' ? (
+        isLoadingFullDetails ? (
+          <Flex justify="center" align="center" minH="400px">
+            <Spinner size="xl" colorPalette="green" />
+          </Flex>
+        ) : (
+          <ClubMap clubs={fullClubs} userLocation={userLocation} />
+        )
       ) : (
         <>
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>

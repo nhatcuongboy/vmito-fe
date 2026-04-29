@@ -31,6 +31,7 @@ import {
 } from '@/constants';
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
+import { ExpiredSessionsHeader } from '@/components/session/ExpiredSessionsHeader';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
@@ -60,8 +61,11 @@ function HostSessionsContent() {
 
   // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<
-    'active' | 'ended' | 'pending'
-  >((searchParams.get('tab') as 'active' | 'ended' | 'pending') || 'active');
+    'active' | 'ended' | 'pending' | 'expired'
+  >(
+    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'expired') ||
+      'active'
+  );
   const loadingMoreRef = useRef(false);
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -108,7 +112,11 @@ function HostSessionsContent() {
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
-            : filters.status,
+            : sessionStatusTab === 'expired'
+              ? SessionStatus.PREPARING
+              : filters.status,
+        endTimeBefore:
+          sessionStatusTab === 'expired' ? new Date().toISOString() : undefined,
         ...apiSortParams,
       });
 
@@ -232,7 +240,9 @@ function HostSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
+  const handleTabChange = (
+    newTab: 'active' | 'ended' | 'pending' | 'expired'
+  ) => {
     if (newTab === 'pending') {
       router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
       return;
@@ -248,6 +258,16 @@ function HostSessionsContent() {
     // Save AI-extracted data to sessionStorage so SessionForm can pick it up
     sessionStorage.setItem('vmito_pending_session_data', JSON.stringify(data));
     router.push('/sessions/new');
+  };
+
+  const handleBatchDeleteExpired = async () => {
+    try {
+      const sessionIds = sessions.map((session) => session.id);
+      await SessionService.deleteBulkSessions(sessionIds);
+      await fetchHostedSessions();
+    } catch (err) {
+      console.error('Error deleting expired sessions:', err);
+    }
   };
 
   return (
@@ -303,6 +323,12 @@ function HostSessionsContent() {
             sortBy={sortBy}
             onSortChange={setSortBy}
           />
+          {sessionStatusTab === 'expired' && (
+            <ExpiredSessionsHeader
+              expiredCount={totalCount}
+              onDeleteAll={handleBatchDeleteExpired}
+            />
+          )}
           <SessionsList
             sessions={filteredSessions}
             isLoading={loading}
