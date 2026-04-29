@@ -21,6 +21,8 @@ import { getCourtDisplayName } from '@/utils/session-helpers';
 import { PaymentInfoTab } from '@/components/payment';
 import { PaymentService } from '@/lib/api/payment.service';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
+import { compressImage } from '@/lib/utils/image';
+
 import { RatingService } from '@/lib/api/rating.service';
 import { SubmitRatingModal, StarRatingDisplay } from '@/components/rating';
 import type {
@@ -229,7 +231,11 @@ export default function PlayerSessionView({
   };
 
   const handleUploadProof = async (file: File): Promise<string> => {
-    return await PaymentService.uploadPaymentProof(file);
+    const compressedFile = await compressImage(file, {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1600, // Reasonable for payment proof
+    });
+    return await PaymentService.uploadPaymentProof(compressedFile);
   };
 
   // Helper function to format elapsed time for match display

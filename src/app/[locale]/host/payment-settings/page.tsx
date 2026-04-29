@@ -8,6 +8,8 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { Button } from '@/components/ui/chakra-compat';
 import { PaymentSettingsForm } from '@/components/payment';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
+import { compressImage } from '@/lib/utils/image';
+
 import {
   CreateHostPaymentSettingsRequest,
   HostPaymentSettings,
@@ -114,7 +116,11 @@ function PaymentSettingsContent() {
   };
 
   const handleUploadQR = async (file: File) => {
-    return PaymentSettingsService.uploadQRCode(file);
+    const compressedFile = await compressImage(file, {
+      maxSizeMB: 0.5, // QR codes can be very small
+      maxWidthOrHeight: 800,
+    });
+    return PaymentSettingsService.uploadQRCode(compressedFile);
   };
 
   if (isLoading) {

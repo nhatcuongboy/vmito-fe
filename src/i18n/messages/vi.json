@@ -146,7 +146,9 @@
     "pleaseSelectImageFile": "Vui lòng chọn file ảnh",
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
+    "tooManyFiles": "Bạn chỉ có thể chọn tối đa {max} ảnh",
     "uploadImage": "Tải ảnh lên",
+
     "selected": "đã chọn",
     "clickToUpload": "Click để tải lên",
     "maxSize": "Kích thước tối đa",

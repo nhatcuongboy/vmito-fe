@@ -146,7 +146,9 @@
     "pleaseSelectImageFile": "Please select an image file",
     "fileSizeTooLarge": "File size must be less than 5MB",
     "imageProcessingFailed": "Failed to process image. Please try another file.",
+    "tooManyFiles": "You can only select up to {max} images",
     "uploadImage": "Upload Image",
+
     "selected": "selected",
     "clickToUpload": "Click to upload",
     "maxSize": "Max size",

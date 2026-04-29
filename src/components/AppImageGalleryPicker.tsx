@@ -25,6 +25,7 @@ import { useTranslations } from 'next-intl';
 import { UserImageService } from '@/lib/api/user-image.service';
 import { IUserImage, EImageCategory } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
+import { compressImage } from '@/lib/utils/image';
 
 interface ISelectedImage {
   url: string;
@@ -141,25 +142,61 @@ const AppImageGalleryPicker = ({
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      toaster.error({ title: tc('pleaseSelectImageFile') });
-      return;
+    const fileList = Array.from(files);
+
+    // Check if total selected + new uploads exceed maxSelect
+    if (selected.length + fileList.length > maxSelect) {
+      toaster.error({ title: tc('tooManyFiles', { max: maxSelect }) });
+      // We can still process up to the limit if we want, but usually better to just warn
+      // For now, let's just proceed with all but warn
     }
 
     setIsUploading(true);
     try {
-      const uploaded = await UserImageService.uploadImage(file, category);
-      setGalleryImages((prev) => [uploaded, ...prev]);
+      let hasNonImage = false;
+      const uploadPromises = fileList.map(async (file) => {
+        if (!file.type.startsWith('image/')) {
+          hasNonImage = true;
+          return null;
+        }
 
-      // Auto-select newly uploaded image if within limit
-      if (selected.length < maxSelect) {
-        setSelected((prev) => [
-          ...prev,
-          { url: uploaded.url, publicId: uploaded.publicId },
-        ]);
+        // Compress image before upload
+        const compressedFile = await compressImage(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+        });
+
+        return await UserImageService.uploadImage(compressedFile, category);
+      });
+
+      if (hasNonImage) {
+        toaster.error({ title: tc('pleaseSelectImageFile') });
+      }
+
+      const results = await Promise.all(uploadPromises);
+      const successfulUploads = results.filter(
+        (img): img is IUserImage => img !== null
+      );
+
+      if (successfulUploads.length > 0) {
+        setGalleryImages((prev) => [...successfulUploads, ...prev]);
+
+        // Auto-select newly uploaded images if within limit
+        setSelected((prev) => {
+          const newSelected = [...prev];
+          for (const uploaded of successfulUploads) {
+            if (newSelected.length < maxSelect) {
+              newSelected.push({
+                url: uploaded.url,
+                publicId: uploaded.publicId,
+              });
+            }
+          }
+          return newSelected;
+        });
       }
     } catch {
       toaster.error({ title: tc('imageProcessingFailed') });
@@ -198,11 +235,13 @@ const AppImageGalleryPicker = ({
                 <input
                   ref={fileInputRef}
                   type="file"
+                  multiple
                   accept="image/jpeg,image/png,image/gif,image/webp"
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
                   disabled={isUploading}
                 />
+
                 <Button
                   type="button"
                   size="sm"
@@ -249,16 +288,23 @@ const AppImageGalleryPicker = ({
                       onClick={() => !isDisabled && handleToggleSelect(img)}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={img.url}
-                        alt={img.originalName || 'Gallery image'}
-                        style={{
-                          width: '100%',
-                          height: '100px',
-                          objectFit: 'cover',
-                          display: 'block',
-                        }}
-                      />
+                      <Box
+                        position="relative"
+                        w="100%"
+                        aspectRatio={{ base: '16/9', md: '4/3' }}
+                        overflow="hidden"
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.originalName || 'Gallery image'}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block',
+                          }}
+                        />
+                      </Box>
 
                       {/* Selected checkmark — always visible when selected */}
                       {imgSelected && (
