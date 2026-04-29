@@ -3,7 +3,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { LEVELS } from '@/constants/levels';
 import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { NewPlayer, Player } from './types';
 import { ISession, Gender, PlayerStatus, UserRole } from '@/lib/api/types';
 import { ClubsService } from '@/lib/api/clubs.service';
@@ -37,26 +37,7 @@ export const usePlayerManagement = (
   }>({});
   const [clubs, setClubs] = useState<IClub[]>([]);
 
-  // Load available users on mount
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        setIsLoadingUsers(true);
-        const users = await UserService.getAllUsers();
-        setAvailableUsers(users);
-      } catch (error) {
-        console.error('Error loading users:', error);
-        toaster.create({
-          title: t('failedToLoadUsers'),
-          type: 'error',
-          duration: 3000,
-        });
-      } finally {
-        setIsLoadingUsers(false);
-      }
-    };
-    loadUsers();
-
     if (mode === 'manage' && isHostOrAdmin) {
       const loadClubs = async () => {
         try {
@@ -68,7 +49,19 @@ export const usePlayerManagement = (
       };
       loadClubs();
     }
-  }, [t, mode, isHostOrAdmin]);
+  }, [mode, isHostOrAdmin]);
+
+  const searchUsers = useCallback(async (query: string) => {
+    try {
+      setIsLoadingUsers(true);
+      const users = await UserService.getAllUsers(query);
+      setAvailableUsers(users);
+    } catch (error) {
+      console.error('Error searching users:', error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  }, []);
 
   /**
    * Get default level for new players based on session requiredLevels
@@ -472,6 +465,7 @@ export const usePlayerManagement = (
     currentPlayerCount,
     isMaxPlayersReached,
     clubs,
+    searchUsers,
 
     // Actions
     addNewPlayerRow,

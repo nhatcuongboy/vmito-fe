@@ -25,8 +25,10 @@ export const UserService = {
   /**
    * Get all users for player selection
    */
-  async getAllUsers(): Promise<UserOption[]> {
-    const response = await api.get<ApiResponse<UserOption[]>>('/users');
+  async getAllUsers(search?: string): Promise<UserOption[]> {
+    const response = await api.get<ApiResponse<UserOption[]>>('/users', {
+      params: { search },
+    });
     return response.data.data || [];
   },
 
