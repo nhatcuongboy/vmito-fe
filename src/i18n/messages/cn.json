@@ -3101,7 +3101,27 @@
       "4": "Thursday",
       "5": "Friday",
       "6": "Saturday"
-    }
+    },
+    "quickInfo": "快速信息",
+    "levelRange": "水平范围",
+    "fee": "费用",
+    "contactAdmin": "联系管理员",
+    "noLevelInfo": "暂无水平信息",
+    "notUpdated": "未更新",
+    "viewOnGoogleMaps": "在谷歌地图上查看",
+    "searchOnGoogleMaps": "在谷歌地图上搜索",
+    "noLocationInfo": "暂无位置信息",
+    "adminInfo": "管理员信息",
+    "joinNow": "立即加入",
+    "alreadyJoined": "已加入",
+    "pendingApproval": "待审核",
+    "viewAll": "查看全部",
+    "aboutTab": "关于",
+    "membersTab": "成员",
+    "scheduleTab": "日程",
+    "galleryTab": "相册",
+    "announcementsTab": "公告",
+    "noImages": "暂无图片"
   },
   "suggestions": {
     "title": "推荐场次",

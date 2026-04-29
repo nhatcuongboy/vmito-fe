@@ -181,8 +181,19 @@ export default function ResultsHeader({
               _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
               _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
             >
-              <ArrowUpDown size={14} />
-              <Text as="span" maxW="100px" truncate>
+              {activeOption && SORT_ICONS[activeOption.value] ? (
+                React.createElement(SORT_ICONS[activeOption.value], {
+                  size: 14,
+                })
+              ) : (
+                <ArrowUpDown size={14} />
+              )}
+              <Text
+                as="span"
+                maxW="100px"
+                truncate
+                display={{ base: 'none', md: 'inline' }}
+              >
                 {t(activeOption.labelKey)}
               </Text>
               <ChevronDown

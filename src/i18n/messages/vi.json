@@ -3203,7 +3203,27 @@
       "4": "Thứ 5",
       "5": "Thứ 6",
       "6": "Thứ 7"
-    }
+    },
+    "quickInfo": "Thông tin nhanh",
+    "levelRange": "Trình độ",
+    "fee": "Chi phí",
+    "contactAdmin": "Liên hệ Admin",
+    "noLevelInfo": "Chưa có thông tin",
+    "notUpdated": "Chưa cập nhật",
+    "viewOnGoogleMaps": "Xem trên Google Maps",
+    "searchOnGoogleMaps": "Tìm trên Google Maps",
+    "noLocationInfo": "Chưa có thông tin vị trí",
+    "adminInfo": "Thông tin Admin",
+    "joinNow": "Tham gia ngay",
+    "alreadyJoined": "Đã tham gia",
+    "pendingApproval": "Đang chờ duyệt",
+    "viewAll": "Xem tất cả",
+    "aboutTab": "Giới thiệu",
+    "membersTab": "Thành viên",
+    "scheduleTab": "Lịch tập",
+    "galleryTab": "Hình ảnh",
+    "announcementsTab": "Thông báo",
+    "noImages": "Chưa có hình ảnh"
   },
   "suggestions": {
     "title": "Gợi ý kèo",

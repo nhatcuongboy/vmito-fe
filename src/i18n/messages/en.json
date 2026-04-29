@@ -3188,7 +3188,27 @@
       "4": "Thursday",
       "5": "Friday",
       "6": "Saturday"
-    }
+    },
+    "quickInfo": "Quick Info",
+    "levelRange": "Level Range",
+    "fee": "Fee",
+    "contactAdmin": "Contact Admin",
+    "noLevelInfo": "No level info",
+    "notUpdated": "Not updated",
+    "viewOnGoogleMaps": "View on Google Maps",
+    "searchOnGoogleMaps": "Search on Google Maps",
+    "noLocationInfo": "No location info",
+    "adminInfo": "Admin Info",
+    "joinNow": "Join Now",
+    "alreadyJoined": "Already Joined",
+    "pendingApproval": "Pending Approval",
+    "viewAll": "View All",
+    "aboutTab": "About",
+    "membersTab": "Members",
+    "scheduleTab": "Schedule",
+    "galleryTab": "Gallery",
+    "announcementsTab": "Announcements",
+    "noImages": "No images"
   },
   "suggestions": {
     "title": "Suggested Sessions",
