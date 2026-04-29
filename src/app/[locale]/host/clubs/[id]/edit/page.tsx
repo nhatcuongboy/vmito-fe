@@ -423,8 +423,10 @@ const EditClubPage = () => {
       const imagePublicId =
         clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
+      const { allLevelsSelected, ...restData } = data;
+
       await ClubsService.updateClub(groupId, {
-        ...data,
+        ...restData,
         image,
         imagePublicId,
         images,

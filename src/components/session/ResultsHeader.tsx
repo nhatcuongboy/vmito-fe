@@ -118,6 +118,7 @@ export default function ResultsHeader({
             color="gray.600"
             _dark={{ color: 'gray.400' }}
             whiteSpace="nowrap"
+            display={{ base: 'none', md: 'block' }}
           >
             {`${count} ${tCommon('sessions')}`}
           </Text>

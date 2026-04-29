@@ -263,6 +263,7 @@ function HostSessionsContent() {
       }}
       maxW="full"
       px={{ base: '24px', md: 0 }}
+      hideTopBarBorder={true}
     >
       <Flex
         gap={6}

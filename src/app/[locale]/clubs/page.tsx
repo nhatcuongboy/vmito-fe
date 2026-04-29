@@ -250,21 +250,21 @@ export default function BrowseClubsPage() {
 
   return (
     <PageLayout title={t('clubs.browseClubs')}>
-      {/* Search Bar - Sticky */}
+      {/* Search Bar - Fixed on mobile, sticky on desktop */}
       <Box
-        position="sticky"
+        position={{ base: 'fixed', md: 'sticky' }}
         top={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         left={0}
         right={0}
         width="100vw"
-        marginLeft="calc(50% - 50vw)"
+        marginLeft={{ base: 0, md: 'calc(50% - 50vw)' }}
         zIndex={100}
-        bg="transparent"
-        py={2}
-        transition="all 0.2s"
+        bg={{ base: 'bg', md: 'transparent' }}
+        pt={2}
+        pb={{ base: 0, md: 2 }}
       >
         <Box w="100%" maxW="650px" mx="auto">
           <AppSearchBar

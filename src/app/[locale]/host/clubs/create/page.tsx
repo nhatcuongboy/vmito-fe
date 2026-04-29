@@ -275,8 +275,10 @@ const CreateClubPage = () => {
       const imagePublicId =
         clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
+      const { allLevelsSelected, ...restData } = data;
+
       const club = await ClubsService.createClub({
-        ...data,
+        ...restData,
         image,
         imagePublicId,
         images,

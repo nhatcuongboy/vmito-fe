@@ -28,6 +28,8 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   /** Override top bar variant. Auto-detected from pathname if not provided. */
   topBarVariant?: 'main' | 'secondary';
   subHeader?: ReactNode;
+  /** Hide the TopBar bottom border on mobile (for pages with search + sub menu) */
+  hideTopBarBorder?: boolean;
 }
 
 export default function PageLayout({
@@ -48,6 +50,7 @@ export default function PageLayout({
   minH,
   topBarVariant,
   subHeader,
+  hideTopBarBorder = false,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -82,6 +85,7 @@ export default function PageLayout({
         showBackButton={showBackButton ?? variant === 'secondary'}
         backHref={backHref}
         variant={variant}
+        hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
       />
       {isDiscoveryPage && <DiscoveryTabNav />}
       {!isDiscoveryPage && subHeader && (
@@ -100,7 +104,9 @@ export default function PageLayout({
         minH={minH ?? '100vh'}
         pt={{
           base: hasSubHeader
-            ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 44px)`
+            ? isDiscoveryPage
+              ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
+              : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 44px)`
             : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
           md: subHeader
             ? CONTENT_PT_OFFSET
