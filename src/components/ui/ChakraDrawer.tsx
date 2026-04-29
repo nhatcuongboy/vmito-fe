@@ -3,27 +3,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from 'react';
-import { Box, Heading as ChakraHeading } from '@chakra-ui/react';
+import { Box, Heading as ChakraHeading, Portal } from '@chakra-ui/react';
 
 export const Drawer = ({
   children,
+  isOpen,
+  onClose,
   ...props
-}: React.PropsWithChildren<any>) => (
-  <Box
-    position="fixed"
-    top="0"
-    right="0"
-    bottom="0"
-    width="100%"
-    maxWidth="500px"
-    bg="white"
-    boxShadow="lg"
-    zIndex="modal"
-    {...props}
-  >
-    {children}
-  </Box>
-);
+}: React.PropsWithChildren<any> & {
+  isOpen?: boolean;
+  onClose?: () => void;
+}) => {
+  if (isOpen === false) return null;
+
+  return (
+    <Portal>
+      {/* Overlay */}
+      {isOpen !== undefined && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="blackAlpha.600"
+          zIndex="modal"
+          onClick={onClose}
+        />
+      )}
+      <Box
+        position="fixed"
+        top="0"
+        right="0"
+        bottom="0"
+        width="100%"
+        maxWidth="500px"
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        boxShadow="lg"
+        zIndex="modal"
+        {...props}
+      >
+        {children}
+      </Box>
+    </Portal>
+  );
+};
 
 export const DrawerContent = ({
   children,

@@ -3,16 +3,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, Portal } from '@chakra-ui/react';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   size?: string;
+  zIndex?: number;
   children: React.ReactNode;
 }
 
-export const Modal = ({ isOpen, onClose, size, children }: ModalProps) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  size,
+  zIndex = 1500,
+  children,
+}: ModalProps) => {
   if (!isOpen) return null;
 
   const maxWidth =
@@ -25,33 +32,36 @@ export const Modal = ({ isOpen, onClose, size, children }: ModalProps) => {
           : '400px';
 
   return (
-    <Box
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bg="blackAlpha.600"
-      zIndex={1300}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={4}
-      onClick={onClose}
-    >
+    <Portal>
       <Box
-        bg="white"
-        borderRadius="lg"
-        boxShadow="xl"
-        maxW={maxWidth}
-        w="full"
-        maxH="90vh"
-        overflow="auto"
-        onClick={(e) => e.stopPropagation()}
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="blackAlpha.600"
+        zIndex={zIndex}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        p={4}
+        onClick={onClose}
       >
-        {children}
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="lg"
+          boxShadow="xl"
+          maxW={maxWidth}
+          w="full"
+          maxH="90vh"
+          overflow="auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {children}
+        </Box>
       </Box>
-    </Box>
+    </Portal>
   );
 };
 

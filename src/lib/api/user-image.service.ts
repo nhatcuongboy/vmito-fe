@@ -32,6 +32,7 @@ export const UserImageService = {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000, // 60 seconds timeout for uploads
       }
     );
     return response.data.data!;
