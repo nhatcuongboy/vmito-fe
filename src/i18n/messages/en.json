@@ -45,6 +45,23 @@
     "findTournaments": "Find Tournaments",
     "generalSettings": "General Settings"
   },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search sessions, tournaments, venues...",
+    "empty": "Enter keywords to search",
+    "tabs": {
+      "sessions": "Badminton Sessions",
+      "tournaments": "Tournaments",
+      "venues": "Badminton Courts",
+      "clubs": "Clubs"
+    },
+    "results": {
+      "sessions": "Searching for badminton sessions...",
+      "tournaments": "Searching for tournaments...",
+      "venues": "Searching for badminton courts...",
+      "clubs": "Searching for clubs..."
+    }
+  },
   "common": {
     "browse": "Analysis",
     "search": "Search",
@@ -217,6 +234,8 @@
     "location": "Location",
     "courtAppearance": "Court Appearance",
     "selectCourtColor": "Select the color for your courts.",
+    "advancedSettings": "Advanced",
+    "sessionImages": "Session Images",
     "horizontal": "Horizontal",
     "vertical": "Vertical",
     "courtDirectionDescription": "Court orientation for better gameplay",

@@ -46,6 +46,23 @@
     "createTournament": "Tạo giải",
     "generalSettings": "Cài đặt chung"
   },
+  "search": {
+    "title": "Tìm kiếm",
+    "placeholder": "Tìm kèo, giải đấu, sân...",
+    "empty": "Nhập từ khóa để tìm kiếm",
+    "tabs": {
+      "sessions": "Kèo cầu lông",
+      "tournaments": "Giải đấu",
+      "venues": "Sân cầu lông",
+      "clubs": "Câu lạc bộ"
+    },
+    "results": {
+      "sessions": "Đang tìm kèo cầu lông...",
+      "tournaments": "Đang tìm giải đấu...",
+      "venues": "Đang tìm sân cầu lông...",
+      "clubs": "Đang tìm câu lạc bộ..."
+    }
+  },
   "common": {
     "browse": "Thống kê",
     "search": "Tìm kiếm",
@@ -218,6 +235,8 @@
     "location": "Địa điểm",
     "courtAppearance": "Giao diện sân",
     "selectCourtColor": "Chọn màu sắc cho sân của bạn.",
+    "advancedSettings": "Nâng cao",
+    "sessionImages": "Ảnh kèo",
     "horizontal": "Ngang",
     "vertical": "Dọc",
     "courtDirectionDescription": "Hướng sân để luồng chơi tốt hơn",
@@ -637,7 +656,8 @@
     "sessionEnded": "Kèo đã kết thúc",
     "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo",
     "collapse": "Thu gọn",
-    "expand": "Mở rộng"
+    "expand": "Mở rộng",
+    "advanced": "Nâng cao"
   },
   "court": {
     "title": "Sân",

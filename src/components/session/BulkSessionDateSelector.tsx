@@ -214,6 +214,7 @@ export function BulkSessionDateSelector({
       borderRadius="lg"
       p={4}
       bg={{ base: 'white', _dark: 'gray.800' }}
+      boxShadow="sm"
     >
       {/* Header with toggle */}
       <Flex justify="space-between" align="center" mb={enabled ? 4 : 0}>

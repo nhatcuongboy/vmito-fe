@@ -32,6 +32,23 @@
     "personal": "个人",
     "generalSettings": "常规设置"
   },
+  "search": {
+    "title": "搜索",
+    "placeholder": "搜索场次、锦标赛、场地...",
+    "empty": "输入关键词进行搜索",
+    "tabs": {
+      "sessions": "羽毛球场次",
+      "tournaments": "锦标赛",
+      "venues": "羽毛球场地",
+      "clubs": "俱乐部"
+    },
+    "results": {
+      "sessions": "正在搜索羽毛球场次...",
+      "tournaments": "正在搜索锦标赛...",
+      "venues": "正在搜索羽毛球场地...",
+      "clubs": "正在搜索俱乐部..."
+    }
+  },
   "common": {
     "browse": "统计分析",
     "search": "搜索",
@@ -198,6 +215,8 @@
     "location": "地点",
     "courtAppearance": "场地外观",
     "selectCourtColor": "为您的场地选择颜色。",
+    "advancedSettings": "高级设置",
+    "sessionImages": "场次图片",
     "horizontal": "水平",
     "vertical": "垂直",
     "courtDirectionDescription": "场地朝向以获得更好的游戏体验",

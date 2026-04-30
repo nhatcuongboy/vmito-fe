@@ -26,6 +26,7 @@ import {
   VStack,
   Wrap,
   WrapItem,
+  Collapsible,
 } from '@chakra-ui/react';
 import { formatVenueName } from '@/utils';
 import { Input } from '@/components/ui/Input';
@@ -84,6 +85,9 @@ import {
   User,
   Users,
   UserPlus,
+  ChevronDown,
+  ChevronUp,
+  Settings,
 } from 'lucide-react';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
 import { useTranslations } from 'next-intl';
@@ -428,6 +432,9 @@ export default function SessionForm({
     RecurringWeekdaysConfig | undefined
   >(undefined);
 
+  // Advanced section collapse state
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+
   // Computed session duration
   const sessionDuration = useMemo(() => {
     try {
@@ -540,7 +547,7 @@ export default function SessionForm({
 
   // AI Success handler using setValue
   const handleAISuccess = useCallback(
-    (inputData: ExtractedSessionData | any) => {
+    async (inputData: ExtractedSessionData | any) => {
       const data =
         inputData && inputData.success && inputData.data
           ? inputData.data
@@ -616,36 +623,141 @@ export default function SessionForm({
         if (data.feeConfig.notes) setFeeNotes(data.feeConfig.notes);
       }
 
-      // Venue matching
-      if (
+      // Venue handling - use venueId from backend if available
+      if (data.venueId) {
+        // Backend already matched the venue, use it directly
+        console.log('Using venue ID from backend:', data.venueId);
+        setValue('selectedVenueId', data.venueId);
+
+        // Fetch venue details to set selectedVenueObj
+        const matchedVenue = venues.find((v) => v.id === data.venueId);
+        if (matchedVenue) {
+          setSelectedVenueObj(matchedVenue);
+        } else {
+          // Venue not in current list, fetch it
+          try {
+            const venueDetails = await VenueService.getVenue(data.venueId);
+            setSelectedVenueObj(venueDetails);
+          } catch (error) {
+            console.error('Failed to fetch venue details:', error);
+          }
+        }
+      } else if (
         data.venue &&
         (data.venue.name || data.venue.address) &&
         venues.length > 0
       ) {
+        // Fallback: try client-side matching if backend didn't find a match
+        console.log(
+          'Backend did not match venue, trying client-side matching for:',
+          data.venue
+        );
+
         const venueName = data.venue.name?.toLowerCase() || '';
         const venueAddress = data.venue.address?.toLowerCase() || '';
 
-        const matchedVenue = venues.find((v) => {
-          const vName = v.name.toLowerCase();
-          const vAddress = v.address.toLowerCase();
-          if (
-            venueName &&
-            (vName.includes(venueName) || venueName.includes(vName))
-          )
-            return true;
-          if (
-            venueAddress &&
-            (vAddress.includes(venueAddress) || venueAddress.includes(vAddress))
-          )
-            return true;
-          return false;
+        // Helper function to normalize text for better matching
+        const normalizeText = (text: string) => {
+          return text
+            .toLowerCase()
+            .replace(/sân\s+cầu\s+lông\s+/gi, '') // Remove "sân cầu lông" prefix
+            .replace(/sân\s+/gi, '') // Remove "sân" prefix
+            .replace(/\s+/g, ' ') // Normalize spaces
+            .trim();
+        };
+
+        // Helper function to calculate match score
+        const calculateMatchScore = (venue: Venue): number => {
+          let score = 0;
+          const normalizedVenueName = normalizeText(venue.name);
+          const normalizedVenueAddress = venue.address.toLowerCase();
+          const normalizedSearchName = normalizeText(venueName);
+          const normalizedSearchAddress = venueAddress;
+
+          // Exact match gets highest score
+          if (normalizedVenueName === normalizedSearchName) {
+            score += 100;
+          }
+          // Contains match
+          else if (normalizedVenueName.includes(normalizedSearchName)) {
+            score += 50;
+          } else if (normalizedSearchName.includes(normalizedVenueName)) {
+            score += 50;
+          }
+          // Word-by-word matching
+          else {
+            const searchWords = normalizedSearchName
+              .split(' ')
+              .filter((w: string) => w.length > 2);
+            const venueWords = normalizedVenueName
+              .split(' ')
+              .filter((w: string) => w.length > 2);
+
+            searchWords.forEach((searchWord: string) => {
+              venueWords.forEach((venueWord: string) => {
+                if (
+                  venueWord.includes(searchWord) ||
+                  searchWord.includes(venueWord)
+                ) {
+                  score += 10;
+                }
+              });
+            });
+          }
+
+          // Address matching
+          if (normalizedSearchAddress && normalizedVenueAddress) {
+            if (normalizedVenueAddress.includes(normalizedSearchAddress)) {
+              score += 30;
+            } else if (
+              normalizedSearchAddress.includes(normalizedVenueAddress)
+            ) {
+              score += 30;
+            } else {
+              // Word-by-word address matching
+              const addressWords = normalizedSearchAddress
+                .split(' ')
+                .filter((w: string) => w.length > 2);
+              addressWords.forEach((word: string) => {
+                if (normalizedVenueAddress.includes(word)) {
+                  score += 5;
+                }
+              });
+            }
+          }
+
+          return score;
+        };
+
+        // Find best matching venue
+        let bestMatch: Venue | null = null;
+        let bestScore = 0;
+
+        venues.forEach((v) => {
+          const score = calculateMatchScore(v);
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = v;
+          }
         });
 
-        if (matchedVenue) {
-          setValue('selectedVenueId', matchedVenue.id);
-          setSelectedVenueObj(matchedVenue);
+        // Only use match if score is above threshold
+        if (bestMatch && bestScore >= 10) {
+          console.log(
+            'Client-side matched venue:',
+            (bestMatch as Venue).name,
+            'with score:',
+            bestScore
+          );
+          setValue('selectedVenueId', (bestMatch as Venue).id);
+          setSelectedVenueObj(bestMatch as Venue);
         } else {
-          console.log('No matching venue found for:', data.venue);
+          console.log(
+            'No matching venue found for:',
+            data.venue,
+            'Best score was:',
+            bestScore
+          );
         }
       }
     },
@@ -855,6 +967,8 @@ export default function SessionForm({
 
   const scrollToFirstError = useCallback(
     (formErrors: Partial<Record<keyof SessionFormData, unknown>>) => {
+      console.log('Scrolling to first error:', formErrors);
+
       const fieldOrder: (keyof SessionFormData)[] = [
         'name',
         'selectedVenueId',
@@ -873,14 +987,50 @@ export default function SessionForm({
         endTime: 'field-endTime',
         courts: 'field-courts',
       };
+
       for (const fieldName of fieldOrder) {
         if (!formErrors[fieldName]) continue;
         const id = fieldToId[fieldName];
         if (!id) continue;
+
+        console.log(`Trying to scroll to field: ${fieldName} with ID: ${id}`);
         const el = document.getElementById(id);
+
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          console.log(`Found element for ${fieldName}, scrolling...`);
+
+          // Scroll with offset to account for fixed headers
+          const yOffset = -100; // Adjust this value based on your header height
+          const y =
+            el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+          window.scrollTo({ top: y, behavior: 'smooth' });
+
+          // Focus on the input element
+          setTimeout(() => {
+            // For venue field (SearchableSelect), find the button or input inside
+            if (fieldName === 'selectedVenueId') {
+              const button = el.querySelector('button');
+              const input = el.querySelector('input');
+              if (button) {
+                button.focus();
+              } else if (input) {
+                input.focus();
+              }
+            } else {
+              // For other fields, try to find and focus the input
+              const input = el.querySelector('input, textarea, select');
+              if (input instanceof HTMLElement) {
+                input.focus();
+              }
+            }
+          }, 500); // Wait for smooth scroll to complete
+
           break;
+        } else {
+          console.warn(
+            `Element not found for field: ${fieldName} with ID: ${id}`
+          );
         }
       }
     },
@@ -1015,18 +1165,6 @@ export default function SessionForm({
                     {errors.description?.message}
                   </Field.ErrorText>
                 </Field.Root>
-
-                {/* Session Images */}
-                <Box>
-                  <AppMultiImageUpload
-                    images={sessionImages}
-                    bannerIndex={bannerIndex}
-                    onImagesChange={setSessionImages}
-                    onBannerChange={setBannerIndex}
-                    isUploading={isUploadingImages}
-                    maxImages={5}
-                  />
-                </Box>
 
                 {/* Location */}
                 <Field.Root
@@ -1347,9 +1485,9 @@ export default function SessionForm({
                         </Button>
                       )}
                     </Flex>
-                    <Flex gap={3} direction={{ base: 'column', md: 'row' }}>
+                    <Flex gap={3} direction="row">
                       {/* Court Number */}
-                      <Box flex={{ base: '1', md: '0 0 140px' }}>
+                      <Box flex={{ base: '0 0 100px', md: '0 0 140px' }}>
                         <Field.Root
                           invalid={!!errors.courts?.[index]?.courtNumber}
                           disabled={!canEditCourts}
@@ -1384,7 +1522,7 @@ export default function SessionForm({
                       </Box>
 
                       {/* Court Name */}
-                      <Box flex={{ base: '1', md: '1' }}>
+                      <Box flex="1">
                         <Field.Root
                           invalid={!!errors.courts?.[index]?.courtName}
                           disabled={!canEditCourts}
@@ -1445,169 +1583,6 @@ export default function SessionForm({
                   </Text>
                 )}
               </Stack>
-            </Box>
-
-            {/* Court Appearance Section */}
-            {canAccessHostFeatures && (
-              <Box
-                bg={{ base: 'white', _dark: 'gray.800' }}
-                p={6}
-                borderRadius="lg"
-                boxShadow="sm"
-                border="1px solid"
-                borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
-              >
-                <Heading size="md" mb={4}>
-                  {t('courtAppearance')}
-                </Heading>
-                <Text fontSize="sm" color="fg.muted" mb={4}>
-                  {t('selectCourtColor')}
-                </Text>
-
-                <Controller
-                  control={control}
-                  name="courtColor"
-                  render={({ field }) => (
-                    <Wrap gap={4}>
-                      {COURT_COLORS.map((color) => {
-                        const isSelected = field.value === color.value;
-                        return (
-                          <WrapItem key={color.value}>
-                            <VStack>
-                              <Box
-                                w="60px"
-                                h="60px"
-                                borderRadius="md"
-                                bg={color.value}
-                                cursor="pointer"
-                                position="relative"
-                                onClick={() => field.onChange(color.value)}
-                                border="3px solid"
-                                borderColor={
-                                  isSelected ? 'brand.500' : 'transparent'
-                                }
-                                boxShadow={isSelected ? 'lg' : 'sm'}
-                                transition="all 0.2s"
-                                _hover={{
-                                  transform: 'scale(1.05)',
-                                  boxShadow: 'md',
-                                }}
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                              >
-                                <Box
-                                  w="40px"
-                                  h="30px"
-                                  border="1px solid white"
-                                  position="absolute"
-                                  opacity={0.7}
-                                />
-                              </Box>
-                              <Text
-                                fontSize="xs"
-                                fontWeight={isSelected ? 'bold' : 'normal'}
-                              >
-                                {color.name}
-                              </Text>
-                            </VStack>
-                          </WrapItem>
-                        );
-                      })}
-                    </Wrap>
-                  )}
-                />
-              </Box>
-            )}
-
-            {/* Max Players & Shuttlecock Section */}
-            <Box
-              bg={{ base: 'white', _dark: 'gray.800' }}
-              p={6}
-              borderRadius="lg"
-              boxShadow="sm"
-              border="1px solid"
-              borderColor="border"
-            >
-              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
-                <Field.Root invalid={!!errors.maxPlayersPerCourt}>
-                  <Field.Label>
-                    <Heading size="md">{t('maxPlayersPerCourt')}</Heading>
-                  </Field.Label>
-                  <Controller
-                    control={control}
-                    name="maxPlayersPerCourt"
-                    render={({ field }) => (
-                      <Input
-                        type="number"
-                        min={2}
-                        max={12}
-                        value={field.value}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          field.onChange(parseInt(e.target.value) || 8)
-                        }
-                      />
-                    )}
-                  />
-                  <Field.ErrorText color="fg.error">
-                    {errors.maxPlayersPerCourt?.message}
-                  </Field.ErrorText>
-                </Field.Root>
-
-                <Field.Root invalid={!!errors.shuttlecock}>
-                  <Field.Label>
-                    <Heading size="md">{t('shuttlecock')}</Heading>
-                  </Field.Label>
-                  <Input
-                    {...register('shuttlecock')}
-                    placeholder={t('shuttlecock')}
-                  />
-                  <Field.ErrorText color="fg.error">
-                    {errors.shuttlecock?.message}
-                  </Field.ErrorText>
-                </Field.Root>
-
-                {/* Default Match Type */}
-                <Controller
-                  control={control}
-                  name="defaultMatchType"
-                  render={({ field }) => (
-                    <Field.Root>
-                      <Field.Label>
-                        <Heading size="md">{t('defaultMatchType')}</Heading>
-                      </Field.Label>
-                      <HStack gap={3}>
-                        <Button
-                          variant={
-                            field.value === 'DOUBLES' ? 'solid' : 'outline'
-                          }
-                          colorPalette={
-                            field.value === 'DOUBLES' ? 'blue' : 'gray'
-                          }
-                          size="sm"
-                          onClick={() => field.onChange('DOUBLES')}
-                        >
-                          <Box as={Users} boxSize={4} mr={1} />
-                          {t('doubles')}
-                        </Button>
-                        <Button
-                          variant={
-                            field.value === 'SINGLES' ? 'solid' : 'outline'
-                          }
-                          colorPalette={
-                            field.value === 'SINGLES' ? 'blue' : 'gray'
-                          }
-                          size="sm"
-                          onClick={() => field.onChange('SINGLES')}
-                        >
-                          <Box as={User} boxSize={4} mr={1} />
-                          {t('singles')}
-                        </Button>
-                      </HStack>
-                    </Field.Root>
-                  )}
-                />
-              </Grid>
             </Box>
 
             {/* Level Requirements Section */}
@@ -1705,18 +1680,6 @@ export default function SessionForm({
               </Box>
             )}
 
-            {/* Bulk Session Creation Section - Only show in create mode */}
-            {!isEditMode && canAccessHostFeatures && (
-              <BulkSessionDateSelector
-                enabled={bulkEnabled}
-                onEnabledChange={setBulkEnabled}
-                baseStartTime={startTime ? new Date(startTime) : undefined}
-                onModeChange={setBulkMode}
-                onSpecificDatesChange={setSpecificDatesConfig}
-                onRecurringWeekdaysChange={setRecurringWeekdaysConfig}
-              />
-            )}
-
             {/* Fee Configuration Section */}
             <SessionFeeConfigForm
               enabled={feeEnabled}
@@ -1730,6 +1693,240 @@ export default function SessionForm({
               notes={feeNotes}
               onNotesChange={setFeeNotes}
             />
+
+            {/* Bulk Session Creation - Only show in create mode */}
+            {!isEditMode && canAccessHostFeatures && (
+              <BulkSessionDateSelector
+                enabled={bulkEnabled}
+                onEnabledChange={setBulkEnabled}
+                baseStartTime={startTime ? new Date(startTime) : undefined}
+                onModeChange={setBulkMode}
+                onSpecificDatesChange={setSpecificDatesConfig}
+                onRecurringWeekdaysChange={setRecurringWeekdaysConfig}
+              />
+            )}
+
+            {/* Advanced Section - Collapsible */}
+            <Box
+              bg={{ base: 'white', _dark: 'gray.800' }}
+              borderRadius="lg"
+              boxShadow="sm"
+              border="1px solid"
+              borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
+              overflow="hidden"
+            >
+              <Collapsible.Root
+                open={isAdvancedOpen}
+                onOpenChange={(e) => setIsAdvancedOpen(e.open)}
+              >
+                <Collapsible.Trigger asChild>
+                  <Box
+                    as="button"
+                    w="full"
+                    p={4}
+                    cursor="pointer"
+                    _hover={{ bg: { base: 'gray.50', _dark: 'gray.750' } }}
+                    transition="background 0.2s"
+                  >
+                    <Flex align="center" justify="space-between">
+                      <HStack gap={2}>
+                        <Icon asChild boxSize={5} color="brand.500">
+                          <Settings />
+                        </Icon>
+                        <Heading size="md">{t('advancedSettings')}</Heading>
+                      </HStack>
+                      <Icon asChild boxSize={5} color="fg.muted">
+                        {isAdvancedOpen ? <ChevronUp /> : <ChevronDown />}
+                      </Icon>
+                    </Flex>
+                  </Box>
+                </Collapsible.Trigger>
+
+                <Collapsible.Content>
+                  <Stack gap={6} p={6} pt={0}>
+                    {/* Session Images */}
+                    <Box>
+                      <AppMultiImageUpload
+                        images={sessionImages}
+                        bannerIndex={bannerIndex}
+                        onImagesChange={setSessionImages}
+                        onBannerChange={setBannerIndex}
+                        isUploading={isUploadingImages}
+                        maxImages={5}
+                      />
+                    </Box>
+
+                    {/* Court Appearance */}
+                    {canAccessHostFeatures && (
+                      <Box>
+                        <Heading size="sm" mb={3}>
+                          {t('courtAppearance')}
+                        </Heading>
+                        <Text fontSize="sm" color="fg.muted" mb={4}>
+                          {t('selectCourtColor')}
+                        </Text>
+
+                        <Controller
+                          control={control}
+                          name="courtColor"
+                          render={({ field }) => (
+                            <Wrap gap={4}>
+                              {COURT_COLORS.map((color) => {
+                                const isSelected = field.value === color.value;
+                                return (
+                                  <WrapItem key={color.value}>
+                                    <VStack>
+                                      <Box
+                                        w="60px"
+                                        h="60px"
+                                        borderRadius="md"
+                                        bg={color.value}
+                                        cursor="pointer"
+                                        position="relative"
+                                        onClick={() =>
+                                          field.onChange(color.value)
+                                        }
+                                        border="3px solid"
+                                        borderColor={
+                                          isSelected
+                                            ? 'brand.500'
+                                            : 'transparent'
+                                        }
+                                        boxShadow={isSelected ? 'lg' : 'sm'}
+                                        transition="all 0.2s"
+                                        _hover={{
+                                          transform: 'scale(1.05)',
+                                          boxShadow: 'md',
+                                        }}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                      >
+                                        <Box
+                                          w="40px"
+                                          h="30px"
+                                          border="1px solid white"
+                                          position="absolute"
+                                          opacity={0.7}
+                                        />
+                                      </Box>
+                                      <Text
+                                        fontSize="xs"
+                                        fontWeight={
+                                          isSelected ? 'bold' : 'normal'
+                                        }
+                                      >
+                                        {color.name}
+                                      </Text>
+                                    </VStack>
+                                  </WrapItem>
+                                );
+                              })}
+                            </Wrap>
+                          )}
+                        />
+                      </Box>
+                    )}
+
+                    {/* Shuttlecock */}
+                    <Box>
+                      <Field.Root invalid={!!errors.shuttlecock}>
+                        <Field.Label>
+                          <Heading size="sm">{t('shuttlecock')}</Heading>
+                        </Field.Label>
+                        <Input
+                          {...register('shuttlecock')}
+                          placeholder={t('shuttlecock')}
+                        />
+                        <Field.ErrorText color="fg.error">
+                          {errors.shuttlecock?.message}
+                        </Field.ErrorText>
+                      </Field.Root>
+                    </Box>
+
+                    {/* Default Match Type */}
+                    <Box>
+                      <Controller
+                        control={control}
+                        name="defaultMatchType"
+                        render={({ field }) => (
+                          <Field.Root>
+                            <Field.Label>
+                              <Heading size="sm">
+                                {t('defaultMatchType')}
+                              </Heading>
+                            </Field.Label>
+                            <HStack gap={3}>
+                              <Button
+                                type="button"
+                                variant={
+                                  field.value === 'DOUBLES'
+                                    ? 'solid'
+                                    : 'outline'
+                                }
+                                colorPalette={
+                                  field.value === 'DOUBLES' ? 'blue' : 'gray'
+                                }
+                                size="sm"
+                                onClick={() => field.onChange('DOUBLES')}
+                              >
+                                <Box as={Users} boxSize={4} mr={1} />
+                                {t('doubles')}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant={
+                                  field.value === 'SINGLES'
+                                    ? 'solid'
+                                    : 'outline'
+                                }
+                                colorPalette={
+                                  field.value === 'SINGLES' ? 'blue' : 'gray'
+                                }
+                                size="sm"
+                                onClick={() => field.onChange('SINGLES')}
+                              >
+                                <Box as={User} boxSize={4} mr={1} />
+                                {t('singles')}
+                              </Button>
+                            </HStack>
+                          </Field.Root>
+                        )}
+                      />
+                    </Box>
+
+                    {/* Max Players Per Court */}
+                    <Box>
+                      <Field.Root invalid={!!errors.maxPlayersPerCourt}>
+                        <Field.Label>
+                          <Heading size="sm">{t('maxPlayersPerCourt')}</Heading>
+                        </Field.Label>
+                        <Controller
+                          control={control}
+                          name="maxPlayersPerCourt"
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              min={2}
+                              max={12}
+                              value={field.value}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) =>
+                                field.onChange(parseInt(e.target.value) || 8)
+                              }
+                            />
+                          )}
+                        />
+                        <Field.ErrorText color="fg.error">
+                          {errors.maxPlayersPerCourt?.message}
+                        </Field.ErrorText>
+                      </Field.Root>
+                    </Box>
+                  </Stack>
+                </Collapsible.Content>
+              </Collapsible.Root>
+            </Box>
 
             {/* Buttons */}
             <Flex gap={3} mt={4}>
