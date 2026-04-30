@@ -2,7 +2,7 @@
 
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { Box, Flex, Icon } from '@chakra-ui/react';
-import { Plus } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
@@ -54,7 +54,7 @@ export default function SessionSearchBar({
       loading={isLoadingCreate}
       disabled={isLoadingCreate}
     >
-      <Icon as={Plus} mr={1} boxSize={4} />
+      <Icon as={Sparkles} mr={1.5} boxSize={4} />
       {t('createSession')}
     </Button>
   );
