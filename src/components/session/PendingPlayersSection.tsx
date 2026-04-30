@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Box, Flex, Badge, Text, Image, Stack } from '@chakra-ui/react';
-import { Button, HStack } from '@/components/ui/chakra-compat';
+import { Box, Flex, Badge, Text, Stack } from '@chakra-ui/react';
+import { Button, HStack, Image } from '@/components/ui/chakra-compat';
 import { ChevronDown, ChevronUp, Check, X, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PlayerService } from '@/lib/api/player.service';

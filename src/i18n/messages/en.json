@@ -412,7 +412,7 @@
       "8": "Pro"
     },
     "search": "Search",
-    "searchPlaceholder": "Search by venue, address, or host...",
+    "searchPlaceholder": "Search by session, venue...",
     "timeRange": "Time Range",
     "timeRanges": {
       "morning": "Morning",
@@ -2313,7 +2313,6 @@
       "cancel": "Cancel",
       "confirmAndStartMatch": "Confirm & Start Match",
       "confirmMatch": "Confirm",
-      "confirmMatchManual": "Confirm ({count}/{total})",
       "manualPlayerSelectionTitle": "Manual Player Selection - Court {courtNumber}",
       "selectedPlayersCount": "Selected Players ({count}/{total}):",
       "pairNumber": "Pair {number}",
@@ -3042,7 +3041,7 @@
     },
     "browseClubs": "Find Clubs",
     "browseClubsDescription": "Discover badminton clubs in your area and join the community",
-    "searchPlaceholder": "Search by club name or location...",
+    "searchPlaceholder": "Search by club, location...",
     "noClubsFound": "No Clubs Found",
     "noClubsFoundDescription": "Try adjusting your search or check back later for new clubs",
     "members": "members",
@@ -3242,6 +3241,7 @@
     "viewDetails": "View Details",
     "findSessions": "Find Sessions",
     "findSessionsAtVenue": "Find Sessions at Venue",
-    "nameFormat": "{name} Badminton Court"
+    "nameFormat": "{name} Badminton Court",
+    "searchPlaceholder": "Search by venue, address..."
   }
 }

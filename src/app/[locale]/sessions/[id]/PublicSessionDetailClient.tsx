@@ -1,7 +1,8 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Image, IconButton } from '@chakra-ui/react';
+import { Container, Box, IconButton } from '@chakra-ui/react';
+import { Image } from '@/components/ui/chakra-compat';
 import TopBar from '@/components/ui/TopBar';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';

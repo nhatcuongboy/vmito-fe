@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Image, Textarea } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Textarea } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { VModal } from '@/components/ui/VModal';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, Image } from '@/components/ui/chakra-compat';
 import {
   PaymentMethod,
   PaymentRecord,

@@ -8,12 +8,13 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Image, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
   Input,
   IconButton,
+  Image,
 } from '@/components/ui/chakra-compat';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';

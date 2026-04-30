@@ -30,10 +30,10 @@ export function AppSearchBar({
   };
 
   return (
-    <Box position="relative" w="100%" px={{ base: '10px', md: '16px' }}>
+    <Box position="relative" w="100%" px={{ base: '16px', md: '16px' }}>
       <Box
         position="absolute"
-        left={{ base: '24px', md: '30px' }}
+        left={{ base: '30px', md: '30px' }}
         top="50%"
         transform="translateY(-50%)"
         zIndex={1}
@@ -61,14 +61,18 @@ export function AppSearchBar({
         _focus={{
           borderColor: 'green.500',
           bg: 'bg',
-          boxShadow: '0 0 0 1px var(--chakra-colors-green-500)',
+          boxShadow: {
+            base: '0 0 0 1px var(--chakra-colors-green-500)',
+            md: '0 0 0 1px var(--chakra-colors-green-500)',
+          },
+          outline: 'none',
         }}
       />
 
       {hasClear && (
         <Box
           position="absolute"
-          right={showFilter ? '56px' : '20px'}
+          right={showFilter ? '56px' : '24px'}
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}
@@ -95,7 +99,7 @@ export function AppSearchBar({
       {showFilter && (
         <Box
           position="absolute"
-          right="20px"
+          right="24px"
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}

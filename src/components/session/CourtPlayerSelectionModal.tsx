@@ -262,13 +262,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             loading={isLoading}
             disabled={isConfirmDisabled}
           >
-            <Box as={Play} boxSize={4} mr={1} />
-            {isAutoMode
-              ? t('courtsTab.confirmMatch')
-              : t('courtsTab.confirmMatchManual', {
-                  count: selectedCount,
-                  total: playersPerCourt,
-                })}
+            {t('courtsTab.confirmMatch')}
           </CompatButton>
         </Flex>
       }
@@ -276,10 +270,10 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     >
       <Box>
         {/* Match Type Tab Selector */}
-        <Flex justify="center" mb={4}>
+        <Flex justify="center" mb={2} mt={-4}>
           <Flex
             bg="gray.100"
-            p={1}
+            p={0.5}
             borderRadius="full"
             borderWidth="1px"
             borderColor="gray.200"
@@ -291,8 +285,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             <Flex
               cursor="pointer"
               align="center"
-              px={4}
-              py={1.5}
+              px={3}
+              py={1}
               borderRadius="full"
               transition="all 0.2s"
               bg={matchType === 'doubles' ? 'white' : 'transparent'}
@@ -304,9 +298,9 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               boxShadow={matchType === 'doubles' ? 'sm' : 'none'}
               onClick={() => onMatchTypeChange('doubles')}
             >
-              <Box as={Users} boxSize={3.5} mr={2} />
+              <Box as={Users} boxSize={3} mr={1.5} />
               <Text
-                fontSize="sm"
+                fontSize="xs"
                 fontWeight={matchType === 'doubles' ? 'bold' : 'medium'}
               >
                 {t('courtsTab.doubles')}
@@ -315,8 +309,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             <Flex
               cursor="pointer"
               align="center"
-              px={4}
-              py={1.5}
+              px={3}
+              py={1}
               borderRadius="full"
               transition="all 0.2s"
               bg={matchType === 'singles' ? 'white' : 'transparent'}
@@ -328,9 +322,9 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               boxShadow={matchType === 'singles' ? 'sm' : 'none'}
               onClick={() => onMatchTypeChange('singles')}
             >
-              <Box as={User} boxSize={3.5} mr={2} />
+              <Box as={User} boxSize={3} mr={1.5} />
               <Text
-                fontSize="sm"
+                fontSize="xs"
                 fontWeight={matchType === 'singles' ? 'bold' : 'medium'}
               >
                 {t('courtsTab.singles')}
@@ -346,7 +340,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           variant="line"
           size="sm"
         >
-          <Tabs.List mb={2}>
+          <Tabs.List mb={0}>
             <Tabs.Trigger value="manual">
               <HStack gap={1.5}>
                 <Box as={UserPlus} boxSize={3.5} />
@@ -355,7 +349,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             </Tabs.Trigger>
             <Tabs.Trigger value="auto">
               <HStack gap={1.5}>
-                <Box as={Shuffle} boxSize={3.5} />
+                <Box as={Sparkles} boxSize={3.5} color="purple.500" />
                 <Text fontSize="sm">{t('courtsTab.autoAssignMatch')}</Text>
               </HStack>
             </Tabs.Trigger>
@@ -450,20 +444,20 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
     <Box>
       {/* TopCount Selection */}
       {waitingPlayersCount > 0 && (
-        <Box bg="gray.50" p={2} borderRadius="md" mb={2}>
-          <HStack gap={3} align="center">
-            <Text fontSize="sm" fontWeight="medium" color="gray.700">
+        <Box bg="gray.50" py={1} px={2} borderRadius="md" mb={2}>
+          <HStack gap={2} align="center">
+            <Text fontSize="xs" fontWeight="medium" color="gray.700">
               {t('courtsTab.playersToConsider')}:
             </Text>
-            <Box flex="1" maxW="130px">
+            <Box flex="1" maxW="110px">
               <select
                 style={{
-                  fontSize: '14px',
+                  fontSize: '13px',
                   backgroundColor: 'white',
                   borderColor: '#d1d5db',
                   borderWidth: '1px',
-                  borderRadius: '6px',
-                  padding: '8px',
+                  borderRadius: '4px',
+                  padding: '4px 6px',
                   width: '100%',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   opacity: isLoading ? 0.6 : 1,
@@ -484,58 +478,151 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
                 ))}
               </select>
             </Box>
-            <Box fontSize="sm" color="gray.500">
+            <Box fontSize="xs" color="gray.500">
               {t('courtsTab.longestWait')}
             </Box>
           </HStack>
         </Box>
       )}
 
-      {/* AI Toggle */}
-      <Box bg="purple.50" p={2} borderRadius="md" mb={2}>
-        <HStack gap={2} align="center" justify="space-between">
-          <HStack gap={1.5}>
-            <Box as={Sparkles} boxSize={3.5} color="purple.500" />
-            <Text fontSize="sm" fontWeight="medium" color="purple.700">
-              {aiPoweredMatchingLabel}
-            </Text>
-          </HStack>
-          <label
+      {/* AI Toggle — Premium Card */}
+      <Box
+        position="relative"
+        overflow="hidden"
+        borderRadius="lg"
+        mb={2}
+        cursor={isLoading ? 'not-allowed' : 'pointer'}
+        onClick={!isLoading ? onAiToggle : undefined}
+        style={{
+          background: useAi
+            ? 'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)'
+            : 'linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%)',
+          border: useAi ? '1.5px solid #7c3aed' : '1.5px solid #d8b4fe',
+          transition: 'all 0.3s ease',
+          boxShadow: useAi
+            ? '0 4px 20px rgba(124, 58, 237, 0.4)'
+            : '0 1px 4px rgba(124,58,237,0.1)',
+        }}
+      >
+        {/* Shimmer overlay when active */}
+        {useAi && (
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            pointerEvents="none"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
+              background:
+                'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'aiShimmer 2.5s ease-in-out infinite',
+            }}
+            css={{
+              '@keyframes aiShimmer': {
+                '0%': { backgroundPosition: '-200% 0' },
+                '100%': { backgroundPosition: '200% 0' },
+              },
+            }}
+          />
+        )}
+
+        <HStack gap={3} align="center" justify="space-between" p={2.5}>
+          <HStack gap={2} align="center">
+            {/* Animated sparkles icon */}
+            <Box
+              style={{
+                animation: useAi ? 'aiSpin 3s linear infinite' : 'none',
+                display: 'flex',
+              }}
+              css={{
+                '@keyframes aiSpin': {
+                  '0%': { transform: 'rotate(0deg) scale(1)' },
+                  '50%': { transform: 'rotate(180deg) scale(1.2)' },
+                  '100%': { transform: 'rotate(360deg) scale(1)' },
+                },
+              }}
+            >
+              <Box
+                as={Sparkles}
+                boxSize={4}
+                color={useAi ? 'yellow.300' : 'purple.500'}
+                style={{ transition: 'color 0.3s' }}
+              />
+            </Box>
+            <Box>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color={useAi ? 'white' : 'purple.700'}
+                style={{ transition: 'color 0.3s', lineHeight: 1.2 }}
+              >
+                {aiPoweredMatchingLabel}
+              </Text>
+              <Text
+                fontSize="xs"
+                color={useAi ? 'purple.200' : 'purple.400'}
+                style={{ transition: 'color 0.3s' }}
+              >
+                {useAi
+                  ? isLoading
+                    ? 'Đang phân tích trình độ...'
+                    : 'Hoàn tất phân tích'
+                  : 'Ghép cặp tự động theo trình độ'}
+              </Text>
+            </Box>
+          </HStack>
+
+          {/* Custom toggle switch */}
+          <Box
+            position="relative"
+            w="40px"
+            h="22px"
+            borderRadius="full"
+            flexShrink={0}
+            style={{
+              background: useAi ? '#fbbf24' : 'rgba(139, 92, 246, 0.25)',
+              border: useAi
+                ? '1.5px solid #f59e0b'
+                : '1.5px solid rgba(139,92,246,0.4)',
+              transition: 'all 0.3s ease',
+              boxShadow: useAi ? '0 0 10px rgba(251,191,36,0.6)' : 'none',
             }}
           >
-            <input
-              type="checkbox"
-              checked={useAi}
-              onChange={onAiToggle}
-              disabled={isLoading}
+            <Box
+              position="absolute"
+              top="2px"
+              w="16px"
+              h="16px"
+              borderRadius="full"
+              bg="white"
               style={{
-                marginRight: '8px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
+                left: useAi ? '20px' : '2px',
+                transition: 'left 0.25s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
               }}
             />
-            <Text fontSize="sm" color="purple.600">
-              {useAi ? 'On' : 'Off'}
-            </Text>
-          </label>
+          </Box>
         </HStack>
+
         {suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
           <Box
-            mt={1.5}
+            mx={2.5}
+            mb={2.5}
             p={2}
-            bg="purple.100"
+            bg="rgba(255,255,255,0.15)"
             borderRadius="md"
             fontSize="xs"
-            color="purple.700"
+            color="purple.100"
             borderWidth="1px"
-            borderColor="purple.200"
+            borderColor="rgba(255,255,255,0.2)"
           >
             <HStack gap={1} mb={0.5}>
-              <Box as={Sparkles} boxSize={3} color="purple.500" />
-              <Text fontWeight="semibold">{t('courtsTab.aiReasoning')}:</Text>
+              <Box as={Sparkles} boxSize={3} color="yellow.300" />
+              <Text fontWeight="semibold" color="white">
+                {t('courtsTab.aiReasoning')}:
+              </Text>
             </HStack>
             <Text>{suggestedPlayers.aiReason}</Text>
           </Box>

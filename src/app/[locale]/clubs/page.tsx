@@ -22,6 +22,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
   ROUTES,
+  BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { useRouter } from '@/i18n/config';
@@ -285,7 +286,7 @@ export default function BrowseClubsPage() {
         right={0}
         width="100vw"
         marginLeft={{ base: 0, md: 'calc(50% - 50vw)' }}
-        zIndex={100}
+        zIndex={1100}
         bg={{ base: 'bg', md: 'transparent' }}
         pt={2}
         pb={{ base: 0, md: 2 }}
@@ -331,9 +332,7 @@ export default function BrowseClubsPage() {
             <Text
               fontSize="sm"
               color="fg.muted"
-              _dark={{ color: 'gray.400' }}
-              flexShrink={0}
-              flex="1"
+              display={{ base: 'none', md: 'block' }}
             >
               {totalCount} kết quả
             </Text>
@@ -430,6 +429,7 @@ export default function BrowseClubsPage() {
             </Badge>
           ))}
 
+          <Box flex="1" />
           <AppViewModeToggle scope="clubs" />
         </Flex>
       )}
@@ -752,7 +752,9 @@ export default function BrowseClubsPage() {
             <Spinner size="xl" colorPalette="green" />
           </Flex>
         ) : (
-          <ClubMap clubs={fullClubs} userLocation={userLocation} />
+          <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+            <ClubMap clubs={fullClubs} userLocation={userLocation} />
+          </Box>
         )
       ) : (
         <>

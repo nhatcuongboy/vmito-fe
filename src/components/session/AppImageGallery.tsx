@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Box, Flex, Image, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
+import { Image } from '@/components/ui/chakra-compat';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface IAppImageGalleryProps {

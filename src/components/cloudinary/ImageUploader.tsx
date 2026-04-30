@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, Flex, Text, VStack, Image } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Upload, X, ImageIcon } from 'lucide-react';
 import { useRef, useState, ChangeEvent } from 'react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, Image } from '@/components/ui/chakra-compat';
 import { compressImage } from '@/lib/utils/image';
 
 interface ImageUploaderProps {

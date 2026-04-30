@@ -181,20 +181,7 @@ const AppImageGalleryPicker = ({
 
       if (successfulUploads.length > 0) {
         setGalleryImages((prev) => [...successfulUploads, ...prev]);
-
-        // Auto-select newly uploaded images if within limit
-        setSelected((prev) => {
-          const newSelected = [...prev];
-          for (const uploaded of successfulUploads) {
-            if (newSelected.length < maxSelect) {
-              newSelected.push({
-                url: uploaded.url,
-                publicId: uploaded.publicId,
-              });
-            }
-          }
-          return newSelected;
-        });
+        // Không tự động chọn ảnh mới upload nữa
       }
     } catch {
       toaster.error({ title: tc('imageProcessingFailed') });
@@ -345,21 +332,7 @@ const AppImageGalleryPicker = ({
                         </Flex>
                       )}
 
-                      {/* Category Badge */}
-                      {!imgSelected && img.category && (
-                        <Badge
-                          position="absolute"
-                          top={2}
-                          left={2}
-                          size="xs"
-                          colorPalette="gray"
-                          variant="solid"
-                          fontSize="2xs"
-                          pointerEvents="none"
-                        >
-                          {img.category}
-                        </Badge>
-                      )}
+                      {/* Category Badge đã bị xoá theo yêu cầu UX */}
 
                       {/* Selected checkmark circle — top right */}
                       {imgSelected && (

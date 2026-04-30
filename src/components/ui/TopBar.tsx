@@ -15,10 +15,9 @@ import {
   Flex,
   Heading,
   IconButton,
-  Image,
   Text,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, Image } from '@/components/ui/chakra-compat';
 import { LogIn, Menu, ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -31,7 +30,7 @@ interface TopBarProps {
   showBackButton?: boolean;
   backHref?: string;
   onBack?: () => void;
-  title?: string;
+  title?: React.ReactNode;
   icon?: React.ReactNode;
   rightContent?: React.ReactNode;
   navItems?: NavItem[];
@@ -254,17 +253,20 @@ export default function TopBar({
                   alignItems="center"
                   position={{
                     base: isLeftAlignedTitle ? 'static' : 'absolute',
-                    md: isLeftAlignedTitle ? 'static' : 'absolute',
+                    md: 'absolute',
                   }}
                   left={{
                     base: isLeftAlignedTitle ? 'auto' : '50%',
-                    md: isLeftAlignedTitle ? 'auto' : '50%',
+                    md: '50%',
                   }}
                   transform={{
                     base: isLeftAlignedTitle ? 'none' : 'translateX(-50%)',
-                    md: isLeftAlignedTitle ? 'none' : 'translateX(-50%)',
+                    md: 'translateX(-50%)',
                   }}
-                  textAlign="left"
+                  textAlign={{
+                    base: isLeftAlignedTitle ? 'left' : 'center',
+                    md: 'center',
+                  }}
                   px={isLeftAlignedTitle ? 1 : 0}
                   pointerEvents={isLeftAlignedTitle ? 'auto' : 'none'}
                 >

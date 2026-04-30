@@ -136,7 +136,7 @@ export default function HostTournamentsPage() {
           right={0}
           width="100vw"
           marginLeft="calc(50% - 50vw)"
-          zIndex={100}
+          zIndex={1100}
           bg="transparent"
           py={2}
           transition="all 0.2s"

@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Image, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
+import { Image } from '@/components/ui/chakra-compat';
 import { LucideIcon } from 'lucide-react';
 import { Tournament } from '@/lib/api/types';
 import SidebarNav from '@/components/ui/SidebarNav';

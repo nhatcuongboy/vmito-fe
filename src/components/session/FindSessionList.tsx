@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
-import { ROUTES, TIME_RANGES } from '@/constants';
+import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { useRouter } from '@/i18n/config';
@@ -921,7 +921,9 @@ export default function FindSessionList({
           <Text fontWeight="medium">{error}</Text>
         </Box>
       ) : viewMode === 'map' ? (
-        <SessionMap sessions={sortedSessions} userLocation={userLocation} />
+        <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+          <SessionMap sessions={sortedSessions} userLocation={userLocation} />
+        </Box>
       ) : sortedSessions.length === 0 ? (
         <Box
           textAlign="center"

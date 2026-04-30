@@ -322,6 +322,7 @@ function HostSessionsContent() {
             sortOptions={HOST_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            showViewModeMap={false}
           />
           {sessionStatusTab === 'expired' && (
             <ExpiredSessionsHeader

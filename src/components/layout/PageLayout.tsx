@@ -16,7 +16,7 @@ import {
 import { useIsMainPage } from '@/hooks/useBottomNavVisibility';
 
 interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
-  title?: string;
+  title?: React.ReactNode;
   icon?: ReactNode;
   rightContent?: ReactNode;
   showBackButton?: boolean;

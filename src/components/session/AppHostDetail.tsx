@@ -1,11 +1,11 @@
 'use client';
 
 import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
-import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
+import { Button, HStack, VStack, Image } from '@/components/ui/chakra-compat';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserRatingStats } from '@/lib/api/types';
-import { Avatar, Box, Grid, Icon, Image, Text } from '@chakra-ui/react';
+import { Avatar, Box, Grid, Icon, Text } from '@chakra-ui/react';
 import { Check, Copy, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';

@@ -75,7 +75,7 @@ export default function SessionSearchBar({
           base: fixedOnMobile ? 0 : 'calc(50% - 50vw)',
           md: 'calc(50% - 50vw)',
         }}
-        zIndex={100}
+        zIndex={1100}
         bg={{ base: 'bg', md: 'transparent' }}
         pt={topAddon ? { base: 2, md: 0 } : 2}
         pb={{ base: 0, md: 2 }}

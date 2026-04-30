@@ -264,6 +264,7 @@ function PlayerSessionsContent() {
             sortOptions={PLAYER_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            showViewModeMap={false}
           />
           <SessionsList
             sessions={filteredSessions}

@@ -2246,7 +2246,6 @@
       "cancel": "取消",
       "confirmAndStartMatch": "确认并开始比赛",
       "confirmMatch": "确认",
-      "confirmMatchManual": "确认 ({count}/{total})",
       "manualPlayerSelectionTitle": "手动选择玩家 - 场地 {courtNumber}",
       "selectedPlayersCount": "已选玩家 ({count}/{total})：",
       "pairNumber": "组合 {number}",

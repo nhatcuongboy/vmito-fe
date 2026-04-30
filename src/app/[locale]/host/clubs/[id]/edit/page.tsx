@@ -8,8 +8,9 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Text, Image } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import {
+  Image,
   Button,
   VStack,
   Input,

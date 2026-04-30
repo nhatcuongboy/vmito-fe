@@ -2325,7 +2325,6 @@
       "cancel": "Hủy",
       "confirmAndStartMatch": "Xác nhận & Bắt đầu trận đấu",
       "confirmMatch": "Xác nhận",
-      "confirmMatchManual": "Xác nhận ({count}/{total})",
       "manualPlayerSelectionTitle": "Chọn người chơi thủ công - Sân {courtNumber}",
       "selectedPlayersCount": "Người chơi đã chọn ({count}/{total}):",
       "pairNumber": "Cặp {number}",
@@ -3058,7 +3057,7 @@
     },
     "browseClubs": "Tìm nhóm",
     "browseClubsDescription": "Tìm kiếm các nhóm cầu lông trong khu vực của bạn và tham gia cộng đồng",
-    "searchPlaceholder": "Tìm kiếm theo tên nhóm hoặc địa điểm...",
+    "searchPlaceholder": "Tìm theo tên nhóm, địa điểm...",
     "noClubsFound": "Không tìm thấy nhóm nào",
     "noClubsFoundDescription": "Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau để xem các nhóm mới",
     "members": "thành viên",
@@ -3260,6 +3259,7 @@
     "viewDetails": "Xem chi tiết",
     "findSessions": "Tìm kèo",
     "findSessionsAtVenue": "Tìm kèo tại sân",
-    "nameFormat": "Sân {name}"
+    "nameFormat": "Sân {name}",
+    "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
   }
 }

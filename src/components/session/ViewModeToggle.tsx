@@ -1,12 +1,25 @@
 'use client';
 
+import { useEffect } from 'react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { Flex } from '@chakra-ui/react';
 import { LayoutGrid, List, MapPin } from 'lucide-react';
 
-export default function ViewModeToggle() {
+interface ViewModeToggleProps {
+  showMap?: boolean;
+}
+
+export default function ViewModeToggle({
+  showMap = true,
+}: ViewModeToggleProps) {
   const { viewMode, setViewMode } = useSessionFilterStore();
+
+  useEffect(() => {
+    if (!showMap && viewMode === 'map') {
+      setViewMode('full');
+    }
+  }, [showMap, viewMode, setViewMode]);
 
   return (
     <Flex
@@ -41,17 +54,19 @@ export default function ViewModeToggle() {
         onClick={() => setViewMode('compact')}
         borderRadius="md"
       />
-      <IconButton
-        size="xs"
-        h="32px"
-        w="32px"
-        variant={viewMode === 'map' ? 'solid' : 'ghost'}
-        colorPalette="green"
-        aria-label="Map view"
-        icon={<MapPin size={16} />}
-        onClick={() => setViewMode('map')}
-        borderRadius="md"
-      />
+      {showMap && (
+        <IconButton
+          size="xs"
+          h="32px"
+          w="32px"
+          variant={viewMode === 'map' ? 'solid' : 'ghost'}
+          colorPalette="green"
+          aria-label="Map view"
+          icon={<MapPin size={16} />}
+          onClick={() => setViewMode('map')}
+          borderRadius="md"
+        />
+      )}
     </Flex>
   );
 }

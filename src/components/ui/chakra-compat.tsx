@@ -65,6 +65,10 @@ export { Input } from './Input';
 // Export Hooks
 export { useColorModeValue, useDisclosure } from './ChakraHooks';
 
+// Export Image component
+export { Image } from './ChakraImage';
+export type { ImageProps } from './ChakraImage';
+
 // Export Select component from dedicated file
 export { VSelect, LegacySelect } from './VSelect';
 export type {

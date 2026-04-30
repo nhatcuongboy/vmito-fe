@@ -505,7 +505,13 @@ const BaseSessionCard = ({
     // Render layout if we have any buttons or menu items
     if (menuItems.length > 0 || rightButtons.length > 0) {
       return (
-        <Flex w="full" justify="flex-end" align="center" gap={2} wrap="wrap">
+        <Flex
+          w={isCompact ? 'auto' : 'full'}
+          justify="flex-end"
+          align="center"
+          gap={2}
+          wrap="wrap"
+        >
           {/* Action menu (3 dots) on the left of buttons */}
           {menuItems.length > 0 && (
             <MenuRoot positioning={{ placement: 'bottom-start' }}>
@@ -761,17 +767,38 @@ const BaseSessionCard = ({
             {/* Title row - in compact mode title is full-width, badges go below */}
             {isCompact ? (
               <>
-                <Flex justify="space-between" align="flex-start" gap={2}>
-                  <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
-                    {convertedSession.title}
-                  </Heading>
+                <Flex justify="space-between" align="center" gap={2}>
+                  <Flex align="center" gap={2} flex={1} overflow="hidden">
+                    <Box
+                      cursor={onHostClick ? 'pointer' : 'default'}
+                      onClick={(e) => {
+                        if (onHostClick) {
+                          e.stopPropagation();
+                          onHostClick(e);
+                        }
+                      }}
+                    >
+                      <Avatar.Root size="xs" bg="brand.500">
+                        <Avatar.Fallback name={displayHostName}>
+                          {displayHostName
+                            ? displayHostName.charAt(0).toUpperCase()
+                            : ''}
+                        </Avatar.Fallback>
+                        {session.host?.image && (
+                          <Avatar.Image src={session.host.image} />
+                        )}
+                      </Avatar.Root>
+                    </Box>
+                    <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
+                      {convertedSession.title}
+                    </Heading>
+                  </Flex>
                   {!disableCardLink && (
                     <Icon
                       as={ChevronRight}
                       boxSize={4}
                       color="gray.400"
                       flexShrink={0}
-                      mt={0.5}
                     />
                   )}
                 </Flex>
@@ -814,46 +841,7 @@ const BaseSessionCard = ({
             )}
 
             {/* Host Info with Avatar and Rating */}
-            {isCompact ? (
-              <Flex align="center" gap={2}>
-                <Box
-                  cursor={onHostClick ? 'pointer' : 'default'}
-                  onClick={(e) => {
-                    if (onHostClick) {
-                      e.stopPropagation();
-                      onHostClick(e);
-                    }
-                  }}
-                >
-                  <Avatar.Root size="xs" bg="brand.500">
-                    <Avatar.Fallback name={displayHostName}>
-                      {displayHostName
-                        ? displayHostName.charAt(0).toUpperCase()
-                        : ''}
-                    </Avatar.Fallback>
-                    {session.host?.image && (
-                      <Avatar.Image src={session.host.image} />
-                    )}
-                  </Avatar.Root>
-                </Box>
-                <Text
-                  fontSize="xs"
-                  fontWeight="medium"
-                  lineClamp={1}
-                  cursor={onHostClick ? 'pointer' : 'default'}
-                  _hover={onHostClick ? { textDecoration: 'underline' } : {}}
-                  onClick={(e) => {
-                    if (onHostClick) {
-                      e.stopPropagation();
-                      onHostClick(e);
-                    }
-                  }}
-                >
-                  {displayHostName}
-                </Text>
-                <AppPlayerRating userId={session.hostId} size="xs" />
-              </Flex>
-            ) : (
+            {isCompact ? null : (
               <Flex align="center" gap={3}>
                 <Box
                   cursor={onHostClick ? 'pointer' : 'default'}
@@ -925,23 +913,6 @@ const BaseSessionCard = ({
                       {t('maxPlayers', { count: convertedSession.maxPlayers })}
                     </Text>
                   </Flex>
-                </Flex>
-                <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
-                  <Flex align="center" gap={1}>
-                    <Icon as={UserCheck} boxSize={4} color="green.500" />
-                    <Text fontSize="xs">
-                      {convertedSession.totalPlayers}/
-                      {convertedSession.maxPlayers} {t('players')}
-                    </Text>
-                  </Flex>
-                  {session.shuttlecock && (
-                    <Flex align="center" gap={1}>
-                      <Icon as={Feather} boxSize={4} color="green.500" />
-                      <Text fontSize="xs" lineClamp={1}>
-                        {session.shuttlecock}
-                      </Text>
-                    </Flex>
-                  )}
                 </Flex>
               </>
             ) : (
@@ -1068,70 +1039,110 @@ const BaseSessionCard = ({
 
             {/* Footer: Price + Actions */}
             <Stack
-              gap={isCompact ? 2 : 3}
+              gap={isCompact ? 0 : 3}
               pt={isCompact ? 2 : 3}
               mt="auto"
               borderTopWidth="1px"
               borderTopColor="gray.200"
               _dark={{ borderTopColor: 'gray.700' }}
             >
-              {/* Row 1: Price and Top Actions */}
-              <Flex align="flex-start" justify="space-between" gap={3}>
-                {/* Price Section */}
-                <Box flexShrink={0} pt={0.5}>
-                  {session.feeConfig && (
-                    <Flex align="center" gap={1.5}>
-                      <Icon
-                        as={Banknote}
-                        boxSize={isCompact ? 4 : 5}
-                        color="red.600"
-                      />
+              {isCompact ? (
+                <Flex align="center" justify="space-between" gap={2}>
+                  {/* Price Section */}
+                  <Box flexShrink={0}>
+                    {session.feeConfig && (
                       <Flex align="center" gap={1.5}>
-                        <Text
-                          fontSize={isCompact ? 'md' : 'lg'}
-                          fontWeight="bold"
-                          color="red.600"
-                          whiteSpace="nowrap"
-                        >
-                          {FeeService.getFeeDisplayText(session.feeConfig)}
-                        </Text>
-                        {session.feeConfig.feeType === FeeType.FIXED && (
+                        <Icon as={Banknote} boxSize={4} color="red.600" />
+                        <Flex align="center" gap={1}>
                           <Text
-                            fontSize="sm"
-                            color="gray.500"
-                            fontWeight="normal"
+                            fontSize="md"
+                            fontWeight="bold"
+                            color="red.600"
                             whiteSpace="nowrap"
                           >
-                            /slot
+                            {FeeService.getFeeDisplayText(session.feeConfig)}
                           </Text>
-                        )}
-                        {!isCompact && (
-                          <FeeDetailPopover feeConfig={session.feeConfig} />
-                        )}
+                          {session.feeConfig.feeType === FeeType.FIXED && (
+                            <Text
+                              fontSize="xs"
+                              color="gray.500"
+                              fontWeight="normal"
+                              whiteSpace="nowrap"
+                            >
+                              /slot
+                            </Text>
+                          )}
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  )}
-                </Box>
-
-                {/* Top Action Buttons (e.g. Call, Share, Download) - hidden in compact mode */}
-                {!isCompact && (topActionsRendered || oldTopActions) && (
-                  <Box flex="1" textAlign="right">
-                    <Flex justify="flex-end" gap={2}>
-                      {topActionsRendered || oldTopActions || actionButtons}
-                    </Flex>
+                    )}
                   </Box>
-                )}
-              </Flex>
 
-              {/* Row 2: Bottom Action Buttons */}
-              {(actions ? renderBottomActions() : bottomActionButtons) && (
+                  {/* Bottom Action Buttons */}
+                  <Box flex="1" display="flex" justifyContent="flex-end">
+                    {actions ? renderBottomActions() : bottomActionButtons}
+                  </Box>
+                </Flex>
+              ) : (
                 <>
-                  {actions ? (
-                    renderBottomActions()
-                  ) : (
-                    <Flex justify="flex-end" gap={2}>
-                      {bottomActionButtons}
-                    </Flex>
+                  {/* Row 1: Price and Top Actions */}
+                  <Flex align="flex-start" justify="space-between" gap={3}>
+                    {/* Price Section */}
+                    <Box flexShrink={0} pt={0.5}>
+                      {session.feeConfig && (
+                        <Flex align="center" gap={1.5}>
+                          <Icon
+                            as={Banknote}
+                            boxSize={isCompact ? 4 : 5}
+                            color="red.600"
+                          />
+                          <Flex align="center" gap={1.5}>
+                            <Text
+                              fontSize={isCompact ? 'md' : 'lg'}
+                              fontWeight="bold"
+                              color="red.600"
+                              whiteSpace="nowrap"
+                            >
+                              {FeeService.getFeeDisplayText(session.feeConfig)}
+                            </Text>
+                            {session.feeConfig.feeType === FeeType.FIXED && (
+                              <Text
+                                fontSize="sm"
+                                color="gray.500"
+                                fontWeight="normal"
+                                whiteSpace="nowrap"
+                              >
+                                /slot
+                              </Text>
+                            )}
+                            {!isCompact && (
+                              <FeeDetailPopover feeConfig={session.feeConfig} />
+                            )}
+                          </Flex>
+                        </Flex>
+                      )}
+                    </Box>
+
+                    {/* Top Action Buttons (e.g. Call, Share, Download) - hidden in compact mode */}
+                    {!isCompact && (topActionsRendered || oldTopActions) && (
+                      <Box flex="1" textAlign="right">
+                        <Flex justify="flex-end" gap={2}>
+                          {topActionsRendered || oldTopActions || actionButtons}
+                        </Flex>
+                      </Box>
+                    )}
+                  </Flex>
+
+                  {/* Row 2: Bottom Action Buttons */}
+                  {(actions ? renderBottomActions() : bottomActionButtons) && (
+                    <>
+                      {actions ? (
+                        renderBottomActions()
+                      ) : (
+                        <Flex justify="flex-end" gap={2}>
+                          {bottomActionButtons}
+                        </Flex>
+                      )}
+                    </>
                   )}
                 </>
               )}

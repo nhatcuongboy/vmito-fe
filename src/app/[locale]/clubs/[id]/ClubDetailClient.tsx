@@ -46,6 +46,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import { ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import SessionMap from '@/components/session/SessionMap';
 
 interface ClubDetailClientProps {
   initialClub: IClub | null;
@@ -87,8 +88,8 @@ export default function ClubDetailClient({
     }
   }, [clubId, loadClubDetails, initialClub]);
 
+  // Hiển thị đầy đủ các trình độ đã chọn
   const getLevelRange = () => {
-    // Priority 1: Use manual settings if available
     if (club?.requiredLevels && club.requiredLevels.length > 0) {
       return club.requiredLevels
         .sort((a, b) => a - b)
@@ -103,11 +104,8 @@ export default function ClubDetailClient({
       .filter((l): l is number => l !== undefined && l !== null);
 
     if (levels.length === 0) return null;
-    const min = Math.min(...levels);
-    const max = Math.max(...levels);
-
-    if (min === max) return getLevelLabel(min);
-    return `${getLevelLabel(min)} - ${getLevelLabel(max)}`;
+    const uniqueLevels = Array.from(new Set(levels)).sort((a, b) => a - b);
+    return uniqueLevels.map((l) => getLevelLabel(l)).join(', ');
   };
 
   const isUserMember = club?.members?.some(
@@ -185,7 +183,40 @@ export default function ClubDetailClient({
   }
 
   return (
-    <PageLayout title={club.name}>
+    <PageLayout
+      title={
+        <HStack gap={2} align="center">
+          <Box
+            w="32px"
+            h="32px"
+            display={{ base: 'flex', md: 'none' }}
+            borderRadius="md"
+            overflow="hidden"
+            bg="gray.100"
+            flexShrink={0}
+            alignItems="center"
+            justifyContent="center"
+          >
+            {club.image ? (
+              <Image
+                src={club.image}
+                alt={club.name}
+                objectFit="cover"
+                w="full"
+                h="full"
+              />
+            ) : (
+              <Text fontSize="xs" fontWeight="bold" color="gray.500">
+                {club.name.charAt(0).toUpperCase()}
+              </Text>
+            )}
+          </Box>
+          <Text truncate fontWeight="bold">
+            {club.name}
+          </Text>
+        </HStack>
+      }
+    >
       {/* Hero Section */}
       <Container maxW="container.xl" px={0}>
         <Box
@@ -234,127 +265,51 @@ export default function ClubDetailClient({
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           borderRadius="2xl"
           shadow="sm"
-          p={{ base: 4, md: 5 }}
+          px={{ base: 3, md: 5 }}
+          py={{ base: 2, md: 3.5 }}
           borderWidth="1px"
           borderColor="gray.100"
           mb={4}
         >
-          <Flex
-            direction={{ base: 'column', md: 'row' }}
-            gap={{ base: 4, md: 6 }}
-            align={{ base: 'stretch', md: 'center' }}
-          >
-            <Flex gap={4} align="center">
-              <Avatar.Root
-                size={{ base: 'lg', md: 'xl' }}
-                flexShrink={0}
-                shadow="sm"
-              >
-                <Avatar.Image src={club.image} />
-                <Avatar.Fallback>
-                  {club.name.charAt(0).toUpperCase()}
-                </Avatar.Fallback>
-              </Avatar.Root>
-              <Box flex="1" minW="0">
-                <Heading
-                  size={{ base: 'lg', md: 'xl' }}
-                  mb={0.5}
-                  letterSpacing="tight"
-                  lineClamp={1}
-                >
-                  {club.name}
-                </Heading>
-                <HStack
-                  gap={1.5}
-                  color="gray.500"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  <MapPin size={16} />
-                  <Text fontSize="sm" lineClamp={1}>
-                    {(() => {
-                      // Collect all venues: scheduleVenues first, fallback to defaultVenue
-                      const venues =
-                        club.scheduleVenues && club.scheduleVenues.length > 0
-                          ? club.scheduleVenues
-                          : club.defaultVenue
-                            ? [club.defaultVenue]
-                            : [];
-
-                      if (venues.length === 0)
-                        return club.location || t('clubs.notUpdated');
-
-                      // Group districts by city
-                      const cityMap = new Map<string, Set<string>>();
-                      for (const v of venues) {
-                        const city = v.city || '';
-                        const district = v.district || '';
-                        if (!cityMap.has(city)) cityMap.set(city, new Set());
-                        if (district) cityMap.get(city)!.add(district);
-                      }
-
-                      return Array.from(cityMap.entries())
-                        .map(([city, districts]) => {
-                          const dList = Array.from(districts).join(', ');
-                          return city
-                            ? dList
-                              ? `${dList} (${city})`
-                              : city
-                            : dList;
-                        })
-                        .join(' · ');
-                    })()}
-                  </Text>
-                </HStack>
-              </Box>
-            </Flex>
-
-            <Flex
-              justify={{ base: 'stretch', md: 'flex-end' }}
-              flex="1"
-              gap={3}
+          <Flex gap={{ base: 3, md: 4 }} align="center">
+            <Box
+              w="48px"
+              h="48px"
+              flexShrink={0}
+              shadow="sm"
+              borderRadius="lg"
+              overflow="hidden"
+              bg="gray.100"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              borderWidth="1px"
+              borderColor="gray.100"
             >
-              {isUserAdmin && (
-                <Button
-                  colorPalette="blue"
-                  variant="outline"
-                  size={{ base: 'md', md: 'lg' }}
-                  onClick={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
-                  w={{ base: 'full', md: 'auto' }}
-                  borderRadius="xl"
-                >
-                  <Settings size={16} />
-                  {t('common.edit')}
-                </Button>
+              {club.image ? (
+                <Image
+                  src={club.image}
+                  alt={club.name}
+                  objectFit="cover"
+                  w="full"
+                  h="full"
+                />
+              ) : (
+                <Text fontSize="xl" fontWeight="bold" color="gray.400">
+                  {club.name.charAt(0).toUpperCase()}
+                </Text>
               )}
-              {!isUserMember && !isUserAdmin && (
-                <Button
-                  colorPalette="green"
-                  size={{ base: 'md', md: 'lg' }}
-                  onClick={handleJoinClub}
-                  loading={isJoining}
-                  w={{ base: 'full', md: 'auto' }}
-                  borderRadius="xl"
-                  shadow="sm"
-                  _hover={{ shadow: 'md', transform: 'translateY(-1px)' }}
-                >
-                  <UserPlus size={16} />
-                  {t('clubs.joinNow')}
-                </Button>
-              )}
-              {isUserMember && !isUserAdmin && (
-                <Badge
-                  colorPalette="green"
-                  size="lg"
-                  px={4}
-                  py={2}
-                  borderRadius="xl"
-                  w={{ base: 'full', md: 'auto' }}
-                  textAlign="center"
-                >
-                  {t('clubs.alreadyJoined')}
-                </Badge>
-              )}
-            </Flex>
+            </Box>
+            <Box flex="1" minW="0">
+              <Heading
+                size={{ base: 'lg', md: 'xl' }}
+                mb={0}
+                letterSpacing="tight"
+                lineClamp={1}
+              >
+                {club.name}
+              </Heading>
+            </Box>
           </Flex>
         </Box>
       </Container>
@@ -492,6 +447,7 @@ export default function ClubDetailClient({
                 <VStack gap={6} align="stretch">
                   <Box
                     p={6}
+                    pb={8}
                     bg="white"
                     _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                     borderRadius="2xl"
@@ -560,7 +516,10 @@ export default function ClubDetailClient({
                           }}
                         >
                           <Avatar.Root size="lg">
-                            <Avatar.Image src={member.user.image} />
+                            <Avatar.Image
+                              src={member.user.image}
+                              objectFit="cover"
+                            />
                             <Avatar.Fallback>
                               {member.user.name[0]}
                             </Avatar.Fallback>
@@ -769,7 +728,10 @@ export default function ClubDetailClient({
                           <Flex justify="space-between" align="center">
                             <HStack gap={2}>
                               <Avatar.Root size="sm">
-                                <Avatar.Image src={announcement.author.image} />
+                                <Avatar.Image
+                                  src={announcement.author.image}
+                                  objectFit="cover"
+                                />
                                 <Avatar.Fallback>
                                   {announcement.author.name[0]}
                                 </Avatar.Fallback>
@@ -881,7 +843,7 @@ export default function ClubDetailClient({
                   </Heading>
                   <VStack gap={4} align="stretch">
                     {/* Members */}
-                    <HStack gap={3}>
+                    {/* <HStack gap={3}>
                       <Flex
                         w="40px"
                         h="40px"
@@ -911,7 +873,7 @@ export default function ClubDetailClient({
                           {club.maxMembers ? `/ ${club.maxMembers}` : ''}
                         </Text>
                       </Box>
-                    </HStack>
+                    </HStack> */}
 
                     {/* Level Range */}
                     <HStack gap={3}>
@@ -1031,7 +993,7 @@ export default function ClubDetailClient({
                   </Heading>
                   <HStack gap={4} align="center">
                     <Avatar.Root size="lg" flexShrink={0}>
-                      <Avatar.Image src={club.host.image} />
+                      <Avatar.Image src={club.host.image} objectFit="cover" />
                       <Avatar.Fallback>
                         {(hostRealName || club.host.name || '?')
                           .charAt(0)
@@ -1071,45 +1033,142 @@ export default function ClubDetailClient({
                     <Heading size="sm" mb={3}>
                       {t('clubs.location')}
                     </Heading>
-                    {club.defaultVenue?.lat && club.defaultVenue?.lng ? (
-                      <a
-                        href={getGoogleMapsUrl({
-                          lat: club.defaultVenue.lat,
-                          lng: club.defaultVenue.lng,
-                          name: club.defaultVenue.name,
-                        })}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ textDecoration: 'none', display: 'block' }}
-                      >
-                        <Button
-                          variant="outline"
-                          w="full"
-                          size="sm"
-                          isWithinLink
-                        >
-                          <ExternalLink size={16} />
-                          {t('clubs.viewOnGoogleMaps')}
-                        </Button>
-                      </a>
-                    ) : (
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.location || '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ textDecoration: 'none', display: 'block' }}
-                      >
-                        <Button
-                          variant="outline"
-                          w="full"
-                          size="sm"
-                          isWithinLink
-                        >
-                          <ExternalLink size={16} />
-                          {t('clubs.searchOnGoogleMaps')}
-                        </Button>
-                      </a>
-                    )}
+                    {(() => {
+                      // Collect all venues: scheduleVenues first, fallback to defaultVenue
+                      const venues =
+                        club.scheduleVenues && club.scheduleVenues.length > 0
+                          ? club.scheduleVenues
+                          : club.defaultVenue
+                            ? [club.defaultVenue]
+                            : [];
+
+                      if (venues.length === 0) {
+                        // No venue data - show fallback search button
+                        return (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.location || '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ textDecoration: 'none', display: 'block' }}
+                          >
+                            <Button
+                              variant="outline"
+                              w="full"
+                              size="sm"
+                              isWithinLink
+                            >
+                              <ExternalLink size={16} />
+                              {t('clubs.searchOnGoogleMaps')}
+                            </Button>
+                          </a>
+                        );
+                      }
+
+                      // Group districts by city for location text
+                      const cityMap = new Map<string, Set<string>>();
+                      for (const v of venues) {
+                        const city = v.city || '';
+                        const district = v.district || '';
+                        if (!cityMap.has(city)) cityMap.set(city, new Set());
+                        if (district) cityMap.get(city)!.add(district);
+                      }
+
+                      const locationText = Array.from(cityMap.entries())
+                        .map(([city, districts]) => {
+                          const dList = Array.from(districts).join(', ');
+                          return city
+                            ? dList
+                              ? `${dList} (${city})`
+                              : city
+                            : dList;
+                        })
+                        .join(' · ');
+
+                      // Get first venue for map display
+                      const firstVenue = venues[0];
+
+                      return (
+                        <>
+                          {/* Location text */}
+                          <Text
+                            fontSize="sm"
+                            color="gray.600"
+                            _dark={{ color: 'gray.400' }}
+                            mb={3}
+                          >
+                            {locationText ||
+                              club.location ||
+                              t('clubs.notUpdated')}
+                          </Text>
+
+                          {/* Map display */}
+                          {firstVenue?.lat && firstVenue?.lng && (
+                            <Box
+                              h="200px"
+                              borderRadius="xl"
+                              overflow="hidden"
+                              mb={3}
+                            >
+                              <SessionMap
+                                sessions={[
+                                  {
+                                    id: 'club-venue',
+                                    venue: firstVenue,
+                                  } as any,
+                                ]}
+                              />
+                            </Box>
+                          )}
+
+                          {/* Google Maps button */}
+                          {firstVenue?.lat && firstVenue?.lng ? (
+                            <a
+                              href={getGoogleMapsUrl({
+                                lat: firstVenue.lat,
+                                lng: firstVenue.lng,
+                                name: firstVenue.name,
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                textDecoration: 'none',
+                                display: 'block',
+                              }}
+                            >
+                              <Button
+                                variant="outline"
+                                w="full"
+                                size="sm"
+                                isWithinLink
+                              >
+                                <ExternalLink size={16} />
+                                {t('clubs.viewOnGoogleMaps')}
+                              </Button>
+                            </a>
+                          ) : (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText || club.location || '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                textDecoration: 'none',
+                                display: 'block',
+                              }}
+                            >
+                              <Button
+                                variant="outline"
+                                w="full"
+                                size="sm"
+                                isWithinLink
+                              >
+                                <ExternalLink size={16} />
+                                {t('clubs.searchOnGoogleMaps')}
+                              </Button>
+                            </a>
+                          )}
+                        </>
+                      );
+                    })()}
                   </Box>
                 )}
 
