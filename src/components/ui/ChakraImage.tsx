@@ -8,5 +8,5 @@ export interface ImageProps extends Omit<BoxProps, 'as'> {
 }
 
 export const Image = ({ src, alt = '', ...props }: ImageProps) => (
-  <Box as="img" src={src} alt={alt} {...props} />
+  <Box as="img" {...props} {...({ src, alt } as any)} />
 );

@@ -334,7 +334,7 @@ export const PlayerGrid = ({
                       onToggleStatus={onToggleStatus || (() => {})}
                       t={t}
                       buttonVariant="solid"
-                      buttonSize="2xs"
+                      buttonSize="xs"
                       onOpenChange={(isOpen) => {
                         if (isOpen) {
                           setOpenPlayerId(player.id);

@@ -115,7 +115,6 @@ export default function ClubMap({
     lat: number;
     lng: number;
   } | null>(initialUserLocation || null);
-  const [markerIcon, setMarkerIcon] = useState<string | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -129,156 +128,6 @@ export default function ClubMap({
     window.addEventListener('resize', checkDesktop);
 
     return () => window.removeEventListener('resize', checkDesktop);
-  }, []);
-
-  // Create custom marker icon with shuttlecock in teardrop shape
-  useEffect(() => {
-    const W = 48;
-    const H = 56; // Reduced from 64 to 56
-    const canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) return;
-
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
-    const cx = W / 2;
-    const circleR = 18;
-    const circleCy = circleR + 4;
-    const tipY = H - 4;
-
-    // Shadow
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 3;
-
-    // White border - teardrop shape (rounder bottom)
-    ctx.beginPath();
-    // Start at top center
-    ctx.moveTo(cx, circleCy - circleR - 2);
-    // Right curve (top half)
-    ctx.bezierCurveTo(
-      cx + (circleR + 2) * 0.55,
-      circleCy - circleR - 2,
-      cx + circleR + 2,
-      circleCy - (circleR + 2) * 0.55,
-      cx + circleR + 2,
-      circleCy
-    );
-    // Right curve (bottom half) - gentler curve toward tip for rounder appearance
-    ctx.bezierCurveTo(
-      cx + circleR + 2,
-      circleCy + (circleR + 2) * 0.5,
-      cx + 10,
-      circleCy + circleR + 4,
-      cx,
-      tipY
-    );
-    // Left curve (bottom half) - gentler curve from tip for rounder appearance
-    ctx.bezierCurveTo(
-      cx - 10,
-      circleCy + circleR + 4,
-      cx - circleR - 2,
-      circleCy + (circleR + 2) * 0.5,
-      cx - circleR - 2,
-      circleCy
-    );
-    // Left curve (top half)
-    ctx.bezierCurveTo(
-      cx - circleR - 2,
-      circleCy - (circleR + 2) * 0.55,
-      cx - (circleR + 2) * 0.55,
-      circleCy - circleR - 2,
-      cx,
-      circleCy - circleR - 2
-    );
-    ctx.closePath();
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
-    ctx.shadowColor = 'transparent';
-
-    // Green teardrop shape (rounder bottom)
-    ctx.beginPath();
-    // Start at top center
-    ctx.moveTo(cx, circleCy - circleR);
-    // Right curve (top half)
-    ctx.bezierCurveTo(
-      cx + circleR * 0.55,
-      circleCy - circleR,
-      cx + circleR,
-      circleCy - circleR * 0.55,
-      cx + circleR,
-      circleCy
-    );
-    // Right curve (bottom half) - gentler curve toward tip for rounder appearance
-    ctx.bezierCurveTo(
-      cx + circleR,
-      circleCy + circleR * 0.5,
-      cx + 8,
-      circleCy + circleR + 2,
-      cx,
-      tipY - 2
-    );
-    // Left curve (bottom half) - gentler curve from tip for rounder appearance
-    ctx.bezierCurveTo(
-      cx - 8,
-      circleCy + circleR + 2,
-      cx - circleR,
-      circleCy + circleR * 0.5,
-      cx - circleR,
-      circleCy
-    );
-    // Left curve (top half)
-    ctx.bezierCurveTo(
-      cx - circleR,
-      circleCy - circleR * 0.55,
-      cx - circleR * 0.55,
-      circleCy - circleR,
-      cx,
-      circleCy - circleR
-    );
-    ctx.closePath();
-    ctx.fillStyle = '#16a34a';
-    ctx.fill();
-
-    // Simple shuttlecock icon (white)
-    ctx.save();
-    ctx.translate(cx, circleCy);
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-
-    // Cork (small circle)
-    ctx.beginPath();
-    ctx.arc(0, 2, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 3 feather lines
-    const feathers = [-0.4, 0, 0.4];
-    const featherLen = 10;
-    ctx.lineWidth = 2;
-    feathers.forEach((angle) => {
-      const x = Math.sin(angle) * featherLen;
-      const y = -Math.cos(angle) * featherLen + 2;
-      ctx.beginPath();
-      ctx.moveTo(0, 2);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    });
-
-    // Arc connecting feather tips
-    ctx.beginPath();
-    ctx.arc(0, 2, featherLen, -Math.PI / 2 - 0.4, -Math.PI / 2 + 0.4);
-    ctx.stroke();
-
-    ctx.restore();
-
-    setMarkerIcon(canvas.toDataURL('image/png'));
   }, []);
 
   // Request user location on mount if not provided
@@ -506,37 +355,30 @@ export default function ClubMap({
         )}
 
         {/* Venue Markers */}
-        {markerIcon &&
-          venueGroups.map((group) => (
-            <MarkerF
-              key={group.venue.id}
-              position={{ lat: group.venue.lat!, lng: group.venue.lng! }}
-              onClick={() => setSelectedVenueId(group.venue.id)}
-              onMouseOver={() => {
-                setHoveredVenueId(group.venue.id);
-              }}
-              onMouseOut={() => {
-                setHoveredVenueId(null);
-              }}
-              label={
-                isDesktop && hoveredVenueId === group.venue.id
-                  ? {
-                      text: group.venue.name,
-                      color: '#16a34a',
-                      fontWeight: '700',
-                      fontSize: '15px',
-                      className: 'venue-marker-label',
-                    }
-                  : undefined
-              }
-              icon={{
-                url: markerIcon,
-                scaledSize: new google.maps.Size(48, 56),
-                anchor: new google.maps.Point(24, 56),
-                labelOrigin: new google.maps.Point(24, -8),
-              }}
-            />
-          ))}
+        {venueGroups.map((group) => (
+          <MarkerF
+            key={group.venue.id}
+            position={{ lat: group.venue.lat!, lng: group.venue.lng! }}
+            onClick={() => setSelectedVenueId(group.venue.id)}
+            onMouseOver={() => {
+              setHoveredVenueId(group.venue.id);
+            }}
+            onMouseOut={() => {
+              setHoveredVenueId(null);
+            }}
+            label={
+              isDesktop && hoveredVenueId === group.venue.id
+                ? {
+                    text: group.venue.name,
+                    color: '#16a34a',
+                    fontWeight: '700',
+                    fontSize: '15px',
+                    className: 'venue-marker-label',
+                  }
+                : undefined
+            }
+          />
+        ))}
 
         {/* Info Window */}
         {selectedGroup && (
