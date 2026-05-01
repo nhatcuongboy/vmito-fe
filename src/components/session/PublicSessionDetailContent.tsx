@@ -22,6 +22,8 @@ import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import SessionDetailHero from './SessionDetailHero';
 import SessionDetailBody from './SessionDetailBody';
 import SessionDetailStickyBar from './SessionDetailStickyBar';
+import SessionRecommendations from './SessionRecommendations';
+import QuickSwitchBanner from './QuickSwitchBanner';
 
 interface PublicSessionDetailContentProps {
   sessionId: string;
@@ -54,6 +56,7 @@ export const PublicSessionDetailContent = ({
     'PENDING' | 'APPROVED' | 'REJECTED' | null
   >(null);
   const [isRegistrationLoading, setIsRegistrationLoading] = useState(!!user);
+  const [topRecommendations, setTopRecommendations] = useState<any[]>([]);
 
   const {
     isOpen: isLoginModalOpen,
@@ -163,6 +166,28 @@ export const PublicSessionDetailContent = ({
     fetchRegistrationStatus();
   }, [fetchRegistrationStatus]);
 
+  // Fetch top recommendations for Quick Switch Banner
+  useEffect(() => {
+    const fetchTopRecommendations = async () => {
+      if (!session?.id) return;
+      try {
+        const response = await SessionService.getSessionRecommendations(
+          session.id,
+          {
+            page: 1,
+            limit: 3,
+            userId: user?.id,
+          }
+        );
+        setTopRecommendations(response.data);
+      } catch (err) {
+        console.error('Error fetching top recommendations:', err);
+      }
+    };
+
+    fetchTopRecommendations();
+  }, [session?.id, user?.id]);
+
   const isOwner = session?.hostId === user?.id;
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
@@ -232,6 +257,35 @@ export const PublicSessionDetailContent = ({
               showBackButton={showBackButton}
             />
 
+            {/* Quick Switch Banner (mobile only) */}
+            <Box display={{ base: 'block', md: 'none' }} px={5} mt={4}>
+              <QuickSwitchBanner
+                currentSession={{
+                  id: session.id,
+                  status: session.status,
+                  availableSlots,
+                  endTime: session.endTime
+                    ? typeof session.endTime === 'string'
+                      ? session.endTime
+                      : session.endTime.toISOString()
+                    : '',
+                }}
+                topRecommendations={topRecommendations}
+                onViewAll={() => {
+                  // Scroll to recommendations section
+                  const recommendationsEl = document.getElementById(
+                    'mobile-recommendations'
+                  );
+                  if (recommendationsEl) {
+                    recommendationsEl.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                  }
+                }}
+              />
+            </Box>
+
             {/* Body Section */}
             <SessionDetailBody
               session={session}
@@ -239,6 +293,19 @@ export const PublicSessionDetailContent = ({
               approvedPlayersCount={approvedPlayersCount}
               onHostClick={onOpenHostDetailModal}
             />
+
+            {/* Recommendations Section (mobile only) */}
+            <Box
+              id="mobile-recommendations"
+              display={{ base: 'block', md: 'none' }}
+              mt={4}
+            >
+              <SessionRecommendations
+                sessionId={session.id}
+                userId={user?.id}
+                variant="mobile"
+              />
+            </Box>
 
             {/* View More Sessions Link */}
             {showViewMore && (
@@ -293,6 +360,15 @@ export const PublicSessionDetailContent = ({
                 maxPlayers={maxPlayers}
                 approvedPlayersCount={approvedPlayersCount}
               />
+
+              {/* Recommendations Section (desktop sidebar) */}
+              <Box mt={4}>
+                <SessionRecommendations
+                  sessionId={session.id}
+                  userId={user?.id}
+                  variant="desktop"
+                />
+              </Box>
             </Box>
           </Box>
         </Grid>

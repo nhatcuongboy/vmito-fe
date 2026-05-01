@@ -612,4 +612,62 @@ export const SessionService = {
     >(url);
     return response.data.data!;
   },
+
+  // Get session recommendations
+  getSessionRecommendations: async (
+    sessionId: string,
+    filters?: {
+      page?: number;
+      limit?: number;
+      userId?: string;
+    }
+  ): Promise<{
+    data: (ISession & {
+      relevanceScore: number;
+      matchReasons: string[];
+      distance: number | null;
+    })[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+    meta: {
+      currentSessionId: string;
+      isFallback: boolean;
+    };
+  }> => {
+    const params = new URLSearchParams();
+    if (filters?.page !== undefined)
+      params.append('page', filters.page.toString());
+    if (filters?.limit !== undefined)
+      params.append('limit', filters.limit.toString());
+    if (filters?.userId) params.append('userId', filters.userId);
+
+    const url = params.toString()
+      ? `/sessions/${sessionId}/recommendations?${params.toString()}`
+      : `/sessions/${sessionId}/recommendations`;
+
+    const response = await api.get<
+      ApiResponse<{
+        data: (ISession & {
+          relevanceScore: number;
+          matchReasons: string[];
+          distance: number | null;
+        })[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+        meta: {
+          currentSessionId: string;
+          isFallback: boolean;
+        };
+      }>
+    >(url);
+    return response.data.data!;
+  },
 };
