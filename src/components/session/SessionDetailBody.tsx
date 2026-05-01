@@ -110,7 +110,7 @@ const SessionDetailBody = ({
       position="relative"
       zIndex={1}
       px={{ base: 5, md: 8 }}
-      pt={6}
+      pt={4}
       pb={4}
     >
       {/* Session Name */}

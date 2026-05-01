@@ -3,7 +3,7 @@
 import { ISession } from '@/lib/api/types';
 import { Box, Badge, Icon, Image } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { ChevronLeft, Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { statusColors, getStatusLabel } from './BaseSessionCard';
@@ -100,20 +100,20 @@ const SessionDetailHero = ({
         <IconButton
           aria-label="Back"
           variant="ghost"
-          size="sm"
+          size="md"
           position="absolute"
-          top="calc(env(safe-area-inset-top) + 12px)"
-          left={3}
+          top="calc(env(safe-area-inset-top) + 8px)"
+          left={2}
           color="white"
           bg="blackAlpha.500"
           backdropFilter="blur(6px)"
           borderRadius="full"
-          boxShadow="0 2px 8px rgba(0,0,0,0.45)"
           _hover={{ bg: 'blackAlpha.700' }}
           zIndex={10}
           onClick={onBack}
-          icon={<Icon as={ArrowLeft} boxSize={5} />}
-        />
+        >
+          <ChevronLeft size={24} strokeWidth={2.5} />
+        </IconButton>
       )}
 
       {/* Share Button */}

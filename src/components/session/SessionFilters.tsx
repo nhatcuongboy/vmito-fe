@@ -22,8 +22,15 @@ import {
   ISessionFiltersProps,
   ISessionFilterState,
 } from './SessionFilters.types';
-import { SessionStatus } from '@/lib/api/types';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import { FeeType, SessionStatus } from '@/lib/api/types';
+import {
+  TIME_RANGES,
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+} from '@/constants';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 
 const SessionFilters: React.FC<ISessionFiltersProps> = ({
   onFilterChange,
@@ -31,14 +38,18 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   showDateFilter = true,
   showSearchFilter = true,
   showStatusFilter = true,
+  showTimeFilter = false,
+  showFeeFilter = false,
   initialFilters = {},
   onCreateClick,
   topAddon,
   hideCreateOnMobile = false,
 }) => {
   const t = useTranslations('session.filters');
+  const tSession = useTranslations('session');
   const tStatus = useTranslations('session.status');
   const tCommon = useTranslations('common');
+  const { getLevelShortLabel } = useLevelLabel();
 
   const [filters, setFilters] = useState<ISessionFilterState>(initialFilters);
   const [searchTerm, setSearchTerm] = useState(
@@ -56,6 +67,21 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   const [pendingLevel, setPendingLevel] = useState<number | undefined>(
     initialFilters.level
   );
+  const [pendingLevels, setPendingLevels] = useState<number[]>(
+    initialFilters.levels ?? []
+  );
+  const [pendingTimeRanges, setPendingTimeRanges] = useState<string[]>(
+    initialFilters.timeRanges ?? []
+  );
+  const [pendingMinFee, setPendingMinFee] = useState<number>(
+    initialFilters.minFee ?? 0
+  );
+  const [pendingMaxFee, setPendingMaxFee] = useState<number>(
+    initialFilters.maxFee ?? 200000
+  );
+  const [pendingSplitEvenly, setPendingSplitEvenly] = useState<boolean>(
+    initialFilters.splitEvenly ?? false
+  );
 
   const { isOpen: showDrawer, onToggle: toggleDrawer } = useDisclosure(false);
 
@@ -65,8 +91,23 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
       setPendingStatus(filters.status);
       setPendingDate(filters.date);
       setPendingLevel(filters.level);
+      setPendingLevels(filters.levels ?? []);
+      setPendingTimeRanges(filters.timeRanges ?? []);
+      setPendingMinFee(filters.minFee ?? 0);
+      setPendingMaxFee(filters.maxFee ?? 200000);
+      setPendingSplitEvenly(filters.splitEvenly ?? false);
     }
-  }, [showDrawer, filters.status, filters.date, filters.level]);
+  }, [
+    showDrawer,
+    filters.status,
+    filters.date,
+    filters.level,
+    filters.levels,
+    filters.timeRanges,
+    filters.minFee,
+    filters.maxFee,
+    filters.splitEvenly,
+  ]);
 
   // Update filters when debounced search term changes
   useEffect(() => {
@@ -86,6 +127,11 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
       status: pendingStatus,
       date: pendingDate,
       level: pendingLevel,
+      levels: pendingLevels,
+      timeRanges: pendingTimeRanges,
+      minFee: pendingMinFee,
+      maxFee: pendingMaxFee,
+      splitEvenly: pendingSplitEvenly,
     }));
     toggleDrawer();
   };
@@ -94,20 +140,36 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     setPendingStatus(undefined);
     setPendingDate(undefined);
     setPendingLevel(undefined);
+    setPendingLevels([]);
+    setPendingTimeRanges([]);
+    setPendingMinFee(0);
+    setPendingMaxFee(200000);
+    setPendingSplitEvenly(false);
   };
 
   const activeFilterCount =
-    (filters.status ? 1 : 0) + (filters.date ? 1 : 0) + (filters.level ? 1 : 0);
+    (filters.status ? 1 : 0) +
+    (filters.date ? 1 : 0) +
+    (filters.level ? 1 : 0) +
+    (filters.levels?.length ? 1 : 0) +
+    (filters.timeRanges?.length ? 1 : 0) +
+    ((filters.minFee && filters.minFee > 0) ||
+    (filters.maxFee !== undefined && filters.maxFee < 200000) ||
+    filters.splitEvenly
+      ? 1
+      : 0);
 
   const statusItems = [
     { value: SessionStatus.PREPARING, label: tStatus('preparing') },
     { value: SessionStatus.IN_PROGRESS, label: tStatus('inProgress') },
     { value: SessionStatus.FINISHED, label: tStatus('finished') },
+    { value: SessionStatus.CANCELLED, label: tStatus('cancelled') },
   ];
 
-  const levelItems = Array.from({ length: 8 }, (_, i) => ({
-    value: i + 1,
-    label: tCommon(`levels.${i + 1}`),
+  const levelItems = VALID_LEVELS.map((level) => ({
+    value: level,
+    label: getLevelShortLabel(level),
+    colorPalette: getSkillLevelColor([level]).colorPalette,
   }));
 
   return (
@@ -312,6 +374,68 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
               </Box>
             )}
 
+            {/* Time Range Filter */}
+            {showTimeFilter && (
+              <>
+                <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+                <Box>
+                  <HStack gap={2} mb={3}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color="gray.700"
+                      _dark={{ color: 'gray.200' }}
+                    >
+                      ⏰ {tSession('timeRange')}
+                    </Text>
+                    {pendingTimeRanges.length > 0 && (
+                      <Badge
+                        size="sm"
+                        colorPalette="green"
+                        variant="solid"
+                        borderRadius="full"
+                        px={2}
+                      >
+                        {pendingTimeRanges.length}
+                      </Badge>
+                    )}
+                  </HStack>
+                  <Flex gap={2} flexWrap="wrap">
+                    {TIME_RANGES.map((range) => {
+                      const isSelected = pendingTimeRanges.includes(range.key);
+                      return (
+                        <Badge
+                          key={range.key}
+                          px={4}
+                          py={2}
+                          borderRadius="full"
+                          cursor="pointer"
+                          variant={isSelected ? 'solid' : 'outline'}
+                          colorPalette={isSelected ? 'orange' : 'gray'}
+                          onClick={() =>
+                            setPendingTimeRanges(
+                              isSelected
+                                ? pendingTimeRanges.filter(
+                                    (r) => r !== range.key
+                                  )
+                                : [...pendingTimeRanges, range.key]
+                            )
+                          }
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          transition="all 0.2s"
+                          _hover={{ transform: 'scale(1.05)' }}
+                          borderWidth={isSelected ? '0' : '2px'}
+                        >
+                          {tSession(`timeRanges.${range.key}`)}
+                        </Badge>
+                      );
+                    })}
+                  </Flex>
+                </Box>
+              </>
+            )}
+
             {/* Level Filter */}
             {showLevelFilter && (
               <>
@@ -325,9 +449,9 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                         color="gray.700"
                         _dark={{ color: 'gray.200' }}
                       >
-                        {tCommon('selectLevel')}
+                        🏸 {tCommon('selectLevel')}
                       </Text>
-                      {pendingLevel && (
+                      {pendingLevels.length > 0 && (
                         <Badge
                           size="sm"
                           colorPalette="green"
@@ -335,15 +459,15 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                           borderRadius="full"
                           px={2}
                         >
-                          1
+                          {pendingLevels.length}
                         </Badge>
                       )}
                     </HStack>
-                    {pendingLevel && (
+                    {pendingLevels.length > 0 && (
                       <Button
                         size="xs"
                         variant="ghost"
-                        onClick={() => setPendingLevel(undefined)}
+                        onClick={() => setPendingLevels([])}
                         colorPalette="red"
                         fontWeight="semibold"
                       >
@@ -352,33 +476,151 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
                     )}
                   </Flex>
                   <Flex gap={2} flexWrap="wrap">
-                    {levelItems.map((item) => (
-                      <Badge
-                        key={item.value}
-                        px={4}
-                        py={2}
+                    {levelItems.map((item) => {
+                      const isSelected = pendingLevels.includes(item.value);
+                      return (
+                        <Badge
+                          key={item.value}
+                          px={3.5}
+                          py={1.5}
+                          borderRadius="full"
+                          cursor="pointer"
+                          variant={isSelected ? 'solid' : 'outline'}
+                          colorPalette={isSelected ? item.colorPalette : 'gray'}
+                          onClick={() =>
+                            setPendingLevels(
+                              isSelected
+                                ? pendingLevels.filter((l) => l !== item.value)
+                                : [...pendingLevels, item.value]
+                            )
+                          }
+                          fontSize="sm"
+                          fontWeight="bold"
+                          transition="all 0.2s"
+                          _hover={{ transform: 'scale(1.1)' }}
+                          borderWidth={isSelected ? '0' : '2px'}
+                        >
+                          {item.label}
+                        </Badge>
+                      );
+                    })}
+                  </Flex>
+                </Box>
+              </>
+            )}
+
+            {/* Fee Filter */}
+            {showFeeFilter && (
+              <>
+                <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+                <Box>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="bold"
+                    color="gray.700"
+                    _dark={{ color: 'gray.200' }}
+                    mb={3}
+                  >
+                    💰 {t('cost')}
+                  </Text>
+                  <Flex gap={4} align="center" wrap="wrap">
+                    <HStack gap={2}>
+                      <Input
+                        size="md"
+                        type="number"
+                        width="110px"
+                        value={pendingMinFee}
+                        onChange={(e) =>
+                          setPendingMinFee(Number(e.target.value))
+                        }
+                        step={5000}
+                        min={0}
                         borderRadius="lg"
-                        cursor="pointer"
-                        variant={
-                          pendingLevel === item.value ? 'solid' : 'outline'
+                        borderWidth="2px"
+                        borderColor="gray.300"
+                        color="gray.800"
+                        bg="white"
+                        _hover={{ borderColor: 'brand.400' }}
+                        _focus={{ borderColor: 'brand.500', shadow: 'outline' }}
+                        _dark={{
+                          color: 'white',
+                          bg: 'gray.700',
+                          borderColor: 'gray.600',
+                        }}
+                      />
+                      <Text fontSize="md" fontWeight="bold" color="gray.500">
+                        →
+                      </Text>
+                      <Input
+                        size="md"
+                        type="number"
+                        width="110px"
+                        value={pendingMaxFee}
+                        onChange={(e) =>
+                          setPendingMaxFee(Number(e.target.value))
                         }
-                        colorPalette={
-                          pendingLevel === item.value ? 'green' : 'gray'
-                        }
-                        onClick={() =>
-                          setPendingLevel(
-                            pendingLevel === item.value ? undefined : item.value
-                          )
-                        }
+                        step={5000}
+                        min={0}
+                        borderRadius="lg"
+                        borderWidth="2px"
+                        borderColor="gray.300"
+                        color="gray.800"
+                        bg="white"
+                        _hover={{ borderColor: 'brand.400' }}
+                        _focus={{ borderColor: 'brand.500', shadow: 'outline' }}
+                        _dark={{
+                          color: 'white',
+                          bg: 'gray.700',
+                          borderColor: 'gray.600',
+                        }}
+                      />
+                      <Text
                         fontSize="sm"
-                        fontWeight="medium"
-                        transition="all 0.2s"
-                        _hover={{ transform: 'scale(1.05)' }}
-                        borderWidth={pendingLevel === item.value ? '0' : '2px'}
+                        fontWeight="semibold"
+                        color="gray.600"
                       >
-                        {item.label}
-                      </Badge>
-                    ))}
+                        VND
+                      </Text>
+                    </HStack>
+                    <Box
+                      as="label"
+                      cursor="pointer"
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                      px={3}
+                      py={2}
+                      borderRadius="lg"
+                      bg={pendingSplitEvenly ? 'brand.50' : 'transparent'}
+                      _dark={{
+                        bg: pendingSplitEvenly ? 'brand.900' : 'transparent',
+                      }}
+                      borderWidth="2px"
+                      borderColor={
+                        pendingSplitEvenly ? 'brand.400' : 'gray.300'
+                      }
+                      transition="all 0.2s"
+                      _hover={{ borderColor: 'brand.400' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={pendingSplitEvenly}
+                        onChange={(e) =>
+                          setPendingSplitEvenly(e.target.checked)
+                        }
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color={pendingSplitEvenly ? 'brand.700' : 'gray.700'}
+                        _dark={{
+                          color: pendingSplitEvenly ? 'brand.200' : 'gray.200',
+                        }}
+                      >
+                        {t('splitEvenly')}
+                      </Text>
+                    </Box>
                   </Flex>
                 </Box>
               </>

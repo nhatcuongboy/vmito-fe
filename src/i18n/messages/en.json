@@ -269,7 +269,8 @@
       "preparing": "Upcoming",
       "expired": "Expired",
       "inProgress": "In Progress",
-      "finished": "Finished"
+      "finished": "Finished",
+      "cancelled": "Cancelled"
     },
     "courtsAvailable": "courts",
     "players": "players",
@@ -651,7 +652,7 @@
     "startSession": "Start Session",
     "pastEndWarning": "This session has passed its scheduled end time. Please update the time or cancel it.",
     "expiredSessionsNeedAction": "Sessions Needing Action",
-    "expiredSessions": "Expired Sessions",
+    "expiredSessions": "All",
     "expiredSessionsDescription": "The sessions below have passed their end time but haven't been started or ended. Please update the time or cancel them.",
     "sessionStarted": "Session started",
     "sessionEnded": "Session ended",
@@ -3266,6 +3267,7 @@
     "view": "View",
     "viewDetails": "View Details",
     "findSessionsAtVenue": "Find Sessions",
-    "nameFormat": "{name} Badminton Court"
+    "nameFormat": "{name} Badminton Court",
+    "searchPlaceholder": "Search by venue name, address..."
   }
 }

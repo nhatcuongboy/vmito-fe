@@ -14,6 +14,7 @@ export interface StatusTabSwitchProps {
   endedLabel?: string;
   pendingLabel?: string;
   showPending?: boolean;
+  showExpired?: boolean;
   isFixed?: boolean;
   pendingCount?: number;
 }
@@ -25,6 +26,7 @@ export function StatusTabSwitch({
   endedLabel,
   pendingLabel,
   showPending = true,
+  showExpired = true,
   isFixed = false,
   pendingCount: initialPendingCount,
 }: StatusTabSwitchProps) {
@@ -60,6 +62,7 @@ export function StatusTabSwitch({
   const tabs = [
     { id: 'active', label: activeLabel || defaultActiveLabel },
     { id: 'ended', label: endedLabel || defaultEndedLabel },
+    ...(showExpired ? [{ id: 'expired', label: defaultExpiredLabel }] : []),
     ...(showPending
       ? [
           {
@@ -69,7 +72,6 @@ export function StatusTabSwitch({
           },
         ]
       : []),
-    { id: 'expired', label: defaultExpiredLabel },
   ];
 
   return (

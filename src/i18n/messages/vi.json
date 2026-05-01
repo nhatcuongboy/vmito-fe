@@ -270,7 +270,8 @@
       "preparing": "Sắp diễn ra",
       "expired": "Quá hạn",
       "inProgress": "Đang diễn ra",
-      "finished": "Đã kết thúc"
+      "finished": "Đã kết thúc",
+      "cancelled": "Đã hủy"
     },
     "courtsAvailable": "sân",
     "players": "người chơi",
@@ -652,7 +653,7 @@
     "startSession": "Bắt đầu kèo",
     "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "expiredSessionsNeedAction": "Kèo cần xử lý",
-    "expiredSessions": "Kèo quá hạn",
+    "expiredSessions": "Tất cả",
     "markAllFinished": "Kết thúc tất cả",
     "sessionsCompleted": "Đã đánh dấu hoàn thành tất cả",
     "batchCompleteConfirmText": "Bạn có chắc chắn muốn đánh dấu ĐÃ KẾT THÚC cho tất cả các kèo quá hạn/cần xử lý không? Hành động này sẽ chuyển các kèo đó qua tab Đã kết thúc và không thể hoàn tác.",
@@ -2306,7 +2307,7 @@
     "startSession": "Bắt đầu kèo",
     "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "expiredSessionsNeedAction": "Kèo cần xử lý",
-    "expiredSessions": "Kèo quá hạn",
+    "expiredSessions": "Tất cả",
     "markAllFinished": "Kết thúc tất cả",
     "sessionsCompleted": "Đã đánh dấu hoàn thành tất cả",
     "batchCompleteConfirmText": "Bạn có chắc chắn muốn đánh dấu ĐÃ KẾT THÚC cho tất cả các kèo quá hạn/cần xử lý không? Hành động này sẽ chuyển các kèo đó qua tab Đã kết thúc và không thể hoàn tác.",
@@ -3285,6 +3286,7 @@
     "view": "Xem",
     "viewDetails": "Xem chi tiết",
     "findSessionsAtVenue": "Tìm kèo tại sân",
-    "nameFormat": "Sân {name}"
+    "nameFormat": "Sân {name}",
+    "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
   }
 }

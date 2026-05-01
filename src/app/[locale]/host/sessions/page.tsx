@@ -2,7 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
-import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
+import { ISession, UserRole, SessionStatus, FeeType } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -26,12 +26,12 @@ import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import {
   ROUTES,
+  TIME_RANGES,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
-import { ExpiredSessionsHeader } from '@/components/session/ExpiredSessionsHeader';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
@@ -112,11 +112,8 @@ function HostSessionsContent() {
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
-            : sessionStatusTab === 'expired'
-              ? SessionStatus.PREPARING
-              : filters.status,
-        endTimeBefore:
-          sessionStatusTab === 'expired' ? new Date().toISOString() : undefined,
+            : filters.status,
+        endTimeBefore: undefined,
         endTimeAfter:
           sessionStatusTab === 'active' && !filters.status
             ? new Date().toISOString()
@@ -220,6 +217,52 @@ function HostSessionsContent() {
       });
     }
 
+    // Time range filter (client-side, for "Tất cả" tab)
+    if (filters.timeRanges && filters.timeRanges.length > 0) {
+      result = result.filter((session) => {
+        if (!session.startTime) return false;
+        const hour = new Date(session.startTime).getHours();
+        return filters.timeRanges!.some((rangeKey) => {
+          const range = TIME_RANGES.find((r) => r.key === rangeKey);
+          if (!range) return false;
+          if (range.start < range.end)
+            return hour >= range.start && hour < range.end;
+          // overnight range (e.g. night: 22–5)
+          return hour >= range.start || hour < range.end;
+        });
+      });
+    }
+
+    // Level filter (multi-select, client-side)
+    if (filters.levels && filters.levels.length > 0) {
+      result = result.filter((session) => {
+        if (!session.requiredLevels || session.requiredLevels.length === 0)
+          return true;
+        return filters.levels!.some((l) => session.requiredLevels!.includes(l));
+      });
+    }
+
+    // Fee range filter (client-side)
+    if (
+      (filters.minFee !== undefined && filters.minFee > 0) ||
+      (filters.maxFee !== undefined && filters.maxFee < 200000)
+    ) {
+      result = result.filter((session) => {
+        const fee =
+          session.feeConfig?.maleFee ?? session.feeConfig?.femaleFee ?? 0;
+        const min = filters.minFee ?? 0;
+        const max = filters.maxFee ?? 200000;
+        return fee >= min && fee <= max;
+      });
+    }
+
+    // Split evenly filter (client-side)
+    if (filters.splitEvenly) {
+      result = result.filter(
+        (session) => session.feeConfig?.feeType === FeeType.SPLIT_EVENLY
+      );
+    }
+
     // Search filter is handled by API now
     if (filters.searchQuery !== searchQuery) {
       setSearchQuery(filters.searchQuery || '');
@@ -264,16 +307,6 @@ function HostSessionsContent() {
     router.push('/sessions/new');
   };
 
-  const handleBatchDeleteExpired = async () => {
-    try {
-      const sessionIds = sessions.map((session) => session.id);
-      await SessionService.deleteBulkSessions(sessionIds);
-      await fetchHostedSessions();
-    } catch (err) {
-      console.error('Error deleting expired sessions:', err);
-    }
-  };
-
   return (
     <PageLayout
       showBackButton={false}
@@ -300,10 +333,14 @@ function HostSessionsContent() {
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={sessionStatusTab === 'active'}
+            showStatusFilter={
+              sessionStatusTab === 'active' || sessionStatusTab === 'expired'
+            }
             showDateFilter={true}
             showSearchFilter={true}
-            showLevelFilter={false}
+            showLevelFilter={sessionStatusTab === 'expired'}
+            showTimeFilter={sessionStatusTab === 'expired'}
+            showFeeFilter={sessionStatusTab === 'expired'}
             resultCount={totalCount}
             onCreateClick={() => {
               if (useAiForCreation) {
@@ -328,12 +365,6 @@ function HostSessionsContent() {
             onSortChange={setSortBy}
             showViewModeMap={false}
           />
-          {sessionStatusTab === 'expired' && (
-            <ExpiredSessionsHeader
-              expiredCount={totalCount}
-              onDeleteAll={handleBatchDeleteExpired}
-            />
-          )}
           <SessionsList
             sessions={filteredSessions}
             isLoading={loading}

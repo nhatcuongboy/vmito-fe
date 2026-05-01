@@ -37,6 +37,8 @@ interface TopBarProps {
   /** 'secondary' hides menu/logo/notification/profile on mobile, shows back button */
   variant?: 'main' | 'secondary';
   hideBottomBorder?: boolean;
+  /** Force title to be centered on mobile regardless of path */
+  centerTitle?: boolean;
 }
 
 export default function TopBar({
@@ -49,6 +51,7 @@ export default function TopBar({
   navItems,
   variant = 'main',
   hideBottomBorder = false,
+  centerTitle = false,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -60,6 +63,7 @@ export default function TopBar({
   const normalizedPath =
     pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
   const isLeftAlignedTitle =
+    !centerTitle &&
     /^\/(player\/|host\/)?(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
       normalizedPath
     );

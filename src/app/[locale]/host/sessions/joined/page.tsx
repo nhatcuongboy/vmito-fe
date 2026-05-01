@@ -255,6 +255,7 @@ function PlayerSessionsContent() {
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
                 showPending={false}
+                showExpired={false}
               />
             }
           />

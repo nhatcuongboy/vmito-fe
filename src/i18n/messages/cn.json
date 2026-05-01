@@ -249,7 +249,8 @@
       "all": "所有",
       "preparing": "准备中",
       "inProgress": "进行中",
-      "finished": "已结束"
+      "finished": "已结束",
+      "cancelled": "已取消"
     },
     "courtsAvailable": "场地",
     "players": "玩家",
@@ -619,6 +620,7 @@
     "endSession": "结束场次",
     "startSession": "开始场次",
     "pastEndWarning": "此场次已超过结束时间。请更新时间或取消场次。",
+    "expiredSessions": "全部",
     "expiredSessionsNeedAction": "需要处理的场次",
     "expiredSessionsDescription": "以下场次已超过结束时间，但尚未开始或结束。请更新时间或取消场次。",
     "sessionStarted": "场次已开始",
@@ -3178,6 +3180,7 @@
     "view": "查看",
     "viewDetails": "查看详情",
     "findSessionsAtVenue": "查找场次",
-    "nameFormat": "{name} 羽毛球馆"
+    "nameFormat": "{name} 羽毛球馆",
+    "searchPlaceholder": "按场地名称、地址搜索..."
   }
 }

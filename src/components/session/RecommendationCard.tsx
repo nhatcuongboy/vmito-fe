@@ -165,7 +165,7 @@ const RecommendationCard = ({
             aria-label="AI-powered recommendation"
           >
             <Icon as={Sparkles} boxSize={3} />
-            AI gợi ý
+            Gợi ý
           </Badge>
         )}
 
@@ -280,7 +280,7 @@ const RecommendationCard = ({
           aria-label="AI-powered recommendation"
         >
           <Icon as={Sparkles} boxSize={2.5} />
-          AI
+          Gợi ý
         </Badge>
       )}
 
