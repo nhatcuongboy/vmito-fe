@@ -8,10 +8,48 @@ import RecommendationCard from './RecommendationCard';
 import { Button } from '@/components/ui/chakra-compat';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-interface RecommendedSession extends ISession {
+interface RecommendedSession
+  extends Omit<
+    ISession,
+    | 'distance'
+    | 'slug'
+    | 'startTime'
+    | 'endTime'
+    | 'coverPhoto'
+    | 'venue'
+    | 'host'
+    | 'feeConfig'
+    | 'requiredLevels'
+  > {
   relevanceScore: number;
   matchReasons: string[];
   distance: number | null;
+  availableSlots: number;
+  maxSlots: number;
+  slug: string;
+  startTime: string;
+  endTime: string;
+  coverPhoto: string | null;
+  venue: {
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    district: string;
+    lat: number;
+    lng: number;
+  };
+  host: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+  feeConfig: {
+    feeType: 'FIXED' | 'SPLIT_EVENLY';
+    maleFee: number | null;
+    femaleFee: number | null;
+  } | null;
+  requiredLevels: number[];
 }
 
 interface SessionRecommendationsProps {
@@ -57,9 +95,12 @@ const useRecommendations = (
         );
 
         if (pageNum === 1) {
-          setRecommendations(response.data);
+          setRecommendations(response.data as unknown as RecommendedSession[]);
         } else {
-          setRecommendations((prev) => [...prev, ...response.data]);
+          setRecommendations((prev) => [
+            ...prev,
+            ...(response.data as unknown as RecommendedSession[]),
+          ]);
         }
 
         setHasMore(response.pagination.page < response.pagination.totalPages);
