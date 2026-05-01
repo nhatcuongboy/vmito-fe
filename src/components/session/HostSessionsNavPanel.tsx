@@ -5,9 +5,7 @@ import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
-import SidebarNav, { SidebarNavItem } from '@/components/ui/SidebarNav';
 import { useState, useTransition, useEffect } from 'react';
-import { Box } from '@chakra-ui/react';
 import { AISessionModal } from '@/components/session/AISessionModal';
 import type { ExtractedSessionData } from '@/lib/api/ai.service';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
@@ -33,7 +31,7 @@ export default function HostSessionsNavPanel() {
     return -1;
   })();
 
-  const navItems: (SidebarNavItem & { href: string })[] = [
+  const navItems = [
     {
       id: 0,
       label: t('host'),
@@ -93,22 +91,6 @@ export default function HostSessionsNavPanel() {
 
   return (
     <>
-      {/* Desktop: card-style secondary sidebar */}
-      <Box
-        display={{ base: 'none', md: 'block' }}
-        w="220px"
-        position="relative"
-        zIndex={10}
-      >
-        <SidebarNav
-          items={navItems}
-          activeId={activeId}
-          onItemClick={handleNavigate}
-          width="220px"
-          topOffset="72px"
-        />
-      </Box>
-
       {/* Mobile: bottom navigation bar (uses GlobalBottomNav slot) */}
       <BottomNavigationBar
         tabs={bottomTabs}

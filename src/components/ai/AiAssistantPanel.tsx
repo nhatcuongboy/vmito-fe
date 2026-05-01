@@ -5,6 +5,7 @@ import { Box, Flex, Text, Textarea, Portal } from '@chakra-ui/react';
 import { Sparkles, X, Send, Trash2, Square } from 'lucide-react';
 import { useAiChat } from '@/hooks/useAiChat';
 import AiChatMessage from './AiChatMessage';
+import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 
 const SUGGESTED_QUESTIONS = [
   'Cách tạo một kèo mới?',
@@ -31,6 +32,17 @@ export default function AiAssistantPanel({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  const { pendingMessage, clearPendingMessage } = useAiAssistantStore();
+
+  // Auto-send pending message (e.g. from session AI analysis chip)
+  useEffect(() => {
+    if (isOpen && pendingMessage) {
+      clearMessages();
+      sendMessage(pendingMessage);
+      clearPendingMessage();
+    }
+  }, [isOpen, pendingMessage]);
 
   // Detect mobile
   useEffect(() => {

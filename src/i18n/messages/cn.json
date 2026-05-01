@@ -550,6 +550,13 @@
     "timeNotSet": "未设定时间",
     "courts": "场地",
     "viewMoreSessions": "查看更多场次",
+    "whoWillPlay": "谁会和你一起打？",
+    "aiAnalyzeChip": "分析场次",
+    "aiAnalyzeTitle": "场次水平分析",
+    "aiAnalyzing": "AI 正在分析...",
+    "registerNow": "立即报名",
+    "showLess": "收起",
+    "viewAll": "查看全部",
     "quickCreate": {
       "placeholder": "{name}，你想创建什么？",
       "aiPlaceholder": "利用AI快速创建会话...",
@@ -3170,8 +3177,7 @@
     "share": "分享",
     "view": "查看",
     "viewDetails": "查看详情",
-    "findSessions": "查找场次",
-    "findSessionsAtVenue": "在该场地查找场次",
-    "nameFormat": "{name} 羽毛球场"
+    "findSessionsAtVenue": "查找场次",
+    "nameFormat": "{name} 羽毛球馆"
   }
 }

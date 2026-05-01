@@ -524,7 +524,7 @@
     "myRegistration": "Đăng ký của tôi",
     "registeredPlayers": "Danh sách người chơi đã đăng ký",
     "playerCount": "{count} người chơi đã đăng ký",
-    "noPlayersFound": "Không tìm thấy người chơi",
+    "noPlayersFound": "Chưa có người chơi nào",
     "createByAI": "Tạo bằng AI",
     "coverPhoto": "Ảnh bìa",
     "clickToUploadCoverPhoto": "Click để tải ảnh bìa lên",
@@ -582,6 +582,13 @@
     "timeNotSet": "Chưa đặt giờ",
     "courts": "sân",
     "viewMoreSessions": "Xem thêm kèo",
+    "whoWillPlay": "Ai sẽ chơi cùng bạn?",
+    "aiAnalyzeChip": "Phân tích kèo",
+    "aiAnalyzeTitle": "Phân tích trình độ kèo",
+    "aiAnalyzing": "AI đang phân tích...",
+    "registerNow": "Đăng ký ngay",
+    "showLess": "Thu gọn",
+    "viewAll": "Xem tất cả",
     "quickCreate": {
       "placeholder": "Bạn muốn tạo kèo mới?",
       "aiPlaceholder": "Tạo kèo nhanh bằng AI...",
@@ -3277,9 +3284,7 @@
     "share": "Chia sẻ",
     "view": "Xem",
     "viewDetails": "Xem chi tiết",
-    "findSessions": "Tìm kèo",
     "findSessionsAtVenue": "Tìm kèo tại sân",
-    "nameFormat": "Sân {name}",
-    "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
+    "nameFormat": "Sân {name}"
   }
 }

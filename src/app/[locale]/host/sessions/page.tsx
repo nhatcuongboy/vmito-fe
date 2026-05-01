@@ -117,6 +117,10 @@ function HostSessionsContent() {
               : filters.status,
         endTimeBefore:
           sessionStatusTab === 'expired' ? new Date().toISOString() : undefined,
+        endTimeAfter:
+          sessionStatusTab === 'active' && !filters.status
+            ? new Date().toISOString()
+            : undefined,
         ...apiSortParams,
       });
 

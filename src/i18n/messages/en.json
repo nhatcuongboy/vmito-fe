@@ -581,6 +581,13 @@
     "timeNotSet": "Time not set",
     "courts": "courts",
     "viewMoreSessions": "View more sessions",
+    "whoWillPlay": "Who will play with you?",
+    "aiAnalyzeChip": "Analyze session",
+    "aiAnalyzeTitle": "Session Level Analysis",
+    "aiAnalyzing": "AI is analyzing...",
+    "registerNow": "Register now",
+    "showLess": "Show less",
+    "viewAll": "View all",
     "quickCreate": {
       "placeholder": "Do you want to create a new session?",
       "aiPlaceholder": "Create session quickly by AI....",
@@ -3258,9 +3265,7 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
-    "findSessions": "Find Sessions",
-    "findSessionsAtVenue": "Find Sessions at Venue",
-    "nameFormat": "{name} Badminton Court",
-    "searchPlaceholder": "Search by venue, address..."
+    "findSessionsAtVenue": "Find Sessions",
+    "nameFormat": "{name} Badminton Court"
   }
 }
