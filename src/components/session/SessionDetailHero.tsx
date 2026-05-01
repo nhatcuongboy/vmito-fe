@@ -1,13 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { ISession } from '@/lib/api/types';
-import { Box, Badge, Icon, Image } from '@chakra-ui/react';
+import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { ChevronLeft, Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { statusColors, getStatusLabel } from './BaseSessionCard';
 import { toaster } from '@/components/ui/toaster';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ISessionDetailHeroProps {
   session: ISession;
@@ -17,6 +19,12 @@ interface ISessionDetailHeroProps {
   showBackButton?: boolean;
 }
 
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir >= 0 ? '100%' : '-100%' }),
+  center: { x: 0 },
+  exit: (dir: number) => ({ x: dir >= 0 ? '-100%' : '100%' }),
+};
+
 const SessionDetailHero = ({
   session,
   availableSlots,
@@ -25,6 +33,33 @@ const SessionDetailHero = ({
   showBackButton = true,
 }: ISessionDetailHeroProps) => {
   const t = useTranslations('session');
+
+  const allImages: string[] =
+    session.images && session.images.length > 0
+      ? session.images
+      : [session.coverPhoto || DEFAULT_COVER_PHOTO];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+
+  const goNext = () => {
+    if (currentIndex < allImages.length - 1) {
+      setDirection(1);
+      setCurrentIndex((i) => i + 1);
+    }
+  };
+
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      setDirection(-1);
+      setCurrentIndex((i) => i - 1);
+    }
+  };
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    if (info.offset.x < -50) goNext();
+    else if (info.offset.x > 50) goPrev();
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -59,15 +94,40 @@ const SessionDetailHero = ({
       position="relative"
       w="full"
       h={{ base: 'clamp(170px, 29vh, 235px)', md: '350px' }}
+      overflow="hidden"
     >
-      {/* Cover Photo */}
-      <Image
-        src={session.coverPhoto || DEFAULT_COVER_PHOTO}
-        alt={session.name}
-        w="100%"
-        h="100%"
-        objectFit="cover"
-      />
+      {/* Carousel images */}
+      <AnimatePresence custom={direction} initial={false}>
+        <motion.div
+          key={currentIndex}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          drag={allImages.length > 1 ? 'x' : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          onDragEnd={handleDragEnd}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            cursor: allImages.length > 1 ? 'grab' : 'default',
+          }}
+        >
+          <Image
+            src={allImages[currentIndex] || DEFAULT_COVER_PHOTO}
+            alt={`${session.name} ${currentIndex + 1}`}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            draggable={false}
+            pointerEvents="none"
+          />
+        </motion.div>
+      </AnimatePresence>
 
       {/* Top gradient overlay for buttons */}
       <Box
@@ -134,6 +194,36 @@ const SessionDetailHero = ({
         onClick={handleShare}
         icon={<Icon as={Share2} boxSize={5} />}
       />
+
+      {/* Dot indicators */}
+      {allImages.length > 1 && (
+        <Flex
+          position="absolute"
+          bottom={5}
+          left="50%"
+          transform="translateX(-50%)"
+          gap={1.5}
+          zIndex={10}
+          align="center"
+        >
+          {allImages.map((_, i) => (
+            <Box
+              key={i}
+              as="button"
+              w={i === currentIndex ? '16px' : '6px'}
+              h="6px"
+              borderRadius="full"
+              bg={i === currentIndex ? 'white' : 'whiteAlpha.600'}
+              transition="all 0.25s"
+              onClick={() => {
+                setDirection(i > currentIndex ? 1 : -1);
+                setCurrentIndex(i);
+              }}
+              flexShrink={0}
+            />
+          ))}
+        </Flex>
+      )}
 
       {/* Slot Availability Badge - bottom left */}
       <Badge
