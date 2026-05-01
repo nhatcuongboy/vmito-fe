@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession, FeeType } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
 import {
   Avatar,
   Badge,
@@ -17,7 +17,6 @@ import {
   LayoutGrid,
   Users,
   Shield,
-  Banknote,
   Phone,
   Navigation,
   UserCheck,
@@ -27,8 +26,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import { FeeService } from '@/lib/api/fee.service';
-import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { AppPlayerRating } from '@/components/rating';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import dayjs from '@/lib/dayjs';
@@ -344,25 +341,6 @@ const SessionDetailBody = ({
             )}
           </Wrap>
         </Flex>
-
-        {/* Fee Section */}
-        {session.feeConfig && (
-          <>
-            <Separator my={4} />
-            <Flex align="center" gap={2}>
-              <Icon as={Banknote} boxSize={5} color="red.600" />
-              <Text fontSize="lg" fontWeight="bold" color="red.600">
-                {FeeService.getFeeDisplayText(session.feeConfig)}
-              </Text>
-              {session.feeConfig.feeType === FeeType.FIXED && (
-                <Text fontSize="sm" color="gray.500" fontWeight="normal">
-                  /slot
-                </Text>
-              )}
-              <FeeDetailPopover feeConfig={session.feeConfig} />
-            </Flex>
-          </>
-        )}
       </Box>
     </Box>
   );

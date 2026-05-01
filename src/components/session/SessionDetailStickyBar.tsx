@@ -441,9 +441,9 @@ const SessionDetailStickyBar = ({
         {session.feeConfig && (
           <Box flexShrink={0}>
             <Flex align="center" gap={1}>
-              <Icon as={Banknote} boxSize={4} color="red.600" />
+              <Icon as={Banknote} boxSize={5} color="red.600" />
               <Text
-                fontSize="md"
+                fontSize="lg"
                 fontWeight="bold"
                 color="red.600"
                 whiteSpace="nowrap"
@@ -451,10 +451,16 @@ const SessionDetailStickyBar = ({
                 {FeeService.getFeeDisplayText(session.feeConfig)}
               </Text>
               {session.feeConfig.feeType === FeeType.FIXED && (
-                <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  fontWeight="normal"
+                  whiteSpace="nowrap"
+                >
                   /slot
                 </Text>
               )}
+              <FeeDetailPopover feeConfig={session.feeConfig} />
             </Flex>
           </Box>
         )}

@@ -88,15 +88,15 @@ const SessionAiAnalysisChip = ({ session }: ISessionAiAnalysisChipProps) => {
       variant="subtle"
       size="sm"
       px={2}
-      py={0.5}
+      py={1.5}
       borderRadius="full"
       cursor="pointer"
       _hover={{ opacity: 0.8 }}
       onClick={handleClick}
       flexShrink={0}
     >
-      <Sparkles size={11} />
-      <Text fontSize="2xs" fontWeight="medium">
+      <Sparkles size={12} />
+      <Text fontSize="xs" fontWeight="medium">
         {t('aiAnalyzeChip')}
       </Text>
     </Badge>
