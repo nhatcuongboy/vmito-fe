@@ -210,7 +210,7 @@ export default function VenueDetailClient({
                 shadow="lg"
               >
                 <BadgeCheck size={16} />
-                <Text fontSize="sm">Verified</Text>
+                <Text fontSize="sm">{t('verified')}</Text>
               </Badge>
             )}
             {venue.closureStatus &&

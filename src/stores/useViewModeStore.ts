@@ -13,8 +13,8 @@ export const useViewModeStore = create<ViewModeState>()(
   persist(
     (set, get) => ({
       viewModes: {
-        venues: 'grid',
-        clubs: 'grid',
+        venues: 'list',
+        clubs: 'list',
       },
 
       setViewMode: (scope, mode) =>
@@ -27,7 +27,14 @@ export const useViewModeStore = create<ViewModeState>()(
 
       getViewMode: (scope) => {
         const state = get();
-        return state.viewModes[scope] || 'grid';
+        // Default to 'list' for venues and clubs if not set
+        if (
+          (scope === 'venues' || scope === 'clubs') &&
+          !state.viewModes[scope]
+        ) {
+          return 'list';
+        }
+        return state.viewModes[scope] || 'list';
       },
     }),
     {

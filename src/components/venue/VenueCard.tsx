@@ -118,26 +118,63 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
 
           {/* Badges Overlay */}
           <Box position="absolute" top={3} left={3}>
-            <HStack gap={0} borderRadius="full" overflow="hidden">
-              <Box
-                bg="green.400"
-                color="white"
-                px={3}
-                py={1}
-                pl={4}
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-                fontSize="xs"
-                fontWeight="bold"
-              >
-                <BadgeCheck size={14} />
-                <Text>{t('verified')}</Text>
-              </Box>
+            <HStack gap={2}>
+              {venue.isVerified && (
+                <Box
+                  bg="green.400"
+                  color="white"
+                  px={3}
+                  py={1}
+                  borderRadius="full"
+                  display="flex"
+                  alignItems="center"
+                  gap={1.5}
+                  fontSize="xs"
+                  fontWeight="bold"
+                  shadow="md"
+                >
+                  <BadgeCheck size={14} />
+                  <Text>{t('verified')}</Text>
+                </Box>
+              )}
+
+              {venue.distance !== undefined && venue.distance !== null && (
+                <Badge
+                  colorPalette="green"
+                  variant="solid"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                  fontSize="xs"
+                  fontWeight="bold"
+                  display="flex"
+                  alignItems="center"
+                  gap={1.5}
+                  shadow="md"
+                >
+                  <Navigation size={14} />
+                  <Text>{venue.distance} km</Text>
+                </Badge>
+              )}
             </HStack>
           </Box>
 
           <HStack position="absolute" top={3} right={3} gap={2}>
+            {/* Find Sessions Button on Banner */}
+            <Button
+              size="xs"
+              colorPalette="green"
+              fontWeight="bold"
+              px={3}
+              h="32px"
+              fontSize="xs"
+              onClick={handleFindSessions}
+              shadow="md"
+              borderRadius="full"
+              leftIcon={<Search size={14} />}
+            >
+              {t('findSessions')}
+            </Button>
             <IconButton
               size="sm"
               w="32px"
@@ -201,12 +238,7 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
               mt={0.5}
               gap={1}
             >
-              {venue.distance !== undefined && venue.distance !== null && (
-                <Text color="orange.500" fontWeight="medium">
-                  ({venue.distance}km)
-                </Text>
-              )}
-              <Text lineClamp={1}>
+              <Text lineClamp={2}>
                 {[venue.address, venue.district].filter(Boolean).join(', ')}
               </Text>
             </HStack>
@@ -227,20 +259,8 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
             )}
           </Box>
 
-          {/* Right Button */}
-          <Button
-            size="sm"
-            colorPalette="green"
-            fontWeight="bold"
-            px={4}
-            h="32px"
-            fontSize="sm"
-            flexShrink={0}
-            onClick={handleFindSessions}
-            shadow="sm"
-          >
-            {t('findSessions')}
-          </Button>
+          {/* Right Icon */}
+          <Box as={ChevronRight} color="gray.400" w={5} h={5} flexShrink={0} />
         </Flex>
 
         {/* Loading Overlay */}
@@ -296,26 +316,48 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
           objectFit="cover"
         />
 
-        {/* Verified Badge Overlay */}
-        {venue.isVerified && (
-          <Box position="absolute" top={3} right={3}>
-            <Badge
-              colorPalette="green"
-              variant="solid"
-              size="sm"
-              borderRadius="full"
-              px={2}
-              py={0.5}
-              display="flex"
-              alignItems="center"
-              gap={1}
-              shadow="md"
-            >
-              <BadgeCheck size={12} />
-              <Text fontSize="xs">{t('verified')}</Text>
-            </Badge>
-          </Box>
-        )}
+        {/* Badges Overlay */}
+        <Box position="absolute" top={3} left={3}>
+          <HStack gap={2}>
+            {venue.isVerified && (
+              <Badge
+                colorPalette="green"
+                variant="solid"
+                size="sm"
+                borderRadius="full"
+                px={2}
+                py={0.5}
+                display="flex"
+                alignItems="center"
+                gap={1}
+                shadow="md"
+              >
+                <BadgeCheck size={12} />
+                <Text fontSize="xs">{t('verified')}</Text>
+              </Badge>
+            )}
+
+            {venue.distance !== undefined && venue.distance !== null && (
+              <Badge
+                colorPalette="green"
+                variant="solid"
+                size="sm"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="bold"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                shadow="md"
+              >
+                <Navigation size={14} />
+                <Text>{venue.distance} km</Text>
+              </Badge>
+            )}
+          </HStack>
+        </Box>
       </Box>
 
       {/* Header Section */}
@@ -394,35 +436,8 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
             </Flex>
           </Box>
 
-          {/* Distance badge */}
-          <HStack gap={2} align="center">
-            {venue.distance !== undefined && venue.distance !== null && (
-              <Badge
-                colorPalette="green"
-                variant="surface"
-                borderRadius="full"
-                px={3}
-                py={1.5}
-                fontSize="xs"
-                fontWeight="bold"
-                flexShrink={0}
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-                shadow="sm"
-              >
-                <Navigation size={14} />
-                <Text>{venue.distance} km</Text>
-              </Badge>
-            )}
-            <Box
-              as={ChevronRight}
-              color="gray.400"
-              w={5}
-              h={5}
-              flexShrink={0}
-            />
-          </HStack>
+          {/* Right Icon */}
+          <Box as={ChevronRight} color="gray.400" w={5} h={5} flexShrink={0} />
         </Flex>
       </Box>
 

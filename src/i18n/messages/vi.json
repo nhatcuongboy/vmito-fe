@@ -485,7 +485,7 @@
     },
     "noSessionsFound": "Không tìm thấy kèo nào",
     "noSessionsDescription": "Bạn chưa tham gia kèo cầu lông nào. Tham gia một kèo để xem ở đây!",
-    "activeSessions": "Đang hoạt động",
+    "activeSessions": "Đang mở",
     "pastSessions": "Kèo đã qua",
     "tryAdjustingFilters": "Thử điều chỉnh bộ lọc của bạn",
     "submitRegistration": "Gửi đăng ký",
@@ -3305,7 +3305,7 @@
     "viewDetails": "Xem chi tiết",
     "findSessions": "Tìm kèo",
     "findSessionsAtVenue": "Tìm kèo tại sân",
-    "nameFormat": "Sân cầu lông {name}",
+    "nameFormat": "Sân {name}",
     "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
   }
 }
