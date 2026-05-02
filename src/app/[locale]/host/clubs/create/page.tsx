@@ -123,6 +123,7 @@ const CreateClubPage = () => {
           const result = await VenueService.searchVenues({
             keyword: query || undefined,
             limit: 50,
+            sortBy: query ? 'relevance' : undefined,
           });
           const fetched = result.data ?? [];
           const pinnedNotInFetched = Array.from(pinnedVenues.values()).filter(

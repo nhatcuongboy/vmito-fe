@@ -481,6 +481,7 @@ export default function SessionForm({
         const result = await VenueService.searchVenues({
           keyword: keyword.trim() || undefined,
           limit: 100,
+          sortBy: keyword.trim() ? 'relevance' : undefined,
         });
         setVenues(result.data || []);
       } catch (error) {
@@ -1134,6 +1135,18 @@ export default function SessionForm({
                 gap={2}
               >
                 <Heading size="md">{t('basicInfo')}</Heading>
+                {!isEditMode && (
+                  <Button
+                    size="xs"
+                    colorPalette="purple"
+                    variant="ghost"
+                    onClick={() => setIsAIModalOpen(true)}
+                    leftIcon={<Sparkles size={14} />}
+                    borderRadius="full"
+                  >
+                    {t('aiModal.title')}
+                  </Button>
+                )}
               </Flex>
               <Stack gap={4}>
                 {/* Session Name */}

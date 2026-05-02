@@ -23,6 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { compressImage } from '@/lib/utils/image';
 import { VenueService } from '@/lib/api/venue.service';
 import { AdminService, User } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
@@ -98,6 +99,7 @@ const AdminCreateClubPage = () => {
           const result = await VenueService.searchVenues({
             keyword: query || undefined,
             limit: 50,
+            sortBy: query ? 'relevance' : undefined,
           });
           const fetched = result.data ?? [];
           const pinnedNotInFetched = Array.from(pinnedVenues.values()).filter(
@@ -134,7 +136,11 @@ const AdminCreateClubPage = () => {
 
   const handleUploadImage = useCallback(
     async (file: File): Promise<string> => {
-      const result = await ClubsService.uploadClubImage(file);
+      const compressedFile = await compressImage(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1200,
+      });
+      const result = await ClubsService.uploadClubImage(compressedFile);
       setValue('imagePublicId', result.publicId);
       return result.url;
     },
