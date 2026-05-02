@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { MapPin, Info, Navigation, Users, Locate } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import useMapPinIcon from '@/hooks/useMapPinIcon';
 import { toaster } from '@/components/ui/toaster';
 import {
   TOP_BAR_HEIGHT_MOBILE,
@@ -34,63 +35,6 @@ const defaultCenter = {
 };
 
 const LIBRARIES: 'places'[] = ['places'];
-
-// Create custom marker icon using MapPin from lucide with green circular background
-const createShuttlecockMarkerIcon = () => {
-  const canvas = document.createElement('canvas');
-  const size = 64;
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-
-  if (ctx) {
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2 - 2, 0, 2 * Math.PI);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 6;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 2;
-
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2 - 6, 0, 2 * Math.PI);
-    ctx.fillStyle = '#22c55e';
-    ctx.fill();
-
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-
-    ctx.save();
-    ctx.translate(size / 2, size / 2);
-
-    const iconScale = 1.6;
-    ctx.scale(iconScale, iconScale);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    ctx.beginPath();
-    ctx.moveTo(0, -5);
-    ctx.lineTo(0, 12);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(0, -5, 6, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  return canvas.toDataURL();
-};
 
 interface ClubMapProps {
   clubs: IClub[];
@@ -166,6 +110,8 @@ export default function ClubMap({
     googleMapsApiKey: apiKey || '',
     libraries: LIBRARIES,
   });
+
+  const { iconOptions: markerIconOptions } = useMapPinIcon({ isLoaded });
 
   // Group clubs by venue (including scheduleVenues)
   const venueGroups = useMemo(() => {
@@ -360,23 +306,20 @@ export default function ClubMap({
             key={group.venue.id}
             position={{ lat: group.venue.lat!, lng: group.venue.lng! }}
             onClick={() => setSelectedVenueId(group.venue.id)}
-            onMouseOver={() => {
-              setHoveredVenueId(group.venue.id);
-            }}
-            onMouseOut={() => {
-              setHoveredVenueId(null);
-            }}
+            onMouseOver={() => setHoveredVenueId(group.venue.id)}
+            onMouseOut={() => setHoveredVenueId(null)}
             label={
               isDesktop && hoveredVenueId === group.venue.id
                 ? {
                     text: group.venue.name,
-                    color: '#16a34a',
+                    color: '#15803d',
                     fontWeight: '700',
-                    fontSize: '15px',
+                    fontSize: '13px',
                     className: 'venue-marker-label',
                   }
                 : undefined
             }
+            icon={markerIconOptions ?? undefined}
           />
         ))}
 

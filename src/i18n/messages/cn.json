@@ -30,6 +30,11 @@
     "mainHome": "首页",
     "sessions": "场次",
     "personal": "个人",
+    "findSessions": "查找场次",
+    "findVenues": "查找场地",
+    "findClubs": "查找俱乐部",
+    "findTournaments": "查找锦标赛",
+    "createTournament": "创建锦标赛",
     "generalSettings": "常规设置"
   },
   "search": {
@@ -216,7 +221,7 @@
     "courtAppearance": "场地外观",
     "selectCourtColor": "为您的场地选择颜色。",
     "advancedSettings": "高级设置",
-    "sessionImages": "场次图片",
+    "sessionImages": "赛场图片",
     "horizontal": "水平",
     "vertical": "垂直",
     "courtDirectionDescription": "场地朝向以获得更好的游戏体验",
@@ -504,7 +509,6 @@
     "coverPhotoUploadFailed": "上传封面图片失败",
     "coverPhotoRemoved": "封面图片已移除",
     "coverPhotoRemoveFailed": "移除封面图片失败",
-    "sessionImages": "赛场图片",
     "myImages": "我的图片",
     "uploadNew": "上传新图片",
     "setAsBanner": "设为横幅",
@@ -1084,6 +1088,7 @@
         "startDate": "开始日期",
         "endDate": "结束日期",
         "venue": "场地",
+        "locationPlaceholder": "活动将在哪里举行？",
         "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
         "createTournament": "创建锦标赛"
@@ -2962,17 +2967,32 @@
     "messages": {
       "viewSession": "查看场次",
       "startReminderTitle": "场次即将开始！",
-      "startReminderMessage": "\u201c{sessionName}\u201d 时间到了。您到场地了吗？点击开始场次。",
+      "startReminderMessage": "“{sessionName}” 时间到了。您到场地了吗？点击开始场次。",
       "playerStartReminderTitle": "您的场次即将开始！",
-      "playerStartReminderMessage": "\u201c{sessionName}\u201d 即将开始，请前往场地！",
+      "playerStartReminderMessage": "“{sessionName}” 即将开始，请前往场地！",
       "autoCancelledTitle": "场次已自动取消",
-      "autoCancelledMessage": "\u201c{sessionName}\u201d 因未在计划时间后30分钟内开始，已被自动取消。",
+      "autoCancelledMessage": "“{sessionName}” 因未在计划时间后30分钟内开始，已被自动取消。",
       "sessionCancelledTitle": "场次已取消",
-      "sessionCancelledMessage": "\u201c{sessionName}\u201d 已被系统取消。主持人未按时开始场次。",
+      "sessionCancelledMessage": "“{sessionName}” 已被系统取消。主持人未按时开始场次。",
       "endWarningTitle": "场次即将结束",
-      "endWarningMessage": "\u201c{sessionName}\u201d 将在约15分钟后结束。",
+      "endWarningMessage": "“{sessionName}” 将在约15分钟后结束。",
       "autoFinalizedTitle": "场次已自动结束",
-      "autoFinalizedMessage": "\u201c{sessionName}\u201d 已在宽限期到期后被系统自动结束。"
+      "autoFinalizedMessage": "“{sessionName}” 已在宽限期到期后被系统自动结束。",
+      "viewClub": "查看俱乐部",
+      "autoStartedTitle": "场次已自动开始",
+      "autoStartedMessage": "“{sessionName}” 已在预定时间自动开始。",
+      "sessionAutoStartedTitle": "场次已开始！",
+      "sessionAutoStartedMessage": "“{sessionName}” 已开始，请前往场地！",
+      "clubCreationPendingTitle": "俱乐部待审批",
+      "clubCreationPendingMessage": "您的俱乐部“{clubName}”正在等待管理员审批。",
+      "adminNewPendingClubTitle": "新俱乐部待审批",
+      "adminNewPendingClubMessage": "俱乐部“{clubName}”正在等待审批。",
+      "clubCreationApprovedTitle": "俱乐部创建成功",
+      "clubCreationApprovedMessage": "您的俱乐部“{clubName}”已创建并获得批准。",
+      "clubApprovedTitle": "俱乐部已批准",
+      "clubApprovedMessage": "您的俱乐部“{clubName}”已获批准。",
+      "clubRejectedTitle": "俱乐部已被拒绝",
+      "clubRejectedMessage": "您的俱乐部“{clubName}”已被拒绝。原因：{rejectionReason}"
     }
   },
   "clubs": {
@@ -3182,8 +3202,9 @@
     "share": "分享",
     "view": "查看",
     "viewDetails": "查看详情",
+    "findSessions": "查找场次",
     "findSessionsAtVenue": "查找场次",
-    "nameFormat": "{name} 羽毛球馆",
+    "nameFormat": "羽毛球馆 {name}",
     "searchPlaceholder": "按场地名称、地址搜索..."
   }
 }

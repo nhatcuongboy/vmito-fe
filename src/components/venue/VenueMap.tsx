@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { MapPin, Info, Navigation, Locate } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import useMapPinIcon from '@/hooks/useMapPinIcon';
 import { toaster } from '@/components/ui/toaster';
 import { Image } from '@/components/ui/chakra-compat';
 import {
@@ -34,63 +35,6 @@ const defaultCenter = {
 };
 
 const LIBRARIES: 'places'[] = ['places'];
-
-// Create custom marker icon using MapPin from lucide with green circular background
-const createShuttlecockMarkerIcon = () => {
-  const canvas = document.createElement('canvas');
-  const size = 64;
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-
-  if (ctx) {
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2 - 2, 0, 2 * Math.PI);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 6;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 2;
-
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2 - 6, 0, 2 * Math.PI);
-    ctx.fillStyle = '#22c55e';
-    ctx.fill();
-
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-
-    ctx.save();
-    ctx.translate(size / 2, size / 2);
-
-    const iconScale = 1.4;
-    ctx.scale(iconScale, iconScale);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    ctx.beginPath();
-    ctx.moveTo(0, -6);
-    ctx.lineTo(0, 10);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(0, -6, 5, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  return canvas.toDataURL();
-};
 
 interface VenueMapProps {
   venues: Venue[];
@@ -161,6 +105,8 @@ export default function VenueMap({
     googleMapsApiKey: apiKey || '',
     libraries: LIBRARIES,
   });
+
+  const { iconOptions: markerIconOptions } = useMapPinIcon({ isLoaded });
 
   const center = useMemo(() => {
     if (currentUserLocation) return currentUserLocation;
@@ -316,23 +262,20 @@ export default function VenueMap({
             key={venue.id}
             position={{ lat: venue.lat || 0, lng: venue.lng || 0 }}
             onClick={() => setSelectedVenue(venue)}
-            onMouseOver={() => {
-              setHoveredVenueId(venue.id);
-            }}
-            onMouseOut={() => {
-              setHoveredVenueId(null);
-            }}
+            onMouseOver={() => setHoveredVenueId(venue.id)}
+            onMouseOut={() => setHoveredVenueId(null)}
             label={
               isDesktop && hoveredVenueId === venue.id
                 ? {
                     text: venue.name,
-                    color: '#16a34a',
+                    color: '#15803d',
                     fontWeight: '700',
-                    fontSize: '15px',
+                    fontSize: '13px',
                     className: 'venue-marker-label',
                   }
                 : undefined
             }
+            icon={markerIconOptions ?? undefined}
           />
         ))}
 

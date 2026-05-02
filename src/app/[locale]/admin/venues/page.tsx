@@ -1,5 +1,4 @@
 'use client';
-import { Input } from '@/components/ui/Input';
 
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import MainLayout from '@/components/layout/MainLayout';
@@ -7,18 +6,11 @@ import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import {
-  UserRole,
-  Venue,
-  VenueStatus,
-  ClosureStatus,
-  EImageCategory,
-} from '@/lib/api/types';
+import { UserRole, Venue } from '@/lib/api/types';
 import {
   Badge,
   Box,
   Container,
-  Field,
   Flex,
   Heading,
   HStack,
@@ -47,37 +39,25 @@ import {
   Pencil,
   Trash2,
   Plus,
-  MapPin,
   X,
   Eye,
   ListFilter,
   Star,
   ArrowDownAZ,
 } from 'lucide-react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-import VModal from '@/components/ui/VModal';
 import {
   useUrlFilters,
   stringField,
   stringArrayField,
 } from '@/hooks/useUrlFilters';
 import { VButton } from '@/components/ui/VButton';
-import { VSwitch } from '@/components/ui/VSwitch';
-import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 import { VIETNAM_CITIES as CITY_HIERARCHY } from '@/constants/vietnam-locations';
 import BulkCreateVenueModal from '@/components/venue/BulkCreateVenueModal';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
-import { trimPhone } from '@/utils/phone-utils';
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { FilterChip } from '@/components/ui/FilterChip';
-import AppMultiImageUpload, {
-  ISessionImage,
-} from '@/components/session/AppMultiImageUpload';
+import VModal from '@/components/ui/VModal';
 
 const PAGE_SIZE = 20;
 
@@ -88,44 +68,9 @@ const ADMIN_VENUE_FILTERS_SCHEMA = {
   isVerified: stringField(''),
   status: stringField(''),
   closureStatus: stringField(''),
-  sort: stringField('createdAt'), // Default new venues first
+  sort: stringField('createdAt'),
   order: stringField('desc'),
 };
-
-// Schema definitions
-const venueSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  placeId: z.string().min(1, 'Place ID is required'),
-  address: z.string().min(5, 'Address must be at least 5 characters'),
-  district: z.string().min(1, 'District is required'),
-  city: z.string().min(1, 'City is required'),
-  newAddress: z.string().optional(),
-  newDistrict: z.string().optional(),
-  newCity: z.string().optional(),
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-  phone: z.string().optional(),
-  isVerified: z.boolean(),
-  coverPhoto: z.string().optional(),
-  images: z.array(z.string()).optional(),
-  description: z.string().optional(),
-  openingHours: z.string().optional(),
-  numberOfCourts: z.number().optional(),
-  status: z.string().optional(),
-  closureStatus: z.string().optional(),
-  website: z.string().optional(),
-  hourlyRateFixed: z.number().optional(),
-  hourlyRateWalkIn: z.number().optional(),
-  hasCarParking: z.boolean().optional(),
-  hasCanteen: z.boolean().optional(),
-  wifiName: z.string().optional(),
-  wifiPassword: z.string().optional(),
-  bookingPolicy: z.string().optional(),
-  locatedWithin: z.string().optional(),
-  courtLayoutImage: z.string().optional(),
-});
-
-type VenueFormValues = z.infer<typeof venueSchema>;
 
 export default function AdminVenuesPage() {
   return (
@@ -181,8 +126,6 @@ function AdminVenuesContent() {
   }, [showFilters]);
 
   // Modal states
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const {
     isOpen: isBulkOpen,
@@ -190,46 +133,6 @@ function AdminVenuesContent() {
     onClose: closeBulkOpen,
   } = useDisclosure();
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-
-  // Venue images state
-  const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
-  const [venueBannerIndex, setVenueBannerIndex] = useState(0);
-
-  // Forms
-  const form = useForm<VenueFormValues>({
-    resolver: zodResolver(venueSchema),
-    defaultValues: {
-      name: '',
-      placeId: '',
-      address: '',
-      district: '',
-      city: '',
-      newAddress: '',
-      newDistrict: '',
-      newCity: '',
-      lat: undefined,
-      lng: undefined,
-      phone: '',
-      isVerified: false,
-      coverPhoto: '',
-      images: [],
-      description: '',
-      openingHours: '',
-      numberOfCourts: undefined,
-      status: 'ACTIVE',
-      closureStatus: 'OPERATING',
-      website: '',
-      hourlyRateFixed: undefined,
-      hourlyRateWalkIn: undefined,
-      hasCarParking: false,
-      hasCanteen: false,
-      wifiName: '',
-      wifiPassword: '',
-      bookingPolicy: '',
-      locatedWithin: '',
-      courtLayoutImage: '',
-    },
-  });
 
   const fetchVenues = useCallback(
     async (targetPage = page) => {
@@ -416,66 +319,6 @@ function AdminVenuesContent() {
     });
   };
 
-  const handleCreate = async (data: VenueFormValues) => {
-    try {
-      // Map venueImages to coverPhoto and images
-      const images = venueImages.map((img) => img.url);
-      const imagePublicIds = venueImages.map((img) => img.publicId);
-      const coverPhoto = venueImages[venueBannerIndex]?.url;
-      const coverPhotoPublicId = venueImages[venueBannerIndex]?.publicId;
-
-      const payload = {
-        ...data,
-        coverPhoto,
-        coverPhotoPublicId,
-        images,
-        imagePublicIds,
-        status: data.status as VenueStatus,
-        closureStatus: data.closureStatus as ClosureStatus,
-        phone: trimPhone(data.phone),
-      };
-      await VenueService.createVenue(payload as any);
-      toaster.success({ title: t('venueCreatedSuccess') });
-      setIsCreateOpen(false);
-      form.reset();
-      setVenueImages([]);
-      setVenueBannerIndex(0);
-      fetchVenues();
-    } catch (error) {
-      console.error('Failed to create venue:', error);
-      toaster.error({ title: t('failedToCreateVenue') });
-    }
-  };
-
-  const handleUpdate = async (data: VenueFormValues) => {
-    if (!selectedVenue) return;
-    try {
-      // Map venueImages to coverPhoto and images
-      const images = venueImages.map((img) => img.url);
-      const imagePublicIds = venueImages.map((img) => img.publicId);
-      const coverPhoto = venueImages[venueBannerIndex]?.url;
-      const coverPhotoPublicId = venueImages[venueBannerIndex]?.publicId;
-
-      const payload = {
-        ...data,
-        coverPhoto,
-        coverPhotoPublicId,
-        images,
-        imagePublicIds,
-        status: data.status as VenueStatus,
-        closureStatus: data.closureStatus as ClosureStatus,
-        phone: trimPhone(data.phone),
-      };
-      await VenueService.updateVenue(selectedVenue.id, payload as any);
-      toaster.success({ title: t('venueUpdatedSuccess') });
-      setIsEditOpen(false);
-      fetchVenues();
-    } catch (error) {
-      console.error('Failed to update venue:', error);
-      toaster.error({ title: t('failedToUpdateVenue') });
-    }
-  };
-
   const handleDelete = async () => {
     if (!selectedVenue) return;
     try {
@@ -487,69 +330,6 @@ function AdminVenuesContent() {
       console.error('Failed to delete venue:', error);
       toaster.error({ title: t('failedToDeleteVenue') });
     }
-  };
-
-  const openEditModal = (venue: Venue) => {
-    setSelectedVenue(venue);
-    form.reset({
-      name: venue.name,
-      placeId: venue.placeId,
-      address: venue.address,
-      district: venue.district || '',
-      city: venue.city || '',
-      newAddress: venue.newAddress || '',
-      newDistrict: venue.newDistrict || '',
-      newCity: venue.newCity || '',
-      lat: venue.lat ?? undefined,
-      lng: venue.lng ?? undefined,
-      phone: venue.phone || '',
-      isVerified: venue.isVerified ?? false,
-      coverPhoto: venue.coverPhoto || '',
-      images: venue.images || [],
-      description: venue.description || '',
-      openingHours: venue.openingHours || '',
-      numberOfCourts: venue.numberOfCourts ?? undefined,
-      status: venue.status || 'ACTIVE',
-      closureStatus: venue.closureStatus || 'OPERATING',
-      website: venue.website || '',
-      hourlyRateFixed: venue.hourlyRateFixed ?? undefined,
-      hourlyRateWalkIn: venue.hourlyRateWalkIn ?? undefined,
-      hasCarParking: venue.hasCarParking ?? false,
-      hasCanteen: venue.hasCanteen ?? false,
-      wifiName: venue.wifiName || '',
-      wifiPassword: venue.wifiPassword || '',
-      bookingPolicy: venue.bookingPolicy || '',
-      locatedWithin: venue.locatedWithin || '',
-      courtLayoutImage: venue.courtLayoutImage || '',
-    });
-
-    // Initialize venueImages from venue data
-    const loadedImages: ISessionImage[] = [];
-
-    // Add coverPhoto first if it exists
-    if (venue.coverPhoto && venue.coverPhotoPublicId) {
-      loadedImages.push({
-        url: venue.coverPhoto,
-        publicId: venue.coverPhotoPublicId,
-      });
-    }
-
-    // Add other images
-    if (venue.images && venue.imagePublicIds) {
-      venue.images.forEach((url, idx) => {
-        const publicId = venue.imagePublicIds?.[idx];
-        if (
-          publicId &&
-          !loadedImages.some((img) => img.publicId === publicId)
-        ) {
-          loadedImages.push({ url, publicId });
-        }
-      });
-    }
-
-    setVenueImages(loadedImages);
-    setVenueBannerIndex(0); // coverPhoto is always first
-    setIsEditOpen(true);
   };
 
   const openDeleteModal = (venue: Venue) => {
@@ -576,42 +356,7 @@ function AdminVenuesContent() {
               <VButton
                 colorPalette="green"
                 leftIcon={<Plus size={18} />}
-                onClick={() => {
-                  form.reset({
-                    name: '',
-                    placeId: '',
-                    address: '',
-                    district: '',
-                    city: '',
-                    newAddress: '',
-                    newDistrict: '',
-                    newCity: '',
-                    lat: undefined,
-                    lng: undefined,
-                    phone: '',
-                    isVerified: false,
-                    coverPhoto: '',
-                    images: [],
-                    description: '',
-                    openingHours: '',
-                    numberOfCourts: undefined,
-                    status: 'ACTIVE',
-                    closureStatus: 'OPERATING',
-                    website: '',
-                    hourlyRateFixed: undefined,
-                    hourlyRateWalkIn: undefined,
-                    hasCarParking: false,
-                    hasCanteen: false,
-                    wifiName: '',
-                    wifiPassword: '',
-                    bookingPolicy: '',
-                    locatedWithin: '',
-                    courtLayoutImage: '',
-                  });
-                  setVenueImages([]);
-                  setVenueBannerIndex(0);
-                  setIsCreateOpen(true);
-                }}
+                onClick={() => router.push('/admin/venues/create')}
               >
                 {t('addVenue')}
               </VButton>
@@ -1086,7 +831,9 @@ function AdminVenuesContent() {
                           aria-label="Edit venue"
                           size="sm"
                           variant="ghost"
-                          onClick={() => openEditModal(venue)}
+                          onClick={() =>
+                            router.push(`/admin/venues/${venue.id}/edit`)
+                          }
                         >
                           <Pencil size={16} />
                         </IconButton>
@@ -1121,523 +868,6 @@ function AdminVenuesContent() {
             onPageChange={handlePageChange}
           />
         </VStack>
-
-        {/* Create/Edit Venue Modal */}
-        <VModal
-          isOpen={isCreateOpen || isEditOpen}
-          onClose={() => {
-            setIsCreateOpen(false);
-            setIsEditOpen(false);
-          }}
-          title={isCreateOpen ? t('createVenue') : t('editVenue')}
-          primaryActionText={isCreateOpen ? tCommon('create') : tCommon('save')}
-          onPrimaryAction={() =>
-            form.handleSubmit((data) =>
-              isCreateOpen ? handleCreate(data) : handleUpdate(data)
-            )()
-          }
-          isPrimaryLoading={form.formState.isSubmitting}
-          secondaryActionText={tCommon('cancel')}
-        >
-          <VStack gap={4} as="form">
-            <Controller
-              control={form.control}
-              name="name"
-              render={({ field, fieldState }) => (
-                <Field.Root invalid={!!fieldState.error} required>
-                  <Field.Label>
-                    {t('name')} <Field.RequiredIndicator />
-                  </Field.Label>
-                  <Input {...field} />
-                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
-                </Field.Root>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="placeId"
-              render={({ field, fieldState }) => (
-                <Field.Root invalid={!!fieldState.error} required>
-                  <Field.Label>
-                    {t('placeId')} <Field.RequiredIndicator />
-                  </Field.Label>
-                  <Input {...field} placeholder="Google Place ID" />
-                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
-                </Field.Root>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="address"
-              render={({ field, fieldState }) => (
-                <Field.Root invalid={!!fieldState.error} required>
-                  <Field.Label>
-                    {t('address')} <Field.RequiredIndicator />
-                  </Field.Label>
-                  <Input {...field} />
-                  <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
-                </Field.Root>
-              )}
-            />
-
-            <HStack width="full" gap={4} align="flex-start">
-              <Controller
-                control={form.control}
-                name="city"
-                render={({ field, fieldState }) => (
-                  <Field.Root flex={1} invalid={!!fieldState.error} required>
-                    <Field.Label>
-                      {t('city')} <Field.RequiredIndicator />
-                    </Field.Label>
-                    <SearchableSelect
-                      options={VIETNAM_CITIES}
-                      value={field.value}
-                      onChange={(val) => {
-                        field.onChange(val);
-                        form.setValue('district', '');
-                      }}
-                      placeholder={t('city')}
-                      isInvalid={!!fieldState.error}
-                    />
-                    <Field.ErrorText>
-                      {fieldState.error?.message}
-                    </Field.ErrorText>
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="district"
-                render={({ field, fieldState }) => {
-                  const selectedCity = form.watch('city');
-                  const districtOptions = getDistrictsByCity(selectedCity);
-                  return (
-                    <Field.Root flex={1} invalid={!!fieldState.error} required>
-                      <Field.Label>
-                        {t('district')} <Field.RequiredIndicator />
-                      </Field.Label>
-                      <SearchableSelect
-                        options={districtOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={
-                          selectedCity ? t('district') : 'Chọn thành phố trước'
-                        }
-                        isDisabled={!selectedCity}
-                        isInvalid={!!fieldState.error}
-                        noOptionsMessage="Không tìm thấy quận/huyện"
-                      />
-                      <Field.ErrorText>
-                        {fieldState.error?.message}
-                      </Field.ErrorText>
-                    </Field.Root>
-                  );
-                }}
-              />
-            </HStack>
-
-            <Controller
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <Field.Root>
-                  <Field.Label>{t('phone')}</Field.Label>
-                  <Input {...field} placeholder="e.g. +84 123 456 789" />
-                </Field.Root>
-              )}
-            />
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Trạng thái</Field.Label>
-                    <SearchableSelect
-                      options={[
-                        { value: 'ACTIVE', label: 'Hoạt động' },
-                        { value: 'INACTIVE', label: 'Tạm ngừng' },
-                      ]}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="closureStatus"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Tình trạng đóng cửa</Field.Label>
-                    <SearchableSelect
-                      options={[
-                        { value: 'OPERATING', label: 'Đang mở cửa' },
-                        {
-                          value: 'TEMPORARILY_CLOSED',
-                          label: 'Đóng cửa tạm thời',
-                        },
-                        {
-                          value: 'PERMANENTLY_CLOSED',
-                          label: 'Đóng cửa vĩnh viễn',
-                        },
-                      ]}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <Controller
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Field.Root>
-                  <Field.Label>Mô tả</Field.Label>
-                  <Input {...field} />
-                </Field.Root>
-              )}
-            />
-
-            {/* === Địa chỉ mới (Nghị quyết 60) === */}
-            <Text fontWeight="semibold" w="full" color="blue.500" fontSize="sm">
-              Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
-            </Text>
-
-            <Controller
-              control={form.control}
-              name="newAddress"
-              render={({ field }) => (
-                <Field.Root>
-                  <Field.Label>Địa chỉ mới</Field.Label>
-                  <Input
-                    {...field}
-                    placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
-                  />
-                </Field.Root>
-              )}
-            />
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="newDistrict"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Phường/Xã mới</Field.Label>
-                    <Input {...field} placeholder="VD: Cầu Kiệu" />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="newCity"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Tỉnh/Thành phố mới</Field.Label>
-                    <Input {...field} placeholder="VD: TP Hồ Chí Minh" />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="lat"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Latitude</Field.Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      step="any"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="lng"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Longitude</Field.Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      step="any"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="openingHours"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Giờ hoạt động</Field.Label>
-                    <Input {...field} placeholder="VD: 6:00 - 22:00" />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="numberOfCourts"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Số lượng sân</Field.Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="hourlyRateFixed"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Giá thuê cố định (VND)</Field.Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="hourlyRateWalkIn"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Giá thuê vãng lai (VND)</Field.Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="website"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Website</Field.Label>
-                    <Input {...field} />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="locatedWithin"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Vị trí trực thuộc</Field.Label>
-                    <Input {...field} placeholder="VD: Nhà thi đấu A" />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="wifiName"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Tên WiFi</Field.Label>
-                    <Input {...field} />
-                  </Field.Root>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="wifiPassword"
-                render={({ field }) => (
-                  <Field.Root flex={1}>
-                    <Field.Label>Mật khẩu WiFi</Field.Label>
-                    <Input {...field} />
-                  </Field.Root>
-                )}
-              />
-            </HStack>
-
-            <Controller
-              control={form.control}
-              name="bookingPolicy"
-              render={({ field }) => (
-                <Field.Root>
-                  <Field.Label>Chính sách đặt sân</Field.Label>
-                  <Input {...field} />
-                </Field.Root>
-              )}
-            />
-
-            <HStack width="full" gap={4} py={2}>
-              <Controller
-                control={form.control}
-                name="hasCarParking"
-                render={({ field }) => (
-                  <VSwitch
-                    checked={!!field.value}
-                    onCheckedChange={(details) =>
-                      field.onChange(details.checked)
-                    }
-                    label="Có bãi đậu ô tô"
-                    colorPalette="blue"
-                  />
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="hasCanteen"
-                render={({ field }) => (
-                  <VSwitch
-                    checked={!!field.value}
-                    onCheckedChange={(details) =>
-                      field.onChange(details.checked)
-                    }
-                    label="Có căn tin/bán nước"
-                    colorPalette="blue"
-                  />
-                )}
-              />
-            </HStack>
-
-            <Controller
-              control={form.control}
-              name="coverPhoto"
-              render={({ field }) => (
-                <Field.Root width="full">
-                  <Field.Label fontWeight="bold">Ảnh sân</Field.Label>
-                  <AppMultiImageUpload
-                    images={venueImages}
-                    bannerIndex={venueBannerIndex}
-                    onImagesChange={setVenueImages}
-                    onBannerChange={setVenueBannerIndex}
-                    maxImages={10}
-                    category={EImageCategory.VENUE_COVER}
-                    label={null}
-                  />
-                </Field.Root>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="courtLayoutImage"
-              render={({ field }) => (
-                <Field.Root width="full">
-                  <Field.Label fontWeight="bold">
-                    Sơ đồ sân (URL hình ảnh)
-                  </Field.Label>
-                  <VStack align="stretch" gap={3} width="full">
-                    <Input
-                      {...field}
-                      placeholder="Enter court layout image URL..."
-                      width="full"
-                    />
-                    {field.value && (
-                      <Box
-                        borderRadius="lg"
-                        overflow="hidden"
-                        borderWidth="1px"
-                        borderColor="gray.200"
-                        bg="gray.50"
-                        _dark={{ borderColor: 'gray.700', bg: 'gray.900' }}
-                      >
-                        <img
-                          src={field.value}
-                          alt="Layout preview"
-                          style={{
-                            width: '100%',
-                            maxHeight: '200px',
-                            objectFit: 'contain',
-                            display: 'block',
-                          }}
-                          onError={(e) => {
-                            (
-                              e.target as HTMLImageElement
-                            ).parentElement!.style.display = 'none';
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </VStack>
-                </Field.Root>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="isVerified"
-              render={({ field }) => (
-                <VSwitch
-                  checked={field.value}
-                  onCheckedChange={(details) => field.onChange(details.checked)}
-                  label={t('isVerified')}
-                  colorPalette="green"
-                />
-              )}
-            />
-          </VStack>
-        </VModal>
 
         {/* Delete Confirmation Modal */}
         <VModal

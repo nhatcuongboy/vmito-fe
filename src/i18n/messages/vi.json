@@ -3065,10 +3065,15 @@
     },
     "messages": {
       "viewSession": "Xem kèo",
+      "viewClub": "Xem nhóm",
       "startReminderTitle": "Kèo sắp bắt đầu!",
       "startReminderMessage": "Đã đến giờ cho kèo “{sessionName}”. Bạn đã có mặt tại sân chưa? Nhấn để bắt đầu.",
       "playerStartReminderTitle": "Kèo sắp bắt đầu!",
       "playerStartReminderMessage": "Kèo “{sessionName}” sắp bắt đầu. Hãy di chuyển ra sân!",
+      "autoStartedTitle": "Kèo đã tự động bắt đầu",
+      "autoStartedMessage": "Kèo “{sessionName}” đã được tự động bắt đầu đúng giờ đã lên lịch.",
+      "sessionAutoStartedTitle": "Kèo đã bắt đầu!",
+      "sessionAutoStartedMessage": "Kèo “{sessionName}” đã bắt đầu. Hãy ra sân thôi!",
       "autoCancelledTitle": "Kèo đã bị huỷ tự động",
       "autoCancelledMessage": "Kèo “{sessionName}” đã bị huỷ tự động vì không được bắt đầu trong vòng 30 phút.",
       "sessionCancelledTitle": "Kèo đã bị huỷ",
@@ -3076,7 +3081,17 @@
       "endWarningTitle": "Kèo sắp kết thúc",
       "endWarningMessage": "Kèo “{sessionName}” sẽ kết thúc sau khoảng 15 phút.",
       "autoFinalizedTitle": "Kèo đã được hoàn tất",
-      "autoFinalizedMessage": "Kèo “{sessionName}” đã được hệ thống tự động hoàn tất sau khi hết thời gian gia hạn."
+      "autoFinalizedMessage": "Kèo “{sessionName}” đã được hệ thống tự động hoàn tất sau khi hết thời gian gia hạn.",
+      "clubCreationPendingTitle": "Nhóm đang chờ phê duyệt",
+      "clubCreationPendingMessage": "Nhóm “{clubName}” của bạn đang chờ Admin phê duyệt.",
+      "adminNewPendingClubTitle": "Nhóm mới đang chờ duyệt",
+      "adminNewPendingClubMessage": "Nhóm “{clubName}” đang chờ phê duyệt.",
+      "clubCreationApprovedTitle": "Nhóm đã được tạo thành công",
+      "clubCreationApprovedMessage": "Nhóm “{clubName}” đã được tạo và phê duyệt thành công.",
+      "clubApprovedTitle": "Nhóm đã được phê duyệt",
+      "clubApprovedMessage": "Nhóm “{clubName}” của bạn đã được phê duyệt.",
+      "clubRejectedTitle": "Nhóm đã bị từ chối",
+      "clubRejectedMessage": "Nhóm “{clubName}” của bạn đã bị từ chối. Lý do: {rejectionReason}"
     }
   },
   "clubs": {
@@ -3288,8 +3303,9 @@
     "share": "Chia sẻ",
     "view": "Xem",
     "viewDetails": "Xem chi tiết",
+    "findSessions": "Tìm kèo",
     "findSessionsAtVenue": "Tìm kèo tại sân",
-    "nameFormat": "Sân {name}",
+    "nameFormat": "Sân cầu lông {name}",
     "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
   }
 }

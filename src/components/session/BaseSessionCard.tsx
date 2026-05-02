@@ -769,26 +769,6 @@ const BaseSessionCard = ({
               <>
                 <Flex justify="space-between" align="center" gap={2}>
                   <Flex align="center" gap={2} flex={1} overflow="hidden">
-                    <Box
-                      cursor={onHostClick ? 'pointer' : 'default'}
-                      onClick={(e) => {
-                        if (onHostClick) {
-                          e.stopPropagation();
-                          onHostClick(e);
-                        }
-                      }}
-                    >
-                      <Avatar.Root size="xs" bg="brand.500">
-                        <Avatar.Fallback name={displayHostName}>
-                          {displayHostName
-                            ? displayHostName.charAt(0).toUpperCase()
-                            : ''}
-                        </Avatar.Fallback>
-                        {session.host?.image && (
-                          <Avatar.Image src={session.host.image} />
-                        )}
-                      </Avatar.Root>
-                    </Box>
                     <Heading size="md" fontWeight="bold" lineClamp={1} flex={1}>
                       {convertedSession.title}
                     </Heading>

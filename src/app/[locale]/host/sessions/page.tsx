@@ -112,7 +112,11 @@ function HostSessionsContent() {
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
-            : filters.status,
+            : sessionStatusTab === 'active' && filters.status
+              ? filters.status
+              : sessionStatusTab === 'expired'
+                ? undefined
+                : filters.status,
         endTimeBefore: undefined,
         endTimeAfter:
           sessionStatusTab === 'active' && !filters.status
@@ -294,6 +298,8 @@ function HostSessionsContent() {
       router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
       return;
     }
+    setFilters({});
+    setSearchQuery('');
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
@@ -332,6 +338,7 @@ function HostSessionsContent() {
         <HostSessionsNavPanel />
         <Box flex={1} minW={0}>
           <SessionFilters
+            key={sessionStatusTab}
             onFilterChange={handleFilterChange}
             showStatusFilter={
               sessionStatusTab === 'active' || sessionStatusTab === 'expired'
