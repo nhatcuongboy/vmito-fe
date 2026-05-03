@@ -27,62 +27,70 @@ interface INotificationItemProps {
 }
 
 const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
-  {
-    // Session actions (use sessionName param)
-    start_reminder: {
-      titleKey: 'messages.startReminderTitle',
-      messageKey: 'messages.startReminderMessage',
-    },
-    player_start_reminder: {
-      titleKey: 'messages.playerStartReminderTitle',
-      messageKey: 'messages.playerStartReminderMessage',
-    },
-    auto_started: {
-      titleKey: 'messages.autoStartedTitle',
-      messageKey: 'messages.autoStartedMessage',
-    },
-    session_auto_started: {
-      titleKey: 'messages.sessionAutoStartedTitle',
-      messageKey: 'messages.sessionAutoStartedMessage',
-    },
-    auto_cancelled: {
-      titleKey: 'messages.autoCancelledTitle',
-      messageKey: 'messages.autoCancelledMessage',
-    },
-    session_cancelled: {
-      titleKey: 'messages.sessionCancelledTitle',
-      messageKey: 'messages.sessionCancelledMessage',
-    },
-    end_warning: {
-      titleKey: 'messages.endWarningTitle',
-      messageKey: 'messages.endWarningMessage',
-    },
-    auto_finalized: {
-      titleKey: 'messages.autoFinalizedTitle',
-      messageKey: 'messages.autoFinalizedMessage',
-    },
-    // Club actions (use clubName param)
-    club_creation_pending: {
-      titleKey: 'messages.clubCreationPendingTitle',
-      messageKey: 'messages.clubCreationPendingMessage',
-    },
-    admin_new_pending_club: {
-      titleKey: 'messages.adminNewPendingClubTitle',
-      messageKey: 'messages.adminNewPendingClubMessage',
-    },
-    club_creation_approved: {
-      titleKey: 'messages.clubCreationApprovedTitle',
-      messageKey: 'messages.clubCreationApprovedMessage',
-    },
-    club_approved: {
-      titleKey: 'messages.clubApprovedTitle',
-      messageKey: 'messages.clubApprovedMessage',
-    },
-    club_rejected: {
-      titleKey: 'messages.clubRejectedTitle',
-      messageKey: 'messages.clubRejectedMessage',
-    },
-  };
+{
+  // Session actions (use sessionName param)
+  start_reminder: {
+    titleKey: 'messages.startReminderTitle',
+    messageKey: 'messages.startReminderMessage',
+  },
+  player_start_reminder: {
+    titleKey: 'messages.playerStartReminderTitle',
+    messageKey: 'messages.playerStartReminderMessage',
+  },
+  auto_started: {
+    titleKey: 'messages.autoStartedTitle',
+    messageKey: 'messages.autoStartedMessage',
+  },
+  session_auto_started: {
+    titleKey: 'messages.sessionAutoStartedTitle',
+    messageKey: 'messages.sessionAutoStartedMessage',
+  },
+  auto_cancelled: {
+    titleKey: 'messages.autoCancelledTitle',
+    messageKey: 'messages.autoCancelledMessage',
+  },
+  session_cancelled: {
+    titleKey: 'messages.sessionCancelledTitle',
+    messageKey: 'messages.sessionCancelledMessage',
+  },
+  end_warning: {
+    titleKey: 'messages.endWarningTitle',
+    messageKey: 'messages.endWarningMessage',
+  },
+  auto_finalized: {
+    titleKey: 'messages.autoFinalizedTitle',
+    messageKey: 'messages.autoFinalizedMessage',
+  },
+  // Club actions (use clubName param)
+  club_creation_pending: {
+    titleKey: 'messages.clubCreationPendingTitle',
+    messageKey: 'messages.clubCreationPendingMessage',
+  },
+  admin_new_pending_club: {
+    titleKey: 'messages.adminNewPendingClubTitle',
+    messageKey: 'messages.adminNewPendingClubMessage',
+  },
+  club_creation_approved: {
+    titleKey: 'messages.clubCreationApprovedTitle',
+    messageKey: 'messages.clubCreationApprovedMessage',
+  },
+  club_approved: {
+    titleKey: 'messages.clubApprovedTitle',
+    messageKey: 'messages.clubApprovedMessage',
+  },
+  club_rejected: {
+    titleKey: 'messages.clubRejectedTitle',
+    messageKey: 'messages.clubRejectedMessage',
+  },
+  player_added: {
+    titleKey: 'messages.playerAddedTitle',
+    messageKey: 'messages.playerAddedMessage',
+  },
+  player_removed: {
+    titleKey: 'messages.playerRemovedTitle',
+    messageKey: 'messages.playerRemovedMessage',
+  },
+};
 
 const VIEW_SESSION_ACTIONS = new Set([
   'start_reminder',
@@ -116,22 +124,7 @@ const getNotificationIcon = (type: NotificationType) => {
   }
 };
 
-const getNotificationColor = (type: NotificationType) => {
-  switch (type) {
-    case NotificationType.SYSTEM:
-      return 'purple';
-    case NotificationType.SESSION:
-      return 'blue';
-    case NotificationType.REGISTRATION:
-      return 'green';
-    case NotificationType.PAYMENT:
-      return 'orange';
-    case NotificationType.CLUB:
-      return 'teal';
-    default:
-      return 'gray';
-  }
-};
+const getNotificationColor = () => 'green';
 
 export const NotificationItem = ({
   notification,
@@ -145,7 +138,7 @@ export const NotificationItem = ({
   const locale = (params.locale as string) || 'en';
 
   const Icon = getNotificationIcon(notification.type);
-  const colorScheme = getNotificationColor(notification.type);
+  const colorScheme = getNotificationColor();
 
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,
@@ -213,31 +206,57 @@ export const NotificationItem = ({
     <Box
       p={3}
       borderRadius="md"
-      bg={notification.isRead ? 'transparent' : 'blue.50'}
+      bg={notification.isRead ? 'transparent' : 'green.50'}
       _dark={{
-        bg: notification.isRead ? 'transparent' : 'blue.900/20',
+        bg: notification.isRead ? 'transparent' : 'green.900/30',
       }}
-      _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+      transition="all 0.15s"
+      _hover={{
+        bg: notification.isRead ? 'gray.50' : 'green.100',
+        _dark: {
+          bg: notification.isRead ? 'gray.800' : 'green.900/50',
+        },
+      }}
       cursor="pointer"
       onClick={handleClick}
-      transition="background 0.2s"
     >
-      <HStack align="flex-start" gap={3}>
+      <HStack gap={3} align="start" position="relative">
+        {/* Unread left accent */}
+        {!notification.isRead && (
+          <Box
+            position="absolute"
+            left={-3}
+            top={-3}
+            bottom={-3}
+            width="4px"
+            bg="green.500"
+            borderRadius="0 2px 2px 0"
+          />
+        )}
+
         <Box
-          p={2}
-          borderRadius="full"
-          bg={`${colorScheme}.100`}
-          _dark={{ bg: `${colorScheme}.900/30` }}
-          color={`${colorScheme}.600`}
-          // _darkColor={`${colorScheme}.300`}
+          w="36px"
+          h="36px"
+          borderRadius="xl"
+          bg={!notification.isRead ? 'white' : 'green.50'}
+          _dark={{ bg: !notification.isRead ? 'green.800' : 'green.900/30' }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          color={!notification.isRead ? 'green.600' : 'green.500'}
+          boxShadow={!notification.isRead ? 'sm' : 'none'}
+          flexShrink={0}
+          mt="1px"
         >
-          <Icon size={18} />
+          <Icon size={17} strokeWidth={!notification.isRead ? 2.5 : 2} />
         </Box>
 
         <Box flex={1} minW={0}>
           <HStack justify="space-between" mb={1}>
             <Text
-              fontWeight={notification.isRead ? 'normal' : 'semibold'}
+              fontWeight={notification.isRead ? 'medium' : 'bold'}
+              color={notification.isRead ? 'gray.700' : 'green.900'}
+              _dark={{ color: notification.isRead ? 'gray.300' : 'white' }}
               fontSize="sm"
               lineClamp={1}
             >
@@ -252,8 +271,8 @@ export const NotificationItem = ({
 
           <Text
             fontSize="sm"
-            color="gray.600"
-            _dark={{ color: 'gray.400' }}
+            color={notification.isRead ? 'gray.500' : 'gray.700'}
+            _dark={{ color: notification.isRead ? 'gray.500' : 'gray.300' }}
             lineClamp={2}
           >
             {displayMessage}
@@ -263,7 +282,7 @@ export const NotificationItem = ({
             <Button
               size="xs"
               variant="ghost"
-              colorPalette="blue"
+              colorPalette="green"
               mt={1}
               onClick={handleViewSession}
             >
@@ -276,7 +295,7 @@ export const NotificationItem = ({
             <Button
               size="xs"
               variant="ghost"
-              colorPalette="teal"
+              colorPalette="green"
               mt={1}
               onClick={handleViewClub}
             >
@@ -285,7 +304,13 @@ export const NotificationItem = ({
             </Button>
           )}
 
-          <Text fontSize="xs" color="gray.500" mt={1}>
+          <Text
+            fontSize="xs"
+            fontWeight={notification.isRead ? 'medium' : 'semibold'}
+            color={notification.isRead ? 'gray.500' : 'green.600'}
+            _dark={{ color: notification.isRead ? 'gray.500' : 'green.400' }}
+            mt={1}
+          >
             {timeAgo}
           </Text>
         </Box>

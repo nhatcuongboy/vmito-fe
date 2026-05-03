@@ -165,7 +165,6 @@
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
     "tooManyFiles": "Bạn chỉ có thể chọn tối đa {max} ảnh",
     "uploadImage": "Tải ảnh lên",
-
     "selected": "đã chọn",
     "clickToUpload": "Click để tải lên",
     "maxSize": "Kích thước tối đa",
@@ -536,7 +535,6 @@
     "coverPhotoUploadFailed": "Không thể tải ảnh bìa lên",
     "coverPhotoRemoved": "Ảnh bìa đã được xóa thành công",
     "coverPhotoRemoveFailed": "Không thể xóa ảnh bìa",
-    "sessionImages": "Ảnh kèo",
     "myImages": "Ảnh của tôi",
     "uploadNew": "Tải ảnh mới",
     "setAsBanner": "Đặt làm ảnh bìa",
@@ -3000,7 +2998,7 @@
     "joinedAt": "Tham gia",
     "joinedDateLabel": "Tham gia từ {date}",
     "verifiedHost": "Host xác thực",
-    "activeHosted": "Đang hoạt động",
+    "activeHosted": "Đang mở",
     "endedHosted": "Đã kết thúc",
     "allHosted": "Tất cả",
     "noHostedSessions": "Người dùng này chưa host kèo nào",
@@ -3009,7 +3007,12 @@
     "viewAllReviews": "Xem tất cả",
     "allReviews": "Tất cả đánh giá",
     "noReviews": "Chưa có đánh giá nào",
-    "pagination": "Trang {page}/{totalPages}"
+    "pagination": "Trang {page}/{totalPages}",
+    "clubs": "Nhóm",
+    "hostedClubs": "Nhóm đang quản lý",
+    "memberClubs": "Nhóm đang tham gia",
+    "noHostedClubs": "Chưa quản lý nhóm nào",
+    "noMemberClubs": "Chưa tham gia nhóm nào"
   },
   "notification": {
     "notifications": "Thông báo",
@@ -3093,7 +3096,11 @@
       "clubApprovedTitle": "Nhóm đã được phê duyệt",
       "clubApprovedMessage": "Nhóm “{clubName}” của bạn đã được phê duyệt.",
       "clubRejectedTitle": "Nhóm đã bị từ chối",
-      "clubRejectedMessage": "Nhóm “{clubName}” của bạn đã bị từ chối. Lý do: {rejectionReason}"
+      "clubRejectedMessage": "Nhóm “{clubName}” của bạn đã bị từ chối. Lý do: {rejectionReason}",
+      "playerAddedTitle": "Bạn đã được thêm vào kèo",
+      "playerAddedMessage": "Bạn đã được thêm vào kèo “{sessionName}”.",
+      "playerRemovedTitle": "Bạn đã bị xóa khỏi kèo",
+      "playerRemovedMessage": "Bạn đã bị xóa khỏi kèo “{sessionName}”."
     }
   },
   "clubs": {

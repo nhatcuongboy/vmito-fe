@@ -15,14 +15,25 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { CalendarDays, MapPin, MessageSquare, Phone, User } from 'lucide-react';
+import {
+  CalendarDays,
+  ChevronRight,
+  MapPin,
+  MessageSquare,
+  Phone,
+  Settings,
+  User,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import PageLayout from '@/components/layout/PageLayout';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserService, IPublicProfileMeta } from '@/lib/api/user.service';
+import { ClubsService } from '@/lib/api/clubs.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
   ISession,
   Rating,
@@ -30,6 +41,7 @@ import {
   SessionStatus,
   UserRatingStats,
 } from '@/lib/api/types';
+import { IClub } from '@/types/club';
 import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
 import { RatingList } from '@/components/rating/RatingList';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -93,11 +105,13 @@ export default function PublicUserProfileContent({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { user: currentUser } = useAuthStore();
 
   const [profile, setProfile] = useState<IPublicProfileMeta | null>(null);
   const [ratingStats, setRatingStats] = useState<UserRatingStats | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hostedSessions, setHostedSessions] = useState<ISession[]>([]);
+  const [clubs, setClubs] = useState<IClub[]>([]);
   const [totalHostedSessions, setTotalHostedSessions] = useState(0);
   const [activeHostedSessionsCount, setActiveHostedSessionsCount] = useState(0);
   const [endedHostedSessionsCount, setEndedHostedSessionsCount] = useState(0);
@@ -122,12 +136,17 @@ export default function PublicUserProfileContent({
         setIsLoading(true);
         setError(null);
 
-        const [profileResponse, ratingStatsResponse, ratingsResponse] =
-          await Promise.all([
-            UserService.getPublicProfile(userId),
-            RatingService.getUserRatingStats(userId),
-            RatingService.getUserReceivedRatings(userId),
-          ]);
+        const [
+          profileResponse,
+          ratingStatsResponse,
+          ratingsResponse,
+          clubsResponse,
+        ] = await Promise.all([
+          UserService.getPublicProfile(userId),
+          RatingService.getUserRatingStats(userId),
+          RatingService.getUserReceivedRatings(userId),
+          ClubsService.getUserClubs(userId),
+        ]);
 
         const sortedRatings = [...ratingsResponse]
           .filter((r) => r.type === RatingType.PLAYER_TO_HOST)
@@ -139,6 +158,7 @@ export default function PublicUserProfileContent({
         setProfile(profileResponse);
         setRatingStats(ratingStatsResponse);
         setRatings(sortedRatings);
+        setClubs(clubsResponse);
       } catch (fetchError) {
         console.error('Failed to fetch public profile:', fetchError);
         setError(t('loadFailed'));
@@ -288,7 +308,7 @@ export default function PublicUserProfileContent({
 
   return (
     <>
-      <PageLayout title={t('title')} bg="gray.50">
+      <PageLayout title={displayName || t('title')} bg="gray.50">
         <VStack gap={6} align="stretch" pb={6}>
           <Box
             borderWidth="1px"
@@ -311,6 +331,18 @@ export default function PublicUserProfileContent({
                 h="24px"
                 opacity={0.25}
               />
+              <Text
+                position="absolute"
+                bottom={3}
+                left="130px"
+                right={16}
+                fontSize="xl"
+                fontWeight="bold"
+                color="gray.800"
+                lineClamp={1}
+              >
+                {displayName}
+              </Text>
             </Box>
 
             <Box px={5} pb={5}>
@@ -327,16 +359,7 @@ export default function PublicUserProfileContent({
                   {avatarUrl && <Avatar.Image src={avatarUrl} />}
                 </Avatar.Root>
 
-                <VStack align="start" gap={2} flex={1}>
-                  <Text
-                    fontSize="xl"
-                    fontWeight="bold"
-                    color="gray.800"
-                    lineClamp={2}
-                  >
-                    {displayName}
-                  </Text>
-
+                <VStack align="start" gap={2} flex={1} pt={9}>
                   <HStack gap={2}>
                     <StarRatingDisplay
                       rating={ratingStats?.averageRating || 0}
@@ -349,12 +372,7 @@ export default function PublicUserProfileContent({
                     </Badge>
                   </HStack>
 
-                  <SimpleGrid
-                    columns={{ base: 2, md: 3 }}
-                    gap={3}
-                    width="full"
-                    pt={1}
-                  >
+                  <SimpleGrid columns={2} gap={3} width="full" pt={1}>
                     <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
                       <Text fontSize="xs" color="gray.500">
                         {t('hostedSessions')}
@@ -380,21 +398,6 @@ export default function PublicUserProfileContent({
                         {ratingStats?.totalRatings ?? 0}
                       </Text>
                     </Box>
-
-                    {joinedAt ? (
-                      <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
-                        <Text fontSize="xs" color="gray.500">
-                          {t('joinedAt')}
-                        </Text>
-                        <Text
-                          fontSize="md"
-                          fontWeight="semibold"
-                          color="gray.800"
-                        >
-                          {formatDate(joinedAt, locale)}
-                        </Text>
-                      </Box>
-                    ) : null}
                   </SimpleGrid>
 
                   {phone && (
@@ -425,6 +428,172 @@ export default function PublicUserProfileContent({
               </HStack>
             </Box>
           </Box>
+
+          {clubs.length > 0 && (
+            <Box
+              bg="white"
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="2xl"
+              p={4}
+            >
+              <HStack justify="space-between" align="center" mb={3}>
+                <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                  {t('clubs')}
+                </Text>
+
+                {(() => {
+                  if (currentUser?.id === userId) {
+                    return (
+                      <Link href={`/${locale}/my-clubs`}>
+                        <Button size="xs" variant="ghost" colorPalette="green">
+                          <Settings size={14} />
+                          Quản lý nhóm
+                        </Button>
+                      </Link>
+                    );
+                  }
+                  return null;
+                })()}
+              </HStack>
+
+              {(() => {
+                const hostedClubs = clubs.filter(
+                  (c) => (c.hostId ?? c.host?.id) === userId
+                );
+                const memberClubs = clubs.filter(
+                  (c) => (c.hostId ?? c.host?.id) !== userId
+                );
+                const isOwnProfile = currentUser?.id === userId;
+
+                return (
+                  <VStack gap={4} align="stretch">
+                    {hostedClubs.length > 0 && (
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.600"
+                          mb={2}
+                        >
+                          {t('hostedClubs')} ({hostedClubs.length})
+                        </Text>
+                        <VStack gap={2} align="stretch">
+                          {hostedClubs.map((club) => (
+                            <Link
+                              key={club.id}
+                              href={`/${locale}/clubs/${club.id}`}
+                            >
+                              <Box
+                                borderWidth="1px"
+                                borderColor="gray.200"
+                                borderRadius="lg"
+                                p={3}
+                                bg="gray.50"
+                                _hover={{
+                                  bg: 'gray.100',
+                                  borderColor: 'green.300',
+                                }}
+                                transition="all 0.2s"
+                                cursor="pointer"
+                              >
+                                <HStack gap={3}>
+                                  {club.image && (
+                                    <Image
+                                      src={club.image}
+                                      alt={club.name}
+                                      boxSize="40px"
+                                      borderRadius="md"
+                                      objectFit="cover"
+                                    />
+                                  )}
+                                  <VStack align="start" gap={0} flex={1}>
+                                    <Text
+                                      fontWeight="semibold"
+                                      color="gray.800"
+                                    >
+                                      {club.name}
+                                    </Text>
+                                    {club.memberCount > 0 && (
+                                      <Text fontSize="xs" color="gray.500">
+                                        {club.memberCount} {tCommon('members')}
+                                      </Text>
+                                    )}
+                                  </VStack>
+                                  <ChevronRight size={16} color="gray" />
+                                </HStack>
+                              </Box>
+                            </Link>
+                          ))}
+                        </VStack>
+                      </Box>
+                    )}
+
+                    {isOwnProfile && memberClubs.length > 0 && (
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.600"
+                          mb={2}
+                        >
+                          {t('memberClubs')} ({memberClubs.length})
+                        </Text>
+                        <VStack gap={2} align="stretch">
+                          {memberClubs.map((club) => (
+                            <Link
+                              key={club.id}
+                              href={`/${locale}/clubs/${club.id}`}
+                            >
+                              <Box
+                                borderWidth="1px"
+                                borderColor="gray.200"
+                                borderRadius="lg"
+                                p={3}
+                                bg="gray.50"
+                                _hover={{
+                                  bg: 'gray.100',
+                                  borderColor: 'green.300',
+                                }}
+                                transition="all 0.2s"
+                                cursor="pointer"
+                              >
+                                <HStack gap={3}>
+                                  {club.image && (
+                                    <Image
+                                      src={club.image}
+                                      alt={club.name}
+                                      boxSize="40px"
+                                      borderRadius="md"
+                                      objectFit="cover"
+                                    />
+                                  )}
+                                  <VStack align="start" gap={0} flex={1}>
+                                    <Text
+                                      fontWeight="semibold"
+                                      color="gray.800"
+                                    >
+                                      {club.name}
+                                    </Text>
+                                    {club.memberCount > 0 && (
+                                      <Text fontSize="xs" color="gray.500">
+                                        {club.memberCount} {tCommon('members')}
+                                      </Text>
+                                    )}
+                                  </VStack>
+                                  <ChevronRight size={16} color="gray" />
+                                </HStack>
+                              </Box>
+                            </Link>
+                          ))}
+                        </VStack>
+                      </Box>
+                    )}
+                  </VStack>
+                );
+              })()}
+            </Box>
+          )}
 
           <Box
             bg="white"

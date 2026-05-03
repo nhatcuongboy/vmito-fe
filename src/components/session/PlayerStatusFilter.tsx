@@ -124,28 +124,30 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
     <Box position="relative" ref={containerRef}>
       <Button
         size="sm"
-        variant={!isAllSelected ? 'solid' : 'subtle'}
+        variant="outline"
         onClick={() => setIsOpen(!isOpen)}
-        colorPalette="green"
-        shadow="sm"
+        colorPalette={!isAllSelected ? 'green' : 'gray'}
+        borderWidth="1px"
+        borderRadius="full"
+        px={3}
       >
-        <HStack gap={2}>
-          <Filter size={16} />
-          <Text>{t('filter')}</Text>
+        <HStack gap={1.5}>
+          <Filter size={14} />
+          <Text fontSize="sm">{t('filter')}</Text>
           {!isAllSelected && (
             <Badge
               colorPalette="green"
-              bg="brand.500"
-              color="white"
-              borderRadius="full"
               variant="solid"
-              fontSize="xs"
-              px={2}
+              borderRadius="full"
+              fontSize="2xs"
+              px={1.5}
+              minW="18px"
+              textAlign="center"
             >
               {selectedCount}
             </Badge>
           )}
-          <ChevronDown size={16} />
+          <ChevronDown size={14} style={{ opacity: 0.6 }} />
         </HStack>
       </Button>
 

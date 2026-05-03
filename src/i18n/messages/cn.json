@@ -2901,7 +2901,7 @@
     "joinedAt": "加入时间",
     "joinedDateLabel": "加入于 {date}",
     "verifiedHost": "认证主办方",
-    "activeHosted": "进行中",
+    "activeHosted": "开放中",
     "endedHosted": "已结束",
     "allHosted": "全部",
     "noHostedSessions": "该用户尚未主持任何场次",
@@ -2910,7 +2910,12 @@
     "viewAllReviews": "查看全部",
     "allReviews": "全部评价",
     "noReviews": "暂无评价",
-    "pagination": "第 {page}/{totalPages} 页"
+    "pagination": "第 {page}/{totalPages} 页",
+    "clubs": "俱乐部",
+    "hostedClubs": "管理的俱乐部",
+    "memberClubs": "参加的俱乐部",
+    "noHostedClubs": "暂无管理的俱乐部",
+    "noMemberClubs": "暂无参加的俱乐部"
   },
   "notification": {
     "notifications": "通知",
@@ -2994,7 +2999,11 @@
       "clubApprovedTitle": "俱乐部已批准",
       "clubApprovedMessage": "您的俱乐部“{clubName}”已获批准。",
       "clubRejectedTitle": "俱乐部已被拒绝",
-      "clubRejectedMessage": "您的俱乐部“{clubName}”已被拒绝。原因：{rejectionReason}"
+      "clubRejectedMessage": "您的俱乐部“{clubName}”已被拒绝。原因：{rejectionReason}",
+      "playerAddedTitle": "您已被添加到场次",
+      "playerAddedMessage": "您已被添加到场次“{sessionName}”。",
+      "playerRemovedTitle": "您已被从场次移除",
+      "playerRemovedMessage": "您已被从场次“{sessionName}”移除。"
     }
   },
   "clubs": {

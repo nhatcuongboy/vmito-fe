@@ -2982,7 +2982,7 @@
     "joinedAt": "Joined",
     "joinedDateLabel": "Joined since {date}",
     "verifiedHost": "Verified host",
-    "activeHosted": "Active",
+    "activeHosted": "Open",
     "endedHosted": "Ended",
     "allHosted": "All",
     "noHostedSessions": "This user has not hosted any sessions yet",
@@ -2991,7 +2991,12 @@
     "viewAllReviews": "View all",
     "allReviews": "All reviews",
     "noReviews": "No reviews yet",
-    "pagination": "Page {page}/{totalPages}"
+    "pagination": "Page {page}/{totalPages}",
+    "clubs": "Clubs",
+    "hostedClubs": "Hosted Clubs",
+    "memberClubs": "Member Clubs",
+    "noHostedClubs": "No hosted clubs",
+    "noMemberClubs": "No member clubs"
   },
   "notification": {
     "notifications": "Notifications",
@@ -3075,7 +3080,11 @@
       "clubApprovedTitle": "Club approved",
       "clubApprovedMessage": "Your club “{clubName}” has been approved.",
       "clubRejectedTitle": "Club rejected",
-      "clubRejectedMessage": "Your club “{clubName}” has been rejected. Reason: {rejectionReason}"
+      "clubRejectedMessage": "Your club “{clubName}” has been rejected. Reason: {rejectionReason}",
+      "playerAddedTitle": "You have been added to a session",
+      "playerAddedMessage": "You have been added to “{sessionName}”.",
+      "playerRemovedTitle": "You have been removed from a session",
+      "playerRemovedMessage": "You have been removed from “{sessionName}”."
     }
   },
   "clubs": {
