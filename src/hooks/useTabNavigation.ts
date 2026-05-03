@@ -1,5 +1,5 @@
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Custom hook for managing tab navigation with URL synchronization
@@ -16,6 +16,14 @@ export function useTabNavigation() {
     const tabIndex = tabParam ? parseInt(tabParam, 10) : 0;
     return tabIndex >= 0 ? tabIndex : 0;
   });
+
+  // Sync activeTab when URL param changes (e.g. browser back/forward)
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    const tabIndex = tabParam ? parseInt(tabParam, 10) : 0;
+    const newTab = tabIndex >= 0 ? tabIndex : 0;
+    setActiveTab(newTab);
+  }, [searchParams]);
 
   // Function to update URL with current tab
   const updateTabInURL = (tabIndex: number) => {

@@ -5,8 +5,16 @@ import { Button, HStack, VStack, Image } from '@/components/ui/chakra-compat';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserRatingStats } from '@/lib/api/types';
-import { Avatar, Box, Grid, Icon, Text } from '@chakra-ui/react';
-import { Check, Copy, Phone } from 'lucide-react';
+import {
+  Avatar,
+  Box,
+  Flex,
+  Grid,
+  Icon,
+  Separator,
+  Text,
+} from '@chakra-ui/react';
+import { Check, Copy, Phone, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/config';
@@ -26,7 +34,6 @@ export const AppHostDetail = ({
   name,
   image,
   phone,
-  hideHeader = false,
   onClose,
 }: AppHostDetailProps) => {
   const t = useTranslations('session.hostDetail');
@@ -87,90 +94,120 @@ export const AppHostDetail = ({
 
   return (
     <Box w="full">
-      <VStack gap={4} align="stretch">
-        {/* Profile Header */}
-        <HStack gap={4} align="center">
-          <Avatar.Root
-            size="xl"
-            bg="brand.500"
-            borderWidth="3px"
-            borderColor="white"
-            boxShadow="0 4px 12px rgba(0,0,0,0.1)"
-            flexShrink={0}
-          >
-            <Avatar.Fallback name={name || 'Host'}>
-              {(name || 'H').charAt(0).toUpperCase()}
-            </Avatar.Fallback>
-            {image && <Avatar.Image src={image} />}
-          </Avatar.Root>
-          <Box flex={1} minW={0}>
-            <Text
-              fontSize="xl"
-              fontWeight="extrabold"
-              color="gray.800"
-              _dark={{ color: 'white' }}
-              letterSpacing="tight"
-              truncate
+      <VStack gap={0} align="stretch">
+        {/* Profile Header — gradient banner */}
+        <Box
+          mx={-4}
+          mt={-4}
+          mb={0}
+          px={4}
+          pt={6}
+          pb={5}
+          style={{
+            background:
+              'linear-gradient(135deg, #16a34a 0%, #15803d 60%, #14532d 100%)',
+          }}
+        >
+          <Flex direction="column" align="center" gap={3}>
+            <Avatar.Root
+              size="xl"
+              borderWidth="3px"
+              borderColor="white"
+              boxShadow="0 4px 16px rgba(0,0,0,0.2)"
             >
-              {name || 'Unknown Host'}
-            </Text>
-            {phone && (
-              <HStack gap={1} color="gray.500" mt={1} align="center">
-                <Icon
-                  as={Phone}
-                  boxSize={3.5}
-                  color="brand.500"
-                  flexShrink={0}
-                />
-                <Text fontSize="sm" fontWeight="medium" flex={1}>
-                  {phone}
-                </Text>
-                <Box
-                  as="button"
-                  onClick={handleCopyPhone}
-                  p={1}
-                  borderRadius="md"
-                  color={copied ? 'green.500' : 'gray.400'}
-                  _hover={{ color: 'gray.600', bg: 'gray.100' }}
-                  transition="all 0.2s"
-                  flexShrink={0}
-                  aria-label="Copy phone"
-                >
-                  <Icon as={copied ? Check : Copy} boxSize={3.5} />
-                </Box>
-              </HStack>
-            )}
-          </Box>
-        </HStack>
+              <Avatar.Fallback
+                name={name || 'Host'}
+                bg="green.300"
+                color="white"
+                fontSize="2xl"
+                fontWeight="bold"
+              >
+                {(name || 'H').charAt(0).toUpperCase()}
+              </Avatar.Fallback>
+              {image && <Avatar.Image src={image} />}
+            </Avatar.Root>
 
-        {/* Session Stats */}
+            <Box textAlign="center">
+              <Text
+                fontSize="xl"
+                fontWeight="extrabold"
+                color="white"
+                letterSpacing="tight"
+                lineHeight="1.2"
+              >
+                {name || 'Unknown Host'}
+              </Text>
+              {phone && (
+                <Flex
+                  align="center"
+                  justify="center"
+                  gap={1.5}
+                  mt={1}
+                  onClick={handleCopyPhone}
+                  cursor="pointer"
+                  role="button"
+                  _hover={{ opacity: 0.8 }}
+                  transition="opacity 0.2s"
+                >
+                  <Icon as={Phone} boxSize={3.5} color="green.200" />
+                  <Text fontSize="sm" fontWeight="semibold" color="green.100">
+                    {phone}
+                  </Text>
+                  <Icon
+                    as={copied ? Check : Copy}
+                    boxSize={3.5}
+                    color={copied ? 'yellow.300' : 'green.200'}
+                    transition="color 0.2s"
+                  />
+                </Flex>
+              )}
+            </Box>
+          </Flex>
+        </Box>
+
+        {/* Stats */}
         {!loading && (
-          <Grid templateColumns="1fr 1fr" gap={2.5}>
+          <Grid templateColumns="1fr 1fr" gap={0} mt={0}>
             <Box
-              bg="gray.50"
-              _dark={{ bg: 'gray.800' }}
-              borderRadius="lg"
-              p={2.5}
+              py={4}
+              px={3}
               textAlign="center"
+              borderBottomWidth="1px"
+              borderRightWidth="1px"
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
             >
-              <Text fontSize="xl" fontWeight="extrabold" color="brand.500">
+              <Text
+                fontSize="2xl"
+                fontWeight="extrabold"
+                color="gray.700"
+                _dark={{ color: 'gray.100' }}
+                lineHeight="1"
+              >
                 {totalSessions}
               </Text>
-              <Text fontSize="xs" color="gray.500" fontWeight="medium">
+              <Text fontSize="xs" color="gray.500" mt={1} fontWeight="medium">
                 {t('totalHosted')}
               </Text>
             </Box>
             <Box
-              bg="green.50"
-              _dark={{ bg: 'green.900' }}
-              borderRadius="lg"
-              p={2.5}
+              py={4}
+              px={3}
               textAlign="center"
+              borderBottomWidth="1px"
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
             >
-              <Text fontSize="xl" fontWeight="extrabold" color="green.500">
+              <Text
+                fontSize="2xl"
+                fontWeight="extrabold"
+                color="green.600"
+                _dark={{ color: 'green.400' }}
+                lineHeight="1"
+              >
                 {availableSessions}
               </Text>
-              <Text fontSize="xs" color="gray.500" fontWeight="medium">
+              <Text fontSize="xs" color="gray.500" mt={1} fontWeight="medium">
                 {t('availableSessions')}
               </Text>
             </Box>
@@ -178,15 +215,14 @@ export const AppHostDetail = ({
         )}
 
         {/* Rating Section */}
-        <Box>
+        <Box pt={4} pb={2}>
           <Text
             fontSize="xs"
             fontWeight="bold"
             color="gray.400"
             textTransform="uppercase"
             letterSpacing="widest"
-            mb={2}
-            px={1}
+            mb={3}
           >
             {t('rating')}
           </Text>
@@ -197,9 +233,11 @@ export const AppHostDetail = ({
           />
         </Box>
 
+        <Separator />
+
         {/* Contact Actions */}
         {phone && (
-          <HStack gap={2.5}>
+          <HStack gap={3} pt={4}>
             <Button
               colorPalette="green"
               variant="solid"
@@ -209,28 +247,29 @@ export const AppHostDetail = ({
               onClick={handleCall}
               fontSize="sm"
               fontWeight="bold"
-              boxShadow="0 4px 12px rgba(16, 185, 129, 0.25)"
-              _hover={{ bg: 'green.600' }}
+              boxShadow="0 2px 10px rgba(22, 163, 74, 0.25)"
             >
-              <Icon as={Phone} mr={1.5} boxSize={4} strokeWidth={2.5} />
+              <Icon as={Phone} mr={2} boxSize={4} strokeWidth={2.5} />
               {t('call')}
             </Button>
             <Button
               colorPalette="blue"
-              variant="outline"
+              variant="subtle"
               flex={1}
               height="48px"
               borderRadius="xl"
               onClick={handleZalo}
               fontSize="sm"
               fontWeight="bold"
-              _hover={{ bg: 'blue.50' }}
+              borderWidth="1.5px"
+              borderColor="blue.200"
+              _dark={{ borderColor: 'blue.800' }}
             >
               <Image
                 src="/icons/zalo.png"
                 alt="Zalo"
-                boxSize={5}
-                mr={1.5}
+                boxSize={6}
+                mr={2}
                 flexShrink={0}
               />
               {t('zalo')}
@@ -239,20 +278,24 @@ export const AppHostDetail = ({
         )}
 
         <Button
-          mt={2}
+          mt={4}
           width="full"
-          height="48px"
-          variant="outline"
+          height="46px"
+          variant="subtle"
           colorPalette="green"
           borderRadius="xl"
           fontSize="sm"
           fontWeight="bold"
+          borderWidth="1px"
+          borderColor="green.100"
+          _dark={{ borderColor: 'green.900' }}
           onClick={() => {
             if (onClose) onClose();
             router.push(`/user/${userId}`);
           }}
         >
           {tSession('viewDetails') || 'Xem chi tiết'}
+          <Icon as={ChevronRight} ml={1} boxSize={4} opacity={0.8} />
         </Button>
       </VStack>
     </Box>

@@ -30,6 +30,8 @@ import { AppPlayerRating } from '@/components/rating';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import dayjs from '@/lib/dayjs';
 import SessionParticipantList from './SessionParticipantList';
+import { normalizePhoneForZalo } from '@/utils/phone-utils';
+import Image from 'next/image';
 
 interface ISessionDetailBodyProps {
   session: ISession;
@@ -172,21 +174,29 @@ const SessionDetailBody = ({
           </Box>
         )}
 
-      <Separator my={4} />
+      <Separator mt={3} mb={1} />
 
       {/* Host Section */}
       <Flex
         align="center"
-        gap={3}
+        gap={4}
         cursor={onHostClick ? 'pointer' : 'default'}
         onClick={onHostClick}
         _hover={onHostClick ? { bg: 'gray.50', _dark: { bg: 'gray.700' } } : {}}
-        borderRadius="lg"
-        p={2}
-        mx={-2}
+        borderRadius="xl"
+        py={1.5}
+        px={2.5}
+        mx={-2.5}
         transition="background 0.2s"
       >
-        <Avatar.Root size="md" bg="brand.500">
+        <Avatar.Root
+          size="lg"
+          bg="brand.500"
+          borderWidth="2px"
+          borderColor="white"
+          boxShadow="0 0 0 1px {colors.gray.200}"
+          _dark={{ boxShadow: '0 0 0 1px {colors.gray.700}' }}
+        >
           <Avatar.Fallback name={displayHostName}>
             {displayHostName ? displayHostName.charAt(0).toUpperCase() : ''}
           </Avatar.Fallback>
@@ -206,11 +216,41 @@ const SessionDetailBody = ({
         <Flex gap={2}>
           {session.hostPhone && (
             <IconButton
+              aria-label="Zalo host"
+              size="sm"
+              colorPalette="blue"
+              variant="subtle"
+              borderRadius="full"
+              borderWidth="1px"
+              borderColor="blue.200"
+              _dark={{ borderColor: 'blue.800' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(
+                  `https://zalo.me/${normalizePhoneForZalo(session.hostPhone)}`,
+                  '_blank'
+                );
+              }}
+              icon={
+                <Image
+                  src="/icons/zalo.png"
+                  alt="Zalo"
+                  width={20}
+                  height={20}
+                />
+              }
+            />
+          )}
+          {session.hostPhone && (
+            <IconButton
               aria-label="Call host"
               size="sm"
               colorPalette="green"
-              variant="outline"
+              variant="subtle"
               borderRadius="full"
+              borderWidth="1px"
+              borderColor="green.200"
+              _dark={{ borderColor: 'green.800' }}
               onClick={(e) => {
                 e.stopPropagation();
                 window.location.href = `tel:${session.hostPhone}`;

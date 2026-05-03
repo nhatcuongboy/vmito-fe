@@ -176,11 +176,26 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       useNotificationStore.getState().addNotification(data);
 
       // Show toast notification
-      toaster.info({
-        title: data.title,
-        description: data.message,
-        duration: 5000,
-      });
+      const action = (data.data as Record<string, unknown> | null)?.action;
+      if (action === 'player_added') {
+        toaster.success({
+          title: data.title,
+          description: data.message,
+          duration: 5000,
+        });
+      } else if (action === 'player_removed') {
+        toaster.error({
+          title: data.title,
+          description: data.message,
+          duration: 5000,
+        });
+      } else {
+        toaster.info({
+          title: data.title,
+          description: data.message,
+          duration: 5000,
+        });
+      }
     };
 
     socket.on(SessionEventType.REGISTRATION_REQUEST, handleRegistrationRequest);

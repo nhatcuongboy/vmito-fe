@@ -520,6 +520,8 @@
     "registrationStatusMessage": "Your registration for {sessionName} has been {status}",
     "registrationApprovedStatus": "approved",
     "registrationRejectedStatus": "rejected",
+    "addedToSession": "You have been added to session {sessionName}",
+    "removedFromSession": "You have been removed from session {sessionName}",
     "viewMyRegistration": "View Registration",
     "myRegistration": "My Registration",
     "registeredPlayers": "Registered Players",

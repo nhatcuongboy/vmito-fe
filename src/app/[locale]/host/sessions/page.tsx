@@ -118,10 +118,7 @@ function HostSessionsContent() {
                 ? undefined
                 : filters.status,
         endTimeBefore: undefined,
-        endTimeAfter:
-          sessionStatusTab === 'active' && !filters.status
-            ? new Date().toISOString()
-            : undefined,
+        endTimeAfter: undefined,
         ...apiSortParams,
       });
 

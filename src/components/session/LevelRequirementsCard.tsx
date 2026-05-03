@@ -177,50 +177,6 @@ export default function LevelRequirementsCard({
             );
           })}
         </Grid>
-
-        {/* Selected Levels Summary */}
-        {!allLevelsSelected && requiredLevels.length > 0 && (
-          <Box
-            p={3}
-            bg={{ base: 'brand.50', _dark: 'brand.900/30' }}
-            borderRadius="md"
-            border="1px solid"
-            borderColor={{ base: 'brand.200', _dark: 'brand.700' }}
-          >
-            <Flex align="center" gap={2} wrap="wrap">
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color={{ base: 'brand.800', _dark: 'brand.200' }}
-              >
-                {t('generalSettings.selectedLevels')}:
-              </Text>
-              <Flex gap={1.5} wrap="wrap">
-                {requiredLevels
-                  .sort((a: number, b: number) => a - b)
-                  .map((level: number) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        variant="solid"
-                        fontSize="xs"
-                        fontWeight="bold"
-                        px={2.5}
-                        py={0.5}
-                        borderRadius="full"
-                        borderWidth="1px"
-                        borderColor={levelColor.borderColor}
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })}
-              </Flex>
-            </Flex>
-          </Box>
-        )}
       </Stack>
     </Box>
   );

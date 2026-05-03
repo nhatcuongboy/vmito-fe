@@ -521,6 +521,8 @@
     "registrationStatusMessage": "Đăng ký cho kèo {sessionName} đã {status}",
     "registrationApprovedStatus": "được duyệt",
     "registrationRejectedStatus": "bị từ chối",
+    "addedToSession": "Bạn đã được thêm vào kèo {sessionName}",
+    "removedFromSession": "Bạn đã bị xóa khỏi kèo {sessionName}",
     "viewMyRegistration": "Xem vé",
     "myRegistration": "Đăng ký của tôi",
     "registeredPlayers": "Danh sách người chơi đã đăng ký",
@@ -554,7 +556,7 @@
     "dragToReorder": "Kéo thả để sắp xếp",
     "imageOf": "{current}/{total}",
     "aiModal": {
-      "title": "Tạo kèo nhanh bằng AI",
+      "title": "Tạo bằng AI",
       "or": "hoặc",
       "description": "Dán nội dung bài đăng tuyển vãng lai, AI sẽ tự động điền thông tin kèo cho bạn.",
       "placeholder": "Ví dụ:\nTuyển 2 bạn đánh cầu lông tại sân ABC, Quận 1, HCM. \nThời gian 18h-20h ngày 27/1/2026. \nTrình độ TB-K. \nLiên hệ: Minh 0912345678.",

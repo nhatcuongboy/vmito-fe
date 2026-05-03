@@ -496,6 +496,8 @@
     "newRegistrationRequest": "收到新的注册请求",
     "requestApproved": "您的注册已被批准",
     "requestRejected": "您的注册已被拒绝",
+    "addedToSession": "您已被添加到场次 {sessionName}",
+    "removedFromSession": "您已被从场次 {sessionName} 中移除",
     "viewMyRegistration": "查看注册",
     "myRegistration": "我的注册",
     "registeredPlayers": "已注册玩家",

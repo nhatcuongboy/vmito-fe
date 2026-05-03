@@ -24,8 +24,8 @@ export default function CourtCallModal({
       title={t('courtCall.title')}
       size="md"
       isCentered
-      showCloseButton={false}
-      closeOnOverlayClick={false}
+      showCloseButton={true}
+      closeOnOverlayClick={true}
     >
       <Flex direction="column" align="center" py={6} gap={4}>
         {/* Animated icon */}
