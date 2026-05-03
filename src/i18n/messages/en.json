@@ -44,7 +44,8 @@
     "findClubs": "Find Groups",
     "findTournaments": "Find Tournaments",
     "createTournament": "Create Tournament",
-    "generalSettings": "General Settings"
+    "generalSettings": "General Settings",
+    "newsfeed": "Newsfeed"
   },
   "search": {
     "title": "Search",
@@ -3086,6 +3087,11 @@
       "playerRemovedTitle": "You have been removed from a session",
       "playerRemovedMessage": "You have been removed from “{sessionName}”."
     }
+  },
+  "posts": {
+    "createPost": "Create Post",
+    "noPosts": "No posts yet",
+    "beFirstToShare": "Be the first to share something!"
   },
   "clubs": {
     "notification": {

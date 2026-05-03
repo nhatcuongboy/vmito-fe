@@ -44,7 +44,8 @@
     "findClubs": "Tìm nhóm",
     "findTournaments": "Tìm giải",
     "createTournament": "Tạo giải",
-    "generalSettings": "Cài đặt chung"
+    "generalSettings": "Cài đặt chung",
+    "newsfeed": "Bảng tin"
   },
   "search": {
     "title": "Tìm kiếm",
@@ -3102,6 +3103,11 @@
       "playerRemovedTitle": "Bạn đã bị xóa khỏi kèo",
       "playerRemovedMessage": "Bạn đã bị xóa khỏi kèo “{sessionName}”."
     }
+  },
+  "posts": {
+    "createPost": "Tạo bài viết",
+    "noPosts": "Chưa có bài viết nào",
+    "beFirstToShare": "Hãy là người đầu tiên chia sẻ!"
   },
   "clubs": {
     "notification": {

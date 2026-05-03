@@ -197,7 +197,11 @@ export default function SessionOverviewTab({
         />
       )}
 
-      <Grid templateColumns={{ base: '1fr', md: '3fr 2fr' }} gap={8} mb={8}>
+      <Grid
+        templateColumns={{ base: '1fr', md: '3fr 2fr' }}
+        gap={{ base: 4, md: 8 }}
+        mb={{ base: 4, md: 8 }}
+      >
         {/* Left Column: Session Info */}
         <Box as="section" h="full">
           <Box

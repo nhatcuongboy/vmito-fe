@@ -35,7 +35,8 @@
     "findClubs": "查找俱乐部",
     "findTournaments": "查找锦标赛",
     "createTournament": "创建锦标赛",
-    "generalSettings": "常规设置"
+    "generalSettings": "常规设置",
+    "newsfeed": "动态"
   },
   "search": {
     "title": "搜索",
@@ -3005,6 +3006,11 @@
       "playerRemovedTitle": "您已被从场次移除",
       "playerRemovedMessage": "您已被从场次“{sessionName}”移除。"
     }
+  },
+  "posts": {
+    "createPost": "发布动态",
+    "noPosts": "暂无动态",
+    "beFirstToShare": "成为第一个分享内容！"
   },
   "clubs": {
     "notification": {

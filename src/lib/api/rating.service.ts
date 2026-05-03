@@ -78,16 +78,22 @@ export const RatingService = {
 
   // Get user's rating statistics
   getUserRatingStats: async (userId: string): Promise<UserRatingStats> => {
-    const response = await api.get<ApiResponse<UserRatingStats>>(
+    const response = await api.get<ApiResponse<any>>(
       `/ratings/user/${userId}/stats`
     );
-    return (
-      response.data.data || {
-        userId,
-        averageRating: 0,
-        totalRatings: 0,
-      }
-    );
+    const data = response.data.data;
+    if (!data) {
+      return { userId, averageRating: 0, totalRatings: 0 };
+    }
+    return {
+      userId: data.userId,
+      averageRating: data.averageRating,
+      totalRatings: data.totalRatings,
+      asHostAverage: data.asHost?.averageRating,
+      asHostCount: data.asHost?.totalRatings,
+      asPlayerAverage: data.asPlayer?.averageRating,
+      asPlayerCount: data.asPlayer?.totalRatings,
+    };
   },
 
   // Get ratings received by a user

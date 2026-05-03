@@ -49,12 +49,13 @@ export const AppHostDetail = ({
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const [ratingData, availableData] = await Promise.all([
+        const [ratingData, availableData, hostedData] = await Promise.all([
           RatingService.getUserRatingStats(userId),
           SessionService.getAvailableSessions({ hostId: userId, limit: 1 }),
+          SessionService.getPublicSessions(userId, { limit: 1 }),
         ]);
         setStats(ratingData);
-        setTotalSessions(ratingData.asHostCount ?? 0);
+        setTotalSessions(hostedData.total ?? 0);
         setAvailableSessions(availableData.pagination.total);
       } catch (error) {
         console.error('Failed to fetch host stats:', error);

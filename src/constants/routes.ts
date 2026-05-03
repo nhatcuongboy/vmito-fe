@@ -8,6 +8,7 @@ export const ROUTES = {
   // Root
   HOME: '/',
   DASHBOARD: '/dashboard',
+  NEWSFEED: '/newsfeed',
 
   // Authentication
   AUTH: {

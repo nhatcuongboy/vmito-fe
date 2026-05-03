@@ -308,7 +308,7 @@ export default function PublicUserProfileContent({
 
   return (
     <>
-      <PageLayout title={displayName || t('title')} bg="gray.50">
+      <PageLayout title={t('title')} bg="gray.50">
         <VStack gap={6} align="stretch" pb={6}>
           <Box
             borderWidth="1px"
@@ -319,7 +319,7 @@ export default function PublicUserProfileContent({
           >
             <Box
               bg="linear-gradient(135deg, #FFD75F 0%, #FFC107 100%)"
-              h="84px"
+              h="100px"
               position="relative"
             >
               <Image
@@ -333,10 +333,10 @@ export default function PublicUserProfileContent({
               />
               <Text
                 position="absolute"
-                bottom={3}
-                left="130px"
+                bottom={2}
+                left="120px"
                 right={16}
-                fontSize="xl"
+                fontSize="lg"
                 fontWeight="bold"
                 color="gray.800"
                 lineClamp={1}
@@ -346,7 +346,7 @@ export default function PublicUserProfileContent({
             </Box>
 
             <Box px={5} pb={5}>
-              <HStack align="start" gap={4} mt="-8">
+              <HStack align="start" gap={4} mt="-12">
                 <Avatar.Root
                   size="2xl"
                   borderRadius="full"
@@ -359,7 +359,7 @@ export default function PublicUserProfileContent({
                   {avatarUrl && <Avatar.Image src={avatarUrl} />}
                 </Avatar.Root>
 
-                <VStack align="start" gap={2} flex={1} pt={9}>
+                <VStack align="start" gap={2} flex={1} pt={14}>
                   <HStack gap={2}>
                     <StarRatingDisplay
                       rating={ratingStats?.averageRating || 0}
