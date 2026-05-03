@@ -8,13 +8,16 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Image, Text, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
   Input,
   IconButton,
+  Image,
 } from '@/components/ui/chakra-compat';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useForm, Controller } from 'react-hook-form';
@@ -23,6 +26,7 @@ import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { VenueService } from '@/lib/api/venue.service';
+import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
@@ -30,17 +34,25 @@ import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import PageLayout from '@/components/layout/PageLayout';
 import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
 import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
-import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
-import { useAuthStore } from '@/stores/useAuthStore';
+import AppMultiImageUpload, {
+  ISessionImage,
+} from '@/components/session/AppMultiImageUpload';
+import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
+import { useAuthStore } from '@/stores';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
   hostName: z.string().min(1, 'Trưởng nhóm là bắt buộc'),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(5000, 'Mô tả quá dài (tối đa 5000 ký tự)')
+    .optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
   images: z.array(z.string()).optional(),
   imagePublicIds: z.array(z.string()).optional(),
+  requiredLevels: z.array(z.number()).optional(),
+  allLevelsSelected: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -67,8 +79,10 @@ const CreateClubPage = () => {
     new Map()
   );
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
+
+  const [clubImages, setClubImages] = useState<ISessionImage[]>([]);
+  const [bannerIndex, setBannerIndex] = useState(0);
 
   const [selectedHostUserId, setSelectedHostUserId] = useState('');
   const [hostUsers, setHostUsers] = useState<AdminUser[]>([]);
@@ -82,6 +96,7 @@ const CreateClubPage = () => {
   );
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -89,10 +104,14 @@ const CreateClubPage = () => {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      name: '',
+      hostName: isAdmin ? '' : user?.name || '',
+      description: '',
+      requiredLevels: [],
+      allLevelsSelected: true,
+    },
   });
-
-  const imagesValue = watch('images') || [];
-  const imagePublicIdsValue = watch('imagePublicIds') || [];
 
   const handleVenueSearch = useCallback(
     (query: string) => {
@@ -104,6 +123,7 @@ const CreateClubPage = () => {
           const result = await VenueService.searchVenues({
             keyword: query || undefined,
             limit: 50,
+            sortBy: query ? 'relevance' : undefined,
           });
           const fetched = result.data ?? [];
           const pinnedNotInFetched = Array.from(pinnedVenues.values()).filter(
@@ -241,14 +261,34 @@ const CreateClubPage = () => {
   const onSubmit = async (data: FormData) => {
     try {
       const schedules = venueGroups.flatMap((g) => {
-        const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
-        return g.schedules.map((s) => ({ ...s, notes: venueName }));
+        const venue = venues.find((v) => v.id === g.venueId);
+        const venueInfo = venue ? `${venue.name} | ${venue.address}` : '';
+        return g.schedules.map((s) => ({ ...s, notes: venueInfo }));
       });
+
+      // Map clubImages to form data
+      const images = clubImages.map((img) => img.url);
+      const imagePublicIds = clubImages.map((img) => img.publicId);
+
+      // Ensure bannerIndex is within bounds
+      const validBannerIndex = Math.min(bannerIndex, clubImages.length - 1);
+      const image =
+        clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.url;
+      const imagePublicId =
+        clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
+
+      const { allLevelsSelected, ...restData } = data;
+
       const club = await ClubsService.createClub({
-        ...data,
+        ...restData,
+        image,
+        imagePublicId,
+        images,
+        imagePublicIds,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,
         hostUserId: selectedHostUserId || undefined,
+        requiredLevels: data.requiredLevels,
       });
 
       // Show appropriate toast based on club status
@@ -337,110 +377,32 @@ const CreateClubPage = () => {
             </Field>
           )}
 
+          {/* Trình độ */}
+          <ClubLevelRequirements control={control} setValue={setValue} />
+
           {/* Description */}
           <Field
             label={t('description')}
             invalid={!!errors.description}
             errorText={errors.description?.message}
           >
-            <Textarea
-              {...register('description')}
+            <RichTextEditor
+              value={watch('description')}
+              onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
             />
           </Field>
 
           {/* Club Image(s) */}
           <Field label={t('clubImage')}>
-            {imagesValue.length > 0 ? (
-              <Flex gap={2} flexWrap="wrap">
-                {imagesValue.map((url, idx) => (
-                  <Box key={url} position="relative" display="inline-block">
-                    <Image
-                      src={url}
-                      alt={`Club image ${idx + 1}`}
-                      boxSize="100px"
-                      borderRadius="md"
-                      objectFit="cover"
-                    />
-                    <IconButton
-                      size="xs"
-                      position="absolute"
-                      top={1}
-                      right={1}
-                      colorPalette="red"
-                      variant="solid"
-                      borderRadius="full"
-                      aria-label={t('removeImage')}
-                      onClick={() => {
-                        const newImages = [...imagesValue];
-                        newImages.splice(idx, 1);
-                        const newPublicIds = [...imagePublicIdsValue];
-                        newPublicIds.splice(idx, 1);
-                        setValue('images', newImages);
-                        setValue('imagePublicIds', newPublicIds);
-                        if (newImages.length > 0) {
-                          setValue('image', newImages[0]);
-                          setValue('imagePublicId', newPublicIds[0]);
-                        } else {
-                          setValue('image', undefined);
-                          setValue('imagePublicId', undefined);
-                        }
-                      }}
-                    >
-                      <X size={12} />
-                    </IconButton>
-                  </Box>
-                ))}
-              </Flex>
-            ) : (
-              <Box
-                borderWidth="2px"
-                borderStyle="dashed"
-                borderColor="gray.300"
-                _dark={{ borderColor: 'gray.600', color: 'gray.400' }}
-                borderRadius="md"
-                p={6}
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                gap={2}
-                color="gray.500"
-              >
-                <ImageIcon size={32} />
-                <Text fontSize="sm">{t('noImageSelected')}</Text>
-              </Box>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              mt={2}
-              onClick={() => setIsGalleryOpen(true)}
-            >
-              <ImageIcon size={16} />
-              {t('selectImage')}
-            </Button>
-            <AppImageGalleryPicker
-              isOpen={isGalleryOpen}
-              onClose={() => setIsGalleryOpen(false)}
-              onSelect={(imgs) => {
-                const urls = imgs.map((i) => i.url);
-                const publicIds = imgs.map((i) => i.publicId);
-                setValue('images', urls);
-                setValue('imagePublicIds', publicIds);
-                if (imgs.length > 0) {
-                  setValue('image', urls[0]);
-                  setValue('imagePublicId', publicIds[0]);
-                } else {
-                  setValue('image', undefined);
-                  setValue('imagePublicId', undefined);
-                }
-              }}
-              selectedImages={imagesValue.map((url, idx) => ({
-                url,
-                publicId: imagePublicIdsValue[idx] || '',
-              }))}
-              maxSelect={10}
+            <AppMultiImageUpload
+              images={clubImages}
+              bannerIndex={bannerIndex}
+              onImagesChange={setClubImages}
+              onBannerChange={setBannerIndex}
+              maxImages={10}
               category={EImageCategory.CLUB}
+              label={null}
             />
           </Field>
 
@@ -504,7 +466,7 @@ const CreateClubPage = () => {
                             ))}
                           </LegacySelect>
                         </Box>
-                        <Input
+                        <VDateTimeInput
                           type="time"
                           size="sm"
                           value={sched.startTime}
@@ -518,11 +480,12 @@ const CreateClubPage = () => {
                           }
                           w={{ base: '100px', md: '120px' }}
                           px={1}
+                          placeholder="--:--"
                         />
                         <Text fontSize="xs" color="gray.500">
                           -
                         </Text>
-                        <Input
+                        <VDateTimeInput
                           type="time"
                           size="sm"
                           value={sched.endTime}
@@ -536,6 +499,7 @@ const CreateClubPage = () => {
                           }
                           w={{ base: '100px', md: '120px' }}
                           px={1}
+                          placeholder="--:--"
                         />
                         <IconButton
                           size="sm"

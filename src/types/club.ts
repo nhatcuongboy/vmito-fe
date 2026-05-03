@@ -92,6 +92,8 @@ export interface IClubVenue {
   id: string;
   name: string;
   address: string;
+  district?: string | null;
+  city?: string | null;
   lat?: number | null;
   lng?: number | null;
 }
@@ -138,6 +140,8 @@ export interface IClub {
   announcements?: IClubAnnouncement[];
   schedules?: IClubSchedule[];
   defaultVenue?: IClubVenue;
+  scheduleVenues?: IClubVenue[];
+  requiredLevels?: number[];
 }
 
 export interface IClubListItem {
@@ -160,6 +164,7 @@ export interface IClubListItem {
   schedules?: IClubSchedule[];
   defaultVenue?: IClubVenue;
   distance?: number | null;
+  requiredLevels?: number[];
 }
 
 export interface IMyClub {
@@ -223,6 +228,7 @@ export interface ICreateClubDto {
   images?: string[];
   imagePublicIds?: string[];
   schedules?: IClubScheduleDto[];
+  requiredLevels?: number[];
 }
 
 export interface IUpdateClubDto {
@@ -239,6 +245,7 @@ export interface IUpdateClubDto {
   images?: string[];
   imagePublicIds?: string[];
   schedules?: IClubScheduleDto[];
+  requiredLevels?: number[];
 }
 
 export interface ICreateClubFeeDto {

@@ -209,8 +209,10 @@ function PlayerSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
-    if (newTab === 'pending') return; // Should not happen with showPending={false}
+  const handleTabChange = (
+    newTab: 'active' | 'ended' | 'pending' | 'expired'
+  ) => {
+    if (newTab === 'pending' || newTab === 'expired') return; // Should not happen with showPending={false}
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
@@ -230,6 +232,7 @@ function PlayerSessionsContent() {
       }}
       maxW="full"
       px={{ base: '24px', md: 0 }}
+      hideTopBarBorder={true}
     >
       <Flex
         gap={6}
@@ -252,6 +255,7 @@ function PlayerSessionsContent() {
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
                 showPending={false}
+                showExpired={false}
               />
             }
           />
@@ -261,6 +265,7 @@ function PlayerSessionsContent() {
             sortOptions={PLAYER_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            showViewModeMap={false}
           />
           <SessionsList
             sessions={filteredSessions}

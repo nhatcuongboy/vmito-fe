@@ -56,7 +56,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
               color="purple.600"
               _dark={{ color: 'purple.300' }}
             >
-              AI Gợi ý
+              Gợi ý
             </Text>
           </Flex>
         )}
@@ -120,7 +120,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
               color="purple.600"
               _dark={{ color: 'purple.300' }}
             >
-              AI Gợi ý
+              Gợi ý
             </Text>
           </Flex>
         )}
@@ -169,7 +169,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
             color="purple.600"
             _dark={{ color: 'purple.300' }}
           >
-            AI Gợi ý
+            Gợi ý
           </Text>
         </Flex>
       )}

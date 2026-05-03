@@ -4,8 +4,8 @@ import { useState, useRef, useEffect, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Locale } from '@/i18n/locales';
-import { Box, Text, Flex, Image } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Box, Text, Flex } from '@chakra-ui/react';
+import { Button, Image } from '@/components/ui/chakra-compat';
 import { ChevronDown, Languages } from 'lucide-react';
 
 const locales = [

@@ -19,7 +19,7 @@ export interface SessionFilters {
   splitEvenly: boolean; // New field for split payment option
 }
 
-export type ViewMode = 'full' | 'compact';
+export type ViewMode = 'full' | 'compact' | 'map';
 
 export type SessionSortBy =
   | 'date_desc'

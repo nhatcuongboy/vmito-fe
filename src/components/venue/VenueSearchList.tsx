@@ -4,7 +4,11 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { toaster } from '@/components/ui/toaster';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  TOP_BAR_HEIGHT_MOBILE,
+  TOP_BAR_HEIGHT_DESKTOP,
+  BOTTOM_TAB_HEIGHT,
+} from '@/constants';
 import { VenueService } from '@/lib/api/venue.service';
 import { Venue } from '@/lib/api/types';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
@@ -32,8 +36,10 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useTranslations } from 'next-intl';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
+import VenueMap from './VenueMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import { useViewModeStore } from '@/stores/useViewModeStore';
 import {
@@ -45,6 +51,7 @@ import {
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 
 const PAGE_SIZE = 12;
+const MAP_PAGE_SIZE = 500; // fetch all for map view
 
 // Sort option definition
 interface ISortOption {
@@ -55,12 +62,20 @@ interface ISortOption {
     | 'createdAt'
     | 'numberOfCourts'
     | 'hourlyRateFixed'
-    | 'relevance';
+    | 'relevance'
+    | 'distance';
   sortOrder: 'asc' | 'desc';
   icon: React.ComponentType<{ size?: number }>;
 }
 
 const SORT_OPTIONS: ISortOption[] = [
+  {
+    value: 'distance',
+    label: 'Gần nhất',
+    sortBy: 'distance',
+    sortOrder: 'asc',
+    icon: MapPin,
+  },
   {
     value: 'relevance',
     label: 'Phù hợp nhất',
@@ -103,16 +118,17 @@ const SORT_OPTIONS: ISortOption[] = [
 // city     → comma-separated city codes  (e.g. "HCM,HN")
 // district → comma-separated district names (e.g. "Bình Thạnh,Quận 1")
 // near     → sort by distance flag       ("1" = true)
-// sort     → active sort option value    (e.g. "newest", "name_asc")
+// sort     → active sort option value    (e.g. "distance", "newest", "name_asc")
 const VENUE_FILTERS_SCHEMA = {
   q: stringField(''),
   city: stringArrayField(),
   district: stringArrayField(),
   near: booleanField(false),
-  sort: stringField('relevance'),
+  sort: stringField('distance'),
 };
 
 export default function VenueSearchList() {
+  const t = useTranslations();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -136,6 +152,19 @@ export default function VenueSearchList() {
     lat: number;
     lng: number;
   } | null>(null);
+
+  // Auto-fetch user location on mount when default sort is 'distance'
+  useEffect(() => {
+    if (filters.sort === 'distance' && !userLocation) {
+      getUserLocation()
+        .then((loc) => setUserLocation(loc))
+        .catch(() => {
+          // If location is denied, fall back to relevance
+          setFilters({ sort: 'relevance' });
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
@@ -186,7 +215,9 @@ export default function VenueSearchList() {
       }
       setError(null);
 
-      const currentPage = isLoadMore ? page + 1 : 1;
+      const isMapMode = viewMode === 'map';
+      const effectiveLimit = isMapMode ? MAP_PAGE_SIZE : PAGE_SIZE;
+      const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Resolve the active sort option
       const activeSortOption =
@@ -211,7 +242,7 @@ export default function VenueSearchList() {
               : undefined,
           closureStatus: 'OPERATING',
           page: currentPage,
-          limit: PAGE_SIZE,
+          limit: effectiveLimit,
         };
 
       if (filters.near && userLocation) {
@@ -220,6 +251,16 @@ export default function VenueSearchList() {
         apiFilters.lng = userLocation.lng;
         apiFilters.sortBy = 'distance';
         apiFilters.sortOrder = 'asc';
+      } else if (filters.sort === 'distance' && userLocation) {
+        // Default distance sort (without the "near me" filter badge)
+        apiFilters.lat = userLocation.lat;
+        apiFilters.lng = userLocation.lng;
+        apiFilters.sortBy = 'distance';
+        apiFilters.sortOrder = 'asc';
+      } else if (filters.sort === 'distance' && !userLocation) {
+        // Location not yet available, fallback to relevance
+        apiFilters.sortBy = 'relevance';
+        apiFilters.sortOrder = 'desc';
       } else {
         apiFilters.sortBy = activeSortOption.sortBy;
         apiFilters.sortOrder = activeSortOption.sortOrder;
@@ -229,7 +270,7 @@ export default function VenueSearchList() {
       setTotalCount(result.pagination.total);
       const venueData = result.data;
 
-      if (isLoadMore) {
+      if (isLoadMore && !isMapMode) {
         setVenues((prev) => {
           const existingIds = new Set(prev.map((v) => v.id));
           const newVenues = venueData.filter((v) => !existingIds.has(v.id));
@@ -240,7 +281,10 @@ export default function VenueSearchList() {
         setVenues(venueData);
       }
 
-      setHasMore(result.data.length === PAGE_SIZE && venueData.length > 0);
+      // In map mode: no infinite scroll — all data already fetched
+      setHasMore(
+        !isMapMode && result.data.length === PAGE_SIZE && venueData.length > 0
+      );
     } catch (err) {
       setError('Không thể tải danh sách sân. Vui lòng thử lại.');
       console.error(err);
@@ -255,9 +299,17 @@ export default function VenueSearchList() {
   };
 
   // Sync keyword input → URL with 500 ms debounce (avoids polluting history on every keystroke).
+  // When user starts searching, auto-switch from 'distance' to 'relevance'.
   useEffect(() => {
     const timer = setTimeout(() => {
-      setFilters({ q: keyword });
+      if (keyword && filters.sort === 'distance') {
+        setFilters({ q: keyword, sort: 'relevance' });
+      } else if (!keyword && filters.sort === 'relevance' && !filters.q) {
+        // If user clears the search and was on relevance (having come from distance), stay on relevance
+        setFilters({ q: keyword });
+      } else {
+        setFilters({ q: keyword });
+      }
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,6 +332,7 @@ export default function VenueSearchList() {
     filters.near,
     filters.sort,
     userLocation,
+    viewMode, // re-fetch with larger limit when switching to/from map mode
   ]);
 
   // Trigger load more when in view
@@ -365,8 +418,26 @@ export default function VenueSearchList() {
   };
 
   // Handle sort chip click — clear "near" if it was active
-  const handleSortChange = (value: string) => {
-    if (filters.near) {
+  const handleSortChange = async (value: string) => {
+    if (value === 'distance') {
+      // Auto-fetch location when user picks "Gần nhất"
+      if (!userLocation) {
+        try {
+          const loc = await getUserLocation();
+          setUserLocation(loc);
+          setFilters({ sort: 'distance', near: false });
+        } catch {
+          toaster.error({
+            title: 'Không thể lấy vị trí',
+            description:
+              'Vui lòng cho phép truy cập vị trí để sắp xếp theo khoảng cách.',
+          });
+          setFilters({ sort: 'relevance', near: false });
+        }
+      } else {
+        setFilters({ sort: 'distance', near: false });
+      }
+    } else if (filters.near) {
       setFilters({ sort: value, near: false });
       setUserLocation(null);
     } else {
@@ -402,6 +473,8 @@ export default function VenueSearchList() {
   const sortButtonLabel = filters.near ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = filters.near ? MapPin : activeSortOption.icon;
 
+  // On mobile, always show icon-only in the sort button (no label text)
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -426,26 +499,26 @@ export default function VenueSearchList() {
     <Box>
       {/* Search Bar - Sticky */}
       <Box
-        position="sticky"
+        position={{ base: 'fixed', md: 'sticky' }}
         top={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         left={0}
         right={0}
         width="100vw"
-        marginLeft="calc(50% - 50vw)"
-        zIndex={100}
-        bg="transparent"
-        py={2}
-        transition="all 0.2s"
+        marginLeft={{ base: 0, md: 'calc(50% - 50vw)' }}
+        zIndex={1100}
+        bg={{ base: 'bg', md: 'transparent' }}
+        pt={2}
+        pb={{ base: 0, md: 2 }}
       >
         <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
           <Box flex={1} w="100%">
             <AppSearchBar
               value={keyword}
               onChange={setKeyword}
-              placeholder="Tìm sân cầu lông..."
+              placeholder={t('venue.searchPlaceholder')}
               onFilterClick={toggleFilters}
               activeFilterCount={activeFilterCount}
               showFilter={true}
@@ -457,7 +530,7 @@ export default function VenueSearchList() {
       {/* Results bar: count + sort dropdown */}
       {!loading && (
         <Flex
-          justify="space-between"
+          justify="flex-end"
           align="center"
           mb={
             filters.city.length > 0 ||
@@ -469,15 +542,16 @@ export default function VenueSearchList() {
           minH="28px"
         >
           {/* Count */}
-          <Text
-            fontSize="sm"
-            color="gray.500"
-            _dark={{ color: 'gray.400' }}
-            flexShrink={0}
-            flex="1"
-          >
-            {totalCount !== null ? `${totalCount} ${'kết quả'}` : ''}
-          </Text>
+          {totalCount !== null && (
+            <Text
+              fontSize="sm"
+              color="fg.muted"
+              flex={1}
+              display={{ base: 'none', md: 'block' }}
+            >
+              {totalCount} kết quả
+            </Text>
+          )}
 
           <Flex align="center" gap={2}>
             {/* Sort dropdown */}
@@ -490,7 +564,7 @@ export default function VenueSearchList() {
                 alignItems="center"
                 gap={1.5}
                 h="32px"
-                px={3}
+                px={{ base: 2, md: 3 }}
                 borderRadius="full"
                 borderColor="gray.200"
                 bg={{ base: 'white', _dark: 'gray.800' }}
@@ -501,7 +575,12 @@ export default function VenueSearchList() {
                 _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
               >
                 <SortButtonIcon size={14} />
-                <Text as="span" maxW="110px" truncate>
+                <Text
+                  as="span"
+                  maxW="110px"
+                  truncate
+                  display={{ base: 'none', md: 'inline' }}
+                >
                   {sortButtonLabel}
                 </Text>
                 <ChevronDown
@@ -999,6 +1078,10 @@ export default function VenueSearchList() {
               Xóa bộ lọc
             </Button>
           )}
+        </Box>
+      ) : viewMode === 'map' ? (
+        <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+          <VenueMap venues={venues} userLocation={userLocation} />
         </Box>
       ) : (
         <>

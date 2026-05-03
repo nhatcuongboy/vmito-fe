@@ -15,10 +15,9 @@ import {
   Flex,
   Heading,
   IconButton,
-  Image,
   Text,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, Image } from '@/components/ui/chakra-compat';
 import { LogIn, Menu, ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -31,12 +30,15 @@ interface TopBarProps {
   showBackButton?: boolean;
   backHref?: string;
   onBack?: () => void;
-  title?: string;
+  title?: React.ReactNode;
   icon?: React.ReactNode;
   rightContent?: React.ReactNode;
   navItems?: NavItem[];
   /** 'secondary' hides menu/logo/notification/profile on mobile, shows back button */
   variant?: 'main' | 'secondary';
+  hideBottomBorder?: boolean;
+  /** Force title to be centered on mobile regardless of path */
+  centerTitle?: boolean;
 }
 
 export default function TopBar({
@@ -48,6 +50,8 @@ export default function TopBar({
   onBack,
   navItems,
   variant = 'main',
+  hideBottomBorder = false,
+  centerTitle = false,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -59,7 +63,8 @@ export default function TopBar({
   const normalizedPath =
     pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
   const isLeftAlignedTitle =
-    /^\/(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
+    !centerTitle &&
+    /^\/(player\/|host\/)?(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
       normalizedPath
     );
 
@@ -88,8 +93,11 @@ export default function TopBar({
         zIndex={1100}
         bg="bg"
         backdropFilter="blur(10px)"
-        borderBottom="1px solid"
-        borderColor="border"
+        borderBottom={
+          hideBottomBorder ? { base: 'none', md: '1px solid' } : '1px solid'
+        }
+        // borderBottom="1px solid"
+        borderColor={{ base: '#d4d4d8', md: 'border' }}
         height={
           navItems
             ? {
@@ -128,7 +136,14 @@ export default function TopBar({
             position="relative"
           >
             {/* Left side - Menu, Logo & Back button */}
-            <Flex height="100%" alignItems="center" gap={2} zIndex={1}>
+            <Flex
+              height="100%"
+              alignItems="center"
+              gap={2}
+              zIndex={1}
+              flex={isLeftAlignedTitle ? 1 : 'none'}
+              minW={0}
+            >
               <IconButton
                 aria-label="Open menu"
                 onClick={() => {
@@ -229,7 +244,11 @@ export default function TopBar({
                   size={{ base: 'md', md: 'lg' }}
                   color="fg"
                   fontWeight="bold"
-                  maxWidth={{ base: '50vw', md: '500px' }}
+                  maxWidth={
+                    isLeftAlignedTitle
+                      ? { base: 'calc(100vw - 120px)', md: '600px' }
+                      : { base: '50vw', md: '500px' }
+                  }
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"
@@ -252,7 +271,7 @@ export default function TopBar({
                     base: isLeftAlignedTitle ? 'left' : 'center',
                     md: 'center',
                   }}
-                  px={isLeftAlignedTitle ? 2 : 0}
+                  px={isLeftAlignedTitle ? 1 : 0}
                   pointerEvents={isLeftAlignedTitle ? 'auto' : 'none'}
                 >
                   {title}

@@ -811,11 +811,11 @@ export function QuickVenueEditModal({
         selectedImages={
           form.watch('coverPhoto')
             ? [
-              {
-                url: form.watch('coverPhoto')!,
-                publicId: form.watch('coverPhotoPublicId') || '',
-              },
-            ]
+                {
+                  url: form.watch('coverPhoto')!,
+                  publicId: form.watch('coverPhotoPublicId') || '',
+                },
+              ]
             : []
         }
         onSelect={(imgs) => {
@@ -835,11 +835,11 @@ export function QuickVenueEditModal({
         selectedImages={
           form.watch('courtLayoutImage')
             ? [
-              {
-                url: form.watch('courtLayoutImage')!,
-                publicId: form.watch('courtLayoutImagePublicId') || '',
-              },
-            ]
+                {
+                  url: form.watch('courtLayoutImage')!,
+                  publicId: form.watch('courtLayoutImagePublicId') || '',
+                },
+              ]
             : []
         }
         onSelect={(imgs) => {

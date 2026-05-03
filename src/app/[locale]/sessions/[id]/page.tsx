@@ -5,6 +5,8 @@ import { ISession } from '@/lib/api/types';
 import { cache } from 'react';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { formatVenueName } from '@/utils';
+import StructuredData from '@/components/seo/StructuredData';
+import { generateSportsEventSchema } from '@/lib/seo/structuredData';
 
 interface PageProps {
   params: Promise<{
@@ -94,18 +96,13 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
     .default;
   const nameFormat = messages.venue.nameFormat;
 
-  // If session not found, we still render the client component which handles its own "not found" state or loading
-  // calling it with null initialSession will trigger client-side fetch (which will also fail, consistent behavior)
-
-  let jsonLd = null;
-
+  // Generate structured data if session exists
+  let eventSchema = null;
   if (session) {
-    const startTime = session.startTime
-      ? new Date(session.startTime).toISOString()
-      : undefined;
-    const endTime = session.endTime
-      ? new Date(session.endTime).toISOString()
-      : undefined;
+    const locationName =
+      (session.venue?.name
+        ? formatVenueName(session.venue.name, nameFormat)
+        : session.location) || 'Địa điểm chưa xác định';
 
     // Estimate price for schema
     let price = 0;
@@ -113,70 +110,41 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
       price = session.feeConfig.maleFee || session.feeConfig.femaleFee || 0;
     }
 
-    // Determine availability
     const maxPlayers = session.numberOfCourts
       ? session.numberOfCourts * (session.maxPlayersPerCourt || 4)
       : 0;
     const currentPlayers = session._count?.players || 0;
-    const availability =
-      maxPlayers > 0 && currentPlayers >= maxPlayers
-        ? 'https://schema.org/SoldOut'
-        : 'https://schema.org/InStock';
 
-    const locationName =
-      (session.venue?.name
-        ? formatVenueName(session.venue.name, nameFormat)
-        : session.location) || 'Địa điểm chưa xác định';
-
-    jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'SportsEvent',
-      name: session.name,
+    eventSchema = generateSportsEventSchema({
+      id: session.id,
+      title: session.name,
       description:
         session.description || `Giao lưu cầu lông tại ${locationName}`,
-      startDate: startTime,
-      endDate: endTime,
-      image: session.coverPhoto ? [session.coverPhoto] : [DEFAULT_COVER_PHOTO],
-      eventStatus: 'https://schema.org/EventScheduled',
-      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      startTime: session.startTime
+        ? new Date(session.startTime).toISOString()
+        : new Date().toISOString(),
+      endTime: session.endTime
+        ? new Date(session.endTime).toISOString()
+        : undefined,
       location: {
-        '@type': 'Place',
         name: locationName,
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: session.venue?.address || session.location,
-          addressCountry: 'VN',
-        },
+        address: session.venue?.address || session.location,
+        latitude: session.venue?.lat,
+        longitude: session.venue?.lng,
       },
+      maxPlayers: maxPlayers > 0 ? maxPlayers : undefined,
+      currentPlayers: currentPlayers,
+      price: price,
       organizer: {
-        '@type': 'Person',
-        name: session.host?.name,
-        image: session.host?.image,
+        name: session.host?.name || 'Host',
+        image: session.host?.image || undefined,
       },
-      offers: {
-        '@type': 'Offer',
-        price: price,
-        priceCurrency: 'VND',
-        availability: availability,
-        validFrom: session.createdAt
-          ? new Date(session.createdAt).toISOString()
-          : undefined,
-      },
-      performer: {
-        '@type': 'Person',
-        name: session.host?.name,
-      },
-    };
+    });
   }
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
+      {eventSchema && <StructuredData data={eventSchema} />}
       <PublicSessionDetailClient initialSession={session} />
     </>
   );

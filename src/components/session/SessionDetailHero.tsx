@@ -1,0 +1,269 @@
+'use client';
+
+import { useState } from 'react';
+import { ISession } from '@/lib/api/types';
+import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { ChevronLeft, Share2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { statusColors, getStatusLabel } from './BaseSessionCard';
+import { toaster } from '@/components/ui/toaster';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface ISessionDetailHeroProps {
+  session: ISession;
+  availableSlots: number;
+  isFull: boolean;
+  onBack?: () => void;
+  showBackButton?: boolean;
+}
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir >= 0 ? '100%' : '-100%' }),
+  center: { x: 0 },
+  exit: (dir: number) => ({ x: dir >= 0 ? '-100%' : '100%' }),
+};
+
+const SessionDetailHero = ({
+  session,
+  availableSlots,
+  isFull,
+  onBack,
+  showBackButton = true,
+}: ISessionDetailHeroProps) => {
+  const t = useTranslations('session');
+
+  const allImages: string[] =
+    session.images && session.images.length > 0
+      ? session.images
+      : [session.coverPhoto || DEFAULT_COVER_PHOTO];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+
+  const goNext = () => {
+    if (currentIndex < allImages.length - 1) {
+      setDirection(1);
+      setCurrentIndex((i) => i + 1);
+    }
+  };
+
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      setDirection(-1);
+      setCurrentIndex((i) => i - 1);
+    }
+  };
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    if (info.offset.x < -50) goNext();
+    else if (info.offset.x > 50) goPrev();
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: session.name,
+      text: `${t('checkOutThisSession')}: ${session.name}`,
+      url: `${window.location.origin}/sessions/${session.slug || session.id}`,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toaster.success({ title: t('linkCopied') });
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  const isPastEndTime = session.endTime
+    ? new Date(session.endTime) < new Date()
+    : false;
+
+  const statusColorPalette =
+    session.status === 'PREPARING' && isPastEndTime
+      ? 'gray'
+      : statusColors[session.status] || 'gray';
+
+  return (
+    <Box
+      position="relative"
+      w="full"
+      h={{ base: 'clamp(170px, 29vh, 235px)', md: '350px' }}
+      overflow="hidden"
+    >
+      {/* Carousel images */}
+      <AnimatePresence custom={direction} initial={false}>
+        <motion.div
+          key={currentIndex}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          drag={allImages.length > 1 ? 'x' : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          onDragEnd={handleDragEnd}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            cursor: allImages.length > 1 ? 'grab' : 'default',
+          }}
+        >
+          <Image
+            src={allImages[currentIndex] || DEFAULT_COVER_PHOTO}
+            alt={`${session.name} ${currentIndex + 1}`}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            draggable={false}
+            pointerEvents="none"
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Top gradient overlay for buttons */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        h="80px"
+        bgGradient="to-b"
+        gradientFrom="blackAlpha.500"
+        gradientTo="transparent"
+        pointerEvents="none"
+      />
+
+      {/* Bottom gradient overlay for badges */}
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        h="80px"
+        bgGradient="to-t"
+        gradientFrom="blackAlpha.500"
+        gradientTo="transparent"
+        pointerEvents="none"
+      />
+
+      {/* Back Button */}
+      {showBackButton && onBack && (
+        <IconButton
+          aria-label="Back"
+          variant="ghost"
+          size="md"
+          position="absolute"
+          top="calc(env(safe-area-inset-top) + 8px)"
+          left={2}
+          color="white"
+          bg="blackAlpha.500"
+          backdropFilter="blur(6px)"
+          borderRadius="full"
+          _hover={{ bg: 'blackAlpha.700' }}
+          zIndex={10}
+          onClick={onBack}
+        >
+          <ChevronLeft size={24} strokeWidth={2.5} />
+        </IconButton>
+      )}
+
+      {/* Share Button */}
+      <IconButton
+        aria-label="Share"
+        variant="ghost"
+        size="sm"
+        position="absolute"
+        top="calc(env(safe-area-inset-top) + 12px)"
+        right={3}
+        color="white"
+        bg="blackAlpha.500"
+        backdropFilter="blur(6px)"
+        borderRadius="full"
+        boxShadow="0 2px 8px rgba(0,0,0,0.45)"
+        _hover={{ bg: 'blackAlpha.700' }}
+        zIndex={10}
+        onClick={handleShare}
+        icon={<Icon as={Share2} boxSize={5} />}
+      />
+
+      {/* Dot indicators */}
+      {allImages.length > 1 && (
+        <Flex
+          position="absolute"
+          bottom={5}
+          left="50%"
+          transform="translateX(-50%)"
+          gap={1.5}
+          zIndex={10}
+          align="center"
+        >
+          {allImages.map((_, i) => (
+            <Box
+              key={i}
+              as="button"
+              w={i === currentIndex ? '16px' : '6px'}
+              h="6px"
+              borderRadius="full"
+              bg={i === currentIndex ? 'white' : 'whiteAlpha.600'}
+              transition="all 0.25s"
+              onClick={() => {
+                setDirection(i > currentIndex ? 1 : -1);
+                setCurrentIndex(i);
+              }}
+              flexShrink={0}
+            />
+          ))}
+        </Flex>
+      )}
+
+      {/* Slot Availability Badge - bottom left */}
+      <Badge
+        position="absolute"
+        bottom={5}
+        left={3}
+        colorPalette={isFull ? 'gray' : 'teal'}
+        variant="solid"
+        fontSize="sm"
+        px={3}
+        py={1}
+        borderRadius="full"
+        fontWeight="600"
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+        backdropFilter="blur(8px)"
+      >
+        {isFull
+          ? t('slotsFull')
+          : t('slotsAvailable', { count: availableSlots })}
+      </Badge>
+
+      {/* Status Badge - bottom right */}
+      <Badge
+        position="absolute"
+        bottom={5}
+        right={3}
+        colorPalette={statusColorPalette}
+        variant="solid"
+        fontSize="sm"
+        px={3}
+        py={1}
+        borderRadius="full"
+        fontWeight="600"
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+        backdropFilter="blur(8px)"
+      >
+        {getStatusLabel(session.status, t, session.endTime)}
+      </Badge>
+    </Box>
+  );
+};
+
+export default SessionDetailHero;

@@ -1,27 +1,16 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Container, Box, Image, IconButton } from '@chakra-ui/react';
-import TopBar from '@/components/ui/TopBar';
+import { Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useRouter, usePathname } from '@/i18n/config';
-import { useCanGoBack } from '@/hooks/useCanGoBack';
+import { useRouter } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import PublicSessionDetailContent from '@/components/session/PublicSessionDetailContent';
 import PageWrapper from '@/components/layout/PageWrapper';
-import {
-  CONTAINER_PX,
-  CONTENT_PT_OFFSET,
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-} from '@/constants';
-import JoinSessionModal from '@/components/session/JoinSessionModal';
-import { useModal } from '@/components/ui/VModal';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useTranslations } from 'next-intl';
+import TopBar from '@/components/ui/TopBar';
+import { TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { useSocket, SessionEventType } from '@/contexts/SocketContext';
-import { Search } from 'lucide-react';
 
 interface PublicSessionDetailClientProps {
   initialSession?: ISession | null;
@@ -33,11 +22,8 @@ const PublicSessionDetailClient = ({
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
-  const { user } = useAuthStore();
-  const canGoBack = useCanGoBack();
-  const t = useTranslations('session');
   const { socket } = useSocket();
+  const [canGoBack, setCanGoBack] = useState(false);
 
   const [backHref, setBackHref] = useState('/');
 
@@ -58,7 +44,8 @@ const PublicSessionDetailClient = ({
 
   useEffect(() => {
     if (!socket || !sessionId) return;
-    const handleStatusUpdate = async (data: any) => {
+
+    const handleStatusUpdate = async (data: { sessionId: string }) => {
       if (data.sessionId === sessionId) {
         try {
           const updatedSession = await SessionService.getSession(sessionId);
@@ -77,51 +64,39 @@ const PublicSessionDetailClient = ({
     };
   }, [socket, sessionId]);
 
-  const {
-    isOpen: isJoinModalOpen,
-    onOpen: onOpenJoinModal,
-    onClose: onCloseJoinModal,
-  } = useModal();
+  useEffect(() => {
+    setCanGoBack(window.history.length > 1);
+  }, []);
 
   const registerParam = searchParams.get('register');
 
   return (
-    <PageWrapper>
-      <TopBar
-        title={session?.name || t('header')}
-        showBackButton={true}
-        onBack={canGoBack ? () => router.back() : undefined}
-        backHref={backHref}
-        variant="secondary"
-        rightContent={
-          <Box display="flex" alignItems="center" gap={1}>
-            <IconButton
-              aria-label="Search"
-              variant="ghost"
-              color="fg"
-              _hover={{ bg: 'bg.muted' }}
-              borderRadius="full"
-              size="md"
-            >
-              <Search size={20} />
-            </IconButton>
-          </Box>
-        }
-      />
+    <PageWrapper
+      bg={{ base: 'white', md: 'gray.50' }}
+      _dark={{ bg: { md: 'gray.950' } }}
+    >
+      {/* Desktop-only top bar */}
+      <Box display={{ base: 'none', md: 'block' }}>
+        <TopBar
+          title={session?.name}
+          showBackButton={false}
+          backHref={backHref}
+          onBack={canGoBack ? () => router.back() : undefined}
+        />
+      </Box>
       <Box
         pt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
       >
-        <Container maxW="4xl" px={CONTAINER_PX} pb={8}>
-          <PublicSessionDetailContent
-            sessionId={sessionId || ''}
-            initialSession={session}
-            showViewMore
-            defaultOpenRegister={registerParam === 'true'}
-          />
-        </Container>
+        <PublicSessionDetailContent
+          sessionId={sessionId || ''}
+          initialSession={session}
+          showViewMore
+          defaultOpenRegister={registerParam === 'true'}
+          onBack={canGoBack ? () => router.back() : undefined}
+          showBackButton={canGoBack}
+        />
       </Box>
     </PageWrapper>
   );

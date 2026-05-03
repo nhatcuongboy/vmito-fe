@@ -1,7 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
 import {
   Button,
@@ -18,6 +18,8 @@ import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { NewPlayer } from './types';
 import { IClub } from '@/types/club';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface AddPlayerModalProps {
   isOpen: boolean;
@@ -40,6 +42,7 @@ interface AddPlayerModalProps {
   onSaveAll: () => void;
   onCancelAll: () => void;
   isUserAlreadyUsed: (userId: string, currentIndex?: number) => boolean;
+  onSearchUsers: (query: string) => void;
 }
 
 const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
@@ -59,6 +62,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   onSaveAll,
   onCancelAll,
   isUserAlreadyUsed,
+  onSearchUsers,
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
@@ -66,6 +70,14 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevPlayersLength = useRef(newPlayers.length);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
+  useEffect(() => {
+    if (isOpen) {
+      onSearchUsers(debouncedSearchQuery);
+    }
+  }, [debouncedSearchQuery, onSearchUsers, isOpen]);
 
   useEffect(() => {
     if (newPlayers.length > prevPlayersLength.current) {
@@ -159,40 +171,21 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   >
                     {t('selectExistingPlayer')}
                   </Text>
-                  <select
+                  <SearchableSelect
                     value={player.userId || ''}
-                    onChange={(e) => onUserSelect(index, e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      height: '40px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--chakra-colors-border)',
-                      backgroundColor: 'var(--chakra-colors-bg-panel, white)',
-                      color: 'inherit',
-                      fontSize: '14px',
-                    }}
-                    disabled={isLoadingUsers}
-                  >
-                    <option value="">{t('createNewPlayer')}</option>
-                    {availableUsers.map((user) => {
-                      const isUsed = isUserAlreadyUsed(user.id, index);
-                      return (
-                        <option
-                          key={user.id}
-                          value={user.id}
-                          disabled={isUsed}
-                          style={{
-                            color: isUsed ? '#A0AEC0' : 'inherit',
-                            fontStyle: isUsed ? 'italic' : 'normal',
-                          }}
-                        >
-                          {user.name} ({user.email})
-                          {isUsed ? ` - ${t('alreadySelected')}` : ''}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    onChange={(val) => onUserSelect(index, val)}
+                    options={availableUsers.map((user) => ({
+                      value: user.id,
+                      label: user.name,
+                      sublabel: user.email,
+                      disabled: isUserAlreadyUsed(user.id, index),
+                    }))}
+                    placeholder={t('createNewPlayer')}
+                    searchPlaceholder={tCommon('search')}
+                    onSearchChange={setSearchQuery}
+                    isLoading={isLoadingUsers}
+                    size="md"
+                  />
                 </Box>
 
                 {/* Player name and phone */}

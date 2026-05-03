@@ -2,7 +2,7 @@
 
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { Box, Flex, Icon } from '@chakra-ui/react';
-import { Plus } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
@@ -19,6 +19,7 @@ export default function SessionSearchBar({
   topAddon,
   hideCreateOnMobile = false,
   topOffset = 0,
+  fixedOnMobile = false,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
 
@@ -53,7 +54,7 @@ export default function SessionSearchBar({
       loading={isLoadingCreate}
       disabled={isLoadingCreate}
     >
-      <Icon as={Plus} mr={1} boxSize={4} />
+      <Icon as={Sparkles} mr={1.5} boxSize={4} />
       {t('createSession')}
     </Button>
   );
@@ -62,7 +63,7 @@ export default function SessionSearchBar({
     <>
       {/* Sticky Area: Search (Mobile/Desktop) */}
       <Box
-        position="sticky"
+        position={{ base: fixedOnMobile ? 'fixed' : 'sticky', md: 'sticky' }}
         top={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE + topOffset}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
@@ -70,14 +71,26 @@ export default function SessionSearchBar({
         left={0}
         right={0}
         width="100vw"
-        marginLeft="calc(50% - 50vw)"
-        zIndex={100}
-        bg="transparent"
-        pt={topAddon ? 0 : 2}
-        pb={2}
-        transition="all 0.2s"
+        marginLeft={{
+          base: fixedOnMobile ? 0 : 'calc(50% - 50vw)',
+          md: 'calc(50% - 50vw)',
+        }}
+        zIndex={1100}
+        bg={{ base: 'bg', md: 'transparent' }}
+        pt={topAddon ? { base: 2, md: 0 } : 2}
+        pb={{ base: 0, md: 2 }}
+        boxShadow={{
+          base: topAddon ? '0 2px 4px -1px rgba(0,0,0,0.1)' : 'none',
+          md: 'none',
+        }}
+        mb={{ base: topAddon ? 4 : 0, md: 0 }}
       >
-        <Flex direction="column" align="center" gap={1.5} w="100%">
+        <Flex
+          direction={{ base: 'column-reverse', md: 'column' }}
+          align="center"
+          gap={1.5}
+          w="100%"
+        >
           {topAddon && (
             <Box w="100%">
               <Box maxW="1280px" mx="auto">
@@ -85,7 +98,7 @@ export default function SessionSearchBar({
               </Box>
             </Box>
           )}
-          <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto" px={4}>
+          <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
             <Box flex={1} w="100%">
               <AppSearchBar
                 value={localValue}

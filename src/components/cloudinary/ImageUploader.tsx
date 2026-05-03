@@ -1,10 +1,11 @@
 'use client';
 
-import { Box, Flex, Text, VStack, Image } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Upload, X, ImageIcon } from 'lucide-react';
 import { useRef, useState, ChangeEvent } from 'react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, Image } from '@/components/ui/chakra-compat';
+import { compressImage } from '@/lib/utils/image';
 
 interface ImageUploaderProps {
   value?: string;
@@ -64,7 +65,13 @@ export default function ImageUploader({
     setIsUploading(true);
 
     try {
-      const url = await onUpload(file);
+      // Compress image before upload
+      const compressedFile = await compressImage(file, {
+        maxSizeMB: 1, // Aim for < 1MB
+        maxWidthOrHeight: 1920,
+      });
+
+      const url = await onUpload(compressedFile);
       onChange(url);
     } catch (err) {
       setError(t('uploadFailed'));

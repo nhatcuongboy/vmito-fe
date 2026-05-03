@@ -61,6 +61,7 @@ interface ResultsHeaderProps {
   sortOptions?: SortOption[];
   sortBy?: SessionSortBy;
   onSortChange?: (sort: SessionSortBy) => void;
+  showViewModeMap?: boolean;
 }
 
 export default function ResultsHeader({
@@ -71,6 +72,7 @@ export default function ResultsHeader({
   sortOptions,
   sortBy: controlledSortBy,
   onSortChange,
+  showViewModeMap = true,
 }: ResultsHeaderProps) {
   const t = useTranslations('session');
   const tSuggestions = useTranslations('suggestions');
@@ -118,6 +120,7 @@ export default function ResultsHeader({
             color="gray.600"
             _dark={{ color: 'gray.400' }}
             whiteSpace="nowrap"
+            display={{ base: 'none', md: 'block' }}
           >
             {`${count} ${tCommon('sessions')}`}
           </Text>
@@ -159,7 +162,7 @@ export default function ResultsHeader({
         </HStack>
 
         {/* Right: Sort + View mode toggle */}
-        <HStack gap={2} flexShrink={0}>
+        <HStack gap={2} flexShrink={0} ms="auto">
           {/* Sort Dropdown */}
           <Box position="relative" ref={dropdownRef}>
             <Button
@@ -181,8 +184,19 @@ export default function ResultsHeader({
               _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
               _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
             >
-              <ArrowUpDown size={14} />
-              <Text as="span" maxW="100px" truncate>
+              {activeOption && SORT_ICONS[activeOption.value] ? (
+                React.createElement(SORT_ICONS[activeOption.value], {
+                  size: 14,
+                })
+              ) : (
+                <ArrowUpDown size={14} />
+              )}
+              <Text
+                as="span"
+                maxW="100px"
+                truncate
+                display={{ base: 'none', md: 'inline' }}
+              >
                 {t(activeOption.labelKey)}
               </Text>
               <ChevronDown
@@ -250,7 +264,7 @@ export default function ResultsHeader({
           </Box>
 
           {/* View Mode Toggle */}
-          <ViewModeToggle />
+          <ViewModeToggle showMap={showViewModeMap} />
         </HStack>
       </Flex>
 

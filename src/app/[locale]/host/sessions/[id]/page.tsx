@@ -167,6 +167,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
       showBackButton={false}
       backHref="/host/sessions"
       contentPadding={0}
+      centerTitle
     >
       {loading && !session ? (
         <Center minH="50vh">

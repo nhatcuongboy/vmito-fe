@@ -25,7 +25,7 @@ if (typeof window === 'undefined') {
 // Axios instance with base configuration
 export const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000, // 10 seconds timeout for SSR stability
+  timeout: 30000, // 30 seconds timeout for better stability
   headers: {
     'Content-Type': 'application/json',
   },

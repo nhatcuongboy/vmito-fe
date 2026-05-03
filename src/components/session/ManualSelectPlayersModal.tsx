@@ -92,9 +92,7 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
       // Let's use custom maxW if needed, or stick to xl/full.
       // Original maxW="6xl" is very wide. I'll use size="xl" for now or keep it flexible.
       showCloseButton={true}
-      primaryActionText={t('courtsTab.confirmMatchManual', {
-        count: selectedCount,
-      })}
+      primaryActionText={t('courtsTab.confirmMatch')}
       onPrimaryAction={handleConfirmSelection}
       isPrimaryDisabled={selectedCount !== 4 || isLoading}
       isPrimaryLoading={isLoading}

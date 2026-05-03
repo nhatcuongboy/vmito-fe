@@ -106,6 +106,7 @@ function PlayerHostContent() {
       title={tNav('host')}
       bg="gray.50"
       _dark={{ bg: 'gray.900' }}
+      hideTopBarBorder={true}
     >
       <Flex mb={6} justify="space-between" align="center">
         <Heading as="h2" size="lg">

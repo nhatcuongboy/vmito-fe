@@ -30,10 +30,10 @@ export function AppSearchBar({
   };
 
   return (
-    <Box position="relative" w="100%" px="16px">
+    <Box position="relative" w="100%" px={{ base: '16px', md: '16px' }}>
       <Box
         position="absolute"
-        left="30px"
+        left={{ base: '30px', md: '30px' }}
         top="50%"
         transform="translateY(-50%)"
         zIndex={1}
@@ -52,22 +52,27 @@ export function AppSearchBar({
         borderRadius="24px"
         h="44px"
         border="1px solid"
-        borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
-        bg="bg"
+        borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+        bg={{ base: 'gray.50', md: 'bg', _dark: 'gray.700' }}
         fontSize="15px"
         color="fg"
-        boxShadow="0 1px 4px 0 rgba(0,0,0,0.08)"
+        boxShadow={{ base: 'none', md: '0 1px 4px 0 rgba(0,0,0,0.08)' }}
         _placeholder={{ color: 'fg.muted' }}
         _focus={{
           borderColor: 'green.500',
-          boxShadow: '0 0 0 2px var(--chakra-colors-green-500)',
+          bg: 'bg',
+          boxShadow: {
+            base: '0 0 0 1px var(--chakra-colors-green-500)',
+            md: '0 0 0 1px var(--chakra-colors-green-500)',
+          },
+          outline: 'none',
         }}
       />
 
       {hasClear && (
         <Box
           position="absolute"
-          right={showFilter ? '56px' : '20px'}
+          right={showFilter ? '56px' : '24px'}
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}
@@ -94,7 +99,7 @@ export function AppSearchBar({
       {showFilter && (
         <Box
           position="absolute"
-          right="20px"
+          right="24px"
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}

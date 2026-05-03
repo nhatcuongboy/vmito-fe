@@ -177,6 +177,7 @@ function PlayerSessionsContent() {
       title={t('joined')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
+      hideTopBarBorder={true}
     >
       <Flex gap={6} alignItems="flex-start">
         <HostSessionsNavPanel />

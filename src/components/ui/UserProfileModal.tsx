@@ -24,6 +24,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { compressImage } from '@/lib/utils/image';
 
 // Zod schema for user profile validation
 const userProfileSchema = z.object({
@@ -161,7 +162,11 @@ export default function UserProfileModal({
 
     setIsAvatarUploading(true);
     try {
-      const uploaded = await AdminService.uploadAvatar(file);
+      const compressedFile = await compressImage(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1200,
+      });
+      const uploaded = await AdminService.uploadAvatar(compressedFile);
       const updatedUser = await AdminService.updateUser(user.id, {
         image: uploaded.url,
         imagePublicId: uploaded.publicId,

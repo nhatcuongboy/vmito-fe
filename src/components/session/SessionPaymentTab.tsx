@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { Button, LegacySelect } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
+import { compressImage } from '@/lib/utils/image';
 import {
   CreditCard,
   Building2,
@@ -226,7 +227,11 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   };
 
   const handleUploadQR = async (file: File) => {
-    return PaymentSettingsService.uploadQRCode(file);
+    const compressedFile = await compressImage(file, {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1200,
+    });
+    return PaymentSettingsService.uploadQRCode(compressedFile);
   };
 
   const goToPaymentSettingsPage = () => {

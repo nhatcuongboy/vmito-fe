@@ -8,6 +8,11 @@ import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
 import GlobalAiButton from '../../components/layout/GlobalAiButton';
 import ThemeColorSync from '../../components/layout/ThemeColorSync';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
+import StructuredData from '../../components/seo/StructuredData';
+import {
+  generateWebsiteSchema,
+  generateOrganizationSchema,
+} from '../../lib/seo/structuredData';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -66,8 +71,15 @@ export default async function LocaleLayout({
     }
   }
 
+  // Generate structured data for SEO
+  const websiteSchema = generateWebsiteSchema(locale);
+  const organizationSchema = generateOrganizationSchema();
+
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <StructuredData data={[websiteSchema, organizationSchema]} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -26,6 +26,7 @@ import { UserService, IPublicProfileMeta } from '@/lib/api/user.service';
 import {
   ISession,
   Rating,
+  RatingType,
   SessionStatus,
   UserRatingStats,
 } from '@/lib/api/types';
@@ -102,6 +103,7 @@ export default function PublicUserProfileContent({
   const [endedHostedSessionsCount, setEndedHostedSessionsCount] = useState(0);
   const [totalSessionPages, setTotalSessionPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSessionsLoading, setIsSessionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -120,60 +122,23 @@ export default function PublicUserProfileContent({
         setIsLoading(true);
         setError(null);
 
-        const sessionFilters =
-          hostedTab === 'active'
-            ? { excludeStatus: SessionStatus.FINISHED }
-            : hostedTab === 'ended'
-              ? { status: SessionStatus.FINISHED }
-              : {};
+        const [profileResponse, ratingStatsResponse, ratingsResponse] =
+          await Promise.all([
+            UserService.getPublicProfile(userId),
+            RatingService.getUserRatingStats(userId),
+            RatingService.getUserReceivedRatings(userId),
+          ]);
 
-        const [
-          profileResponse,
-          ratingStatsResponse,
-          ratingsResponse,
-          hostedSessionsResponse,
-          activeCountResponse,
-          endedCountResponse,
-        ] = await Promise.all([
-          UserService.getPublicProfile(userId),
-          RatingService.getUserRatingStats(userId),
-          RatingService.getUserReceivedRatings(userId),
-          SessionService.getAllSessions({
-            hostId: userId,
-            page,
-            limit,
-            sortBy: 'startTime',
-            sortOrder: 'desc',
-            ...sessionFilters,
-          }),
-          SessionService.getAllSessions({
-            hostId: userId,
-            page: 1,
-            limit: 1,
-            excludeStatus: SessionStatus.FINISHED,
-          }),
-          SessionService.getAllSessions({
-            hostId: userId,
-            page: 1,
-            limit: 1,
-            status: SessionStatus.FINISHED,
-          }),
-        ]);
-
-        const sortedRatings = [...ratingsResponse].sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        const sortedRatings = [...ratingsResponse]
+          .filter((r) => r.type === RatingType.PLAYER_TO_HOST)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
-        });
 
         setProfile(profileResponse);
         setRatingStats(ratingStatsResponse);
         setRatings(sortedRatings);
-        setHostedSessions(hostedSessionsResponse.data);
-        setTotalHostedSessions(hostedSessionsResponse.total);
-        setActiveHostedSessionsCount(activeCountResponse.total);
-        setEndedHostedSessionsCount(endedCountResponse.total);
-        setTotalSessionPages(hostedSessionsResponse.totalPages);
       } catch (fetchError) {
         console.error('Failed to fetch public profile:', fetchError);
         setError(t('loadFailed'));
@@ -183,7 +148,71 @@ export default function PublicUserProfileContent({
     };
 
     fetchProfileData();
-  }, [userId, page, limit, hostedTab, t]);
+  }, [userId, t]);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        setIsSessionsLoading(true);
+
+        const sessionFilters =
+          hostedTab === 'active'
+            ? {
+                excludeStatuses: [
+                  SessionStatus.FINISHED,
+                  SessionStatus.CANCELLED,
+                ],
+              }
+            : hostedTab === 'ended'
+              ? {
+                  excludeStatuses: [
+                    SessionStatus.PREPARING,
+                    SessionStatus.IN_PROGRESS,
+                  ],
+                }
+              : {};
+
+        const [
+          hostedSessionsResponse,
+          activeCountResponse,
+          endedCountResponse,
+        ] = await Promise.all([
+          SessionService.getPublicSessions(userId, {
+            page,
+            limit,
+            sortBy: 'startTime',
+            sortOrder: 'desc',
+            ...sessionFilters,
+          }),
+          SessionService.getPublicSessions(userId, {
+            page: 1,
+            limit: 1,
+            excludeStatuses: [SessionStatus.FINISHED, SessionStatus.CANCELLED],
+          }),
+          SessionService.getPublicSessions(userId, {
+            page: 1,
+            limit: 1,
+            excludeStatuses: [
+              SessionStatus.PREPARING,
+              SessionStatus.IN_PROGRESS,
+            ],
+          }),
+        ]);
+
+        setHostedSessions(hostedSessionsResponse.data);
+        setTotalHostedSessions(hostedSessionsResponse.total);
+        setActiveHostedSessionsCount(activeCountResponse.total);
+        setEndedHostedSessionsCount(endedCountResponse.total);
+        setTotalSessionPages(hostedSessionsResponse.totalPages);
+      } catch (fetchError) {
+        console.error('Failed to fetch sessions:', fetchError);
+      } finally {
+        setIsSessionsLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, [userId, page, limit, hostedTab]);
 
   const ratingsPreview = useMemo(
     () => ratings.slice(0, REVIEWS_PREVIEW_SIZE),
@@ -440,7 +469,11 @@ export default function PublicUserProfileContent({
               </Button>
             </HStack>
 
-            {hostedSessions.length === 0 ? (
+            {isSessionsLoading ? (
+              <Flex justify="center" py={6}>
+                <Spinner size="md" color="green.500" />
+              </Flex>
+            ) : hostedSessions.length === 0 ? (
               <Box
                 borderWidth="1px"
                 borderStyle="dashed"
@@ -519,10 +552,12 @@ export default function PublicUserProfileContent({
 
             <VStack gap={3} align="stretch">
               <UserRatingSummaryCard stats={ratingStats} />
-              <RatingList
-                ratings={ratingsPreview}
-                emptyMessage={t('noReviews')}
-              />
+              {ratingsPreview.length > 0 && (
+                <RatingList
+                  ratings={ratingsPreview}
+                  emptyMessage={t('noReviews')}
+                />
+              )}
             </VStack>
           </Box>
         </VStack>

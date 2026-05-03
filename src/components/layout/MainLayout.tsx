@@ -20,6 +20,7 @@ interface MainLayoutProps {
   backHref?: string;
   backgroundColor?: any;
   contentPadding?: number | string;
+  centerTitle?: boolean;
 }
 
 export default function MainLayout({
@@ -29,6 +30,7 @@ export default function MainLayout({
   backHref = '/',
   backgroundColor = { base: 'green.50', _dark: 'gray.950' },
   contentPadding = 0,
+  centerTitle = false,
 }: MainLayoutProps) {
   const { isCollapsed } = useSidebar();
 
@@ -52,6 +54,7 @@ export default function MainLayout({
         title={title}
         showBackButton={showBackButton}
         backHref={backHref}
+        centerTitle={centerTitle}
       />
       <Box
         mt={{

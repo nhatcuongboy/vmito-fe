@@ -5,6 +5,7 @@ import { usePathname } from '@/i18n/config';
 import { useMemo } from 'react';
 import AiAssistant from '@/components/session/AiAssistant';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
+import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 
 // Pages where AI button should NOT appear
 const HIDDEN_PATHS = ['/auth', '/admin', '/guest', '/join', '/sessions/new'];
@@ -17,13 +18,18 @@ export default function GlobalAiButton() {
   const { isAuthenticated, isHydrated } = useAuthStore();
   const pathname = usePathname();
   const isGlobalVisible = useBottomNavVisibility();
+  const { viewMode } = useSessionFilterStore();
 
   const shouldShow = useMemo(() => {
     if (!isHydrated || !isAuthenticated) return false;
+
+    // Hide when in map view mode
+    if (viewMode === 'map') return false;
+
     const normalized =
       pathname?.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
     return !HIDDEN_PATHS.some((p) => normalized.startsWith(p));
-  }, [isHydrated, isAuthenticated, pathname]);
+  }, [isHydrated, isAuthenticated, pathname, viewMode]);
 
   const bottomOffset = useMemo(() => {
     const smallOffset = `calc(${BUTTON_MARGIN + 8}px + env(safe-area-inset-bottom))`;
@@ -37,6 +43,14 @@ export default function GlobalAiButton() {
     // 1. HostSessionPage: Bottom Nav is ALWAYS visible (both mobile & desktop)
     if (normalized.match(/^\/host\/sessions\/[^/]+$/)) {
       return largeOffset;
+    }
+
+    // 2. Public session detail page: has a sticky action bar (~64px) on mobile only
+    if (normalized.match(/^\/sessions\/[^/]+$/)) {
+      return {
+        base: `calc(72px + env(safe-area-inset-bottom))`,
+        md: smallOffset,
+      };
     }
 
     // 2. These pages have a mobile-only bottom nav

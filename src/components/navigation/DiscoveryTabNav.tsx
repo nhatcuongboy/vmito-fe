@@ -40,11 +40,11 @@ export function DiscoveryTabNav() {
         activeId={activeId}
         onTabClick={(id) => router.push(id)}
         isFixed={true}
-        boxShadow="sm"
         top={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE + 52}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
+        boxShadow="0 2px 4px -1px rgba(0,0,0,0.1)"
       />
     </Box>
   );

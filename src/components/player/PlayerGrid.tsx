@@ -95,7 +95,10 @@ export const PlayerGrid = ({
   };
   return (
     <>
-      <SimpleGrid columns={{ base: 2, md: 4, lg: 6 }} spacing={4}>
+      <SimpleGrid
+        columns={{ base: 2, md: 4, lg: 6 }}
+        spacing={{ base: 3, md: 4 }}
+      >
         {players.map((player) => {
           // Color scheme based on status and filter
           let bgColor, borderColor;
@@ -141,7 +144,7 @@ export const PlayerGrid = ({
               borderColor={borderColor as any}
               bg={bgColor as any}
               transition="all 0.2s"
-              minH="140px"
+              minH={{ base: '100px', md: '140px' }}
               position="relative"
               overflow="visible"
               zIndex={openPlayerId === player.id ? 1000 : 1}
@@ -153,7 +156,7 @@ export const PlayerGrid = ({
               }
               _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
             >
-              <CardBody p={3} position="relative">
+              <CardBody px={{ base: 2, md: 3 }} py={3} position="relative">
                 {/* Priority indicator (top right) */}
                 {/* <Box
                 position="absolute"
@@ -186,7 +189,7 @@ export const PlayerGrid = ({
                   </Box>
                 )}
 
-                <VStack gap={2} align="start">
+                <VStack gap={{ base: 1.5, md: 2 }} align="start">
                   <Flex
                     justifyContent="space-between"
                     width="100%"
@@ -233,63 +236,84 @@ export const PlayerGrid = ({
                   </Text>
 
                   <Flex
-                    // justifyContent="space-between"
+                    justifyContent="space-between"
                     width="100%"
                     alignItems="center"
-                    gap={3}
+                    gap={2}
                   >
-                    {mode === 'manage' && (
-                      <Badge
-                        variant="outline"
-                        bg={{ base: 'whiteAlpha.800', _dark: 'whiteAlpha.100' }}
-                        fontSize="xs"
-                        borderRadius="sm"
-                      >
-                        {getLevelShortLabel(player.level)}
-                      </Badge>
-                    )}
-                    <Badge
-                      variant="solid"
-                      colorPalette={
-                        player.gender === 'MALE'
-                          ? 'blue'
-                          : player.gender === 'FEMALE'
-                            ? 'pink'
-                            : player.gender === 'OTHER'
-                              ? 'purple'
-                              : 'gray'
-                      }
-                      fontSize="xs"
-                      borderRadius="sm"
-                      display="flex"
-                      alignItems="center"
-                      gap={1}
-                    >
-                      {player.gender === 'MALE' ? (
-                        <Mars size={12} />
-                      ) : player.gender === 'FEMALE' ? (
-                        <Venus size={12} />
-                      ) : player.gender === 'OTHER' ? (
-                        <Users size={12} />
-                      ) : (
-                        <User size={12} />
+                    <Flex alignItems="center" gap={1.5}>
+                      {mode === 'manage' && (
+                        <Badge
+                          variant="outline"
+                          bg={{
+                            base: 'whiteAlpha.800',
+                            _dark: 'whiteAlpha.100',
+                          }}
+                          fontSize="xs"
+                          borderRadius="sm"
+                        >
+                          {getLevelShortLabel(player.level)}
+                        </Badge>
                       )}
-                    </Badge>
-                    {player.isClubMember && (
                       <Badge
                         variant="solid"
-                        colorPalette="teal"
+                        colorPalette={
+                          player.gender === 'MALE'
+                            ? 'blue'
+                            : player.gender === 'FEMALE'
+                              ? 'pink'
+                              : player.gender === 'OTHER'
+                                ? 'purple'
+                                : 'gray'
+                        }
                         fontSize="xs"
                         borderRadius="sm"
-                        px={1}
-                        title={player.club?.name}
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
                       >
-                        <UserCheck size={12} />
+                        {player.gender === 'MALE' ? (
+                          <Mars size={12} />
+                        ) : player.gender === 'FEMALE' ? (
+                          <Venus size={12} />
+                        ) : player.gender === 'OTHER' ? (
+                          <Users size={12} />
+                        ) : (
+                          <User size={12} />
+                        )}
                       </Badge>
-                    )}
+                      {player.isClubMember && (
+                        <Badge
+                          variant="solid"
+                          colorPalette="teal"
+                          fontSize="xs"
+                          borderRadius="sm"
+                          px={1}
+                          title={player.club?.name}
+                        >
+                          <UserCheck size={12} />
+                        </Badge>
+                      )}
+                    </Flex>
+                    {/* Mobile only: match count inline */}
+                    <Text
+                      display={{ base: 'block', md: 'none' }}
+                      fontSize="xs"
+                      color="fg.muted"
+                      fontWeight="medium"
+                      whiteSpace="nowrap"
+                    >
+                      {t('matchesCount', { count: player.matchesPlayed })}
+                    </Text>
                   </Flex>
 
-                  <Text fontSize="xs" color="fg.muted" fontWeight="medium">
+                  {/* Desktop only: match count as separate row */}
+                  <Text
+                    display={{ base: 'none', md: 'block' }}
+                    fontSize="xs"
+                    color="fg.muted"
+                    fontWeight="medium"
+                  >
                     {t('matchesCount', { count: player.matchesPlayed })}
                   </Text>
                 </VStack>
@@ -298,7 +322,7 @@ export const PlayerGrid = ({
                 {mode === 'manage' && sessionId && (
                   <Box
                     position="absolute"
-                    bottom={1}
+                    top={1}
                     right={1}
                     onClick={(e) => e.stopPropagation()}
                   >

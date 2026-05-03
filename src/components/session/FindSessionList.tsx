@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
-import { ROUTES, TIME_RANGES } from '@/constants';
+import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { useRouter } from '@/i18n/config';
@@ -72,8 +72,10 @@ import FindSessionCard from './FindSessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
+import SessionMap from './SessionMap';
 
 const PAGE_SIZE = 12;
+const MAP_PAGE_SIZE = 500; // fetch all for map view
 
 // URL filter schema – keeps session filters in sync with query params.
 const SESSION_FILTERS_SCHEMA = {
@@ -235,7 +237,10 @@ export default function FindSessionList({
       const normalizeLocation = (name: string) =>
         name.replace(/^(Quận|Huyện|Thành phố|Thị xã)\s+/i, '').trim();
 
-      const currentPage = isLoadMore ? page + 1 : 1;
+      // In map mode: always fetch from page 1 with a large limit (no pagination)
+      const isMapMode = viewMode === 'map';
+      const effectiveLimit = isMapMode ? MAP_PAGE_SIZE : PAGE_SIZE;
+      const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Prepare filters for API
       const apiFilters: Parameters<
@@ -263,7 +268,7 @@ export default function FindSessionList({
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
         page: currentPage,
-        limit: PAGE_SIZE,
+        limit: effectiveLimit,
       };
 
       // Fee filter (only if changed from defaults or split evenly is selected)
@@ -334,7 +339,7 @@ export default function FindSessionList({
         });
       }
 
-      if (isLoadMore) {
+      if (isLoadMore && !isMapMode) {
         setSessions((prev) => {
           const existingIds = new Set(prev.map((s) => s.id));
           const newSessions = filteredData.filter(
@@ -348,8 +353,11 @@ export default function FindSessionList({
         setTotalCount(pagination.total);
       }
 
+      // In map mode: no infinite scroll — all data already fetched
       setHasMore(
-        currentPage < pagination.totalPages && filteredData.length > 0
+        !isMapMode &&
+          currentPage < pagination.totalPages &&
+          filteredData.length > 0
       );
 
       // Fetch user specific data
@@ -409,6 +417,7 @@ export default function FindSessionList({
     filters.searchQuery,
     sortBy,
     refreshKey,
+    viewMode, // re-fetch with larger limit when switching to/from map mode
   ]);
 
   // Trigger load more when in view
@@ -578,7 +587,8 @@ export default function FindSessionList({
         onCreateClick={handleCreateSessionClick}
         isLoadingCreate={isPendingCreate}
         hideCreateOnMobile={true}
-        topOffset={44}
+        topOffset={0}
+        fixedOnMobile={true}
       />
 
       {/* Filter Drawer */}
@@ -909,6 +919,10 @@ export default function FindSessionList({
           borderColor="red.200"
         >
           <Text fontWeight="medium">{error}</Text>
+        </Box>
+      ) : viewMode === 'map' ? (
+        <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+          <SessionMap sessions={sortedSessions} userLocation={userLocation} />
         </Box>
       ) : sortedSessions.length === 0 ? (
         <Box

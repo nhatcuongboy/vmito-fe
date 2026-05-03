@@ -41,7 +41,7 @@ export const VStack = ({
 
 // Create enhanced SimpleGrid with spacing support
 interface EnhancedSimpleGridProps extends ChakraSimpleGridProps {
-  spacing?: number | string;
+  spacing?: number | string | { base?: number; md?: number; lg?: number };
 }
 
 export const SimpleGrid = ({

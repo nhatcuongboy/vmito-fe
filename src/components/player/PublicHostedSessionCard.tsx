@@ -1,7 +1,8 @@
 'use client';
 
 import { ISession, SessionStatus } from '@/lib/api/types';
-import { Badge, Box, Flex, HStack, Image, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, HStack, Text } from '@chakra-ui/react';
+import { Image } from '@/components/ui/chakra-compat';
 import { CalendarDays, ChevronRight, MapPin, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';

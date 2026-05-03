@@ -1,5 +1,6 @@
 'use client';
 import { Input } from '@/components/ui/Input';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 
 import { Card, CardBody, Button, VSelect } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
@@ -443,7 +444,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       {t('startTime')}
                     </Text>
                   </HStack>
-                  <Input
+                  <VDateTimeInput
                     type="datetime-local"
                     value={formData.startTime}
                     onChange={(e) =>
@@ -459,13 +460,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       borderColor: 'brand.400',
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
-                    css={{
-                      '&::-webkit-date-and-time-value': {
-                        minHeight: '1.5em',
-                        display: 'flex',
-                        alignItems: 'center',
-                      },
-                    }}
+                    placeholder={t('startTime')}
                   />
                 </Box>
 
@@ -476,7 +471,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       {t('endTime')}
                     </Text>
                   </HStack>
-                  <Input
+                  <VDateTimeInput
                     type="datetime-local"
                     value={formData.endTime}
                     onChange={(e) =>
@@ -492,13 +487,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       borderColor: 'brand.400',
                       boxShadow: '0 0 0 1px #3182ce',
                     }}
-                    css={{
-                      '&::-webkit-date-and-time-value': {
-                        minHeight: '1.5em',
-                        display: 'flex',
-                        alignItems: 'center',
-                      },
-                    }}
+                    placeholder={t('endTime')}
                   />
                 </Box>
               </Grid>

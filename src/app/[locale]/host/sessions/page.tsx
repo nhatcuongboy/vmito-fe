@@ -2,7 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
-import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
+import { ISession, UserRole, SessionStatus, FeeType } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -26,6 +26,7 @@ import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import {
   ROUTES,
+  TIME_RANGES,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
@@ -60,8 +61,11 @@ function HostSessionsContent() {
 
   // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<
-    'active' | 'ended' | 'pending'
-  >((searchParams.get('tab') as 'active' | 'ended' | 'pending') || 'active');
+    'active' | 'ended' | 'pending' | 'expired'
+  >(
+    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'expired') ||
+      'active'
+  );
   const loadingMoreRef = useRef(false);
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -108,7 +112,16 @@ function HostSessionsContent() {
         status:
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
-            : filters.status,
+            : sessionStatusTab === 'active' && filters.status
+              ? filters.status
+              : sessionStatusTab === 'expired'
+                ? undefined
+                : filters.status,
+        endTimeBefore: undefined,
+        endTimeAfter:
+          sessionStatusTab === 'active' && !filters.status
+            ? new Date().toISOString()
+            : undefined,
         ...apiSortParams,
       });
 
@@ -208,6 +221,52 @@ function HostSessionsContent() {
       });
     }
 
+    // Time range filter (client-side, for "Tất cả" tab)
+    if (filters.timeRanges && filters.timeRanges.length > 0) {
+      result = result.filter((session) => {
+        if (!session.startTime) return false;
+        const hour = new Date(session.startTime).getHours();
+        return filters.timeRanges!.some((rangeKey) => {
+          const range = TIME_RANGES.find((r) => r.key === rangeKey);
+          if (!range) return false;
+          if (range.start < range.end)
+            return hour >= range.start && hour < range.end;
+          // overnight range (e.g. night: 22–5)
+          return hour >= range.start || hour < range.end;
+        });
+      });
+    }
+
+    // Level filter (multi-select, client-side)
+    if (filters.levels && filters.levels.length > 0) {
+      result = result.filter((session) => {
+        if (!session.requiredLevels || session.requiredLevels.length === 0)
+          return true;
+        return filters.levels!.some((l) => session.requiredLevels!.includes(l));
+      });
+    }
+
+    // Fee range filter (client-side)
+    if (
+      (filters.minFee !== undefined && filters.minFee > 0) ||
+      (filters.maxFee !== undefined && filters.maxFee < 200000)
+    ) {
+      result = result.filter((session) => {
+        const fee =
+          session.feeConfig?.maleFee ?? session.feeConfig?.femaleFee ?? 0;
+        const min = filters.minFee ?? 0;
+        const max = filters.maxFee ?? 200000;
+        return fee >= min && fee <= max;
+      });
+    }
+
+    // Split evenly filter (client-side)
+    if (filters.splitEvenly) {
+      result = result.filter(
+        (session) => session.feeConfig?.feeType === FeeType.SPLIT_EVENLY
+      );
+    }
+
     // Search filter is handled by API now
     if (filters.searchQuery !== searchQuery) {
       setSearchQuery(filters.searchQuery || '');
@@ -232,11 +291,15 @@ function HostSessionsContent() {
     setFilters(newFilters);
   };
 
-  const handleTabChange = (newTab: 'active' | 'ended' | 'pending') => {
+  const handleTabChange = (
+    newTab: 'active' | 'ended' | 'pending' | 'expired'
+  ) => {
     if (newTab === 'pending') {
       router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
       return;
     }
+    setFilters({});
+    setSearchQuery('');
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
@@ -263,6 +326,7 @@ function HostSessionsContent() {
       }}
       maxW="full"
       px={{ base: '24px', md: 0 }}
+      hideTopBarBorder={true}
     >
       <Flex
         gap={6}
@@ -274,11 +338,16 @@ function HostSessionsContent() {
         <HostSessionsNavPanel />
         <Box flex={1} minW={0}>
           <SessionFilters
+            key={sessionStatusTab}
             onFilterChange={handleFilterChange}
-            showStatusFilter={sessionStatusTab === 'active'}
+            showStatusFilter={
+              sessionStatusTab === 'active' || sessionStatusTab === 'expired'
+            }
             showDateFilter={true}
             showSearchFilter={true}
-            showLevelFilter={false}
+            showLevelFilter={sessionStatusTab === 'expired'}
+            showTimeFilter={sessionStatusTab === 'expired'}
+            showFeeFilter={sessionStatusTab === 'expired'}
             resultCount={totalCount}
             onCreateClick={() => {
               if (useAiForCreation) {
@@ -301,6 +370,7 @@ function HostSessionsContent() {
             sortOptions={HOST_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            showViewModeMap={false}
           />
           <SessionsList
             sessions={filteredSessions}

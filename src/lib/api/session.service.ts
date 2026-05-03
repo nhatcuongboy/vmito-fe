@@ -74,6 +74,7 @@ export const SessionService = {
     excludeStatus?: string;
     excludeStatuses?: string[];
     endTimeBefore?: string;
+    endTimeAfter?: string;
   }): Promise<{
     data: ISession[];
     total: number;
@@ -95,6 +96,8 @@ export const SessionService = {
       params.append('excludeStatus', filters.excludeStatus);
     if (filters?.endTimeBefore)
       params.append('endTimeBefore', filters.endTimeBefore);
+    if (filters?.endTimeAfter)
+      params.append('endTimeAfter', filters.endTimeAfter);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`
@@ -108,6 +111,56 @@ export const SessionService = {
         totalPages: number;
       }>
     >(url);
+    return (
+      response.data.data || {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 12,
+        totalPages: 0,
+      }
+    );
+  },
+
+  // Get public sessions by hostId (no auth required)
+  getPublicSessions: async (
+    hostId: string,
+    filters?: {
+      page?: number;
+      limit?: number;
+      status?: string;
+      excludeStatus?: string;
+      excludeStatuses?: string[];
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    }
+  ): Promise<{
+    data: ISession[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> => {
+    const params = new URLSearchParams({ hostId });
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.excludeStatuses && filters.excludeStatuses.length > 0)
+      params.append('excludeStatuses', filters.excludeStatuses.join(','));
+    else if (filters?.excludeStatus)
+      params.append('excludeStatus', filters.excludeStatus);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+    const response = await api.get<
+      ApiResponse<{
+        data: ISession[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>
+    >(`/sessions/public?${params.toString()}`);
     return (
       response.data.data || {
         data: [],
@@ -555,6 +608,64 @@ export const SessionService = {
           matchReasons: string[];
         })[];
         pagination: { page: number; limit: number; total: number };
+      }>
+    >(url);
+    return response.data.data!;
+  },
+
+  // Get session recommendations
+  getSessionRecommendations: async (
+    sessionId: string,
+    filters?: {
+      page?: number;
+      limit?: number;
+      userId?: string;
+    }
+  ): Promise<{
+    data: (ISession & {
+      relevanceScore: number;
+      matchReasons: string[];
+      distance: number | null;
+    })[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+    meta: {
+      currentSessionId: string;
+      isFallback: boolean;
+    };
+  }> => {
+    const params = new URLSearchParams();
+    if (filters?.page !== undefined)
+      params.append('page', filters.page.toString());
+    if (filters?.limit !== undefined)
+      params.append('limit', filters.limit.toString());
+    if (filters?.userId) params.append('userId', filters.userId);
+
+    const url = params.toString()
+      ? `/sessions/${sessionId}/recommendations?${params.toString()}`
+      : `/sessions/${sessionId}/recommendations`;
+
+    const response = await api.get<
+      ApiResponse<{
+        data: (ISession & {
+          relevanceScore: number;
+          matchReasons: string[];
+          distance: number | null;
+        })[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+        meta: {
+          currentSessionId: string;
+          isFallback: boolean;
+        };
       }>
     >(url);
     return response.data.data!;

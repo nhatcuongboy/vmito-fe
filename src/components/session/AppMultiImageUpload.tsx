@@ -48,6 +48,8 @@ interface IAppMultiImageUploadProps {
   disabled?: boolean;
   isUploading?: boolean;
   maxImages?: number;
+  category?: EImageCategory;
+  label?: string | null;
 }
 
 const SortableImageItem = ({
@@ -93,6 +95,8 @@ const SortableImageItem = ({
       borderWidth={isBanner ? 3 : 1}
       borderColor={isBanner ? 'green.500' : 'gray.200'}
       _dark={{ borderColor: isBanner ? 'green.400' : 'gray.600' }}
+      w={{ base: 'calc(50% - 6px)', sm: '120px' }}
+      flexShrink={0}
     >
       <ChakraImage
         src={image.url}
@@ -173,6 +177,8 @@ const AppMultiImageUpload = ({
   disabled = false,
   isUploading = false,
   maxImages = 5,
+  category = EImageCategory.SESSION_COVER,
+  label,
 }: IAppMultiImageUploadProps) => {
   const t = useTranslations('session');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -245,14 +251,16 @@ const AppMultiImageUpload = ({
 
   return (
     <Box>
-      <Flex justify="space-between" align="center" mb={2}>
-        <Text fontSize="sm" fontWeight="medium">
-          {t('sessionImages')}
-        </Text>
-        <Text fontSize="xs" color="gray.500">
-          {t('maxImages', { max: maxImages })} — {images.length}/{maxImages}
-        </Text>
-      </Flex>
+      {label !== null && (
+        <Flex justify="space-between" align="center" mb={2}>
+          <Text fontSize="sm" fontWeight="medium">
+            {label || t('sessionImages')}
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            {t('maxImages', { max: maxImages })} — {images.length}/{maxImages}
+          </Text>
+        </Flex>
+      )}
 
       {images.length > 0 ? (
         <DndContext
@@ -264,12 +272,7 @@ const AppMultiImageUpload = ({
             items={images.map((img) => img.publicId)}
             strategy={rectSortingStrategy}
           >
-            <Box
-              display="grid"
-              gridTemplateColumns="repeat(auto-fill, minmax(140px, 1fr))"
-              gap={3}
-              mb={3}
-            >
+            <Flex wrap="wrap" gap={3} mb={3}>
               {images.map((image, index) => (
                 <SortableImageItem
                   key={image.publicId}
@@ -282,7 +285,7 @@ const AppMultiImageUpload = ({
                   t={t}
                 />
               ))}
-            </Box>
+            </Flex>
           </SortableContext>
         </DndContext>
       ) : (
@@ -332,7 +335,7 @@ const AppMultiImageUpload = ({
         onSelect={handleGallerySelect}
         selectedImages={images}
         maxSelect={maxImages}
-        category={EImageCategory.SESSION_COVER}
+        category={category}
       />
     </Box>
   );

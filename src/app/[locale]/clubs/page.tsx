@@ -22,15 +22,17 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
   ROUTES,
+  BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
+import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import { useViewModeStore } from '@/stores/useViewModeStore';
-import { IClubListItem } from '@/types/club';
+import { IClubListItem, IClub } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
@@ -50,8 +52,10 @@ export default function BrowseClubsPage() {
   const viewMode = getViewMode('clubs');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
+  const [fullClubs, setFullClubs] = useState<IClub[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingFullDetails, setIsLoadingFullDetails] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
@@ -164,6 +168,27 @@ export default function BrowseClubsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, cities, districts, sortByDistance, userLocation]);
 
+  // Fetch full club details when in map mode
+  useEffect(() => {
+    if (viewMode === 'map' && clubs.length > 0) {
+      const fetchFullDetails = async () => {
+        setIsLoadingFullDetails(true);
+        try {
+          const detailsPromises = clubs.map((club) =>
+            ClubsService.getClubDetails(club.id)
+          );
+          const details = await Promise.all(detailsPromises);
+          setFullClubs(details);
+        } catch (error) {
+          console.error('Failed to fetch full club details:', error);
+        } finally {
+          setIsLoadingFullDetails(false);
+        }
+      };
+      fetchFullDetails();
+    }
+  }, [viewMode, clubs]);
+
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
@@ -250,21 +275,21 @@ export default function BrowseClubsPage() {
 
   return (
     <PageLayout title={t('clubs.browseClubs')}>
-      {/* Search Bar - Sticky */}
+      {/* Search Bar - Fixed on mobile, sticky on desktop */}
       <Box
-        position="sticky"
+        position={{ base: 'fixed', md: 'sticky' }}
         top={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
+          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         left={0}
         right={0}
         width="100vw"
-        marginLeft="calc(50% - 50vw)"
-        zIndex={100}
-        bg="transparent"
-        py={2}
-        transition="all 0.2s"
+        marginLeft={{ base: 0, md: 'calc(50% - 50vw)' }}
+        zIndex={1100}
+        bg={{ base: 'bg', md: 'transparent' }}
+        pt={2}
+        pb={{ base: 0, md: 2 }}
       >
         <Box w="100%" maxW="650px" mx="auto">
           <AppSearchBar
@@ -307,9 +332,7 @@ export default function BrowseClubsPage() {
             <Text
               fontSize="sm"
               color="fg.muted"
-              _dark={{ color: 'gray.400' }}
-              flexShrink={0}
-              flex="1"
+              display={{ base: 'none', md: 'block' }}
             >
               {totalCount} kết quả
             </Text>
@@ -406,6 +429,7 @@ export default function BrowseClubsPage() {
             </Badge>
           ))}
 
+          <Box flex="1" />
           <AppViewModeToggle scope="clubs" />
         </Flex>
       )}
@@ -722,6 +746,16 @@ export default function BrowseClubsPage() {
             </Button>
           )}
         </Box>
+      ) : viewMode === 'map' ? (
+        isLoadingFullDetails ? (
+          <Flex justify="center" align="center" minH="400px">
+            <Spinner size="xl" colorPalette="green" />
+          </Flex>
+        ) : (
+          <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+            <ClubMap clubs={fullClubs} userLocation={userLocation} />
+          </Box>
+        )
       ) : (
         <>
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>

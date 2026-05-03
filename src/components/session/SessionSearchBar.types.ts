@@ -10,4 +10,6 @@ export interface SessionSearchBarProps {
   topAddon?: React.ReactNode;
   hideCreateOnMobile?: boolean;
   topOffset?: number;
+  /** When true, use position:fixed on mobile instead of sticky (for discovery pages) */
+  fixedOnMobile?: boolean;
 }

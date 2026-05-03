@@ -8,13 +8,14 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Text, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
   Input,
   IconButton,
 } from '@/components/ui/chakra-compat';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useForm } from 'react-hook-form';
@@ -22,6 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { compressImage } from '@/lib/utils/image';
 import { VenueService } from '@/lib/api/venue.service';
 import { AdminService, User } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
@@ -35,7 +37,10 @@ import { Venue } from '@/lib/api/types';
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
   hostName: z.string().min(1, 'Trưởng nhóm là bắt buộc'),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(5000, 'Mô tả quá dài (tối đa 5000 ký tự)')
+    .optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
 });
@@ -94,6 +99,7 @@ const AdminCreateClubPage = () => {
           const result = await VenueService.searchVenues({
             keyword: query || undefined,
             limit: 50,
+            sortBy: query ? 'relevance' : undefined,
           });
           const fetched = result.data ?? [];
           const pinnedNotInFetched = Array.from(pinnedVenues.values()).filter(
@@ -130,7 +136,11 @@ const AdminCreateClubPage = () => {
 
   const handleUploadImage = useCallback(
     async (file: File): Promise<string> => {
-      const result = await ClubsService.uploadClubImage(file);
+      const compressedFile = await compressImage(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1200,
+      });
+      const result = await ClubsService.uploadClubImage(compressedFile);
       setValue('imagePublicId', result.publicId);
       return result.url;
     },
@@ -332,8 +342,9 @@ const AdminCreateClubPage = () => {
             invalid={!!errors.description}
             errorText={errors.description?.message}
           >
-            <Textarea
-              {...register('description')}
+            <RichTextEditor
+              value={watch('description')}
+              onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
             />
           </Field>

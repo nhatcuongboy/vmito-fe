@@ -83,6 +83,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
     confirmAddPlayerDespiteWarning,
     cancelAddPlayer,
     isUserAlreadyUsed,
+    searchUsers,
     // Add missing from hook for Grid view
     startEditingPlayer,
     cancelEditingPlayer,
@@ -351,6 +352,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         onSaveAll={handleSaveAndClose}
         onCancelAll={clearAllNewPlayers}
         isUserAlreadyUsed={isUserAlreadyUsed}
+        onSearchUsers={searchUsers}
       />
 
       {/* Warning popup for exceeding recommended player limit */}

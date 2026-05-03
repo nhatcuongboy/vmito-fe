@@ -15,7 +15,7 @@ import {
 import { INotification, NotificationType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
 import { formatDistanceToNow } from 'date-fns';
-import { vi, enUS } from 'date-fns/locale';
+import { vi, enUS, zhCN } from 'date-fns/locale';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 
@@ -28,6 +28,7 @@ interface INotificationItemProps {
 
 const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
   {
+    // Session actions (use sessionName param)
     start_reminder: {
       titleKey: 'messages.startReminderTitle',
       messageKey: 'messages.startReminderMessage',
@@ -35,6 +36,14 @@ const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
     player_start_reminder: {
       titleKey: 'messages.playerStartReminderTitle',
       messageKey: 'messages.playerStartReminderMessage',
+    },
+    auto_started: {
+      titleKey: 'messages.autoStartedTitle',
+      messageKey: 'messages.autoStartedMessage',
+    },
+    session_auto_started: {
+      titleKey: 'messages.sessionAutoStartedTitle',
+      messageKey: 'messages.sessionAutoStartedMessage',
     },
     auto_cancelled: {
       titleKey: 'messages.autoCancelledTitle',
@@ -52,11 +61,42 @@ const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
       titleKey: 'messages.autoFinalizedTitle',
       messageKey: 'messages.autoFinalizedMessage',
     },
+    // Club actions (use clubName param)
+    club_creation_pending: {
+      titleKey: 'messages.clubCreationPendingTitle',
+      messageKey: 'messages.clubCreationPendingMessage',
+    },
+    admin_new_pending_club: {
+      titleKey: 'messages.adminNewPendingClubTitle',
+      messageKey: 'messages.adminNewPendingClubMessage',
+    },
+    club_creation_approved: {
+      titleKey: 'messages.clubCreationApprovedTitle',
+      messageKey: 'messages.clubCreationApprovedMessage',
+    },
+    club_approved: {
+      titleKey: 'messages.clubApprovedTitle',
+      messageKey: 'messages.clubApprovedMessage',
+    },
+    club_rejected: {
+      titleKey: 'messages.clubRejectedTitle',
+      messageKey: 'messages.clubRejectedMessage',
+    },
   };
 
 const VIEW_SESSION_ACTIONS = new Set([
   'start_reminder',
   'player_start_reminder',
+  'auto_started',
+  'session_auto_started',
+]);
+
+const VIEW_CLUB_ACTIONS = new Set([
+  'club_creation_pending',
+  'admin_new_pending_club',
+  'club_creation_approved',
+  'club_approved',
+  'club_rejected',
 ]);
 
 const getNotificationIcon = (type: NotificationType) => {
@@ -109,26 +149,42 @@ export const NotificationItem = ({
 
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,
-    locale: locale === 'vi' ? vi : enUS,
+    locale: locale === 'vi' ? vi : locale === 'cn' ? zhCN : enUS,
   });
 
   const action = notification.data?.action as string | undefined;
   const sessionName = notification.data?.sessionName as string | undefined;
+  const clubName = notification.data?.clubName as string | undefined;
+  const rejectionReason = notification.data?.rejectionReason as
+    | string
+    | undefined;
   const sessionId = notification.data?.sessionId as string | undefined;
+  const clubSlug = notification.data?.clubSlug as string | undefined;
   const keys = action ? ACTION_TO_KEYS[action] : undefined;
 
+  // Use whatever resource name is available
+  const resourceName = sessionName ?? clubName;
+
+  const translationParams = {
+    ...(sessionName ? { sessionName } : {}),
+    ...(clubName ? { clubName } : {}),
+    ...(rejectionReason ? { rejectionReason } : {}),
+  };
+
   const displayTitle =
-    keys && sessionName
+    keys && resourceName
       ? t(keys.titleKey as Parameters<typeof t>[0])
       : notification.title;
 
   const displayMessage =
-    keys && sessionName
-      ? t(keys.messageKey as Parameters<typeof t>[0], { sessionName })
+    keys && resourceName
+      ? t(keys.messageKey as Parameters<typeof t>[0], translationParams)
       : notification.message;
 
   const showViewSession =
     action && VIEW_SESSION_ACTIONS.has(action) && !!sessionId;
+
+  const showViewClub = action && VIEW_CLUB_ACTIONS.has(action) && !!clubSlug;
 
   const handleClick = () => {
     if (!notification.isRead) {
@@ -143,6 +199,14 @@ export const NotificationItem = ({
       onMarkAsRead(notification.id);
     }
     router.push(`/sessions/${sessionId}`);
+  };
+
+  const handleViewClub = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!notification.isRead) {
+      onMarkAsRead(notification.id);
+    }
+    router.push(`/browse/clubs/${clubSlug}`);
   };
 
   return (
@@ -205,6 +269,19 @@ export const NotificationItem = ({
             >
               <LuExternalLink size={12} />
               {t('messages.viewSession')}
+            </Button>
+          )}
+
+          {showViewClub && (
+            <Button
+              size="xs"
+              variant="ghost"
+              colorPalette="teal"
+              mt={1}
+              onClick={handleViewClub}
+            >
+              <LuExternalLink size={12} />
+              {t('messages.viewClub')}
             </Button>
           )}
 

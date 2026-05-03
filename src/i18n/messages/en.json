@@ -43,7 +43,25 @@
     "findVenues": "Find Venues",
     "findClubs": "Find Groups",
     "findTournaments": "Find Tournaments",
+    "createTournament": "Create Tournament",
     "generalSettings": "General Settings"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search sessions, tournaments, venues...",
+    "empty": "Enter keywords to search",
+    "tabs": {
+      "sessions": "Badminton Sessions",
+      "tournaments": "Tournaments",
+      "venues": "Badminton Courts",
+      "clubs": "Clubs"
+    },
+    "results": {
+      "sessions": "Searching for badminton sessions...",
+      "tournaments": "Searching for tournaments...",
+      "venues": "Searching for badminton courts...",
+      "clubs": "Searching for clubs..."
+    }
   },
   "common": {
     "browse": "Analysis",
@@ -146,6 +164,7 @@
     "pleaseSelectImageFile": "Please select an image file",
     "fileSizeTooLarge": "File size must be less than 5MB",
     "imageProcessingFailed": "Failed to process image. Please try another file.",
+    "tooManyFiles": "You can only select up to {max} images",
     "uploadImage": "Upload Image",
     "selected": "selected",
     "clickToUpload": "Click to upload",
@@ -215,6 +234,8 @@
     "location": "Location",
     "courtAppearance": "Court Appearance",
     "selectCourtColor": "Select the color for your courts.",
+    "advancedSettings": "Advanced",
+    "sessionImages": "Session Images",
     "horizontal": "Horizontal",
     "vertical": "Vertical",
     "courtDirectionDescription": "Court orientation for better gameplay",
@@ -248,7 +269,8 @@
       "preparing": "Upcoming",
       "expired": "Expired",
       "inProgress": "In Progress",
-      "finished": "Finished"
+      "finished": "Finished",
+      "cancelled": "Cancelled"
     },
     "courtsAvailable": "courts",
     "players": "players",
@@ -410,7 +432,7 @@
       "8": "Pro"
     },
     "search": "Search",
-    "searchPlaceholder": "Search by venue, address, or host...",
+    "searchPlaceholder": "Search by session, venue...",
     "timeRange": "Time Range",
     "timeRanges": {
       "morning": "Morning",
@@ -511,7 +533,6 @@
     "coverPhotoUploadFailed": "Failed to upload cover photo",
     "coverPhotoRemoved": "Cover photo removed successfully",
     "coverPhotoRemoveFailed": "Failed to remove cover photo",
-    "sessionImages": "Session Images",
     "myImages": "My Images",
     "uploadNew": "Upload New",
     "setAsBanner": "Set as Banner",
@@ -560,6 +581,13 @@
     "timeNotSet": "Time not set",
     "courts": "courts",
     "viewMoreSessions": "View more sessions",
+    "whoWillPlay": "Who will play with you?",
+    "aiAnalyzeChip": "Analyze session",
+    "aiAnalyzeTitle": "Session Level Analysis",
+    "aiAnalyzing": "AI is analyzing...",
+    "registerNow": "Register now",
+    "showLess": "Show less",
+    "viewAll": "View all",
     "quickCreate": {
       "placeholder": "Do you want to create a new session?",
       "aiPlaceholder": "Create session quickly by AI....",
@@ -623,6 +651,7 @@
     "startSession": "Start Session",
     "pastEndWarning": "This session has passed its scheduled end time. Please update the time or cancel it.",
     "expiredSessionsNeedAction": "Sessions Needing Action",
+    "expiredSessions": "All",
     "expiredSessionsDescription": "The sessions below have passed their end time but haven't been started or ended. Please update the time or cancel them.",
     "sessionStarted": "Session started",
     "sessionEnded": "Session ended",
@@ -2223,6 +2252,9 @@
     "notStarted": "Not started",
     "inProgress": "In Progress",
     "finished": "Finished",
+    "cancelled": "Cancelled",
+    "cancelledTitle": "Session cancelled",
+    "cancelledMessage": "This session has been cancelled and is no longer active.",
     "players": "players",
     "total": "total",
     "playing": "playing",
@@ -2310,7 +2342,6 @@
       "cancel": "Cancel",
       "confirmAndStartMatch": "Confirm & Start Match",
       "confirmMatch": "Confirm",
-      "confirmMatchManual": "Confirm ({count}/{total})",
       "manualPlayerSelectionTitle": "Manual Player Selection - Court {courtNumber}",
       "selectedPlayersCount": "Selected Players ({count}/{total}):",
       "pairNumber": "Pair {number}",
@@ -3017,17 +3048,32 @@
     "messages": {
       "viewSession": "View session",
       "startReminderTitle": "Session is ready to start!",
-      "startReminderMessage": "It\u2019s time for \u201c{sessionName}\u201d. Are you at the court? Tap to start the session.",
+      "startReminderMessage": "It’s time for “{sessionName}”. Are you at the court? Tap to start the session.",
       "playerStartReminderTitle": "Your session is starting!",
-      "playerStartReminderMessage": "\u201c{sessionName}\u201d is about to start. Head to the court!",
+      "playerStartReminderMessage": "“{sessionName}” is about to start. Head to the court!",
       "autoCancelledTitle": "Session auto-cancelled",
-      "autoCancelledMessage": "\u201c{sessionName}\u201d was automatically cancelled because it was not started within 30 minutes.",
+      "autoCancelledMessage": "“{sessionName}” was automatically cancelled because it was not started within 30 minutes.",
       "sessionCancelledTitle": "Session cancelled",
-      "sessionCancelledMessage": "\u201c{sessionName}\u201d has been cancelled by the system. The host did not start the session on time.",
+      "sessionCancelledMessage": "“{sessionName}” has been cancelled by the system. The host did not start the session on time.",
       "endWarningTitle": "Session ending soon",
-      "endWarningMessage": "\u201c{sessionName}\u201d is ending in about 15 minutes.",
+      "endWarningMessage": "“{sessionName}” is ending in about 15 minutes.",
       "autoFinalizedTitle": "Session auto-finalized",
-      "autoFinalizedMessage": "\u201c{sessionName}\u201d has been automatically finalized because the grace period expired."
+      "autoFinalizedMessage": "“{sessionName}” has been automatically finalized because the grace period expired.",
+      "viewClub": "View club",
+      "autoStartedTitle": "Session auto-started",
+      "autoStartedMessage": "“{sessionName}” has been automatically started at the scheduled time.",
+      "sessionAutoStartedTitle": "Session has started!",
+      "sessionAutoStartedMessage": "“{sessionName}” has started. Head to the court!",
+      "clubCreationPendingTitle": "Club pending approval",
+      "clubCreationPendingMessage": "Your club “{clubName}” is awaiting admin approval.",
+      "adminNewPendingClubTitle": "New club pending approval",
+      "adminNewPendingClubMessage": "Club “{clubName}” is waiting for approval.",
+      "clubCreationApprovedTitle": "Club created successfully",
+      "clubCreationApprovedMessage": "Your club “{clubName}” has been created and approved.",
+      "clubApprovedTitle": "Club approved",
+      "clubApprovedMessage": "Your club “{clubName}” has been approved.",
+      "clubRejectedTitle": "Club rejected",
+      "clubRejectedMessage": "Your club “{clubName}” has been rejected. Reason: {rejectionReason}"
     }
   },
   "clubs": {
@@ -3039,7 +3085,7 @@
     },
     "browseClubs": "Find Clubs",
     "browseClubsDescription": "Discover badminton clubs in your area and join the community",
-    "searchPlaceholder": "Search by club name or location...",
+    "searchPlaceholder": "Search by club, location...",
     "noClubsFound": "No Clubs Found",
     "noClubsFoundDescription": "Try adjusting your search or check back later for new clubs",
     "members": "members",
@@ -3186,7 +3232,27 @@
       "4": "Thursday",
       "5": "Friday",
       "6": "Saturday"
-    }
+    },
+    "quickInfo": "Quick Info",
+    "levelRange": "Level Range",
+    "fee": "Fee",
+    "contactAdmin": "Contact Admin",
+    "noLevelInfo": "No level info",
+    "notUpdated": "Not updated",
+    "viewOnGoogleMaps": "View on Google Maps",
+    "searchOnGoogleMaps": "Search on Google Maps",
+    "noLocationInfo": "No location info",
+    "adminInfo": "Admin Info",
+    "joinNow": "Join Now",
+    "alreadyJoined": "Already Joined",
+    "pendingApproval": "Pending Approval",
+    "viewAll": "View All",
+    "aboutTab": "About",
+    "membersTab": "Members",
+    "scheduleTab": "Schedule",
+    "galleryTab": "Gallery",
+    "announcementsTab": "Announcements",
+    "noImages": "No images"
   },
   "suggestions": {
     "title": "Suggested Sessions",
@@ -3217,8 +3283,8 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
-    "findSessions": "Find Sessions",
-    "findSessionsAtVenue": "Find Sessions at Venue",
-    "nameFormat": "{name} Badminton Court"
+    "findSessionsAtVenue": "Find Sessions",
+    "nameFormat": "Badminton Court {name}",
+    "searchPlaceholder": "Search by venue name, address..."
   }
 }

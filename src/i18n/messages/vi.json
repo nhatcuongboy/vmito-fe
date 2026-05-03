@@ -46,6 +46,23 @@
     "createTournament": "Tạo giải",
     "generalSettings": "Cài đặt chung"
   },
+  "search": {
+    "title": "Tìm kiếm",
+    "placeholder": "Tìm kèo, giải đấu, sân...",
+    "empty": "Nhập từ khóa để tìm kiếm",
+    "tabs": {
+      "sessions": "Kèo cầu lông",
+      "tournaments": "Giải đấu",
+      "venues": "Sân cầu lông",
+      "clubs": "Câu lạc bộ"
+    },
+    "results": {
+      "sessions": "Đang tìm kèo cầu lông...",
+      "tournaments": "Đang tìm giải đấu...",
+      "venues": "Đang tìm sân cầu lông...",
+      "clubs": "Đang tìm câu lạc bộ..."
+    }
+  },
   "common": {
     "browse": "Thống kê",
     "search": "Tìm kiếm",
@@ -146,7 +163,9 @@
     "pleaseSelectImageFile": "Vui lòng chọn file ảnh",
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
+    "tooManyFiles": "Bạn chỉ có thể chọn tối đa {max} ảnh",
     "uploadImage": "Tải ảnh lên",
+
     "selected": "đã chọn",
     "clickToUpload": "Click để tải lên",
     "maxSize": "Kích thước tối đa",
@@ -216,6 +235,8 @@
     "location": "Địa điểm",
     "courtAppearance": "Giao diện sân",
     "selectCourtColor": "Chọn màu sắc cho sân của bạn.",
+    "advancedSettings": "Nâng cao",
+    "sessionImages": "Ảnh kèo",
     "horizontal": "Ngang",
     "vertical": "Dọc",
     "courtDirectionDescription": "Hướng sân để luồng chơi tốt hơn",
@@ -249,7 +270,8 @@
       "preparing": "Sắp diễn ra",
       "expired": "Quá hạn",
       "inProgress": "Đang diễn ra",
-      "finished": "Đã kết thúc"
+      "finished": "Đã kết thúc",
+      "cancelled": "Đã hủy"
     },
     "courtsAvailable": "sân",
     "players": "người chơi",
@@ -463,7 +485,7 @@
     },
     "noSessionsFound": "Không tìm thấy kèo nào",
     "noSessionsDescription": "Bạn chưa tham gia kèo cầu lông nào. Tham gia một kèo để xem ở đây!",
-    "activeSessions": "Đang hoạt động",
+    "activeSessions": "Đang mở",
     "pastSessions": "Kèo đã qua",
     "tryAdjustingFilters": "Thử điều chỉnh bộ lọc của bạn",
     "submitRegistration": "Gửi đăng ký",
@@ -503,7 +525,7 @@
     "myRegistration": "Đăng ký của tôi",
     "registeredPlayers": "Danh sách người chơi đã đăng ký",
     "playerCount": "{count} người chơi đã đăng ký",
-    "noPlayersFound": "Không tìm thấy người chơi",
+    "noPlayersFound": "Chưa có người chơi nào",
     "createByAI": "Tạo bằng AI",
     "coverPhoto": "Ảnh bìa",
     "clickToUploadCoverPhoto": "Click để tải ảnh bìa lên",
@@ -561,6 +583,13 @@
     "timeNotSet": "Chưa đặt giờ",
     "courts": "sân",
     "viewMoreSessions": "Xem thêm kèo",
+    "whoWillPlay": "Ai sẽ chơi cùng bạn?",
+    "aiAnalyzeChip": "Phân tích kèo",
+    "aiAnalyzeTitle": "Phân tích trình độ kèo",
+    "aiAnalyzing": "AI đang phân tích...",
+    "registerNow": "Đăng ký slot",
+    "showLess": "Thu gọn",
+    "viewAll": "Xem tất cả",
     "quickCreate": {
       "placeholder": "Bạn muốn tạo kèo mới?",
       "aiPlaceholder": "Tạo kèo nhanh bằng AI...",
@@ -624,6 +653,7 @@
     "startSession": "Bắt đầu kèo",
     "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "expiredSessionsNeedAction": "Kèo cần xử lý",
+    "expiredSessions": "Tất cả",
     "markAllFinished": "Kết thúc tất cả",
     "sessionsCompleted": "Đã đánh dấu hoàn thành tất cả",
     "batchCompleteConfirmText": "Bạn có chắc chắn muốn đánh dấu ĐÃ KẾT THÚC cho tất cả các kèo quá hạn/cần xử lý không? Hành động này sẽ chuyển các kèo đó qua tab Đã kết thúc và không thể hoàn tác.",
@@ -634,7 +664,8 @@
     "sessionEnded": "Kèo đã kết thúc",
     "errorUpdatingSessionStatus": "Không thể cập nhật trạng thái kèo",
     "collapse": "Thu gọn",
-    "expand": "Mở rộng"
+    "expand": "Mở rộng",
+    "advanced": "Nâng cao"
   },
   "court": {
     "title": "Sân",
@@ -2229,6 +2260,9 @@
     "notStarted": "Chưa bắt đầu",
     "inProgress": "Đang diễn ra",
     "finished": "Đã kết thúc",
+    "cancelled": "Đã hủy",
+    "cancelledTitle": "Kèo đã bị hủy",
+    "cancelledMessage": "Kèo này đã bị hủy và không còn hoạt động.",
     "players": "người",
     "total": "tổng",
     "playing": "đang chơi",
@@ -2276,6 +2310,7 @@
     "startSession": "Bắt đầu kèo",
     "pastEndWarning": "Kèo này đã quá giờ kết thúc. Vui lòng cập nhật thời gian hoặc hủy kèo.",
     "expiredSessionsNeedAction": "Kèo cần xử lý",
+    "expiredSessions": "Tất cả",
     "markAllFinished": "Kết thúc tất cả",
     "sessionsCompleted": "Đã đánh dấu hoàn thành tất cả",
     "batchCompleteConfirmText": "Bạn có chắc chắn muốn đánh dấu ĐÃ KẾT THÚC cho tất cả các kèo quá hạn/cần xử lý không? Hành động này sẽ chuyển các kèo đó qua tab Đã kết thúc và không thể hoàn tác.",
@@ -2321,7 +2356,6 @@
       "cancel": "Hủy",
       "confirmAndStartMatch": "Xác nhận & Bắt đầu trận đấu",
       "confirmMatch": "Xác nhận",
-      "confirmMatchManual": "Xác nhận ({count}/{total})",
       "manualPlayerSelectionTitle": "Chọn người chơi thủ công - Sân {courtNumber}",
       "selectedPlayersCount": "Người chơi đã chọn ({count}/{total}):",
       "pairNumber": "Cặp {number}",
@@ -3031,10 +3065,15 @@
     },
     "messages": {
       "viewSession": "Xem kèo",
+      "viewClub": "Xem nhóm",
       "startReminderTitle": "Kèo sắp bắt đầu!",
       "startReminderMessage": "Đã đến giờ cho kèo “{sessionName}”. Bạn đã có mặt tại sân chưa? Nhấn để bắt đầu.",
       "playerStartReminderTitle": "Kèo sắp bắt đầu!",
       "playerStartReminderMessage": "Kèo “{sessionName}” sắp bắt đầu. Hãy di chuyển ra sân!",
+      "autoStartedTitle": "Kèo đã tự động bắt đầu",
+      "autoStartedMessage": "Kèo “{sessionName}” đã được tự động bắt đầu đúng giờ đã lên lịch.",
+      "sessionAutoStartedTitle": "Kèo đã bắt đầu!",
+      "sessionAutoStartedMessage": "Kèo “{sessionName}” đã bắt đầu. Hãy ra sân thôi!",
       "autoCancelledTitle": "Kèo đã bị huỷ tự động",
       "autoCancelledMessage": "Kèo “{sessionName}” đã bị huỷ tự động vì không được bắt đầu trong vòng 30 phút.",
       "sessionCancelledTitle": "Kèo đã bị huỷ",
@@ -3042,7 +3081,17 @@
       "endWarningTitle": "Kèo sắp kết thúc",
       "endWarningMessage": "Kèo “{sessionName}” sẽ kết thúc sau khoảng 15 phút.",
       "autoFinalizedTitle": "Kèo đã được hoàn tất",
-      "autoFinalizedMessage": "Kèo “{sessionName}” đã được hệ thống tự động hoàn tất sau khi hết thời gian gia hạn."
+      "autoFinalizedMessage": "Kèo “{sessionName}” đã được hệ thống tự động hoàn tất sau khi hết thời gian gia hạn.",
+      "clubCreationPendingTitle": "Nhóm đang chờ phê duyệt",
+      "clubCreationPendingMessage": "Nhóm “{clubName}” của bạn đang chờ Admin phê duyệt.",
+      "adminNewPendingClubTitle": "Nhóm mới đang chờ duyệt",
+      "adminNewPendingClubMessage": "Nhóm “{clubName}” đang chờ phê duyệt.",
+      "clubCreationApprovedTitle": "Nhóm đã được tạo thành công",
+      "clubCreationApprovedMessage": "Nhóm “{clubName}” đã được tạo và phê duyệt thành công.",
+      "clubApprovedTitle": "Nhóm đã được phê duyệt",
+      "clubApprovedMessage": "Nhóm “{clubName}” của bạn đã được phê duyệt.",
+      "clubRejectedTitle": "Nhóm đã bị từ chối",
+      "clubRejectedMessage": "Nhóm “{clubName}” của bạn đã bị từ chối. Lý do: {rejectionReason}"
     }
   },
   "clubs": {
@@ -3054,7 +3103,7 @@
     },
     "browseClubs": "Tìm nhóm",
     "browseClubsDescription": "Tìm kiếm các nhóm cầu lông trong khu vực của bạn và tham gia cộng đồng",
-    "searchPlaceholder": "Tìm kiếm theo tên nhóm hoặc địa điểm...",
+    "searchPlaceholder": "Tìm theo tên nhóm, địa điểm...",
     "noClubsFound": "Không tìm thấy nhóm nào",
     "noClubsFoundDescription": "Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau để xem các nhóm mới",
     "members": "thành viên",
@@ -3201,7 +3250,29 @@
       "4": "Thứ 5",
       "5": "Thứ 6",
       "6": "Thứ 7"
-    }
+    },
+    "quickInfo": "Thông tin nhanh",
+    "levelRange": "Trình độ",
+    "minLevel": "Từ",
+    "maxLevel": "Đến",
+    "fee": "Chi phí",
+    "contactAdmin": "Liên hệ Admin",
+    "noLevelInfo": "Chưa có thông tin",
+    "notUpdated": "Chưa cập nhật",
+    "viewOnGoogleMaps": "Xem trên Google Maps",
+    "searchOnGoogleMaps": "Tìm trên Google Maps",
+    "noLocationInfo": "Chưa có thông tin vị trí",
+    "adminInfo": "Thông tin Admin",
+    "joinNow": "Tham gia ngay",
+    "alreadyJoined": "Đã tham gia",
+    "pendingApproval": "Đang chờ duyệt",
+    "viewAll": "Xem tất cả",
+    "aboutTab": "Giới thiệu",
+    "membersTab": "Thành viên",
+    "scheduleTab": "Lịch tập",
+    "galleryTab": "Hình ảnh",
+    "announcementsTab": "Thông báo",
+    "noImages": "Chưa có hình ảnh"
   },
   "suggestions": {
     "title": "Gợi ý kèo",
@@ -3234,6 +3305,7 @@
     "viewDetails": "Xem chi tiết",
     "findSessions": "Tìm kèo",
     "findSessionsAtVenue": "Tìm kèo tại sân",
-    "nameFormat": "Sân {name}"
+    "nameFormat": "Sân {name}",
+    "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
   }
 }

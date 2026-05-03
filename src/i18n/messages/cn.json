@@ -30,7 +30,29 @@
     "mainHome": "首页",
     "sessions": "场次",
     "personal": "个人",
+    "findSessions": "查找场次",
+    "findVenues": "查找场地",
+    "findClubs": "查找俱乐部",
+    "findTournaments": "查找锦标赛",
+    "createTournament": "创建锦标赛",
     "generalSettings": "常规设置"
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "搜索场次、锦标赛、场地...",
+    "empty": "输入关键词进行搜索",
+    "tabs": {
+      "sessions": "羽毛球场次",
+      "tournaments": "锦标赛",
+      "venues": "羽毛球场地",
+      "clubs": "俱乐部"
+    },
+    "results": {
+      "sessions": "正在搜索羽毛球场次...",
+      "tournaments": "正在搜索锦标赛...",
+      "venues": "正在搜索羽毛球场地...",
+      "clubs": "正在搜索俱乐部..."
+    }
   },
   "common": {
     "browse": "统计分析",
@@ -198,6 +220,8 @@
     "location": "地点",
     "courtAppearance": "场地外观",
     "selectCourtColor": "为您的场地选择颜色。",
+    "advancedSettings": "高级设置",
+    "sessionImages": "赛场图片",
     "horizontal": "水平",
     "vertical": "垂直",
     "courtDirectionDescription": "场地朝向以获得更好的游戏体验",
@@ -230,7 +254,8 @@
       "all": "所有",
       "preparing": "准备中",
       "inProgress": "进行中",
-      "finished": "已结束"
+      "finished": "已结束",
+      "cancelled": "已取消"
     },
     "courtsAvailable": "场地",
     "players": "玩家",
@@ -484,7 +509,6 @@
     "coverPhotoUploadFailed": "上传封面图片失败",
     "coverPhotoRemoved": "封面图片已移除",
     "coverPhotoRemoveFailed": "移除封面图片失败",
-    "sessionImages": "赛场图片",
     "myImages": "我的图片",
     "uploadNew": "上传新图片",
     "setAsBanner": "设为横幅",
@@ -531,6 +555,13 @@
     "timeNotSet": "未设定时间",
     "courts": "场地",
     "viewMoreSessions": "查看更多场次",
+    "whoWillPlay": "谁会和你一起打？",
+    "aiAnalyzeChip": "分析场次",
+    "aiAnalyzeTitle": "场次水平分析",
+    "aiAnalyzing": "AI 正在分析...",
+    "registerNow": "立即报名",
+    "showLess": "收起",
+    "viewAll": "查看全部",
     "quickCreate": {
       "placeholder": "{name}，你想创建什么？",
       "aiPlaceholder": "利用AI快速创建会话...",
@@ -593,6 +624,7 @@
     "endSession": "结束场次",
     "startSession": "开始场次",
     "pastEndWarning": "此场次已超过结束时间。请更新时间或取消场次。",
+    "expiredSessions": "全部",
     "expiredSessionsNeedAction": "需要处理的场次",
     "expiredSessionsDescription": "以下场次已超过结束时间，但尚未开始或结束。请更新时间或取消场次。",
     "sessionStarted": "场次已开始",
@@ -1056,6 +1088,7 @@
         "startDate": "开始日期",
         "endDate": "结束日期",
         "venue": "场地",
+        "locationPlaceholder": "活动将在哪里举行？",
         "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
         "createTournament": "创建锦标赛"
@@ -2159,6 +2192,9 @@
     "notStarted": "未开始",
     "inProgress": "进行中",
     "finished": "已结束",
+    "cancelled": "已取消",
+    "cancelledTitle": "场次已取消",
+    "cancelledMessage": "此场次已被取消，不再有效。",
     "players": "玩家",
     "total": "总计",
     "playing": "正在比赛",
@@ -2246,7 +2282,6 @@
       "cancel": "取消",
       "confirmAndStartMatch": "确认并开始比赛",
       "confirmMatch": "确认",
-      "confirmMatchManual": "确认 ({count}/{total})",
       "manualPlayerSelectionTitle": "手动选择玩家 - 场地 {courtNumber}",
       "selectedPlayersCount": "已选玩家 ({count}/{total})：",
       "pairNumber": "组合 {number}",
@@ -2932,17 +2967,32 @@
     "messages": {
       "viewSession": "查看场次",
       "startReminderTitle": "场次即将开始！",
-      "startReminderMessage": "\u201c{sessionName}\u201d 时间到了。您到场地了吗？点击开始场次。",
+      "startReminderMessage": "“{sessionName}” 时间到了。您到场地了吗？点击开始场次。",
       "playerStartReminderTitle": "您的场次即将开始！",
-      "playerStartReminderMessage": "\u201c{sessionName}\u201d 即将开始，请前往场地！",
+      "playerStartReminderMessage": "“{sessionName}” 即将开始，请前往场地！",
       "autoCancelledTitle": "场次已自动取消",
-      "autoCancelledMessage": "\u201c{sessionName}\u201d 因未在计划时间后30分钟内开始，已被自动取消。",
+      "autoCancelledMessage": "“{sessionName}” 因未在计划时间后30分钟内开始，已被自动取消。",
       "sessionCancelledTitle": "场次已取消",
-      "sessionCancelledMessage": "\u201c{sessionName}\u201d 已被系统取消。主持人未按时开始场次。",
+      "sessionCancelledMessage": "“{sessionName}” 已被系统取消。主持人未按时开始场次。",
       "endWarningTitle": "场次即将结束",
-      "endWarningMessage": "\u201c{sessionName}\u201d 将在约15分钟后结束。",
+      "endWarningMessage": "“{sessionName}” 将在约15分钟后结束。",
       "autoFinalizedTitle": "场次已自动结束",
-      "autoFinalizedMessage": "\u201c{sessionName}\u201d 已在宽限期到期后被系统自动结束。"
+      "autoFinalizedMessage": "“{sessionName}” 已在宽限期到期后被系统自动结束。",
+      "viewClub": "查看俱乐部",
+      "autoStartedTitle": "场次已自动开始",
+      "autoStartedMessage": "“{sessionName}” 已在预定时间自动开始。",
+      "sessionAutoStartedTitle": "场次已开始！",
+      "sessionAutoStartedMessage": "“{sessionName}” 已开始，请前往场地！",
+      "clubCreationPendingTitle": "俱乐部待审批",
+      "clubCreationPendingMessage": "您的俱乐部“{clubName}”正在等待管理员审批。",
+      "adminNewPendingClubTitle": "新俱乐部待审批",
+      "adminNewPendingClubMessage": "俱乐部“{clubName}”正在等待审批。",
+      "clubCreationApprovedTitle": "俱乐部创建成功",
+      "clubCreationApprovedMessage": "您的俱乐部“{clubName}”已创建并获得批准。",
+      "clubApprovedTitle": "俱乐部已批准",
+      "clubApprovedMessage": "您的俱乐部“{clubName}”已获批准。",
+      "clubRejectedTitle": "俱乐部已被拒绝",
+      "clubRejectedMessage": "您的俱乐部“{clubName}”已被拒绝。原因：{rejectionReason}"
     }
   },
   "clubs": {
@@ -3101,7 +3151,27 @@
       "4": "Thursday",
       "5": "Friday",
       "6": "Saturday"
-    }
+    },
+    "quickInfo": "快速信息",
+    "levelRange": "水平范围",
+    "fee": "费用",
+    "contactAdmin": "联系管理员",
+    "noLevelInfo": "暂无水平信息",
+    "notUpdated": "未更新",
+    "viewOnGoogleMaps": "在谷歌地图上查看",
+    "searchOnGoogleMaps": "在谷歌地图上搜索",
+    "noLocationInfo": "暂无位置信息",
+    "adminInfo": "管理员信息",
+    "joinNow": "立即加入",
+    "alreadyJoined": "已加入",
+    "pendingApproval": "待审核",
+    "viewAll": "查看全部",
+    "aboutTab": "关于",
+    "membersTab": "成员",
+    "scheduleTab": "日程",
+    "galleryTab": "相册",
+    "announcementsTab": "公告",
+    "noImages": "暂无图片"
   },
   "suggestions": {
     "title": "推荐场次",
@@ -3133,7 +3203,8 @@
     "view": "查看",
     "viewDetails": "查看详情",
     "findSessions": "查找场次",
-    "findSessionsAtVenue": "在该场地查找场次",
-    "nameFormat": "{name} 羽毛球场"
+    "findSessionsAtVenue": "查找场次",
+    "nameFormat": "羽毛球馆 {name}",
+    "searchPlaceholder": "按场地名称、地址搜索..."
   }
 }

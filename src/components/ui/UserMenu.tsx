@@ -50,6 +50,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [dropdownPos, setDropdownPos] = useState<{
+    top: number;
+    right: number;
+  } | null>(null);
 
   // Use actual color mode from theme provider
   const { theme, setColorMode } = useColorMode();
@@ -57,7 +62,12 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         // Reset to main menu when closing
         setTimeout(() => setCurrentMenu('MAIN'), 200);
@@ -72,6 +82,17 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
+
+  const handleToggleOpen = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setIsOpen((prev) => !prev);
+  };
 
   if (!user) return null;
 
@@ -118,21 +139,26 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   };
 
   const renderMainMenu = () => (
-    <Box py={2}>
+    <Box py={{ base: 1, md: 2 }}>
       {/* Profile/Settings */}
       <Flex
         align="center"
-        gap={3}
-        px={4}
-        py={3}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={handleProfileClick}
       >
-        <Box bg="gray.100" _dark={{ bg: 'gray.700' }} p={2} borderRadius="full">
-          <UserIcon size={20} />
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <UserIcon size={16} />
         </Box>
-        <Text fontSize="md" fontWeight="medium" flex={1}>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('profile')}
         </Text>
       </Flex>
@@ -140,51 +166,61 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       {/* Appearance */}
       <Flex
         align="center"
-        gap={3}
-        px={4}
-        py={3}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => setCurrentMenu('APPEARANCE')}
       >
-        <Box bg="gray.100" _dark={{ bg: 'gray.700' }} p={2} borderRadius="full">
-          <Moon size={20} />
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <Moon size={16} />
         </Box>
         <Box flex={1}>
-          <Text fontSize="md" fontWeight="medium">
+          <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
             {common('appearance')}: {getThemeLabel(currentTheme)}
           </Text>
         </Box>
-        <ChevronRight size={20} color="gray" />
+        <ChevronRight size={16} color="gray" />
       </Flex>
 
       {/* Language */}
       <Flex
         align="center"
-        gap={3}
-        px={4}
-        py={3}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => setCurrentMenu('LANGUAGE')}
       >
-        <Box bg="gray.100" _dark={{ bg: 'gray.700' }} p={2} borderRadius="full">
-          <Languages size={20} />
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <Languages size={16} />
         </Box>
         <Box flex={1}>
-          <Text fontSize="md" fontWeight="medium">
+          <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
             {common('displayLanguage')}: {getLanguageLabel(locale)}
           </Text>
         </Box>
-        <ChevronRight size={20} color="gray" />
+        <ChevronRight size={16} color="gray" />
       </Flex>
 
       {/* AI Assistant */}
       <Flex
         align="center"
-        gap={3}
-        px={4}
-        py={3}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => {
@@ -195,12 +231,12 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         <Box
           bg="purple.50"
           _dark={{ bg: 'purple.900/40' }}
-          p={2}
+          p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
-          <Sparkles size={20} color="var(--chakra-colors-purple-500)" />
+          <Sparkles size={16} color="var(--chakra-colors-purple-500)" />
         </Box>
-        <Text fontSize="md" fontWeight="medium" flex={1}>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('aiAssistant')}
         </Text>
       </Flex>
@@ -208,37 +244,52 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       {/* Give Feedback */}
       <Flex
         align="center"
-        gap={3}
-        px={4}
-        py={3}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
       >
-        <Box bg="gray.100" _dark={{ bg: 'gray.700' }} p={2} borderRadius="full">
-          <MessageSquare size={20} />
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <MessageSquare size={16} />
         </Box>
-        <Text fontSize="md" fontWeight="medium">
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
           {common('giveFeedback')}
         </Text>
       </Flex>
 
       {/* Separator */}
-      <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} my={2} />
+      <Box
+        h="1px"
+        bg="gray.200"
+        _dark={{ bg: 'gray.700' }}
+        my={{ base: 1, md: 2 }}
+      />
 
       {/* Logout */}
       <Flex
         align="center"
-        gap={3}
-        px={4}
-        py={3}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={handleLogoutClick}
       >
-        <Box bg="gray.100" _dark={{ bg: 'gray.700' }} p={2} borderRadius="full">
-          <LogOut size={20} />
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <LogOut size={16} />
         </Box>
-        <Text fontSize="md" fontWeight="medium">
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
           {common('logout')}
         </Text>
       </Flex>
@@ -261,14 +312,18 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           size="sm"
           borderRadius="full"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={16} />
         </IconButton>
-        <Text ml={2} fontWeight="bold" fontSize="lg">
+        <Text ml={2} fontWeight="bold" fontSize={{ base: 'sm', md: 'lg' }}>
           {common('appearance')}
         </Text>
       </Flex>
-      <Box p={4}>
-        <Text fontSize="sm" color="gray.500" mb={4}>
+      <Box p={{ base: 2, md: 4 }}>
+        <Text
+          fontSize={{ base: 'xs', md: 'sm' }}
+          color="gray.500"
+          mb={{ base: 2, md: 4 }}
+        >
           {common('displayOptionsSubtitle')}
         </Text>
         <Flex direction="column" gap={1}>
@@ -280,21 +335,22 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             <Flex
               key={t.id}
               align="center"
-              gap={3}
-              py={3}
+              gap={{ base: 2, md: 3 }}
+              py={{ base: 2, md: 3 }}
               px={2}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
               onClick={() => setColorMode(t.id as 'light' | 'dark' | 'system')}
               borderRadius="md"
             >
-              <Box w={6}>
+              <Box w={{ base: 4, md: 6 }}>
                 {theme === t.id && (
-                  <Check size={20} color="var(--chakra-colors-blue-500)" />
+                  <Check size={16} color="var(--chakra-colors-blue-500)" />
                 )}
               </Box>
               <Text
                 flex={1}
+                fontSize={{ base: 'sm', md: 'md' }}
                 fontWeight={theme === t.id ? 'semibold' : 'normal'}
               >
                 {t.label}
@@ -322,9 +378,9 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           size="sm"
           borderRadius="full"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={16} />
         </IconButton>
-        <Text ml={2} fontWeight="bold" fontSize="lg">
+        <Text ml={2} fontWeight="bold" fontSize={{ base: 'sm', md: 'lg' }}>
           {common('displayLanguage')}
         </Text>
       </Flex>
@@ -334,20 +390,24 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             <Flex
               key={l}
               align="center"
-              gap={3}
-              py={3}
-              px={4}
+              gap={{ base: 2, md: 3 }}
+              py={{ base: 2, md: 3 }}
+              px={{ base: 3, md: 4 }}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
               onClick={() => handleLanguageChange(l)}
               borderRadius="md"
             >
-              <Box w={6}>
+              <Box w={{ base: 4, md: 6 }}>
                 {locale === l && (
-                  <Check size={20} color="var(--chakra-colors-blue-500)" />
+                  <Check size={16} color="var(--chakra-colors-blue-500)" />
                 )}
               </Box>
-              <Text flex={1} fontWeight={locale === l ? 'semibold' : 'normal'}>
+              <Text
+                flex={1}
+                fontSize={{ base: 'sm', md: 'md' }}
+                fontWeight={locale === l ? 'semibold' : 'normal'}
+              >
                 {getLanguageLabel(l)}
               </Text>
             </Flex>
@@ -359,12 +419,12 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   return (
     <>
-      <Box position="relative" ref={menuRef}>
+      <Box position="relative" ref={buttonRef}>
         {/* Avatar Button */}
         <Box
           position="relative"
           cursor="pointer"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggleOpen}
           _hover={{ opacity: 0.8 }}
           transition="opacity 0.2s"
         >
@@ -388,18 +448,21 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             <ChevronDown size={12} />
           </Box>
         </Box>
+      </Box>
 
-        {/* Dropdown Menu */}
-        {isOpen && (
+      {/* Dropdown Menu - rendered via Portal to escape TopBar stacking context */}
+      {isOpen && dropdownPos && (
+        <Portal>
           <Box
-            position="absolute"
-            top="calc(100% + 8px)"
-            right={0}
+            ref={menuRef}
+            position="fixed"
+            top={`${dropdownPos.top}px`}
+            right={`${dropdownPos.right}px`}
             bg="white"
             borderRadius="lg"
             boxShadow="xl"
-            minW="320px"
-            zIndex={2000}
+            minW={{ base: '260px', md: '320px' }}
+            zIndex={9999}
             border="1px solid"
             borderColor="gray.200"
             overflow="hidden"
@@ -409,7 +472,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               <>
                 {/* User Info Section */}
                 <Box
-                  p={3}
+                  p={{ base: 2, md: 3 }}
                   cursor="pointer"
                   _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
                   onClick={handleProfileClick}
@@ -417,8 +480,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                   borderColor="gray.200"
                   _dark={{ borderColor: 'gray.700' }}
                 >
-                  <Flex align="center" gap={3}>
-                    <Avatar.Root size="md" bg="brand.500">
+                  <Flex align="center" gap={{ base: 2, md: 3 }}>
+                    <Avatar.Root size={{ base: 'sm', md: 'md' }} bg="brand.500">
                       <Avatar.Fallback name={user.name || user.email}>
                         {(user.name || user.email).charAt(0).toUpperCase()}
                       </Avatar.Fallback>
@@ -426,7 +489,10 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                     </Avatar.Root>
                     <Box flex={1}>
                       <Flex align="center" gap={2}>
-                        <Text fontSize="md" fontWeight="semibold">
+                        <Text
+                          fontSize={{ base: 'sm', md: 'md' }}
+                          fontWeight="semibold"
+                        >
                           {user.name || 'User'}
                         </Text>
                         {user.role === UserRole.HOST && (
@@ -451,7 +517,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                         )}
                       </Flex>
                       <Text
-                        fontSize="sm"
+                        fontSize="xs"
                         color="gray.600"
                         _dark={{ color: 'gray.400' }}
                       >
@@ -466,8 +532,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             {currentMenu === 'APPEARANCE' && renderAppearanceMenu()}
             {currentMenu === 'LANGUAGE' && renderLanguageMenu()}
           </Box>
-        )}
-      </Box>
+        </Portal>
+      )}
 
       {/* Profile Modal - rendered via Portal to escape dropdown positioning context */}
       <Portal>

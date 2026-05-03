@@ -67,8 +67,8 @@ function PendingJoinRequestsContent({
           <StatusTabSwitch
             activeTab="pending"
             pendingCount={total}
-            onChange={(tab: 'active' | 'ended' | 'pending') => {
-              if (tab === 'active' || tab === 'ended') {
+            onChange={(tab: 'active' | 'ended' | 'pending' | 'expired') => {
+              if (tab === 'active' || tab === 'ended' || tab === 'expired') {
                 router.push(`${ROUTES.HOST.SESSIONS.LIST}?tab=${tab}`);
               }
             }}

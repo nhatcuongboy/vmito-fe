@@ -12,10 +12,20 @@ import {
   Text,
   Spinner,
 } from '@chakra-ui/react';
-import { Crown, MapPin, Clock, ChevronRight, Users } from 'lucide-react';
+import {
+  Crown,
+  MapPin,
+  Clock,
+  ChevronRight,
+  Users,
+  TrendingUp,
+} from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { stripHtml } from '@/utils';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 
 interface ClubCardProps {
   club: IClubListItem;
@@ -51,6 +61,7 @@ const formatScheduleDisplay = (
 export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
   const router = useRouter();
   const t = useTranslations();
+  const { getLevelLabel } = useLevelLabel();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleViewDetails = () => {
@@ -64,6 +75,33 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
 
   // Determine status badge
   const isActive = club.status === 'APPROVED';
+
+  const getLevelDisplay = () => {
+    if (!club.requiredLevels || club.requiredLevels.length === 0) return null;
+
+    const sorted = [...club.requiredLevels].sort((a, b) => a - b);
+    if (sorted.length === 1) return getLevelLabel(sorted[0]);
+
+    // Check if it's a continuous range
+    const isContinuous = sorted.every(
+      (val, i) => i === 0 || val === sorted[i - 1] + 1
+    );
+    if (isContinuous && sorted.length > 2) {
+      return `${getLevelLabel(sorted[0])} - ${getLevelLabel(sorted[sorted.length - 1])}`;
+    }
+
+    // Otherwise show first 2 and count
+    if (sorted.length > 2) {
+      return `${getLevelLabel(sorted[0])}, ${getLevelLabel(sorted[1])} +${sorted.length - 2}`;
+    }
+
+    return sorted.map((l) => getLevelLabel(l)).join(', ');
+  };
+
+  const levelText = getLevelDisplay();
+  const skillColor = club.requiredLevels?.length
+    ? getSkillLevelColor([Math.max(...club.requiredLevels)]).color
+    : undefined;
 
   if (variant === 'list') {
     return (
@@ -168,6 +206,25 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
               >
                 <MapPin size={14} style={{ flexShrink: 0 }} />
                 <Text lineClamp={1}>{venueName}</Text>
+              </HStack>
+            )}
+
+            {levelText && (
+              <HStack
+                fontSize="xs"
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+                mt={0.5}
+                gap={1.5}
+              >
+                <TrendingUp
+                  size={14}
+                  color={skillColor}
+                  style={{ flexShrink: 0 }}
+                />
+                <Text lineClamp={1} fontWeight="semibold">
+                  {levelText}
+                </Text>
               </HStack>
             )}
 
@@ -298,7 +355,7 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
               lineClamp={2}
               mb={3}
             >
-              {club.description}
+              {stripHtml(club.description)}
             </Text>
           )}
         </Box>
@@ -402,6 +459,35 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
                 </Text>
               </Box>
             </Flex>
+
+            {/* Level requirements */}
+            {levelText && (
+              <Flex align="center" gap={2.5}>
+                <Box
+                  p={2}
+                  borderRadius="lg"
+                  bg="green.50"
+                  _dark={{ bg: 'green.900/20' }}
+                >
+                  <TrendingUp
+                    size={16}
+                    color={skillColor || '#38A169'}
+                    style={{ flexShrink: 0 }}
+                  />
+                </Box>
+                <Box flex="1">
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                    fontWeight="semibold"
+                    lineClamp={1}
+                  >
+                    {levelText}
+                  </Text>
+                </Box>
+              </Flex>
+            )}
           </Stack>
         </Box>
       </Box>

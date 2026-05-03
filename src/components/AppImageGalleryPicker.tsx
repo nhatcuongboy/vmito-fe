@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Flex, Text, Spinner, Badge } from '@chakra-ui/react';
+import { Box, Flex, Text, Spinner, Badge, Portal } from '@chakra-ui/react';
 import {
   Modal,
   ModalOverlay,
@@ -25,6 +25,7 @@ import { useTranslations } from 'next-intl';
 import { UserImageService } from '@/lib/api/user-image.service';
 import { IUserImage, EImageCategory } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
+import { compressImage } from '@/lib/utils/image';
 
 interface ISelectedImage {
   url: string;
@@ -62,30 +63,28 @@ const AppImageGalleryPicker = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const fetchImages = useCallback(
-    async (pageNum: number, append = false) => {
-      setIsLoading(true);
-      try {
-        const response = await UserImageService.getMyImages(
-          category,
-          pageNum,
-          20
-        );
-        const items = Array.isArray(response?.data) ? response.data : [];
-        if (append) {
-          setGalleryImages((prev) => [...prev, ...items]);
-        } else {
-          setGalleryImages(items);
-        }
-        setHasMore(pageNum < (response?.meta?.totalPages ?? 0));
-      } catch {
-        console.error('Failed to fetch images');
-      } finally {
-        setIsLoading(false);
+  const fetchImages = useCallback(async (pageNum: number, append = false) => {
+    setIsLoading(true);
+    try {
+      // Fetch all images regardless of category
+      const response = await UserImageService.getMyImages(
+        undefined,
+        pageNum,
+        20
+      );
+      const items = Array.isArray(response?.data) ? response.data : [];
+      if (append) {
+        setGalleryImages((prev) => [...prev, ...items]);
+      } else {
+        setGalleryImages(items);
       }
-    },
-    [category]
-  );
+      setHasMore(pageNum < (response?.meta?.totalPages ?? 0));
+    } catch {
+      console.error('Failed to fetch images');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -141,25 +140,48 @@ const AppImageGalleryPicker = ({
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      toaster.error({ title: tc('pleaseSelectImageFile') });
-      return;
+    const fileList = Array.from(files);
+
+    // Check if total selected + new uploads exceed maxSelect
+    if (selected.length + fileList.length > maxSelect) {
+      toaster.error({ title: tc('tooManyFiles', { max: maxSelect }) });
+      // We can still process up to the limit if we want, but usually better to just warn
+      // For now, let's just proceed with all but warn
     }
 
     setIsUploading(true);
     try {
-      const uploaded = await UserImageService.uploadImage(file, category);
-      setGalleryImages((prev) => [uploaded, ...prev]);
+      let hasNonImage = false;
+      const uploadPromises = fileList.map(async (file) => {
+        if (!file.type.startsWith('image/')) {
+          hasNonImage = true;
+          return null;
+        }
 
-      // Auto-select newly uploaded image if within limit
-      if (selected.length < maxSelect) {
-        setSelected((prev) => [
-          ...prev,
-          { url: uploaded.url, publicId: uploaded.publicId },
-        ]);
+        // Compress image before upload
+        const compressedFile = await compressImage(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+        });
+
+        return await UserImageService.uploadImage(compressedFile, category);
+      });
+
+      if (hasNonImage) {
+        toaster.error({ title: tc('pleaseSelectImageFile') });
+      }
+
+      const results = await Promise.all(uploadPromises);
+      const successfulUploads = results.filter(
+        (img): img is IUserImage => img !== null
+      );
+
+      if (successfulUploads.length > 0) {
+        setGalleryImages((prev) => [...successfulUploads, ...prev]);
+        // Không tự động chọn ảnh mới upload nữa
       }
     } catch {
       toaster.error({ title: tc('imageProcessingFailed') });
@@ -198,11 +220,13 @@ const AppImageGalleryPicker = ({
                 <input
                   ref={fileInputRef}
                   type="file"
+                  multiple
                   accept="image/jpeg,image/png,image/gif,image/webp"
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
                   disabled={isUploading}
                 />
+
                 <Button
                   type="button"
                   size="sm"
@@ -228,9 +252,12 @@ const AppImageGalleryPicker = ({
                 </Text>
               </Flex>
             ) : (
-              <SimpleGrid columns={3} gap={3}>
+              <SimpleGrid columns={{ base: 2, md: 3 }} gap={3}>
                 {galleryImages.map((img) => {
-                  const imgSelected = isSelected(img);
+                  const selectedIndex = selected.findIndex(
+                    (s) => s.publicId === img.publicId
+                  );
+                  const imgSelected = selectedIndex !== -1;
                   const isDisabled =
                     !imgSelected && selected.length >= maxSelect;
                   return (
@@ -238,97 +265,158 @@ const AppImageGalleryPicker = ({
                       key={img.id}
                       position="relative"
                       cursor={isDisabled ? 'not-allowed' : 'pointer'}
-                      opacity={isDisabled ? 0.5 : 1}
                       borderRadius="md"
                       overflow="hidden"
                       borderWidth={imgSelected ? 3 : 1}
                       borderColor={imgSelected ? 'green.500' : 'gray.200'}
-                      transition="all 0.2s"
+                      boxShadow={
+                        imgSelected
+                          ? '0 0 0 1px green.500, 0 0 10px rgba(72, 187, 120, 0.5)'
+                          : 'none'
+                      }
+                      transform={imgSelected ? 'scale(1.02)' : 'scale(1)'}
+                      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                       role="group"
-                      _hover={isDisabled ? {} : { borderColor: 'green.300' }}
+                      zIndex={imgSelected ? 1 : 0}
+                      _hover={
+                        isDisabled
+                          ? {}
+                          : {
+                              borderColor: imgSelected
+                                ? 'green.500'
+                                : 'green.300',
+                              transform: 'scale(1.02)',
+                            }
+                      }
                       onClick={() => !isDisabled && handleToggleSelect(img)}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={img.url}
-                        alt={img.originalName || 'Gallery image'}
-                        style={{
-                          width: '100%',
-                          height: '100px',
-                          objectFit: 'cover',
-                          display: 'block',
-                        }}
-                      />
+                      <Box
+                        position="relative"
+                        w="100%"
+                        aspectRatio="4/3"
+                        overflow="hidden"
+                        opacity={isDisabled ? 0.5 : 1}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={img.url}
+                          alt={img.originalName || 'Gallery image'}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block',
+                          }}
+                        />
+                      </Box>
 
-                      {/* Selected checkmark — always visible when selected */}
+                      {/* Selection Number Overlay */}
                       {imgSelected && (
                         <Flex
                           position="absolute"
-                          top={1}
-                          right={1}
+                          top={2}
+                          left={2}
+                          bg="blue.500"
+                          color="white"
+                          w={5}
+                          h={5}
+                          borderRadius="full"
+                          align="center"
+                          justify="center"
+                          fontSize="xs"
+                          fontWeight="bold"
+                          boxShadow="md"
+                          pointerEvents="none"
+                        >
+                          {selectedIndex + 1}
+                        </Flex>
+                      )}
+
+                      {/* Category Badge đã bị xoá theo yêu cầu UX */}
+
+                      {/* Selected checkmark circle — top right */}
+                      {imgSelected && (
+                        <Flex
+                          position="absolute"
+                          top={2}
+                          right={2}
                           bg="green.500"
                           borderRadius="full"
                           p={1}
+                          boxShadow="md"
+                          pointerEvents="none"
                         >
                           <Check size={12} color="white" />
                         </Flex>
                       )}
 
-                      {/* Preview (expand) button — appears on hover */}
-                      <Box
-                        position="absolute"
-                        top={1}
-                        left={1}
-                        opacity={0}
-                        _groupHover={{ opacity: 1 }}
-                        transition="opacity 0.15s"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPreviewUrl(img.url);
-                        }}
-                        cursor="pointer"
-                        bg="blackAlpha.700"
-                        borderRadius="full"
-                        p={1}
-                        _hover={{ bg: 'blackAlpha.900' }}
-                      >
-                        <Expand size={12} color="white" />
-                      </Box>
-
-                      {/* Delete button — appears on hover */}
-                      <Box
-                        position="absolute"
-                        bottom={1}
-                        right={1}
-                        opacity={0}
-                        _groupHover={{ opacity: 1 }}
-                        transition="opacity 0.15s"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm(t('deleteImageConfirm'))) {
-                            handleDeleteImage(img);
-                          }
-                        }}
-                        cursor="pointer"
-                        bg="red.500"
-                        borderRadius="full"
-                        p={1}
-                        _hover={{ bg: 'red.600' }}
-                      >
-                        <Trash2 size={12} color="white" />
-                      </Box>
-
-                      {img.format && (
-                        <Badge
+                      {/* Cover Photo Label */}
+                      {selectedIndex === 0 && (
+                        <Box
                           position="absolute"
                           bottom={1}
-                          left={1}
+                          right={1}
+                          bg="green.500"
+                          color="white"
                           fontSize="2xs"
-                          colorPalette="gray"
+                          px={1.5}
+                          py={0.5}
+                          borderRadius="sm"
+                          fontWeight="bold"
+                          boxShadow="md"
+                          pointerEvents="none"
+                          zIndex={1}
                         >
-                          {img.format.toUpperCase()}
-                        </Badge>
+                          {t('coverPhoto')}
+                        </Box>
                       )}
+
+                      {/* View Action Buttons (Always visible at the bottom center) */}
+                      <Flex
+                        position="absolute"
+                        bottom={2}
+                        left="50%"
+                        transform="translateX(-50%)"
+                        gap={2}
+                        zIndex={2}
+                      >
+                        <Box
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewUrl(img.url);
+                          }}
+                          cursor="pointer"
+                          bg="white"
+                          color="gray.800"
+                          borderRadius="full"
+                          p={2}
+                          _hover={{ bg: 'gray.100', transform: 'scale(1.1)' }}
+                          transition="all 0.2s"
+                          boxShadow="lg"
+                          title={tc('view')}
+                        >
+                          <Expand size={16} />
+                        </Box>
+                        <Box
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(t('deleteImageConfirm'))) {
+                              handleDeleteImage(img);
+                            }
+                          }}
+                          cursor="pointer"
+                          bg="white"
+                          color="red.500"
+                          borderRadius="full"
+                          p={2}
+                          _hover={{ bg: 'red.50', transform: 'scale(1.1)' }}
+                          transition="all 0.2s"
+                          boxShadow="lg"
+                          title={tc('delete')}
+                        >
+                          <Trash2 size={16} />
+                        </Box>
+                      </Flex>
                     </Box>
                   );
                 })}
@@ -360,46 +448,48 @@ const AppImageGalleryPicker = ({
 
       {/* Fullscreen image preview lightbox */}
       {previewUrl && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          zIndex={1400}
-          bg="blackAlpha.900"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          onClick={() => setPreviewUrl(null)}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={previewUrl}
-            alt="Preview"
-            style={{
-              maxWidth: '90vw',
-              maxHeight: '90vh',
-              objectFit: 'contain',
-              borderRadius: '8px',
-              boxShadow: '0 0 40px rgba(0,0,0,0.8)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
+        <Portal>
           <Box
-            position="absolute"
-            top={4}
-            right={4}
-            cursor="pointer"
-            bg="blackAlpha.700"
-            borderRadius="full"
-            p={2}
-            _hover={{ bg: 'blackAlpha.900' }}
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            zIndex={1600}
+            bg="blackAlpha.900"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
             onClick={() => setPreviewUrl(null)}
           >
-            <X size={20} color="white" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                objectFit: 'contain',
+                borderRadius: '8px',
+                boxShadow: '0 0 40px rgba(0,0,0,0.8)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <Box
+              position="absolute"
+              top={4}
+              right={4}
+              cursor="pointer"
+              bg="blackAlpha.700"
+              borderRadius="full"
+              p={2}
+              _hover={{ bg: 'blackAlpha.900' }}
+              onClick={() => setPreviewUrl(null)}
+            >
+              <X size={20} color="white" />
+            </Box>
           </Box>
-        </Box>
+        </Portal>
       )}
     </>
   );

@@ -70,6 +70,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     confirmAddPlayerDespiteWarning,
     cancelAddPlayer,
     isUserAlreadyUsed,
+    searchUsers,
     setPlayerToDelete,
     togglePlayerStatus,
     clubs: fixedMemberGroups,
@@ -164,6 +165,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onCancelAll={clearAllNewPlayers}
         isUserAlreadyUsed={isUserAlreadyUsed}
         clubs={fixedMemberGroups}
+        onSearchUsers={searchUsers}
       />
 
       {/* Player List - apply filter */}
