@@ -19,7 +19,7 @@ export interface SessionFilters {
   splitEvenly: boolean; // New field for split payment option
 }
 
-export type ViewMode = 'full' | 'compact' | 'map';
+export type ViewMode = 'grid' | 'list' | 'map';
 
 export type SessionSortBy =
   | 'date_desc'
@@ -110,7 +110,7 @@ export const useSessionFilterStore = create<SessionFilterState>()(
       sortByDistance: false,
       sortBy: 'date_asc' as SessionSortBy,
       userLocation: null,
-      viewMode: 'full' as ViewMode,
+      viewMode: 'grid' as ViewMode,
 
       // Actions
       setFilter: (key, value) =>

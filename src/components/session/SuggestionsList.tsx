@@ -10,7 +10,6 @@ import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import type { ViewMode } from '@/hooks/useViewMode';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
 import { MapPinOff, RefreshCw, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -425,7 +424,7 @@ export default function SuggestionsList({
       {loading ? (
         <Grid
           templateColumns={
-            viewMode === 'compact'
+            viewMode === 'list'
               ? {
                   base: '1fr',
                   sm: 'repeat(2, 1fr)',
@@ -438,7 +437,7 @@ export default function SuggestionsList({
                   lg: 'repeat(3, 1fr)',
                 }
           }
-          gap={viewMode === 'compact' ? 4 : 6}
+          gap={viewMode === 'list' ? 4 : 6}
         >
           {Array.from({ length: 6 }).map((_, index) => (
             <SessionCardSkeleton
@@ -502,7 +501,7 @@ export default function SuggestionsList({
         <RatingStatsProvider userIds={hostIds}>
           <Grid
             templateColumns={
-              viewMode === 'compact'
+              viewMode === 'list'
                 ? {
                     base: '1fr',
                     sm: 'repeat(2, 1fr)',
@@ -515,7 +514,7 @@ export default function SuggestionsList({
                     lg: 'repeat(3, 1fr)',
                   }
             }
-            gap={viewMode === 'compact' ? 4 : 6}
+            gap={viewMode === 'list' ? 4 : 6}
           >
             {filteredSessions.map((session) => (
               <Box
@@ -545,7 +544,7 @@ export default function SuggestionsList({
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={
-                  viewMode === 'compact'
+                  viewMode === 'list'
                     ? {
                         base: '1fr',
                         sm: 'repeat(2, 1fr)',
@@ -558,7 +557,7 @@ export default function SuggestionsList({
                         lg: 'repeat(3, 1fr)',
                       }
                 }
-                gap={viewMode === 'compact' ? 4 : 6}
+                gap={viewMode === 'list' ? 4 : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
                   <SessionCardSkeleton
