@@ -33,6 +33,8 @@ import {
   PopoverHeader,
   PopoverBody,
 } from '@/components/ui/popover';
+import { NotificationItem } from '../notification/NotificationItem';
+import { NotificationSkeleton } from '../notification/NotificationSkeleton';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -57,75 +59,75 @@ interface NotificationBellProps {
 type TUnifiedItem =
   | { kind: 'notification'; data: INotification; timestamp: number }
   | {
-    kind: 'approval';
-    data: PendingRequest;
-    allSlots: PendingRequest[];
-    timestamp: number;
-  };
+      kind: 'approval';
+      data: PendingRequest;
+      allSlots: PendingRequest[];
+      timestamp: number;
+    };
 
 const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
-{
-  start_reminder: {
-    titleKey: 'messages.startReminderTitle',
-    messageKey: 'messages.startReminderMessage',
-  },
-  player_start_reminder: {
-    titleKey: 'messages.playerStartReminderTitle',
-    messageKey: 'messages.playerStartReminderMessage',
-  },
-  auto_started: {
-    titleKey: 'messages.autoStartedTitle',
-    messageKey: 'messages.autoStartedMessage',
-  },
-  session_auto_started: {
-    titleKey: 'messages.sessionAutoStartedTitle',
-    messageKey: 'messages.sessionAutoStartedMessage',
-  },
-  auto_cancelled: {
-    titleKey: 'messages.autoCancelledTitle',
-    messageKey: 'messages.autoCancelledMessage',
-  },
-  session_cancelled: {
-    titleKey: 'messages.sessionCancelledTitle',
-    messageKey: 'messages.sessionCancelledMessage',
-  },
-  end_warning: {
-    titleKey: 'messages.endWarningTitle',
-    messageKey: 'messages.endWarningMessage',
-  },
-  auto_finalized: {
-    titleKey: 'messages.autoFinalizedTitle',
-    messageKey: 'messages.autoFinalizedMessage',
-  },
-  player_added: {
-    titleKey: 'messages.playerAddedTitle',
-    messageKey: 'messages.playerAddedMessage',
-  },
-  player_removed: {
-    titleKey: 'messages.playerRemovedTitle',
-    messageKey: 'messages.playerRemovedMessage',
-  },
-  club_creation_pending: {
-    titleKey: 'messages.clubCreationPendingTitle',
-    messageKey: 'messages.clubCreationPendingMessage',
-  },
-  admin_new_pending_club: {
-    titleKey: 'messages.adminNewPendingClubTitle',
-    messageKey: 'messages.adminNewPendingClubMessage',
-  },
-  club_creation_approved: {
-    titleKey: 'messages.clubCreationApprovedTitle',
-    messageKey: 'messages.clubCreationApprovedMessage',
-  },
-  club_approved: {
-    titleKey: 'messages.clubApprovedTitle',
-    messageKey: 'messages.clubApprovedMessage',
-  },
-  club_rejected: {
-    titleKey: 'messages.clubRejectedTitle',
-    messageKey: 'messages.clubRejectedMessage',
-  },
-};
+  {
+    start_reminder: {
+      titleKey: 'messages.startReminderTitle',
+      messageKey: 'messages.startReminderMessage',
+    },
+    player_start_reminder: {
+      titleKey: 'messages.playerStartReminderTitle',
+      messageKey: 'messages.playerStartReminderMessage',
+    },
+    auto_started: {
+      titleKey: 'messages.autoStartedTitle',
+      messageKey: 'messages.autoStartedMessage',
+    },
+    session_auto_started: {
+      titleKey: 'messages.sessionAutoStartedTitle',
+      messageKey: 'messages.sessionAutoStartedMessage',
+    },
+    auto_cancelled: {
+      titleKey: 'messages.autoCancelledTitle',
+      messageKey: 'messages.autoCancelledMessage',
+    },
+    session_cancelled: {
+      titleKey: 'messages.sessionCancelledTitle',
+      messageKey: 'messages.sessionCancelledMessage',
+    },
+    end_warning: {
+      titleKey: 'messages.endWarningTitle',
+      messageKey: 'messages.endWarningMessage',
+    },
+    auto_finalized: {
+      titleKey: 'messages.autoFinalizedTitle',
+      messageKey: 'messages.autoFinalizedMessage',
+    },
+    player_added: {
+      titleKey: 'messages.playerAddedTitle',
+      messageKey: 'messages.playerAddedMessage',
+    },
+    player_removed: {
+      titleKey: 'messages.playerRemovedTitle',
+      messageKey: 'messages.playerRemovedMessage',
+    },
+    club_creation_pending: {
+      titleKey: 'messages.clubCreationPendingTitle',
+      messageKey: 'messages.clubCreationPendingMessage',
+    },
+    admin_new_pending_club: {
+      titleKey: 'messages.adminNewPendingClubTitle',
+      messageKey: 'messages.adminNewPendingClubMessage',
+    },
+    club_creation_approved: {
+      titleKey: 'messages.clubCreationApprovedTitle',
+      messageKey: 'messages.clubCreationApprovedMessage',
+    },
+    club_approved: {
+      titleKey: 'messages.clubApprovedTitle',
+      messageKey: 'messages.clubApprovedMessage',
+    },
+    club_rejected: {
+      titleKey: 'messages.clubRejectedTitle',
+      messageKey: 'messages.clubRejectedMessage',
+    },
+  };
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -181,7 +183,7 @@ export default function NotificationBell({
       fetchUnreadCount();
       PlayerService.getPendingRequestsCount()
         .then((count) => setPendingCount(count))
-        .catch(() => { });
+        .catch(() => {});
     }
   }, [user, fetchUnreadCount]);
 
@@ -196,7 +198,7 @@ export default function NotificationBell({
           setPendingRequests(result.data);
           setPendingCount(result.data.length);
         })
-        .catch(() => { })
+        .catch(() => {})
         .finally(() => setIsPendingLoading(false));
     }
   };
@@ -325,25 +327,25 @@ export default function NotificationBell({
     const displayTitle =
       keys && resourceName
         ? (() => {
-          try {
-            return t(keys.titleKey as Parameters<typeof t>[0]);
-          } catch {
-            return notification.title;
-          }
-        })()
+            try {
+              return t(keys.titleKey as Parameters<typeof t>[0]);
+            } catch {
+              return notification.title;
+            }
+          })()
         : notification.title;
     const displayMessage =
       keys && resourceName
         ? (() => {
-          try {
-            return t(
-              keys.messageKey as Parameters<typeof t>[0],
-              translationParams
-            );
-          } catch {
-            return notification.message;
-          }
-        })()
+            try {
+              return t(
+                keys.messageKey as Parameters<typeof t>[0],
+                translationParams
+              );
+            } catch {
+              return notification.message;
+            }
+          })()
         : notification.message;
     return { displayTitle, displayMessage };
   };
@@ -476,9 +478,11 @@ export default function NotificationBell({
         <PopoverBody p={0}>
           <Box maxH="500px" overflowY="auto">
             {(isLoading || isPendingLoading) && unifiedItems.length === 0 ? (
-              <Flex justify="center" align="center" py={12}>
-                <Spinner size="md" color="brand.500" />
-              </Flex>
+              <VStack gap={0} align="stretch" p={1}>
+                {[...Array(5)].map((_, i) => (
+                  <NotificationSkeleton key={i} />
+                ))}
+              </VStack>
             ) : isEmpty ? (
               <VStack gap={3} p={10} color="gray.400">
                 <LuInbox size={48} strokeWidth={1} />
@@ -783,10 +787,11 @@ export default function NotificationBell({
                   );
                 })}
 
-                {isLoading && (
-                  <Flex justify="center" py={4}>
-                    <Spinner size="sm" color="brand.500" />
-                  </Flex>
+                {(isLoading || isPendingLoading) && unifiedItems.length > 0 && (
+                  <VStack gap={0} align="stretch" p={1}>
+                    <NotificationSkeleton />
+                    <NotificationSkeleton />
+                  </VStack>
                 )}
               </Stack>
             )}

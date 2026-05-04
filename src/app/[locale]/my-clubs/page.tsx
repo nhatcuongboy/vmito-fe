@@ -254,10 +254,10 @@ export default function MyClubsPage() {
   const renderClubCard = (club: IMyClub, isManaged: boolean) => (
     <Box
       key={club.id}
-      p={6}
+      p={{ base: 4, md: 6 }}
       bg="bg"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      borderRadius="2xl"
+      borderRadius={{ base: 'xl', md: '2xl' }}
       borderWidth="1px"
       borderColor="border"
       cursor={club.status === 'PENDING' ? 'default' : 'pointer'}
@@ -273,23 +273,24 @@ export default function MyClubsPage() {
           : { shadow: 'md', transform: 'translateY(-2px)' }
       }
     >
-      <HStack justify="space-between" mb={4}>
-        <HStack gap={2}>
-          <Heading size="md" lineClamp={1}>
+      <HStack justify="space-between" mb={{ base: 3, md: 4 }}>
+        <HStack gap={2} flex={1} minW={0}>
+          <Heading size={{ base: 'sm', md: 'md' }} lineClamp={1}>
             {club.name}
           </Heading>
           {club.status === 'PENDING' && (
-            <Badge colorPalette="yellow" size="sm">
+            <Badge colorPalette="yellow" size="xs">
               {t('clubs.clubStatus.pending')}
             </Badge>
           )}
         </HStack>
-        <HStack>
+        <HStack flexShrink={0}>
           {isManaged && (
             <Button
               size="sm"
               variant="ghost"
               colorPalette="gray"
+              p={{ base: 1, md: 2 }}
               onClick={(e) => {
                 e.stopPropagation();
                 router.push(`/host/clubs/${club.id}/edit`);
@@ -304,10 +305,14 @@ export default function MyClubsPage() {
         </HStack>
       </HStack>
 
-      <VStack align="start" gap={3} mb={4}>
+      <VStack align="start" gap={{ base: 2, md: 3 }} mb={{ base: 3, md: 4 }}>
         <HStack gap={2}>
           <UserCircle size={16} />
-          <Text fontSize="sm" color="fg.muted" _dark={{ color: 'gray.400' }}>
+          <Text
+            fontSize={{ base: 'xs', md: 'sm' }}
+            color="fg.muted"
+            _dark={{ color: 'gray.400' }}
+          >
             {t(
               `clubs.memberRole.${club.role.toLowerCase()}` as Parameters<
                 typeof t
@@ -317,7 +322,11 @@ export default function MyClubsPage() {
         </HStack>
         <HStack gap={2}>
           <Users size={16} />
-          <Text fontSize="sm" color="fg.muted" _dark={{ color: 'gray.400' }}>
+          <Text
+            fontSize={{ base: 'xs', md: 'sm' }}
+            color="fg.muted"
+            _dark={{ color: 'gray.400' }}
+          >
             {club.memberCount} {t('clubs.members')}
           </Text>
         </HStack>
@@ -329,7 +338,7 @@ export default function MyClubsPage() {
         </HStack>
       </VStack>
 
-      <Separator mb={4} />
+      <Separator mb={{ base: 3, md: 4 }} />
 
       <HStack>
         <Text fontSize="xs" color="fg.muted">
@@ -354,7 +363,13 @@ export default function MyClubsPage() {
 
   return (
     <PageLayout title={t('navigation.manageGroups')}>
-      <Text color="fg.muted" _dark={{ color: 'gray.400' }} mb={8}>
+      <Text
+        color="fg.muted"
+        _dark={{ color: 'gray.400' }}
+        mb={{ base: 4, md: 8 }}
+        fontSize={{ base: 'sm', md: 'md' }}
+        px={{ base: 0, md: 0 }}
+      >
         {t('clubs.manageMyClubsDescription')}
       </Text>
 
@@ -363,19 +378,57 @@ export default function MyClubsPage() {
         onValueChange={(e) => setActiveTab(e.value as 'managing' | 'member')}
         variant="enclosed"
       >
-        <Tabs.List mb={6}>
-          <Tabs.Trigger value="managing" gap={2}>
+        <Tabs.List
+          mb={{ base: 4, md: 6 }}
+          display="flex"
+          gap={{ base: 2, md: 0 }}
+          bg={{ base: 'white', md: 'transparent' }}
+          p={{ base: 1, md: 0 }}
+          borderRadius={{ base: 'xl', md: 'md' }}
+          shadow={{ base: 'sm', md: 'none' }}
+          borderWidth={{ base: '1px', md: '0' }}
+          borderColor={{ base: 'gray.200', md: 'transparent' }}
+        >
+          <Tabs.Trigger
+            value="managing"
+            gap={2}
+            flex={{ base: 1, md: 'initial' }}
+            fontSize={{ base: 'sm', md: 'md' }}
+            px={{ base: 3, md: 4 }}
+            py={{ base: 2, md: 2 }}
+            borderRadius={{ base: 'lg', md: 'md' }}
+            justifyContent="center"
+          >
             <Shield size={16} />
-            {t('clubs.managingGroups')}
+            <Text display={{ base: 'none', sm: 'inline' }}>
+              {t('clubs.managingGroups')}
+            </Text>
+            <Text display={{ base: 'inline', sm: 'none' }}>
+              {t('clubs.managing')}
+            </Text>
             {managedClubs.length > 0 && (
               <Badge colorPalette="green" size="xs" borderRadius="full">
                 {managedClubs.length}
               </Badge>
             )}
           </Tabs.Trigger>
-          <Tabs.Trigger value="member" gap={2}>
+          <Tabs.Trigger
+            value="member"
+            gap={2}
+            flex={{ base: 1, md: 'initial' }}
+            fontSize={{ base: 'sm', md: 'md' }}
+            px={{ base: 3, md: 4 }}
+            py={{ base: 2, md: 2 }}
+            borderRadius={{ base: 'lg', md: 'md' }}
+            justifyContent="center"
+          >
             <Users size={16} />
-            {t('clubs.memberClubsTab')}
+            <Text display={{ base: 'none', sm: 'inline' }}>
+              {t('clubs.memberClubsTab')}
+            </Text>
+            <Text display={{ base: 'inline', sm: 'none' }}>
+              {t('clubs.member')}
+            </Text>
             {memberClubs.length > 0 && (
               <Badge colorPalette="blue" size="xs" borderRadius="full">
                 {memberClubs.length}
@@ -385,12 +438,19 @@ export default function MyClubsPage() {
         </Tabs.List>
 
         <Tabs.Content value="managing">
-          <VStack gap={10} align="stretch">
+          <VStack gap={{ base: 6, md: 10 }} align="stretch">
             <Box>
-              <HStack mb={6} gap={2} justify="space-between">
-                <HStack gap={2}>
+              <HStack
+                mb={{ base: 4, md: 6 }}
+                gap={2}
+                justify="space-between"
+                flexWrap={{ base: 'wrap', md: 'nowrap' }}
+              >
+                <HStack gap={2} flex={{ base: '1 1 100%', md: 'initial' }}>
                   <Shield size={20} />
-                  <Heading size="lg">{t('clubs.managingGroups')}</Heading>
+                  <Heading size={{ base: 'md', md: 'lg' }}>
+                    {t('clubs.managingGroups')}
+                  </Heading>
                   <Badge
                     colorPalette="green"
                     variant="subtle"
@@ -403,7 +463,8 @@ export default function MyClubsPage() {
                 {isHostOrAdmin && (
                   <Button
                     colorPalette="green"
-                    size="sm"
+                    size={{ base: 'sm', md: 'sm' }}
+                    w={{ base: 'full', md: 'auto' }}
                     onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
                   >
                     <Plus size={16} />
@@ -443,9 +504,11 @@ export default function MyClubsPage() {
             </Box>
 
             <Box>
-              <HStack mb={6} gap={2}>
+              <HStack mb={{ base: 4, md: 6 }} gap={2}>
                 <ClipboardList size={20} />
-                <Heading size="lg">{t('clubs.joinRequests')}</Heading>
+                <Heading size={{ base: 'md', md: 'lg' }}>
+                  {t('clubs.joinRequests')}
+                </Heading>
                 {incomingRequests.length > 0 && (
                   <Badge
                     colorPalette="orange"
@@ -464,62 +527,74 @@ export default function MyClubsPage() {
                 </Flex>
               ) : incomingRequests.length === 0 ? (
                 <VStack
-                  py={10}
+                  py={{ base: 8, md: 10 }}
                   bg="bg.muted"
                   _dark={{ bg: 'gray.900/40' }}
-                  borderRadius="2xl"
+                  borderRadius={{ base: 'xl', md: '2xl' }}
                 >
-                  <Text color="fg.muted">{t('clubs.noPendingRequests')}</Text>
+                  <Text fontSize={{ base: 'sm', md: 'md' }} color="fg.muted">
+                    {t('clubs.noPendingRequests')}
+                  </Text>
                 </VStack>
               ) : (
-                <VStack gap={4} align="stretch">
+                <VStack gap={{ base: 3, md: 4 }} align="stretch">
                   {incomingRequests.map((request) => (
                     <Flex
                       key={request.id}
-                      p={5}
+                      p={{ base: 4, md: 5 }}
                       bg="bg"
                       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                      borderRadius="xl"
+                      borderRadius={{ base: 'xl', md: 'xl' }}
                       borderWidth="1px"
                       borderColor="border"
                       align="center"
                       justify="space-between"
+                      gap={{ base: 3, md: 4 }}
+                      flexDirection={{ base: 'column', sm: 'row' }}
                     >
-                      <HStack gap={4}>
+                      <HStack
+                        gap={{ base: 3, md: 4 }}
+                        w={{ base: 'full', sm: 'auto' }}
+                      >
                         <Box
-                          p={3}
+                          p={{ base: 2, md: 3 }}
                           bg="blue.50"
                           _dark={{ bg: 'blue.900/20' }}
                           borderRadius="lg"
+                          flexShrink={0}
                         >
                           <UserCircle size={24} color="#3182CE" />
                         </Box>
-                        <Box>
-                          <Heading size="sm" mb={1}>
+                        <Box flex={1} minW={0}>
+                          <Heading size={{ base: 'xs', md: 'sm' }} mb={1}>
                             {request.user.name}
                           </Heading>
-                          <Text fontSize="xs" color="fg.muted">
+                          <Text fontSize="xs" color="fg.muted" lineClamp={1}>
                             {request.club?.name} &middot;{' '}
                             {new Date(request.createdAt).toLocaleDateString()}
                           </Text>
                         </Box>
                       </HStack>
-                      <HStack gap={2}>
+                      <HStack gap={2} w={{ base: 'full', sm: 'auto' }}>
                         <Button
                           size="sm"
                           colorPalette="green"
+                          flex={{ base: 1, sm: 'initial' }}
                           onClick={() =>
                             handleApproveJoinRequest(request.clubId, request.id)
                           }
                           loading={isActionLoading}
                         >
                           <Check size={14} />
-                          {t('clubs.approve')}
+                          <Text display={{ base: 'inline', sm: 'inline' }}>
+                            {t('clubs.approve')}
+                          </Text>
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           colorPalette="red"
+                          flex={{ base: 1, sm: 'initial' }}
                           onClick={() =>
                             handleOpenRejectDialog({
                               type: 'member',
@@ -530,7 +605,9 @@ export default function MyClubsPage() {
                           loading={isActionLoading}
                         >
                           <X size={14} />
-                          {t('clubs.reject')}
+                          <Text display={{ base: 'inline', sm: 'inline' }}>
+                            {t('clubs.reject')}
+                          </Text>
                         </Button>
                       </HStack>
                     </Flex>
@@ -542,11 +619,13 @@ export default function MyClubsPage() {
         </Tabs.Content>
 
         <Tabs.Content value="member">
-          <VStack gap={10} align="stretch">
+          <VStack gap={{ base: 6, md: 10 }} align="stretch">
             <Box>
-              <HStack mb={6} gap={2}>
+              <HStack mb={{ base: 4, md: 6 }} gap={2}>
                 <Users size={20} />
-                <Heading size="lg">{t('clubs.memberClubsTab')}</Heading>
+                <Heading size={{ base: 'md', md: 'lg' }}>
+                  {t('clubs.memberClubsTab')}
+                </Heading>
                 <Badge
                   colorPalette="blue"
                   variant="subtle"
@@ -559,35 +638,43 @@ export default function MyClubsPage() {
 
               {memberClubs.length === 0 ? (
                 <VStack
-                  py={12}
+                  py={{ base: 10, md: 12 }}
                   bg="bg.muted"
                   _dark={{ bg: 'gray.900/40' }}
-                  borderRadius="2xl"
+                  borderRadius={{ base: 'xl', md: '2xl' }}
                   gap={4}
                   borderWidth="1px"
                   borderStyle="dashed"
                 >
                   <Users size={48} color="#A0AEC0" />
-                  <Text color="fg.muted">{t('clubs.noMemberClubsTab')}</Text>
+                  <Text fontSize={{ base: 'sm', md: 'md' }} color="fg.muted">
+                    {t('clubs.noMemberClubsTab')}
+                  </Text>
                   <Button
                     colorPalette="green"
                     variant="outline"
+                    size={{ base: 'sm', md: 'md' }}
                     onClick={() => router.push('/clubs')}
                   >
                     {t('clubs.browseClubs')}
                   </Button>
                 </VStack>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+                <SimpleGrid
+                  columns={{ base: 1, md: 2, lg: 3 }}
+                  gap={{ base: 4, md: 6 }}
+                >
                   {memberClubs.map((club) => renderClubCard(club, false))}
                 </SimpleGrid>
               )}
             </Box>
 
             <Box>
-              <HStack mb={6} gap={2}>
+              <HStack mb={{ base: 4, md: 6 }} gap={2}>
                 <Clock size={20} />
-                <Heading size="lg">{t('clubs.awaitingApproval')}</Heading>
+                <Heading size={{ base: 'md', md: 'lg' }}>
+                  {t('clubs.awaitingApproval')}
+                </Heading>
                 {pendingOutgoing.length > 0 && (
                   <Badge
                     colorPalette="orange"
@@ -602,38 +689,46 @@ export default function MyClubsPage() {
 
               {pendingOutgoing.length === 0 ? (
                 <VStack
-                  py={10}
+                  py={{ base: 8, md: 10 }}
                   bg="bg.muted"
                   _dark={{ bg: 'gray.900/40' }}
-                  borderRadius="2xl"
+                  borderRadius={{ base: 'xl', md: '2xl' }}
                 >
-                  <Text color="fg.muted">{t('clubs.noAwaitingApproval')}</Text>
+                  <Text fontSize={{ base: 'sm', md: 'md' }} color="fg.muted">
+                    {t('clubs.noAwaitingApproval')}
+                  </Text>
                 </VStack>
               ) : (
-                <VStack gap={4} align="stretch">
+                <VStack gap={{ base: 3, md: 4 }} align="stretch">
                   {pendingOutgoing.map((request) => (
                     <Flex
                       key={request.id}
-                      p={5}
+                      p={{ base: 4, md: 5 }}
                       bg="bg"
                       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                      borderRadius="xl"
+                      borderRadius={{ base: 'xl', md: 'xl' }}
                       borderWidth="1px"
                       borderColor="border"
                       align="center"
                       justify="space-between"
+                      gap={{ base: 3, md: 4 }}
+                      flexDirection={{ base: 'column', sm: 'row' }}
                     >
-                      <HStack gap={4}>
+                      <HStack
+                        gap={{ base: 3, md: 4 }}
+                        w={{ base: 'full', sm: 'auto' }}
+                      >
                         <Box
-                          p={3}
+                          p={{ base: 2, md: 3 }}
                           bg="orange.50"
                           _dark={{ bg: 'orange.900/20' }}
                           borderRadius="lg"
+                          flexShrink={0}
                         >
                           <Clock size={24} color="#DD6B20" />
                         </Box>
-                        <Box>
-                          <Heading size="sm" mb={1}>
+                        <Box flex={1} minW={0}>
+                          <Heading size={{ base: 'xs', md: 'sm' }} mb={1}>
                             {request.club?.name}
                           </Heading>
                           <Text fontSize="xs" color="fg.muted">
@@ -641,11 +736,20 @@ export default function MyClubsPage() {
                           </Text>
                         </Box>
                       </HStack>
-                      <HStack gap={4}>
-                        <Badge colorPalette="orange">{request.status}</Badge>
+                      <HStack
+                        gap={{ base: 2, md: 4 }}
+                        w={{ base: 'full', sm: 'auto' }}
+                      >
+                        <Badge
+                          colorPalette="orange"
+                          flex={{ base: 1, sm: 'initial' }}
+                        >
+                          {request.status}
+                        </Badge>
                         <Button
                           size="sm"
                           variant="ghost"
+                          flex={{ base: 1, sm: 'initial' }}
                           onClick={() =>
                             router.push(
                               `/clubs/${request.club?.slug ?? request.club?.id}`

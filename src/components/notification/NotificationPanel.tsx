@@ -23,6 +23,7 @@ import { LuBell, LuCheckCheck, LuInbox } from 'react-icons/lu';
 import { useTranslations } from 'next-intl';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { NotificationItem } from './NotificationItem';
+import { NotificationSkeleton } from './NotificationSkeleton';
 import { INotification } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -218,13 +219,25 @@ export const NotificationPanel = () => {
                     onClick={handleNotificationClick}
                   />
                 ))}
+
+                {/* Show skeletons while loading more */}
+                {isLoading && (
+                  <>
+                    <NotificationSkeleton />
+                    <NotificationSkeleton />
+                    <NotificationSkeleton />
+                  </>
+                )}
               </VStack>
             )}
 
-            {isLoading && (
-              <Flex justify="center" py={4}>
-                <Spinner size="sm" />
-              </Flex>
+            {/* Initial loading state when no notifications are present */}
+            {isLoading && notifications.length === 0 && (
+              <VStack gap={0} align="stretch">
+                {[...Array(5)].map((_, i) => (
+                  <NotificationSkeleton key={i} />
+                ))}
+              </VStack>
             )}
           </Box>
         </PopoverBody>
