@@ -147,6 +147,11 @@ export const ROUTES = {
     CLUBS: '/admin/clubs/pending',
   },
 
+  // User Public Profile
+  USER: {
+    PROFILE: (userId: string) => `/user/${userId}`,
+  },
+
   // Settings & Profile
   SETTINGS: '/settings',
   PLAYER_STATUS: '/player-status',

@@ -2,22 +2,24 @@
 
 import { useEffect } from 'react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { Flex } from '@chakra-ui/react';
 import { LayoutGrid, List, MapPin } from 'lucide-react';
+import { ViewMode } from '@/hooks/useViewMode';
 
 interface ViewModeToggleProps {
   showMap?: boolean;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
 
 export default function ViewModeToggle({
   showMap = true,
+  viewMode,
+  setViewMode,
 }: ViewModeToggleProps) {
-  const { viewMode, setViewMode } = useSessionFilterStore();
-
   useEffect(() => {
     if (!showMap && viewMode === 'map') {
-      setViewMode('full');
+      setViewMode('grid');
     }
   }, [showMap, viewMode, setViewMode]);
 
@@ -36,22 +38,22 @@ export default function ViewModeToggle({
         size="xs"
         h="32px"
         w="32px"
-        variant={viewMode === 'full' ? 'solid' : 'ghost'}
+        variant={viewMode === 'grid' ? 'solid' : 'ghost'}
         colorPalette="green"
-        aria-label="Full view"
+        aria-label="Grid view"
         icon={<LayoutGrid size={16} />}
-        onClick={() => setViewMode('full')}
+        onClick={() => setViewMode('grid')}
         borderRadius="md"
       />
       <IconButton
         size="xs"
         h="32px"
         w="32px"
-        variant={viewMode === 'compact' ? 'solid' : 'ghost'}
+        variant={viewMode === 'list' ? 'solid' : 'ghost'}
         colorPalette="green"
-        aria-label="Compact view"
+        aria-label="List view"
         icon={<List size={16} />}
-        onClick={() => setViewMode('compact')}
+        onClick={() => setViewMode('list')}
         borderRadius="md"
       />
       {showMap && (

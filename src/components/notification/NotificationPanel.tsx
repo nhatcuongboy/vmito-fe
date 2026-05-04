@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
+  PopoverCloseTrigger,
 } from '@/components/ui/popover';
 import { LuBell, LuCheckCheck, LuInbox } from 'react-icons/lu';
 import { useTranslations } from 'next-intl';
@@ -25,6 +26,7 @@ import { NotificationItem } from './NotificationItem';
 import { INotification } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { ROUTES } from '@/constants/routes';
 
 export const NotificationPanel = () => {
   const t = useTranslations('notification');
@@ -32,13 +34,14 @@ export const NotificationPanel = () => {
   const { user } = useAuthStore();
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const closeTriggerRef = useRef<HTMLButtonElement>(null);
+
   const {
     notifications,
     unreadCount,
     isLoading,
     hasMore,
     fetchNotifications,
-    fetchUnreadCount,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -76,9 +79,62 @@ export const NotificationPanel = () => {
   };
 
   const handleNotificationClick = (notification: INotification) => {
-    // Navigate based on notification type and data
-    if (notification.data?.sessionId) {
-      router.push(`/sessions/${notification.data.sessionId}`);
+    const { type, data } = notification;
+
+    // Helper to determine the target route based on notification type
+    const getTargetRoute = (): string | null => {
+      const typeStr = String(type).toUpperCase();
+      console.log('[NotificationPanel] Clicked notification:', typeStr, data);
+
+      switch (typeStr) {
+        case 'SESSION':
+        case 'REGISTRATION': {
+          if (data?.sessionId) {
+            const sessionId = String(data.sessionId);
+            const slug = data.slug ? String(data.slug) : undefined;
+            return user?.role === 'HOST'
+              ? ROUTES.HOST.SESSIONS.DETAIL(sessionId, slug)
+              : ROUTES.PLAYER.SESSIONS.DETAIL(sessionId, slug);
+          }
+          break;
+        }
+        case 'CLUB': {
+          if (data?.clubId) {
+            const clubId = data.clubSlug
+              ? String(data.clubSlug)
+              : String(data.clubId);
+            return user?.role === 'HOST'
+              ? ROUTES.HOST.CLUBS.EDIT(clubId)
+              : ROUTES.CLUBS.DETAIL(clubId);
+          }
+          break;
+        }
+        // TODO: Add more branches here when extending (PAYMENT, TOURNAMENT, SYSTEM, etc.)
+        default: {
+          // Fallback routing relying on data payload if type isn't fully matched
+          if (data?.sessionId) {
+            const sessionId = String(data.sessionId);
+            const slug = data.slug ? String(data.slug) : undefined;
+            return user?.role === 'HOST'
+              ? ROUTES.HOST.SESSIONS.DETAIL(sessionId, slug)
+              : ROUTES.PLAYER.SESSIONS.DETAIL(sessionId, slug);
+          }
+          if (data?.clubId) {
+            const clubId = data.clubSlug
+              ? String(data.clubSlug)
+              : String(data.clubId);
+            return ROUTES.CLUBS.DETAIL(clubId);
+          }
+          break;
+        }
+      }
+      return null;
+    };
+
+    const targetPath = getTargetRoute();
+    if (targetPath) {
+      closeTriggerRef.current?.click(); // Close popover before navigating
+      router.push(targetPath);
     }
   };
 
@@ -129,6 +185,15 @@ export const NotificationPanel = () => {
             )}
           </HStack>
         </PopoverHeader>
+
+        {/* Hidden close trigger for programmatic close on notification click */}
+        <PopoverCloseTrigger asChild>
+          <button
+            ref={closeTriggerRef}
+            style={{ display: 'none' }}
+            aria-hidden
+          />
+        </PopoverCloseTrigger>
 
         <PopoverBody p={0}>
           <Box

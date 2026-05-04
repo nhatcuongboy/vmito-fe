@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { ISession } from '@/lib/api/types';
-import { ViewMode } from '@/stores/useSessionFilterStore';
+import type { ViewMode } from '@/hooks/useViewMode';
 import { Box, Flex, Badge, Icon } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -44,7 +44,7 @@ const REASON_CONFIG: Record<
 
 const SuggestionSessionCard = ({
   session,
-  variant = 'full',
+  variant = 'grid',
   onJoin,
   isJoined,
   userRegistrationStatus,
@@ -52,7 +52,7 @@ const SuggestionSessionCard = ({
   onHostClick,
 }: SuggestionSessionCardProps) => {
   const t = useTranslations('suggestions');
-  const isCompact = variant === 'compact';
+  const isCompact = variant === 'list';
 
   const reasons = session.matchReasons.filter((r) => REASON_CONFIG[r]);
 

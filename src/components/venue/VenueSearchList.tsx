@@ -41,7 +41,7 @@ import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
 import VenueMap from './VenueMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
-import { useViewModeStore } from '@/stores/useViewModeStore';
+import { useViewMode } from '@/hooks/useViewMode';
 import {
   useUrlFilters,
   stringField,
@@ -141,8 +141,8 @@ export default function VenueSearchList() {
   const [filters, setFilters, resetFilters] =
     useUrlFilters(VENUE_FILTERS_SCHEMA);
 
-  const { getViewMode } = useViewModeStore();
-  const viewMode = getViewMode('venues');
+  // Use URL-synced view mode
+  const [viewMode, setViewMode] = useViewMode('venues');
 
   // Local keyword state drives the search input; synced to URL with debounce.
   const [keyword, setKeyword] = useState(filters.q);

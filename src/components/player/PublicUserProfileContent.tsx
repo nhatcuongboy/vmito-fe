@@ -20,6 +20,7 @@ import {
   ChevronRight,
   MapPin,
   MessageSquare,
+  Pencil,
   Phone,
   Settings,
   User,
@@ -29,6 +30,7 @@ import { usePathname, useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PageLayout from '@/components/layout/PageLayout';
+import UserProfileModal from '@/components/ui/UserProfileModal';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserService, IPublicProfileMeta } from '@/lib/api/user.service';
@@ -101,6 +103,7 @@ export default function PublicUserProfileContent({
 }: IPublicUserProfileContentProps) {
   const t = useTranslations('userProfilePage');
   const tCommon = useTranslations('common');
+  const tClubs = useTranslations('clubs');
   const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -260,6 +263,9 @@ export default function PublicUserProfileContent({
   const displayName = profile?.name || tCommon('unknown');
   const avatarUrl = profile?.image || undefined;
 
+  const isOwner = currentUser?.id === userId;
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const joinedAt = profile?.createdAt;
   const phone = profile?.phone;
 
@@ -308,6 +314,12 @@ export default function PublicUserProfileContent({
 
   return (
     <>
+      {isOwner && (
+        <UserProfileModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
       <PageLayout title={t('title')} bg="gray.50">
         <VStack gap={6} align="stretch" pb={6}>
           <Box
@@ -360,6 +372,18 @@ export default function PublicUserProfileContent({
                 </Avatar.Root>
 
                 <VStack align="start" gap={2} flex={1} pt={14}>
+                  {isOwner && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorPalette="green"
+                      onClick={() => setIsEditModalOpen(true)}
+                      alignSelf="flex-end"
+                    >
+                      <Pencil size={14} />
+                      {tCommon('editProfile')}
+                    </Button>
+                  )}
                   <HStack gap={2}>
                     <StarRatingDisplay
                       rating={ratingStats?.averageRating || 0}
@@ -429,171 +453,169 @@ export default function PublicUserProfileContent({
             </Box>
           </Box>
 
-          {clubs.length > 0 && (
-            <Box
-              bg="white"
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="2xl"
-              p={4}
-            >
-              <HStack justify="space-between" align="center" mb={3}>
-                <Text fontSize="lg" fontWeight="bold" color="gray.800">
-                  {t('clubs')}
-                </Text>
+          {(() => {
+            const hostedClubs = clubs.filter(
+              (c) => (c.hostId ?? c.host?.id) === userId
+            );
+            const memberClubs = clubs.filter(
+              (c) => (c.hostId ?? c.host?.id) !== userId
+            );
+            const isOwnProfile = currentUser?.id === userId;
 
-                {(() => {
-                  if (currentUser?.id === userId) {
-                    return (
-                      <Link href={`/${locale}/my-clubs`}>
-                        <Button size="xs" variant="ghost" colorPalette="green">
-                          <Settings size={14} />
-                          Quản lý nhóm
-                        </Button>
-                      </Link>
-                    );
-                  }
-                  return null;
-                })()}
-              </HStack>
+            // Only show section if:
+            // - Own profile: has any clubs (hosted or member)
+            // - Other's profile: has hosted clubs only
+            const shouldShowSection = isOwnProfile
+              ? clubs.length > 0
+              : hostedClubs.length > 0;
 
-              {(() => {
-                const hostedClubs = clubs.filter(
-                  (c) => (c.hostId ?? c.host?.id) === userId
-                );
-                const memberClubs = clubs.filter(
-                  (c) => (c.hostId ?? c.host?.id) !== userId
-                );
-                const isOwnProfile = currentUser?.id === userId;
+            if (!shouldShowSection) {
+              return null;
+            }
 
-                return (
-                  <VStack gap={4} align="stretch">
-                    {hostedClubs.length > 0 && (
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="gray.600"
-                          mb={2}
-                        >
-                          {t('hostedClubs')} ({hostedClubs.length})
-                        </Text>
-                        <VStack gap={2} align="stretch">
-                          {hostedClubs.map((club) => (
-                            <Link
-                              key={club.id}
-                              href={`/${locale}/clubs/${club.id}`}
+            return (
+              <Box
+                bg="white"
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="2xl"
+                p={4}
+              >
+                <HStack justify="space-between" align="center" mb={3}>
+                  <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                    {t('clubs')}
+                  </Text>
+
+                  {isOwnProfile && (
+                    <Link href={`/${locale}/my-clubs`}>
+                      <Button size="xs" variant="ghost" colorPalette="green">
+                        <Settings size={14} />
+                        {tClubs('manageClubs')}
+                      </Button>
+                    </Link>
+                  )}
+                </HStack>
+
+                <VStack gap={4} align="stretch">
+                  {hostedClubs.length > 0 && (
+                    <Box>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="gray.600"
+                        mb={2}
+                      >
+                        {t('hostedClubs')} ({hostedClubs.length})
+                      </Text>
+                      <VStack gap={2} align="stretch">
+                        {hostedClubs.map((club) => (
+                          <Link
+                            key={club.id}
+                            href={`/${locale}/clubs/${club.id}`}
+                          >
+                            <Box
+                              borderWidth="1px"
+                              borderColor="gray.200"
+                              borderRadius="lg"
+                              p={3}
+                              bg="gray.50"
+                              _hover={{
+                                bg: 'gray.100',
+                                borderColor: 'green.300',
+                              }}
+                              transition="all 0.2s"
+                              cursor="pointer"
                             >
-                              <Box
-                                borderWidth="1px"
-                                borderColor="gray.200"
-                                borderRadius="lg"
-                                p={3}
-                                bg="gray.50"
-                                _hover={{
-                                  bg: 'gray.100',
-                                  borderColor: 'green.300',
-                                }}
-                                transition="all 0.2s"
-                                cursor="pointer"
-                              >
-                                <HStack gap={3}>
-                                  {club.image && (
-                                    <Image
-                                      src={club.image}
-                                      alt={club.name}
-                                      boxSize="40px"
-                                      borderRadius="md"
-                                      objectFit="cover"
-                                    />
-                                  )}
-                                  <VStack align="start" gap={0} flex={1}>
-                                    <Text
-                                      fontWeight="semibold"
-                                      color="gray.800"
-                                    >
-                                      {club.name}
+                              <HStack gap={3}>
+                                {club.image && (
+                                  <Image
+                                    src={club.image}
+                                    alt={club.name}
+                                    boxSize="40px"
+                                    borderRadius="md"
+                                    objectFit="cover"
+                                  />
+                                )}
+                                <VStack align="start" gap={0} flex={1}>
+                                  <Text fontWeight="semibold" color="gray.800">
+                                    {club.name}
+                                  </Text>
+                                  {club.memberCount > 0 && (
+                                    <Text fontSize="xs" color="gray.500">
+                                      {club.memberCount} {tCommon('members')}
                                     </Text>
-                                    {club.memberCount > 0 && (
-                                      <Text fontSize="xs" color="gray.500">
-                                        {club.memberCount} {tCommon('members')}
-                                      </Text>
-                                    )}
-                                  </VStack>
-                                  <ChevronRight size={16} color="gray" />
-                                </HStack>
-                              </Box>
-                            </Link>
-                          ))}
-                        </VStack>
-                      </Box>
-                    )}
+                                  )}
+                                </VStack>
+                                <ChevronRight size={16} color="gray" />
+                              </HStack>
+                            </Box>
+                          </Link>
+                        ))}
+                      </VStack>
+                    </Box>
+                  )}
 
-                    {isOwnProfile && memberClubs.length > 0 && (
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="gray.600"
-                          mb={2}
-                        >
-                          {t('memberClubs')} ({memberClubs.length})
-                        </Text>
-                        <VStack gap={2} align="stretch">
-                          {memberClubs.map((club) => (
-                            <Link
-                              key={club.id}
-                              href={`/${locale}/clubs/${club.id}`}
+                  {isOwnProfile && memberClubs.length > 0 && (
+                    <Box>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="gray.600"
+                        mb={2}
+                      >
+                        {t('memberClubs')} ({memberClubs.length})
+                      </Text>
+                      <VStack gap={2} align="stretch">
+                        {memberClubs.map((club) => (
+                          <Link
+                            key={club.id}
+                            href={`/${locale}/clubs/${club.id}`}
+                          >
+                            <Box
+                              borderWidth="1px"
+                              borderColor="gray.200"
+                              borderRadius="lg"
+                              p={3}
+                              bg="gray.50"
+                              _hover={{
+                                bg: 'gray.100',
+                                borderColor: 'green.300',
+                              }}
+                              transition="all 0.2s"
+                              cursor="pointer"
                             >
-                              <Box
-                                borderWidth="1px"
-                                borderColor="gray.200"
-                                borderRadius="lg"
-                                p={3}
-                                bg="gray.50"
-                                _hover={{
-                                  bg: 'gray.100',
-                                  borderColor: 'green.300',
-                                }}
-                                transition="all 0.2s"
-                                cursor="pointer"
-                              >
-                                <HStack gap={3}>
-                                  {club.image && (
-                                    <Image
-                                      src={club.image}
-                                      alt={club.name}
-                                      boxSize="40px"
-                                      borderRadius="md"
-                                      objectFit="cover"
-                                    />
-                                  )}
-                                  <VStack align="start" gap={0} flex={1}>
-                                    <Text
-                                      fontWeight="semibold"
-                                      color="gray.800"
-                                    >
-                                      {club.name}
+                              <HStack gap={3}>
+                                {club.image && (
+                                  <Image
+                                    src={club.image}
+                                    alt={club.name}
+                                    boxSize="40px"
+                                    borderRadius="md"
+                                    objectFit="cover"
+                                  />
+                                )}
+                                <VStack align="start" gap={0} flex={1}>
+                                  <Text fontWeight="semibold" color="gray.800">
+                                    {club.name}
+                                  </Text>
+                                  {club.memberCount > 0 && (
+                                    <Text fontSize="xs" color="gray.500">
+                                      {club.memberCount} {tCommon('members')}
                                     </Text>
-                                    {club.memberCount > 0 && (
-                                      <Text fontSize="xs" color="gray.500">
-                                        {club.memberCount} {tCommon('members')}
-                                      </Text>
-                                    )}
-                                  </VStack>
-                                  <ChevronRight size={16} color="gray" />
-                                </HStack>
-                              </Box>
-                            </Link>
-                          ))}
-                        </VStack>
-                      </Box>
-                    )}
-                  </VStack>
-                );
-              })()}
-            </Box>
-          )}
+                                  )}
+                                </VStack>
+                                <ChevronRight size={16} color="gray" />
+                              </HStack>
+                            </Box>
+                          </Link>
+                        ))}
+                      </VStack>
+                    </Box>
+                  )}
+                </VStack>
+              </Box>
+            );
+          })()}
 
           <Box
             bg="white"

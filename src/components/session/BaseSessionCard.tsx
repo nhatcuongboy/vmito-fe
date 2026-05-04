@@ -99,6 +99,7 @@ export const statusColors: Record<string, string> = {
   PREPARING: 'brand',
   IN_PROGRESS: 'green',
   FINISHED: 'gray',
+  CANCELLED: 'red',
 };
 
 export const getStatusLabel = (
@@ -116,12 +117,14 @@ export const getStatusLabel = (
       return t('status.inProgress');
     case 'FINISHED':
       return t('status.finished');
+    case 'CANCELLED':
+      return t('status.cancelled');
     default:
       return status;
   }
 };
 
-import { ViewMode } from '@/stores/useSessionFilterStore';
+import type { ViewMode } from '@/hooks/useViewMode';
 
 interface BaseSessionCardProps {
   session: ISession;
@@ -161,7 +164,7 @@ interface BaseSessionCardProps {
 
 const BaseSessionCard = ({
   session,
-  variant = 'full',
+  variant = 'grid',
   statusBadgeContent,
   registrationBadgeContent,
   coverPhotoOverlay,
@@ -179,7 +182,7 @@ const BaseSessionCard = ({
   showYearInDate = false,
   alwaysShowDayName = false,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
-  const isCompact = variant === 'compact';
+  const isCompact = variant === 'list';
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
@@ -187,10 +190,6 @@ const BaseSessionCard = ({
   const { user } = useAuthStore();
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
   const [isLoading, setIsLoading] = useState(false);
-
-  console.log(
-    `[BaseSessionCard] Rendering session: ${session.id} | Host: ${session.hostId}`
-  );
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
