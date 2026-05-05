@@ -31,7 +31,7 @@ import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
-import { useViewModeStore } from '@/stores/useViewModeStore';
+import { useViewMode } from '@/hooks/useViewMode';
 import { IClubListItem, IClub } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -48,8 +48,7 @@ export default function BrowseClubsPage() {
   const { user } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const { getViewMode } = useViewModeStore();
-  const viewMode = getViewMode('clubs');
+  const [viewMode] = useViewMode('clubs');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [fullClubs, setFullClubs] = useState<IClub[]>([]);
