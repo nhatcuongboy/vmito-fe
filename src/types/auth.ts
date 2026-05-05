@@ -9,6 +9,8 @@ export interface User {
   role: UserRole;
   image?: string | null;
   imagePublicId?: string | null;
+  phone?: string | null;
+  gender?: string | null;
   // Guest-specific fields
   playerId?: string;
   sessionId?: string;
@@ -39,6 +41,8 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
+  phone?: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
 }
 
 export interface LoginResponse {

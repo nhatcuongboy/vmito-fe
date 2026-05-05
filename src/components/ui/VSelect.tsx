@@ -7,6 +7,7 @@ import {
   SelectContent,
   SelectItem,
   SelectValueText,
+  SelectIndicator,
   createListCollection,
   Portal,
   SelectPositioner,
@@ -352,6 +353,7 @@ export const VSelect = ({
 
         <SelectTrigger {...triggerProps}>
           <SelectValueText placeholder={derivedPlaceholder} />
+          <SelectIndicator />
         </SelectTrigger>
 
         {props.rightElement && (

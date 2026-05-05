@@ -1122,70 +1122,74 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
             {/* Footer */}
             <Box pt={4}>
-              {/* Login Button - Only show when NOT logged in and finished loading */}
-              {isHydrated && !isLoading && !isAuthenticated && (
-                <Stack gap={2} mb={4}>
-                  <VTooltip
-                    content={common('login')}
-                    positioning={{
-                      placement: 'right',
-                      offset: { mainAxis: 12 },
-                    }}
-                    disabled={!isCollapsed}
-                    showArrow
-                    openDelay={200}
-                  >
-                    <NextLinkButton
-                      href={ROUTES.AUTH.SIGNIN}
-                      // variant="outline"
-                      colorPalette="green"
-                      w={isCollapsed ? 'full' : '180px'}
-                      onClick={onClose}
-                      justifyContent="center"
-                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+              {/* Login Button - Only show when NOT logged in and finished loading and NOT on signin page */}
+              {isHydrated &&
+                !isLoading &&
+                !isAuthenticated &&
+                !pathname.includes('/auth/signin') &&
+                !pathname.includes('/auth/signup') && (
+                  <Stack gap={2} mb={4}>
+                    <VTooltip
+                      content={common('login')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
                     >
-                      <Flex align="center" gap={2} justifyContent="center">
-                        <LogIn size={16} />
-                        {!isCollapsed && (
-                          <Text display={{ base: 'block', md: 'block' }}>
-                            {common('login')}
-                          </Text>
-                        )}
-                      </Flex>
-                    </NextLinkButton>
-                  </VTooltip>
+                      <NextLinkButton
+                        href={ROUTES.AUTH.SIGNIN}
+                        // variant="outline"
+                        colorPalette="green"
+                        w={isCollapsed ? 'full' : '180px'}
+                        onClick={onClose}
+                        justifyContent="center"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex align="center" gap={2} justifyContent="center">
+                          <LogIn size={16} />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {common('login')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </VTooltip>
 
-                  <VTooltip
-                    content={common('register')}
-                    positioning={{
-                      placement: 'right',
-                      offset: { mainAxis: 12 },
-                    }}
-                    disabled={!isCollapsed}
-                    showArrow
-                    openDelay={200}
-                  >
-                    <NextLinkButton
-                      href={ROUTES.AUTH.SIGNUP}
-                      variant="outline"
-                      colorPalette="green"
-                      w={isCollapsed ? 'full' : '180px'}
-                      onClick={onClose}
-                      justifyContent="center"
-                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    <VTooltip
+                      content={common('register')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
                     >
-                      <Flex align="center" gap={2} justifyContent="center">
-                        <UserPlus size={16} />
-                        {!isCollapsed && (
-                          <Text display={{ base: 'block', md: 'block' }}>
-                            {common('register')}
-                          </Text>
-                        )}
-                      </Flex>
-                    </NextLinkButton>
-                  </VTooltip>
-                </Stack>
-              )}
+                      <NextLinkButton
+                        href={ROUTES.AUTH.SIGNUP}
+                        variant="outline"
+                        colorPalette="green"
+                        w={isCollapsed ? 'full' : '180px'}
+                        onClick={onClose}
+                        justifyContent="center"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      >
+                        <Flex align="center" gap={2} justifyContent="center">
+                          <UserPlus size={16} />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {common('register')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </VTooltip>
+                  </Stack>
+                )}
 
               {!isCollapsed && (
                 <>

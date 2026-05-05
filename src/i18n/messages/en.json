@@ -2573,7 +2573,7 @@
   "auth": {
     "signin": {
       "title": "Sign In",
-      "appTitle": "Badminton Session Manager",
+      "appTitle": "Sign In",
       "description": "Sign in to manage your badminton sessions",
       "email": "Email",
       "emailPlaceholder": "Enter your email",
@@ -2605,11 +2605,12 @@
       "namePlaceholder": "Enter your full name",
       "email": "Email",
       "emailPlaceholder": "Enter your email",
+      "phonePlaceholder": "Phone number",
       "password": "Password",
       "passwordPlaceholder": "Create a password (min 6 chars)",
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your password",
-      "createAccount": "Create Account",
+      "createAccount": "Sign Up",
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in",
       "or": "Or",
@@ -2623,6 +2624,8 @@
       "invalidEmail": "Invalid email address",
       "passwordRequired": "Please enter your password",
       "confirmPasswordRequired": "Please confirm your password",
+      "phoneInvalid": "Phone number must be 10 digits",
+      "genderInvalid": "Invalid gender selection",
       "userAlreadyExists": "User already exists",
       "tooManyRequests": "Too many requests. Please try again later."
     },
