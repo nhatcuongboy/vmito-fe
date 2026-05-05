@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import {
   Badge,
   Box,
@@ -42,7 +42,7 @@ const LoginPromptModal = dynamic(
   { ssr: false }
 );
 
-export default function BrowseClubsPage() {
+function BrowseClubsContent() {
   const t = useTranslations();
   const router = useRouter();
   const { user } = useAuthStore();
@@ -273,7 +273,7 @@ export default function BrowseClubsPage() {
     cities.length + districts.length + (sortByDistance ? 1 : 0);
 
   return (
-    <PageLayout title={t('clubs.browseClubs')}>
+    <Box>
       {/* Search Bar - Fixed on mobile, sticky on desktop */}
       <Box
         position={{ base: 'fixed', md: 'sticky' }}
@@ -791,6 +791,23 @@ export default function BrowseClubsPage() {
           returnUrl={ROUTES.HOST.CLUBS.CREATE}
         />
       )}
+    </Box>
+  );
+}
+
+export default function BrowseClubsPage() {
+  const t = useTranslations();
+  return (
+    <PageLayout title={t('clubs.browseClubs')}>
+      <Suspense
+        fallback={
+          <Flex justify="center" align="center" minH="200px">
+            <Spinner size="xl" colorPalette="green" />
+          </Flex>
+        }
+      >
+        <BrowseClubsContent />
+      </Suspense>
     </PageLayout>
   );
 }
