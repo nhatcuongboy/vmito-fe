@@ -11,6 +11,7 @@ import {
   Icon,
   Image,
   SimpleGrid,
+  Skeleton,
   Spinner,
   Text,
   VStack,
@@ -49,6 +50,7 @@ import { RatingList } from '@/components/rating/RatingList';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { StarRatingDisplay } from '@/components/rating/StarRatingDisplay';
 import PublicHostedSessionCard from '@/components/player/PublicHostedSessionCard';
+import PublicUserProfileSkeleton from '@/components/player/PublicUserProfileSkeleton';
 
 interface IPublicUserProfileContentProps {
   userId: string;
@@ -284,13 +286,7 @@ export default function PublicUserProfileContent({
   }, [hostedSessions]);
 
   if (isLoading) {
-    return (
-      <PageLayout title={t('title')} showBackButton={true} bg="gray.50">
-        <Flex justify="center" align="center" minH="50vh">
-          <Spinner size="xl" color="green.500" />
-        </Flex>
-      </PageLayout>
-    );
+    return <PublicUserProfileSkeleton />;
   }
 
   if (error || !profile) {
@@ -661,9 +657,11 @@ export default function PublicUserProfileContent({
             </HStack>
 
             {isSessionsLoading ? (
-              <Flex justify="center" py={6}>
-                <Spinner size="md" color="green.500" />
-              </Flex>
+              <VStack gap={3} align="stretch">
+                {[0, 1, 2].map((i) => (
+                  <Skeleton key={i} height="80px" borderRadius="lg" />
+                ))}
+              </VStack>
             ) : hostedSessions.length === 0 ? (
               <Box
                 borderWidth="1px"

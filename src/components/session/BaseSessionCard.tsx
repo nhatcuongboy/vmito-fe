@@ -237,7 +237,7 @@ const BaseSessionCard = ({
   ) => {
     e.stopPropagation();
     const elementId = `session-share-card-${mode}-${session.id}`;
-    downloadSessionImage(session, elementId);
+    downloadSessionImage(session, elementId, 'TuyenVangLai');
   };
 
   // Render top action buttons (icon buttons)

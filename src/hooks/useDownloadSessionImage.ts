@@ -7,7 +7,11 @@ import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
 
 interface UseDownloadSessionImageReturn {
-  downloadSessionImage: (session: ISession, elementId: string) => Promise<void>;
+  downloadSessionImage: (
+    session: ISession,
+    elementId: string,
+    filenamePrefix?: string
+  ) => Promise<void>;
   isDownloading: boolean;
 }
 
@@ -16,7 +20,11 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
   const t = useTranslations('session');
 
   const downloadSessionImage = useCallback(
-    async (session: ISession, elementId: string) => {
+    async (
+      session: ISession,
+      elementId: string,
+      filenamePrefix: string = 'ThongKeTranDau'
+    ) => {
       const element = document.getElementById(elementId);
       if (!element) return;
 
@@ -47,7 +55,7 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
 
         const link = document.createElement('a');
         const shortId = session.id.slice(0, 8);
-        link.download = `ThongKeTranDau-${shortId}.png`;
+        link.download = `${filenamePrefix}-${shortId}.png`;
         link.href = dataUrl;
         link.click();
 
