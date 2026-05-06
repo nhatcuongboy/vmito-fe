@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Flex, Heading, Text, Skeleton, Stack } from '@chakra-ui/react';
+import { Box, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
 import RecommendationCard from './RecommendationCard';

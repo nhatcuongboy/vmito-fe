@@ -5,7 +5,7 @@ import { Box, Container, ContainerProps } from '@chakra-ui/react';
 import PageWrapper from './PageWrapper';
 import TopBar from '../ui/TopBar';
 import { DiscoveryTabNav } from '../navigation/DiscoveryTabNav';
-import { useRouter, usePathname } from '@/i18n/config';
+import { usePathname } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 import {
   CONTAINER_PX,

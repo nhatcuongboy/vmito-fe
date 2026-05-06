@@ -19,7 +19,6 @@ export default function AiAssistant({
 }: AiAssistantProps) {
   const {
     isOpen,
-    open,
     close,
     toggle,
     pageContext: storeContext,

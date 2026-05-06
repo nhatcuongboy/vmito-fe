@@ -17,7 +17,6 @@ import {
   LogIn,
   Receipt,
   CreditCard,
-  BarChart3,
   ClipboardList,
   Ticket,
   Users,

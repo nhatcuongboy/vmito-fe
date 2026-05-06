@@ -35,10 +35,6 @@ function createSignInSchema(t: (key: string) => string) {
 
 type SignInFormData = z.infer<ReturnType<typeof createSignInSchema>>;
 
-interface SignInClientProps {
-  locale: string;
-}
-
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -88,7 +84,7 @@ function SignInForm() {
   const onSubmit = async (data: SignInFormData) => {
     setFormError(null);
     try {
-      const loginResponse = await AuthService.login({
+      await AuthService.login({
         email: data.email,
         password: data.password,
       });
@@ -372,7 +368,7 @@ function SignInForm() {
   );
 }
 
-export default function SignInClient({ locale }: SignInClientProps) {
+export default function SignInClient() {
   return (
     <Suspense
       fallback={

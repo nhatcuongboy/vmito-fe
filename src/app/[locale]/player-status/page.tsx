@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -13,7 +13,7 @@ import {
   Spinner,
   Link,
 } from '@chakra-ui/react';
-import { RefreshCw, Clock, Users, Trophy, ExternalLink } from 'lucide-react';
+import { RefreshCw, Clock, Users, Trophy } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/chakra-compat';
 
@@ -41,34 +41,37 @@ function PlayerStatusContent() {
   const searchParams = useSearchParams();
   const guestToken = searchParams.get('token');
 
-  const fetchPlayerStatus = async (showRefreshing = false) => {
-    if (!guestToken) {
-      toaster.error({ title: 'Invalid player token' });
-      setLoading(false);
-      return;
-    }
-
-    if (showRefreshing) setRefreshing(true);
-
-    try {
-      const response = await fetch(`/api/player-status?token=${guestToken}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setPlayerStatus(data.data);
-      } else {
-        toaster.error({
-          title: data.message || 'Failed to fetch player status',
-        });
+  const fetchPlayerStatus = useCallback(
+    async (showRefreshing = false) => {
+      if (!guestToken) {
+        toaster.error({ title: 'Invalid player token' });
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      toaster.error({ title: 'Failed to fetch player status' });
-      console.error('Status fetch error:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+
+      if (showRefreshing) setRefreshing(true);
+
+      try {
+        const response = await fetch(`/api/player-status?token=${guestToken}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setPlayerStatus(data.data);
+        } else {
+          toaster.error({
+            title: data.message || 'Failed to fetch player status',
+          });
+        }
+      } catch (error) {
+        toaster.error({ title: 'Failed to fetch player status' });
+        console.error('Status fetch error:', error);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [guestToken]
+  );
 
   useEffect(() => {
     fetchPlayerStatus();
@@ -79,7 +82,7 @@ function PlayerStatusContent() {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [guestToken]);
+  }, [fetchPlayerStatus]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

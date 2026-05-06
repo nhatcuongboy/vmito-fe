@@ -12,7 +12,6 @@ import {
   Image,
   SimpleGrid,
   Skeleton,
-  Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';

@@ -111,7 +111,6 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   ): { matches: boolean; score: number } => {
     const textNormalized = normalizeVietnamese(text).toLowerCase();
     const queryNormalized = normalizeVietnamese(query).toLowerCase();
-    const textLower = text.toLowerCase();
 
     let textIndex = 0;
     let queryIndex = 0;
@@ -209,6 +208,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
       .map((item) => item.option);
 
     return scoredOptions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options, searchQuery, onSearchChange]);
 
   // Cache the selected option so we can still show its label if it disappears from options (e.g., async search cleared)
@@ -331,7 +331,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
       {/* Trigger Button */}
       <Box
         as="button"
-        {...({ type: 'button' } as any)}
+        {...({ type: 'button' } as Record<string, unknown>)}
         onClick={() => !isDisabled && setIsOpen(!isOpen)}
         width="100%"
         textAlign="left"
@@ -469,7 +469,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                     <Box
                       key={option.value}
                       as="button"
-                      {...({ type: 'button' } as any)}
+                      {...({ type: 'button' } as Record<string, unknown>)}
                       onClick={() =>
                         !option.disabled && handleSelect(option.value)
                       }

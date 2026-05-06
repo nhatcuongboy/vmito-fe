@@ -30,7 +30,7 @@ export default function PlayerSessionsList() {
     }
 
     fetchPlayerSessions();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (

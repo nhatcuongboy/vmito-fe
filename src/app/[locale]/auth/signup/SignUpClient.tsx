@@ -6,7 +6,6 @@ import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import { AuthService } from '@/lib/api/auth.service';
 import { Box, VStack, Heading, Text, Link, Field } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
-import TopBar from '@/components/ui/TopBar';
 import { VSelect } from '@/components/ui/VSelect';
 import { useTranslations } from 'next-intl';
 import { useForm, Controller } from 'react-hook-form';

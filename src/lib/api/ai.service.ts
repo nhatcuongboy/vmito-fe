@@ -41,7 +41,7 @@ export const AIService = {
         articleContent,
         language,
       },
-      { skipGlobalError: true } as any
+      { skipGlobalError: true } as Record<string, unknown>
     );
 
     // Check if the response follows ApiResponse structure

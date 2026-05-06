@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Heart,
@@ -34,7 +35,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         isLiked: result.liked,
         _count: { ...prev._count, likes: result.likeCount },
       }));
-    } catch (error) {
+    } catch {
       toaster.create({
         title: 'Error',
         description: 'Failed to like post',
@@ -52,10 +53,12 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         type: 'success',
       });
       onPostUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toaster.create({
         title: 'Error',
-        description: error.response?.data?.message || 'Failed to share post',
+        description:
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || 'Failed to share post',
         type: 'error',
       });
     }
@@ -71,7 +74,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         type: 'success',
       });
       onPostUpdate?.();
-    } catch (error) {
+    } catch {
       toaster.create({
         title: 'Error',
         description: 'Failed to delete post',
@@ -120,9 +123,11 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <img
+          <Image
             src={localPost.author.image || '/default-avatar.png'}
             alt={localPost.author.name}
+            width={40}
+            height={40}
             className="w-10 h-10 rounded-full"
           />
           <div>
@@ -170,7 +175,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           className={`grid gap-2 mb-3 ${localPost.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}
         >
           {localPost.images.map((img) => (
-            <img
+            <img // eslint-disable-line @next/next/no-img-element
               key={img.id}
               src={img.url}
               alt=""
@@ -203,9 +208,11 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
       {localPost.originalPost && (
         <div className="border rounded-lg p-3 mb-3 bg-gray-50">
           <div className="flex items-center gap-2 mb-2">
-            <img
+            <Image
               src={localPost.originalPost.author.image || '/default-avatar.png'}
               alt={localPost.originalPost.author.name}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full"
             />
             <span className="font-semibold text-sm">

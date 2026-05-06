@@ -108,6 +108,7 @@ export default function TournamentManage({
 
   useEffect(() => {
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournament.id]);
 
   // Sync selectedItem when URL option param changes (e.g. back/forward navigation)

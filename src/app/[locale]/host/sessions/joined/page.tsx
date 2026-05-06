@@ -203,7 +203,7 @@ function PlayerSessionsContent() {
     // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery, sortBy]);
+  }, [filters, sessions, searchQuery, sortBy, sessionStatusTab]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);

@@ -170,7 +170,8 @@ function SelectionSection<T extends { id: string; label: string }>({
         <VStack gap={1} align="stretch" mt={2}>
           {available.map((item) => {
             const isSelected = selected.some((s) => s.id === item.id);
-            const isRequired = 'required' in item && (item as any).required;
+            const isRequired =
+              'required' in item && (item as { required?: boolean }).required;
             return (
               <Flex
                 key={item.id}

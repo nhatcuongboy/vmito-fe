@@ -110,7 +110,6 @@ export default function PlayerTooltip({
     pairNumber = index % 2 === 0 ? 1 : 2;
   }
   const pairColors = getPairColor(player, index);
-  const pairName = pairColors.name;
 
   return (
     <Portal>

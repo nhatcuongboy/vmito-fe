@@ -19,7 +19,6 @@ export const AppAddressDisplay = ({
   address,
   district,
   newAddress,
-  newDistrict,
   fontSize = 'xs',
   newAddressFontSize,
   color = 'gray.500',

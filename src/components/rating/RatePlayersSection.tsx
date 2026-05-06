@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   VStack,
@@ -17,12 +17,7 @@ import { useTranslations } from 'next-intl';
 import { RatingService } from '@/lib/api/rating.service';
 import { SubmitRatingModal } from './SubmitRatingModal';
 import { StarRatingDisplay } from './StarRatingDisplay';
-import {
-  Player,
-  SessionRatingEligibility,
-  RatingType,
-  Rating,
-} from '@/lib/api/types';
+import { Player, SessionRatingEligibility, RatingType } from '@/lib/api/types';
 
 interface RatePlayersSectionProps {
   sessionId: string;
@@ -40,7 +35,7 @@ export const RatePlayersSection = ({
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
-  const fetchEligibility = async () => {
+  const fetchEligibility = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await RatingService.getSessionRatingEligibility(sessionId);
@@ -50,11 +45,11 @@ export const RatePlayersSection = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sessionId]);
 
   useEffect(() => {
     fetchEligibility();
-  }, [sessionId]);
+  }, [sessionId, fetchEligibility]);
 
   const handleRatePlayer = (player: Player) => {
     setSelectedPlayer(player);
@@ -65,12 +60,6 @@ export const RatePlayersSection = ({
     fetchEligibility();
     setShowRatingModal(false);
     setSelectedPlayer(null);
-  };
-
-  const getPlayerRating = (playerId: string): Rating | undefined => {
-    return eligibility?.playerRatings?.find(
-      (r) => r.ratedUserId === players.find((p) => p.id === playerId)?.userId
-    );
   };
 
   const canRatePlayer = (player: Player): boolean => {

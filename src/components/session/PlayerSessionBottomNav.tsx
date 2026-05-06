@@ -1,13 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import {
-  Activity,
-  User,
-  Users,
-  Trophy,
-  Info,
-  Square,
-  DollarSign,
-} from 'lucide-react';
+import { Activity, Trophy, Info, Square, DollarSign } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
@@ -22,7 +14,6 @@ export default function PlayerSessionBottomNav({
   setActiveTab,
 }: PlayerSessionBottomNavProps) {
   const t = useTranslations('SessionDetail');
-  const navT = useTranslations('navigation');
   const { isCollapsed } = useSidebar();
 
   return (

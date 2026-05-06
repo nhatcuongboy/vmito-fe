@@ -10,7 +10,6 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/chakra-compat';
 import { TransactionSummary, HostTransactionSummary } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import { User, ChevronRight, Calendar, TrendingUp } from 'lucide-react';

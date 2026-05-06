@@ -9,7 +9,6 @@ import { Tournament, Venue } from '@/lib/api/types';
 import { useState } from 'react';
 import SelectVenueModal from './SelectVenueModal';
 import CreateVenueModal from './CreateVenueModal';
-import Image from 'next/image';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
 
@@ -66,7 +65,7 @@ export default function VenuePanel({
     try {
       setIsRemoving(true);
       await TournamentService.updateTournament(tournament.id, {
-        venueId: null as any, // Remove venue
+        venueId: null as unknown as string, // Remove venue
       });
       setCurrentVenue(undefined);
       onTournamentChanged?.();

@@ -34,13 +34,12 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { ISession } from '@/lib/api/types';
 
 // Constants
 const REFRESH_INTERVAL_SECONDS = 60;
-const BACKGROUND_REFRESH_MS = 1000;
 
 // Enums
 enum PageError {
@@ -62,10 +61,7 @@ function StatusPageContent() {
   const common = useTranslations('common');
   // const { data: sessionData } = useSession();
   // console.log(sessionData);
-  const [refreshInterval, setRefreshInterval] = useState(
-    REFRESH_INTERVAL_SECONDS
-  );
-  const [lastRefreshed, setLastRefreshed] = useState(new Date());
+  const refreshIntervalMs = REFRESH_INTERVAL_SECONDS * 1000;
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // For background refresh
@@ -96,7 +92,7 @@ function StatusPageContent() {
   };
 
   // Helper function to get current match for a court
-  const getCurrentMatch = (courtId: string): any => {
+  const getCurrentMatch = (courtId: string): Match | null => {
     // For player status page, we'll get match info from court data
     const courtData = session?.courts?.find((c) => c.id === courtId);
     return courtData?.currentMatch || null;
@@ -121,111 +117,102 @@ function StatusPageContent() {
     );
   };
 
-  // Helper function to get active courts
-  const getActiveCourts = () => {
-    return (
-      session?.courts
-        ?.filter((court) => court.currentMatch)
-        .map((court) => ({
-          ...court,
-          currentPlayers: court.currentPlayers || [],
-        })) || []
-    );
-  };
-
   // Function to fetch player data
-  const fetchPlayerData = async (isBackgroundRefresh = false) => {
-    if (!playerId) return;
+  const fetchPlayerData = useCallback(
+    async (isBackgroundRefresh = false) => {
+      if (!playerId) return;
 
-    try {
-      // Show different loading states for initial vs background refresh
-      if (isBackgroundRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+      try {
+        // Show different loading states for initial vs background refresh
+        if (isBackgroundRefresh) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
 
-      // Only clear error state, don't clear data during background refresh
-      if (!isBackgroundRefresh) {
-        setError(null);
-      }
+        // Only clear error state, don't clear data during background refresh
+        if (!isBackgroundRefresh) {
+          setError(null);
+        }
 
-      const playerData = await PlayerService.getPlayer(playerId);
+        const playerData = await PlayerService.getPlayer(playerId);
 
-      // Only update player state if we got valid data
-      if (playerData) {
-        setPlayer(playerData);
-      }
+        // Only update player state if we got valid data
+        if (playerData) {
+          setPlayer(playerData);
+        }
 
-      // Fetch session data
-      if (playerData?.sessionId) {
-        const sessionData = await SessionService.getSession(
-          playerData.sessionId
-        );
+        // Fetch session data
+        if (playerData?.sessionId) {
+          const sessionData = await SessionService.getSession(
+            playerData.sessionId
+          );
 
-        // Only update session state if we got valid data
-        if (sessionData) {
-          setSession(sessionData);
+          // Only update session state if we got valid data
+          if (sessionData) {
+            setSession(sessionData);
 
-          // Get match and court info if player is playing or ready
-          if (
-            (playerData.status === PlayerStatus.PLAYING ||
-              playerData.status === PlayerStatus.READY) &&
-            playerData.currentCourtId
-          ) {
-            const court = sessionData.courts?.find(
-              (c) => c.id === playerData.currentCourtId
-            );
-            if (court) {
-              setCurrentCourt(court);
-              setCourtPlayers(court.currentPlayers || []);
+            // Get match and court info if player is playing or ready
+            if (
+              (playerData.status === PlayerStatus.PLAYING ||
+                playerData.status === PlayerStatus.READY) &&
+              playerData.currentCourtId
+            ) {
+              const court = sessionData.courts?.find(
+                (c) => c.id === playerData.currentCourtId
+              );
+              if (court) {
+                setCurrentCourt(court);
+                setCourtPlayers(court.currentPlayers || []);
 
-              // Get the current match from the court
-              if (court.currentMatch) {
-                setCurrentMatch(court.currentMatch);
+                // Get the current match from the court
+                if (court.currentMatch) {
+                  setCurrentMatch(court.currentMatch);
+                }
               }
+            } else {
+              // Clear match and court info if not playing or ready
+              setCurrentMatch(null);
+              setCurrentCourt(null);
+              setCourtPlayers([]);
             }
-          } else {
-            // Clear match and court info if not playing or ready
-            setCurrentMatch(null);
-            setCurrentCourt(null);
-            setCourtPlayers([]);
           }
         }
-      }
 
-      // Clear error state after successful fetch
-      setError(null);
-    } catch (error: any) {
-      console.error('Error fetching player data:', error);
+        // Clear error state after successful fetch
+        setError(null);
+      } catch (error: unknown) {
+        console.error('Error fetching player data:', error);
+        const errorResponse = error as { response?: { status?: number } };
 
-      // Handle different types of errors
-      if (error.response?.status === 404) {
-        // Only set error for initial load, not background refresh
-        if (!isBackgroundRefresh) {
-          setError(PageError.PLAYER_NOT_FOUND);
-        }
-      } else {
-        // Only show toast for background refresh errors
-        if (isBackgroundRefresh) {
-          toaster.error({
-            title: t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu',
-          });
-          // Don't set error state for background refresh failures
+        // Handle different types of errors
+        if (errorResponse.response?.status === 404) {
+          // Only set error for initial load, not background refresh
+          if (!isBackgroundRefresh) {
+            setError(PageError.PLAYER_NOT_FOUND);
+          }
         } else {
-          setError(PageError.GENERAL_ERROR);
-          toaster.error({ title: t('errors.loadFailed') });
+          // Only show toast for background refresh errors
+          if (isBackgroundRefresh) {
+            toaster.error({
+              title: t('errors.refreshFailed') || 'Không thể cập nhật dữ liệu',
+            });
+            // Don't set error state for background refresh failures
+          } else {
+            setError(PageError.GENERAL_ERROR);
+            toaster.error({ title: t('errors.loadFailed') });
+          }
+        }
+      } finally {
+        if (isBackgroundRefresh) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
         }
       }
-    } finally {
-      if (isBackgroundRefresh) {
-        setRefreshing(false);
-      } else {
-        setLoading(false);
-      }
-      setLastRefreshed(new Date());
-    }
-  };
+    },
+    [playerId, t]
+  );
 
   // Initial data fetch
   useEffect(() => {
@@ -236,22 +223,16 @@ function StatusPageContent() {
     }
 
     fetchPlayerData(false); // Initial load, not background refresh
-  }, [playerId, t]);
+  }, [playerId, fetchPlayerData, t]);
 
   // Set up auto-refresh
   useEffect(() => {
     const timer = setInterval(() => {
-      setRefreshInterval((prev) => {
-        if (prev <= 1) {
-          fetchPlayerData(true); // Background refresh to prevent white screen
-          return REFRESH_INTERVAL_SECONDS;
-        }
-        return prev - 1;
-      });
-    }, BACKGROUND_REFRESH_MS);
+      fetchPlayerData(true); // Background refresh to prevent white screen
+    }, refreshIntervalMs);
 
     return () => clearInterval(timer);
-  }, [playerId]);
+  }, [fetchPlayerData, refreshIntervalMs]);
 
   if (loading && !player) {
     return (

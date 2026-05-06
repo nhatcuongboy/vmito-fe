@@ -2,8 +2,7 @@
 import { Input } from '@/components/ui/Input';
 
 import { useRouter } from '@/i18n/config';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import {
   Box,
   Heading,
@@ -23,10 +22,6 @@ import MainLayout from '@/components/layout/MainLayout';
 import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import { Button } from '@/components/ui/chakra-compat';
 
-interface JoinByCodeClientProps {
-  locale: string;
-}
-
 function JoinByCodeContent() {
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,8 +30,6 @@ function JoinByCodeContent() {
   const onClose = () => setIsOpen(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthenticated } = useAuthStore();
-  const locale = useLocale();
   const t = useTranslations('pages.join.joinByCode');
 
   // Auto-fill from QR code if present
@@ -46,15 +39,6 @@ function JoinByCodeContent() {
       setJoinCode(codeFromUrl);
     }
   }, [searchParams]);
-
-  const checkCodeType = async (code: string) => {
-    try {
-      const result = await AuthService.checkCode(code);
-      return result.isPlayerCode ? 'player' : 'session';
-    } catch (error) {
-      return 'session';
-    }
-  };
 
   const handleJoinSession = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,7 +169,7 @@ function JoinByCodeContent() {
   );
 }
 
-export default function JoinByCodeClient({ locale }: JoinByCodeClientProps) {
+export default function JoinByCodeClient() {
   return (
     <PublicRouteGuard redirectTo="/host">
       <Suspense

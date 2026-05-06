@@ -4,7 +4,7 @@ import { VModal } from '@/components/ui/VModal';
 import { ISession, Player } from '@/lib/api/types';
 import { Box, Text, VStack, Badge, Flex, Icon } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { PlayerService } from '@/lib/api/player.service';
 import { Phone, Award } from 'lucide-react';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -31,13 +31,7 @@ export default function MyRegistrationModal({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && session.id) {
-      fetchPlayers();
-    }
-  }, [isOpen, session.id]);
-
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await PlayerService.getMyPlayersForSession(session.id);
@@ -47,7 +41,13 @@ export default function MyRegistrationModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [session.id]);
+
+  useEffect(() => {
+    if (isOpen && session.id) {
+      fetchPlayers();
+    }
+  }, [isOpen, session.id, fetchPlayers]);
 
   const handleWithdrawClick = () => {
     setIsConfirmOpen(true);

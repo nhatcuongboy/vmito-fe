@@ -1,10 +1,8 @@
 'use client';
 
-import { Box, Flex } from '@chakra-ui/react';
-import Footer from './Footer';
+import { Box, Flex, type BoxProps } from '@chakra-ui/react';
 import TopBar from '@/components/ui/TopBar';
 import {
-  TOP_BAR_HEIGHT,
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
   SIDEBAR_WIDTH_EXPANDED,
@@ -18,7 +16,7 @@ interface MainLayoutProps {
   title: string;
   showBackButton?: boolean;
   backHref?: string;
-  backgroundColor?: any;
+  backgroundColor?: BoxProps['bg'];
   contentPadding?: number | string;
   centerTitle?: boolean;
 }

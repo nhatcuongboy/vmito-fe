@@ -1,6 +1,7 @@
 import { SimpleGrid } from '@/components/ui/chakra-compat';
 import {
   CourtDirection,
+  ISession,
   SessionStatus,
   SuggestedPlayersResponse,
 } from '@/lib/api/types';
@@ -17,7 +18,7 @@ import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 
 interface SessionCourtsTabProps {
-  session: any;
+  session: ISession;
   waitingPlayers: Player[];
   getCurrentMatch: (courtId: string) => Match | null;
   getCourtDisplayName: (
@@ -61,7 +62,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
 
   // Unified modal: auto-assign confirm handler
   const handleConfirmAutoAssign = (
-    suggestedPlayers: any,
+    suggestedPlayers: SuggestedPlayersResponse,
     direction: CourtDirection = CourtDirection.HORIZONTAL
   ) => {
     actions.handleConfirmAutoAssign(
@@ -180,7 +181,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         )}
         <Box>
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={4} p={1}>
-            {session.courts.map((court: Court) => {
+            {(session.courts ?? []).map((court: Court) => {
               const currentMatch = getCurrentMatch(court.id);
               return (
                 <CourtCard
@@ -274,7 +275,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         onCancel={modals.closeMatchResultModal}
         isLoading={modals.loadingEndMatchId === modals.selectedMatch?.id}
         direction={
-          session.courts.find(
+          (session.courts ?? []).find(
             (c: Court) => c.id === modals.selectedMatch?.courtId
           )?.direction || CourtDirection.HORIZONTAL
         }

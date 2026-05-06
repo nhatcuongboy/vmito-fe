@@ -115,7 +115,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     if (!socket) return;
 
     // Listener for Registration Requests (Host)
-    const handleRegistrationRequest = (data: any) => {
+    const handleRegistrationRequest = (data: {
+      playerName: string;
+      sessionName: string;
+    }) => {
       toaster.success({
         title: t('newRegistrationRequest'),
         description: t('requestedToJoin', {
@@ -127,7 +130,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // Listener for Registration Status Updates (User)
-    const handleStatusUpdate = (data: any) => {
+    const handleStatusUpdate = (data: {
+      status: string;
+      sessionName: string;
+    }) => {
       const isApproved = data.status === 'APPROVED';
       toaster.create({
         title: isApproved ? t('requestApproved') : t('requestRejected'),
@@ -219,7 +225,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleNotificationReceived
       );
     };
-  }, [socket]);
+  }, [socket, t, user]);
 
   // Global listener for court-call (players_selected) via user room.
   // This fires even when the player is NOT on the session detail page.

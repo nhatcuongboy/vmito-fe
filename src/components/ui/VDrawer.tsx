@@ -103,7 +103,7 @@ export const VDrawer: React.FC<VDrawerProps> = ({
   onPrimaryAction,
   isPrimaryLoading = false,
   isPrimaryDisabled = false,
-  primaryColorScheme = 'green',
+  primaryColorScheme: _primaryColorScheme = 'green',
   secondaryActionText,
   onSecondaryAction,
   hideSecondaryAction = false,

@@ -14,13 +14,12 @@ import {
   VStack,
   Input,
   IconButton,
-  Image,
 } from '@/components/ui/chakra-compat';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from '@/i18n/config';
@@ -30,9 +29,8 @@ import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
-import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import PageLayout from '@/components/layout/PageLayout';
-import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
 import AppMultiImageUpload, {
   ISessionImage,
@@ -277,7 +275,8 @@ const CreateClubPage = () => {
       const imagePublicId =
         clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
-      const { allLevelsSelected, ...restData } = data;
+      const restData = { ...data };
+      delete restData.allLevelsSelected;
 
       const club = await ClubsService.createClub({
         ...restData,

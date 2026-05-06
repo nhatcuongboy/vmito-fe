@@ -15,10 +15,6 @@ import { PlayerService } from '@/lib/api/player.service';
 import { BulkPlayerData } from '@/lib/api/types';
 import { VALID_LEVELS } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import {
-  parseCSVToBulkPlayers,
-  EXAMPLE_CSV,
-} from '@/utils/bulk-players-example';
 
 interface BulkPlayersFormProps {
   sessionId: string;
@@ -31,7 +27,6 @@ export default function BulkPlayersForm({
 }: BulkPlayersFormProps) {
   const { getLevelLabel } = useLevelLabel();
   const [players, setPlayers] = useState<BulkPlayerData[]>([]);
-  const [csvData, setCsvData] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -97,19 +92,23 @@ export default function BulkPlayersForm({
   const updatePlayer = (
     index: number,
     field: keyof BulkPlayerData,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
+    value: string | number | boolean
   ) => {
     const newPlayers = [...players];
+    let nextValue = value;
 
     if (field === 'playerNumber') {
       // Convert to number
-      value = parseInt(value, 10);
+      const parsed = Number(value);
+      nextValue = Number.isNaN(parsed) ? 0 : parsed;
 
       // Validate number is available
-      if (sessionInfo && !sessionInfo.availablePlayerNumbers.includes(value)) {
+      if (
+        sessionInfo &&
+        !sessionInfo.availablePlayerNumbers.includes(nextValue as number)
+      ) {
         setErrorMessage(
-          `Player number ${value} is already taken or out of range`
+          `Player number ${nextValue} is already taken or out of range`
         );
         return;
       }
@@ -117,7 +116,7 @@ export default function BulkPlayersForm({
 
     newPlayers[index] = {
       ...newPlayers[index],
-      [field]: value,
+      [field]: nextValue,
     };
 
     setPlayers(newPlayers);
@@ -197,9 +196,6 @@ export default function BulkPlayersForm({
       } else {
         setPlayers([]);
       }
-
-      // Clear CSV data
-      setCsvData('');
     } catch (error) {
       console.error('Error creating players:', error);
       setErrorMessage('Error creating players');
@@ -208,117 +204,10 @@ export default function BulkPlayersForm({
     }
   };
 
-  // Import from CSV
-  const handleImportCSV = () => {
-    try {
-      setErrorMessage(null);
-      setSuccessMessage(null);
-
-      if (!csvData.trim()) {
-        setErrorMessage('Empty CSV data');
-        return;
-      }
-
-      // Check if CSV format is valid (has header row and at least one player row)
-      const lines = csvData.trim().split('\n');
-      if (lines.length < 2) {
-        setErrorMessage(
-          'CSV must have a header row and at least one player row'
-        );
-        return;
-      }
-
-      // Check if header has required columns
-      const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
-      if (
-        !headers.includes('playernumber') &&
-        !headers.includes('player number')
-      ) {
-        setErrorMessage("CSV must have a 'playerNumber' column");
-        return;
-      }
-
-      const parsedPlayers = parseCSVToBulkPlayers(csvData);
-      if (parsedPlayers.length === 0) {
-        setErrorMessage('No valid players found in CSV');
-        return;
-      }
-
-      // Check for duplicate player numbers in the parsed data
-      const playerNumbers = parsedPlayers.map((p) => p.playerNumber);
-      const uniqueNumbers = new Set(playerNumbers);
-      if (playerNumbers.length !== uniqueNumbers.size) {
-        setErrorMessage('CSV contains duplicate player numbers');
-        return;
-      }
-
-      // Validate player numbers against available ones
-      if (sessionInfo) {
-        const invalidNumbers = parsedPlayers.filter(
-          (p) =>
-            p.playerNumber !== undefined &&
-            !sessionInfo.availablePlayerNumbers.includes(p.playerNumber)
-        );
-
-        if (invalidNumbers.length > 0) {
-          setErrorMessage(
-            `${invalidNumbers.length} players have numbers that are already taken or out of range`
-          );
-          // Continue anyway, just a warning
-        }
-      }
-
-      // Validate gender and level in CSV data
-      const invalidGender = parsedPlayers.some(
-        (p) =>
-          p.gender &&
-          !['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
-      );
-
-      const invalidLevel = parsedPlayers.some(
-        (p) => p.level !== undefined && !VALID_LEVELS.includes(p.level)
-      );
-
-      if (invalidGender || invalidLevel) {
-        let errorMsg = 'Warning: ';
-        if (invalidGender)
-          errorMsg += 'Some players have invalid gender values. ';
-        if (invalidLevel)
-          errorMsg += 'Some players have invalid level values. ';
-        errorMsg += 'These will be imported as blank values.';
-        setErrorMessage(errorMsg);
-
-        // Fix invalid values
-        const fixedPlayers = parsedPlayers.map((p) => ({
-          ...p,
-          gender:
-            p.gender &&
-            ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'].includes(p.gender)
-              ? p.gender
-              : undefined,
-          level:
-            p.level !== undefined && VALID_LEVELS.includes(p.level)
-              ? p.level
-              : undefined,
-        }));
-
-        setPlayers(fixedPlayers);
-        return;
-      }
-
-      setPlayers(parsedPlayers);
-      setSuccessMessage(`${parsedPlayers.length} players imported from CSV`);
-    } catch (error) {
-      console.error('Error parsing CSV:', error);
-      setErrorMessage('Error parsing CSV: Please check the format');
-    }
-  };
-
   // Clear the form
   const clearForm = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
-    setCsvData('');
 
     // Reset players to initial state with just one empty player
     if (sessionInfo && sessionInfo.availablePlayerNumbers.length > 0) {

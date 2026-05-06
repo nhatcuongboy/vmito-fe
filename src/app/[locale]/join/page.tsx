@@ -22,7 +22,7 @@ import { Activity, ArrowRight, Hash, LogIn, Shield, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { ISession } from '@/lib/api/types';
+import { type ISession, type Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 const formatRangeTime = (
@@ -36,7 +36,6 @@ const formatRangeTime = (
 
 export default function JoinPage() {
   const t = useTranslations('pages.join');
-  const common = useTranslations('common');
   const tSession = useTranslations('session');
   const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const router = useRouter();
@@ -48,8 +47,8 @@ export default function JoinPage() {
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
-  const [existingPlayers, setExistingPlayers] = useState<any[]>([]);
-  const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
+  const [existingPlayers, setExistingPlayers] = useState<Player[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
   // Fetch available sessions on component mount
   useEffect(() => {
@@ -71,10 +70,12 @@ export default function JoinPage() {
     }
 
     fetchSessions();
-  }, []);
+  }, [t]);
 
   // Handle session selection change
-  const handleSessionChange = async (e: any) => {
+  const handleSessionChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const selectedId = e.target.value;
     setSessionId(selectedId);
     setPlayerNumber('');
@@ -102,7 +103,7 @@ export default function JoinPage() {
   };
 
   // Handle player selection
-  const handlePlayerChange = (e: any) => {
+  const handlePlayerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedPlayerNumber = e.target.value;
     setPlayerNumber(selectedPlayerNumber);
 

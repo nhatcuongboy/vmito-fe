@@ -2,7 +2,6 @@
 
 import { CourtDirection } from '@/lib/api/types';
 import { Box, Spinner } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Volume2 } from 'lucide-react';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
@@ -56,9 +55,9 @@ export default function BadmintonCourt({
   direction = CourtDirection.HORIZONTAL,
   preSelectedPlayers = [],
 }: BadmintonCourtProps) {
-  const t = useTranslations('SessionDetail');
   const [clickedPlayer, setClickedPlayer] = useState<string | null>(null);
   const aspectRatio = 13.4 / 6.1;
+  const preSelectedCount = preSelectedPlayers.length;
 
   const handleAnnounce = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -163,7 +162,6 @@ export default function BadmintonCourt({
       sortedPlayers.forEach((player, index) => {
         const visualIndex = visualMapping[index] ?? index;
         if (visualIndex < 4) {
-          const pairNumber = visualIndex % 2 === 0 ? 1 : 2;
           remappedPlayers[visualIndex] = {
             ...player,
             // pairNumber, // Left column = pair 1, right column = pair 2
@@ -240,11 +238,25 @@ export default function BadmintonCourt({
     }
   };
 
+  const handlePlayerClick = (
+    playerId: string | null,
+    player?: BadmintonCourtPlayer,
+    position?: number
+  ) => {
+    setClickedPlayer(playerId);
+    if (mode === 'selection' && player && position !== undefined) {
+      onPlayerSelect?.(player, position);
+    }
+  };
+
   return (
     <Box
       width={width}
       aspectRatio={aspectRatio}
       position="relative"
+      data-court-name={courtName ?? ''}
+      data-elapsed-time={elapsedTime ?? ''}
+      data-preselected-count={preSelectedCount}
       borderColor={
         status === 'READY'
           ? 'yellow.500' // yellow border for READY
@@ -256,6 +268,25 @@ export default function BadmintonCourt({
       overflow="visible"
       // boxShadow={status === "READY" ? "0 0 0 4px #fef08a" : undefined}
     >
+      {showTimeInCenter && elapsedTime && (
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          zIndex={3}
+          bg={{ base: 'whiteAlpha.800', _dark: 'blackAlpha.600' }}
+          px={2}
+          py={1}
+          borderRadius="md"
+          fontSize="xs"
+          fontWeight="bold"
+          color="gray.700"
+          _dark={{ color: 'gray.100' }}
+        >
+          {elapsedTime}
+        </Box>
+      )}
       {/* Outer boundary */}
       <Box
         position="absolute"
@@ -422,13 +453,12 @@ export default function BadmintonCourt({
                     isCurrentPlayer: selectionIndex === currentPlayerPosition,
                   }}
                   index={visualIndex}
-                  players={
-                    displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
-                  }
                   mode={mode}
                   matchType={matchType}
                   isClicked={clickedPlayer === player.id}
-                  onPlayerClick={setClickedPlayer}
+                  onPlayerClick={(id) =>
+                    handlePlayerClick(id, player, selectionIndex)
+                  }
                   onRemovePlayer={() => handlePlayerRemove(selectionIndex)}
                 />
               );
@@ -553,13 +583,10 @@ export default function BadmintonCourt({
                 key={player.id}
                 player={player}
                 index={index}
-                players={
-                  displayPlayers.filter(Boolean) as BadmintonCourtPlayer[]
-                }
                 mode={mode}
                 matchType={effectiveMatchType}
                 isClicked={clickedPlayer === player.id}
-                onPlayerClick={setClickedPlayer}
+                onPlayerClick={(id) => handlePlayerClick(id, player, index)}
               />
             )
           )}

@@ -43,7 +43,7 @@ const formatScheduleDisplay = (
 
   schedules.forEach((schedule) => {
     const timeSlot = `${schedule.startTime}-${schedule.endTime}`;
-    const dayName = t(`clubs.dayNames.${schedule.dayOfWeek}` as any);
+    const dayName = t(`clubs.dayNames.${schedule.dayOfWeek}`);
 
     if (!timeMap.has(timeSlot)) {
       timeMap.set(timeSlot, []);

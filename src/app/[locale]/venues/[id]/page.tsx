@@ -16,7 +16,7 @@ interface PageProps {
 const getVenue = cache(async (id: string): Promise<Venue | null> => {
   try {
     return await VenueService.getVenue(id);
-  } catch (error) {
+  } catch {
     return null;
   }
 });

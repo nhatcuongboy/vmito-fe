@@ -7,7 +7,6 @@ import { Plus, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
-import { UserRole } from '@/lib/api/types';
 import { ROUTES } from '@/constants';
 
 interface QuickCreateSessionBarProps {

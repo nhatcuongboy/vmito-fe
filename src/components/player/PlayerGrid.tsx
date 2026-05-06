@@ -1,15 +1,12 @@
 'use client';
 
 import { Card, CardBody, SimpleGrid } from '@/components/ui/chakra-compat';
-import { SessionService } from '@/lib/api/session.service';
 import { Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Badge, Box, Flex, Text, VStack } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
 import { Mars, User, Users, Venus, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { PlayerDetailModal } from './PlayerDetailModal';
-import { VModal } from '@/components/ui/VModal';
 import { PlayerActionMenu } from '@/components/session/player-management/PlayerActionMenu';
 import { useTranslations } from 'next-intl';
 
@@ -141,8 +138,8 @@ export const PlayerGrid = ({
               size="sm"
               borderRadius="md"
               borderWidth="2px"
-              borderColor={borderColor as any}
-              bg={bgColor as any}
+              borderColor={borderColor as string}
+              bg={bgColor}
               transition="all 0.2s"
               minH={{ base: '100px', md: '140px' }}
               position="relative"
