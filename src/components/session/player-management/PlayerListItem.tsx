@@ -229,10 +229,13 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
       borderColor="gray.100"
       position="relative"
       overflow="visible"
-      transition="box-shadow 0.2s ease, border-color 0.2s ease"
+      cursor="pointer"
+      onClick={() => onShowQR(player)}
+      transition="box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease"
       _hover={{
         boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
         borderColor: 'gray.200',
+        transform: 'translateY(-1px)',
       }}
       _before={{
         content: '""',

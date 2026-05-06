@@ -32,6 +32,8 @@ import { useRouter, usePathname } from '@/i18n/config';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 import { useColorMode } from './color-mode-provider';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
+import { ROUTES } from '@/constants/routes';
+import { Pencil } from 'lucide-react';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -98,6 +100,13 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const handleProfileClick = () => {
     setIsOpen(false);
+    if (user) {
+      router.push(ROUTES.USER.PROFILE(user.id));
+    }
+  };
+
+  const handleEditProfileClick = () => {
+    setIsOpen(false);
     setIsProfileModalOpen(true);
   };
 
@@ -160,6 +169,29 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('profile')}
+        </Text>
+      </Flex>
+
+      {/* Edit Profile */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={handleEditProfileClick}
+      >
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <Pencil size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('editProfile')}
         </Text>
       </Flex>
 
@@ -481,7 +513,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                   _dark={{ borderColor: 'gray.700' }}
                 >
                   <Flex align="center" gap={{ base: 2, md: 3 }}>
-                    <Avatar.Root size={{ base: 'sm', md: 'md' }} bg="brand.500">
+                    <Avatar.Root
+                      size={{ base: 'sm', md: 'md' }}
+                      bg="brand.500"
+                      onClick={handleEditProfileClick}
+                    >
                       <Avatar.Fallback name={user.name || user.email}>
                         {(user.name || user.email).charAt(0).toUpperCase()}
                       </Avatar.Fallback>

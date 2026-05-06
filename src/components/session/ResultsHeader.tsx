@@ -24,6 +24,7 @@ import {
 import ViewModeToggle from './ViewModeToggle';
 import { Button } from '@/components/ui/chakra-compat';
 import { LucideIcon } from 'lucide-react';
+import type { ViewMode } from '@/hooks/useViewMode';
 
 export interface SortOption {
   value: SessionSortBy;
@@ -62,6 +63,8 @@ interface ResultsHeaderProps {
   sortBy?: SessionSortBy;
   onSortChange?: (sort: SessionSortBy) => void;
   showViewModeMap?: boolean;
+  viewMode?: ViewMode;
+  setViewMode?: (mode: ViewMode) => void;
 }
 
 export default function ResultsHeader({
@@ -73,6 +76,8 @@ export default function ResultsHeader({
   sortBy: controlledSortBy,
   onSortChange,
   showViewModeMap = true,
+  viewMode,
+  setViewMode,
 }: ResultsHeaderProps) {
   const t = useTranslations('session');
   const tSuggestions = useTranslations('suggestions');
@@ -264,7 +269,13 @@ export default function ResultsHeader({
           </Box>
 
           {/* View Mode Toggle */}
-          <ViewModeToggle showMap={showViewModeMap} />
+          {viewMode && setViewMode && (
+            <ViewModeToggle
+              showMap={showViewModeMap}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+            />
+          )}
         </HStack>
       </Flex>
 

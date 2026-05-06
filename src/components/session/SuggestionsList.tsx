@@ -424,7 +424,7 @@ export default function SuggestionsList({
       {loading ? (
         <Grid
           templateColumns={
-            viewMode === 'compact'
+            viewMode === 'list'
               ? {
                   base: '1fr',
                   sm: 'repeat(2, 1fr)',
@@ -437,7 +437,7 @@ export default function SuggestionsList({
                   lg: 'repeat(3, 1fr)',
                 }
           }
-          gap={viewMode === 'compact' ? 4 : 6}
+          gap={viewMode === 'list' ? 4 : 6}
         >
           {Array.from({ length: 6 }).map((_, index) => (
             <SessionCardSkeleton
@@ -501,7 +501,7 @@ export default function SuggestionsList({
         <RatingStatsProvider userIds={hostIds}>
           <Grid
             templateColumns={
-              viewMode === 'compact'
+              viewMode === 'list'
                 ? {
                     base: '1fr',
                     sm: 'repeat(2, 1fr)',
@@ -514,7 +514,7 @@ export default function SuggestionsList({
                     lg: 'repeat(3, 1fr)',
                   }
             }
-            gap={viewMode === 'compact' ? 4 : 6}
+            gap={viewMode === 'list' ? 4 : 6}
           >
             {filteredSessions.map((session) => (
               <Box
@@ -544,7 +544,7 @@ export default function SuggestionsList({
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={
-                  viewMode === 'compact'
+                  viewMode === 'list'
                     ? {
                         base: '1fr',
                         sm: 'repeat(2, 1fr)',
@@ -557,7 +557,7 @@ export default function SuggestionsList({
                         lg: 'repeat(3, 1fr)',
                       }
                 }
-                gap={viewMode === 'compact' ? 4 : 6}
+                gap={viewMode === 'list' ? 4 : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
                   <SessionCardSkeleton

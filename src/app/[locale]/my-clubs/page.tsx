@@ -9,8 +9,13 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { EJoinRequestStatus, IClubJoinRequest, IMyClub } from '@/types/club';
-import { IClub } from '@/types/club';
+import {
+  EMemberRole,
+  EJoinRequestStatus,
+  IClubJoinRequest,
+  IMyClub,
+  IClub,
+} from '@/types/club';
 import {
   Badge,
   Box,
@@ -21,6 +26,7 @@ import {
   Separator,
   SimpleGrid,
   Spinner,
+  Tabs,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -43,6 +49,10 @@ import {
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 
+type RejectTarget =
+  | { type: 'club'; clubId: string }
+  | { type: 'member'; clubId: string; requestId: string };
+
 export default function MyClubsPage() {
   const t = useTranslations();
   const router = useRouter();
@@ -50,28 +60,90 @@ export default function MyClubsPage() {
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
 
   const isHostOrAdmin = canAccessHostFeatures;
+  const isAdmin = currentUser?.role === UserRole.ADMIN;
+
+  const [activeTab, setActiveTab] = useState<'managing' | 'member'>('managing');
 
   const [myClubs, setMyClubs] = useState<IMyClub[]>([]);
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);
+  const [incomingRequests, setIncomingRequests] = useState<IClubJoinRequest[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingIncoming, setIsLoadingIncoming] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
-  // Admin club approval state
-  const isAdmin = currentUser?.role === UserRole.ADMIN;
   const [pendingClubs, setPendingClubs] = useState<IClub[]>([]);
   const [isLoadingPending, setIsLoadingPending] = useState(false);
-  const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
+
+  const [rejectTarget, setRejectTarget] = useState<RejectTarget | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
-  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-  const [isActionLoading, setIsActionLoading] = useState(false);
+  const isRejectDialogOpen = rejectTarget !== null;
+
+  // Deduplicate: backend may return the same club from both the ClubMember
+  // query and the host-based query; prefer ADMIN role when deduplicating.
+  const uniqueClubs = Array.from(
+    myClubs
+      .reduce((map, club) => {
+        const existing = map.get(club.id);
+        if (!existing || club.role === EMemberRole.ADMIN) {
+          map.set(club.id, club);
+        }
+        return map;
+      }, new Map<string, IMyClub>())
+      .values()
+  );
+
+  // A club is "managed" if the user has ADMIN role OR is the club host.
+  // (HOST users who create clubs may not have a ClubMember record due to a
+  //  backend quirk where hostName being set skips member creation, so
+  //  checking host.id is the reliable fallback.)
+  const isManaging = (c: IMyClub) =>
+    c.role === EMemberRole.ADMIN || c.host.id === currentUser?.id;
+
+  const managedClubs = uniqueClubs.filter(isManaging);
+  const memberClubs = uniqueClubs.filter((c) => !isManaging(c));
+  const pendingOutgoing = joinRequests.filter(
+    (r) => r.status === EJoinRequestStatus.PENDING
+  );
+
+  const loadIncomingRequests = useCallback(
+    async (clubs: IMyClub[], hostUserId?: string) => {
+      const adminClubIds = clubs
+        .filter((c) => c.role === EMemberRole.ADMIN || c.host.id === hostUserId)
+        .map((c) => c.id);
+      if (adminClubIds.length === 0) {
+        setIncomingRequests([]);
+        return;
+      }
+      try {
+        setIsLoadingIncoming(true);
+        const results = await Promise.all(
+          adminClubIds.map((id) => ClubsService.getJoinRequests(id))
+        );
+        const pending = results
+          .flat()
+          .filter((r) => r.status === EJoinRequestStatus.PENDING);
+        setIncomingRequests(pending);
+      } catch (error) {
+        console.error('Failed to load incoming requests:', error);
+      } finally {
+        setIsLoadingIncoming(false);
+      }
+    },
+    []
+  );
 
   const loadData = useCallback(async () => {
     if (!currentUser) return;
+    let loadedClubs: IMyClub[] = [];
     try {
       setIsLoading(true);
       const [clubs, requests] = await Promise.all([
         ClubsService.getMyClubs(),
         ClubsService.getMyJoinRequests(),
       ]);
+      loadedClubs = clubs;
       setMyClubs(clubs);
       setJoinRequests(requests);
     } catch (error) {
@@ -79,7 +151,10 @@ export default function MyClubsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUser]);
+    // Load incoming join requests separately so a failure here
+    // doesn't prevent the main club list from rendering.
+    loadIncomingRequests(loadedClubs, currentUser?.id);
+  }, [currentUser, loadIncomingRequests]);
 
   useEffect(() => {
     loadData();
@@ -119,30 +194,162 @@ export default function MyClubsPage() {
     }
   };
 
-  const handleOpenRejectDialog = (clubId: string) => {
-    setSelectedClubId(clubId);
-    setRejectionReason('');
-    setIsRejectDialogOpen(true);
-  };
-
-  const handleReject = async () => {
-    if (!selectedClubId || !rejectionReason.trim()) return;
+  const handleApproveJoinRequest = async (
+    clubId: string,
+    requestId: string
+  ) => {
     try {
       setIsActionLoading(true);
-      await ClubsService.rejectClub(selectedClubId, rejectionReason);
+      await ClubsService.approveJoinRequest(clubId, requestId);
       toaster.create({
-        title: t('clubs.adminApproval.rejectSuccess'),
+        title: t('clubs.requestApprovedSuccessfully'),
         type: 'success',
       });
-      setIsRejectDialogOpen(false);
-      fetchPendingClubs();
+      await loadIncomingRequests(myClubs, currentUser?.id);
     } catch (error) {
-      console.error('Failed to reject club:', error);
+      console.error('Failed to approve join request:', error);
       toaster.create({ title: t('common.error'), type: 'error' });
     } finally {
       setIsActionLoading(false);
     }
   };
+
+  const handleOpenRejectDialog = (target: RejectTarget) => {
+    setRejectTarget(target);
+    setRejectionReason('');
+  };
+
+  const handleReject = async () => {
+    if (!rejectTarget || !rejectionReason.trim()) return;
+    try {
+      setIsActionLoading(true);
+      if (rejectTarget.type === 'club') {
+        await ClubsService.rejectClub(rejectTarget.clubId, rejectionReason);
+        toaster.create({
+          title: t('clubs.adminApproval.rejectSuccess'),
+          type: 'success',
+        });
+        fetchPendingClubs();
+      } else {
+        await ClubsService.rejectJoinRequest(
+          rejectTarget.clubId,
+          rejectTarget.requestId,
+          rejectionReason
+        );
+        toaster.create({
+          title: t('clubs.requestRejectedSuccessfully'),
+          type: 'success',
+        });
+        await loadIncomingRequests(myClubs, currentUser?.id);
+      }
+      setRejectTarget(null);
+    } catch (error) {
+      console.error('Failed to reject:', error);
+      toaster.create({ title: t('common.error'), type: 'error' });
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const renderClubCard = (club: IMyClub, isManaged: boolean) => (
+    <Box
+      key={club.id}
+      p={{ base: 4, md: 6 }}
+      bg="bg"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      borderRadius={{ base: 'xl', md: '2xl' }}
+      borderWidth="1px"
+      borderColor="border"
+      cursor={club.status === 'PENDING' ? 'default' : 'pointer'}
+      onClick={() => {
+        if (club.status !== 'PENDING') {
+          router.push(`/clubs/${club.slug ?? club.id}`);
+        }
+      }}
+      transition="all 0.2s"
+      _hover={
+        club.status === 'PENDING'
+          ? {}
+          : { shadow: 'md', transform: 'translateY(-2px)' }
+      }
+    >
+      <HStack justify="space-between" mb={{ base: 3, md: 4 }}>
+        <HStack gap={2} flex={1} minW={0}>
+          <Heading size={{ base: 'sm', md: 'md' }} lineClamp={1}>
+            {club.name}
+          </Heading>
+          {club.status === 'PENDING' && (
+            <Badge colorPalette="yellow" size="xs">
+              {t('clubs.clubStatus.pending')}
+            </Badge>
+          )}
+        </HStack>
+        <HStack flexShrink={0}>
+          {isManaged && (
+            <Button
+              size="sm"
+              variant="ghost"
+              colorPalette="gray"
+              p={{ base: 1, md: 2 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/host/clubs/${club.id}/edit`);
+              }}
+            >
+              <Settings size={16} />
+            </Button>
+          )}
+          {club.status !== 'PENDING' && (
+            <ChevronRight size={18} color="#CBD5E0" />
+          )}
+        </HStack>
+      </HStack>
+
+      <VStack align="start" gap={{ base: 2, md: 3 }} mb={{ base: 3, md: 4 }}>
+        <HStack gap={2}>
+          <UserCircle size={16} />
+          <Text
+            fontSize={{ base: 'xs', md: 'sm' }}
+            color="fg.muted"
+            _dark={{ color: 'gray.400' }}
+          >
+            {t(
+              `clubs.memberRole.${club.role.toLowerCase()}` as Parameters<
+                typeof t
+              >[0]
+            )}
+          </Text>
+        </HStack>
+        <HStack gap={2}>
+          <Users size={16} />
+          <Text
+            fontSize={{ base: 'xs', md: 'sm' }}
+            color="fg.muted"
+            _dark={{ color: 'gray.400' }}
+          >
+            {club.memberCount} {t('clubs.members')}
+          </Text>
+        </HStack>
+        <HStack gap={2}>
+          <Clock size={16} />
+          <Text fontSize="xs" color="fg.muted">
+            Joined {new Date(club.joinedAt).toLocaleDateString()}
+          </Text>
+        </HStack>
+      </VStack>
+
+      <Separator mb={{ base: 3, md: 4 }} />
+
+      <HStack>
+        <Text fontSize="xs" color="fg.muted">
+          {t('clubs.hostedBy')}
+        </Text>
+        <Text fontSize="xs" fontWeight="bold">
+          {club.host.name}
+        </Text>
+      </HStack>
+    </Box>
+  );
 
   if (isLoading) {
     return (
@@ -156,249 +363,411 @@ export default function MyClubsPage() {
 
   return (
     <PageLayout title={t('navigation.manageGroups')}>
-      <Text color="fg.muted" _dark={{ color: 'gray.400' }} mb={8}>
+      <Text
+        color="fg.muted"
+        _dark={{ color: 'gray.400' }}
+        mb={{ base: 4, md: 8 }}
+        fontSize={{ base: 'sm', md: 'md' }}
+        px={{ base: 0, md: 0 }}
+      >
         {t('clubs.manageMyClubsDescription')}
       </Text>
 
-      {/* Section 1: Joined Clubs */}
-      <Box mb={12}>
-        <HStack mb={6} gap={2} justify="space-between">
-          <HStack gap={2}>
-            <Users size={20} />
-            <Heading size="lg">{t('clubs.myClubs')}</Heading>
-            <Badge
-              colorPalette="green"
-              variant="subtle"
-              borderRadius="full"
-              px={2}
-            >
-              {myClubs.length}
-            </Badge>
-          </HStack>
-          {isHostOrAdmin && (
-            <Button
-              colorPalette="green"
-              size="sm"
-              onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
-            >
-              <Plus size={16} />
-              {t('navigation.createClub')}
-            </Button>
-          )}
-        </HStack>
-
-        {myClubs.length === 0 ? (
-          <VStack
-            py={12}
-            bg="bg.muted"
-            _dark={{ bg: 'gray.900/40' }}
-            borderRadius="2xl"
-            gap={4}
-            borderWidth="1px"
-            borderStyle="dashed"
+      <Tabs.Root
+        value={activeTab}
+        onValueChange={(e) => setActiveTab(e.value as 'managing' | 'member')}
+        variant="enclosed"
+      >
+        <Tabs.List
+          mb={{ base: 4, md: 6 }}
+          display="flex"
+          gap={{ base: 2, md: 0 }}
+          bg={{ base: 'white', md: 'transparent' }}
+          p={{ base: 1, md: 0 }}
+          borderRadius={{ base: 'xl', md: 'md' }}
+          shadow={{ base: 'sm', md: 'none' }}
+          borderWidth={{ base: '1px', md: '0' }}
+          borderColor={{ base: 'gray.200', md: 'transparent' }}
+        >
+          <Tabs.Trigger
+            value="managing"
+            gap={2}
+            flex={{ base: 1, md: 'initial' }}
+            fontSize={{ base: 'sm', md: 'md' }}
+            px={{ base: 3, md: 4 }}
+            py={{ base: 2, md: 2 }}
+            borderRadius={{ base: 'lg', md: 'md' }}
+            justifyContent="center"
           >
-            <Users size={48} color="#A0AEC0" />
-            <Text color="fg.muted">{t('clubs.noClubsFound')}</Text>
-            <Button
-              colorPalette="green"
-              variant="outline"
-              onClick={() => router.push('/clubs')}
-            >
-              {t('clubs.browseClubs')}
-            </Button>
-          </VStack>
-        ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-            {myClubs.map((club) => (
-              <Box
-                key={club.id}
-                p={6}
-                bg="bg"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                borderRadius="2xl"
-                borderWidth="1px"
-                borderColor="border"
-                cursor={club.status === 'PENDING' ? 'default' : 'pointer'}
-                onClick={() => {
-                  if (club.status !== 'PENDING') {
-                    router.push(`/clubs/${club.slug ?? club.id}`);
-                  }
-                }}
-                transition="all 0.2s"
-                _hover={
-                  club.status === 'PENDING'
-                    ? {}
-                    : { shadow: 'md', transform: 'translateY(-2px)' }
-                }
-              >
-                <HStack justify="space-between" mb={4}>
-                  <HStack gap={2}>
-                    <Heading size="md" lineClamp={1}>
-                      {club.name}
-                    </Heading>
-                    {club.status === 'PENDING' && (
-                      <Badge colorPalette="yellow" size="sm">
-                        {t('clubs.clubStatus.pending')}
-                      </Badge>
-                    )}
-                  </HStack>
-                  <HStack>
-                    {(club.role === 'ADMIN' ||
-                      club.host.id === currentUser?.id) && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        colorPalette="gray"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/host/clubs/${club.id}/edit`);
-                        }}
-                      >
-                        <Settings size={16} />
-                      </Button>
-                    )}
-                    {club.status !== 'PENDING' && (
-                      <ChevronRight size={18} color="#CBD5E0" />
-                    )}
-                  </HStack>
-                </HStack>
-
-                <VStack align="start" gap={3} mb={4}>
-                  <HStack gap={2}>
-                    <UserCircle size={16} />
-                    <Text
-                      fontSize="sm"
-                      color="fg.muted"
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      {t(`clubs.memberRole.${club.role.toLowerCase()}` as any)}
-                    </Text>
-                  </HStack>
-                  <HStack gap={2}>
-                    <Users size={16} />
-                    <Text
-                      fontSize="sm"
-                      color="fg.muted"
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      {club.memberCount} {t('clubs.members')}
-                    </Text>
-                  </HStack>
-                  <HStack gap={2}>
-                    <Clock size={16} />
-                    <Text fontSize="xs" color="fg.muted">
-                      Joined {new Date(club.joinedAt).toLocaleDateString()}
-                    </Text>
-                  </HStack>
-                </VStack>
-
-                <Separator mb={4} />
-
-                <HStack>
-                  <Text fontSize="xs" color="fg.muted">
-                    Hosted by
-                  </Text>
-                  <Text fontSize="xs" fontWeight="bold">
-                    {club.host.name}
-                  </Text>
-                </HStack>
-              </Box>
-            ))}
-          </SimpleGrid>
-        )}
-      </Box>
-
-      {/* Section 2: Pending Requests */}
-      <Box>
-        <HStack mb={6} gap={2}>
-          <ClipboardList size={20} />
-          <Heading size="lg">{t('clubs.pendingRequest')}</Heading>
-          {joinRequests.length > 0 && (
-            <Badge
-              colorPalette="orange"
-              variant="subtle"
-              borderRadius="full"
-              px={2}
-            >
-              {joinRequests.length}
-            </Badge>
-          )}
-        </HStack>
-
-        {joinRequests.length === 0 ? (
-          <VStack
-            py={10}
-            bg="bg.muted"
-            _dark={{ bg: 'gray.900/40' }}
-            borderRadius="2xl"
+            <Shield size={16} />
+            <Text display={{ base: 'none', sm: 'inline' }}>
+              {t('clubs.managingGroups')}
+            </Text>
+            <Text display={{ base: 'inline', sm: 'none' }}>
+              {t('clubs.managing')}
+            </Text>
+            {managedClubs.length > 0 && (
+              <Badge colorPalette="green" size="xs" borderRadius="full">
+                {managedClubs.length}
+              </Badge>
+            )}
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            value="member"
+            gap={2}
+            flex={{ base: 1, md: 'initial' }}
+            fontSize={{ base: 'sm', md: 'md' }}
+            px={{ base: 3, md: 4 }}
+            py={{ base: 2, md: 2 }}
+            borderRadius={{ base: 'lg', md: 'md' }}
+            justifyContent="center"
           >
-            <Text color="fg.muted">{t('clubs.noPendingRequests')}</Text>
-          </VStack>
-        ) : (
-          <VStack gap={4} align="stretch">
-            {joinRequests.map((request) => (
-              <Flex
-                key={request.id}
-                p={5}
-                bg="bg"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                borderRadius="xl"
-                borderWidth="1px"
-                borderColor="border"
-                align="center"
+            <Users size={16} />
+            <Text display={{ base: 'none', sm: 'inline' }}>
+              {t('clubs.memberClubsTab')}
+            </Text>
+            <Text display={{ base: 'inline', sm: 'none' }}>
+              {t('clubs.member')}
+            </Text>
+            {memberClubs.length > 0 && (
+              <Badge colorPalette="blue" size="xs" borderRadius="full">
+                {memberClubs.length}
+              </Badge>
+            )}
+          </Tabs.Trigger>
+        </Tabs.List>
+
+        <Tabs.Content value="managing">
+          <VStack gap={{ base: 6, md: 10 }} align="stretch">
+            <Box>
+              <HStack
+                mb={{ base: 4, md: 6 }}
+                gap={2}
                 justify="space-between"
+                flexWrap={{ base: 'wrap', md: 'nowrap' }}
               >
-                <HStack gap={4}>
-                  <Box
-                    p={3}
-                    bg="orange.50"
-                    _dark={{ bg: 'orange.900/20' }}
-                    borderRadius="lg"
-                  >
-                    <Clock size={24} color="#DD6B20" />
-                  </Box>
-                  <Box>
-                    <Heading size="sm" mb={1}>
-                      {request.club?.name}
-                    </Heading>
-                    <Text fontSize="xs" color="fg.muted">
-                      Requested on{' '}
-                      {new Date(request.createdAt).toLocaleDateString()}
-                    </Text>
-                  </Box>
-                </HStack>
-
-                <HStack gap={4}>
+                <HStack gap={2} flex={{ base: '1 1 100%', md: 'initial' }}>
+                  <Shield size={20} />
+                  <Heading size={{ base: 'md', md: 'lg' }}>
+                    {t('clubs.managingGroups')}
+                  </Heading>
                   <Badge
-                    colorPalette={
-                      request.status === EJoinRequestStatus.PENDING
-                        ? 'orange'
-                        : request.status === EJoinRequestStatus.APPROVED
-                          ? 'green'
-                          : 'red'
-                    }
+                    colorPalette="green"
+                    variant="subtle"
+                    borderRadius="full"
+                    px={2}
                   >
-                    {request.status}
+                    {managedClubs.length}
                   </Badge>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() =>
-                      router.push(
-                        `/clubs/${request.club?.slug ?? request.club?.id}`
-                      )
-                    }
-                  >
-                    {t('common.view')}
-                  </Button>
                 </HStack>
-              </Flex>
-            ))}
-          </VStack>
-        )}
-      </Box>
+                {isHostOrAdmin && (
+                  <Button
+                    colorPalette="green"
+                    size={{ base: 'sm', md: 'sm' }}
+                    w={{ base: 'full', md: 'auto' }}
+                    onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
+                  >
+                    <Plus size={16} />
+                    {t('navigation.createClub')}
+                  </Button>
+                )}
+              </HStack>
 
-      {/* Section 3: Admin — Club Approval */}
+              {managedClubs.length === 0 ? (
+                <VStack
+                  py={12}
+                  bg="bg.muted"
+                  _dark={{ bg: 'gray.900/40' }}
+                  borderRadius="2xl"
+                  gap={4}
+                  borderWidth="1px"
+                  borderStyle="dashed"
+                >
+                  <Shield size={48} color="#A0AEC0" />
+                  <Text color="fg.muted">{t('clubs.noManagedClubs')}</Text>
+                  {isHostOrAdmin && (
+                    <Button
+                      colorPalette="green"
+                      variant="outline"
+                      onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
+                    >
+                      <Plus size={16} />
+                      {t('clubs.createClub')}
+                    </Button>
+                  )}
+                </VStack>
+              ) : (
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+                  {managedClubs.map((club) => renderClubCard(club, true))}
+                </SimpleGrid>
+              )}
+            </Box>
+
+            <Box>
+              <HStack mb={{ base: 4, md: 6 }} gap={2}>
+                <ClipboardList size={20} />
+                <Heading size={{ base: 'md', md: 'lg' }}>
+                  {t('clubs.joinRequests')}
+                </Heading>
+                {incomingRequests.length > 0 && (
+                  <Badge
+                    colorPalette="orange"
+                    variant="subtle"
+                    borderRadius="full"
+                    px={2}
+                  >
+                    {incomingRequests.length}
+                  </Badge>
+                )}
+              </HStack>
+
+              {isLoadingIncoming ? (
+                <Flex justify="center" align="center" minH="100px">
+                  <Spinner size="md" colorPalette="green" />
+                </Flex>
+              ) : incomingRequests.length === 0 ? (
+                <VStack
+                  py={{ base: 8, md: 10 }}
+                  bg="bg.muted"
+                  _dark={{ bg: 'gray.900/40' }}
+                  borderRadius={{ base: 'xl', md: '2xl' }}
+                >
+                  <Text fontSize={{ base: 'sm', md: 'md' }} color="fg.muted">
+                    {t('clubs.noPendingRequests')}
+                  </Text>
+                </VStack>
+              ) : (
+                <VStack gap={{ base: 3, md: 4 }} align="stretch">
+                  {incomingRequests.map((request) => (
+                    <Flex
+                      key={request.id}
+                      p={{ base: 4, md: 5 }}
+                      bg="bg"
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                      borderRadius={{ base: 'xl', md: 'xl' }}
+                      borderWidth="1px"
+                      borderColor="border"
+                      align="center"
+                      justify="space-between"
+                      gap={{ base: 3, md: 4 }}
+                      flexDirection={{ base: 'column', sm: 'row' }}
+                    >
+                      <HStack
+                        gap={{ base: 3, md: 4 }}
+                        w={{ base: 'full', sm: 'auto' }}
+                      >
+                        <Box
+                          p={{ base: 2, md: 3 }}
+                          bg="blue.50"
+                          _dark={{ bg: 'blue.900/20' }}
+                          borderRadius="lg"
+                          flexShrink={0}
+                        >
+                          <UserCircle size={24} color="#3182CE" />
+                        </Box>
+                        <Box flex={1} minW={0}>
+                          <Heading size={{ base: 'xs', md: 'sm' }} mb={1}>
+                            {request.user.name}
+                          </Heading>
+                          <Text fontSize="xs" color="fg.muted" lineClamp={1}>
+                            {request.club?.name} &middot;{' '}
+                            {new Date(request.createdAt).toLocaleDateString()}
+                          </Text>
+                        </Box>
+                      </HStack>
+                      <HStack gap={2} w={{ base: 'full', sm: 'auto' }}>
+                        <Button
+                          size="sm"
+                          colorPalette="green"
+                          flex={{ base: 1, sm: 'initial' }}
+                          onClick={() =>
+                            handleApproveJoinRequest(request.clubId, request.id)
+                          }
+                          loading={isActionLoading}
+                        >
+                          <Check size={14} />
+                          <Text display={{ base: 'inline', sm: 'inline' }}>
+                            {t('clubs.approve')}
+                          </Text>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorPalette="red"
+                          flex={{ base: 1, sm: 'initial' }}
+                          onClick={() =>
+                            handleOpenRejectDialog({
+                              type: 'member',
+                              clubId: request.clubId,
+                              requestId: request.id,
+                            })
+                          }
+                          loading={isActionLoading}
+                        >
+                          <X size={14} />
+                          <Text display={{ base: 'inline', sm: 'inline' }}>
+                            {t('clubs.reject')}
+                          </Text>
+                        </Button>
+                      </HStack>
+                    </Flex>
+                  ))}
+                </VStack>
+              )}
+            </Box>
+          </VStack>
+        </Tabs.Content>
+
+        <Tabs.Content value="member">
+          <VStack gap={{ base: 6, md: 10 }} align="stretch">
+            <Box>
+              <HStack mb={{ base: 4, md: 6 }} gap={2}>
+                <Users size={20} />
+                <Heading size={{ base: 'md', md: 'lg' }}>
+                  {t('clubs.memberClubsTab')}
+                </Heading>
+                <Badge
+                  colorPalette="blue"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {memberClubs.length}
+                </Badge>
+              </HStack>
+
+              {memberClubs.length === 0 ? (
+                <VStack
+                  py={{ base: 10, md: 12 }}
+                  bg="bg.muted"
+                  _dark={{ bg: 'gray.900/40' }}
+                  borderRadius={{ base: 'xl', md: '2xl' }}
+                  gap={4}
+                  borderWidth="1px"
+                  borderStyle="dashed"
+                >
+                  <Users size={48} color="#A0AEC0" />
+                  <Text fontSize={{ base: 'sm', md: 'md' }} color="fg.muted">
+                    {t('clubs.noMemberClubsTab')}
+                  </Text>
+                  <Button
+                    colorPalette="green"
+                    variant="outline"
+                    size={{ base: 'sm', md: 'md' }}
+                    onClick={() => router.push('/clubs')}
+                  >
+                    {t('clubs.browseClubs')}
+                  </Button>
+                </VStack>
+              ) : (
+                <SimpleGrid
+                  columns={{ base: 1, md: 2, lg: 3 }}
+                  gap={{ base: 4, md: 6 }}
+                >
+                  {memberClubs.map((club) => renderClubCard(club, false))}
+                </SimpleGrid>
+              )}
+            </Box>
+
+            <Box>
+              <HStack mb={{ base: 4, md: 6 }} gap={2}>
+                <Clock size={20} />
+                <Heading size={{ base: 'md', md: 'lg' }}>
+                  {t('clubs.awaitingApproval')}
+                </Heading>
+                {pendingOutgoing.length > 0 && (
+                  <Badge
+                    colorPalette="orange"
+                    variant="subtle"
+                    borderRadius="full"
+                    px={2}
+                  >
+                    {pendingOutgoing.length}
+                  </Badge>
+                )}
+              </HStack>
+
+              {pendingOutgoing.length === 0 ? (
+                <VStack
+                  py={{ base: 8, md: 10 }}
+                  bg="bg.muted"
+                  _dark={{ bg: 'gray.900/40' }}
+                  borderRadius={{ base: 'xl', md: '2xl' }}
+                >
+                  <Text fontSize={{ base: 'sm', md: 'md' }} color="fg.muted">
+                    {t('clubs.noAwaitingApproval')}
+                  </Text>
+                </VStack>
+              ) : (
+                <VStack gap={{ base: 3, md: 4 }} align="stretch">
+                  {pendingOutgoing.map((request) => (
+                    <Flex
+                      key={request.id}
+                      p={{ base: 4, md: 5 }}
+                      bg="bg"
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                      borderRadius={{ base: 'xl', md: 'xl' }}
+                      borderWidth="1px"
+                      borderColor="border"
+                      align="center"
+                      justify="space-between"
+                      gap={{ base: 3, md: 4 }}
+                      flexDirection={{ base: 'column', sm: 'row' }}
+                    >
+                      <HStack
+                        gap={{ base: 3, md: 4 }}
+                        w={{ base: 'full', sm: 'auto' }}
+                      >
+                        <Box
+                          p={{ base: 2, md: 3 }}
+                          bg="orange.50"
+                          _dark={{ bg: 'orange.900/20' }}
+                          borderRadius="lg"
+                          flexShrink={0}
+                        >
+                          <Clock size={24} color="#DD6B20" />
+                        </Box>
+                        <Box flex={1} minW={0}>
+                          <Heading size={{ base: 'xs', md: 'sm' }} mb={1}>
+                            {request.club?.name}
+                          </Heading>
+                          <Text fontSize="xs" color="fg.muted">
+                            {new Date(request.createdAt).toLocaleDateString()}
+                          </Text>
+                        </Box>
+                      </HStack>
+                      <HStack
+                        gap={{ base: 2, md: 4 }}
+                        w={{ base: 'full', sm: 'auto' }}
+                      >
+                        <Badge
+                          colorPalette="orange"
+                          flex={{ base: 1, sm: 'initial' }}
+                        >
+                          {request.status}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          flex={{ base: 1, sm: 'initial' }}
+                          onClick={() =>
+                            router.push(
+                              `/clubs/${request.club?.slug ?? request.club?.id}`
+                            )
+                          }
+                        >
+                          {t('common.view')}
+                        </Button>
+                      </HStack>
+                    </Flex>
+                  ))}
+                </VStack>
+              )}
+            </Box>
+          </VStack>
+        </Tabs.Content>
+      </Tabs.Root>
+
       {isAdmin && (
         <Box mt={12}>
           <HStack mb={6} gap={2} justify="space-between">
@@ -504,9 +873,19 @@ export default function MyClubsPage() {
                         <MapPin size={14} />
                         <Text>{club.location || t('common.notSpecified')}</Text>
                       </HStack>
-                      <Text fontSize="sm" lineClamp={2} color="gray.500">
-                        {club.description || t('clubs.noDescription')}
-                      </Text>
+                      <Text
+                        fontSize="sm"
+                        lineClamp={2}
+                        color="gray.500"
+                        dangerouslySetInnerHTML={{
+                          __html: club.description || t('clubs.noDescription'),
+                        }}
+                        css={{
+                          '& p': { display: 'inline' },
+                          '& br': { display: 'none' },
+                          '& *': { margin: 0, padding: 0 },
+                        }}
+                      />
                       <HStack pt={2} fontSize="xs" color="gray.400">
                         <Text>{t('clubs.hostedBy')}</Text>
                         <Text
@@ -534,7 +913,12 @@ export default function MyClubsPage() {
                       flex={1}
                       variant="outline"
                       colorPalette="red"
-                      onClick={() => handleOpenRejectDialog(club.id)}
+                      onClick={() =>
+                        handleOpenRejectDialog({
+                          type: 'club',
+                          clubId: club.id,
+                        })
+                      }
                       loading={isActionLoading}
                     >
                       <X size={18} />
@@ -548,10 +932,9 @@ export default function MyClubsPage() {
         </Box>
       )}
 
-      {/* Rejection Dialog */}
       <VModal
         isOpen={isRejectDialogOpen}
-        onClose={() => setIsRejectDialogOpen(false)}
+        onClose={() => setRejectTarget(null)}
         title={t('clubs.reject')}
         primaryActionText={t('clubs.reject')}
         onPrimaryAction={handleReject}

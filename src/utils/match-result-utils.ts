@@ -119,39 +119,60 @@ export function convertBadmintonMatchToUI(
   }
 
   // Sort players by position
-  const sortedPlayers = players.sort((a, b) => a.position - b.position);
-  const pair1PlayerIds = sortedPlayers.slice(0, 2).map((p) => p.playerId);
-  const pair2PlayerIds = sortedPlayers.slice(2, 4).map((p) => p.playerId);
+  const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
+  const isSingles = sortedPlayers.length <= 2;
 
-  // For badminton, we expect the score to be the final game score
-  // Find the score for each pair (should be the same for both players in a pair)
-  const pair1Score =
-    matchResult.score.find((s) => pair1PlayerIds.includes(s.playerId))?.score ||
-    0;
-  const pair2Score =
-    matchResult.score.find((s) => pair2PlayerIds.includes(s.playerId))?.score ||
-    0;
+  // Singles: position 0 = player1 (side 1), position 1 = player2 (side 2)
+  // Doubles: positions 0,1 = pair1, positions 2,3 = pair2
+  const pair1PlayerIds = isSingles
+    ? ([sortedPlayers[0]?.playerId].filter(Boolean) as string[])
+    : sortedPlayers.slice(0, 2).map((p) => p.playerId);
+  const pair2PlayerIds = isSingles
+    ? ([sortedPlayers[1]?.playerId].filter(Boolean) as string[])
+    : sortedPlayers.slice(2, 4).map((p) => p.playerId);
 
-  result.scores.pair1Score = pair1Score;
-  result.scores.pair2Score = pair2Score;
+  // When winnerIds is available, use it as the authoritative source to determine
+  // which group of player IDs is the winner and derive scores accordingly.
+  // This also handles historical data where MatchPlayer.position may be wrong.
+  const hasWinnerIds =
+    !result.isDraw && matchResult.winnerIds && matchResult.winnerIds.length > 0;
 
-  // Determine winning pair
-  if (!result.isDraw) {
-    if (matchResult.winnerIds && matchResult.winnerIds.length > 0) {
-      const winnersInPair1 = matchResult.winnerIds.filter((id) =>
-        pair1PlayerIds.includes(id)
-      ).length;
-      const winnersInPair2 = matchResult.winnerIds.filter((id) =>
-        pair2PlayerIds.includes(id)
-      ).length;
+  if (hasWinnerIds) {
+    const winnerIdSet = new Set(matchResult.winnerIds);
+    const winnerScore =
+      matchResult.score!.find((s) => winnerIdSet.has(s.playerId))?.score ?? 0;
+    const loserScore =
+      matchResult.score!.find((s) => !winnerIdSet.has(s.playerId))?.score ?? 0;
 
-      if (winnersInPair1 > 0) {
-        result.winningPair = 1;
-      } else if (winnersInPair2 > 0) {
-        result.winningPair = 2;
-      }
-    } else {
-      // Determine by score
+    const winnersInPair1 = pair1PlayerIds.filter((id) =>
+      winnerIdSet.has(id)
+    ).length;
+    const winnersInPair2 = pair2PlayerIds.filter((id) =>
+      winnerIdSet.has(id)
+    ).length;
+
+    if (winnersInPair1 > 0) {
+      result.winningPair = 1;
+      result.scores.pair1Score = winnerScore;
+      result.scores.pair2Score = loserScore;
+    } else if (winnersInPair2 > 0) {
+      result.winningPair = 2;
+      result.scores.pair1Score = loserScore;
+      result.scores.pair2Score = winnerScore;
+    }
+  } else {
+    // No winnerIds: derive scores by position-based pair grouping
+    const pair1Score =
+      matchResult.score!.find((s) => pair1PlayerIds.includes(s.playerId))
+        ?.score ?? 0;
+    const pair2Score =
+      matchResult.score!.find((s) => pair2PlayerIds.includes(s.playerId))
+        ?.score ?? 0;
+
+    result.scores.pair1Score = pair1Score;
+    result.scores.pair2Score = pair2Score;
+
+    if (!result.isDraw) {
       if (pair1Score > pair2Score) {
         result.winningPair = 1;
       } else if (pair2Score > pair1Score) {

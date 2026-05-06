@@ -5,8 +5,16 @@ import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
-import { Badge, Box, Flex, HStack, Tabs, Text } from '@chakra-ui/react';
-import { Play, Shuffle, Sparkles, User, UserPlus, Users } from 'lucide-react';
+import { Badge, Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
+import {
+  Play,
+  Search,
+  Shuffle,
+  Sparkles,
+  User,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Locale } from '@/i18n/locales';
@@ -834,6 +842,18 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   formatWaitTime,
   t,
 }) => {
+  const [searchText, setSearchText] = useState('');
+
+  const filteredPlayers = useMemo(() => {
+    if (!searchText.trim()) return waitingPlayers;
+    const query = searchText.trim().toLowerCase();
+    return waitingPlayers.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(query) ||
+        String(p.playerNumber).includes(query)
+    );
+  }, [waitingPlayers, searchText]);
+
   // Calculate pair stats from selected positions
   // Doubles: Positions 0,1 = pair 1; positions 2,3 = pair 2
   // Singles: Position 0 = player 1; position 1 = player 2
@@ -879,8 +899,8 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
 
   return (
     <Box>
-      {/* Court Preview — sticky while scrolling the player list */}
-      <Box position="sticky" top={0} zIndex={10} bg="white" pb={2} mb={1}>
+      {/* Court Preview */}
+      <Box pb={2} mb={1}>
         <Text fontSize="sm" fontWeight="medium" mb={2}>
           {t('courtsTab.selectedPlayersCount', {
             count: selectedCount,
@@ -919,25 +939,74 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
 
       {/* Available Players Grid */}
       <Box>
-        <Text fontSize="md" fontWeight="medium" mb={2}>
-          {t('courtsTab.availablePlayers')}
-        </Text>
-        {waitingPlayers.length === 0 ? (
-          <Text fontSize="sm" color="gray.500" textAlign="center" py={8}>
-            {t('courtsTab.noPlayersWaiting')}
+        <Flex align="center" justify="space-between" mb={2} gap={3}>
+          <Text fontSize="md" fontWeight="medium" flexShrink={0}>
+            {t('courtsTab.availablePlayers')}
           </Text>
-        ) : (
-          <PlayerGrid
-            players={waitingPlayers}
-            playerFilter={['WAITING']}
-            formatWaitTime={formatWaitTime}
-            selectedPlayers={selectedPlayers.filter(
-              (p): p is string => p !== null
-            )}
-            onPlayerToggle={onPlayerToggle}
-            selectionMode={true}
-          />
-        )}
+          <Flex
+            align="center"
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="md"
+            px={2}
+            py={1}
+            bg="white"
+            gap={1.5}
+            flex="1"
+            maxW="180px"
+            _focusWithin={{
+              borderColor: 'blue.400',
+              boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
+            }}
+          >
+            <Box as={Search} boxSize={3.5} color="gray.400" flexShrink={0} />
+            <Input
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Tìm người chơi..."
+              size="xs"
+              border="none"
+              outline="none"
+              p={0}
+              fontSize="sm"
+              _focus={{ boxShadow: 'none' }}
+            />
+          </Flex>
+        </Flex>
+        <Box
+          overflowY="auto"
+          maxH="calc(75vh - 430px)"
+          minH="150px"
+          css={{
+            '&::-webkit-scrollbar': { width: '4px' },
+            '&::-webkit-scrollbar-track': { background: 'transparent' },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'var(--chakra-colors-gray-300)',
+              borderRadius: '2px',
+            },
+          }}
+        >
+          {waitingPlayers.length === 0 ? (
+            <Text fontSize="sm" color="gray.500" textAlign="center" py={8}>
+              {t('courtsTab.noPlayersWaiting')}
+            </Text>
+          ) : filteredPlayers.length === 0 ? (
+            <Text fontSize="sm" color="gray.500" textAlign="center" py={8}>
+              Không tìm thấy người chơi
+            </Text>
+          ) : (
+            <PlayerGrid
+              players={filteredPlayers}
+              playerFilter={['WAITING']}
+              formatWaitTime={formatWaitTime}
+              selectedPlayers={selectedPlayers.filter(
+                (p): p is string => p !== null
+              )}
+              onPlayerToggle={onPlayerToggle}
+              selectionMode={true}
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );

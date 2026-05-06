@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import {
   Badge,
   Box,
@@ -31,7 +31,7 @@ import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
-import { useViewModeStore } from '@/stores/useViewModeStore';
+import { useViewMode } from '@/hooks/useViewMode';
 import { IClubListItem, IClub } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -42,14 +42,13 @@ const LoginPromptModal = dynamic(
   { ssr: false }
 );
 
-export default function BrowseClubsPage() {
+function BrowseClubsContent() {
   const t = useTranslations();
   const router = useRouter();
   const { user } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const { getViewMode } = useViewModeStore();
-  const viewMode = getViewMode('clubs');
+  const [viewMode] = useViewMode('clubs');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [fullClubs, setFullClubs] = useState<IClub[]>([]);
@@ -274,7 +273,7 @@ export default function BrowseClubsPage() {
     cities.length + districts.length + (sortByDistance ? 1 : 0);
 
   return (
-    <PageLayout title={t('clubs.browseClubs')}>
+    <Box>
       {/* Search Bar - Fixed on mobile, sticky on desktop */}
       <Box
         position={{ base: 'fixed', md: 'sticky' }}
@@ -792,6 +791,23 @@ export default function BrowseClubsPage() {
           returnUrl={ROUTES.HOST.CLUBS.CREATE}
         />
       )}
+    </Box>
+  );
+}
+
+export default function BrowseClubsPage() {
+  const t = useTranslations();
+  return (
+    <PageLayout title={t('clubs.browseClubs')}>
+      <Suspense
+        fallback={
+          <Flex justify="center" align="center" minH="200px">
+            <Spinner size="xl" colorPalette="green" />
+          </Flex>
+        }
+      >
+        <BrowseClubsContent />
+      </Suspense>
     </PageLayout>
   );
 }

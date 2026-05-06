@@ -17,6 +17,7 @@ export const SIDEBAR_WIDTH_COLLAPSED = 72;
 export const MAIN_PAGE_PATHS = [
   '/',
   '/my-clubs',
+  '/newsfeed',
   '/venues',
   '/clubs',
   '/tournaments',

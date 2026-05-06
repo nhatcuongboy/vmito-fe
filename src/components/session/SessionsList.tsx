@@ -12,6 +12,8 @@ import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
+import type { ViewMode } from '@/hooks/useViewMode';
+import { useViewMode } from '@/hooks/useViewMode';
 
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 
@@ -39,7 +41,7 @@ export default function SessionsList({
   hasMoreSessions = false,
   expiredCount,
 }: SessionsListProps) {
-  const { viewMode } = useSessionFilterStore();
+  const [viewMode] = useViewMode('sessions');
   const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
   const [internalLoading, setInternalLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -184,7 +186,7 @@ export default function SessionsList({
         {filteredSessions.length > 0 && (
           <Grid
             templateColumns={
-              viewMode === 'compact'
+              viewMode === 'list'
                 ? {
                     base: '1fr',
                     sm: 'repeat(2, 1fr)',
@@ -197,7 +199,7 @@ export default function SessionsList({
                     lg: 'repeat(3, 1fr)',
                   }
             }
-            gap={viewMode === 'compact' ? 4 : 6}
+            gap={viewMode === 'list' ? 4 : 6}
           >
             {filteredSessions.map((session) => (
               <SessionCard
@@ -206,7 +208,7 @@ export default function SessionsList({
                 onDelete={mode === 'manage' ? handleDelete : undefined}
                 onRefresh={onRefresh}
                 mode={mode}
-                variant={viewMode !== 'map' ? viewMode : 'full'}
+                variant={viewMode !== 'map' ? viewMode : 'grid'}
                 onHostClick={() => {
                   setSelectedSessionForDetail(session);
                   setIsDetailModalOpen(true);

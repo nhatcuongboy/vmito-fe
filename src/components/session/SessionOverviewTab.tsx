@@ -15,6 +15,7 @@ import {
   Grid,
   Heading,
   Text,
+  Icon,
 } from '@chakra-ui/react';
 import {
   Activity,
@@ -29,11 +30,14 @@ import {
   Users,
   XCircle,
   AlertTriangle,
+  Download,
 } from 'lucide-react';
+import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
 import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
+import BaseSessionCard from './BaseSessionCard';
 import { RatePlayersSection } from '@/components/rating';
 
 interface InfoRowProps extends FlexProps {
@@ -97,6 +101,8 @@ export default function SessionOverviewTab({
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
   const [selectedQrLabel, setSelectedQrLabel] = useState('');
+
+  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   const handleQrClick = (url: string, label: string) => {
     setSelectedQrUrl(url);
@@ -197,7 +203,11 @@ export default function SessionOverviewTab({
         />
       )}
 
-      <Grid templateColumns={{ base: '1fr', md: '3fr 2fr' }} gap={8} mb={8}>
+      <Grid
+        templateColumns={{ base: '1fr', md: '3fr 2fr' }}
+        gap={{ base: 4, md: 8 }}
+        mb={{ base: 4, md: 8 }}
+      >
         {/* Left Column: Session Info */}
         <Box as="section" h="full">
           <Box
@@ -438,6 +448,63 @@ export default function SessionOverviewTab({
                 </Box>
               </Grid>
             </Box>
+
+            <Box
+              w="full"
+              h="1px"
+              bg="gray.100"
+              _dark={{ bg: 'gray.700' }}
+              mt={6}
+              mb={6}
+            />
+
+            {/* Share Section */}
+            <Box w="full">
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color="gray.500"
+                mb={4}
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
+                {t('share')}
+              </Text>
+              <VStack align="stretch" spacing={3}>
+                <Button
+                  colorPalette="green"
+                  variant="outline"
+                  size="sm"
+                  loading={isDownloading}
+                  onClick={() =>
+                    downloadSessionImage(
+                      session,
+                      `session-card-preview-${session.id}`,
+                      'TuyenVangLai'
+                    )
+                  }
+                  leftIcon={<Icon as={Download} />}
+                >
+                  {t('downloadSocial')} 4:5
+                </Button>
+                <Button
+                  colorPalette="green"
+                  variant="outline"
+                  size="sm"
+                  loading={isDownloading}
+                  onClick={() =>
+                    downloadSessionImage(
+                      session,
+                      `session-card-preview-${session.id}`,
+                      'TuyenVangLai'
+                    )
+                  }
+                  leftIcon={<Icon as={Download} />}
+                >
+                  {t('downloadPortrait')} 2:3
+                </Button>
+              </VStack>
+            </Box>
           </Box>
         </Box>
       </Grid>
@@ -652,6 +719,18 @@ export default function SessionOverviewTab({
           {t('playersTab.playerStatistics')}
         </Heading>
         <SessionPlayers sessionId={session.id} session={session} />
+      </Box>
+
+      {/* Hidden containers for session card preview export - Social ratio 4:5 */}
+      <Box
+        position="absolute"
+        left="-9999px"
+        top="-9999px"
+        id={`session-card-preview-${session.id}`}
+        w="360px"
+        bg="white"
+      >
+        <BaseSessionCard session={session} variant="grid" />
       </Box>
 
       {/* Edit Session Drawer */}

@@ -1,7 +1,7 @@
 'use client';
 
 import { IconButton } from '@/components/ui/chakra-compat';
-import { useViewModeStore } from '@/stores/useViewModeStore';
+import { useViewMode } from '@/hooks/useViewMode';
 import { Flex } from '@chakra-ui/react';
 import { LayoutGrid, List, MapPin } from 'lucide-react';
 
@@ -10,8 +10,7 @@ interface AppViewModeToggleProps {
 }
 
 export default function AppViewModeToggle({ scope }: AppViewModeToggleProps) {
-  const { getViewMode, setViewMode } = useViewModeStore();
-  const viewMode = getViewMode(scope);
+  const [viewMode, setViewMode] = useViewMode(scope);
 
   return (
     <Flex
@@ -33,7 +32,7 @@ export default function AppViewModeToggle({ scope }: AppViewModeToggleProps) {
         colorPalette="green"
         aria-label="Grid view"
         icon={<LayoutGrid size={16} />}
-        onClick={() => setViewMode(scope, 'grid')}
+        onClick={() => setViewMode('grid')}
         borderRadius="md"
       />
       <IconButton
@@ -44,7 +43,7 @@ export default function AppViewModeToggle({ scope }: AppViewModeToggleProps) {
         colorPalette="green"
         aria-label="List view"
         icon={<List size={16} />}
-        onClick={() => setViewMode(scope, 'list')}
+        onClick={() => setViewMode('list')}
         borderRadius="md"
       />
       <IconButton
@@ -55,7 +54,7 @@ export default function AppViewModeToggle({ scope }: AppViewModeToggleProps) {
         colorPalette="green"
         aria-label="Map view"
         icon={<MapPin size={16} />}
-        onClick={() => setViewMode(scope, 'map')}
+        onClick={() => setViewMode('map')}
         borderRadius="md"
       />
     </Flex>

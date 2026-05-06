@@ -60,7 +60,12 @@ const AppImageGallery = ({
   // Single image — simple display
   if (allImages.length === 1) {
     return (
-      <Box mb={8} borderRadius="xl" overflow="hidden" boxShadow="md">
+      <Box
+        mb={{ base: 4, md: 8 }}
+        borderRadius="xl"
+        overflow="hidden"
+        boxShadow="md"
+      >
         <Image
           src={allImages[0]}
           alt={alt}
@@ -85,9 +90,9 @@ const AppImageGallery = ({
   }
 
   return (
-    <Box mb={8}>
+    <Box mb={{ base: 4, md: 8 }}>
       {/* Mobile: Carousel with scroll-snap */}
-      <Box display={{ base: 'block', md: 'none' }}>
+      <Box display={{ base: 'block', md: 'none' }} position="relative">
         <Box
           ref={scrollRef}
           overflow="auto"
@@ -122,21 +127,27 @@ const AppImageGallery = ({
             ))}
           </Flex>
         </Box>
-        {/* Dot indicators + counter */}
-        <Flex justifyContent="center" alignItems="center" gap={1} mt={2}>
+        {/* Dot indicators overlay */}
+        <Flex
+          position="absolute"
+          bottom={3}
+          left="50%"
+          transform="translateX(-50%)"
+          justifyContent="center"
+          alignItems="center"
+          gap={1.5}
+        >
           {allImages.map((_, i) => (
             <Box
               key={i}
-              w={currentSlide === i ? '8px' : '6px'}
-              h={currentSlide === i ? '8px' : '6px'}
+              w={currentSlide === i ? '20px' : '6px'}
+              h="6px"
               borderRadius="full"
-              bg={currentSlide === i ? 'blue.500' : 'gray.300'}
-              transition="all 0.2s"
+              bg={currentSlide === i ? 'white' : 'whiteAlpha.600'}
+              transition="all 0.3s ease-in-out"
+              boxShadow="0 1px 2px rgba(0,0,0,0.3)"
             />
           ))}
-          <Text ml={2} fontSize="xs" color="gray.500">
-            {currentSlide + 1}/{allImages.length}
-          </Text>
         </Flex>
       </Box>
 

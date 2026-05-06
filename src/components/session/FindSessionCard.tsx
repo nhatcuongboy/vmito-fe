@@ -9,7 +9,7 @@ import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
-import { ViewMode } from '@/stores/useSessionFilterStore';
+import type { ViewMode } from '@/hooks/useViewMode';
 import React, { useState, memo } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -46,7 +46,7 @@ interface FindSessionCardProps {
 
 const FindSessionCard = ({
   session,
-  variant = 'full',
+  variant = 'grid',
   onJoin,
   isJoined = false,
   userRegistrationStatus = null,
@@ -58,7 +58,7 @@ const FindSessionCard = ({
   compactTopContent,
   showSlotBadge = true,
 }: FindSessionCardProps) => {
-  const isCompact = variant === 'compact';
+  const isCompact = variant === 'list';
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const tVenue = useTranslations('venue');

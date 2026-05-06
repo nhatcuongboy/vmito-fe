@@ -39,7 +39,7 @@ import { UserRole } from '@/lib/api/types';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
-import { IClub, EMemberRole } from '@/types/club';
+import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
@@ -66,12 +66,20 @@ export default function ClubDetailClient({
   const [isLoading, setIsLoading] = useState(!initialClub);
   const [activeTab, setActiveTab] = useState('about');
   const [isJoining, setIsJoining] = useState(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
   const loadClubDetails = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await ClubsService.getClubDetails(clubId);
+      const [data, myRequests] = await Promise.all([
+        ClubsService.getClubDetails(clubId),
+        ClubsService.getMyJoinRequests().catch(() => []),
+      ]);
       setClub(data);
+      const pending = myRequests.some(
+        (r) => r.clubId === clubId && r.status === EJoinRequestStatus.PENDING
+      );
+      setHasPendingRequest(pending);
     } catch (error) {
       console.error('Failed to load club details:', error);
       toaster.error({ title: t('common.error') });
@@ -147,6 +155,9 @@ export default function ClubDetailClient({
             ? t('clubs.joinedSuccessfully')
             : t('clubs.joinRequestSent'),
       });
+      if (result.status === 'pending') {
+        setHasPendingRequest(true);
+      }
       await loadClubDetails();
     } catch (error) {
       console.error('Failed to join club:', error);
@@ -1191,7 +1202,7 @@ export default function ClubDetailClient({
                   </Button>
                 )}
 
-                {!isUserMember && !isUserAdmin && (
+                {!isUserMember && !isUserAdmin && !hasPendingRequest && (
                   <Button
                     colorPalette="green"
                     size="xl"
@@ -1205,6 +1216,20 @@ export default function ClubDetailClient({
                   >
                     <UserPlus size={20} />
                     {t('clubs.joinNow')}
+                  </Button>
+                )}
+
+                {!isUserMember && !isUserAdmin && hasPendingRequest && (
+                  <Button
+                    variant="outline"
+                    colorPalette="yellow"
+                    size="xl"
+                    w="full"
+                    disabled
+                    borderRadius="2xl"
+                    cursor="default"
+                  >
+                    {t('clubs.pendingApproval')}
                   </Button>
                 )}
 

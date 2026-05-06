@@ -33,6 +33,8 @@ import {
   PopoverHeader,
   PopoverBody,
 } from '@/components/ui/popover';
+import { NotificationItem } from '../notification/NotificationItem';
+import { NotificationSkeleton } from '../notification/NotificationSkeleton';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -42,7 +44,7 @@ import {
 } from '@/lib/api/types';
 import { PlayerService } from '@/lib/api/player.service';
 import { formatDistanceToNow } from 'date-fns';
-import { vi, enUS } from 'date-fns/locale';
+import { vi, enUS, zhCN } from 'date-fns/locale';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
@@ -63,6 +65,70 @@ type TUnifiedItem =
       timestamp: number;
     };
 
+const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
+  {
+    start_reminder: {
+      titleKey: 'messages.startReminderTitle',
+      messageKey: 'messages.startReminderMessage',
+    },
+    player_start_reminder: {
+      titleKey: 'messages.playerStartReminderTitle',
+      messageKey: 'messages.playerStartReminderMessage',
+    },
+    auto_started: {
+      titleKey: 'messages.autoStartedTitle',
+      messageKey: 'messages.autoStartedMessage',
+    },
+    session_auto_started: {
+      titleKey: 'messages.sessionAutoStartedTitle',
+      messageKey: 'messages.sessionAutoStartedMessage',
+    },
+    auto_cancelled: {
+      titleKey: 'messages.autoCancelledTitle',
+      messageKey: 'messages.autoCancelledMessage',
+    },
+    session_cancelled: {
+      titleKey: 'messages.sessionCancelledTitle',
+      messageKey: 'messages.sessionCancelledMessage',
+    },
+    end_warning: {
+      titleKey: 'messages.endWarningTitle',
+      messageKey: 'messages.endWarningMessage',
+    },
+    auto_finalized: {
+      titleKey: 'messages.autoFinalizedTitle',
+      messageKey: 'messages.autoFinalizedMessage',
+    },
+    player_added: {
+      titleKey: 'messages.playerAddedTitle',
+      messageKey: 'messages.playerAddedMessage',
+    },
+    player_removed: {
+      titleKey: 'messages.playerRemovedTitle',
+      messageKey: 'messages.playerRemovedMessage',
+    },
+    club_creation_pending: {
+      titleKey: 'messages.clubCreationPendingTitle',
+      messageKey: 'messages.clubCreationPendingMessage',
+    },
+    admin_new_pending_club: {
+      titleKey: 'messages.adminNewPendingClubTitle',
+      messageKey: 'messages.adminNewPendingClubMessage',
+    },
+    club_creation_approved: {
+      titleKey: 'messages.clubCreationApprovedTitle',
+      messageKey: 'messages.clubCreationApprovedMessage',
+    },
+    club_approved: {
+      titleKey: 'messages.clubApprovedTitle',
+      messageKey: 'messages.clubApprovedMessage',
+    },
+    club_rejected: {
+      titleKey: 'messages.clubRejectedTitle',
+      messageKey: 'messages.clubRejectedMessage',
+    },
+  };
+
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
     case NotificationType.SYSTEM:
@@ -80,22 +146,7 @@ const getNotificationIcon = (type: NotificationType) => {
   }
 };
 
-const getNotificationColor = (type: NotificationType) => {
-  switch (type) {
-    case NotificationType.SYSTEM:
-      return 'purple';
-    case NotificationType.SESSION:
-      return 'brand';
-    case NotificationType.REGISTRATION:
-      return 'green';
-    case NotificationType.PAYMENT:
-      return 'orange';
-    case NotificationType.CLUB:
-      return 'teal';
-    default:
-      return 'gray';
-  }
-};
+const getNotificationColor = (_type: NotificationType) => 'green';
 
 export default function NotificationBell({
   color,
@@ -252,11 +303,51 @@ export default function NotificationBell({
     try {
       return formatDistanceToNow(new Date(dateString), {
         addSuffix: true,
-        locale: locale === 'vi' ? vi : enUS,
+        locale: locale === 'vi' ? vi : locale === 'cn' ? zhCN : enUS,
       });
     } catch {
       return '';
     }
+  };
+
+  const getNotificationDisplay = (notification: INotification) => {
+    const action = notification.data?.action as string | undefined;
+    const sessionName = notification.data?.sessionName as string | undefined;
+    const clubName = notification.data?.clubName as string | undefined;
+    const rejectionReason = notification.data?.rejectionReason as
+      | string
+      | undefined;
+    const keys = action ? ACTION_TO_KEYS[action] : undefined;
+    const resourceName = sessionName ?? clubName;
+    const translationParams = {
+      ...(sessionName ? { sessionName } : {}),
+      ...(clubName ? { clubName } : {}),
+      ...(rejectionReason ? { rejectionReason } : {}),
+    };
+    const displayTitle =
+      keys && resourceName
+        ? (() => {
+            try {
+              return t(keys.titleKey as Parameters<typeof t>[0]);
+            } catch {
+              return notification.title;
+            }
+          })()
+        : notification.title;
+    const displayMessage =
+      keys && resourceName
+        ? (() => {
+            try {
+              return t(
+                keys.messageKey as Parameters<typeof t>[0],
+                translationParams
+              );
+            } catch {
+              return notification.message;
+            }
+          })()
+        : notification.message;
+    return { displayTitle, displayMessage };
   };
 
   if (!user) return null;
@@ -387,9 +478,11 @@ export default function NotificationBell({
         <PopoverBody p={0}>
           <Box maxH="500px" overflowY="auto">
             {(isLoading || isPendingLoading) && unifiedItems.length === 0 ? (
-              <Flex justify="center" align="center" py={12}>
-                <Spinner size="md" color="brand.500" />
-              </Flex>
+              <VStack gap={0} align="stretch" p={1}>
+                {[...Array(5)].map((_, i) => (
+                  <NotificationSkeleton key={i} />
+                ))}
+              </VStack>
             ) : isEmpty ? (
               <VStack gap={3} p={10} color="gray.400">
                 <LuInbox size={48} strokeWidth={1} />
@@ -545,8 +638,9 @@ export default function NotificationBell({
                   // Regular notification
                   const notification = item.data;
                   const Icon = getNotificationIcon(notification.type);
-                  const colorScheme = getNotificationColor(notification.type);
                   const isUnread = !notification.isRead;
+                  const { displayTitle, displayMessage } =
+                    getNotificationDisplay(notification);
 
                   return (
                     <Box
@@ -555,23 +649,19 @@ export default function NotificationBell({
                       w="100%"
                       px={4}
                       py={3}
-                      bg={isUnread ? `${colorScheme}.50/60` : 'transparent'}
+                      bg={isUnread ? 'green.50' : 'transparent'}
                       borderBottom="1px solid"
-                      borderColor={
-                        isUnread ? `${colorScheme}.100/60` : 'gray.50'
-                      }
+                      borderColor={isUnread ? 'green.100' : 'gray.50'}
                       _dark={{
-                        bg: isUnread ? `${colorScheme}.900/15` : 'transparent',
-                        borderColor: isUnread
-                          ? `${colorScheme}.800/40`
-                          : 'gray.800',
+                        bg: isUnread ? 'green.900/30' : 'transparent',
+                        borderColor: isUnread ? 'green.800/60' : 'gray.800',
                       }}
                       transition="all 0.15s"
                       _hover={{
-                        bg: isUnread ? `${colorScheme}.50` : 'gray.50',
+                        bg: isUnread ? 'green.100' : 'gray.50',
                         _dark: {
                           bg: isUnread
-                            ? `${colorScheme}.900/20`
+                            ? 'green.900/50'
                             : 'rgba(255,255,255,0.05)',
                         },
                         cursor: 'pointer',
@@ -586,8 +676,8 @@ export default function NotificationBell({
                           left={0}
                           top={0}
                           bottom={0}
-                          width="3px"
-                          bg={`${colorScheme}.500`}
+                          width="4px"
+                          bg="green.500"
                           borderRadius="0 2px 2px 0"
                         />
                       )}
@@ -598,28 +688,19 @@ export default function NotificationBell({
                           w="36px"
                           h="36px"
                           borderRadius="xl"
-                          bg={
-                            isUnread
-                              ? `${colorScheme}.100`
-                              : `${colorScheme}.50`
-                          }
+                          bg={isUnread ? 'white' : 'green.50'}
                           _dark={{
-                            bg: isUnread
-                              ? `${colorScheme}.800/50`
-                              : `${colorScheme}.900/20`,
+                            bg: isUnread ? 'green.800' : 'green.900/30',
                           }}
                           display="flex"
                           alignItems="center"
                           justifyContent="center"
-                          color={
-                            isUnread
-                              ? `${colorScheme}.600`
-                              : `${colorScheme}.400`
-                          }
+                          color={isUnread ? 'green.600' : 'green.500'}
+                          boxShadow={isUnread ? 'sm' : 'none'}
                           flexShrink={0}
                           mt="1px"
                         >
-                          <Icon size={17} />
+                          <Icon size={17} strokeWidth={isUnread ? 2.5 : 2} />
                         </Box>
 
                         <VStack align="start" gap={0.5} flex={1} minW={0}>
@@ -631,25 +712,28 @@ export default function NotificationBell({
                           >
                             <Text
                               fontSize="sm"
-                              fontWeight={isUnread ? 'semibold' : 'medium'}
-                              color={isUnread ? 'gray.900' : 'gray.700'}
-                              _dark={{
-                                color: isUnread ? 'white' : 'gray.200',
-                              }}
+                              fontWeight={isUnread ? 'bold' : 'medium'}
+                              color={isUnread ? 'green.900' : 'gray.700'}
+                              _dark={{ color: isUnread ? 'white' : 'gray.300' }}
                               lineHeight="short"
                               flex={1}
                               truncate
                             >
-                              {notification.title}
+                              {displayTitle}
                             </Text>
                             {isUnread && (
                               <Box
-                                w="7px"
-                                h="7px"
-                                bg={`${colorScheme}.500`}
+                                w="8px"
+                                h="8px"
+                                bg="green.500"
                                 borderRadius="full"
                                 flexShrink={0}
                                 ml={1.5}
+                                boxShadow="0 0 0 2px white"
+                                _dark={{
+                                  boxShadow:
+                                    '0 0 0 2px var(--chakra-colors-gray-900)',
+                                }}
                               />
                             )}
                           </HStack>
@@ -657,28 +741,24 @@ export default function NotificationBell({
                           {/* Message */}
                           <Text
                             fontSize="xs"
-                            color={isUnread ? 'gray.600' : 'gray.500'}
+                            color={isUnread ? 'gray.700' : 'gray.500'}
                             _dark={{
-                              color: isUnread ? 'gray.300' : 'gray.400',
+                              color: isUnread ? 'gray.300' : 'gray.500',
                             }}
                             lineHeight="normal"
                             lineClamp={2}
                           >
-                            {notification.message}
+                            {displayMessage}
                           </Text>
 
                           {/* Footer: time + delete */}
                           <HStack justify="space-between" w="100%" mt={0.5}>
                             <Text
                               fontSize="10px"
-                              fontWeight="medium"
-                              color={
-                                isUnread ? `${colorScheme}.500` : 'gray.500'
-                              }
+                              fontWeight={isUnread ? 'semibold' : 'medium'}
+                              color={isUnread ? 'green.600' : 'gray.500'}
                               _dark={{
-                                color: isUnread
-                                  ? `${colorScheme}.400`
-                                  : 'gray.400',
+                                color: isUnread ? 'green.400' : 'gray.500',
                               }}
                             >
                               {formatTimeAgo(notification.createdAt)}
@@ -707,10 +787,11 @@ export default function NotificationBell({
                   );
                 })}
 
-                {isLoading && (
-                  <Flex justify="center" py={4}>
-                    <Spinner size="sm" color="brand.500" />
-                  </Flex>
+                {(isLoading || isPendingLoading) && unifiedItems.length > 0 && (
+                  <VStack gap={0} align="stretch" p={1}>
+                    <NotificationSkeleton />
+                    <NotificationSkeleton />
+                  </VStack>
                 )}
               </Stack>
             )}

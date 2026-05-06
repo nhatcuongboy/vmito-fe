@@ -37,10 +37,10 @@ export function AppSearchBar({
         top="50%"
         transform="translateY(-50%)"
         zIndex={1}
-        color="fg.muted"
+        color="green.600"
         pointerEvents="none"
       >
-        <Search size={18} />
+        <Search size={20} strokeWidth={2.5} />
       </Box>
 
       <Input
@@ -52,21 +52,29 @@ export function AppSearchBar({
         borderRadius="24px"
         h="44px"
         border="1px solid"
-        borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-        bg={{ base: 'gray.50', md: 'bg', _dark: 'gray.700' }}
+        borderColor={{ base: 'gray.300', _dark: 'gray.500' }}
+        bg={{ base: 'white', md: 'white', _dark: 'gray.800' }}
         fontSize="15px"
         color="fg"
-        boxShadow={{ base: 'none', md: '0 1px 4px 0 rgba(0,0,0,0.08)' }}
-        _placeholder={{ color: 'fg.muted' }}
+        boxShadow={{
+          base: '0 2px 8px 0 rgba(0,0,0,0.12)',
+          md: '0 2px 8px 0 rgba(0,0,0,0.12)',
+        }}
+        _placeholder={{ color: 'gray.500' }}
         _focus={{
           borderColor: 'green.500',
-          bg: 'bg',
+          bg: 'white',
           boxShadow: {
-            base: '0 0 0 1px var(--chakra-colors-green-500)',
-            md: '0 0 0 1px var(--chakra-colors-green-500)',
+            base: '0 0 0 2px var(--chakra-colors-green-500), 0 4px 12px 0 rgba(34, 197, 94, 0.2)',
+            md: '0 0 0 2px var(--chakra-colors-green-500), 0 4px 12px 0 rgba(34, 197, 94, 0.2)',
           },
           outline: 'none',
         }}
+        _hover={{
+          borderColor: 'gray.400',
+          boxShadow: '0 4px 12px 0 rgba(0,0,0,0.15)',
+        }}
+        transition="all 0.2s ease"
       />
 
       {hasClear && (

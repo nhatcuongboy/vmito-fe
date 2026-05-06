@@ -35,7 +35,7 @@ const LoginPromptModal = ({
       primaryActionText={tCommon('login')}
       secondaryActionText={tCommon('cancel')}
       onPrimaryAction={handleLogin}
-      primaryColorScheme="blue"
+      primaryColorScheme="green"
     >
       <Text>
         {featureName

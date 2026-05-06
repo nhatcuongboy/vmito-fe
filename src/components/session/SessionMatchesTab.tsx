@@ -156,7 +156,11 @@ export default function SessionMatchesTab({
             const posB = b.position ?? 0;
             return posA - posB;
           });
-          playerNames = sortedMatchPlayers.map((mp) => mp.player?.name || '?');
+          playerNames = sortedMatchPlayers.map((mp) => {
+            const name = mp.player?.name || '?';
+            const number = mp.player?.playerNumber;
+            return number ? `(#${number}) ${name}` : name;
+          });
           playerIds = sortedMatchPlayers.map(
             (mp) => mp.player?.id || mp.playerId
           );
@@ -266,6 +270,8 @@ export default function SessionMatchesTab({
           winner: matchData.winner,
           scores,
           winningPair,
+          isDraw: Boolean(matchData.isDraw),
+          direction: matchData.court?.direction ?? CourtDirection.HORIZONTAL,
           isExtra: Boolean(matchData.isExtra),
           notes: matchData.notes || matchData.note,
         });
@@ -487,7 +493,7 @@ export default function SessionMatchesTab({
             <HistoryMatchCard
               key={match.id}
               match={match}
-              direction={CourtDirection.HORIZONTAL}
+              direction={match.direction ?? CourtDirection.HORIZONTAL}
               onEdit={readOnly ? undefined : handleEditMatch}
               onDelete={readOnly ? undefined : handleDeleteMatch}
               onToggleExtra={readOnly ? undefined : handleToggleExtra}

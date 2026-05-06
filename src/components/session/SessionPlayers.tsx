@@ -464,7 +464,8 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     setTimeout(() => {
       downloadSessionImage(
         session || ({ id: sessionId } as ISession),
-        'session-stats-export-area'
+        'session-stats-export-area',
+        'ThongKeTranDau'
       );
     }, 100);
   };

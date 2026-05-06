@@ -35,8 +35,9 @@ export const AuthService = {
   /**
    * Register new user
    */
-  register: async (data: RegisterRequest): Promise<User> => {
-    const response = await api.post<User>('/auth/register', data);
+  register: async (data: RegisterRequest, locale?: string): Promise<User> => {
+    const query = locale ? `?locale=${locale}` : '';
+    const response = await api.post<User>(`/auth/register${query}`, data);
     return response.data;
   },
 

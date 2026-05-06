@@ -297,7 +297,8 @@ export default function TopBar({
                     <UserMenu onLogout={handleLogout} />
                   </Box>
                 </>
-              ) : (
+              ) : !pathname.includes('/auth/signin') &&
+                !pathname.includes('/auth/signup') ? (
                 <Button
                   onClick={() => router.push('/auth/signin')}
                   colorPalette="green"
@@ -313,7 +314,7 @@ export default function TopBar({
                   <LogIn size={16} />
                   {common('login')}
                 </Button>
-              )}
+              ) : null}
             </Box>
           </Flex>
           {navItems && <SubNavigation items={navItems} />}

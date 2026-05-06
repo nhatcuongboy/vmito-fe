@@ -35,7 +35,8 @@
     "findClubs": "查找俱乐部",
     "findTournaments": "查找锦标赛",
     "createTournament": "创建锦标赛",
-    "generalSettings": "常规设置"
+    "generalSettings": "常规设置",
+    "newsfeed": "动态"
   },
   "search": {
     "title": "搜索",
@@ -496,6 +497,8 @@
     "newRegistrationRequest": "收到新的注册请求",
     "requestApproved": "您的注册已被批准",
     "requestRejected": "您的注册已被拒绝",
+    "addedToSession": "您已被添加到场次 {sessionName}",
+    "removedFromSession": "您已被从场次 {sessionName} 中移除",
     "viewMyRegistration": "查看注册",
     "myRegistration": "我的注册",
     "registeredPlayers": "已注册玩家",
@@ -2209,6 +2212,9 @@
     "manage": "管理",
     "payment": "支付",
     "settings": "加入 & 分享",
+    "share": "分享",
+    "downloadSocial": "社交媒体 (4:5)",
+    "downloadPortrait": "竖版 (2:3)",
     "start": "开始",
     "end": "结束",
     "ended": "已结束",
@@ -2487,7 +2493,7 @@
   "auth": {
     "signin": {
       "title": "登录",
-      "appTitle": "羽毛球场次管理器",
+      "appTitle": "登录",
       "description": "登录以管理您的羽毛球场次",
       "email": "邮箱",
       "emailPlaceholder": "输入您的邮箱",
@@ -2519,24 +2525,27 @@
       "namePlaceholder": "输入您的全名",
       "email": "邮箱",
       "emailPlaceholder": "输入您的邮箱",
+      "phonePlaceholder": "电话号码",
       "password": "密码",
       "passwordPlaceholder": "创建密码（至少 6 个字符）",
       "confirmPassword": "确认密码",
       "confirmPasswordPlaceholder": "确认您的密码",
-      "createAccount": "创建账户",
+      "createAccount": "注册",
       "alreadyHaveAccount": "已经有账户？",
       "signIn": "登录",
       "or": "或",
       "joinAsGuest": "以访客身份加入场次",
       "passwordsDoNotMatch": "密码不匹配",
       "passwordTooShort": "密码至少需要 6 个字符",
-      "accountCreated": "账户创建成功！请登录。",
+      "accountCreated": "注册成功！请登录。",
       "registrationFailed": "注册失败",
       "nameRequired": "请输入姓名",
       "emailRequired": "请输入邮箱",
       "invalidEmail": "邮箱格式不正确",
       "passwordRequired": "请输入密码",
       "confirmPasswordRequired": "请确认您的密码",
+      "phoneInvalid": "电话号码必须为 10 位数字",
+      "genderInvalid": "性别无效",
       "userAlreadyExists": "用户已存在",
       "tooManyRequests": "请求过多。请稍后重试。"
     },
@@ -2899,7 +2908,7 @@
     "joinedAt": "加入时间",
     "joinedDateLabel": "加入于 {date}",
     "verifiedHost": "认证主办方",
-    "activeHosted": "进行中",
+    "activeHosted": "开放中",
     "endedHosted": "已结束",
     "allHosted": "全部",
     "noHostedSessions": "该用户尚未主持任何场次",
@@ -2908,7 +2917,12 @@
     "viewAllReviews": "查看全部",
     "allReviews": "全部评价",
     "noReviews": "暂无评价",
-    "pagination": "第 {page}/{totalPages} 页"
+    "pagination": "第 {page}/{totalPages} 页",
+    "clubs": "俱乐部",
+    "hostedClubs": "管理的俱乐部",
+    "memberClubs": "参加的俱乐部",
+    "noHostedClubs": "暂无管理的俱乐部",
+    "noMemberClubs": "暂无参加的俱乐部"
   },
   "notification": {
     "notifications": "通知",
@@ -2992,8 +3006,17 @@
       "clubApprovedTitle": "俱乐部已批准",
       "clubApprovedMessage": "您的俱乐部“{clubName}”已获批准。",
       "clubRejectedTitle": "俱乐部已被拒绝",
-      "clubRejectedMessage": "您的俱乐部“{clubName}”已被拒绝。原因：{rejectionReason}"
+      "clubRejectedMessage": "您的俱乐部“{clubName}”已被拒绝。原因：{rejectionReason}",
+      "playerAddedTitle": "您已被添加到场次",
+      "playerAddedMessage": "您已被添加到场次“{sessionName}”。",
+      "playerRemovedTitle": "您已被从场次移除",
+      "playerRemovedMessage": "您已被从场次“{sessionName}”移除。"
     }
+  },
+  "posts": {
+    "createPost": "发布动态",
+    "noPosts": "暂无动态",
+    "beFirstToShare": "成为第一个分享内容！"
   },
   "clubs": {
     "notification": {
@@ -3063,6 +3086,12 @@
     "privateClub": "这是一个私有俱乐部",
     "joinRequests": "加入申请",
     "noPendingRequests": "No pending join requests",
+    "managingGroups": "管理中的群组",
+    "noManagedClubs": "尚未管理任何群组",
+    "memberClubsTab": "已加入的群组",
+    "noMemberClubsTab": "尚未加入任何群组",
+    "awaitingApproval": "等待审批",
+    "noAwaitingApproval": "没有待审批的请求",
     "approve": "批准",
     "reject": "拒绝",
     "attendance": "考勤",

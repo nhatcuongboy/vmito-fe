@@ -333,7 +333,7 @@ export const PlayerGrid = ({
                       onDelete={onDelete || (() => {})}
                       onToggleStatus={onToggleStatus || (() => {})}
                       t={t}
-                      buttonVariant="solid"
+                      buttonVariant="ghost"
                       buttonSize="xs"
                       onOpenChange={(isOpen) => {
                         if (isOpen) {

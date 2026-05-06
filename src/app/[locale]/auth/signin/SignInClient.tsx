@@ -174,7 +174,7 @@ function SignInForm() {
   }
 
   return (
-    <MainLayout title={t('title')}>
+    <MainLayout title="Vmito">
       <Box
         display="flex"
         alignItems="center"
@@ -323,7 +323,8 @@ function SignInForm() {
               {t('continueWithGoogle')}
             </Link>
 
-            <Link
+            {/* Zalo login - temporarily hidden */}
+            {/* <Link
               href={`${process.env.NEXT_PUBLIC_API_URL}/auth/zalo?locale=${locale}${searchParams.get('returnUrl') ? `&returnUrl=${encodeURIComponent(searchParams.get('returnUrl')!)}` : ''}`}
               display="flex"
               alignItems="center"
@@ -349,7 +350,7 @@ function SignInForm() {
                 style={{ width: '18px', height: '18px', borderRadius: '4px' }}
               />
               {t('continueWithZalo')}
-            </Link>
+            </Link> */}
 
             <VStack gap={2}>
               <Text color="fg.muted">

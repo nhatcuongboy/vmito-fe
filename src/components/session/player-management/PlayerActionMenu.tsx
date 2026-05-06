@@ -73,10 +73,10 @@ export const PlayerActionMenu: React.FC<PlayerActionMenuProps> = ({
       <Box ref={triggerRef}>
         <IconButton
           aria-label="Options"
-          icon={<MoreVertical size={18} />}
+          icon={<MoreVertical size={16} />}
           variant={buttonVariant}
           size={buttonSize}
-          color={buttonVariant === 'solid' ? 'white' : 'gray.400'}
+          color={buttonVariant === 'solid' ? 'white' : 'gray.500'}
           borderRadius="full"
           _hover={
             buttonVariant === 'solid'
@@ -84,12 +84,11 @@ export const PlayerActionMenu: React.FC<PlayerActionMenuProps> = ({
                   transform: 'scale(1.1)',
                 }
               : {
-                  bg: 'gray.100',
-                  color: 'gray.600',
-                  transform: 'scale(1.1)',
+                  bg: 'blackAlpha.150',
+                  color: 'gray.700',
                 }
           }
-          transition="all 0.2s"
+          transition="all 0.15s"
           onClick={handleToggle}
         />
       </Box>

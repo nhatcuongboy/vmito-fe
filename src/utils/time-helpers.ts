@@ -26,7 +26,10 @@ export const formatCourtElapsedTime = (
   const elapsedMs = currentTime.getTime() - start.getTime();
   const elapsedMinutes = Math.floor(elapsedMs / 60000);
 
-  if (elapsedMinutes === 0) {
+  // Handle case where startTime is in the future (negative elapsed time)
+  if (elapsedMinutes < 0) {
+    return t(`${keyPrefix}lessThanMinute`);
+  } else if (elapsedMinutes === 0) {
     return t(`${keyPrefix}lessThanMinute`);
   } else if (elapsedMinutes === 1) {
     return t(`${keyPrefix}oneMinute`);

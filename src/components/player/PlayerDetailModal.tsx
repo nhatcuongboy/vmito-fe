@@ -20,6 +20,7 @@ import {
   Venus,
   Users,
   User,
+  UserCheck,
   X,
   Copy,
   QrCode,
@@ -36,6 +37,7 @@ import {
 import { useState, useEffect } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/config';
 import { SessionService } from '@/lib/api/session.service';
 import { RatingService } from '@/lib/api/rating.service';
 import { Pause, Play } from 'lucide-react';
@@ -63,6 +65,7 @@ export const PlayerDetailModal = ({
   const t = useTranslations('PlayerDetailModal');
   const ratingT = useTranslations('rating');
   const locale = useLocale();
+  const router = useRouter();
   const { getLevelLabel } = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [joinCode, setJoinCode] = useState<string>('');
@@ -204,13 +207,26 @@ export const PlayerDetailModal = ({
     >
       <VStack gap={0} align="stretch">
         {/* Player Header Avatar & Name */}
-        <VStack gap={4} mb={6} align="center">
+        <VStack
+          gap={3}
+          mb={6}
+          align="center"
+          cursor={player.userId ? 'pointer' : 'default'}
+          onClick={() => {
+            if (player.userId) {
+              router.push(`/user/${player.userId}`);
+              onClose();
+            }
+          }}
+          _hover={player.userId ? { opacity: 0.8 } : undefined}
+          transition="opacity 0.2s"
+        >
           <Box position="relative">
             <Avatar.Root
               boxSize="80px"
               borderRadius="full"
-              borderWidth="2px"
-              borderColor="blue.500"
+              borderWidth="3px"
+              borderColor={player.userId ? 'green.400' : 'gray.300'}
             >
               <Avatar.Fallback
                 name={player.name || `Player ${player.playerNumber}`}
@@ -219,8 +235,36 @@ export const PlayerDetailModal = ({
               </Avatar.Fallback>
               {player.user?.image && <Avatar.Image src={player.user.image} />}
             </Avatar.Root>
+            {/* User type indicator */}
+            <Flex
+              position="absolute"
+              bottom="-3"
+              left="50%"
+              transform="translateX(-50%)"
+              align="center"
+              gap={1}
+              bg={player.userId ? 'green.500' : 'gray.400'}
+              color="white"
+              borderRadius="full"
+              px={2}
+              py={0.5}
+              fontSize="2xs"
+              fontWeight="semibold"
+              whiteSpace="nowrap"
+              boxShadow="sm"
+            >
+              {player.userId ? (
+                <>
+                  <UserCheck size={10} /> Thành viên
+                </>
+              ) : (
+                <>
+                  <User size={10} /> Khách
+                </>
+              )}
+            </Flex>
           </Box>
-          <Text fontSize="2xl" fontWeight="bold" textAlign="center">
+          <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={3}>
             {player.name || `Player ${player.playerNumber}`}
           </Text>
         </VStack>

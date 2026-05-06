@@ -18,6 +18,7 @@ import { Portal } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { PlayerService } from '@/lib/api/player.service';
 import MyRegistrationModal from './MyRegistrationModal';
+import type { ViewMode } from '@/hooks/useViewMode';
 
 interface SessionCardProps {
   session: ISession;
@@ -25,7 +26,7 @@ interface SessionCardProps {
   onRefresh?: () => void;
   mode?: 'view' | 'manage';
   onHostClick?: () => void;
-  variant?: 'full' | 'compact';
+  variant?: ViewMode;
 }
 
 const SessionCard = ({
@@ -34,7 +35,7 @@ const SessionCard = ({
   onRefresh,
   mode = 'view',
   onHostClick,
-  variant = 'full',
+  variant = 'grid',
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');

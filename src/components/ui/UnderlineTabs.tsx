@@ -39,6 +39,7 @@ export function UnderlineTabs({
       right={isFixed ? 0 : undefined}
       zIndex={isFixed ? zIndex : undefined}
       overflowX="auto"
+      overflowY="hidden"
       css={{
         '&::-webkit-scrollbar': { display: 'none' },
         msOverflowStyle: 'none',

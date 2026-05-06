@@ -8,6 +8,7 @@ export const ROUTES = {
   // Root
   HOME: '/',
   DASHBOARD: '/dashboard',
+  NEWSFEED: '/newsfeed',
 
   // Authentication
   AUTH: {
@@ -144,6 +145,11 @@ export const ROUTES = {
     GENERAL: '/admin/general',
     VENUES: '/admin/venues',
     CLUBS: '/admin/clubs/pending',
+  },
+
+  // User Public Profile
+  USER: {
+    PROFILE: (userId: string) => `/user/${userId}`,
   },
 
   // Settings & Profile

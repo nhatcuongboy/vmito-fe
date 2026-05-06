@@ -99,6 +99,7 @@ export const statusColors: Record<string, string> = {
   PREPARING: 'brand',
   IN_PROGRESS: 'green',
   FINISHED: 'gray',
+  CANCELLED: 'red',
 };
 
 export const getStatusLabel = (
@@ -116,12 +117,14 @@ export const getStatusLabel = (
       return t('status.inProgress');
     case 'FINISHED':
       return t('status.finished');
+    case 'CANCELLED':
+      return t('status.cancelled');
     default:
       return status;
   }
 };
 
-import { ViewMode } from '@/stores/useSessionFilterStore';
+import type { ViewMode } from '@/hooks/useViewMode';
 
 interface BaseSessionCardProps {
   session: ISession;
@@ -161,7 +164,7 @@ interface BaseSessionCardProps {
 
 const BaseSessionCard = ({
   session,
-  variant = 'full',
+  variant = 'grid',
   statusBadgeContent,
   registrationBadgeContent,
   coverPhotoOverlay,
@@ -179,7 +182,7 @@ const BaseSessionCard = ({
   showYearInDate = false,
   alwaysShowDayName = false,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
-  const isCompact = variant === 'compact';
+  const isCompact = variant === 'list';
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
@@ -187,10 +190,6 @@ const BaseSessionCard = ({
   const { user } = useAuthStore();
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
   const [isLoading, setIsLoading] = useState(false);
-
-  console.log(
-    `[BaseSessionCard] Rendering session: ${session.id} | Host: ${session.hostId}`
-  );
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -238,7 +237,7 @@ const BaseSessionCard = ({
   ) => {
     e.stopPropagation();
     const elementId = `session-share-card-${mode}-${session.id}`;
-    downloadSessionImage(session, elementId);
+    downloadSessionImage(session, elementId, 'TuyenVangLai');
   };
 
   // Render top action buttons (icon buttons)
@@ -869,32 +868,43 @@ const BaseSessionCard = ({
 
             {/* Date & Time + Courts & Players */}
             {isCompact ? (
-              <>
-                <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
-                  <Flex align="center" gap={1}>
-                    <Icon as={Calendar} boxSize={4} color="green.500" />
-                    <Text fontSize="xs">{compactDate}</Text>
-                  </Flex>
-                  <Flex align="center" gap={1}>
-                    <Icon as={Clock} boxSize={4} color="green.500" />
-                    <Text fontSize="xs">{compactTime}</Text>
-                  </Flex>
+              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+                <Flex align="center" gap={1}>
+                  <Icon as={Calendar} boxSize={4} color="green.500" />
+                  <Text fontSize="xs">{compactDate}</Text>
                 </Flex>
-                <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+                <Flex align="center" gap={1}>
+                  <Icon as={Clock} boxSize={4} color="green.500" />
+                  <Text fontSize="xs">{compactTime}</Text>
+                </Flex>
+                <Flex align="center" gap={1}>
+                  <Icon as={LayoutGrid} boxSize={4} color="green.500" />
+                  <Text fontSize="xs">
+                    {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={1}>
+                  <Icon as={Users} boxSize={4} color="green.500" />
+                  <Text fontSize="xs">
+                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={1}>
+                  <Icon as={UserCheck} boxSize={4} color="green.500" />
+                  <Text fontSize="xs">
+                    {convertedSession.totalPlayers}/
+                    {convertedSession.maxPlayers} {t('players')}
+                  </Text>
+                </Flex>
+                {session.shuttlecock && (
                   <Flex align="center" gap={1}>
-                    <Icon as={LayoutGrid} boxSize={4} color="green.500" />
+                    <Icon as={Feather} boxSize={4} color="green.500" />
                     <Text fontSize="xs">
-                      {convertedSession.numberOfCourts} {t('courtsAvailable')}
+                      {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>
-                  <Flex align="center" gap={1}>
-                    <Icon as={Users} boxSize={4} color="green.500" />
-                    <Text fontSize="xs">
-                      {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                    </Text>
-                  </Flex>
-                </Flex>
-              </>
+                )}
+              </Flex>
             ) : (
               <Grid templateColumns="1fr 1fr" gap={2}>
                 {/* Row 1: Date & Time */}

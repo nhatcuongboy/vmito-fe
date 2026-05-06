@@ -1,6 +1,6 @@
 import { CourtDirection } from '@/lib/api/types';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { Badge, Box, Flex, Icon, Stack, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { Edit, Clock, MapPin, Trash2 } from 'lucide-react';
 import React from 'react';
 import { useTranslations } from 'next-intl';
@@ -11,7 +11,7 @@ export type HistoryMatch = {
   sessionId: string;
   court: string;
   players: string[];
-  playerIds?: string[]; // Add playerIds field
+  playerIds?: string[];
   startTime?: string | Date;
   endTime?: string | Date;
   winner?: string;
@@ -20,6 +20,8 @@ export type HistoryMatch = {
     pair2Score: number;
   };
   winningPair?: 1 | 2;
+  isDraw?: boolean;
+  direction?: CourtDirection;
   isExtra?: boolean;
   notes?: string;
 };
@@ -228,21 +230,43 @@ export const HistoryMatchCard = ({
               <Text color="gray.600" fontSize="sm">
                 {side1Label}
               </Text>
-              {pair1.map((p, i) => (
-                <Text key={i} fontWeight="semibold">
-                  {p}
-                </Text>
-              ))}
+              {pair1.map((p, i) => {
+                const match = p.match(/^\((#\d+)\)\s+(.*)$/);
+                const number = match ? match[1] : null;
+                const name = match ? match[2] : p;
+
+                return (
+                  <HStack key={i} gap={1} align="baseline">
+                    {number && (
+                      <Text color="gray.500" fontSize="xs" fontWeight="medium">
+                        {number}
+                      </Text>
+                    )}
+                    <Text fontWeight="semibold">{name}</Text>
+                  </HStack>
+                );
+              })}
             </Box>
             <Box {...pair2WonStyle} flex={1}>
               <Text color="gray.600" fontSize="sm">
                 {side2Label}
               </Text>
-              {pair2.map((p, i) => (
-                <Text key={i} fontWeight="semibold">
-                  {p}
-                </Text>
-              ))}
+              {pair2.map((p, i) => {
+                const match = p.match(/^\((#\d+)\)\s+(.*)$/);
+                const number = match ? match[1] : null;
+                const name = match ? match[2] : p;
+
+                return (
+                  <HStack key={i} gap={1} align="baseline">
+                    {number && (
+                      <Text color="gray.500" fontSize="xs" fontWeight="medium">
+                        {number}
+                      </Text>
+                    )}
+                    <Text fontWeight="semibold">{name}</Text>
+                  </HStack>
+                );
+              })}
             </Box>
           </Flex>
         </Box>
@@ -270,12 +294,14 @@ export const HistoryMatchCard = ({
               fontSize="sm"
               fontWeight="bold"
               color={
-                match.scores.pair1Score === match.scores.pair2Score
+                (match.isDraw ??
+                match.scores.pair1Score === match.scores.pair2Score)
                   ? 'gray.600'
                   : 'green.600'
               }
             >
-              {match.scores.pair1Score === match.scores.pair2Score
+              {(match.isDraw ??
+              match.scores.pair1Score === match.scores.pair2Score)
                 ? t('draw')
                 : winningPair === 1
                   ? isSingles

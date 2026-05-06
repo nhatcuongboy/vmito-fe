@@ -30,6 +30,7 @@ import {
   numberArrayField,
   booleanField,
 } from '@/hooks/useUrlFilters';
+import { useViewMode } from '@/hooks/useViewMode';
 import {
   Badge,
   Box,
@@ -151,8 +152,11 @@ export default function FindSessionList({
   const sortByDistance = urlFilters.near;
   const sortBy = urlFilters.sort as SessionSortBy;
 
-  // Keep viewMode & userLocation in the Zustand store (non-URL state)
-  const { viewMode, userLocation, setUserLocation } = useSessionFilterStore();
+  // Use URL-synced view mode
+  const [viewMode, setViewMode] = useViewMode('sessions');
+
+  // Keep userLocation in the Zustand store (non-URL state)
+  const { userLocation, setUserLocation } = useSessionFilterStore();
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
 
@@ -614,6 +618,8 @@ export default function FindSessionList({
         isLoading={loading}
         sortBy={sortBy}
         onSortChange={(value) => setUrlFilters({ sort: value })}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       >
         {(filters.venueId || nonSearchFilterCount > 0) && (
           <HStack gap={2} wrap="wrap">
@@ -890,7 +896,7 @@ export default function FindSessionList({
       {loading ? (
         <Grid
           templateColumns={
-            viewMode === 'compact'
+            viewMode === 'list'
               ? {
                   base: '1fr',
                   sm: 'repeat(2, 1fr)',
@@ -903,7 +909,7 @@ export default function FindSessionList({
                   lg: 'repeat(3, 1fr)',
                 }
           }
-          gap={viewMode === 'compact' ? 4 : 6}
+          gap={viewMode === 'list' ? 4 : 6}
         >
           {Array.from({ length: 6 }).map((_, index) => (
             <SessionCardSkeleton key={index} variant={viewMode} />
@@ -946,7 +952,7 @@ export default function FindSessionList({
         <RatingStatsProvider userIds={hostIds}>
           <Grid
             templateColumns={
-              viewMode === 'compact'
+              viewMode === 'list'
                 ? {
                     base: '1fr',
                     sm: 'repeat(2, 1fr)',
@@ -959,7 +965,7 @@ export default function FindSessionList({
                     lg: 'repeat(3, 1fr)',
                   }
             }
-            gap={viewMode === 'compact' ? 4 : 6}
+            gap={viewMode === 'list' ? 4 : 6}
           >
             {sortedSessions.map((session) => (
               <FindSessionCard
@@ -983,7 +989,7 @@ export default function FindSessionList({
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
                 templateColumns={
-                  viewMode === 'compact'
+                  viewMode === 'list'
                     ? {
                         base: '1fr',
                         sm: 'repeat(2, 1fr)',
@@ -996,7 +1002,7 @@ export default function FindSessionList({
                         lg: 'repeat(3, 1fr)',
                       }
                 }
-                gap={viewMode === 'compact' ? 4 : 6}
+                gap={viewMode === 'list' ? 4 : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
                   <SessionCardSkeleton key={index} variant={viewMode} />

@@ -166,7 +166,7 @@ export default function BottomNavigationBar({
               borderRadius="full"
               bg="green.500"
               color="white"
-              boxShadow="0 -2px 8px rgba(72, 187, 120, 0.4), 0 4px 14px rgba(72, 187, 120, 0.35)"
+              boxShadow="0 -2px 8px rgba(23, 154, 59, 0.4), 0 4px 14px rgba(23, 154, 59, 0.35)"
             >
               {centerAction.loading ? (
                 <Spinner size="sm" color="white" />

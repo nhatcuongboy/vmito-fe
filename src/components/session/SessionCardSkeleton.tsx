@@ -8,7 +8,7 @@ import {
   SkeletonCircle,
   Text,
 } from '@chakra-ui/react';
-import { ViewMode } from '@/stores/useSessionFilterStore';
+import type { ViewMode } from '@/hooks/useViewMode';
 import { Sparkles } from 'lucide-react';
 
 interface SessionCardSkeletonProps {
@@ -19,10 +19,10 @@ interface SessionCardSkeletonProps {
 
 export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
   showOnlyOne = false,
-  variant = 'full',
+  variant = 'grid',
   isAi = false,
 }) => {
-  if (variant === 'compact') {
+  if (variant === 'list') {
     return (
       <Flex
         direction="column"

@@ -44,7 +44,8 @@
     "findClubs": "Find Groups",
     "findTournaments": "Find Tournaments",
     "createTournament": "Create Tournament",
-    "generalSettings": "General Settings"
+    "generalSettings": "General Settings",
+    "newsfeed": "Newsfeed"
   },
   "search": {
     "title": "Search",
@@ -520,6 +521,8 @@
     "registrationStatusMessage": "Your registration for {sessionName} has been {status}",
     "registrationApprovedStatus": "approved",
     "registrationRejectedStatus": "rejected",
+    "addedToSession": "You have been added to session {sessionName}",
+    "removedFromSession": "You have been removed from session {sessionName}",
     "viewMyRegistration": "View Registration",
     "myRegistration": "My Registration",
     "registeredPlayers": "Registered Players",
@@ -2268,7 +2271,10 @@
     "courts": "Courts",
     "manage": "Manage",
     "payment": "Payment",
-    "settings": "Share",
+    "settings": "Settings",
+    "share": "Share",
+    "downloadSocial": "Social Media (4:5)",
+    "downloadPortrait": "Portrait (2:3)",
     "start": "Start",
     "end": "End",
     "ended": "Ended",
@@ -2567,7 +2573,7 @@
   "auth": {
     "signin": {
       "title": "Sign In",
-      "appTitle": "Badminton Session Manager",
+      "appTitle": "Sign In",
       "description": "Sign in to manage your badminton sessions",
       "email": "Email",
       "emailPlaceholder": "Enter your email",
@@ -2599,11 +2605,12 @@
       "namePlaceholder": "Enter your full name",
       "email": "Email",
       "emailPlaceholder": "Enter your email",
+      "phonePlaceholder": "Phone number",
       "password": "Password",
       "passwordPlaceholder": "Create a password (min 6 chars)",
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your password",
-      "createAccount": "Create Account",
+      "createAccount": "Sign Up",
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in",
       "or": "Or",
@@ -2617,6 +2624,8 @@
       "invalidEmail": "Invalid email address",
       "passwordRequired": "Please enter your password",
       "confirmPasswordRequired": "Please confirm your password",
+      "phoneInvalid": "Phone number must be 10 digits",
+      "genderInvalid": "Invalid gender selection",
       "userAlreadyExists": "User already exists",
       "tooManyRequests": "Too many requests. Please try again later."
     },
@@ -2980,7 +2989,7 @@
     "joinedAt": "Joined",
     "joinedDateLabel": "Joined since {date}",
     "verifiedHost": "Verified host",
-    "activeHosted": "Active",
+    "activeHosted": "Open",
     "endedHosted": "Ended",
     "allHosted": "All",
     "noHostedSessions": "This user has not hosted any sessions yet",
@@ -2989,7 +2998,12 @@
     "viewAllReviews": "View all",
     "allReviews": "All reviews",
     "noReviews": "No reviews yet",
-    "pagination": "Page {page}/{totalPages}"
+    "pagination": "Page {page}/{totalPages}",
+    "clubs": "Clubs",
+    "hostedClubs": "Hosted Clubs",
+    "memberClubs": "Member Clubs",
+    "noHostedClubs": "No hosted clubs",
+    "noMemberClubs": "No member clubs"
   },
   "notification": {
     "notifications": "Notifications",
@@ -3073,8 +3087,17 @@
       "clubApprovedTitle": "Club approved",
       "clubApprovedMessage": "Your club “{clubName}” has been approved.",
       "clubRejectedTitle": "Club rejected",
-      "clubRejectedMessage": "Your club “{clubName}” has been rejected. Reason: {rejectionReason}"
+      "clubRejectedMessage": "Your club “{clubName}” has been rejected. Reason: {rejectionReason}",
+      "playerAddedTitle": "You have been added to a session",
+      "playerAddedMessage": "You have been added to “{sessionName}”.",
+      "playerRemovedTitle": "You have been removed from a session",
+      "playerRemovedMessage": "You have been removed from “{sessionName}”."
     }
+  },
+  "posts": {
+    "createPost": "Create Post",
+    "noPosts": "No posts yet",
+    "beFirstToShare": "Be the first to share something!"
   },
   "clubs": {
     "notification": {
@@ -3144,6 +3167,12 @@
     "privateClub": "This is a private club",
     "joinRequests": "Join Requests",
     "noPendingRequests": "No pending join requests",
+    "managingGroups": "Groups I Manage",
+    "noManagedClubs": "Not managing any groups yet",
+    "memberClubsTab": "Groups I've Joined",
+    "noMemberClubsTab": "Not a member of any group yet",
+    "awaitingApproval": "Awaiting Approval",
+    "noAwaitingApproval": "No pending join requests",
     "approve": "Approve",
     "reject": "Reject",
     "attendance": "Attendance",
