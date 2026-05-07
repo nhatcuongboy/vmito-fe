@@ -497,7 +497,6 @@ function StatusPageContent() {
                               currentCourt?.courtNumber
                             )}
                             width="100%"
-                            showTimeInCenter={true}
                             status={currentCourt.status}
                             mode="view"
                           />

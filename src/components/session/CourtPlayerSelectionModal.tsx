@@ -636,7 +636,6 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
           isActive={true}
           courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
           width="100%"
-          showTimeInCenter={false}
           isLoading={isLoading && !useAi}
           direction={court?.direction || CourtDirection.HORIZONTAL}
           courtColor={courtColor}
@@ -909,7 +908,6 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
             onPositionSelect={onPositionSelect}
             courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
             width="100%"
-            showTimeInCenter={false}
             direction={court?.direction || CourtDirection.HORIZONTAL}
           />
 

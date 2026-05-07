@@ -2,6 +2,7 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { Player, PlayerStatistics } from '@/lib/api/types';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   Badge,
   Box,
@@ -485,23 +486,16 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 >
                   {session?.startTime && (
                     <Text textAlign="center">
-                      🕒{' '}
-                      {new Date(session.startTime).toLocaleString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
+                      🕒 {formatTimeByDevicePreference(session.startTime)}
                       {'-'}
-                      {new Date(
-                        new Date(session.startTime).getTime() +
-                          (session.sessionDuration || 120) * 60 * 1000
-                      ).toLocaleString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
+                      {formatTimeByDevicePreference(
+                        new Date(
+                          new Date(session.startTime).getTime() +
+                            (session.sessionDuration || 120) * 60 * 1000
+                        )
+                      )}
                       {', '}
-                      {new Date(session.startTime).toLocaleString('vi-VN', {
+                      {new Date(session.startTime).toLocaleDateString('vi-VN', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',

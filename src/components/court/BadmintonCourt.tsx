@@ -14,7 +14,6 @@ interface BadmintonCourtProps {
   courtName?: string;
   courtNumber?: number;
   width?: string;
-  showTimeInCenter?: boolean;
   isLoading?: boolean;
   status?: 'IN_USE' | 'READY' | 'EMPTY';
   mode?: 'manage' | 'view' | 'selection';
@@ -41,7 +40,6 @@ export default function BadmintonCourt({
   courtName,
   courtNumber,
   width = '100%',
-  showTimeInCenter = true,
   isLoading = false,
   status,
   mode = 'manage',
@@ -268,25 +266,6 @@ export default function BadmintonCourt({
       overflow="visible"
       // boxShadow={status === "READY" ? "0 0 0 4px #fef08a" : undefined}
     >
-      {showTimeInCenter && elapsedTime && (
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-          zIndex={3}
-          bg={{ base: 'whiteAlpha.800', _dark: 'blackAlpha.600' }}
-          px={2}
-          py={1}
-          borderRadius="md"
-          fontSize="xs"
-          fontWeight="bold"
-          color="gray.700"
-          _dark={{ color: 'gray.100' }}
-        >
-          {elapsedTime}
-        </Box>
-      )}
       {/* Outer boundary */}
       <Box
         position="absolute"

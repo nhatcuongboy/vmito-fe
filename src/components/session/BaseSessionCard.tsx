@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ISession, UserRole } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
 import {
   Avatar,
@@ -87,12 +88,10 @@ export const formatDate = (
 
 export const formatTime = (
   dateString: string | Date,
-  locale: string
+  _locale?: string
 ): string => {
-  const date = dayjs(dateString)
-    .tz('Asia/Ho_Chi_Minh')
-    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
-  return date.format('HH:mm');
+  // Use device time format preference instead of hardcoded HH:mm
+  return formatTimeByDevicePreference(dateString);
 };
 
 export const statusColors: Record<string, string> = {

@@ -123,7 +123,6 @@ const ManualSelectPlayersModal: React.FC<ManualSelectPlayersModalProps> = ({
                 court.courtNumber
               )}
               width="100%"
-              showTimeInCenter={false}
               direction={court?.direction || CourtDirection.HORIZONTAL}
             />
           </Box>

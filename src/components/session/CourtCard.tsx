@@ -251,7 +251,6 @@ const CourtCard: React.FC<CourtCardProps> = ({
               )}
               courtNumber={court.courtNumber}
               width="100%"
-              showTimeInCenter={true}
               isLoading={isRefreshing}
               status={court.status}
               mode={mode}
@@ -361,7 +360,6 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 court.courtNumber
               )}
               width="100%"
-              showTimeInCenter={false}
               isLoading={isRefreshing}
               status="EMPTY"
               direction={court.direction || CourtDirection.HORIZONTAL}

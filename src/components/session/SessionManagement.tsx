@@ -3,6 +3,7 @@ import { MatchService } from '@/lib/api/match.service';
 import { RealTimeService } from '@/lib/api/real-time.service';
 import { ISession, Player } from '@/lib/api/types';
 import { WaitTimeService } from '@/lib/api/wait-time.service';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
@@ -468,7 +469,8 @@ export default function SessionManagement({
         fontSize="sm"
         color="gray.500"
       >
-        Last updated: {new Date(realTimeData.lastUpdated).toLocaleTimeString()}
+        Last updated:{' '}
+        {formatTimeByDevicePreference(new Date(realTimeData.lastUpdated))}
       </Box>
     </Box>
   );

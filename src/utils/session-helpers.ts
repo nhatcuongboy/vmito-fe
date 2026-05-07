@@ -1,4 +1,5 @@
 // Session-related utility functions
+import { formatTimeByDevicePreference } from './time-helpers';
 
 // Function to create court name from order number
 export function generateCourtName(courtNumber: number): string {
@@ -76,12 +77,9 @@ export function formatDate(dateString: string | Date): string {
 }
 
 // Function to format time from ISO string to a more readable format
+// Now uses device's time format preference (24h or AM/PM)
 export function formatTime(dateString: string | Date): string {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return formatTimeByDevicePreference(dateString);
 }
 
 // Function to calculate duration between two timestamps
