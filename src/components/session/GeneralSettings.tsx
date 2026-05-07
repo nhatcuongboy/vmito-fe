@@ -402,7 +402,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       }
                       colorPalette={
                         formData.defaultMatchType === 'DOUBLES'
-                          ? 'blue'
+                          ? 'green'
                           : 'gray'
                       }
                       size="sm"
@@ -421,7 +421,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                       }
                       colorPalette={
                         formData.defaultMatchType === 'SINGLES'
-                          ? 'blue'
+                          ? 'green'
                           : 'gray'
                       }
                       size="sm"

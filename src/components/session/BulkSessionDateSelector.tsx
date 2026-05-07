@@ -241,6 +241,7 @@ export function BulkSessionDateSelector({
         <VStack align="stretch" gap={6}>
           <Radio.Root
             value={mode}
+            colorPalette="green"
             onValueChange={(details: { value: string | null }) => {
               if (details.value) {
                 handleModeChange(details.value as BulkCreationMode);

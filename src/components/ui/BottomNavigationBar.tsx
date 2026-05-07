@@ -113,7 +113,7 @@ export default function BottomNavigationBar({
       }}
       right={0}
       bottom={bottomOffset ?? 0}
-      zIndex={100}
+      zIndex={1000}
       bg={{ base: 'white', _dark: 'gray.800' }}
       borderTopWidth="1px"
       borderTopColor="border"

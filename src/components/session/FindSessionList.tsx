@@ -1046,6 +1046,7 @@ export default function FindSessionList({
         title={t('hostInfo') || 'Thông tin Host'}
         size="md"
         hideSecondaryAction={true}
+        maxBodyHeight={{ base: '60vh', md: '75vh' }}
       >
         {selectedSessionForDetail && (
           <AppHostDetail

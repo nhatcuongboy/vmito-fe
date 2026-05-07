@@ -48,8 +48,8 @@ export interface VModalProps {
   description?: string;
   /** Custom z-index */
   zIndex?: number;
-  /** Custom max height for modal body */
-  maxBodyHeight?: string;
+  /** Custom max height for modal body (supports responsive object e.g. { base: '60vh', md: '75vh' }) */
+  maxBodyHeight?: string | Record<string, string>;
   /** Show header divider */
   showHeaderDivider?: boolean;
   /** Show footer divider */

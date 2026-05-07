@@ -14,6 +14,7 @@ import {
   Box,
   Field,
   Flex,
+  Grid,
   Heading,
   HStack,
   Icon,
@@ -92,6 +93,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { VSelect } from '@/components/ui/VSelect';
 import { VSwitch } from '@/components/ui/VSwitch';
+import { VModal } from '@/components/ui/VModal';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
@@ -424,6 +426,10 @@ export default function SessionForm({
   // Bulk creation state
   const [bulkEnabled, setBulkEnabled] = useState(false);
   const [bulkMode, setBulkMode] = useState<BulkCreationMode>('single');
+  const [isDeleteCourtModalOpen, setIsDeleteCourtModalOpen] = useState(false);
+  const [courtIndexToDelete, setCourtIndexToDelete] = useState<number | null>(
+    null
+  );
   const [specificDatesConfig, setSpecificDatesConfig] = useState<
     SpecificDatesConfig | undefined
   >(undefined);
@@ -541,7 +547,16 @@ export default function SessionForm({
 
   const handleRemoveCourt = (index: number) => {
     if (fields.length > 1) {
-      remove(index);
+      setCourtIndexToDelete(index);
+      setIsDeleteCourtModalOpen(true);
+    }
+  };
+
+  const confirmDeleteCourt = () => {
+    if (courtIndexToDelete !== null) {
+      remove(courtIndexToDelete);
+      setIsDeleteCourtModalOpen(false);
+      setCourtIndexToDelete(null);
     }
   };
 
@@ -1427,139 +1442,107 @@ export default function SessionForm({
             >
               <Flex align="center" justify="space-between" mb={4}>
                 <Heading size="md">{t('courtsConfiguration')}</Heading>
-                <Button
-                  type="button"
-                  onClick={handleAddCourt}
-                  size="sm"
-                  variant="outline"
-                  disabled={!canEditCourts}
-                >
-                  <Plus size={16} style={{ marginRight: '8px' }} />
-                  {t('addCourt')}
-                </Button>
               </Flex>
 
-              <Stack gap={4}>
+              <Stack gap={6}>
                 {fields.map((field, index) => (
-                  <Box
-                    key={field.id}
-                    p={4}
-                    border="1px"
-                    borderColor={
-                      errors.courts?.[index]
-                        ? 'red.500'
-                        : { base: 'gray.200', _dark: 'gray.600' }
-                    }
-                    borderRadius="md"
-                    opacity={!canEditCourts ? 0.7 : 1}
-                  >
-                    <Flex justify="space-between" align="center" mb={3}>
-                      <Text fontWeight="semibold">
-                        {t('court')} {index + 1}
-                      </Text>
-                      {fields.length > 1 && canEditCourts && (
-                        <Button
-                          type="button"
-                          onClick={() => handleRemoveCourt(index)}
-                          size="sm"
-                          variant="outline"
-                          colorPalette="red"
-                          minW="auto"
-                          px={2}
-                          disabled={!canEditCourts}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      )}
-                    </Flex>
-                    <Flex gap={3} direction="row">
-                      {/* Court Number */}
-                      <Box flex={{ base: '0 0 100px', md: '0 0 140px' }}>
-                        <Field.Root
-                          invalid={!!errors.courts?.[index]?.courtNumber}
-                          disabled={!canEditCourts}
-                        >
-                          <Field.Label fontSize="sm">
-                            {t('courtNumber')}{' '}
-                            <Text as="span" color="red.500">
-                              *
-                            </Text>
-                          </Field.Label>
-                          <Controller
-                            control={control}
-                            name={`courts.${index}.courtNumber`}
-                            render={({ field }) => (
-                              <Input
-                                id={`court-number-input-${index}`}
-                                type="number"
-                                value={field.value === 0 ? '' : field.value}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLInputElement>
-                                ) =>
-                                  field.onChange(parseInt(e.target.value) || 0)
-                                }
-                                disabled={!canEditCourts}
-                              />
-                            )}
-                          />
-                          <Field.ErrorText color="fg.error">
-                            {errors.courts?.[index]?.courtNumber?.message}
-                          </Field.ErrorText>
-                        </Field.Root>
-                      </Box>
-
-                      {/* Court Name */}
-                      <Box flex="1">
-                        <Field.Root
-                          invalid={!!errors.courts?.[index]?.courtName}
-                          disabled={!canEditCourts}
-                        >
-                          <Field.Label fontSize="sm">
-                            {t('courtName')}
-                          </Field.Label>
-                          <Input
-                            {...register(`courts.${index}.courtName`)}
-                            placeholder={t('courtNamePlaceholder')}
+                  <Box key={field.id}>
+                    {index > 0 && (
+                      <Box
+                        borderTop="1px"
+                        borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+                        mb={6}
+                      />
+                    )}
+                    <Box opacity={!canEditCourts ? 0.7 : 1}>
+                      <Flex gap={3} direction="row" align="end">
+                        {/* Court Number */}
+                        <Box flex={{ base: '0 0 100px', md: '0 0 140px' }}>
+                          <Field.Root
+                            invalid={!!errors.courts?.[index]?.courtNumber}
                             disabled={!canEditCourts}
-                          />
-                        </Field.Root>
-                      </Box>
+                          >
+                            <Field.Label fontSize="sm">
+                              {t('courtNumber')}{' '}
+                              <Text as="span" color="red.500">
+                                *
+                              </Text>
+                            </Field.Label>
+                            <Controller
+                              control={control}
+                              name={`courts.${index}.courtNumber`}
+                              render={({ field }) => (
+                                <Input
+                                  id={`court-number-input-${index}`}
+                                  type="number"
+                                  value={field.value === 0 ? '' : field.value}
+                                  onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>
+                                  ) =>
+                                    field.onChange(
+                                      parseInt(e.target.value) || 0
+                                    )
+                                  }
+                                  disabled={!canEditCourts}
+                                />
+                              )}
+                            />
+                            <Field.ErrorText color="fg.error">
+                              {errors.courts?.[index]?.courtNumber?.message}
+                            </Field.ErrorText>
+                          </Field.Root>
+                        </Box>
 
-                      {/* Court Direction - Hidden as per request */}
-                      <Box flex={{ base: '1', md: '0 0 180px' }} display="none">
-                        <Field.Root
-                          invalid={!!errors.courts?.[index]?.direction}
-                          disabled={!canEditCourts}
-                        >
-                          <Field.Label fontSize="sm">
-                            {t('courtDirection')}{' '}
-                            <Text as="span" color="red.500">
-                              *
-                            </Text>
-                          </Field.Label>
-                          <Controller
-                            control={control}
-                            name={`courts.${index}.direction`}
-                            render={({ field }) => (
-                              <VSelect
-                                value={field.value}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLSelectElement>
-                                ) => field.onChange(e.target.value)}
-                                disabled={!canEditCourts}
-                              >
-                                <option value={CourtDirection.HORIZONTAL}>
-                                  {t('horizontal')}
-                                </option>
-                                <option value={CourtDirection.VERTICAL}>
-                                  {t('vertical')}
-                                </option>
-                              </VSelect>
-                            )}
-                          />
-                        </Field.Root>
-                      </Box>
-                    </Flex>
+                        {/* Court Name */}
+                        <Box flex="1">
+                          <Field.Root
+                            invalid={!!errors.courts?.[index]?.courtName}
+                            disabled={!canEditCourts}
+                          >
+                            <Field.Label fontSize="sm">
+                              {t('courtName')}
+                            </Field.Label>
+                            <Input
+                              {...register(`courts.${index}.courtName`)}
+                              placeholder={t('courtNamePlaceholder')}
+                              disabled={!canEditCourts}
+                            />
+                          </Field.Root>
+                        </Box>
+
+                        {/* Delete Button */}
+                        {fields.length > 1 && canEditCourts && (
+                          <Box pb={errors.courts?.[index]?.courtName ? 6 : 0}>
+                            <Button
+                              type="button"
+                              onClick={() => handleRemoveCourt(index)}
+                              size="md"
+                              variant="solid"
+                              colorPalette="red"
+                              minW="auto"
+                              px={3}
+                              disabled={!canEditCourts}
+                              bg="red.50"
+                              color="red.600"
+                              border="1px solid"
+                              borderColor="red.200"
+                              _hover={{ bg: 'red.100', borderColor: 'red.300' }}
+                              _dark={{
+                                bg: 'red.900',
+                                color: 'red.200',
+                                borderColor: 'red.700',
+                                _hover: {
+                                  bg: 'red.800',
+                                  borderColor: 'red.600',
+                                },
+                              }}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </Box>
+                        )}
+                      </Flex>
+                    </Box>
                   </Box>
                 ))}
 
@@ -1570,6 +1553,32 @@ export default function SessionForm({
                   </Text>
                 )}
               </Stack>
+
+              {/* Add Court button - bottom of section */}
+              <Button
+                type="button"
+                onClick={handleAddCourt}
+                size="sm"
+                variant="solid"
+                colorPalette="green"
+                disabled={!canEditCourts}
+                mt={4}
+                w="full"
+                bg="green.50"
+                color="green.700"
+                border="1px solid"
+                borderColor="green.200"
+                _hover={{ bg: 'green.100', borderColor: 'green.300' }}
+                _dark={{
+                  bg: 'green.900',
+                  color: 'green.200',
+                  borderColor: 'green.700',
+                  _hover: { bg: 'green.800', borderColor: 'green.600' },
+                }}
+              >
+                <Plus size={16} style={{ marginRight: '8px' }} />
+                {t('addCourt')}
+              </Button>
             </Box>
 
             {/* Level Requirements Section */}
@@ -1803,7 +1812,7 @@ export default function SessionForm({
                                           isSelected ? 'bold' : 'normal'
                                         }
                                       >
-                                        {color.name}
+                                        {t(color.labelKey)}
                                       </Text>
                                     </VStack>
                                   </WrapItem>
@@ -1814,22 +1823,6 @@ export default function SessionForm({
                         />
                       </Box>
                     )}
-
-                    {/* Shuttlecock */}
-                    <Box>
-                      <Field.Root invalid={!!errors.shuttlecock}>
-                        <Field.Label>
-                          <Heading size="sm">{t('shuttlecock')}</Heading>
-                        </Field.Label>
-                        <Input
-                          {...register('shuttlecock')}
-                          placeholder={t('shuttlecock')}
-                        />
-                        <Field.ErrorText color="fg.error">
-                          {errors.shuttlecock?.message}
-                        </Field.ErrorText>
-                      </Field.Root>
-                    </Box>
 
                     {/* Default Match Type */}
                     <Box>
@@ -1852,7 +1845,7 @@ export default function SessionForm({
                                     : 'outline'
                                 }
                                 colorPalette={
-                                  field.value === 'DOUBLES' ? 'blue' : 'gray'
+                                  field.value === 'DOUBLES' ? 'green' : 'gray'
                                 }
                                 size="sm"
                                 onClick={() => field.onChange('DOUBLES')}
@@ -1868,7 +1861,7 @@ export default function SessionForm({
                                     : 'outline'
                                 }
                                 colorPalette={
-                                  field.value === 'SINGLES' ? 'blue' : 'gray'
+                                  field.value === 'SINGLES' ? 'green' : 'gray'
                                 }
                                 size="sm"
                                 onClick={() => field.onChange('SINGLES')}
@@ -1882,34 +1875,63 @@ export default function SessionForm({
                       />
                     </Box>
 
-                    {/* Max Players Per Court */}
-                    <Box>
-                      <Field.Root invalid={!!errors.maxPlayersPerCourt}>
-                        <Field.Label>
-                          <Heading size="sm">{t('maxPlayersPerCourt')}</Heading>
-                        </Field.Label>
-                        <Controller
-                          control={control}
-                          name="maxPlayersPerCourt"
-                          render={({ field }) => (
-                            <Input
-                              type="number"
-                              min={2}
-                              max={12}
-                              value={field.value}
-                              onChange={(
-                                e: React.ChangeEvent<HTMLInputElement>
-                              ) =>
-                                field.onChange(parseInt(e.target.value) || 8)
-                              }
-                            />
-                          )}
-                        />
-                        <Field.ErrorText color="fg.error">
-                          {errors.maxPlayersPerCourt?.message}
-                        </Field.ErrorText>
-                      </Field.Root>
-                    </Box>
+                    {/* Shuttlecock + Max Players Per Court - same row */}
+                    <Grid templateColumns="1fr 1fr" gap={4}>
+                      <Box>
+                        <Field.Root invalid={!!errors.shuttlecock}>
+                          <Field.Label>
+                            <Heading size="sm">{t('shuttlecock')}</Heading>
+                          </Field.Label>
+                          <Input
+                            {...register('shuttlecock')}
+                            placeholder={t('shuttlecock')}
+                          />
+                          <Field.ErrorText color="fg.error">
+                            {errors.shuttlecock?.message}
+                          </Field.ErrorText>
+                        </Field.Root>
+                      </Box>
+
+                      {/* Max Players Per Court */}
+                      <Box>
+                        <Field.Root invalid={!!errors.maxPlayersPerCourt}>
+                          <Field.Label>
+                            <Heading size="sm">
+                              {t('maxPlayersPerCourt')}
+                            </Heading>
+                          </Field.Label>
+                          <Controller
+                            control={control}
+                            name="maxPlayersPerCourt"
+                            render={({ field }) => (
+                              <Input
+                                type="number"
+                                min={2}
+                                max={12}
+                                value={field.value}
+                                onChange={(
+                                  e: React.ChangeEvent<HTMLInputElement>
+                                ) =>
+                                  field.onChange(parseInt(e.target.value) || 8)
+                                }
+                                rightElement={
+                                  <Text
+                                    fontSize="sm"
+                                    color="fg.muted"
+                                    whiteSpace="nowrap"
+                                  >
+                                    người/sân
+                                  </Text>
+                                }
+                              />
+                            )}
+                          />
+                          <Field.ErrorText color="fg.error">
+                            {errors.maxPlayersPerCourt?.message}
+                          </Field.ErrorText>
+                        </Field.Root>
+                      </Box>
+                    </Grid>
                   </Stack>
                 </Collapsible.Content>
               </Collapsible.Root>
@@ -1950,6 +1972,25 @@ export default function SessionForm({
           </Stack>
         </form>
       </Box>
+
+      {/* Delete Court Confirmation Modal */}
+      <VModal
+        isOpen={isDeleteCourtModalOpen}
+        onClose={() => {
+          setIsDeleteCourtModalOpen(false);
+          setCourtIndexToDelete(null);
+        }}
+        title={t('confirmDeleteCourt')}
+        primaryActionText={tc('delete')}
+        onPrimaryAction={confirmDeleteCourt}
+        primaryColorScheme="red"
+        secondaryActionText={tc('cancel')}
+      >
+        <Text>
+          {t('confirmDeleteCourtMessage') ||
+            'Bạn có chắc chắn muốn xóa sân này? Hành động này không thể hoàn tác.'}
+        </Text>
+      </VModal>
     </Box>
   );
 }

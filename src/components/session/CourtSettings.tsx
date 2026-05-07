@@ -1,12 +1,13 @@
 import { Box, Heading, Text, VStack, Wrap, WrapItem } from '@chakra-ui/react';
 import React from 'react';
 import { Card, CardBody } from '@/components/ui/chakra-compat';
+import { useTranslations } from 'next-intl';
 
 export const COURT_COLORS = [
-  { name: 'Green', value: '#179a3b' },
-  { name: 'Grey', value: '#808080' },
-  { name: 'Royal', value: '#364D63' },
-  { name: 'Red', value: '#B24233' },
+  { name: 'Green', value: '#179a3b', labelKey: 'courtColorGreen' },
+  { name: 'Grey', value: '#808080', labelKey: 'courtColorGrey' },
+  { name: 'Royal', value: '#364D63', labelKey: 'courtColorRoyal' },
+  { name: 'Red', value: '#B24233', labelKey: 'courtColorRed' },
 ];
 
 interface CourtSettingsProps {
@@ -20,6 +21,7 @@ const CourtSettings: React.FC<CourtSettingsProps> = ({
   session,
   onUpdateSettings,
 }) => {
+  const t = useTranslations('session');
   // Use passed session color or default green
   const currentColor = session.courtColor || '#179a3b';
 
@@ -92,7 +94,7 @@ const CourtSettings: React.FC<CourtSettingsProps> = ({
                           fontSize="sm"
                           fontWeight={isSelected ? 'bold' : 'normal'}
                         >
-                          {color.name}
+                          {t(color.labelKey)}
                         </Text>
                       </VStack>
                     </WrapItem>
