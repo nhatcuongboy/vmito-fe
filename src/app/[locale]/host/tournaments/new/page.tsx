@@ -45,8 +45,7 @@ export default function NewTournamentPage() {
       let finalVenueId: string | undefined = undefined;
 
       if (location) {
-        // Create venue first
-        const newVenue = await VenueService.createVenue({
+        const venuePayload: Parameters<typeof VenueService.createVenue>[0] = {
           placeId: location.placeId,
           name: location.name,
           address: location.address,
@@ -54,7 +53,9 @@ export default function NewTournamentPage() {
           lng: location.lng,
           district: location.district,
           city: location.city,
-        } as any);
+        };
+        // Create venue first
+        const newVenue = await VenueService.createVenue(venuePayload);
         finalVenueId = newVenue.id;
       }
 
@@ -66,10 +67,11 @@ export default function NewTournamentPage() {
       });
 
       router.push(`/tournament/${tournament.slug}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating tournament:', error);
+      const apiError = error as { response?: { data?: { error?: string } } };
       toaster.error({
-        title: error.response?.data?.error || 'Failed to create tournament',
+        title: apiError.response?.data?.error || 'Failed to create tournament',
       });
     } finally {
       setIsLoading(false);

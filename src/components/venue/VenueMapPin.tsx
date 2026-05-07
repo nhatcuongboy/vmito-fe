@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { GoogleMap, MarkerF, useJsApiLoader } from '@react-google-maps/api';
 import { Box, Center, Spinner } from '@chakra-ui/react';
 import useMapPinIcon from '@/hooks/useMapPinIcon';

@@ -1,12 +1,11 @@
 'use client';
 
-import { Flex, Box, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { useRouter, usePathname } from '@/i18n/config';
 import {
   ROUTES,
   TOP_BAR_HEIGHT_DESKTOP,
   TOP_BAR_HEIGHT_MOBILE,
-  CONTAINER_PX,
 } from '@/constants';
 import { useTranslations } from 'next-intl';
 

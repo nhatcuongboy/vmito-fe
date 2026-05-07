@@ -332,7 +332,16 @@ export function usePlayerSession({
       socket.off('match_started', handleGenericEvent);
       socket.off('match_ended', handleGenericEvent);
     };
-  }, [socket, session?.id, session?.courts, player?.id, t, fetchPlayerData]);
+  }, [
+    socket,
+    session?.id,
+    session?.courts,
+    player?.id,
+    t,
+    fetchPlayerData,
+    mode,
+    showCourtCall,
+  ]);
 
   // Initial data fetch and auto-refresh
   useEffect(() => {

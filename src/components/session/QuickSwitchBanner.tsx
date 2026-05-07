@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Heading, Text, Icon } from '@chakra-ui/react';
+import { Box, Flex, Heading, Icon } from '@chakra-ui/react';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import { ISession } from '@/lib/api/types';
 import RecommendationCard from './RecommendationCard';

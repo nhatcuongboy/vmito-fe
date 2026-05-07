@@ -42,7 +42,7 @@ export default function AiAssistantPanel({
       sendMessage(pendingMessage);
       clearPendingMessage();
     }
-  }, [isOpen, pendingMessage]);
+  }, [isOpen, pendingMessage, clearMessages, sendMessage, clearPendingMessage]);
 
   // Detect mobile
   useEffect(() => {

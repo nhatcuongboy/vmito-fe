@@ -18,11 +18,11 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Papa from 'papaparse';
-import { useTranslations } from 'next-intl';
 import VModal from '@/components/ui/VModal';
 import { VButton } from '@/components/ui/VButton';
 import { toaster } from '@/components/ui/toaster';
 import { VenueService } from '@/lib/api/venue.service';
+import { Venue } from '@/lib/api/types';
 import {
   Table,
   Thead,
@@ -66,7 +66,6 @@ export default function BulkCreateVenueModal({
   onClose,
   onSuccess,
 }: Props) {
-  const t = useTranslations('admin.venues');
   const [tab, setTab] = useState<string>('manual');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,10 +103,10 @@ export default function BulkCreateVenueModal({
   });
 
   // Tab 2: CSV Data
-  const [csvData, setCsvData] = useState<any[]>([]);
-  const [csvErrors, setCsvErrors] = useState<{ row: number; errors: any }[]>(
-    []
-  );
+  const [csvData, setCsvData] = useState<Omit<Venue, 'id'>[]>([]);
+  const [csvErrors, setCsvErrors] = useState<
+    { row: number; errors: Record<string, string[]> }[]
+  >([]);
 
   const handleDownloadTemplate = () => {
     const link = document.createElement('a');
@@ -116,7 +115,7 @@ export default function BulkCreateVenueModal({
     link.click();
   };
 
-  const processCsvData = (data: any[]) => {
+  const processCsvData = (data: Record<string, string>[]) => {
     const parsedVenues = data.map((row) => ({
       name: row.name || '',
       placeId: row.placeId || '',
@@ -133,7 +132,10 @@ export default function BulkCreateVenueModal({
     }));
 
     // Validate
-    const validationErrors: { row: number; errors: any }[] = [];
+    const validationErrors: {
+      row: number;
+      errors: Record<string, string[]>;
+    }[] = [];
     parsedVenues.forEach((venue, index) => {
       const result = venueSchema.safeParse(venue);
       if (!result.success) {
@@ -156,9 +158,9 @@ export default function BulkCreateVenueModal({
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        processCsvData(results.data);
+        processCsvData(results.data as Record<string, string>[]);
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         toaster.error({
           title: 'Error parsing CSV file',
           description: error.message,
@@ -184,7 +186,7 @@ export default function BulkCreateVenueModal({
     await submitData(csvData);
   };
 
-  const submitData = async (venuesData: any[]) => {
+  const submitData = async (venuesData: Omit<Venue, 'id'>[]) => {
     setIsSubmitting(true);
     try {
       const res = await VenueService.createBulkVenues(venuesData);
@@ -194,12 +196,12 @@ export default function BulkCreateVenueModal({
       });
       onSuccess();
       handleClose();
-    } catch (error: any) {
+    } catch (error) {
       toaster.error({
         title: 'Creation Failed',
         description:
-          error.response?.data?.message ||
-          'An error occurred during bulk creation.',
+          (error as { response?: { data?: { message?: string } } }).response
+            ?.data?.message || 'An error occurred during bulk creation.',
       });
     } finally {
       setIsSubmitting(false);

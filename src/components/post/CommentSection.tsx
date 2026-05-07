@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { Send, Trash2 } from 'lucide-react';
 import { postsService } from '@/lib/api/posts.service';
@@ -20,31 +21,34 @@ export function CommentSection({ postId, currentUserId }: CommentSectionProps) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  const loadComments = async (pageNum = 1) => {
-    setIsLoading(true);
-    try {
-      const response = await postsService.getComments(postId, pageNum);
-      if (pageNum === 1) {
-        setComments(response.comments);
-      } else {
-        setComments((prev) => [...prev, ...response.comments]);
+  const loadComments = useCallback(
+    async (pageNum = 1) => {
+      setIsLoading(true);
+      try {
+        const response = await postsService.getComments(postId, pageNum);
+        if (pageNum === 1) {
+          setComments(response.comments);
+        } else {
+          setComments((prev) => [...prev, ...response.comments]);
+        }
+        setHasMore(response.hasMore);
+        setPage(pageNum);
+      } catch {
+        toaster.create({
+          title: 'Error',
+          description: 'Failed to load comments',
+          type: 'error',
+        });
+      } finally {
+        setIsLoading(false);
       }
-      setHasMore(response.hasMore);
-      setPage(pageNum);
-    } catch (error) {
-      toaster.create({
-        title: 'Error',
-        description: 'Failed to load comments',
-        type: 'error',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [postId]
+  );
 
   useEffect(() => {
     loadComments();
-  }, [postId]);
+  }, [postId, loadComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +64,7 @@ export function CommentSection({ postId, currentUserId }: CommentSectionProps) {
         description: 'Comment added',
         type: 'success',
       });
-    } catch (error) {
+    } catch {
       toaster.create({
         title: 'Error',
         description: 'Failed to add comment',
@@ -80,7 +84,7 @@ export function CommentSection({ postId, currentUserId }: CommentSectionProps) {
         description: 'Comment deleted',
         type: 'success',
       });
-    } catch (error) {
+    } catch {
       toaster.create({
         title: 'Error',
         description: 'Failed to delete comment',
@@ -112,9 +116,11 @@ export function CommentSection({ postId, currentUserId }: CommentSectionProps) {
       <div className="space-y-3">
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
-            <img
+            <Image
               src={comment.user.image || '/default-avatar.png'}
               alt={comment.user.name}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full"
             />
             <div className="flex-1">

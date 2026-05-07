@@ -17,8 +17,6 @@ import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useState, useRef, useEffect } from 'react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useRouter } from '@/i18n/config';
 import SlideOutMenu from '@/components/ui/SlideOutMenu';
 
 interface TournamentLayoutProps {
@@ -32,8 +30,6 @@ export default function TournamentLayout({
 }: TournamentLayoutProps) {
   const pathname = usePathname();
   const locale = useLocale();
-  const router = useRouter();
-  const { user } = useAuthStore();
   const tournamentId = tournament.id;
 
   // Menu drawer state

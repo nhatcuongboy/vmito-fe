@@ -7,16 +7,10 @@ export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
-export default async function JoinByCodePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-
+export default async function JoinByCodePage() {
   return (
     <Suspense>
-      <JoinByCodeClient locale={locale} />
+      <JoinByCodeClient />
     </Suspense>
   );
 }

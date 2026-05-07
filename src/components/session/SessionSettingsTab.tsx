@@ -17,7 +17,7 @@ const SessionSettingsTab: React.FC<SessionSettingsTabProps> = ({
       <Box maxW="4xl" w="full">
         <SessionEditForm
           sessionId={session.id}
-          onSuccess={(updatedSession: ISession) => {
+          onSuccess={() => {
             refreshSessionData();
           }}
         />

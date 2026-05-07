@@ -108,7 +108,6 @@ const BaseSessionCard = ({
   actionButtons,
   modalContent,
   hostActions, // New prop
-  sessionDistance,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
@@ -126,7 +125,7 @@ const BaseSessionCard = ({
       try {
         const stats = await RatingService.getUserRatingStats(session.hostId);
         setHostRatingStats(stats);
-      } catch (error) {
+      } catch {
         // Silently fail - rating is optional display
       }
     };

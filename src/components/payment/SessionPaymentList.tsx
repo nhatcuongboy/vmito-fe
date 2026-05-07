@@ -202,18 +202,6 @@ export default function SessionPaymentList({
     await onReject(selectedPayment.id, notes);
   };
 
-  // Helper to get registration group info for a payment
-  const getGroupInfo = (payment: PaymentRecord) => {
-    const payerId = payment.registeredByUserId || payment.playerId;
-    const group = paymentsArray.filter(
-      (p) => (p.registeredByUserId || p.playerId) === payerId
-    );
-    const total = group.length;
-    const males = group.filter((p) => p.player?.gender === 'MALE').length;
-    const females = group.filter((p) => p.player?.gender === 'FEMALE').length;
-    return { total, males, females };
-  };
-
   // Helper to get gender translation
   const getGenderText = (gender?: string) => {
     if (!gender) return '';

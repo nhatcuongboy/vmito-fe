@@ -522,7 +522,7 @@ export default function FindSessionList({
     [user, router]
   );
 
-  const [isPendingCreate, startCreateTransition] = useTransition();
+  const [isPendingCreate] = useTransition();
 
   const handleCreateSessionClick = useCallback(() => {
     if (!user) {

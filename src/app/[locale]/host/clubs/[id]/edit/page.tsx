@@ -10,7 +10,6 @@ import React, {
 import { useTranslations } from 'next-intl';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import {
-  Image,
   Button,
   VStack,
   Input,
@@ -30,11 +29,10 @@ import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
-import { ImageIcon, Plus, Trash2, X } from 'lucide-react';
-import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
+import { Plus, Trash2 } from 'lucide-react';
+import { EImageCategory, UserRole } from '@/lib/api/types';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
@@ -69,6 +67,12 @@ interface VenueGroup {
   schedules: ScheduleEntry[];
 }
 
+type TVenueOption = {
+  id: string;
+  name: string;
+  address: string;
+};
+
 const EditClubPage = () => {
   const t = useTranslations('clubs');
   const router = useRouter();
@@ -77,10 +81,10 @@ const EditClubPage = () => {
   const { user } = useAuthStore();
   const isAdmin = user?.role === UserRole.ADMIN;
 
-  const [venues, setVenues] = useState<Venue[]>([]);
+  const [venues, setVenues] = useState<TVenueOption[]>([]);
   // pinnedVenues keeps track of venues currently selected in venueGroups so
   // they always appear in options even if they fall outside the search results.
-  const [pinnedVenues, setPinnedVenues] = useState<Map<string, Venue>>(
+  const [pinnedVenues, setPinnedVenues] = useState<Map<string, TVenueOption>>(
     new Map()
   );
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
@@ -175,7 +179,7 @@ const EditClubPage = () => {
 
   const venueOptions = useMemo(() => {
     // Deduplicate: pinned venues take priority (they have the correct data)
-    const merged = new Map<string, Venue>();
+    const merged = new Map<string, TVenueOption>();
     venues.forEach((v) => merged.set(v.id, v));
     pinnedVenues.forEach((v) => merged.set(v.id, v));
     return Array.from(merged.values()).map((v) => ({
@@ -244,12 +248,13 @@ const EditClubPage = () => {
 
         // Fetch a broader venue list covering all schedule venue names
         // We do one search per unique name that isn't the defaultVenue
-        const nameToVenue = new Map<
-          string,
-          { id: string; name: string; address: string }
-        >();
+        const nameToVenue = new Map<string, TVenueOption>();
         if (group.defaultVenue) {
-          nameToVenue.set(group.defaultVenue.name, group.defaultVenue);
+          nameToVenue.set(group.defaultVenue.name, {
+            id: group.defaultVenue.id,
+            name: group.defaultVenue.name,
+            address: group.defaultVenue.address,
+          });
         }
 
         await Promise.all(
@@ -263,7 +268,13 @@ const EditClubPage = () => {
               const matched = (result.data ?? []).find(
                 (v) => v.name === venueName
               );
-              if (matched) nameToVenue.set(venueName, matched);
+              if (matched) {
+                nameToVenue.set(venueName, {
+                  id: matched.id,
+                  name: matched.name,
+                  address: matched.address,
+                });
+              }
             } catch {
               // ignore individual search errors
             }
@@ -273,7 +284,7 @@ const EditClubPage = () => {
         // Pin all resolved venues so they always appear in the select options
         setPinnedVenues((prev) => {
           const next = new Map(prev);
-          nameToVenue.forEach((v) => next.set(v.id, v as any));
+          nameToVenue.forEach((v) => next.set(v.id, v));
           return next;
         });
 
@@ -425,10 +436,8 @@ const EditClubPage = () => {
       const imagePublicId =
         clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
-      const { allLevelsSelected, ...restData } = data;
-
       await ClubsService.updateClub(groupId, {
-        ...restData,
+        ...data,
         image,
         imagePublicId,
         images,

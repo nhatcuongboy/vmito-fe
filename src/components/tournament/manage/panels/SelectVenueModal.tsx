@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Text, Portal } from '@chakra-ui/react';
-import { Button, VStack } from '@/components/ui/chakra-compat';
+import { VStack } from '@/components/ui/chakra-compat';
 import { ChevronRight, MapPin, Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';

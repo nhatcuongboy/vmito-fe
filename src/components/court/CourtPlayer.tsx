@@ -3,7 +3,7 @@
 import { Player } from '@/types/session';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Box, Text } from '@chakra-ui/react';
-import { Mars, User, Venus, X, HelpCircle, UserX } from 'lucide-react';
+import { Mars, User, Venus, X, HelpCircle } from 'lucide-react';
 import { useRef } from 'react';
 import PlayerTooltip from './PlayerTooltip';
 
@@ -53,7 +53,6 @@ function getPairColor(player?: BadmintonCourtPlayer, playerIndex?: number) {
 interface CourtPlayerProps {
   player: BadmintonCourtPlayer;
   index: number;
-  players: BadmintonCourtPlayer[];
   mode: 'manage' | 'view' | 'selection';
   matchType?: TMatchType;
   isClicked: boolean;
@@ -64,14 +63,13 @@ interface CourtPlayerProps {
 export default function CourtPlayer({
   player,
   index,
-  players,
   mode,
   matchType = 'doubles',
   isClicked,
   onPlayerClick,
   onRemovePlayer,
 }: CourtPlayerProps) {
-  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
   const playerRef = useRef<HTMLDivElement>(null!);
 
   // Skip if player is invalid

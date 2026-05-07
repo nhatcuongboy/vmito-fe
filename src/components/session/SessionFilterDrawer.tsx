@@ -39,7 +39,6 @@ export default function SessionFilterDrawer({
   onSubmit,
   onReset,
   activeFilterCount,
-  userLocation,
   setUserLocation,
 }: SessionFilterDrawerProps) {
   const t = useTranslations('session');
@@ -57,10 +56,10 @@ export default function SessionFilterDrawer({
       const location = await getUserLocation();
       setUserLocation(location);
       setSortByDistance(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toaster.error({
         title: t('filters.locationPermissionDenied'),
-        description: error.message,
+        description: (error as Error).message,
       });
       setSortByDistance(false);
     }

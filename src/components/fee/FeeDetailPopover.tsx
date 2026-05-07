@@ -7,7 +7,6 @@ import {
   Text,
   VStack,
   Icon,
-  Badge,
   Stack,
   Separator,
 } from '@chakra-ui/react';

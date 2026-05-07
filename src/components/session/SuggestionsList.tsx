@@ -11,11 +11,11 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
-import { MapPinOff, RefreshCw, Sparkles } from 'lucide-react';
+import { MapPinOff, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import dynamic from 'next/dynamic';
 
@@ -31,11 +31,9 @@ const SessionFilterDrawer = dynamic(() => import('./SessionFilterDrawer'), {
   ssr: false,
 });
 
-import { QuickCreateSessionBar } from './QuickCreateSessionBar';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import SuggestionSessionCard from './SuggestionSessionCard';
-import ViewModeToggle from './ViewModeToggle';
 import ResultsHeader from './ResultsHeader';
 import { VModal, useModal } from '@/components/ui/VModal';
 

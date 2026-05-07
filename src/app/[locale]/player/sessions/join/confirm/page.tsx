@@ -75,7 +75,7 @@ function ConfirmPageContent() {
     }
 
     loadPlayer();
-  }, [playerId, router]);
+  }, [playerId, router, t]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

@@ -27,70 +27,70 @@ interface INotificationItemProps {
 }
 
 const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
-{
-  // Session actions (use sessionName param)
-  start_reminder: {
-    titleKey: 'messages.startReminderTitle',
-    messageKey: 'messages.startReminderMessage',
-  },
-  player_start_reminder: {
-    titleKey: 'messages.playerStartReminderTitle',
-    messageKey: 'messages.playerStartReminderMessage',
-  },
-  auto_started: {
-    titleKey: 'messages.autoStartedTitle',
-    messageKey: 'messages.autoStartedMessage',
-  },
-  session_auto_started: {
-    titleKey: 'messages.sessionAutoStartedTitle',
-    messageKey: 'messages.sessionAutoStartedMessage',
-  },
-  auto_cancelled: {
-    titleKey: 'messages.autoCancelledTitle',
-    messageKey: 'messages.autoCancelledMessage',
-  },
-  session_cancelled: {
-    titleKey: 'messages.sessionCancelledTitle',
-    messageKey: 'messages.sessionCancelledMessage',
-  },
-  end_warning: {
-    titleKey: 'messages.endWarningTitle',
-    messageKey: 'messages.endWarningMessage',
-  },
-  auto_finalized: {
-    titleKey: 'messages.autoFinalizedTitle',
-    messageKey: 'messages.autoFinalizedMessage',
-  },
-  // Club actions (use clubName param)
-  club_creation_pending: {
-    titleKey: 'messages.clubCreationPendingTitle',
-    messageKey: 'messages.clubCreationPendingMessage',
-  },
-  admin_new_pending_club: {
-    titleKey: 'messages.adminNewPendingClubTitle',
-    messageKey: 'messages.adminNewPendingClubMessage',
-  },
-  club_creation_approved: {
-    titleKey: 'messages.clubCreationApprovedTitle',
-    messageKey: 'messages.clubCreationApprovedMessage',
-  },
-  club_approved: {
-    titleKey: 'messages.clubApprovedTitle',
-    messageKey: 'messages.clubApprovedMessage',
-  },
-  club_rejected: {
-    titleKey: 'messages.clubRejectedTitle',
-    messageKey: 'messages.clubRejectedMessage',
-  },
-  player_added: {
-    titleKey: 'messages.playerAddedTitle',
-    messageKey: 'messages.playerAddedMessage',
-  },
-  player_removed: {
-    titleKey: 'messages.playerRemovedTitle',
-    messageKey: 'messages.playerRemovedMessage',
-  },
-};
+  {
+    // Session actions (use sessionName param)
+    start_reminder: {
+      titleKey: 'messages.startReminderTitle',
+      messageKey: 'messages.startReminderMessage',
+    },
+    player_start_reminder: {
+      titleKey: 'messages.playerStartReminderTitle',
+      messageKey: 'messages.playerStartReminderMessage',
+    },
+    auto_started: {
+      titleKey: 'messages.autoStartedTitle',
+      messageKey: 'messages.autoStartedMessage',
+    },
+    session_auto_started: {
+      titleKey: 'messages.sessionAutoStartedTitle',
+      messageKey: 'messages.sessionAutoStartedMessage',
+    },
+    auto_cancelled: {
+      titleKey: 'messages.autoCancelledTitle',
+      messageKey: 'messages.autoCancelledMessage',
+    },
+    session_cancelled: {
+      titleKey: 'messages.sessionCancelledTitle',
+      messageKey: 'messages.sessionCancelledMessage',
+    },
+    end_warning: {
+      titleKey: 'messages.endWarningTitle',
+      messageKey: 'messages.endWarningMessage',
+    },
+    auto_finalized: {
+      titleKey: 'messages.autoFinalizedTitle',
+      messageKey: 'messages.autoFinalizedMessage',
+    },
+    // Club actions (use clubName param)
+    club_creation_pending: {
+      titleKey: 'messages.clubCreationPendingTitle',
+      messageKey: 'messages.clubCreationPendingMessage',
+    },
+    admin_new_pending_club: {
+      titleKey: 'messages.adminNewPendingClubTitle',
+      messageKey: 'messages.adminNewPendingClubMessage',
+    },
+    club_creation_approved: {
+      titleKey: 'messages.clubCreationApprovedTitle',
+      messageKey: 'messages.clubCreationApprovedMessage',
+    },
+    club_approved: {
+      titleKey: 'messages.clubApprovedTitle',
+      messageKey: 'messages.clubApprovedMessage',
+    },
+    club_rejected: {
+      titleKey: 'messages.clubRejectedTitle',
+      messageKey: 'messages.clubRejectedMessage',
+    },
+    player_added: {
+      titleKey: 'messages.playerAddedTitle',
+      messageKey: 'messages.playerAddedMessage',
+    },
+    player_removed: {
+      titleKey: 'messages.playerRemovedTitle',
+      messageKey: 'messages.playerRemovedMessage',
+    },
+  };
 
 const VIEW_SESSION_ACTIONS = new Set([
   'start_reminder',
@@ -124,8 +124,6 @@ const getNotificationIcon = (type: NotificationType) => {
   }
 };
 
-const getNotificationColor = () => 'green';
-
 export const NotificationItem = ({
   notification,
   onMarkAsRead,
@@ -138,7 +136,6 @@ export const NotificationItem = ({
   const locale = (params.locale as string) || 'en';
 
   const Icon = getNotificationIcon(notification.type);
-  const colorScheme = getNotificationColor();
 
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,

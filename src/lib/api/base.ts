@@ -3,6 +3,13 @@ import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    skipGlobalError?: boolean;
+    _retry?: boolean;
+  }
+}
+
 // Get API URL from environment - use backend URL if set, otherwise fallback to /api for local
 // In SSR (server side), we prefer INTERNAL_API_URL if defined to avoid DNS loopback issues
 const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
@@ -180,7 +187,7 @@ api.interceptors.response.use(
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error
           // Skip automatic error reporting for auth requests or requests that explicitly skip it
-          if (!isAuthRequest && !(error.config as any)?.skipGlobalError) {
+          if (!isAuthRequest && !error.config?.skipGlobalError) {
             useAppStore.getState().setError(message);
           }
         }

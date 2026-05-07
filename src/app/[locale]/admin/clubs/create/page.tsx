@@ -244,7 +244,7 @@ const AdminCreateClubPage = () => {
 
   const dayOptions = Array.from({ length: 7 }, (_, i) => ({
     value: i,
-    label: t(`dayNames.${i}` as any),
+    label: t(`dayNames.${i}` as Parameters<typeof t>[0]),
   }));
 
   const onSubmit = async (data: FormData) => {
@@ -253,7 +253,7 @@ const AdminCreateClubPage = () => {
         const venueName = venues.find((v) => v.id === g.venueId)?.name || '';
         return g.schedules.map((s) => ({ ...s, notes: venueName }));
       });
-      const club = await ClubsService.createClub({
+      await ClubsService.createClub({
         ...data,
         defaultVenueId: venueGroups[0]?.venueId || undefined,
         schedules: schedules.length > 0 ? schedules : undefined,

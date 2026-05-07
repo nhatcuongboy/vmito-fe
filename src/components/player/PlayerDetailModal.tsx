@@ -21,7 +21,6 @@ import {
   Users,
   User,
   UserCheck,
-  X,
   Copy,
   QrCode,
   Activity,
@@ -68,7 +67,6 @@ export const PlayerDetailModal = ({
   const router = useRouter();
   const { getLevelLabel } = useLevelLabel();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [joinCode, setJoinCode] = useState<string>('');
   const [showJoinMore, setShowJoinMore] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
@@ -98,9 +96,6 @@ export const PlayerDetailModal = ({
 
   useEffect(() => {
     if (isOpen && player.joinCode) {
-      // Use player's joinCode
-      setJoinCode(player.joinCode);
-
       // Generate QR code URL with new guest player URL format
       const joinUrl = `${window.location.origin}/${locale}/player/${player.id}?code=${player.joinCode}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
@@ -108,7 +103,7 @@ export const PlayerDetailModal = ({
       )}`;
       setQrCodeUrl(qrUrl);
     }
-  }, [isOpen, player.id, player.joinCode]);
+  }, [isOpen, player.id, player.joinCode, locale]);
 
   // Fetch rating stats when modal opens and player has userId
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { LayoutGrid, RefreshCw, GitBranch, Layers } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useFormatWizard } from '../FormatWizardContext';
-import { TournamentFormatType, FilterCategory } from '../types';
+import { TournamentFormatType } from '../types';
 
 const FORMAT_ICONS: Record<TournamentFormatType, React.ElementType> = {
   [TournamentFormatType.ROUND_ROBIN]: RefreshCw,

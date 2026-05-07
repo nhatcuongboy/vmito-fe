@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, Box, Text, Badge } from '@chakra-ui/react';
+import { Flex, Box, Badge } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { PlayerService } from '@/lib/api/player.service';
 import { useTranslations } from 'next-intl';
@@ -27,7 +27,7 @@ export function StatusTabSwitch({
   pendingLabel,
   showPending = true,
   showExpired = true,
-  isFixed = false,
+  isFixed: _isFixed = false,
   pendingCount: initialPendingCount,
 }: StatusTabSwitchProps) {
   const tSession = useTranslations('session');
@@ -81,7 +81,7 @@ export function StatusTabSwitch({
         <UnderlineTabs
           items={tabs}
           activeId={activeTab}
-          onTabClick={(id) => onChange(id as any)}
+          onTabClick={(id) => onChange(id as StatusTabSwitchProps['activeTab'])}
         />
       </Box>
 
@@ -113,7 +113,9 @@ export function StatusTabSwitch({
               color={active ? 'gray.900' : 'gray.500'}
               fontWeight={active ? '600' : '500'}
               boxShadow={active ? 'sm' : 'none'}
-              onClick={() => onChange(tab.id as any)}
+              onClick={() =>
+                onChange(tab.id as StatusTabSwitchProps['activeTab'])
+              }
               transition="all 0.2s"
               _hover={{
                 bg: active ? 'white' : 'gray.200',

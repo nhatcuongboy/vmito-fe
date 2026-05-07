@@ -22,7 +22,7 @@ import {
   ISessionFiltersProps,
   ISessionFilterState,
 } from './SessionFilters.types';
-import { FeeType, SessionStatus } from '@/lib/api/types';
+import { SessionStatus } from '@/lib/api/types';
 import {
   TIME_RANGES,
   TOP_BAR_HEIGHT_MOBILE,

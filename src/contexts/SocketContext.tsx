@@ -65,11 +65,20 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       ? apiUrl.slice(0, -4)
       : apiUrl;
 
-    // Create socket instance with autoConnect: true
-    // Namespace '/sessions' matches backend gateway namespace
+    // Read the current JWT at connection time so the server can authenticate the socket.
+    // We use the auth-as-function form so socket.io-client re-reads the latest token on
+    // every reconnect attempt (e.g., after a token refresh or server-side disconnect),
+    // without requiring the socket to be recreated.
+    // When no token is available (unauthenticated / guest users), an empty string is
+    // passed so the socket can still connect for public session features; the server
+    // should handle the missing JWT gracefully for those endpoints.
     const socketInstance = io(`${socketBaseUrl}/sessions`, {
       transports: ['websocket', 'polling'],
       autoConnect: true,
+      auth: (cb) => {
+        const token = useAuthStore.getState().accessToken;
+        cb({ token: token ? `Bearer ${token}` : '' });
+      },
     });
 
     socketInstance.on('connect', () => {
@@ -94,16 +103,28 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socketInstance.removeAllListeners();
       socketInstance.disconnect();
     };
-  }, []);
+    // Recreate socket when the user's identity changes (login / logout).
+    // Using user?.id (not accessToken) prevents unnecessary reconnects on token refresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
-  // Join user room when user is authenticated
+  // Join user room when user is authenticated.
+  // The server now derives the userId from the JWT – no body is needed.
+  // BE returns an acknowledgement { error?: string } – log and surface any error.
   useEffect(() => {
     if (socket && isConnected && user?.id) {
-      // Join user specific room
-      socket.emit('join_user_room', { userId: user.id });
-      console.log(`[Socket] Joined user room: user-${user.id}`, {
-        socketId: socket.id,
-        timestamp: new Date().toISOString(),
+      socket.emit('join_user_room', (ack: { error?: string } | undefined) => {
+        if (ack?.error) {
+          console.error(
+            `[Socket] join_user_room failed for user-${user.id}:`,
+            ack.error
+          );
+        } else {
+          console.log(`[Socket] Joined user room: user-${user.id}`, {
+            socketId: socket.id,
+            timestamp: new Date().toISOString(),
+          });
+        }
       });
     }
   }, [socket, isConnected, user?.id]);
@@ -115,7 +136,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     if (!socket) return;
 
     // Listener for Registration Requests (Host)
-    const handleRegistrationRequest = (data: any) => {
+    const handleRegistrationRequest = (data: {
+      playerName: string;
+      sessionName: string;
+    }) => {
       toaster.success({
         title: t('newRegistrationRequest'),
         description: t('requestedToJoin', {
@@ -127,7 +151,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // Listener for Registration Status Updates (User)
-    const handleStatusUpdate = (data: any) => {
+    const handleStatusUpdate = (data: {
+      status: string;
+      sessionName: string;
+    }) => {
       const isApproved = data.status === 'APPROVED';
       toaster.create({
         title: isApproved ? t('requestApproved') : t('requestRejected'),
@@ -219,7 +246,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleNotificationReceived
       );
     };
-  }, [socket]);
+  }, [socket, t, user]);
 
   // Global listener for court-call (players_selected) via user room.
   // This fires even when the player is NOT on the session detail page.

@@ -22,7 +22,7 @@ const getSession = cache(async (id: string): Promise<ISession | null> => {
     // Use the service directly but we could also pass custom config if needed.
     // The global axios timeout is 10s, but we want metadata to be even faster or at least safe.
     return await SessionService.getSession(id);
-  } catch (error) {
+  } catch {
     // If it's a timeout or network error, it will be logged by the interceptor in base.ts
     return null;
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Flex, Text, Spinner, Badge, Portal } from '@chakra-ui/react';
+import { Box, Flex, Text, Spinner, Portal } from '@chakra-ui/react';
 import {
   Modal,
   ModalOverlay,

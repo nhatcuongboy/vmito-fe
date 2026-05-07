@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Heart, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';

@@ -1,4 +1,3 @@
-import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
   HostPaymentSettings,

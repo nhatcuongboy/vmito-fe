@@ -95,7 +95,7 @@ export default function TeamsPanel({
     if (activeCategory) {
       loadRegistrations(activeCategory.id);
     }
-  }, [activeCategory?.id, loadRegistrations]);
+  }, [activeCategory, loadRegistrations]);
 
   const getRegName = (reg: CategoryRegistration): string =>
     reg.player?.name ||

@@ -14,10 +14,6 @@ import FAQSection from './components/FAQSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import CTASection from './components/CTASection';
 
-interface AboutClientProps {
-  locale: string;
-}
-
 function AboutContent() {
   const common = useTranslations('common');
   const t = useTranslations('pages.home');
@@ -59,7 +55,7 @@ function AboutContent() {
   );
 }
 
-export default function AboutClient({ locale: _locale }: AboutClientProps) {
+export default function AboutClient() {
   return (
     <Suspense>
       <AboutContent />
