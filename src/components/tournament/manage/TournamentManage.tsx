@@ -106,30 +106,27 @@ export default function TournamentManage({
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  useEffect(() => {
-    loadCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tournament.id]);
-
-  // Sync selectedItem when URL option param changes (e.g. back/forward navigation)
-  useEffect(() => {
-    setSelectedItem(searchParams.get('option'));
-  }, [searchParams]);
-
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setLoadingCategories(true);
       const data = await CategoryService.getCategories(tournament.id);
       setCategories(data);
-      if (data.length > 0 && !selectedCategory) {
-        setSelectedCategory(data[0]);
-      }
+      setSelectedCategory((previousCategory) => previousCategory ?? data[0]);
     } catch (error) {
       console.error('Error loading categories:', error);
     } finally {
       setLoadingCategories(false);
     }
-  };
+  }, [tournament.id]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  // Sync selectedItem when URL option param changes (e.g. back/forward navigation)
+  useEffect(() => {
+    setSelectedItem(searchParams.get('option'));
+  }, [searchParams]);
 
   const handleItemClick = useCallback(
     (item: string) => {

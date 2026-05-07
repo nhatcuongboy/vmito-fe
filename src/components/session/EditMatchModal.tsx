@@ -128,10 +128,7 @@ export function EditMatchModal({
         payload.playerIds = selectedPlayerIds;
       }
 
-      await SessionService.updateMatch(
-        match.id,
-        payload as unknown as Parameters<typeof SessionService.updateMatch>[1]
-      );
+      await SessionService.updateMatch(match.id, payload);
 
       toaster.create({
         title: t('updateMatchSuccess'),

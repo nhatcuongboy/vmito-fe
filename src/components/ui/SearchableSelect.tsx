@@ -11,6 +11,59 @@ import React, {
 import { Box, Portal, Text, VStack } from '@chakra-ui/react';
 import { Search, ChevronDown, Check } from 'lucide-react';
 
+const normalizeVietnamese = (text: string): string => {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
+
+const fuzzyMatch = (
+  text: string,
+  query: string
+): { matches: boolean; score: number } => {
+  const textNormalized = normalizeVietnamese(text).toLowerCase();
+  const queryNormalized = normalizeVietnamese(query).toLowerCase();
+
+  let textIndex = 0;
+  let queryIndex = 0;
+  let score = 0;
+  let consecutiveMatches = 0;
+
+  while (
+    textIndex < textNormalized.length &&
+    queryIndex < queryNormalized.length
+  ) {
+    if (textNormalized[textIndex] === queryNormalized[queryIndex]) {
+      score += 1;
+
+      consecutiveMatches++;
+      if (consecutiveMatches > 1) {
+        score += consecutiveMatches * 2;
+      }
+
+      if (queryIndex === 0 && textIndex === 0) {
+        score += 10;
+      }
+
+      if (textIndex > 0 && textNormalized[textIndex - 1] === ' ') {
+        score += 5;
+      }
+
+      queryIndex++;
+    } else {
+      consecutiveMatches = 0;
+    }
+    textIndex++;
+  }
+
+  const matches = queryIndex === queryNormalized.length;
+
+  if (matches) {
+    const lengthDiff = textNormalized.length - queryNormalized.length;
+    score -= lengthDiff * 0.5;
+  }
+
+  return { matches, score };
+};
+
 /**
  * SearchableSelect Option Interface
  */
@@ -98,68 +151,6 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Normalize Vietnamese characters for fuzzy search
-  const normalizeVietnamese = (text: string): string => {
-    // Remove diacritics using NFD (Canonical Decomposition)
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  };
-
-  // Fuzzy search function with scoring (supports Vietnamese)
-  const fuzzyMatch = (
-    text: string,
-    query: string
-  ): { matches: boolean; score: number } => {
-    const textNormalized = normalizeVietnamese(text).toLowerCase();
-    const queryNormalized = normalizeVietnamese(query).toLowerCase();
-
-    let textIndex = 0;
-    let queryIndex = 0;
-    let score = 0;
-    let consecutiveMatches = 0;
-
-    while (
-      textIndex < textNormalized.length &&
-      queryIndex < queryNormalized.length
-    ) {
-      if (textNormalized[textIndex] === queryNormalized[queryIndex]) {
-        // Award points for matches
-        score += 1;
-
-        // Bonus points for consecutive matches
-        consecutiveMatches++;
-        if (consecutiveMatches > 1) {
-          score += consecutiveMatches * 2;
-        }
-
-        // Bonus points for matching at the start
-        if (queryIndex === 0 && textIndex === 0) {
-          score += 10;
-        }
-
-        // Bonus points for matching after a space (word boundary)
-        if (textIndex > 0 && textNormalized[textIndex - 1] === ' ') {
-          score += 5;
-        }
-
-        queryIndex++;
-      } else {
-        consecutiveMatches = 0;
-      }
-      textIndex++;
-    }
-
-    // All query characters must be found in order
-    const matches = queryIndex === queryNormalized.length;
-
-    // Penalize based on length difference
-    if (matches) {
-      const lengthDiff = textNormalized.length - queryNormalized.length;
-      score -= lengthDiff * 0.5;
-    }
-
-    return { matches, score };
-  };
-
   // Notify parent of search query changes (for server-side search)
   const handleSearchChange = useCallback(
     (query: string) => {
@@ -208,7 +199,6 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
       .map((item) => item.option);
 
     return scoredOptions;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options, searchQuery, onSearchChange]);
 
   // Cache the selected option so we can still show its label if it disappears from options (e.g., async search cleared)

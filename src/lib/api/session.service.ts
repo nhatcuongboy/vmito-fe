@@ -12,6 +12,15 @@ import {
   BulkSessionCreationResponse,
 } from './types';
 
+interface IUpdateMatchRequest {
+  score?: string | null;
+  isExtra?: boolean;
+  notes?: string;
+  isDraw?: boolean;
+  winnerIds?: string[];
+  playerIds?: string[];
+}
+
 export const SessionService = {
   // Get player statistics for a session
   getPlayerStatistics: async (
@@ -502,7 +511,7 @@ export const SessionService = {
   // Update match details
   updateMatch: async (
     id: string,
-    data: Partial<Match> & { playerIds?: string[] }
+    data: IUpdateMatchRequest
   ): Promise<Match> => {
     const response = await api.patch<ApiResponse<Match>>(
       `/matches/${id}`,

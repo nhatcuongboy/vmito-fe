@@ -65,7 +65,7 @@ export default function VenuePanel({
     try {
       setIsRemoving(true);
       await TournamentService.updateTournament(tournament.id, {
-        venueId: null as unknown as string, // Remove venue
+        venueId: null,
       });
       setCurrentVenue(undefined);
       onTournamentChanged?.();

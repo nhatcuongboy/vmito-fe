@@ -659,7 +659,7 @@ export interface Tournament {
     email: string;
   };
   venue?: Venue;
-  venueId?: string;
+  venueId?: string | null;
   categories?: Category[];
   umpires?: TournamentUmpire[];
   scoringDevices?: TournamentScoringDevice[];

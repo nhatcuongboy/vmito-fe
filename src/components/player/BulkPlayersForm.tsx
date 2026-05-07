@@ -98,9 +98,18 @@ export default function BulkPlayersForm({
     let nextValue = value;
 
     if (field === 'playerNumber') {
-      // Convert to number
-      const parsed = Number(value);
-      nextValue = Number.isNaN(parsed) ? 0 : parsed;
+      if (typeof value !== 'string') {
+        return;
+      }
+
+      const rawValue = value.trim();
+      const parsed = Number(rawValue);
+
+      if (!rawValue || Number.isNaN(parsed)) {
+        return;
+      }
+
+      nextValue = parsed;
 
       // Validate number is available
       if (
@@ -114,6 +123,7 @@ export default function BulkPlayersForm({
       }
     }
 
+    setErrorMessage(null);
     newPlayers[index] = {
       ...newPlayers[index],
       [field]: nextValue,
