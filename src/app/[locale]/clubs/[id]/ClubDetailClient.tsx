@@ -12,7 +12,6 @@ import {
   SimpleGrid,
   Spinner,
   VStack,
-  Separator,
   Avatar,
   Image,
   Grid,
@@ -30,12 +29,11 @@ import {
   Info,
   Image as ImageIcon,
   TrendingUp,
-  DollarSign,
   UserPlus,
   ExternalLink,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { UserRole } from '@/lib/api/types';
+import { ISession, UserRole } from '@/lib/api/types';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
@@ -636,7 +634,9 @@ export default function ClubDetailClient({
                             <Box flex="1">
                               <Text fontWeight="bold" fontSize="sm">
                                 {t(
-                                  `clubs.dayNames.${schedule.dayOfWeek}` as any
+                                  `clubs.dayNames.${schedule.dayOfWeek}` as Parameters<
+                                    typeof t
+                                  >[0]
                                 )}
                               </Text>
                               <Text
@@ -1125,7 +1125,7 @@ export default function ClubDetailClient({
                                   {
                                     id: 'club-venue',
                                     venue: firstVenue,
-                                  } as any,
+                                  } as ISession,
                                 ]}
                               />
                             </Box>

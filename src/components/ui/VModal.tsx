@@ -240,7 +240,7 @@ export const VModal: React.FC<VModalProps> = ({
                 {showCloseButton && (
                   <Box
                     as="button"
-                    {...({ type: 'button' } as any)}
+                    {...({ type: 'button' } as Record<string, unknown>)}
                     onClick={onClose}
                     p={1}
                     borderRadius="md"

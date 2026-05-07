@@ -16,7 +16,6 @@ interface PendingPlayersSectionProps {
 }
 
 const PendingPlayersSection: React.FC<PendingPlayersSectionProps> = ({
-  sessionId,
   pendingPlayers,
   onPlayerUpdate,
 }) => {

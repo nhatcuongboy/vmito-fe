@@ -6,12 +6,6 @@ export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
-export default async function SignInPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-
-  return <SignInClient locale={locale} />;
+export default async function SignInPage() {
+  return <SignInClient />;
 }

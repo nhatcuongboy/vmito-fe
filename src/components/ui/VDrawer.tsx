@@ -58,7 +58,7 @@ export interface VDrawerProps {
 const sizeConfig: Record<DrawerSize, Record<string, string>> = {
   sm: { base: 'calc(100% - 48px)', sm: '320px' },
   md: { base: 'calc(100% - 48px)', sm: '400px' },
-  lg: { base: 'calc(100% - 48px)', sm: '500px' },
+  lg: { base: 'calc(100% - 48px)', sm: '650px' },
   xl: { base: 'calc(100% - 48px)', sm: '600px' },
   full: { base: '100%', sm: '100%' },
 };
@@ -94,7 +94,7 @@ export const VDrawer: React.FC<VDrawerProps> = ({
   onClose,
   title,
   children,
-  size = 'md',
+  size = 'lg',
   placement = 'right',
   showCloseButton = true,
   closeOnOverlayClick = true,
@@ -103,7 +103,7 @@ export const VDrawer: React.FC<VDrawerProps> = ({
   onPrimaryAction,
   isPrimaryLoading = false,
   isPrimaryDisabled = false,
-  primaryColorScheme = 'green',
+  primaryColorScheme: _primaryColorScheme = 'green',
   secondaryActionText,
   onSecondaryAction,
   hideSecondaryAction = false,

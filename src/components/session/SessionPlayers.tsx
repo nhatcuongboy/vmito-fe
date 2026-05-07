@@ -2,6 +2,7 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { Player, PlayerStatistics } from '@/lib/api/types';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   Badge,
   Box,
@@ -23,7 +24,6 @@ import {
   Tr,
   Th,
   Td,
-  useSortable,
   useFilterable,
   ISortConfig,
 } from '@/components/ui/VTable';
@@ -49,7 +49,6 @@ interface SessionPlayersProps {
 const StatsTable = ({
   stats,
   filters: externalFilters,
-  handleFilter: externalHandleFilter,
   onPlayerClick,
   t,
   exportMode = false,
@@ -66,13 +65,7 @@ const StatsTable = ({
   onSort?: (config: ISortConfig<keyof PlayerStatistics> | null) => void;
 }) => {
   // Use filterable with the stats passed. If externalFilters is provided, it should be used.
-  const {
-    filteredData,
-    filters: internalFilters,
-    handleFilter: internalHandleFilter,
-  } = useFilterable<PlayerStatistics>(stats);
-
-  const activeFilters = exportMode ? externalFilters : internalFilters;
+  const { filteredData } = useFilterable<PlayerStatistics>(stats);
 
   // Manual filtering for exportMode since we want to reuse the logic
   const displayedData = useMemo(() => {
@@ -148,17 +141,6 @@ const StatsTable = ({
 
   const sortHandler = (key: string) =>
     handleSort(key as keyof PlayerStatistics);
-
-  const onFilterHandler = (key: string, value: string) => {
-    internalHandleFilter(key, value);
-    if (externalHandleFilter) externalHandleFilter(key, value);
-  };
-
-  const genderFilterOptions = [
-    { label: t('allGenders'), value: '' },
-    { label: t('male'), value: 'MALE' },
-    { label: t('female'), value: 'FEMALE' },
-  ];
 
   // Helper properties to reduce spacing on table cells
   const thProps = exportMode
@@ -504,23 +486,16 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 >
                   {session?.startTime && (
                     <Text textAlign="center">
-                      🕒{' '}
-                      {new Date(session.startTime).toLocaleString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
+                      🕒 {formatTimeByDevicePreference(session.startTime)}
                       {'-'}
-                      {new Date(
-                        new Date(session.startTime).getTime() +
-                          (session.sessionDuration || 120) * 60 * 1000
-                      ).toLocaleString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
+                      {formatTimeByDevicePreference(
+                        new Date(
+                          new Date(session.startTime).getTime() +
+                            (session.sessionDuration || 120) * 60 * 1000
+                        )
+                      )}
                       {', '}
-                      {new Date(session.startTime).toLocaleString('vi-VN', {
+                      {new Date(session.startTime).toLocaleDateString('vi-VN', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',

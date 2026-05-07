@@ -15,10 +15,8 @@ import { useTranslations } from 'next-intl';
 import { ClipboardCheck, ChevronRight } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import TopBar from '@/components/ui/TopBar';
-import PageWrapper from '@/components/layout/PageWrapper';
 import { PlayerService } from '@/lib/api/player.service';
-import { PendingRequest, UserRole } from '@/lib/api/types';
+import { PendingRequest } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import dayjs from '@/lib/dayjs';
 import PageLayout from '@/components/layout/PageLayout';
@@ -41,7 +39,22 @@ function PendingJoinRequestsContent({
   page,
   totalPages,
   setPage,
-}: any) {
+}: {
+  total: number;
+  requests: PendingRequest[];
+  loading: boolean;
+  actionLoading: string | null;
+  batchActionLoading: string | null;
+  handleAction: (
+    id: string,
+    sessionId: string,
+    status: 'APPROVED' | 'REJECTED'
+  ) => Promise<void>;
+  handleBatchAction: (status: 'APPROVED' | 'REJECTED') => Promise<void>;
+  page: number;
+  totalPages: number;
+  setPage: (page: number) => void;
+}) {
   const router = useRouter();
   const t = useTranslations('common');
   const tSession = useTranslations('session');
@@ -131,7 +144,7 @@ function PendingJoinRequestsContent({
           </Flex>
 
           <Flex direction="column" gap={4}>
-            {requests.map((request: any) => (
+            {requests.map((request: PendingRequest) => (
               <Card
                 key={request.id}
                 cursor="pointer"
@@ -222,7 +235,7 @@ function PendingJoinRequestsContent({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setPage((p: number) => Math.max(1, p - 1))}
+                onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
               >
                 {t('previous') || 'Previous'}
@@ -235,9 +248,7 @@ function PendingJoinRequestsContent({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() =>
-                  setPage((p: number) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page >= totalPages}
               >
                 {t('next') || 'Next'}
@@ -251,7 +262,6 @@ function PendingJoinRequestsContent({
 }
 
 export default function PendingJoinRequestsPage() {
-  const router = useRouter();
   const nav = useTranslations('navigation');
   const t = useTranslations('common');
   const [requests, setRequests] = useState<PendingRequest[]>([]);

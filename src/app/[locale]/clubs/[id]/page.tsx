@@ -15,7 +15,7 @@ interface PageProps {
 const getClub = cache(async (id: string): Promise<IClub | null> => {
   try {
     return await ClubsService.getClubDetails(id);
-  } catch (error) {
+  } catch {
     return null;
   }
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   Card,
   CardContent,
@@ -50,10 +51,7 @@ export function CourtCard({
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="text-muted-foreground">Started:</div>
                 <div>
-                  {new Date(court.currentMatch.startTime).toLocaleTimeString(
-                    [],
-                    { hour: '2-digit', minute: '2-digit' }
-                  )}
+                  {formatTimeByDevicePreference(court.currentMatch.startTime)}
                 </div>
 
                 <div className="text-muted-foreground">Duration:</div>

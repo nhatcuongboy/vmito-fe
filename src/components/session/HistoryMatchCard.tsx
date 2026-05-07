@@ -4,6 +4,7 @@ import { Badge, Box, Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { Edit, Clock, MapPin, Trash2 } from 'lucide-react';
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 
 // New implementation: Show all completed matches, not just sessions
 export type HistoryMatch = {
@@ -28,11 +29,7 @@ export type HistoryMatch = {
 
 // Helper functions
 const formatTime = (dateString: string | Date): string => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return formatTimeByDevicePreference(dateString);
 };
 
 const getDurationParts = (

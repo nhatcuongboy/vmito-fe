@@ -12,10 +12,7 @@ import { SessionCardSkeleton } from './SessionCardSkeleton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
-import type { ViewMode } from '@/hooks/useViewMode';
 import { useViewMode } from '@/hooks/useViewMode';
-
-import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 
 interface SessionsListProps {
   status?: string;
@@ -28,6 +25,8 @@ interface SessionsListProps {
   hasMoreSessions?: boolean;
   /** Accurate total count of expired sessions from API, overrides client-side count */
   expiredCount?: number;
+  /** Optional viewMode override - if not provided, will use internal useViewMode */
+  viewMode?: 'grid' | 'list' | 'map';
 }
 
 export default function SessionsList({
@@ -37,11 +36,10 @@ export default function SessionsList({
   isLoading: externalLoading,
   isLoadingMore: externalLoadingMore,
   onRefresh,
-  onHostClick,
-  hasMoreSessions = false,
-  expiredCount,
+  viewMode: externalViewMode,
 }: SessionsListProps) {
-  const [viewMode] = useViewMode('sessions');
+  const [internalViewMode] = useViewMode('sessions');
+  const viewMode = externalViewMode ?? internalViewMode;
   const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
   const [internalLoading, setInternalLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,9 +50,6 @@ export default function SessionsList({
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const isExternalControl = externalSessions !== undefined;
-  const sessions = isExternalControl
-    ? externalSessions || []
-    : internalSessions;
   const loading = isExternalControl
     ? externalLoading || false
     : internalLoading;
@@ -106,6 +101,9 @@ export default function SessionsList({
 
   // Filter sessions by status
   const filteredSessions = useMemo(() => {
+    const sessions = isExternalControl
+      ? externalSessions || []
+      : internalSessions;
     const result =
       status === 'ALL'
         ? sessions
@@ -117,7 +115,7 @@ export default function SessionsList({
 
     // Return the result as is to respect the order from API/caller
     return result;
-  }, [sessions, status]);
+  }, [externalSessions, internalSessions, isExternalControl, status]);
 
   // Extract unique host IDs for batch rating stats loading
   const hostIds = useMemo(() => {

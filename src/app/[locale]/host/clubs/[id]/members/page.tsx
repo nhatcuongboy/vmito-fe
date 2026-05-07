@@ -5,7 +5,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Box,
-  Container,
   Flex,
   Heading,
   Text,
@@ -51,6 +50,11 @@ import PageLayout from '@/components/layout/PageLayout';
 const GroupMembersPage = () => {
   const t = useTranslations('clubs');
   const t_clubs = useTranslations('clubs');
+  const roleLabelMap: Record<EMemberRole, string> = {
+    [EMemberRole.ADMIN]: t_clubs('memberRole.admin'),
+    [EMemberRole.MODERATOR]: t_clubs('memberRole.moderator'),
+    [EMemberRole.MEMBER]: t_clubs('memberRole.member'),
+  };
   const router = useRouter();
   const params = useParams();
   const groupId = params.id as string;
@@ -296,9 +300,7 @@ const GroupMembersPage = () => {
                                 : 'gray'
                           }
                         >
-                          {t_clubs(
-                            `memberRole.${member.role.toLowerCase()}` as any
-                          )}
+                          {roleLabelMap[member.role]}
                         </Badge>
                       </HStack>
                       <Text fontSize="sm" color="fg.muted">
@@ -377,8 +379,7 @@ const GroupMembersPage = () => {
                   style={{ margin: '0 auto 16px' }}
                 />
                 <Text color="fg.muted">
-                  {t_clubs('noPendingRequest' as any) ||
-                    'No pending join requests'}
+                  {t_clubs('noPendingRequest') || 'No pending join requests'}
                 </Text>
               </Box>
             ) : (

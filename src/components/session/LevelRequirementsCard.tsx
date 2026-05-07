@@ -8,16 +8,7 @@ import {
 } from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
 import { CourtDirection } from '@/lib/api/types';
-import {
-  Badge,
-  Box,
-  Flex,
-  Grid,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';

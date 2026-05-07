@@ -8,7 +8,6 @@ import {
   Badge,
   HStack,
   VStack,
-  Input,
   Separator,
   Spinner,
 } from '@chakra-ui/react';
@@ -26,14 +25,12 @@ import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus, UserRole } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
-import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import {
   Trophy,
   Plus,
-  ChevronDown,
   ExternalLink,
   MoreHorizontal,
   Settings,
@@ -82,7 +79,6 @@ function StatusBadge({ status }: { status: TournamentStatus }) {
 
 export default function HostTournamentsPage() {
   const router = useRouter();
-  const t = useTranslations('pages.tournaments');
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -97,8 +93,8 @@ export default function HostTournamentsPage() {
       setLoading(true);
       const data = await TournamentService.getMyTournaments();
       setTournaments(data);
-    } catch (err) {
-      console.error(err);
+    } catch (error: unknown) {
+      console.error('Failed to load tournaments:', error);
     } finally {
       setLoading(false);
     }
@@ -111,7 +107,8 @@ export default function HostTournamentsPage() {
       await TournamentService.deleteTournament(id);
       setTournaments((prev) => prev.filter((t) => t.id !== id));
       toaster.success({ title: 'Tournament deleted' });
-    } catch (err) {
+    } catch (error: unknown) {
+      console.error('Failed to delete tournament:', error);
       toaster.error({ title: 'Failed to delete tournament' });
     } finally {
       setDeleting(null);

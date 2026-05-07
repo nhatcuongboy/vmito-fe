@@ -15,7 +15,7 @@ import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { VSelect } from '@/components/ui/VSelect';
-import { PaymentRecord, PaymentMethod, PaymentStatus } from '@/lib/api/types';
+import { PaymentRecord, PaymentMethod } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import { Check, X, User } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';

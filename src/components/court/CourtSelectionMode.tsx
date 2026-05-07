@@ -28,7 +28,7 @@ export default function CourtSelectionMode({
     resetSelection,
     isSelectionComplete,
   } = useCourtSelection({
-    onSelectionChange: (players) => {
+    onSelectionChange: () => {
       // Optional: Handle selection changes
     },
   });

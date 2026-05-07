@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Skeleton, SkeletonText, Stack } from '@chakra-ui/react';
+import { Box, Flex, Skeleton, Stack } from '@chakra-ui/react';
 
 export default function VenueCardSkeleton() {
   return (

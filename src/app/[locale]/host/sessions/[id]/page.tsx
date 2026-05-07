@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState, useEffect, Suspense } from 'react';
-import { Spinner, Center, Box, Text, Container, Flex } from '@chakra-ui/react';
+import { Spinner, Center, Box, Text, Flex } from '@chakra-ui/react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Info, Square, Trophy, Users, DollarSign } from 'lucide-react';
 
@@ -67,7 +67,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   }, [initialSession]);
 
   // State for match creation and player selection
-  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+  const [selectedPlayers] = useState<string[]>([]);
   // Store filter as array of statuses. Empty array means 'ALL'
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>([]);
 
@@ -140,11 +140,6 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   const getCurrentMatch = (courtId: string) =>
     session ? getCurrentMatchForCourt(session.courts, courtId) : null;
   const formatWaitTime = (minutes: number) => formatWaitTimeUtil(minutes, t);
-
-  // Start manual match creation for a court
-  const startManualMatchCreation = (courtId: string) => {
-    setSelectedPlayers([]);
-  };
 
   // Handle showing QR code for viewing session
   const handleShowQrView = () => {

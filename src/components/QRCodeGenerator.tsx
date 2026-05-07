@@ -69,7 +69,7 @@ export default function QRCodeGenerator({
       setCopied(true);
       toaster.success({ title: 'Link copied to clipboard!' });
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       toaster.error({ title: 'Failed to copy link' });
     }
   };

@@ -2,11 +2,10 @@
 
 import { memo } from 'react';
 import { Box, Flex, Text, Image, Badge, Icon, Heading } from '@chakra-ui/react';
-import { Calendar, Clock, MapPin, Users, Sparkles } from 'lucide-react';
+import { Clock, MapPin, Users, Sparkles } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useLocale } from 'next-intl';
-import { formatDate, formatTime } from './BaseSessionCard';
-import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { formatTime } from './BaseSessionCard';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -66,7 +65,6 @@ const RecommendationCard = ({
 }: RecommendationCardProps) => {
   const router = useRouter();
   const locale = useLocale();
-  const { getLevelShortLabel } = useLevelLabel();
 
   const isMobile = variant === 'mobile';
 
@@ -92,19 +90,6 @@ const RecommendationCard = ({
     }
 
     return 'Chia đều';
-  };
-
-  // Format level display
-  const getLevelDisplay = () => {
-    if (!session.requiredLevels || session.requiredLevels.length === 0) {
-      return 'Tất cả';
-    }
-    if (session.requiredLevels.length === 7) {
-      return 'Tất cả';
-    }
-    return session.requiredLevels
-      .map((level) => getLevelShortLabel(level))
-      .join(', ');
   };
 
   // Mobile variant: 75% screen width, horizontal card

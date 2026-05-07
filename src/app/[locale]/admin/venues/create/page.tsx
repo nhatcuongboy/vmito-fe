@@ -11,7 +11,12 @@ import { VSwitch } from '@/components/ui/VSwitch';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import { ClosureStatus, EImageCategory, VenueStatus } from '@/lib/api/types';
+import {
+  ClosureStatus,
+  EImageCategory,
+  Venue,
+  VenueStatus,
+} from '@/lib/api/types';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 import { trimPhone } from '@/utils/phone-utils';
 import AppMultiImageUpload, {
@@ -121,7 +126,9 @@ export default function CreateVenuePage() {
         phone: trimPhone(data.phone),
       };
 
-      const result = await VenueService.createVenue(payload as any);
+      const result = await VenueService.createVenue(
+        payload as Omit<Venue, 'id'>
+      );
       toaster.success({ title: 'Tạo sân thành công' });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
@@ -650,7 +657,7 @@ export default function CreateVenuePage() {
                         borderColor="gray.200"
                         _dark={{ borderColor: 'gray.700' }}
                       >
-                        <img
+                        <img // eslint-disable-line @next/next/no-img-element
                           src={field.value}
                           alt="Layout preview"
                           style={{

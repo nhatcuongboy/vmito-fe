@@ -175,7 +175,9 @@ export default function UserProfileModal({
       setUser({
         ...user,
         image: updatedUser.image ?? uploaded.url,
-        imagePublicId: (updatedUser as any).imagePublicId ?? uploaded.publicId,
+        imagePublicId:
+          (updatedUser as { imagePublicId?: string }).imagePublicId ??
+          uploaded.publicId,
       });
 
       toaster.create({

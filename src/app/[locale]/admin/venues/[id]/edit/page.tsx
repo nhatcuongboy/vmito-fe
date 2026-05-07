@@ -179,9 +179,12 @@ export default function EditVenuePage({
 
         setVenueImages(loadedImages);
         setVenueBannerIndex(0);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to fetch venue:', error);
-        if (error?.response?.status === 404) {
+        if (
+          (error as { response?: { status?: number } })?.response?.status ===
+          404
+        ) {
           toaster.error({ title: 'Không tìm thấy sân' });
         } else {
           toaster.error({ title: 'Không thể tải thông tin sân' });
@@ -213,7 +216,10 @@ export default function EditVenuePage({
         phone: trimPhone(data.phone),
       };
 
-      const result = await VenueService.updateVenue(id, payload as any);
+      const result = await VenueService.updateVenue(
+        id,
+        payload as Partial<Venue>
+      );
       toaster.success({ title: 'Cập nhật sân thành công' });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
@@ -756,7 +762,7 @@ export default function EditVenuePage({
                         borderColor="gray.200"
                         _dark={{ borderColor: 'gray.700' }}
                       >
-                        <img
+                        <img // eslint-disable-line @next/next/no-img-element
                           src={field.value}
                           alt="Layout preview"
                           style={{

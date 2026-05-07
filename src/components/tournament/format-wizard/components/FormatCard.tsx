@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { RefreshCw, GitBranch, Layers } from 'lucide-react';
+import { RefreshCw, GitBranch } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TournamentFormatType } from '../types';
 

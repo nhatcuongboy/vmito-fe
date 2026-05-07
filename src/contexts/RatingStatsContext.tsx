@@ -37,6 +37,7 @@ export const RatingStatsProvider: React.FC<RatingStatsProviderProps> = ({
 
   // Track which IDs we've already fetched or requested to avoid redundant calls
   const fetchedIdsRef = useRef<Set<string>>(new Set());
+  const userIdsKey = userIds.join(',');
 
   useEffect(() => {
     const fetchBatchStats = async () => {
@@ -77,7 +78,7 @@ export const RatingStatsProvider: React.FC<RatingStatsProviderProps> = ({
     };
 
     fetchBatchStats();
-  }, [userIds.join(',')]);
+  }, [userIdsKey, userIds]);
 
   const getRatingStats = useCallback(
     (userId: string) => {

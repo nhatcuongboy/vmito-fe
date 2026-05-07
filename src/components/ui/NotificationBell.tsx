@@ -6,7 +6,6 @@ import {
   Flex,
   Heading,
   IconButton,
-  Spinner,
   Stack,
   Text,
   SystemStyleObject,
@@ -33,7 +32,6 @@ import {
   PopoverHeader,
   PopoverBody,
 } from '@/components/ui/popover';
-import { NotificationItem } from '../notification/NotificationItem';
 import { NotificationSkeleton } from '../notification/NotificationSkeleton';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -145,8 +143,6 @@ const getNotificationIcon = (type: NotificationType) => {
       return LuBell;
   }
 };
-
-const getNotificationColor = (_type: NotificationType) => 'green';
 
 export default function NotificationBell({
   color,

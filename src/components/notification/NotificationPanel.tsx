@@ -1,15 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import {
-  Box,
-  Text,
-  VStack,
-  HStack,
-  IconButton,
-  Spinner,
-  Flex,
-} from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, IconButton } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import {
   PopoverRoot,

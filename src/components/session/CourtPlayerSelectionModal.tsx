@@ -6,15 +6,7 @@ import { Court, Player } from '@/types/session';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { Badge, Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
-import {
-  Play,
-  Search,
-  Shuffle,
-  Sparkles,
-  User,
-  UserPlus,
-  Users,
-} from 'lucide-react';
+import { Search, Sparkles, User, UserPlus, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Locale } from '@/i18n/locales';
@@ -644,7 +636,6 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
           isActive={true}
           courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
           width="100%"
-          showTimeInCenter={false}
           isLoading={isLoading && !useAi}
           direction={court?.direction || CourtDirection.HORIZONTAL}
           courtColor={courtColor}
@@ -736,8 +727,6 @@ interface IPairStatsBarProps {
 }
 
 const PairStatsBar: React.FC<IPairStatsBarProps> = ({
-  pair1Score,
-  pair2Score,
   scoreDifference,
   pair1Players,
   pair2Players,
@@ -919,7 +908,6 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
             onPositionSelect={onPositionSelect}
             courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
             width="100%"
-            showTimeInCenter={false}
             direction={court?.direction || CourtDirection.HORIZONTAL}
           />
 

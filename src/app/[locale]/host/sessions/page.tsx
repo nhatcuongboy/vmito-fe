@@ -32,6 +32,7 @@ import {
 } from '@/constants';
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
+import { useViewMode } from '@/hooks/useViewMode';
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
@@ -70,6 +71,8 @@ function HostSessionsContent() {
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+
+  const [viewMode, setViewMode] = useViewMode('host-sessions');
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -368,6 +371,8 @@ function HostSessionsContent() {
             sortBy={sortBy}
             onSortChange={setSortBy}
             showViewModeMap={false}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
           />
           <SessionsList
             sessions={filteredSessions}
@@ -377,6 +382,7 @@ function HostSessionsContent() {
             onRefresh={fetchHostedSessions}
             hasMoreSessions={hasMore}
             expiredCount={expiredCount ?? undefined}
+            viewMode={viewMode}
           />
 
           {/* Infinite Scroll Trigger */}

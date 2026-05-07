@@ -16,7 +16,6 @@ import { toaster } from '@/components/ui/toaster';
 import SessionShareCard from './SessionShareCard';
 import { Portal } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { PlayerService } from '@/lib/api/player.service';
 import MyRegistrationModal from './MyRegistrationModal';
 import type { ViewMode } from '@/hooks/useViewMode';
 

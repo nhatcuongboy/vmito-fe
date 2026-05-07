@@ -2,6 +2,7 @@
 
 import { ISession } from '@/lib/api/types';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   Box,
   Flex,
@@ -62,11 +63,9 @@ const formatDate = (dateString: string | Date, locale: string): string => {
   return `${dateLabel}, ${date.format(dateFormat)}`;
 };
 
-const formatTime = (dateString: string | Date, locale: string): string => {
-  const date = dayjs
-    .tz(dateString)
-    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
-  return date.format('HH:mm');
+const formatTime = (dateString: string | Date, _locale?: string): string => {
+  // Use device time format preference instead of hardcoded HH:mm
+  return formatTimeByDevicePreference(dateString);
 };
 
 const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {

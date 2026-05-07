@@ -109,7 +109,7 @@ export default function GlobalBottomNav() {
       },
       loading: isPendingCreate,
     };
-  }, [pathname, t, isPendingCreate, router]);
+  }, [pathname, t, isPendingCreate, router, useAiForCreation]);
 
   if (!isVisible || tabs.length === 0) return null;
 

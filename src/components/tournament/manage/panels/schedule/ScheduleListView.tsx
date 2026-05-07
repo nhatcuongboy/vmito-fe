@@ -3,6 +3,7 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { Edit } from 'lucide-react';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
 
@@ -53,18 +54,10 @@ const formatMatchTime = (match: CategoryMatch): string => {
     month: 'short',
     day: 'numeric',
   });
-  const startStr = start.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const startStr = formatTimeByDevicePreference(start);
 
   if (end) {
-    const endStr = end.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    const endStr = formatTimeByDevicePreference(end);
     return `${dateStr} @ ${startStr} - ${endStr}`;
   }
   return `${dateStr} @ ${startStr}`;

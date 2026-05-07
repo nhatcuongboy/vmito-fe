@@ -5,10 +5,9 @@ import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { NewPlayer, Player } from './types';
-import { ISession, Gender, PlayerStatus, UserRole } from '@/lib/api/types';
+import { ISession, Gender, PlayerStatus } from '@/lib/api/types';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { IClub } from '@/types/club';
-import { useAuthStore } from '@/stores/useAuthStore';
 import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 
 export const usePlayerManagement = (
@@ -17,7 +16,6 @@ export const usePlayerManagement = (
   mode: 'view' | 'manage' = 'manage'
 ) => {
   const t = useTranslations('pages.playerManagement');
-  const { user } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const isHostOrAdmin = canAccessHostFeatures;
 

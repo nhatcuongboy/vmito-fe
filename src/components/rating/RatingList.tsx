@@ -35,7 +35,6 @@ export const RatingList = ({
   ratings,
   isLoading = false,
   showRater = true,
-  showRated = false,
   emptyMessage,
 }: RatingListProps) => {
   const t = useTranslations('rating');

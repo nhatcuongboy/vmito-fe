@@ -11,12 +11,9 @@ import {
 } from '@/lib/api/types';
 import SessionFeeConfigForm from '@/components/fee/SessionFeeConfigForm';
 import {
-  Alert,
   Box,
-  Container,
   Field,
   Flex,
-  Grid,
   Heading,
   HStack,
   Icon,
@@ -78,7 +75,6 @@ import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { Button } from '@/components/ui/chakra-compat';
 import {
   Plus,
-  Minus,
   Trash2,
   CalendarPlus,
   Sparkles,
@@ -100,9 +96,7 @@ import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
 import AiAssistant from '@/components/session/AiAssistant';
-import { VTooltip } from '@/components/ui/VTooltip';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
-import TopBar from '@/components/ui/TopBar';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
@@ -142,7 +136,9 @@ function formatTimeOnly(date: Date): string {
 // Zod schema for court validation
 type SessionFormData = z.infer<ReturnType<typeof createSessionFormSchema>>;
 
-function createCourtSchema(t: any) {
+function createCourtSchema(
+  t: (key: string, values?: Record<string, unknown>) => string
+) {
   return z.object({
     courtNumber: z.number().min(1, t('validation.courtNumberMin')),
     courtName: z.string().optional(),
@@ -150,7 +146,12 @@ function createCourtSchema(t: any) {
   });
 }
 
-function createSessionFormSchema(t: any, isEditMode: boolean = false) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createSessionFormSchema(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string, values?: any) => string,
+  isEditMode: boolean = false
+) {
   const courtSchema = createCourtSchema(t);
   return z
     .object({
@@ -218,11 +219,8 @@ export default function SessionForm({
   mode,
   sessionId,
   initialData,
-  backHref,
   onSuccess,
   onCancel,
-  showTopBar = true,
-  title,
   submitButtonText,
 }: SessionFormProps) {
   const searchParams = useSearchParams();
@@ -471,7 +469,7 @@ export default function SessionForm({
       });
     }
     return opts;
-  }, [venues, selectedVenueObj]);
+  }, [venues, selectedVenueObj, tVenue]);
 
   // Debounced venue search handler (server-side)
   const handleVenueSearch = useCallback((keyword: string) => {
@@ -549,11 +547,18 @@ export default function SessionForm({
 
   // AI Success handler using setValue
   const handleAISuccess = useCallback(
-    async (inputData: ExtractedSessionData | any) => {
-      const data =
-        inputData && inputData.success && inputData.data
+    async (
+      inputData:
+        | ExtractedSessionData
+        | { success?: boolean; data?: ExtractedSessionData }
+    ) => {
+      const data: ExtractedSessionData =
+        inputData &&
+        'success' in inputData &&
+        inputData.success &&
+        inputData.data
           ? inputData.data
-          : inputData;
+          : (inputData as ExtractedSessionData);
 
       console.log('Processed AI Data:', data);
 

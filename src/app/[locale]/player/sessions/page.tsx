@@ -18,6 +18,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
+import { useViewMode } from '@/hooks/useViewMode';
 
 const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
@@ -45,6 +46,8 @@ function PlayerSessionsContent() {
 
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
+
+  const [viewMode, setViewMode] = useViewMode('player-sessions');
 
   const loadingMoreRef = useRef(false);
 
@@ -196,12 +199,16 @@ function PlayerSessionsContent() {
             sortOptions={PLAYER_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            showViewModeMap={false}
           />
           <SessionsList
             sessions={filteredSessions}
             isLoading={loading}
             mode="view"
             onRefresh={fetchPlayerSessions}
+            viewMode={viewMode}
           />
 
           {/* Infinite Scroll Trigger */}

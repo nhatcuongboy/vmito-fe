@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { X, Image as ImageIcon, Video, MapPin } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
 import { postsService } from '@/lib/api/posts.service';
@@ -18,7 +17,6 @@ export function CreatePostModal({
   onClose,
   onPostCreated,
 }: CreatePostModalProps) {
-  const t = useTranslations();
   const [content, setContent] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [location, setLocation] = useState<{
@@ -75,7 +73,7 @@ export function CreatePostModal({
       setImages([]);
       onPostCreated?.();
       onClose();
-    } catch (error) {
+    } catch {
       toaster.create({
         title: 'Error',
         description: 'Failed to create post',
@@ -166,7 +164,7 @@ export function CreatePostModal({
               <div className="grid grid-cols-5 gap-2">
                 {images.map((file, index) => (
                   <div key={index} className="relative">
-                    <img
+                    <img // eslint-disable-line @next/next/no-img-element
                       src={URL.createObjectURL(file)}
                       alt={`Preview ${index}`}
                       className="w-full h-20 object-cover rounded"

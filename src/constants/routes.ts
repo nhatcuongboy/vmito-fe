@@ -87,19 +87,19 @@ export const ROUTES = {
       DETAIL: (id: string) => `/tournament/${id}`,
       MATCHES: (id: string) => `/tournament/${id}/schedule`,
       PLAYERS: (id: string) => `/tournament/${id}/teams`,
-      PLAYER_DETAIL: (id: string, playerId: string) =>
+      PLAYER_DETAIL: (id: string, _playerId: string) =>
         `/tournament/${id}/teams`,
       EVENTS: (id: string) => `/tournament/${id}`,
       WINNERS: (id: string) => `/tournament/${id}/standings`,
       CATEGORIES: {
-        DETAIL: (id: string, categoryId: string) => `/tournament/${id}`,
+        DETAIL: (id: string, _categoryId: string) => `/tournament/${id}`,
       },
       MANAGE: {
         HUB: (id: string) => `/tournament/${id}/manage`,
         PLAYERS: (id: string) => `/tournament/${id}/manage?option=players`,
         PAIRS: (id: string) => `/tournament/${id}/manage?option=pairs`,
         CATEGORIES: {
-          DETAIL: (id: string, categoryId: string) =>
+          DETAIL: (id: string, _categoryId: string) =>
             `/tournament/${id}/manage?option=categories`,
         },
       },

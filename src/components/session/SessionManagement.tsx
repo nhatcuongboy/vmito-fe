@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/chakra-compat';
 import { MatchService } from '@/lib/api/match.service';
 import { RealTimeService } from '@/lib/api/real-time.service';
-import { ISession, Player, Court } from '@/lib/api/types';
+import { ISession, Player } from '@/lib/api/types';
 import { WaitTimeService } from '@/lib/api/wait-time.service';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import {
   Badge,
@@ -63,8 +64,6 @@ interface RealTimeData {
 
 export default function SessionManagement({
   sessionId,
-  session: _session,
-  onSessionUpdate: _onSessionUpdate,
 }: SessionManagementProps) {
   const { getLevelShortLabel } = useLevelLabel();
   const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
@@ -107,7 +106,7 @@ export default function SessionManagement({
   const handleAutoAssign = async () => {
     try {
       setActionLoading('auto-assign');
-      const _result = await MatchService.autoAssignPlayers(sessionId, {
+      await MatchService.autoAssignPlayers(sessionId, {
         strategy: autoAssignStrategy,
         maxPlayersPerCourt: 4,
       });
@@ -140,11 +139,7 @@ export default function SessionManagement({
     try {
       setActionLoading('reset-wait-times');
       const playerIds = realTimeData.waitingQueue.map((p) => p.id);
-      const _result = await WaitTimeService.resetWaitTimes(
-        sessionId,
-        playerIds,
-        'current'
-      );
+      await WaitTimeService.resetWaitTimes(sessionId, playerIds, 'current');
       // toaster.success({ title: `Reset wait times for ${result.updatedCount} players` });
       await fetchRealTimeData();
     } catch (error) {
@@ -474,7 +469,8 @@ export default function SessionManagement({
         fontSize="sm"
         color="gray.500"
       >
-        Last updated: {new Date(realTimeData.lastUpdated).toLocaleTimeString()}
+        Last updated:{' '}
+        {formatTimeByDevicePreference(new Date(realTimeData.lastUpdated))}
       </Box>
     </Box>
   );

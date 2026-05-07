@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   DndContext,
   DragEndEvent,
@@ -130,11 +131,7 @@ function DraggableMatch({
         </Text>
         {match.startTime && (
           <Text color="gray.500" flexShrink={0}>
-            {new Date(match.startTime).toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true,
-            })}
+            {formatTimeByDevicePreference(match.startTime)}
           </Text>
         )}
       </Flex>

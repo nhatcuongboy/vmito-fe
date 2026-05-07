@@ -71,7 +71,8 @@ export function EditMatchModal({
       } else if (match.players && match.players.length === 4) {
         // match.players is an array of objects which might have player.id or playerId
         const ids = match.players.map(
-          (mp: any) => mp.player?.id || mp.playerId || ''
+          (mp: { player?: { id?: string }; playerId?: string }) =>
+            mp.player?.id || mp.playerId || ''
         );
         setSelectedPlayerIds(ids);
       }
@@ -85,7 +86,14 @@ export function EditMatchModal({
       const s1 = parseInt(pair1Score) || 0;
       const s2 = parseInt(pair2Score) || 0;
 
-      const payload: any = {
+      const payload: {
+        score: string | null;
+        isExtra: boolean;
+        notes: string;
+        isDraw: boolean;
+        winnerIds?: string[];
+        playerIds?: string[];
+      } = {
         score: isNoResult
           ? null
           : JSON.stringify({

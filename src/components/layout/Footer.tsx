@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Stack, Text, Link } from '@chakra-ui/react';
+import { Box, Container, Stack, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 

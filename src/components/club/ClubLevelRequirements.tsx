@@ -24,7 +24,9 @@ import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 interface ClubLevelRequirementsProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setValue: UseFormSetValue<any>;
 }
 
@@ -33,7 +35,7 @@ export default function ClubLevelRequirements({
   setValue,
 }: ClubLevelRequirementsProps) {
   const t = useTranslations('session');
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
 
   // Watch the current values
   const allLevelsSelected =
@@ -144,7 +146,7 @@ export default function ClubLevelRequirements({
                 <HStack gap={1.5}>
                   {isSelected && <Check size={13} strokeWidth={3} />}
                   <Text fontSize="xs" fontWeight="bold">
-                    {getLevelLabel(level)}
+                    {getLevelShortLabel(level)}
                   </Text>
                 </HStack>
               </Button>

@@ -325,7 +325,6 @@ const MatchPreviewModal: React.FC<MatchPreviewModalProps> = ({
             isActive={true}
             courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
             width="100%"
-            showTimeInCenter={false}
             isLoading={isLoadingConfirm}
             direction={court?.direction || CourtDirection.HORIZONTAL}
             courtColor={courtColor}
