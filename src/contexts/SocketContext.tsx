@@ -110,13 +110,21 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Join user room when user is authenticated.
   // The server now derives the userId from the JWT – no body is needed.
+  // BE returns an acknowledgement { error?: string } – log and surface any error.
   useEffect(() => {
     if (socket && isConnected && user?.id) {
-      // Join user specific room (server reads userId from JWT)
-      socket.emit('join_user_room');
-      console.log(`[Socket] Joined user room: user-${user.id}`, {
-        socketId: socket.id,
-        timestamp: new Date().toISOString(),
+      socket.emit('join_user_room', (ack: { error?: string } | undefined) => {
+        if (ack?.error) {
+          console.error(
+            `[Socket] join_user_room failed for user-${user.id}:`,
+            ack.error
+          );
+        } else {
+          console.log(`[Socket] Joined user room: user-${user.id}`, {
+            socketId: socket.id,
+            timestamp: new Date().toISOString(),
+          });
+        }
       });
     }
   }, [socket, isConnected, user?.id]);
