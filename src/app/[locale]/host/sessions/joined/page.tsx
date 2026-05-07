@@ -22,6 +22,7 @@ import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
+import { useViewMode } from '@/hooks/useViewMode';
 
 const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
@@ -65,6 +66,8 @@ function PlayerSessionsContent() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const [viewMode, setViewMode] = useViewMode('host-sessions-joined');
 
   const fetchPlayerSessions = async (isLoadMore = false) => {
     try {
@@ -266,6 +269,8 @@ function PlayerSessionsContent() {
             sortBy={sortBy}
             onSortChange={setSortBy}
             showViewModeMap={false}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
           />
           <SessionsList
             sessions={filteredSessions}
@@ -273,6 +278,7 @@ function PlayerSessionsContent() {
             isLoadingMore={loadingMore}
             mode="view"
             onRefresh={fetchPlayerSessions}
+            viewMode={viewMode}
           />
 
           {/* Infinite Scroll Trigger */}
