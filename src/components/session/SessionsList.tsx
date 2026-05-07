@@ -25,6 +25,8 @@ interface SessionsListProps {
   hasMoreSessions?: boolean;
   /** Accurate total count of expired sessions from API, overrides client-side count */
   expiredCount?: number;
+  /** Optional viewMode override - if not provided, will use internal useViewMode */
+  viewMode?: 'grid' | 'list' | 'map';
 }
 
 export default function SessionsList({
@@ -34,8 +36,10 @@ export default function SessionsList({
   isLoading: externalLoading,
   isLoadingMore: externalLoadingMore,
   onRefresh,
+  viewMode: externalViewMode,
 }: SessionsListProps) {
-  const [viewMode] = useViewMode('sessions');
+  const [internalViewMode] = useViewMode('sessions');
+  const viewMode = externalViewMode ?? internalViewMode;
   const [internalSessions, setInternalSessions] = useState<ISession[]>([]);
   const [internalLoading, setInternalLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
