@@ -59,6 +59,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const { theme, setColorMode } = useColorMode();
   const currentTheme = theme;
 
+  const handleCloseMenu = () => {
+    setIsOpen(false);
+    setCurrentMenu('MAIN');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -67,9 +72,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
-        // Reset to main menu when closing
-        setTimeout(() => setCurrentMenu('MAIN'), 200);
+        handleCloseMenu();
       }
     };
 
@@ -83,6 +86,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   }, [isOpen]);
 
   const handleToggleOpen = () => {
+    if (isOpen) {
+      handleCloseMenu();
+      return;
+    }
+
     if (!isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setDropdownPos({
@@ -90,7 +98,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         right: window.innerWidth - rect.right,
       });
     }
-    setIsOpen((prev) => !prev);
+    setIsOpen(true);
   };
 
   if (!user) return null;
