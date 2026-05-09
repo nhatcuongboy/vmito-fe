@@ -411,7 +411,7 @@ export default function SessionOverviewTab({
               w="full"
             >
               <Grid
-                templateColumns={{ base: 'repeat(2, 1fr)', md: '1fr' }}
+                templateColumns="repeat(2, 1fr)"
                 gap={{ base: 2, md: 6 }}
                 justifyItems="center"
                 alignItems="center"
@@ -470,8 +470,9 @@ export default function SessionOverviewTab({
               >
                 {t('share')}
               </Text>
-              <VStack align="stretch" spacing={3}>
+              <Flex gap={3} w="full">
                 <Button
+                  flex={1}
                   colorPalette="green"
                   variant="outline"
                   size="sm"
@@ -485,9 +486,10 @@ export default function SessionOverviewTab({
                   }
                   leftIcon={<Icon as={Download} />}
                 >
-                  {t('downloadSocial')} 4:5
+                  {t('downloadSocial')}
                 </Button>
                 <Button
+                  flex={1}
                   colorPalette="green"
                   variant="outline"
                   size="sm"
@@ -501,9 +503,9 @@ export default function SessionOverviewTab({
                   }
                   leftIcon={<Icon as={Download} />}
                 >
-                  {t('downloadPortrait')} 2:3
+                  {t('downloadPortrait')}
                 </Button>
-              </VStack>
+              </Flex>
             </Box>
           </Box>
         </Box>

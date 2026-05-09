@@ -298,7 +298,7 @@ const BaseSessionCard = ({
                   }}
                 >
                   <Icon as={Download} mr={2} />
-                  {t('downloadSocial') || 'Ảnh mạng xã hội (4:5)'}
+                  {t('downloadSocial') || '4:5'}
                 </MenuItem>
                 <MenuItem
                   value="portrait"
@@ -310,7 +310,7 @@ const BaseSessionCard = ({
                   }}
                 >
                   <Icon as={Download} mr={2} />
-                  {t('downloadPortrait') || 'Ảnh dọc (2:3)'}
+                  {t('downloadPortrait') || '2:3'}
                 </MenuItem>
               </MenuContent>
             </MenuPositioner>

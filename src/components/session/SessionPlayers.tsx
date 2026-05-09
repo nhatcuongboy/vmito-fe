@@ -33,7 +33,7 @@ import { toaster } from '@/components/ui/toaster';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
 import { PlayerService } from '@/lib/api/player.service';
-import { useLevelLabel } from '@/hooks/useLevelLabel';
+
 import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { VButton } from '@/components/ui/VButton';
 import { Download } from 'lucide-react';
@@ -137,7 +137,7 @@ const StatsTable = ({
     [sortConfig, onSort]
   );
 
-  const { getLevelShortLabel } = useLevelLabel();
+  // const { getLevelShortLabel } = useLevelLabel();
 
   const sortHandler = (key: string) =>
     handleSort(key as keyof PlayerStatistics);
@@ -183,17 +183,7 @@ const StatsTable = ({
             >
               {t('columnGender')}
             </Th>
-            {!exportMode && (
-              <Th
-                sortKey="level"
-                sortConfig={sortConfig}
-                onSort={sortHandler}
-                textAlign="center"
-                {...thProps}
-              >
-                {t('columnLevel')}
-              </Th>
-            )}
+
             <Th
               sortKey={exportMode ? undefined : 'totalMatches'}
               sortConfig={exportMode ? undefined : sortConfig}
@@ -290,17 +280,11 @@ const StatsTable = ({
                     </Badge>
                   ) : (
                     <Text fontSize="sm" color="fg.muted">
-                      {t('N/A')}
+                      {'—'}
                     </Text>
                   )}
                 </Td>
-                {!exportMode && (
-                  <Td textAlign="center" {...tdProps}>
-                    <Text fontSize="sm" color="fg.muted">
-                      {p.level ? getLevelShortLabel(p.level) : t('N/A')}
-                    </Text>
-                  </Td>
-                )}
+
                 <Td textAlign="center" {...tdProps}>
                   <Text fontSize="sm" fontWeight="semibold">
                     {p.totalMatches}
@@ -312,7 +296,7 @@ const StatsTable = ({
                     fontWeight="bold"
                     color={isNA ? 'fg.muted' : 'green.600'}
                   >
-                    {isNA ? 'N/A' : p.wins}
+                    {isNA ? '—' : p.wins}
                   </Text>
                 </Td>
                 <Td textAlign="center" {...tdProps}>
@@ -321,7 +305,7 @@ const StatsTable = ({
                     fontWeight="bold"
                     color={isNA ? 'fg.muted' : 'red.500'}
                   >
-                    {isNA ? 'N/A' : p.losses}
+                    {isNA ? '—' : p.losses}
                   </Text>
                 </Td>
                 <Td textAlign="center" {...tdProps}>
@@ -336,7 +320,7 @@ const StatsTable = ({
                     }
                     variant="subtle"
                   >
-                    {isNA ? 'N/A' : `${p.winRate}%`}
+                    {isNA ? '—' : `${p.winRate}%`}
                   </Badge>
                 </Td>
               </Tr>
