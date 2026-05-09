@@ -1508,7 +1508,82 @@
             },
             "schedule": {
               "title": "Schedule",
-              "description": "Plan match times and court assignments."
+              "description": "Plan match times and court assignments.",
+              "scheduleType": {
+                "label": "Schedule type",
+                "title": "Schedule type",
+                "description": "Choose how matches are scheduled to courts.",
+                "recommended": "Recommended",
+                "assigned": {
+                  "title": "Assigned",
+                  "description": "Manually assign each match to a specific court and time slot."
+                },
+                "nextAvailable": {
+                  "title": "Next available",
+                  "description": "Automatically assign matches to the next available court and time slot."
+                }
+              },
+              "switchType": "Switch type",
+              "scheduledMatches": "scheduled",
+              "unscheduledMatches": "unscheduled",
+              "manageSchedule": "Manage schedule",
+              "manager": {
+                "listView": "List view",
+                "calendarView": "Calendar view",
+                "generate": "Generate",
+                "close": "Close",
+                "emptyTitle": "No matches scheduled yet",
+                "generateSchedule": "Generate schedule",
+                "enterManually": "or enter manually",
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "editMatchTitle": "Edit Match {number}",
+                "clearTimes": "Clear times",
+                "date": "Date",
+                "startTime": "Start time",
+                "court": "Court",
+                "update": "Update"
+              },
+              "generate": {
+                "title": "Generate schedule",
+                "generateBtn": "Generate",
+                "categoryOrder": "Category order",
+                "categoryOrderDesc": "Drag to reorder categories for scheduling priority",
+                "matchLength": "Match length",
+                "matchLengthDesc": "Average duration per match",
+                "availableTimes": "Available times",
+                "availableTimesDesc": "Add time slots when courts are available",
+                "timeBetween": "Time between matches",
+                "addTimeSlot": "Add time slot",
+                "confirm": "Confirm",
+                "startTime": "Start time",
+                "endTime": "End time"
+              },
+              "courtSelector": {
+                "title": "Select courts",
+                "confirm": "Confirm",
+                "close": "Close",
+                "selectAll": "Select all",
+                "deselectAll": "Deselect all"
+              },
+              "result": {
+                "complete": "Schedule complete",
+                "incomplete": "Schedule incomplete",
+                "viewSchedule": "View schedule",
+                "scheduledCount": "{scheduled} of {total} matches scheduled",
+                "tips": {
+                  "moreSlots": "Add more time slots",
+                  "reduceTime": "Reduce match duration",
+                  "minimizeConstraints": "Minimize scheduling constraints"
+                }
+              },
+              "list": {
+                "team": "Team",
+                "time": "Time",
+                "court": "Court",
+                "noTime": "No time set",
+                "noCourt": "No court"
+              }
             },
             "sponsors": {
               "title": "Sponsors",
@@ -1663,6 +1738,7 @@
               "matchesSaved": "Matches saved successfully",
               "editMatches": "Edit matches",
               "selectTeam": "Select team",
+              "teamCannotPlayAgainstItself": "Team cannot play against itself",
               "matchLabel": "Match {number}",
               "close": "Close",
               "loadingTeams": "Loading teams...",
@@ -1704,8 +1780,15 @@
               "finals": "Finals",
               "firstPlace": "1st Place",
               "thirdPlace": "3rd Place",
+              "fifthPlace": "5th Place",
+              "seventhPlace": "7th Place",
+              "consolationBracket": "Consolation Bracket",
+              "consolationMatch": "Consolation Match",
               "winnerOf": "Winner of {match}",
               "loserOf": "Loser of {match}",
+              "whenMatchPlayed": "When will the match be played?",
+              "whoHomeTeam": "Who will be the home team?",
+              "whoAwayTeam": "Who will be the away team?",
               "nthPoolLabel": "{rank} Pool {pool}",
               "confirm": "Confirm",
               "deleteMatch": "Delete match",
@@ -1718,20 +1801,34 @@
               "editSeedsButton": "Edit seeds"
             },
             "venues": {
-              "title": "Venue",
+              "title": "Venues",
               "addVenue": "Add Venue",
               "createVenue": "Create Venue",
               "selectVenue": "Select Venue",
+              "editVenue": "Edit venue",
+              "searchPlaceholder": "Search by name or address...",
+              "noResults": "No venues match your search.",
+              "noVenues": "No venues found.",
+              "nameRequired": "Please enter a venue name.",
+              "venueSaved": "Venue saved successfully",
+              "saveError": "Failed to save venue",
               "createVenueDesc": "Add a new venue to the system",
               "recommendedVenues": "Recommended Venues",
-              "noVenue": "No venue assigned to this tournament.",
+              "noVenue": "No venues assigned to this tournament.",
               "address": "Address",
               "name": "Name",
               "acronym": "Acronym",
               "howManyCourts": "How many courts?",
               "court": "Court",
               "back": "Back",
-              "save": "Save"
+              "save": "Save",
+              "venueLabel": "Venue",
+              "venueSelectPlaceholder": "Search and select a venue...",
+              "removeVenue": "Remove venue",
+              "confirmRemove": "Remove this venue from the tournament?",
+              "noLinkedVenues": "No venues linked to this tournament yet.",
+              "courtsCount": "courts",
+              "addAnotherVenue": "Add another venue"
             },
             "schedule": {
               "title": "Schedule",

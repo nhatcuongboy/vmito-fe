@@ -1480,7 +1480,82 @@
             },
             "schedule": {
               "title": "赛程",
-              "description": "安排比赛时间与场地分配。"
+              "description": "安排比赛时间与场地分配。",
+              "scheduleType": {
+                "label": "赛程类型",
+                "title": "赛程类型",
+                "description": "选择比赛分配到场地的方式。",
+                "recommended": "推荐",
+                "assigned": {
+                  "title": "指定",
+                  "description": "手动将每场比赛分配到特定场地和时间段。"
+                },
+                "nextAvailable": {
+                  "title": "下一个可用",
+                  "description": "自动将比赛分配到下一个可用的场地和时间段。"
+                }
+              },
+              "switchType": "切换类型",
+              "scheduledMatches": "已安排",
+              "unscheduledMatches": "未安排",
+              "manageSchedule": "管理赛程",
+              "manager": {
+                "listView": "列表视图",
+                "calendarView": "日历视图",
+                "generate": "自动生成",
+                "close": "关闭",
+                "emptyTitle": "尚未安排任何比赛",
+                "generateSchedule": "自动生成赛程",
+                "enterManually": "或手动输入",
+                "cancel": "取消",
+                "save": "保存更改",
+                "editMatchTitle": "编辑比赛 {number}",
+                "clearTimes": "清除时间",
+                "date": "日期",
+                "startTime": "开始时间",
+                "court": "场地",
+                "update": "更新"
+              },
+              "generate": {
+                "title": "生成赛程",
+                "generateBtn": "生成",
+                "categoryOrder": "类别顺序",
+                "categoryOrderDesc": "拖动以重新排序类别的调度优先级",
+                "matchLength": "比赛时长",
+                "matchLengthDesc": "每场比赛的平均时长",
+                "availableTimes": "可用时间",
+                "availableTimesDesc": "添加场地可用的时间段",
+                "timeBetween": "比赛间隔时间",
+                "addTimeSlot": "添加时间段",
+                "confirm": "确认",
+                "startTime": "开始时间",
+                "endTime": "结束时间"
+              },
+              "courtSelector": {
+                "title": "选择场地",
+                "confirm": "确认",
+                "close": "关闭",
+                "selectAll": "全选",
+                "deselectAll": "取消全选"
+              },
+              "result": {
+                "complete": "赛程完整",
+                "incomplete": "赛程不完整",
+                "viewSchedule": "查看赛程",
+                "scheduledCount": "已安排 {scheduled}/{total} 场比赛",
+                "tips": {
+                  "moreSlots": "添加更多时间段",
+                  "reduceTime": "减少比赛时长",
+                  "minimizeConstraints": "减少调度约束"
+                }
+              },
+              "list": {
+                "team": "队伍",
+                "time": "时间",
+                "court": "场地",
+                "noTime": "未设置时间",
+                "noCourt": "未设置场地"
+              }
             },
             "sponsors": {
               "title": "赞助商",
@@ -1615,6 +1690,7 @@
               "matchesSaved": "比赛保存成功",
               "editMatches": "编辑比赛",
               "selectTeam": "选择队伍",
+              "teamCannotPlayAgainstItself": "队伍不能与自己对阵",
               "matchLabel": "比赛 {number}",
               "close": "关闭",
               "loadingTeams": "正在加载队伍...",
@@ -1656,8 +1732,15 @@
               "finals": "决赛",
               "firstPlace": "冠军",
               "thirdPlace": "季军",
+              "fifthPlace": "第五名",
+              "seventhPlace": "第七名",
+              "consolationBracket": "安慰赛",
+              "consolationMatch": "安慰赛",
               "winnerOf": "胜者 {match}",
               "loserOf": "败者 {match}",
+              "whenMatchPlayed": "比赛何时进行？",
+              "whoHomeTeam": "主队是谁？",
+              "whoAwayTeam": "客队是谁？",
               "nthPoolLabel": "{rank} {pool}组",
               "confirm": "确认",
               "deleteMatch": "删除比赛",
@@ -1670,8 +1753,30 @@
               "editSeedsButton": "编辑种子"
             },
             "venues": {
-              "title": "场地",
-              "noVenue": "此锦标赛尚未分配场地。"
+              "title": "比赛场馆",
+              "addVenue": "添加场馆",
+              "selectVenue": "选择场馆",
+              "editVenue": "编辑场馆",
+              "searchPlaceholder": "按名称或地址搜索...",
+              "noResults": "没有符合条件的场地。",
+              "noVenues": "暂无场地。",
+              "nameRequired": "请输入场地名称。",
+              "venueSaved": "场地保存成功",
+              "saveError": "保存场地失败",
+              "noVenue": "此锦标赛尚未分配场地。",
+              "court": "场",
+              "name": "场馆名称",
+              "acronym": "简称",
+              "howManyCourts": "几个场地？",
+              "back": "返回",
+              "save": "保存",
+              "venueLabel": "场馆",
+              "venueSelectPlaceholder": "搜索并选择场馆...",
+              "removeVenue": "移除场馆",
+              "confirmRemove": "从赛事中移除此场馆？",
+              "noLinkedVenues": "此赛事尚未关联任何场馆。",
+              "courtsCount": "个场地",
+              "addAnotherVenue": "添加另一个场馆"
             },
             "schedule": {
               "title": "赛程",

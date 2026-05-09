@@ -1,16 +1,16 @@
 'use client';
 
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import { IconButton } from '@/components/ui/chakra-compat';
-import { Button, VStack } from '@/components/ui/chakra-compat';
-import { MapPin, Plus, Edit2, Trash2, GripVertical } from 'lucide-react';
+import { Box, Flex, Heading, Text, Spinner } from '@chakra-ui/react';
+import { IconButton, Button, VStack } from '@/components/ui/chakra-compat';
+import { MapPin, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Tournament, Venue } from '@/lib/api/types';
-import { useState } from 'react';
-import SelectVenueModal from './SelectVenueModal';
-import CreateVenueModal from './CreateVenueModal';
+import { Tournament, TournamentVenue } from '@/lib/api/types';
+import { useState, useEffect, useCallback } from 'react';
+import VenueConfigModal from './VenueConfigModal';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
+import VenueMapPin from '@/components/venue/VenueMapPin';
+import { VModal } from '@/components/ui/VModal';
 
 interface VenuePanelProps {
   tournament: Tournament;
@@ -21,216 +21,280 @@ export default function VenuePanel({
   tournament,
   onTournamentChanged,
 }: VenuePanelProps) {
-  const t = useTranslations('pages.tournaments.detail.manage');
-  const [currentVenue, setCurrentVenue] = useState<Venue | undefined>(
-    tournament.venue
+  const t = useTranslations('pages.tournaments.detail.manage.panels.venues');
+
+  const [venues, setVenues] = useState<TournamentVenue[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [editingVenue, setEditingVenue] = useState<TournamentVenue | undefined>(
+    undefined
   );
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [confirmRemoveVenue, setConfirmRemoveVenue] =
+    useState<TournamentVenue | null>(null);
 
-  const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
-
-  // Helper deriving acronym from name if not stored in DB (since we discarded it in Create form technically)
-  const getAcronym = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
-
-  const handleCreateNew = () => {
-    setIsSelectModalOpen(false);
-    setIsCreateModalOpen(true);
-  };
-
-  const handleVenueSelected = async (venue: Venue) => {
+  const loadVenues = useCallback(async () => {
     try {
-      await TournamentService.updateTournament(tournament.id, {
-        venueId: venue.id,
-      });
-      setCurrentVenue(venue);
-      setIsSelectModalOpen(false);
-      onTournamentChanged?.();
-      toaster.success({ title: 'Venue assigned successfully' });
-    } catch (error) {
-      console.error(error);
-      toaster.error({ title: 'Failed to assign venue' });
+      setIsLoading(true);
+      const data = await TournamentService.getVenues(tournament.id);
+      setVenues(data);
+    } catch {
+      toaster.error({ title: 'Failed to load venues' });
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [tournament.id]);
 
-  const handleVenueCreated = (venue: Venue) => {
-    setCurrentVenue(venue);
+  useEffect(() => {
+    loadVenues();
+  }, [loadVenues]);
+
+  const handleSaved = async () => {
+    // Reload from server to get fresh data after add/edit
+    await loadVenues();
+    setIsConfigModalOpen(false);
+    setEditingVenue(undefined);
     onTournamentChanged?.();
   };
 
-  const handleRemoveVenue = async () => {
-    if (!currentVenue) return;
+  const handleRemove = async (tournamentVenue: TournamentVenue) => {
+    setConfirmRemoveVenue(tournamentVenue);
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!confirmRemoveVenue) return;
     try {
-      setIsRemoving(true);
-      await TournamentService.updateTournament(tournament.id, {
-        venueId: null,
-      });
-      setCurrentVenue(undefined);
+      setRemovingId(confirmRemoveVenue.id);
+      await TournamentService.removeVenue(
+        tournament.id,
+        confirmRemoveVenue.venueId
+      );
+      setVenues((prev) => prev.filter((v) => v.id !== confirmRemoveVenue.id));
       onTournamentChanged?.();
-      toaster.success({ title: 'Venue removed successfully' });
-    } catch (error) {
-      console.error(error);
+    } catch {
       toaster.error({ title: 'Failed to remove venue' });
     } finally {
-      setIsRemoving(false);
+      setRemovingId(null);
+      setConfirmRemoveVenue(null);
     }
   };
 
-  const EmptyState = () => (
-    <VStack gap={6} align="center" py={10}>
-      {/* Hand drawn / custom map icon representation in mockup, we use Image or Box, 
-          since we don't have the exact svg, we will use a styled box with MapPin for now */}
-      <Box p={4} bg="red.50" borderRadius="full" mb={2}>
-        <MapPin size={48} color="#F56565" />
-      </Box>
+  const handleEdit = (tournamentVenue: TournamentVenue) => {
+    setEditingVenue(tournamentVenue);
+    setIsConfigModalOpen(true);
+  };
 
-      <Text fontSize="md" color="gray.500" textAlign="center" maxW="300px">
-        {t('panels.venues.noVenue')}
-      </Text>
-
-      <Button
-        style={{
-          background: '#1a202c',
-          color: 'white',
-          borderRadius: '9999px',
-        }}
-        px={6}
-        display="flex"
-        alignItems="center"
-        gap={2}
-        onClick={() => setIsSelectModalOpen(true)}
-      >
-        <Plus size={18} />
-        {t('panels.venues.addVenue')}
-      </Button>
-    </VStack>
-  );
-
-  const FullState = () => {
-    if (!currentVenue) return null;
-    return (
-      <Box>
-        <Box
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="2xl"
-          overflow="hidden"
-          bg="white"
-        >
-          {/* Map Image Section */}
-          <Box h="180px" bg="gray.100" position="relative" w="full">
-            {currentVenue.lat && currentVenue.lng ? (
-              <iframe
-                width="100%"
-                height="100%"
-                style={{ border: 0, pointerEvents: 'none' }} // disabled interaction like an image banner
-                loading="lazy"
-                src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${currentVenue.lat},${currentVenue.lng}&zoom=14`}
-              />
-            ) : (
-              <Flex h="full" w="full" align="center" justify="center">
-                <MapPin size={40} color="#A0AEC0" />
-              </Flex>
-            )}
-          </Box>
-
-          {/* Venue Info Section */}
-          <Flex justify="space-between" align="center" p={5}>
-            <Box>
-              <Flex align="center" gap={2} mb={1}>
-                <Text fontWeight="bold" fontSize="lg" color="gray.800">
-                  {currentVenue.name}
-                </Text>
-                <Box bg="gray.100" px={2} py={0.5} borderRadius="md">
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.600">
-                    {getAcronym(currentVenue.name)}
-                  </Text>
-                </Box>
-              </Flex>
-              <Text fontSize="sm" color="gray.600">
-                {currentVenue.address}
-              </Text>
-            </Box>
-
-            {/* Actions */}
-            <Flex align="center" gap={1}>
-              <IconButton
-                aria-label="Edit venue"
-                variant="ghost"
-                size="sm"
-                color="gray.600"
-                _hover={{ bg: 'gray.100' }}
-              >
-                <Edit2 size={18} />
-              </IconButton>
-              <IconButton
-                aria-label="Remove venue"
-                variant="ghost"
-                size="sm"
-                color="gray.600"
-                _hover={{ bg: 'gray.100' }}
-                onClick={handleRemoveVenue}
-                loading={isRemoving}
-              >
-                <Trash2 size={18} />
-              </IconButton>
-              <Box px={1} cursor="grab" color="gray.400">
-                <GripVertical size={20} />
-              </Box>
-            </Flex>
-          </Flex>
-        </Box>
-      </Box>
-    );
+  const handleAddNew = () => {
+    setEditingVenue(undefined);
+    setIsConfigModalOpen(true);
   };
 
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="md">{t('panels.venues.title')}</Heading>
-        {currentVenue && (
+        <Heading size="md">{t('title')}</Heading>
+        <Button
+          variant="outline"
+          style={{
+            borderRadius: '9999px',
+            background: '#1a202c',
+            color: 'white',
+            border: 'none',
+          }}
+          px={4}
+          size="sm"
+          display="flex"
+          alignItems="center"
+          gap={2}
+          onClick={handleAddNew}
+        >
+          <Plus size={16} />
+          {t('addVenue')}
+        </Button>
+      </Flex>
+
+      {isLoading ? (
+        <Flex justify="center" py={10}>
+          <Spinner />
+        </Flex>
+      ) : venues.length === 0 ? (
+        <VStack gap={6} align="center" py={10}>
+          <Box p={4} bg="red.50" borderRadius="full">
+            <MapPin size={48} color="#F56565" />
+          </Box>
+          <Text fontSize="md" color="gray.500" textAlign="center" maxW="300px">
+            {t('noLinkedVenues')}
+          </Text>
           <Button
-            variant="outline"
             style={{
+              background: '#1a202c',
+              color: 'white',
               borderRadius: '9999px',
-              background: '#e2e8f0',
-              color: '#1a202c',
-              border: 'none',
             }}
-            px={4}
-            size="sm"
+            px={6}
             display="flex"
             alignItems="center"
             gap={2}
-            onClick={() => setIsSelectModalOpen(true)}
+            onClick={handleAddNew}
           >
-            <Plus size={16} />
-            {t('panels.venues.addVenue')}
+            <Plus size={18} />
+            {t('addVenue')}
           </Button>
-        )}
-      </Flex>
+        </VStack>
+      ) : (
+        <VStack gap={4} align="stretch">
+          {venues.map((tv) => (
+            <Box
+              key={tv.id}
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="2xl"
+              overflow="hidden"
+              bg="white"
+            >
+              {/* Map Section */}
+              <Box
+                h="200px"
+                position="relative"
+                w="full"
+                borderRadius="2xl"
+                overflow="hidden"
+              >
+                {tv.venue.lat && tv.venue.lng ? (
+                  <VenueMapPin
+                    lat={tv.venue.lat}
+                    lng={tv.venue.lng}
+                    height="200px"
+                    zoom={15}
+                  />
+                ) : (
+                  <Flex
+                    h="full"
+                    w="full"
+                    align="center"
+                    justify="center"
+                    bg="gray.100"
+                  >
+                    <MapPin size={40} color="#A0AEC0" />
+                  </Flex>
+                )}
+              </Box>
 
-      {!currentVenue ? <EmptyState /> : <FullState />}
+              {/* Venue Info */}
+              <Flex justify="space-between" align="start" p={4}>
+                <Box flex="1">
+                  <Flex align="center" gap={2} mb={1}>
+                    <Text fontWeight="bold" fontSize="md" color="gray.800">
+                      {tv.venue.name}
+                    </Text>
+                    {tv.venue.acronym && (
+                      <Box bg="gray.100" px={2} py={0.5} borderRadius="md">
+                        <Text
+                          fontSize="xs"
+                          fontWeight="semibold"
+                          color="gray.600"
+                        >
+                          {tv.venue.acronym}
+                        </Text>
+                      </Box>
+                    )}
+                  </Flex>
+                  {tv.venue.address && (
+                    <Text fontSize="sm" color="gray.500" mb={1}>
+                      {tv.venue.address}
+                      {tv.venue.city ? `, ${tv.venue.city}` : ''}
+                    </Text>
+                  )}
+                  {tv.courts && tv.courts.length > 0 && (
+                    <Text fontSize="xs" color="gray.400" mb={2}>
+                      {tv.courts.length} {t('courtsCount')}:{' '}
+                      {tv.courts
+                        .map(
+                          (c) => c.courtName || `${t('court')} ${c.courtNumber}`
+                        )
+                        .join(', ')}
+                    </Text>
+                  )}
+                  {tv.venue.lat && tv.venue.lng && (
+                    <Button
+                      as="a"
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${tv.venue.lat},${tv.venue.lng}`}
+                      variant="outline"
+                      size="xs"
+                      colorPalette="green"
+                      mt={2}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        window.open(
+                          `https://www.google.com/maps/dir/?api=1&destination=${tv.venue.lat},${tv.venue.lng}`,
+                          '_blank',
+                          'noopener,noreferrer'
+                        );
+                      }}
+                    >
+                      <MapPin size={14} />
+                      Xem trên Google Maps
+                    </Button>
+                  )}
+                </Box>
 
-      <SelectVenueModal
-        isOpen={isSelectModalOpen}
-        onClose={() => setIsSelectModalOpen(false)}
-        onCreateNew={handleCreateNew}
-        onSelectVenue={handleVenueSelected}
-      />
+                <Flex align="center" gap={1}>
+                  <IconButton
+                    aria-label="Edit venue"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(tv)}
+                  >
+                    <Edit2 size={16} />
+                  </IconButton>
+                  <IconButton
+                    aria-label="Remove venue"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemove(tv)}
+                    loading={removingId === tv.id}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+                </Flex>
+              </Flex>
+            </Box>
+          ))}
+        </VStack>
+      )}
 
-      <CreateVenueModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        tournamentId={tournament.id}
-        onCreated={handleVenueCreated}
-        onBack={() => {
-          setIsCreateModalOpen(false);
-          setIsSelectModalOpen(true);
+      <VenueConfigModal
+        isOpen={isConfigModalOpen}
+        onClose={() => {
+          setIsConfigModalOpen(false);
+          setEditingVenue(undefined);
         }}
+        tournamentId={tournament.id}
+        existingTournamentVenue={editingVenue}
+        onSaved={handleSaved}
       />
+
+      {/* Confirm Remove Modal */}
+      <VModal
+        isOpen={!!confirmRemoveVenue}
+        onClose={() => setConfirmRemoveVenue(null)}
+        title="Remove venue"
+        size="sm"
+        primaryActionText="Remove"
+        primaryColorScheme="red"
+        onPrimaryAction={handleConfirmRemove}
+        isPrimaryLoading={!!removingId}
+        secondaryActionText="Cancel"
+        isCentered
+      >
+        <Text fontSize="sm" color="gray.600">
+          Remove{' '}
+          <Text as="span" fontWeight="semibold" color="gray.800">
+            {confirmRemoveVenue?.venue.name}
+          </Text>{' '}
+          from this tournament?
+        </Text>
+      </VModal>
     </Box>
   );
 }

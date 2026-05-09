@@ -8,6 +8,7 @@ import {
   TournamentCourt,
   CategoryMatch,
   ScheduleType,
+  TournamentVenue,
 } from './types';
 
 export const TournamentService = {
@@ -228,5 +229,33 @@ export const TournamentService = {
       { scheduleType }
     );
     return response.data.data!;
+  },
+
+  // Tournament venue management
+  getVenues: async (tournamentId: string): Promise<TournamentVenue[]> => {
+    const response = await api.get<ApiResponse<TournamentVenue[]>>(
+      `/tournaments/${tournamentId}/venues`
+    );
+    return response.data.data || [];
+  },
+
+  addVenue: async (
+    tournamentId: string,
+    data: {
+      venueId: string;
+      courts?: { courtNumber: number; courtName?: string }[];
+    }
+  ): Promise<TournamentVenue> => {
+    const response = await api.post<ApiResponse<TournamentVenue>>(
+      `/tournaments/${tournamentId}/venues`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  removeVenue: async (tournamentId: string, venueId: string): Promise<void> => {
+    await api.delete<ApiResponse<null>>(
+      `/tournaments/${tournamentId}/venues/${venueId}`
+    );
   },
 };

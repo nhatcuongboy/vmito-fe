@@ -1515,7 +1515,82 @@
             },
             "schedule": {
               "title": "Lịch thi đấu",
-              "description": "Lên lịch giờ đấu và phân bổ sân thi đấu."
+              "description": "Lên lịch giờ đấu và phân bổ sân thi đấu.",
+              "scheduleType": {
+                "label": "Loại lịch thi đấu",
+                "title": "Loại lịch thi đấu",
+                "description": "Chọn cách phân bổ trận đấu vào sân.",
+                "recommended": "Khuyến nghị",
+                "assigned": {
+                  "title": "Phân công",
+                  "description": "Phân công thủ công từng trận đấu vào sân và khung giờ cụ thể."
+                },
+                "nextAvailable": {
+                  "title": "Sân trống tiếp theo",
+                  "description": "Tự động phân bổ trận đấu vào sân và khung giờ trống tiếp theo."
+                }
+              },
+              "switchType": "Đổi loại",
+              "scheduledMatches": "đã lên lịch",
+              "unscheduledMatches": "chưa lên lịch",
+              "manageSchedule": "Quản lý lịch thi đấu",
+              "manager": {
+                "listView": "Xem danh sách",
+                "calendarView": "Xem lịch",
+                "generate": "Tạo tự động",
+                "close": "Đóng",
+                "emptyTitle": "Chưa có trận đấu nào được lên lịch",
+                "generateSchedule": "Tạo lịch tự động",
+                "enterManually": "hoặc nhập thủ công",
+                "cancel": "Hủy",
+                "save": "Lưu thay đổi",
+                "editMatchTitle": "Sửa trận {number}",
+                "clearTimes": "Xóa giờ",
+                "date": "Ngày",
+                "startTime": "Giờ bắt đầu",
+                "court": "Sân",
+                "update": "Cập nhật"
+              },
+              "generate": {
+                "title": "Tạo lịch thi đấu",
+                "generateBtn": "Tạo lịch",
+                "categoryOrder": "Thứ tự hạng mục",
+                "categoryOrderDesc": "Kéo để sắp xếp thứ tự ưu tiên lên lịch",
+                "matchLength": "Thời lượng trận đấu",
+                "matchLengthDesc": "Thời gian trung bình mỗi trận",
+                "availableTimes": "Khung giờ có sẵn",
+                "availableTimesDesc": "Thêm khung giờ khi sân có thể sử dụng",
+                "timeBetween": "Thời gian giữa các trận",
+                "addTimeSlot": "Thêm khung giờ",
+                "confirm": "Xác nhận",
+                "startTime": "Giờ bắt đầu",
+                "endTime": "Giờ kết thúc"
+              },
+              "courtSelector": {
+                "title": "Chọn sân",
+                "confirm": "Xác nhận",
+                "close": "Đóng",
+                "selectAll": "Chọn tất cả",
+                "deselectAll": "Bỏ chọn tất cả"
+              },
+              "result": {
+                "complete": "Lịch thi đấu hoàn chỉnh",
+                "incomplete": "Lịch thi đấu chưa hoàn chỉnh",
+                "viewSchedule": "Xem lịch thi đấu",
+                "scheduledCount": "Đã lên lịch {scheduled}/{total} trận",
+                "tips": {
+                  "moreSlots": "Thêm khung giờ",
+                  "reduceTime": "Giảm thời lượng trận đấu",
+                  "minimizeConstraints": "Giảm ràng buộc lên lịch"
+                }
+              },
+              "list": {
+                "team": "Đội",
+                "time": "Thời gian",
+                "court": "Sân",
+                "noTime": "Chưa có giờ",
+                "noCourt": "Chưa có sân"
+              }
             },
             "sponsors": {
               "title": "Nhà tài trợ",
@@ -1670,6 +1745,7 @@
               "matchesSaved": "Trận đấu đã được lưu thành công",
               "editMatches": "Chỉnh sửa trận đấu",
               "selectTeam": "Chọn đội",
+              "teamCannotPlayAgainstItself": "Đội không thể chơi với chính mình",
               "matchLabel": "Trận {number}",
               "close": "Đóng",
               "loadingTeams": "Đang tải đội...",
@@ -1711,8 +1787,15 @@
               "finals": "Chung kết",
               "firstPlace": "Hạng nhất",
               "thirdPlace": "Hạng ba",
+              "fifthPlace": "Hạng năm",
+              "seventhPlace": "Hạng bảy",
+              "consolationBracket": "Nhánh an ủi",
+              "consolationMatch": "Trận an ủi",
               "winnerOf": "Thắng trận {match}",
               "loserOf": "Thua trận {match}",
+              "whenMatchPlayed": "Trận đấu sẽ diễn ra khi nào?",
+              "whoHomeTeam": "Đội chủ nhà là ai?",
+              "whoAwayTeam": "Đội khách là ai?",
               "nthPoolLabel": "{rank} Bảng {pool}",
               "confirm": "Xác nhận",
               "deleteMatch": "Xóa trận",
@@ -1725,10 +1808,17 @@
               "editSeedsButton": "Chỉnh hạt giống"
             },
             "venues": {
-              "title": "Địa điểm",
+              "title": "Địa điểm thi đấu",
               "selectVenue": "Chọn địa điểm",
+              "editVenue": "Chỉnh sửa sân",
               "addVenue": "Thêm địa điểm",
               "createVenue": "Tạo địa điểm",
+              "searchPlaceholder": "Tìm theo tên hoặc địa chỉ...",
+              "noResults": "Không tìm thấy địa điểm phù hợp.",
+              "noVenues": "Chưa có địa điểm nào.",
+              "nameRequired": "Vui lòng nhập tên sân.",
+              "venueSaved": "Lưu sân thành công",
+              "saveError": "Lưu sân thất bại",
               "createVenueDesc": "Tạo một địa điểm mới nếu bạn không tìm thấy trong danh sách.",
               "recommendedVenues": "Địa điểm gợi ý",
               "noVenue": "Chưa có địa điểm nào được gán cho giải đấu này.",
@@ -1738,7 +1828,14 @@
               "howManyCourts": "Bao nhiêu sân?",
               "court": "Sân",
               "back": "Quay lại",
-              "save": "Lưu"
+              "save": "Lưu",
+              "venueLabel": "Địa điểm",
+              "venueSelectPlaceholder": "Tìm và chọn địa điểm...",
+              "removeVenue": "Xóa địa điểm",
+              "confirmRemove": "Xóa địa điểm này khỏi giải đấu?",
+              "noLinkedVenues": "Chưa có địa điểm nào được liên kết.",
+              "courtsCount": "sân",
+              "addAnotherVenue": "Thêm địa điểm khác"
             },
             "schedule": {
               "title": "Lịch thi đấu",

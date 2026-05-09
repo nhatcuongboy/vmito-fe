@@ -254,6 +254,7 @@ export interface Venue {
   slug?: string;
   placeId: string;
   name: string;
+  acronym?: string;
   description?: string;
   address: string;
   lat?: number;
@@ -805,11 +806,21 @@ export interface TournamentScoringDevice {
 export interface TournamentCourt {
   id: string;
   tournamentId: string;
+  tournamentVenueId?: string;
   courtNumber: number;
   courtName?: string;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface TournamentVenue {
+  id: string;
+  tournamentId: string;
+  venueId: string;
+  venue: Venue;
+  courts?: TournamentCourt[];
+  createdAt: Date;
 }
 
 export interface TournamentPlayer {

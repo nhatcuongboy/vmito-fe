@@ -279,15 +279,18 @@ export const CategoryService = {
   bulkAssignRegistrationsToGroup: async (
     categoryId: string,
     groupId: string,
-    registrationIds: string[]
+    registrationIds: string[],
+    options?: { showToast?: boolean }
   ): Promise<CategoryGroupRegistration[]> => {
     const response = await api.post<ApiResponse<CategoryGroupRegistration[]>>(
       `/categories/${categoryId}/groups/${groupId}/registrations/bulk`,
       { categoryRegistrationIds: registrationIds }
     );
-    toaster.success({
-      title: `Successfully assigned ${registrationIds.length} registration(s) to group`,
-    });
+    if (options?.showToast !== false) {
+      toaster.success({
+        title: `Successfully assigned ${registrationIds.length} registration(s) to group`,
+      });
+    }
     return response.data.data!;
   },
 

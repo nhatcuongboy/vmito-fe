@@ -12,7 +12,6 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   SingleEliminationBracket,
-  SVGViewer,
   type MatchType,
   type MatchComponentProps,
 } from 'react-tournament-brackets';
@@ -40,9 +39,6 @@ const SortableContext = SortableContextBase as any;
 // Workaround for react-tournament-brackets type incompatibility with React 19
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BracketEl = SingleEliminationBracket as React.ComponentType<any>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SVGViewerEl = SVGViewer as React.ComponentType<any>;
-
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -65,6 +61,8 @@ export interface IBracketVisualizationProps {
   groupCount: number;
   winnersPerGroup: number;
   thirdPlaceMatch?: boolean;
+  fifthPlaceMatch?: boolean;
+  seventhPlaceMatch?: boolean;
   /** If true, renders a compact thumbnail version without DnD */
   compact?: boolean;
   /** Custom slot order persisted externally (restored from formatConfig) */
@@ -419,6 +417,8 @@ export default function BracketVisualization({
   groupCount,
   winnersPerGroup,
   thirdPlaceMatch = false,
+  fifthPlaceMatch = false,
+  seventhPlaceMatch = false,
   compact = false,
   customSlots: externalCustomSlots,
   onSlotsChange,
@@ -446,7 +446,15 @@ export default function BracketVisualization({
   }, [externalCustomSlots, groupCount, winnersPerGroup]);
 
   // ── Build bracket data ───────────────────────────────────────────────────────
-  const { flatMatches, firstRoundSlotIds, thirdPlace } = useMemo(() => {
+  const {
+    flatMatches,
+    firstRoundSlotIds,
+    thirdPlace,
+    fifthSF1,
+    fifthSF2,
+    fifthPlace,
+    seventhPlace,
+  } = useMemo(() => {
     const bracketSize = nextPowerOf2(teamCount);
     if (bracketSize < 2)
       return { flatMatches: [], firstRoundSlotIds: [], thirdPlace: null };
@@ -539,24 +547,84 @@ export default function BracketVisualization({
 
     // Third place match info (rendered separately below the SVG bracket)
     let tpMatch: IThirdPlaceInfo | null = null;
-    if (thirdPlaceMatch && totalRounds >= 2) {
-      const sfIds = roundMatchIds[totalRounds - 2];
-      if (sfIds && sfIds.length === 2) {
-        tpMatch = {
-          matchNumber: counter,
-          participant1Label: t('panels.rounds.loserOf', { match: sfIds[0] }),
-          participant2Label: t('panels.rounds.loserOf', { match: sfIds[1] }),
+    const sfIds = roundMatchIds[totalRounds - 2];
+    if (thirdPlaceMatch && totalRounds >= 2 && sfIds?.length === 2) {
+      tpMatch = {
+        matchNumber: counter,
+        participant1Label: t('panels.rounds.loserOf', { match: sfIds[0] }),
+        participant2Label: t('panels.rounds.loserOf', { match: sfIds[1] }),
+      };
+    }
+    const tpMatchNumber = counter;
+    counter++;
+
+    // 5th / 7th place consolation bracket (only for bracket size >= 8)
+    // Requires QF round: roundMatchIds[totalRounds - 2] are SFs, roundMatchIds[totalRounds - 3] are QFs
+    const qfIds =
+      totalRounds >= 3 ? (roundMatchIds[totalRounds - 3] ?? []) : [];
+    let fifthSF1: IThirdPlaceInfo | null = null;
+    let fifthSF2: IThirdPlaceInfo | null = null;
+    let fifthPlace: IThirdPlaceInfo | null = null;
+    let seventhPlace: IThirdPlaceInfo | null = null;
+
+    if (fifthPlaceMatch && qfIds.length >= 4) {
+      // Two P5 semi finals: losers of each pair of QF matches
+      const sf1Id = counter++;
+      const sf2Id = counter++;
+      fifthSF1 = {
+        matchNumber: sf1Id,
+        participant1Label: t('panels.rounds.loserOf', { match: qfIds[0] }),
+        participant2Label: t('panels.rounds.loserOf', { match: qfIds[1] }),
+      };
+      fifthSF2 = {
+        matchNumber: sf2Id,
+        participant1Label: t('panels.rounds.loserOf', { match: qfIds[2] }),
+        participant2Label: t('panels.rounds.loserOf', { match: qfIds[3] }),
+      };
+      fifthPlace = {
+        matchNumber: counter++,
+        participant1Label: t('panels.rounds.winnerOf', { match: sf1Id }),
+        participant2Label: t('panels.rounds.winnerOf', { match: sf2Id }),
+      };
+      if (seventhPlaceMatch) {
+        seventhPlace = {
+          matchNumber: counter++,
+          participant1Label: t('panels.rounds.loserOf', { match: sf1Id }),
+          participant2Label: t('panels.rounds.loserOf', { match: sf2Id }),
         };
       }
+    } else if (fifthPlaceMatch && sfIds?.length === 2) {
+      // No QF round (bracket size 4): use SF losers directly
+      fifthPlace = {
+        matchNumber: counter++,
+        participant1Label: t('panels.rounds.loserOf', { match: sfIds[0] }),
+        participant2Label: t('panels.rounds.loserOf', { match: sfIds[1] }),
+      };
     }
+
+    // suppress unused warning
+    void tpMatchNumber;
 
     return {
       flatMatches: matches,
       firstRoundSlotIds: slotIds,
       thirdPlace: tpMatch,
+      fifthSF1,
+      fifthSF2,
+      fifthPlace,
+      seventhPlace,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slots, teamCount, groupCount, winnersPerGroup, thirdPlaceMatch, t]);
+  }, [
+    slots,
+    teamCount,
+    groupCount,
+    winnersPerGroup,
+    thirdPlaceMatch,
+    fifthPlaceMatch,
+    seventhPlaceMatch,
+    t,
+  ]);
 
   // ── DnD ─────────────────────────────────────────────────────────────────────
   const sensors = useSensors(
@@ -604,9 +672,9 @@ export default function BracketVisualization({
       connectorColorHighlight: '#4299E1',
       roundHeader: {
         isShown: true,
-        height: compact ? 24 : 32,
-        fontSize: compact ? 10 : 12,
-        fontColor: '#374151',
+        height: compact ? 24 : 40,
+        fontSize: compact ? 11 : 14,
+        fontColor: '#1f2937',
         backgroundColor: 'transparent',
       },
       roundSeparatorWidth: compact ? 16 : 32,
@@ -640,14 +708,17 @@ export default function BracketVisualization({
             {children}
           </div>
         ) : (
-          <SVGViewerEl
-            width={bracketWidth}
-            height={bracketHeight}
-            background="transparent"
-            SVGBackground="transparent"
+          <div
+            style={{
+              overflowX: 'auto',
+              overflowY: 'visible',
+              width: `${bracketWidth}px`,
+              minHeight: `${bracketHeight}px`,
+              position: 'relative',
+            }}
           >
             {children}
-          </SVGViewerEl>
+          </div>
         )
       }
     />
@@ -680,6 +751,72 @@ export default function BracketVisualization({
             compact={compact}
             title={t('panels.rounds.thirdPlace')}
           />
+        )}
+
+        {/* 5th / 7th place consolation bracket */}
+        {!compact && fifthPlace && (
+          <Box mt={6}>
+            <Text
+              fontSize="xs"
+              fontWeight="semibold"
+              color="gray.500"
+              mb={3}
+              pl={8}
+            >
+              {t('panels.rounds.consolationBracket')}
+            </Text>
+            {/* P5 Semi Finals */}
+            {fifthSF1 && fifthSF2 && (
+              <Flex gap={4} pl={8} mb={4} flexWrap="wrap">
+                <Box>
+                  <Text
+                    fontSize="2xs"
+                    color="gray.400"
+                    mb={1}
+                    fontWeight="medium"
+                  >
+                    P5: {t('panels.rounds.semiFinals')}
+                  </Text>
+                  <ThirdPlaceCard match={fifthSF1} compact={false} title="" />
+                  <Box mt={2}>
+                    <ThirdPlaceCard match={fifthSF2} compact={false} title="" />
+                  </Box>
+                </Box>
+                <Box>
+                  <Text
+                    fontSize="2xs"
+                    color="gray.400"
+                    mb={1}
+                    fontWeight="medium"
+                  >
+                    &nbsp;
+                  </Text>
+                  <ThirdPlaceCard
+                    match={fifthPlace}
+                    compact={false}
+                    title={t('panels.rounds.fifthPlace')}
+                  />
+                  {seventhPlace && (
+                    <Box mt={2}>
+                      <ThirdPlaceCard
+                        match={seventhPlace}
+                        compact={false}
+                        title={t('panels.rounds.seventhPlace')}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              </Flex>
+            )}
+            {/* Simple 5th place (no QF round) */}
+            {!fifthSF1 && (
+              <ThirdPlaceCard
+                match={fifthPlace}
+                compact={false}
+                title={t('panels.rounds.fifthPlace')}
+              />
+            )}
+          </Box>
         )}
 
         {/* Consolation matches */}

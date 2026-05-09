@@ -309,7 +309,13 @@ export const VModal: React.FC<VModalProps> = ({
                     <Button
                       type="button"
                       colorPalette={primaryColorScheme}
-                      onClick={onPrimaryAction}
+                      onClick={async () => {
+                        try {
+                          await onPrimaryAction?.();
+                        } catch (error) {
+                          console.error('Primary action error:', error);
+                        }
+                      }}
                       loading={isPrimaryLoading}
                       disabled={isPrimaryDisabled || isPrimaryLoading}
                     >
