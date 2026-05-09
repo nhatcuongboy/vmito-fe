@@ -2,7 +2,7 @@
 
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { Edit } from 'lucide-react';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
@@ -44,25 +44,6 @@ const getTeamLabel = (match: CategoryMatch, position: number): string => {
   return reg.player?.name || 'Unknown';
 };
 
-const formatMatchTime = (match: CategoryMatch): string => {
-  if (!match.startTime) return '';
-  const start = new Date(match.startTime);
-  const end = match.endTime ? new Date(match.endTime) : null;
-
-  const dateStr = start.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
-  const startStr = formatTimeByDevicePreference(start);
-
-  if (end) {
-    const endStr = formatTimeByDevicePreference(end);
-    return `${dateStr} @ ${startStr} - ${endStr}`;
-  }
-  return `${dateStr} @ ${startStr}`;
-};
-
 export default function ScheduleListView({
   matches,
   categories,
@@ -72,6 +53,7 @@ export default function ScheduleListView({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.list'
   );
+  const locale = useLocale();
 
   // Group matches by category
   const matchesByCategory = categories
@@ -88,7 +70,49 @@ export default function ScheduleListView({
     if (!courtId) return '';
     const court = courts.find((c) => c.id === courtId);
     if (!court) return '';
-    return court.courtName || `Court ${court.courtNumber}`;
+
+    // Get first letter of court name or 'R' as default prefix
+    const prefix = court.courtName
+      ? court.courtName.charAt(0).toUpperCase()
+      : 'R';
+    const courtDisplay =
+      court.courtName || `${t('courtPrefix')} ${court.courtNumber}`;
+
+    return `${prefix} · ${courtDisplay}`;
+  };
+
+  const getRoundLabel = (round: string): string => {
+    const roundMap: Record<string, string> = {
+      GROUP: t('roundGroup'),
+      QF: t('roundQF'),
+      SF: t('roundSF'),
+      F: t('roundF'),
+      '3RD': t('round3rd'),
+    };
+    return roundMap[round] || round;
+  };
+
+  const formatMatchTime = (match: CategoryMatch): string => {
+    if (!match.startTime) return '';
+    const start = new Date(match.startTime);
+
+    // endTime = actual end (match finished), estimatedEndTime = scheduled end
+    // For display, prefer estimatedEndTime (scheduled), fall back to endTime (actual),
+    // or calculate from startTime + 60 min if neither is available
+    const rawEnd = match.estimatedEndTime ?? match.endTime;
+    const end = rawEnd
+      ? new Date(rawEnd)
+      : new Date(start.getTime() + 60 * 60 * 1000);
+
+    const dateStr = start.toLocaleDateString(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+    const startStr = formatTimeByDevicePreference(start);
+    const endStr = formatTimeByDevicePreference(end);
+
+    return `${dateStr} @ ${startStr} - ${endStr}`;
   };
 
   return (
@@ -104,7 +128,7 @@ export default function ScheduleListView({
           {/* Table header */}
           <Box
             display="grid"
-            gridTemplateColumns="40px 1fr 1fr 2fr 1.5fr 40px"
+            gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
             gap={2}
             px={3}
             py={2}
@@ -116,10 +140,24 @@ export default function ScheduleListView({
               #
             </Text>
             <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-              {t('team')}
+              {t('round')}
             </Text>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-              {t('team')}
+            <Text
+              fontSize="xs"
+              fontWeight="semibold"
+              color="gray.500"
+              textAlign="right"
+            >
+              {t('team1')}
+            </Text>
+            <Box /> {/* VS column */}
+            <Text
+              fontSize="xs"
+              fontWeight="semibold"
+              color="gray.500"
+              textAlign="left"
+            >
+              {t('team2')}
             </Text>
             <Text fontSize="xs" fontWeight="semibold" color="gray.500">
               {t('time')}
@@ -136,7 +174,7 @@ export default function ScheduleListView({
               <Box
                 key={match.id}
                 display="grid"
-                gridTemplateColumns="40px 1fr 1fr 2fr 1.5fr 40px"
+                gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
                 gap={2}
                 px={3}
                 py={3}
@@ -148,10 +186,18 @@ export default function ScheduleListView({
                 <Text fontSize="sm" color="gray.500">
                   {match.matchNumber}
                 </Text>
-                <Text fontSize="sm" fontWeight="medium">
+                <Text fontSize="xs" color="gray.600" fontWeight="medium">
+                  {getRoundLabel(match.round)}
+                </Text>
+                <Text fontSize="sm" fontWeight="medium" textAlign="right">
                   {getTeamLabel(match, 1)}
                 </Text>
-                <Text fontSize="sm" fontWeight="medium">
+                <Flex justify="center" align="center">
+                  <Text fontSize="xs" color="gray.400" fontWeight="bold">
+                    VS
+                  </Text>
+                </Flex>
+                <Text fontSize="sm" fontWeight="medium" textAlign="left">
                   {getTeamLabel(match, 2)}
                 </Text>
                 <Text

@@ -127,11 +127,20 @@ export default function TeamsPanel({
         await CategoryService.createRegistration(activeCategory.id, {
           tournamentPlayerId: player.id,
         });
+        toaster.success({
+          title: 'Team added successfully',
+        });
       } else {
         const lines = addMultiText
           .split('\n')
           .map((l) => l.trim())
           .filter(Boolean);
+        if (lines.length === 0) {
+          toaster.error({
+            title: 'Please enter at least one team',
+          });
+          return;
+        }
         for (const line of lines) {
           const player = await TournamentPlayerService.createPlayer(
             tournamentId,
@@ -144,16 +153,18 @@ export default function TeamsPanel({
             { showToast: false }
           );
         }
-        if (lines.length > 0) {
-          toaster.success({
-            title: `Added ${lines.length} teams successfully`,
-          });
-        }
+        toaster.success({
+          title: `Added ${lines.length} teams successfully`,
+        });
       }
       await loadRegistrations(activeCategory.id);
       addModal.onClose();
     } catch (error) {
       console.error('Error adding team(s):', error);
+      toaster.error({
+        title: 'Failed to add teams',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -181,6 +192,10 @@ export default function TeamsPanel({
       editModal.onClose();
     } catch (error) {
       console.error('Error editing team:', error);
+      toaster.error({
+        title: 'Failed to update team',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -204,6 +219,10 @@ export default function TeamsPanel({
       deleteModal.onClose();
     } catch (error) {
       console.error('Error deleting team:', error);
+      toaster.error({
+        title: 'Failed to delete team',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }

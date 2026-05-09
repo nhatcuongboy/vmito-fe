@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toaster } from '@/components/ui/toaster';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
@@ -63,6 +64,10 @@ export default function CategoriesPanel({
       createModal.onClose();
     } catch (error) {
       console.error('Error creating category:', error);
+      toaster.error({
+        title: 'Failed to create category',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -77,6 +82,11 @@ export default function CategoriesPanel({
 
   const handleEdit = async () => {
     if (!editingCategory || !name.trim()) return;
+    // Skip if no actual change
+    if (editingCategory.name === name.trim()) {
+      editModal.onClose();
+      return;
+    }
     try {
       setIsSubmitting(true);
       await CategoryService.updateCategory(editingCategory.id, {
@@ -86,6 +96,10 @@ export default function CategoriesPanel({
       editModal.onClose();
     } catch (error) {
       console.error('Error updating category:', error);
+      toaster.error({
+        title: 'Failed to update category',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -106,6 +120,10 @@ export default function CategoriesPanel({
       deleteModal.onClose();
     } catch (error) {
       console.error('Error deleting category:', error);
+      toaster.error({
+        title: 'Failed to delete category',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -206,7 +224,7 @@ export default function CategoriesPanel({
         primaryActionText={t('panels.categories.save')}
         onPrimaryAction={handleEdit}
         isPrimaryLoading={isSubmitting}
-        isPrimaryDisabled={!name.trim()}
+        isPrimaryDisabled={!name.trim() || editingCategory?.name === name}
         secondaryActionText={t('panels.categories.cancel')}
       >
         <Input

@@ -279,15 +279,18 @@ export const CategoryService = {
   bulkAssignRegistrationsToGroup: async (
     categoryId: string,
     groupId: string,
-    registrationIds: string[]
+    registrationIds: string[],
+    options?: { showToast?: boolean }
   ): Promise<CategoryGroupRegistration[]> => {
     const response = await api.post<ApiResponse<CategoryGroupRegistration[]>>(
       `/categories/${categoryId}/groups/${groupId}/registrations/bulk`,
       { categoryRegistrationIds: registrationIds }
     );
-    toaster.success({
-      title: `Successfully assigned ${registrationIds.length} registration(s) to group`,
-    });
+    if (options?.showToast !== false) {
+      toaster.success({
+        title: `Successfully assigned ${registrationIds.length} registration(s) to group`,
+      });
+    }
     return response.data.data!;
   },
 
@@ -350,9 +353,8 @@ export const CategoryService = {
   },
 
   bulkUpdateSchedule: async (updates: IBulkScheduleItem[]): Promise<void> => {
-    await api.put<ApiResponse<null>>('/category-matches/bulk/schedule', {
+    await api.put<ApiResponse<null>>('/category-matches/bulk-schedule', {
       updates,
     });
-    toaster.success({ title: 'Schedule updated successfully' });
   },
 };

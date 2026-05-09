@@ -72,8 +72,8 @@ const PublicSessionDetailClient = ({
 
   return (
     <PageWrapper
-      bg={{ base: 'white', md: 'gray.50' }}
-      _dark={{ bg: { md: 'gray.950' } }}
+      bg={{ base: 'green.50', md: 'gray.50' }}
+      _dark={{ bg: { base: 'gray.900', md: 'gray.950' } }}
     >
       {/* Desktop-only top bar */}
       <Box display={{ base: 'none', md: 'block' }}>

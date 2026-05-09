@@ -278,7 +278,7 @@ const CreateClubPage = () => {
       const restData = { ...data };
       delete restData.allLevelsSelected;
 
-      const club = await ClubsService.createClub({
+      await ClubsService.createClub({
         ...restData,
         image,
         imagePublicId,
@@ -290,12 +290,7 @@ const CreateClubPage = () => {
         requiredLevels: data.requiredLevels,
       });
 
-      // Show appropriate toast based on club status
-      if (club.status === 'PENDING') {
-        toaster.success({ title: t('notification.club.creationPending') });
-      } else {
-        toaster.success({ title: t('notification.club.creationSuccess') });
-      }
+      toaster.success({ title: t('notification.club.creationSuccess') });
 
       router.push(ROUTES.CLUBS.MY_CLUBS);
     } catch (error) {

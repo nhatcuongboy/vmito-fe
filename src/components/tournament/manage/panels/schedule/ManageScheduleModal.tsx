@@ -12,15 +12,18 @@ import {
   CategoryMatch,
   TournamentCourt,
   IBulkScheduleItem,
+  IGenerateScheduleResponse,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
+import { ScheduleGeneratorService } from '@/lib/api/schedule-generator.service';
 import { toaster } from '@/components/ui/toaster';
 import ScheduleCalendarView from './ScheduleCalendarView';
 import ScheduleListView from './ScheduleListView';
 import EditMatchTimeSheet from './EditMatchTimeSheet';
-import GenerateScheduleDrawer from './GenerateScheduleDrawer';
+import GenerateScheduleDrawerV2 from './GenerateScheduleDrawerV2';
 import GenerationResultModal from './GenerationResultModal';
+import SchedulePreviewDrawer from './SchedulePreviewDrawer';
 import { IGenerateScheduleResult } from '@/utils/schedule-generator';
 
 type ViewMode = 'list' | 'calendar';
@@ -61,6 +64,19 @@ export default function ManageScheduleModal({
     useState<IGenerateScheduleResult | null>(null);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
 
+  // Backend-generated schedule state
+  const [backendGenerationResponse, setBackendGenerationResponse] =
+    useState<IGenerateScheduleResponse | null>(null);
+  const previewDrawerModal = useModal();
+
+  // Preview mode: schedule generated but not yet saved to DB
+  const [pendingScheduleId, setPendingScheduleId] = useState<string | null>(
+    null
+  );
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isSavingPreview, setIsSavingPreview] = useState(false);
+  const isPreviewMode = pendingScheduleId !== null;
+
   // Fetch data on mount
   useEffect(() => {
     if (!isOpen) {
@@ -88,6 +104,13 @@ export default function ManageScheduleModal({
 
   const hasScheduledMatches = allMatches.some((m) => m.startTime && m.courtId);
 
+  // Only show courts that are associated with a venue (courts the tournament has configured).
+  // Falls back to all courts if none have a venue association.
+  const venueCourts = (() => {
+    const linked = courts.filter((c) => c.tournamentVenueId);
+    return linked.length > 0 ? linked : courts;
+  })();
+
   const handleMatchMove = useCallback(
     (
       matchId: string,
@@ -104,6 +127,7 @@ export default function ManageScheduleModal({
                 courtId: courtId || undefined,
                 startTime: startTime ? new Date(startTime) : undefined,
                 endTime: endTime ? new Date(endTime) : undefined,
+                estimatedEndTime: endTime ? new Date(endTime) : undefined,
               }
             : m
         )
@@ -127,6 +151,85 @@ export default function ManageScheduleModal({
     },
     [generateDrawerModal, resultModal]
   );
+
+  // Handle backend-generated schedule
+  const handleBackendGenerated = useCallback(
+    (response: IGenerateScheduleResponse) => {
+      setBackendGenerationResponse(response);
+      generateDrawerModal.onClose();
+      previewDrawerModal.onOpen();
+    },
+    [generateDrawerModal, previewDrawerModal]
+  );
+
+  // "View schedule" from summary modal → load preview into main list view
+  const handleViewSchedulePreview = useCallback(async () => {
+    if (!backendGenerationResponse) return;
+    setIsLoadingPreview(true);
+    try {
+      // Refresh matches (auto-generated matches may be new)
+      const matchesData = await TournamentService.getAllMatches(tournament.id);
+      // Load preview assignments
+      const preview = await ScheduleGeneratorService.getPreview(
+        tournament.id,
+        backendGenerationResponse.scheduleId
+      );
+      // Apply preview assignments to local match state
+      const assignmentMap = new Map(
+        preview.matches.map((pm) => [pm.matchId, pm])
+      );
+      const updatedMatches = matchesData.map((m) => {
+        const assignment = assignmentMap.get(m.id);
+        if (assignment) {
+          return {
+            ...m,
+            courtId: assignment.courtId,
+            startTime: new Date(assignment.startTime),
+            endTime: new Date(assignment.endTime),
+            estimatedEndTime: new Date(assignment.endTime),
+          };
+        }
+        return m;
+      });
+      setAllMatches(updatedMatches);
+      setPendingScheduleId(backendGenerationResponse.scheduleId);
+      setManualEntry(true); // ensure we show list view, not empty state
+      setViewMode('list');
+      previewDrawerModal.onClose();
+    } catch {
+      toaster.error({ title: 'Failed to load schedule preview' });
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  }, [backendGenerationResponse, tournament.id, previewDrawerModal]);
+
+  // Save the pending preview schedule to DB
+  const handleSavePreview = useCallback(async () => {
+    if (!pendingScheduleId) return;
+    setIsSavingPreview(true);
+    try {
+      const result = await ScheduleGeneratorService.saveSchedule(
+        tournament.id,
+        pendingScheduleId
+      );
+      if (result.success) {
+        toaster.success({ title: `Saved ${result.scheduledCount} match(es)` });
+        setPendingScheduleId(null);
+        setBackendGenerationResponse(null);
+        onScheduleSaved?.();
+        onClose();
+      }
+    } catch {
+      toaster.error({ title: 'Failed to save schedule' });
+    } finally {
+      setIsSavingPreview(false);
+    }
+  }, [pendingScheduleId, tournament.id, onScheduleSaved]);
+
+  const handlePreviewCancel = useCallback(() => {
+    setBackendGenerationResponse(null);
+    setPendingScheduleId(null);
+  }, []);
 
   const handleViewSchedule = useCallback(() => {
     if (!generationResult) return;
@@ -201,9 +304,10 @@ export default function ManageScheduleModal({
         size="full"
         showCloseButton={false}
         hideSecondaryAction
-        maxBodyHeight="calc(100vh - 140px)"
+        maxBodyHeight="calc(100vh - 200px)"
+        title={t('title')}
       >
-        {/* Custom header */}
+        {/* Custom header - Fixed */}
         <Flex
           justify="space-between"
           align="center"
@@ -211,27 +315,63 @@ export default function ManageScheduleModal({
           borderBottomWidth="1px"
           borderColor="gray.200"
           mb={3}
+          position="sticky"
+          top={0}
+          bg="white"
+          zIndex={10}
+          _dark={{ bg: 'gray.800' }}
         >
-          <Flex gap={2}>
-            <Button
-              variant={viewMode === 'list' ? 'solid' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
+          <Flex gap={2} align="center">
+            {/* Segmented view-mode toggle */}
+            <Flex
+              bg="gray.100"
+              borderRadius="md"
+              p="2px"
+              _dark={{ bg: 'gray.700' }}
             >
-              <List size={14} />
-              {t('listView')}
-            </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                borderRadius="md"
+                bg={viewMode === 'list' ? 'white' : 'transparent'}
+                color={viewMode === 'list' ? 'gray.800' : 'gray.500'}
+                boxShadow={viewMode === 'list' ? 'sm' : 'none'}
+                _hover={{ bg: viewMode === 'list' ? 'white' : 'gray.200' }}
+                _dark={{
+                  bg: viewMode === 'list' ? 'gray.600' : 'transparent',
+                  color: viewMode === 'list' ? 'white' : 'gray.400',
+                }}
+                onClick={() => setViewMode('list')}
+                px={3}
+              >
+                <List size={14} />
+                {t('listView')}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                borderRadius="md"
+                bg={viewMode === 'calendar' ? 'white' : 'transparent'}
+                color={viewMode === 'calendar' ? 'gray.800' : 'gray.500'}
+                boxShadow={viewMode === 'calendar' ? 'sm' : 'none'}
+                _hover={{ bg: viewMode === 'calendar' ? 'white' : 'gray.200' }}
+                _dark={{
+                  bg: viewMode === 'calendar' ? 'gray.600' : 'transparent',
+                  color: viewMode === 'calendar' ? 'white' : 'gray.400',
+                }}
+                onClick={() => setViewMode('calendar')}
+                px={3}
+              >
+                <CalendarIcon size={14} />
+                {t('calendarView')}
+              </Button>
+            </Flex>
             <Button
-              variant={viewMode === 'calendar' ? 'solid' : 'outline'}
               size="sm"
-              onClick={() => setViewMode('calendar')}
-            >
-              <CalendarIcon size={14} />
-              {t('calendarView')}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
+              bg="purple.500"
+              color="white"
+              _hover={{ bg: 'purple.600' }}
+              _dark={{ bg: 'purple.600', _hover: { bg: 'purple.700' } }}
               onClick={generateDrawerModal.onOpen}
             >
               <Sparkles size={14} />
@@ -296,47 +436,64 @@ export default function ManageScheduleModal({
           <ScheduleCalendarView
             matches={allMatches}
             categories={categories}
-            courts={courts}
+            courts={venueCourts}
             defaultMatchLength={defaultMatchLength}
             onMatchMove={handleMatchMove}
           />
         )}
 
-        {/* Footer */}
+        {/* Footer - Fixed */}
         <Flex
-          justify="space-between"
+          justify="flex-end"
+          align="center"
+          gap={3}
           pt={3}
           mt={3}
           borderTopWidth="1px"
           borderColor="gray.200"
+          position="sticky"
+          bottom={0}
+          bg="white"
+          zIndex={10}
+          _dark={{ bg: 'gray.800' }}
         >
           <Button variant="ghost" onClick={handleCancel}>
             {t('cancel')}
           </Button>
-          <Button
-            bg="gray.800"
-            color="white"
-            onClick={handleSave}
-            disabled={dirtyMatches.size === 0}
-            loading={isSaving}
-          >
-            {t('save')}
-          </Button>
+          {isPreviewMode ? (
+            <Button
+              colorPalette="green"
+              onClick={handleSavePreview}
+              loading={isSavingPreview}
+            >
+              Save changes
+            </Button>
+          ) : (
+            <Button
+              colorPalette="green"
+              onClick={handleSave}
+              disabled={dirtyMatches.size === 0}
+              loading={isSaving}
+            >
+              {t('save')}
+            </Button>
+          )}
         </Flex>
       </VModal>
 
-      {/* Generate Schedule Drawer */}
-      <GenerateScheduleDrawer
+      {/* Generate Schedule Drawer (v2 with backend API) */}
+      <GenerateScheduleDrawerV2
         isOpen={generateDrawerModal.isOpen}
         onClose={generateDrawerModal.onClose}
+        tournamentId={tournament.id}
         categories={categories}
         allMatches={allMatches}
         courts={courts}
         venueName={tournament.venue?.name}
-        onGenerated={handleGenerated}
+        onGenerated={handleBackendGenerated}
       />
 
-      {/* Generation Result Modal */}
+      {/* Generation Result Modal (legacy fallback) */}
       {generationResult && (
         <GenerationResultModal
           isOpen={resultModal.isOpen}
@@ -346,15 +503,34 @@ export default function ManageScheduleModal({
         />
       )}
 
+      {/* Schedule Preview Summary (new backend flow) */}
+      {backendGenerationResponse && (
+        <SchedulePreviewDrawer
+          isOpen={previewDrawerModal.isOpen}
+          onClose={previewDrawerModal.onClose}
+          generationResponse={backendGenerationResponse}
+          onViewSchedule={handleViewSchedulePreview}
+          onCancel={handlePreviewCancel}
+          isLoadingView={isLoadingPreview}
+        />
+      )}
+
       {/* Edit Match Time Sheet */}
       <EditMatchTimeSheet
         isOpen={editingMatch !== null}
         onClose={() => setEditingMatch(null)}
         match={allMatches.find((m) => m.id === editingMatch) ?? null}
         courts={courts}
-        onUpdate={(matchId, courtId, startTime, endTime) => {
+        onUpdate={async (matchId, courtId, startTime, endTime) => {
           handleMatchMove(matchId, courtId, startTime, endTime);
           setEditingMatch(null);
+          try {
+            await CategoryService.bulkUpdateSchedule([
+              { matchId, courtId, startTime, endTime },
+            ]);
+          } catch {
+            toaster.error({ title: t('updateFailed') });
+          }
         }}
       />
     </>

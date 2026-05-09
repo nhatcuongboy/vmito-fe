@@ -57,6 +57,20 @@ export const NextLinkButton: React.FC<NextLinkButtonProps> = ({
 
   const isLoading = isPending || (props as any).loading;
 
+  // When loading, replace the first icon child with a spinner and keep the rest
+  const renderChildren = () => {
+    if (!isLoading) return children;
+
+    const childArray = React.Children.toArray(children);
+    // Replace the first element (typically an icon) with a spinner
+    return childArray.map((child, index) => {
+      if (index === 0 && React.isValidElement(child)) {
+        return <Spinner key="loading-spinner" size="xs" color="currentColor" />;
+      }
+      return child;
+    });
+  };
+
   // We don't use as={Link} directly to avoid nested <a> tags
   return (
     <Link
@@ -74,19 +88,8 @@ export const NextLinkButton: React.FC<NextLinkButtonProps> = ({
         opacity={isLoading ? 0.6 : ((props as any).opacity ?? 1)}
         cursor={isLoading ? 'wait' : (props as any).cursor}
         pointerEvents={isLoading ? 'none' : (props as any).pointerEvents}
-        position="relative"
       >
-        {children}
-        {isLoading && (
-          <Spinner
-            size="xs"
-            color="green.500"
-            position="absolute"
-            right="6px"
-            top="50%"
-            transform="translateY(-50%)"
-          />
-        )}
+        {renderChildren()}
       </Button>
     </Link>
   );

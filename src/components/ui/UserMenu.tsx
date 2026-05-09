@@ -27,13 +27,11 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import { UserRole } from '@/lib/api/types';
 import { useTranslations, useLocale } from 'next-intl';
-import UserProfileModal from './UserProfileModal';
 import { useRouter, usePathname } from '@/i18n/config';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 import { useColorMode } from './color-mode-provider';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { ROUTES } from '@/constants/routes';
-import { Pencil } from 'lucide-react';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -50,7 +48,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState<{
@@ -103,11 +100,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
     if (user) {
       router.push(ROUTES.USER.PROFILE(user.id));
     }
-  };
-
-  const handleEditProfileClick = () => {
-    setIsOpen(false);
-    setIsProfileModalOpen(true);
   };
 
   const handleLogoutClick = () => {
@@ -169,29 +161,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('profile')}
-        </Text>
-      </Flex>
-
-      {/* Edit Profile */}
-      <Flex
-        align="center"
-        gap={{ base: 2, md: 3 }}
-        px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
-        cursor="pointer"
-        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-        onClick={handleEditProfileClick}
-      >
-        <Box
-          bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
-          p={{ base: 1.5, md: 2 }}
-          borderRadius="full"
-        >
-          <Pencil size={16} />
-        </Box>
-        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
-          {common('editProfile')}
         </Text>
       </Flex>
 
@@ -513,11 +482,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                   _dark={{ borderColor: 'gray.700' }}
                 >
                   <Flex align="center" gap={{ base: 2, md: 3 }}>
-                    <Avatar.Root
-                      size={{ base: 'sm', md: 'md' }}
-                      bg="brand.500"
-                      onClick={handleEditProfileClick}
-                    >
+                    <Avatar.Root size={{ base: 'sm', md: 'md' }} bg="brand.500">
                       <Avatar.Fallback name={user.name || user.email}>
                         {(user.name || user.email).charAt(0).toUpperCase()}
                       </Avatar.Fallback>
@@ -570,14 +535,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           </Box>
         </Portal>
       )}
-
-      {/* Profile Modal - rendered via Portal to escape dropdown positioning context */}
-      <Portal>
-        <UserProfileModal
-          isOpen={isProfileModalOpen}
-          onClose={() => setIsProfileModalOpen(false)}
-        />
-      </Portal>
     </>
   );
 }

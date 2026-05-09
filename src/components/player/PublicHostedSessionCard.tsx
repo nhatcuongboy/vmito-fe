@@ -6,6 +6,7 @@ import { Image } from '@/components/ui/chakra-compat';
 import { CalendarDays, ChevronRight, MapPin, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
 
 interface IPublicHostedSessionCardProps {
   session: ISession;
@@ -92,15 +93,13 @@ export default function PublicHostedSessionCard({
           flexShrink={0}
           position="relative"
         >
-          {session.coverPhoto ? (
-            <Image
-              src={session.coverPhoto}
-              alt={session.name}
-              w="full"
-              h="full"
-              objectFit="cover"
-            />
-          ) : null}
+          <Image
+            src={session.coverPhoto || DEFAULT_COVER_PHOTO}
+            alt={session.name}
+            w="full"
+            h="full"
+            objectFit="cover"
+          />
           <Badge
             position="absolute"
             top={2}

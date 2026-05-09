@@ -61,6 +61,7 @@ export default function CourtSelector({
       onPrimaryAction={handleConfirm}
       secondaryActionText={t('close')}
       size="sm"
+      zIndex={1500}
       headerRightContent={
         <Button
           variant="ghost"

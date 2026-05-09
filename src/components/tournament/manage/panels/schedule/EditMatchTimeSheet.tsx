@@ -128,9 +128,11 @@ export default function EditMatchTimeSheet({
       {/* Bottom sheet */}
       <Box
         position="fixed"
-        left={0}
-        right={0}
+        left="50%"
         bottom={0}
+        transform="translateX(-50%)"
+        maxW="560px"
+        w="full"
         bg="white"
         borderTopRadius="2xl"
         boxShadow="lg"
@@ -140,8 +142,8 @@ export default function EditMatchTimeSheet({
         animation="slideUp 0.2s ease-out"
         css={{
           '@keyframes slideUp': {
-            from: { transform: 'translateY(100%)' },
-            to: { transform: 'translateY(0)' },
+            from: { transform: 'translateX(-50%) translateY(100%)' },
+            to: { transform: 'translateX(-50%) translateY(0)' },
           },
         }}
       >
@@ -213,7 +215,7 @@ export default function EditMatchTimeSheet({
               <option value="">{t('court')}</option>
               {courts.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.courtName || `Court ${c.courtNumber}`}
+                  {c.courtName || `${t('courtPrefix')} ${c.courtNumber}`}
                 </option>
               ))}
             </select>

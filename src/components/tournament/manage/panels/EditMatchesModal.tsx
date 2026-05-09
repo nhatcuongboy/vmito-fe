@@ -65,6 +65,7 @@ interface ITeamSelectProps {
   poolGroups: IPoolGroup[];
   placeholder: string;
   onChange: (value: string) => void;
+  hasError?: boolean;
 }
 
 const TeamSelect = ({
@@ -72,6 +73,7 @@ const TeamSelect = ({
   poolGroups,
   placeholder,
   onChange,
+  hasError = false,
 }: ITeamSelectProps) => (
   <select
     value={value}
@@ -80,7 +82,7 @@ const TeamSelect = ({
       width: '100%',
       padding: '0 12px',
       height: '40px',
-      border: '1px solid #e2e8f0',
+      border: hasError ? '2px solid #f56565' : '1px solid #e2e8f0',
       borderRadius: '8px',
       fontSize: '14px',
       background: 'white',
@@ -127,6 +129,16 @@ export default function EditMatchesModal({
   // Drag-and-drop state
   const dragIndexRef = useRef<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Validation: Check if a match row has the same team for both positions
+  const getMatchErrors = (row: IMatchRow): boolean => {
+    return (
+      row.team1Id !== '' && row.team2Id !== '' && row.team1Id === row.team2Id
+    );
+  };
+
+  // Check if any row has errors
+  const hasErrors = rows.some((row) => getMatchErrors(row));
 
   const poolGroups = buildPoolGroups(teams);
 
@@ -264,100 +276,127 @@ export default function EditMatchesModal({
 
           {/* Match rows */}
           <Box flex={1} overflowY="auto" px={6} py={4}>
-            <VStack gap={2} align="stretch">
-              {rows.map((row, idx) => (
-                <Flex
-                  key={row.id}
-                  align="center"
-                  gap={2}
-                  draggable
-                  onDragStart={() => handleDragStart(idx)}
-                  onDragOver={(e) => handleDragOver(e, idx)}
-                  onDrop={(e) => handleDrop(e, idx)}
-                  onDragEnd={handleDragEnd}
-                  borderWidth="1px"
-                  borderColor={
-                    dragOverIndex === idx ? 'blue.400' : 'transparent'
-                  }
-                  borderRadius="md"
-                  bg={dragOverIndex === idx ? 'blue.50' : 'transparent'}
-                  style={{ transition: 'background 0.1s, border-color 0.1s' }}
-                  px={1}
-                  py="2px"
-                >
-                  {/* Row number */}
-                  <Flex
-                    w="32px"
-                    h="32px"
-                    bg="gray.100"
-                    borderRadius="md"
-                    align="center"
-                    justify="center"
-                    flexShrink={0}
-                  >
-                    <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                      {idx + 1}
-                    </Text>
-                  </Flex>
-
-                  {/* Team 1 dropdown */}
-                  <Box flex={1}>
-                    <TeamSelect
-                      value={row.team1Id}
-                      poolGroups={poolGroups}
-                      placeholder={selectTeamPlaceholder}
-                      onChange={(value) =>
-                        handleTeamChange(idx, 'team1Id', value)
+            <VStack gap={4} align="stretch">
+              {rows.map((row, idx) => {
+                const hasError = getMatchErrors(row);
+                return (
+                  <Box key={row.id}>
+                    <Flex
+                      align="center"
+                      gap={2}
+                      draggable
+                      onDragStart={() => handleDragStart(idx)}
+                      onDragOver={(e) => handleDragOver(e, idx)}
+                      onDrop={(e) => handleDrop(e, idx)}
+                      onDragEnd={handleDragEnd}
+                      borderWidth="1px"
+                      borderColor={
+                        dragOverIndex === idx ? 'blue.400' : 'transparent'
                       }
-                    />
-                  </Box>
+                      borderRadius="md"
+                      bg={dragOverIndex === idx ? 'blue.50' : 'transparent'}
+                      style={{
+                        transition: 'background 0.1s, border-color 0.1s',
+                      }}
+                      px={1}
+                      py="2px"
+                    >
+                      {/* Row number */}
+                      <Flex
+                        w="32px"
+                        h="32px"
+                        bg="gray.100"
+                        borderRadius="md"
+                        align="center"
+                        justify="center"
+                        flexShrink={0}
+                      >
+                        <Text
+                          fontSize="sm"
+                          fontWeight="medium"
+                          color="gray.600"
+                        >
+                          {idx + 1}
+                        </Text>
+                      </Flex>
 
-                  {/* VS label */}
-                  <Text
-                    fontSize="sm"
-                    color="gray.400"
-                    fontWeight="medium"
-                    flexShrink={0}
-                    px={1}
-                  >
-                    {t('panels.rounds.vs')}
-                  </Text>
+                      {/* Team 1 dropdown */}
+                      <Box flex={1}>
+                        <TeamSelect
+                          value={row.team1Id}
+                          poolGroups={poolGroups}
+                          placeholder={selectTeamPlaceholder}
+                          onChange={(value) =>
+                            handleTeamChange(idx, 'team1Id', value)
+                          }
+                        />
+                      </Box>
 
-                  {/* Team 2 dropdown */}
-                  <Box flex={1}>
-                    <TeamSelect
-                      value={row.team2Id}
-                      poolGroups={poolGroups}
-                      placeholder={selectTeamPlaceholder}
-                      onChange={(value) =>
-                        handleTeamChange(idx, 'team2Id', value)
-                      }
-                    />
-                  </Box>
+                      {/* VS label */}
+                      <Text
+                        fontSize="sm"
+                        color="gray.400"
+                        fontWeight="medium"
+                        flexShrink={0}
+                        px={1}
+                      >
+                        {t('panels.rounds.vs')}
+                      </Text>
 
-                  {/* Delete button */}
-                  <Box
-                    as="button"
-                    onClick={() => handleDeleteRow(idx)}
-                    p={2}
-                    borderRadius="md"
-                    _hover={{ bg: 'gray.100' }}
-                    flexShrink={0}
-                  >
-                    <Trash2 size={16} color="#a0aec0" />
-                  </Box>
+                      {/* Team 2 dropdown */}
+                      <Box flex={1}>
+                        <TeamSelect
+                          value={row.team2Id}
+                          poolGroups={poolGroups}
+                          placeholder={selectTeamPlaceholder}
+                          onChange={(value) =>
+                            handleTeamChange(idx, 'team2Id', value)
+                          }
+                          hasError={hasError}
+                        />
+                      </Box>
 
-                  {/* Drag handle */}
-                  <Box
-                    color="gray.400"
-                    flexShrink={0}
-                    cursor="grab"
-                    _active={{ cursor: 'grabbing' }}
-                  >
-                    <GripVertical size={16} />
+                      {/* Delete button */}
+                      <Box
+                        as="button"
+                        onClick={() => handleDeleteRow(idx)}
+                        p={2}
+                        borderRadius="md"
+                        _hover={{ bg: 'gray.100' }}
+                        flexShrink={0}
+                      >
+                        <Trash2 size={16} color="#a0aec0" />
+                      </Box>
+
+                      {/* Drag handle */}
+                      <Box
+                        color="gray.400"
+                        flexShrink={0}
+                        cursor="grab"
+                        _active={{ cursor: 'grabbing' }}
+                      >
+                        <GripVertical size={16} />
+                      </Box>
+                    </Flex>
+                    {/* Error message */}
+                    {hasError && (
+                      <Flex align="center" gap={1} mt={2} pl={1}>
+                        <Box
+                          as="span"
+                          fontSize="xs"
+                          color="red.600"
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                        >
+                          <span>⚠️</span>
+                          {t('panels.rounds.teamCannotPlayAgainstItself')}
+                        </Box>
+                      </Flex>
+                    )}
                   </Box>
-                </Flex>
-              ))}
+                );
+              })}
 
               {/* Pending row — auto-commits when both teams are selected */}
               <Flex align="center" gap={2} px={1} py="2px">
@@ -421,8 +460,13 @@ export default function EditMatchesModal({
               {t('panels.rounds.cancel')}
             </Button>
             <Button
-              style={{ background: '#1a202c', color: 'white' }}
+              style={{
+                background: hasErrors ? '#cbd5e0' : '#1a202c',
+                color: 'white',
+                cursor: hasErrors ? 'not-allowed' : 'pointer',
+              }}
               onClick={handleConfirm}
+              disabled={hasErrors}
             >
               {t('panels.rounds.confirm')}
             </Button>

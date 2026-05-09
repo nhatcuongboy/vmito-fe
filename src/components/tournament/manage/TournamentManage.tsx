@@ -39,6 +39,9 @@ import RoundsPanel from './panels/RoundsPanel';
 import VenuePanel from './panels/VenuePanel';
 import SchedulePanel from './panels/SchedulePanel';
 import SponsorsPanel from './panels/SponsorsPanel';
+import NamePanel from './panels/NamePanel';
+import DatesPanel from './panels/DatesPanel';
+import LocationPanel from './panels/LocationPanel';
 
 interface TournamentManageProps {
   tournament: Tournament;
@@ -210,6 +213,27 @@ export default function TournamentManage({
         );
       case 'sponsors':
         return <SponsorsPanel />;
+      case 'name':
+        return (
+          <NamePanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'dates':
+        return (
+          <DatesPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'location':
+        return (
+          <LocationPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
       default:
         return null;
     }

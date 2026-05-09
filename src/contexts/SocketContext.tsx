@@ -113,11 +113,26 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   // BE returns an acknowledgement { error?: string } – log and surface any error.
   useEffect(() => {
     if (socket && isConnected && user?.id) {
+      const { accessToken } = useAuthStore.getState();
+
+      // Only attempt to join if we have a valid token
+      if (!accessToken) {
+        console.warn(
+          `[Socket] Skipping join_user_room: no access token for user-${user.id}`
+        );
+        return;
+      }
+
       socket.emit('join_user_room', (ack: { error?: string } | undefined) => {
         if (ack?.error) {
           console.error(
             `[Socket] join_user_room failed for user-${user.id}:`,
-            ack.error
+            ack.error,
+            {
+              hasToken: !!accessToken,
+              socketId: socket.id,
+              timestamp: new Date().toISOString(),
+            }
           );
         } else {
           console.log(`[Socket] Joined user room: user-${user.id}`, {

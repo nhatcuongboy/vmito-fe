@@ -4,11 +4,14 @@ import { UserRole } from '@/lib/api/types';
 import { MAIN_PAGE_PATHS } from '@/constants';
 import { useMemo } from 'react';
 
-// Pages that use their own bottom nav (HostSessionsNavPanel)
+// Pages that use their own bottom nav (HostSessionsNavPanel, ClubsNavPanel)
 const CUSTOM_BOTTOM_NAV_PATHS = [
   '/host/sessions',
   '/host/sessions/pending',
   '/host/sessions/joined',
+  '/my-clubs',
+  '/my-clubs/managing',
+  '/my-clubs/member',
 ];
 
 // Returns true if current page is a "main" page (shows main top bar)

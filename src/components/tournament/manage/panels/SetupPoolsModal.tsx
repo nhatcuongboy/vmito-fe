@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Box, Flex, Text, Portal } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import {
   ArrowLeft,
@@ -12,6 +12,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
+import VModal from '@/components/ui/VModal';
 import { useTranslations } from 'next-intl';
 import {
   Category,
@@ -507,17 +508,25 @@ export default function SetupPoolsModal({
         { showToast: false }
       );
       // Create new groups
-      await CategoryService.createGroups(category.id, { showToast: false });
-      // Auto-assign; seedTeams=true means keep team order (no shuffle)
-      await CategoryService.autoAssignAllRegistrations(category.id, {
-        shuffle: !seedTeams,
+      const newGroups = await CategoryService.createGroups(category.id, {
         showToast: false,
       });
+      // Assign registrations to groups based on the user's pool arrangement
+      const activePools = poolTeams.length > 0 ? poolTeams : previewPools;
+      for (let i = 0; i < newGroups.length && i < activePools.length; i++) {
+        const registrationIds = activePools[i].teams.map((t) => t.id);
+        if (registrationIds.length > 0) {
+          await CategoryService.bulkAssignRegistrationsToGroup(
+            category.id,
+            newGroups[i].id,
+            registrationIds,
+            { showToast: false }
+          );
+        }
+      }
 
       if (customMatches) {
         // Save custom-edited matches one by one
-        // Fetch the newly created groups to get their IDs
-        const newGroups = await CategoryService.getGroups(category.id);
         const groupNameToId: Record<string, string> = {};
         newGroups.forEach((g, idx) => {
           groupNameToId[`Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`] = g.id;
@@ -558,64 +567,104 @@ export default function SetupPoolsModal({
 
   if (!isOpen) return null;
 
-  return (
-    <Portal>
-      <Box
-        position="fixed"
-        inset="0"
-        zIndex={1400}
-        bg="white"
-        display="flex"
-        flexDirection="column"
-      >
-        {/* Top-right Close button */}
-        <Box position="absolute" top={4} right={4} zIndex={10}>
-          <Button size="sm" variant="outline" onClick={onClose}>
-            {t('panels.rounds.close')}
+  // ─── Footer ────────────────────────────────────────────────────────────────
+  const modalFooter = (
+    <Flex w="full" align="center" justify="space-between">
+      {step === 'configure' ? (
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            {t('panels.rounds.cancel')}
           </Button>
-        </Box>
+          <Button
+            style={{ background: '#1a202c', color: 'white' }}
+            leftIcon={<Sparkles size={14} />}
+            onClick={handleGenerateGames}
+            disabled={registrations.length < 2 || loadingData}
+          >
+            {t('panels.rounds.generateGames')}
+          </Button>
+        </>
+      ) : (
+        <>
+          {hasChanges ? (
+            <Button
+              variant="ghost"
+              leftIcon={<ArrowLeft size={14} />}
+              onClick={() => setStep('configure')}
+            >
+              {t('panels.rounds.back')}
+            </Button>
+          ) : (
+            <Box />
+          )}
+          <Button
+            style={{ background: '#1a202c', color: 'white' }}
+            onClick={showExistingMatches ? onClose : handleSaveMatches}
+            disabled={isSaving}
+          >
+            {isSaving
+              ? t('panels.rounds.saving')
+              : showExistingMatches
+                ? t('panels.rounds.done')
+                : t('panels.rounds.saveMatches')}
+          </Button>
+        </>
+      )}
+    </Flex>
+  );
 
+  return (
+    <>
+      <VModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={
+          <Flex align="center" gap={3}>
+            <Flex
+              w="36px"
+              h="36px"
+              bg="blue.50"
+              borderRadius="lg"
+              align="center"
+              justify="center"
+              flexShrink={0}
+            >
+              <RefreshCw size={18} color="#3182CE" />
+            </Flex>
+            <Box>
+              <Text fontWeight="bold" fontSize="md" lineHeight="1.2">
+                {t('panels.rounds.roundRobin')}
+              </Text>
+              <Text fontSize="xs" color="gray.500" fontWeight="normal">
+                {t('panels.rounds.configurePoolsAndConfirm')}
+              </Text>
+            </Box>
+          </Flex>
+        }
+        size="full"
+        footer={modalFooter}
+        maxBodyHeight={{ base: '70vh', md: '75vh' }}
+        zIndex={1400}
+      >
         {/* ─── Step 1: Configure ───────────────────────────────────────── */}
         {step === 'configure' && (
           <Flex
-            flex={1}
-            overflow="hidden"
             direction={{ base: 'column', md: 'row' }}
+            minH="400px"
+            mx={-4}
+            mt={-4}
           >
             {/* Left panel – options */}
             <Flex
               direction="column"
               gap={6}
-              w={{ base: 'full', md: '380px' }}
+              w={{ base: 'full', md: '340px' }}
               flexShrink={0}
-              p={8}
+              p={6}
               borderRightWidth={{ md: '1px' }}
               borderColor="gray.200"
               overflowY="auto"
             >
-              {/* Header */}
-              <Flex align="center" gap={3}>
-                <Flex
-                  w="48px"
-                  h="48px"
-                  bg="blue.50"
-                  borderRadius="lg"
-                  align="center"
-                  justify="center"
-                  flexShrink={0}
-                >
-                  <RefreshCw size={22} color="#3182CE" />
-                </Flex>
-                <Box>
-                  <Text fontWeight="bold" fontSize="lg">
-                    {t('panels.rounds.roundRobin')}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    {t('panels.rounds.configurePoolsAndConfirm')}
-                  </Text>
-                </Box>
-              </Flex>
-
               {/* Seed teams */}
               <Flex align="center" justify="space-between" gap={4}>
                 <Text fontSize="sm">{t('panels.rounds.seedTeams')}</Text>
@@ -890,7 +939,7 @@ export default function SetupPoolsModal({
             </Flex>
 
             {/* Right panel – pool preview with drag-and-drop */}
-            <Box flex={1} bg="gray.50" overflowY="auto" p={8}>
+            <Box flex={1} bg="gray.50" overflowY="auto" p={6}>
               {loadingData ? (
                 <Flex justify="center" align="center" h="200px">
                   <Text color="gray.400" fontSize="sm">
@@ -953,167 +1002,86 @@ export default function SetupPoolsModal({
 
         {/* ─── Step 2: Match list ──────────────────────────────────────── */}
         {step === 'matches' && (
-          <Box flex={1} overflowY="auto" px={4} pt={12} pb={24}>
-            <Box maxW="600px" mx="auto">
-              {/* Header */}
-              <Flex align="center" gap={3} mb={6}>
-                <Flex
-                  w="48px"
-                  h="48px"
-                  bg="blue.50"
-                  borderRadius="lg"
-                  align="center"
-                  justify="center"
-                  flexShrink={0}
-                >
-                  <RefreshCw size={22} color="#3182CE" />
-                </Flex>
-                <Box>
-                  <Text fontWeight="bold" fontSize="lg">
-                    {t('panels.rounds.roundRobin')}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    {t('panels.rounds.configurePoolsAndConfirm')}
-                  </Text>
-                </Box>
-              </Flex>
-
-              {/* Edit matches button */}
-              <Box mb={4}>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  w="full"
-                  onClick={() => setIsEditMatchesOpen(true)}
-                >
-                  {t('panels.rounds.editMatches')}
-                </Button>
-              </Box>
-
-              {/* Match cards */}
-              <VStack gap={3} align="stretch">
-                {(() => {
-                  // Display priority: customMatches → existingMatches → previewMatches
-                  const displayMatches: Array<{
-                    key: string;
-                    number: number;
-                    poolLabel: string;
-                    name1: string;
-                    name2: string;
-                  }> = customMatches
-                    ? customMatches.map((m, idx) => ({
-                        key: `custom-${idx}`,
-                        number: idx + 1,
-                        poolLabel: '',
-                        name1: m.team1.name,
-                        name2: m.team2.name,
-                      }))
-                    : showExistingMatches
-                      ? existingMatches.map((match, idx) => ({
-                          key: match.id,
-                          number: idx + 1,
-                          poolLabel: match.groupId
-                            ? (groupNameMap[match.groupId] ?? 'Pool')
-                            : 'Pool',
-                          name1: getMatchName(match, 1),
-                          name2: getMatchName(match, 2),
-                        }))
-                      : previewMatches.map((match, idx) => ({
-                          key: `preview-${idx}`,
-                          number: idx + 1,
-                          poolLabel: match.poolName,
-                          name1: match.team1.name,
-                          name2: match.team2.name,
-                        }));
-
-                  return displayMatches.map((m) => (
-                    <Box
-                      key={m.key}
-                      borderWidth="1.5px"
-                      borderColor="yellow.300"
-                      borderRadius="xl"
-                      p={4}
-                      bg="yellow.50"
-                    >
-                      <Text
-                        fontSize="xs"
-                        color="yellow.600"
-                        fontWeight="medium"
-                        mb={2}
-                      >
-                        {t('panels.rounds.matchLabel', { number: m.number })}
-                        {m.poolLabel ? ` • ${m.poolLabel}` : ''}
-                      </Text>
-                      <Text fontSize="md" fontWeight="semibold">
-                        {m.name1}
-                      </Text>
-                      <Text fontSize="md" fontWeight="semibold">
-                        {m.name2}
-                      </Text>
-                    </Box>
-                  ));
-                })()}
-              </VStack>
+          <Box maxW="560px" mx="auto" py={2}>
+            {/* Edit matches button */}
+            <Box mb={4}>
+              <Button
+                size="sm"
+                variant="outline"
+                w="full"
+                onClick={() => setIsEditMatchesOpen(true)}
+              >
+                {t('panels.rounds.editMatches')}
+              </Button>
             </Box>
+
+            {/* Match cards */}
+            <VStack gap={3} align="stretch">
+              {(() => {
+                // Display priority: customMatches → existingMatches → previewMatches
+                const displayMatches: Array<{
+                  key: string;
+                  number: number;
+                  poolLabel: string;
+                  name1: string;
+                  name2: string;
+                }> = customMatches
+                  ? customMatches.map((m, idx) => ({
+                      key: `custom-${idx}`,
+                      number: idx + 1,
+                      poolLabel: '',
+                      name1: m.team1.name,
+                      name2: m.team2.name,
+                    }))
+                  : showExistingMatches
+                    ? existingMatches.map((match, idx) => ({
+                        key: match.id,
+                        number: idx + 1,
+                        poolLabel: match.groupId
+                          ? (groupNameMap[match.groupId] ?? 'Pool')
+                          : 'Pool',
+                        name1: getMatchName(match, 1),
+                        name2: getMatchName(match, 2),
+                      }))
+                    : previewMatches.map((match, idx) => ({
+                        key: `preview-${idx}`,
+                        number: idx + 1,
+                        poolLabel: match.poolName,
+                        name1: match.team1.name,
+                        name2: match.team2.name,
+                      }));
+
+                return displayMatches.map((m) => (
+                  <Box
+                    key={m.key}
+                    borderWidth="1.5px"
+                    borderColor="yellow.300"
+                    borderRadius="xl"
+                    p={4}
+                    bg="yellow.50"
+                  >
+                    <Text
+                      fontSize="xs"
+                      color="yellow.600"
+                      fontWeight="medium"
+                      mb={2}
+                    >
+                      {t('panels.rounds.matchLabel', { number: m.number })}
+                      {m.poolLabel ? ` • ${m.poolLabel}` : ''}
+                    </Text>
+                    <Text fontSize="md" fontWeight="semibold">
+                      {m.name1}
+                    </Text>
+                    <Text fontSize="md" fontWeight="semibold">
+                      {m.name2}
+                    </Text>
+                  </Box>
+                ));
+              })()}
+            </VStack>
           </Box>
         )}
-
-        {/* ─── Footer bar ──────────────────────────────────────────────── */}
-        <Flex
-          position="absolute"
-          bottom={0}
-          left={0}
-          right={0}
-          bg="white"
-          borderTopWidth="1px"
-          borderColor="gray.200"
-          px={8}
-          py={4}
-          align="center"
-          justify="space-between"
-        >
-          {step === 'configure' ? (
-            <>
-              <Button variant="ghost" onClick={onClose}>
-                {t('panels.rounds.cancel')}
-              </Button>
-              <Button
-                style={{ background: '#1a202c', color: 'white' }}
-                leftIcon={<Sparkles size={14} />}
-                onClick={handleGenerateGames}
-                disabled={registrations.length < 2 || loadingData}
-              >
-                {t('panels.rounds.generateGames')}
-              </Button>
-            </>
-          ) : (
-            <>
-              {hasChanges ? (
-                <Button
-                  variant="ghost"
-                  leftIcon={<ArrowLeft size={14} />}
-                  onClick={() => setStep('configure')}
-                >
-                  {t('panels.rounds.back')}
-                </Button>
-              ) : (
-                <Box />
-              )}
-              <Button
-                style={{ background: '#1a202c', color: 'white' }}
-                onClick={showExistingMatches ? onClose : handleSaveMatches}
-                disabled={isSaving}
-              >
-                {isSaving
-                  ? t('panels.rounds.saving')
-                  : showExistingMatches
-                    ? t('panels.rounds.done')
-                    : t('panels.rounds.saveMatches')}
-              </Button>
-            </>
-          )}
-        </Flex>
-      </Box>
+      </VModal>
       {/* Edit Matches dialog */}
       <EditMatchesModal
         isOpen={isEditMatchesOpen}
@@ -1151,6 +1119,6 @@ export default function SetupPoolsModal({
         teams={previewTeams}
         onConfirm={handleSeedsConfirm}
       />
-    </Portal>
+    </>
   );
 }

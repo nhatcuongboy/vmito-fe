@@ -162,7 +162,9 @@ export default function PublicUserProfileContent({
         setProfile(profileResponse);
         setRatingStats(ratingStatsResponse);
         setRatings(sortedRatings);
-        setClubs(clubsResponse);
+        setClubs(
+          Array.from(new Map(clubsResponse.map((c) => [c.id, c])).values())
+        );
       } catch (fetchError) {
         console.error('Failed to fetch public profile:', fetchError);
         setError(t('loadFailed'));
@@ -326,7 +328,6 @@ export default function PublicUserProfileContent({
           >
             <Box
               bg="linear-gradient(135deg, #FFD75F 0%, #FFC107 100%)"
-              h="100px"
               position="relative"
             >
               <Image
@@ -338,27 +339,42 @@ export default function PublicUserProfileContent({
                 h="24px"
                 opacity={0.25}
               />
-              <Text
-                position="absolute"
-                bottom={2}
-                left="120px"
-                right={16}
-                fontSize="lg"
-                fontWeight="bold"
-                color="gray.800"
-                lineClamp={1}
-              >
-                {displayName}
-              </Text>
-            </Box>
 
-            <Box px={5} pb={5}>
-              <HStack align="start" gap={4} mt="-12">
+              {isOwner && (
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(true)}
+                  position="absolute"
+                  right={4}
+                  top={4}
+                  zIndex={1}
+                  borderRadius="full"
+                  px={3}
+                  fontWeight="bold"
+                  bg="white"
+                  color="gray.800"
+                  borderColor="gray.300"
+                  shadow="sm"
+                  _hover={{
+                    shadow: 'md',
+                    bg: 'gray.50',
+                    transform: 'translateY(-1px)',
+                  }}
+                  transition="all 0.2s"
+                >
+                  <Pencil size={12} />
+                  {tCommon('edit')}
+                </Button>
+              )}
+
+              <HStack align="end" gap={3} px={5} pt={10} pb={2}>
                 <Avatar.Root
                   size="2xl"
                   borderRadius="full"
                   borderWidth="4px"
                   borderColor="white"
+                  mb="-40px"
                 >
                   <Avatar.Fallback name={displayName}>
                     <User size={24} />
@@ -366,85 +382,78 @@ export default function PublicUserProfileContent({
                   {avatarUrl && <Avatar.Image src={avatarUrl} />}
                 </Avatar.Root>
 
-                <VStack align="start" gap={2} flex={1} pt={14}>
-                  {isOwner && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      colorPalette="green"
-                      onClick={() => setIsEditModalOpen(true)}
-                      alignSelf="flex-end"
-                    >
-                      <Pencil size={14} />
-                      {tCommon('editProfile')}
-                    </Button>
-                  )}
-                  <HStack gap={2}>
-                    <StarRatingDisplay
-                      rating={ratingStats?.averageRating || 0}
-                      count={ratingStats?.totalRatings || 0}
-                      variant="compact"
-                      size="sm"
-                    />
-                    <Badge colorPalette="green" variant="subtle">
-                      {t('verifiedHost')}
-                    </Badge>
-                  </HStack>
-
-                  <SimpleGrid columns={2} gap={3} width="full" pt={1}>
-                    <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('hostedSessions')}
-                      </Text>
-                      <Text
-                        fontSize="md"
-                        fontWeight="semibold"
-                        color="gray.800"
-                      >
-                        {totalHostedSessions}
-                      </Text>
-                    </Box>
-
-                    <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
-                      <Text fontSize="xs" color="gray.500">
-                        {t('reviews')}
-                      </Text>
-                      <Text
-                        fontSize="md"
-                        fontWeight="semibold"
-                        color="gray.800"
-                      >
-                        {ratingStats?.totalRatings ?? 0}
-                      </Text>
-                    </Box>
-                  </SimpleGrid>
-
-                  {phone && (
-                    <HStack gap={2} color="gray.600" pt={1}>
-                      <Phone size={16} />
-                      <Text fontSize="sm">{phone}</Text>
-                    </HStack>
-                  )}
-
-                  {derivedArea && (
-                    <HStack gap={2} color="gray.600">
-                      <MapPin size={16} />
-                      <Text fontSize="sm">{derivedArea}</Text>
-                    </HStack>
-                  )}
-
-                  {joinedAt && (
-                    <HStack gap={2} color="gray.600">
-                      <CalendarDays size={16} />
-                      <Text fontSize="sm">
-                        {t('joinedDateLabel', {
-                          date: formatDate(joinedAt, locale),
-                        })}
-                      </Text>
-                    </HStack>
-                  )}
+                <VStack align="start" gap={0} flex={1} pb={3}>
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    color="gray.800"
+                    lineClamp={1}
+                  >
+                    {displayName}
+                  </Text>
                 </VStack>
               </HStack>
+            </Box>
+
+            <Box px={5} pb={5} pt={2}>
+              <VStack align="start" gap={2} pl="88px">
+                <HStack gap={2}>
+                  <StarRatingDisplay
+                    rating={ratingStats?.averageRating || 0}
+                    count={ratingStats?.totalRatings || 0}
+                    variant="compact"
+                    size="sm"
+                  />
+                  <Badge colorPalette="green" variant="subtle">
+                    {t('verifiedHost')}
+                  </Badge>
+                </HStack>
+
+                <SimpleGrid columns={2} gap={3} width="full" pt={1}>
+                  <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
+                    <Text fontSize="xs" color="gray.500">
+                      {t('hostedSessions')}
+                    </Text>
+                    <Text fontSize="md" fontWeight="semibold" color="gray.800">
+                      {totalHostedSessions}
+                    </Text>
+                  </Box>
+
+                  <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
+                    <Text fontSize="xs" color="gray.500">
+                      {t('reviews')}
+                    </Text>
+                    <Text fontSize="md" fontWeight="semibold" color="gray.800">
+                      {ratingStats?.totalRatings ?? 0}
+                    </Text>
+                  </Box>
+                </SimpleGrid>
+
+                {phone && (
+                  <HStack gap={2} color="gray.600" pt={1}>
+                    <Phone size={16} />
+                    <Text fontSize="sm">{phone}</Text>
+                  </HStack>
+                )}
+
+                {derivedArea && (
+                  <HStack gap={2} color="gray.600">
+                    <MapPin size={16} />
+                    <Text fontSize="sm">{derivedArea}</Text>
+                  </HStack>
+                )}
+
+                {joinedAt && (
+                  <HStack gap={2} color="gray.600">
+                    <CalendarDays size={16} />
+                    <Text fontSize="sm">
+                      {t('joinedDateLabel', {
+                        date: formatDate(joinedAt, locale),
+                      })}
+                    </Text>
+                  </HStack>
+                )}
+              </VStack>
             </Box>
           </Box>
 
@@ -503,9 +512,9 @@ export default function PublicUserProfileContent({
                         {t('hostedClubs')} ({hostedClubs.length})
                       </Text>
                       <VStack gap={2} align="stretch">
-                        {hostedClubs.map((club) => (
+                        {hostedClubs.map((club, idx) => (
                           <Link
-                            key={club.id}
+                            key={`hosted-${club.id}-${idx}`}
                             href={`/${locale}/clubs/${club.id}`}
                           >
                             <Box
@@ -561,9 +570,9 @@ export default function PublicUserProfileContent({
                         {t('memberClubs')} ({memberClubs.length})
                       </Text>
                       <VStack gap={2} align="stretch">
-                        {memberClubs.map((club) => (
+                        {memberClubs.map((club, idx) => (
                           <Link
-                            key={club.id}
+                            key={`member-${club.id}-${idx}`}
                             href={`/${locale}/clubs/${club.id}`}
                           >
                             <Box
