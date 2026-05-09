@@ -754,7 +754,8 @@ export interface CategoryMatch {
   matchNumber: number;
   status: MatchStatus;
   startTime?: Date;
-  endTime?: Date;
+  endTime?: Date; // Actual end time — set when match finishes
+  estimatedEndTime?: Date; // Scheduled end time — set when match is scheduled
   courtId?: string;
   score?: string; // e.g., "21-19, 21-17" (for display)
   sets?: MatchSet[]; // Structured set scores
@@ -1093,7 +1094,17 @@ export interface IScheduleCategorySummary {
   categoryName: string;
   scheduled: number;
   total: number;
-  byRound: { round: string; scheduled: number; total: number }[];
+  byRound: {
+    round: string;
+    scheduled: number;
+    total: number;
+    byGroup?: {
+      groupId: string;
+      groupName: string;
+      scheduled: number;
+      total: number;
+    }[];
+  }[];
 }
 
 export interface IGenerateScheduleResponse {

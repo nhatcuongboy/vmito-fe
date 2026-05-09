@@ -146,6 +146,14 @@ export default function GenerateScheduleDrawer({
     courtsRef.current = courts;
   }, [courts]);
 
+  // Returns only venue-associated courts; falls back to all courts if none have a venue.
+  const getVenueCourts = useCallback((courtList: TournamentCourt[]) => {
+    const venueCourts = courtList.filter((c) => c.tournamentVenueId);
+    return (venueCourts.length > 0 ? venueCourts : courtList).map((c) => ({
+      courtId: c.id,
+    }));
+  }, []);
+
   // When the drawer opens, (re-)initialize the default time slot with the
   // courts that are available at that moment (avoids stale-closure bug where
   // courts were still [] during component mount).
@@ -158,13 +166,13 @@ export default function GenerateScheduleDrawer({
         startTime: '08:00',
         endTime: '17:00',
         timeBuffer: 0,
-        courts: courtsRef.current.map((c) => ({ courtId: c.id })),
+        courts: getVenueCourts(courtsRef.current),
       };
       setTimeSlots([defaultSlot]);
       setExpandedSlotId(defaultSlot.id);
     }
     prevIsOpenRef.current = isOpen;
-  }, [isOpen]);
+  }, [isOpen, getVenueCourts]);
 
   const [isLoadingGenerate, setIsLoadingGenerate] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -234,7 +242,7 @@ export default function GenerateScheduleDrawer({
         startTime: data.startTime,
         endTime: data.endTime,
         timeBuffer: 0,
-        courts: courts.map((c) => ({ courtId: c.id })),
+        courts: getVenueCourts(courts),
       };
       setTimeSlots((prev) => [...prev, newSlot]);
     }
@@ -855,6 +863,7 @@ function ConstraintEditorModal({
       onPrimaryAction={handleConfirm}
       secondaryActionText={tc('cancel')}
       size="sm"
+      zIndex={1600}
     >
       <VStack gap={4} align="stretch">
         <Box>

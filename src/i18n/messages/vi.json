@@ -1540,6 +1540,7 @@
               "unscheduledMatches": "chưa lên lịch",
               "manageSchedule": "Quản lý lịch thi đấu",
               "manager": {
+                "title": "Quản lý lịch thi đấu",
                 "listView": "Xem danh sách",
                 "calendarView": "Xem lịch",
                 "generate": "Tạo tự động",
@@ -1554,6 +1555,7 @@
                 "date": "Ngày",
                 "startTime": "Giờ bắt đầu",
                 "court": "Sân",
+                "courtPrefix": "Sân",
                 "update": "Cập nhật"
               },
               "generate": {
@@ -1648,10 +1650,19 @@
               },
               "list": {
                 "team": "Đội",
+                "team1": "Đội 1",
+                "team2": "Đội 2",
+                "round": "Vòng",
                 "time": "Thời gian",
                 "court": "Sân",
+                "courtPrefix": "Sân",
                 "noTime": "Chưa có giờ",
-                "noCourt": "Chưa có sân"
+                "noCourt": "Chưa có sân",
+                "roundGroup": "Bảng",
+                "roundQF": "Tứ kết",
+                "roundSF": "Bán kết",
+                "roundF": "Chung kết",
+                "round3rd": "Hạng 3"
               }
             },
             "sponsors": {

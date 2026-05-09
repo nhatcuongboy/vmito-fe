@@ -1532,6 +1532,7 @@
               "unscheduledMatches": "unscheduled",
               "manageSchedule": "Manage schedule",
               "manager": {
+                "title": "Manage Schedule",
                 "listView": "List view",
                 "calendarView": "Calendar view",
                 "generate": "Generate",
@@ -1546,6 +1547,7 @@
                 "date": "Date",
                 "startTime": "Start time",
                 "court": "Court",
+                "courtPrefix": "Court",
                 "update": "Update"
               },
               "generate": {
@@ -1640,10 +1642,19 @@
               },
               "list": {
                 "team": "Team",
+                "team1": "Team 1",
+                "team2": "Team 2",
+                "round": "Round",
                 "time": "Time",
                 "court": "Court",
+                "courtPrefix": "Court",
                 "noTime": "No time set",
-                "noCourt": "No court"
+                "noCourt": "No court",
+                "roundGroup": "Group",
+                "roundQF": "QF",
+                "roundSF": "SF",
+                "roundF": "Final",
+                "round3rd": "3rd Place"
               }
             },
             "sponsors": {

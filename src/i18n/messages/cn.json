@@ -1510,6 +1510,7 @@
               "unscheduledMatches": "未安排",
               "manageSchedule": "管理赛程",
               "manager": {
+                "title": "管理赛程",
                 "listView": "列表视图",
                 "calendarView": "日历视图",
                 "generate": "自动生成",
@@ -1524,6 +1525,7 @@
                 "date": "日期",
                 "startTime": "开始时间",
                 "court": "场地",
+                "courtPrefix": "场地",
                 "update": "更新"
               },
               "generate": {
@@ -1618,10 +1620,19 @@
               },
               "list": {
                 "team": "队伍",
+                "team1": "队伍 1",
+                "team2": "队伍 2",
+                "round": "轮次",
                 "time": "时间",
                 "court": "场地",
+                "courtPrefix": "场地",
                 "noTime": "未设置时间",
-                "noCourt": "未设置场地"
+                "noCourt": "未设置场地",
+                "roundGroup": "小组",
+                "roundQF": "四分之一决赛",
+                "roundSF": "半决赛",
+                "roundF": "决赛",
+                "round3rd": "季军赛"
               }
             },
             "sponsors": {
