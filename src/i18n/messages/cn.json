@@ -10,6 +10,7 @@
     "users": "用户",
     "mySessions": "我的场次",
     "joined": "已加入",
+    "transactions": "交易记录",
     "notAvailable": "—",
     "paymentSettings": "支付设置",
     "myHostedSessions": "我主持的场次",
@@ -88,6 +89,8 @@
     "tournaments": "锦标赛",
     "finance": "财务",
     "admin": "管理",
+    "roleHost": "主办方",
+    "roleAdmin": "管理员",
     "discovery": "探索",
     "otherSection": "其他",
     "backToSessions": "返回赛事列表",
@@ -112,9 +115,11 @@
     "register": "Register",
     "userInfo": "用户信息",
     "profile": "个人资料",
+    "edit": "编辑",
     "editProfile": "编辑个人资料",
     "name": "姓名",
     "phone": "电话",
+    "aiAssistant": "AI 助手",
     "giveFeedback": "提供反馈",
     "levels": {
       "1": "新手",
@@ -551,7 +556,9 @@
       "emptyContent": "请输入招募贴内容",
       "hint": "AI 将提取：赛场名称、地点、时间、等级、主办方信息...",
       "venueMatched": "匹配的场馆：{venueName}",
-      "manualLink": "或在这里手动创建"
+      "manualLink": "或在这里手动创建",
+      "alwaysManual": "手动创建",
+      "switchToAi": "使用 AI 快速创建"
     },
     "linkCopied": "链接已复制",
     "shareCardHeader": "招募羽毛球球友",
@@ -1424,7 +1431,10 @@
             "rounds": "轮次",
             "venues": "场地",
             "schedule": "赛程",
-            "sponsors": "赞助商"
+            "sponsors": "赞助商",
+            "name": "锦标赛名称",
+            "dates": "锦标赛日期",
+            "location": "锦标赛地点"
           },
           "organize": {
             "publish": {
@@ -1529,7 +1539,64 @@
                 "addTimeSlot": "添加时间段",
                 "confirm": "确认",
                 "startTime": "开始时间",
-                "endTime": "结束时间"
+                "endTime": "结束时间",
+                "keepScheduled": "保留已安排的比赛",
+                "keepScheduledDesc": "仅为未安排的比赛生成赛程",
+                "poolPlay": "小组赛",
+                "playoffs": "淘汰赛",
+                "generationFailed": "生成失败",
+                "cancel": "取消",
+                "edit": "编辑",
+                "timeBuffer": "比赛之间的间隔时间",
+                "selectCourts": "选择场地",
+                "courts": "场地",
+                "courtsCount": "{count} 个场地",
+                "minBuffer": "{count} 分钟间隔",
+                "noBuffer": "无间隔",
+                "anyMatch": "任何比赛",
+                "groupsCount": "{count} 个小组",
+                "min": "{count} 分钟"
+              },
+              "constraints": {
+                "title": "{court} 的约束",
+                "save": "保存",
+                "cancel": "取消",
+                "categories": "类别",
+                "clearAll": "清除全部",
+                "rounds": "轮次",
+                "noConstraints": "未设置约束 — 任何比赛都可以使用此场地"
+              },
+              "preview": {
+                "title": "赛程预览",
+                "failedLoad": "无法加载预览",
+                "conflictDetected": "检测到冲突",
+                "unableToUpdate": "无法更新",
+                "matchUpdated": "比赛已更新",
+                "failedUpdate": "无法更新比赛",
+                "scheduleSaved": "赛程已保存：{count} 场比赛已安排",
+                "failedSave": "无法保存赛程",
+                "matchesScheduled": "{scheduled} / {total} 场比赛已安排",
+                "unscheduled": "{count} 未安排",
+                "unresolvedConflicts": "{count} 个未解决的冲突",
+                "andMore": "...以及其他 {count} 个",
+                "list": "列表",
+                "calendar": "日历",
+                "all": "全部",
+                "noScheduledMatches": "没有已安排的比赛",
+                "cancel": "取消",
+                "saveSchedule": "保存赛程",
+                "confirmSave": "确认保存",
+                "confirmSaveMessage": "这将保存生成的赛程并更新 {count} 场比赛分配。",
+                "unscheduledWarning": "⚠️ {count} 场比赛无法安排，将保持未分配状态。",
+                "overwriteWarning": "现有赛程将被覆盖。此操作不可撤销。",
+                "editMatch": "编辑比赛 #{number}",
+                "match": "比赛",
+                "startTime": "开始时间",
+                "duration": "时长",
+                "court": "场地",
+                "save": "保存",
+                "clearAssignment": "清除分配",
+                "min": "{count} 分钟"
               },
               "courtSelector": {
                 "title": "选择场地",
@@ -1787,6 +1854,51 @@
               "title": "赞助商",
               "description": "添加赞助商以显示在锦标赛页面上。",
               "addSponsors": "添加赞助商"
+            },
+            "name": {
+              "title": "锦标赛名称",
+              "description": "更改锦标赛名称",
+              "nameLabel": "锦标赛名称",
+              "namePlaceholder": "输入锦标赛名称",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "锦标赛名称更新成功",
+              "errors": {
+                "nameRequired": "锦标赛名称为必填项",
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新锦标赛名称失败"
+              }
+            },
+            "dates": {
+              "title": "锦标赛日期",
+              "description": "设置锦标赛的开始和结束日期",
+              "startDateLabel": "开始日期",
+              "endDateLabel": "结束日期",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "锦标赛日期更新成功",
+              "errors": {
+                "datesRequired": "开始和结束日期都是必填项",
+                "endBeforeStart": "结束日期必须在开始日期之后",
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新锦标赛日期失败"
+              }
+            },
+            "location": {
+              "title": "锦标赛地点",
+              "description": "设置锦标赛场地",
+              "searchLabel": "搜索场地",
+              "searchPlaceholder": "按名称或地址搜索...",
+              "noVenues": "未找到场地",
+              "clearSelection": "清除选择",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "锦标赛地点更新成功",
+              "errors": {
+                "searchFailed": "搜索场地失败",
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新锦标赛地点失败"
+              }
             }
           }
         }

@@ -123,6 +123,7 @@
     "register": "Register",
     "userInfo": "User Information",
     "profile": "Profile",
+    "edit": "Edit",
     "editProfile": "Edit Profile",
     "name": "Name",
     "phone": "Phone",
@@ -247,7 +248,7 @@
     "createSession": "Create Session",
     "joinSession": "Join Session",
     "fee": "Fee",
-    "register": "Register slot",
+    "register": "Register",
     "sessionName": "Session Name",
     "sessionCode": "Session Code",
     "maxPlayersPerCourt": "Max Players Per Court",
@@ -1452,7 +1453,10 @@
             "rounds": "Rounds",
             "venues": "Venue",
             "schedule": "Schedule",
-            "sponsors": "Sponsors"
+            "sponsors": "Sponsors",
+            "name": "Tournament Name",
+            "dates": "Tournament Dates",
+            "location": "Tournament Location"
           },
           "organize": {
             "publish": {
@@ -1557,7 +1561,64 @@
                 "addTimeSlot": "Add time slot",
                 "confirm": "Confirm",
                 "startTime": "Start time",
-                "endTime": "End time"
+                "endTime": "End time",
+                "keepScheduled": "Keep existing scheduled matches",
+                "keepScheduledDesc": "Only generate for unscheduled matches",
+                "poolPlay": "Pool Play",
+                "playoffs": "Playoffs",
+                "generationFailed": "Generation failed",
+                "cancel": "Cancel",
+                "edit": "Edit",
+                "timeBuffer": "Time buffer between matches",
+                "selectCourts": "Select Courts",
+                "courts": "Courts",
+                "courtsCount": "{count} court(s)",
+                "minBuffer": "{count} min buffer",
+                "noBuffer": "No buffer",
+                "anyMatch": "Any match",
+                "groupsCount": "{count} group(s)",
+                "min": "{count} min"
+              },
+              "constraints": {
+                "title": "Constraints for {court}",
+                "save": "Save",
+                "cancel": "Cancel",
+                "categories": "Categories",
+                "clearAll": "Clear all",
+                "rounds": "Rounds",
+                "noConstraints": "No constraints set — any match can use this court"
+              },
+              "preview": {
+                "title": "Schedule Preview",
+                "failedLoad": "Failed to load preview",
+                "conflictDetected": "Conflict detected",
+                "unableToUpdate": "Unable to update",
+                "matchUpdated": "Match updated",
+                "failedUpdate": "Failed to update match",
+                "scheduleSaved": "Schedule saved: {count} matches scheduled",
+                "failedSave": "Failed to save schedule",
+                "matchesScheduled": "{scheduled} / {total} matches scheduled",
+                "unscheduled": "{count} unscheduled",
+                "unresolvedConflicts": "{count} unresolved conflict(s)",
+                "andMore": "...and {count} more",
+                "list": "List",
+                "calendar": "Calendar",
+                "all": "All",
+                "noScheduledMatches": "No scheduled matches",
+                "cancel": "Cancel",
+                "saveSchedule": "Save Schedule",
+                "confirmSave": "Confirm Save",
+                "confirmSaveMessage": "This will save the generated schedule and update {count} match assignments.",
+                "unscheduledWarning": "⚠️ {count} matches could not be scheduled and will remain unassigned.",
+                "overwriteWarning": "Existing schedules will be overwritten. This action cannot be undone.",
+                "editMatch": "Edit Match #{number}",
+                "match": "Match",
+                "startTime": "Start Time",
+                "duration": "Duration",
+                "court": "Court",
+                "save": "Save",
+                "clearAssignment": "Clear assignment",
+                "min": "{count} min"
               },
               "courtSelector": {
                 "title": "Select courts",
@@ -1839,6 +1900,51 @@
               "title": "Sponsors",
               "description": "Add sponsors to display on your tournament page.",
               "addSponsors": "Add sponsors"
+            },
+            "name": {
+              "title": "Tournament Name",
+              "description": "Change the name of your tournament",
+              "nameLabel": "Tournament Name",
+              "namePlaceholder": "Enter tournament name",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Tournament name updated successfully",
+              "errors": {
+                "nameRequired": "Tournament name is required",
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update tournament name"
+              }
+            },
+            "dates": {
+              "title": "Tournament Dates",
+              "description": "Set the start and end dates for your tournament",
+              "startDateLabel": "Start Date",
+              "endDateLabel": "End Date",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Tournament dates updated successfully",
+              "errors": {
+                "datesRequired": "Both start and end dates are required",
+                "endBeforeStart": "End date must be after start date",
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update tournament dates"
+              }
+            },
+            "location": {
+              "title": "Tournament Location",
+              "description": "Set the venue for your tournament",
+              "searchLabel": "Search Venues",
+              "searchPlaceholder": "Search by name or address...",
+              "noVenues": "No venues found",
+              "clearSelection": "Clear selection",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Tournament location updated successfully",
+              "errors": {
+                "searchFailed": "Failed to search venues",
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update tournament location"
+              }
             }
           }
         }

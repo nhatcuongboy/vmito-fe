@@ -8,20 +8,30 @@ export interface SessionActionConfig {
   /**
    * Show phone call button (only if session has hostPhone)
    * Triggers tel: protocol to call host
+   * @deprecated No longer used - removed from UI
    */
   showCallButton?: boolean;
 
   /**
    * Show download button (only for session owner)
    * Downloads session card as PNG image
+   * @deprecated No longer used - removed from UI
    */
   showDownloadButton?: boolean;
 
   /**
    * Show share button (always available)
    * Uses native share API or clipboard fallback
+   * @deprecated No longer used - removed from UI
    */
   showShareButton?: boolean;
+
+  /**
+   * Show More menu (3 dots) with Start/End/Delete actions
+   * Set to false to hide the More menu (e.g., on Find Sessions page)
+   * @default true
+   */
+  showMoreButton?: boolean;
 
   // Bottom action buttons - Left side
   /**

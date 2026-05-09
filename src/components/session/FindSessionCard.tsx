@@ -247,7 +247,10 @@ const FindSessionCard = ({
 
   // Action configuration for find session card
   const actions: SessionActionConfig = {
-    // Top actions
+    // Hide More menu (3 dots) on Find Sessions page
+    showMoreButton: false,
+
+    // Top actions - DEPRECATED (no longer shown)
     showCallButton: !!session.hostPhone,
     showDownloadButton: canManage,
     showShareButton: true,

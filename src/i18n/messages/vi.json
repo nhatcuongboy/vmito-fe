@@ -11,6 +11,7 @@
   "navigation": {
     "host": "Quản lý kèo",
     "join": "Tham gia",
+    "home": "Tìm kèo",
     "notAvailable": "—",
     "tournaments": "Giải đấu",
     "browseTournaments": "Tìm giải đấu",
@@ -123,6 +124,7 @@
     "register": "Đăng ký",
     "userInfo": "Thông tin người dùng",
     "profile": "Hồ sơ",
+    "edit": "Chỉnh sửa",
     "editProfile": "Chỉnh sửa hồ sơ",
     "name": "Tên",
     "phone": "Số điện thoại",
@@ -248,7 +250,7 @@
     "createSession": "Tạo kèo",
     "joinSession": "Đăng ký kèo",
     "fee": "Phí",
-    "register": "Đăng ký slot",
+    "register": "Đăng ký",
     "sessionName": "Tên kèo",
     "sessionCode": "Mã kèo",
     "maxPlayersPerCourt": "Số người chơi tối đa",
@@ -597,7 +599,7 @@
     "aiAnalyzeChip": "Phân tích kèo",
     "aiAnalyzeTitle": "Phân tích trình độ kèo",
     "aiAnalyzing": "AI đang phân tích...",
-    "registerNow": "Đăng ký slot",
+    "registerNow": "Đăng ký",
     "showLess": "Thu gọn",
     "viewAll": "Xem tất cả",
     "quickCreate": {
@@ -1459,7 +1461,10 @@
             "rounds": "Vòng đấu",
             "venues": "Địa điểm",
             "schedule": "Lịch thi đấu",
-            "sponsors": "Nhà tài trợ"
+            "sponsors": "Nhà tài trợ",
+            "name": "Tên giải đấu",
+            "dates": "Ngày tổ chức",
+            "location": "Địa điểm"
           },
           "organize": {
             "publish": {
@@ -1564,7 +1569,64 @@
                 "addTimeSlot": "Thêm khung giờ",
                 "confirm": "Xác nhận",
                 "startTime": "Giờ bắt đầu",
-                "endTime": "Giờ kết thúc"
+                "endTime": "Giờ kết thúc",
+                "keepScheduled": "Giữ các trận đã lên lịch",
+                "keepScheduledDesc": "Chỉ tạo lịch cho các trận chưa lên lịch",
+                "poolPlay": "Vòng bảng",
+                "playoffs": "Vòng loại trực tiếp",
+                "generationFailed": "Tạo lịch thất bại",
+                "cancel": "Hủy",
+                "edit": "Sửa",
+                "timeBuffer": "Thời gian nghỉ giữa các trận",
+                "selectCourts": "Chọn sân",
+                "courts": "Sân",
+                "courtsCount": "{count} sân",
+                "minBuffer": "Nghỉ {count} phút",
+                "noBuffer": "Không nghỉ",
+                "anyMatch": "Mọi trận đấu",
+                "groupsCount": "{count} bảng",
+                "min": "{count} phút"
+              },
+              "constraints": {
+                "title": "Ràng buộc cho {court}",
+                "save": "Lưu",
+                "cancel": "Hủy",
+                "categories": "Hạng mục",
+                "clearAll": "Xóa tất cả",
+                "rounds": "Vòng đấu",
+                "noConstraints": "Chưa có ràng buộc — mọi trận đấu đều có thể dùng sân này"
+              },
+              "preview": {
+                "title": "Xem trước lịch thi đấu",
+                "failedLoad": "Không thể tải xem trước",
+                "conflictDetected": "Phát hiện xung đột",
+                "unableToUpdate": "Không thể cập nhật",
+                "matchUpdated": "Đã cập nhật trận đấu",
+                "failedUpdate": "Không thể cập nhật trận đấu",
+                "scheduleSaved": "Đã lưu lịch: {count} trận được lên lịch",
+                "failedSave": "Không thể lưu lịch thi đấu",
+                "matchesScheduled": "{scheduled} / {total} trận đã lên lịch",
+                "unscheduled": "{count} chưa lên lịch",
+                "unresolvedConflicts": "{count} xung đột chưa giải quyết",
+                "andMore": "...và {count} xung đột khác",
+                "list": "Danh sách",
+                "calendar": "Lịch",
+                "all": "Tất cả",
+                "noScheduledMatches": "Không có trận đấu nào được lên lịch",
+                "cancel": "Hủy",
+                "saveSchedule": "Lưu lịch thi đấu",
+                "confirmSave": "Xác nhận lưu",
+                "confirmSaveMessage": "Thao tác này sẽ lưu lịch thi đấu đã tạo và cập nhật {count} trận.",
+                "unscheduledWarning": "⚠️ {count} trận không thể lên lịch và sẽ không được phân công.",
+                "overwriteWarning": "Lịch thi đấu hiện tại sẽ bị ghi đè. Thao tác này không thể hoàn tác.",
+                "editMatch": "Sửa trận #{number}",
+                "match": "Trận đấu",
+                "startTime": "Giờ bắt đầu",
+                "duration": "Thời lượng",
+                "court": "Sân",
+                "save": "Lưu",
+                "clearAssignment": "Xóa phân công",
+                "min": "{count} phút"
               },
               "courtSelector": {
                 "title": "Chọn sân",
@@ -1846,6 +1908,51 @@
               "title": "Nhà tài trợ",
               "description": "Thêm nhà tài trợ để hiển thị trên trang giải đấu.",
               "addSponsors": "Thêm nhà tài trợ"
+            },
+            "name": {
+              "title": "Tên giải đấu",
+              "description": "Thay đổi tên giải đấu của bạn",
+              "nameLabel": "Tên giải đấu",
+              "namePlaceholder": "Nhập tên giải đấu",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Cập nhật tên giải đấu thành công",
+              "errors": {
+                "nameRequired": "Tên giải đấu là bắt buộc",
+                "noChanges": "Không có thay đổi để lưu",
+                "updateFailed": "Cập nhật tên giải đấu thất bại"
+              }
+            },
+            "dates": {
+              "title": "Ngày tổ chức",
+              "description": "Thiết lập ngày bắt đầu và kết thúc cho giải đấu",
+              "startDateLabel": "Ngày bắt đầu",
+              "endDateLabel": "Ngày kết thúc",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Cập nhật ngày tổ chức thành công",
+              "errors": {
+                "datesRequired": "Cả ngày bắt đầu và kết thúc đều bắt buộc",
+                "endBeforeStart": "Ngày kết thúc phải sau ngày bắt đầu",
+                "noChanges": "Không có thay đổi để lưu",
+                "updateFailed": "Cập nhật ngày tổ chức thất bại"
+              }
+            },
+            "location": {
+              "title": "Địa điểm",
+              "description": "Thiết lập địa điểm tổ chức giải đấu",
+              "searchLabel": "Tìm kiếm địa điểm",
+              "searchPlaceholder": "Tìm theo tên hoặc địa chỉ...",
+              "noVenues": "Không tìm thấy địa điểm",
+              "clearSelection": "Xóa lựa chọn",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Cập nhật địa điểm thành công",
+              "errors": {
+                "searchFailed": "Tìm kiếm địa điểm thất bại",
+                "noChanges": "Không có thay đổi để lưu",
+                "updateFailed": "Cập nhật địa điểm thất bại"
+              }
             }
           }
         }

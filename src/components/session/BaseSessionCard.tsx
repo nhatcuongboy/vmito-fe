@@ -239,117 +239,14 @@ const BaseSessionCard = ({
     downloadSessionImage(session, elementId, 'TuyenVangLai');
   };
 
-  // Render top action buttons (icon buttons)
+  // Render top action buttons (icon buttons) - NOW SHOWS MORE MENU + ACTION BUTTONS
   const renderTopActions = () => {
     if (!actions) return null;
 
     const buttons: React.ReactNode[] = [];
-
-    // Call button (conditional on hostPhone)
-    if (actions.showCallButton && session.hostPhone) {
-      buttons.push(
-        <IconButton
-          key="call"
-          size="sm"
-          colorPalette="green"
-          variant="outline"
-          aria-label="Call host"
-          onClick={handleCall}
-          shadow="sm"
-          icon={<Icon as={Phone} />}
-        />
-      );
-    }
-
-    // Download button with menu (owner or admin)
-    if (actions.showDownloadButton && canManage) {
-      buttons.push(
-        <MenuRoot key="download" positioning={{ placement: 'bottom-end' }}>
-          <MenuTrigger asChild>
-            <IconButton
-              size="sm"
-              colorPalette="green"
-              variant="outline"
-              aria-label="Download session image"
-              loading={isDownloading}
-              shadow="sm"
-              icon={<Icon as={Download} />}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </MenuTrigger>
-          <Portal>
-            <MenuPositioner>
-              <MenuContent
-                bg="white"
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="md"
-                shadow="lg"
-                minW="150px"
-                py={2}
-              >
-                <MenuItem
-                  value="social"
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.100' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'social');
-                  }}
-                >
-                  <Icon as={Download} mr={2} />
-                  {t('downloadSocial') || '4:5'}
-                </MenuItem>
-                <MenuItem
-                  value="portrait"
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.100' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'portrait');
-                  }}
-                >
-                  <Icon as={Download} mr={2} />
-                  {t('downloadPortrait') || '2:3'}
-                </MenuItem>
-              </MenuContent>
-            </MenuPositioner>
-          </Portal>
-        </MenuRoot>
-      );
-    }
-
-    // Share button (always available)
-    if (actions.showShareButton) {
-      buttons.push(
-        <IconButton
-          key="share"
-          size="sm"
-          colorPalette="gray"
-          variant="outline"
-          aria-label="Share session"
-          onClick={handleShare}
-          shadow="sm"
-          icon={<Icon as={Share2} />}
-        />
-      );
-    }
-
-    return buttons.length > 0 ? <>{buttons}</> : null;
-  };
-
-  // Cache rendered top actions to avoid multiple calls
-  const topActionsRendered = actions ? renderTopActions() : null;
-  const oldTopActions =
-    topActionButtons || (actionButtons && !bottomActionButtons);
-
-  // Render bottom action buttons (full-width buttons)
-  const renderBottomActions = () => {
-    if (!actions) return null;
-
     const menuItems: React.ReactNode[] = [];
-    const rightButtons: React.ReactNode[] = [];
 
+    // Build menu items for More menu (3 dots)
     // Menu items: Start session button (owner or admin, PREPARING only and not past end time)
     const isPastEndTime = session.endTime
       ? new Date(session.endTime) < new Date()
@@ -415,55 +312,50 @@ const BaseSessionCard = ({
       );
     }
 
-    // Right side: View Registration button (modal trigger)
-    if (actions.showViewRegistrationButton && actions.onViewRegistration) {
-      rightButtons.push(
-        <Button
-          key="view-registration"
-          colorPalette="green"
-          variant="subtle"
-          size="sm"
-          shadow="md"
-          loading={actions.isRegistrationLoading}
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            actions.onViewRegistration?.();
-          }}
-        >
-          <Icon as={ClipboardList} boxSize={4} />
-          {t('viewMyRegistration')}
-        </Button>
+    // Add More menu (3 dots) if we have menu items and showMoreButton is not false
+    if (menuItems.length > 0 && actions.showMoreButton !== false) {
+      buttons.push(
+        <MenuRoot key="more" positioning={{ placement: 'bottom-end' }}>
+          <MenuTrigger asChild>
+            <IconButton
+              size="sm"
+              variant="outline"
+              colorPalette="gray"
+              aria-label="Actions"
+              shadow="md"
+              loading={actions?.isStartEndLoading}
+              icon={<Icon as={MoreVertical} />}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            />
+          </MenuTrigger>
+          <Portal>
+            <MenuPositioner zIndex={2000}>
+              <MenuContent
+                onClick={(e) => e.stopPropagation()}
+                bg="white"
+                boxShadow="lg"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.200"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                zIndex={2001}
+              >
+                {menuItems}
+              </MenuContent>
+            </MenuPositioner>
+          </Portal>
+        </MenuRoot>
       );
     }
 
-    // Right side: View Session button (for approved players)
-    if (actions.showViewSessionButton) {
-      const viewSessionHref =
-        actions.viewSessionHref ||
-        `/player/sessions/${session.slug || session.id}`;
-      rightButtons.push(
-        <NextLinkButton
-          key="view-session"
-          href={viewSessionHref}
-          colorPalette="green"
-          variant="solid"
-          size="sm"
-          loading={actions.isRegistrationLoading}
-        >
-          <Icon as={LogIn} boxSize={4} />
-          {t('viewSession')}
-        </NextLinkButton>
-      );
-    }
-
-    // Right side: Manage button (for owners or admin)
+    // Manage button (for owners or admin)
     if (actions.showManageButton && canManage) {
       const manageHref =
         actions.manageButtonHref ||
         (user?.role === UserRole.PLAYER
           ? `/player/sessions/${session.slug || session.id}`
           : `/host/sessions/${session.slug || session.id}`);
-      rightButtons.push(
+      buttons.push(
         <NextLinkButton
           key="manage"
           href={manageHref}
@@ -478,9 +370,9 @@ const BaseSessionCard = ({
       );
     }
 
-    // Right side: Register button (for non-registered users, excluding hosts/admins)
+    // Register button (for non-registered users, excluding hosts/admins)
     if (actions.showRegisterButton && actions.onRegister && !canManage) {
-      rightButtons.push(
+      buttons.push(
         <Button
           key="register"
           colorPalette="green"
@@ -500,51 +392,57 @@ const BaseSessionCard = ({
       );
     }
 
-    // Render layout if we have any buttons or menu items
-    if (menuItems.length > 0 || rightButtons.length > 0) {
+    return buttons.length > 0 ? <>{buttons}</> : null;
+  };
+
+  // Cache rendered top actions to avoid multiple calls
+  const topActionsRendered = actions ? renderTopActions() : null;
+  const oldTopActions =
+    topActionButtons || (actionButtons && !bottomActionButtons);
+
+  // Render bottom action buttons (View Registration button only)
+  const renderBottomActions = () => {
+    if (!actions) return null;
+
+    // Only show View Registration button at the bottom
+    if (actions.showViewRegistrationButton && actions.onViewRegistration) {
       return (
-        <Flex
-          w={isCompact ? 'auto' : 'full'}
-          justify="flex-end"
-          align="center"
-          gap={2}
-          wrap="wrap"
-        >
-          {/* Action menu (3 dots) on the left of buttons */}
-          {menuItems.length > 0 && (
-            <MenuRoot positioning={{ placement: 'bottom-start' }}>
-              <MenuTrigger asChild>
-                <IconButton
-                  size="sm"
-                  variant="outline"
-                  colorPalette="gray"
-                  aria-label="Actions"
-                  shadow="md"
-                  loading={actions?.isStartEndLoading}
-                  icon={<Icon as={MoreVertical} />}
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                />
-              </MenuTrigger>
-              <Portal>
-                <MenuPositioner zIndex={2000}>
-                  <MenuContent
-                    onClick={(e) => e.stopPropagation()}
-                    bg="white"
-                    boxShadow="lg"
-                    borderRadius="md"
-                    borderWidth="1px"
-                    borderColor="gray.200"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    zIndex={2001}
-                  >
-                    {menuItems}
-                  </MenuContent>
-                </MenuPositioner>
-              </Portal>
-            </MenuRoot>
-          )}
-          {/* Right side: Other action buttons */}
-          {rightButtons}
+        <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
+          <Button
+            colorPalette="green"
+            variant="subtle"
+            size="sm"
+            shadow="md"
+            loading={actions.isRegistrationLoading}
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              actions.onViewRegistration?.();
+            }}
+          >
+            <Icon as={ClipboardList} boxSize={4} />
+            {t('viewMyRegistration')}
+          </Button>
+        </Flex>
+      );
+    }
+
+    // Show View Session button if needed
+    if (actions.showViewSessionButton) {
+      const viewSessionHref =
+        actions.viewSessionHref ||
+        `/player/sessions/${session.slug || session.id}`;
+      return (
+        <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
+          <NextLinkButton
+            href={viewSessionHref}
+            colorPalette="green"
+            variant="solid"
+            size="sm"
+            loading={actions.isRegistrationLoading}
+          >
+            <Icon as={LogIn} boxSize={4} />
+            {t('viewSession')}
+          </NextLinkButton>
         </Flex>
       );
     }
@@ -1066,10 +964,13 @@ const BaseSessionCard = ({
                     )}
                   </Box>
 
-                  {/* Bottom Action Buttons */}
-                  <Box flex="1" display="flex" justifyContent="flex-end">
+                  {/* Action Buttons in Compact Mode */}
+                  <Flex gap={2} align="center">
+                    {/* Show top actions (Host/Register buttons) in compact mode */}
+                    {topActionsRendered || oldTopActions}
+                    {/* Show bottom actions (View Registration button) in compact mode */}
                     {actions ? renderBottomActions() : bottomActionButtons}
-                  </Box>
+                  </Flex>
                 </Flex>
               ) : (
                 <>

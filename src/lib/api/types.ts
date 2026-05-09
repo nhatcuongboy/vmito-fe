@@ -1050,6 +1050,99 @@ export interface IBulkScheduleItem {
   endTime?: string | null;
 }
 
+// Schedule Generator types
+export interface ICourtConstraint {
+  categories?: string[];
+  rounds?: string[];
+  groups?: string[];
+}
+
+export interface ICourtTimeSlotConfig {
+  courtId: string;
+  constraints?: ICourtConstraint;
+}
+
+export interface ITimeSlotConfig {
+  date: string;
+  startTime: string;
+  endTime: string;
+  timeBuffer: number;
+  courts: ICourtTimeSlotConfig[];
+}
+
+export interface IMatchDurations {
+  POOL_PLAY: number;
+  PLAYOFFS: number;
+}
+
+export interface IGenerateScheduleRequest {
+  categoryPriorities: string[];
+  matchDurations: IMatchDurations;
+  timeSlots: ITimeSlotConfig[];
+  keepScheduledMatches: boolean;
+}
+
+export interface IScheduleConflict {
+  matchId: string;
+  reason: string;
+  type: 'COURT_OVERLAP' | 'PARTICIPANT_OVERLAP' | 'NO_AVAILABLE_SLOT';
+}
+
+export interface IScheduleCategorySummary {
+  categoryId: string;
+  categoryName: string;
+  scheduled: number;
+  total: number;
+  byRound: { round: string; scheduled: number; total: number }[];
+}
+
+export interface IGenerateScheduleResponse {
+  scheduleId: string;
+  summary: {
+    totalMatches: number;
+    scheduledMatches: number;
+    unscheduledMatches: number;
+    byCategory: IScheduleCategorySummary[];
+  };
+  conflicts: IScheduleConflict[];
+}
+
+export interface IPreviewMatch {
+  matchId: string;
+  matchNumber: number;
+  categoryId: string;
+  categoryName: string;
+  round: string;
+  participants: string[];
+  courtId: string;
+  courtName: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+}
+
+export interface ISchedulePreviewResponse {
+  scheduleId: string;
+  matches: IPreviewMatch[];
+}
+
+export interface IUpdateMatchAssignment {
+  courtId: string;
+  startTime: string;
+  duration: number;
+}
+
+export interface ISaveScheduleResponse {
+  success: boolean;
+  scheduledCount: number;
+  unscheduledCount: number;
+}
+
+export interface IValidateScheduleResponse {
+  valid: boolean;
+  errors: { field: string; message: string }[];
+}
+
 // Image category enum
 export enum EImageCategory {
   SESSION_COVER = 'SESSION_COVER',

@@ -12,6 +12,7 @@ import {
   CategoryMatch,
   TournamentCourt,
   IBulkScheduleItem,
+  IGenerateScheduleResponse,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
@@ -19,8 +20,9 @@ import { toaster } from '@/components/ui/toaster';
 import ScheduleCalendarView from './ScheduleCalendarView';
 import ScheduleListView from './ScheduleListView';
 import EditMatchTimeSheet from './EditMatchTimeSheet';
-import GenerateScheduleDrawer from './GenerateScheduleDrawer';
+import GenerateScheduleDrawerV2 from './GenerateScheduleDrawerV2';
 import GenerationResultModal from './GenerationResultModal';
+import SchedulePreviewDrawer from './SchedulePreviewDrawer';
 import { IGenerateScheduleResult } from '@/utils/schedule-generator';
 
 type ViewMode = 'list' | 'calendar';
@@ -60,6 +62,11 @@ export default function ManageScheduleModal({
   const [generationResult, setGenerationResult] =
     useState<IGenerateScheduleResult | null>(null);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
+
+  // New: Backend-generated schedule state
+  const [backendGenerationResponse, setBackendGenerationResponse] =
+    useState<IGenerateScheduleResponse | null>(null);
+  const previewDrawerModal = useModal();
 
   // Fetch data on mount
   useEffect(() => {
@@ -127,6 +134,36 @@ export default function ManageScheduleModal({
     },
     [generateDrawerModal, resultModal]
   );
+
+  // New: Handle backend-generated schedule
+  const handleBackendGenerated = useCallback(
+    (response: IGenerateScheduleResponse) => {
+      setBackendGenerationResponse(response);
+      generateDrawerModal.onClose();
+      previewDrawerModal.onOpen();
+    },
+    [generateDrawerModal, previewDrawerModal]
+  );
+
+  const handlePreviewSaved = useCallback(() => {
+    // Refresh data
+    const fetchData = async () => {
+      try {
+        const matchesData = await TournamentService.getAllMatches(
+          tournament.id
+        );
+        setAllMatches(matchesData);
+      } catch {
+        // ignore
+      }
+    };
+    fetchData();
+    onScheduleSaved?.();
+  }, [tournament.id, onScheduleSaved]);
+
+  const handlePreviewCancel = useCallback(() => {
+    setBackendGenerationResponse(null);
+  }, []);
 
   const handleViewSchedule = useCallback(() => {
     if (!generationResult) return;
@@ -325,24 +362,40 @@ export default function ManageScheduleModal({
         </Flex>
       </VModal>
 
-      {/* Generate Schedule Drawer */}
-      <GenerateScheduleDrawer
+      {/* Generate Schedule Drawer (v2 with backend API) */}
+      <GenerateScheduleDrawerV2
         isOpen={generateDrawerModal.isOpen}
         onClose={generateDrawerModal.onClose}
+        tournamentId={tournament.id}
         categories={categories}
         allMatches={allMatches}
         courts={courts}
         venueName={tournament.venue?.name}
-        onGenerated={handleGenerated}
+        onGenerated={handleBackendGenerated}
       />
 
-      {/* Generation Result Modal */}
+      {/* Generation Result Modal (legacy fallback) */}
       {generationResult && (
         <GenerationResultModal
           isOpen={resultModal.isOpen}
           onClose={resultModal.onClose}
           result={generationResult}
           onViewSchedule={handleViewSchedule}
+        />
+      )}
+
+      {/* Schedule Preview Drawer (new backend flow) */}
+      {backendGenerationResponse && (
+        <SchedulePreviewDrawer
+          isOpen={previewDrawerModal.isOpen}
+          onClose={previewDrawerModal.onClose}
+          tournamentId={tournament.id}
+          scheduleId={backendGenerationResponse.scheduleId}
+          generationResponse={backendGenerationResponse}
+          courts={courts}
+          categories={categories}
+          onSaved={handlePreviewSaved}
+          onCancel={handlePreviewCancel}
         />
       )}
 
