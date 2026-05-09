@@ -188,6 +188,11 @@ export interface VSelectProps
    */
   rightElement?: React.ReactNode;
   /**
+   * Custom render function for each item in the dropdown
+   * Receives the option and returns a ReactNode
+   */
+  renderItem?: (option: VSelectOption) => React.ReactNode;
+  /**
    * onChange handler - compatible with native select onChange
    */
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -254,6 +259,7 @@ export const VSelect = ({
   onChange,
   width,
   minWidth,
+  renderItem,
   ...props
 }: VSelectProps) => {
   const isSelectDisabled = isDisabled || disabled;
@@ -402,7 +408,7 @@ export const VSelect = ({
                 alignItems="center"
                 fontSize="sm"
               >
-                {item.label}
+                {renderItem ? renderItem(item) : item.label}
               </SelectItem>
             ))}
           </SelectContent>

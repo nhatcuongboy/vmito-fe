@@ -127,6 +127,7 @@ export default function ManageScheduleModal({
                 courtId: courtId || undefined,
                 startTime: startTime ? new Date(startTime) : undefined,
                 endTime: endTime ? new Date(endTime) : undefined,
+                estimatedEndTime: endTime ? new Date(endTime) : undefined,
               }
             : m
         )
@@ -185,6 +186,7 @@ export default function ManageScheduleModal({
             courtId: assignment.courtId,
             startTime: new Date(assignment.startTime),
             endTime: new Date(assignment.endTime),
+            estimatedEndTime: new Date(assignment.endTime),
           };
         }
         return m;
@@ -519,9 +521,16 @@ export default function ManageScheduleModal({
         onClose={() => setEditingMatch(null)}
         match={allMatches.find((m) => m.id === editingMatch) ?? null}
         courts={courts}
-        onUpdate={(matchId, courtId, startTime, endTime) => {
+        onUpdate={async (matchId, courtId, startTime, endTime) => {
           handleMatchMove(matchId, courtId, startTime, endTime);
           setEditingMatch(null);
+          try {
+            await CategoryService.bulkUpdateSchedule([
+              { matchId, courtId, startTime, endTime },
+            ]);
+          } catch {
+            toaster.error({ title: t('updateFailed') });
+          }
         }}
       />
     </>

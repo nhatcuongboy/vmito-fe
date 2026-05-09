@@ -353,9 +353,8 @@ export const CategoryService = {
   },
 
   bulkUpdateSchedule: async (updates: IBulkScheduleItem[]): Promise<void> => {
-    await api.put<ApiResponse<null>>('/category-matches/bulk/schedule', {
+    await api.put<ApiResponse<null>>('/category-matches/bulk-schedule', {
       updates,
     });
-    toaster.success({ title: 'Schedule updated successfully' });
   },
 };

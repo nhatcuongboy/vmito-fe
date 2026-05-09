@@ -7,7 +7,9 @@ import {
   VSelect,
   SimpleGrid,
 } from '@/components/ui/chakra-compat';
-import { Text, Box, Flex } from '@chakra-ui/react';
+import type { SelectOption } from '@/components/ui/chakra-compat';
+import { Text, Box, Flex, Icon } from '@chakra-ui/react';
+import { X } from 'lucide-react';
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
@@ -55,14 +57,14 @@ export function EditMatchModal({
       setIsNoResult(!hasScores);
 
       if (hasScores) {
-        setPair1Score(match.scores.pair1Score?.toString() || '0');
-        setPair2Score(match.scores.pair2Score?.toString() || '0');
+        setPair1Score(match.scores.pair1Score?.toString() ?? '');
+        setPair2Score(match.scores.pair2Score?.toString() ?? '');
       } else {
-        setPair1Score('0');
-        setPair2Score('0');
+        setPair1Score('');
+        setPair2Score('');
       }
 
-      setIsExtra(Boolean(match.isExtra));
+      setIsExtra(match.isExtra === true);
       setNotes(match.notes || '');
 
       // Initialize players
@@ -157,6 +159,30 @@ export function EditMatchModal({
     setSelectedPlayerIds(newIds);
   };
 
+  // Render player option with smaller font for #number
+  const renderPlayerOption = (option: SelectOption) => {
+    const match = option.label.match(/^(#\d+)\s(.+)$/);
+    if (match) {
+      return (
+        <Flex align="center" gap={1.5}>
+          <Text
+            as="span"
+            fontSize="xs"
+            color="gray.400"
+            fontWeight="medium"
+            flexShrink={0}
+          >
+            {match[1]}
+          </Text>
+          <Text as="span" fontSize="sm" truncate>
+            {match[2]}
+          </Text>
+        </Flex>
+      );
+    }
+    return option.label;
+  };
+
   return (
     <VModal
       isOpen={isOpen}
@@ -167,7 +193,7 @@ export function EditMatchModal({
       onPrimaryAction={handleSubmit}
       isPrimaryLoading={isSubmitting}
       secondaryActionText={t('cancel')}
-      primaryColorScheme="brand"
+      primaryColorScheme="green"
     >
       <VStack spacing={4} align="stretch" pb={2}>
         <FormControl>
@@ -182,6 +208,7 @@ export function EditMatchModal({
               <VSwitch
                 checked={isNoResult}
                 onCheckedChange={(details) => setIsNoResult(details.checked)}
+                colorPalette="green"
               />
             </HStack>
           </Flex>
@@ -195,33 +222,75 @@ export function EditMatchModal({
               <Text fontSize="xs" fontWeight="bold" color="green.600" mb={1}>
                 {isSingles ? t('player1') : t('pair1')}
               </Text>
-              <Input
-                value={pair1Score}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setPair1Score(e.target.value)
-                }
-                type="number"
-                placeholder="0"
-                bg="white"
-                _dark={{ bg: 'gray.800' }}
-                disabled={isNoResult}
-              />
+              <Box position="relative">
+                <Input
+                  value={pair1Score}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPair1Score(e.target.value)
+                  }
+                  onFocus={(e) => e.target.select()}
+                  type="number"
+                  min={0}
+                  placeholder="—"
+                  bg="white"
+                  _dark={{ bg: 'gray.800' }}
+                  disabled={isNoResult}
+                  pr={pair1Score !== '' ? '8' : undefined}
+                />
+                {pair1Score !== '' && !isNoResult && (
+                  <Box
+                    position="absolute"
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    cursor="pointer"
+                    color="gray.400"
+                    _hover={{ color: 'gray.600' }}
+                    onClick={() => setPair1Score('')}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <Icon as={X} boxSize={3.5} />
+                  </Box>
+                )}
+              </Box>
             </Box>
             <Box>
               <Text fontSize="xs" fontWeight="bold" color="red.600" mb={1}>
                 {isSingles ? t('player2') : t('pair2')}
               </Text>
-              <Input
-                value={pair2Score}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setPair2Score(e.target.value)
-                }
-                type="number"
-                placeholder="0"
-                bg="white"
-                _dark={{ bg: 'gray.800' }}
-                disabled={isNoResult}
-              />
+              <Box position="relative">
+                <Input
+                  value={pair2Score}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPair2Score(e.target.value)
+                  }
+                  onFocus={(e) => e.target.select()}
+                  type="number"
+                  min={0}
+                  placeholder="—"
+                  bg="white"
+                  _dark={{ bg: 'gray.800' }}
+                  disabled={isNoResult}
+                  pr={pair2Score !== '' ? '8' : undefined}
+                />
+                {pair2Score !== '' && !isNoResult && (
+                  <Box
+                    position="absolute"
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    cursor="pointer"
+                    color="gray.400"
+                    _hover={{ color: 'gray.600' }}
+                    onClick={() => setPair2Score('')}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <Icon as={X} boxSize={3.5} />
+                  </Box>
+                )}
+              </Box>
             </Box>
           </SimpleGrid>
         </FormControl>
@@ -266,6 +335,7 @@ export function EditMatchModal({
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       handlePlayerChange(0, e.target.value)
                     }
+                    renderItem={renderPlayerOption}
                   >
                     <option value="" disabled>
                       {t('selectPlayer')}
@@ -293,6 +363,7 @@ export function EditMatchModal({
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         handlePlayerChange(1, e.target.value)
                       }
+                      renderItem={renderPlayerOption}
                     >
                       <option value="" disabled>
                         {t('selectPlayer')}
@@ -343,6 +414,7 @@ export function EditMatchModal({
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       handlePlayerChange(isSingles ? 1 : 2, e.target.value)
                     }
+                    renderItem={renderPlayerOption}
                   >
                     <option value="" disabled>
                       {t('selectPlayer')}
@@ -370,6 +442,7 @@ export function EditMatchModal({
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         handlePlayerChange(3, e.target.value)
                       }
+                      renderItem={renderPlayerOption}
                     >
                       <option value="" disabled>
                         {t('selectPlayer')}
