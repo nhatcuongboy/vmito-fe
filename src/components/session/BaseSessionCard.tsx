@@ -239,15 +239,88 @@ const BaseSessionCard = ({
     downloadSessionImage(session, elementId, 'TuyenVangLai');
   };
 
-  // Render top action buttons (icon buttons) - NOW SHOWS MORE MENU + ACTION BUTTONS
-  const renderTopActions = () => {
+  // Render icon buttons (Download, Share, More) - shown in Row 3
+  const renderIconButtons = () => {
     if (!actions) return null;
 
     const buttons: React.ReactNode[] = [];
     const menuItems: React.ReactNode[] = [];
 
+    // Icon buttons: Download (owner only) - with dropdown menu for portrait/social
+    if (actions.showDownloadButton && canManage) {
+      buttons.push(
+        <MenuRoot key="download" positioning={{ placement: 'bottom-end' }}>
+          <MenuTrigger asChild>
+            <IconButton
+              size="sm"
+              variant="outline"
+              colorPalette="gray"
+              aria-label="Download"
+              shadow="md"
+              loading={isDownloading}
+              icon={<Icon as={Download} />}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            />
+          </MenuTrigger>
+          <Portal>
+            <MenuPositioner zIndex={2000}>
+              <MenuContent
+                onClick={(e) => e.stopPropagation()}
+                bg="white"
+                _dark={{ bg: 'gray.800' }}
+                borderRadius="md"
+                shadow="lg"
+                minW="180px"
+                zIndex={2001}
+              >
+                <MenuItem
+                  value="portrait"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(e, 'portrait');
+                  }}
+                  cursor="pointer"
+                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                >
+                  <Icon as={Download} mr={2} />
+                  Tỷ lệ 2:3
+                </MenuItem>
+                <MenuItem
+                  value="social"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(e, 'social');
+                  }}
+                  cursor="pointer"
+                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                >
+                  <Icon as={Download} mr={2} />
+                  Tỷ lệ 4:5
+                </MenuItem>
+              </MenuContent>
+            </MenuPositioner>
+          </Portal>
+        </MenuRoot>
+      );
+    }
+
+    // Icon buttons: Share (always available)
+    if (actions.showShareButton) {
+      buttons.push(
+        <IconButton
+          key="share"
+          size="sm"
+          variant="outline"
+          colorPalette="gray"
+          aria-label="Share"
+          shadow="md"
+          icon={<Icon as={Share2} />}
+          onClick={handleShare}
+        />
+      );
+    }
+
     // Build menu items for More menu (3 dots)
-    // Menu items: Start session button (owner or admin, PREPARING only and not past end time)
     const isPastEndTime = session.endTime
       ? new Date(session.endTime) < new Date()
       : false;
@@ -274,7 +347,6 @@ const BaseSessionCard = ({
       );
     }
 
-    // Menu items: End session button (owner or admin, IN_PROGRESS only)
     if (actions.showEndButton && canManage && actions.onEnd) {
       menuItems.push(
         <MenuItem
@@ -293,7 +365,6 @@ const BaseSessionCard = ({
       );
     }
 
-    // Menu items: Delete button (owner or admin)
     if (actions.showDeleteButton && canManage && actions.onDelete) {
       menuItems.push(
         <MenuItem
@@ -312,7 +383,7 @@ const BaseSessionCard = ({
       );
     }
 
-    // Add More menu (3 dots) if we have menu items and showMoreButton is not false
+    // Add More menu (3 dots) if we have menu items
     if (menuItems.length > 0 && actions.showMoreButton !== false) {
       buttons.push(
         <MenuRoot key="more" positioning={{ placement: 'bottom-end' }}>
@@ -347,6 +418,15 @@ const BaseSessionCard = ({
         </MenuRoot>
       );
     }
+
+    return buttons.length > 0 ? <>{buttons}</> : null;
+  };
+
+  // Render top action buttons (Manage/Register buttons only)
+  const renderTopActions = () => {
+    if (!actions) return null;
+
+    const buttons: React.ReactNode[] = [];
 
     // Manage button (for owners or admin)
     if (actions.showManageButton && canManage) {
@@ -1012,7 +1092,7 @@ const BaseSessionCard = ({
                       )}
                     </Box>
 
-                    {/* Top Action Buttons (e.g. Call, Share, Download) - hidden in compact mode */}
+                    {/* Top Action Buttons (Manage/Register) */}
                     {!isCompact && (topActionsRendered || oldTopActions) && (
                       <Box flex="1" textAlign="right">
                         <Flex justify="flex-end" gap={2}>
@@ -1033,6 +1113,13 @@ const BaseSessionCard = ({
                         </Flex>
                       )}
                     </>
+                  )}
+
+                  {/* Row 3: Icon Buttons (Download, Share) */}
+                  {renderIconButtons() && (
+                    <Flex justify="flex-end" gap={2}>
+                      {renderIconButtons()}
+                    </Flex>
                   )}
                 </>
               )}

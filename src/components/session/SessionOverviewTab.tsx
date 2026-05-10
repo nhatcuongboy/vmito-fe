@@ -38,6 +38,7 @@ import SessionInfo from './SessionInfo';
 import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
 import BaseSessionCard from './BaseSessionCard';
+import SessionShareCard from './SessionShareCard';
 import { RatePlayersSection } from '@/components/rating';
 
 interface InfoRowProps extends FlexProps {
@@ -480,13 +481,13 @@ export default function SessionOverviewTab({
                   onClick={() =>
                     downloadSessionImage(
                       session,
-                      `session-card-preview-${session.id}`,
+                      `session-share-card-social-${session.id}`,
                       'TuyenVangLai'
                     )
                   }
                   leftIcon={<Icon as={Download} />}
                 >
-                  {t('downloadSocial')}
+                  Tỷ lệ 4:5
                 </Button>
                 <Button
                   flex={1}
@@ -497,13 +498,13 @@ export default function SessionOverviewTab({
                   onClick={() =>
                     downloadSessionImage(
                       session,
-                      `session-card-preview-${session.id}`,
+                      `session-share-card-portrait-${session.id}`,
                       'TuyenVangLai'
                     )
                   }
                   leftIcon={<Icon as={Download} />}
                 >
-                  {t('downloadPortrait')}
+                  Tỷ lệ 2:3
                 </Button>
               </Flex>
             </Box>
@@ -723,16 +724,20 @@ export default function SessionOverviewTab({
         <SessionPlayers sessionId={session.id} session={session} />
       </Box>
 
-      {/* Hidden containers for session card preview export - Social ratio 4:5 */}
+      {/* Hidden containers for session card preview export */}
       <Box
         position="absolute"
         left="-9999px"
         top="-9999px"
-        id={`session-card-preview-${session.id}`}
-        w="360px"
-        bg="white"
+        zIndex={-1}
+        pointerEvents="none"
       >
-        <BaseSessionCard session={session} variant="grid" />
+        <Box id={`session-card-preview-${session.id}-portrait`}>
+          <SessionShareCard session={session} mode="portrait" />
+        </Box>
+        <Box mt={4} id={`session-card-preview-${session.id}-social`}>
+          <SessionShareCard session={session} mode="social" />
+        </Box>
       </Box>
 
       {/* Edit Session Drawer */}

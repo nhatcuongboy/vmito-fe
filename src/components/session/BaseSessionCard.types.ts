@@ -15,14 +15,12 @@ export interface SessionActionConfig {
   /**
    * Show download button (only for session owner)
    * Downloads session card as PNG image
-   * @deprecated No longer used - removed from UI
    */
   showDownloadButton?: boolean;
 
   /**
    * Show share button (always available)
    * Uses native share API or clipboard fallback
-   * @deprecated No longer used - removed from UI
    */
   showShareButton?: boolean;
 

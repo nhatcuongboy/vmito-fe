@@ -27,6 +27,10 @@ interface SessionsListProps {
   expiredCount?: number;
   /** Optional viewMode override - if not provided, will use internal useViewMode */
   viewMode?: 'grid' | 'list' | 'map';
+  /** Show Download and Share buttons on session cards */
+  showDownloadShareButtons?: boolean;
+  /** Force showing View Session button instead of Manage */
+  forceViewSessionButton?: boolean;
 }
 
 export default function SessionsList({
@@ -37,6 +41,8 @@ export default function SessionsList({
   isLoadingMore: externalLoadingMore,
   onRefresh,
   viewMode: externalViewMode,
+  showDownloadShareButtons = false,
+  forceViewSessionButton = false,
 }: SessionsListProps) {
   const [internalViewMode] = useViewMode('sessions');
   const viewMode = externalViewMode ?? internalViewMode;
@@ -211,6 +217,8 @@ export default function SessionsList({
                   setSelectedSessionForDetail(session);
                   setIsDetailModalOpen(true);
                 }}
+                showDownloadShareButtons={showDownloadShareButtons}
+                forceViewSessionButton={forceViewSessionButton}
               />
             ))}
           </Grid>

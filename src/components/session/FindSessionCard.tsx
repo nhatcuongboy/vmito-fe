@@ -250,10 +250,10 @@ const FindSessionCard = ({
     // Hide More menu (3 dots) on Find Sessions page
     showMoreButton: false,
 
-    // Top actions - DEPRECATED (no longer shown)
-    showCallButton: !!session.hostPhone,
-    showDownloadButton: canManage,
-    showShareButton: true,
+    // Top actions - not shown on Find Sessions page
+    showCallButton: false,
+    showDownloadButton: false,
+    showShareButton: false,
 
     // Bottom actions - delete
     showDeleteButton: canManage,

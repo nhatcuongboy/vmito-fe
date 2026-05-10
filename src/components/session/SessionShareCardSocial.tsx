@@ -290,7 +290,20 @@ const SessionShareCardSocial = ({ session }: SessionShareCardSocialProps) => {
                         );
                       })
                   ) : (
-                    <Badge colorPalette="gray" variant="subtle" size="lg">
+                    <Badge
+                      colorPalette="gray"
+                      variant="solid"
+                      size="lg"
+                      fontSize="3xl"
+                      fontWeight="bold"
+                      px={8}
+                      py={3}
+                      borderRadius="full"
+                      borderWidth="2px"
+                      borderColor="gray.300"
+                      bg="gray.100"
+                      color="gray.700"
+                    >
                       {t('allLevels')}
                     </Badge>
                   )}
