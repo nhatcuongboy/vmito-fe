@@ -181,7 +181,7 @@ function createSessionFormSchema(
       allowGuestJoin: z.boolean(),
       allowNewPlayers: z.boolean(),
       allLevelsSelected: z.boolean(),
-      requiredLevels: z.array(z.number()).optional(),
+      requiredLevels: z.array(z.coerce.number()).optional(),
       shuttlecock: z.string().optional(),
       defaultMatchType: z.enum(['SINGLES', 'DOUBLES']),
     })
@@ -271,7 +271,7 @@ export default function SessionForm({
         allLevelsSelected:
           !initialData.requiredLevels ||
           initialData.requiredLevels?.length === 0,
-        requiredLevels: initialData.requiredLevels || [],
+        requiredLevels: (initialData.requiredLevels || []).map(Number),
         shuttlecock: initialData.shuttlecock || '',
         defaultMatchType: initialData.defaultMatchType || 'DOUBLES',
       };
@@ -618,7 +618,9 @@ export default function SessionForm({
         setValue('allLevelsSelected', false);
         setValue(
           'requiredLevels',
-          Array.from(new Set(data.requiredLevels as number[]))
+          Array.from(
+            new Set((data.requiredLevels as (number | string)[]).map(Number))
+          )
         );
       }
 
