@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect, Suspense } from 'react';
+import { use, useEffect, useState, Suspense } from 'react';
 import { Spinner, Center, Box, Text, Flex } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Info, RefreshCw, Square, Trophy, Users } from 'lucide-react';
@@ -70,11 +70,6 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
-
-  // Scroll to top when tab changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeTab]);
 
   const { refreshSessionData, isRefreshing } = useSessionRefresh({
     sessionId: session?.id || sessionId,

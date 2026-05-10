@@ -383,6 +383,7 @@ function HostSessionsContent() {
             hasMoreSessions={hasMore}
             expiredCount={expiredCount ?? undefined}
             viewMode={viewMode}
+            showDownloadShareButtons={true}
           />
 
           {/* Infinite Scroll Trigger */}

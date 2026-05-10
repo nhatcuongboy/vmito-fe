@@ -230,7 +230,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             px={{ base: 4, md: 8 }}
           >
             {/* Tab Content Area */}
-            <Box minH="60vh" pb="80px" w="full" maxW="7xl">
+            <Box minH="60vh" pb="160px" w="full" maxW="7xl">
               {contentTabId[activeTab] === 0 && (
                 <SessionOverviewTab
                   session={session}

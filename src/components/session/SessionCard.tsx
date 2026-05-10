@@ -4,7 +4,7 @@ import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { SessionService } from '@/lib/api/session.service';
 import { Box, Text, Icon, Flex, Badge, Alert } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, LogIn } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
@@ -18,6 +18,7 @@ import { Portal } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import MyRegistrationModal from './MyRegistrationModal';
 import type { ViewMode } from '@/hooks/useViewMode';
+import { NextLinkButton } from '@/components/ui/NextLinkButton';
 
 interface SessionCardProps {
   session: ISession;
@@ -26,6 +27,8 @@ interface SessionCardProps {
   mode?: 'view' | 'manage';
   onHostClick?: () => void;
   variant?: ViewMode;
+  showDownloadShareButtons?: boolean;
+  forceViewSessionButton?: boolean;
 }
 
 const SessionCard = ({
@@ -35,6 +38,8 @@ const SessionCard = ({
   mode = 'view',
   onHostClick,
   variant = 'grid',
+  showDownloadShareButtons = false,
+  forceViewSessionButton = false,
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -46,7 +51,6 @@ const SessionCard = ({
     onOpen: onOpenDeleteModal,
     onClose: onCloseDeleteModal,
   } = useModal();
-
   const {
     isOpen: isViewRegistrationModalOpen,
     onOpen: onOpenViewRegistrationModal,
@@ -247,12 +251,26 @@ const SessionCard = ({
     </Flex>
   );
 
+  const viewSessionHref = `/player/sessions/${session.slug || session.id}`;
+  const viewSessionButton = forceViewSessionButton ? (
+    <NextLinkButton
+      href={viewSessionHref}
+      colorPalette="green"
+      variant="solid"
+      size="sm"
+      shadow="md"
+    >
+      <Icon as={LogIn} boxSize={4} />
+      {t('viewSession')}
+    </NextLinkButton>
+  ) : null;
+
   // Action configuration for session card
   const actions: SessionActionConfig = {
     // Top actions
     showCallButton: !!session.hostPhone,
-    showDownloadButton: canManage,
-    showShareButton: true,
+    showDownloadButton: showDownloadShareButtons && canManage,
+    showShareButton: showDownloadShareButtons,
 
     // Bottom actions - 3-dot menu
     showDeleteButton: (mode === 'manage' || canManage) && !!onDelete,
@@ -277,17 +295,19 @@ const SessionCard = ({
     onViewRegistration: onOpenViewRegistrationModal,
 
     // Manage button (for owners or ADMIN)
-    showManageButton: canManage,
+    showManageButton: canManage && !forceViewSessionButton,
     // manageButtonHref:
     //   user?.role === UserRole.PLAYER
     //     ? `/player/sessions/${session.slug || session.id}`
     //     : `/host/sessions/${session.slug || session.id}`,
     manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
-    // View session button (for approved players, NOT for owners)
+    // View session button (approved players only when not forced)
     showViewSessionButton:
-      session.players?.[0]?.registrationStatus === 'APPROVED' && !isOwner,
-    viewSessionHref: `/player/sessions/${session.slug || session.id}`,
+      !forceViewSessionButton &&
+      session.players?.[0]?.registrationStatus === 'APPROVED' &&
+      !isOwner,
+    viewSessionHref,
   };
 
   // Delete modal
@@ -342,6 +362,7 @@ const SessionCard = ({
       variant={variant}
       registrationBadgeContent={combinedBadges}
       extraInfoRows={combinedExtraInfo}
+      topActionButtons={viewSessionButton || undefined}
       actions={actions}
       onHostClick={onHostClick}
       modalContent={

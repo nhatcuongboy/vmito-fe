@@ -22,9 +22,8 @@ import {
   HistoryMatch,
 } from '@/components/session/HistoryMatchCard';
 
-// ... (rest of the file)
-import { ChevronDown } from 'lucide-react';
 import VSelect from '@/components/ui/VSelect';
+import VMultiSelect, { VMultiSelectOption } from '@/components/ui/VMultiSelect';
 
 interface SessionMatchesTabProps {
   sessionId: string;
@@ -54,20 +53,21 @@ export default function SessionMatchesTab({
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string>(
-    defaultPlayerId || ''
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(
+    defaultPlayerId ? [defaultPlayerId] : []
   );
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
+  const [resultFilter, setResultFilter] = useState<string>(''); // '' = all, 'with' = có kết quả, 'without' = không có kết quả
   const [players, setPlayers] = useState<
     (Player | { id: string; playerNumber: number; name?: string })[]
   >(sessionData?.players || []);
 
-  // Sync defaultPlayerId when it changes and selectedPlayerId is empty
+  // Sync defaultPlayerId when it changes
   useEffect(() => {
-    if (defaultPlayerId) {
-      setSelectedPlayerId(defaultPlayerId);
+    if (defaultPlayerId && !selectedPlayerIds.includes(defaultPlayerId)) {
+      setSelectedPlayerIds([defaultPlayerId]);
     }
-  }, [defaultPlayerId]);
+  }, [defaultPlayerId, selectedPlayerIds]);
   const [courts, setCourts] = useState<
     (Court | { id: string; courtNumber: number; courtName?: string })[]
   >(sessionData?.courts || []);
@@ -109,7 +109,10 @@ export default function SessionMatchesTab({
 
       // Step 2: Load matches
       const filters: { playerId?: string; courtId?: string } = {};
-      if (selectedPlayerId) filters.playerId = selectedPlayerId;
+      // If multiple players selected, we'll filter client-side
+      if (selectedPlayerIds.length === 1) {
+        filters.playerId = selectedPlayerIds[0];
+      }
       if (selectedCourtId) filters.courtId = selectedCourtId;
 
       const result = await SessionService.getSessionMatchesWithFilters(
@@ -284,7 +287,33 @@ export default function SessionMatchesTab({
         return bDate - aDate;
       });
 
-      setMatches(allMatches);
+      // Client-side filtering for multiple players
+      let filteredMatches = allMatches;
+
+      if (selectedPlayerIds.length > 1) {
+        filteredMatches = filteredMatches.filter((match) =>
+          selectedPlayerIds.some((playerId) =>
+            match.playerIds?.includes(playerId)
+          )
+        );
+      }
+
+      // Filter by result status
+      if (resultFilter === 'with') {
+        filteredMatches = filteredMatches.filter(
+          (match) =>
+            match.scores &&
+            (match.scores.pair1Score > 0 || match.scores.pair2Score > 0)
+        );
+      } else if (resultFilter === 'without') {
+        filteredMatches = filteredMatches.filter(
+          (match) =>
+            !match.scores ||
+            (match.scores.pair1Score === 0 && match.scores.pair2Score === 0)
+        );
+      }
+
+      setMatches(filteredMatches);
     } catch (err) {
       setError(t('failedToLoadMatchHistory'));
       console.error('Error fetching match history:', err);
@@ -296,7 +325,7 @@ export default function SessionMatchesTab({
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, selectedPlayerId, selectedCourtId]);
+  }, [sessionId, selectedPlayerIds, selectedCourtId, resultFilter]);
 
   const handleEditMatch = (match: HistoryMatch) => {
     setSelectedMatch(match);
@@ -385,35 +414,50 @@ export default function SessionMatchesTab({
         </Heading>
 
         <Flex gap={3} flexWrap="wrap" width={{ base: '100%', md: 'auto' }}>
-          {/* Player Filter */}
+          {/* Player Filter - Multi Select */}
           <Box
-            width={{ base: 'calc(50% - 6px)', sm: '180px' }}
+            width={{ base: '100%', sm: '220px' }}
             bg="white"
             _dark={{ bg: 'gray.800' }}
             borderRadius="md"
             boxShadow="sm"
           >
-            <VSelect
-              value={selectedPlayerId}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                setSelectedPlayerId(e.target.value)
-              }
+            <VMultiSelect
+              value={selectedPlayerIds}
+              onChange={setSelectedPlayerIds}
+              options={players.map((player) => ({
+                value: player.id,
+                label: player.name || t('unnamed'),
+                playerNumber: player.playerNumber,
+              }))}
+              placeholder={t('allPlayers')}
               size="sm"
               variant="outline"
-              rightElement={<ChevronDown size={14} color="gray" />}
-            >
-              <option value="">{t('allPlayers')}</option>
-              {players.map((player) => (
-                <option key={player.id} value={player.id}>
-                  #{player.playerNumber} - {player.name || t('unnamed')}
-                </option>
-              ))}
-            </VSelect>
+              renderItem={(option) => (
+                <Flex align="baseline" gap={1}>
+                  <Text color="gray.500" fontSize="xs" fontWeight="medium">
+                    #{(option as any).playerNumber}
+                  </Text>
+                  <Text fontSize="sm">{option.label}</Text>
+                </Flex>
+              )}
+              renderSelected={(options) => {
+                if (options.length === 0) return '';
+                if (options.length === 1) {
+                  return `#${(options[0] as any).playerNumber} ${options[0].label}`;
+                }
+                if (options.length === 2) {
+                  return `#${(options[0] as any).playerNumber} ${options[0].label}, #${(options[1] as any).playerNumber} ${options[1].label}`;
+                }
+                // Show first player and count for 3+
+                return `#${(options[0] as any).playerNumber} ${options[0].label} +${options.length - 1}`;
+              }}
+            />
           </Box>
 
           {/* Court Filter */}
           <Box
-            width={{ base: 'calc(50% - 6px)', sm: '150px' }}
+            width={{ base: 'calc(50% - 6px)', sm: '160px' }}
             bg="white"
             _dark={{ bg: 'gray.800' }}
             borderRadius="md"
@@ -426,7 +470,6 @@ export default function SessionMatchesTab({
               }
               size="sm"
               variant="outline"
-              rightElement={<ChevronDown size={14} color="gray" />}
             >
               <option value="">{t('allCourts')}</option>
               {courts.map((court) => (
@@ -439,6 +482,30 @@ export default function SessionMatchesTab({
                     : t('courtNumber', { number: court.courtNumber })}
                 </option>
               ))}
+            </VSelect>
+          </Box>
+
+          {/* Result Status Filter */}
+          <Box
+            width={{ base: 'calc(50% - 6px)', sm: '160px' }}
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="md"
+            boxShadow="sm"
+          >
+            <VSelect
+              value={resultFilter}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setResultFilter(e.target.value)
+              }
+              size="sm"
+              variant="outline"
+            >
+              <option value="">{t('allResults') || 'Tất cả'}</option>
+              <option value="with">{t('withResults') || 'Có kết quả'}</option>
+              <option value="without">
+                {t('withoutResults') || 'Không có kết quả'}
+              </option>
             </VSelect>
           </Box>
         </Flex>
@@ -475,7 +542,7 @@ export default function SessionMatchesTab({
             {t('noCompletedMatches')}
           </Heading>
           <Text color="gray.500">
-            {selectedPlayerId || selectedCourtId
+            {selectedPlayerIds.length > 0 || selectedCourtId || resultFilter
               ? t('noMatchesWithFilters')
               : t('noMatchesYet')}
           </Text>

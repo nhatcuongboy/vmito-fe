@@ -3,9 +3,12 @@
 import { CourtDirection } from '@/lib/api/types';
 import { Box, Spinner } from '@chakra-ui/react';
 import { useState } from 'react';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Sparkles } from 'lucide-react';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
 import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
+import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
+import { useLocale } from 'next-intl';
+import { Locale } from '@/i18n/locales';
 
 interface BadmintonCourtProps {
   players: BadmintonCourtPlayer[];
@@ -31,6 +34,7 @@ interface BadmintonCourtProps {
     position: number;
     player?: BadmintonCourtPlayer;
   }>; // Pre-selected players for next match
+  onAIAnalysis?: () => void; // Callback for AI analysis button
 }
 
 export default function BadmintonCourt({
@@ -52,10 +56,13 @@ export default function BadmintonCourt({
   selectedPositions = [],
   direction = CourtDirection.HORIZONTAL,
   preSelectedPlayers = [],
+  onAIAnalysis,
 }: BadmintonCourtProps) {
   const [clickedPlayer, setClickedPlayer] = useState<string | null>(null);
   const aspectRatio = 13.4 / 6.1;
   const preSelectedCount = preSelectedPlayers.length;
+  const { openWithMessage } = useAiAssistantStore();
+  const locale = useLocale();
 
   const handleAnnounce = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -116,6 +123,83 @@ export default function BadmintonCourt({
 
     utterance1.onend = () => window.speechSynthesis.speak(utterance2);
     window.speechSynthesis.speak(utterance1);
+  };
+
+  const handleAIAnalysis = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (onAIAnalysis) {
+      onAIAnalysis();
+      return;
+    }
+
+    // Build analysis prompt for this specific court match
+    const isVi = locale === Locale.VI;
+    const sortedPlayers = [...players].sort(
+      (a, b) => (a.courtPosition ?? 0) - (b.courtPosition ?? 0)
+    );
+
+    // Group players into pairs
+    let pair1: BadmintonCourtPlayer[];
+    let pair2: BadmintonCourtPlayer[];
+
+    if (sortedPlayers.length <= 2) {
+      // Singles
+      pair1 = [sortedPlayers[0]].filter(Boolean) as BadmintonCourtPlayer[];
+      pair2 = [sortedPlayers[1]].filter(Boolean) as BadmintonCourtPlayer[];
+    } else if (direction === CourtDirection.HORIZONTAL) {
+      pair1 = [sortedPlayers[0], sortedPlayers[1]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+      pair2 = [sortedPlayers[2], sortedPlayers[3]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+    } else {
+      pair1 = [sortedPlayers[0], sortedPlayers[2]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+      pair2 = [sortedPlayers[1], sortedPlayers[3]].filter(
+        Boolean
+      ) as BadmintonCourtPlayer[];
+    }
+
+    const formatPlayerInfo = (player: BadmintonCourtPlayer) => {
+      const level = player.level
+        ? `Level ${player.level}`
+        : 'Chưa xác định trình độ';
+      return `${player.name || `Người chơi ${player.playerNumber}`} (${level})`;
+    };
+
+    const pair1Info = pair1.map(formatPlayerInfo).join(' & ');
+    const pair2Info = pair2.map(formatPlayerInfo).join(' & ');
+
+    let prompt: string;
+    if (isVi) {
+      prompt =
+        `Hãy phân tích nhanh trận đấu cầu lông trên sân ${courtName || courtNumber || ''} và cho tôi biết:\n\n` +
+        `**Đội 1:** ${pair1Info}\n` +
+        `**Đội 2:** ${pair2Info}\n\n` +
+        `Phân tích:\n` +
+        `1. Độ cạnh tranh/chênh lệch giữa 2 đội\n` +
+        `2. Điểm mạnh/yếu của mỗi đội\n` +
+        `3. Dự đoán kết quả và gợi ý chiến thuật\n\n` +
+        `Chỉ trả lời ngắn gọn (5-7 dòng), bằng tiếng Việt.`;
+    } else {
+      prompt =
+        `Quickly analyze this badminton match on court ${courtName || courtNumber || ''} and tell me:\n\n` +
+        `**Team 1:** ${pair1Info}\n` +
+        `**Team 2:** ${pair2Info}\n\n` +
+        `Analysis:\n` +
+        `1. Competitiveness/skill gap between teams\n` +
+        `2. Strengths/weaknesses of each team\n` +
+        `3. Predicted outcome and tactical suggestions\n\n` +
+        `Keep the answer concise (5-7 lines).`;
+    }
+
+    openWithMessage(
+      prompt,
+      `Phân tích trận đấu - Sân ${courtName || courtNumber || ''}`
+    );
   };
 
   // Create placeholder players for selection mode
@@ -590,6 +674,39 @@ export default function BadmintonCourt({
           gap={2}
         >
           <Spinner size="md" />
+        </Box>
+      )}
+      {/* AI Analysis button - only visible when READY or IN_USE */}
+      {(status === 'READY' || status === 'IN_USE') && (
+        <Box
+          position="absolute"
+          top="4%"
+          right="2%"
+          zIndex={10}
+          cursor="pointer"
+          onClick={handleAIAnalysis}
+          bg="purple.500"
+          opacity={0.92}
+          backdropFilter="blur(8px)"
+          borderRadius="full"
+          w="28px"
+          h="28px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          _hover={{
+            bg: 'purple.600',
+            transform: 'scale(1.15)',
+            opacity: 1,
+            boxShadow: '0 6px 20px rgba(139, 92, 246, 0.6)',
+          }}
+          transition="all 0.3s ease"
+          title="Trợ lý AI phân tích trận đấu"
+          boxShadow="0 4px 12px rgba(139, 92, 246, 0.5), 0 2px 4px rgba(0, 0, 0, 0.2)"
+          border="1px solid"
+          borderColor="whiteAlpha.300"
+        >
+          <Sparkles size={15} color="white" />
         </Box>
       )}
       {/* Speaker icon for court announcements - only visible when READY or IN_USE and in manage mode */}

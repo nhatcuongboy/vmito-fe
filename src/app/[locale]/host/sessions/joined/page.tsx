@@ -279,6 +279,8 @@ function PlayerSessionsContent() {
             mode="view"
             onRefresh={fetchPlayerSessions}
             viewMode={viewMode}
+            forceViewSessionButton={true}
+            showDownloadShareButtons={true}
           />
 
           {/* Infinite Scroll Trigger */}
