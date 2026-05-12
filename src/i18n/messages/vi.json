@@ -2717,6 +2717,8 @@
       "courtNumberWithName": "Sân {number} ({name})",
       "courtUnknown": "Sân ?",
       "allResults": "Tất cả",
+      "sortNewest": "Mới nhất",
+      "sortOldest": "Cũ nhất",
       "withResults": "Có kết quả",
       "withoutResults": "Không có kết quả",
       "noCompletedMatches": "Chưa có trận đấu hoàn thành",

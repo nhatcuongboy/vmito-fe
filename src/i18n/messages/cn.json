@@ -2657,6 +2657,8 @@
       "courtNumberWithName": "场地 {number} ({name})",
       "courtUnknown": "场地 ?",
       "allResults": "全部",
+      "sortNewest": "最新优先",
+      "sortOldest": "最早优先",
       "withResults": "有结果",
       "withoutResults": "无结果",
       "noCompletedMatches": "暂无已完成的比赛",
