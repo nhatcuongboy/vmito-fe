@@ -222,6 +222,15 @@ const StatsTable = ({
                 <Text as="span">{t('columnWinRate')}</Text>
               </HStack>
             </Th>
+            <Th
+              sortKey={exportMode ? undefined : 'totalShuttlecocks'}
+              sortConfig={exportMode ? undefined : sortConfig}
+              onSort={exportMode ? undefined : sortHandler}
+              textAlign="center"
+              {...thProps}
+            >
+              {t('columnShuttlecock')}
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -322,6 +331,11 @@ const StatsTable = ({
                   >
                     {isNA ? '—' : `${p.winRate}%`}
                   </Badge>
+                </Td>
+                <Td textAlign="center" {...tdProps}>
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {p.totalShuttlecocks != null ? p.totalShuttlecocks : '—'}
+                  </Text>
                 </Td>
               </Tr>
             );

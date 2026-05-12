@@ -246,6 +246,7 @@ export const useCourtsTabActions = ({
       winnerIds?: string[];
       isDraw?: boolean;
       notes?: string;
+      shuttlecockCount?: number;
     },
     selectedMatch: Match,
     session: ISession,

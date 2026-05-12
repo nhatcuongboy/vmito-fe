@@ -19,6 +19,7 @@ interface IUpdateMatchRequest {
   isDraw?: boolean;
   winnerIds?: string[];
   playerIds?: string[];
+  shuttlecockCount?: number;
 }
 
 export const SessionService = {

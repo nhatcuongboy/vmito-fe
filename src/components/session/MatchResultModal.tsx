@@ -2,8 +2,8 @@ import { Input } from '@/components/ui/Input';
 import { VModal } from '@/components/ui/VModal';
 import { CourtDirection } from '@/lib/api/types';
 import { Match } from '@/types/session';
-import { Box, HStack, Text, Textarea, VStack } from '@chakra-ui/react';
-import { Trophy, User, Users } from 'lucide-react';
+import { Box, HStack, Text, Textarea, VStack, Icon } from '@chakra-ui/react';
+import { Trophy, User, Users, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
@@ -15,6 +15,7 @@ interface MatchResultModalProps {
     winnerIds?: string[];
     isDraw?: boolean;
     notes?: string;
+    shuttlecockCount?: number;
   }) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -39,6 +40,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   );
   const [isDraw, setIsDraw] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
+  const [shuttlecockCount, setShuttlecockCount] = useState<string>('');
 
   // Reset form when modal opens
   React.useEffect(() => {
@@ -48,6 +50,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       setSelectedWinnerPair(null);
       setIsDraw(false);
       setNotes('');
+      setShuttlecockCount('');
     }
   }, [isOpen]);
 
@@ -136,6 +139,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       winnerIds?: string[];
       isDraw?: boolean;
       notes?: string;
+      shuttlecockCount?: number;
     } = {};
 
     // Add scores if provided
@@ -178,6 +182,14 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       result.notes = notes.trim();
     }
 
+    // Add shuttlecock count if provided
+    if (shuttlecockCount.trim()) {
+      const count = parseFloat(shuttlecockCount);
+      if (!isNaN(count) && count >= 0) {
+        result.shuttlecockCount = count;
+      }
+    }
+
     onConfirm(result);
   };
 
@@ -210,15 +222,35 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 <Text fontSize="sm" color="green.600" fontWeight="semibold">
                   {side1Label}
                 </Text>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={pair1Score}
-                  onChange={(e) => setPair1Score(e.target.value)}
-                  size="sm"
-                  textAlign="center"
-                  w="80px"
-                />
+                <Box position="relative" w="80px">
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={pair1Score}
+                    onChange={(e) => setPair1Score(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    size="sm"
+                    textAlign="center"
+                    w="full"
+                    pr={pair1Score !== '' ? '8' : undefined}
+                  />
+                  {pair1Score !== '' && (
+                    <Box
+                      position="absolute"
+                      right="2"
+                      top="50%"
+                      transform="translateY(-50%)"
+                      cursor="pointer"
+                      color="gray.400"
+                      _hover={{ color: 'gray.600' }}
+                      onClick={() => setPair1Score('')}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <Icon as={X} boxSize={3.5} />
+                    </Box>
+                  )}
+                </Box>
               </VStack>
 
               {/* VS */}
@@ -231,15 +263,35 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
                 <Text fontSize="sm" color="red.600" fontWeight="semibold">
                   {side2Label}
                 </Text>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={pair2Score}
-                  onChange={(e) => setPair2Score(e.target.value)}
-                  size="sm"
-                  textAlign="center"
-                  w="80px"
-                />
+                <Box position="relative" w="80px">
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={pair2Score}
+                    onChange={(e) => setPair2Score(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    size="sm"
+                    textAlign="center"
+                    w="full"
+                    pr={pair2Score !== '' ? '8' : undefined}
+                  />
+                  {pair2Score !== '' && (
+                    <Box
+                      position="absolute"
+                      right="2"
+                      top="50%"
+                      transform="translateY(-50%)"
+                      cursor="pointer"
+                      color="gray.400"
+                      _hover={{ color: 'gray.600' }}
+                      onClick={() => setPair2Score('')}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <Icon as={X} boxSize={3.5} />
+                    </Box>
+                  )}
+                </Box>
               </VStack>
             </HStack>
           </VStack>
@@ -421,6 +473,22 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
             />
             <Text fontSize="sm">{t('matchResult.isDraw')}</Text>
           </HStack>
+        </Box>
+
+        {/* Shuttlecock Count */}
+        <Box w="full">
+          <Text fontSize="sm" mb={2} fontWeight="medium" color="gray.600">
+            {t('matchResult.shuttlecockCount')}
+          </Text>
+          <Input
+            type="number"
+            step="any"
+            min="0"
+            placeholder={t('matchResult.shuttlecockCountPlaceholder')}
+            value={shuttlecockCount}
+            onChange={(e) => setShuttlecockCount(e.target.value)}
+            size="sm"
+          />
         </Box>
 
         {/* Notes */}

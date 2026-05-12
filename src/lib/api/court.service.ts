@@ -86,6 +86,7 @@ export const CourtService = {
       winnerIds?: string[];
       isDraw?: boolean;
       notes?: string;
+      shuttlecockCount?: number;
     }
   ): Promise<{ court: Court; match: Match; players: Player[] }> => {
     const response = await api.post<

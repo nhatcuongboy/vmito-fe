@@ -41,6 +41,7 @@ export function EditMatchModal({
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [isExtra, setIsExtra] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
+  const [shuttlecockCount, setShuttlecockCount] = useState<string>('');
   const [isNoResult, setIsNoResult] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,6 +67,9 @@ export function EditMatchModal({
 
       setIsExtra(match.isExtra === true);
       setNotes(match.notes || '');
+      setShuttlecockCount(
+        match.shuttlecockCount != null ? match.shuttlecockCount.toString() : ''
+      );
 
       // Initialize players
       if (match.playerIds && Array.isArray(match.playerIds)) {
@@ -95,6 +99,7 @@ export function EditMatchModal({
         isDraw: boolean;
         winnerIds?: string[];
         playerIds?: string[];
+        shuttlecockCount?: number;
       } = {
         score: isNoResult
           ? null
@@ -106,6 +111,14 @@ export function EditMatchModal({
         notes,
         isDraw: !isNoResult && s1 === s2,
       };
+
+      // Add shuttlecock count if provided
+      if (shuttlecockCount.trim()) {
+        const count = parseFloat(shuttlecockCount);
+        if (!isNaN(count) && count >= 0) {
+          payload.shuttlecockCount = count;
+        }
+      }
 
       if (!isNoResult && s1 !== s2) {
         if (isSingles) {
@@ -469,6 +482,22 @@ export function EditMatchModal({
               colorPalette="orange"
             />
           </HStack>
+        </FormControl>
+
+        <FormControl>
+          <FormLabel fontSize="sm" fontWeight="semibold">
+            {t('shuttlecockCount')}
+          </FormLabel>
+          <Input
+            type="number"
+            step="any"
+            min="0"
+            placeholder={t('shuttlecockCountPlaceholder')}
+            value={shuttlecockCount}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setShuttlecockCount(e.target.value)
+            }
+          />
         </FormControl>
 
         <FormControl>

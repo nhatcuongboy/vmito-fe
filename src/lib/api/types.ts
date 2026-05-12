@@ -441,6 +441,7 @@ export interface Match {
     score: number;
   }[];
   winnerIds: string[];
+  shuttlecockCount?: number;
 }
 
 export interface MatchPlayer {
@@ -468,6 +469,7 @@ export interface PlayerStatistics {
   averageScore: number;
   totalPlayTime: number;
   totalWaitTime: number;
+  totalShuttlecocks?: number | null;
   status: PlayerStatus;
 }
 
