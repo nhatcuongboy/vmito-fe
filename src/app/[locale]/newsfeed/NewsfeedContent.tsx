@@ -20,21 +20,18 @@ export default function NewsfeedContent() {
         <VStack gap={6} textAlign="center" maxW="md">
           {/* Icon with animation */}
           <Box position="relative">
+            <Box color="green.500" className="animate-pulse">
+              <Newspaper size={80} />
+            </Box>
             <Box
-              as={Newspaper}
-              size={80}
-              color="green.500"
-              className="animate-pulse"
-            />
-            <Box
-              as={Sparkles}
-              size={24}
               color="yellow.400"
               position="absolute"
               top={-2}
               right={-2}
               className="animate-bounce"
-            />
+            >
+              <Sparkles size={24} />
+            </Box>
           </Box>
 
           {/* Heading */}
