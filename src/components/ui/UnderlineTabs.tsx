@@ -47,7 +47,6 @@ export function UnderlineTabs({
       }}
       px={px}
       bg="bg"
-      _dark={{ bg: 'blackAlpha.800' }}
       borderBottomWidth="1px"
       borderColor="border.subtle"
       boxShadow={boxShadow}

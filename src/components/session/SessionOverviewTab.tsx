@@ -32,13 +32,11 @@ import {
   AlertTriangle,
   Download,
 } from 'lucide-react';
-import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
 import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
-import BaseSessionCard from './BaseSessionCard';
-import SessionShareCard from './SessionShareCard';
+import SessionShareImageModal from './SessionShareImageModal';
 import { RatePlayersSection } from '@/components/rating';
 
 interface InfoRowProps extends FlexProps {
@@ -96,14 +94,14 @@ export default function SessionOverviewTab({
   refreshSessionData,
 }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
+  const tSession = useTranslations('session');
   const locale = useLocale();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
   const [selectedQrLabel, setSelectedQrLabel] = useState('');
-
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+  const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
 
   const handleQrClick = (url: string, label: string) => {
     setSelectedQrUrl(url);
@@ -477,34 +475,10 @@ export default function SessionOverviewTab({
                   colorPalette="green"
                   variant="outline"
                   size="sm"
-                  loading={isDownloading}
-                  onClick={() =>
-                    downloadSessionImage(
-                      session,
-                      `session-share-card-social-${session.id}`,
-                      'TuyenVangLai'
-                    )
-                  }
+                  onClick={() => setIsShareImageModalOpen(true)}
                   leftIcon={<Icon as={Download} />}
                 >
-                  Tỷ lệ 4:5
-                </Button>
-                <Button
-                  flex={1}
-                  colorPalette="green"
-                  variant="outline"
-                  size="sm"
-                  loading={isDownloading}
-                  onClick={() =>
-                    downloadSessionImage(
-                      session,
-                      `session-share-card-portrait-${session.id}`,
-                      'TuyenVangLai'
-                    )
-                  }
-                  leftIcon={<Icon as={Download} />}
-                >
-                  Tỷ lệ 2:3
+                  {tSession('shareImageModal.open')}
                 </Button>
               </Flex>
             </Box>
@@ -724,21 +698,11 @@ export default function SessionOverviewTab({
         <SessionPlayers sessionId={session.id} session={session} />
       </Box>
 
-      {/* Hidden containers for session card preview export */}
-      <Box
-        position="absolute"
-        left="-9999px"
-        top="-9999px"
-        zIndex={-1}
-        pointerEvents="none"
-      >
-        <Box id={`session-card-preview-${session.id}-portrait`}>
-          <SessionShareCard session={session} mode="portrait" />
-        </Box>
-        <Box mt={4} id={`session-card-preview-${session.id}-social`}>
-          <SessionShareCard session={session} mode="social" />
-        </Box>
-      </Box>
+      <SessionShareImageModal
+        isOpen={isShareImageModalOpen}
+        onClose={() => setIsShareImageModalOpen(false)}
+        session={session}
+      />
 
       {/* Edit Session Drawer */}
       <VDrawer

@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession, UserRole } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
 import { Box, Flex, Grid, Icon, Portal, Spinner } from '@chakra-ui/react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -17,7 +17,6 @@ import AppHostDetail from '@/components/session/AppHostDetail';
 import JoinSessionModal from '@/components/session/JoinSessionModal';
 import MyRegistrationModal from '@/components/session/MyRegistrationModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import SessionShareCard from '@/components/session/SessionShareCard';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import SessionDetailHero from './SessionDetailHero';
 import SessionDetailBody from './SessionDetailBody';
@@ -165,8 +164,6 @@ export const PublicSessionDetailContent = ({
   }, [fetchRegistrationStatus]);
 
   const isOwner = session?.hostId === user?.id;
-  const isAdmin = user?.role === UserRole.ADMIN;
-  const canManage = isOwner || isAdmin;
   const maxPlayers = session?.numberOfCourts
     ? session.numberOfCourts * (session?.maxPlayersPerCourt || 4)
     : 0;
@@ -377,25 +374,6 @@ export const PublicSessionDetailContent = ({
           />
         </Box>
       </VModal>
-
-      {canManage && (
-        <Portal>
-          <Box
-            position="absolute"
-            left="-9999px"
-            top="-9999px"
-            zIndex={-1}
-            pointerEvents="none"
-          >
-            <Box>
-              <SessionShareCard session={session} mode="portrait" />
-            </Box>
-            <Box mt={4}>
-              <SessionShareCard session={session} mode="social" />
-            </Box>
-          </Box>
-        </Portal>
-      )}
     </RatingStatsProvider>
   );
 };

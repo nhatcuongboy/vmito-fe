@@ -34,7 +34,6 @@ import {
   Users,
   Shield,
   Banknote,
-  Phone,
   Share2,
   Download,
   UserCheck,
@@ -61,10 +60,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { useRouter } from '@/i18n/config';
+import SessionShareImageModal from './SessionShareImageModal';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -187,8 +186,8 @@ const BaseSessionCard = ({
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
   const [isLoading, setIsLoading] = useState(false);
+  const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -221,22 +220,9 @@ const BaseSessionCard = ({
     }
   };
 
-  // Helper function: Handle call action
-  const handleCall = (e: React.MouseEvent) => {
+  const handleOpenShareImageModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (session.hostPhone) {
-      window.location.href = `tel:${session.hostPhone}`;
-    }
-  };
-
-  // Helper function: Handle download action
-  const handleDownload = (
-    e: React.MouseEvent,
-    mode: 'portrait' | 'social' = 'portrait'
-  ) => {
-    e.stopPropagation();
-    const elementId = `session-share-card-${mode}-${session.id}`;
-    downloadSessionImage(session, elementId, 'TuyenVangLai');
+    setIsShareImageModalOpen(true);
   };
 
   // Render icon buttons (Download, Share, More) - shown in Row 3
@@ -246,61 +232,19 @@ const BaseSessionCard = ({
     const buttons: React.ReactNode[] = [];
     const menuItems: React.ReactNode[] = [];
 
-    // Icon buttons: Download (owner only) - with dropdown menu for portrait/social
+    // Icon buttons: Download (owner only)
     if (actions.showDownloadButton && canManage) {
       buttons.push(
-        <MenuRoot key="download" positioning={{ placement: 'bottom-end' }}>
-          <MenuTrigger asChild>
-            <IconButton
-              size="sm"
-              variant="outline"
-              colorPalette="gray"
-              aria-label="Download"
-              shadow="md"
-              loading={isDownloading}
-              icon={<Icon as={Download} />}
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            />
-          </MenuTrigger>
-          <Portal>
-            <MenuPositioner zIndex={2000}>
-              <MenuContent
-                onClick={(e) => e.stopPropagation()}
-                bg="white"
-                _dark={{ bg: 'gray.800' }}
-                borderRadius="md"
-                shadow="lg"
-                minW="180px"
-                zIndex={2001}
-              >
-                <MenuItem
-                  value="portrait"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'portrait');
-                  }}
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-                >
-                  <Icon as={Download} mr={2} />
-                  Tỷ lệ 2:3
-                </MenuItem>
-                <MenuItem
-                  value="social"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'social');
-                  }}
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-                >
-                  <Icon as={Download} mr={2} />
-                  Tỷ lệ 4:5
-                </MenuItem>
-              </MenuContent>
-            </MenuPositioner>
-          </Portal>
-        </MenuRoot>
+        <IconButton
+          key="download"
+          size="sm"
+          variant="outline"
+          colorPalette="gray"
+          aria-label={t('downloadImage')}
+          shadow="md"
+          icon={<Icon as={Download} />}
+          onClick={handleOpenShareImageModal}
+        />
       );
     }
 
@@ -648,7 +592,7 @@ const BaseSessionCard = ({
         bg="white"
         _dark={{ bg: 'gray.800' }}
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
-        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={
           disableCardLink
             ? {}
@@ -845,7 +789,12 @@ const BaseSessionCard = ({
 
             {/* Date & Time + Courts & Players */}
             {isCompact ? (
-              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+              <Flex
+                wrap="wrap"
+                gap={3}
+                fontSize="xs"
+                color={{ base: 'gray.600', _dark: 'fg.subtle' }}
+              >
                 <Flex align="center" gap={1}>
                   <Icon as={Calendar} boxSize={4} color="green.500" />
                   <Text fontSize="xs">{compactDate}</Text>
@@ -992,7 +941,7 @@ const BaseSessionCard = ({
               <Text
                 fontSize="sm"
                 color="gray.500"
-                _dark={{ color: 'gray.400' }}
+                _dark={{ color: 'fg.subtle' }}
                 overflow="hidden"
                 display="-webkit-box"
                 style={{
@@ -1019,26 +968,33 @@ const BaseSessionCard = ({
                   <Box flexShrink={0}>
                     {session.feeConfig && (
                       <Flex align="center" gap={1.5}>
-                        <Icon as={Banknote} boxSize={4} color="red.600" />
+                        <Icon
+                          as={Banknote}
+                          boxSize={4}
+                          color={{ base: 'red.600', _dark: 'red.300' }}
+                        />
                         <Flex align="center" gap={1}>
                           <Text
                             fontSize="md"
                             fontWeight="bold"
-                            color="red.600"
+                            color={{ base: 'red.600', _dark: 'red.300' }}
                             whiteSpace="nowrap"
                           >
                             {FeeService.getFeeDisplayText(session.feeConfig)}
                           </Text>
-                          {session.feeConfig.feeType === FeeType.FIXED && (
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              fontWeight="normal"
-                              whiteSpace="nowrap"
-                            >
-                              /slot
-                            </Text>
-                          )}
+                          {session.feeConfig.feeType === FeeType.FIXED &&
+                            ((session.feeConfig.maleFee || 0) > 0 ||
+                              (session.feeConfig.femaleFee || 0) > 0) && (
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                _dark={{ color: 'fg.subtle' }}
+                                fontWeight="normal"
+                                whiteSpace="nowrap"
+                              >
+                                /slot
+                              </Text>
+                            )}
                         </Flex>
                       </Flex>
                     )}
@@ -1063,27 +1019,30 @@ const BaseSessionCard = ({
                           <Icon
                             as={Banknote}
                             boxSize={isCompact ? 4 : 5}
-                            color="red.600"
+                            color={{ base: 'red.600', _dark: 'red.300' }}
                           />
                           <Flex align="center" gap={1.5}>
                             <Text
                               fontSize={isCompact ? 'md' : 'lg'}
                               fontWeight="bold"
-                              color="red.600"
+                              color={{ base: 'red.600', _dark: 'red.300' }}
                               whiteSpace="nowrap"
                             >
                               {FeeService.getFeeDisplayText(session.feeConfig)}
                             </Text>
-                            {session.feeConfig.feeType === FeeType.FIXED && (
-                              <Text
-                                fontSize="sm"
-                                color="gray.500"
-                                fontWeight="normal"
-                                whiteSpace="nowrap"
-                              >
-                                /slot
-                              </Text>
-                            )}
+                            {session.feeConfig.feeType === FeeType.FIXED &&
+                              ((session.feeConfig.maleFee || 0) > 0 ||
+                                (session.feeConfig.femaleFee || 0) > 0) && (
+                                <Text
+                                  fontSize="sm"
+                                  color="gray.500"
+                                  _dark={{ color: 'fg.subtle' }}
+                                  fontWeight="normal"
+                                  whiteSpace="nowrap"
+                                >
+                                  /slot
+                                </Text>
+                              )}
                             {!isCompact && (
                               <FeeDetailPopover feeConfig={session.feeConfig} />
                             )}
@@ -1151,6 +1110,11 @@ const BaseSessionCard = ({
   return (
     <>
       {cardContent}
+      <SessionShareImageModal
+        isOpen={isShareImageModalOpen}
+        onClose={() => setIsShareImageModalOpen(false)}
+        session={session}
+      />
       {modalContent}
     </>
   );

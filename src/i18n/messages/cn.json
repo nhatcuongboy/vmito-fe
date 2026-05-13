@@ -568,6 +568,44 @@
     "imageDownloadSuccess": "图片下载成功",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
+    "shareImageModal": {
+      "title": "预览并下载活动图片",
+      "description": "下载前选择适合社交平台分享的图片模板。",
+      "templatesLabel": "模板",
+      "preview": "预览",
+      "download": "下载图片",
+      "open": "预览并下载",
+      "templates": {
+        "legacy-portrait": {
+          "name": "原版 2:3",
+          "description": "主办方熟悉的原始竖版设计。"
+        },
+        "legacy-social": {
+          "name": "原版 4:5",
+          "description": "原始社交海报设计。"
+        },
+        "classic-clean": {
+          "name": "清爽版",
+          "description": "信息完整、易读，适合群组发布。"
+        },
+        "social-poster": {
+          "name": "醒目海报",
+          "description": "突出活动名称、时间和费用。"
+        },
+        "story-vertical": {
+          "name": "Story",
+          "description": "适合 Facebook、Instagram 和 Zalo Story。"
+        },
+        "square-feed": {
+          "name": "方形动态",
+          "description": "适合动态流和缩略图。"
+        },
+        "event-pass": {
+          "name": "活动票",
+          "description": "高级邀请函风格的活动图片。"
+        }
+      }
+    },
     "hostedBy": "主办方",
     "dateNotSet": "未设定日期",
     "timeNotSet": "未设定时间",

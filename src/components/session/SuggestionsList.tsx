@@ -120,7 +120,7 @@ export default function SuggestionsList({
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
   const { useAiForCreation } = usePreferenceStore();
-  const { viewMode } = useSessionFilterStore();
+  const { viewMode, setViewMode } = useSessionFilterStore();
 
   const loadingMoreRef = useRef(false);
 
@@ -397,6 +397,9 @@ export default function SuggestionsList({
         mode={mode}
         onModeChange={(newMode) => onModeChange?.(newMode)}
         isLoading={loading}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        showViewModeMap={false}
       />
 
       {/* Location denied info */}

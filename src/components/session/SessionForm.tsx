@@ -91,13 +91,11 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { VSelect } from '@/components/ui/VSelect';
 import { VSwitch } from '@/components/ui/VSwitch';
 import { VModal } from '@/components/ui/VModal';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
-import AiAssistant from '@/components/session/AiAssistant';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import AppMultiImageUpload, {
   ISessionImage,
@@ -1079,11 +1077,6 @@ export default function SessionForm({
             isOpen={isAIModalOpen}
             onClose={() => setIsAIModalOpen(false)}
             onSuccess={handleAISuccess}
-          />
-
-          <AiAssistant
-            bottomOffset="calc(env(safe-area-inset-bottom) + 24px)"
-            pageContext={`User is creating a badminton session. Current form errors: ${JSON.stringify(errors)}`}
           />
         </>
       )}

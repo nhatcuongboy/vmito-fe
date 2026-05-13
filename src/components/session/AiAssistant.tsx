@@ -11,11 +11,14 @@ interface AiAssistantProps {
   bottomOffset?: string | Record<string, string>;
   /** Optional session/page context passed to AI */
   pageContext?: string;
+  /** Render the legacy float trigger button. The panel is always mounted. */
+  showTrigger?: boolean;
 }
 
 export default function AiAssistant({
   bottomOffset = '80px',
   pageContext,
+  showTrigger = true,
 }: AiAssistantProps) {
   const {
     isOpen,
@@ -30,6 +33,7 @@ export default function AiAssistant({
     pageContext ??
     storeContext ??
     (() => {
+      if (pathname.includes('/sessions/new')) return 'Trang tạo kèo';
       if (pathname.includes('/host/sessions'))
         return 'Trang quản lý kèo (Host Sessions)';
       if (pathname.includes('/sessions')) return 'Trang kèo';
@@ -42,78 +46,78 @@ export default function AiAssistant({
 
   return (
     <>
-      {/* Float trigger button */}
-      <Portal>
-        <Box
-          position="fixed"
-          bottom={bottomOffset}
-          right="20px"
-          zIndex={isOpen ? 1201 : 1000}
-          opacity={isOpen ? 0 : 1}
-          transform={
-            isOpen ? 'scale(0.5) rotate(90deg)' : 'scale(1) rotate(0deg)'
-          }
-          pointerEvents={isOpen ? 'none' : 'auto'}
-          transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
-        >
+      {showTrigger && (
+        <Portal>
           <Box
-            as="button"
-            onClick={() => toggle(resolvedContext)}
-            w={{ base: '44px', md: '52px' }}
-            h={{ base: '44px', md: '52px' }}
-            borderRadius="full"
-            bgGradient="to-br"
-            gradientFrom="purple.500"
-            gradientTo="purple.700"
-            color="white"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            boxShadow={
-              isOpen
-                ? '0 0 0 3px rgba(128,90,213,0.4), 0 4px 20px rgba(128,90,213,0.5)'
-                : '0 4px 14px rgba(128,90,213,0.45)'
+            position="fixed"
+            bottom={bottomOffset}
+            right="20px"
+            zIndex={isOpen ? 1201 : 1000}
+            opacity={isOpen ? 0 : 1}
+            transform={
+              isOpen ? 'scale(0.5) rotate(90deg)' : 'scale(1) rotate(0deg)'
             }
-            _hover={{
-              transform: 'scale(1.08)',
-              boxShadow: '0 6px 20px rgba(128,90,213,0.55)',
-            }}
-            _active={{ transform: 'scale(0.95)' }}
-            transition="all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
-            aria-label="Mở AI Assistant"
-            title="AI Assistant"
+            pointerEvents={isOpen ? 'none' : 'auto'}
+            transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
           >
-            <span
-              style={{
-                display: 'flex',
-                transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease',
+            <Box
+              as="button"
+              onClick={() => toggle(resolvedContext)}
+              w={{ base: '44px', md: '52px' }}
+              h={{ base: '44px', md: '52px' }}
+              borderRadius="full"
+              bgGradient="to-br"
+              gradientFrom="purple.500"
+              gradientTo="purple.700"
+              color="white"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              boxShadow={
+                isOpen
+                  ? '0 0 0 3px rgba(128,90,213,0.4), 0 4px 20px rgba(128,90,213,0.5)'
+                  : '0 4px 14px rgba(128,90,213,0.45)'
+              }
+              _hover={{
+                transform: 'scale(1.08)',
+                boxShadow: '0 6px 20px rgba(128,90,213,0.55)',
               }}
+              _active={{ transform: 'scale(0.95)' }}
+              transition="all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
+              aria-label="Mở AI Assistant"
+              title="AI Assistant"
             >
-              <Sparkles size={20} />
-            </span>
-
-            {/* Pulse ring when closed */}
-            {!isOpen && (
-              <Box
-                position="absolute"
-                inset={0}
-                borderRadius="full"
-                border="2px solid"
-                borderColor="purple.400"
-                animation="pingOnce 2s ease-out infinite"
-                css={{
-                  '@keyframes pingOnce': {
-                    '0%': { transform: 'scale(1)', opacity: 0.6 },
-                    '70%': { transform: 'scale(1.4)', opacity: 0 },
-                    '100%': { transform: 'scale(1.4)', opacity: 0 },
-                  },
+              <span
+                style={{
+                  display: 'flex',
+                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease',
                 }}
-              />
-            )}
+              >
+                <Sparkles size={20} />
+              </span>
+
+              {!isOpen && (
+                <Box
+                  position="absolute"
+                  inset={0}
+                  borderRadius="full"
+                  border="2px solid"
+                  borderColor="purple.400"
+                  animation="pingOnce 2s ease-out infinite"
+                  css={{
+                    '@keyframes pingOnce': {
+                      '0%': { transform: 'scale(1)', opacity: 0.6 },
+                      '70%': { transform: 'scale(1.4)', opacity: 0 },
+                      '100%': { transform: 'scale(1.4)', opacity: 0 },
+                    },
+                  }}
+                />
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Portal>
+        </Portal>
+      )}
 
       {/* AI Chat Panel */}
       <AiAssistantPanel

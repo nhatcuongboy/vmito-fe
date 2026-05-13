@@ -25,6 +25,8 @@ import NotificationBell from './NotificationBell';
 import SlideOutMenu from './SlideOutMenu';
 import UserMenu from './UserMenu';
 import SubNavigation, { NavItem } from './SubNavigation';
+import AiAssistantTopBarButton from './AiAssistantTopBarButton';
+import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -59,6 +61,7 @@ export default function TopBar({
   const router = useRouter();
   const pathname = usePathname();
   const { toggleCollapse } = useSidebar();
+  const showAiAssistant = useAiAssistantVisibility();
 
   const normalizedPath =
     pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
@@ -246,7 +249,7 @@ export default function TopBar({
                   fontWeight="bold"
                   maxWidth={
                     isLeftAlignedTitle
-                      ? { base: 'calc(100vw - 120px)', md: '600px' }
+                      ? { base: 'calc(100vw - 168px)', md: '600px' }
                       : { base: '50vw', md: '500px' }
                   }
                   whiteSpace="nowrap"
@@ -293,6 +296,7 @@ export default function TopBar({
               {!isHydrated || isLoading ? null : isAuthenticated ? (
                 <>
                   <Box display="flex" alignItems="center" gap={2}>
+                    {showAiAssistant && <AiAssistantTopBarButton />}
                     <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
                     <UserMenu onLogout={handleLogout} />
                   </Box>

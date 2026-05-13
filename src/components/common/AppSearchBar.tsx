@@ -60,21 +60,28 @@ export function AppSearchBar({
           base: '0 2px 8px 0 rgba(0,0,0,0.12)',
           md: '0 2px 8px 0 rgba(0,0,0,0.12)',
         }}
-        _placeholder={{ color: 'gray.500' }}
+        _placeholder={{ color: { base: 'gray.500', _dark: 'gray.400' } }}
         _focus={{
           borderColor: 'green.500',
           bg: 'white',
-          boxShadow: {
-            base: '0 0 0 2px var(--chakra-colors-green-500), 0 4px 12px 0 rgba(34, 197, 94, 0.2)',
-            md: '0 0 0 2px var(--chakra-colors-green-500), 0 4px 12px 0 rgba(34, 197, 94, 0.2)',
+          boxShadow:
+            '0 0 0 2px var(--chakra-colors-green-500), 0 4px 12px 0 rgba(34, 197, 94, 0.2)',
+          _dark: {
+            borderColor: 'green.400',
+            bg: 'gray.800',
+            boxShadow:
+              '0 0 0 2px var(--chakra-colors-green-400), 0 4px 12px 0 rgba(34, 197, 94, 0.24)',
           },
           outline: 'none',
         }}
         _hover={{
-          borderColor: 'gray.400',
-          boxShadow: '0 4px 12px 0 rgba(0,0,0,0.15)',
+          borderColor: { base: 'gray.400', _dark: 'gray.400' },
+          boxShadow: {
+            base: '0 4px 12px 0 rgba(0,0,0,0.15)',
+            _dark: '0 4px 12px 0 rgba(0,0,0,0.35)',
+          },
         }}
-        transition="all 0.2s ease"
+        transition="background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease"
       />
 
       {hasClear && (
@@ -94,7 +101,7 @@ export function AppSearchBar({
             justify="center"
             borderRadius="full"
             color="fg.muted"
-            transition="all 0.2s"
+            transition="background-color 0.2s ease, color 0.2s ease"
             _hover={{ bg: 'bg.muted', color: 'fg' }}
             cursor="pointer"
             aria-label="Clear search"
@@ -115,13 +122,14 @@ export function AppSearchBar({
           <Flex
             as="button"
             onClick={onFilterClick}
+            aria-label="Open filters"
             h="32px"
             w="32px"
             align="center"
             justify="center"
             borderRadius="full"
             color="fg.muted"
-            transition="all 0.2s"
+            transition="background-color 0.2s ease, color 0.2s ease"
             _hover={{ bg: 'bg.muted', color: 'fg' }}
             cursor="pointer"
             position="relative"

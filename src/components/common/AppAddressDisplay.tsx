@@ -21,7 +21,7 @@ export const AppAddressDisplay = ({
   newAddress,
   fontSize = 'xs',
   newAddressFontSize,
-  color = 'gray.500',
+  color = 'fg.subtle',
   newAddressColor = 'blue.500',
   lineClamp,
 }: IAppAddressDisplayProps) => {

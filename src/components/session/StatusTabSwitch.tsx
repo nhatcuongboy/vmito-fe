@@ -92,7 +92,7 @@ export function StatusTabSwitch({
         p={1}
         borderRadius="full"
         _dark={{
-          bg: 'whiteAlpha.100',
+          bg: 'whiteAlpha.200',
         }}
         w="max-content"
         mx="auto"
@@ -121,10 +121,10 @@ export function StatusTabSwitch({
                 bg: active ? 'white' : 'gray.200',
               }}
               _dark={{
-                bg: active ? 'gray.700' : 'transparent',
-                color: active ? 'white' : 'whiteAlpha.600',
+                bg: active ? 'gray.600' : 'transparent',
+                color: active ? 'white' : 'gray.300',
                 _hover: {
-                  bg: active ? 'gray.700' : 'whiteAlpha.200',
+                  bg: active ? 'gray.600' : 'whiteAlpha.300',
                 },
               }}
             >

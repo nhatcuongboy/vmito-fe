@@ -590,6 +590,44 @@
     "imageDownloadSuccess": "Đã tải ảnh thành công",
     "downloadPortrait": "Tỷ lệ 2:3",
     "downloadSocial": "Tỷ lệ 4:5",
+    "shareImageModal": {
+      "title": "Xem trước & tải ảnh kèo",
+      "description": "Chọn mẫu ảnh phù hợp để chia sẻ lên mạng xã hội.",
+      "templatesLabel": "Mẫu ảnh",
+      "preview": "Xem trước",
+      "download": "Tải ảnh",
+      "open": "Xem mẫu & tải ảnh",
+      "templates": {
+        "legacy-portrait": {
+          "name": "Mẫu chuẩn 2:3",
+          "description": "Thiết kế ban đầu dạng dọc, quen thuộc với host."
+        },
+        "legacy-social": {
+          "name": "Mẫu chuẩn 4:5",
+          "description": "Thiết kế ban đầu dạng social poster."
+        },
+        "classic-clean": {
+          "name": "Gọn gàng",
+          "description": "Dễ đọc, đủ thông tin, hợp đăng nhóm."
+        },
+        "social-poster": {
+          "name": "Poster nổi bật",
+          "description": "Nổi bật tên kèo, giờ chơi và chi phí."
+        },
+        "story-vertical": {
+          "name": "Story",
+          "description": "Tối ưu story Facebook, Instagram, Zalo."
+        },
+        "square-feed": {
+          "name": "Feed vuông",
+          "description": "Gọn đẹp cho feed và thumbnail."
+        },
+        "event-pass": {
+          "name": "Vé tham gia",
+          "description": "Premium, giống vé mời tham gia kèo."
+        }
+      }
+    },
     "hostedBy": "Được tổ chức bởi",
     "dateNotSet": "Chưa đặt ngày",
     "timeNotSet": "Chưa đặt giờ",

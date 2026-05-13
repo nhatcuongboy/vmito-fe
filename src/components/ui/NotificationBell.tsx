@@ -408,7 +408,7 @@ export default function NotificationBell({
         boxShadow="0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)"
         borderRadius="2xl"
         bg="white"
-        _dark={{ bg: 'gray.900', borderColor: 'gray.800' }}
+        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
         p={0}
         overflow="hidden"
       >
@@ -507,7 +507,7 @@ export default function NotificationBell({
                           bg: 'rgba(251,146,60,0.07)',
                           borderColor: 'rgba(251,146,60,0.15)',
                         }}
-                        transition="all 0.15s"
+                        transition="background-color 0.15s ease, border-color 0.15s ease"
                         _hover={{
                           bg: 'orange.50',
                           _dark: { bg: 'rgba(251,146,60,0.12)' },
@@ -578,7 +578,7 @@ export default function NotificationBell({
                             <Text
                               fontSize="xs"
                               color="gray.500"
-                              _dark={{ color: 'gray.400' }}
+                              _dark={{ color: 'fg.subtle' }}
                               lineHeight="normal"
                               truncate
                               w="100%"
@@ -652,7 +652,7 @@ export default function NotificationBell({
                         bg: isUnread ? 'green.900/30' : 'transparent',
                         borderColor: isUnread ? 'green.800/60' : 'gray.800',
                       }}
-                      transition="all 0.15s"
+                      transition="background-color 0.15s ease, border-color 0.15s ease"
                       _hover={{
                         bg: isUnread ? 'green.100' : 'gray.50',
                         _dark: {
@@ -739,7 +739,7 @@ export default function NotificationBell({
                             fontSize="xs"
                             color={isUnread ? 'gray.700' : 'gray.500'}
                             _dark={{
-                              color: isUnread ? 'gray.300' : 'gray.500',
+                              color: isUnread ? 'fg.subtle' : 'gray.400',
                             }}
                             lineHeight="normal"
                             lineClamp={2}
@@ -754,7 +754,7 @@ export default function NotificationBell({
                               fontWeight={isUnread ? 'semibold' : 'medium'}
                               color={isUnread ? 'green.600' : 'gray.500'}
                               _dark={{
-                                color: isUnread ? 'green.400' : 'gray.500',
+                                color: isUnread ? 'green.400' : 'gray.400',
                               }}
                             >
                               {formatTimeAgo(notification.createdAt)}
@@ -767,6 +767,8 @@ export default function NotificationBell({
                               colorPalette="red"
                               opacity={0}
                               _groupHover={{ opacity: 1 }}
+                              _focusVisible={{ opacity: 1 }}
+                              _dark={{ color: 'red.300' }}
                               onClick={(e) =>
                                 handleDeleteNotification(e, notification.id)
                               }

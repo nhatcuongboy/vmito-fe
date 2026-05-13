@@ -588,6 +588,44 @@
     "imageDownloadSuccess": "Image downloaded successfully",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
+    "shareImageModal": {
+      "title": "Preview & download session image",
+      "description": "Choose a social-ready image template before downloading.",
+      "templatesLabel": "Templates",
+      "preview": "Preview",
+      "download": "Download image",
+      "open": "Preview & download",
+      "templates": {
+        "legacy-portrait": {
+          "name": "Original 2:3",
+          "description": "The original portrait design familiar to hosts."
+        },
+        "legacy-social": {
+          "name": "Original 4:5",
+          "description": "The original social poster design."
+        },
+        "classic-clean": {
+          "name": "Clean",
+          "description": "Readable, complete, ideal for group posts."
+        },
+        "social-poster": {
+          "name": "Bold poster",
+          "description": "Highlights session name, time, and fee."
+        },
+        "story-vertical": {
+          "name": "Story",
+          "description": "Optimized for Facebook, Instagram, and Zalo stories."
+        },
+        "square-feed": {
+          "name": "Square feed",
+          "description": "Compact for feeds and thumbnails."
+        },
+        "event-pass": {
+          "name": "Event pass",
+          "description": "Premium invite-style session pass."
+        }
+      }
+    },
     "hostedBy": "Hosted by",
     "dateNotSet": "Date not set",
     "timeNotSet": "Time not set",

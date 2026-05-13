@@ -15,7 +15,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
-import { Portal } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(
@@ -25,10 +24,6 @@ const LoginPromptModal = dynamic(
 const MyRegistrationModal = dynamic(() => import('./MyRegistrationModal'), {
   ssr: false,
 });
-const SessionShareCard = dynamic(() => import('./SessionShareCard'), {
-  ssr: false,
-});
-
 interface FindSessionCardProps {
   session: ISession;
   variant?: ViewMode;
@@ -327,26 +322,6 @@ const FindSessionCard = ({
       >
         <Text>{t('deleteConfirmation')}</Text>
       </VModal>
-
-      {/* Hidden SessionShareCards for image generation */}
-      {canManage && (
-        <Portal>
-          <Box
-            position="absolute"
-            left="-9999px"
-            top="-9999px"
-            zIndex={-1}
-            pointerEvents="none"
-          >
-            <Box>
-              <SessionShareCard session={session} mode="portrait" />
-            </Box>
-            <Box mt={4}>
-              <SessionShareCard session={session} mode="social" />
-            </Box>
-          </Box>
-        </Portal>
-      )}
     </>
   );
 };
