@@ -133,6 +133,52 @@ function formatTimeOnly(date: Date): string {
   return `${hours}:${minutes}`;
 }
 
+function extractCourtNumber(courtName?: string): number | null {
+  if (!courtName) return null;
+  const match = courtName.match(/\d+/);
+  if (!match) return null;
+
+  const parsed = Number(match[0]);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function normalizeAiCourtNames(courtNames: string[] = []) {
+  return courtNames.flatMap((courtName) => {
+    const rawCourtName = String(courtName ?? '').trim();
+    if (!rawCourtName) return [];
+
+    const numbers = [...rawCourtName.matchAll(/\d+/g)].map((match) => match[0]);
+
+    return numbers.length > 1 ? numbers : [rawCourtName];
+  });
+}
+
+function buildCourtsFromAiData(
+  numberOfCourts: number,
+  courtNames: string[] = []
+) {
+  const usedCourtNumbers = new Set<number>();
+  const normalizedCourtNames = normalizeAiCourtNames(courtNames);
+
+  return Array.from({ length: numberOfCourts }, (_, i) => {
+    const rawCourtName = String(normalizedCourtNames[i] ?? '').trim();
+    const parsedCourtNumber = extractCourtNumber(rawCourtName);
+    const fallbackCourtNumber = i + 1;
+    const courtNumber =
+      parsedCourtNumber && !usedCourtNumbers.has(parsedCourtNumber)
+        ? parsedCourtNumber
+        : fallbackCourtNumber;
+
+    usedCourtNumbers.add(courtNumber);
+
+    return {
+      courtNumber,
+      courtName: parsedCourtNumber ? '' : rawCourtName,
+      direction: CourtDirection.HORIZONTAL,
+    };
+  });
+}
+
 // Zod schema for court validation
 type SessionFormData = z.infer<ReturnType<typeof createSessionFormSchema>>;
 
@@ -213,6 +259,8 @@ interface SessionFormProps {
   showTopBar?: boolean;
   title?: string;
   submitButtonText?: string;
+  useDrawerMobileFooter?: boolean;
+  mobileFooterWidth?: string;
 }
 
 export default function SessionForm({
@@ -222,6 +270,8 @@ export default function SessionForm({
   onSuccess,
   onCancel,
   submitButtonText,
+  useDrawerMobileFooter = false,
+  mobileFooterWidth = '100%',
 }: SessionFormProps) {
   const searchParams = useSearchParams();
   const t = useTranslations('session');
@@ -623,15 +673,10 @@ export default function SessionForm({
       }
 
       if (data.numberOfCourts && data.numberOfCourts > 0) {
-        const numCourts = data.numberOfCourts;
-        const courtNames = data.courtNames || [];
-
-        const newCourts = Array.from({ length: numCourts }, (_, i) => ({
-          courtNumber: i + 1,
-          courtName: courtNames[i] || '',
-          direction: CourtDirection.HORIZONTAL,
-        }));
-        setValue('courts', newCourts);
+        setValue(
+          'courts',
+          buildCourtsFromAiData(data.numberOfCourts, data.courtNames)
+        );
       }
 
       if (data.feeConfig) {
@@ -1098,7 +1143,7 @@ export default function SessionForm({
       <Box
         maxW="4xl"
         // pt={showTopBar ? '80px' : '0'}
-        pb={20}
+        pb={useDrawerMobileFooter ? { base: 28, md: 20 } : 20}
         px={0}
         mx="auto"
         w="full"
@@ -1136,13 +1181,19 @@ export default function SessionForm({
                 {!isEditMode && (
                   <Button
                     size="xs"
-                    colorPalette="purple"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => setIsAIModalOpen(true)}
                     leftIcon={<Sparkles size={14} />}
                     borderRadius="full"
+                    bg={{ base: 'purple.50', _dark: 'purple.950' }}
+                    borderColor={{ base: 'purple.200', _dark: 'purple.700' }}
+                    color={{ base: 'purple.700', _dark: 'purple.200' }}
+                    _hover={{
+                      bg: { base: 'purple.100', _dark: 'purple.900' },
+                      borderColor: { base: 'purple.300', _dark: 'purple.600' },
+                    }}
                   >
-                    {t('aiModal.title')}
+                    {t('createByAI')}
                   </Button>
                 )}
               </Flex>
@@ -1947,7 +1998,31 @@ export default function SessionForm({
             </Box>
 
             {/* Buttons */}
-            <Flex gap={3} mt={4}>
+            <Flex
+              gap={3}
+              mt={4}
+              {...(useDrawerMobileFooter
+                ? {
+                    position: { base: 'fixed', md: 'static' },
+                    right: { base: 0, md: 'auto' },
+                    bottom: { base: 0, md: 'auto' },
+                    width: { base: mobileFooterWidth, md: 'auto' },
+                    p: { base: 4, md: 0 },
+                    pb: {
+                      base: 'calc(16px + env(safe-area-inset-bottom))',
+                      md: 0,
+                    },
+                    bg: { base: 'white', _dark: 'gray.800' },
+                    borderTop: { base: '1px solid', md: 'none' },
+                    borderColor: { base: 'border', md: 'transparent' },
+                    boxShadow: {
+                      base: '0 -8px 24px rgba(0, 0, 0, 0.18)',
+                      md: 'none',
+                    },
+                    zIndex: 1500,
+                  }
+                : {})}
+            >
               {onCancel && (
                 <Button
                   type="button"

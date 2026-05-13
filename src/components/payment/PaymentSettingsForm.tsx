@@ -169,6 +169,7 @@ export default function PaymentSettingsForm({
       borderRadius="lg"
       p={4}
       bg="white"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <VStack gap={4} align="stretch">
         {/* Bank Name — combobox */}
@@ -190,6 +191,10 @@ export default function PaymentSettingsForm({
             borderColor={isBankOpen ? 'blue.400' : 'gray.200'}
             borderRadius="md"
             bg="white"
+            _dark={{
+              bg: 'gray.700',
+              borderColor: isBankOpen ? 'blue.400' : 'gray.600',
+            }}
             cursor={isLoading ? 'not-allowed' : 'pointer'}
             opacity={isLoading ? 0.6 : 1}
             onClick={() => !isLoading && setIsBankOpen((v) => !v)}
@@ -250,8 +255,14 @@ export default function PaymentSettingsForm({
               flexDirection="column"
               maxH="260px"
               overflow="hidden"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
             >
-              <Box p={2} borderBottom="1px solid" borderColor="gray.100">
+              <Box
+                p={2}
+                borderBottom="1px solid"
+                borderColor="gray.100"
+                _dark={{ borderColor: 'gray.700' }}
+              >
                 <input
                   autoFocus
                   placeholder="Tìm ngân hàng..."
@@ -277,11 +288,23 @@ export default function PaymentSettingsForm({
                     py={2}
                     cursor="pointer"
                     bg={selectedBank?.code === bank.code ? 'blue.50' : 'white'}
+                    _dark={{
+                      bg:
+                        selectedBank?.code === bank.code
+                          ? 'blue.900'
+                          : 'gray.800',
+                    }}
                     _hover={{
                       bg:
                         selectedBank?.code === bank.code
                           ? 'blue.50'
                           : 'gray.50',
+                      _dark: {
+                        bg:
+                          selectedBank?.code === bank.code
+                            ? 'blue.900'
+                            : 'gray.700',
+                      },
                     }}
                     onClick={() => handleBankSelect(bank)}
                   >
@@ -380,6 +403,7 @@ export default function PaymentSettingsForm({
               borderColor="green.200"
               borderRadius="lg"
               textAlign="center"
+              _dark={{ bg: 'green.950', borderColor: 'green.700' }}
             >
               <Text fontSize="xs" color="green.700" mb={2} fontWeight="medium">
                 Mã QR tự động từ thông tin ngân hàng

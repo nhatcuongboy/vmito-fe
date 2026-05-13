@@ -749,7 +749,6 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                   value={paymentSettings?.id || ''}
                   onChange={(e) => handleSelectPaymentSettings(e.target.value)}
                   disabled={isSwitchingSettings}
-                  style={{ width: '100%', backgroundColor: 'white' }}
                 >
                   <option value="">{t('selectSavedAccount')}</option>
                   {myPaymentSettings.map((item) => {

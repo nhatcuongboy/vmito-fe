@@ -5,6 +5,8 @@ import AiAssistantPanel from '@/components/ai/AiAssistantPanel';
 import { usePathname } from '@/i18n/config';
 import { Box, Portal } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { getAiAssistantPageContextKey } from '@/components/ai/aiAssistantSuggestions';
 
 interface AiAssistantProps {
   /** Optional bottom offset for the float button (e.g. to avoid bottom nav) */
@@ -27,22 +29,13 @@ export default function AiAssistant({
     pageContext: storeContext,
   } = useAiAssistantStore();
   const pathname = usePathname();
+  const t = useTranslations('aiAssistant');
+  const routeContext = t(
+    `pageContexts.${getAiAssistantPageContextKey(pathname)}`
+  );
 
   // Auto-generate page context from pathname if not provided
-  const resolvedContext =
-    pageContext ??
-    storeContext ??
-    (() => {
-      if (pathname.includes('/sessions/new')) return 'Trang tạo kèo';
-      if (pathname.includes('/host/sessions'))
-        return 'Trang quản lý kèo (Host Sessions)';
-      if (pathname.includes('/sessions')) return 'Trang kèo';
-      if (pathname.includes('/clubs')) return 'Trang câu lạc bộ';
-      if (pathname.includes('/tournaments')) return 'Trang giải đấu';
-      if (pathname.includes('/venues')) return 'Trang sân thể thao';
-      if (pathname.includes('/user')) return 'Trang hồ sơ người dùng';
-      return 'Trang chủ Vmito';
-    })();
+  const resolvedContext = pageContext ?? storeContext ?? routeContext;
 
   return (
     <>
@@ -62,7 +55,7 @@ export default function AiAssistant({
           >
             <Box
               as="button"
-              onClick={() => toggle(resolvedContext)}
+              onClick={() => toggle(pageContext ?? routeContext)}
               w={{ base: '44px', md: '52px' }}
               h={{ base: '44px', md: '52px' }}
               borderRadius="full"
@@ -84,8 +77,8 @@ export default function AiAssistant({
               }}
               _active={{ transform: 'scale(0.95)' }}
               transition="all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
-              aria-label="Mở AI Assistant"
-              title="AI Assistant"
+              aria-label={t('open')}
+              title={t('title')}
             >
               <span
                 style={{

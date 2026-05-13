@@ -5,21 +5,11 @@ import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/config';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
-
-function getAiPageContext(pathname: string) {
-  if (pathname.includes('/sessions/new')) return 'Trang tạo kèo';
-  if (pathname.includes('/host/sessions'))
-    return 'Trang quản lý kèo (Host Sessions)';
-  if (pathname.includes('/sessions')) return 'Trang kèo';
-  if (pathname.includes('/clubs')) return 'Trang câu lạc bộ';
-  if (pathname.includes('/tournaments')) return 'Trang giải đấu';
-  if (pathname.includes('/venues')) return 'Trang sân thể thao';
-  if (pathname.includes('/user')) return 'Trang hồ sơ người dùng';
-  return 'Trang chủ Vmito';
-}
+import { getAiAssistantPageContextKey } from '@/components/ai/aiAssistantSuggestions';
 
 export default function AiAssistantTopBarButton() {
   const common = useTranslations('common');
+  const t = useTranslations('aiAssistant');
   const pathname = usePathname();
   const open = useAiAssistantStore((state) => state.open);
   const isOpen = useAiAssistantStore((state) => state.isOpen);
@@ -28,7 +18,9 @@ export default function AiAssistantTopBarButton() {
     <IconButton
       aria-label={common('aiAssistant')}
       title={common('aiAssistant')}
-      onClick={() => open(getAiPageContext(pathname))}
+      onClick={() =>
+        open(t(`pageContexts.${getAiAssistantPageContextKey(pathname)}`))
+      }
       size={{ base: 'sm', md: 'md' }}
       minW={{ base: '36px', md: '40px' }}
       h={{ base: '36px', md: '40px' }}

@@ -19,6 +19,8 @@ export interface VDrawerProps {
   children: React.ReactNode;
   /** Drawer size */
   size?: DrawerSize;
+  /** Override drawer width on mobile */
+  mobileWidth?: string;
   /** Drawer placement */
   placement?: DrawerPlacement;
   /** Show close button in header */
@@ -95,6 +97,7 @@ export const VDrawer: React.FC<VDrawerProps> = ({
   title,
   children,
   size = 'lg',
+  mobileWidth,
   placement = 'right',
   showCloseButton = true,
   closeOnOverlayClick = true,
@@ -195,7 +198,11 @@ export const VDrawer: React.FC<VDrawerProps> = ({
         top={0}
         bottom={0}
         {...(isRight ? { right: 0 } : { left: 0 })}
-        w={sizeConfig[size]}
+        w={
+          mobileWidth
+            ? { base: mobileWidth, sm: sizeConfig[size].sm }
+            : sizeConfig[size]
+        }
         maxW="100vw"
         bg={{ base: 'white', _dark: 'gray.800' }}
         boxShadow="xl"

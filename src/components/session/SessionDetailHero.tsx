@@ -95,9 +95,10 @@ const SessionDetailHero = ({
       w="full"
       h={{ base: 'clamp(170px, 29vh, 235px)', md: '350px' }}
       overflow="hidden"
+      bg="gray.900"
     >
       {/* Carousel images */}
-      <AnimatePresence custom={direction} initial={false}>
+      <AnimatePresence custom={direction} initial={false} mode="wait">
         <motion.div
           key={currentIndex}
           custom={direction}

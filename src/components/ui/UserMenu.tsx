@@ -35,6 +35,7 @@ import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { ROUTES } from '@/constants/routes';
 import ContactModal from '@/components/feedback/ContactModal';
 import BugReportModal from '@/components/feedback/BugReportModal';
+import { VModal } from '@/components/ui/VModal';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -53,6 +54,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState<{
@@ -117,7 +119,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const handleLogoutClick = () => {
     setIsOpen(false);
-    onLogout();
+    setCurrentMenu('MAIN');
+    setIsLogoutConfirmOpen(true);
   };
 
   const handleLanguageChange = (newLocale: string) => {
@@ -388,14 +391,17 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               borderRadius="md"
             >
               <Box w={{ base: 4, md: 6 }}>
-                {theme === t.id && (
+                {theme === t.id ? (
                   <Check size={16} color="var(--chakra-colors-blue-500)" />
+                ) : (
+                  <t.icon size={16} color="gray" />
                 )}
               </Box>
               <Text
                 flex={1}
                 fontSize={{ base: 'sm', md: 'md' }}
                 fontWeight={theme === t.id ? 'semibold' : 'normal'}
+                color={theme === t.id ? 'blue.500' : undefined}
               >
                 {t.label}
               </Text>
@@ -430,29 +436,40 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       </Flex>
       <Box p={2}>
         <Flex direction="column" gap={1}>
-          {SUPPORTED_LOCALES.map((l) => (
+          {(
+            [
+              { locale: 'vi', flag: '🇻🇳' },
+              { locale: 'en', flag: '🇬🇧' },
+              { locale: 'cn', flag: '🇨🇳' },
+            ] as { locale: string; flag: string }[]
+          ).map((item) => (
             <Flex
-              key={l}
+              key={item.locale}
               align="center"
               gap={{ base: 2, md: 3 }}
               py={{ base: 2, md: 3 }}
               px={{ base: 3, md: 4 }}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-              onClick={() => handleLanguageChange(l)}
+              onClick={() => handleLanguageChange(item.locale)}
               borderRadius="md"
             >
               <Box w={{ base: 4, md: 6 }}>
-                {locale === l && (
+                {locale === item.locale ? (
                   <Check size={16} color="var(--chakra-colors-blue-500)" />
+                ) : (
+                  <Text fontSize="md" lineHeight={1}>
+                    {item.flag}
+                  </Text>
                 )}
               </Box>
               <Text
                 flex={1}
                 fontSize={{ base: 'sm', md: 'md' }}
-                fontWeight={locale === l ? 'semibold' : 'normal'}
+                fontWeight={locale === item.locale ? 'semibold' : 'normal'}
+                color={locale === item.locale ? 'blue.500' : undefined}
               >
-                {getLanguageLabel(l)}
+                {getLanguageLabel(item.locale)}
               </Text>
             </Flex>
           ))}
@@ -588,6 +605,24 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         isOpen={isBugReportModalOpen}
         onClose={() => setIsBugReportModalOpen(false)}
       />
+
+      {/* Logout Confirm */}
+      <VModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        title={common('logoutConfirmTitle')}
+        primaryActionText={common('logout')}
+        onPrimaryAction={() => {
+          setIsLogoutConfirmOpen(false);
+          onLogout();
+        }}
+        primaryColorScheme="red"
+        secondaryActionText={common('cancel')}
+        size="sm"
+        isCentered
+      >
+        <Text>{common('logoutConfirmMessage')}</Text>
+      </VModal>
     </>
   );
 }

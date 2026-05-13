@@ -59,6 +59,7 @@ interface PlayerGridProps {
   onDelete?: (playerId: string) => void;
   onToggleStatus?: (playerId: string) => void;
   onShowQR?: (player: Player) => void;
+  columns?: Record<string, number>;
 }
 
 export const PlayerGrid = ({
@@ -76,6 +77,7 @@ export const PlayerGrid = ({
   onDelete,
   onToggleStatus,
   onShowQR,
+  columns: columnsProp,
 }: PlayerGridProps) => {
   const t = useTranslations('pages.playerManagement');
   const { getLevelShortLabel } = useLevelLabel();
@@ -93,7 +95,7 @@ export const PlayerGrid = ({
   return (
     <>
       <SimpleGrid
-        columns={{ base: 2, md: 4, lg: 6 }}
+        columns={columnsProp ?? { base: 2, md: 4, lg: 6 }}
         spacing={{ base: 3, md: 4 }}
       >
         {players.map((player) => {
@@ -138,22 +140,42 @@ export const PlayerGrid = ({
               size="sm"
               borderRadius="md"
               borderWidth="2px"
-              borderColor={borderColor as string}
+              borderColor={borderColor}
               bg={bgColor}
               transition="all 0.2s"
-              minH={{ base: '100px', md: '140px' }}
               position="relative"
               overflow="visible"
               zIndex={openPlayerId === player.id ? 1000 : 1}
               cursor="pointer"
+              boxShadow={
+                selectionMode
+                  ? {
+                      base: 'sm',
+                      _dark: isSelected
+                        ? '0 0 0 1px rgba(96, 165, 250, 0.35), 0 12px 28px rgba(0, 0, 0, 0.35)'
+                        : '0 10px 24px rgba(0, 0, 0, 0.28)',
+                    }
+                  : undefined
+              }
               onClick={
                 selectionMode
                   ? () => onPlayerToggle?.(player.id)
                   : () => handleShowDetail(player)
               }
-              _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
+              _hover={{
+                transform: 'scale(1.02)',
+                boxShadow: selectionMode
+                  ? {
+                      base: 'md',
+                      _dark: '0 12px 30px rgba(0, 0, 0, 0.42)',
+                    }
+                  : 'lg',
+                borderColor: selectionMode
+                  ? { base: 'blue.300', _dark: 'whiteAlpha.400' }
+                  : undefined,
+              }}
             >
-              <CardBody px={{ base: 2, md: 3 }} py={3} position="relative">
+              <CardBody px={2} py={2} position="relative">
                 {/* Priority indicator (top right) */}
                 {/* <Box
                 position="absolute"

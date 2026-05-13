@@ -112,6 +112,8 @@
     "feedback": "联系 & 报告错误",
     "navigation": "导航",
     "logout": "登出",
+    "logoutConfirmTitle": "登出",
+    "logoutConfirmMessage": "您确定要退出登录吗？",
     "login": "登录",
     "register": "Register",
     "userInfo": "用户信息",
@@ -546,19 +548,22 @@
     "dragToReorder": "拖放以重新排序",
     "imageOf": "{current}/{total}",
     "aiModal": {
-      "title": "AI 快速创建赛场",
+      "title": "从招募贴创建活动",
       "or": "或",
-      "description": "粘贴招募贴内容，AI 将自动为您填写赛场信息。",
-      "placeholder": "在此处粘贴招募贴内容...\n\n例如：\nHCM 第一区 ABC 球场招募 2 名羽毛球手。时间：2026年1月27日 18:00-20:00。联系人：Minh 0912345678。等级：中级-高级。",
-      "generate": "创建赛场",
-      "generating": "处理中...",
+      "description": "粘贴招募球友的帖子，AI 会预填活动草稿，发布前您可以先检查。",
+      "inputLabel": "帖子内容",
+      "placeholder": "例如：\n今晚在 HCM 第一区 ABC 球场招募 2 名羽毛球手。\n时间：{date} 18:00-20:00。\n费用：80,000 越南盾/人。\n等级：中级-高级。\n联系人 Minh：0912345678。",
+      "generate": "用 AI 创建",
+      "generating": "分析中...",
       "cancel": "取消",
+      "close": "关闭",
       "success": "赛场信息创建成功！",
       "error": "无法分析内容",
       "emptyContent": "请输入招募贴内容",
-      "hint": "AI 将提取：赛场名称、地点、时间、等级、主办方信息...",
+      "hint": "AI 可以识别地点、时间、等级、人数和联系方式。",
       "venueMatched": "匹配的场馆：{venueName}",
       "manualLink": "或在这里手动创建",
+      "manualPrompt": "或",
       "alwaysManual": "手动创建",
       "switchToAi": "使用 AI 快速创建"
     },
@@ -2564,6 +2569,7 @@
       "cancel": "取消",
       "confirmAndStartMatch": "确认并开始比赛",
       "confirmMatch": "确认",
+      "selectRequiredPlayers": "选择 {total} 名玩家后确认",
       "manualPlayerSelectionTitle": "手动选择玩家 - 场地 {courtNumber}",
       "selectedPlayersCount": "已选玩家 ({count}/{total})：",
       "pairNumber": "组合 {number}",
@@ -3509,6 +3515,92 @@
     "galleryTab": "相册",
     "announcementsTab": "公告",
     "noImages": "暂无图片"
+  },
+  "aiAssistant": {
+    "title": "AI 助手",
+    "open": "打开 AI 助手",
+    "provider": "由 Gemini 提供支持",
+    "welcomeTitle": "您好！",
+    "welcomeDescription": "我是 Vmito 的 AI 助手，可以帮助您更轻松地使用应用。",
+    "suggestedQuestions": "推荐问题",
+    "placeholder": "询问关于 Vmito 的问题...",
+    "clearHistory": "清除历史记录",
+    "close": "关闭",
+    "send": "发送",
+    "sendShortcut": "发送（Enter）",
+    "stop": "停止",
+    "inputHint": "Enter 发送 · Shift+Enter 换行",
+    "errorMessage": "抱歉，发生错误。请稍后再试。",
+    "pageContexts": {
+      "createSession": "创建场次页面",
+      "hostSessions": "场次管理页面",
+      "session": "场次页面",
+      "clubs": "群组/俱乐部页面",
+      "tournaments": "赛事页面",
+      "venues": "场地页面",
+      "profile": "用户资料页面",
+      "home": "Vmito 首页",
+      "sessionDetail": "场次详情页面：{name}",
+      "matchAnalysis": "比赛分析 - 场地 {court}"
+    },
+    "suggestions": {
+      "createSession": [
+        "AI 可以帮我从帖子创建场次吗？",
+        "我应该如何设置要求水平？",
+        "如何设置场次参加费用？",
+        "如何选择合适的场地和时间？",
+        "如何创建多个日期或重复场次？"
+      ],
+      "hostSessions": [
+        "如何审核申请加入的球员？",
+        "如何把球员分配到场地？",
+        "如何叫号比赛并更新结果？",
+        "AI 可以自动帮我平衡配对吗？",
+        "如何把场次分享给其他人？"
+      ],
+      "payments": [
+        "如何配置收款账户？",
+        "如何跟踪哪些球员已经付款？",
+        "如何确认或拒绝交易？",
+        "平摊费用和固定费用有什么区别？",
+        "未付款的球员应该如何处理？"
+      ],
+      "clubs": [
+        "如何创建群组或俱乐部？",
+        "如何审核加入群组的成员？",
+        "我可以为群组创建打球日程吗？",
+        "如何管理群组成员？",
+        "群组和场次有什么不同？"
+      ],
+      "tournaments": [
+        "如何创建新赛事？",
+        "如何添加运动员或组合？",
+        "如何生成赛程？",
+        "我应该选择哪种赛事赛制？",
+        "如何查看排名和结果？"
+      ],
+      "venues": [
+        "如何找到附近合适的场地？",
+        "如何查看场地信息和地址？",
+        "我可以建议新增场地吗？",
+        "选择场地时应该考虑什么？",
+        "如何打开到场地的导航？"
+      ],
+      "profile": [
+        "如何更新个人资料？",
+        "如何查看我参加过的场次？",
+        "如何查看球员或主办方评价？",
+        "在哪里可以切换应用语言？",
+        "如何管理我的联系方式？"
+      ],
+      "general": [
+        "Vmito 可以用来做什么？",
+        "如何找到合适的场次？",
+        "如果我想创建场次，应该从哪里开始？",
+        "Host 和 Player 有什么区别？",
+        "如何向 Vmito 报告错误或提交反馈？"
+      ]
+    }
   },
   "suggestions": {
     "title": "推荐场次",

@@ -100,7 +100,7 @@ export default function TopBar({
           hideBottomBorder ? { base: 'none', md: '1px solid' } : '1px solid'
         }
         // borderBottom="1px solid"
-        borderColor={{ base: '#d4d4d8', md: 'border' }}
+        borderColor={{ base: 'gray.200', md: 'border', _dark: 'gray.700' }}
         height={
           navItems
             ? {

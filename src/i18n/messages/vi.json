@@ -121,6 +121,8 @@
     "feedback": "Liên hệ & Báo lỗi",
     "navigation": "Điều hướng",
     "logout": "Đăng xuất",
+    "logoutConfirmTitle": "Đăng xuất",
+    "logoutConfirmMessage": "Bạn có chắc chắn muốn đăng xuất không?",
     "login": "Đăng nhập",
     "register": "Đăng ký",
     "userInfo": "Thông tin người dùng",
@@ -568,19 +570,22 @@
     "dragToReorder": "Kéo thả để sắp xếp",
     "imageOf": "{current}/{total}",
     "aiModal": {
-      "title": "Tạo bằng AI",
+      "title": "Tạo kèo từ bài đăng",
       "or": "hoặc",
-      "description": "Dán nội dung bài đăng tuyển vãng lai, AI sẽ tự động điền thông tin kèo cho bạn.",
-      "placeholder": "Ví dụ:\nTuyển 2 bạn đánh cầu lông tại sân ABC, Quận 1, HCM. \nThời gian 18h-20h ngày 27/1/2026. \nTrình độ TB-K. \nLiên hệ: Minh 0912345678.",
-      "generate": "Tạo kèo",
-      "generating": "Đang xử lý...",
+      "description": "Dán bài tuyển vãng lai, AI sẽ điền sẵn thông tin kèo để bạn kiểm tra trước khi đăng.",
+      "inputLabel": "Nội dung",
+      "placeholder": "Ví dụ:\nTuyển 2 bạn đánh cầu lông tối nay tại sân ABC, Quận 1, HCM.\nThời gian: 18:00-20:00, ngày {date}.\nPhí: 80.000đ/người.\nTrình độ: trung bình-khá.\nLiên hệ Minh: 0912345678.",
+      "generate": "Tạo bằng AI",
+      "generating": "Đang phân tích...",
       "cancel": "Hủy",
+      "close": "Đóng",
       "success": "Trích xuất thông tin thành công!",
       "error": "Không thể phân tích nội dung bài đăng",
       "emptyContent": "Vui lòng nhập nội dung bài đăng",
-      "hint": "AI sẽ trích xuất: tên kèo, địa điểm, thời gian, trình độ, thông tin...",
+      "hint": "AI có thể nhận diện địa điểm, thời gian, trình độ, số lượng người và liên hệ.",
       "venueMatched": "Đã tìm thấy sân phù hợp: {venueName}",
       "manualLink": "Hoặc tạo thủ công tại đây",
+      "manualPrompt": "hoặc",
       "alwaysManual": "Tạo thủ công",
       "switchToAi": "Sử dụng AI để tạo nhanh"
     },
@@ -2624,6 +2629,7 @@
       "cancel": "Hủy",
       "confirmAndStartMatch": "Xác nhận & Bắt đầu trận đấu",
       "confirmMatch": "Xác nhận",
+      "selectRequiredPlayers": "Chọn đủ {total} người để xác nhận",
       "manualPlayerSelectionTitle": "Chọn người chơi thủ công - Sân {courtNumber}",
       "selectedPlayersCount": "Người chơi đã chọn ({count}/{total}):",
       "pairNumber": "Cặp {number}",
@@ -2639,7 +2645,7 @@
       "loadingSuggestedPlayers": "Đang tải gợi ý người chơi...",
       "aiAnalyzing": "AI đang phân tích...",
       "aiPoweredMatching": "Ghép đôi bằng AI",
-      "aiReasoning": "Phân tích AI",
+      "aiReasoning": "Phân tích",
       "waitingPlayers": "Người chơi đang chờ",
       "loadingPairs": "Đang tải cặp đấu...",
       "pair1": "Cặp 1",
@@ -3576,6 +3582,92 @@
     "galleryTab": "Hình ảnh",
     "announcementsTab": "Thông báo",
     "noImages": "Chưa có hình ảnh"
+  },
+  "aiAssistant": {
+    "title": "Trợ lý AI",
+    "open": "Mở trợ lý AI",
+    "provider": "Hỗ trợ bởi Gemini",
+    "welcomeTitle": "Xin chào!",
+    "welcomeDescription": "Tôi là trợ lý AI của Vmito. Tôi có thể giúp bạn sử dụng app dễ dàng hơn.",
+    "suggestedQuestions": "Gợi ý câu hỏi",
+    "placeholder": "Hỏi gì đó về Vmito...",
+    "clearHistory": "Xóa lịch sử",
+    "close": "Đóng",
+    "send": "Gửi",
+    "sendShortcut": "Gửi (Enter)",
+    "stop": "Dừng",
+    "inputHint": "Enter để gửi · Shift+Enter xuống dòng",
+    "errorMessage": "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.",
+    "pageContexts": {
+      "createSession": "Trang tạo kèo",
+      "hostSessions": "Trang quản lý kèo",
+      "session": "Trang kèo",
+      "clubs": "Trang nhóm/câu lạc bộ",
+      "tournaments": "Trang giải đấu",
+      "venues": "Trang sân bãi",
+      "profile": "Trang hồ sơ người dùng",
+      "home": "Trang chủ Vmito",
+      "sessionDetail": "Trang chi tiết kèo: {name}",
+      "matchAnalysis": "Phân tích trận đấu - Sân {court}"
+    },
+    "suggestions": {
+      "createSession": [
+        "AI có thể giúp tôi tạo kèo từ bài đăng không?",
+        "Tôi nên điền mức trình độ như thế nào?",
+        "Cách thiết lập phí tham gia cho kèo?",
+        "Làm sao chọn sân và thời gian phù hợp?",
+        "Tạo nhiều ngày/kèo lặp lại như thế nào?"
+      ],
+      "hostSessions": [
+        "Làm sao duyệt người chơi xin tham gia?",
+        "Cách chia người chơi vào sân?",
+        "Làm sao gọi trận và cập nhật kết quả?",
+        "Tôi có thể chia cặp tự động bằng AI không?",
+        "Cách chia sẻ kèo cho người khác?"
+      ],
+      "payments": [
+        "Cách cấu hình tài khoản nhận tiền?",
+        "Làm sao theo dõi người chơi đã thanh toán?",
+        "Cách xác nhận hoặc từ chối giao dịch?",
+        "Phí chia đều và phí cố định khác nhau thế nào?",
+        "Tôi nên xử lý người chơi chưa thanh toán ra sao?"
+      ],
+      "clubs": [
+        "Cách tạo nhóm/câu lạc bộ?",
+        "Làm sao duyệt thành viên tham gia nhóm?",
+        "Tôi có thể tạo lịch chơi cho nhóm không?",
+        "Cách quản lý thành viên trong nhóm?",
+        "Nhóm khác gì với kèo?"
+      ],
+      "tournaments": [
+        "Cách tạo giải đấu mới?",
+        "Làm sao thêm vận động viên hoặc cặp đấu?",
+        "Cách tạo lịch thi đấu?",
+        "Tôi nên chọn thể thức giải nào?",
+        "Cách xem bảng xếp hạng/kết quả?"
+      ],
+      "venues": [
+        "Làm sao tìm sân phù hợp gần tôi?",
+        "Cách xem thông tin và địa chỉ sân?",
+        "Tôi có thể đề xuất thêm sân mới không?",
+        "Nên chọn sân theo tiêu chí nào?",
+        "Cách mở bản đồ đến sân?"
+      ],
+      "profile": [
+        "Cách cập nhật hồ sơ cá nhân?",
+        "Làm sao xem lịch sử kèo đã tham gia?",
+        "Cách xem đánh giá của người chơi/host?",
+        "Tôi có thể đổi ngôn ngữ ở đâu?",
+        "Cách quản lý thông tin liên hệ?"
+      ],
+      "general": [
+        "Vmito dùng để làm gì?",
+        "Cách tìm kèo phù hợp?",
+        "Tôi muốn tạo kèo thì bắt đầu từ đâu?",
+        "Host và Player khác nhau thế nào?",
+        "Cách báo lỗi hoặc góp ý cho Vmito?"
+      ]
+    }
   },
   "suggestions": {
     "title": "Gợi ý kèo",

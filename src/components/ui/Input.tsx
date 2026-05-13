@@ -21,6 +21,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     { variant = 'outline', size = 'md', leftElement, rightElement, ...props },
     ref
   ) => {
+    const isNumber = props.type === 'number';
+
     const inputProps = {
       variant,
       size,
@@ -63,7 +65,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {rightElement && (
             <Box
               position="absolute"
-              right="3"
+              right={isNumber ? '7' : '3'}
               top="50%"
               transform="translateY(-50%)"
               zIndex="1"

@@ -300,7 +300,12 @@ export default function PublicUserProfileContent({
 
   if (error || !profile) {
     return (
-      <PageLayout title={t('title')} showBackButton={true} bg="gray.50">
+      <PageLayout
+        title={t('title')}
+        showBackButton={true}
+        bg="gray.50"
+        _dark={{ bg: 'gray.900' }}
+      >
         <Box
           mt={4}
           borderWidth="1px"
@@ -325,7 +330,7 @@ export default function PublicUserProfileContent({
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
-      <PageLayout title={t('title')} bg="gray.50">
+      <PageLayout title={t('title')} bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <VStack gap={6} align="stretch" pb={6}>
           <Box
             borderWidth="1px"
@@ -333,6 +338,7 @@ export default function PublicUserProfileContent({
             borderRadius="2xl"
             bg="white"
             overflow="hidden"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Box
               bg="linear-gradient(135deg, #FFD75F 0%, #FFC107 100%)"
@@ -363,6 +369,11 @@ export default function PublicUserProfileContent({
                   bg="white"
                   color="gray.800"
                   borderColor="gray.300"
+                  _dark={{
+                    bg: 'gray.700',
+                    color: 'gray.100',
+                    borderColor: 'gray.500',
+                  }}
                   shadow="sm"
                   _hover={{
                     shadow: 'md',
@@ -395,6 +406,7 @@ export default function PublicUserProfileContent({
                     fontSize="lg"
                     fontWeight="bold"
                     color="gray.800"
+                    _dark={{ color: 'gray.100' }}
                     lineClamp={1}
                   >
                     {displayName}
@@ -418,34 +430,73 @@ export default function PublicUserProfileContent({
                 </HStack>
 
                 <SimpleGrid columns={2} gap={3} width="full" pt={1}>
-                  <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
-                    <Text fontSize="xs" color="gray.500">
+                  <Box
+                    borderRadius="lg"
+                    bg="gray.50"
+                    _dark={{ bg: 'gray.700' }}
+                    px={3}
+                    py={2}
+                  >
+                    <Text
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                    >
                       {t('hostedSessions')}
                     </Text>
-                    <Text fontSize="md" fontWeight="semibold" color="gray.800">
+                    <Text
+                      fontSize="md"
+                      fontWeight="semibold"
+                      color="gray.800"
+                      _dark={{ color: 'gray.100' }}
+                    >
                       {totalHostedSessions}
                     </Text>
                   </Box>
 
-                  <Box borderRadius="lg" bg="gray.50" px={3} py={2}>
-                    <Text fontSize="xs" color="gray.500">
+                  <Box
+                    borderRadius="lg"
+                    bg="gray.50"
+                    _dark={{ bg: 'gray.700' }}
+                    px={3}
+                    py={2}
+                  >
+                    <Text
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                    >
                       {t('reviews')}
                     </Text>
-                    <Text fontSize="md" fontWeight="semibold" color="gray.800">
+                    <Text
+                      fontSize="md"
+                      fontWeight="semibold"
+                      color="gray.800"
+                      _dark={{ color: 'gray.100' }}
+                    >
                       {ratingStats?.totalRatings ?? 0}
                     </Text>
                   </Box>
                 </SimpleGrid>
 
                 {phone && (
-                  <HStack gap={2} color="gray.600" pt={1}>
+                  <HStack
+                    gap={2}
+                    color="gray.600"
+                    _dark={{ color: 'gray.300' }}
+                    pt={1}
+                  >
                     <Phone size={16} />
                     <Text fontSize="sm">{phone}</Text>
                   </HStack>
                 )}
 
                 {genderLabel && (
-                  <HStack gap={2} color="gray.600">
+                  <HStack
+                    gap={2}
+                    color="gray.600"
+                    _dark={{ color: 'gray.300' }}
+                  >
                     <User size={16} />
                     <Text fontSize="sm">
                       {tCommon('gender')}: {genderLabel}
@@ -454,7 +505,11 @@ export default function PublicUserProfileContent({
                 )}
 
                 {joinedAt && (
-                  <HStack gap={2} color="gray.600">
+                  <HStack
+                    gap={2}
+                    color="gray.600"
+                    _dark={{ color: 'gray.300' }}
+                  >
                     <CalendarDays size={16} />
                     <Text fontSize="sm">
                       {t('joinedDateLabel', {
@@ -494,9 +549,15 @@ export default function PublicUserProfileContent({
                 borderColor="gray.200"
                 borderRadius="2xl"
                 p={4}
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 <HStack justify="space-between" align="center" mb={3}>
-                  <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    color="gray.800"
+                    _dark={{ color: 'gray.100' }}
+                  >
                     {t('clubs')}
                   </Text>
 
@@ -528,6 +589,7 @@ export default function PublicUserProfileContent({
                         fontSize="sm"
                         fontWeight="semibold"
                         color="gray.600"
+                        _dark={{ color: 'gray.300' }}
                         mb={2}
                       >
                         {t('hostedClubs')} ({hostedClubs.length})
@@ -544,9 +606,17 @@ export default function PublicUserProfileContent({
                               borderRadius="lg"
                               p={3}
                               bg="gray.50"
+                              _dark={{
+                                bg: 'gray.700',
+                                borderColor: 'gray.600',
+                              }}
                               _hover={{
                                 bg: 'gray.100',
                                 borderColor: 'green.300',
+                                _dark: {
+                                  bg: 'gray.600',
+                                  borderColor: 'green.500',
+                                },
                               }}
                               transition="all 0.2s"
                               cursor="pointer"
@@ -562,11 +632,19 @@ export default function PublicUserProfileContent({
                                   />
                                 )}
                                 <VStack align="start" gap={0} flex={1}>
-                                  <Text fontWeight="semibold" color="gray.800">
+                                  <Text
+                                    fontWeight="semibold"
+                                    color="gray.800"
+                                    _dark={{ color: 'gray.100' }}
+                                  >
                                     {club.name}
                                   </Text>
                                   {club.memberCount > 0 && (
-                                    <Text fontSize="xs" color="gray.500">
+                                    <Text
+                                      fontSize="xs"
+                                      color="gray.500"
+                                      _dark={{ color: 'gray.400' }}
+                                    >
                                       {club.memberCount} {tCommon('members')}
                                     </Text>
                                   )}
@@ -586,6 +664,7 @@ export default function PublicUserProfileContent({
                         fontSize="sm"
                         fontWeight="semibold"
                         color="gray.600"
+                        _dark={{ color: 'gray.300' }}
                         mb={2}
                       >
                         {t('memberClubs')} ({memberClubs.length})
@@ -602,9 +681,17 @@ export default function PublicUserProfileContent({
                               borderRadius="lg"
                               p={3}
                               bg="gray.50"
+                              _dark={{
+                                bg: 'gray.700',
+                                borderColor: 'gray.600',
+                              }}
                               _hover={{
                                 bg: 'gray.100',
                                 borderColor: 'green.300',
+                                _dark: {
+                                  bg: 'gray.600',
+                                  borderColor: 'green.500',
+                                },
                               }}
                               transition="all 0.2s"
                               cursor="pointer"
@@ -620,11 +707,19 @@ export default function PublicUserProfileContent({
                                   />
                                 )}
                                 <VStack align="start" gap={0} flex={1}>
-                                  <Text fontWeight="semibold" color="gray.800">
+                                  <Text
+                                    fontWeight="semibold"
+                                    color="gray.800"
+                                    _dark={{ color: 'gray.100' }}
+                                  >
                                     {club.name}
                                   </Text>
                                   {club.memberCount > 0 && (
-                                    <Text fontSize="xs" color="gray.500">
+                                    <Text
+                                      fontSize="xs"
+                                      color="gray.500"
+                                      _dark={{ color: 'gray.400' }}
+                                    >
                                       {club.memberCount} {tCommon('members')}
                                     </Text>
                                   )}
@@ -648,9 +743,15 @@ export default function PublicUserProfileContent({
             borderColor="gray.200"
             borderRadius="2xl"
             p={4}
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Flex justify="space-between" align="center" mb={3}>
-              <Text fontSize="lg" fontWeight="bold" color="gray.800">
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'gray.100' }}
+              >
                 {t('hostedSessions')} ({totalHostedSessions})
               </Text>
             </Flex>
@@ -700,9 +801,10 @@ export default function PublicUserProfileContent({
                 p={6}
                 textAlign="center"
                 bg="gray.50"
+                _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
               >
                 <Icon as={MessageSquare} boxSize={6} color="gray.300" mb={2} />
-                <Text color="gray.500">
+                <Text color="gray.500" _dark={{ color: 'gray.400' }}>
                   {hostedTab === 'active'
                     ? t('noActiveHostedSessions')
                     : hostedTab === 'ended'
@@ -729,7 +831,11 @@ export default function PublicUserProfileContent({
                   {tCommon('previous')}
                 </Button>
 
-                <Text fontSize="sm" color="gray.600">
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('pagination', { page, totalPages: totalSessionPages })}
                 </Text>
 
@@ -751,9 +857,15 @@ export default function PublicUserProfileContent({
             borderColor="gray.200"
             borderRadius="2xl"
             p={4}
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Flex justify="space-between" align="center" mb={3}>
-              <Text fontSize="lg" fontWeight="bold" color="gray.800">
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'gray.100' }}
+              >
                 {t('reviews')} ({ratingStats?.totalRatings ?? 0})
               </Text>
               {ratings.length > REVIEWS_PREVIEW_SIZE && (

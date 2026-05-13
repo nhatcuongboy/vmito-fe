@@ -275,6 +275,7 @@ export default function SessionPaymentList({
         borderColor="gray.200"
         borderRadius="lg"
         p={4}
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <HStack justify="space-between" mb={3}>
           <Text fontWeight="semibold">{t('paymentSummary')}</Text>
@@ -295,7 +296,7 @@ export default function SessionPaymentList({
 
         <Flex gap={4} wrap="wrap">
           <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               {t('paidAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="green.600">
@@ -305,7 +306,7 @@ export default function SessionPaymentList({
             </Text>
           </Box>
           <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               {t('pendingAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="yellow.600">
@@ -315,7 +316,7 @@ export default function SessionPaymentList({
             </Text>
           </Box>
           <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               {t('remainingAmount')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="blue.600">
@@ -327,10 +328,20 @@ export default function SessionPaymentList({
         </Flex>
 
         {/* Income / Expense / Net summary */}
-        <Box mt={3} pt={3} borderTop="1px solid" borderColor="gray.100">
+        <Box
+          mt={3}
+          pt={3}
+          borderTop="1px solid"
+          borderColor="gray.100"
+          _dark={{ borderColor: 'gray.700' }}
+        >
           <Flex gap={4} wrap="wrap">
             <Box flex={1} minW="120px">
-              <Text fontSize="sm" color="gray.500">
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
                 {t('income')}
               </Text>
               <Text fontSize="md" fontWeight="semibold" color="green.600">
@@ -340,7 +351,11 @@ export default function SessionPaymentList({
               </Text>
             </Box>
             <Box flex={1} minW="120px">
-              <Text fontSize="sm" color="gray.500">
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
                 {t('totalExpenses')}
               </Text>
               <Text fontSize="md" fontWeight="semibold" color="red.500">
@@ -350,7 +365,11 @@ export default function SessionPaymentList({
               </Text>
             </Box>
             <Box flex={1} minW="120px">
-              <Text fontSize="sm" color="gray.500">
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
                 {t('netTotal')}
               </Text>
               <Text
@@ -498,6 +517,12 @@ export default function SessionPaymentList({
                   p={3}
                   cursor="pointer"
                   transition="all 0.2s"
+                  _dark={{
+                    bg: 'gray.800',
+                    borderColor: payment.player?.isClubMember
+                      ? 'teal.600'
+                      : 'gray.700',
+                  }}
                   _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
                   onClick={() => setSelectedPayment(payment)}
                 >

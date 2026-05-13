@@ -1,19 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Flex, Text, Textarea, Portal } from '@chakra-ui/react';
 import { Sparkles, X, Send, Trash2, Square } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/config';
+import { Locale } from '@/i18n/locales';
 import { useAiChat } from '@/hooks/useAiChat';
 import AiChatMessage from './AiChatMessage';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
-
-const SUGGESTED_QUESTIONS = [
-  'Cách tạo một kèo mới?',
-  'Làm sao mời bạn vào kèo?',
-  'Cách thu phí từ người chơi?',
-  'Làm sao tạo nhóm mới?',
-  'Phân biệt Host và Player?',
-];
+import { getAiAssistantSuggestionGroup } from './aiAssistantSuggestions';
 
 interface AiAssistantPanelProps {
   isOpen: boolean;
@@ -26,8 +22,20 @@ export default function AiAssistantPanel({
   onClose,
   pageContext,
 }: AiAssistantPanelProps) {
+  const t = useTranslations('aiAssistant');
+  const locale = useLocale() as Locale;
+  const pathname = usePathname();
+  const suggestionGroup = getAiAssistantSuggestionGroup(pathname);
+  const suggestedQuestions = useMemo(() => {
+    const questions = t.raw(`suggestions.${suggestionGroup}`);
+    return Array.isArray(questions) ? (questions as string[]).slice(0, 5) : [];
+  }, [suggestionGroup, t]);
   const { messages, isStreaming, sendMessage, clearMessages, stopStreaming } =
-    useAiChat({ pageContext });
+    useAiChat({
+      pageContext,
+      language: locale,
+      errorMessage: t('errorMessage'),
+    });
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -128,12 +136,12 @@ export default function AiAssistantPanel({
               fontSize="sm"
               lineHeight="1.2"
             >
-              AI Assistant
+              {t('title')}
             </Text>
             <Flex align="center" gap={1}>
               <Box w="6px" h="6px" borderRadius="full" bg="green.300" />
               <Text fontSize="xs" color="whiteAlpha.800">
-                Powered by Gemini
+                {t('provider')}
               </Text>
             </Flex>
           </Box>
@@ -149,7 +157,8 @@ export default function AiAssistantPanel({
               color="whiteAlpha.800"
               _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
               transition="all 0.2s"
-              title="Xóa lịch sử"
+              title={t('clearHistory')}
+              aria-label={t('clearHistory')}
             >
               <Trash2 size={15} />
             </Box>
@@ -162,7 +171,8 @@ export default function AiAssistantPanel({
             color="whiteAlpha.800"
             _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
             transition="all 0.2s"
-            title="Đóng"
+            title={t('close')}
+            aria-label={t('close')}
           >
             <X size={16} />
           </Box>
@@ -209,7 +219,7 @@ export default function AiAssistantPanel({
                 color={{ base: 'gray.800', _dark: 'gray.100' }}
                 mb={1}
               >
-                Xin chào! 👋
+                {t('welcomeTitle')}
               </Text>
               <Text
                 fontSize="sm"
@@ -218,8 +228,7 @@ export default function AiAssistantPanel({
                 maxW="240px"
                 lineHeight="1.5"
               >
-                Tôi là AI Assistant của Vmito. Tôi có thể giúp bạn sử dụng app
-                dễ dàng hơn!
+                {t('welcomeDescription')}
               </Text>
             </Flex>
 
@@ -232,10 +241,10 @@ export default function AiAssistantPanel({
               textTransform="uppercase"
               letterSpacing="wider"
             >
-              Gợi ý câu hỏi
+              {t('suggestedQuestions')}
             </Text>
             <Flex direction="column" gap={2}>
-              {SUGGESTED_QUESTIONS.map((q) => (
+              {suggestedQuestions.map((q) => (
                 <Box
                   key={q}
                   as="button"
@@ -305,7 +314,7 @@ export default function AiAssistantPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Hỏi gì đó về Vmito..."
+            placeholder={t('placeholder')}
             resize="none"
             border="none"
             outline="none"
@@ -370,14 +379,15 @@ export default function AiAssistantPanel({
                   : undefined,
             }}
             transition="all 0.15s"
-            title={isStreaming ? 'Dừng' : 'Gửi (Enter)'}
+            title={isStreaming ? t('stop') : t('sendShortcut')}
+            aria-label={isStreaming ? t('stop') : t('send')}
           >
             {isStreaming ? <Square size={13} /> : <Send size={13} />}
           </Box>
         </Flex>
 
         <Text fontSize="xs" color="gray.400" textAlign="center" mt={2}>
-          Enter để gửi · Shift+Enter xuống dòng
+          {t('inputHint')}
         </Text>
       </Box>
     </Flex>

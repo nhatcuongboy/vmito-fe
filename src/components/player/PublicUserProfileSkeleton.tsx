@@ -15,7 +15,12 @@ export default function PublicUserProfileSkeleton() {
   const t = useTranslations('userProfilePage');
 
   return (
-    <PageLayout title={t('title')} showBackButton={true} bg="gray.50">
+    <PageLayout
+      title={t('title')}
+      showBackButton={true}
+      bg="gray.50"
+      _dark={{ bg: 'gray.900' }}
+    >
       <VStack gap={6} align="stretch" pb={6}>
         {/* Profile header card */}
         <Box
@@ -24,6 +29,7 @@ export default function PublicUserProfileSkeleton() {
           borderRadius="2xl"
           bg="white"
           overflow="hidden"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Skeleton height="112px" borderRadius="0" />
           <Box px={5} pb={5}>
@@ -53,6 +59,7 @@ export default function PublicUserProfileSkeleton() {
           borderColor="gray.200"
           borderRadius="2xl"
           p={4}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Skeleton height="24px" width="80px" mb={4} borderRadius="md" />
           <VStack gap={2} align="stretch">
@@ -64,6 +71,7 @@ export default function PublicUserProfileSkeleton() {
                 borderWidth="1px"
                 borderColor="gray.200"
                 borderRadius="lg"
+                _dark={{ borderColor: 'gray.700' }}
               >
                 <Skeleton boxSize="40px" borderRadius="md" />
                 <VStack align="start" gap={1} flex={1}>
@@ -82,6 +90,7 @@ export default function PublicUserProfileSkeleton() {
           borderColor="gray.200"
           borderRadius="2xl"
           p={4}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Skeleton height="24px" width="160px" mb={4} borderRadius="md" />
           <HStack gap={2} mb={4}>
@@ -103,6 +112,7 @@ export default function PublicUserProfileSkeleton() {
           borderColor="gray.200"
           borderRadius="2xl"
           p={4}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Skeleton height="24px" width="100px" mb={4} borderRadius="md" />
           <Skeleton height="80px" borderRadius="lg" mb={3} />

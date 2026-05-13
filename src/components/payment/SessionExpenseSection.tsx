@@ -149,6 +149,7 @@ export default function SessionExpenseSection({
       borderColor="gray.200"
       borderRadius="lg"
       p={4}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       {/* Header */}
       <Flex justify="space-between" align="center" mb={3}>
@@ -277,6 +278,7 @@ export default function SessionExpenseSection({
             p={3}
             border="1px dashed"
             borderColor="gray.300"
+            _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
           >
             <VStack gap={2} align="stretch">
               {draftRows.map((row, idx) => (

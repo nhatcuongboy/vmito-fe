@@ -20,6 +20,7 @@ export default function NewSessionForm({
         backHref={backHref}
         onSuccess={onSuccess}
         showTopBar={true}
+        useDrawerMobileFooter
       />
     </Box>
   );

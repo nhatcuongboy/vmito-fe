@@ -120,6 +120,8 @@
     "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
     "logout": "Logout",
+    "logoutConfirmTitle": "Logout",
+    "logoutConfirmMessage": "Are you sure you want to log out?",
     "login": "Login",
     "register": "Register",
     "userInfo": "User Information",
@@ -566,19 +568,22 @@
     "dragToReorder": "Drag to reorder",
     "imageOf": "{current}/{total}",
     "aiModal": {
-      "title": "Quick create session by AI",
+      "title": "Create session from a post",
       "or": "or",
-      "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
-      "placeholder": "Paste article content here...\n\nExample:\nLooking for 2 players for badminton at ABC Court, District 1, HCM. Time: 6pm-8pm on Jan 27, 2026. Contact: Minh 0912345678. Level: Intermediate-Advanced.",
-      "generate": "Create Session",
-      "generating": "Processing...",
+      "description": "Paste a player recruitment post and AI will prefill a draft for you to review before posting.",
+      "inputLabel": "Post content",
+      "placeholder": "Example:\nLooking for 2 badminton players tonight at ABC Court, District 1, HCM.\nTime: 18:00-20:00, {date}.\nFee: 80,000 VND/person.\nLevel: intermediate-advanced.\nContact Minh: 0912345678.",
+      "generate": "Create by AI",
+      "generating": "Analyzing...",
       "cancel": "Cancel",
+      "close": "Close",
       "success": "Session information extracted successfully!",
       "error": "Failed to analyze article content",
       "emptyContent": "Please enter article content",
-      "hint": "AI will extract: session name, location, time, levels, host info...",
+      "hint": "AI can detect location, time, level, player count, and contact details.",
       "venueMatched": "Venue matched: {venueName}",
       "manualLink": "Or create manually here",
+      "manualPrompt": "or",
       "alwaysManual": "Create manually",
       "switchToAi": "Use AI for quick creation"
     },
@@ -2610,6 +2615,7 @@
       "cancel": "Cancel",
       "confirmAndStartMatch": "Confirm & Start Match",
       "confirmMatch": "Confirm",
+      "selectRequiredPlayers": "Select {total} players to confirm",
       "manualPlayerSelectionTitle": "Manual Player Selection - Court {courtNumber}",
       "selectedPlayersCount": "Selected Players ({count}/{total}):",
       "pairNumber": "Pair {number}",
@@ -3556,6 +3562,92 @@
     "galleryTab": "Gallery",
     "announcementsTab": "Announcements",
     "noImages": "No images"
+  },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "open": "Open AI Assistant",
+    "provider": "Powered by Gemini",
+    "welcomeTitle": "Hello!",
+    "welcomeDescription": "I am Vmito's AI assistant. I can help you use the app more easily.",
+    "suggestedQuestions": "Suggested questions",
+    "placeholder": "Ask something about Vmito...",
+    "clearHistory": "Clear history",
+    "close": "Close",
+    "send": "Send",
+    "sendShortcut": "Send (Enter)",
+    "stop": "Stop",
+    "inputHint": "Enter to send · Shift+Enter for a new line",
+    "errorMessage": "Sorry, something went wrong. Please try again later.",
+    "pageContexts": {
+      "createSession": "Create session page",
+      "hostSessions": "Session management page",
+      "session": "Session page",
+      "clubs": "Groups and clubs page",
+      "tournaments": "Tournament page",
+      "venues": "Venue page",
+      "profile": "User profile page",
+      "home": "Vmito home page",
+      "sessionDetail": "Session detail page: {name}",
+      "matchAnalysis": "Match analysis - Court {court}"
+    },
+    "suggestions": {
+      "createSession": [
+        "Can AI help me create a session from a post?",
+        "How should I set the required skill level?",
+        "How do I set participation fees for a session?",
+        "How do I choose a suitable venue and time?",
+        "How do I create multiple dates or recurring sessions?"
+      ],
+      "hostSessions": [
+        "How do I approve players who request to join?",
+        "How do I assign players to courts?",
+        "How do I call matches and update results?",
+        "Can AI automatically balance pairs for me?",
+        "How do I share a session with others?"
+      ],
+      "payments": [
+        "How do I configure my receiving account?",
+        "How do I track which players have paid?",
+        "How do I approve or reject a transaction?",
+        "What is the difference between split fees and fixed fees?",
+        "How should I handle players who have not paid?"
+      ],
+      "clubs": [
+        "How do I create a group or club?",
+        "How do I approve members joining a group?",
+        "Can I create a play schedule for a group?",
+        "How do I manage group members?",
+        "How is a group different from a session?"
+      ],
+      "tournaments": [
+        "How do I create a new tournament?",
+        "How do I add players or pairs?",
+        "How do I generate the match schedule?",
+        "Which tournament format should I choose?",
+        "How do I view standings and results?"
+      ],
+      "venues": [
+        "How do I find a suitable venue near me?",
+        "How do I view venue details and address?",
+        "Can I suggest adding a new venue?",
+        "What should I consider when choosing a venue?",
+        "How do I open directions to a venue?"
+      ],
+      "profile": [
+        "How do I update my profile?",
+        "How do I view sessions I have joined?",
+        "How do I view player or host ratings?",
+        "Where can I change the app language?",
+        "How do I manage my contact information?"
+      ],
+      "general": [
+        "What is Vmito used for?",
+        "How do I find a suitable session?",
+        "Where should I start if I want to create a session?",
+        "What is the difference between Host and Player?",
+        "How do I report a bug or send feedback to Vmito?"
+      ]
+    }
   },
   "suggestions": {
     "title": "Suggested Sessions",

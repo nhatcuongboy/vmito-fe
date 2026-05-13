@@ -249,7 +249,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
       size="xl"
       showCloseButton={true}
       footer={
-        <Flex justify="flex-end" gap={2} width="full">
+        <Flex gap={2} justify="flex-end" width="full">
           <CompatButton
             variant="outline"
             onClick={onCancel}
@@ -278,7 +278,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             borderWidth="1px"
             borderColor="gray.200"
             _dark={{
-              bg: 'whiteAlpha.100',
+              bg: 'blackAlpha.200',
               borderColor: 'whiteAlpha.200',
             }}
           >
@@ -292,10 +292,14 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               bg={matchType === 'doubles' ? 'white' : 'transparent'}
               color={matchType === 'doubles' ? 'blue.600' : 'gray.500'}
               _dark={{
-                bg: matchType === 'doubles' ? 'whiteAlpha.200' : 'transparent',
-                color: matchType === 'doubles' ? 'blue.300' : 'gray.400',
+                bg: matchType === 'doubles' ? 'blue.900/50' : 'transparent',
+                color: matchType === 'doubles' ? 'blue.200' : 'gray.300',
               }}
-              boxShadow={matchType === 'doubles' ? 'sm' : 'none'}
+              boxShadow={
+                matchType === 'doubles'
+                  ? { base: 'sm', _dark: '0 8px 18px rgba(0, 0, 0, 0.35)' }
+                  : 'none'
+              }
               onClick={() => onMatchTypeChange('doubles')}
             >
               <Box as={Users} boxSize={3} mr={1.5} />
@@ -316,10 +320,14 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               bg={matchType === 'singles' ? 'white' : 'transparent'}
               color={matchType === 'singles' ? 'blue.600' : 'gray.500'}
               _dark={{
-                bg: matchType === 'singles' ? 'whiteAlpha.200' : 'transparent',
-                color: matchType === 'singles' ? 'blue.300' : 'gray.400',
+                bg: matchType === 'singles' ? 'blue.900/50' : 'transparent',
+                color: matchType === 'singles' ? 'blue.200' : 'gray.300',
               }}
-              boxShadow={matchType === 'singles' ? 'sm' : 'none'}
+              boxShadow={
+                matchType === 'singles'
+                  ? { base: 'sm', _dark: '0 8px 18px rgba(0, 0, 0, 0.35)' }
+                  : 'none'
+              }
               onClick={() => onMatchTypeChange('singles')}
             >
               <Box as={User} boxSize={3} mr={1.5} />
@@ -340,14 +348,31 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           variant="line"
           size="sm"
         >
-          <Tabs.List mb={0}>
-            <Tabs.Trigger value="manual">
+          <Tabs.List
+            mb={0}
+            borderColor={{ base: 'border', _dark: 'whiteAlpha.300' }}
+          >
+            <Tabs.Trigger
+              value="manual"
+              color={{ base: 'fg.muted', _dark: 'gray.300' }}
+              _selected={{
+                color: { base: 'fg', _dark: 'white' },
+                borderColor: { base: 'green.500', _dark: 'green.300' },
+              }}
+            >
               <HStack gap={1.5}>
                 <Box as={UserPlus} boxSize={3.5} />
                 <Text fontSize="sm">{t('courtsTab.manualSelection')}</Text>
               </HStack>
             </Tabs.Trigger>
-            <Tabs.Trigger value="auto">
+            <Tabs.Trigger
+              value="auto"
+              color={{ base: 'fg.muted', _dark: 'gray.300' }}
+              _selected={{
+                color: { base: 'fg', _dark: 'white' },
+                borderColor: { base: 'green.500', _dark: 'green.300' },
+              }}
+            >
               <HStack gap={1.5}>
                 <Box as={Sparkles} boxSize={3.5} color="purple.500" />
                 <Text fontSize="sm">{t('courtsTab.autoAssignMatch')}</Text>
@@ -399,6 +424,22 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
 // ─── Auto-Assign Sub-Component ───────────────────────────────────────────────
 
+const LEVEL_SHORT_LABELS: Record<number, string> = {
+  1: 'Yếu',
+  2: 'TBY',
+  3: 'TB-',
+  4: 'TB',
+  5: 'TB+',
+  6: 'Khá',
+  7: 'BC',
+  8: 'CN',
+};
+
+const normalizeAiReasonLevels = (reason: string) =>
+  reason.replace(/\b(?:Level|Cấp|等级)\s*([1-8])\b/gi, (_, level: string) => {
+    return LEVEL_SHORT_LABELS[Number(level)] ?? _;
+  });
+
 interface IAutoAssignContentProps {
   court: Court;
   waitingPlayersCount: number;
@@ -421,13 +462,13 @@ interface IAutoAssignContentProps {
 
 const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
   court,
-  waitingPlayersCount,
-  topCount,
+  waitingPlayersCount: _waitingPlayersCount,
+  topCount: _topCount,
   useAi,
   isLoading,
   suggestedPlayers,
   autoAssignPlayers,
-  onTopCountChange,
+  onTopCountChange: _onTopCountChange,
   onAiToggle,
   getCourtDisplayName,
   courtColor,
@@ -442,49 +483,6 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
 
   return (
     <Box>
-      {/* TopCount Selection */}
-      {waitingPlayersCount > 0 && (
-        <Box bg="gray.50" py={1} px={2} borderRadius="md" mb={2}>
-          <HStack gap={2} align="center">
-            <Text fontSize="xs" fontWeight="medium" color="gray.700">
-              {t('courtsTab.playersToConsider')}:
-            </Text>
-            <Box flex="1" maxW="110px">
-              <select
-                style={{
-                  fontSize: '13px',
-                  backgroundColor: 'white',
-                  borderColor: '#d1d5db',
-                  borderWidth: '1px',
-                  borderRadius: '4px',
-                  padding: '4px 6px',
-                  width: '100%',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.6 : 1,
-                }}
-                value={topCount}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  onTopCountChange(parseInt(e.target.value))
-                }
-                disabled={isLoading}
-              >
-                {Array.from(
-                  { length: Math.max(0, waitingPlayersCount - 3) },
-                  (_, i) => i + 4
-                ).map((count) => (
-                  <option key={count} value={count}>
-                    {count} {t('courtsTab.players')}
-                  </option>
-                ))}
-              </select>
-            </Box>
-            <Box fontSize="xs" color="gray.500">
-              {t('courtsTab.longestWait')}
-            </Box>
-          </HStack>
-        </Box>
-      )}
-
       {/* AI Toggle — Premium Card */}
       <Box
         position="relative"
@@ -624,13 +622,18 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
                 {t('courtsTab.aiReasoning')}:
               </Text>
             </HStack>
-            <Text>{suggestedPlayers.aiReason}</Text>
+            <Text>{normalizeAiReasonLevels(suggestedPlayers.aiReason)}</Text>
           </Box>
         )}
       </Box>
 
       {/* Court Visualization */}
-      <Box maxW="400px" mx="auto" position="relative">
+      <Box
+        maxW={{ base: '100%', md: '360px' }}
+        mx="auto"
+        position="relative"
+        _dark={{ filter: 'saturate(0.85) brightness(0.92)' }}
+      >
         <BadmintonCourt
           players={autoAssignPlayers}
           isActive={true}
@@ -711,6 +714,8 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
           />
         )}
       </Box>
+
+      {/* TopCount Selection — temporarily hidden */}
     </Box>
   );
 };
@@ -739,9 +744,11 @@ const PairStatsBar: React.FC<IPairStatsBarProps> = ({
       mt={2}
       px={2}
       py={1.5}
-      bg="gray.50"
+      bg={{ base: 'gray.50', _dark: 'whiteAlpha.100' }}
       borderRadius="md"
       fontSize="xs"
+      borderWidth="1px"
+      borderColor={{ base: 'gray.100', _dark: 'whiteAlpha.100' }}
     >
       {/* Pair 1 */}
       <Box textAlign="center" flex="1">
@@ -755,7 +762,12 @@ const PairStatsBar: React.FC<IPairStatsBarProps> = ({
           </Text> */}
         </HStack>
         {pair1Players?.map((p) => (
-          <Text key={p.id} color="gray.600" lineClamp={1} fontSize="xs">
+          <Text
+            key={p.id}
+            color={{ base: 'gray.600', _dark: 'gray.300' }}
+            lineClamp={1}
+            fontSize="xs"
+          >
             {p.name || `#${p.playerNumber}`}
           </Text>
         ))}
@@ -786,7 +798,12 @@ const PairStatsBar: React.FC<IPairStatsBarProps> = ({
           </Text> */}
         </HStack>
         {pair2Players?.map((p) => (
-          <Text key={p.id} color="gray.600" lineClamp={1} fontSize="xs">
+          <Text
+            key={p.id}
+            color={{ base: 'gray.600', _dark: 'gray.300' }}
+            lineClamp={1}
+            fontSize="xs"
+          >
             {p.name || `#${p.playerNumber}`}
           </Text>
         ))}
@@ -821,7 +838,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   waitingPlayers,
   selectedPlayers,
   selectedPositions,
-  selectedCount,
+  selectedCount: _selectedCount,
   currentPosition,
   matchType,
   onPlayerToggle,
@@ -890,13 +907,11 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
     <Box>
       {/* Court Preview */}
       <Box pb={2} mb={1}>
-        <Text fontSize="sm" fontWeight="medium" mb={2}>
-          {t('courtsTab.selectedPlayersCount', {
-            count: selectedCount,
-            total: matchType === 'singles' ? 2 : 4,
-          })}
-        </Text>
-        <Box maxW="400px" mx="auto">
+        <Box
+          maxW={{ base: '100%', md: '360px' }}
+          mx="auto"
+          _dark={{ filter: 'saturate(0.85) brightness(0.92)' }}
+        >
           <BadmintonCourt
             players={[]}
             isActive={false}
@@ -934,42 +949,54 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
           <Flex
             align="center"
             borderWidth="1px"
-            borderColor="gray.200"
+            borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.300' }}
             borderRadius="md"
             px={2}
             py={1}
-            bg="white"
+            bg={{ base: 'white', _dark: 'gray.900' }}
+            color={{ base: 'gray.900', _dark: 'gray.100' }}
             gap={1.5}
             flex="1"
             maxW="180px"
             _focusWithin={{
-              borderColor: 'blue.400',
-              boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
+              borderColor: { base: 'blue.400', _dark: 'green.300' },
+              boxShadow: '0 0 0 1px var(--chakra-colors-green-300)',
             }}
           >
-            <Box as={Search} boxSize={3.5} color="gray.400" flexShrink={0} />
+            <Box
+              as={Search}
+              boxSize={3.5}
+              color={{ base: 'gray.400', _dark: 'gray.500' }}
+              flexShrink={0}
+            />
             <Input
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Tìm người chơi..."
+              placeholder="Tìm người chơi…"
+              aria-label="Tìm người chơi"
               size="xs"
               border="none"
               outline="none"
               p={0}
               fontSize="sm"
+              color={{ base: 'gray.900', _dark: 'gray.100' }}
+              bg="transparent"
+              _placeholder={{ color: { base: 'gray.400', _dark: 'gray.500' } }}
               _focus={{ boxShadow: 'none' }}
             />
           </Flex>
         </Flex>
         <Box
           overflowY="auto"
-          maxH="calc(75vh - 430px)"
-          minH="150px"
+          maxH={{ base: '35vh', md: '30vh' }}
+          minH="120px"
+          px={1}
+          py={1}
           css={{
             '&::-webkit-scrollbar': { width: '4px' },
             '&::-webkit-scrollbar-track': { background: 'transparent' },
             '&::-webkit-scrollbar-thumb': {
-              background: 'var(--chakra-colors-gray-300)',
+              background: 'var(--chakra-colors-gray-500)',
               borderRadius: '2px',
             },
           }}
@@ -992,6 +1019,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
               )}
               onPlayerToggle={onPlayerToggle}
               selectionMode={true}
+              columns={{ base: 2, md: 3, lg: 4 }}
             />
           )}
         </Box>

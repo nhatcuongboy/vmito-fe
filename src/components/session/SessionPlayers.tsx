@@ -169,7 +169,7 @@ const StatsTable = ({
               sortKey={exportMode ? undefined : 'name'}
               sortConfig={exportMode ? undefined : sortConfig}
               onSort={exportMode ? undefined : sortHandler}
-              minW="120px"
+              minW={exportMode ? '120px' : { base: '144px', md: '120px' }}
               {...thProps}
             >
               {t('columnName')}
@@ -354,7 +354,6 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
   const [stats, setStats] = useState<PlayerStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
@@ -380,7 +379,6 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     try {
       const result = await SessionService.getPlayerStatistics(sessionId, {});
       setStats(result.playerStats);
-      setLastUpdated(result.lastUpdated);
     } catch {
       setError(t('errorLoadingStats'));
     } finally {
@@ -618,7 +616,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
           </>
         )}
 
-        {/* Footer with count + last updated */}
+        {/* Footer with count + export action */}
         {!loading && !error && stats.length > 0 && (
           <Flex
             px={4}
@@ -638,16 +636,6 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 {stats.length === 1
                   ? t('playerCountSingular', { count: stats.length })
                   : t('playerCount', { count: stats.length })}
-              </Text>
-              <Text
-                fontSize="xs"
-                color="fg.muted"
-                display={{ base: 'none', md: 'block' }}
-              >
-                &bull;
-              </Text>
-              <Text fontSize="xs" color="fg.muted">
-                {t('lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
               </Text>
             </Flex>
             <VButton

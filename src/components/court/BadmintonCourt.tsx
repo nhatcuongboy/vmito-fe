@@ -7,7 +7,7 @@ import { Volume2, Sparkles } from 'lucide-react';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
 import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 
 interface BadmintonCourtProps {
@@ -63,6 +63,7 @@ export default function BadmintonCourt({
   const preSelectedCount = preSelectedPlayers.length;
   const { openWithMessage } = useAiAssistantStore();
   const locale = useLocale();
+  const tAi = useTranslations('aiAssistant');
 
   const handleAnnounce = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -135,6 +136,7 @@ export default function BadmintonCourt({
 
     // Build analysis prompt for this specific court match
     const isVi = locale === Locale.VI;
+    const isCn = locale === Locale.CN;
     const sortedPlayers = [...players].sort(
       (a, b) => (a.courtPosition ?? 0) - (b.courtPosition ?? 0)
     );
@@ -165,18 +167,32 @@ export default function BadmintonCourt({
 
     const formatPlayerInfo = (player: BadmintonCourtPlayer) => {
       const level = player.level
-        ? `Level ${player.level}`
-        : 'Chưa xác định trình độ';
-      return `${player.name || `Người chơi ${player.playerNumber}`} (${level})`;
+        ? isCn
+          ? `等级 ${player.level}`
+          : isVi
+            ? `Trình độ ${player.level}`
+            : `Level ${player.level}`
+        : isCn
+          ? '水平未确定'
+          : isVi
+            ? 'Chưa xác định trình độ'
+            : 'Unknown level';
+      const fallbackName = isCn
+        ? `球员 ${player.playerNumber}`
+        : isVi
+          ? `Người chơi ${player.playerNumber}`
+          : `Player ${player.playerNumber}`;
+      return `${player.name || fallbackName} (${level})`;
     };
 
     const pair1Info = pair1.map(formatPlayerInfo).join(' & ');
     const pair2Info = pair2.map(formatPlayerInfo).join(' & ');
 
     let prompt: string;
+    const courtLabel = courtName || courtNumber || '';
     if (isVi) {
       prompt =
-        `Hãy phân tích nhanh trận đấu cầu lông trên sân ${courtName || courtNumber || ''} và cho tôi biết:\n\n` +
+        `Hãy phân tích nhanh trận đấu cầu lông trên sân ${courtLabel} và cho tôi biết:\n\n` +
         `**Đội 1:** ${pair1Info}\n` +
         `**Đội 2:** ${pair2Info}\n\n` +
         `Phân tích:\n` +
@@ -184,9 +200,19 @@ export default function BadmintonCourt({
         `2. Điểm mạnh/yếu của mỗi đội\n` +
         `3. Dự đoán kết quả và gợi ý chiến thuật\n\n` +
         `Chỉ trả lời ngắn gọn (5-7 dòng), bằng tiếng Việt.`;
+    } else if (isCn) {
+      prompt =
+        `请快速分析 ${courtLabel} 球场上的这场羽毛球比赛，并告诉我：\n\n` +
+        `**队伍 1：** ${pair1Info}\n` +
+        `**队伍 2：** ${pair2Info}\n\n` +
+        `分析：\n` +
+        `1. 两队的竞争强度/水平差距\n` +
+        `2. 每队的优势和弱点\n` +
+        `3. 结果预测和战术建议\n\n` +
+        `请用中文简短回答（5-7 行）。`;
     } else {
       prompt =
-        `Quickly analyze this badminton match on court ${courtName || courtNumber || ''} and tell me:\n\n` +
+        `Quickly analyze this badminton match on court ${courtLabel} and tell me:\n\n` +
         `**Team 1:** ${pair1Info}\n` +
         `**Team 2:** ${pair2Info}\n\n` +
         `Analysis:\n` +
@@ -198,7 +224,7 @@ export default function BadmintonCourt({
 
     openWithMessage(
       prompt,
-      `Phân tích trận đấu - Sân ${courtName || courtNumber || ''}`
+      tAi('pageContexts.matchAnalysis', { court: courtLabel })
     );
   };
 

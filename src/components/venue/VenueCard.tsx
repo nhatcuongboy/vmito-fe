@@ -31,8 +31,10 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useTranslations } from 'next-intl';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { UserRole } from '@/lib/api/types';
 import {
   normalizePhoneForTel,
   normalizePhoneForZalo,
@@ -51,7 +53,9 @@ function formatPrice(amount?: number) {
 export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
+  const userRole = useAuthStore((state) => state.user?.role);
   const [isLoading, setIsLoading] = useState(false);
+  const showVerifiedBadge = userRole === UserRole.ADMIN && venue.isVerified;
 
   const displayName = formatVenueName(
     venue.name,
@@ -119,7 +123,7 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
           {/* Badges Overlay */}
           <Box position="absolute" top={3} left={3}>
             <HStack gap={2}>
-              {venue.isVerified && (
+              {showVerifiedBadge && (
                 <Box
                   bg="green.400"
                   color="white"
@@ -319,7 +323,7 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
         {/* Badges Overlay */}
         <Box position="absolute" top={3} left={3}>
           <HStack gap={2}>
-            {venue.isVerified && (
+            {showVerifiedBadge && (
               <Badge
                 colorPalette="green"
                 variant="solid"
