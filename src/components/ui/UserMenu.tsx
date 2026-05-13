@@ -13,7 +13,8 @@ import {
 import {
   ChevronDown,
   User as UserIcon,
-  MessageSquare,
+  MessageCircle,
+  Bug,
   LogOut,
   ChevronRight,
   ArrowLeft,
@@ -32,6 +33,8 @@ import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 import { useColorMode } from './color-mode-provider';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { ROUTES } from '@/constants/routes';
+import ContactModal from '@/components/feedback/ContactModal';
+import BugReportModal from '@/components/feedback/BugReportModal';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -48,6 +51,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState<{
@@ -250,7 +255,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Text>
       </Flex>
 
-      {/* Give Feedback */}
+      {/* Give Feedback - Contact */}
       <Flex
         align="center"
         gap={{ base: 2, md: 3 }}
@@ -258,6 +263,10 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         py={{ base: 2, md: 3 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          setIsContactModalOpen(true);
+        }}
       >
         <Box
           bg="gray.100"
@@ -265,10 +274,36 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
-          <MessageSquare size={16} />
+          <MessageCircle size={16} />
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
-          {common('giveFeedback')}
+          {common('contact')}
+        </Text>
+      </Flex>
+
+      {/* Bug Report */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          setIsBugReportModalOpen(true);
+        }}
+      >
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <Bug size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
+          {common('bugReport')}
         </Text>
       </Flex>
 
@@ -543,6 +578,16 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           </Box>
         </Portal>
       )}
+
+      {/* Feedback Modals */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
+      <BugReportModal
+        isOpen={isBugReportModalOpen}
+        onClose={() => setIsBugReportModalOpen(false)}
+      />
     </>
   );
 }

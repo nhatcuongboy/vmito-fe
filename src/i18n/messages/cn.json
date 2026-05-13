@@ -109,6 +109,7 @@
     "systemMode": "System",
     "settings": "设置",
     "about": "关于",
+    "feedback": "联系 & 报告错误",
     "navigation": "导航",
     "logout": "登出",
     "login": "登录",
@@ -120,7 +121,8 @@
     "name": "姓名",
     "phone": "电话",
     "aiAssistant": "AI 助手",
-    "giveFeedback": "提供反馈",
+    "contact": "联系我们",
+    "bugReport": "报告错误",
     "levels": {
       "1": "新手",
       "2": "高级新手",
@@ -3541,5 +3543,36 @@
     "findSessionsAtVenue": "查找场次",
     "nameFormat": "羽毛球馆 {name}",
     "searchPlaceholder": "按场地名称、地址搜索..."
+  },
+  "feedback": {
+    "pageTitle": "联系我们 & 报告错误",
+    "contactTab": "联系我们",
+    "bugReportTab": "报告错误",
+    "title": "标题",
+    "titlePlaceholder": "输入标题",
+    "description": "描述",
+    "descriptionPlaceholder": "详细描述您遇到的问题...",
+    "contactDescPlaceholder": "您想联系我们什么事情...",
+    "screenshot": "截图（可选）",
+    "submit": "提交",
+    "submitting": "提交中...",
+    "successTitle": "提交成功",
+    "successMessage": "谢谢！我们会尽快回复您。",
+    "errorTitle": "发生错误",
+    "errorMessage": "无法提交。请稍后再试。",
+    "myFeedback": "我的反馈",
+    "noFeedback": "暂无反馈",
+    "status": {
+      "PENDING": "待处理",
+      "IN_PROGRESS": "处理中",
+      "RESOLVED": "已解决",
+      "CLOSED": "已关闭"
+    },
+    "type": {
+      "CONTACT": "联系",
+      "BUG_REPORT": "错误报告"
+    },
+    "uploadImage": "上传图片",
+    "removeImage": "删除图片"
   }
 }

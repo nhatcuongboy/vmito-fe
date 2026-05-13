@@ -25,11 +25,11 @@ export default function PublicUserProfileSkeleton() {
           bg="white"
           overflow="hidden"
         >
-          <Skeleton height="100px" borderRadius="0" />
+          <Skeleton height="112px" borderRadius="0" />
           <Box px={5} pb={5}>
-            <HStack align="start" gap={4} mt="-12">
+            <HStack align="start" gap={4} mt="-10">
               <SkeletonCircle size="80px" />
-              <VStack align="start" gap={3} flex={1} pt={14}>
+              <VStack align="start" gap={3} flex={1} pt={12}>
                 <HStack gap={2}>
                   <Skeleton height="16px" width="100px" borderRadius="full" />
                   <Skeleton height="20px" width="80px" borderRadius="full" />

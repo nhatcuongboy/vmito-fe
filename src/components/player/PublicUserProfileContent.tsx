@@ -18,7 +18,6 @@ import {
 import {
   CalendarDays,
   ChevronRight,
-  MapPin,
   MessageSquare,
   Pencil,
   Phone,
@@ -271,20 +270,29 @@ export default function PublicUserProfileContent({
 
   const joinedAt = profile?.createdAt;
   const phone = profile?.phone;
-
-  const derivedArea = useMemo(() => {
-    const sessionWithArea = hostedSessions.find(
-      (session) => session.venue?.district || session.venue?.city
-    );
-
-    if (!sessionWithArea) {
+  const genderLabel = useMemo(() => {
+    if (!profile?.gender) {
       return '';
     }
 
-    return [sessionWithArea.venue?.district, sessionWithArea.venue?.city]
-      .filter(Boolean)
-      .join(', ');
-  }, [hostedSessions]);
+    if (profile.gender === 'MALE') {
+      return tCommon('male');
+    }
+
+    if (profile.gender === 'FEMALE') {
+      return tCommon('female');
+    }
+
+    if (profile.gender === 'OTHER') {
+      return tCommon('other');
+    }
+
+    if (profile.gender === 'PREFER_NOT_TO_SAY') {
+      return tCommon('preferNotToSay');
+    }
+
+    return profile.gender;
+  }, [profile?.gender, tCommon]);
 
   if (isLoading) {
     return <PublicUserProfileSkeleton />;
@@ -335,7 +343,7 @@ export default function PublicUserProfileContent({
                 alt="Vmito"
                 position="absolute"
                 right={4}
-                top={4}
+                bottom={4}
                 h="24px"
                 opacity={0.25}
               />
@@ -368,13 +376,13 @@ export default function PublicUserProfileContent({
                 </Button>
               )}
 
-              <HStack align="end" gap={3} px={5} pt={10} pb={2}>
+              <HStack align="end" gap={3} px={5} pt={12} pb={3}>
                 <Avatar.Root
                   size="2xl"
                   borderRadius="full"
                   borderWidth="4px"
                   borderColor="white"
-                  mb="-40px"
+                  mb="-32px"
                 >
                   <Avatar.Fallback name={displayName}>
                     <User size={24} />
@@ -382,7 +390,7 @@ export default function PublicUserProfileContent({
                   {avatarUrl && <Avatar.Image src={avatarUrl} />}
                 </Avatar.Root>
 
-                <VStack align="start" gap={0} flex={1} pb={3}>
+                <VStack align="start" gap={0} flex={1} pb={0}>
                   <Text
                     fontSize="lg"
                     fontWeight="bold"
@@ -436,10 +444,12 @@ export default function PublicUserProfileContent({
                   </HStack>
                 )}
 
-                {derivedArea && (
+                {genderLabel && (
                   <HStack gap={2} color="gray.600">
-                    <MapPin size={16} />
-                    <Text fontSize="sm">{derivedArea}</Text>
+                    <User size={16} />
+                    <Text fontSize="sm">
+                      {tCommon('gender')}: {genderLabel}
+                    </Text>
                   </HStack>
                 )}
 
@@ -492,7 +502,18 @@ export default function PublicUserProfileContent({
 
                   {isOwnProfile && (
                     <Link href={`/${locale}/my-clubs`}>
-                      <Button size="xs" variant="ghost" colorPalette="green">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        borderRadius="full"
+                        bg="green.50"
+                        color="green.700"
+                        borderColor="green.200"
+                        _hover={{
+                          bg: 'green.100',
+                          borderColor: 'green.300',
+                        }}
+                      >
                         <Settings size={14} />
                         {tClubs('manageClubs')}
                       </Button>

@@ -117,6 +117,7 @@
     "systemMode": "System",
     "settings": "Settings",
     "about": "About",
+    "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
     "logout": "Logout",
     "login": "Login",
@@ -128,7 +129,8 @@
     "name": "Name",
     "phone": "Phone",
     "aiAssistant": "AI Assistant",
-    "giveFeedback": "Give Feedback",
+    "contact": "Contact Us",
+    "bugReport": "Bug Report",
     "levels": {
       "1": "Weak",
       "2": "Advanced Beginner",
@@ -3587,5 +3589,36 @@
     "findSessionsAtVenue": "Find Sessions",
     "nameFormat": "Badminton Court {name}",
     "searchPlaceholder": "Search by venue name, address..."
+  },
+  "feedback": {
+    "pageTitle": "Contact & Bug Report",
+    "contactTab": "Contact",
+    "bugReportTab": "Bug Report",
+    "title": "Title",
+    "titlePlaceholder": "Enter title",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the issue in detail...",
+    "contactDescPlaceholder": "What would you like to contact us about...",
+    "screenshot": "Screenshot (optional)",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "successTitle": "Submitted successfully",
+    "successMessage": "Thank you! We will respond as soon as possible.",
+    "errorTitle": "An error occurred",
+    "errorMessage": "Could not submit. Please try again later.",
+    "myFeedback": "My Feedback",
+    "noFeedback": "No feedback yet",
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    },
+    "type": {
+      "CONTACT": "Contact",
+      "BUG_REPORT": "Bug Report"
+    },
+    "uploadImage": "Upload Image",
+    "removeImage": "Remove Image"
   }
 }

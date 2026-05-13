@@ -814,6 +814,20 @@ export default function SessionForm({
     }
   }, [isEditMode, venues, handleAISuccess]);
 
+  // Auto-enable fee when user enters fee values
+  useEffect(() => {
+    if (!feeEnabled && (maleFee || femaleFee)) {
+      setFeeEnabled(true);
+    }
+  }, [maleFee, femaleFee, feeEnabled]);
+
+  // Auto-enable bulk creation when user selects dates or weekdays
+  useEffect(() => {
+    if (!bulkEnabled && (specificDatesConfig || recurringWeekdaysConfig)) {
+      setBulkEnabled(true);
+    }
+  }, [specificDatesConfig, recurringWeekdaysConfig, bulkEnabled]);
+
   // Form submission handler
   const onSubmit = async (data: SessionFormData) => {
     try {

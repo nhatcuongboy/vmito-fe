@@ -156,6 +156,7 @@ export const ROUTES = {
   SETTINGS: '/settings',
   PLAYER_STATUS: '/player-status',
   ABOUT: '/about',
+  FEEDBACK: '/feedback',
 } as const;
 
 // ==================== ROUTE GROUPS ====================
@@ -177,6 +178,7 @@ export const ROUTE_GROUPS = {
     ROUTES.ADMIN.GENERAL,
     ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
+    ROUTES.FEEDBACK,
   ],
 
   // Public routes
@@ -308,6 +310,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.BROWSE.TOURNAMENTS.LIST]: 'Browse Tournaments',
   [ROUTES.SETTINGS]: 'Settings',
   [ROUTES.ABOUT]: 'About',
+  [ROUTES.FEEDBACK]: 'Contact & Bug Report',
   [ROUTES.ADMIN.USERS]: 'Users',
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',
   [ROUTES.ADMIN.CLUBS]: 'Club Approval',

@@ -118,6 +118,7 @@
     "systemMode": "Tự động",
     "settings": "Cài đặt",
     "about": "Giới thiệu",
+    "feedback": "Liên hệ & Báo lỗi",
     "navigation": "Điều hướng",
     "logout": "Đăng xuất",
     "login": "Đăng nhập",
@@ -129,7 +130,8 @@
     "name": "Tên",
     "phone": "Số điện thoại",
     "aiAssistant": "Trợ lý AI",
-    "giveFeedback": "Gửi phản hồi",
+    "contact": "Liên hệ",
+    "bugReport": "Báo cáo lỗi",
     "levels": {
       "1": "Yếu",
       "2": "Trung bình yếu",
@@ -3608,5 +3610,36 @@
     "findSessionsAtVenue": "Tìm kèo tại sân",
     "nameFormat": "Sân {name}",
     "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
+  },
+  "feedback": {
+    "pageTitle": "Liên hệ & Báo cáo lỗi",
+    "contactTab": "Liên hệ",
+    "bugReportTab": "Báo cáo lỗi",
+    "title": "Tiêu đề",
+    "titlePlaceholder": "Nhập tiêu đề",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Mô tả chi tiết vấn đề của bạn...",
+    "contactDescPlaceholder": "Nội dung bạn muốn liên hệ...",
+    "screenshot": "Ảnh chụp màn hình (tùy chọn)",
+    "submit": "Gửi",
+    "submitting": "Đang gửi...",
+    "successTitle": "Gửi thành công",
+    "successMessage": "Cảm ơn bạn! Chúng tôi sẽ phản hồi sớm nhất có thể.",
+    "errorTitle": "Có lỗi xảy ra",
+    "errorMessage": "Không thể gửi. Vui lòng thử lại sau.",
+    "myFeedback": "Phản hồi của tôi",
+    "noFeedback": "Chưa có phản hồi nào",
+    "status": {
+      "PENDING": "Chờ xử lý",
+      "IN_PROGRESS": "Đang xử lý",
+      "RESOLVED": "Đã giải quyết",
+      "CLOSED": "Đã đóng"
+    },
+    "type": {
+      "CONTACT": "Liên hệ",
+      "BUG_REPORT": "Báo cáo lỗi"
+    },
+    "uploadImage": "Tải ảnh lên",
+    "removeImage": "Xóa ảnh"
   }
 }
