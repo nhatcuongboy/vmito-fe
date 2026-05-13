@@ -7,31 +7,38 @@ import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { useTranslations } from 'next-intl';
 import * as React from 'react';
 import { Suspense } from 'react';
-import HeroSection from './components/HeroSection';
-import UseCasesSection from './components/UseCasesSection';
-import HowItWorksSection from './components/HowItWorksSection';
-import FAQSection from './components/FAQSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import CTASection from './components/CTASection';
+import GuideHeroSection from './components/GuideHeroSection';
+import GettingStartedSection from './components/GettingStartedSection';
+import SessionGuideSection from './components/SessionGuideSection';
+import TournamentGuideSection from './components/TournamentGuideSection';
+import PaymentGuideSection from './components/PaymentGuideSection';
+import ClubGuideSection from './components/ClubGuideSection';
+import RatingGuideSection from './components/RatingGuideSection';
+import TipsSection from './components/TipsSection';
+import GuideTableOfContents from './components/GuideTableOfContents';
 
-function AboutContent() {
+const GuideContent = () => {
   const common = useTranslations('common');
-  const t = useTranslations('pages.home');
+  const t = useTranslations('pages.guide.hero');
+
   return (
     <PageWrapper>
-      <TopBar showBackButton={false} title={common('about')} />
+      <TopBar showBackButton={false} title={common('guide')} />
       <Box
         pt={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
       >
-        <HeroSection />
-        <UseCasesSection />
-        <HowItWorksSection />
-        <TestimonialsSection />
-        <FAQSection />
-        <CTASection />
+        <GuideHeroSection />
+        <GuideTableOfContents />
+        <GettingStartedSection />
+        <SessionGuideSection />
+        <TournamentGuideSection />
+        <PaymentGuideSection />
+        <ClubGuideSection />
+        <RatingGuideSection />
+        <TipsSection />
 
         {/* Footer */}
         <Box
@@ -44,8 +51,7 @@ function AboutContent() {
           <Container maxW="container.xl">
             <Flex direction="column" align="center">
               <Text color="fg.muted" fontSize="sm" suppressHydrationWarning>
-                © {new Date().getFullYear()} {common('appName')}.{' '}
-                {t('copyright')}
+                © {new Date().getFullYear()} {common('appName')}
               </Text>
             </Flex>
           </Container>
@@ -53,12 +59,14 @@ function AboutContent() {
       </Box>
     </PageWrapper>
   );
-}
+};
 
-export default function AboutClient() {
+const GuideClient = () => {
   return (
     <Suspense>
-      <AboutContent />
+      <GuideContent />
     </Suspense>
   );
-}
+};
+
+export default GuideClient;

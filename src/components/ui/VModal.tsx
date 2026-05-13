@@ -206,6 +206,7 @@ export const VModal: React.FC<VModalProps> = ({
           maxH="90vh"
           display="flex"
           flexDirection="column"
+          overflow="hidden"
           onClick={(e) => e.stopPropagation()}
           // Animation
           animation="slideIn 0.15s ease-out"
@@ -292,11 +293,6 @@ export const VModal: React.FC<VModalProps> = ({
               p={4}
               borderTop={showFooterDivider ? '1px' : 'none'}
               borderColor={{ base: 'border', _dark: 'whiteAlpha.200' }}
-              bg={{ base: 'white', _dark: 'gray.800' }}
-              boxShadow={{
-                base: '0 -8px 20px rgba(15, 23, 42, 0.06)',
-                _dark: '0 -10px 24px rgba(0, 0, 0, 0.28)',
-              }}
               flexShrink={0}
             >
               {footer !== undefined ? (
@@ -307,6 +303,7 @@ export const VModal: React.FC<VModalProps> = ({
                     <Button
                       type="button"
                       variant="outline"
+                      colorPalette="gray"
                       onClick={handleSecondaryClick}
                       disabled={isSecondaryDisabled || isPrimaryLoading}
                     >

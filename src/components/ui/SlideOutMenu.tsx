@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Search,
   Info,
+  BookOpen,
   LogIn,
   Receipt,
   CreditCard,
@@ -1030,6 +1031,54 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       {!isCollapsed && (
                         <Text display={{ base: 'block', md: 'block' }}>
                           {common('about')}
+                        </Text>
+                      )}
+                    </Flex>
+                  </NextLinkButton>
+                </VTooltip>
+
+                <VTooltip
+                  content={common('guide')}
+                  positioning={{
+                    placement: 'right',
+                    offset: { mainAxis: 12 },
+                  }}
+                  disabled={!isCollapsed}
+                  showArrow
+                  openDelay={200}
+                >
+                  <NextLinkButton
+                    href={ROUTES.GUIDE}
+                    variant="ghost"
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
+                    onClick={onClose}
+                    w="full"
+                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    {...getActiveProps(ROUTES.GUIDE)}
+                  >
+                    <Flex
+                      align="center"
+                      gap={3}
+                      w="full"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                    >
+                      <BookOpen
+                        size={18}
+                        color={
+                          pathname.startsWith(ROUTES.GUIDE)
+                            ? 'var(--chakra-colors-green-500)'
+                            : 'currentColor'
+                        }
+                      />
+                      {!isCollapsed && (
+                        <Text display={{ base: 'block', md: 'block' }}>
+                          {common('guide')}
                         </Text>
                       )}
                     </Flex>

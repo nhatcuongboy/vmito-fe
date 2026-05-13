@@ -24,6 +24,7 @@ import {
   Sun,
   Monitor,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { UserRole } from '@/lib/api/types';
@@ -255,6 +256,32 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('aiAssistant')}
+        </Text>
+      </Flex>
+
+      {/* Guide */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 3 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          router.push(ROUTES.GUIDE);
+        }}
+      >
+        <Box
+          bg="green.50"
+          _dark={{ bg: 'green.900/40' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <BookOpen size={16} color="var(--chakra-colors-green-500)" />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('guide')}
         </Text>
       </Flex>
 

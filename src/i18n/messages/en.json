@@ -117,6 +117,7 @@
     "systemMode": "System",
     "settings": "Settings",
     "about": "About",
+    "guide": "Guide",
     "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
     "logout": "Logout",
@@ -859,6 +860,234 @@
         "q3": {
           "question": "Can I book courts through the app?",
           "answer": "Currently, we focus on session management. Court booking features are coming soon."
+        }
+      }
+    },
+    "guide": {
+      "hero": {
+        "title": "User Guide",
+        "subtitle": "Explore all Vmito features — from finding sessions and joining games to organizing badminton tournaments."
+      },
+      "toc": {
+        "title": "Table of Contents",
+        "gettingStarted": "Getting Started",
+        "sessions": "Sessions",
+        "tournaments": "Tournaments",
+        "payments": "Payments",
+        "clubs": "Clubs",
+        "ratings": "Ratings",
+        "tips": "Tips & Tricks"
+      },
+      "gettingStarted": {
+        "title": "Getting Started",
+        "subtitle": "Just 3 simple steps to start using Vmito.",
+        "register": {
+          "title": "Create an account",
+          "description": "Sign up with email or quickly log in via Google. It only takes a few seconds."
+        },
+        "login": {
+          "title": "Log in",
+          "description": "Log in with email/password or your Google account to access all features."
+        },
+        "profile": {
+          "title": "Update your profile",
+          "description": "Set your name, avatar, and badminton skill level (Y-, Y, Y+, TBY, TB-, TB, TB+, K) so hosts and other players know about you."
+        }
+      },
+      "sessions": {
+        "title": "Sessions",
+        "subtitle": "Find, join, or host badminton sessions with ease.",
+        "player": {
+          "badge": "Player",
+          "search": {
+            "title": "Search for sessions",
+            "description": "Browse the list of open sessions. Search by area, time, and number of players."
+          },
+          "filter": {
+            "title": "Advanced filters",
+            "description": "Filter by skill level, fee type (fixed/split), price range, and time of day. Filters are saved automatically."
+          },
+          "join": {
+            "title": "Join a session",
+            "description": "Send a join request → Wait for host approval → Confirm → Track status. You can also join by code."
+          },
+          "cancel": {
+            "title": "Cancel participation",
+            "description": "Easily cancel your participation if your schedule changes. The host will be notified."
+          }
+        },
+        "host": {
+          "badge": "Host",
+          "create": {
+            "title": "Create a new session",
+            "description": "Set up name, description, time, location (with GPS), cover photo, match type, and fees."
+          },
+          "managePlayers": {
+            "title": "Manage players",
+            "description": "Approve join requests, add/remove players, view the list and status of each player."
+          },
+          "courts": {
+            "title": "Court configuration",
+            "description": "Set the number of courts (1-10), name each court, choose colors and directions."
+          },
+          "autoAssign": {
+            "title": "Auto-assign courts",
+            "description": "The system automatically assigns players to courts based on skill level and preferences."
+          },
+          "finish": {
+            "title": "End the session",
+            "description": "Mark the session as complete. View ended session history and statistics."
+          }
+        }
+      },
+      "tournaments": {
+        "title": "Tournaments",
+        "subtitle": "Join or organize professional badminton tournaments.",
+        "player": {
+          "badge": "Athlete",
+          "browse": {
+            "title": "Browse tournaments",
+            "description": "View the list of ongoing and upcoming tournaments. Find events matching your skill level."
+          },
+          "register": {
+            "title": "Register to compete",
+            "description": "Register by category (Men's Singles, Women's Singles, Men's Doubles, Women's Doubles, Mixed Doubles). Track your registration status."
+          },
+          "schedule": {
+            "title": "View match schedule",
+            "description": "Follow the match schedule, group stages, and knockouts in real time."
+          },
+          "standings": {
+            "title": "Standings",
+            "description": "View results, standings, and winners for each category."
+          }
+        },
+        "host": {
+          "badge": "Organizer",
+          "create": {
+            "title": "Create a tournament",
+            "description": "Set up name, dates, description, categories (MS, WS, MD, WD, XD), and match formats."
+          },
+          "managePlayers": {
+            "title": "Manage athletes & pairs",
+            "description": "Add/remove athletes. Pair players for doubles categories. Manage participant lists."
+          },
+          "schedule": {
+            "title": "Create match schedule",
+            "description": "Automatically or manually arrange match schedules for each category."
+          },
+          "updateResults": {
+            "title": "Update results",
+            "description": "Enter match scores in real time. The system automatically updates standings and next rounds."
+          }
+        }
+      },
+      "payments": {
+        "title": "Payments",
+        "subtitle": "Manage session fees transparently and easily.",
+        "models": {
+          "fixed": {
+            "title": "Fixed price",
+            "description": "Host sets a fixed price per player. Can be different for male/female players."
+          },
+          "split": {
+            "title": "Split evenly",
+            "description": "Total court cost is split evenly among all participants."
+          }
+        },
+        "player": {
+          "badge": "Player",
+          "viewQR": {
+            "title": "View payment QR code",
+            "description": "Scan the QR code or view the host's bank account details to make a transfer."
+          },
+          "submitProof": {
+            "title": "Submit payment proof",
+            "description": "Take a photo of your transfer receipt and upload it. The host will confirm your payment."
+          },
+          "history": {
+            "title": "Transaction history",
+            "description": "Track all your payments: pending, submitted, approved, or rejected."
+          }
+        },
+        "host": {
+          "badge": "Host",
+          "setup": {
+            "title": "Payment settings",
+            "description": "Add bank name, account number, account holder name, and QR code for players to pay."
+          },
+          "approve": {
+            "title": "Approve payments",
+            "description": "View payment proof images from players. Approve or reject each payment."
+          },
+          "transactions": {
+            "title": "Transaction history",
+            "description": "View an overview of all transactions. Filter by status and time."
+          }
+        }
+      },
+      "clubs": {
+        "title": "Clubs",
+        "subtitle": "Create or join your badminton community.",
+        "create": {
+          "title": "Create a club",
+          "description": "Create a club with a name, description, and avatar. Clubs need admin approval before going public."
+        },
+        "join": {
+          "title": "Join a club",
+          "description": "Browse the club list and send a join request. View club schedules and members."
+        },
+        "members": {
+          "title": "Manage members",
+          "description": "View the member list, approve join requests, and manage roles within the club."
+        },
+        "fees": {
+          "title": "Club fees",
+          "description": "Set up and manage membership fees and session fees specific to the club."
+        }
+      },
+      "ratings": {
+        "title": "Ratings",
+        "subtitle": "Build a quality community through the rating system.",
+        "rate": {
+          "title": "Rate after sessions",
+          "description": "Rate the host from 1-5 stars after each session. Add comments to share your experience."
+        },
+        "review": {
+          "title": "Reviews & comments",
+          "description": "Leave detailed reviews about sessions. Read other players' reviews before joining."
+        },
+        "stats": {
+          "title": "Rating statistics",
+          "description": "View average rating score, total number of ratings, and trends on your profile."
+        }
+      },
+      "tips": {
+        "title": "Tips & Tricks",
+        "subtitle": "Tips to help you make the most of Vmito.",
+        "notifications": {
+          "title": "Enable notifications",
+          "description": "Turn on push notifications so you never miss invitations, session updates, and tournament results."
+        },
+        "pwa": {
+          "title": "Install the app",
+          "description": "Add Vmito to your home screen for a native app experience — no app store download needed."
+        },
+        "filters": {
+          "title": "Save your filters",
+          "description": "Search filters are saved automatically. Open the app and instantly see sessions that match your preferences."
+        },
+        "share": {
+          "title": "Share sessions",
+          "description": "Share session links or join codes with friends to invite them to play."
+        },
+        "language": {
+          "title": "Multi-language",
+          "description": "Vmito supports Vietnamese, English, and Chinese. Switch languages in settings."
+        },
+        "realtime": {
+          "title": "Real-time updates",
+          "description": "All changes to courts, players, and results are updated instantly via WebSocket technology."
         }
       }
     },
@@ -3377,7 +3606,13 @@
   "posts": {
     "createPost": "Create Post",
     "noPosts": "No posts yet",
-    "beFirstToShare": "Be the first to share something!"
+    "beFirstToShare": "Be the first to share something!",
+    "comingSoon": {
+      "title": "Newsfeed",
+      "subtitle": "Feature Under Development",
+      "description": "We're building a space for you to share and connect with the badminton community. Stay tuned! 🏸",
+      "badge": "COMING SOON"
+    }
   },
   "clubs": {
     "notification": {

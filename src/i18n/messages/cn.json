@@ -109,6 +109,7 @@
     "systemMode": "System",
     "settings": "设置",
     "about": "关于",
+    "guide": "指南",
     "feedback": "联系 & 报告错误",
     "navigation": "导航",
     "logout": "登出",
@@ -839,6 +840,234 @@
         "q3": {
           "question": "我可以通过 App 订场吗？",
           "answer": "目前我们专注于场次管理。订场功能即将推出。"
+        }
+      }
+    },
+    "guide": {
+      "hero": {
+        "title": "使用指南",
+        "subtitle": "探索 Vmito 的所有功能——从寻找场次、参加比赛到组织羽毛球锦标赛。"
+      },
+      "toc": {
+        "title": "目录",
+        "gettingStarted": "开始使用",
+        "sessions": "场次",
+        "tournaments": "锦标赛",
+        "payments": "支付",
+        "clubs": "俱乐部",
+        "ratings": "评价",
+        "tips": "使用技巧"
+      },
+      "gettingStarted": {
+        "title": "开始使用",
+        "subtitle": "只需3个简单步骤即可开始使用 Vmito。",
+        "register": {
+          "title": "创建账户",
+          "description": "使用电子邮件注册或通过 Google 快速登录。只需几秒钟。"
+        },
+        "login": {
+          "title": "登录",
+          "description": "使用邮箱/密码或 Google 账户登录，即可使用所有功能。"
+        },
+        "profile": {
+          "title": "更新个人资料",
+          "description": "设置姓名、头像和羽毛球水平（Y-、Y、Y+、TBY、TB-、TB、TB+、K），让组织者和其他球友了解您。"
+        }
+      },
+      "sessions": {
+        "title": "场次",
+        "subtitle": "轻松查找、加入或组织羽毛球场次。",
+        "player": {
+          "badge": "球员",
+          "search": {
+            "title": "搜索场次",
+            "description": "浏览开放的场次列表。按地区、时间和人数进行搜索。"
+          },
+          "filter": {
+            "title": "高级筛选",
+            "description": "按水平、费用类型（固定/均摊）、价格范围和时段筛选。筛选条件自动保存。"
+          },
+          "join": {
+            "title": "加入场次",
+            "description": "发送加入请求 → 等待组织者审批 → 确认 → 跟踪状态。也可以使用代码加入。"
+          },
+          "cancel": {
+            "title": "取消参与",
+            "description": "如果日程有变，可以轻松取消参与。组织者将收到通知。"
+          }
+        },
+        "host": {
+          "badge": "组织者",
+          "create": {
+            "title": "创建新场次",
+            "description": "设置名称、描述、时间、地点（带GPS）、封面照片、比赛类型和费用。"
+          },
+          "managePlayers": {
+            "title": "管理球员",
+            "description": "审批加入请求，添加/删除球员，查看每位球员的列表和状态。"
+          },
+          "courts": {
+            "title": "场地配置",
+            "description": "设置场地数量（1-10），为每个场地命名，选择颜色和方向。"
+          },
+          "autoAssign": {
+            "title": "自动分配场地",
+            "description": "系统根据球员水平和偏好自动将球员分配到各个场地。"
+          },
+          "finish": {
+            "title": "结束场次",
+            "description": "将场次标记为完成。查看已结束场次的历史记录和统计数据。"
+          }
+        }
+      },
+      "tournaments": {
+        "title": "锦标赛",
+        "subtitle": "参加或组织专业羽毛球锦标赛。",
+        "player": {
+          "badge": "运动员",
+          "browse": {
+            "title": "浏览锦标赛",
+            "description": "查看正在进行和即将举行的锦标赛列表。找到适合您水平的赛事。"
+          },
+          "register": {
+            "title": "报名参赛",
+            "description": "按类别报名（男单、女单、男双、女双、混双）。跟踪您的报名状态。"
+          },
+          "schedule": {
+            "title": "查看赛程",
+            "description": "实时跟踪比赛日程、小组赛和淘汰赛。"
+          },
+          "standings": {
+            "title": "排名",
+            "description": "查看各类别的成绩、排名和获胜者。"
+          }
+        },
+        "host": {
+          "badge": "主办方",
+          "create": {
+            "title": "创建锦标赛",
+            "description": "设置名称、日期、描述、比赛类别（MS、WS、MD、WD、XD）和赛制。"
+          },
+          "managePlayers": {
+            "title": "管理运动员和配对",
+            "description": "添加/删除运动员。为双打类别配对。管理参赛名单。"
+          },
+          "schedule": {
+            "title": "创建赛程",
+            "description": "为每个类别自动或手动安排比赛日程。"
+          },
+          "updateResults": {
+            "title": "更新成绩",
+            "description": "实时输入比赛分数。系统自动更新排名和下一轮比赛。"
+          }
+        }
+      },
+      "payments": {
+        "title": "支付",
+        "subtitle": "透明、便捷地管理场次费用。",
+        "models": {
+          "fixed": {
+            "title": "固定价格",
+            "description": "组织者为每位球员设定固定价格。可以为男/女球员设置不同价格。"
+          },
+          "split": {
+            "title": "均摊费用",
+            "description": "场地总费用在所有参与者之间平均分摊。"
+          }
+        },
+        "player": {
+          "badge": "球员",
+          "viewQR": {
+            "title": "查看支付二维码",
+            "description": "扫描二维码或查看组织者的银行账户信息进行转账。"
+          },
+          "submitProof": {
+            "title": "提交支付凭证",
+            "description": "拍摄转账收据照片并上传。组织者将确认您的付款。"
+          },
+          "history": {
+            "title": "交易记录",
+            "description": "跟踪所有付款：待处理、已提交、已批准或已拒绝。"
+          }
+        },
+        "host": {
+          "badge": "组织者",
+          "setup": {
+            "title": "支付设置",
+            "description": "添加银行名称、账号、户名和二维码，方便球员付款。"
+          },
+          "approve": {
+            "title": "审批付款",
+            "description": "查看球员的支付凭证图片。逐一批准或拒绝付款。"
+          },
+          "transactions": {
+            "title": "交易记录",
+            "description": "查看所有交易概览。按状态和时间筛选。"
+          }
+        }
+      },
+      "clubs": {
+        "title": "俱乐部",
+        "subtitle": "创建或加入您的羽毛球社区。",
+        "create": {
+          "title": "创建俱乐部",
+          "description": "创建带有名称、描述和头像的俱乐部。俱乐部需要管理员审批后才能公开。"
+        },
+        "join": {
+          "title": "加入俱乐部",
+          "description": "浏览俱乐部列表并发送加入请求。查看俱乐部日程和成员。"
+        },
+        "members": {
+          "title": "管理成员",
+          "description": "查看成员列表，审批加入请求，管理俱乐部内的角色。"
+        },
+        "fees": {
+          "title": "俱乐部费用",
+          "description": "设置和管理会员费以及俱乐部专属的场次费用。"
+        }
+      },
+      "ratings": {
+        "title": "评价",
+        "subtitle": "通过评价体系建设高质量社区。",
+        "rate": {
+          "title": "场次后评价",
+          "description": "每次场次结束后为组织者评分（1-5星）。添加评论分享您的体验。"
+        },
+        "review": {
+          "title": "评论与留言",
+          "description": "留下关于场次的详细评论。在加入前阅读其他球员的评价。"
+        },
+        "stats": {
+          "title": "评价统计",
+          "description": "查看个人资料上的平均评分、总评价次数和趋势。"
+        }
+      },
+      "tips": {
+        "title": "使用技巧",
+        "subtitle": "帮助您充分利用 Vmito 的小贴士。",
+        "notifications": {
+          "title": "开启通知",
+          "description": "开启推送通知，不错过邀请、场次更新和锦标赛结果。"
+        },
+        "pwa": {
+          "title": "安装应用",
+          "description": "将 Vmito 添加到主屏幕，获得原生应用般的体验——无需从应用商店下载。"
+        },
+        "filters": {
+          "title": "保存筛选条件",
+          "description": "搜索筛选条件自动保存。打开应用即可立即看到符合您偏好的场次。"
+        },
+        "share": {
+          "title": "分享场次",
+          "description": "与朋友分享场次链接或加入代码，邀请他们一起打球。"
+        },
+        "language": {
+          "title": "多语言",
+          "description": "Vmito 支持越南语、英语和中文。在设置中切换语言。"
+        },
+        "realtime": {
+          "title": "实时更新",
+          "description": "场地、球员和成绩的所有变更都通过 WebSocket 技术即时更新。"
         }
       }
     },
@@ -3330,7 +3559,13 @@
   "posts": {
     "createPost": "发布动态",
     "noPosts": "暂无动态",
-    "beFirstToShare": "成为第一个分享内容！"
+    "beFirstToShare": "成为第一个分享内容！",
+    "comingSoon": {
+      "title": "动态",
+      "subtitle": "功能开发中",
+      "description": "我们正在打造一个让您与羽毛球社区分享和交流的空间。敬请期待！🏸",
+      "badge": "即将推出"
+    }
   },
   "clubs": {
     "notification": {

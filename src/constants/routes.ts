@@ -156,6 +156,7 @@ export const ROUTES = {
   SETTINGS: '/settings',
   PLAYER_STATUS: '/player-status',
   ABOUT: '/about',
+  GUIDE: '/guide',
   FEEDBACK: '/feedback',
 } as const;
 
@@ -192,6 +193,7 @@ export const ROUTE_GROUPS = {
     ROUTES.BROWSE.TOURNAMENTS.LIST,
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.ABOUT,
+    ROUTES.GUIDE,
   ],
 
   // Host-only routes
@@ -310,6 +312,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.BROWSE.TOURNAMENTS.LIST]: 'Browse Tournaments',
   [ROUTES.SETTINGS]: 'Settings',
   [ROUTES.ABOUT]: 'About',
+  [ROUTES.GUIDE]: 'User Guide',
   [ROUTES.FEEDBACK]: 'Contact & Bug Report',
   [ROUTES.ADMIN.USERS]: 'Users',
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',

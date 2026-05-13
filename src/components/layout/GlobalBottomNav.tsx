@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
-import { Home, ClipboardList, Users, User } from 'lucide-react';
+import { Home, ClipboardList, Newspaper, User } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
@@ -38,7 +38,7 @@ export default function GlobalBottomNav() {
         icon: ClipboardList,
         href: ROUTES.HOST.SESSIONS.LIST,
       },
-      { id: 3, label: t('myClubs'), icon: Users, href: ROUTES.CLUBS.MY_CLUBS },
+      { id: 3, label: t('newsfeed'), icon: Newspaper, href: '/newsfeed' },
       { id: 4, label: t('personal'), icon: User, href: `/user/${user.id}` },
     ];
   }, [isAuthenticated, user, t]);
