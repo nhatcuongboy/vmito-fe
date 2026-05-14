@@ -7,6 +7,8 @@ import { Providers } from '../providers';
 import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
 import GlobalAiButton from '../../components/layout/GlobalAiButton';
 import ThemeColorSync from '../../components/layout/ThemeColorSync';
+import AppNavigationSplash from '../../components/ui/AppNavigationSplash';
+import AppStartupSplash from '../../components/ui/AppStartupSplash';
 import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
 import StructuredData from '../../components/seo/StructuredData';
 import {
@@ -78,6 +80,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <link rel="preload" as="image" href="/icons/logo-show.png" />
         <StructuredData data={[websiteSchema, organizationSchema]} />
       </head>
       <body
@@ -88,6 +91,8 @@ export default async function LocaleLayout({
           <Providers>
             <ThemeColorSync />
             <PWAStatus />
+            <AppStartupSplash />
+            <AppNavigationSplash />
             {children}
             {/* <Footer /> */}
             <GlobalBottomNav />

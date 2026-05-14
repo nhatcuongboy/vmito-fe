@@ -75,6 +75,7 @@
     "reject": "拒绝",
     "pendingRequests": "{count} 个待处理请求",
     "loading": "加载中...",
+    "navigating": "正在导航...",
     "error": "错误",
     "success": "成功",
     "notAvailable": "N/A",

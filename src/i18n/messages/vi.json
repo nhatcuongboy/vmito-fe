@@ -83,6 +83,7 @@
     "reject": "Từ chối",
     "pendingRequests": "{count} yêu cầu đang chờ",
     "loading": "Đang tải...",
+    "navigating": "Đang điều hướng...",
     "error": "Lỗi",
     "success": "Thành công",
     "notAvailable": "N/A",

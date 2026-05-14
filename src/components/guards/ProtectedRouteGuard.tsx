@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { canRoleAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { UserRole } from '@/lib/api/types';
+import AppSplashScreen from '@/components/ui/AppSplashScreen';
 
 interface ProtectedRouteGuardProps {
   children: React.ReactNode;
@@ -59,38 +60,12 @@ export default function ProtectedRouteGuard({
 
   // Loading state - waiting for hydration
   if (!isHydrated || isLoading) {
-    return (
-      <Box
-        minH="100vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        bg="bg"
-      >
-        <VStack gap={4}>
-          <Spinner size="lg" color="green.500" />
-          <Text color="fg.muted">{t('authenticating')}</Text>
-        </VStack>
-      </Box>
-    );
+    return <AppSplashScreen label={t('authenticating')} />;
   }
 
   // If not logged in, show loading while redirecting
   if (!isAuthenticated) {
-    return (
-      <Box
-        minH="100vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        bg="bg"
-      >
-        <VStack gap={4}>
-          <Spinner size="lg" color="green.500" />
-          <Text color="fg.muted">{t('redirectingToSignIn')}</Text>
-        </VStack>
-      </Box>
-    );
+    return <AppSplashScreen label={t('redirectingToSignIn')} />;
   }
 
   // Check role permission

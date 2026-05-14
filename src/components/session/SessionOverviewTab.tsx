@@ -266,7 +266,6 @@ export default function SessionOverviewTab({
               mt={2}
               size="sm"
               variant="ghost"
-              colorPalette="green"
               w="full"
               onClick={() => setIsInfoExpanded((value) => !value)}
               rightIcon={
