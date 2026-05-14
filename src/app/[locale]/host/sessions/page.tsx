@@ -19,7 +19,6 @@ import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
-import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
@@ -79,9 +78,6 @@ function HostSessionsContent() {
     rootMargin: '100px',
   });
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
   const fetchHostedSessions = async (isLoadMore = false) => {
     try {
       if (isLoadMore) {
@@ -106,7 +102,7 @@ function HostSessionsContent() {
         page: currentPage,
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
-        searchQuery: debouncedSearchQuery,
+        searchQuery: filters.searchQuery,
         excludeStatuses:
           sessionStatusTab === 'active' && !filters.status
             ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
@@ -158,13 +154,7 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.id,
-    debouncedSearchQuery,
-    sortBy,
-    filters.status,
-    sessionStatusTab,
-  ]);
+  }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
 
   // Fetch expired sessions count once on mount
   useEffect(() => {
@@ -267,11 +257,6 @@ function HostSessionsContent() {
       );
     }
 
-    // Search filter is handled by API now
-    if (filters.searchQuery !== searchQuery) {
-      setSearchQuery(filters.searchQuery || '');
-    }
-
     // Client-side sort only for slots (not supported by API)
     if (sortBy === 'slots_desc') {
       result.sort((a, b) => {
@@ -285,7 +270,7 @@ function HostSessionsContent() {
     // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery, sortBy]);
+  }, [filters, sessions, sortBy]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
@@ -299,7 +284,6 @@ function HostSessionsContent() {
       return;
     }
     setFilters({});
-    setSearchQuery('');
     setSessionStatusTab(newTab);
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);

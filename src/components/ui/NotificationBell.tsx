@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Flex,
@@ -62,6 +62,8 @@ type TUnifiedItem =
       allSlots: PendingRequest[];
       timestamp: number;
     };
+
+const PANEL_CACHE_TTL_MS = 30_000;
 
 const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
   {
@@ -162,6 +164,7 @@ export default function NotificationBell({
   >(null);
   const [pendingCount, setPendingCount] = useState(0);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const pendingRequestsFetchedAtRef = useRef<number | null>(null);
 
   const {
     notifications,
@@ -173,6 +176,33 @@ export default function NotificationBell({
     markAllAsRead,
     deleteNotification,
   } = useNotificationStore();
+
+  const fetchPendingRequests = useCallback(
+    async ({ force = false }: { force?: boolean } = {}) => {
+      const hasCachedPendingRequests = pendingRequests.length > 0;
+      const lastFetchedAt = pendingRequestsFetchedAtRef.current;
+      const isCacheFresh =
+        !!lastFetchedAt && Date.now() - lastFetchedAt < PANEL_CACHE_TTL_MS;
+
+      if (!force && isCacheFresh) {
+        return;
+      }
+
+      setIsPendingLoading(!lastFetchedAt && !hasCachedPendingRequests);
+
+      try {
+        const result = await PlayerService.getPendingRequests({ limit: 20 });
+        setPendingRequests(result.data);
+        setPendingCount(result.data.length);
+        pendingRequestsFetchedAtRef.current = Date.now();
+      } catch (error) {
+        console.error('Failed to fetch pending requests:', error);
+      } finally {
+        setIsPendingLoading(false);
+      }
+    },
+    [pendingRequests.length]
+  );
 
   useEffect(() => {
     if (user) {
@@ -188,14 +218,7 @@ export default function NotificationBell({
     if (open && user) {
       fetchNotifications(true);
       fetchUnreadCount();
-      setIsPendingLoading(true);
-      PlayerService.getPendingRequests({ limit: 20 })
-        .then((result) => {
-          setPendingRequests(result.data);
-          setPendingCount(result.data.length);
-        })
-        .catch(() => {})
-        .finally(() => setIsPendingLoading(false));
+      fetchPendingRequests();
     }
   };
 

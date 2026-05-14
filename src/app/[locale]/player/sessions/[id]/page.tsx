@@ -33,6 +33,7 @@ import PlayerSessionView from '@/components/session/PlayerSessionView';
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
 import { REFRESH_INTERVALS } from '@/lib/constants';
+import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
@@ -107,6 +108,23 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
   const getCurrentMatch = (courtId: string) =>
     session ? getCurrentMatchForCourt(session.courts, courtId) : null;
   const formatWaitTime = (minutes: number) => formatWaitTimeUtil(minutes, t);
+
+  const handleSaveNotes = async (notes: string) => {
+    if (!session) return;
+
+    const updatedSession = await SessionService.updateSession(session.id, {
+      notes,
+    });
+
+    setSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            notes: updatedSession.notes ?? notes,
+          }
+        : prev
+    );
+  };
 
   // Loading state
   if (loading) {
@@ -206,6 +224,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         isToggleStatusLoading={isToggleStatusLoading}
         onToggleSessionStatus={toggleSessionStatus}
         onRefreshData={refreshSessionData}
+        onSaveNotes={handleSaveNotes}
         showBackButton={true}
         backHref="/host/sessions/joined"
       />

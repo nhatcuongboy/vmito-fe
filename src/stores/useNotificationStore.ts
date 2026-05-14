@@ -9,15 +9,19 @@ const isNotificationForUser = (notification: INotification, userId: string) =>
   String(notification.userId) === String(userId);
 
 const getCurrentUserId = () => useAuthStore.getState().user?.id ?? null;
+const NOTIFICATION_CACHE_TTL_MS = 30_000;
 
 interface INotificationStore {
   ownerUserId: string | null;
   notifications: INotification[];
   unreadCount: number;
   isLoading: boolean;
+  isRefreshing: boolean;
   error: string | null;
   hasMore: boolean;
   page: number;
+  lastFetchedAt: number | null;
+  lastUnreadCountFetchedAt: number | null;
 
   // Actions
   fetchNotifications: (reset?: boolean) => Promise<void>;
@@ -34,9 +38,12 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
   notifications: [],
   unreadCount: 0,
   isLoading: false,
+  isRefreshing: false,
   error: null,
   hasMore: true,
   page: 1,
+  lastFetchedAt: null,
+  lastUnreadCountFetchedAt: null,
 
   fetchNotifications: async (reset = false) => {
     const currentUserId = getCurrentUserId();
@@ -45,8 +52,24 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       return;
     }
 
-    const isUserScopeChanged = get().ownerUserId !== currentUserId;
-    const currentPage = reset || isUserScopeChanged ? 1 : get().page;
+    const state = get();
+    const isUserScopeChanged = state.ownerUserId !== currentUserId;
+    const hasFetchedCurrentScope =
+      !isUserScopeChanged && state.lastFetchedAt !== null;
+    const isCacheFresh =
+      !!state.lastFetchedAt &&
+      Date.now() - state.lastFetchedAt < NOTIFICATION_CACHE_TTL_MS;
+
+    if (reset && hasFetchedCurrentScope && isCacheFresh) {
+      return;
+    }
+
+    if (state.isLoading || state.isRefreshing) {
+      return;
+    }
+
+    const currentPage = reset || isUserScopeChanged ? 1 : state.page;
+    const shouldShowSkeleton = !reset || !hasFetchedCurrentScope;
 
     try {
       set((state) => ({
@@ -55,7 +78,8 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
         unreadCount: isUserScopeChanged ? 0 : state.unreadCount,
         page: isUserScopeChanged ? 1 : state.page,
         hasMore: isUserScopeChanged ? true : state.hasMore,
-        isLoading: true,
+        isLoading: shouldShowSkeleton,
+        isRefreshing: !shouldShowSkeleton,
         error: null,
       }));
 
@@ -103,6 +127,8 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
           page: currentPage + 1,
           hasMore: currentPage < response.pagination.totalPages,
           isLoading: false,
+          isRefreshing: false,
+          lastFetchedAt: Date.now(),
         };
       });
     } catch (error) {
@@ -112,6 +138,7 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
             ? error.message
             : 'Failed to fetch notifications',
         isLoading: false,
+        isRefreshing: false,
       });
     }
   },
@@ -123,11 +150,25 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       return;
     }
 
+    const state = get();
+    const isUserScopeChanged = state.ownerUserId !== currentUserId;
+    const isCacheFresh =
+      !!state.lastUnreadCountFetchedAt &&
+      Date.now() - state.lastUnreadCountFetchedAt < NOTIFICATION_CACHE_TTL_MS;
+
+    if (!isUserScopeChanged && isCacheFresh) {
+      return;
+    }
+
     try {
       const response = await NotificationService.getUnreadCount();
 
       if (getCurrentUserId() === currentUserId) {
-        set({ ownerUserId: currentUserId, unreadCount: response.count });
+        set({
+          ownerUserId: currentUserId,
+          unreadCount: response.count,
+          lastUnreadCountFetchedAt: Date.now(),
+        });
       }
     } catch (error) {
       console.error('Failed to fetch unread count:', error);
@@ -164,6 +205,8 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
         ownerUserId: currentUserId,
         notifications: [notification, ...currentNotifications],
         unreadCount: currentUnreadCount + 1,
+        lastFetchedAt: Date.now(),
+        lastUnreadCountFetchedAt: Date.now(),
       };
     });
   },
@@ -177,6 +220,7 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
           n.id === id ? { ...n, isRead: true } : n
         ),
         unreadCount: Math.max(0, state.unreadCount - 1),
+        lastUnreadCountFetchedAt: Date.now(),
       }));
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
@@ -190,6 +234,7 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       set((state) => ({
         notifications: state.notifications.map((n) => ({ ...n, isRead: true })),
         unreadCount: 0,
+        lastUnreadCountFetchedAt: Date.now(),
       }));
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
@@ -210,6 +255,7 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
           unreadCount: wasUnread
             ? Math.max(0, state.unreadCount - 1)
             : state.unreadCount,
+          lastUnreadCountFetchedAt: Date.now(),
         };
       });
     } catch (error) {
@@ -223,9 +269,12 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       notifications: [],
       unreadCount: 0,
       isLoading: false,
+      isRefreshing: false,
       error: null,
       hasMore: true,
       page: 1,
+      lastFetchedAt: null,
+      lastUnreadCountFetchedAt: null,
     });
   },
 }));

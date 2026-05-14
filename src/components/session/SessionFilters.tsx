@@ -5,7 +5,6 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 
 import { useState, useEffect } from 'react';
-import { useDebounce } from '@/hooks/useDebounce';
 import SessionSearchBar from './SessionSearchBar';
 import {
   Badge,
@@ -55,7 +54,6 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   const [searchTerm, setSearchTerm] = useState(
     initialFilters.searchQuery || ''
   );
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Pending filter states for drawer
   const [pendingStatus, setPendingStatus] = useState<string | undefined>(
@@ -109,13 +107,13 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     filters.splitEvenly,
   ]);
 
-  // Update filters when debounced search term changes
+  // Update filters when search term changes (already debounced by SessionSearchBar)
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
-      searchQuery: debouncedSearchTerm || undefined,
+      searchQuery: searchTerm || undefined,
     }));
-  }, [debouncedSearchTerm]);
+  }, [searchTerm]);
 
   useEffect(() => {
     onFilterChange(filters);

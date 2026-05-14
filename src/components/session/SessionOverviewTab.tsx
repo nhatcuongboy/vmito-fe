@@ -2,31 +2,19 @@
 
 import { useState } from 'react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
+import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { VDrawer } from '@/components/ui/VDrawer';
 import { VModal } from '@/components/ui/VModal';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
 import AppImageGallery from '@/components/session/AppImageGallery';
-import {
-  Badge,
-  Box,
-  Flex,
-  FlexProps,
-  Grid,
-  Heading,
-  Text,
-  Icon,
-} from '@chakra-ui/react';
+import { Box, Flex, Grid, Heading, Text, Icon } from '@chakra-ui/react';
 import {
   Activity,
   CheckCircle,
   Clock,
-  DoorOpen,
   Pencil,
   Play,
-  Shield,
   Square,
-  UserPlus,
   Users,
   XCircle,
   AlertTriangle,
@@ -40,43 +28,6 @@ import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
 import SessionShareImageModal from './SessionShareImageModal';
 import { RatePlayersSection } from '@/components/rating';
-
-interface InfoRowProps extends FlexProps {
-  icon: React.ElementType;
-  label: string;
-  children: React.ReactNode;
-}
-
-const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
-  <Flex align="start" mb={3} {...props}>
-    <Box
-      as={icon}
-      boxSize={5}
-      mr={3}
-      mt={0.5}
-      color="gray.400"
-      flexShrink={0}
-    />
-    <Text
-      fontSize="md"
-      color="gray.600"
-      _dark={{ color: 'gray.400' }}
-      mr={2}
-      minW="fit-content"
-      fontWeight="normal"
-    >
-      {label}:
-    </Text>
-    <Box
-      flex={1}
-      color="gray.800"
-      _dark={{ color: 'gray.100' }}
-      fontWeight="medium"
-    >
-      {children}
-    </Box>
-  </Flex>
-);
 
 interface SessionOverviewTabProps {
   session: ISession;
@@ -100,7 +51,6 @@ export default function SessionOverviewTab({
   const locale = useLocale();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
-  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
@@ -410,7 +360,7 @@ export default function SessionOverviewTab({
             alignItems="center"
             h="full"
           >
-            <Box w="full" mb={6}>
+            <Box w="full">
               <Text
                 fontSize="sm"
                 fontWeight="semibold"
@@ -419,69 +369,8 @@ export default function SessionOverviewTab({
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
-                {t('settings')}
+                {t('shareSection')}
               </Text>
-              <VStack align="start" spacing={3}>
-                <InfoRow icon={Shield} label={t('requirePlayerInfo')}>
-                  <Badge
-                    colorPalette={session.requirePlayerInfo ? 'green' : 'gray'}
-                  >
-                    {session.requirePlayerInfo ? t('yes') : t('no')}
-                  </Badge>
-                </InfoRow>
-
-                <InfoRow icon={UserPlus} label={t('allowGuestJoin')}>
-                  <Badge
-                    colorPalette={session.allowGuestJoin ? 'green' : 'gray'}
-                  >
-                    {session.allowGuestJoin ? t('yes') : t('no')}
-                  </Badge>
-                </InfoRow>
-
-                <InfoRow icon={DoorOpen} label={t('allowNewPlayers')}>
-                  <Badge
-                    colorPalette={session.allowNewPlayers ? 'green' : 'gray'}
-                  >
-                    {session.allowNewPlayers ? t('yes') : t('no')}
-                  </Badge>
-                </InfoRow>
-              </VStack>
-            </Box>
-
-            <Button
-              display={{ base: 'flex', md: 'none' }}
-              size="sm"
-              variant="ghost"
-              colorPalette="green"
-              w="full"
-              mb={isSettingsExpanded ? 4 : 0}
-              onClick={() => setIsSettingsExpanded((value) => !value)}
-              rightIcon={
-                isSettingsExpanded ? (
-                  <ChevronUp size={16} />
-                ) : (
-                  <ChevronDown size={16} />
-                )
-              }
-              aria-expanded={isSettingsExpanded}
-            >
-              {isSettingsExpanded ? tSession('collapse') : tSession('expand')}
-            </Button>
-
-            <Box
-              display={{
-                base: isSettingsExpanded ? 'block' : 'none',
-                md: 'block',
-              }}
-              w="full"
-            >
-              <Box
-                w="full"
-                h="1px"
-                bg="gray.100"
-                _dark={{ bg: 'gray.700' }}
-                mb={6}
-              />
 
               <Box
                 flex={1}
@@ -527,19 +416,72 @@ export default function SessionOverviewTab({
                     />
                   </Box>
                 </Grid>
+
+                <SimpleGrid
+                  columns={1}
+                  spacing={4}
+                  mt={6}
+                  display={{ base: 'none', md: 'grid' }}
+                >
+                  <Box
+                    p={4}
+                    borderRadius="xl"
+                    border="1px solid"
+                    borderColor="gray.100"
+                    bg={{ base: 'gray.50', _dark: 'gray.700' }}
+                  >
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.500"
+                      textTransform="uppercase"
+                      letterSpacing="wider"
+                      mb={3}
+                    >
+                      {t('shareTipsTitle')}
+                    </Text>
+                    <Flex align="start" gap={3} mb={3}>
+                      <Box
+                        w="8px"
+                        h="8px"
+                        borderRadius="full"
+                        bg="blue.400"
+                        mt="6px"
+                        flexShrink={0}
+                      />
+                      <Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="fg">
+                          {t('qrScanToView')}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          {t('shareTipView')}
+                        </Text>
+                      </Box>
+                    </Flex>
+                    <Flex align="start" gap={3}>
+                      <Box
+                        w="8px"
+                        h="8px"
+                        borderRadius="full"
+                        bg="green.400"
+                        mt="6px"
+                        flexShrink={0}
+                      />
+                      <Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="fg">
+                          {t('qrScanToJoin')}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          {t('shareTipJoin')}
+                        </Text>
+                      </Box>
+                    </Flex>
+                  </Box>
+                </SimpleGrid>
               </Box>
 
-              <Box
-                w="full"
-                h="1px"
-                bg="gray.100"
-                _dark={{ bg: 'gray.700' }}
-                mt={6}
-                mb={6}
-              />
-
               {/* Share Section */}
-              <Box w="full">
+              <Box w="full" mt={6}>
                 <Text
                   fontSize="sm"
                   fontWeight="semibold"

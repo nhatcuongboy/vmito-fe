@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useState, useEffect, useMemo } from 'react';
+import { Suspense, useState, useEffect, useMemo, useRef } from 'react';
 import {
   Badge,
   Box,
@@ -11,7 +11,19 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Check, Filter, MapPin, Plus, RefreshCw, X } from 'lucide-react';
+import {
+  ArrowDownAZ,
+  CalendarArrowDown,
+  Check,
+  ChevronDown,
+  Filter,
+  MapPin,
+  Plus,
+  RefreshCw,
+  Star,
+  Users,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
@@ -31,6 +43,7 @@ import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
+import AppEmptyState from '@/components/ui/AppEmptyState';
 import { useViewMode } from '@/hooks/useViewMode';
 import { IClubListItem, IClub } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
@@ -41,6 +54,45 @@ const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
   { ssr: false }
 );
+
+interface IClubSortOption {
+  value: string;
+  label: string;
+  sortBy: 'distance' | 'relevance' | 'createdAt' | 'name';
+  sortOrder: 'asc' | 'desc';
+  icon: React.ComponentType<{ size?: number }>;
+}
+
+const CLUB_SORT_OPTIONS: IClubSortOption[] = [
+  {
+    value: 'distance',
+    label: 'Gần nhất',
+    sortBy: 'distance',
+    sortOrder: 'asc',
+    icon: MapPin,
+  },
+  {
+    value: 'relevance',
+    label: 'Phù hợp nhất',
+    sortBy: 'relevance',
+    sortOrder: 'desc',
+    icon: Star,
+  },
+  {
+    value: 'newest',
+    label: 'Mới nhất',
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    icon: CalendarArrowDown,
+  },
+  {
+    value: 'name_asc',
+    label: 'Tên A→Z',
+    sortBy: 'name',
+    sortOrder: 'asc',
+    icon: ArrowDownAZ,
+  },
+];
 
 function BrowseClubsContent() {
   const t = useTranslations();
@@ -63,6 +115,9 @@ function BrowseClubsContent() {
   const [cities, setCities] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
   const [sortByDistance, setSortByDistance] = useState(false);
+  const [sort, setSort] = useState('distance');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
@@ -90,9 +145,37 @@ function BrowseClubsContent() {
     }
   }, [showFilters, cities, districts, sortByDistance, userLocation]);
 
+  useEffect(() => {
+    if (sort === 'distance' && !userLocation) {
+      getUserLocation()
+        .then((location) => setUserLocation(location))
+        .catch(() => setSort('relevance'));
+    }
+  }, [sort, userLocation]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsSortOpen(false);
+      }
+    };
+
+    if (isSortOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSortOpen]);
+
   const fetchClubs = async (pageNum: number, append = false) => {
     try {
       setIsLoading(true);
+      const activeSortOption =
+        CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
+        CLUB_SORT_OPTIONS[0];
 
       const params: Record<string, string | number | undefined> = {
         page: pageNum,
@@ -103,6 +186,8 @@ function BrowseClubsContent() {
             ? VIETNAM_CITIES.find((c) => c.code === cities[0])?.name
             : undefined,
         district: districts.length === 1 ? districts[0] : undefined,
+        sortBy: activeSortOption.sortBy,
+        sortOrder: activeSortOption.sortOrder,
       };
 
       if (sortByDistance && userLocation) {
@@ -110,6 +195,12 @@ function BrowseClubsContent() {
         params.lng = userLocation.lng;
         params.sortBy = 'distance';
         params.sortOrder = 'asc';
+      } else if (activeSortOption.sortBy === 'distance' && userLocation) {
+        params.lat = userLocation.lat;
+        params.lng = userLocation.lng;
+      } else if (activeSortOption.sortBy === 'distance') {
+        params.sortBy = 'relevance';
+        params.sortOrder = 'desc';
       }
 
       const response = await ClubsService.browseClubs(params);
@@ -165,7 +256,7 @@ function BrowseClubsContent() {
     setPage(1);
     fetchClubs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, cities, districts, sortByDistance, userLocation]);
+  }, [debouncedSearch, cities, districts, sortByDistance, sort, userLocation]);
 
   // Fetch full club details when in map mode
   useEffect(() => {
@@ -262,6 +353,37 @@ function BrowseClubsContent() {
     setDistricts((prev) => prev.filter((d) => d !== districtName));
   };
 
+  const handleSortChange = async (value: string) => {
+    if (value === 'distance') {
+      if (!userLocation) {
+        try {
+          const location = await getUserLocation();
+          setUserLocation(location);
+          setSort('distance');
+          setSortByDistance(false);
+        } catch {
+          toaster.error({
+            title: 'Không thể lấy vị trí',
+            description:
+              'Vui lòng cho phép truy cập vị trí để sắp xếp theo khoảng cách.',
+          });
+          setSort('relevance');
+          setSortByDistance(false);
+        }
+      } else {
+        setSort('distance');
+        setSortByDistance(false);
+      }
+      return;
+    }
+
+    setSort(value);
+    if (sortByDistance) {
+      setSortByDistance(false);
+      setUserLocation(null);
+    }
+  };
+
   const availableDistricts = useMemo(() => {
     if (pendingCities.length === 0) return [];
     return VIETNAM_CITIES.filter((city) =>
@@ -271,6 +393,11 @@ function BrowseClubsContent() {
 
   const activeFilterCount =
     cities.length + districts.length + (sortByDistance ? 1 : 0);
+  const activeSortOption =
+    CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
+    CLUB_SORT_OPTIONS[0];
+  const sortButtonLabel = sortByDistance ? 'Gần tôi' : activeSortOption.label;
+  const SortButtonIcon = sortByDistance ? MapPin : activeSortOption.icon;
 
   return (
     <Box>
@@ -326,111 +453,214 @@ function BrowseClubsContent() {
 
       {/* Results info + view mode */}
       {!isLoading && (
-        <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
-          {totalCount !== null && (
-            <Text
-              fontSize="sm"
-              color="fg.muted"
-              display={{ base: 'none', md: 'block' }}
-            >
-              {totalCount} kết quả
-            </Text>
-          )}
-
-          {sortByDistance && (
-            <Badge
-              colorPalette="blue"
-              variant="subtle"
-              borderRadius="full"
-              px={3}
-              py={1}
-              fontSize="xs"
-              fontWeight="semibold"
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-            >
-              <MapPin size={11} />
-              Gần tôi
-              <Box
-                as="span"
-                cursor="pointer"
-                display="inline-flex"
-                alignItems="center"
-                onClick={() => {
-                  setSortByDistance(false);
-                  setUserLocation(null);
-                }}
-                _hover={{ color: 'blue.700' }}
+        <VStack align="stretch" gap={2} mb={4}>
+          <Flex align="center" gap={2} minH="28px">
+            {totalCount !== null && (
+              <Text
+                fontSize="sm"
+                color="fg.muted"
+                display={{ base: 'none', md: 'block' }}
               >
-                <X size={12} />
-              </Box>
-            </Badge>
-          )}
+                {totalCount} kết quả
+              </Text>
+            )}
 
-          {cities.map((cityCode) => {
-            const cityName =
-              VIETNAM_CITIES.find((c) => c.code === cityCode)?.name ?? cityCode;
-            return (
-              <Badge
-                key={cityCode}
-                colorPalette="green"
-                variant="subtle"
-                borderRadius="full"
-                px={3}
-                py={1}
-                fontSize="xs"
-                fontWeight="semibold"
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-              >
-                {cityName}
-                <Box
-                  as="span"
-                  cursor="pointer"
-                  display="inline-flex"
+            <Flex align="center" gap={2} ml="auto">
+              <Box position="relative" ref={sortDropdownRef}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsSortOpen((value) => !value)}
+                  display="flex"
                   alignItems="center"
-                  onClick={() => removeCity(cityCode)}
-                  _hover={{ color: 'green.700' }}
+                  gap={1.5}
+                  h="32px"
+                  px={{ base: 2, md: 3 }}
+                  borderRadius="full"
+                  borderColor="gray.200"
+                  bg={{ base: 'white', _dark: 'gray.800' }}
+                  color={{ base: 'gray.700', _dark: 'gray.200' }}
+                  fontWeight="normal"
+                  fontSize="sm"
+                  _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
+                  _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
                 >
-                  <X size={12} />
-                </Box>
-              </Badge>
-            );
-          })}
+                  <SortButtonIcon size={14} />
+                  <Text
+                    as="span"
+                    maxW="110px"
+                    truncate
+                    display={{ base: 'none', md: 'inline' }}
+                  >
+                    {sortButtonLabel}
+                  </Text>
+                  <ChevronDown
+                    size={13}
+                    style={{
+                      transition: 'transform 0.2s',
+                      transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    }}
+                  />
+                </Button>
 
-          {districts.map((districtName) => (
-            <Badge
-              key={districtName}
-              colorPalette="purple"
-              variant="subtle"
-              borderRadius="full"
-              px={3}
-              py={1}
-              fontSize="xs"
-              fontWeight="semibold"
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-            >
-              {districtName}
-              <Box
-                as="span"
-                cursor="pointer"
-                display="inline-flex"
-                alignItems="center"
-                onClick={() => removeDistrict(districtName)}
-                _hover={{ color: 'purple.700' }}
-              >
-                <X size={12} />
+                {isSortOpen && (
+                  <Box
+                    position="absolute"
+                    top="calc(100% + 6px)"
+                    right={0}
+                    zIndex={200}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
+                    border="1px solid"
+                    borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+                    borderRadius="xl"
+                    boxShadow="lg"
+                    minW="180px"
+                    overflow="hidden"
+                    py={1}
+                  >
+                    {CLUB_SORT_OPTIONS.map((option) => {
+                      const OptionIcon = option.icon;
+                      const isActive = !sortByDistance && option.value === sort;
+                      return (
+                        <Flex
+                          key={option.value}
+                          align="center"
+                          gap={2.5}
+                          px={3}
+                          py={2}
+                          cursor="pointer"
+                          bg={
+                            isActive
+                              ? { base: 'green.50', _dark: 'green.900' }
+                              : 'transparent'
+                          }
+                          color={
+                            isActive
+                              ? 'green.600'
+                              : { base: 'gray.700', _dark: 'gray.200' }
+                          }
+                          fontWeight={isActive ? 'semibold' : 'normal'}
+                          fontSize="sm"
+                          _hover={{
+                            bg: isActive
+                              ? { base: 'green.100', _dark: 'green.800' }
+                              : { base: 'gray.50', _dark: 'gray.700' },
+                          }}
+                          onClick={() => {
+                            handleSortChange(option.value);
+                            setIsSortOpen(false);
+                          }}
+                        >
+                          <OptionIcon size={14} />
+                          <Text flex={1}>{option.label}</Text>
+                          {isActive && <Check size={13} />}
+                        </Flex>
+                      );
+                    })}
+                  </Box>
+                )}
               </Box>
-            </Badge>
-          ))}
 
-          <Box flex="1" />
-          <AppViewModeToggle scope="clubs" />
-        </Flex>
+              <AppViewModeToggle scope="clubs" />
+            </Flex>
+          </Flex>
+
+          {activeFilterCount > 0 && (
+            <Flex align="center" flexWrap="wrap" gap={2}>
+              {sortByDistance && (
+                <Badge
+                  colorPalette="blue"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  display="flex"
+                  alignItems="center"
+                  gap={1.5}
+                >
+                  <MapPin size={11} />
+                  Gần tôi
+                  <Box
+                    as="span"
+                    cursor="pointer"
+                    display="inline-flex"
+                    alignItems="center"
+                    onClick={() => {
+                      setSortByDistance(false);
+                      setUserLocation(null);
+                    }}
+                    _hover={{ color: 'blue.700' }}
+                  >
+                    <X size={12} />
+                  </Box>
+                </Badge>
+              )}
+
+              {cities.map((cityCode) => {
+                const cityName =
+                  VIETNAM_CITIES.find((c) => c.code === cityCode)?.name ??
+                  cityCode;
+                return (
+                  <Badge
+                    key={cityCode}
+                    colorPalette="green"
+                    variant="subtle"
+                    borderRadius="full"
+                    px={3}
+                    py={1}
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    display="flex"
+                    alignItems="center"
+                    gap={1.5}
+                  >
+                    {cityName}
+                    <Box
+                      as="span"
+                      cursor="pointer"
+                      display="inline-flex"
+                      alignItems="center"
+                      onClick={() => removeCity(cityCode)}
+                      _hover={{ color: 'green.700' }}
+                    >
+                      <X size={12} />
+                    </Box>
+                  </Badge>
+                );
+              })}
+
+              {districts.map((districtName) => (
+                <Badge
+                  key={districtName}
+                  colorPalette="purple"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  display="flex"
+                  alignItems="center"
+                  gap={1.5}
+                >
+                  {districtName}
+                  <Box
+                    as="span"
+                    cursor="pointer"
+                    display="inline-flex"
+                    alignItems="center"
+                    onClick={() => removeDistrict(districtName)}
+                    _hover={{ color: 'purple.700' }}
+                  >
+                    <X size={12} />
+                  </Box>
+                </Badge>
+              ))}
+            </Flex>
+          )}
+        </VStack>
       )}
 
       {/* Filter Drawer Overlay */}
@@ -709,42 +939,28 @@ function BrowseClubsContent() {
           <Spinner size="xl" colorPalette="green" />
         </Flex>
       ) : clubs.length === 0 ? (
-        <Box
-          textAlign="center"
-          py={16}
-          px={6}
-          bg="bg.muted"
-          _dark={{ bg: 'gray.800' }}
-          borderRadius="2xl"
-        >
-          <Text
-            fontSize="xl"
-            fontWeight="medium"
-            color="fg.muted"
-            _dark={{ color: 'gray.400' }}
-          >
-            {t('clubs.noClubsFound')}
-          </Text>
-          <Text mt={2} color="fg.muted" _dark={{ color: 'gray.500' }}>
-            {t('clubs.noClubsFoundDescription')}
-          </Text>
-          {activeFilterCount > 0 && (
-            <Button
-              mt={4}
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSearch('');
-                setCities([]);
-                setDistricts([]);
-                setSortByDistance(false);
-                setUserLocation(null);
-              }}
-            >
-              Xóa bộ lọc
-            </Button>
-          )}
-        </Box>
+        <AppEmptyState
+          minH={{ base: '300px', md: '340px' }}
+          icon={<Users size={40} color="var(--chakra-colors-gray-400)" />}
+          title={t('clubs.noClubsFound')}
+          actions={
+            activeFilterCount > 0 ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearch('');
+                  setCities([]);
+                  setDistricts([]);
+                  setSortByDistance(false);
+                  setUserLocation(null);
+                }}
+              >
+                Xóa bộ lọc
+              </Button>
+            ) : undefined
+          }
+        />
       ) : viewMode === 'map' ? (
         isLoadingFullDetails ? (
           <Flex justify="center" align="center" minH="400px">

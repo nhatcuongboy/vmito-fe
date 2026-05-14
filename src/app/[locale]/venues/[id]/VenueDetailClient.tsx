@@ -297,17 +297,8 @@ export default function VenueDetailClient({
                 </Text>
               )}
             </Box>
-            <HStack gap={2} flexShrink={0}>
-              <Button
-                variant="outline"
-                size="sm"
-                colorPalette="green"
-                onClick={handleOpenUpdateRequest}
-              >
-                <PencilLine size={14} />
-                {t('requestUpdate')}
-              </Button>
-              {isAdmin && (
+            {isAdmin && (
+              <HStack gap={2} flexShrink={0}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -317,8 +308,8 @@ export default function VenueDetailClient({
                   <Settings size={14} />
                   Chỉnh sửa
                 </Button>
-              )}
-            </HStack>
+              </HStack>
+            )}
           </Flex>
         </Box>
       </Container>
@@ -797,6 +788,41 @@ export default function VenueDetailClient({
                     <Text fontSize="sm" fontStyle="italic">
                       Chưa có thông báo nào.
                     </Text>
+                  </Flex>
+                </Box>
+
+                <Box
+                  p={6}
+                  bg="white"
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                  borderRadius="2xl"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  shadow="sm"
+                >
+                  <Flex
+                    direction={{ base: 'column', sm: 'row' }}
+                    align={{ base: 'stretch', sm: 'center' }}
+                    justify="space-between"
+                    gap={4}
+                  >
+                    <Box>
+                      <Heading size="sm" mb={1}>
+                        {t('requestUpdate')}
+                      </Heading>
+                      <Text fontSize="sm" color="gray.500">
+                        Gửi đề xuất nếu bạn thấy thông tin sân chưa chính xác
+                        hoặc cần bổ sung.
+                      </Text>
+                    </Box>
+                    <Button
+                      variant="outline"
+                      colorPalette="green"
+                      onClick={handleOpenUpdateRequest}
+                    >
+                      <PencilLine size={16} />
+                      {t('requestUpdate')}
+                    </Button>
                   </Flex>
                 </Box>
               </Tabs.Content>

@@ -361,6 +361,7 @@ export interface ISession {
   id: string;
   slug?: string;
   name: string;
+  notes?: string;
   hostId: string;
   host: {
     id: string;
@@ -567,6 +568,7 @@ export interface CourtConfig {
 // Session creation interface
 export interface CreateSessionRequest {
   name: string;
+  notes?: string;
   description?: string;
   hostName?: string;
   hostPhone?: string;

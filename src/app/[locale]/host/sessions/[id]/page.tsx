@@ -30,6 +30,7 @@ import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
 import { VModal } from '@/components/ui/VModal';
+import { SessionService } from '@/lib/api/session.service';
 
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
@@ -141,6 +142,23 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     session ? getCurrentMatchForCourt(session.courts, courtId) : null;
   const formatWaitTime = (minutes: number) => formatWaitTimeUtil(minutes, t);
 
+  const handleSaveNotes = async (notes: string) => {
+    if (!session) return;
+
+    const updatedSession = await SessionService.updateSession(session.id, {
+      notes,
+    });
+
+    setSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            notes: updatedSession.notes ?? notes,
+          }
+        : prev
+    );
+  };
+
   // Handle showing QR code for viewing session
   const handleShowQrView = () => {
     setSelectedQrUrl(`/${locale}/sessions/${session?.id}`);
@@ -218,6 +236,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             onRefreshData={refreshSessionData}
             onShowQrView={handleShowQrView}
             onShowQrJoin={handleShowQrJoin}
+            onSaveNotes={handleSaveNotes}
             showBackButton={true}
             backHref="/host/sessions"
           />

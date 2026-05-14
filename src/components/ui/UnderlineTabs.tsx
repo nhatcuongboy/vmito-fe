@@ -62,10 +62,10 @@ export function UnderlineTabs({
               pt={2.5}
               pb={2.5}
               borderBottomWidth="2px"
-              borderColor={active ? 'fg' : 'transparent'}
-              color={active ? 'fg' : 'fg.muted'}
+              borderColor={active ? 'brand.500' : 'transparent'}
+              color={active ? 'brand.600' : 'fg.muted'}
               transition="color 0.2s, border-color 0.2s"
-              _hover={{ color: 'fg' }}
+              _hover={{ color: active ? 'brand.700' : 'fg' }}
               whiteSpace="nowrap"
               fontWeight={active ? '600' : '500'}
               fontSize="sm"

@@ -17,7 +17,6 @@ import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
-import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
@@ -64,9 +63,6 @@ function PlayerSessionsContent() {
     rootMargin: '100px',
   });
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
   const [viewMode, setViewMode] = useViewMode('host-sessions-joined');
 
   const fetchPlayerSessions = async (isLoadMore = false) => {
@@ -92,7 +88,7 @@ function PlayerSessionsContent() {
       const response = await PlayerService.getMySessions({
         page: currentPage,
         limit: PAGE_SIZE,
-        searchQuery: debouncedSearchQuery,
+        searchQuery: filters.searchQuery,
         excludeStatuses:
           sessionStatusTab === 'active' && !filters.status
             ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
@@ -136,13 +132,7 @@ function PlayerSessionsContent() {
       fetchPlayerSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.id,
-    debouncedSearchQuery,
-    sortBy,
-    filters.status,
-    sessionStatusTab,
-  ]);
+  }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -188,11 +178,6 @@ function PlayerSessionsContent() {
       });
     }
 
-    // Search filter is handled by API now
-    if (filters.searchQuery !== searchQuery) {
-      setSearchQuery(filters.searchQuery || '');
-    }
-
     // Client-side sort only for slots (not supported by API)
     if (sortBy === 'slots_desc') {
       result.sort((a, b) => {
@@ -206,7 +191,7 @@ function PlayerSessionsContent() {
     // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery, sortBy, sessionStatusTab]);
+  }, [filters, sessions, sortBy, sessionStatusTab]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);

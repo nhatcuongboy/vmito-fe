@@ -2,6 +2,7 @@
 
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
+import AppEmptyState from '@/components/ui/AppEmptyState';
 import { toaster } from '@/components/ui/toaster';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import {
@@ -1073,42 +1074,29 @@ export default function VenueSearchList() {
           <Text fontWeight="medium">{error}</Text>
         </Box>
       ) : venues.length === 0 ? (
-        <Box
-          textAlign="center"
-          py={10}
-          px={6}
-          borderWidth="1px"
-          borderRadius="lg"
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-        >
-          <Heading size="md" mb={2}>
-            Không tìm thấy sân nào
-          </Heading>
-          <Text color="gray.500">
-            Thử thay đổi từ khóa hoặc bộ lọc để tìm sân phù hợp.
-          </Text>
-          {hasVenueSearch && (
-            <Button
-              mt={4}
-              colorPalette="green"
-              onClick={handleOpenCreateRequest}
-              leftIcon={<Plus size={16} />}
-            >
-              {t('venueRequests.suggestNewVenue')}
-            </Button>
-          )}
-          {activeFilterCount > 0 && (
-            <Button
-              mt={hasVenueSearch ? 3 : 4}
-              onClick={clearAllFilters}
-              variant="outline"
-              size="sm"
-            >
-              Xóa bộ lọc
-            </Button>
-          )}
-        </Box>
+        <AppEmptyState
+          minH={{ base: '300px', md: '340px' }}
+          icon={<MapPin size={40} color="var(--chakra-colors-gray-400)" />}
+          title="Không tìm thấy sân nào"
+          actions={
+            <VStack gap={3} width="100%" align="center">
+              {hasVenueSearch && (
+                <Button
+                  colorPalette="green"
+                  onClick={handleOpenCreateRequest}
+                  leftIcon={<Plus size={16} />}
+                >
+                  {t('venueRequests.suggestNewVenue')}
+                </Button>
+              )}
+              {activeFilterCount > 0 && (
+                <Button onClick={clearAllFilters} variant="outline" size="sm">
+                  Xóa bộ lọc
+                </Button>
+              )}
+            </VStack>
+          }
+        />
       ) : viewMode === 'map' ? (
         <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
           <VenueMap venues={venues} userLocation={userLocation} />

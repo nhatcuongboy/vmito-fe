@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
+import AppEmptyState from '@/components/ui/AppEmptyState';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
@@ -31,17 +32,8 @@ import {
   booleanField,
 } from '@/hooks/useUrlFilters';
 import { useViewMode } from '@/hooks/useViewMode';
-import {
-  Badge,
-  Box,
-  Flex,
-  Grid,
-  Heading,
-  HStack,
-  Icon,
-  Text,
-} from '@chakra-ui/react';
-import { X } from 'lucide-react';
+import { Badge, Box, Flex, Grid, HStack, Icon, Text } from '@chakra-ui/react';
+import { Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   useCallback,
@@ -931,23 +923,16 @@ export default function FindSessionList({
           <SessionMap sessions={sortedSessions} userLocation={userLocation} />
         </Box>
       ) : sortedSessions.length === 0 ? (
-        <Box
-          textAlign="center"
-          py={10}
-          px={6}
-          borderWidth="1px"
-          borderRadius="lg"
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-        >
-          <Heading size="md" mb={2}>
-            {t('noSessionsFound')}
-          </Heading>
-          <Text color="gray.500">{t('tryAdjustingFilters')}</Text>
-          <Button mt={4} onClick={clearFilters} variant="outline" size="sm">
-            {t('filters.clearFilters')}
-          </Button>
-        </Box>
+        <AppEmptyState
+          minH={{ base: '280px', md: '320px' }}
+          icon={<Icon as={Search} boxSize={10} color="gray.400" />}
+          title={t('noSessionsFound')}
+          actions={
+            <Button onClick={clearFilters} variant="outline" size="sm">
+              {t('filters.clearFilters')}
+            </Button>
+          }
+        />
       ) : (
         <RatingStatsProvider userIds={hostIds}>
           <Grid

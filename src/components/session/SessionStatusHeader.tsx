@@ -2,8 +2,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex, Text, Textarea } from '@chakra-ui/react';
 import { IconButton, Button } from '@/components/ui/chakra-compat';
+import { VModal } from '@/components/ui/VModal';
+import { toaster } from '@/components/ui/toaster';
 import {
   Play,
   RefreshCw,
@@ -12,6 +14,7 @@ import {
   ArrowLeft,
   XCircle,
   QrCode,
+  StickyNote,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/config';
@@ -21,6 +24,7 @@ interface SessionStatusHeaderProps {
   session: {
     name: string;
     status: string;
+    notes?: string;
     startTime?: string | Date | null;
     endTime?: string | Date | null;
     sessionDuration?: number;
@@ -36,6 +40,7 @@ interface SessionStatusHeaderProps {
   onRefreshData?: () => void;
   onShowQrView?: () => void;
   onShowQrJoin?: () => void;
+  onSaveNotes?: (notes: string) => Promise<void>;
   /** Top offset for sticky positioning */
   stickyTop?: any;
   mt?: any;
@@ -53,6 +58,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   onRefreshData,
   onShowQrView,
   onShowQrJoin,
+  onSaveNotes,
   stickyTop = 0,
   mt,
   showBackButton = false,
@@ -61,7 +67,16 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   const t = useTranslations('SessionDetail');
   const common = useTranslations('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
+  const [notesDraft, setNotesDraft] = useState(session.notes || '');
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const canShowActionButtons = !readOnly && session.status !== 'CANCELLED';
+  const actionAreaWidth = canShowActionButtons
+    ? onSaveNotes
+      ? '80px'
+      : '40px'
+    : '40px';
 
   // Compute overtime state
   const isOvertime =
@@ -123,6 +138,34 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
     setIsMenuOpen(false);
   };
 
+  const handleOpenNotes = () => {
+    setNotesDraft(session.notes || '');
+    setIsMenuOpen(false);
+    setIsNotesModalOpen(true);
+  };
+
+  const handleCloseNotes = () => {
+    if (isSavingNotes) return;
+    setNotesDraft(session.notes || '');
+    setIsNotesModalOpen(false);
+  };
+
+  const handleSaveNotes = async () => {
+    if (!onSaveNotes) return;
+
+    setIsSavingNotes(true);
+    try {
+      await onSaveNotes(notesDraft.trim());
+      toaster.success({ title: t('sessionNotesSaved') });
+      setIsNotesModalOpen(false);
+    } catch (error) {
+      console.error('Failed to save session notes:', error);
+      toaster.error({ title: t('sessionNotesSaveFailed') });
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
+
   // Get status label
   const getStatusLabel = () => {
     if (isOvertime) return t('overtime');
@@ -161,7 +204,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
       <Flex align="center" justify="space-between" position="relative" w="100%">
         {/* Left Back Button or spacer */}
         {showBackButton ? (
-          <Box width="40px">
+          <Box width={actionAreaWidth}>
             <Link href={backHref} prefetch={false}>
               <IconButton
                 aria-label={common('back')}
@@ -176,7 +219,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
             </Link>
           </Box>
         ) : (
-          <Box width="40px" />
+          <Box width={actionAreaWidth} />
         )}
 
         {/* Session Name & Status - Centered */}
@@ -236,16 +279,30 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
         </Flex>
 
         {/* Action Button & Dropdown - Hidden in readOnly mode */}
-        {!readOnly && session.status !== 'CANCELLED' ? (
+        {canShowActionButtons ? (
           <Box
-            width="40px"
+            width={actionAreaWidth}
             display="flex"
             justifyContent="flex-end"
+            alignItems="center"
+            gap={1}
             position="relative"
             ref={menuRef}
           >
+            {onSaveNotes && (
+              <IconButton
+                aria-label={t('openSessionNotes')}
+                icon={<StickyNote size={18} />}
+                variant="ghost"
+                size="sm"
+                borderRadius="full"
+                color="white"
+                _hover={{ bg: 'whiteAlpha.200' }}
+                onClick={handleOpenNotes}
+              />
+            )}
             <IconButton
-              aria-label="Actions"
+              aria-label={t('headerActions')}
               icon={<MoreVertical size={20} />}
               variant="ghost"
               size="sm"
@@ -460,9 +517,29 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
           </Box>
         ) : (
           /* Right spacer for centering title in readOnly/cancelled mode */
-          <Box width="40px" />
+          <Box width={actionAreaWidth} />
         )}
       </Flex>
+      <VModal
+        isOpen={isNotesModalOpen}
+        onClose={handleCloseNotes}
+        title={t('sessionNotesTitle')}
+        primaryActionText={common('save')}
+        onPrimaryAction={handleSaveNotes}
+        isPrimaryLoading={isSavingNotes}
+        isPrimaryDisabled={isSavingNotes}
+        secondaryActionText={common('cancel')}
+        onSecondaryAction={handleCloseNotes}
+      >
+        <Textarea
+          value={notesDraft}
+          onChange={(event) => setNotesDraft(event.target.value)}
+          placeholder={t('sessionNotesPlaceholder')}
+          rows={8}
+          resize="vertical"
+          maxLength={2000}
+        />
+      </VModal>
     </Box>
   );
 };

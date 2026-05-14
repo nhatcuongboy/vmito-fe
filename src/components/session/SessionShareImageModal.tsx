@@ -119,9 +119,14 @@ export default function SessionShareImageModal({
       maxBodyHeight={{ base: '78vh', md: '76vh' }}
       footer={
         <Flex justify="space-between" align="center" w="full" gap={3}>
-          <Text fontSize="sm" color="fg.muted" fontWeight="medium">
-            {getTemplateName(selectedTemplate)} - {selectedTemplate.ratioLabel}
-          </Text>
+          <Box>
+            <Text fontSize="sm" color="fg.muted" fontWeight="medium">
+              {getTemplateName(selectedTemplate)}
+            </Text>
+            <Text fontSize="sm" fontWeight="bold" color="green.600">
+              {selectedTemplate.width}×{selectedTemplate.height}
+            </Text>
+          </Box>
           <Button
             colorPalette="green"
             loading={isDownloading}
@@ -234,24 +239,6 @@ export default function SessionShareImageModal({
         </Box>
 
         <Box minW={0} order={{ base: 1, lg: 2 }}>
-          <Flex justify="space-between" align="center" mb={3} gap={3}>
-            <Box>
-              <Text
-                fontSize="xs"
-                textTransform="uppercase"
-                color="fg.muted"
-                fontWeight="bold"
-              >
-                {t('preview')}
-              </Text>
-              <Text fontSize="sm" color="fg.muted">
-                {getTemplateDescription(selectedTemplate)}
-              </Text>
-            </Box>
-            <Text fontSize="sm" fontWeight="bold" color="green.600">
-              {selectedTemplate.width}×{selectedTemplate.height}
-            </Text>
-          </Flex>
           <Flex
             bg={{ base: 'gray.100', _dark: 'gray.900' }}
             borderRadius="lg"
