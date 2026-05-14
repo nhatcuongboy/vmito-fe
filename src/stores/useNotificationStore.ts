@@ -3,8 +3,15 @@
 import { create } from 'zustand';
 import { INotification } from '@/lib/api/types';
 import { NotificationService } from '@/lib/api/notification.service';
+import { useAuthStore } from '@/stores/useAuthStore';
+
+const isNotificationForUser = (notification: INotification, userId: string) =>
+  String(notification.userId) === String(userId);
+
+const getCurrentUserId = () => useAuthStore.getState().user?.id ?? null;
 
 interface INotificationStore {
+  ownerUserId: string | null;
   notifications: INotification[];
   unreadCount: number;
   isLoading: boolean;
@@ -23,6 +30,7 @@ interface INotificationStore {
 }
 
 export const useNotificationStore = create<INotificationStore>((set, get) => ({
+  ownerUserId: null,
   notifications: [],
   unreadCount: 0,
   isLoading: false,
@@ -31,32 +39,61 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
   page: 1,
 
   fetchNotifications: async (reset = false) => {
-    const currentPage = reset ? 1 : get().page;
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      get().reset();
+      return;
+    }
+
+    const isUserScopeChanged = get().ownerUserId !== currentUserId;
+    const currentPage = reset || isUserScopeChanged ? 1 : get().page;
 
     try {
-      set({ isLoading: true, error: null });
+      set((state) => ({
+        ownerUserId: currentUserId,
+        notifications: isUserScopeChanged ? [] : state.notifications,
+        unreadCount: isUserScopeChanged ? 0 : state.unreadCount,
+        page: isUserScopeChanged ? 1 : state.page,
+        hasMore: isUserScopeChanged ? true : state.hasMore,
+        isLoading: true,
+        error: null,
+      }));
 
       const response = await NotificationService.getNotifications({
         page: currentPage,
         limit: 20,
       });
 
+      if (getCurrentUserId() !== currentUserId) {
+        return;
+      }
+
+      const scopedResponseData = response.data.filter((notification) =>
+        isNotificationForUser(notification, currentUserId)
+      );
+
+      if (scopedResponseData.length < response.data.length) {
+        console.warn(
+          `[NotificationStore] Filtered ${response.data.length - scopedResponseData.length} notification(s) for other users from API`
+        );
+      }
+
       set((state) => {
         let notifications: INotification[];
 
         if (reset) {
-          notifications = response.data;
+          notifications = scopedResponseData;
         } else {
           // Merge with deduplication when loading more
           const existingIds = new Set(state.notifications.map((n) => n.id));
-          const newNotifications = response.data.filter(
+          const newNotifications = scopedResponseData.filter(
             (n) => !existingIds.has(n.id)
           );
           notifications = [...state.notifications, ...newNotifications];
 
-          if (newNotifications.length < response.data.length) {
+          if (newNotifications.length < scopedResponseData.length) {
             console.warn(
-              `[NotificationStore] Filtered ${response.data.length - newNotifications.length} duplicate notifications from API`
+              `[NotificationStore] Filtered ${scopedResponseData.length - newNotifications.length} duplicate notifications from API`
             );
           }
         }
@@ -80,18 +117,41 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
   },
 
   fetchUnreadCount: async () => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      set({ unreadCount: 0 });
+      return;
+    }
+
     try {
       const response = await NotificationService.getUnreadCount();
-      set({ unreadCount: response.count });
+
+      if (getCurrentUserId() === currentUserId) {
+        set({ ownerUserId: currentUserId, unreadCount: response.count });
+      }
     } catch (error) {
       console.error('Failed to fetch unread count:', error);
     }
   },
 
   addNotification: (notification: INotification) => {
+    const currentUserId = getCurrentUserId();
+
+    if (!currentUserId || !isNotificationForUser(notification, currentUserId)) {
+      console.warn(
+        `[NotificationStore] Ignored notification ${notification.id} for user ${notification.userId}; current user is ${currentUserId ?? 'anonymous'}`
+      );
+      return;
+    }
+
     set((state) => {
+      const currentNotifications =
+        state.ownerUserId === currentUserId ? state.notifications : [];
+      const currentUnreadCount =
+        state.ownerUserId === currentUserId ? state.unreadCount : 0;
+
       // Check if notification already exists (deduplication)
-      const exists = state.notifications.some((n) => n.id === notification.id);
+      const exists = currentNotifications.some((n) => n.id === notification.id);
 
       if (exists) {
         console.warn(
@@ -101,8 +161,9 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
       }
 
       return {
-        notifications: [notification, ...state.notifications],
-        unreadCount: state.unreadCount + 1,
+        ownerUserId: currentUserId,
+        notifications: [notification, ...currentNotifications],
+        unreadCount: currentUnreadCount + 1,
       };
     });
   },
@@ -158,6 +219,7 @@ export const useNotificationStore = create<INotificationStore>((set, get) => ({
 
   reset: () => {
     set({
+      ownerUserId: null,
       notifications: [],
       unreadCount: 0,
       isLoading: false,
