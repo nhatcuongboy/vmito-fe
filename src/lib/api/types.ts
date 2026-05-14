@@ -1024,6 +1024,17 @@ export interface INotification {
   createdAt: string;
 }
 
+export interface IAdminNotificationUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface IAdminNotification extends INotification {
+  user: IAdminNotificationUser;
+}
+
 export interface IPaginatedNotifications {
   data: INotification[];
   pagination: {
@@ -1032,6 +1043,11 @@ export interface IPaginatedNotifications {
     total: number;
     totalPages: number;
   };
+}
+
+export interface IPaginatedAdminNotifications {
+  data: IAdminNotification[];
+  pagination: IPaginatedNotifications['pagination'];
 }
 
 export interface IBroadcastNotificationRequest {

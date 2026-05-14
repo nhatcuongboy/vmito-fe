@@ -2,6 +2,7 @@ import { api } from './base';
 import {
   ApiResponse,
   INotification,
+  IPaginatedAdminNotifications,
   IPaginatedNotifications,
   IBroadcastNotificationRequest,
   NotificationType,
@@ -27,6 +28,39 @@ export const NotificationService = {
       : '/notifications';
 
     const response = await api.get<ApiResponse<IPaginatedNotifications>>(url);
+    return response.data.data!;
+  },
+
+  /**
+   * Get all notifications across the system (Admin only)
+   */
+  getAdminNotifications: async (params?: {
+    q?: string;
+    type?: NotificationType;
+    isRead?: string;
+    userId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<IPaginatedAdminNotifications> => {
+    const searchParams = new URLSearchParams();
+    if (params?.q) searchParams.set('q', params.q);
+    if (params?.type) searchParams.set('type', params.type);
+    if (params?.isRead) searchParams.set('isRead', params.isRead);
+    if (params?.userId) searchParams.set('userId', params.userId);
+    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+
+    const queryString = searchParams.toString();
+    const url = queryString
+      ? `/notifications/admin?${queryString}`
+      : '/notifications/admin';
+
+    const response =
+      await api.get<ApiResponse<IPaginatedAdminNotifications>>(url);
     return response.data.data!;
   },
 
@@ -66,6 +100,16 @@ export const NotificationService = {
   deleteNotification: async (id: string): Promise<{ message: string }> => {
     const response = await api.delete<ApiResponse<{ message: string }>>(
       `/notifications/${id}`
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Delete any notification (Admin only)
+   */
+  deleteAdminNotification: async (id: string): Promise<{ message: string }> => {
+    const response = await api.delete<ApiResponse<{ message: string }>>(
+      `/notifications/admin/${id}`
     );
     return response.data.data!;
   },
