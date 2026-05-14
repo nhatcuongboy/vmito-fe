@@ -351,6 +351,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
   session,
 }) => {
   const t = useTranslations('SessionPlayers');
+  const sessionDetailT = useTranslations('SessionDetail');
   const [stats, setStats] = useState<PlayerStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -431,9 +432,12 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     const hours = Math.floor(waitTimeInMinutes / 60);
     const minutes = waitTimeInMinutes % 60;
     if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+      return sessionDetailT('waitTimeBadgeHoursMinutes', {
+        hours,
+        minutes,
+      });
     }
-    return `${minutes}m`;
+    return sessionDetailT('waitTimeBadgeMinutes', { minutes });
   };
 
   const handleExport = (e: React.MouseEvent) => {

@@ -315,16 +315,37 @@ export default function TopBar({
                 <Button
                   onClick={() => router.push('/auth/signin')}
                   colorPalette="green"
-                  size="sm"
-                  fontWeight="600"
-                  boxShadow="0 2px 8px rgba(23, 154, 59, 0.25)"
+                  variant="outline"
+                  size="xs"
+                  h={{ base: '36px', md: '38px' }}
+                  minW="auto"
+                  px={{ base: 3, md: 4 }}
+                  gap={1.5}
+                  fontSize={{ base: 'sm', md: 'sm' }}
+                  fontWeight="700"
+                  borderRadius="md"
+                  bg={{ base: 'white', _dark: 'gray.900' }}
+                  borderColor="green.500"
+                  color="green.700"
+                  boxShadow="0 1px 4px rgba(23, 154, 59, 0.12)"
                   _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(23, 154, 59, 0.35)',
+                    bg: 'green.50',
+                    borderColor: 'green.600',
+                    color: 'green.800',
+                    boxShadow: '0 2px 8px rgba(23, 154, 59, 0.18)',
+                    _dark: {
+                      bg: 'green.950',
+                      color: 'green.200',
+                    },
                   }}
-                  transition="all 0.2s"
+                  _dark={{
+                    bg: 'gray.900',
+                    borderColor: 'green.400',
+                    color: 'green.200',
+                  }}
+                  transition="background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s"
                 >
-                  <LogIn size={16} />
+                  <LogIn size={15} />
                   {common('login')}
                 </Button>
               ) : null}

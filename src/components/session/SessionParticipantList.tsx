@@ -39,6 +39,13 @@ const SessionParticipantList = ({
   const visiblePlayers = isExpanded
     ? approvedPlayers
     : approvedPlayers.slice(0, MAX_VISIBLE_AVATARS);
+  const visibleEmptySlots = Math.max(
+    0,
+    Math.min(
+      maxPlayers - approvedPlayersCount,
+      MAX_VISIBLE_AVATARS - visiblePlayers.length
+    )
+  );
 
   return (
     <Box>
@@ -130,6 +137,43 @@ const SessionParticipantList = ({
                 </VTooltip>
               );
             })}
+            {Array.from({ length: visibleEmptySlots }).map((_, index) => (
+              <Flex
+                key={`empty-slot-${index}`}
+                direction="column"
+                align="center"
+                gap={1}
+                minW="56px"
+              >
+                <Flex
+                  align="center"
+                  justify="center"
+                  w="38px"
+                  h="38px"
+                  borderRadius="full"
+                  borderWidth="1px"
+                  borderStyle="dashed"
+                  borderColor="gray.300"
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+                  color="gray.400"
+                  fontSize="lg"
+                  fontWeight="medium"
+                >
+                  +
+                </Flex>
+                <Text
+                  fontSize="2xs"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                  textAlign="center"
+                  lineClamp={1}
+                  maxW="60px"
+                >
+                  {t('emptySlot')}
+                </Text>
+              </Flex>
+            ))}
           </Wrap>
 
           {/* View all / Show less buttons */}

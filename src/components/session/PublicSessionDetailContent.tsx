@@ -269,10 +269,10 @@ export const PublicSessionDetailContent = ({
                     borderColor: 'green.500',
                     color: 'green.700',
                   }}
-                  transition="all 0.2s"
+                  transition="background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease"
                   gap={1.5}
                 >
-                  {t('viewMoreSessions') || 'Xem thêm kèo'}
+                  {t('findMoreSessions')}
                   <Icon as={ArrowRight} boxSize={3.5} />
                 </NextLinkButton>
               </Flex>

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { ISessionExpense } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, ReceiptText } from 'lucide-react';
 
 interface SessionExpenseSectionProps {
   sessionId: string;
@@ -175,114 +175,176 @@ export default function SessionExpenseSection({
         )}
       </Flex>
 
-      <VStack gap={2} align="stretch">
+      <VStack gap={2.5} align="stretch">
         {/* Existing expenses */}
         {expenses.length === 0 && !isAdding && (
-          <Text fontSize="sm" color="gray.400" textAlign="center" py={2}>
-            {t('noExpenses')}
-          </Text>
+          <Box
+            py={6}
+            px={4}
+            borderRadius="lg"
+            bg="gray.50"
+            border="1px dashed"
+            borderColor="gray.200"
+            textAlign="center"
+            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+          >
+            <Box color="gray.400" mb={2} display="inline-flex">
+              <ReceiptText size={24} />
+            </Box>
+            <Text fontSize="sm" color="gray.500">
+              {t('noExpenses')}
+            </Text>
+          </Box>
         )}
 
         {expenses.map((expense) =>
           editingId === expense.id ? (
             // Edit row
-            <HStack key={expense.id} gap={2}>
-              <Input
-                size="sm"
-                placeholder={t('expenseName')}
-                value={editName}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setEditName(e.target.value)
-                }
-                flex={1}
-                disabled={savingId === expense.id}
-              />
-              <Input
-                size="sm"
-                type="text"
-                inputMode="numeric"
-                placeholder="0"
-                value={formatAmountDisplay(editAmount)}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setEditAmount(parseAmountInput(e.target.value))
-                }
-                w="110px"
-                disabled={savingId === expense.id}
-              />
-              <IconButton
-                size="sm"
-                aria-label="Save"
-                colorPalette="green"
-                variant="solid"
-                onClick={() => handleSaveEdit(expense.id)}
-                loading={savingId === expense.id}
-                disabled={
-                  !editName.trim() ||
-                  !editAmount ||
-                  isNaN(parseInt(editAmount, 10))
-                }
-              >
-                <Check size={14} />
-              </IconButton>
-              <IconButton
-                size="sm"
-                aria-label="Cancel"
-                variant="ghost"
-                onClick={handleCancelEdit}
-                disabled={savingId === expense.id}
-              >
-                <X size={14} />
-              </IconButton>
-            </HStack>
+            <Box
+              key={expense.id}
+              p={3}
+              border="1px solid"
+              borderColor="green.200"
+              borderRadius="lg"
+              bg="green.50"
+              _dark={{ bg: 'green.950', borderColor: 'green.800' }}
+            >
+              <Flex gap={2} direction={{ base: 'column', sm: 'row' }}>
+                <Input
+                  size="sm"
+                  placeholder={t('expenseName')}
+                  value={editName}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setEditName(e.target.value)
+                  }
+                  flex={1}
+                  disabled={savingId === expense.id}
+                  bg="white"
+                  _dark={{ bg: 'gray.800' }}
+                />
+                <Input
+                  size="sm"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={formatAmountDisplay(editAmount)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setEditAmount(parseAmountInput(e.target.value))
+                  }
+                  w={{ base: '100%', sm: '132px' }}
+                  disabled={savingId === expense.id}
+                  bg="white"
+                  _dark={{ bg: 'gray.800' }}
+                />
+                <HStack gap={1} justify={{ base: 'flex-end', sm: 'initial' }}>
+                  <IconButton
+                    size="sm"
+                    aria-label="Save"
+                    colorPalette="green"
+                    variant="solid"
+                    onClick={() => handleSaveEdit(expense.id)}
+                    loading={savingId === expense.id}
+                    disabled={
+                      !editName.trim() ||
+                      !editAmount ||
+                      isNaN(parseInt(editAmount, 10))
+                    }
+                  >
+                    <Check size={14} />
+                  </IconButton>
+                  <IconButton
+                    size="sm"
+                    aria-label="Cancel"
+                    variant="ghost"
+                    onClick={handleCancelEdit}
+                    disabled={savingId === expense.id}
+                  >
+                    <X size={14} />
+                  </IconButton>
+                </HStack>
+              </Flex>
+            </Box>
           ) : (
             // Display row
-            <HStack key={expense.id} justify="space-between">
-              <Text fontSize="sm">{expense.name}</Text>
-              <HStack gap={2}>
-                <Text fontSize="sm" fontWeight="medium" color="red.600">
-                  {FeeService.formatFeeExact(expense.amount)}
-                </Text>
-                <IconButton
-                  size="xs"
-                  aria-label={t('editExpense')}
-                  variant="ghost"
-                  colorPalette="gray"
-                  onClick={() => handleStartEdit(expense)}
-                  disabled={
-                    isLoading || deletingId === expense.id || editingId !== null
-                  }
-                >
-                  <Pencil size={12} />
-                </IconButton>
-                <IconButton
-                  size="xs"
-                  aria-label={t('deleteExpense')}
-                  variant="ghost"
-                  colorPalette="red"
-                  onClick={() => handleDelete(expense.id)}
-                  loading={deletingId === expense.id}
-                  disabled={isLoading || editingId !== null}
-                >
-                  <Trash2 size={12} />
-                </IconButton>
-              </HStack>
-            </HStack>
+            <Box
+              key={expense.id}
+              p={3}
+              border="1px solid"
+              borderColor="gray.100"
+              borderRadius="lg"
+              bg="gray.50"
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+            >
+              <Flex align="center" justify="space-between" gap={3}>
+                <HStack gap={2.5} flex={1} minW={0}>
+                  <Box
+                    color="red.500"
+                    bg="red.50"
+                    borderRadius="md"
+                    p={1.5}
+                    display="flex"
+                    _dark={{ bg: 'red.950' }}
+                  >
+                    <ReceiptText size={16} />
+                  </Box>
+                  <Text fontSize="sm" fontWeight="medium" lineClamp={2}>
+                    {expense.name}
+                  </Text>
+                </HStack>
+                <VStack gap={1} align="flex-end" flexShrink={0}>
+                  <Text fontSize="sm" fontWeight="bold" color="red.600">
+                    {FeeService.formatFeeExact(expense.amount)}
+                  </Text>
+                  <HStack gap={1}>
+                    <IconButton
+                      size="xs"
+                      aria-label={t('editExpense')}
+                      variant="ghost"
+                      colorPalette="gray"
+                      onClick={() => handleStartEdit(expense)}
+                      disabled={
+                        isLoading ||
+                        deletingId === expense.id ||
+                        editingId !== null
+                      }
+                    >
+                      <Pencil size={12} />
+                    </IconButton>
+                    <IconButton
+                      size="xs"
+                      aria-label={t('deleteExpense')}
+                      variant="ghost"
+                      colorPalette="red"
+                      onClick={() => handleDelete(expense.id)}
+                      loading={deletingId === expense.id}
+                      disabled={isLoading || editingId !== null}
+                    >
+                      <Trash2 size={12} />
+                    </IconButton>
+                  </HStack>
+                </VStack>
+              </Flex>
+            </Box>
           )
         )}
 
         {/* Add draft rows */}
         {isAdding && (
           <Box
-            bg="gray.50"
-            borderRadius="md"
+            bg="green.50"
+            borderRadius="lg"
             p={3}
             border="1px dashed"
-            borderColor="gray.300"
-            _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+            borderColor="green.300"
+            _dark={{ bg: 'green.950', borderColor: 'green.700' }}
           >
             <VStack gap={2} align="stretch">
               {draftRows.map((row, idx) => (
-                <HStack key={idx} gap={2}>
+                <Flex
+                  key={idx}
+                  gap={2}
+                  direction={{ base: 'column', sm: 'row' }}
+                >
                   <Input
                     size="sm"
                     placeholder={t('expenseNamePlaceholder')}
@@ -292,6 +354,8 @@ export default function SessionExpenseSection({
                     }
                     flex={1}
                     disabled={isSavingDrafts}
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
                   />
                   <Input
                     size="sm"
@@ -306,8 +370,10 @@ export default function SessionExpenseSection({
                         parseAmountInput(e.target.value)
                       )
                     }
-                    w="110px"
+                    w={{ base: '100%', sm: '132px' }}
                     disabled={isSavingDrafts}
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
                   />
                   {draftRows.length > 1 && (
                     <IconButton
@@ -321,10 +387,16 @@ export default function SessionExpenseSection({
                       <X size={14} />
                     </IconButton>
                   )}
-                </HStack>
+                </Flex>
               ))}
 
-              <HStack justify="space-between" mt={1}>
+              <Flex
+                justify="space-between"
+                align={{ base: 'stretch', sm: 'center' }}
+                direction={{ base: 'column', sm: 'row' }}
+                gap={2}
+                mt={1}
+              >
                 <Button
                   size="xs"
                   variant="ghost"
@@ -335,7 +407,7 @@ export default function SessionExpenseSection({
                   <Plus size={12} />
                   <Text ml={1}>{t('addExpense')}</Text>
                 </Button>
-                <HStack gap={2}>
+                <HStack gap={2} justify="flex-end">
                   <Button
                     size="sm"
                     variant="outline"
@@ -356,7 +428,7 @@ export default function SessionExpenseSection({
                     {t('save')}
                   </Button>
                 </HStack>
-              </HStack>
+              </Flex>
             </VStack>
           </Box>
         )}

@@ -38,7 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       },
       // Adjust padding if elements are present
       paddingStart: leftElement ? '10' : props.paddingStart,
-      paddingEnd: rightElement ? '10' : props.paddingEnd,
+      paddingEnd: rightElement ? (isNumber ? '24' : '10') : props.paddingEnd,
     };
 
     if (leftElement || rightElement) {
@@ -65,7 +65,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {rightElement && (
             <Box
               position="absolute"
-              right={isNumber ? '7' : '3'}
+              right={isNumber ? '12' : '3'}
               top="50%"
               transform="translateY(-50%)"
               zIndex="1"

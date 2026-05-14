@@ -108,6 +108,7 @@ const SessionDetailBody = ({
       bg="white"
       _dark={{ bg: 'gray.800' }}
       borderTopRadius="2xl"
+      borderBottomRadius="2xl"
       mt="-16px"
       position="relative"
       zIndex={1}
@@ -263,11 +264,16 @@ const SessionDetailBody = ({
 
       {/* Description / Note */}
       {session.description && (
-        <>
+        <Box>
           <Separator my={4} />
-          <Box bg="gray.50" _dark={{ bg: 'gray.700' }} borderRadius="lg" p={4}>
+          <Box
+            bg="gray.50"
+            _dark={{ bg: 'gray.700' }}
+            borderRadius="xl"
+            p={{ base: 4, md: 5 }}
+          >
             <Text
-              fontSize="sm"
+              fontSize={{ base: 'sm', md: 'md' }}
               color="gray.700"
               _dark={{ color: 'gray.300' }}
               whiteSpace="pre-wrap"
@@ -275,7 +281,7 @@ const SessionDetailBody = ({
               {session.description}
             </Text>
           </Box>
-        </>
+        </Box>
       )}
 
       {/* Participants Section */}

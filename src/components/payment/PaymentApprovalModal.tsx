@@ -8,6 +8,8 @@ import {
   Image,
   Textarea,
   Avatar,
+  Flex,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
@@ -16,7 +18,6 @@ import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { VSelect } from '@/components/ui/VSelect';
 import { PaymentRecord, PaymentMethod } from '@/lib/api/types';
-import { FeeService } from '@/lib/api/fee.service';
 import { Check, X, User } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 
@@ -42,6 +43,7 @@ export default function PaymentApprovalModal({
   slotInfo,
 }: PaymentApprovalModalProps) {
   const t = useTranslations('payment');
+  const tCommon = useTranslations('common');
 
   const [hostNotes, setHostNotes] = useState(paymentRecord.hostNotes || '');
   const [customAmount, setCustomAmount] = useState(
@@ -84,16 +86,20 @@ export default function PaymentApprovalModal({
 
   const player = paymentRecord.player;
   const isLoading = isApproving || isRejecting;
-  // Previously: Only allowed if status was SUBMITTED or PENDING
-  // Now: Always allow updating/re-approving even if already APPROVED or REJECTED
-  const canApproveOrReject = true;
 
-  const getPaymentMethodLabel = (method?: PaymentMethod) => {
-    if (!method) return '—';
-    if (method === PaymentMethod.BANK_TRANSFER) {
-      return t('method.bankTransfer');
+  const getGenderText = (gender?: string) => {
+    switch (gender) {
+      case 'MALE':
+        return tCommon('male');
+      case 'FEMALE':
+        return tCommon('female');
+      case 'OTHER':
+        return tCommon('other');
+      case 'PREFER_NOT_TO_SAY':
+        return tCommon('preferNotToSay');
+      default:
+        return gender || '';
     }
-    return t('method.cash');
   };
 
   return (
@@ -104,10 +110,16 @@ export default function PaymentApprovalModal({
       size="md"
       hideSecondaryAction
       footer={
-        canApproveOrReject ? (
-          <HStack gap={2} w="full" justify="flex-end">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
-              {t('cancel')}
+        <VStack gap={2} w="full" align="stretch">
+          <SimpleGrid columns={2} gap={2}>
+            <Button
+              colorPalette="green"
+              onClick={handleApprove}
+              loading={isApproving}
+              disabled={isRejecting}
+            >
+              <Check size={16} />
+              <Text ml={1}>{t('approvePayment')}</Text>
             </Button>
             <Button
               colorPalette="red"
@@ -119,158 +131,185 @@ export default function PaymentApprovalModal({
               <X size={16} />
               <Text ml={1}>{t('rejectPayment')}</Text>
             </Button>
-            <Button
-              colorPalette="green"
-              onClick={handleApprove}
-              loading={isApproving}
-              disabled={isRejecting}
-            >
-              <Check size={16} />
-              <Text ml={1}>{t('approvePayment')}</Text>
-            </Button>
-          </HStack>
-        ) : (
-          <Button onClick={onClose}>{t('close')}</Button>
-        )
+          </SimpleGrid>
+          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+            {t('cancel')}
+          </Button>
+        </VStack>
       }
     >
-      <VStack gap={4} align="stretch">
+      <VStack gap={3.5} align="stretch">
         {/* Player Info */}
-        <HStack gap={3} p={3} bg="gray.50" borderRadius="lg">
-          <Avatar.Root size="md">
-            {player?.user?.image ? (
-              <Avatar.Image src={player.user.image} />
-            ) : (
-              <Avatar.Fallback>
-                <User size={20} />
-              </Avatar.Fallback>
-            )}
-          </Avatar.Root>
-          <Box flex={1}>
-            <Text fontWeight="medium">
-              {player?.name || player?.user?.name || t('unknownPlayer')}
-            </Text>
-            {player?.gender && (
-              <Text fontSize="sm" color="gray.600">
-                {player.gender}
-                {slotInfo && ` • ${slotInfo}`}
-              </Text>
-            )}
-            {!player?.gender && slotInfo && (
-              <Text fontSize="sm" color="gray.600">
-                {slotInfo}
-              </Text>
-            )}
-          </Box>
-        </HStack>
-
-        {/* Payment Details */}
-        <Box border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
-          <HStack justify="space-between" mb={2}>
-            <Text color="gray.600">{t('customAmount')}</Text>
-            {canApproveOrReject ? (
-              <Input
-                size="sm"
-                type="text"
-                inputMode="numeric"
-                value={Number(customAmount || 0).toLocaleString('vi-VN')}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setCustomAmount(e.target.value.replace(/[^\d]/g, ''))
-                }
-                w="120px"
-                textAlign="right"
-                disabled={isLoading}
-              />
-            ) : (
-              <Text fontSize="lg" fontWeight="bold" color="green.600">
-                {FeeService.formatFeeExact(paymentRecord.amount)}
-              </Text>
-            )}
-          </HStack>
-
-          <HStack justify="space-between" mb={2}>
-            <Text color="gray.600">{t('currentStatus')}</Text>
-            <PaymentStatusBadge status={paymentRecord.status} />
-          </HStack>
-
-          <HStack
-            justify="space-between"
-            mb={paymentRecord.submittedAt ? 2 : 0}
-          >
-            <Text color="gray.600">{t('selectPaymentMethod')}</Text>
-            {canApproveOrReject ? (
-              <Box minW="200px">
-                <VSelect
-                  size="sm"
-                  value={selectedPaymentMethod}
-                  onChange={(e) =>
-                    setSelectedPaymentMethod(
-                      e.target.value as PaymentMethod | ''
-                    )
-                  }
-                  disabled={isLoading}
-                  placeholder={t('selectPaymentMethod')}
-                >
-                  <option value="">{t('selectPaymentMethod')}</option>
-                  <option value={PaymentMethod.BANK_TRANSFER}>
-                    {t('method.bankTransfer')}
-                  </option>
-                  <option value={PaymentMethod.CASH}>{t('method.cash')}</option>
-                </VSelect>
+        <Box
+          p={3.5}
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="gray.100"
+        >
+          <Flex align="center" justify="space-between" gap={3}>
+            <HStack gap={3} flex={1} minW={0}>
+              <Avatar.Root size="lg">
+                {player?.user?.image ? (
+                  <Avatar.Image src={player.user.image} />
+                ) : (
+                  <Avatar.Fallback>
+                    <User size={22} />
+                  </Avatar.Fallback>
+                )}
+              </Avatar.Root>
+              <Box flex={1} minW={0}>
+                <Text fontWeight="bold" fontSize="lg" lineClamp={2}>
+                  {player?.name || player?.user?.name || t('unknownPlayer')}
+                </Text>
+                <Text fontSize="sm" color="gray.600">
+                  {[getGenderText(player?.gender), slotInfo]
+                    .filter(Boolean)
+                    .join(' • ')}
+                </Text>
               </Box>
-            ) : (
-              <Text fontWeight="medium">
-                {getPaymentMethodLabel(paymentRecord.paymentMethod)}
-              </Text>
-            )}
-          </HStack>
-
-          {paymentRecord.submittedAt && (
-            <HStack justify="space-between">
-              <Text color="gray.600">{t('submittedAt')}</Text>
-              <Text fontSize="sm">
-                {new Date(paymentRecord.submittedAt).toLocaleString()}
-              </Text>
             </HStack>
-          )}
+            <Box flexShrink={0}>
+              <PaymentStatusBadge status={paymentRecord.status} />
+            </Box>
+          </Flex>
         </Box>
 
-        {/* Payment Proof */}
-        {paymentRecord.proofImageUrl && (
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={2}>
-              {t('paymentProof')}
-            </Text>
-            <Image
-              src={paymentRecord.proofImageUrl}
-              alt="Payment proof"
-              maxH="200px"
-              borderRadius="md"
-              border="1px solid"
-              borderColor="gray.200"
-            />
-          </Box>
-        )}
-
-        {/* Player Notes */}
-        {paymentRecord.proofNotes && (
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>
-              {t('playerNotes')}
-            </Text>
-            <Box
-              p={3}
-              bg="gray.50"
-              borderRadius="md"
-              fontSize="sm"
-              color="gray.700"
+        {/* Payment Review */}
+        <Box
+          p={4}
+          border="1px solid"
+          borderColor="green.200"
+          borderRadius="xl"
+          bg="green.50"
+          _dark={{ bg: 'green.950', borderColor: 'green.800' }}
+        >
+          <VStack align="stretch" gap={3}>
+            <Flex
+              align={{ base: 'stretch', sm: 'center' }}
+              direction={{ base: 'column', sm: 'row' }}
+              gap={2.5}
             >
-              {paymentRecord.proofNotes}
+              <Box flex={1}>
+                <Text
+                  fontSize="sm"
+                  color="green.700"
+                  _dark={{ color: 'green.200' }}
+                  fontWeight="semibold"
+                  mb={1.5}
+                >
+                  {t('customAmount')}
+                </Text>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={Number(customAmount || 0).toLocaleString('vi-VN')}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setCustomAmount(e.target.value.replace(/[^\d]/g, ''))
+                  }
+                  h="44px"
+                  fontSize="xl"
+                  fontWeight="bold"
+                  textAlign="right"
+                  bg="white"
+                  _dark={{ bg: 'gray.800' }}
+                  disabled={isLoading}
+                />
+              </Box>
+            </Flex>
+
+            <Box>
+              <Text fontSize="xs" color="gray.600" mb={1.5}>
+                {t('selectPaymentMethod')}
+              </Text>
+              <VSelect
+                size="sm"
+                value={selectedPaymentMethod}
+                onChange={(e) =>
+                  setSelectedPaymentMethod(e.target.value as PaymentMethod | '')
+                }
+                disabled={isLoading}
+                placeholder={t('selectPaymentMethod')}
+                width="100%"
+              >
+                <option value="">{t('selectPaymentMethod')}</option>
+                <option value={PaymentMethod.BANK_TRANSFER}>
+                  {t('method.bankTransfer')}
+                </option>
+                <option value={PaymentMethod.CASH}>{t('method.cash')}</option>
+              </VSelect>
             </Box>
+
+            {paymentRecord.submittedAt && (
+              <Flex
+                justify="space-between"
+                align="center"
+                gap={3}
+                pt={2}
+                borderTop="1px solid"
+                borderColor="green.100"
+                _dark={{ borderColor: 'green.800' }}
+              >
+                <Text fontSize="xs" color="gray.600">
+                  {t('submittedAt')}
+                </Text>
+                <Text fontSize="xs" fontWeight="medium" textAlign="right">
+                  {new Date(paymentRecord.submittedAt).toLocaleString()}
+                </Text>
+              </Flex>
+            )}
+          </VStack>
+        </Box>
+
+        {(paymentRecord.proofNotes || paymentRecord.proofImageUrl) && (
+          <Box
+            p={3}
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="lg"
+            _dark={{ borderColor: 'gray.700' }}
+          >
+            {paymentRecord.proofNotes && (
+              <Box mb={paymentRecord.proofImageUrl ? 3 : 0}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>
+                  {t('playerNotes')}
+                </Text>
+                <Text
+                  fontSize="sm"
+                  color="gray.700"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  {paymentRecord.proofNotes}
+                </Text>
+              </Box>
+            )}
+
+            {paymentRecord.proofImageUrl && (
+              <Box>
+                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                  {t('paymentProof')}
+                </Text>
+                <Image
+                  src={paymentRecord.proofImageUrl}
+                  alt="Payment proof"
+                  maxH="220px"
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="gray.200"
+                />
+              </Box>
+            )}
           </Box>
         )}
 
-        <Box>
+        <Box
+          p={3}
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
+          _dark={{ borderColor: 'gray.700' }}
+        >
           <Text fontSize="sm" fontWeight="medium" mb={1}>
             {t('hostNotes')}
           </Text>

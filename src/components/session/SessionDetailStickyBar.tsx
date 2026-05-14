@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession, FeeType, UserRole } from '@/lib/api/types';
+import { ISession, FeeType, SessionStatus, UserRole } from '@/lib/api/types';
 import {
   Badge,
   Box,
@@ -72,6 +72,13 @@ const SessionDetailStickyBar = ({
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+  const isPastEndTime = session.endTime
+    ? new Date(session.endTime) < new Date()
+    : false;
+  const isClosed =
+    session.status === SessionStatus.FINISHED ||
+    session.status === SessionStatus.CANCELLED ||
+    isPastEndTime;
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
@@ -126,11 +133,29 @@ const SessionDetailStickyBar = ({
     const buttonRadius = displayMode === 'sidebar' ? 'xl' : 'lg';
     const buttonW = displayMode === 'sidebar' ? 'full' : undefined;
 
+    const manageHref =
+      user?.role === UserRole.PLAYER
+        ? `/player/sessions/${session.slug || session.id}`
+        : `/host/sessions/${session.slug || session.id}`;
+
+    if (canManage && isClosed) {
+      return (
+        <NextLinkButton
+          href={manageHref}
+          colorPalette="gray"
+          variant="subtle"
+          size={buttonSize}
+          w={buttonW}
+          fontWeight="semibold"
+          borderRadius={buttonRadius}
+        >
+          <Icon as={ClipboardList} boxSize={4} />
+          {t('viewEndedSession')}
+        </NextLinkButton>
+      );
+    }
+
     if (canManage) {
-      const manageHref =
-        user?.role === UserRole.PLAYER
-          ? `/player/sessions/${session.slug || session.id}`
-          : `/host/sessions/${session.slug || session.id}`;
       return (
         <NextLinkButton
           href={manageHref}
@@ -144,6 +169,23 @@ const SessionDetailStickyBar = ({
           <Icon as={Settings} boxSize={4} />
           {t('manageSession')}
         </NextLinkButton>
+      );
+    }
+
+    if (isClosed) {
+      return (
+        <Button
+          colorPalette="gray"
+          variant="subtle"
+          size={buttonSize}
+          w={buttonW}
+          fontWeight="semibold"
+          borderRadius={buttonRadius}
+          disabled
+        >
+          <Icon as={ClipboardList} boxSize={4} />
+          {t('sessionEnded')}
+        </Button>
       );
     }
 
@@ -215,7 +257,7 @@ const SessionDetailStickyBar = ({
         borderRadius="2xl"
         borderWidth="1px"
         borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
-        boxShadow="lg"
+        boxShadow="md"
         overflow="hidden"
       >
         {/* Fee header */}

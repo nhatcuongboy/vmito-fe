@@ -163,9 +163,9 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
-      return `${hours}h${mins}m`;
+      return t('waitTimeBadgeHoursMinutes', { hours, minutes: mins });
     }
-    return `${mins}m`;
+    return t('waitTimeBadgeMinutes', { minutes: mins });
   };
 
   return (

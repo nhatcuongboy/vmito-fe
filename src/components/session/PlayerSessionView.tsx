@@ -267,10 +267,10 @@ export default function PlayerSessionView({
     const minutes = waitTimeInMinutes % 60;
 
     if (hours > 0) {
-      return `${hours}h${minutes}m`;
+      return sessionT('waitTimeBadgeHoursMinutes', { hours, minutes });
     }
 
-    return `${minutes} min`;
+    return sessionT('waitTimeBadgeMinutes', { minutes });
   };
 
   // Helper function to get waiting players

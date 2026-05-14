@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ISession } from '@/lib/api/types';
+import { ISession, SessionStatus } from '@/lib/api/types';
 import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { ChevronLeft, Share2 } from 'lucide-react';
@@ -83,6 +83,10 @@ const SessionDetailHero = ({
   const isPastEndTime = session.endTime
     ? new Date(session.endTime) < new Date()
     : false;
+  const isClosed =
+    session.status === SessionStatus.FINISHED ||
+    session.status === SessionStatus.CANCELLED ||
+    isPastEndTime;
 
   const statusColorPalette =
     session.status === 'PREPARING' && isPastEndTime
@@ -215,7 +219,7 @@ const SessionDetailHero = ({
               h="6px"
               borderRadius="full"
               bg={i === currentIndex ? 'white' : 'whiteAlpha.600'}
-              transition="all 0.25s"
+              transition="width 0.25s ease, background-color 0.25s ease"
               onClick={() => {
                 setDirection(i > currentIndex ? 1 : -1);
                 setCurrentIndex(i);
@@ -231,7 +235,7 @@ const SessionDetailHero = ({
         position="absolute"
         bottom={5}
         left={3}
-        colorPalette={isFull ? 'gray' : 'teal'}
+        colorPalette={isClosed || isFull ? 'gray' : 'teal'}
         variant="solid"
         fontSize="sm"
         px={3}
@@ -241,9 +245,11 @@ const SessionDetailHero = ({
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
         backdropFilter="blur(8px)"
       >
-        {isFull
-          ? t('slotsFull')
-          : t('slotsAvailable', { count: availableSlots })}
+        {isClosed
+          ? t('registrationClosed')
+          : isFull
+            ? t('slotsFull')
+            : t('slotsAvailable', { count: availableSlots })}
       </Badge>
 
       {/* Status Badge - bottom right */}

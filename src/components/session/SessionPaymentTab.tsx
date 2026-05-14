@@ -43,6 +43,7 @@ import { SessionExpensesService } from '@/lib/api/session-expenses.service';
 import {
   PaymentSettingsForm,
   SessionPaymentList,
+  SessionPaymentSummary,
   SessionExpenseSection,
 } from '@/components/payment';
 import { toaster } from '@/components/ui/toaster';
@@ -122,23 +123,30 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     [session.hostId, t, tCommon]
   );
 
-  const loadPayments = useCallback(async () => {
-    if (!session.id) return;
+  const loadPayments = useCallback(
+    async (showLoading = true) => {
+      if (!session.id) return;
 
-    setIsLoadingPayments(true);
-    try {
-      const data = await PaymentService.getSessionPayments(session.id);
-      setPayments(data);
-    } catch (error) {
-      console.error('Failed to load payments:', error);
-      toaster.error({
-        title: tCommon('error'),
-        description: t('loadPaymentsFailed'),
-      });
-    } finally {
-      setIsLoadingPayments(false);
-    }
-  }, [session.id, t, tCommon]);
+      if (showLoading) {
+        setIsLoadingPayments(true);
+      }
+      try {
+        const data = await PaymentService.getSessionPayments(session.id);
+        setPayments(data);
+      } catch (error) {
+        console.error('Failed to load payments:', error);
+        toaster.error({
+          title: tCommon('error'),
+          description: t('loadPaymentsFailed'),
+        });
+      } finally {
+        if (showLoading) {
+          setIsLoadingPayments(false);
+        }
+      }
+    },
+    [session.id, t, tCommon]
+  );
 
   const loadExpenses = useCallback(async () => {
     if (!session.id) return;
@@ -246,12 +254,18 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     paymentMethod?: PaymentMethod
   ) => {
     try {
-      await PaymentService.approvePayment(paymentId, {
+      const updatedPayment = await PaymentService.approvePayment(paymentId, {
         hostNotes: notes,
         amount,
         paymentMethod,
       });
-      await loadPayments(); // Refresh payment list
+      setPayments((prev) =>
+        prev.map((payment) =>
+          payment.id === updatedPayment.id
+            ? { ...payment, ...updatedPayment }
+            : payment
+        )
+      );
     } catch (error) {
       console.error('Failed to approve payment:', error);
       toaster.error({
@@ -263,10 +277,16 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
 
   const handleReject = async (paymentId: string, notes?: string) => {
     try {
-      await PaymentService.rejectPayment(paymentId, {
+      const updatedPayment = await PaymentService.rejectPayment(paymentId, {
         hostNotes: notes || 'Rejected',
       });
-      await loadPayments(); // Refresh payment list
+      setPayments((prev) =>
+        prev.map((payment) =>
+          payment.id === updatedPayment.id
+            ? { ...payment, ...updatedPayment }
+            : payment
+        )
+      );
     } catch (error) {
       console.error('Failed to reject payment:', error);
       toaster.error({
@@ -278,8 +298,17 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
 
   const handleBulkApprove = async (paymentIds: string[]) => {
     try {
-      await PaymentService.bulkApprovePayments(paymentIds);
-      await loadPayments(); // Refresh payment list
+      const updatedPayments =
+        await PaymentService.bulkApprovePayments(paymentIds);
+      const updatedById = new Map(
+        updatedPayments.map((payment) => [payment.id, payment])
+      );
+      setPayments((prev) =>
+        prev.map((payment) => {
+          const updatedPayment = updatedById.get(payment.id);
+          return updatedPayment ? { ...payment, ...updatedPayment } : payment;
+        })
+      );
     } catch (error) {
       console.error('Failed to bulk approve payments:', error);
       toaster.error({
@@ -373,8 +402,11 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
 
     setIsSettingSplit(true);
     try {
-      await PaymentService.setSplitAmount(session.id, amount);
-      await loadPayments(); // Refresh to show updated amounts
+      const updatedPayments = await PaymentService.setSplitAmount(
+        session.id,
+        amount
+      );
+      setPayments(updatedPayments);
       setSplitAmount(''); // Clear input
       toaster.success({
         title: tCommon('success'),
@@ -539,52 +571,82 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         {/* Fee Configuration */}
         {session.feeConfig ? (
           <Box
-            bg="green.50"
-            _dark={{ bg: 'green.950' }}
-            borderRadius="lg"
-            p={4}
-            border="1px solid"
-            borderColor="green.200"
+            bgGradient="linear(to-br, green.50, white, green.100)"
+            _dark={{
+              bgGradient: 'linear(to-br, green.950, gray.900, green.900)',
+            }}
+            borderRadius="xl"
+            p={5}
+            border="2px solid"
+            borderColor="green.300"
+            boxShadow="0 10px 26px rgba(23, 154, 59, 0.12)"
+            position="relative"
+            overflow="hidden"
+            _before={{
+              content: '""',
+              position: 'absolute',
+              insetY: 0,
+              left: 0,
+              width: '5px',
+              bg: 'green.500',
+            }}
           >
-            <HStack mb={3}>
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color="green.700"
-                _dark={{ color: 'green.200' }}
-              >
-                {t('sessionFeeConfig')}
-              </Text>
+            <HStack mb={4} justify="space-between" align="center">
+              <HStack gap={2}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  boxSize="32px"
+                  borderRadius="lg"
+                  bg="green.100"
+                  color="green.700"
+                  _dark={{ bg: 'green.900', color: 'green.200' }}
+                >
+                  <Calculator size={17} />
+                </Box>
+                <Text
+                  fontSize="md"
+                  fontWeight="bold"
+                  color="green.800"
+                  _dark={{ color: 'green.100' }}
+                >
+                  {t('sessionFeeConfig')}
+                </Text>
+              </HStack>
               <Badge
                 colorPalette={
                   session.feeConfig.feeType === FeeType.FIXED
                     ? 'green'
                     : 'purple'
                 }
-                variant="subtle"
+                variant="solid"
                 fontSize="xs"
+                px={2.5}
+                py={1}
+                borderRadius="md"
               >
                 {session.feeConfig.feeType === FeeType.FIXED
                   ? t('fixed')
                   : t('splitEvenly')}
               </Badge>
             </HStack>
-            <VStack align="stretch" gap={1.5}>
+            <VStack align="stretch" gap={2.5}>
               {session.feeConfig.feeType === FeeType.FIXED && (
                 <>
                   {session.feeConfig.maleFee ? (
-                    <HStack gap={2}>
+                    <HStack gap={3}>
                       <Text
-                        fontSize="xs"
-                        color="gray.500"
+                        fontSize="sm"
+                        color="gray.600"
                         _dark={{ color: 'gray.400' }}
                         minW="70px"
                       >
                         {t('maleFee')}:
                       </Text>
                       <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
+                        fontSize="lg"
+                        fontWeight="bold"
                         color="green.700"
                         _dark={{ color: 'green.300' }}
                       >
@@ -593,18 +655,18 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                     </HStack>
                   ) : null}
                   {session.feeConfig.femaleFee ? (
-                    <HStack gap={2}>
+                    <HStack gap={3}>
                       <Text
-                        fontSize="xs"
-                        color="gray.500"
+                        fontSize="sm"
+                        color="gray.600"
                         _dark={{ color: 'gray.400' }}
                         minW="70px"
                       >
                         {t('femaleFee')}:
                       </Text>
                       <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
+                        fontSize="lg"
+                        fontWeight="bold"
                         color="green.700"
                         _dark={{ color: 'green.300' }}
                       >
@@ -616,7 +678,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
               )}
               {session.feeConfig.notes && (
                 <Text
-                  fontSize="xs"
+                  fontSize="sm"
                   color="green.600"
                   _dark={{ color: 'green.400' }}
                   mt={1}
@@ -928,41 +990,44 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         </Box>
       )}
 
-      {/* Payment Management */}
+      <SessionPaymentSummary
+        session={session}
+        payments={payments}
+        totalExpenses={totalExpenses}
+      />
+
       <Box
         bg="white"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="lg"
-        p={5}
-        shadow="sm"
         border="1px solid"
-        borderColor="gray.100"
+        borderColor="gray.200"
+        borderRadius="lg"
+        p={4}
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
-        <Heading size="sm" mb={4}>
-          {t('paymentManagement')}
-        </Heading>
+        <Text fontWeight="semibold" mb={3}>
+          {t('income')}
+        </Text>
 
-        <SessionExpenseSection
-          sessionId={session.id}
-          expenses={expenses}
-          onAdd={handleAddExpense}
-          onUpdate={handleUpdateExpense}
-          onDelete={handleDeleteExpense}
-          isLoading={isLoadingExpenses}
+        <SessionPaymentList
+          session={session}
+          payments={payments}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onBulkApprove={handleBulkApprove}
+          totalExpenses={totalExpenses}
+          isLoading={isLoadingPayments}
+          showSummary={false}
         />
-
-        <Box mt={4}>
-          <SessionPaymentList
-            session={session}
-            payments={payments}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onBulkApprove={handleBulkApprove}
-            totalExpenses={totalExpenses}
-            isLoading={isLoadingPayments}
-          />
-        </Box>
       </Box>
+
+      <SessionExpenseSection
+        sessionId={session.id}
+        expenses={expenses}
+        onAdd={handleAddExpense}
+        onUpdate={handleUpdateExpense}
+        onDelete={handleDeleteExpense}
+        isLoading={isLoadingExpenses}
+      />
     </VStack>
   );
 }

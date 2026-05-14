@@ -2,23 +2,23 @@
 
 import React, { Suspense, useState } from 'react';
 import { Flex, Spinner } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 import FindSessionList from '@/components/session/FindSessionList';
 import SuggestionsList from '@/components/session/SuggestionsList';
 import PageLayout from '@/components/layout/PageLayout';
 import { Image } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTranslations } from 'next-intl';
 
 type HomeMode = 'browse' | 'auto';
 
 function HomeContent() {
-  const t = useTranslations('session');
   const [mode, setMode] = useState<HomeMode>('browse');
   const { user } = useAuthStore();
+  const tNavigation = useTranslations('navigation');
 
   return (
     <PageLayout
-      title={t('findSession')}
+      title={tNavigation('findSessions')}
       icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}

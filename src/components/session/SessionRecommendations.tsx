@@ -238,14 +238,14 @@ const SessionRecommendations = ({
   // Desktop layout: vertical list in sidebar
   const displayedRecommendations = showAll
     ? recommendations
-    : recommendations.slice(0, 5);
+    : recommendations.slice(0, 3);
 
   return (
-    <Box w="100%" as="section" aria-label="Gợi ý kèo cho bạn">
-      <Heading size="sm" mb={3} as="h2">
+    <Box w="100%" pb={6} as="section" aria-label="Gợi ý kèo cho bạn">
+      <Heading size="xs" mb={3} as="h2" color="gray.700">
         {isFallback ? 'Kèo phổ biến' : 'Gợi ý cho bạn'}
       </Heading>
-      <Stack gap={2} role="list">
+      <Stack gap={2.5} role="list">
         {displayedRecommendations.map((session) => (
           <Box key={session.id} role="listitem">
             <RecommendationCard
@@ -258,16 +258,17 @@ const SessionRecommendations = ({
       </Stack>
 
       {/* Show more button */}
-      {!showAll && recommendations.length > 5 && (
+      {!showAll && recommendations.length > 3 && (
         <Button
           w="100%"
           mt={3}
+          mb={2}
           size="sm"
           variant="outline"
           colorPalette="green"
           onClick={() => setShowAll(true)}
         >
-          Xem thêm ({recommendations.length - 5})
+          Xem thêm kèo tương tự ({recommendations.length - 3})
         </Button>
       )}
 

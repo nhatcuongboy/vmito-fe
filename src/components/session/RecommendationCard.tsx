@@ -86,7 +86,11 @@ const RecommendationCard = ({
       if (maleFee === femaleFee) {
         return FeeService.formatFee(maleFee || 0);
       }
-      return `${FeeService.formatFee(maleFee || 0)} / ${FeeService.formatFee(femaleFee || 0)}`;
+
+      const minFee = Math.min(maleFee || 0, femaleFee || 0);
+      const maxFee = Math.max(maleFee || 0, femaleFee || 0);
+
+      return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
     }
 
     return 'Chia đều';
@@ -221,11 +225,10 @@ const RecommendationCard = ({
       overflow="hidden"
       bg="white"
       _dark={{ bg: 'gray.800' }}
-      boxShadow="0 1px 4px rgba(0, 0, 0, 0.06)"
-      transition="all 0.2s"
+      boxShadow="0 1px 3px rgba(0, 0, 0, 0.05)"
+      transition="border-color 0.2s ease, box-shadow 0.2s ease"
       _hover={{
-        transform: 'translateX(4px)',
-        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.12)',
+        boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)',
         borderColor: 'green.200',
       }}
       _focusWithin={{
@@ -270,7 +273,7 @@ const RecommendationCard = ({
       )}
 
       {/* Cover Image */}
-      <Box position="relative" h="100px" overflow="hidden">
+      <Box position="relative" h="78px" overflow="hidden">
         <Image
           src={session.coverPhoto || DEFAULT_COVER_PHOTO}
           alt={`Ảnh bìa kèo ${session.name}`}
@@ -282,7 +285,7 @@ const RecommendationCard = ({
 
       {/* Content */}
       <Box p={2.5}>
-        <Heading size="xs" fontWeight="bold" lineClamp={2} mb={2} minH="32px">
+        <Heading size="xs" fontWeight="bold" lineClamp={1} mb={2}>
           {session.name}
         </Heading>
 
@@ -307,7 +310,7 @@ const RecommendationCard = ({
             <Flex align="center" gap={0.5}>
               <Icon as={Users} boxSize={3} color="gray.500" />
               <Text color="gray.700" fontSize="2xs">
-                {session.availableSlots}
+                {session.availableSlots}/{session.maxSlots}
               </Text>
             </Flex>
           </Flex>

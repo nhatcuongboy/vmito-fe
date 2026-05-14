@@ -8,7 +8,13 @@ import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { Badge, Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
 import { Search, Sparkles, User, UserPlus, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Locale } from '@/i18n/locales';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
 
@@ -90,10 +96,12 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   const [mode, setMode] = useState<SelectionMode>('manual');
 
   // Auto-assign internal state
-  const [suggestedPlayers, setSuggestedPlayers] =
-    useState<SuggestedPlayersResponse | null>(null);
+  const [suggestedPlayersByMatchType, setSuggestedPlayersByMatchType] =
+    useState<Partial<Record<TMatchType, SuggestedPlayersResponse>>>({});
   const [isLoadingSuggestion, setIsLoadingSuggestion] = useState(false);
   const [useAi, setUseAi] = useState(false);
+  const initializedCourtIdRef = useRef<string | null>(null);
+  const suggestedPlayers = suggestedPlayersByMatchType[matchType] ?? null;
 
   // Calculate default topCount
   const playersPerCourt = matchType === 'singles' ? 2 : 4;
@@ -109,10 +117,16 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
   // Fetch suggested players
   const fetchSuggestedPlayers = useCallback(
-    async (courtId: string, count: number, enableAi: boolean = false) => {
+    async (
+      courtId: string,
+      count: number,
+      enableAi: boolean = false,
+      suggestionMatchType: TMatchType = matchType
+    ) => {
       try {
         setIsLoadingSuggestion(true);
-        const apiMatchType = matchType === 'singles' ? 'SINGLES' : 'DOUBLES';
+        const apiMatchType =
+          suggestionMatchType === 'singles' ? 'SINGLES' : 'DOUBLES';
         const response = await CourtService.getSuggestedPlayersForCourt(
           courtId,
           count,
@@ -120,7 +134,10 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           locale,
           apiMatchType
         );
-        setSuggestedPlayers(response);
+        setSuggestedPlayersByMatchType((prev) => ({
+          ...prev,
+          [suggestionMatchType]: response,
+        }));
       } catch (error) {
         console.error('Error getting suggested players:', error);
       } finally {
@@ -156,23 +173,53 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
   // Fetch when modal opens
   useEffect(() => {
-    if (isOpen && court?.id) {
-      setTopCount(defaultTopCount);
-      setMode('manual');
-      fetchSuggestedPlayers(court.id, defaultTopCount, false);
-    } else if (!isOpen) {
+    if (!isOpen) {
       // Reset state when modal closes
-      setSuggestedPlayers(null);
+      initializedCourtIdRef.current = null;
+      setSuggestedPlayersByMatchType({});
       setIsLoadingSuggestion(false);
       setUseAi(false);
+      return;
     }
-  }, [isOpen, court?.id, defaultTopCount, fetchSuggestedPlayers]);
+
+    if (!court?.id || initializedCourtIdRef.current === court.id) return;
+
+    initializedCourtIdRef.current = court.id;
+    setTopCount(defaultTopCount);
+    setMode('manual');
+    setSuggestedPlayersByMatchType({});
+    fetchSuggestedPlayers(court.id, defaultTopCount, false, matchType);
+  }, [court?.id, defaultTopCount, fetchSuggestedPlayers, isOpen, matchType]);
+
+  // Keep AI state and cached analysis when switching singles/doubles.
+  // If the current match type has no suitable suggestion yet, fetch it.
+  useEffect(() => {
+    if (!isOpen || !court?.id) return;
+
+    const cachedSuggestion = suggestedPlayersByMatchType[matchType];
+    if (cachedSuggestion && (!useAi || cachedSuggestion.usedAi)) return;
+
+    fetchSuggestedPlayers(court.id, topCount, useAi, matchType);
+  }, [
+    court?.id,
+    fetchSuggestedPlayers,
+    isOpen,
+    matchType,
+    suggestedPlayersByMatchType,
+    topCount,
+    useAi,
+  ]);
 
   // Handle topCount change
   const handleTopCountChange = (newTopCount: number) => {
     if (!court?.id) return;
     setTopCount(newTopCount);
-    fetchSuggestedPlayers(court.id, newTopCount, useAi);
+    setSuggestedPlayersByMatchType((prev) => {
+      const next = { ...prev };
+      delete next[matchType];
+      return next;
+    });
+    fetchSuggestedPlayers(court.id, newTopCount, useAi, matchType);
   };
 
   // Handle AI toggle
@@ -180,7 +227,9 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     if (!court?.id) return;
     const newUseAi = !useAi;
     setUseAi(newUseAi);
-    fetchSuggestedPlayers(court.id, topCount, newUseAi);
+    const cachedSuggestion = suggestedPlayersByMatchType[matchType];
+    if (newUseAi && cachedSuggestion?.usedAi) return;
+    fetchSuggestedPlayers(court.id, topCount, newUseAi, matchType);
   };
 
   // Handle tab change — tabs are independent, no state sync
@@ -492,14 +541,14 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
         cursor={isLoading ? 'not-allowed' : 'pointer'}
         onClick={!isLoading ? onAiToggle : undefined}
         style={{
-          background: useAi
-            ? 'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)'
-            : 'linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%)',
-          border: useAi ? '1.5px solid #7c3aed' : '1.5px solid #d8b4fe',
-          transition: 'all 0.3s ease',
+          background:
+            'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)',
+          border: '1.5px solid #7c3aed',
+          transition:
+            'background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
           boxShadow: useAi
             ? '0 4px 20px rgba(124, 58, 237, 0.4)'
-            : '0 1px 4px rgba(124,58,237,0.1)',
+            : '0 2px 12px rgba(124, 58, 237, 0.28)',
         }}
       >
         {/* Shimmer overlay when active */}
@@ -545,7 +594,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
               <Box
                 as={Sparkles}
                 boxSize={4}
-                color={useAi ? 'yellow.300' : 'purple.500'}
+                color="yellow.300"
                 style={{ transition: 'color 0.3s' }}
               />
             </Box>
@@ -553,14 +602,14 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
               <Text
                 fontSize="sm"
                 fontWeight="bold"
-                color={useAi ? 'white' : 'purple.700'}
+                color="white"
                 style={{ transition: 'color 0.3s', lineHeight: 1.2 }}
               >
                 {aiPoweredMatchingLabel}
               </Text>
               <Text
                 fontSize="xs"
-                color={useAi ? 'purple.200' : 'purple.400'}
+                color="purple.200"
                 style={{ transition: 'color 0.3s' }}
               >
                 {useAi
@@ -580,12 +629,15 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
             borderRadius="full"
             flexShrink={0}
             style={{
-              background: useAi ? '#fbbf24' : 'rgba(139, 92, 246, 0.25)',
+              background: useAi ? '#fbbf24' : 'rgba(255, 255, 255, 0.28)',
               border: useAi
                 ? '1.5px solid #f59e0b'
-                : '1.5px solid rgba(139,92,246,0.4)',
-              transition: 'all 0.3s ease',
-              boxShadow: useAi ? '0 0 10px rgba(251,191,36,0.6)' : 'none',
+                : '1.5px solid rgba(255, 255, 255, 0.45)',
+              transition:
+                'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+              boxShadow: useAi
+                ? '0 0 10px rgba(251,191,36,0.6)'
+                : 'inset 0 0 0 1px rgba(124, 58, 237, 0.18)',
             }}
           >
             <Box
@@ -604,7 +656,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
           </Box>
         </HStack>
 
-        {suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
+        {useAi && suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
           <Box
             mx={2.5}
             mb={2.5}

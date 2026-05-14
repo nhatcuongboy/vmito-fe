@@ -8,6 +8,7 @@ import {
   Avatar,
   Flex,
   Badge,
+  SimpleGrid,
   Skeleton,
   Stack,
 } from '@chakra-ui/react';
@@ -48,10 +49,141 @@ interface SessionPaymentListProps {
   onBulkApprove?: (paymentIds: string[]) => Promise<void>;
   totalExpenses?: number;
   isLoading?: boolean;
+  showSummary?: boolean;
 }
 
 type FilterType = 'all' | PaymentStatus;
 type MemberFilterType = 'all' | 'fixed' | 'regular' | string;
+
+interface SessionPaymentSummaryProps {
+  session: ISession;
+  payments: PaymentRecord[];
+  totalExpenses?: number;
+}
+
+export function SessionPaymentSummary({
+  session,
+  payments,
+  totalExpenses = 0,
+}: SessionPaymentSummaryProps) {
+  const t = useTranslations('payment');
+  const tFixed = useTranslations('clubs');
+
+  const paymentsArray = useMemo(
+    () => (Array.isArray(payments) ? payments : []),
+    [payments]
+  );
+  const fixedMemberCount = paymentsArray.filter(
+    (p) => p.player?.isClubMember
+  ).length;
+  const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
+  const approvedAmount = paymentsArray
+    .filter((p) => p.status === PaymentStatus.APPROVED)
+    .reduce((sum, p) => sum + p.amount, 0);
+  const pendingAmount = totalAmount - approvedAmount;
+  const netAmount = totalAmount - totalExpenses;
+
+  return (
+    <Box
+      bg="white"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="lg"
+      p={4}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+    >
+      <HStack justify="space-between" mb={3}>
+        <Text fontWeight="semibold">{t('paymentSummary')}</Text>
+        <HStack gap={2}>
+          {fixedMemberCount > 0 && (
+            <Badge colorPalette="teal">
+              <UserCheck size={12} />
+              <Text ml={1}>
+                {fixedMemberCount} {tFixed('clubMember')}
+              </Text>
+            </Badge>
+          )}
+          {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
+            <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
+          )}
+        </HStack>
+      </HStack>
+
+      <SimpleGrid columns={{ base: 2, md: 3 }} gap={3}>
+        <Box p={3} borderRadius="lg" bg="green.50" _dark={{ bg: 'green.950' }}>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            {t('income')}
+          </Text>
+          <Text fontSize="md" fontWeight="bold" color="green.600">
+            {totalAmount === 0 ? '0' : FeeService.formatFeeExact(totalAmount)}
+          </Text>
+        </Box>
+        <Box p={3} borderRadius="lg" bg="red.50" _dark={{ bg: 'red.950' }}>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            {t('totalExpenses')}
+          </Text>
+          <Text fontSize="md" fontWeight="bold" color="red.500">
+            {totalExpenses === 0
+              ? '0'
+              : FeeService.formatFeeExact(totalExpenses)}
+          </Text>
+        </Box>
+        <Box p={3} borderRadius="lg" bg="green.50" _dark={{ bg: 'green.950' }}>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            {t('paidAmount')}
+          </Text>
+          <Text fontSize="md" fontWeight="bold" color="green.600">
+            {approvedAmount === 0
+              ? '0'
+              : FeeService.formatFeeExact(approvedAmount)}
+          </Text>
+        </Box>
+        <Box
+          p={3}
+          borderRadius="lg"
+          bg="yellow.50"
+          _dark={{ bg: 'yellow.950' }}
+        >
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            {t('pendingAmount')}
+          </Text>
+          <Text fontSize="md" fontWeight="bold" color="yellow.700">
+            {pendingAmount === 0
+              ? '0'
+              : FeeService.formatFeeExact(pendingAmount)}
+          </Text>
+        </Box>
+        <Box
+          p={3}
+          borderRadius="lg"
+          bg={netAmount >= 0 ? 'green.50' : 'red.50'}
+          _dark={{ bg: netAmount >= 0 ? 'green.950' : 'red.950' }}
+        >
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            {t('netTotal')}
+          </Text>
+          <Text
+            fontSize="md"
+            fontWeight="bold"
+            color={netAmount >= 0 ? 'green.600' : 'red.500'}
+          >
+            {FeeService.formatFeeExact(netAmount)}
+          </Text>
+        </Box>
+        <Box p={3} borderRadius="lg" bg="blue.50" _dark={{ bg: 'blue.950' }}>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            {t('remainingAmount')}
+          </Text>
+          <Text fontSize="md" fontWeight="bold" color="blue.600">
+            {pendingAmount === 0
+              ? '0'
+              : FeeService.formatFeeExact(pendingAmount)}
+          </Text>
+        </Box>
+      </SimpleGrid>
+    </Box>
+  );
+}
 
 export default function SessionPaymentList({
   session,
@@ -61,6 +193,7 @@ export default function SessionPaymentList({
   onBulkApprove,
   totalExpenses = 0,
   isLoading = false,
+  showSummary = true,
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
   const tFixed = useTranslations('clubs');
@@ -167,10 +300,6 @@ export default function SessionPaymentList({
   const submittedCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.SUBMITTED
   ).length;
-  const fixedMemberCount = paymentsArray.filter(
-    (p) => p.player?.isClubMember
-  ).length;
-
   const submittedPaymentIds = paymentsArray
     .filter((p) => p.status === PaymentStatus.SUBMITTED)
     .map((p) => p.id);
@@ -219,12 +348,6 @@ export default function SessionPaymentList({
     }
   };
 
-  // Calculate totals
-  const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
-  const approvedAmount = paymentsArray
-    .filter((p) => p.status === PaymentStatus.APPROVED)
-    .reduce((sum, p) => sum + p.amount, 0);
-
   // Helper to render fixed member info with tooltip
   const renderFixedMemberAmount = (payment: PaymentRecord) => {
     const player = payment.player;
@@ -268,123 +391,13 @@ export default function SessionPaymentList({
 
   return (
     <VStack gap={4} align="stretch">
-      {/* Summary */}
-      <Box
-        bg="white"
-        border="1px solid"
-        borderColor="gray.200"
-        borderRadius="lg"
-        p={4}
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      >
-        <HStack justify="space-between" mb={3}>
-          <Text fontWeight="semibold">{t('paymentSummary')}</Text>
-          <HStack gap={2}>
-            {fixedMemberCount > 0 && (
-              <Badge colorPalette="teal">
-                <UserCheck size={12} />
-                <Text ml={1}>
-                  {fixedMemberCount} {tFixed('clubMember')}
-                </Text>
-              </Badge>
-            )}
-            {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
-              <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
-            )}
-          </HStack>
-        </HStack>
-
-        <Flex gap={4} wrap="wrap">
-          <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-              {t('paidAmount')}
-            </Text>
-            <Text fontSize="lg" fontWeight="bold" color="green.600">
-              {approvedAmount === 0
-                ? '0'
-                : FeeService.formatFeeExact(approvedAmount)}
-            </Text>
-          </Box>
-          <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-              {t('pendingAmount')}
-            </Text>
-            <Text fontSize="lg" fontWeight="bold" color="yellow.600">
-              {totalAmount - approvedAmount === 0
-                ? '0'
-                : FeeService.formatFeeExact(totalAmount - approvedAmount)}
-            </Text>
-          </Box>
-          <Box flex={1} minW="120px">
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-              {t('remainingAmount')}
-            </Text>
-            <Text fontSize="lg" fontWeight="bold" color="blue.600">
-              {totalAmount - approvedAmount === 0
-                ? '0'
-                : FeeService.formatFeeExact(totalAmount - approvedAmount)}
-            </Text>
-          </Box>
-        </Flex>
-
-        {/* Income / Expense / Net summary */}
-        <Box
-          mt={3}
-          pt={3}
-          borderTop="1px solid"
-          borderColor="gray.100"
-          _dark={{ borderColor: 'gray.700' }}
-        >
-          <Flex gap={4} wrap="wrap">
-            <Box flex={1} minW="120px">
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-              >
-                {t('income')}
-              </Text>
-              <Text fontSize="md" fontWeight="semibold" color="green.600">
-                {totalAmount === 0
-                  ? '0'
-                  : FeeService.formatFeeExact(totalAmount)}
-              </Text>
-            </Box>
-            <Box flex={1} minW="120px">
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-              >
-                {t('totalExpenses')}
-              </Text>
-              <Text fontSize="md" fontWeight="semibold" color="red.500">
-                {totalExpenses === 0
-                  ? '0'
-                  : FeeService.formatFeeExact(totalExpenses)}
-              </Text>
-            </Box>
-            <Box flex={1} minW="120px">
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-              >
-                {t('netTotal')}
-              </Text>
-              <Text
-                fontSize="md"
-                fontWeight="bold"
-                color={
-                  totalAmount - totalExpenses >= 0 ? 'green.600' : 'red.500'
-                }
-              >
-                {FeeService.formatFeeExact(totalAmount - totalExpenses)}
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
-      </Box>
+      {showSummary && (
+        <SessionPaymentSummary
+          session={session}
+          payments={paymentsArray}
+          totalExpenses={totalExpenses}
+        />
+      )}
 
       {/* Filters & Actions */}
       <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
@@ -526,8 +539,8 @@ export default function SessionPaymentList({
                   _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
                   onClick={() => setSelectedPayment(payment)}
                 >
-                  <Flex align="center" justify="space-between">
-                    <HStack gap={3} flex={1}>
+                  <Flex align="center" justify="space-between" gap={3}>
+                    <HStack gap={3} flex={1} minW={0}>
                       <Avatar.Root size="sm">
                         {payment.player?.user?.image ? (
                           <Avatar.Image src={payment.player.user.image} />
@@ -537,47 +550,43 @@ export default function SessionPaymentList({
                           </Avatar.Fallback>
                         )}
                       </Avatar.Root>
-                      <Box>
-                        <HStack gap={2}>
-                          <Text fontWeight="medium" fontSize="sm">
+                      <Box flex={1} minW={0}>
+                        <VStack align="stretch" gap={0.5}>
+                          <Text fontWeight="medium" fontSize="sm" lineClamp={2}>
                             {payment.player?.name ||
                               payment.player?.user?.name ||
                               t('unknownPlayer')}
                           </Text>
-                          {payment.player?.isClubMember && (
-                            <Badge
-                              colorPalette="teal"
-                              variant="subtle"
-                              fontSize="2xs"
-                              px={1}
-                            >
-                              <UserCheck size={10} />
-                              <Text ml={0.5}>
-                                {payment.player?.club?.name ||
-                                  tFixed('clubMember')}
+                          <HStack gap={1.5} wrap="wrap">
+                            {payment.player?.gender && (
+                              <Text fontSize="xs" color="gray.500">
+                                {getGenderText(payment.player.gender)}
                               </Text>
-                            </Badge>
-                          )}
-                        </HStack>
-                        {payment.player?.gender && (
-                          <Text fontSize="xs" color="gray.500">
-                            {getGenderText(payment.player.gender)}
-                          </Text>
-                        )}
+                            )}
+                            {payment.player?.isClubMember && (
+                              <Badge
+                                colorPalette="teal"
+                                variant="subtle"
+                                fontSize="2xs"
+                                px={1}
+                              >
+                                <UserCheck size={10} />
+                                <Text ml={0.5}>
+                                  {payment.player?.club?.name ||
+                                    tFixed('clubMember')}
+                                </Text>
+                              </Badge>
+                            )}
+                          </HStack>
+                        </VStack>
                       </Box>
                     </HStack>
-                    <HStack gap={3} flex={1} justify="flex-end">
-                      <Box minW="100px" textAlign="right">
+                    <VStack gap={1.5} align="flex-end" flexShrink={0}>
+                      <Box textAlign="right">
                         {renderFixedMemberAmount(payment)}
                       </Box>
-                      <Box
-                        minW="100px"
-                        display="flex"
-                        justifyContent="flex-end"
-                      >
-                        <PaymentStatusBadge status={payment.status} size="sm" />
-                      </Box>
-                    </HStack>
+                      <PaymentStatusBadge status={payment.status} size="sm" />
+                    </VStack>
                   </Flex>
                   {payment.proofImageUrl && (
                     <HStack mt={2} ml={10}>
@@ -611,10 +620,11 @@ export default function SessionPaymentList({
                   _dark={{ bg: 'blue.900/20' }}
                   align="center"
                   justify="space-between"
+                  gap={3}
                   cursor="pointer"
                   onClick={() => toggleGroup(key)}
                 >
-                  <HStack gap={3}>
+                  <HStack gap={3} flex={1} minW={0}>
                     <Avatar.Root size="sm">
                       {representative.player?.user?.image ? (
                         <Avatar.Image src={representative.player.user.image} />
@@ -624,9 +634,9 @@ export default function SessionPaymentList({
                         </Avatar.Fallback>
                       )}
                     </Avatar.Root>
-                    <Box>
+                    <Box flex={1} minW={0}>
                       <HStack gap={1.5}>
-                        <Text fontWeight="semibold" fontSize="sm">
+                        <Text fontWeight="semibold" fontSize="sm" lineClamp={2}>
                           {representative.player?.name ||
                             representative.player?.user?.name ||
                             t('unknownPlayer')}
@@ -645,10 +655,24 @@ export default function SessionPaymentList({
                       </Text>
                     </Box>
                   </HStack>
-                  <HStack gap={2}>
-                    <Text fontWeight="semibold" color="green.600" fontSize="sm">
-                      {FeeService.formatFeeExact(totalGroupAmount)}
-                    </Text>
+                  <HStack gap={2} flexShrink={0}>
+                    <VStack gap={1} align="flex-end">
+                      <Text
+                        fontWeight="semibold"
+                        color="green.600"
+                        fontSize="sm"
+                      >
+                        {FeeService.formatFeeExact(totalGroupAmount)}
+                      </Text>
+                      <PaymentStatusBadge
+                        status={
+                          allApproved
+                            ? PaymentStatus.APPROVED
+                            : PaymentStatus.PENDING
+                        }
+                        size="sm"
+                      />
+                    </VStack>
                     {!allApproved && onBulkApprove && (
                       <Button
                         size="xs"
@@ -690,8 +714,8 @@ export default function SessionPaymentList({
                         transition="background 0.15s"
                         onClick={() => setSelectedPayment(payment)}
                       >
-                        <Flex align="center" justify="space-between">
-                          <HStack gap={2.5}>
+                        <Flex align="center" justify="space-between" gap={3}>
+                          <HStack gap={2.5} flex={1} minW={0}>
                             <Text
                               fontSize="xs"
                               color="gray.400"
@@ -700,47 +724,53 @@ export default function SessionPaymentList({
                             >
                               #{payment.player?.playerNumber}
                             </Text>
-                            <Box>
-                              <HStack gap={1.5}>
-                                <Text fontSize="sm" fontWeight="medium">
+                            <Box flex={1} minW={0}>
+                              <VStack align="stretch" gap={0.5}>
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight="medium"
+                                  lineClamp={2}
+                                >
                                   {payment.player?.name || t('unknownPlayer')}
                                 </Text>
-                                {payment.player?.gender && (
-                                  <Badge
-                                    colorPalette={
-                                      payment.player.gender === 'MALE'
-                                        ? 'blue'
-                                        : payment.player.gender === 'FEMALE'
-                                          ? 'pink'
-                                          : 'gray'
-                                    }
-                                    variant="subtle"
-                                    size="xs"
-                                  >
-                                    {getGenderText(payment.player.gender)}
-                                  </Badge>
-                                )}
-                                {payment.player?.isClubMember && (
-                                  <Badge
-                                    colorPalette="teal"
-                                    variant="subtle"
-                                    fontSize="2xs"
-                                    px={1}
-                                  >
-                                    {payment.player?.club?.name ||
-                                      tFixed('clubMember')}
-                                  </Badge>
-                                )}
-                              </HStack>
+                                <HStack gap={1.5} wrap="wrap">
+                                  {payment.player?.gender && (
+                                    <Badge
+                                      colorPalette={
+                                        payment.player.gender === 'MALE'
+                                          ? 'blue'
+                                          : payment.player.gender === 'FEMALE'
+                                            ? 'pink'
+                                            : 'gray'
+                                      }
+                                      variant="subtle"
+                                      size="xs"
+                                    >
+                                      {getGenderText(payment.player.gender)}
+                                    </Badge>
+                                  )}
+                                  {payment.player?.isClubMember && (
+                                    <Badge
+                                      colorPalette="teal"
+                                      variant="subtle"
+                                      fontSize="2xs"
+                                      px={1}
+                                    >
+                                      {payment.player?.club?.name ||
+                                        tFixed('clubMember')}
+                                    </Badge>
+                                  )}
+                                </HStack>
+                              </VStack>
                             </Box>
                           </HStack>
-                          <HStack gap={3}>
+                          <VStack gap={1.5} align="flex-end" flexShrink={0}>
                             {renderFixedMemberAmount(payment)}
                             <PaymentStatusBadge
                               status={payment.status}
                               size="sm"
                             />
-                          </HStack>
+                          </VStack>
                         </Flex>
                         {payment.proofImageUrl && (
                           <HStack mt={1} ml={8}>
