@@ -10,7 +10,7 @@ import {
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { VenueService } from '@/lib/api/venue.service';
-import { Venue } from '@/lib/api/types';
+import { Venue, VenueRequestType } from '@/lib/api/types';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import {
   Badge,
@@ -30,6 +30,7 @@ import {
   Filter,
   Grid2X2,
   MapPin,
+  Plus,
   TrendingUp,
   X,
   Star,
@@ -49,6 +50,9 @@ import {
   booleanField,
 } from '@/hooks/useUrlFilters';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import VenueRequestModal from './VenueRequestModal';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useRouter } from '@/i18n/config';
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
@@ -129,6 +133,8 @@ const VENUE_FILTERS_SCHEMA = {
 
 export default function VenueSearchList() {
   const t = useTranslations();
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -176,6 +182,11 @@ export default function VenueSearchList() {
   } | null>(null);
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
+  const {
+    isOpen: isCreateRequestOpen,
+    onOpen: openCreateRequest,
+    onClose: closeCreateRequest,
+  } = useDisclosure(false);
 
   const loadingMoreRef = useRef(false);
 
@@ -461,6 +472,7 @@ export default function VenueSearchList() {
 
   const activeFilterCount =
     filters.city.length + filters.district.length + (filters.near ? 1 : 0);
+  const hasVenueSearch = filters.q.trim().length > 0;
 
   // Sort dropdown state
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -472,6 +484,14 @@ export default function VenueSearchList() {
   // When "near me" is active, distance sort overrides; show MapPin label
   const sortButtonLabel = filters.near ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = filters.near ? MapPin : activeSortOption.icon;
+
+  const handleOpenCreateRequest = () => {
+    if (!isAuthenticated) {
+      router.push('/auth/signin');
+      return;
+    }
+    openCreateRequest();
+  };
 
   // On mobile, always show icon-only in the sort button (no label text)
 
@@ -1068,9 +1088,19 @@ export default function VenueSearchList() {
           <Text color="gray.500">
             Thử thay đổi từ khóa hoặc bộ lọc để tìm sân phù hợp.
           </Text>
-          {activeFilterCount > 0 && (
+          {hasVenueSearch && (
             <Button
               mt={4}
+              colorPalette="green"
+              onClick={handleOpenCreateRequest}
+              leftIcon={<Plus size={16} />}
+            >
+              {t('venueRequests.suggestNewVenue')}
+            </Button>
+          )}
+          {activeFilterCount > 0 && (
+            <Button
+              mt={hasVenueSearch ? 3 : 4}
               onClick={clearAllFilters}
               variant="outline"
               size="sm"
@@ -1126,6 +1156,12 @@ export default function VenueSearchList() {
           )}
         </>
       )}
+      <VenueRequestModal
+        isOpen={isCreateRequestOpen}
+        onClose={closeCreateRequest}
+        type={VenueRequestType.CREATE}
+        defaultKeyword={filters.q}
+      />
     </Box>
   );
 }

@@ -31,15 +31,15 @@ import {
   LayoutGrid,
   MapPin,
   Phone,
+  PencilLine,
   Search,
   Settings,
   UtensilsCrossed,
   Wifi,
   XCircle,
 } from 'lucide-react';
-import { ClosureStatus } from '@/lib/api/types';
 import { VenueService } from '@/lib/api/venue.service';
-import { Venue } from '@/lib/api/types';
+import { ClosureStatus, Venue, VenueRequestType } from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
@@ -54,6 +54,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import VenueMapPin from '@/components/venue/VenueMapPin';
+import VenueRequestModal from '@/components/venue/VenueRequestModal';
 
 function formatPrice(amount?: number) {
   if (!amount) return null;
@@ -76,6 +77,7 @@ export default function VenueDetailClient({
   const [venue, setVenue] = useState<Venue | null>(initialVenue);
   const [loading, setLoading] = useState(!initialVenue);
   const [activeTab, setActiveTab] = useState('about');
+  const [isUpdateRequestOpen, setIsUpdateRequestOpen] = useState(false);
 
   useEffect(() => {
     if (initialVenue) return;
@@ -105,6 +107,14 @@ export default function VenueDetailClient({
   const handleFindSessions = () => {
     if (!venue) return;
     router.push(`/?venueId=${venue.id}`);
+  };
+
+  const handleOpenUpdateRequest = () => {
+    if (!user) {
+      router.push('/auth/signin');
+      return;
+    }
+    setIsUpdateRequestOpen(true);
   };
 
   if (loading) {
@@ -287,18 +297,28 @@ export default function VenueDetailClient({
                 </Text>
               )}
             </Box>
-            {isAdmin && (
+            <HStack gap={2} flexShrink={0}>
               <Button
                 variant="outline"
                 size="sm"
-                colorPalette="gray"
-                flexShrink={0}
-                onClick={() => router.push(`/admin/venues/${venue.id}/edit`)}
+                colorPalette="green"
+                onClick={handleOpenUpdateRequest}
               >
-                <Settings size={14} />
-                Chỉnh sửa
+                <PencilLine size={14} />
+                {t('requestUpdate')}
               </Button>
-            )}
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  colorPalette="gray"
+                  onClick={() => router.push(`/admin/venues/${venue.id}/edit`)}
+                >
+                  <Settings size={14} />
+                  Chỉnh sửa
+                </Button>
+              )}
+            </HStack>
           </Flex>
         </Box>
       </Container>
@@ -1096,6 +1116,13 @@ export default function VenueDetailClient({
           </Grid>
         </Tabs.Root>
       </Container>
+
+      <VenueRequestModal
+        isOpen={isUpdateRequestOpen}
+        onClose={() => setIsUpdateRequestOpen(false)}
+        type={VenueRequestType.UPDATE}
+        venue={venue}
+      />
     </PageLayout>
   );
 }

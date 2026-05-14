@@ -252,7 +252,7 @@ export enum ClosureStatus {
 export interface Venue {
   id: string;
   slug?: string;
-  placeId: string;
+  placeId?: string;
   name: string;
   acronym?: string;
   description?: string;
@@ -288,6 +288,62 @@ export interface Venue {
   courtLayoutImagePublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
+}
+
+export enum VenueRequestType {
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+}
+
+export enum VenueRequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export interface VenueRequestPayload {
+  name?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  numberOfCourts?: number;
+  openingHours?: string;
+  hourlyRateFixed?: number;
+  hourlyRateWalkIn?: number;
+  phone?: string;
+  website?: string;
+  locatedWithin?: string;
+  bookingPolicy?: string;
+  note?: string;
+}
+
+export interface VenueRequest {
+  id: string;
+  type: VenueRequestType;
+  status: VenueRequestStatus;
+  submittedByUserId: string;
+  venueId?: string | null;
+  appliedVenueId?: string | null;
+  payload: VenueRequestPayload;
+  adminNote?: string | null;
+  reviewedByUserId?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  submittedBy?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+  };
+  reviewedBy?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+  } | null;
+  venue?: Venue | null;
+  appliedVenue?: Venue | null;
 }
 
 export interface SearchVenueResponse {

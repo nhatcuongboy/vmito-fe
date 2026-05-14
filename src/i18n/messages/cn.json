@@ -3170,7 +3170,8 @@
     "newAddressSection": "新行政地址 (NQ60)",
     "newAddress": "新地址",
     "newDistrict": "新区/坊",
-    "newCity": "新城市"
+    "newCity": "新城市",
+    "venueRequests": "场地请求"
   },
   "PlayerDetailModal": {
     "status": "状态",
@@ -3866,10 +3867,80 @@
     "share": "分享",
     "view": "查看",
     "viewDetails": "查看详情",
+    "requestUpdate": "建议修改信息",
     "findSessions": "查找场次",
     "findSessionsAtVenue": "查找场次",
     "nameFormat": "羽毛球馆 {name}",
     "searchPlaceholder": "按场地名称、地址搜索..."
+  },
+  "venueRequests": {
+    "suggestNewVenue": "建议新增场地",
+    "createTitle": "建议新增场地",
+    "createDescription": "提交核心信息，管理员审核后会加入系统。",
+    "updateTitle": "建议修改场地信息",
+    "updateDescription": "修改需要更正的字段。管理员审核后才会应用。",
+    "submitCreate": "提交建议",
+    "submitUpdate": "提交修改请求",
+    "submitAnyway": "仍然提交",
+    "cancel": "取消",
+    "submitSuccess": "请求已提交",
+    "submitError": "无法提交请求",
+    "similarVenuesTitle": "这个场地可能已存在",
+    "similarVenuesHint": "如果以上都不匹配，可以再次提交以继续建议新增场地。",
+    "viewVenue": "查看场地",
+    "adminTitle": "场地请求",
+    "loadError": "加载场地请求失败",
+    "approveSuccess": "请求已批准",
+    "approveError": "批准请求失败",
+    "rejectSuccess": "请求已拒绝",
+    "rejectError": "拒绝请求失败",
+    "approve": "批准",
+    "reject": "拒绝",
+    "rejectTitle": "拒绝请求",
+    "rejectReason": "拒绝原因",
+    "refresh": "刷新",
+    "allStatuses": "所有状态",
+    "allTypes": "所有类型",
+    "empty": "没有请求",
+    "untitled": "未命名场地",
+    "submittedBy": "{name} 于 {date} 提交",
+    "currentValue": "当前",
+    "requestedValue": "建议",
+    "adminNote": "管理员备注",
+    "types": {
+      "CREATE": "新增场地",
+      "UPDATE": "更新场地"
+    },
+    "statuses": {
+      "PENDING": "待审核",
+      "APPROVED": "已批准",
+      "REJECTED": "已拒绝"
+    },
+    "fields": {
+      "name": "场地名称",
+      "address": "地址",
+      "city": "城市",
+      "district": "区/县",
+      "numberOfCourts": "场地数量",
+      "openingHours": "营业时间",
+      "hourlyRateFixed": "固定价格",
+      "hourlyRateWalkIn": "散客价格",
+      "phone": "电话",
+      "website": "网站",
+      "locatedWithin": "位于",
+      "bookingPolicy": "预订政策",
+      "note": "备注"
+    },
+    "placeholders": {
+      "city": "选择城市",
+      "district": "选择区/县",
+      "openingHours": "例如：6:00 - 22:00",
+      "createNote": "添加有助于管理员核实场地的信息...",
+      "updateNote": "说明来源或需要更新的原因..."
+    },
+    "validation": {
+      "required": "请输入必填信息"
+    }
   },
   "feedback": {
     "pageTitle": "联系我们 & 报告错误",

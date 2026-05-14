@@ -3231,7 +3231,8 @@
     "newAddressSection": "Địa chỉ mới (NQ60)",
     "newAddress": "Địa chỉ mới",
     "newDistrict": "Phường/Xã mới",
-    "newCity": "Tỉnh/Thành phố mới"
+    "newCity": "Tỉnh/Thành phố mới",
+    "venueRequests": "Yêu cầu sân"
   },
   "PlayerDetailModal": {
     "status": "Trạng thái",
@@ -3934,9 +3935,79 @@
     "view": "Xem",
     "viewDetails": "Xem chi tiết",
     "findSessions": "Tìm kèo",
+    "requestUpdate": "Báo sửa thông tin",
     "findSessionsAtVenue": "Tìm kèo tại sân",
     "nameFormat": "Sân {name}",
     "searchPlaceholder": "Tìm theo tên sân, địa chỉ..."
+  },
+  "venueRequests": {
+    "suggestNewVenue": "Đề xuất sân mới",
+    "createTitle": "Đề xuất sân mới",
+    "createDescription": "Gửi thông tin cốt lõi để quản trị viên kiểm tra và thêm sân vào hệ thống.",
+    "updateTitle": "Báo sửa thông tin sân",
+    "updateDescription": "Chỉnh thông tin cần cập nhật. Quản trị viên sẽ duyệt trước khi áp dụng.",
+    "submitCreate": "Gửi đề xuất",
+    "submitUpdate": "Gửi yêu cầu sửa",
+    "submitAnyway": "Vẫn gửi đề xuất",
+    "cancel": "Hủy",
+    "submitSuccess": "Đã gửi yêu cầu",
+    "submitError": "Không thể gửi yêu cầu",
+    "similarVenuesTitle": "Có thể sân này đã tồn tại",
+    "similarVenuesHint": "Nếu các sân trên không đúng, bạn có thể bấm gửi lần nữa để tiếp tục đề xuất sân mới.",
+    "viewVenue": "Xem sân",
+    "adminTitle": "Yêu cầu cập nhật sân",
+    "loadError": "Không thể tải danh sách yêu cầu",
+    "approveSuccess": "Đã duyệt yêu cầu",
+    "approveError": "Không thể duyệt yêu cầu",
+    "rejectSuccess": "Đã từ chối yêu cầu",
+    "rejectError": "Không thể từ chối yêu cầu",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "rejectTitle": "Từ chối yêu cầu",
+    "rejectReason": "Lý do từ chối",
+    "refresh": "Tải lại",
+    "allStatuses": "Tất cả trạng thái",
+    "allTypes": "Tất cả loại",
+    "empty": "Không có yêu cầu nào",
+    "untitled": "Chưa có tên sân",
+    "submittedBy": "{name} gửi ngày {date}",
+    "currentValue": "Hiện tại",
+    "requestedValue": "Đề xuất",
+    "adminNote": "Ghi chú quản trị viên",
+    "types": {
+      "CREATE": "Tạo sân mới",
+      "UPDATE": "Cập nhật sân"
+    },
+    "statuses": {
+      "PENDING": "Chờ duyệt",
+      "APPROVED": "Đã duyệt",
+      "REJECTED": "Đã từ chối"
+    },
+    "fields": {
+      "name": "Tên sân",
+      "address": "Địa chỉ",
+      "city": "Thành phố",
+      "district": "Quận/Huyện",
+      "numberOfCourts": "Số sân",
+      "openingHours": "Giờ mở cửa",
+      "hourlyRateFixed": "Giá cố định",
+      "hourlyRateWalkIn": "Giá vãng lai",
+      "phone": "Số điện thoại",
+      "website": "Website",
+      "locatedWithin": "Nằm trong",
+      "bookingPolicy": "Chính sách đặt sân",
+      "note": "Ghi chú"
+    },
+    "placeholders": {
+      "city": "Chọn thành phố",
+      "district": "Chọn quận/huyện",
+      "openingHours": "VD: 6:00 - 22:00",
+      "createNote": "Thêm thông tin giúp admin xác minh sân...",
+      "updateNote": "Mô tả nguồn hoặc lý do cần cập nhật..."
+    },
+    "validation": {
+      "required": "Vui lòng nhập thông tin bắt buộc"
+    }
   },
   "feedback": {
     "pageTitle": "Liên hệ & Báo cáo lỗi",

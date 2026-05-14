@@ -3217,7 +3217,8 @@
     "newAddressSection": "New Admin Address (NQ60)",
     "newAddress": "New Address",
     "newDistrict": "New Ward/District",
-    "newCity": "New City"
+    "newCity": "New City",
+    "venueRequests": "Venue Requests"
   },
   "PlayerDetailModal": {
     "status": "Status",
@@ -3913,9 +3914,80 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
+    "requestUpdate": "Suggest an edit",
+    "findSessions": "Find Sessions",
     "findSessionsAtVenue": "Find Sessions",
     "nameFormat": "Badminton Court {name}",
     "searchPlaceholder": "Search by venue name, address..."
+  },
+  "venueRequests": {
+    "suggestNewVenue": "Suggest new venue",
+    "createTitle": "Suggest a new venue",
+    "createDescription": "Send the core details so an admin can verify and add this venue.",
+    "updateTitle": "Suggest venue edits",
+    "updateDescription": "Update the fields that need correction. An admin will review before applying.",
+    "submitCreate": "Submit suggestion",
+    "submitUpdate": "Submit edit request",
+    "submitAnyway": "Submit anyway",
+    "cancel": "Cancel",
+    "submitSuccess": "Request submitted",
+    "submitError": "Could not submit request",
+    "similarVenuesTitle": "This venue may already exist",
+    "similarVenuesHint": "If none of these matches, submit again to continue suggesting a new venue.",
+    "viewVenue": "View venue",
+    "adminTitle": "Venue Requests",
+    "loadError": "Failed to load venue requests",
+    "approveSuccess": "Request approved",
+    "approveError": "Failed to approve request",
+    "rejectSuccess": "Request rejected",
+    "rejectError": "Failed to reject request",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject request",
+    "rejectReason": "Rejection reason",
+    "refresh": "Refresh",
+    "allStatuses": "All statuses",
+    "allTypes": "All types",
+    "empty": "No requests found",
+    "untitled": "Untitled venue",
+    "submittedBy": "Submitted by {name} on {date}",
+    "currentValue": "Current",
+    "requestedValue": "Requested",
+    "adminNote": "Admin note",
+    "types": {
+      "CREATE": "New venue",
+      "UPDATE": "Venue update"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "fields": {
+      "name": "Venue name",
+      "address": "Address",
+      "city": "City",
+      "district": "District",
+      "numberOfCourts": "Number of courts",
+      "openingHours": "Opening hours",
+      "hourlyRateFixed": "Fixed rate",
+      "hourlyRateWalkIn": "Walk-in rate",
+      "phone": "Phone",
+      "website": "Website",
+      "locatedWithin": "Located within",
+      "bookingPolicy": "Booking policy",
+      "note": "Note"
+    },
+    "placeholders": {
+      "city": "Select city",
+      "district": "Select district",
+      "openingHours": "Example: 6:00 - 22:00",
+      "createNote": "Add details that help admins verify the venue...",
+      "updateNote": "Describe the source or reason for the update..."
+    },
+    "validation": {
+      "required": "Please enter the required information"
+    }
   },
   "feedback": {
     "pageTitle": "Contact & Bug Report",
