@@ -27,6 +27,7 @@ import {
   Trophy,
   Swords,
   SlidersHorizontal,
+  Bell,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
@@ -864,6 +865,56 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                               {!isCollapsed && (
                                 <Text display={{ base: 'block', md: 'block' }}>
                                   {nav('users')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+
+                        <VTooltip
+                          content={nav('notifications')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.NOTIFICATIONS}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.NOTIFICATIONS)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <Bell
+                                size={18}
+                                color={
+                                  pathname.startsWith(
+                                    ROUTES.ADMIN.NOTIFICATIONS
+                                  )
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('notifications')}
                                 </Text>
                               )}
                             </Flex>
