@@ -30,6 +30,8 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   subHeader?: ReactNode;
   /** Hide the TopBar bottom border on mobile (for pages with search + sub menu) */
   hideTopBarBorder?: boolean;
+  /** Force title to be centered on mobile regardless of path */
+  centerTitle?: boolean;
 }
 
 export default function PageLayout({
@@ -51,6 +53,7 @@ export default function PageLayout({
   topBarVariant,
   subHeader,
   hideTopBarBorder = false,
+  centerTitle = false,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -86,6 +89,7 @@ export default function PageLayout({
         backHref={backHref}
         variant={variant}
         hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
+        centerTitle={centerTitle}
       />
       {isDiscoveryPage && <DiscoveryTabNav />}
       {!isDiscoveryPage && subHeader && (

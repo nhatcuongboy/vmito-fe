@@ -70,6 +70,7 @@ export default function TopBar({
     /^\/(player\/|host\/)?(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
       normalizedPath
     );
+  const isCenteredTitle = !isLeftAlignedTitle;
 
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -241,46 +242,54 @@ export default function TopBar({
                 </Box>
               )}
 
-              {/* App title */}
-              {title && (
+              {/* App title - left aligned detail pages on mobile */}
+              {title && isLeftAlignedTitle && (
                 <Heading
                   size={{ base: 'md', md: 'lg' }}
                   color="fg"
                   fontWeight="bold"
-                  maxWidth={
-                    isLeftAlignedTitle
-                      ? { base: 'calc(100vw - 168px)', md: '600px' }
-                      : { base: '50vw', md: '500px' }
-                  }
+                  maxWidth={{ base: 'calc(100vw - 168px)', md: '600px' }}
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"
                   height="100%"
                   display="flex"
                   alignItems="center"
-                  position={{
-                    base: isLeftAlignedTitle ? 'static' : 'absolute',
-                    md: 'absolute',
-                  }}
-                  left={{
-                    base: isLeftAlignedTitle ? 'auto' : '50%',
-                    md: '50%',
-                  }}
-                  transform={{
-                    base: isLeftAlignedTitle ? 'none' : 'translateX(-50%)',
-                    md: 'translateX(-50%)',
-                  }}
-                  textAlign={{
-                    base: isLeftAlignedTitle ? 'left' : 'center',
-                    md: 'center',
-                  }}
-                  px={isLeftAlignedTitle ? 1 : 0}
-                  pointerEvents={isLeftAlignedTitle ? 'auto' : 'none'}
+                  position={{ base: 'static', md: 'absolute' }}
+                  left={{ md: '50%' }}
+                  transform={{ md: 'translateX(-50%)' }}
+                  textAlign={{ base: 'left', md: 'center' }}
+                  px={1}
+                  pointerEvents="auto"
                 >
                   {title}
                 </Heading>
               )}
             </Flex>
+
+            {/* App title - centered independently from left/right actions */}
+            {title && isCenteredTitle && (
+              <Heading
+                size={{ base: 'md', md: 'lg' }}
+                color="fg"
+                fontWeight="bold"
+                maxWidth={{ base: '50vw', md: '500px' }}
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                height="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                position="absolute"
+                left="50%"
+                transform="translateX(-50%)"
+                textAlign="center"
+                pointerEvents="none"
+              >
+                {title}
+              </Heading>
+            )}
 
             {/* Right side - Actions */}
             <Box
