@@ -7,6 +7,7 @@
 @layer base {
   :root {
     color-scheme: light;
+    --bottom-nav-safe-area: env(safe-area-inset-bottom);
 
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -37,6 +38,16 @@
     --ring: 136 74% 35%;
 
     --radius: 0.5rem;
+  }
+
+  @media (display-mode: standalone) {
+    :root {
+      --bottom-nav-safe-area: min(env(safe-area-inset-bottom), 16px);
+    }
+  }
+
+  html[data-pwa-display-mode='standalone'] {
+    --bottom-nav-safe-area: min(env(safe-area-inset-bottom), 16px);
   }
 
   .dark {

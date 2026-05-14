@@ -107,6 +107,28 @@ export function PWAStatus() {
   const { colorMode } = useColorMode();
 
   useEffect(() => {
+    const updateDisplayMode = () => {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as { standalone?: boolean }).standalone === true;
+
+      document.documentElement.dataset.pwaDisplayMode = isStandalone
+        ? 'standalone'
+        : 'browser';
+    };
+
+    const standaloneQuery = window.matchMedia('(display-mode: standalone)');
+
+    updateDisplayMode();
+    standaloneQuery.addEventListener('change', updateDisplayMode);
+
+    return () => {
+      standaloneQuery.removeEventListener('change', updateDisplayMode);
+      delete document.documentElement.dataset.pwaDisplayMode;
+    };
+  }, []);
+
+  useEffect(() => {
     // Update theme-color meta tag based on color mode
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     // Dark mode color matches chakra theme 'bg' token (#1a202c)

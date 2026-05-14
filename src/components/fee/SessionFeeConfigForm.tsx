@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
@@ -43,6 +44,11 @@ export default function SessionFeeConfigForm({
   disabled = false,
 }: SessionFeeConfigFormProps) {
   const t = useTranslations('fee');
+  const [isOpen, setIsOpen] = useState(enabled);
+
+  useEffect(() => {
+    if (enabled) setIsOpen(true);
+  }, [enabled]);
 
   const handleFeeChange = (
     value: string,
@@ -73,8 +79,11 @@ export default function SessionFeeConfigForm({
       overflow="hidden"
     >
       <Collapsible.Root
-        open={enabled}
-        onOpenChange={(e) => onEnabledChange(e.open)}
+        open={isOpen}
+        onOpenChange={(e) => {
+          setIsOpen(e.open);
+          if (e.open && !enabled) onEnabledChange(true);
+        }}
         disabled={disabled}
       >
         <Collapsible.Trigger asChild>
@@ -99,7 +108,7 @@ export default function SessionFeeConfigForm({
                 </Text>
               </HStack>
               <Icon asChild boxSize={5} color="fg.muted">
-                {enabled ? <ChevronUp /> : <ChevronDown />}
+                {isOpen ? <ChevronUp /> : <ChevronDown />}
               </Icon>
             </Flex>
           </Box>
