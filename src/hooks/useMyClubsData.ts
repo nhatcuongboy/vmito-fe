@@ -13,6 +13,22 @@ import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
 import { useCanAccessHostFeatures } from './useCanAccessHostFeatures';
 
+const mapClubToManagedClub = (club: IClub): IMyClub => ({
+  id: club.id,
+  slug: club.slug,
+  name: club.name,
+  description: club.description,
+  color: club.color,
+  image: club.image,
+  status: club.status,
+  role: EMemberRole.ADMIN,
+  memberCount: club.memberCount,
+  host: club.host,
+  joinedAt: club.createdAt,
+  schedules: club.schedules,
+  defaultVenue: club.defaultVenue,
+});
+
 export interface UseMyClubsDataReturn {
   myClubs: IMyClub[];
   joinRequests: IClubJoinRequest[];
@@ -60,6 +76,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [pendingClubs, setPendingClubs] = useState<IClub[]>([]);
   const [isLoadingPending, setIsLoadingPending] = useState(false);
+  const [adminManagedClubs, setAdminManagedClubs] = useState<IMyClub[]>([]);
 
   const uniqueClubs = Array.from(
     myClubs
@@ -76,7 +93,16 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   const isManaging = (c: IMyClub) =>
     c.role === EMemberRole.ADMIN || c.host.id === currentUser?.id;
 
-  const managedClubs = uniqueClubs.filter(isManaging);
+  const managedClubs = isAdmin
+    ? Array.from(
+        [...adminManagedClubs, ...pendingClubs.map(mapClubToManagedClub)]
+          .reduce(
+            (map, club) => map.set(club.id, club),
+            new Map<string, IMyClub>()
+          )
+          .values()
+      )
+    : uniqueClubs.filter(isManaging);
   const memberClubs = uniqueClubs.filter((c) => !isManaging(c));
   const pendingOutgoing = joinRequests.filter(
     (r) => r.status === EJoinRequestStatus.PENDING
@@ -112,22 +138,29 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   const loadData = useCallback(async () => {
     if (!currentUser) return;
     let loadedClubs: IMyClub[] = [];
+    let loadedManagedClubs: IMyClub[] = [];
     try {
       setIsLoading(true);
-      const [clubs, requests] = await Promise.all([
+      const [clubs, requests, adminClubs] = await Promise.all([
         ClubsService.getMyClubs(),
         ClubsService.getMyJoinRequests(),
+        isAdmin ? ClubsService.getClubsToManage() : Promise.resolve([]),
       ]);
       loadedClubs = clubs;
+      loadedManagedClubs = adminClubs.map(mapClubToManagedClub);
       setMyClubs(clubs);
       setJoinRequests(requests);
+      setAdminManagedClubs(loadedManagedClubs);
     } catch (error) {
       console.error('Failed to load my clubs data:', error);
     } finally {
       setIsLoading(false);
     }
-    loadIncomingRequests(loadedClubs, currentUser?.id);
-  }, [currentUser, loadIncomingRequests]);
+    loadIncomingRequests(
+      isAdmin ? loadedManagedClubs : loadedClubs,
+      currentUser?.id
+    );
+  }, [currentUser, isAdmin, loadIncomingRequests]);
 
   const fetchPendingClubs = useCallback(async () => {
     try {
@@ -159,6 +192,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
         type: 'success',
       });
       await fetchPendingClubs();
+      await loadData();
     } catch (error) {
       console.error('Failed to approve club:', error);
       toaster.create({ title: t('common.error'), type: 'error' });
@@ -178,7 +212,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
         title: t('clubs.requestApprovedSuccessfully'),
         type: 'success',
       });
-      await loadIncomingRequests(myClubs, currentUser?.id);
+      await loadIncomingRequests(managedClubs, currentUser?.id);
     } catch (error) {
       console.error('Failed to approve join request:', error);
       toaster.create({ title: t('common.error'), type: 'error' });
@@ -205,6 +239,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
           type: 'success',
         });
         await fetchPendingClubs();
+        await loadData();
       } else {
         await ClubsService.rejectJoinRequest(
           rejectTarget.clubId,
@@ -215,7 +250,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
           title: t('clubs.requestRejectedSuccessfully'),
           type: 'success',
         });
-        await loadIncomingRequests(myClubs, currentUser?.id);
+        await loadIncomingRequests(managedClubs, currentUser?.id);
       }
     } catch (error) {
       console.error('Failed to reject:', error);

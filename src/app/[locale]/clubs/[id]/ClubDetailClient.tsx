@@ -50,6 +50,47 @@ interface ClubDetailClientProps {
   initialClub: IClub | null;
 }
 
+const extractLevelNumber = (value: unknown): number | null => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  if (!value || typeof value !== 'object') return null;
+
+  const record = value as Record<string, unknown>;
+  return (
+    extractLevelNumber(record.level) ??
+    extractLevelNumber(record.value) ??
+    extractLevelNumber(record.levelNumber) ??
+    extractLevelNumber(record.levelValue)
+  );
+};
+
+const getClubRequiredLevels = (club: IClub | null): number[] => {
+  if (!club) return [];
+
+  const clubRecord = club as IClub & {
+    levels?: unknown[];
+    clubLevels?: unknown[];
+    requiredLevelIds?: unknown[];
+  };
+  const rawLevels =
+    clubRecord.requiredLevels ??
+    clubRecord.requiredLevelIds ??
+    clubRecord.levels ??
+    clubRecord.clubLevels ??
+    [];
+
+  return Array.from(
+    new Set(
+      rawLevels.map(extractLevelNumber).filter((l): l is number => l !== null)
+    )
+  ).sort((a, b) => a - b);
+};
+
 export default function ClubDetailClient({
   initialClub,
 }: ClubDetailClientProps) {
@@ -96,11 +137,9 @@ export default function ClubDetailClient({
 
   // Hiển thị đầy đủ các trình độ đã chọn
   const getLevelRange = () => {
-    if (club?.requiredLevels && club.requiredLevels.length > 0) {
-      return club.requiredLevels
-        .sort((a, b) => a - b)
-        .map((l) => getLevelLabel(l))
-        .join(', ');
+    const requiredLevels = getClubRequiredLevels(club);
+    if (requiredLevels.length > 0) {
+      return requiredLevels.map((l) => getLevelLabel(l)).join(', ');
     }
 
     // Fallback: Calculate from members

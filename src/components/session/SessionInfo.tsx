@@ -9,10 +9,12 @@ import {
   SimpleGrid,
   Spinner,
 } from '@chakra-ui/react';
-import { IconButton, VStack } from '@/components/ui/chakra-compat';
+import { Button, IconButton, VStack } from '@/components/ui/chakra-compat';
 import {
   Award,
   Calendar,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Feather,
   Info,
@@ -230,13 +232,17 @@ export default function SessionInfo({
   compactUntilMaxPlayers = false,
 }: SessionInfoProps) {
   const t = useTranslations('SessionDetail');
+  const tSession = useTranslations('session');
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
   const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!compactUntilMaxPlayers);
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+
+  const showExtendedInfo = !compactUntilMaxPlayers || isExpanded;
 
   const playerAchievementExportId =
     player && playerStats
@@ -355,7 +361,32 @@ export default function SessionInfo({
         {t('playersTab.players') || 'Người chơi'})
       </InfoRow>
 
-      {!compactUntilMaxPlayers && (
+      {compactUntilMaxPlayers && (
+        <Button
+          type="button"
+          size="xs"
+          variant="ghost"
+          colorPalette="green"
+          alignSelf="flex-start"
+          mt={-1}
+          mb={showExtendedInfo ? 2 : 0}
+          px={0}
+          minH="auto"
+          fontWeight="semibold"
+          rightIcon={
+            showExtendedInfo ? (
+              <ChevronUp size={14} />
+            ) : (
+              <ChevronDown size={14} />
+            )
+          }
+          onClick={() => setIsExpanded((current) => !current)}
+        >
+          {showExtendedInfo ? tSession('collapse') : tSession('expand')}
+        </Button>
+      )}
+
+      {showExtendedInfo && (
         <>
           <InfoRow icon={Square} label={t('numberOfCourtsTitle')}>
             {session.numberOfCourts}
