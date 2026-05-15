@@ -9,7 +9,7 @@ import {
   SimpleGrid,
   Spinner,
 } from '@chakra-ui/react';
-import { VStack } from '@/components/ui/chakra-compat';
+import { IconButton, VStack } from '@/components/ui/chakra-compat';
 import {
   Award,
   Calendar,
@@ -39,12 +39,15 @@ import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { FeeService } from '@/lib/api/fee.service';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
+import LevelBadgeWithDescription from './LevelBadgeWithDescription';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
   label: string;
   children: React.ReactNode;
   isTruncated?: boolean;
+  hideLabelOnMobile?: boolean;
 }
 
 const InfoRow = ({
@@ -52,6 +55,7 @@ const InfoRow = ({
   label,
   children,
   isTruncated,
+  hideLabelOnMobile,
   ...props
 }: InfoRowProps) => (
   <Flex align="start" mb={3} {...props}>
@@ -70,6 +74,7 @@ const InfoRow = ({
       mr={2}
       minW="fit-content"
       fontWeight="normal"
+      display={hideLabelOnMobile ? { base: 'none', md: 'block' } : undefined}
     >
       {label}:
     </Text>
@@ -93,10 +98,12 @@ interface SessionInfoProps {
 
 export default function SessionInfo({ session, player }: SessionInfoProps) {
   const t = useTranslations('SessionDetail');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
   const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -165,7 +172,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
         {session.venue?.name || t('common.notAvailable')}
       </InfoRow>
 
-      <InfoRow icon={MapPin} label={t('location')}>
+      <InfoRow icon={MapPin} label={t('location')} hideLabelOnMobile>
         <AppAddressDisplay
           address={
             session.venue?.address || session.location || t('noLocation')
@@ -210,15 +217,16 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
       )}
 
       <InfoRow icon={Award} label={t('requiredLevels')}>
-        <Flex gap={2} flexWrap="wrap">
+        <Flex gap={2} flexWrap="wrap" align="center">
           {session.requiredLevels && session.requiredLevels.length > 0 ? (
             Array.from(new Set(session.requiredLevels))
               .sort((a, b) => a - b)
               .map((level: number) => {
                 const levelColor = getSkillLevelColor([level]);
                 return (
-                  <Badge
+                  <LevelBadgeWithDescription
                     key={level}
+                    level={level}
                     colorPalette={levelColor.colorPalette}
                     variant="solid"
                     fontSize="xs"
@@ -230,7 +238,7 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
                     borderColor={levelColor.borderColor}
                   >
                     {getLevelShortLabel(level)}
-                  </Badge>
+                  </LevelBadgeWithDescription>
                 );
               })
           ) : (
@@ -248,6 +256,31 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
               {t('allLevels')}
             </Badge>
           )}
+          <IconButton
+            aria-label={tLevelDescriptions('open')}
+            type="button"
+            size="xs"
+            variant="ghost"
+            colorPalette="green"
+            color="green.500"
+            bg="green.50"
+            _hover={{
+              color: 'green.600',
+              bg: 'green.100',
+              transform: 'scale(1.1)',
+            }}
+            _active={{ transform: 'scale(0.95)' }}
+            flexShrink={0}
+            minW="20px"
+            h="20px"
+            borderRadius="full"
+            transition="all 0.2s"
+            icon={<Info size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsLevelDescriptionsOpen(true);
+            }}
+          />
         </Flex>
       </InfoRow>
 
@@ -272,6 +305,11 @@ export default function SessionInfo({ session, player }: SessionInfoProps) {
           <Text lineHeight="tall">{session.description}</Text>
         </InfoRow>
       )}
+
+      <LevelDescriptionsModal
+        isOpen={isLevelDescriptionsOpen}
+        onClose={() => setIsLevelDescriptionsOpen(false)}
+      />
 
       {/* Player Statistics Section */}
       {player && player.status !== 'INACTIVE' && (

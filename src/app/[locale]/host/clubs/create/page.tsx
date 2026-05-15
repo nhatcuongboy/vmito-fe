@@ -310,6 +310,7 @@ const CreateClubPage = () => {
         onSubmit={handleSubmit(onSubmit)}
         bg={{ base: 'white', _dark: 'gray.900' }}
         p={{ base: 4, md: 6 }}
+        pb={{ base: 28, md: 6 }}
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
@@ -388,17 +389,24 @@ const CreateClubPage = () => {
           </Field>
 
           {/* Club Image(s) */}
-          <Field label={t('clubImage')}>
-            <AppMultiImageUpload
-              images={clubImages}
-              bannerIndex={bannerIndex}
-              onImagesChange={setClubImages}
-              onBannerChange={setBannerIndex}
-              maxImages={10}
-              category={EImageCategory.CLUB}
-              label={null}
-            />
-          </Field>
+          <Box
+            w={{ base: '100vw', md: 'auto' }}
+            ml={{ base: 'calc(50% - 50vw)', md: 0 }}
+            mr={{ base: 'calc(50% - 50vw)', md: 0 }}
+            px={{ base: 4, md: 0 }}
+          >
+            <Field label={t('clubImage')}>
+              <AppMultiImageUpload
+                images={clubImages}
+                bannerIndex={bannerIndex}
+                onImagesChange={setClubImages}
+                onBannerChange={setBannerIndex}
+                maxImages={10}
+                category={EImageCategory.CLUB}
+                label={null}
+              />
+            </Field>
+          </Box>
 
           {/* Multi-Venue + Schedule */}
           <Field label="Sân hoạt động">
@@ -530,11 +538,35 @@ const CreateClubPage = () => {
             </VStack>
           </Field>
 
-          <Flex justify="flex-end" gap={4} mt={4}>
+          <Flex
+            justify={{ base: 'space-between', md: 'flex-end' }}
+            gap={{ base: 3, md: 4 }}
+            mt={4}
+            position={{ base: 'fixed', md: 'static' }}
+            left={{ base: 0, md: 'auto' }}
+            right={{ base: 0, md: 'auto' }}
+            bottom={{ base: 0, md: 'auto' }}
+            zIndex={{ base: 20, md: 'auto' }}
+            bg={{ base: 'white', _dark: 'gray.900' }}
+            borderTopWidth={{ base: '1px', md: 0 }}
+            borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+            px={{ base: 4, md: 0 }}
+            pt={{ base: 3, md: 0 }}
+            pb={{ base: 'calc(12px + env(safe-area-inset-bottom))', md: 0 }}
+            boxShadow={{
+              base: '0 -8px 20px rgba(15, 23, 42, 0.08)',
+              md: 'none',
+            }}
+          >
             <Button variant="ghost" onClick={() => router.back()}>
               {t('cancel')}
             </Button>
-            <Button type="submit" colorPalette="green" loading={isSubmitting}>
+            <Button
+              type="submit"
+              colorPalette="green"
+              loading={isSubmitting}
+              flex={{ base: '0 0 auto', md: 'initial' }}
+            >
               {t('createClub')}
             </Button>
           </Flex>

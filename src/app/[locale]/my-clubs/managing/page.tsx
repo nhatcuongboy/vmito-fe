@@ -1,12 +1,15 @@
 'use client';
 
-import PageLayout from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { Field } from '@/components/ui/Field';
 import VModal from '@/components/ui/VModal';
+import ClubCardSkeleton from '@/components/club/ClubCardSkeleton';
+import ClubRequestRowSkeleton from '@/components/club/ClubRequestRowSkeleton';
+import AdminPendingClubCardSkeleton from '@/components/club/AdminPendingClubCardSkeleton';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { toaster } from '@/components/ui/toaster';
 import {
   Badge,
   Box,
@@ -16,7 +19,7 @@ import {
   Image,
   Separator,
   SimpleGrid,
-  Spinner,
+  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -31,10 +34,11 @@ import {
   UserCircle,
   Users,
   Settings,
+  Trash2,
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useMyClubsData } from '@/hooks/useMyClubsData';
 import { IMyClub, IClub } from '@/types/club';
 
@@ -46,7 +50,6 @@ export default function ManagingPage() {
   const t = useTranslations();
   const router = useRouter();
   const {
-    uniqueClubs,
     managedClubs,
     incomingRequests,
     pendingClubs,
@@ -59,11 +62,38 @@ export default function ManagingPage() {
     handleApprove,
     handleApproveJoinRequest,
     handleReject,
+    refetch,
   } = useMyClubsData();
 
   const [rejectTarget, setRejectTarget] = useState<RejectTarget | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<IMyClub | null>(null);
+  const [isDeletingClub, setIsDeletingClub] = useState(false);
   const isRejectDialogOpen = rejectTarget !== null;
+  const isDeleteDialogOpen = deleteTarget !== null;
+
+  const handleDeleteClub = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setIsDeletingClub(true);
+      await ClubsService.deleteClub(deleteTarget.id);
+      toaster.create({
+        title: t('clubs.clubDeletedSuccess'),
+        type: 'success',
+      });
+      setDeleteTarget(null);
+      await refetch();
+    } catch (error) {
+      console.error('Failed to delete club:', error);
+      toaster.create({
+        title: t('clubs.failedToDeleteClub'),
+        type: 'error',
+      });
+    } finally {
+      setIsDeletingClub(false);
+    }
+  };
 
   const renderClubCard = (club: IMyClub, isManaged: boolean) => (
     <Box
@@ -100,18 +130,32 @@ export default function ManagingPage() {
         </HStack>
         <HStack flexShrink={0}>
           {isManaged && (
-            <Button
-              size="sm"
-              variant="ghost"
-              colorPalette="gray"
-              p={{ base: 1, md: 2 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/host/clubs/${club.id}/edit`);
-              }}
-            >
-              <Settings size={16} />
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                colorPalette="gray"
+                p={{ base: 1, md: 2 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/host/clubs/${club.id}/edit`);
+                }}
+              >
+                <Settings size={16} />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                colorPalette="red"
+                p={{ base: 1, md: 2 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteTarget(club);
+                }}
+              >
+                <Trash2 size={16} />
+              </Button>
+            </>
           )}
           {club.status !== 'PENDING' && (
             <ChevronRight size={18} color="#CBD5E0" />
@@ -161,9 +205,34 @@ export default function ManagingPage() {
 
   if (isLoading) {
     return (
-      <Flex justify="center" align="center" minH="400px">
-        <Spinner size="xl" colorPalette="green" />
-      </Flex>
+      <VStack gap={{ base: 6, md: 10 }} align="stretch">
+        {/* Managed clubs section skeleton */}
+        <Box>
+          <HStack mb={{ base: 4, md: 6 }} gap={2}>
+            <Skeleton height="20px" width="20px" borderRadius="sm" />
+            <Skeleton height="28px" width="180px" borderRadius="md" />
+            <Skeleton height="20px" width="32px" borderRadius="full" />
+          </HStack>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ClubCardSkeleton key={i} />
+            ))}
+          </SimpleGrid>
+        </Box>
+
+        {/* Join requests section skeleton */}
+        <Box>
+          <HStack mb={{ base: 4, md: 6 }} gap={2}>
+            <Skeleton height="20px" width="20px" borderRadius="sm" />
+            <Skeleton height="28px" width="160px" borderRadius="md" />
+          </HStack>
+          <VStack gap={{ base: 3, md: 4 }} align="stretch">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ClubRequestRowSkeleton key={i} />
+            ))}
+          </VStack>
+        </Box>
+      </VStack>
     );
   }
 
@@ -195,7 +264,8 @@ export default function ManagingPage() {
               <Button
                 colorPalette="green"
                 size={{ base: 'sm', md: 'sm' }}
-                w={{ base: 'full', md: 'auto' }}
+                w="auto"
+                ml={{ base: 'auto', md: 0 }}
                 onClick={() => router.push(ROUTES.HOST.CLUBS.CREATE)}
               >
                 <Plus size={16} />
@@ -253,9 +323,11 @@ export default function ManagingPage() {
           </HStack>
 
           {isLoadingIncoming ? (
-            <Flex justify="center" align="center" minH="100px">
-              <Spinner size="md" colorPalette="green" />
-            </Flex>
+            <VStack gap={{ base: 3, md: 4 }} align="stretch">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ClubRequestRowSkeleton key={i} />
+              ))}
+            </VStack>
           ) : incomingRequests.length === 0 ? (
             <VStack
               py={{ base: 8, md: 10 }}
@@ -365,20 +437,14 @@ export default function ManagingPage() {
                 </Badge>
               )}
             </HStack>
-            <Button
-              colorPalette="green"
-              size="sm"
-              onClick={() => router.push('/admin/clubs/create')}
-            >
-              <Plus size={16} />
-              {t('clubs.adminApproval.createClub')}
-            </Button>
           </HStack>
 
           {isLoadingPending ? (
-            <Flex justify="center" align="center" minH="200px">
-              <Spinner size="xl" colorPalette="green" />
-            </Flex>
+            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
+              {Array.from({ length: 2 }).map((_, i) => (
+                <AdminPendingClubCardSkeleton key={i} />
+              ))}
+            </SimpleGrid>
           ) : pendingClubs.length === 0 ? (
             <VStack
               py={12}
@@ -538,6 +604,25 @@ export default function ManagingPage() {
             onChange={(e) => setRejectionReason(e.target.value)}
           />
         </Field>
+      </VModal>
+
+      <VModal
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setDeleteTarget(null)}
+        title="Xóa nhóm"
+        primaryActionText="Xóa nhóm"
+        onPrimaryAction={handleDeleteClub}
+        isPrimaryLoading={isDeletingClub}
+        primaryColorScheme="red"
+        secondaryActionText={t('common.cancel')}
+      >
+        <Text>
+          Bạn có chắc chắn muốn xóa nhóm{' '}
+          <Text as="span" fontWeight="bold">
+            {deleteTarget?.name}
+          </Text>
+          ? Hành động này không thể hoàn tác.
+        </Text>
       </VModal>
     </>
   );

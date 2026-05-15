@@ -8,7 +8,7 @@ import {
   HStack,
   Separator,
   SimpleGrid,
-  Spinner,
+  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { Field } from '@/components/ui/Field';
 import VModal from '@/components/ui/VModal';
+import ClubCardSkeleton from '@/components/club/ClubCardSkeleton';
+import ClubRequestRowSkeleton from '@/components/club/ClubRequestRowSkeleton';
 import { useRouter } from '@/i18n/config';
 import {
   Clock,
@@ -131,9 +133,37 @@ export default function MemberPage() {
 
   if (isLoading) {
     return (
-      <Flex justify="center" align="center" minH="400px">
-        <Spinner size="xl" colorPalette="green" />
-      </Flex>
+      <VStack gap={{ base: 6, md: 10 }} align="stretch">
+        {/* Member clubs section skeleton */}
+        <Box>
+          <HStack mb={{ base: 4, md: 6 }} gap={2}>
+            <Skeleton height="20px" width="20px" borderRadius="sm" />
+            <Skeleton height="28px" width="180px" borderRadius="md" />
+            <Skeleton height="20px" width="32px" borderRadius="full" />
+          </HStack>
+          <SimpleGrid
+            columns={{ base: 1, md: 2, lg: 3 }}
+            gap={{ base: 4, md: 6 }}
+          >
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ClubCardSkeleton key={i} />
+            ))}
+          </SimpleGrid>
+        </Box>
+
+        {/* Awaiting approval section skeleton */}
+        <Box>
+          <HStack mb={{ base: 4, md: 6 }} gap={2}>
+            <Skeleton height="20px" width="20px" borderRadius="sm" />
+            <Skeleton height="28px" width="200px" borderRadius="md" />
+          </HStack>
+          <VStack gap={{ base: 3, md: 4 }} align="stretch">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ClubRequestRowSkeleton key={i} />
+            ))}
+          </VStack>
+        </Box>
+      </VStack>
     );
   }
 

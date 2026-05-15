@@ -39,6 +39,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
 import VenueMap from './VenueMap';
@@ -53,7 +55,14 @@ import {
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import VenueRequestModal from './VenueRequestModal';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useRouter } from '@/i18n/config';
+import { usePathname, useRouter } from '@/i18n/config';
+
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
+
+const OPEN_VENUE_CREATE_REQUEST_ACTION = 'openVenueCreateRequest';
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
@@ -135,6 +144,8 @@ const VENUE_FILTERS_SCHEMA = {
 export default function VenueSearchList() {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
@@ -187,6 +198,11 @@ export default function VenueSearchList() {
     isOpen: isCreateRequestOpen,
     onOpen: openCreateRequest,
     onClose: closeCreateRequest,
+  } = useDisclosure(false);
+  const {
+    isOpen: isLoginModalOpen,
+    onOpen: openLoginModal,
+    onClose: closeLoginModal,
   } = useDisclosure(false);
 
   const loadingMoreRef = useRef(false);
@@ -486,9 +502,34 @@ export default function VenueSearchList() {
   const sortButtonLabel = filters.near ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = filters.near ? MapPin : activeSortOption.icon;
 
+  useEffect(() => {
+    if (
+      !isAuthenticated ||
+      searchParams.get('action') !== OPEN_VENUE_CREATE_REQUEST_ACTION
+    ) {
+      return;
+    }
+
+    openCreateRequest();
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('action');
+    const nextUrl = nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+    router.replace(nextUrl);
+  }, [isAuthenticated, openCreateRequest, pathname, router, searchParams]);
+
+  const getCreateRequestReturnUrl = () => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('action', OPEN_VENUE_CREATE_REQUEST_ACTION);
+    return nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+  };
+
   const handleOpenCreateRequest = () => {
     if (!isAuthenticated) {
-      router.push('/auth/signin');
+      openLoginModal();
       return;
     }
     openCreateRequest();
@@ -1073,7 +1114,7 @@ export default function VenueSearchList() {
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
-      ) : venues.length === 0 ? (
+      ) : venues.length === 0 && viewMode !== 'map' ? (
         <AppEmptyState
           minH={{ base: '300px', md: '340px' }}
           icon={<MapPin size={40} color="var(--chakra-colors-gray-400)" />}
@@ -1086,7 +1127,7 @@ export default function VenueSearchList() {
                   onClick={handleOpenCreateRequest}
                   leftIcon={<Plus size={16} />}
                 >
-                  {t('venueRequests.suggestNewVenue')}
+                  {t('venue.requestUpdate')}
                 </Button>
               )}
               {activeFilterCount > 0 && (
@@ -1150,6 +1191,14 @@ export default function VenueSearchList() {
         type={VenueRequestType.CREATE}
         defaultKeyword={filters.q}
       />
+      {isLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isLoginModalOpen}
+          onClose={closeLoginModal}
+          featureName={t('venue.requestUpdate')}
+          returnUrl={getCreateRequestReturnUrl()}
+        />
+      )}
     </Box>
   );
 }

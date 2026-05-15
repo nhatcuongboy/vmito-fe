@@ -938,7 +938,7 @@ function BrowseClubsContent() {
         <Flex justify="center" align="center" minH="200px">
           <Spinner size="xl" colorPalette="green" />
         </Flex>
-      ) : clubs.length === 0 ? (
+      ) : clubs.length === 0 && viewMode !== 'map' ? (
         <AppEmptyState
           minH={{ base: '300px', md: '340px' }}
           icon={<Users size={40} color="var(--chakra-colors-gray-400)" />}

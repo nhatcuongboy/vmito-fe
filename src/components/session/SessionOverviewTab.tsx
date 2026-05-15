@@ -266,7 +266,22 @@ export default function SessionOverviewTab({
               mt={2}
               size="sm"
               variant="ghost"
-              w="full"
+              w="fit-content"
+              mx="auto"
+              minW="0"
+              h="auto"
+              px={4}
+              py={2}
+              color="green.700"
+              bg="green.50"
+              borderRadius="full"
+              _dark={{
+                color: 'green.300',
+                bg: 'green.950/30',
+                _hover: { color: 'green.200', bg: 'green.950/50' },
+              }}
+              _hover={{ color: 'green.800', bg: 'green.100' }}
+              _active={{ bg: 'green.100' }}
               onClick={() => setIsInfoExpanded((value) => !value)}
               rightIcon={
                 isInfoExpanded ? (

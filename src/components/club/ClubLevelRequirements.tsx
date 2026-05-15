@@ -7,16 +7,7 @@ import {
   UseFormSetValue,
 } from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
-import {
-  Badge,
-  Box,
-  Flex,
-  Grid,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -35,7 +26,7 @@ export default function ClubLevelRequirements({
   setValue,
 }: ClubLevelRequirementsProps) {
   const t = useTranslations('session');
-  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
 
   // Watch the current values
   const allLevelsSelected =
@@ -153,49 +144,6 @@ export default function ClubLevelRequirements({
             );
           })}
         </Grid>
-
-        {/* Selected Levels Summary */}
-        {!allLevelsSelected && requiredLevels.length > 0 && (
-          <Box
-            p={3}
-            bg={{ base: 'green.50', _dark: 'green.900/20' }}
-            borderRadius="xl"
-            border="1px solid"
-            borderColor={{ base: 'green.100', _dark: 'green.800' }}
-          >
-            <Flex align="center" gap={2} wrap="wrap">
-              <Text
-                fontSize="xs"
-                fontWeight="bold"
-                color="gray.600"
-                _dark={{ color: 'gray.400' }}
-              >
-                Đã chọn:
-              </Text>
-              <Flex gap={1.5} wrap="wrap">
-                {requiredLevels
-                  .sort((a: number, b: number) => a - b)
-                  .map((level: number) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        variant="solid"
-                        fontSize="2xs"
-                        fontWeight="bold"
-                        px={2.5}
-                        py={0.5}
-                        borderRadius="full"
-                      >
-                        {getLevelLabel(level)}
-                      </Badge>
-                    );
-                  })}
-              </Flex>
-            </Flex>
-          </Box>
-        )}
       </Stack>
     </Box>
   );

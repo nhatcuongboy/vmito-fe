@@ -50,6 +50,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
 import { getVietQRImageUrl, getVietnamBanks, Bank } from '@/lib/banks';
+import { VModal } from '@/components/ui/VModal';
 
 interface SessionPaymentTabProps {
   session: ISession;
@@ -707,36 +708,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         )}
 
         {/* Payment Settings card */}
-        {isEditing ? (
-          <Box
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-            borderRadius="lg"
-            p={5}
-            shadow="sm"
-            border="1px solid"
-            borderColor="gray.100"
-          >
-            <HStack justify="space-between" mb={4}>
-              <Heading size="sm">
-                {paymentSettings ? t('editSettings') : t('addSettings')}
-              </Heading>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsEditing(false)}
-              >
-                {tCommon('cancel')}
-              </Button>
-            </HStack>
-            <PaymentSettingsForm
-              initialData={paymentSettings || undefined}
-              onSubmit={handleSave}
-              onUploadQR={handleUploadQR}
-              isLoading={isSaving}
-            />
-          </Box>
-        ) : !paymentSettings ? (
+        {!paymentSettings ? (
           <Box
             bg="orange.50"
             _dark={{ bg: 'orange.950' }}
@@ -936,6 +908,23 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
           </Box>
         )}
       </SimpleGrid>
+
+      <VModal
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        title={paymentSettings ? t('editSettings') : t('addSettings')}
+        size="lg"
+        hideSecondaryAction
+        showFooterDivider={false}
+        maxBodyHeight={{ base: '75vh', md: '70vh' }}
+      >
+        <PaymentSettingsForm
+          initialData={paymentSettings || undefined}
+          onSubmit={handleSave}
+          onUploadQR={handleUploadQR}
+          isLoading={isSaving}
+        />
+      </VModal>
 
       {/* Split Amount Calculator — only for SPLIT_EVENLY sessions */}
       {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (

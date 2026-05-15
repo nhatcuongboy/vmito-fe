@@ -143,6 +143,7 @@ export const ROUTES = {
     USERS: '/admin/users',
     NOTIFICATIONS: '/admin/notifications',
     GENERAL: '/admin/general',
+    LEVEL_DESCRIPTIONS: '/admin/level-descriptions',
     VENUES: '/admin/venues',
     CLUBS: '/admin/clubs/pending',
   },
@@ -177,6 +178,7 @@ export const ROUTE_GROUPS = {
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.NOTIFICATIONS,
     ROUTES.ADMIN.GENERAL,
+    ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
     ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
     ROUTES.FEEDBACK,
@@ -210,6 +212,7 @@ export const ROUTE_GROUPS = {
   ADMIN_ONLY: [
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.NOTIFICATIONS,
+    ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
     ROUTES.ADMIN.CLUBS,
   ],
 
@@ -316,6 +319,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.FEEDBACK]: 'Contact & Bug Report',
   [ROUTES.ADMIN.USERS]: 'Users',
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',
+  [ROUTES.ADMIN.LEVEL_DESCRIPTIONS]: 'Level Descriptions',
   [ROUTES.ADMIN.CLUBS]: 'Club Approval',
 };
 

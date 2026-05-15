@@ -9,11 +9,13 @@ import {
 import { VALID_LEVELS } from '@/constants/levels';
 import { CourtDirection } from '@/lib/api/types';
 import { Box, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
-import { Check } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Check, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { useState } from 'react';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
 
 interface ILevelRequirementsFormValues {
   allLevelsSelected: boolean;
@@ -49,7 +51,9 @@ export default function LevelRequirementsCard({
   setValue,
 }: LevelRequirementsCardProps) {
   const t = useTranslations('session');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const { getLevelShortLabel } = useLevelLabel();
+  const [isDescriptionsOpen, setIsDescriptionsOpen] = useState(false);
   // Watch the current values
   const allLevelsSelected = useWatch({ control, name: 'allLevelsSelected' });
   const requiredLevels = useWatch({ control, name: 'requiredLevels' }) || [];
@@ -97,9 +101,21 @@ export default function LevelRequirementsCard({
       border="1px solid"
       borderColor="border"
     >
-      <Heading size="md" mb={4}>
-        {t('generalSettings.requiredPlayerLevels')}
-      </Heading>
+      <HStack justify="space-between" align="center" mb={4}>
+        <Heading size="md">{t('generalSettings.requiredPlayerLevels')}</Heading>
+        <IconButton
+          aria-label={tLevelDescriptions('open')}
+          type="button"
+          size="xs"
+          variant="ghost"
+          colorPalette="gray"
+          icon={<Info size={13} />}
+          onClick={(event) => {
+            event.stopPropagation();
+            setIsDescriptionsOpen(true);
+          }}
+        />
+      </HStack>
 
       {/* <Text fontSize="sm" color="fg.muted" mb={4}>
         {t('generalSettings.selectRequiredLevels')}
@@ -169,6 +185,11 @@ export default function LevelRequirementsCard({
           })}
         </Grid>
       </Stack>
+
+      <LevelDescriptionsModal
+        isOpen={isDescriptionsOpen}
+        onClose={() => setIsDescriptionsOpen(false)}
+      />
     </Box>
   );
 }

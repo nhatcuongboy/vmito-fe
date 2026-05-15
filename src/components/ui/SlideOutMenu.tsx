@@ -28,6 +28,7 @@ import {
   Swords,
   SlidersHorizontal,
   Bell,
+  Award,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
@@ -963,6 +964,56 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                               {!isCollapsed && (
                                 <Text display={{ base: 'block', md: 'block' }}>
                                   {nav('generalSettings')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+
+                        <VTooltip
+                          content={nav('levelDescriptions')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.LEVEL_DESCRIPTIONS}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.LEVEL_DESCRIPTIONS)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <Award
+                                size={18}
+                                color={
+                                  pathname.startsWith(
+                                    ROUTES.ADMIN.LEVEL_DESCRIPTIONS
+                                  )
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('levelDescriptions')}
                                 </Text>
                               )}
                             </Flex>

@@ -10,13 +10,14 @@ import {
   Text,
   Wrap,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import {
   Banknote,
   Calendar,
   Clock,
   ClipboardList,
   Feather,
+  Info,
   LayoutGrid,
   LogIn,
   MapPin,
@@ -26,6 +27,7 @@ import {
   UserCheck,
   UserPlus,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import { FeeService } from '@/lib/api/fee.service';
@@ -37,6 +39,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import dayjs from '@/lib/dayjs';
+import LevelBadgeWithDescription from './LevelBadgeWithDescription';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -64,6 +68,7 @@ const SessionDetailStickyBar = ({
   approvedPlayersCount = 0,
 }: ISessionDetailStickyBarProps) => {
   const t = useTranslations('session');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const tVenue = useTranslations('venue');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
@@ -72,6 +77,7 @@ const SessionDetailStickyBar = ({
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+  const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
   const isPastEndTime = session.endTime
     ? new Date(session.endTime) < new Date()
     : false;
@@ -251,266 +257,311 @@ const SessionDetailStickyBar = ({
   // Desktop sidebar card variant
   if (displayMode === 'sidebar') {
     return (
-      <Box
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="2xl"
-        borderWidth="1px"
-        borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
-        boxShadow="md"
-        overflow="hidden"
-      >
-        {/* Fee header */}
-        {session.feeConfig && (
-          <Box
-            px={5}
-            py={4}
-            borderBottomWidth="1px"
-            borderBottomColor={{ base: 'gray.100', _dark: 'gray.700' }}
-            bg={{ base: 'green.50', _dark: 'gray.750' }}
-          >
-            <Flex align="center" gap={2}>
-              <Icon as={Banknote} boxSize={5} color="red.600" />
-              <Text fontSize="2xl" fontWeight="bold" color="red.600">
-                {FeeService.getFeeDisplayText(session.feeConfig)}
-              </Text>
-              {session.feeConfig.feeType === FeeType.FIXED && (
-                <Text fontSize="sm" color="gray.500" fontWeight="normal">
-                  /slot
+      <>
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="2xl"
+          borderWidth="1px"
+          borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+          boxShadow="md"
+          overflow="hidden"
+        >
+          {/* Fee header */}
+          {session.feeConfig && (
+            <Box
+              px={5}
+              py={4}
+              borderBottomWidth="1px"
+              borderBottomColor={{ base: 'gray.100', _dark: 'gray.700' }}
+              bg={{ base: 'green.50', _dark: 'gray.750' }}
+            >
+              <Flex align="center" gap={2}>
+                <Icon as={Banknote} boxSize={5} color="red.600" />
+                <Text fontSize="2xl" fontWeight="bold" color="red.600">
+                  {FeeService.getFeeDisplayText(session.feeConfig)}
                 </Text>
-              )}
-              <FeeDetailPopover feeConfig={session.feeConfig} />
-            </Flex>
-          </Box>
-        )}
+                {session.feeConfig.feeType === FeeType.FIXED && (
+                  <Text fontSize="sm" color="gray.500" fontWeight="normal">
+                    /slot
+                  </Text>
+                )}
+                <FeeDetailPopover feeConfig={session.feeConfig} />
+              </Flex>
+            </Box>
+          )}
 
-        {/* Info rows */}
-        <Box px={5} py={4}>
-          <Flex direction="column" gap={3.5}>
-            {/* Time */}
-            <Flex align="center" gap={3}>
-              <Icon as={Clock} boxSize={4} color="gray.400" flexShrink={0} />
-              <Text fontSize="sm" fontWeight="medium">
-                {timeDisplay}
-              </Text>
-            </Flex>
+          {/* Info rows */}
+          <Box px={5} py={4}>
+            <Flex direction="column" gap={3.5}>
+              {/* Time */}
+              <Flex align="center" gap={3}>
+                <Icon as={Clock} boxSize={4} color="gray.400" flexShrink={0} />
+                <Text fontSize="sm" fontWeight="medium">
+                  {timeDisplay}
+                </Text>
+              </Flex>
 
-            {/* Date */}
-            <Flex align="center" gap={3}>
-              <Icon as={Calendar} boxSize={4} color="gray.400" flexShrink={0} />
-              <Text fontSize="sm">{dateDisplay}</Text>
-            </Flex>
-
-            {/* Location */}
-            {venueDisplayName && (
-              <Flex
-                align="flex-start"
-                gap={3}
-                cursor="pointer"
-                onClick={handleOpenMap}
-                _hover={{ color: 'green.600' }}
-                transition="color 0.15s"
-                role="button"
-              >
+              {/* Date */}
+              <Flex align="center" gap={3}>
                 <Icon
-                  as={MapPin}
+                  as={Calendar}
                   boxSize={4}
                   color="gray.400"
                   flexShrink={0}
-                  mt="1px"
                 />
-                <Box flex={1}>
-                  <Text fontSize="sm" fontWeight="medium" color="green.600">
-                    {venueDisplayName}
-                  </Text>
-                  {session.venue?.address &&
-                    session.venue.address !== session.venue?.name && (
-                      <Text fontSize="xs" color="gray.500" mt={0.5}>
-                        {session.venue.address}
-                      </Text>
-                    )}
-                </Box>
-                <Icon
-                  as={Navigation}
-                  boxSize={3.5}
-                  color="green.400"
-                  flexShrink={0}
-                  mt="2px"
-                />
+                <Text fontSize="sm">{dateDisplay}</Text>
               </Flex>
-            )}
 
-            <Separator />
+              {/* Location */}
+              {venueDisplayName && (
+                <Flex
+                  align="flex-start"
+                  gap={3}
+                  cursor="pointer"
+                  onClick={handleOpenMap}
+                  _hover={{ color: 'green.600' }}
+                  transition="color 0.15s"
+                  role="button"
+                >
+                  <Icon
+                    as={MapPin}
+                    boxSize={4}
+                    color="gray.400"
+                    flexShrink={0}
+                    mt="1px"
+                  />
+                  <Box flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" color="green.600">
+                      {venueDisplayName}
+                    </Text>
+                    {session.venue?.address &&
+                      session.venue.address !== session.venue?.name && (
+                        <Text fontSize="xs" color="gray.500" mt={0.5}>
+                          {session.venue.address}
+                        </Text>
+                      )}
+                  </Box>
+                  <Icon
+                    as={Navigation}
+                    boxSize={3.5}
+                    color="green.400"
+                    flexShrink={0}
+                    mt="2px"
+                  />
+                </Flex>
+              )}
 
-            {/* Courts */}
-            <Flex align="center" gap={3}>
-              <Icon
-                as={LayoutGrid}
-                boxSize={4}
-                color="green.500"
-                flexShrink={0}
-              />
-              <Text fontSize="sm">
-                {session.numberOfCourts} {t('courtsAvailable')}
-                {session.courts && session.courts.length > 0 && (
-                  <Text as="span" color="gray.500" ml={1}>
-                    (
-                    {session.courts
-                      .slice()
-                      .sort((a, b) => a.courtNumber - b.courtNumber)
-                      .map((c) => c.courtName || c.courtNumber)
-                      .join(', ')}
-                    )
-                  </Text>
-                )}
-              </Text>
-            </Flex>
+              <Separator />
 
-            {/* Players */}
-            <Flex align="center" gap={3}>
-              <Icon
-                as={UserCheck}
-                boxSize={4}
-                color="green.500"
-                flexShrink={0}
-              />
-              <Text fontSize="sm">
-                {approvedPlayersCount}/{maxPlayers} {t('players')}
-              </Text>
-            </Flex>
-
-            {/* Shuttlecock */}
-            {session.shuttlecock && (
+              {/* Courts */}
               <Flex align="center" gap={3}>
                 <Icon
-                  as={Feather}
+                  as={LayoutGrid}
                   boxSize={4}
                   color="green.500"
                   flexShrink={0}
                 />
                 <Text fontSize="sm">
-                  {t('shuttlecock') + ' ' + session.shuttlecock}
+                  {session.numberOfCourts} {t('courtsAvailable')}
+                  {session.courts && session.courts.length > 0 && (
+                    <Text as="span" color="gray.500" ml={1}>
+                      (
+                      {session.courts
+                        .slice()
+                        .sort((a, b) => a.courtNumber - b.courtNumber)
+                        .map((c) => c.courtName || c.courtNumber)
+                        .join(', ')}
+                      )
+                    </Text>
+                  )}
                 </Text>
               </Flex>
-            )}
 
-            {/* Skill Levels */}
-            <Flex align="flex-start" gap={3}>
-              <Icon
-                as={Shield}
-                boxSize={4}
-                color={skillLevelColor.color}
-                flexShrink={0}
-                mt="2px"
-              />
-              <Wrap gap={1}>
-                {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                  Array.from(new Set(session.requiredLevels))
-                    .sort((a, b) => a - b)
-                    .map((level) => {
-                      const levelColor = getSkillLevelColor([level]);
-                      return (
-                        <Badge
-                          key={level}
-                          colorPalette={levelColor.colorPalette}
-                          variant="solid"
-                          size="sm"
-                          fontSize="xs"
-                          fontWeight="bold"
-                          px={2}
-                          py={0.5}
-                          borderRadius="full"
-                          borderWidth="1px"
-                          borderColor={levelColor.borderColor}
-                        >
-                          {getLevelShortLabel(level)}
-                        </Badge>
-                      );
-                    })
-                ) : (
-                  <Badge
-                    colorPalette="gray"
-                    variant="subtle"
-                    size="sm"
-                    fontSize="xs"
-                    fontWeight="bold"
-                    px={2}
-                    py={0.5}
-                    borderRadius="full"
-                  >
-                    {t('allLevels')}
-                  </Badge>
-                )}
-              </Wrap>
+              {/* Players */}
+              <Flex align="center" gap={3}>
+                <Icon
+                  as={UserCheck}
+                  boxSize={4}
+                  color="green.500"
+                  flexShrink={0}
+                />
+                <Text fontSize="sm">
+                  {approvedPlayersCount}/{maxPlayers} {t('players')}
+                </Text>
+              </Flex>
+
+              {/* Shuttlecock */}
+              {session.shuttlecock && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={Feather}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm">
+                    {t('shuttlecock') + ' ' + session.shuttlecock}
+                  </Text>
+                </Flex>
+              )}
+
+              {/* Skill Levels */}
+              <Flex align="flex-start" gap={3}>
+                <Icon
+                  as={Shield}
+                  boxSize={4}
+                  color={skillLevelColor.color}
+                  flexShrink={0}
+                  mt="2px"
+                />
+                <Wrap gap={1}>
+                  {session.requiredLevels &&
+                  session.requiredLevels.length > 0 ? (
+                    Array.from(new Set(session.requiredLevels))
+                      .sort((a, b) => a - b)
+                      .map((level) => {
+                        const levelColor = getSkillLevelColor([level]);
+                        return (
+                          <LevelBadgeWithDescription
+                            key={level}
+                            level={level}
+                            colorPalette={levelColor.colorPalette}
+                            variant="solid"
+                            size="sm"
+                            fontSize="xs"
+                            fontWeight="bold"
+                            px={2}
+                            py={0.5}
+                            borderRadius="full"
+                            borderWidth="1px"
+                            borderColor={levelColor.borderColor}
+                          >
+                            {getLevelShortLabel(level)}
+                          </LevelBadgeWithDescription>
+                        );
+                      })
+                  ) : (
+                    <Badge
+                      colorPalette="gray"
+                      variant="subtle"
+                      size="sm"
+                      fontSize="xs"
+                      fontWeight="bold"
+                      px={2}
+                      py={0.5}
+                      borderRadius="full"
+                    >
+                      {t('allLevels')}
+                    </Badge>
+                  )}
+                </Wrap>
+                <IconButton
+                  aria-label={tLevelDescriptions('open')}
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  colorPalette="green"
+                  color="green.500"
+                  bg="green.50"
+                  _hover={{
+                    color: 'green.600',
+                    bg: 'green.100',
+                    transform: 'scale(1.1)',
+                  }}
+                  _active={{ transform: 'scale(0.95)' }}
+                  flexShrink={0}
+                  minW="20px"
+                  h="20px"
+                  borderRadius="full"
+                  transition="all 0.2s"
+                  icon={<Info size={12} />}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setIsLevelDescriptionsOpen(true);
+                  }}
+                />
+              </Flex>
             </Flex>
-          </Flex>
 
-          <Separator mt={4} mb={4} />
+            <Separator mt={4} mb={4} />
 
-          {/* CTA Button */}
-          {renderActionButton()}
+            {/* CTA Button */}
+            {renderActionButton()}
+          </Box>
         </Box>
-      </Box>
+        <LevelDescriptionsModal
+          isOpen={isLevelDescriptionsOpen}
+          onClose={() => setIsLevelDescriptionsOpen(false)}
+        />
+      </>
     );
   }
 
   // Mobile sticky bar (default)
   return (
-    <Box
-      position="fixed"
-      display={{ base: 'block', md: 'none' }}
-      left={{
-        base: 0,
-        md: isCollapsed
-          ? `${SIDEBAR_WIDTH_COLLAPSED}px`
-          : `${SIDEBAR_WIDTH_EXPANDED}px`,
-      }}
-      right={0}
-      bottom={0}
-      zIndex={100}
-      bg="white"
-      _dark={{ bg: 'gray.800' }}
-      borderTopWidth="1px"
-      borderTopColor={{ base: 'gray.200', _dark: 'gray.700' }}
-      boxShadow="0 -2px 10px rgba(0, 0, 0, 0.08)"
-      px={5}
-      py={3}
-      paddingBottom="calc(12px + env(safe-area-inset-bottom))"
-      transition="left 0.3s ease"
-    >
-      <Flex align="center" gap={4} maxW="800px" mx="auto">
-        {/* Price Section */}
-        {session.feeConfig && (
-          <Box flexShrink={0}>
-            <Flex align="center" gap={1}>
-              <Icon as={Banknote} boxSize={5} color="red.600" />
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color="red.600"
-                whiteSpace="nowrap"
-              >
-                {FeeService.getFeeDisplayText(session.feeConfig)}
-              </Text>
-              {session.feeConfig.feeType === FeeType.FIXED && (
+    <>
+      <Box
+        position="fixed"
+        display={{ base: 'block', md: 'none' }}
+        left={{
+          base: 0,
+          md: isCollapsed
+            ? `${SIDEBAR_WIDTH_COLLAPSED}px`
+            : `${SIDEBAR_WIDTH_EXPANDED}px`,
+        }}
+        right={0}
+        bottom={0}
+        zIndex={100}
+        bg="white"
+        _dark={{ bg: 'gray.800' }}
+        borderTopWidth="1px"
+        borderTopColor={{ base: 'gray.200', _dark: 'gray.700' }}
+        boxShadow="0 -2px 10px rgba(0, 0, 0, 0.08)"
+        px={5}
+        py={3}
+        paddingBottom="calc(12px + env(safe-area-inset-bottom))"
+        transition="left 0.3s ease"
+      >
+        <Flex align="center" gap={4} maxW="800px" mx="auto">
+          {/* Price Section */}
+          {session.feeConfig && (
+            <Box flexShrink={0}>
+              <Flex align="center" gap={1}>
+                <Icon as={Banknote} boxSize={5} color="red.600" />
                 <Text
-                  fontSize="sm"
-                  color="gray.500"
-                  fontWeight="normal"
+                  fontSize="lg"
+                  fontWeight="bold"
+                  color="red.600"
                   whiteSpace="nowrap"
                 >
-                  /slot
+                  {FeeService.getFeeDisplayText(session.feeConfig)}
                 </Text>
-              )}
-              <FeeDetailPopover feeConfig={session.feeConfig} />
-            </Flex>
-          </Box>
-        )}
+                {session.feeConfig.feeType === FeeType.FIXED && (
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    fontWeight="normal"
+                    whiteSpace="nowrap"
+                  >
+                    /slot
+                  </Text>
+                )}
+                <FeeDetailPopover feeConfig={session.feeConfig} />
+              </Flex>
+            </Box>
+          )}
 
-        {/* Action Button */}
-        <Box ml="auto">{renderActionButton()}</Box>
-      </Flex>
-    </Box>
+          {/* Action Button */}
+          <Box ml="auto">{renderActionButton()}</Box>
+        </Flex>
+      </Box>
+      <LevelDescriptionsModal
+        isOpen={isLevelDescriptionsOpen}
+        onClose={() => setIsLevelDescriptionsOpen(false)}
+      />
+    </>
   );
 };
 

@@ -63,6 +63,12 @@ export enum PlayerLevel {
   PRO = 8,
 }
 
+export interface LevelDescription {
+  level: number;
+  description: string;
+  updatedAt?: string;
+}
+
 // ============================================
 // Fee and Payment Management Types
 // ============================================

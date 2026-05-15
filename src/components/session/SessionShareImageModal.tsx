@@ -9,7 +9,7 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { Check, Download } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
 import { Button } from '@/components/ui/chakra-compat';
@@ -72,9 +72,15 @@ export default function SessionShareImageModal({
 }: SessionShareImageModalProps) {
   const t = useTranslations('session.shareImageModal');
   const [selectedTemplateId, setSelectedTemplateId] =
-    useState<SessionShareTemplateId>('social-poster');
+    useState<SessionShareTemplateId>(SESSION_SHARE_TEMPLATES[0].id);
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
   const thumbnailWidth = useBreakpointValue({ base: 86, md: 110 }) || 86;
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedTemplateId(SESSION_SHARE_TEMPLATES[0].id);
+    }
+  }, [isOpen]);
 
   const selectedTemplate = useMemo(
     () =>

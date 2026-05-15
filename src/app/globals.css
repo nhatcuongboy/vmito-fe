@@ -176,7 +176,7 @@
 
   .app-splash__content {
     display: flex;
-    width: min(72vw, 440px);
+    width: min(64vw, 380px);
     align-items: center;
     flex-direction: column;
     gap: 28px;
@@ -230,7 +230,7 @@
 
   @media (min-width: 768px) {
     .app-splash__content {
-      width: min(46vw, 520px);
+      width: min(40vw, 460px);
     }
   }
 
@@ -238,6 +238,10 @@
     .app-splash {
       background: #ffffff;
     }
+  }
+
+  .dark .app-splash {
+    background: #ffffff;
   }
 
   @media (prefers-reduced-motion: reduce) {

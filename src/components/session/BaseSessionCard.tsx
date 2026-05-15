@@ -47,6 +47,7 @@ import {
   Play,
   Square,
   ChevronRight,
+  Info,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FeeService } from '@/lib/api/fee.service';
@@ -64,6 +65,9 @@ import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { useRouter } from '@/i18n/config';
 import SessionShareImageModal from './SessionShareImageModal';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
+import LevelBadgeWithDescription from './LevelBadgeWithDescription';
+import { VALID_LEVELS } from '@/constants/levels';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -182,12 +186,14 @@ const BaseSessionCard = ({
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const isCompact = variant === 'list';
   const t = useTranslations('session');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
+  const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -542,9 +548,7 @@ const BaseSessionCard = ({
       return ['gray.300']; // Light gray for all levels
     }
 
-    // Check if all levels (1-7) are present
-    const allLevels = [1, 2, 3, 4, 5, 6, 7];
-    const hasAllLevels = allLevels.every((level) =>
+    const hasAllLevels = VALID_LEVELS.every((level) =>
       session.requiredLevels!.includes(level)
     );
 
@@ -900,8 +904,9 @@ const BaseSessionCard = ({
                     .map((level) => {
                       const levelColor = getSkillLevelColor([level]);
                       return (
-                        <Badge
+                        <LevelBadgeWithDescription
                           key={level}
+                          level={level}
                           colorPalette={levelColor.colorPalette}
                           variant="solid"
                           size={isCompact ? 'sm' : 'md'}
@@ -914,7 +919,7 @@ const BaseSessionCard = ({
                           borderColor={levelColor.borderColor}
                         >
                           {getLevelShortLabel(level)}
-                        </Badge>
+                        </LevelBadgeWithDescription>
                       );
                     })
                 ) : (
@@ -934,6 +939,31 @@ const BaseSessionCard = ({
                   </Badge>
                 )}
               </Wrap>
+              <IconButton
+                aria-label={tLevelDescriptions('open')}
+                type="button"
+                size="xs"
+                variant="ghost"
+                colorPalette="green"
+                color="green.500"
+                bg="green.50"
+                _hover={{
+                  color: 'green.600',
+                  bg: 'green.100',
+                  transform: 'scale(1.1)',
+                }}
+                _active={{ transform: 'scale(0.95)' }}
+                flexShrink={0}
+                minW="20px"
+                h="20px"
+                borderRadius="full"
+                transition="all 0.2s"
+                icon={<Icon as={Info} boxSize={3} />}
+                onClick={(event: React.MouseEvent) => {
+                  event.stopPropagation();
+                  setIsLevelDescriptionsOpen(true);
+                }}
+              />
             </Flex>
 
             {/* Description/Notes - hidden in compact mode */}
@@ -1114,6 +1144,10 @@ const BaseSessionCard = ({
         isOpen={isShareImageModalOpen}
         onClose={() => setIsShareImageModalOpen(false)}
         session={session}
+      />
+      <LevelDescriptionsModal
+        isOpen={isLevelDescriptionsOpen}
+        onClose={() => setIsLevelDescriptionsOpen(false)}
       />
       {modalContent}
     </>

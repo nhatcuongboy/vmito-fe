@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Badge,
@@ -43,7 +43,7 @@ import { ClosureStatus, Venue, VenueRequestType } from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
-import { useRouter } from '@/i18n/config';
+import { usePathname, useRouter } from '@/i18n/config';
 import { toaster } from '@/components/ui/toaster';
 import {
   trimPhone,
@@ -55,6 +55,14 @@ import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
+import dynamic from 'next/dynamic';
+
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
+
+const OPEN_VENUE_UPDATE_REQUEST_ACTION = 'openVenueUpdateRequest';
 
 function formatPrice(amount?: number) {
   if (!amount) return null;
@@ -70,6 +78,8 @@ export default function VenueDetailClient({
 }: VenueDetailClientProps) {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const t = useTranslations('venue');
   const { user } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
@@ -78,6 +88,7 @@ export default function VenueDetailClient({
   const [loading, setLoading] = useState(!initialVenue);
   const [activeTab, setActiveTab] = useState('about');
   const [isUpdateRequestOpen, setIsUpdateRequestOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
     if (initialVenue) return;
@@ -104,6 +115,32 @@ export default function VenueDetailClient({
     }
   }, [params.id, initialVenue]);
 
+  useEffect(() => {
+    if (
+      !user ||
+      !venue ||
+      searchParams.get('action') !== OPEN_VENUE_UPDATE_REQUEST_ACTION
+    ) {
+      return;
+    }
+
+    setIsUpdateRequestOpen(true);
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('action');
+    const nextUrl = nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+    router.replace(nextUrl);
+  }, [pathname, router, searchParams, user, venue]);
+
+  const getUpdateRequestReturnUrl = () => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('action', OPEN_VENUE_UPDATE_REQUEST_ACTION);
+    return nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+  };
+
   const handleFindSessions = () => {
     if (!venue) return;
     router.push(`/?venueId=${venue.id}`);
@@ -111,7 +148,7 @@ export default function VenueDetailClient({
 
   const handleOpenUpdateRequest = () => {
     if (!user) {
-      router.push('/auth/signin');
+      setIsLoginModalOpen(true);
       return;
     }
     setIsUpdateRequestOpen(true);
@@ -790,41 +827,6 @@ export default function VenueDetailClient({
                     </Text>
                   </Flex>
                 </Box>
-
-                <Box
-                  p={6}
-                  bg="white"
-                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                  borderRadius="2xl"
-                  borderWidth="1px"
-                  borderColor="gray.100"
-                  shadow="sm"
-                >
-                  <Flex
-                    direction={{ base: 'column', sm: 'row' }}
-                    align={{ base: 'stretch', sm: 'center' }}
-                    justify="space-between"
-                    gap={4}
-                  >
-                    <Box>
-                      <Heading size="sm" mb={1}>
-                        {t('requestUpdate')}
-                      </Heading>
-                      <Text fontSize="sm" color="gray.500">
-                        Gửi đề xuất nếu bạn thấy thông tin sân chưa chính xác
-                        hoặc cần bổ sung.
-                      </Text>
-                    </Box>
-                    <Button
-                      variant="outline"
-                      colorPalette="green"
-                      onClick={handleOpenUpdateRequest}
-                    >
-                      <PencilLine size={16} />
-                      {t('requestUpdate')}
-                    </Button>
-                  </Flex>
-                </Box>
               </Tabs.Content>
             </Box>
 
@@ -1141,6 +1143,18 @@ export default function VenueDetailClient({
             </Box>
           </Grid>
         </Tabs.Root>
+
+        <Flex justify="center" mt={6} pb={2}>
+          <Button
+            variant="outline"
+            colorPalette="green"
+            onClick={handleOpenUpdateRequest}
+            w={{ base: 'full', sm: 'auto' }}
+          >
+            <PencilLine size={16} />
+            {t('requestUpdate')}
+          </Button>
+        </Flex>
       </Container>
 
       <VenueRequestModal
@@ -1149,6 +1163,14 @@ export default function VenueDetailClient({
         type={VenueRequestType.UPDATE}
         venue={venue}
       />
+      {isLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          featureName={t('requestUpdate')}
+          returnUrl={getUpdateRequestReturnUrl()}
+        />
+      )}
     </PageLayout>
   );
 }
