@@ -14,6 +14,8 @@ export const ROUTES = {
   AUTH: {
     SIGNIN: '/auth/signin',
     SIGNUP: '/auth/signup',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
     CALLBACK: '/auth/callback',
   },
 
@@ -189,6 +191,8 @@ export const ROUTE_GROUPS = {
     ROUTES.HOME,
     ROUTES.AUTH.SIGNIN,
     ROUTES.AUTH.SIGNUP,
+    ROUTES.AUTH.FORGOT_PASSWORD,
+    ROUTES.AUTH.RESET_PASSWORD,
     ROUTES.JOIN.ENTRY,
     ROUTES.JOIN.REGISTER,
     ROUTES.JOIN.BY_CODE,
@@ -305,6 +309,8 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Home',
   [ROUTES.AUTH.SIGNIN]: 'Sign In',
   [ROUTES.AUTH.SIGNUP]: 'Sign Up',
+  [ROUTES.AUTH.FORGOT_PASSWORD]: 'Forgot Password',
+  [ROUTES.AUTH.RESET_PASSWORD]: 'Reset Password',
   [ROUTES.HOST.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.HOST.TRANSACTIONS]: 'Transactions',
   [ROUTES.HOST.PAYMENT_SETTINGS]: 'Payment Settings',

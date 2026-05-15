@@ -101,6 +101,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   const [isLoadingSuggestion, setIsLoadingSuggestion] = useState(false);
   const [useAi, setUseAi] = useState(false);
   const initializedCourtIdRef = useRef<string | null>(null);
+  const latestSuggestionRequestRef = useRef(0);
+  const activeSuggestionRequestKeyRef = useRef<string | null>(null);
   const suggestedPlayers = suggestedPlayersByMatchType[matchType] ?? null;
 
   // Calculate default topCount
@@ -121,8 +123,22 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
       courtId: string,
       count: number,
       enableAi: boolean = false,
-      suggestionMatchType: TMatchType = matchType
+      suggestionMatchType: TMatchType
     ) => {
+      const requestKey = [
+        courtId,
+        count,
+        enableAi ? 'ai' : 'standard',
+        locale,
+        suggestionMatchType,
+      ].join(':');
+
+      if (activeSuggestionRequestKeyRef.current === requestKey) return;
+
+      const requestId = latestSuggestionRequestRef.current + 1;
+      latestSuggestionRequestRef.current = requestId;
+      activeSuggestionRequestKeyRef.current = requestKey;
+
       try {
         setIsLoadingSuggestion(true);
         const apiMatchType =
@@ -134,17 +150,25 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           locale,
           apiMatchType
         );
+
+        if (latestSuggestionRequestRef.current !== requestId) return;
+
         setSuggestedPlayersByMatchType((prev) => ({
           ...prev,
           [suggestionMatchType]: response,
         }));
       } catch (error) {
-        console.error('Error getting suggested players:', error);
+        if (latestSuggestionRequestRef.current === requestId) {
+          console.error('Error getting suggested players:', error);
+        }
       } finally {
-        setIsLoadingSuggestion(false);
+        if (latestSuggestionRequestRef.current === requestId) {
+          activeSuggestionRequestKeyRef.current = null;
+          setIsLoadingSuggestion(false);
+        }
       }
     },
-    [locale, matchType]
+    [locale]
   );
 
   // Combine players from both pairs for court visualization
@@ -176,6 +200,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     if (!isOpen) {
       // Reset state when modal closes
       initializedCourtIdRef.current = null;
+      latestSuggestionRequestRef.current += 1;
+      activeSuggestionRequestKeyRef.current = null;
       setSuggestedPlayersByMatchType({});
       setIsLoadingSuggestion(false);
       setUseAi(false);

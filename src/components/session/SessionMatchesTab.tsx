@@ -80,6 +80,7 @@ interface SessionMatchesTabProps {
     }>;
   };
   defaultPlayerId?: string;
+  restrictedPlayerId?: string;
   readOnly?: boolean;
 }
 
@@ -87,6 +88,7 @@ export default function SessionMatchesTab({
   sessionId,
   sessionData,
   defaultPlayerId,
+  restrictedPlayerId,
   readOnly,
 }: SessionMatchesTabProps) {
   const t = useTranslations('SessionDetail.matchs');
@@ -94,7 +96,11 @@ export default function SessionMatchesTab({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(
-    defaultPlayerId ? [defaultPlayerId] : []
+    restrictedPlayerId
+      ? [restrictedPlayerId]
+      : defaultPlayerId
+        ? [defaultPlayerId]
+        : []
   );
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
   const [resultFilter, setResultFilter] = useState<string>(''); // '' = all, 'with' = có kết quả, 'without' = không có kết quả
@@ -106,12 +112,20 @@ export default function SessionMatchesTab({
     (Player | { id: string; playerNumber: number; name?: string })[]
   >(sessionData?.players || []);
 
-  // Sync defaultPlayerId when it changes
+  const effectiveSelectedPlayerIds = useMemo(
+    () => (restrictedPlayerId ? [restrictedPlayerId] : selectedPlayerIds),
+    [restrictedPlayerId, selectedPlayerIds]
+  );
+
+  // Sync incoming player constraints only when they change.
   useEffect(() => {
-    if (defaultPlayerId && !selectedPlayerIds.includes(defaultPlayerId)) {
-      setSelectedPlayerIds([defaultPlayerId]);
-    }
-  }, [defaultPlayerId, selectedPlayerIds]);
+    const incomingPlayerId = restrictedPlayerId ?? defaultPlayerId;
+    if (!incomingPlayerId) return;
+
+    setSelectedPlayerIds((currentIds) =>
+      currentIds.includes(incomingPlayerId) ? currentIds : [incomingPlayerId]
+    );
+  }, [defaultPlayerId, restrictedPlayerId]);
   const [courts, setCourts] = useState<
     (Court | { id: string; courtNumber: number; courtName?: string })[]
   >(sessionData?.courts || []);
@@ -155,8 +169,8 @@ export default function SessionMatchesTab({
       // Step 2: Load matches
       const filters: { playerId?: string; courtId?: string } = {};
       // If multiple players selected, we'll filter client-side
-      if (selectedPlayerIds.length === 1) {
-        filters.playerId = selectedPlayerIds[0];
+      if (effectiveSelectedPlayerIds.length === 1) {
+        filters.playerId = effectiveSelectedPlayerIds[0];
       }
       if (selectedCourtId) filters.courtId = selectedCourtId;
 
@@ -328,9 +342,9 @@ export default function SessionMatchesTab({
       // Client-side filtering for multiple players
       let filteredMatches = allMatches;
 
-      if (selectedPlayerIds.length > 1) {
+      if (effectiveSelectedPlayerIds.length > 0) {
         filteredMatches = filteredMatches.filter((match) =>
-          selectedPlayerIds.some((playerId) =>
+          effectiveSelectedPlayerIds.some((playerId) =>
             match.playerIds?.includes(playerId)
           )
         );
@@ -423,7 +437,7 @@ export default function SessionMatchesTab({
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, selectedPlayerIds, selectedCourtId, resultFilter]);
+  }, [sessionId, effectiveSelectedPlayerIds, selectedCourtId, resultFilter]);
 
   const handleEditMatch = (match: HistoryMatch) => {
     setSelectedMatch(match);
@@ -506,52 +520,53 @@ export default function SessionMatchesTab({
           width="100%"
           justify={{ base: 'stretch', md: 'flex-end' }}
         >
-          {/* Player Filter - Multi Select */}
-          <Box
-            width={{ base: '100%', md: '260px' }}
-            {...FILTER_CONTROL_PROPS}
-            css={{
-              ...FILTER_CONTROL_PROPS.css,
-              '& > div > div:first-of-type': {
-                height: '38px',
-                minHeight: '38px',
-                paddingTop: 0,
-                paddingBottom: 0,
-              },
-            }}
-          >
-            <VMultiSelect
-              value={selectedPlayerIds}
-              onChange={setSelectedPlayerIds}
-              options={playerOptions}
-              placeholder={t('allPlayers')}
-              size="sm"
-              variant="outline"
-              renderItem={(option) => {
-                const playerOption = option as PlayerSelectOption;
-                return (
-                  <Flex align="baseline" gap={1}>
-                    <Text color="gray.500" fontSize="xs" fontWeight="medium">
-                      #{playerOption.playerNumber}
-                    </Text>
-                    <Text fontSize="sm">{playerOption.label}</Text>
-                  </Flex>
-                );
+          {!restrictedPlayerId && (
+            <Box
+              width={{ base: '100%', md: '260px' }}
+              {...FILTER_CONTROL_PROPS}
+              css={{
+                ...FILTER_CONTROL_PROPS.css,
+                '& > div > div:first-of-type': {
+                  height: '38px',
+                  minHeight: '38px',
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                },
               }}
-              renderSelected={(options) => {
-                const selectedOptions = options as PlayerSelectOption[];
-                if (options.length === 0) return '';
-                if (selectedOptions.length === 1) {
-                  return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label}`;
-                }
-                if (selectedOptions.length === 2) {
-                  return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label}, #${selectedOptions[1].playerNumber} ${selectedOptions[1].label}`;
-                }
-                // Show first player and count for 3+
-                return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label} +${selectedOptions.length - 1}`;
-              }}
-            />
-          </Box>
+            >
+              <VMultiSelect
+                value={selectedPlayerIds}
+                onChange={setSelectedPlayerIds}
+                options={playerOptions}
+                placeholder={t('allPlayers')}
+                size="sm"
+                variant="outline"
+                renderItem={(option) => {
+                  const playerOption = option as PlayerSelectOption;
+                  return (
+                    <Flex align="baseline" gap={1}>
+                      <Text color="gray.500" fontSize="xs" fontWeight="medium">
+                        #{playerOption.playerNumber}
+                      </Text>
+                      <Text fontSize="sm">{playerOption.label}</Text>
+                    </Flex>
+                  );
+                }}
+                renderSelected={(options) => {
+                  const selectedOptions = options as PlayerSelectOption[];
+                  if (options.length === 0) return '';
+                  if (selectedOptions.length === 1) {
+                    return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label}`;
+                  }
+                  if (selectedOptions.length === 2) {
+                    return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label}, #${selectedOptions[1].playerNumber} ${selectedOptions[1].label}`;
+                  }
+                  // Show first player and count for 3+
+                  return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label} +${selectedOptions.length - 1}`;
+                }}
+              />
+            </Box>
+          )}
 
           {/* Court Filter */}
           <Box
@@ -759,7 +774,9 @@ export default function SessionMatchesTab({
             {t('noCompletedMatches')}
           </Heading>
           <Text color="gray.500">
-            {selectedPlayerIds.length > 0 || selectedCourtId || resultFilter
+            {effectiveSelectedPlayerIds.length > 0 ||
+            selectedCourtId ||
+            resultFilter
               ? t('noMatchesWithFilters')
               : t('noMatchesYet')}
           </Text>

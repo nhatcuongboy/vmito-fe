@@ -2019,7 +2019,7 @@ export default function SessionForm({
                       base: '0 -8px 24px rgba(0, 0, 0, 0.18)',
                       md: 'none',
                     },
-                    zIndex: 1500,
+                    zIndex: 1200,
                   }
                 : {})}
             >

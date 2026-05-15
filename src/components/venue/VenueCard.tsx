@@ -628,7 +628,7 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
               {venue.phone && (
                 <IconButton
                   size="sm"
-                  colorPalette="blue"
+                  colorPalette="green"
                   variant="outline"
                   aria-label="Zalo"
                   shadow="sm"

@@ -7,6 +7,10 @@ import {
   LoginResponse,
   User,
   ChangePasswordRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from '@/types/auth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
@@ -81,6 +85,34 @@ export const AuthService = {
     const response = await api.put<{ message: string }>(
       '/auth/change-password',
       data
+    );
+    return response.data;
+  },
+
+  /**
+   * Request a password reset email.
+   */
+  forgotPassword: async (
+    data: ForgotPasswordRequest
+  ): Promise<ForgotPasswordResponse> => {
+    const response = await api.post<ForgotPasswordResponse>(
+      '/auth/forgot-password',
+      data,
+      { skipGlobalError: true }
+    );
+    return response.data;
+  },
+
+  /**
+   * Reset password using the token from the email link.
+   */
+  resetPassword: async (
+    data: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> => {
+    const response = await api.put<ResetPasswordResponse>(
+      '/auth/reset-password',
+      data,
+      { skipGlobalError: true }
     );
     return response.data;
   },

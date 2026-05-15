@@ -87,7 +87,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
     const parts = text.split(/(#\w+)/g);
     return parts.map((part, i) =>
       part.startsWith('#') ? (
-        <span key={i} className="text-blue-500 hover:underline cursor-pointer">
+        <span key={i} className="text-green-600 hover:underline cursor-pointer">
           {part}
         </span>
       ) : (

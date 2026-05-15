@@ -348,7 +348,7 @@ function AdminVenuesContent() {
             <HStack gap={3}>
               <VButton
                 variant="outline"
-                colorPalette="blue"
+                colorPalette="green"
                 leftIcon={<ClipboardList size={18} />}
                 onClick={() => router.push('/admin/venues/requests')}
               >
@@ -826,7 +826,7 @@ function AdminVenuesContent() {
                           aria-label="View venue"
                           size="sm"
                           variant="ghost"
-                          colorPalette="blue"
+                          colorPalette="green"
                           onClick={() => {
                             window.open(
                               `/san-cau-long/${venue.slug || venue.id}`,

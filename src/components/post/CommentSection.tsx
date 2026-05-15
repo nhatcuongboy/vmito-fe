@@ -101,13 +101,13 @@ export function CommentSection({ postId, currentUserId }: CommentSectionProps) {
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="Write a comment..."
-          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
           disabled={isSubmitting}
         />
         <button
           type="submit"
           disabled={isSubmitting || !newComment.trim()}
-          className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+          className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
         >
           <Send size={20} />
         </button>
@@ -153,7 +153,7 @@ export function CommentSection({ postId, currentUserId }: CommentSectionProps) {
         <button
           onClick={() => loadComments(page + 1)}
           disabled={isLoading}
-          className="w-full mt-4 py-2 text-sm text-blue-500 hover:bg-blue-50 rounded"
+          className="w-full mt-4 py-2 text-sm text-green-600 hover:bg-green-50 rounded"
         >
           {isLoading ? 'Loading...' : 'Load more comments'}
         </button>

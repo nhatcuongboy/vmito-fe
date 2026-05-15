@@ -175,7 +175,7 @@ export default function PaymentSettingsForm({
         {/* Bank Name — combobox */}
         <Box ref={bankRef} position="relative">
           <Flex align="center" gap={2} mb={1}>
-            <Building2 size={16} color="#3182ce" />
+            <Building2 size={16} color="#179a3b" />
             <Text fontSize="sm" fontWeight="medium">
               {t('bankName')}
             </Text>
@@ -188,12 +188,12 @@ export default function PaymentSettingsForm({
             px={3}
             minH="40px"
             border="1px solid"
-            borderColor={isBankOpen ? 'blue.400' : 'gray.200'}
+            borderColor={isBankOpen ? 'green.400' : 'gray.200'}
             borderRadius="md"
             bg="white"
             _dark={{
               bg: 'gray.700',
-              borderColor: isBankOpen ? 'blue.400' : 'gray.600',
+              borderColor: isBankOpen ? 'green.400' : 'gray.600',
             }}
             cursor={isLoading ? 'not-allowed' : 'pointer'}
             opacity={isLoading ? 0.6 : 1}
@@ -287,22 +287,22 @@ export default function PaymentSettingsForm({
                     px={3}
                     py={2}
                     cursor="pointer"
-                    bg={selectedBank?.code === bank.code ? 'blue.50' : 'white'}
+                    bg={selectedBank?.code === bank.code ? 'green.50' : 'white'}
                     _dark={{
                       bg:
                         selectedBank?.code === bank.code
-                          ? 'blue.900'
+                          ? 'green.900'
                           : 'gray.800',
                     }}
                     _hover={{
                       bg:
                         selectedBank?.code === bank.code
-                          ? 'blue.50'
+                          ? 'green.50'
                           : 'gray.50',
                       _dark: {
                         bg:
                           selectedBank?.code === bank.code
-                            ? 'blue.900'
+                            ? 'green.900'
                             : 'gray.700',
                       },
                     }}
@@ -346,7 +346,7 @@ export default function PaymentSettingsForm({
         {/* Account Number */}
         <Box>
           <Flex align="center" gap={2} mb={1}>
-            <CreditCard size={16} color="#3182ce" />
+            <CreditCard size={16} color="#179a3b" />
             <Text fontSize="sm" fontWeight="medium">
               {t('accountNumber')}
             </Text>
@@ -364,7 +364,7 @@ export default function PaymentSettingsForm({
         {/* Account Holder Name */}
         <Box>
           <Flex align="center" gap={2} mb={1}>
-            <User size={16} color="#3182ce" />
+            <User size={16} color="#179a3b" />
             <Text fontSize="sm" fontWeight="medium">
               {t('accountHolderName')}
             </Text>
@@ -383,7 +383,7 @@ export default function PaymentSettingsForm({
         <Box>
           <Flex align="center" gap={2} mb={1} justify="space-between">
             <Flex align="center" gap={2}>
-              <QrCode size={16} color="#3182ce" />
+              <QrCode size={16} color="#179a3b" />
               <Text fontSize="sm" fontWeight="medium">
                 {t('qrCode')}
               </Text>
@@ -452,8 +452,8 @@ export default function PaymentSettingsForm({
               w="20px"
               h="20px"
               border="2px solid"
-              borderColor={isDefault ? 'blue.500' : 'gray.300'}
-              bg={isDefault ? 'blue.500' : 'white'}
+              borderColor={isDefault ? 'green.500' : 'gray.300'}
+              bg={isDefault ? 'green.500' : 'white'}
               borderRadius="md"
               display="flex"
               alignItems="center"

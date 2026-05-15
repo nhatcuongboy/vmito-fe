@@ -271,7 +271,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   bg={{ base: 'white', _dark: 'gray.700' }}
                   _focus={{
                     borderColor: 'brand.400',
-                    boxShadow: '0 0 0 1px #3182ce',
+                    boxShadow: '0 0 0 1px #179a3b',
                   }}
                 />
               </Box>
@@ -294,7 +294,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                   borderColor="gray.300"
                   _focus={{
                     borderColor: 'brand.400',
-                    boxShadow: '0 0 0 1px #3182ce',
+                    boxShadow: '0 0 0 1px #179a3b',
                   }}
                 />
               </Box>
@@ -354,7 +354,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
                       borderColor: 'brand.400',
-                      boxShadow: '0 0 0 1px #3182ce',
+                      boxShadow: '0 0 0 1px #179a3b',
                     }}
                   />
                 </Box>
@@ -380,7 +380,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     bg={{ base: 'white', _dark: 'gray.700' }}
                     _focus={{
                       borderColor: 'brand.400',
-                      boxShadow: '0 0 0 1px #3182ce',
+                      boxShadow: '0 0 0 1px #179a3b',
                     }}
                   />
                 </Box>
@@ -458,7 +458,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     _dark={{ color: 'white' }}
                     _focus={{
                       borderColor: 'brand.400',
-                      boxShadow: '0 0 0 1px #3182ce',
+                      boxShadow: '0 0 0 1px #179a3b',
                     }}
                     placeholder={t('startTime')}
                   />
@@ -485,7 +485,7 @@ const GeneralSettings = ({ session, onDataRefresh }: GeneralSettingsProps) => {
                     _dark={{ color: 'white' }}
                     _focus={{
                       borderColor: 'brand.400',
-                      boxShadow: '0 0 0 1px #3182ce',
+                      boxShadow: '0 0 0 1px #179a3b',
                     }}
                     placeholder={t('endTime')}
                   />

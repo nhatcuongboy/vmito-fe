@@ -1225,7 +1225,7 @@ export default function ClubDetailClient({
                 {/* CTA Button */}
                 {isUserAdmin && (
                   <Button
-                    colorPalette="blue"
+                    colorPalette="green"
                     variant="surface"
                     size="xl"
                     w="full"

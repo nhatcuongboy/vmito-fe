@@ -58,8 +58,21 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
-export interface ResetPasswordRequest {
+export interface ForgotPasswordRequest {
   email: string;
+  locale?: string;
+  redirectUrl: string;
+}
+
+export interface ForgotPasswordResponse {
+  message?: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
   newPassword: string;
-  adminKey: string;
+}
+
+export interface ResetPasswordResponse {
+  message?: string;
 }

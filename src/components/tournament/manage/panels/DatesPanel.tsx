@@ -67,7 +67,7 @@ export default function DatesPanel({
       });
       onTournamentUpdate?.(updated);
       toaster.success({ title: t('success') });
-    } catch (error) {
+    } catch {
       toaster.error({ title: t('errors.updateFailed') });
     } finally {
       setIsSubmitting(false);
@@ -158,7 +158,7 @@ export default function DatesPanel({
           </Button>
           <Button
             type="submit"
-            colorScheme="blue"
+            colorScheme="green"
             disabled={!hasChanges || isSubmitting}
             loading={isSubmitting}
           >

@@ -170,11 +170,11 @@ export function SessionPaymentSummary({
             {FeeService.formatFeeExact(netAmount)}
           </Text>
         </Box>
-        <Box p={3} borderRadius="lg" bg="blue.50" _dark={{ bg: 'blue.950' }}>
+        <Box p={3} borderRadius="lg" bg="green.50" _dark={{ bg: 'green.950' }}>
           <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
             {t('remainingAmount')}
           </Text>
-          <Text fontSize="md" fontWeight="bold" color="blue.600">
+          <Text fontSize="md" fontWeight="bold" color="green.600">
             {pendingAmount === 0
               ? '0'
               : FeeService.formatFeeExact(pendingAmount)}
@@ -608,7 +608,7 @@ export default function SessionPaymentList({
               <Box
                 key={key}
                 border="1px solid"
-                borderColor="blue.200"
+                borderColor="green.200"
                 borderRadius="lg"
                 overflow="hidden"
               >
@@ -616,8 +616,8 @@ export default function SessionPaymentList({
                 <Flex
                   px={3}
                   py={2.5}
-                  bg="blue.50"
-                  _dark={{ bg: 'blue.900/20' }}
+                  bg="green.50"
+                  _dark={{ bg: 'green.900/20' }}
                   align="center"
                   justify="space-between"
                   gap={3}
@@ -641,7 +641,7 @@ export default function SessionPaymentList({
                             representative.player?.user?.name ||
                             t('unknownPlayer')}
                         </Text>
-                        <Badge colorPalette="blue" size="xs">
+                        <Badge colorPalette="green" size="xs">
                           {group.length} slot
                         </Badge>
                       </HStack>
@@ -708,7 +708,7 @@ export default function SessionPaymentList({
                         bg="white"
                         _dark={{ bg: 'gray.800' }}
                         borderTop="1px solid"
-                        borderColor={idx === 0 ? 'blue.100' : 'gray.100'}
+                        borderColor={idx === 0 ? 'green.100' : 'gray.100'}
                         cursor="pointer"
                         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.750' } }}
                         transition="background 0.15s"

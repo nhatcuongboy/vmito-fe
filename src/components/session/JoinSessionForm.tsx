@@ -178,7 +178,7 @@ export default function JoinSessionForm({
                     borderColor: errors[index]?.name ? 'red.400' : 'brand.500',
                     boxShadow: errors[index]?.name
                       ? '0 0 0 1px #F56565'
-                      : '0 0 0 1px #3182ce',
+                      : '0 0 0 1px #179a3b',
                   }}
                 />
                 {errors[index]?.name && (

@@ -254,7 +254,7 @@ export const AppHostDetail = ({
               {t('call')}
             </Button>
             <Button
-              colorPalette="blue"
+              colorPalette="green"
               variant="subtle"
               flex={1}
               height="48px"
@@ -263,8 +263,8 @@ export const AppHostDetail = ({
               fontSize="sm"
               fontWeight="bold"
               borderWidth="1.5px"
-              borderColor="blue.200"
-              _dark={{ borderColor: 'blue.800' }}
+              borderColor="green.200"
+              _dark={{ borderColor: 'green.800' }}
             >
               <Image
                 src="/icons/zalo.png"

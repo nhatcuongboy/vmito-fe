@@ -225,12 +225,12 @@ const SessionDetailBody = ({
             <IconButton
               aria-label="Zalo host"
               size="sm"
-              colorPalette="blue"
+              colorPalette="green"
               variant="subtle"
               borderRadius="full"
               borderWidth="1px"
-              borderColor="blue.200"
-              _dark={{ borderColor: 'blue.800' }}
+              borderColor="green.200"
+              _dark={{ borderColor: 'green.800' }}
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(

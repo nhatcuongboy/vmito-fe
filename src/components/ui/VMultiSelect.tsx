@@ -154,6 +154,7 @@ export const VMultiSelect = ({
 
   // Handle clear all
   const handleClearAll = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     onChange?.([]);
   };
@@ -244,6 +245,8 @@ export const VMultiSelect = ({
           {showClearAll && selectedOptions.length > 0 && !isDisabled && (
             <Box
               as="button"
+              {...({ type: 'button' } as Record<string, unknown>)}
+              aria-label="Clear selected options"
               onClick={handleClearAll}
               p={1}
               borderRadius="sm"

@@ -64,7 +64,7 @@ export default function TransactionSummaryList({
         p={4}
       >
         <HStack mb={3}>
-          <TrendingUp size={18} color="#3182ce" />
+          <TrendingUp size={18} color="#179a3b" />
           <Text fontWeight="semibold">{t('overallSummary')}</Text>
         </HStack>
 

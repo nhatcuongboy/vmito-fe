@@ -132,7 +132,7 @@ export default function AdminGeneralPage() {
             <Card.Body>
               <VStack gap={4} align="stretch">
                 <Button
-                  colorPalette="blue"
+                  colorPalette="green"
                   onClick={handleMigrate}
                   disabled={isMigrating}
                   alignSelf="flex-start"

@@ -892,7 +892,7 @@ export default function RoundsPanel({
 
             <Button
               size="sm"
-              colorPalette="blue"
+              colorPalette="green"
               leftIcon={<Layers size={14} />}
               onClick={handleCreateGroups}
               disabled={isCreatingGroups}
@@ -907,9 +907,9 @@ export default function RoundsPanel({
         <VStack gap={4} align="stretch">
           {!allGroupsHaveMatches && (
             <Flex
-              bg="blue.50"
+              bg="green.50"
               borderWidth="1px"
-              borderColor="blue.200"
+              borderColor="green.200"
               borderRadius="lg"
               p={3}
               align="center"
@@ -918,13 +918,13 @@ export default function RoundsPanel({
             >
               {!hasTeamsInGroups ? (
                 <>
-                  <Shuffle size={16} color="var(--chakra-colors-blue-600)" />
-                  <Text fontSize="sm" color="blue.700" flex={1}>
+                  <Shuffle size={16} color="var(--chakra-colors-green-600)" />
+                  <Text fontSize="sm" color="green.700" flex={1}>
                     {t('panels.rounds.noTeamsInGroups')}
                   </Text>
                   <Button
                     size="xs"
-                    colorPalette="blue"
+                    colorPalette="green"
                     onClick={handleAutoAssign}
                     disabled={isAssigning}
                   >
@@ -935,8 +935,8 @@ export default function RoundsPanel({
                 </>
               ) : (
                 <>
-                  <Zap size={16} color="var(--chakra-colors-blue-600)" />
-                  <Text fontSize="sm" color="blue.700" flex={1}>
+                  <Zap size={16} color="var(--chakra-colors-green-600)" />
+                  <Text fontSize="sm" color="green.700" flex={1}>
                     {t('panels.rounds.readyToGenerate', {
                       count: totalTeamsInGroups,
                     })}

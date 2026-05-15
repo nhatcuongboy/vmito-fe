@@ -1045,7 +1045,7 @@ export default function VenueDetailClient({
                                 bg="blue.100"
                                 _dark={{ bg: 'blue.900/40' }}
                               >
-                                <Phone size={16} color="#3182CE" />
+                                <Phone size={16} color="#179a3b" />
                               </Box>
                               <Box>
                                 <Text fontSize="xs" color="gray.500" mb={0.5}>
@@ -1061,7 +1061,7 @@ export default function VenueDetailClient({
                             <Button
                               flex={1}
                               size="sm"
-                              colorPalette="blue"
+                              colorPalette="green"
                               variant="subtle"
                               onClick={() =>
                                 window.open(

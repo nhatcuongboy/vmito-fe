@@ -562,7 +562,7 @@ export default function CreateVenuePage() {
                       field.onChange(details.checked)
                     }
                     label="Có bãi đậu ô tô"
-                    colorPalette="blue"
+                    colorPalette="green"
                   />
                 )}
               />
@@ -576,7 +576,7 @@ export default function CreateVenuePage() {
                       field.onChange(details.checked)
                     }
                     label="Có căn tin/bán nước"
-                    colorPalette="blue"
+                    colorPalette="green"
                   />
                 )}
               />

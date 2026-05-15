@@ -101,7 +101,7 @@ export function CreatePostModal({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What's on your mind?"
-            className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-green-600"
             rows={4}
           />
 
@@ -115,7 +115,7 @@ export function CreatePostModal({
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
             />
           </div>
 
@@ -193,7 +193,7 @@ export function CreatePostModal({
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
             {isSubmitting ? 'Posting...' : 'Post'}
           </button>

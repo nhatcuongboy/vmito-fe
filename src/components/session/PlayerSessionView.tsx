@@ -580,6 +580,7 @@ export default function PlayerSessionView({
                     courts: session.courts || [],
                   }}
                   defaultPlayerId={player.id}
+                  restrictedPlayerId={player.id}
                   readOnly={true}
                 />
               )}

@@ -72,7 +72,7 @@ export function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50 md:left-auto md:right-4 md:max-w-sm">
+    <div className="fixed bottom-4 left-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 md:left-auto md:right-4 md:max-w-sm">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-semibold">Install Badminton App</h3>
@@ -89,7 +89,7 @@ export function PWAInstallPrompt() {
           </button>
           <button
             onClick={handleInstallClick}
-            className="px-3 py-1 text-sm bg-white text-blue-600 rounded hover:bg-gray-100"
+            className="px-3 py-1 text-sm bg-white text-green-700 rounded hover:bg-gray-100"
           >
             Install
           </button>

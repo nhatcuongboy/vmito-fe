@@ -549,7 +549,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
       >
         <Flex justify="space-between" align="center">
           <HStack gap={2}>
-            <CreditCard size={20} color="#3182ce" />
+            <CreditCard size={20} color="#179a3b" />
             <Heading size="sm">{t('hostPaymentInfo')}</Heading>
           </HStack>
           <Button
