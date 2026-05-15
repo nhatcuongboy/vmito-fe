@@ -44,6 +44,16 @@ const PLAYER_COLORS = {
   },
 };
 
+const PLAYER_CARD_SHADOW = {
+  base: '0 6px 16px rgba(15, 23, 42, 0.14)',
+  _dark: '0 10px 24px rgba(0, 0, 0, 0.28)',
+};
+
+const SELECTED_PLAYER_CARD_SHADOW = {
+  base: 'sm',
+  _dark: '0 0 0 1px rgba(96, 165, 250, 0.35), 0 12px 28px rgba(0, 0, 0, 0.35)',
+};
+
 interface PlayerGridProps {
   players: Player[];
   playerFilter: string[]; // Changed to array of strings
@@ -149,13 +159,10 @@ export const PlayerGrid = ({
               cursor="pointer"
               boxShadow={
                 selectionMode
-                  ? {
-                      base: 'sm',
-                      _dark: isSelected
-                        ? '0 0 0 1px rgba(96, 165, 250, 0.35), 0 12px 28px rgba(0, 0, 0, 0.35)'
-                        : '0 10px 24px rgba(0, 0, 0, 0.28)',
-                    }
-                  : undefined
+                  ? isSelected
+                    ? SELECTED_PLAYER_CARD_SHADOW
+                    : PLAYER_CARD_SHADOW
+                  : PLAYER_CARD_SHADOW
               }
               onClick={
                 selectionMode

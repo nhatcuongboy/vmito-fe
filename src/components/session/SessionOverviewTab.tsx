@@ -19,8 +19,6 @@ import {
   XCircle,
   AlertTriangle,
   Download,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
@@ -50,7 +48,6 @@ export default function SessionOverviewTab({
   const tSession = useTranslations('session');
   const locale = useLocale();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
@@ -229,71 +226,7 @@ export default function SessionOverviewTab({
               );
             })()}
 
-            <Box position="relative">
-              <Box
-                maxH={{
-                  base: isInfoExpanded ? 'none' : '360px',
-                  md: 'none',
-                }}
-                overflow={{
-                  base: isInfoExpanded ? 'visible' : 'hidden',
-                  md: 'visible',
-                }}
-              >
-                <SessionInfo session={session} />
-              </Box>
-
-              {!isInfoExpanded && (
-                <Box
-                  display={{ base: 'block', md: 'none' }}
-                  position="absolute"
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  h="64px"
-                  pointerEvents="none"
-                  bgGradient={{
-                    base: 'linear(to-t, var(--chakra-colors-white), transparent)',
-                    _dark:
-                      'linear(to-t, var(--chakra-colors-gray-800), transparent)',
-                  }}
-                />
-              )}
-            </Box>
-
-            <Button
-              display={{ base: 'flex', md: 'none' }}
-              mt={2}
-              size="sm"
-              variant="ghost"
-              w="fit-content"
-              mx="auto"
-              minW="0"
-              h="auto"
-              px={4}
-              py={2}
-              color="green.700"
-              bg="green.50"
-              borderRadius="full"
-              _dark={{
-                color: 'green.300',
-                bg: 'green.950/30',
-                _hover: { color: 'green.200', bg: 'green.950/50' },
-              }}
-              _hover={{ color: 'green.800', bg: 'green.100' }}
-              _active={{ bg: 'green.100' }}
-              onClick={() => setIsInfoExpanded((value) => !value)}
-              rightIcon={
-                isInfoExpanded ? (
-                  <ChevronUp size={16} />
-                ) : (
-                  <ChevronDown size={16} />
-                )
-              }
-              aria-expanded={isInfoExpanded}
-            >
-              {isInfoExpanded ? tSession('collapse') : tSession('expand')}
-            </Button>
+            <SessionInfo session={session} compactUntilMaxPlayers />
 
             {onToggleSessionStatus &&
               session.status !== 'FINISHED' &&

@@ -2737,6 +2737,11 @@
       "losses": "Losses",
       "winRate": "Win Rate",
       "totalMatches": "Total Matches",
+      "totalShuttlecocks": "Shuttlecocks",
+      "downloadAchievement": "Download achievement image",
+      "achievementImageTitle": "Personal Achievement",
+      "appTagline": "Badminton session management platform",
+      "unnamed": "Unnamed",
       "noData": "No data available"
     },
     "overview": "Overview",
