@@ -138,12 +138,6 @@ export default function AiAssistantPanel({
             >
               {t('title')}
             </Text>
-            <Flex align="center" gap={1}>
-              <Box w="6px" h="6px" borderRadius="full" bg="green.300" />
-              <Text fontSize="xs" color="whiteAlpha.800">
-                {t('provider')}
-              </Text>
-            </Flex>
           </Box>
         </Flex>
 
