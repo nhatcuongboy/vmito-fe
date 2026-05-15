@@ -1,4 +1,3 @@
-import { Geist, Geist_Mono } from 'next/font/google';
 import { IntlClientProvider } from '../../components/IntlClientProvider';
 import LocaleValidator from '../../components/LocaleValidator';
 import { PWAStatus } from '../../components/PWAComponents';
@@ -15,16 +14,6 @@ import {
   generateWebsiteSchema,
   generateOrganizationSchema,
 } from '../../lib/seo/structuredData';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const viewport = {
   width: 'device-width',
@@ -83,9 +72,7 @@ export default async function LocaleLayout({
         <link rel="preload" as="image" href="/icons/logo-show.png" />
         <StructuredData data={[websiteSchema, organizationSchema]} />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <LocaleValidator locale={locale} validLocales={SUPPORTED_LOCALES} />
         <IntlClientProvider messages={messages} locale={locale}>
           <Providers>

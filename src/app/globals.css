@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +6,11 @@
   :root {
     color-scheme: light;
     --bottom-nav-safe-area: env(safe-area-inset-bottom);
+    --font-geist-sans:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+      Arial, sans-serif;
+    --font-geist-mono:
+      'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -85,12 +88,7 @@
 
 @layer base {
   * {
-    font-family:
-      'Inter',
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      sans-serif;
+    font-family: var(--font-geist-sans);
   }
 
   body {
