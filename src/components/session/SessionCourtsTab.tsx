@@ -17,6 +17,7 @@ import PreSelectPreviewModal from './PreSelectPreviewModal';
 import WaitingPlayers from './WaitingPlayers';
 import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
+import { SessionCourtsTabSkeleton } from './SessionTabSkeletons';
 
 interface SessionCourtsTabProps {
   session: ISession;
@@ -29,6 +30,7 @@ interface SessionCourtsTabProps {
   mode?: 'manage' | 'view';
   onDataRefresh?: () => void;
   isRefreshing?: boolean;
+  isLoading?: boolean;
   formatWaitTime: (waitTimeInMinutes: number) => string;
   selectedPlayers: string[];
 }
@@ -42,6 +44,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
   mode = 'manage',
   onDataRefresh,
   isRefreshing = false,
+  isLoading = false,
   formatWaitTime,
 }) => {
   const t = useTranslations('SessionDetail');
@@ -168,6 +171,10 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     }
     return t('waitTimeBadgeMinutes', { minutes: mins });
   };
+
+  if (isLoading) {
+    return <SessionCourtsTabSkeleton />;
+  }
 
   return (
     <>

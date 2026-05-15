@@ -3,7 +3,7 @@
 import { Card, CardBody, SimpleGrid } from '@/components/ui/chakra-compat';
 import { Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Badge, Box, Flex, Text, VStack } from '@chakra-ui/react';
+import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import { Mars, User, Users, Venus, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { PlayerDetailModal } from './PlayerDetailModal';
@@ -148,7 +148,7 @@ export const PlayerGrid = ({
               key={player.id}
               variant="outline"
               size="sm"
-              borderRadius="lg"
+              borderRadius="xl"
               borderWidth="2px"
               borderColor={borderColor}
               bg={bgColor}
@@ -182,26 +182,143 @@ export const PlayerGrid = ({
                   : undefined,
               }}
             >
-              <CardBody px={2} py={2} position="relative">
-                {/* Priority indicator (top right) */}
-                {/* <Box
-                position="absolute"
-                top={1}
-                right={1}
-                w={2}
-                h={2}
-                borderRadius="full"
-                bg={priorityColor}
-              /> */}
+              <CardBody px={2.5} py={2.5} position="relative">
+                {/* Row 1: Player number pill + wait time badge */}
+                <Flex justifyContent="space-between" alignItems="center" mb={2}>
+                  <Flex
+                    bg={{ base: 'orange.500', _dark: 'orange.400' }}
+                    color="white"
+                    borderRadius="md"
+                    px={1.5}
+                    py={0.5}
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Text fontWeight="extrabold" fontSize="xs" lineHeight={1.2}>
+                      #{player.playerNumber}
+                    </Text>
+                  </Flex>
+                  {isShowWaitTime &&
+                    (player.status === 'WAITING' ||
+                      player.status === 'READY') && (
+                      <Badge
+                        colorPalette={
+                          player.currentWaitTime > 15
+                            ? 'red'
+                            : player.currentWaitTime > 10
+                              ? 'orange'
+                              : 'gray'
+                        }
+                        variant="solid"
+                        fontSize="xs"
+                        borderRadius="md"
+                        fontWeight="bold"
+                        mr={mode === 'manage' && sessionId ? 6 : 0}
+                      >
+                        {formatWaitTime(player.currentWaitTime)}
+                      </Badge>
+                    )}
+                </Flex>
+
+                {/* Row 2: Player name */}
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  whiteSpace="nowrap"
+                  color="fg"
+                  mb={2}
+                  title={player.name || `Player ${player.playerNumber}`}
+                >
+                  {player.name ||
+                    t('playerWithNumber', { number: player.playerNumber })}
+                </Text>
+
+                {/* Row 3: Badges + match count */}
+                <Flex
+                  justifyContent="space-between"
+                  alignItems="center"
+                  gap={1}
+                  pr={selectionMode ? 6 : 0}
+                >
+                  <Flex alignItems="center" gap={1} overflow="hidden">
+                    {mode === 'manage' && (
+                      <Badge
+                        variant="outline"
+                        bg={{
+                          base: 'whiteAlpha.800',
+                          _dark: 'whiteAlpha.100',
+                        }}
+                        fontSize="xs"
+                        borderRadius="sm"
+                        flexShrink={0}
+                      >
+                        {getLevelShortLabel(player.level)}
+                      </Badge>
+                    )}
+                    <Badge
+                      variant="solid"
+                      colorPalette={
+                        player.gender === 'MALE'
+                          ? 'blue'
+                          : player.gender === 'FEMALE'
+                            ? 'pink'
+                            : player.gender === 'OTHER'
+                              ? 'purple'
+                              : 'gray'
+                      }
+                      fontSize="xs"
+                      borderRadius="sm"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      flexShrink={0}
+                    >
+                      {player.gender === 'MALE' ? (
+                        <Mars size={12} />
+                      ) : player.gender === 'FEMALE' ? (
+                        <Venus size={12} />
+                      ) : player.gender === 'OTHER' ? (
+                        <Users size={12} />
+                      ) : (
+                        <User size={12} />
+                      )}
+                    </Badge>
+                    {player.isClubMember && (
+                      <Badge
+                        variant="solid"
+                        colorPalette="teal"
+                        fontSize="xs"
+                        borderRadius="sm"
+                        px={1}
+                        title={player.club?.name}
+                        flexShrink={0}
+                      >
+                        <UserCheck size={10} />
+                      </Badge>
+                    )}
+                  </Flex>
+                  <Text
+                    fontSize="xs"
+                    color="fg.muted"
+                    fontWeight="semibold"
+                    whiteSpace="nowrap"
+                    flexShrink={0}
+                  >
+                    {t('matchesCount', { count: player.matchesPlayed })}
+                  </Text>
+                </Flex>
 
                 {/* Selection indicator (bottom right) */}
                 {selectionMode && isSelected && (
                   <Box
                     position="absolute"
-                    bottom={1}
-                    right={1}
-                    w={4}
-                    h={4}
+                    bottom={1.5}
+                    right={1.5}
+                    w={5}
+                    h={5}
                     borderRadius="full"
                     bg="blue.500"
                     color="white"
@@ -210,146 +327,18 @@ export const PlayerGrid = ({
                     justifyContent="center"
                     fontSize="xs"
                     fontWeight="bold"
+                    boxShadow="sm"
                   >
                     ✓
                   </Box>
                 )}
 
-                <VStack gap={{ base: 1.5, md: 2 }} align="start">
-                  <Flex
-                    justifyContent="space-between"
-                    width="100%"
-                    alignItems="start"
-                  >
-                    <Text
-                      fontWeight="bold"
-                      color={{ base: 'orange.700', _dark: 'orange.400' }}
-                      fontSize="md"
-                    >
-                      #{player.playerNumber}
-                    </Text>
-                    {isShowWaitTime &&
-                      (player.status === 'WAITING' ||
-                        player.status === 'READY') && (
-                        <Badge
-                          colorPalette={
-                            player.currentWaitTime > 15
-                              ? 'red'
-                              : player.currentWaitTime > 10
-                                ? 'yellow'
-                                : 'gray'
-                          }
-                          variant="solid"
-                          fontSize="xs"
-                          borderRadius="md"
-                        >
-                          {formatWaitTime(player.currentWaitTime)}
-                        </Badge>
-                      )}
-                  </Flex>
-
-                  <Text
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                    whiteSpace="nowrap"
-                    color="fg"
-                    title={player.name || `Player ${player.playerNumber}`}
-                  >
-                    {player.name ||
-                      t('playerWithNumber', { number: player.playerNumber })}
-                  </Text>
-
-                  <Flex
-                    justifyContent="space-between"
-                    width="100%"
-                    alignItems="center"
-                    gap={2}
-                  >
-                    <Flex alignItems="center" gap={1.5}>
-                      {mode === 'manage' && (
-                        <Badge
-                          variant="outline"
-                          bg={{
-                            base: 'whiteAlpha.800',
-                            _dark: 'whiteAlpha.100',
-                          }}
-                          fontSize="xs"
-                          borderRadius="sm"
-                        >
-                          {getLevelShortLabel(player.level)}
-                        </Badge>
-                      )}
-                      <Badge
-                        variant="solid"
-                        colorPalette={
-                          player.gender === 'MALE'
-                            ? 'blue'
-                            : player.gender === 'FEMALE'
-                              ? 'pink'
-                              : player.gender === 'OTHER'
-                                ? 'purple'
-                                : 'gray'
-                        }
-                        fontSize="xs"
-                        borderRadius="sm"
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                      >
-                        {player.gender === 'MALE' ? (
-                          <Mars size={12} />
-                        ) : player.gender === 'FEMALE' ? (
-                          <Venus size={12} />
-                        ) : player.gender === 'OTHER' ? (
-                          <Users size={12} />
-                        ) : (
-                          <User size={12} />
-                        )}
-                      </Badge>
-                      {player.isClubMember && (
-                        <Badge
-                          variant="solid"
-                          colorPalette="teal"
-                          fontSize="xs"
-                          borderRadius="sm"
-                          px={1}
-                          title={player.club?.name}
-                        >
-                          <UserCheck size={12} />
-                        </Badge>
-                      )}
-                    </Flex>
-                    {/* Mobile only: match count inline */}
-                    <Text
-                      display={{ base: 'block', md: 'none' }}
-                      fontSize="xs"
-                      color="fg.muted"
-                      fontWeight="medium"
-                      whiteSpace="nowrap"
-                    >
-                      {t('matchesCount', { count: player.matchesPlayed })}
-                    </Text>
-                  </Flex>
-
-                  {/* Desktop only: match count as separate row */}
-                  <Text
-                    display={{ base: 'none', md: 'block' }}
-                    fontSize="xs"
-                    color="fg.muted"
-                    fontWeight="medium"
-                  >
-                    {t('matchesCount', { count: player.matchesPlayed })}
-                  </Text>
-                </VStack>
-
                 {/* Action Menu */}
                 {mode === 'manage' && sessionId && (
                   <Box
                     position="absolute"
-                    top={1}
-                    right={1}
+                    top={0.5}
+                    right={0.5}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <PlayerActionMenu

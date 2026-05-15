@@ -17,6 +17,7 @@ import PlayerStatusFilter from './PlayerStatusFilter';
 import PlayerEmptyState from './player-management/PlayerEmptyState';
 import EditPlayerModal from './player-management/EditPlayerModal';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
+import { SessionPlayersTabSkeleton } from './SessionTabSkeletons';
 
 // Updated PlayerFilter type to be an array of statuses
 export type PlayerFilter = PlayerStatus[];
@@ -35,6 +36,7 @@ interface SessionPlayersTabProps {
   session?: ISession; // Add session prop
   subTab?: PlayersSubTab; // Sub-tab state from parent
   onSubTabChange?: (subTab: PlayersSubTab) => void; // Callback to change sub-tab
+  isLoading?: boolean;
 }
 
 const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
@@ -48,6 +50,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   session,
   subTab: externalSubTab,
   onSubTabChange,
+  isLoading = false,
 }) => {
   const t = useTranslations('SessionDetail');
   const tPlayer = useTranslations('pages.playerManagement');
@@ -166,6 +169,10 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   // Use external sub-tab if provided, otherwise use internal state
   const subTab = externalSubTab ?? internalSubTab;
   const setSubTab = onSubTabChange ?? setInternalSubTab;
+
+  if (isLoading) {
+    return <SessionPlayersTabSkeleton />;
+  }
 
   // Separate pending players from approved players
   const pendingPlayers =
