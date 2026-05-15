@@ -389,24 +389,17 @@ const CreateClubPage = () => {
           </Field>
 
           {/* Club Image(s) */}
-          <Box
-            w={{ base: '100vw', md: 'auto' }}
-            ml={{ base: 'calc(50% - 50vw)', md: 0 }}
-            mr={{ base: 'calc(50% - 50vw)', md: 0 }}
-            px={{ base: 4, md: 0 }}
-          >
-            <Field label={t('clubImage')}>
-              <AppMultiImageUpload
-                images={clubImages}
-                bannerIndex={bannerIndex}
-                onImagesChange={setClubImages}
-                onBannerChange={setBannerIndex}
-                maxImages={10}
-                category={EImageCategory.CLUB}
-                label={null}
-              />
-            </Field>
-          </Box>
+          <Field label={t('clubImage')}>
+            <AppMultiImageUpload
+              images={clubImages}
+              bannerIndex={bannerIndex}
+              onImagesChange={setClubImages}
+              onBannerChange={setBannerIndex}
+              maxImages={10}
+              category={EImageCategory.CLUB}
+              label={null}
+            />
+          </Field>
 
           {/* Multi-Venue + Schedule */}
           <Field label="Sân hoạt động">

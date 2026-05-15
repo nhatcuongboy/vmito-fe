@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Flex, Text, Spinner, Portal } from '@chakra-ui/react';
+import { Box, Flex, Text, Spinner } from '@chakra-ui/react';
 import {
   Modal,
   ModalOverlay,
@@ -208,7 +208,7 @@ const AppImageGalleryPicker = ({
         <ModalOverlay />
         <ModalContent maxH="80vh">
           <ModalHeader>{t('selectFromGallery')}</ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton onClose={onClose} />
           <ModalBody overflow="auto" pb={4}>
             {/* Toolbar: status text + upload button */}
             <Flex justify="space-between" align="center" mb={3}>
@@ -423,6 +423,50 @@ const AppImageGalleryPicker = ({
               </SimpleGrid>
             )}
 
+            {/* Fullscreen image preview lightbox — render inside ModalBody */}
+            {previewUrl && (
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                zIndex={500}
+                bg="blackAlpha.900"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                onClick={() => setPreviewUrl(null)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  style={{
+                    maxWidth: '85vw',
+                    maxHeight: '85vh',
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    boxShadow: '0 0 40px rgba(0,0,0,0.8)',
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Box
+                  position="absolute"
+                  top={4}
+                  right={4}
+                  cursor="pointer"
+                  bg="blackAlpha.700"
+                  borderRadius="full"
+                  p={2}
+                  _hover={{ bg: 'blackAlpha.900' }}
+                  onClick={() => setPreviewUrl(null)}
+                >
+                  <X size={20} color="white" />
+                </Box>
+              </Box>
+            )}
+
             {/* Infinite scroll trigger */}
             <div ref={loadMoreRef} style={{ height: 1 }} />
             {isLoading && (
@@ -445,52 +489,6 @@ const AppImageGalleryPicker = ({
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      {/* Fullscreen image preview lightbox */}
-      {previewUrl && (
-        <Portal>
-          <Box
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            zIndex={1600}
-            bg="blackAlpha.900"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            onClick={() => setPreviewUrl(null)}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={previewUrl}
-              alt="Preview"
-              style={{
-                maxWidth: '90vw',
-                maxHeight: '90vh',
-                objectFit: 'contain',
-                borderRadius: '8px',
-                boxShadow: '0 0 40px rgba(0,0,0,0.8)',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <Box
-              position="absolute"
-              top={4}
-              right={4}
-              cursor="pointer"
-              bg="blackAlpha.700"
-              borderRadius="full"
-              p={2}
-              _hover={{ bg: 'blackAlpha.900' }}
-              onClick={() => setPreviewUrl(null)}
-            >
-              <X size={20} color="white" />
-            </Box>
-          </Box>
-        </Portal>
-      )}
     </>
   );
 };

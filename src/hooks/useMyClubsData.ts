@@ -13,6 +13,12 @@ import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
 import { useCanAccessHostFeatures } from './useCanAccessHostFeatures';
 
+const getClubHost = (club: IClub) =>
+  club.host ?? {
+    id: club.hostId,
+    name: club.hostName || '',
+  };
+
 const mapClubToManagedClub = (club: IClub): IMyClub => ({
   id: club.id,
   slug: club.slug,
@@ -23,7 +29,7 @@ const mapClubToManagedClub = (club: IClub): IMyClub => ({
   status: club.status,
   role: EMemberRole.ADMIN,
   memberCount: club.memberCount,
-  host: club.host,
+  host: getClubHost(club),
   joinedAt: club.createdAt,
   schedules: club.schedules,
   defaultVenue: club.defaultVenue,
@@ -91,7 +97,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   );
 
   const isManaging = (c: IMyClub) =>
-    c.role === EMemberRole.ADMIN || c.host.id === currentUser?.id;
+    c.role === EMemberRole.ADMIN || c.host?.id === currentUser?.id;
 
   const managedClubs = isAdmin
     ? Array.from(
@@ -111,7 +117,9 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   const loadIncomingRequests = useCallback(
     async (clubs: IMyClub[], hostUserId?: string) => {
       const adminClubIds = clubs
-        .filter((c) => c.role === EMemberRole.ADMIN || c.host.id === hostUserId)
+        .filter(
+          (c) => c.role === EMemberRole.ADMIN || c.host?.id === hostUserId
+        )
         .map((c) => c.id);
       if (adminClubIds.length === 0) {
         setIncomingRequests([]);

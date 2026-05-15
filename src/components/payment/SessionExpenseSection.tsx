@@ -6,9 +6,10 @@ import { useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
+import { VModal } from '@/components/ui/VModal';
 import { ISessionExpense } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { Plus, Pencil, Trash2, Check, X, ReceiptText } from 'lucide-react';
+import { Plus, Pencil, Trash2, ReceiptText } from 'lucide-react';
 
 interface SessionExpenseSectionProps {
   sessionId: string;
@@ -44,6 +45,7 @@ export default function SessionExpenseSection({
   isLoading = false,
 }: SessionExpenseSectionProps) {
   const t = useTranslations('payment');
+  const tCommon = useTranslations('common');
 
   // Edit mode: expenseId → { name, amount }
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -58,6 +60,11 @@ export default function SessionExpenseSection({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isSavingDrafts, setIsSavingDrafts] = useState(false);
+
+  // Delete confirmation dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] =
+    useState<ISessionExpense | null>(null);
 
   const handleStartEdit = (expense: ISessionExpense) => {
     setEditingId(expense.id);
@@ -84,13 +91,27 @@ export default function SessionExpenseSection({
     }
   };
 
-  const handleDelete = async (expenseId: string) => {
-    setDeletingId(expenseId);
+  const handleDeleteClick = (expense: ISessionExpense) => {
+    setExpenseToDelete(expense);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!expenseToDelete) return;
+
+    setDeletingId(expenseToDelete.id);
     try {
-      await onDelete(expenseId);
+      await onDelete(expenseToDelete.id);
+      setDeleteDialogOpen(false);
+      setExpenseToDelete(null);
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setExpenseToDelete(null);
   };
 
   const handleOpenAdd = () => {
@@ -140,58 +161,66 @@ export default function SessionExpenseSection({
     setDraftRows([]);
   };
 
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-
   return (
     <Box
       bg="white"
       border="1px solid"
       borderColor="gray.200"
-      borderRadius="lg"
-      p={4}
+      borderRadius="xl"
+      p={{ base: 4, md: 5 }}
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       {/* Header */}
-      <Flex justify="space-between" align="center" mb={3}>
-        <HStack gap={2}>
-          <Text fontWeight="semibold">{t('expenses')}</Text>
-          {expenses.length > 0 && (
-            <Text fontSize="sm" color="red.600" fontWeight="medium">
-              ({FeeService.formatFeeExact(totalExpenses)})
-            </Text>
-          )}
-        </HStack>
+      <Flex
+        justify="space-between"
+        align="center"
+        mb={4}
+        gap={3}
+        flexWrap="wrap"
+      >
+        <Text fontWeight="semibold" fontSize="md">
+          {t('expenses')}
+        </Text>
         {!isAdding && (
           <Button
             size="sm"
             variant="outline"
-            colorPalette="gray"
+            colorPalette="green"
             onClick={handleOpenAdd}
             disabled={isLoading}
+            flexShrink={0}
           >
-            <Plus size={14} />
-            <Text ml={1}>{t('addExpense')}</Text>
+            <Plus size={16} />
+            <Text ml={1.5}>{t('addExpense')}</Text>
           </Button>
         )}
       </Flex>
 
-      <VStack gap={2.5} align="stretch">
+      <VStack gap={3} align="stretch">
         {/* Existing expenses */}
         {expenses.length === 0 && !isAdding && (
           <Box
-            py={6}
+            py={8}
             px={4}
-            borderRadius="lg"
+            borderRadius="xl"
             bg="gray.50"
             border="1px dashed"
             borderColor="gray.200"
             textAlign="center"
             _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
           >
-            <Box color="gray.400" mb={2} display="inline-flex">
-              <ReceiptText size={24} />
+            <Box
+              color="gray.400"
+              mb={3}
+              display="inline-flex"
+              p={3}
+              borderRadius="full"
+              bg="gray.100"
+              _dark={{ bg: 'gray.800' }}
+            >
+              <ReceiptText size={28} />
             </Box>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm" color="gray.500" fontWeight="medium">
               {t('noExpenses')}
             </Text>
           </Box>
@@ -202,46 +231,57 @@ export default function SessionExpenseSection({
             // Edit row
             <Box
               key={expense.id}
-              p={3}
+              p={{ base: 3, md: 4 }}
               border="1px solid"
               borderColor="green.200"
-              borderRadius="lg"
+              borderRadius="xl"
               bg="green.50"
               _dark={{ bg: 'green.950', borderColor: 'green.800' }}
             >
-              <Flex gap={2} direction={{ base: 'column', sm: 'row' }}>
-                <Input
-                  size="sm"
-                  placeholder={t('expenseName')}
-                  value={editName}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setEditName(e.target.value)
-                  }
-                  flex={1}
-                  disabled={savingId === expense.id}
-                  bg="white"
-                  _dark={{ bg: 'gray.800' }}
-                />
-                <Input
-                  size="sm"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={formatAmountDisplay(editAmount)}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setEditAmount(parseAmountInput(e.target.value))
-                  }
-                  w={{ base: '100%', sm: '132px' }}
-                  disabled={savingId === expense.id}
-                  bg="white"
-                  _dark={{ bg: 'gray.800' }}
-                />
-                <HStack gap={1} justify={{ base: 'flex-end', sm: 'initial' }}>
-                  <IconButton
+              <VStack gap={3} align="stretch">
+                <Flex gap={2} align="flex-start">
+                  <Input
+                    size="md"
+                    placeholder={t('expenseName')}
+                    value={editName}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setEditName(e.target.value)
+                    }
+                    flex={1}
+                    disabled={savingId === expense.id}
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
+                    borderRadius="lg"
+                  />
+                  <Input
+                    size="md"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={formatAmountDisplay(editAmount)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setEditAmount(parseAmountInput(e.target.value))
+                    }
+                    w={{ base: '120px', md: '180px' }}
+                    disabled={savingId === expense.id}
+                    bg="white"
+                    _dark={{ bg: 'gray.800' }}
+                    borderRadius="lg"
+                    flexShrink={0}
+                  />
+                </Flex>
+                <HStack gap={2} justify="flex-end">
+                  <Button
                     size="sm"
-                    aria-label="Save"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={savingId === expense.id}
+                  >
+                    {t('cancel')}
+                  </Button>
+                  <Button
+                    size="sm"
                     colorPalette="green"
-                    variant="solid"
                     onClick={() => handleSaveEdit(expense.id)}
                     loading={savingId === expense.id}
                     disabled={
@@ -250,54 +290,57 @@ export default function SessionExpenseSection({
                       isNaN(parseInt(editAmount, 10))
                     }
                   >
-                    <Check size={14} />
-                  </IconButton>
-                  <IconButton
-                    size="sm"
-                    aria-label="Cancel"
-                    variant="ghost"
-                    onClick={handleCancelEdit}
-                    disabled={savingId === expense.id}
-                  >
-                    <X size={14} />
-                  </IconButton>
+                    {t('save')}
+                  </Button>
                 </HStack>
-              </Flex>
+              </VStack>
             </Box>
           ) : (
             // Display row
             <Box
               key={expense.id}
-              p={3}
+              p={{ base: 3, md: 4 }}
               border="1px solid"
               borderColor="gray.100"
-              borderRadius="lg"
+              borderRadius="xl"
               bg="gray.50"
               _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+              transition="all 0.2s"
+              _hover={{
+                borderColor: 'gray.200',
+                boxShadow: 'sm',
+                _dark: { borderColor: 'gray.600' },
+              }}
             >
               <Flex align="center" justify="space-between" gap={3}>
                 <HStack gap={2.5} flex={1} minW={0}>
                   <Box
                     color="red.500"
                     bg="red.50"
-                    borderRadius="md"
-                    p={1.5}
+                    borderRadius="lg"
+                    p={2}
                     display="flex"
+                    flexShrink={0}
                     _dark={{ bg: 'red.950' }}
                   >
-                    <ReceiptText size={16} />
+                    <ReceiptText size={18} />
                   </Box>
-                  <Text fontSize="sm" fontWeight="medium" lineClamp={2}>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="medium"
+                    lineClamp={1}
+                    flex={1}
+                  >
                     {expense.name}
                   </Text>
                 </HStack>
-                <VStack gap={1} align="flex-end" flexShrink={0}>
-                  <Text fontSize="sm" fontWeight="bold" color="red.600">
+                <Flex align="center" gap={2} flexShrink={0}>
+                  <Text fontSize="md" fontWeight="bold" color="red.600">
                     {FeeService.formatFeeExact(expense.amount)}
                   </Text>
                   <HStack gap={1}>
                     <IconButton
-                      size="xs"
+                      size="sm"
                       aria-label={t('editExpense')}
                       variant="ghost"
                       colorPalette="gray"
@@ -308,21 +351,21 @@ export default function SessionExpenseSection({
                         editingId !== null
                       }
                     >
-                      <Pencil size={12} />
+                      <Pencil size={14} />
                     </IconButton>
                     <IconButton
-                      size="xs"
+                      size="sm"
                       aria-label={t('deleteExpense')}
                       variant="ghost"
                       colorPalette="red"
-                      onClick={() => handleDelete(expense.id)}
+                      onClick={() => handleDeleteClick(expense)}
                       loading={deletingId === expense.id}
                       disabled={isLoading || editingId !== null}
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={14} />
                     </IconButton>
                   </HStack>
-                </VStack>
+                </Flex>
               </Flex>
             </Box>
           )
@@ -332,21 +375,17 @@ export default function SessionExpenseSection({
         {isAdding && (
           <Box
             bg="green.50"
-            borderRadius="lg"
-            p={3}
+            borderRadius="xl"
+            p={{ base: 3, md: 4 }}
             border="1px dashed"
             borderColor="green.300"
             _dark={{ bg: 'green.950', borderColor: 'green.700' }}
           >
-            <VStack gap={2} align="stretch">
+            <VStack gap={3} align="stretch">
               {draftRows.map((row, idx) => (
-                <Flex
-                  key={idx}
-                  gap={2}
-                  direction={{ base: 'column', sm: 'row' }}
-                >
+                <Flex key={idx} gap={2} align="flex-start">
                   <Input
-                    size="sm"
+                    size="md"
                     placeholder={t('expenseNamePlaceholder')}
                     value={row.name}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -356,9 +395,10 @@ export default function SessionExpenseSection({
                     disabled={isSavingDrafts}
                     bg="white"
                     _dark={{ bg: 'gray.800' }}
+                    borderRadius="lg"
                   />
                   <Input
-                    size="sm"
+                    size="md"
                     type="text"
                     inputMode="numeric"
                     placeholder="0"
@@ -370,21 +410,24 @@ export default function SessionExpenseSection({
                         parseAmountInput(e.target.value)
                       )
                     }
-                    w={{ base: '100%', sm: '132px' }}
+                    w={{ base: '120px', md: '180px' }}
                     disabled={isSavingDrafts}
                     bg="white"
                     _dark={{ bg: 'gray.800' }}
+                    borderRadius="lg"
+                    flexShrink={0}
                   />
                   {draftRows.length > 1 && (
                     <IconButton
-                      size="sm"
+                      size="md"
                       aria-label="Remove row"
                       variant="ghost"
                       colorPalette="red"
                       onClick={() => handleRemoveDraftRow(idx)}
                       disabled={isSavingDrafts}
+                      flexShrink={0}
                     >
-                      <X size={14} />
+                      <Trash2 size={16} />
                     </IconButton>
                   )}
                 </Flex>
@@ -392,22 +435,26 @@ export default function SessionExpenseSection({
 
               <Flex
                 justify="space-between"
-                align={{ base: 'stretch', sm: 'center' }}
-                direction={{ base: 'column', sm: 'row' }}
-                gap={2}
-                mt={1}
+                align="center"
+                gap={3}
+                mt={2}
+                pt={3}
+                borderTop="1px solid"
+                borderColor="green.200"
+                _dark={{ borderColor: 'green.800' }}
+                flexWrap="wrap"
               >
                 <Button
-                  size="xs"
+                  size="sm"
                   variant="ghost"
                   colorPalette="gray"
                   onClick={handleAddDraftRow}
                   disabled={isSavingDrafts}
                 >
-                  <Plus size={12} />
+                  <Plus size={14} />
                   <Text ml={1}>{t('addExpense')}</Text>
                 </Button>
-                <HStack gap={2} justify="flex-end">
+                <HStack gap={2}>
                   <Button
                     size="sm"
                     variant="outline"
@@ -433,6 +480,65 @@ export default function SessionExpenseSection({
           </Box>
         )}
       </VStack>
+
+      {/* Delete Confirmation Dialog */}
+      <VModal
+        isOpen={deleteDialogOpen}
+        onClose={handleCancelDelete}
+        title={t('deleteExpenseConfirmTitle')}
+        size="sm"
+        footer={
+          <HStack gap={2} justify="flex-end" w="full">
+            <Button variant="outline" onClick={handleCancelDelete}>
+              {tCommon('cancel')}
+            </Button>
+            <Button
+              colorPalette="red"
+              onClick={handleConfirmDelete}
+              loading={deletingId === expenseToDelete?.id}
+            >
+              {tCommon('delete')}
+            </Button>
+          </HStack>
+        }
+      >
+        <VStack gap={3} align="stretch">
+          <Text fontSize="sm" color="fg.muted">
+            {t('deleteExpenseConfirmMessage')}
+          </Text>
+          {expenseToDelete && (
+            <Box
+              p={3}
+              bg="gray.50"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="gray.200"
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+            >
+              <HStack gap={2.5}>
+                <Box
+                  color="red.500"
+                  bg="red.50"
+                  borderRadius="md"
+                  p={1.5}
+                  display="flex"
+                  _dark={{ bg: 'red.950' }}
+                >
+                  <ReceiptText size={16} />
+                </Box>
+                <VStack gap={0.5} align="flex-start" flex={1}>
+                  <Text fontSize="sm" fontWeight="medium">
+                    {expenseToDelete.name}
+                  </Text>
+                  <Text fontSize="sm" fontWeight="bold" color="red.600">
+                    {FeeService.formatFeeExact(expenseToDelete.amount)}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
+          )}
+        </VStack>
+      </VModal>
     </Box>
   );
 }

@@ -9,6 +9,7 @@ import {
   Flex,
   Grid,
   Heading,
+  Skeleton,
   Spinner,
   Text,
 } from '@chakra-ui/react';
@@ -42,6 +43,119 @@ import {
 
 type MatchSortBy = 'time_desc' | 'time_asc';
 type PlayerSelectOption = VMultiSelectOption & { playerNumber: number };
+
+// Skeleton Loading Component
+function MatchesTabSkeleton({ viewMode }: { viewMode: 'list' | 'grid' }) {
+  return (
+    <Box>
+      {/* Filter Controls Skeleton */}
+      <Flex mb={6} mt={2} direction="column" gap={3}>
+        <Flex
+          gap={2.5}
+          flexWrap="wrap"
+          width="100%"
+          justify={{ base: 'stretch', md: 'flex-end' }}
+        >
+          <Skeleton
+            height="38px"
+            width={{ base: '100%', md: '260px' }}
+            borderRadius="md"
+          />
+          <Skeleton
+            height="38px"
+            width={{ base: 'calc(50% - 5px)', md: '150px' }}
+            borderRadius="md"
+          />
+          <Skeleton
+            height="38px"
+            width={{ base: 'calc(50% - 5px)', md: '150px' }}
+            borderRadius="md"
+          />
+        </Flex>
+
+        <Flex align="center" justify="space-between" gap={3} width="100%">
+          <Skeleton height="32px" width="150px" borderRadius="md" />
+          <Flex align="center" justify="flex-end" gap={2.5} minW={0}>
+            <Skeleton
+              height="38px"
+              width="132px"
+              borderRadius="full"
+              flexShrink={0}
+            />
+            <Skeleton
+              height="38px"
+              width="80px"
+              borderRadius="md"
+              flexShrink={0}
+            />
+          </Flex>
+        </Flex>
+      </Flex>
+
+      {/* Match Cards Skeleton */}
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md:
+            viewMode === 'list'
+              ? 'repeat(auto-fit, minmax(420px, 1fr))'
+              : 'repeat(2, 1fr)',
+          xl:
+            viewMode === 'list'
+              ? 'repeat(auto-fit, minmax(460px, 1fr))'
+              : 'repeat(3, 1fr)',
+        }}
+        gap={viewMode === 'list' ? 3 : 4}
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Box
+            key={index}
+            borderWidth="1px"
+            borderRadius="lg"
+            overflow="hidden"
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            p={4}
+          >
+            {viewMode === 'list' ? (
+              // List view skeleton
+              <Flex direction="column" gap={3}>
+                <Flex justify="space-between" align="start">
+                  <Skeleton height="24px" width="120px" />
+                  <Skeleton height="20px" width="80px" borderRadius="full" />
+                </Flex>
+                <Flex gap={2}>
+                  <Skeleton height="20px" width="60px" />
+                  <Skeleton height="20px" width="100px" />
+                </Flex>
+                <Flex justify="space-between" align="center">
+                  <Skeleton height="32px" width="140px" />
+                  <Skeleton height="32px" width="40px" />
+                  <Skeleton height="32px" width="140px" />
+                </Flex>
+                <Flex gap={2} justify="flex-end">
+                  <Skeleton height="32px" width="80px" borderRadius="md" />
+                  <Skeleton height="32px" width="80px" borderRadius="md" />
+                </Flex>
+              </Flex>
+            ) : (
+              // Grid view skeleton
+              <Flex direction="column" gap={3}>
+                <Skeleton height="20px" width="100px" />
+                <Skeleton height="120px" width="100%" borderRadius="md" />
+                <Flex justify="space-between">
+                  <Skeleton height="24px" width="60px" />
+                  <Skeleton height="24px" width="60px" />
+                </Flex>
+                <Skeleton height="16px" width="80%" />
+              </Flex>
+            )}
+          </Box>
+        ))}
+      </Grid>
+    </Box>
+  );
+}
 
 const FILTER_CONTROL_PROPS = {
   bg: 'white',
@@ -94,6 +208,7 @@ export default function SessionMatchesTab({
   const t = useTranslations('SessionDetail.matchs');
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(
     restrictedPlayerId
@@ -144,7 +259,7 @@ export default function SessionMatchesTab({
   sessionDataRef.current = sessionData;
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
-  const loadData = async () => {
+  const loadData = async (isRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -371,6 +486,9 @@ export default function SessionMatchesTab({
       console.error('Error fetching match history:', err);
     } finally {
       setLoading(false);
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
     }
   };
 
@@ -450,7 +568,7 @@ export default function SessionMatchesTab({
   };
 
   const handleMatchUpdate = () => {
-    loadData(); // Refresh data
+    loadData(true); // Refresh data without showing skeleton
   };
 
   const handleDeleteMatch = (match: HistoryMatch) => {
@@ -470,7 +588,7 @@ export default function SessionMatchesTab({
         duration: 3000,
         closable: true,
       });
-      loadData();
+      loadData(true); // Refresh data without showing skeleton
       setIsDeleteModalOpen(false);
       setMatchToDelete(null);
     } catch (err) {
@@ -495,7 +613,7 @@ export default function SessionMatchesTab({
         duration: 3000,
         closable: true,
       });
-      loadData();
+      loadData(true); // Refresh data without showing skeleton
     } catch (err) {
       console.error('Error toggling extra status:', err);
       toaster.create({
@@ -744,10 +862,8 @@ export default function SessionMatchesTab({
       </Flex>
 
       {/* Results */}
-      {loading ? (
-        <Center py={10}>
-          <Spinner size="xl" color="green.500" />
-        </Center>
+      {loading && isInitialLoad ? (
+        <MatchesTabSkeleton viewMode={matchViewMode} />
       ) : error ? (
         <Box
           p={4}

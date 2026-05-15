@@ -384,6 +384,7 @@ export interface ISession {
   requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
+  allowZaloContact?: boolean;
   courtColor?: string;
   defaultMatchType?: 'SINGLES' | 'DOUBLES';
   coverPhoto?: string;
@@ -585,6 +586,7 @@ export interface CreateSessionRequest {
   requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
+  allowZaloContact?: boolean;
   startTime?: Date;
   endTime?: Date;
   courtColor?: string;

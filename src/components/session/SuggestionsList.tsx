@@ -619,6 +619,7 @@ export default function SuggestionsList({
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}
             hideHeader={true}
+            allowZaloContact={selectedSessionForDetail.allowZaloContact}
             onClose={onCloseDetailModal}
           />
         )}

@@ -7,7 +7,15 @@ import { VDrawer } from '@/components/ui/VDrawer';
 import { VModal } from '@/components/ui/VModal';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
 import AppImageGallery from '@/components/session/AppImageGallery';
-import { Box, Flex, Grid, Heading, Text, Icon } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Grid,
+  Heading,
+  Text,
+  Icon,
+  useBreakpointValue,
+} from '@chakra-ui/react';
 import {
   Activity,
   CheckCircle,
@@ -47,6 +55,8 @@ export default function SessionOverviewTab({
   const t = useTranslations('SessionDetail');
   const tSession = useTranslations('session');
   const locale = useLocale();
+  const shouldUseCompactInfo =
+    useBreakpointValue({ base: true, md: false }, { ssr: false }) ?? true;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
@@ -226,7 +236,10 @@ export default function SessionOverviewTab({
               );
             })()}
 
-            <SessionInfo session={session} compactUntilMaxPlayers />
+            <SessionInfo
+              session={session}
+              compactUntilMaxPlayers={shouldUseCompactInfo}
+            />
 
             {onToggleSessionStatus &&
               session.status !== 'FINISHED' &&

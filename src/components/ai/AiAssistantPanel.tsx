@@ -401,7 +401,7 @@ export default function AiAssistantPanel({
         <Box
           position="fixed"
           inset={0}
-          zIndex={1199}
+          zIndex={1299}
           onClick={onClose}
           cursor="default"
         />
@@ -412,7 +412,7 @@ export default function AiAssistantPanel({
           right={0}
           bottom={0}
           w="380px"
-          zIndex={1200}
+          zIndex={1300}
           boxShadow="-4px 0 24px rgba(0,0,0,0.12)"
           animation="slideInRight 0.25s ease-out"
           css={{
@@ -437,7 +437,7 @@ export default function AiAssistantPanel({
         position="fixed"
         inset={0}
         bg="blackAlpha.500"
-        zIndex={1199}
+        zIndex={1299}
         onClick={onClose}
         animation="fadeIn 0.2s ease-out"
         css={{
@@ -454,7 +454,7 @@ export default function AiAssistantPanel({
         right={0}
         bottom={0}
         h="85dvh"
-        zIndex={1200}
+        zIndex={1300}
         borderRadius="16px 16px 0 0"
         overflow="hidden"
         boxShadow="0 -8px 40px rgba(0,0,0,0.18)"

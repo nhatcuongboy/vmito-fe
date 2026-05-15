@@ -26,6 +26,7 @@ interface AppHostDetailProps {
   phone?: string;
   email?: string;
   hideHeader?: boolean;
+  allowZaloContact?: boolean;
   onClose?: () => void;
 }
 
@@ -34,6 +35,7 @@ export const AppHostDetail = ({
   name,
   image,
   phone,
+  allowZaloContact = false,
   onClose,
 }: AppHostDetailProps) => {
   const t = useTranslations('session.hostDetail');
@@ -253,28 +255,30 @@ export const AppHostDetail = ({
               <Icon as={Phone} mr={2} boxSize={4} strokeWidth={2.5} />
               {t('call')}
             </Button>
-            <Button
-              colorPalette="green"
-              variant="subtle"
-              flex={1}
-              height="48px"
-              borderRadius="xl"
-              onClick={handleZalo}
-              fontSize="sm"
-              fontWeight="bold"
-              borderWidth="1.5px"
-              borderColor="green.200"
-              _dark={{ borderColor: 'green.800' }}
-            >
-              <Image
-                src="/icons/zalo.png"
-                alt="Zalo"
-                boxSize={6}
-                mr={2}
-                flexShrink={0}
-              />
-              {t('zalo')}
-            </Button>
+            {allowZaloContact && (
+              <Button
+                colorPalette="green"
+                variant="subtle"
+                flex={1}
+                height="48px"
+                borderRadius="xl"
+                onClick={handleZalo}
+                fontSize="sm"
+                fontWeight="bold"
+                borderWidth="1.5px"
+                borderColor="green.200"
+                _dark={{ borderColor: 'green.800' }}
+              >
+                <Image
+                  src="/icons/zalo.png"
+                  alt="Zalo"
+                  boxSize={6}
+                  mr={2}
+                  flexShrink={0}
+                />
+                {t('zalo')}
+              </Button>
+            )}
           </HStack>
         )}
 

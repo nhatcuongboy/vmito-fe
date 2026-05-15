@@ -221,7 +221,7 @@ const SessionDetailBody = ({
           </Text>
         </Box>
         <Flex gap={2}>
-          {session.hostPhone && (
+          {session.hostPhone && session.allowZaloContact && (
             <IconButton
               aria-label="Zalo host"
               size="sm"

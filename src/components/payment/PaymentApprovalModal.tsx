@@ -132,9 +132,6 @@ export default function PaymentApprovalModal({
               <Text ml={1}>{t('rejectPayment')}</Text>
             </Button>
           </SimpleGrid>
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
-            {t('cancel')}
-          </Button>
         </VStack>
       }
     >

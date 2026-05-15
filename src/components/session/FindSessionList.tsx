@@ -1044,6 +1044,7 @@ export default function FindSessionList({
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}
             hideHeader={true}
+            allowZaloContact={selectedSessionForDetail.allowZaloContact}
             onClose={() => setIsDetailModalOpen(false)}
           />
         )}

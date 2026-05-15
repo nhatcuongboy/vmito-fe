@@ -318,6 +318,7 @@ export const VMultiSelect = ({
                   checked={value.includes(option.value)}
                   disabled={option.disabled}
                   pointerEvents="none"
+                  colorPalette="green"
                 />
                 {renderItem ? (
                   renderItem(option)

@@ -371,6 +371,7 @@ export const PublicSessionDetailContent = ({
             phone={session.hostPhone}
             email={session.host?.email}
             hideHeader={true}
+            allowZaloContact={session.allowZaloContact}
           />
         </Box>
       </VModal>

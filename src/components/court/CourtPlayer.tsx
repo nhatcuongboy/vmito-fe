@@ -102,39 +102,8 @@ export default function CourtPlayer({
   const pairColors = getPairColor(player, index);
   const GenderIcon = getGenderIcon(player.gender);
 
-  // Calculate tooltip position based on player position
-  const getTooltipPosition = () => {
-    if (!playerRef.current) {
-      return { left: '50%', top: '50%' };
-    }
-
-    const rect = playerRef.current.getBoundingClientRect();
-    const tooltipWidth = 280; // maxW="280px"
-    const tooltipHeight = 150; // reduced approximate height
-
-    let left = rect.left + rect.width / 2 - tooltipWidth / 2;
-    let top = rect.top - tooltipHeight - 5; // reduced gap above player
-
-    // Adjust if tooltip goes outside viewport
-    if (left < 10) {
-      left = 10;
-    }
-    if (left + tooltipWidth > window.innerWidth - 10) {
-      left = window.innerWidth - tooltipWidth - 10;
-    }
-
-    if (top < 10) {
-      // If not enough space above, show below but closer
-      top = rect.bottom + 5; // reduced gap below player
-    }
-
-    return {
-      left: `${left}px`,
-      top: `${top}px`,
-    };
-  };
-
   const playerEffectColor = '#ffffff';
+  const playerDisplayName = player.name?.trim() || `#${player.playerNumber}`;
 
   return (
     <>
@@ -146,6 +115,9 @@ export default function CourtPlayer({
         zIndex={3}
       >
         <Box
+          as="button"
+          aria-label={`Xem thông tin người chơi ${playerDisplayName}`}
+          aria-expanded={isClicked}
           position="relative"
           bg={pairColors.bg}
           borderRadius="full"
@@ -160,10 +132,14 @@ export default function CourtPlayer({
           justifyContent="center"
           boxShadow="md"
           cursor="pointer"
-          transition="all 0.2s"
+          transition="transform 0.2s ease, box-shadow 0.2s ease"
           _hover={{
             transform: 'scale(1.1)',
             boxShadow: 'xl',
+          }}
+          _focusVisible={{
+            outline: 'none',
+            boxShadow: `0 0 0 3px white, 0 0 0 6px ${pairColors.border}`,
           }}
           zIndex={2}
           onClick={(e) => {
@@ -187,6 +163,7 @@ export default function CourtPlayer({
             border="2px solid white"
             zIndex={5}
             boxShadow="sm"
+            aria-hidden="true"
           >
             <Box as={GenderIcon} boxSize="14px" />
           </Box>
@@ -298,7 +275,6 @@ export default function CourtPlayer({
         player={player}
         index={index}
         isVisible={isClicked}
-        position={getTooltipPosition()}
         mode={mode}
         playerRef={playerRef}
       />

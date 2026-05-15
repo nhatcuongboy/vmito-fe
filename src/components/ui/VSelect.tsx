@@ -322,6 +322,10 @@ export const VSelect = ({
       borderColor: 'border.error',
       boxShadow: '0 0 0 1px var(--chakra-colors-border-error)',
     },
+    bg:
+      variant === 'subtle'
+        ? { base: 'gray.50', _dark: 'gray.900' }
+        : { base: 'white', _dark: 'gray.800' },
     paddingStart: props.leftElement ? '10' : undefined,
     paddingEnd: props.rightElement ? '10' : undefined,
     width: '100%',

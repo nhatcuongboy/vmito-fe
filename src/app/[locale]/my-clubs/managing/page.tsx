@@ -46,6 +46,9 @@ type RejectTarget =
   | { type: 'club'; clubId: string }
   | { type: 'member'; clubId: string; requestId: string };
 
+const getClubHostName = (club: Pick<IClub, 'host' | 'hostName'> | IMyClub) =>
+  'hostName' in club ? club.host?.name || club.hostName : club.host?.name || '';
+
 export default function ManagingPage() {
   const t = useTranslations();
   const router = useRouter();
@@ -197,7 +200,7 @@ export default function ManagingPage() {
           {t('clubs.hostedBy')}
         </Text>
         <Text fontSize="xs" fontWeight="bold">
-          {club.host.name}
+          {getClubHostName(club) || t('common.notSpecified')}
         </Text>
       </HStack>
     </Box>
@@ -370,7 +373,7 @@ export default function ManagingPage() {
                     </Box>
                     <Box flex={1} minW={0}>
                       <Heading size={{ base: 'xs', md: 'sm' }} mb={1}>
-                        {request.user.name}
+                        {request.user?.name || t('common.notSpecified')}
                       </Heading>
                       <Text fontSize="xs" color="fg.muted" lineClamp={1}>
                         {request.club?.name} &middot;{' '}
@@ -539,7 +542,7 @@ export default function ManagingPage() {
                           color="fg.muted"
                           _dark={{ color: 'gray.300' }}
                         >
-                          {club.host.name}
+                          {getClubHostName(club) || t('common.notSpecified')}
                         </Text>
                       </HStack>
                     </VStack>

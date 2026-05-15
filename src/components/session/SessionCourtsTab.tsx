@@ -13,6 +13,7 @@ import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
 import CourtPlayerSelectionModal from './CourtPlayerSelectionModal';
 import MatchResultModal from './MatchResultModal';
 import CourtCard from './CourtCard';
+import PreSelectPreviewModal from './PreSelectPreviewModal';
 import WaitingPlayers from './WaitingPlayers';
 import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
@@ -194,16 +195,15 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
                   waitingPlayers={waitingPlayers}
                   onAssignPlayersClick={modals.openPlayerSelectionModal}
                   onPreSelectClick={modals.openPreSelectModal}
+                  onViewPreSelect={modals.openPreSelectPreviewModal}
                   onStartMatch={handleStartMatch}
                   onDeselectPlayers={handleDeselectPlayers}
-                  onCancelPreSelect={handleCancelCourtPreSelect}
                   onEndMatch={modals.openMatchResultModal}
                   elapsedTimeFormatter={elapsedTimeFormatter}
                   getCourtDisplayName={getCourtDisplayName}
                   hasPreSelectedPlayers={hasPreSelectedPlayers}
                   loadingStartMatchCourtId={modals.loadingStartMatchCourtId}
                   loadingCancelCourtId={modals.loadingCancelCourtId}
-                  loadingCancelPreSelect={modals.loadingCancelPreSelect}
                   loadingEndMatchId={modals.loadingEndMatchId}
                 />
               );
@@ -265,6 +265,19 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
               })
             : undefined
         }
+      />
+
+      <PreSelectPreviewModal
+        isOpen={modals.preSelectPreviewModalOpen}
+        court={modals.selectedPreSelectPreviewCourt}
+        onClose={modals.closePreSelectPreviewModal}
+        onCancelPreSelect={handleCancelCourtPreSelect}
+        isCancelling={
+          modals.loadingCancelPreSelect ===
+          modals.selectedPreSelectPreviewCourt?.id
+        }
+        courtColor={session.courtColor}
+        getCourtDisplayName={getCourtDisplayName}
       />
 
       {/* Match Result Modal */}

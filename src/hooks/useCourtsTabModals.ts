@@ -53,6 +53,12 @@ export const useCourtsTabModals = (options?: IUseCourtsTabModalsOptions) => {
   const [preSelectCurrentPosition, setPreSelectCurrentPosition] = useState(0);
   const [confirmingPreSelect, setConfirmingPreSelect] = useState(false);
 
+  // Pre-select preview modal state
+  const [preSelectPreviewModalOpen, setPreSelectPreviewModalOpen] =
+    useState(false);
+  const [selectedPreSelectPreviewCourt, setSelectedPreSelectPreviewCourt] =
+    useState<Court | null>(null);
+
   // Loading states
   const [loadingEndMatchId, setLoadingEndMatchId] = useState<string | null>(
     null
@@ -110,6 +116,16 @@ export const useCourtsTabModals = (options?: IUseCourtsTabModalsOptions) => {
     setSelectedPreSelectCourt(null);
     setPreSelectPlayers(createEmptySlots(preSelectMatchType));
     setPreSelectCurrentPosition(0);
+  };
+
+  const openPreSelectPreviewModal = (court: Court) => {
+    setSelectedPreSelectPreviewCourt(court);
+    setPreSelectPreviewModalOpen(true);
+  };
+
+  const closePreSelectPreviewModal = () => {
+    setPreSelectPreviewModalOpen(false);
+    setSelectedPreSelectPreviewCourt(null);
   };
 
   // Match result modal handlers
@@ -271,6 +287,8 @@ export const useCourtsTabModals = (options?: IUseCourtsTabModalsOptions) => {
 
     preSelectModalOpen,
     selectedPreSelectCourt,
+    preSelectPreviewModalOpen,
+    selectedPreSelectPreviewCourt,
     preSelectPlayers,
     preSelectCurrentPosition,
     setPreSelectCurrentPosition,
@@ -291,6 +309,8 @@ export const useCourtsTabModals = (options?: IUseCourtsTabModalsOptions) => {
     closePlayerSelectionModal,
     openPreSelectModal,
     closePreSelectModal,
+    openPreSelectPreviewModal,
+    closePreSelectPreviewModal,
     openMatchResultModal,
     closeMatchResultModal,
     toggleManualPlayer,

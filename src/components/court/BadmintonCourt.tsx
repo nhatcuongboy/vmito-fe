@@ -708,7 +708,7 @@ export default function BadmintonCourt({
           position="absolute"
           top="4%"
           right="2%"
-          zIndex={10}
+          zIndex={100}
           cursor="pointer"
           onClick={handleAIAnalysis}
           bg="purple.500"

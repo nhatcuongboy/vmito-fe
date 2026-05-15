@@ -45,7 +45,7 @@ export default function AiAssistant({
             position="fixed"
             bottom={bottomOffset}
             right="20px"
-            zIndex={isOpen ? 1201 : 1000}
+            zIndex={isOpen ? 1301 : 1000}
             opacity={isOpen ? 0 : 1}
             transform={
               isOpen ? 'scale(0.5) rotate(90deg)' : 'scale(1) rotate(0deg)'

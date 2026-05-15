@@ -174,7 +174,7 @@ const SessionDetailHero = ({
           backdropFilter="blur(6px)"
           borderRadius="full"
           _hover={{ bg: 'blackAlpha.700' }}
-          zIndex={10}
+          zIndex={100}
           onClick={onBack}
         >
           <ChevronLeft size={24} strokeWidth={2.5} />
@@ -195,7 +195,7 @@ const SessionDetailHero = ({
         borderRadius="full"
         boxShadow="0 2px 8px rgba(0,0,0,0.45)"
         _hover={{ bg: 'blackAlpha.700' }}
-        zIndex={10}
+        zIndex={100}
         onClick={handleShare}
         icon={<Icon as={Share2} boxSize={5} />}
       />
@@ -208,7 +208,7 @@ const SessionDetailHero = ({
           left="50%"
           transform="translateX(-50%)"
           gap={1.5}
-          zIndex={10}
+          zIndex={100}
           align="center"
         >
           {allImages.map((_, i) => (

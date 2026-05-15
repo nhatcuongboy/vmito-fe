@@ -102,6 +102,7 @@ import AppMultiImageUpload, {
 } from '@/components/session/AppMultiImageUpload';
 import LevelRequirementsCard from '@/components/session/LevelRequirementsCard';
 import { BulkSessionDateSelector } from '@/components/session/BulkSessionDateSelector';
+import Image from 'next/image';
 import {
   BulkCreationMode,
   SpecificDatesConfig,
@@ -217,13 +218,24 @@ function createSessionFormSchema(
           { message: t('validation.courtNumberUnique') }
         ),
       courtColor: z.string(),
-      maxPlayersPerCourt: z.number().min(2).max(12),
+      maxPlayersPerCourt: z.preprocess(
+        (val) => {
+          // Convert empty string to undefined for validation
+          if (val === '' || val === null || val === undefined) return undefined;
+          return val;
+        },
+        z
+          .number()
+          .min(2, t('validation.maxPlayersPerCourtMin', { min: 2 }))
+          .max(12, t('validation.maxPlayersPerCourtMax', { max: 12 }))
+      ),
 
       // Optional fields
       description: z.string().optional(),
       requirePlayerInfo: z.boolean(),
       allowGuestJoin: z.boolean(),
       allowNewPlayers: z.boolean(),
+      allowZaloContact: z.boolean(),
       allLevelsSelected: z.boolean(),
       requiredLevels: z.array(z.coerce.number()).optional(),
       shuttlecock: z.string().optional(),
@@ -316,6 +328,7 @@ export default function SessionForm({
         requirePlayerInfo: initialData.requirePlayerInfo,
         allowGuestJoin: initialData.allowGuestJoin ?? true,
         allowNewPlayers: initialData.allowNewPlayers ?? true,
+        allowZaloContact: initialData.allowZaloContact ?? false,
         allLevelsSelected:
           !initialData.requiredLevels ||
           initialData.requiredLevels?.length === 0,
@@ -345,6 +358,7 @@ export default function SessionForm({
       requirePlayerInfo: false,
       allowGuestJoin: true,
       allowNewPlayers: true,
+      allowZaloContact: false,
       allLevelsSelected: true,
       requiredLevels: [],
       shuttlecock: '',
@@ -366,7 +380,9 @@ export default function SessionForm({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<SessionFormData>({
-    resolver: zodResolver(sessionFormSchema),
+    resolver: zodResolver(
+      sessionFormSchema
+    ) as unknown as import('react-hook-form').Resolver<SessionFormData>,
     defaultValues,
   });
 
@@ -912,6 +928,7 @@ export default function SessionForm({
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
           allowNewPlayers: data.allowNewPlayers,
+          allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
             ? undefined
             : data.requiredLevels && data.requiredLevels.length > 0
@@ -957,6 +974,7 @@ export default function SessionForm({
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
           allowNewPlayers: data.allowNewPlayers,
+          allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
             ? undefined
             : data.requiredLevels && data.requiredLevels.length > 0
@@ -1149,7 +1167,10 @@ export default function SessionForm({
         w="full"
       >
         <form
-          onSubmit={handleSubmit(onSubmit, scrollToFirstError)}
+          onSubmit={handleSubmit(
+            onSubmit as Parameters<typeof handleSubmit>[0],
+            scrollToFirstError
+          )}
           onKeyDown={handleKeyDown}
         >
           <Stack gap={6}>
@@ -1310,6 +1331,39 @@ export default function SessionForm({
                       {errors.hostPhone?.message}
                     </Field.ErrorText>
                   </Field.Root>
+                  {/* Allow Zalo Contact */}
+                  <Controller
+                    control={control}
+                    name="allowZaloContact"
+                    render={({ field }) => (
+                      <HStack
+                        mt={2}
+                        gap={2}
+                        cursor="pointer"
+                        onClick={() => field.onChange(!field.value)}
+                      >
+                        <CustomCheckbox
+                          isChecked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                        <HStack gap={1.5}>
+                          <Image
+                            src="/icons/zalo.png"
+                            alt="Zalo"
+                            width={16}
+                            height={16}
+                          />
+                          <Text
+                            fontSize="sm"
+                            fontWeight="medium"
+                            userSelect="none"
+                          >
+                            {t('allowZaloContact')}
+                          </Text>
+                        </HStack>
+                      </HStack>
+                    )}
+                  />
                 </Box>
               </Flex>
             </Box>
@@ -1965,15 +2019,25 @@ export default function SessionForm({
                             name="maxPlayersPerCourt"
                             render={({ field }) => (
                               <Input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 min={2}
                                 max={12}
-                                value={field.value}
+                                value={field.value || ''}
                                 onChange={(
                                   e: React.ChangeEvent<HTMLInputElement>
-                                ) =>
-                                  field.onChange(parseInt(e.target.value) || 8)
-                                }
+                                ) => {
+                                  const value = e.target.value;
+                                  if (value === '') {
+                                    field.onChange('');
+                                  } else {
+                                    const parsed = parseInt(value);
+                                    if (!isNaN(parsed)) {
+                                      field.onChange(parsed);
+                                    }
+                                  }
+                                }}
                                 rightElement={
                                   <Text
                                     fontSize="sm"
@@ -2019,7 +2083,7 @@ export default function SessionForm({
                       base: '0 -8px 24px rgba(0, 0, 0, 0.18)',
                       md: 'none',
                     },
-                    zIndex: 1200,
+                    zIndex: 1260,
                   }
                 : {})}
             >
