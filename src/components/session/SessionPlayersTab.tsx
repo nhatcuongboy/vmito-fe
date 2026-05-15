@@ -196,6 +196,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         {mode === 'manage' && (
           <Button
             size="sm"
+            variant="solid"
             colorPalette="green"
             onClick={openAddPlayerModal}
             leftIcon={<Box as={Plus} boxSize={4} />}

@@ -668,7 +668,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
                 {useAi
                   ? isLoading
                     ? 'Đang phân tích trình độ...'
-                    : 'Hoàn tất phân tích'
+                    : ''
                   : 'Ghép cặp tự động theo trình độ'}
               </Text>
             </Box>
@@ -722,12 +722,9 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
                 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))',
             }}
           >
-            <HStack gap={1} mb={0.5}>
-              <Box as={Sparkles} boxSize={3} color="yellow.300" />
-              <Text fontWeight="semibold" color="white">
-                {t('courtsTab.aiReasoning')}:
-              </Text>
-            </HStack>
+            <Text fontWeight="semibold" color="white" mb={1}>
+              {t('courtsTab.aiReasoning')}:
+            </Text>
             <Text>{normalizeAiReasonLevels(suggestedPlayers.aiReason)}</Text>
           </Box>
         )}

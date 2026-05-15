@@ -486,32 +486,6 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                     </Text>
                   </Button>
                 )}
-
-                {/* QR Code - Join Session */}
-                {onShowQrJoin && (
-                  <Button
-                    variant="ghost"
-                    width="100%"
-                    px={4}
-                    py={2}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    gap={3}
-                    _hover={{ bg: 'bg.muted' }}
-                    onClick={() => {
-                      onShowQrJoin();
-                      setIsMenuOpen(false);
-                    }}
-                    fontWeight="normal"
-                    borderRadius="0"
-                  >
-                    <Box as={QrCode} boxSize={4} color="purple.500" />
-                    <Text fontSize="sm" fontWeight="medium">
-                      {t('qrScanToJoin')}
-                    </Text>
-                  </Button>
-                )}
               </Box>
             )}
           </Box>

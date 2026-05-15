@@ -148,7 +148,7 @@ export const PlayerGrid = ({
               key={player.id}
               variant="outline"
               size="sm"
-              borderRadius="md"
+              borderRadius="lg"
               borderWidth="2px"
               borderColor={borderColor}
               bg={bgColor}
@@ -194,12 +194,12 @@ export const PlayerGrid = ({
                 bg={priorityColor}
               /> */}
 
-                {/* Selection indicator (top left) */}
+                {/* Selection indicator (bottom right) */}
                 {selectionMode && isSelected && (
                   <Box
                     position="absolute"
-                    top={1}
-                    left={1}
+                    bottom={1}
+                    right={1}
                     w={4}
                     h={4}
                     borderRadius="full"

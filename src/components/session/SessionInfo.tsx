@@ -361,31 +361,6 @@ export default function SessionInfo({
         {t('playersTab.players') || 'Người chơi'})
       </InfoRow>
 
-      {compactUntilMaxPlayers && (
-        <Button
-          type="button"
-          size="xs"
-          variant="ghost"
-          colorPalette="green"
-          alignSelf="flex-start"
-          mt={-1}
-          mb={showExtendedInfo ? 2 : 0}
-          px={0}
-          minH="auto"
-          fontWeight="semibold"
-          rightIcon={
-            showExtendedInfo ? (
-              <ChevronUp size={14} />
-            ) : (
-              <ChevronDown size={14} />
-            )
-          }
-          onClick={() => setIsExpanded((current) => !current)}
-        >
-          {showExtendedInfo ? tSession('collapse') : tSession('expand')}
-        </Button>
-      )}
-
       {showExtendedInfo && (
         <>
           <InfoRow icon={Square} label={t('numberOfCourtsTitle')}>
@@ -493,6 +468,30 @@ export default function SessionInfo({
             onClose={() => setIsLevelDescriptionsOpen(false)}
           />
         </>
+      )}
+
+      {compactUntilMaxPlayers && (
+        <Button
+          type="button"
+          size="xs"
+          variant="ghost"
+          colorPalette="green"
+          alignSelf="flex-end"
+          mt={2}
+          px={0}
+          minH="auto"
+          fontWeight="semibold"
+          rightIcon={
+            showExtendedInfo ? (
+              <ChevronUp size={14} />
+            ) : (
+              <ChevronDown size={14} />
+            )
+          }
+          onClick={() => setIsExpanded((current) => !current)}
+        >
+          {showExtendedInfo ? tSession('collapse') : tSession('expand')}
+        </Button>
       )}
 
       {/* Player Statistics Section */}

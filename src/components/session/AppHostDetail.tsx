@@ -269,13 +269,6 @@ export const AppHostDetail = ({
                 borderColor="green.200"
                 _dark={{ borderColor: 'green.800' }}
               >
-                <Image
-                  src="/icons/zalo.png"
-                  alt="Zalo"
-                  boxSize={6}
-                  mr={2}
-                  flexShrink={0}
-                />
                 {t('zalo')}
               </Button>
             )}

@@ -344,6 +344,14 @@ export default function SessionExpenseSection({
                       aria-label={t('editExpense')}
                       variant="ghost"
                       colorPalette="gray"
+                      bg="gray.100"
+                      _dark={{ bg: 'gray.800' }}
+                      _hover={{
+                        bg: 'gray.200',
+                        _dark: { bg: 'gray.700' },
+                      }}
+                      borderRadius="full"
+                      boxShadow="sm"
                       onClick={() => handleStartEdit(expense)}
                       disabled={
                         isLoading ||
@@ -358,6 +366,14 @@ export default function SessionExpenseSection({
                       aria-label={t('deleteExpense')}
                       variant="ghost"
                       colorPalette="red"
+                      bg="red.50"
+                      _dark={{ bg: 'red.950' }}
+                      _hover={{
+                        bg: 'red.100',
+                        _dark: { bg: 'red.900' },
+                      }}
+                      borderRadius="full"
+                      boxShadow="sm"
                       onClick={() => handleDeleteClick(expense)}
                       loading={deletingId === expense.id}
                       disabled={isLoading || editingId !== null}

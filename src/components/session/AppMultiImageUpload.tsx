@@ -479,7 +479,7 @@ const AppMultiImageUpload = ({
               color={{ base: 'green.700', _dark: 'green.200' }}
               mb={3}
             >
-              <Upload size={24} />
+              <ImagePlus size={24} />
             </Flex>
             <Text color="gray.700" fontSize="sm" fontWeight="semibold">
               {t('noImagesYet')}
@@ -501,7 +501,8 @@ const AppMultiImageUpload = ({
                 colorPalette="green"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isBusy}
-                w={{ base: 'full', sm: 'auto' }}
+                w={{ base: 'fit-content', sm: 'auto' }}
+                alignSelf="center"
                 leftIcon={
                   isDirectUploading ? (
                     <Spinner size="sm" />
@@ -519,7 +520,8 @@ const AppMultiImageUpload = ({
                 colorPalette="green"
                 onClick={handleOpenGallery}
                 disabled={isBusy}
-                w={{ base: 'full', sm: 'auto' }}
+                w={{ base: 'fit-content', sm: 'auto' }}
+                alignSelf="center"
               >
                 {t('selectFromGallery')}
               </Button>

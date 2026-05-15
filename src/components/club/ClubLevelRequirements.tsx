@@ -82,7 +82,7 @@ export default function ClubLevelRequirements({
       _dark={{ borderColor: 'gray.700' }}
     >
       <HStack justify="space-between" align="center" mb={4}>
-        <Heading size="md">Trình độ yêu cầu</Heading>
+        <Heading size="md">{t('requiredLevels')}</Heading>
         <IconButton
           aria-label={tLevelDescriptions('open')}
           type="button"
@@ -139,7 +139,7 @@ export default function ClubLevelRequirements({
                 borderColor={isSelected ? undefined : levelColor.borderColor}
                 borderWidth="2px"
                 onClick={() => handleLevelToggle(level)}
-                borderRadius="xl"
+                borderRadius="full"
                 fontWeight="medium"
                 h="34px"
                 px={2}

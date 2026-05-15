@@ -37,12 +37,14 @@ import { z } from 'zod';
 const CustomCheckbox = ({
   isChecked,
   onChange,
+  size = 'md',
 }: {
   isChecked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  size?: 'sm' | 'md';
 }) => {
-  const boxSize = '24px';
-  const iconSize = 16;
+  const boxSize = size === 'sm' ? '18px' : '24px';
+  const iconSize = size === 'sm' ? 11 : 16;
 
   return (
     <Box as="label" cursor="pointer" display="inline-flex" alignItems="center">
@@ -1343,24 +1345,17 @@ export default function SessionForm({
                         onClick={() => field.onChange(!field.value)}
                       >
                         <CustomCheckbox
+                          size="sm"
                           isChecked={field.value}
                           onChange={(e) => field.onChange(e.target.checked)}
                         />
-                        <HStack gap={1.5}>
-                          <Image
-                            src="/icons/zalo.png"
-                            alt="Zalo"
-                            width={16}
-                            height={16}
-                          />
-                          <Text
-                            fontSize="sm"
-                            fontWeight="medium"
-                            userSelect="none"
-                          >
-                            {t('allowZaloContact')}
-                          </Text>
-                        </HStack>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="medium"
+                          userSelect="none"
+                        >
+                          {t('allowZaloContact')}
+                        </Text>
                       </HStack>
                     )}
                   />
@@ -2022,6 +2017,7 @@ export default function SessionForm({
                                 type="text"
                                 inputMode="numeric"
                                 pattern="[0-9]*"
+                                placeholder="0"
                                 min={2}
                                 max={12}
                                 value={field.value || ''}

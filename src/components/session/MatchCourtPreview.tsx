@@ -207,6 +207,7 @@ function PairSummary({ colorPalette, label, players }: PairSummaryProps) {
           color={{ base: 'gray.600', _dark: 'gray.300' }}
           lineClamp={1}
           fontSize="xs"
+          fontWeight="bold"
         >
           {player.name || `#${player.playerNumber}`}
         </Text>

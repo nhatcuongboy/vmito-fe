@@ -39,10 +39,12 @@ const PreSelectPreviewModal: React.FC<PreSelectPreviewModalProps> = ({
   getCourtDisplayName,
 }) => {
   const t = useTranslations('SessionDetail');
+  const tCommon = useTranslations('common');
   const [preSelectedPlayers, setPreSelectedPlayers] = useState<
     PreSelectedPlayerInfo[]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !court?.id) {
@@ -141,68 +143,108 @@ const PreSelectPreviewModal: React.FC<PreSelectPreviewModalProps> = ({
     if (!court) return;
     try {
       await onCancelPreSelect(court.id);
+      setShowConfirmDialog(false);
       onClose();
     } catch (error) {
       console.error('Error cancelling pre-select:', error);
     }
   };
 
+  const handleCancelClick = () => {
+    setShowConfirmDialog(true);
+  };
+
   if (!isOpen || !court) return null;
 
   return (
-    <VModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={t('courtsTab.nextMatchPreviewTitle', {
-        courtNumber: court.courtNumber,
-      })}
-      description={t('courtsTab.nextMatchPreviewDescription')}
-      size="xl"
-      footer={
-        <Flex gap={2} justify="flex-end" width="full">
-          <CompatButton variant="outline" colorPalette="gray" onClick={onClose}>
-            {t('courtsTab.cancel')}
-          </CompatButton>
-          <CompatButton
-            colorPalette="red"
-            variant="solid"
-            loading={isCancelling}
-            onClick={handleCancelPreSelect}
-            disabled={isLoading || sortedPreSelectedPlayers.length === 0}
-          >
-            {t('courtsTab.cancelPreSelect')}
-          </CompatButton>
-        </Flex>
-      }
-    >
-      <VStack gap={4} align="stretch">
-        <MatchCourtPreview
-          players={displayPlayers}
-          courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
-          courtNumber={court.courtNumber}
-          courtColor={courtColor}
-          direction={court.direction || CourtDirection.HORIZONTAL}
-          pair1Players={!isLoading ? pairData.pair1Players : undefined}
-          pair2Players={!isLoading ? pairData.pair2Players : undefined}
-          scoreDifference={
-            sortedPreSelectedPlayers.length > 0 ? pairData.gap : undefined
-          }
-        />
+    <>
+      <VModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={t('courtsTab.nextMatchPreviewTitle', {
+          courtNumber: court.courtNumber,
+        })}
+        description={t('courtsTab.nextMatchPreviewDescription')}
+        size="xl"
+        footer={
+          <Flex gap={2} justify="flex-end" width="full">
+            <CompatButton
+              variant="outline"
+              colorPalette="gray"
+              onClick={onClose}
+            >
+              {t('courtsTab.cancel')}
+            </CompatButton>
+            <CompatButton
+              colorPalette="red"
+              variant="solid"
+              onClick={handleCancelClick}
+              disabled={isLoading || sortedPreSelectedPlayers.length === 0}
+            >
+              {t('courtsTab.cancelPreSelect')}
+            </CompatButton>
+          </Flex>
+        }
+      >
+        <VStack gap={4} align="stretch">
+          <MatchCourtPreview
+            players={displayPlayers}
+            courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
+            courtNumber={court.courtNumber}
+            courtColor={courtColor}
+            direction={court.direction || CourtDirection.HORIZONTAL}
+            pair1Players={!isLoading ? pairData.pair1Players : undefined}
+            pair2Players={!isLoading ? pairData.pair2Players : undefined}
+            scoreDifference={
+              sortedPreSelectedPlayers.length > 0 ? pairData.gap : undefined
+            }
+          />
 
-        {isLoading ? (
-          <HStack gap={3} justify="center" py={2} color="fg.muted">
-            <Spinner size="sm" />
-            <Text fontSize="sm">
-              {t('courtsTab.loadingPreSelectedPlayers')}
+          {isLoading ? (
+            <HStack gap={3} justify="center" py={2} color="fg.muted">
+              <Spinner size="sm" />
+              <Text fontSize="sm">
+                {t('courtsTab.loadingPreSelectedPlayers')}
+              </Text>
+            </HStack>
+          ) : sortedPreSelectedPlayers.length === 0 ? (
+            <Text fontSize="sm" color="fg.muted" textAlign="center">
+              {t('courtsTab.noPreSelectedPlayers')}
             </Text>
-          </HStack>
-        ) : sortedPreSelectedPlayers.length === 0 ? (
-          <Text fontSize="sm" color="fg.muted" textAlign="center">
-            {t('courtsTab.noPreSelectedPlayers')}
-          </Text>
-        ) : null}
-      </VStack>
-    </VModal>
+          ) : null}
+        </VStack>
+      </VModal>
+
+      {/* Confirmation Dialog */}
+      <VModal
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        title={t('courtsTab.confirmCancelPreSelectTitle')}
+        size="sm"
+        footer={
+          <Flex gap={2} justify="flex-end" width="full">
+            <CompatButton
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+              disabled={isCancelling}
+            >
+              {tCommon('cancel')}
+            </CompatButton>
+            <CompatButton
+              colorPalette="red"
+              onClick={handleCancelPreSelect}
+              loading={isCancelling}
+            >
+              {tCommon('confirm')}
+            </CompatButton>
+          </Flex>
+        }
+      >
+        <Text fontSize="sm" color="fg.muted">
+          {t('courtsTab.confirmCancelPreSelectMessage')}
+        </Text>
+      </VModal>
+    </>
   );
 };
 

@@ -329,7 +329,7 @@ export default function SessionOverviewTab({
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
-                {t('shareSection')}
+                {t('shareSessionSection')}
               </Text>
 
               <Box
@@ -339,10 +339,9 @@ export default function SessionOverviewTab({
                 justifyContent="center"
                 w="full"
               >
-                <Grid
-                  templateColumns="repeat(2, 1fr)"
+                <Flex
+                  justify="center"
                   gap={{ base: 2, md: 6 }}
-                  justifyItems="center"
                   alignItems="center"
                 >
                   <Box>
@@ -350,17 +349,17 @@ export default function SessionOverviewTab({
                       joinCode={joinCode}
                       size={140}
                       url={`/${locale}/sessions/${session.id}`}
-                      label={t('qrScanToView')}
+                      label={t('qrViewSessionDetail')}
                       hideCode
                       onQrClick={() =>
                         handleQrClick(
                           `/${locale}/sessions/${session.id}`,
-                          t('qrScanToView')
+                          t('qrViewSessionDetail')
                         )
                       }
                     />
                   </Box>
-                  <Box>
+                  <Box display="none">
                     <QRCodeGenerator
                       joinCode={joinCode}
                       size={140}
@@ -375,7 +374,7 @@ export default function SessionOverviewTab({
                       }
                     />
                   </Box>
-                </Grid>
+                </Flex>
 
                 <SimpleGrid
                   columns={1}
@@ -411,28 +410,10 @@ export default function SessionOverviewTab({
                       />
                       <Box>
                         <Text fontSize="sm" fontWeight="semibold" color="fg">
-                          {t('qrScanToView')}
+                          {t('qrViewSessionDetail')}
                         </Text>
                         <Text fontSize="sm" color="gray.600">
                           {t('shareTipView')}
-                        </Text>
-                      </Box>
-                    </Flex>
-                    <Flex align="start" gap={3}>
-                      <Box
-                        w="8px"
-                        h="8px"
-                        borderRadius="full"
-                        bg="green.400"
-                        mt="6px"
-                        flexShrink={0}
-                      />
-                      <Box>
-                        <Text fontSize="sm" fontWeight="semibold" color="fg">
-                          {t('qrScanToJoin')}
-                        </Text>
-                        <Text fontSize="sm" color="gray.600">
-                          {t('shareTipJoin')}
                         </Text>
                       </Box>
                     </Flex>
@@ -440,7 +421,7 @@ export default function SessionOverviewTab({
                 </SimpleGrid>
               </Box>
 
-              {/* Share Section */}
+              {/* Share Image Section */}
               <Box w="full" mt={6}>
                 <Text
                   fontSize="sm"
@@ -450,7 +431,7 @@ export default function SessionOverviewTab({
                   textTransform="uppercase"
                   letterSpacing="wider"
                 >
-                  {t('share')}
+                  {t('shareImage')}
                 </Text>
                 <Flex gap={3} w="full">
                   <Button
@@ -464,6 +445,36 @@ export default function SessionOverviewTab({
                     {tSession('shareImageModal.open')}
                   </Button>
                 </Flex>
+              </Box>
+
+              {/* Share Image Tips - Desktop Only */}
+              <Box
+                mt={4}
+                p={4}
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="gray.100"
+                bg={{ base: 'blue.50', _dark: 'blue.900/20' }}
+                display={{ base: 'none', md: 'block' }}
+              >
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="blue.600"
+                  _dark={{ color: 'blue.300' }}
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                  mb={2}
+                >
+                  {t('shareImageTipsTitle')}
+                </Text>
+                <Text
+                  fontSize="sm"
+                  color="blue.700"
+                  _dark={{ color: 'blue.200' }}
+                >
+                  {t('shareImageTipsDescription')}
+                </Text>
               </Box>
             </Box>
           </Box>

@@ -9,6 +9,7 @@ import {
   Stack,
   Separator,
   Button,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import {
   ChevronDown,
@@ -18,6 +19,7 @@ import {
   LogIn,
   Receipt,
   CreditCard,
+  CalendarDays,
   ClipboardList,
   Ticket,
   Users,
@@ -29,9 +31,10 @@ import {
   SlidersHorizontal,
   Bell,
   Award,
+  type LucideIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LanguageSwitcher from './LanguageSwitcher';
 import { UserRole } from '@/lib/api/types';
@@ -47,10 +50,18 @@ import { VTooltip } from './VTooltip';
 import { ROUTES } from '@/constants';
 import ThemeSwitcher from './ThemeSwitcher';
 import { usePathname } from '@/i18n/config';
+import { PopoverContent, PopoverRoot, PopoverTrigger } from './popover';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface SessionSubmenuItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  isActive: boolean;
 }
 
 export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
@@ -58,7 +69,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed: isSidebarCollapsed } = useSidebar();
+  const isCollapsed =
+    useBreakpointValue({ base: false, md: isSidebarCollapsed }) ?? false;
   const pathname = usePathname();
   const normalizedPathname = pathname.replace(/\/$/, '') || '/';
   const manageSessionsHref = canAccessHostFeatures
@@ -72,15 +85,58 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
     normalizedPathname.startsWith(joinedSessionsHref);
   const isHostedSessionsActive =
     isSessionsParentActive && !isJoinedSessionsActive;
-  const [isSessionsMenuOpen, setIsSessionsMenuOpen] = useState(
-    isSessionsParentActive
+  const isSessionsMenuActive = isHostedSessionsActive || isJoinedSessionsActive;
+  const [isSessionsMenuOpen, setIsSessionsMenuOpen] =
+    useState(isSessionsMenuActive);
+  const [isSessionsFlyoutOpen, setIsSessionsFlyoutOpen] = useState(false);
+  const sessionsFlyoutCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null
   );
 
   useEffect(() => {
-    if (isSessionsParentActive) {
+    if (isSessionsMenuActive) {
       setIsSessionsMenuOpen(true);
     }
-  }, [isSessionsParentActive]);
+  }, [isSessionsMenuActive]);
+
+  useEffect(() => {
+    return () => {
+      if (sessionsFlyoutCloseTimer.current) {
+        clearTimeout(sessionsFlyoutCloseTimer.current);
+      }
+    };
+  }, []);
+
+  const openSessionsFlyout = () => {
+    if (sessionsFlyoutCloseTimer.current) {
+      clearTimeout(sessionsFlyoutCloseTimer.current);
+    }
+    setIsSessionsFlyoutOpen(true);
+  };
+
+  const closeSessionsFlyout = () => {
+    if (sessionsFlyoutCloseTimer.current) {
+      clearTimeout(sessionsFlyoutCloseTimer.current);
+    }
+    sessionsFlyoutCloseTimer.current = setTimeout(() => {
+      setIsSessionsFlyoutOpen(false);
+    }, 250);
+  };
+
+  const sessionSubmenuItems: SessionSubmenuItem[] = [
+    {
+      href: manageSessionsHref,
+      label: nav('myHostedSessions'),
+      icon: ClipboardList,
+      isActive: isHostedSessionsActive,
+    },
+    {
+      href: joinedSessionsHref,
+      label: nav('joined'),
+      icon: Ticket,
+      isActive: isJoinedSessionsActive,
+    },
+  ];
 
   const getActiveProps = (href: string, isActiveOverride?: boolean) => {
     // Exact match for home, startsWith for others
@@ -110,40 +166,111 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
     };
   };
 
-  const getSubmenuProps = (isActive: boolean) => {
+  const getSubmenuProps = (
+    isActive: boolean,
+    variant: 'inline' | 'flyout' = 'inline'
+  ) => {
     if (!isActive) {
       return {
+        position: 'relative',
+        bg: 'transparent',
+        borderColor: 'transparent',
         color: 'fg.muted',
         _hover: {
-          bg: 'gray.50',
-          color: 'fg',
+          bg: 'green.50/70',
+          color: 'green.700',
         },
         _dark: {
           color: 'gray.400',
           _hover: {
-            bg: 'whiteAlpha.100',
-            color: 'white',
+            bg: 'green.950/20',
+            color: 'green.200',
           },
         },
       };
     }
 
     return {
-      bg: 'green.50',
+      position: 'relative',
+      bg: 'green.50/80',
+      borderColor: 'transparent',
       color: 'green.700',
       fontWeight: 'semibold',
-      boxShadow: 'inset 2px 0 0 var(--chakra-colors-green-500)',
+      ...(variant === 'inline'
+        ? {
+            _before: {
+              content: '""',
+              position: 'absolute',
+              left: '-21px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '8px',
+              height: '8px',
+              borderRadius: 'full',
+              bg: 'green.500',
+              boxShadow: '0 0 0 3px var(--chakra-colors-green-100)',
+            },
+          }
+        : {}),
       _hover: {
-        bg: 'green.100',
+        bg: 'green.50',
       },
       _dark: {
-        bg: 'green.950/20',
+        bg: 'green.950/30',
         color: 'green.200',
+        ...(variant === 'inline'
+          ? {
+              _before: {
+                bg: 'green.300',
+                boxShadow: '0 0 0 3px var(--chakra-colors-green-900)',
+              },
+            }
+          : {}),
         _hover: {
           bg: 'green.900/40',
         },
       },
     };
+  };
+
+  const renderSessionSubmenuItem = (
+    item: SessionSubmenuItem,
+    variant: 'inline' | 'flyout' = 'inline'
+  ) => {
+    const Icon = item.icon;
+
+    return (
+      <NextLinkButton
+        key={item.href}
+        href={item.href}
+        variant="ghost"
+        justifyContent="flex-start"
+        onClick={onClose}
+        w="full"
+        px={3}
+        py={variant === 'flyout' ? 2 : 1.5}
+        minH={variant === 'flyout' ? '38px' : '34px'}
+        borderRadius="md"
+        borderWidth={0}
+        textAlign="left"
+        {...getSubmenuProps(item.isActive, variant)}
+      >
+        <Flex align="center" gap={2.5} w="full">
+          <Box
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            color={item.isActive ? 'green.500' : 'currentColor'}
+            flexShrink={0}
+          >
+            <Icon size={variant === 'flyout' ? 16 : 15} />
+          </Box>
+          <Text fontSize={variant === 'flyout' ? 'sm' : 'xs'} flex={1}>
+            {item.label}
+          </Text>
+        </Flex>
+      </NextLinkButton>
+    );
   };
 
   return (
@@ -177,7 +304,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
         bottom={0}
         width={{
           base: '240px',
-          md: isCollapsed
+          md: isSidebarCollapsed
             ? `${SIDEBAR_WIDTH_COLLAPSED}px`
             : `${SIDEBAR_WIDTH_EXPANDED}px`,
         }}
@@ -431,66 +558,76 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   <Stack gap={2}>
                     <Box
                       display={{
-                        base: 'block',
+                        base: 'none',
                         md: isCollapsed ? 'block' : 'none',
                       }}
+                      onPointerEnter={openSessionsFlyout}
+                      onPointerLeave={closeSessionsFlyout}
+                      onFocus={openSessionsFlyout}
                     >
-                      <VTooltip
-                        content={nav('sessions')}
+                      <PopoverRoot
+                        open={isSessionsFlyoutOpen}
                         positioning={{
-                          placement: 'right',
-                          offset: { mainAxis: 12 },
+                          placement: 'right-start',
+                          offset: { mainAxis: 8, crossAxis: -4 },
                         }}
-                        disabled={!isCollapsed}
-                        showArrow
-                        openDelay={200}
                       >
-                        <NextLinkButton
-                          href={manageSessionsHref}
-                          variant="ghost"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                          onClick={onClose}
-                          w="full"
-                          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                          {...getActiveProps(
-                            manageSessionsHref,
-                            isSessionsParentActive
-                          )}
-                        >
-                          <Flex
-                            align="center"
-                            gap={3}
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
                             w="full"
-                            justifyContent={{
-                              base: 'flex-start',
-                              md: isCollapsed ? 'center' : 'flex-start',
-                            }}
+                            px={0}
+                            minH="10"
+                            borderRadius="lg"
+                            aria-label={nav('sessions')}
+                            {...getActiveProps(
+                              manageSessionsHref,
+                              isSessionsMenuActive
+                            )}
                           >
-                            <ClipboardList
+                            <CalendarDays
                               size={18}
                               color={
-                                isSessionsParentActive ||
-                                pathname === ROUTES.PLAYER.HOST_FEATURE
+                                isSessionsMenuActive
                                   ? 'var(--chakra-colors-green-500)'
                                   : 'currentColor'
                               }
                             />
-                            {!isCollapsed && (
-                              <Text display={{ base: 'block', md: 'block' }}>
-                                {nav('sessions')}
-                              </Text>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          w="220px"
+                          p={2}
+                          borderRadius="lg"
+                          boxShadow="xl"
+                          zIndex={2001}
+                          bg="bg"
+                          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                          onPointerEnter={openSessionsFlyout}
+                          onPointerLeave={closeSessionsFlyout}
+                        >
+                          <Text
+                            px={2}
+                            py={1}
+                            fontSize="xs"
+                            fontWeight="semibold"
+                            color="fg.muted"
+                          >
+                            {nav('sessions')}
+                          </Text>
+                          <Stack gap={1} mt={1}>
+                            {sessionSubmenuItems.map((item) =>
+                              renderSessionSubmenuItem(item, 'flyout')
                             )}
-                          </Flex>
-                        </NextLinkButton>
-                      </VTooltip>
+                          </Stack>
+                        </PopoverContent>
+                      </PopoverRoot>
                     </Box>
 
                     <Box
                       display={{
-                        base: 'none',
+                        base: 'block',
                         md: isCollapsed ? 'none' : 'block',
                       }}
                     >
@@ -516,14 +653,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             }}
                             {...getActiveProps(
                               manageSessionsHref,
-                              isSessionsParentActive
+                              isSessionsMenuActive
                             )}
                           >
                             <Flex align="center" gap={3} w="full">
-                              <ClipboardList
+                              <CalendarDays
                                 size={18}
                                 color={
-                                  isSessionsParentActive
+                                  isSessionsMenuActive
                                     ? 'var(--chakra-colors-green-500)'
                                     : 'currentColor'
                                 }
@@ -548,65 +685,20 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
                         <Collapsible.Content>
                           <Box
-                            ml={7}
-                            pl={4}
-                            mt={-1}
-                            borderLeftWidth="1px"
-                            borderLeftColor="gray.200"
-                            _dark={{ borderLeftColor: 'whiteAlpha.200' }}
+                            mt={1.5}
+                            ms={5}
+                            ps={4}
+                            py={1}
+                            borderLeftWidth="2px"
+                            borderLeftColor="green.200"
+                            _dark={{
+                              borderLeftColor: 'green.800',
+                            }}
                           >
-                            <Stack gap={0.5} py={1}>
-                              <NextLinkButton
-                                href={manageSessionsHref}
-                                variant="ghost"
-                                justifyContent="flex-start"
-                                onClick={onClose}
-                                w="full"
-                                px={3}
-                                py={1.5}
-                                minH="32px"
-                                borderRadius="md"
-                                {...getSubmenuProps(isHostedSessionsActive)}
-                              >
-                                <Flex align="center" gap={2.5} w="full">
-                                  <ClipboardList
-                                    size={14}
-                                    color={
-                                      isHostedSessionsActive
-                                        ? 'var(--chakra-colors-green-500)'
-                                        : 'currentColor'
-                                    }
-                                  />
-                                  <Text fontSize="xs">
-                                    {nav('myHostedSessions')}
-                                  </Text>
-                                </Flex>
-                              </NextLinkButton>
-
-                              <NextLinkButton
-                                href={joinedSessionsHref}
-                                variant="ghost"
-                                justifyContent="flex-start"
-                                onClick={onClose}
-                                w="full"
-                                px={3}
-                                py={1.5}
-                                minH="32px"
-                                borderRadius="md"
-                                {...getSubmenuProps(isJoinedSessionsActive)}
-                              >
-                                <Flex align="center" gap={2.5} w="full">
-                                  <Ticket
-                                    size={14}
-                                    color={
-                                      isJoinedSessionsActive
-                                        ? 'var(--chakra-colors-green-500)'
-                                        : 'currentColor'
-                                    }
-                                  />
-                                  <Text fontSize="xs">{nav('joined')}</Text>
-                                </Flex>
-                              </NextLinkButton>
+                            <Stack gap={1}>
+                              {sessionSubmenuItems.map((item) =>
+                                renderSessionSubmenuItem(item)
+                              )}
                             </Stack>
                           </Box>
                         </Collapsible.Content>

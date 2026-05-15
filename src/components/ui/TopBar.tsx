@@ -220,10 +220,14 @@ export default function TopBar({
                       color="fg"
                       _hover={{ bg: 'bg.muted' }}
                       borderRadius="full"
-                      size="md"
                       onClick={onBack}
+                      css={{
+                        width: '48px !important',
+                        height: '48px !important',
+                        minWidth: '48px !important',
+                      }}
                     >
-                      <ChevronLeft size={24} strokeWidth={2.5} />
+                      <ChevronLeft size={28} strokeWidth={2.5} />
                     </IconButton>
                   ) : (
                     <Link href={backHref}>
@@ -233,9 +237,13 @@ export default function TopBar({
                         color="fg"
                         _hover={{ bg: 'bg.muted' }}
                         borderRadius="full"
-                        size="md"
+                        css={{
+                          width: '48px !important',
+                          height: '48px !important',
+                          minWidth: '48px !important',
+                        }}
                       >
-                        <ChevronLeft size={24} strokeWidth={2.5} />
+                        <ChevronLeft size={28} strokeWidth={2.5} />
                       </IconButton>
                     </Link>
                   )}
