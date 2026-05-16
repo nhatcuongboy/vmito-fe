@@ -197,8 +197,13 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
     );
   }
 
-  // Check ownership: if not owner, render view mode
-  if (session.hostId !== user?.id) {
+  const isCurrentUserPlayer = session.players?.some(
+    (player) => player.userId === user?.id
+  );
+
+  // Player route should stay in player view whenever the current user has a
+  // player record, even if they also host this session.
+  if (isCurrentUserPlayer || session.hostId !== user?.id) {
     return (
       <ProtectedRouteGuard
         requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}

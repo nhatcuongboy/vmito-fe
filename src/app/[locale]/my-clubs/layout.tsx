@@ -71,6 +71,7 @@ export default function MyClubsLayout({
               display="flex"
               alignItems="center"
               gap={2}
+              cursor="pointer"
             >
               <Icon size={15} />
               {label}

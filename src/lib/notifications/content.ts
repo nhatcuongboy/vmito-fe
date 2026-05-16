@@ -94,7 +94,9 @@ export const getNotificationTranslationParams = (
     notification.data?.court;
 
   return {
-    ...(typeof sessionName === 'string' ? { sessionName } : {}),
+    ...(typeof sessionName === 'string'
+      ? { sessionName }
+      : { sessionName: '' }),
     ...(typeof clubName === 'string' ? { clubName } : {}),
     ...(typeof rejectionReason === 'string' ? { rejectionReason } : {}),
     ...(typeof courtName === 'string' ? { courtName, court: courtName } : {}),
@@ -108,6 +110,7 @@ export const getNotificationDisplayText = (
   const action = notification.data?.action as string | undefined;
   const keys = action ? NOTIFICATION_ACTION_TO_KEYS[action] : undefined;
 
+  // If no translation keys found, use backend-provided title/message
   if (!keys) {
     return {
       displayTitle: notification.title,
@@ -118,11 +121,23 @@ export const getNotificationDisplayText = (
   const translationParams = getNotificationTranslationParams(notification);
 
   try {
+    const displayTitle = translate(keys.titleKey, translationParams);
+    const displayMessage = translate(keys.messageKey, translationParams);
+
+    // If translation returns the key itself (failed), fallback to backend message
+    if (displayTitle === keys.titleKey || displayMessage === keys.messageKey) {
+      return {
+        displayTitle: notification.title,
+        displayMessage: notification.message,
+      };
+    }
+
     return {
-      displayTitle: translate(keys.titleKey, translationParams),
-      displayMessage: translate(keys.messageKey, translationParams),
+      displayTitle,
+      displayMessage,
     };
   } catch {
+    // On any error, fallback to backend-provided title/message
     return {
       displayTitle: notification.title,
       displayMessage: notification.message,

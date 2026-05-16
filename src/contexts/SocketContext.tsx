@@ -261,6 +261,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Show toast notification
       const action = (data.data as Record<string, unknown> | null)?.action;
+      if (action === 'club_creation_approved') {
+        return;
+      }
+
       if (action === 'player_added') {
         toaster.success({
           title: data.title,

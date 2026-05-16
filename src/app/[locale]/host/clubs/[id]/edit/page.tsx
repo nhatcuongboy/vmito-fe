@@ -439,7 +439,7 @@ const EditClubPage = () => {
       const restData = { ...data };
       delete restData.allLevelsSelected;
 
-      await ClubsService.updateClub(groupId, {
+      const updatedClub = await ClubsService.updateClub(groupId, {
         ...restData,
         image,
         imagePublicId,
@@ -450,7 +450,7 @@ const EditClubPage = () => {
         requiredLevels: data.requiredLevels,
       });
       toaster.success({ title: t('clubUpdatedSuccess') });
-      router.push(ROUTES.CLUBS.BROWSE);
+      router.push(ROUTES.CLUBS.DETAIL(updatedClub.slug || updatedClub.id));
     } catch (error) {
       console.error('Failed to update club:', error);
       toaster.error({ title: t('failedToUpdateClub') });
@@ -546,6 +546,7 @@ const EditClubPage = () => {
               value={watch('description')}
               onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
+              minHeight="120px"
             />
           </Field>
 
@@ -564,16 +565,16 @@ const EditClubPage = () => {
 
           {/* Multi-Venue + Schedule */}
           <Field label="Sân hoạt động">
-            <VStack spacing={4} align="stretch">
+            <VStack spacing={3} align="stretch">
               {venueGroups.map((group, groupIdx) => (
                 <Box
                   key={groupIdx}
                   borderWidth="1px"
                   borderRadius="md"
                   borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-                  p={4}
+                  p={3}
                 >
-                  <Flex gap={2} align="center" mb={3}>
+                  <Flex gap={2} align="center" mb={2}>
                     <Box flex="1" minW={0} overflow="hidden">
                       <SearchableSelect
                         options={venueOptions}
@@ -597,10 +598,10 @@ const EditClubPage = () => {
                     </IconButton>
                   </Flex>
 
-                  <VStack spacing={2} align="stretch">
+                  <VStack spacing={1.5} align="stretch">
                     {group.schedules.map((sched, schedIdx) => (
                       <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '100px', md: '120px' }}>
+                        <Box flex="1" minW={{ base: '90px', md: '110px' }}>
                           <LegacySelect
                             size="sm"
                             value={String(sched.dayOfWeek)}
@@ -634,7 +635,7 @@ const EditClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                         />
                         <Text fontSize="xs" color="gray.500">
@@ -652,7 +653,7 @@ const EditClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                         />
                         <IconButton
@@ -667,7 +668,7 @@ const EditClubPage = () => {
                       </Flex>
                     ))}
                     <Button
-                      size="sm"
+                      size="xs"
                       variant="ghost"
                       onClick={() => addSchedule(groupIdx)}
                       w="fit-content"

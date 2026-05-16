@@ -15,8 +15,8 @@ export default function AppSplashScreen({
         <Image
           src="/icons/logo-show.png"
           alt="Vmito"
-          width={939}
-          height={405}
+          width={704}
+          height={304}
           priority
           unoptimized
           className="app-splash__logo"

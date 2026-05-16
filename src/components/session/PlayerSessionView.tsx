@@ -11,6 +11,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
 import PageWrapper from '@/components/layout/PageWrapper';
 import { usePlayerSession } from '@/hooks/usePlayerSession';
+import { useTabNavigation } from '@/hooks/useTabNavigation';
 import {
   type Match,
   SessionStatus,
@@ -109,7 +110,7 @@ export default function PlayerSessionView({
     userId,
   });
 
-  const [activeTab, setActiveTab] = useState<number>(0); // 0: Overview, 1: Status, 2: Courts, 3: Results, 4: Payment
+  const { activeTab, handleTabChange } = useTabNavigation(); // 0: Overview, 1: Status, 2: Courts, 3: Results, 4: Payment
 
   // Scroll to top when tab changes
   useEffect(() => {
@@ -662,7 +663,7 @@ export default function PlayerSessionView({
           {/* Bottom Navigation Bar */}
           <PlayerSessionBottomNav
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
           />
         </Container>
       </PageWrapper>

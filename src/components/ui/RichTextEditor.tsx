@@ -33,12 +33,14 @@ interface RichTextEditorProps {
   value?: string;
   onChange?: (html: string) => void;
   placeholder?: string;
+  minHeight?: string;
 }
 
 export const RichTextEditor = ({
   value = '',
   onChange,
   placeholder = 'Write something...',
+  minHeight = '200px',
 }: RichTextEditorProps) => {
   const editor = useEditor({
     immediatelyRender: false,
@@ -66,7 +68,7 @@ export const RichTextEditor = ({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4',
+        class: 'prose prose-sm max-w-none focus:outline-none p-4',
       },
     },
   });
@@ -221,7 +223,7 @@ export const RichTextEditor = ({
         bg={{ base: 'white', _dark: 'gray.900' }}
         css={{
           '& .ProseMirror': {
-            minHeight: '200px',
+            minHeight: minHeight,
             padding: '1rem',
             outline: 'none',
           },

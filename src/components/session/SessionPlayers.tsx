@@ -97,6 +97,32 @@ const StatsTable = ({
     return rates.length > 0 ? Math.max(...rates) : 0;
   }, [displayedData]);
 
+  // Find MVP: player with highest win rate, with tiebreakers
+  const mvpPlayerId = useMemo(() => {
+    const playersWithMatches = displayedData.filter(
+      (p) => p.totalMatches > 0 && p.winRate > 0
+    );
+    if (playersWithMatches.length === 0) return null;
+
+    // Sort by: 1) winRate desc, 2) wins desc, 3) totalMatches desc, 4) name asc
+    const sorted = [...playersWithMatches].sort((a, b) => {
+      // 1. Compare win rate
+      if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+
+      // 2. If same win rate, compare number of wins
+      if (b.wins !== a.wins) return b.wins - a.wins;
+
+      // 3. If same wins, compare total matches (more matches = more consistent)
+      if (b.totalMatches !== a.totalMatches)
+        return b.totalMatches - a.totalMatches;
+
+      // 4. If still tied, sort by name alphabetically
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    return sorted[0]?.playerId || null;
+  }, [displayedData]);
+
   const sortedData = useMemo(() => {
     if (!sortConfig) return displayedData;
 
@@ -261,21 +287,19 @@ const StatsTable = ({
                     <Text fontWeight="semibold" fontSize="sm" color="fg">
                       {p.name || t('unnamed')}
                     </Text>
-                    {p.totalMatches > 0 &&
-                      p.winRate > 0 &&
-                      p.winRate === maxWinRate && (
-                        <Badge
-                          colorPalette="yellow"
-                          variant="solid"
-                          size="xs"
-                          fontSize="9px"
-                          px={1}
-                          borderRadius="sm"
-                          whiteSpace="nowrap"
-                        >
-                          MVP
-                        </Badge>
-                      )}
+                    {p.playerId === mvpPlayerId && (
+                      <Badge
+                        colorPalette="yellow"
+                        variant="solid"
+                        size="xs"
+                        fontSize="9px"
+                        px={1}
+                        borderRadius="sm"
+                        whiteSpace="nowrap"
+                      >
+                        MVP
+                      </Badge>
+                    )}
                   </HStack>
                 </Td>
                 <Td textAlign="center" {...tdProps}>

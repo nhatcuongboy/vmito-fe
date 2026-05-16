@@ -47,7 +47,13 @@ const CustomCheckbox = ({
   const iconSize = size === 'sm' ? 11 : 16;
 
   return (
-    <Box as="label" cursor="pointer" display="inline-flex" alignItems="center">
+    <Box
+      as="label"
+      cursor="pointer"
+      display="inline-flex"
+      alignItems="center"
+      onClick={(e) => e.stopPropagation()}
+    >
       <input
         type="checkbox"
         checked={isChecked}

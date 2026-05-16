@@ -19,11 +19,12 @@ import {
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
+import AppHostDetail from '@/components/session/AppHostDetail';
+import { VModal } from '@/components/ui/VModal';
 import {
   MapPin,
   Users,
   Calendar,
-  Crown,
   MessageSquare,
   Settings,
   Info,
@@ -41,7 +42,7 @@ import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
-import { ROUTES } from '@/constants';
+import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import SessionMap from '@/components/session/SessionMap';
@@ -50,12 +51,24 @@ interface ClubDetailClientProps {
   initialClub: IClub | null;
 }
 
+const LEVEL_NAME_TO_NUMBER: Record<string, number> = {
+  BEGINNER: 1,
+  ADVANCED_BEGINNER: 2,
+  LOW_INTERMEDIATE: 3,
+  INTERMEDIATE: 4,
+  HIGH_INTERMEDIATE: 5,
+  ADVANCED: 6,
+  SEMI_PRO: 7,
+  PRO: 8,
+};
+
 const extractLevelNumber = (value: unknown): number | null => {
   if (typeof value === 'number') return Number.isFinite(value) ? value : null;
 
   if (typeof value === 'string') {
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
+    if (Number.isFinite(parsed)) return parsed;
+    return LEVEL_NAME_TO_NUMBER[value.trim().toUpperCase()] ?? null;
   }
 
   if (!value || typeof value !== 'object') return null;
@@ -64,6 +77,8 @@ const extractLevelNumber = (value: unknown): number | null => {
   return (
     extractLevelNumber(record.level) ??
     extractLevelNumber(record.value) ??
+    extractLevelNumber(record.name) ??
+    extractLevelNumber(record.code) ??
     extractLevelNumber(record.levelNumber) ??
     extractLevelNumber(record.levelValue)
   );
@@ -76,19 +91,45 @@ const getClubRequiredLevels = (club: IClub | null): number[] => {
     levels?: unknown[];
     clubLevels?: unknown[];
     requiredLevelIds?: unknown[];
+    requiredSkillLevels?: unknown[];
+    skillLevels?: unknown[];
+    playerLevels?: unknown[];
   };
   const rawLevels =
     clubRecord.requiredLevels ??
     clubRecord.requiredLevelIds ??
+    clubRecord.requiredSkillLevels ??
+    clubRecord.skillLevels ??
+    clubRecord.playerLevels ??
     clubRecord.levels ??
     clubRecord.clubLevels ??
     [];
+  const rawLevelValues = Array.isArray(rawLevels) ? rawLevels : [rawLevels];
 
   return Array.from(
     new Set(
-      rawLevels.map(extractLevelNumber).filter((l): l is number => l !== null)
+      rawLevelValues
+        .map(extractLevelNumber)
+        .filter((l): l is number => l !== null)
     )
   ).sort((a, b) => a - b);
+};
+
+const getVenueNameFromScheduleNote = (note?: string): string | null => {
+  if (!note) return null;
+  return note.split('|')[0]?.trim() || null;
+};
+
+const getVenueAddressLineFromScheduleNote = (note?: string): string | null => {
+  if (!note) return null;
+  const [name, ...addressParts] = note.split('|').map((part) => part.trim());
+  const address = addressParts.join(' | ');
+  return address ? `${name} | ${address}` : name || null;
+};
+
+const getVenueAddressLine = (venue: IClub['defaultVenue']): string | null => {
+  if (!venue) return null;
+  return [venue.name, venue.address].filter(Boolean).join(' | ') || null;
 };
 
 export default function ClubDetailClient({
@@ -99,13 +140,14 @@ export default function ClubDetailClient({
   const params = useParams();
   const clubId = params.id as string;
   const { user: currentUser } = useAuthStore();
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
   const [activeTab, setActiveTab] = useState('about');
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
 
   const loadClubDetails = useCallback(async () => {
     try {
@@ -139,7 +181,7 @@ export default function ClubDetailClient({
   const getLevelRange = () => {
     const requiredLevels = getClubRequiredLevels(club);
     if (requiredLevels.length > 0) {
-      return requiredLevels.map((l) => getLevelLabel(l)).join(', ');
+      return requiredLevels.map((l) => getLevelShortLabel(l)).join(', ');
     }
 
     // Fallback: Calculate from members
@@ -150,7 +192,7 @@ export default function ClubDetailClient({
 
     if (levels.length === 0) return null;
     const uniqueLevels = Array.from(new Set(levels)).sort((a, b) => a - b);
-    return uniqueLevels.map((l) => getLevelLabel(l)).join(', ');
+    return uniqueLevels.map((l) => getLevelShortLabel(l)).join(', ');
   };
 
   const isUserMember = club?.members?.some(
@@ -169,12 +211,22 @@ export default function ClubDetailClient({
           m.role === EMemberRole.ADMIN
       ));
 
+  const linkedHostMember = club?.members?.find((member) => {
+    if (member.role !== EMemberRole.ADMIN) return false;
+
+    if (club.hostName) {
+      return member.user.name === club.hostName;
+    }
+
+    return (
+      String(member.user.id) === String(club.hostId || club.host?.id) ||
+      member.user.id === club.host?.id
+    );
+  });
+  const linkedHostUser = linkedHostMember?.user;
   const hostRealName =
-    club?.hostName ||
-    club?.host?.name ||
-    club?.members?.find(
-      (m) => String(m.user.id) === String(club.hostId || club.host?.id)
-    )?.user?.name;
+    club?.hostName || linkedHostUser?.name || club?.host?.name;
+  const canShowHostDetail = Boolean(linkedHostUser?.id);
 
   const handleJoinClub = async () => {
     if (!currentUser) {
@@ -230,6 +282,8 @@ export default function ClubDetailClient({
     );
   }
 
+  const clubDisplayImage = club.image || DEFAULT_COVER_PHOTO;
+
   return (
     <PageLayout
       title={
@@ -245,19 +299,13 @@ export default function ClubDetailClient({
             alignItems="center"
             justifyContent="center"
           >
-            {club.image ? (
-              <Image
-                src={club.image}
-                alt={club.name}
-                objectFit="cover"
-                w="full"
-                h="full"
-              />
-            ) : (
-              <Text fontSize="xs" fontWeight="bold" color="gray.500">
-                {club.name.charAt(0).toUpperCase()}
-              </Text>
-            )}
+            <Image
+              src={clubDisplayImage}
+              alt={club.name}
+              objectFit="cover"
+              w="full"
+              h="full"
+            />
           </Box>
           <Text truncate fontWeight="bold">
             {club.name}
@@ -275,23 +323,13 @@ export default function ClubDetailClient({
           overflow="hidden"
           mb={4}
         >
-          {club.image ? (
-            <Image
-              src={club.image}
-              alt={club.name}
-              w="full"
-              h="full"
-              objectFit="cover"
-            />
-          ) : (
-            <Box
-              h="full"
-              bgGradient="to-r"
-              gradientFrom={club.color ? `${club.color}.400` : 'green.400'}
-              gradientVia="teal.400"
-              gradientTo="blue.400"
-            />
-          )}
+          <Image
+            src={clubDisplayImage}
+            alt={club.name}
+            w="full"
+            h="full"
+            objectFit="cover"
+          />
           {/* Gradient Overlay */}
           <Box
             position="absolute"
@@ -334,19 +372,13 @@ export default function ClubDetailClient({
               borderWidth="1px"
               borderColor="gray.100"
             >
-              {club.image ? (
-                <Image
-                  src={club.image}
-                  alt={club.name}
-                  objectFit="cover"
-                  w="full"
-                  h="full"
-                />
-              ) : (
-                <Text fontSize="xl" fontWeight="bold" color="gray.400">
-                  {club.name.charAt(0).toUpperCase()}
-                </Text>
-              )}
+              <Image
+                src={clubDisplayImage}
+                alt={club.name}
+                objectFit="cover"
+                w="full"
+                h="full"
+              />
             </Box>
             <Box flex="1" minW="0">
               <Heading
@@ -357,6 +389,24 @@ export default function ClubDetailClient({
               >
                 {club.name}
               </Heading>
+              {(() => {
+                const firstVenue =
+                  club.scheduleVenues?.[0] || club.defaultVenue;
+                const locationParts = [
+                  firstVenue?.district,
+                  firstVenue?.city,
+                ].filter(Boolean);
+                return locationParts.length > 0 ? (
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                    mt={1}
+                  >
+                    {locationParts.join(', ')}
+                  </Text>
+                ) : null;
+              })()}
             </Box>
           </Flex>
         </Box>
@@ -959,12 +1009,14 @@ export default function ClubDetailClient({
 
                     {/* Venue(s) */}
                     {(() => {
-                      // Collect unique venue names from schedules
+                      // Collect unique venue names from schedules without detailed addresses.
                       const venueNames = club.schedules
                         ? [
                             ...new Set(
                               club.schedules
-                                .map((s) => s.notes)
+                                .map((s) =>
+                                  getVenueNameFromScheduleNote(s.notes)
+                                )
                                 .filter(Boolean) as string[]
                             ),
                           ]
@@ -1042,25 +1094,48 @@ export default function ClubDetailClient({
                     Trưởng nhóm
                   </Heading>
                   <HStack gap={4} align="center">
-                    <Avatar.Root size="lg" flexShrink={0}>
-                      <Avatar.Image src={club.host.image} objectFit="cover" />
-                      <Avatar.Fallback>
-                        {(hostRealName || club.host.name || '?')
-                          .charAt(0)
-                          .toUpperCase()}
-                      </Avatar.Fallback>
-                    </Avatar.Root>
+                    <Box
+                      as={canShowHostDetail ? 'button' : 'div'}
+                      flexShrink={0}
+                      cursor={canShowHostDetail ? 'pointer' : 'default'}
+                      onClick={() => {
+                        if (canShowHostDetail) setIsHostDetailModalOpen(true);
+                      }}
+                      aria-label="Xem thông tin host"
+                    >
+                      <Avatar.Root size="lg">
+                        {linkedHostUser?.image && (
+                          <Avatar.Image
+                            src={linkedHostUser.image}
+                            objectFit="cover"
+                          />
+                        )}
+                        <Avatar.Fallback>
+                          {linkedHostUser
+                            ? (hostRealName || linkedHostUser.name || '?')
+                                .charAt(0)
+                                .toUpperCase()
+                            : null}
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+                    </Box>
                     <Box flex="1" minW="0">
                       <HStack gap={1.5}>
-                        <Crown
-                          size={16}
-                          color="var(--chakra-colors-orange-500)"
-                        />
                         <Text
                           fontWeight="bold"
                           fontSize="md"
                           lineClamp={1}
                           color="orange.600"
+                          cursor={canShowHostDetail ? 'pointer' : 'default'}
+                          _hover={
+                            canShowHostDetail
+                              ? { textDecoration: 'underline' }
+                              : undefined
+                          }
+                          onClick={() => {
+                            if (canShowHostDetail)
+                              setIsHostDetailModalOpen(true);
+                          }}
                         >
                           {hostRealName || t('clubs.admin')}
                         </Text>
@@ -1134,22 +1209,56 @@ export default function ClubDetailClient({
                         })
                         .join(' · ');
 
+                      const scheduleAddressLines = club.schedules
+                        ? [
+                            ...new Set(
+                              club.schedules
+                                .map((s) =>
+                                  getVenueAddressLineFromScheduleNote(s.notes)
+                                )
+                                .filter(Boolean) as string[]
+                            ),
+                          ]
+                        : [];
+                      const venueAddressLines = venues
+                        .map(getVenueAddressLine)
+                        .filter(Boolean) as string[];
+                      const detailedLocationLines =
+                        venueAddressLines.length > 0
+                          ? venueAddressLines
+                          : scheduleAddressLines;
+
                       // Get first venue for map display
                       const firstVenue = venues[0];
 
                       return (
                         <>
                           {/* Location text */}
-                          <Text
-                            fontSize="sm"
-                            color="gray.600"
-                            _dark={{ color: 'gray.400' }}
-                            mb={3}
-                          >
-                            {locationText ||
-                              club.location ||
-                              t('clubs.notUpdated')}
-                          </Text>
+                          {detailedLocationLines.length > 0 ? (
+                            <VStack gap={1} align="stretch" mb={3}>
+                              {detailedLocationLines.map((line) => (
+                                <Text
+                                  key={line}
+                                  fontSize="sm"
+                                  color="gray.600"
+                                  _dark={{ color: 'gray.400' }}
+                                >
+                                  {line}
+                                </Text>
+                              ))}
+                            </VStack>
+                          ) : (
+                            <Text
+                              fontSize="sm"
+                              color="gray.600"
+                              _dark={{ color: 'gray.400' }}
+                              mb={3}
+                            >
+                              {locationText ||
+                                club.location ||
+                                t('clubs.notUpdated')}
+                            </Text>
+                          )}
 
                           {/* Map display */}
                           {firstVenue?.lat && firstVenue?.lng && (
@@ -1197,7 +1306,7 @@ export default function ClubDetailClient({
                             </a>
                           ) : (
                             <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText || club.location || '')}`}
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(detailedLocationLines[0] || locationText || club.location || '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{
@@ -1330,6 +1439,25 @@ export default function ClubDetailClient({
           </Grid>
         </Tabs.Root>
       </Container>
+
+      <VModal
+        isOpen={isHostDetailModalOpen}
+        onClose={() => setIsHostDetailModalOpen(false)}
+        title={t('session.hostInfo') || 'Thông tin Host'}
+        size="md"
+        hideSecondaryAction={true}
+        maxBodyHeight={{ base: '60vh', md: '75vh' }}
+      >
+        {linkedHostUser?.id && (
+          <AppHostDetail
+            userId={linkedHostUser.id}
+            name={hostRealName || linkedHostUser.name}
+            image={linkedHostUser.image || undefined}
+            hideHeader={true}
+            onClose={() => setIsHostDetailModalOpen(false)}
+          />
+        )}
+      </VModal>
     </PageLayout>
   );
 }
