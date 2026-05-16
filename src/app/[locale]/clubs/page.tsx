@@ -7,7 +7,7 @@ import {
   Heading,
   HStack,
   SimpleGrid,
-  Spinner,
+  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -41,6 +41,7 @@ import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
+import ClubCardSkeleton from '@/components/clubs/ClubCardSkeleton';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import AppEmptyState from '@/components/ui/AppEmptyState';
@@ -54,6 +55,8 @@ const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
   { ssr: false }
 );
+
+const CLUB_SKELETON_COUNT = 6;
 
 interface IClubSortOption {
   value: string;
@@ -398,6 +401,7 @@ function BrowseClubsContent() {
     CLUB_SORT_OPTIONS[0];
   const sortButtonLabel = sortByDistance ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = sortByDistance ? MapPin : activeSortOption.icon;
+  const skeletonVariant = viewMode === 'list' ? 'list' : 'grid';
 
   return (
     <Box>
@@ -935,9 +939,23 @@ function BrowseClubsContent() {
 
       {/* Content */}
       {isLoading && clubs.length === 0 ? (
-        <Flex justify="center" align="center" minH="200px">
-          <Spinner size="xl" colorPalette="green" />
-        </Flex>
+        viewMode === 'map' ? (
+          <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+            <Skeleton
+              height={{ base: '360px', md: '520px' }}
+              borderRadius="2xl"
+            />
+          </Box>
+        ) : (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+            {Array.from({ length: CLUB_SKELETON_COUNT }).map((_, index) => (
+              <ClubCardSkeleton
+                key={`club-skeleton-${index}`}
+                variant={skeletonVariant}
+              />
+            ))}
+          </SimpleGrid>
+        )
       ) : clubs.length === 0 && viewMode !== 'map' ? (
         <AppEmptyState
           minH={{ base: '300px', md: '340px' }}
@@ -963,9 +981,12 @@ function BrowseClubsContent() {
         />
       ) : viewMode === 'map' ? (
         isLoadingFullDetails ? (
-          <Flex justify="center" align="center" minH="400px">
-            <Spinner size="xl" colorPalette="green" />
-          </Flex>
+          <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+            <Skeleton
+              height={{ base: '360px', md: '520px' }}
+              borderRadius="2xl"
+            />
+          </Box>
         ) : (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
             <ClubMap clubs={fullClubs} userLocation={userLocation} />
@@ -1017,9 +1038,11 @@ export default function BrowseClubsPage() {
     <PageLayout title={t('clubs.browseClubs')}>
       <Suspense
         fallback={
-          <Flex justify="center" align="center" minH="200px">
-            <Spinner size="xl" colorPalette="green" />
-          </Flex>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+            {Array.from({ length: CLUB_SKELETON_COUNT }).map((_, index) => (
+              <ClubCardSkeleton key={`club-suspense-${index}`} />
+            ))}
+          </SimpleGrid>
         }
       >
         <BrowseClubsContent />

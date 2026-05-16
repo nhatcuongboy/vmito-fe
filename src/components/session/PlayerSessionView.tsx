@@ -555,6 +555,7 @@ export default function PlayerSessionView({
                   courtPlayers={courtPlayers}
                   formatMatchElapsedTime={formatMatchElapsedTime}
                   sessionId={session.id}
+                  sessionStatus={session.status}
                 />
               )}
 

@@ -2659,7 +2659,7 @@
       },
       "status": {
         "title": "Kèo",
-        "playerInfo": "Người chơi #{number} - {name}",
+        "playerInfo": "{name}",
         "yourStatus": "Trạng thái của bạn",
         "statusDescription": "Trạng thái hiện tại trong kèo cầu lông",
         "time": {
@@ -2673,7 +2673,7 @@
         },
         "playing": {
           "title": "Đang chơi",
-          "description": "Sân {courtNumber} - Chúc bạn chơi vui vẻ!"
+          "description": "Chúc bạn chơi vui vẻ!"
         },
         "finished": {
           "title": "Kèo kết thúc",

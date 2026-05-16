@@ -2668,7 +2668,7 @@
         },
         "playing": {
           "title": "Currently Playing",
-          "description": "Court {courtNumber} - Enjoy your match!"
+          "description": "Enjoy your match!"
         },
         "finished": {
           "title": "Session Finished",

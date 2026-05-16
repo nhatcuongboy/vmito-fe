@@ -448,7 +448,7 @@ function StatusPageContent() {
                           _hover={{ boxShadow: 'md' }}
                         >
                           <Flex justify="space-between" align="center" mb={3}>
-                            <Heading size="sm" color="green.600">
+                            <Heading size="md" color="green.600">
                               {t('court.title', {
                                 number: currentCourt.courtNumber,
                               })}

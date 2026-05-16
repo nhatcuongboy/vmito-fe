@@ -2620,7 +2620,7 @@
         },
         "playing": {
           "title": "正在比赛",
-          "description": "场地 {courtNumber} - 享受您的比赛！"
+          "description": "享受您的比赛！"
         },
         "finished": {
           "title": "场次已结束",
