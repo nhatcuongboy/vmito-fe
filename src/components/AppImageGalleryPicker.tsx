@@ -209,7 +209,7 @@ const AppImageGalleryPicker = ({
         <ModalContent maxH="80vh">
           <ModalHeader>{t('selectFromGallery')}</ModalHeader>
           <ModalCloseButton onClose={onClose} />
-          <ModalBody overflow="auto" pb={4}>
+          <ModalBody pb={4}>
             {/* Toolbar: status text + upload button */}
             <Flex justify="space-between" align="center" mb={3}>
               <Text fontSize="sm" color="gray.500">
@@ -243,185 +243,215 @@ const AppImageGalleryPicker = ({
               </Box>
             </Flex>
 
-            {/* Gallery grid */}
-            {galleryImages.length === 0 && !isLoading ? (
-              <Flex direction="column" align="center" justify="center" py={10}>
-                <ImageIcon size={48} color="gray" />
-                <Text mt={2} color="gray.500">
-                  {t('noImagesYet')}
-                </Text>
-              </Flex>
-            ) : (
-              <SimpleGrid columns={{ base: 2, md: 3 }} gap={3}>
-                {galleryImages.map((img) => {
-                  const selectedIndex = selected.findIndex(
-                    (s) => s.publicId === img.publicId
-                  );
-                  const imgSelected = selectedIndex !== -1;
-                  const isDisabled =
-                    !imgSelected && selected.length >= maxSelect;
-                  return (
-                    <Box
-                      key={img.id}
-                      position="relative"
-                      cursor={isDisabled ? 'not-allowed' : 'pointer'}
-                      borderRadius="md"
-                      overflow="hidden"
-                      borderWidth={imgSelected ? 3 : 1}
-                      borderColor={imgSelected ? 'green.500' : 'gray.200'}
-                      boxShadow={
-                        imgSelected
-                          ? '0 0 0 1px green.500, 0 0 10px rgba(72, 187, 120, 0.5)'
-                          : 'none'
-                      }
-                      transform={imgSelected ? 'scale(1.02)' : 'scale(1)'}
-                      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                      role="group"
-                      zIndex={imgSelected ? 1 : 0}
-                      _hover={
-                        isDisabled
-                          ? {}
-                          : {
-                              borderColor: imgSelected
-                                ? 'green.500'
-                                : 'green.300',
-                              transform: 'scale(1.02)',
-                            }
-                      }
-                      onClick={() => !isDisabled && handleToggleSelect(img)}
-                    >
+            {/* Gallery grid with scroll */}
+            <Box
+              overflowY="auto"
+              overflowX="hidden"
+              maxH="50vh"
+              css={{
+                '&::-webkit-scrollbar': { width: '6px' },
+                '&::-webkit-scrollbar-track': { background: 'transparent' },
+                '&::-webkit-scrollbar-thumb': {
+                  background: 'var(--chakra-colors-gray-400)',
+                  borderRadius: '3px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: 'var(--chakra-colors-gray-500)',
+                },
+              }}
+            >
+              {galleryImages.length === 0 && !isLoading ? (
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  py={10}
+                >
+                  <ImageIcon size={48} color="gray" />
+                  <Text mt={2} color="gray.500">
+                    {t('noImagesYet')}
+                  </Text>
+                </Flex>
+              ) : (
+                <SimpleGrid columns={{ base: 2, md: 3 }} gap={3}>
+                  {galleryImages.map((img) => {
+                    const selectedIndex = selected.findIndex(
+                      (s) => s.publicId === img.publicId
+                    );
+                    const imgSelected = selectedIndex !== -1;
+                    const isDisabled =
+                      !imgSelected && selected.length >= maxSelect;
+                    return (
                       <Box
+                        key={img.id}
                         position="relative"
-                        w="100%"
-                        aspectRatio="4/3"
+                        cursor={isDisabled ? 'not-allowed' : 'pointer'}
+                        borderRadius="md"
                         overflow="hidden"
-                        opacity={isDisabled ? 0.5 : 1}
+                        borderWidth={imgSelected ? 3 : 1}
+                        borderColor={imgSelected ? 'green.500' : 'gray.200'}
+                        boxShadow={
+                          imgSelected
+                            ? '0 0 0 1px green.500, 0 0 10px rgba(72, 187, 120, 0.5)'
+                            : 'none'
+                        }
+                        transform={imgSelected ? 'scale(1.02)' : 'scale(1)'}
+                        transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                        role="group"
+                        zIndex={imgSelected ? 1 : 0}
+                        _hover={
+                          isDisabled
+                            ? {}
+                            : {
+                                borderColor: imgSelected
+                                  ? 'green.500'
+                                  : 'green.300',
+                                transform: 'scale(1.02)',
+                              }
+                        }
+                        onClick={() => !isDisabled && handleToggleSelect(img)}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={img.url}
-                          alt={img.originalName || 'Gallery image'}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            display: 'block',
-                          }}
-                        />
+                        <Box
+                          position="relative"
+                          w="100%"
+                          aspectRatio="4/3"
+                          overflow="hidden"
+                          opacity={isDisabled ? 0.5 : 1}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={img.url}
+                            alt={img.originalName || 'Gallery image'}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              display: 'block',
+                            }}
+                          />
+                        </Box>
+
+                        {/* Selection Number Overlay */}
+                        {imgSelected && (
+                          <Flex
+                            position="absolute"
+                            top={2}
+                            left={2}
+                            bg="blue.500"
+                            color="white"
+                            w={5}
+                            h={5}
+                            borderRadius="full"
+                            align="center"
+                            justify="center"
+                            fontSize="xs"
+                            fontWeight="bold"
+                            boxShadow="md"
+                            pointerEvents="none"
+                          >
+                            {selectedIndex + 1}
+                          </Flex>
+                        )}
+
+                        {/* Category Badge đã bị xoá theo yêu cầu UX */}
+
+                        {/* Selected checkmark circle — top right */}
+                        {imgSelected && (
+                          <Flex
+                            position="absolute"
+                            top={2}
+                            right={2}
+                            bg="green.500"
+                            borderRadius="full"
+                            p={1}
+                            boxShadow="md"
+                            pointerEvents="none"
+                          >
+                            <Check size={12} color="white" />
+                          </Flex>
+                        )}
+
+                        {/* Cover Photo Label */}
+                        {selectedIndex === 0 && (
+                          <Box
+                            position="absolute"
+                            bottom={1}
+                            right={1}
+                            bg="green.500"
+                            color="white"
+                            fontSize="2xs"
+                            px={1.5}
+                            py={0.5}
+                            borderRadius="sm"
+                            fontWeight="bold"
+                            boxShadow="md"
+                            pointerEvents="none"
+                            zIndex={1}
+                          >
+                            {t('coverPhoto')}
+                          </Box>
+                        )}
+
+                        {/* View Action Buttons (Always visible at the bottom center) */}
+                        <Flex
+                          position="absolute"
+                          bottom={2}
+                          left="50%"
+                          transform="translateX(-50%)"
+                          gap={2}
+                          zIndex={2}
+                        >
+                          <Box
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewUrl(img.url);
+                            }}
+                            cursor="pointer"
+                            bg="white"
+                            color="gray.800"
+                            borderRadius="full"
+                            p={2}
+                            _hover={{ bg: 'gray.100', transform: 'scale(1.1)' }}
+                            transition="all 0.2s"
+                            boxShadow="lg"
+                            title={tc('view')}
+                          >
+                            <Expand size={16} />
+                          </Box>
+                          <Box
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(t('deleteImageConfirm'))) {
+                                handleDeleteImage(img);
+                              }
+                            }}
+                            cursor="pointer"
+                            bg="white"
+                            color="red.500"
+                            borderRadius="full"
+                            p={2}
+                            _hover={{ bg: 'red.50', transform: 'scale(1.1)' }}
+                            transition="all 0.2s"
+                            boxShadow="lg"
+                            title={tc('delete')}
+                          >
+                            <Trash2 size={16} />
+                          </Box>
+                        </Flex>
                       </Box>
+                    );
+                  })}
+                </SimpleGrid>
+              )}
 
-                      {/* Selection Number Overlay */}
-                      {imgSelected && (
-                        <Flex
-                          position="absolute"
-                          top={2}
-                          left={2}
-                          bg="blue.500"
-                          color="white"
-                          w={5}
-                          h={5}
-                          borderRadius="full"
-                          align="center"
-                          justify="center"
-                          fontSize="xs"
-                          fontWeight="bold"
-                          boxShadow="md"
-                          pointerEvents="none"
-                        >
-                          {selectedIndex + 1}
-                        </Flex>
-                      )}
-
-                      {/* Category Badge đã bị xoá theo yêu cầu UX */}
-
-                      {/* Selected checkmark circle — top right */}
-                      {imgSelected && (
-                        <Flex
-                          position="absolute"
-                          top={2}
-                          right={2}
-                          bg="green.500"
-                          borderRadius="full"
-                          p={1}
-                          boxShadow="md"
-                          pointerEvents="none"
-                        >
-                          <Check size={12} color="white" />
-                        </Flex>
-                      )}
-
-                      {/* Cover Photo Label */}
-                      {selectedIndex === 0 && (
-                        <Box
-                          position="absolute"
-                          bottom={1}
-                          right={1}
-                          bg="green.500"
-                          color="white"
-                          fontSize="2xs"
-                          px={1.5}
-                          py={0.5}
-                          borderRadius="sm"
-                          fontWeight="bold"
-                          boxShadow="md"
-                          pointerEvents="none"
-                          zIndex={1}
-                        >
-                          {t('coverPhoto')}
-                        </Box>
-                      )}
-
-                      {/* View Action Buttons (Always visible at the bottom center) */}
-                      <Flex
-                        position="absolute"
-                        bottom={2}
-                        left="50%"
-                        transform="translateX(-50%)"
-                        gap={2}
-                        zIndex={2}
-                      >
-                        <Box
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPreviewUrl(img.url);
-                          }}
-                          cursor="pointer"
-                          bg="white"
-                          color="gray.800"
-                          borderRadius="full"
-                          p={2}
-                          _hover={{ bg: 'gray.100', transform: 'scale(1.1)' }}
-                          transition="all 0.2s"
-                          boxShadow="lg"
-                          title={tc('view')}
-                        >
-                          <Expand size={16} />
-                        </Box>
-                        <Box
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.confirm(t('deleteImageConfirm'))) {
-                              handleDeleteImage(img);
-                            }
-                          }}
-                          cursor="pointer"
-                          bg="white"
-                          color="red.500"
-                          borderRadius="full"
-                          p={2}
-                          _hover={{ bg: 'red.50', transform: 'scale(1.1)' }}
-                          transition="all 0.2s"
-                          boxShadow="lg"
-                          title={tc('delete')}
-                        >
-                          <Trash2 size={16} />
-                        </Box>
-                      </Flex>
-                    </Box>
-                  );
-                })}
-              </SimpleGrid>
-            )}
+              {/* Infinite scroll trigger */}
+              <div ref={loadMoreRef} style={{ height: 1 }} />
+              {isLoading && (
+                <Flex justify="center" py={4}>
+                  <Spinner size="sm" />
+                </Flex>
+              )}
+            </Box>
 
             {/* Fullscreen image preview lightbox — render inside ModalBody */}
             {previewUrl && (
@@ -465,14 +495,6 @@ const AppImageGalleryPicker = ({
                   <X size={20} color="white" />
                 </Box>
               </Box>
-            )}
-
-            {/* Infinite scroll trigger */}
-            <div ref={loadMoreRef} style={{ height: 1 }} />
-            {isLoading && (
-              <Flex justify="center" py={4}>
-                <Spinner size="sm" />
-              </Flex>
             )}
           </ModalBody>
           <ModalFooter>

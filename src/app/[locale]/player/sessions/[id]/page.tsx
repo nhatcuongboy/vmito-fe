@@ -11,6 +11,7 @@ import { useTabNavigation } from '@/hooks/useTabNavigation';
 import { useSessionRefresh } from '@/hooks/useSessionRefresh';
 import { useSessionManagement } from '@/hooks/useSessionManagement';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
 // Components
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -71,6 +72,12 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
+  const isGlobalBottomNavVisible = useBottomNavVisibility();
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
 
   const { refreshSessionData, isRefreshing } = useSessionRefresh({
     sessionId: session?.id || sessionId,
@@ -237,7 +244,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         px={{ base: 4, md: 8 }}
       >
         {/* Tab Content Area */}
-        <Box minH="60vh" pb="80px" w="full" maxW="7xl">
+        <Box minH="60vh" pb="160px" w="full" maxW="7xl">
           {activeTab === 0 && (
             <SessionOverviewTab
               session={session}
@@ -294,6 +301,15 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           tabs={navigationTabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          alwaysVisible
+          bottomOffset={
+            isGlobalBottomNavVisible
+              ? {
+                  base: 'calc(64px + env(safe-area-inset-bottom))',
+                  md: '0',
+                }
+              : undefined
+          }
         />
       </Flex>
 

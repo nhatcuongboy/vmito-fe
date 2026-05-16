@@ -194,6 +194,7 @@ const BaseSessionCard = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
+  const [isMouseOverActionButton, setIsMouseOverActionButton] = useState(false);
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -598,7 +599,7 @@ const BaseSessionCard = ({
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
         transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={
-          disableCardLink
+          disableCardLink || isMouseOverActionButton
             ? {}
             : {
                 transform: 'translateY(-6px)',
@@ -1031,7 +1032,12 @@ const BaseSessionCard = ({
                   </Box>
 
                   {/* Action Buttons in Compact Mode */}
-                  <Flex gap={2} align="center">
+                  <Flex
+                    gap={2}
+                    align="center"
+                    onMouseEnter={() => setIsMouseOverActionButton(true)}
+                    onMouseLeave={() => setIsMouseOverActionButton(false)}
+                  >
                     {/* Show top actions (Host/Register buttons) in compact mode */}
                     {topActionsRendered || oldTopActions}
                     {/* Show bottom actions (View Registration button) in compact mode */}
@@ -1083,7 +1089,12 @@ const BaseSessionCard = ({
 
                     {/* Top Action Buttons (Manage/Register) */}
                     {!isCompact && (topActionsRendered || oldTopActions) && (
-                      <Box flex="1" textAlign="right">
+                      <Box
+                        flex="1"
+                        textAlign="right"
+                        onMouseEnter={() => setIsMouseOverActionButton(true)}
+                        onMouseLeave={() => setIsMouseOverActionButton(false)}
+                      >
                         <Flex justify="flex-end" gap={2}>
                           {topActionsRendered || oldTopActions || actionButtons}
                         </Flex>
@@ -1093,7 +1104,10 @@ const BaseSessionCard = ({
 
                   {/* Row 2: Bottom Action Buttons */}
                   {(actions ? renderBottomActions() : bottomActionButtons) && (
-                    <>
+                    <Box
+                      onMouseEnter={() => setIsMouseOverActionButton(true)}
+                      onMouseLeave={() => setIsMouseOverActionButton(false)}
+                    >
                       {actions ? (
                         renderBottomActions()
                       ) : (
@@ -1101,12 +1115,17 @@ const BaseSessionCard = ({
                           {bottomActionButtons}
                         </Flex>
                       )}
-                    </>
+                    </Box>
                   )}
 
                   {/* Row 3: Icon Buttons (Download, Share) */}
                   {renderIconButtons() && (
-                    <Flex justify="flex-end" gap={2}>
+                    <Flex
+                      justify="flex-end"
+                      gap={2}
+                      onMouseEnter={() => setIsMouseOverActionButton(true)}
+                      onMouseLeave={() => setIsMouseOverActionButton(false)}
+                    >
                       {renderIconButtons()}
                     </Flex>
                   )}

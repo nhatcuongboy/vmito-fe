@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { Radio } from '@/components/ui/radio';
 import { Checkbox } from '@/components/ui/checkbox';
+import { VSwitch } from '@/components/ui/VSwitch';
 import { X, Plus, CalendarRange, ChevronDown, ChevronUp } from 'lucide-react';
 import dayjs from '@/lib/dayjs';
 import { useTranslations } from 'next-intl';
@@ -62,20 +63,20 @@ export function BulkSessionDateSelector({
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [numberOfWeeks, setNumberOfWeeks] = useState<number>(4);
   const [tempDate, setTempDate] = useState<string>('');
+  const [isOpen, setIsOpen] = useState(enabled);
 
-  // Reset to single mode when disabled
   useEffect(() => {
-    if (!enabled) {
-      setMode('single');
-      setSelectedDates([]);
-      setSelectedWeekdays([]);
-      setNumberOfWeeks(4);
-      setTempDate('');
-      onModeChange('single');
-      onSpecificDatesChange(undefined);
-      onRecurringWeekdaysChange(undefined);
+    if (enabled) {
+      setIsOpen(true);
     }
-  }, [enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [enabled]);
+
+  const handleEnabledChange = (newEnabled: boolean) => {
+    onEnabledChange(newEnabled);
+    if (newEnabled) {
+      setIsOpen(true);
+    }
+  };
 
   const handleModeChange = (newMode: BulkCreationMode) => {
     setMode(newMode);
@@ -153,13 +154,24 @@ export function BulkSessionDateSelector({
 
   const calculateTotalSessions = () => {
     if (mode === 'specific-dates') {
-      return selectedDates.length + 1;
+      return selectedDates.length;
     }
     if (mode === 'recurring-weekdays') {
-      return selectedWeekdays.length * numberOfWeeks + 1;
+      return selectedWeekdays.length * numberOfWeeks;
     }
     return 1;
   };
+
+  const summaryText = (() => {
+    if (!enabled) return t('disabledSummary');
+    const totalSessions = calculateTotalSessions();
+    if (totalSessions > 0) {
+      return t('summaryCount', { count: totalSessions });
+    }
+    return mode === 'specific-dates'
+      ? t('specificDatesMode')
+      : t('recurringMode');
+  })();
 
   return (
     <Box
@@ -171,33 +183,55 @@ export function BulkSessionDateSelector({
       overflow="hidden"
     >
       <Collapsible.Root
-        open={enabled}
-        onOpenChange={(e) => onEnabledChange(e.open)}
+        open={enabled && isOpen}
+        onOpenChange={(e) => setIsOpen(e.open)}
       >
-        <Collapsible.Trigger asChild>
-          <Box
-            as="button"
-            w="full"
-            p={4}
-            cursor="pointer"
-            _hover={{ bg: { base: 'gray.50', _dark: 'gray.750' } }}
-            transition="background 0.2s"
-          >
-            <Flex align="center" justify="space-between">
-              <HStack gap={2}>
+        <Flex align="center" justify="space-between" gap={3} p={4}>
+          <HStack gap={2} minW={0}>
+            <Icon asChild boxSize={5} color="green.500" flexShrink={0}>
+              <CalendarRange />
+            </Icon>
+            <Box minW={0}>
+              <Text fontWeight="semibold" fontSize="md">
+                {t('title')}
+              </Text>
+              <Text fontSize="xs" color="fg.muted" truncate>
+                {summaryText}
+              </Text>
+            </Box>
+          </HStack>
+
+          <HStack gap={3} flexShrink={0}>
+            <VSwitch
+              checked={enabled}
+              onCheckedChange={(details) =>
+                handleEnabledChange(!!details.checked)
+              }
+              colorPalette="green"
+              size="sm"
+              aria-label={enabled ? t('disable') : t('enable')}
+            />
+            <Collapsible.Trigger asChild>
+              <Button
+                type="button"
+                boxSize={9}
+                minW={9}
+                p={0}
+                variant="ghost"
+                borderRadius="md"
+                color="fg.muted"
+                disabled={!enabled}
+                opacity={enabled ? 1 : 0.45}
+                cursor={enabled ? 'pointer' : 'not-allowed'}
+                _hover={enabled ? { bg: 'bg.muted' } : undefined}
+              >
                 <Icon asChild boxSize={5} color="green.500">
-                  <CalendarRange />
+                  {enabled && isOpen ? <ChevronUp /> : <ChevronDown />}
                 </Icon>
-                <Text fontWeight="semibold" fontSize="md">
-                  {t('title')}
-                </Text>
-              </HStack>
-              <Icon asChild boxSize={5} color="fg.muted">
-                {enabled ? <ChevronUp /> : <ChevronDown />}
-              </Icon>
-            </Flex>
-          </Box>
-        </Collapsible.Trigger>
+              </Button>
+            </Collapsible.Trigger>
+          </HStack>
+        </Flex>
 
         <Collapsible.Content>
           <VStack align="stretch" gap={6} p={6} pt={0}>

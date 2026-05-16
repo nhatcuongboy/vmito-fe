@@ -66,7 +66,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
 
   const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevPlayersLength = useRef(newPlayers.length);
@@ -220,9 +220,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           ? '0 0 0 1px #F56565'
                           : '0 0 0 1px #38a169',
                       }}
-                      disabled={!!player.userId}
-                      opacity={player.userId ? 0.6 : 1}
-                      cursor={player.userId ? 'not-allowed' : 'text'}
                     />
                     {errors[index] && (
                       <Text fontSize="xs" color="red.500" mt={1}>
@@ -247,9 +244,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       }}
                       size="md"
                       bg="white"
-                      disabled={!!player.userId}
-                      opacity={player.userId ? 0.6 : 1}
-                      cursor={player.userId ? 'not-allowed' : 'text'}
                     />
                   </Box>
                 </Grid>
@@ -279,10 +273,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         backgroundColor: 'var(--chakra-colors-bg)',
                         color: 'inherit',
                         fontSize: '14px',
-                        opacity: player.userId ? 0.6 : 1,
-                        cursor: player.userId ? 'not-allowed' : 'pointer',
+                        cursor: 'pointer',
                       }}
-                      disabled={!!player.userId}
                     >
                       <option
                         value="MALE"
@@ -337,10 +329,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         backgroundColor: 'var(--chakra-colors-bg)',
                         color: 'inherit',
                         fontSize: '14px',
-                        opacity: player.userId ? 0.6 : 1,
-                        cursor: player.userId ? 'not-allowed' : 'pointer',
+                        cursor: 'pointer',
                       }}
-                      disabled={!!player.userId}
                     >
                       <option
                         value=""
@@ -354,7 +344,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           value={level}
                           style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
                         >
-                          {getLevelLabel(level)}
+                          {getLevelShortLabel(level)}
                         </option>
                       ))}
                     </select>
@@ -380,48 +370,17 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       onUpdatePlayer(index, 'levelDescription', e.target.value)
                     }
                     rows={2}
-                    disabled={!!player.userId}
-                    opacity={player.userId ? 0.6 : 1}
-                    cursor={player.userId ? 'not-allowed' : 'text'}
                   />
                 </Box>
 
-                {/* Confirmation checkbox */}
+                {/* Club membership */}
                 <Box>
-                  <Flex direction="column" gap={3}>
-                    <Flex align="center" gap={3}>
-                      <input
-                        type="checkbox"
-                        id={`requireConfirm-${index}`}
-                        checked={player.requireConfirmInfo || false}
-                        onChange={(e) =>
-                          onUpdatePlayer(
-                            index,
-                            'requireConfirmInfo',
-                            e.target.checked
-                          )
-                        }
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                          accentColor: '#38a169',
-                        }}
-                      />
-                      <label
-                        htmlFor={`requireConfirm-${index}`}
-                        style={{
-                          fontSize: '14px',
-                          color: 'inherit',
-                          opacity: 0.8,
-                          lineHeight: '1.4',
-                        }}
-                      >
-                        {t('requirePlayerConfirmInfo')}
-                      </label>
-                    </Flex>
-
-                    {/* Club Checkbox */}
-                    <Flex align="center" gap={3}>
+                  <Flex
+                    align={{ base: 'stretch', sm: 'center' }}
+                    direction={{ base: 'column', sm: 'row' }}
+                    gap={3}
+                  >
+                    <Flex align="center" gap={3} flexShrink={0}>
                       <input
                         type="checkbox"
                         id={`isClubMember-${index}`}
@@ -455,17 +414,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       </label>
                     </Flex>
 
-                    {/* Club Select */}
                     {player.isClubMember && (
-                      <Box ml={7}>
-                        <Text
-                          fontSize="sm"
-                          mb={1}
-                          color="fg.muted"
-                          fontWeight="medium"
-                        >
-                          {t('selectClub')}
-                        </Text>
+                      <Box flex="1" minW={{ base: '100%', sm: '220px' }}>
                         <select
                           value={player.clubId || ''}
                           onChange={(e) =>
@@ -480,9 +430,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                               'var(--chakra-colors-bg-panel, white)',
                             color: 'inherit',
                             fontSize: '14px',
+                            height: '40px',
                           }}
                         >
-                          <option value="">{t('selectClubPlaceholder')}</option>
+                          <option value="">{t('selectClub')}</option>
                           {clubs.map((club) => (
                             <option key={club.id} value={club.id}>
                               {club.name}
@@ -505,9 +456,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           onClick={onAddPlayer}
           colorPalette="green"
           variant="outline"
-          w="fit-content"
+          w="full"
         >
-          {newPlayers.length === 0 ? t('addPlayer') : t('addAnother')}
+          {t('addPlayer')}
         </Button>
       </VStack>
     </VModal>

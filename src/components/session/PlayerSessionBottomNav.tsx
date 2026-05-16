@@ -1,8 +1,10 @@
-import { Box } from '@chakra-ui/react';
-import { Activity, Trophy, Info, Square, DollarSign } from 'lucide-react';
+import { Activity, Trophy, Info, DollarSign } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useSidebar } from '@/contexts/SidebarContext';
-import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
+import { useMemo } from 'react';
+import BottomNavigationBar, {
+  NavigationTab,
+} from '@/components/ui/BottomNavigationBar';
+import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
 interface PlayerSessionBottomNavProps {
   activeTab: number;
@@ -14,121 +16,32 @@ export default function PlayerSessionBottomNav({
   setActiveTab,
 }: PlayerSessionBottomNavProps) {
   const t = useTranslations('SessionDetail');
-  const { isCollapsed } = useSidebar();
+  const isGlobalBottomNavVisible = useBottomNavVisibility();
+
+  const navigationTabs = useMemo<NavigationTab[]>(
+    () => [
+      { id: 0, label: t('tabOverview'), icon: Info },
+      { id: 1, label: t('tabStatus'), icon: Activity },
+      { id: 3, label: t('tabResults'), icon: Trophy },
+      { id: 4, label: t('tabPayment'), icon: DollarSign },
+    ],
+    [t]
+  );
 
   return (
-    <Box
-      position="fixed"
-      left={{
-        base: 0,
-        md: isCollapsed
-          ? `${SIDEBAR_WIDTH_COLLAPSED}px`
-          : `${SIDEBAR_WIDTH_EXPANDED}px`,
-      }}
-      transition="left 0.3s ease"
-      right={0}
-      bottom={0}
-      zIndex={100}
-      bg="white"
-      borderTopWidth="1px"
-      boxShadow="md"
-      display="flex"
-      justifyContent="space-around"
-      alignItems="center"
-      height="calc(64px + env(safe-area-inset-bottom) + 12px)"
-      paddingBottom="calc(env(safe-area-inset-bottom) + 12px)"
-    >
-      <Box
-        as="button"
-        flex={1}
-        py={{ base: 1, md: 2 }}
-        onClick={() => setActiveTab(0)}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        color={activeTab === 0 ? 'green.500' : 'gray.500'}
-        fontWeight={activeTab === 0 ? 'bold' : 'normal'}
-        fontSize={{ base: '10px', md: 'sm' }}
-      >
-        <Box as={Info} boxSize={{ base: 5, md: 6 }} mb={{ base: 0.5, md: 1 }} />
-        {t('tabOverview')}
-      </Box>
-      <Box
-        as="button"
-        flex={1}
-        py={{ base: 1, md: 2 }}
-        onClick={() => setActiveTab(1)}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        color={activeTab === 1 ? 'green.500' : 'gray.500'}
-        fontWeight={activeTab === 1 ? 'bold' : 'normal'}
-        fontSize={{ base: '10px', md: 'sm' }}
-      >
-        <Box
-          as={Activity}
-          boxSize={{ base: 5, md: 6 }}
-          mb={{ base: 0.5, md: 1 }}
-        />
-        {t('tabStatus')}
-      </Box>
-      <Box
-        as="button"
-        flex={1}
-        py={{ base: 1, md: 2 }}
-        onClick={() => setActiveTab(2)}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        color={activeTab === 2 ? 'green.500' : 'gray.500'}
-        fontWeight={activeTab === 2 ? 'bold' : 'normal'}
-        fontSize={{ base: '10px', md: 'sm' }}
-      >
-        <Box
-          as={Square}
-          boxSize={{ base: 5, md: 6 }}
-          mb={{ base: 0.5, md: 1 }}
-        />
-        {t('tabCourts')}
-      </Box>
-      <Box
-        as="button"
-        flex={1}
-        py={{ base: 1, md: 2 }}
-        onClick={() => setActiveTab(3)}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        color={activeTab === 3 ? 'green.500' : 'gray.500'}
-        fontWeight={activeTab === 3 ? 'bold' : 'normal'}
-        fontSize={{ base: '10px', md: 'sm' }}
-      >
-        <Box
-          as={Trophy}
-          boxSize={{ base: 5, md: 6 }}
-          mb={{ base: 0.5, md: 1 }}
-        />
-        {t('tabResults')}
-      </Box>
-      <Box
-        as="button"
-        flex={1}
-        py={{ base: 1, md: 2 }}
-        onClick={() => setActiveTab(4)}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        color={activeTab === 4 ? 'green.500' : 'gray.500'}
-        fontWeight={activeTab === 4 ? 'bold' : 'normal'}
-        fontSize={{ base: '10px', md: 'sm' }}
-      >
-        <Box
-          as={DollarSign}
-          boxSize={{ base: 5, md: 6 }}
-          mb={{ base: 0.5, md: 1 }}
-        />
-        {t('tabPayment')}
-      </Box>
-    </Box>
+    <BottomNavigationBar
+      tabs={navigationTabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      alwaysVisible
+      bottomOffset={
+        isGlobalBottomNavVisible
+          ? {
+              base: 'calc(64px + env(safe-area-inset-bottom))',
+              md: '0',
+            }
+          : undefined
+      }
+    />
   );
 }

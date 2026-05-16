@@ -1,6 +1,6 @@
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { MapPin } from 'lucide-react';
+import { MapPin, Navigation } from 'lucide-react';
 import { VModal } from '@/components/ui/VModal';
 import { useTranslations } from 'next-intl';
 
@@ -25,69 +25,76 @@ export default function CourtCallModal({
       size="md"
       isCentered
       showCloseButton={true}
-      closeOnOverlayClick={true}
-    >
-      <Flex direction="column" align="center" py={6} gap={4}>
-        {/* Animated icon */}
-        <Box
-          bg="green.100"
-          _dark={{ bg: 'green.900' }}
-          borderRadius="full"
-          p={4}
-          animation="pulse 1.5s infinite"
-        >
-          <Box as={MapPin} boxSize={12} color="green.500" />
-        </Box>
-
-        {/* Message */}
-        <Box textAlign="center">
-          <Heading
-            size="lg"
-            color="green.600"
-            _dark={{ color: 'green.400' }}
-            mb={2}
-          >
-            {t('courtCall.goToCourt')}
-          </Heading>
-          <Text
-            fontSize="2xl"
-            fontWeight="bold"
-            color="green.600"
-            _dark={{ color: 'brand.400' }}
-          >
-            {courtName}
-          </Text>
-        </Box>
-
-        <Text color="gray.600" _dark={{ color: 'gray.400' }} textAlign="center">
-          {t('courtCall.description')}
-        </Text>
-
-        {/* Action button */}
-        <Button
-          colorPalette="green"
-          size="lg"
-          w="full"
-          onClick={onClose}
-          mt={2}
-        >
+      closeOnOverlayClick={false}
+      showHeaderDivider={false}
+      showFooterDivider={false}
+      maxBodyHeight="none"
+      footer={
+        <Button colorPalette="green" size="lg" w="full" onClick={onClose}>
+          <Navigation size={18} />
           {t('courtCall.understood')}
         </Button>
+      }
+    >
+      <Flex direction="column" align="center" pt={2} pb={1} gap={5}>
+        <Box
+          display="grid"
+          placeItems="center"
+          boxSize="88px"
+          borderRadius="full"
+          bg="green.50"
+          color="green.600"
+          borderWidth="1px"
+          borderColor="green.100"
+          _dark={{
+            bg: 'green.950',
+            color: 'green.300',
+            borderColor: 'green.800',
+          }}
+          css={{
+            animation: 'courtCallPulse 1.8s ease-in-out infinite',
+            '@keyframes courtCallPulse': {
+              '0%, 100%': {
+                transform: 'scale(1)',
+                boxShadow: '0 0 0 0 rgba(22, 163, 74, 0.18)',
+              },
+              '50%': {
+                transform: 'scale(1.04)',
+                boxShadow: '0 0 0 12px rgba(22, 163, 74, 0)',
+              },
+            },
+          }}
+        >
+          <Box as={MapPin} boxSize={11} strokeWidth={2.2} aria-hidden />
+        </Box>
+
+        <Flex direction="column" align="center" gap={2} textAlign="center">
+          <Text fontSize="sm" fontWeight="semibold" color="green.600">
+            {t('courtCall.goToCourt')}
+          </Text>
+          <Heading
+            size="2xl"
+            fontWeight="bold"
+            color="green.700"
+            _dark={{ color: 'brand.400' }}
+            lineClamp={2}
+            wordBreak="break-word"
+          >
+            {courtName}
+          </Heading>
+        </Flex>
+
+        <Text
+          maxW="sm"
+          color="gray.600"
+          _dark={{ color: 'gray.400' }}
+          textAlign="center"
+          fontSize="md"
+          lineHeight="tall"
+        >
+          {t('courtCall.description')}
+        </Text>
       </Flex>
-      {/* CSS animation for pulse effect */}
-      <style jsx global>{`
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.05);
-            opacity: 0.8;
-          }
-        }
-      `}</style>
     </VModal>
   );
 }

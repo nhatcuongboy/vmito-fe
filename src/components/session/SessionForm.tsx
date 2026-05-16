@@ -104,7 +104,6 @@ import AppMultiImageUpload, {
 } from '@/components/session/AppMultiImageUpload';
 import LevelRequirementsCard from '@/components/session/LevelRequirementsCard';
 import { BulkSessionDateSelector } from '@/components/session/BulkSessionDateSelector';
-import Image from 'next/image';
 import {
   BulkCreationMode,
   SpecificDatesConfig,
@@ -134,6 +133,46 @@ function formatTimeOnly(date: Date): string {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
+}
+
+const TIME_INPUT_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const MIDNIGHT_TIME = '00:00';
+
+function addDays(date: Date, days: number): Date {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function buildSingleDayDateTime(date: string, time: string): string {
+  if (!date || !time) return '';
+
+  if (!TIME_INPUT_PATTERN.test(time)) return '';
+
+  return `${date}T${time}`;
+}
+
+function buildSingleDayEndDateTime(date: string, time: string): string {
+  if (!date || !time) return '';
+
+  if (time === MIDNIGHT_TIME) {
+    return `${formatDateOnly(addDays(new Date(`${date}T00:00`), 1))}T00:00`;
+  }
+
+  return buildSingleDayDateTime(date, time);
+}
+
+function isEndOfSelectedDay(startDate: Date, endDate: Date): boolean {
+  if (
+    endDate.getHours() !== 0 ||
+    endDate.getMinutes() !== 0 ||
+    endDate.getSeconds() !== 0 ||
+    endDate.getMilliseconds() !== 0
+  ) {
+    return false;
+  }
+
+  return formatDateOnly(endDate) === formatDateOnly(addDays(startDate, 1));
 }
 
 function extractCourtNumber(courtName?: string): number | null {
@@ -453,8 +492,12 @@ export default function SessionForm({
   // Single-day time picker state
   const [isMultiDay, setIsMultiDay] = useState(() => {
     if (isEditMode && initialData?.startTime && initialData?.endTime) {
-      const startDay = new Date(initialData.startTime).toDateString();
-      const endDay = new Date(initialData.endTime).toDateString();
+      const startDate = new Date(initialData.startTime);
+      const endDate = new Date(initialData.endTime);
+      if (isEndOfSelectedDay(startDate, endDate)) return false;
+
+      const startDay = startDate.toDateString();
+      const endDay = endDate.toDateString();
       return startDay !== endDay;
     }
     return false;
@@ -470,23 +513,25 @@ export default function SessionForm({
     return '';
   });
   const [endHour, setEndHour] = useState(() => {
-    if (isEditMode && initialData?.endTime)
+    if (isEditMode && initialData?.endTime) {
       return formatTimeOnly(new Date(initialData.endTime));
+    }
     return '';
   });
 
   const handleDateChange = (date: string) => {
     setSessionDate(date);
-    if (startHour) setValue('startTime', `${date}T${startHour}`);
-    if (endHour) setValue('endTime', `${date}T${endHour}`);
+    if (startHour)
+      setValue('startTime', buildSingleDayDateTime(date, startHour));
+    if (endHour) setValue('endTime', buildSingleDayEndDateTime(date, endHour));
   };
   const handleStartHourChange = (time: string) => {
     setStartHour(time);
-    setValue('startTime', time && sessionDate ? `${sessionDate}T${time}` : '');
+    setValue('startTime', buildSingleDayDateTime(sessionDate, time));
   };
   const handleEndHourChange = (time: string) => {
     setEndHour(time);
-    setValue('endTime', time && sessionDate ? `${sessionDate}T${time}` : '');
+    setValue('endTime', buildSingleDayEndDateTime(sessionDate, time));
   };
 
   // Bulk creation state
@@ -502,6 +547,38 @@ export default function SessionForm({
   const [recurringWeekdaysConfig, setRecurringWeekdaysConfig] = useState<
     RecurringWeekdaysConfig | undefined
   >(undefined);
+
+  const bulkSessionsToCreate = useMemo(() => {
+    if (!bulkEnabled || bulkMode === 'single') return 1;
+    if (bulkMode === 'specific-dates') {
+      return specificDatesConfig?.dates?.length || 0;
+    }
+    if (bulkMode === 'recurring-weekdays') {
+      return (
+        (recurringWeekdaysConfig?.weekdays?.length || 0) *
+        (recurringWeekdaysConfig?.numberOfWeeks || 0)
+      );
+    }
+    return 1;
+  }, [bulkEnabled, bulkMode, specificDatesConfig, recurringWeekdaysConfig]);
+
+  const submitLabel = useMemo(() => {
+    if (submitButtonText) return submitButtonText;
+    if (isEditMode) return t('saveChanges');
+    if (bulkEnabled && bulkMode !== 'single' && bulkSessionsToCreate > 0) {
+      return t('bulkCreation.createSessionsWithCount', {
+        count: bulkSessionsToCreate,
+      });
+    }
+    return t('createSession');
+  }, [
+    bulkEnabled,
+    bulkMode,
+    bulkSessionsToCreate,
+    isEditMode,
+    submitButtonText,
+    t,
+  ]);
 
   // Advanced section collapse state
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -877,20 +954,6 @@ export default function SessionForm({
     }
   }, [isEditMode, venues, handleAISuccess]);
 
-  // Auto-enable fee when user enters fee values
-  useEffect(() => {
-    if (!feeEnabled && (maleFee || femaleFee)) {
-      setFeeEnabled(true);
-    }
-  }, [maleFee, femaleFee, feeEnabled]);
-
-  // Auto-enable bulk creation when user selects dates or weekdays
-  useEffect(() => {
-    if (!bulkEnabled && (specificDatesConfig || recurringWeekdaysConfig)) {
-      setBulkEnabled(true);
-    }
-  }, [specificDatesConfig, recurringWeekdaysConfig, bulkEnabled]);
-
   // Form submission handler
   const onSubmit = async (data: SessionFormData) => {
     try {
@@ -1000,8 +1063,30 @@ export default function SessionForm({
           feeConfig: feeConfigData,
         };
 
+        const shouldCreateBulk = bulkEnabled && bulkMode !== 'single';
+
+        if (
+          shouldCreateBulk &&
+          bulkMode === 'specific-dates' &&
+          (!specificDatesConfig?.dates ||
+            specificDatesConfig.dates.length === 0)
+        ) {
+          toaster.error({ title: t('validation.specificDatesRequired') });
+          return;
+        }
+
+        if (
+          shouldCreateBulk &&
+          bulkMode === 'recurring-weekdays' &&
+          (!recurringWeekdaysConfig?.weekdays ||
+            recurringWeekdaysConfig.weekdays.length === 0)
+        ) {
+          toaster.error({ title: t('validation.recurringWeekdaysRequired') });
+          return;
+        }
+
         // Check if bulk creation is enabled
-        if (bulkMode === 'single') {
+        if (!shouldCreateBulk) {
           // Single session creation
           session = await SessionService.createSession(baseSessionData);
         } else {
@@ -1338,25 +1423,32 @@ export default function SessionForm({
                     control={control}
                     name="allowZaloContact"
                     render={({ field }) => (
-                      <HStack
+                      <Box
                         mt={2}
-                        gap={2}
                         cursor="pointer"
                         onClick={() => field.onChange(!field.value)}
+                        userSelect="none"
+                        position="relative"
+                        zIndex={1}
                       >
-                        <CustomCheckbox
-                          size="sm"
-                          isChecked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                        />
-                        <Text
-                          fontSize="sm"
-                          fontWeight="medium"
-                          userSelect="none"
-                        >
-                          {t('allowZaloContact')}
-                        </Text>
-                      </HStack>
+                        <HStack gap={2}>
+                          <CustomCheckbox
+                            size="sm"
+                            isChecked={field.value}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              field.onChange(e.target.checked);
+                            }}
+                          />
+                          <Text
+                            fontSize="sm"
+                            fontWeight="medium"
+                            userSelect="none"
+                          >
+                            {t('allowZaloContact')}
+                          </Text>
+                        </HStack>
+                      </Box>
                     )}
                   />
                 </Box>
@@ -2109,8 +2201,7 @@ export default function SessionForm({
                 w={onCancel ? undefined : 'full'}
               >
                 <CalendarPlus size={18} style={{ marginRight: '8px' }} />
-                {submitButtonText ||
-                  (isEditMode ? t('saveChanges') : t('createSession'))}
+                {submitLabel}
               </Button>
             </Flex>
           </Stack>

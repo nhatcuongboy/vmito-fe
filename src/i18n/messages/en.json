@@ -385,6 +385,8 @@
       "cannotEditCourtsWithPlayers": "Cannot edit courts configuration when players have joined",
       "cannotEditTimeWhenActive": "Cannot edit session time when session is in progress",
       "levelRequired": "Please select a level",
+      "specificDatesRequired": "Please select at least one date to clone the session",
+      "recurringWeekdaysRequired": "Please select at least one weekday for recurring sessions",
       "endTimeMustBeAfterStartTime": "End time must be after start time"
     },
     "generalSettings": {
@@ -706,6 +708,9 @@
       "selectedWeekdays": "Selected weekdays:",
       "enable": "Enable bulk creation",
       "disable": "Disable bulk creation",
+      "disabledSummary": "Off - creates 1 session",
+      "summaryCount": "Will create {count} sessions",
+      "createSessionsWithCount": "Create {count} sessions",
       "totalSessions": "Total sessions to be created:",
       "sessionsPerWeek": "days/week",
       "totalSessionsCalc": "{perWeek} days/week × {weeks} weeks = {total} sessions",
@@ -1225,7 +1230,7 @@
       "playerWithNumber": "Player {number}",
       "matchesCount": "{count} matches",
       "addPlayer": "Add Player",
-      "addAnother": "Add Another",
+      "addAnother": "Add Player",
       "addFirstPlayer": "Add Your First Player",
       "saveAll": "Save All ({count})",
       "existingPlayers": "Existing Players ({count})",
@@ -2671,14 +2676,20 @@
         "court": {
           "title": "Court {number}",
           "elapsed": "{time} elapsed",
-          "playerHighlight": "You are highlighted in white on the court above",
+          "playerHighlight": "You are the glowing white-outlined marker on the court",
           "playingWith": "Playing with:",
           "partnerWith": "Playing with teammate:",
-          "opponents": "Opponents:"
+          "opponents": "Opponents:",
+          "legend": {
+            "you": "You",
+            "teammate": "Teammate",
+            "opponent": "Opponent"
+          }
         },
         "stats": {
           "minutes": "min",
           "currentWait": "Current Wait",
+          "matchElapsed": "Match Time",
           "matchesPlayed": "Matches Played",
           "title": "Your Statistics",
           "wins": "Wins",
@@ -2689,10 +2700,14 @@
         },
         "queue": {
           "title": "Queue Position",
+          "position": "Queue Position",
           "updated": "Updated {time}",
           "autoRefresh": "Auto-refreshes in {seconds} seconds"
         },
         "footer": "Please keep this page open to maintain your place in the queue",
+        "footerWaiting": "Please keep this page open to maintain your place in the queue",
+        "footerPlaying": "The host will update the result after the match",
+        "footerFinished": "Thank you for joining this session",
         "leaveSession": "Leave Session",
         "errors": {
           "missingPlayerId": "Player ID is missing",
@@ -2723,7 +2738,7 @@
           "youWereDeselected": "You have been removed from {court}"
         },
         "courtCall": {
-          "title": "🏸 You're Up!",
+          "title": "You're Up!",
           "goToCourt": "Please go to",
           "description": "Your match is about to start. Please proceed to the court now.",
           "understood": "Got it, I'm on my way!"
@@ -3375,6 +3390,11 @@
     "free": "Free",
     "enableFee": "Enable Fee",
     "disableFee": "Disable Fee",
+    "disabledSummary": "Off - no fee",
+    "enabledSummary": "Fee enabled",
+    "fixedSummaryBoth": "Male {male} - Female {female} VND",
+    "fixedSummaryMale": "Male {male} VND",
+    "fixedSummaryFemale": "Female {female} VND",
     "feeRange": "{min} - {max}",
     "samePrice": "{price}",
     "validation": {
@@ -3684,6 +3704,8 @@
       "startReminderMessage": "It’s time for “{sessionName}”. Are you at the court? Tap to start the session.",
       "playerStartReminderTitle": "Your session is starting!",
       "playerStartReminderMessage": "“{sessionName}” is about to start. Head to the court!",
+      "yourTurnTitle": "You're up!",
+      "yourTurnMessage": "Please head to {courtName}. Your match is about to start.",
       "autoCancelledTitle": "Session auto-cancelled",
       "autoCancelledMessage": "“{sessionName}” was automatically cancelled because it was not started within 30 minutes.",
       "sessionCancelledTitle": "Session cancelled",

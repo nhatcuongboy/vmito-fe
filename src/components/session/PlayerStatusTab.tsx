@@ -1,5 +1,12 @@
 import { Box, Center, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { CheckCircle2, Clock, User, Users } from 'lucide-react';
+import {
+  CheckCircle2,
+  Clock,
+  Handshake,
+  Swords,
+  User,
+  Users,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { getCourtDisplayName } from '@/utils/session-helpers';
@@ -22,6 +29,32 @@ export default function PlayerStatusTab({
   formatMatchElapsedTime,
 }: PlayerStatusTabProps) {
   const t = useTranslations('pages.join.status');
+  const isPlaying = player.status === 'PLAYING';
+  const isWaiting = player.status === 'WAITING';
+  const isReady = player.status === 'READY';
+  const matchElapsedTime = currentMatch
+    ? formatMatchElapsedTime(currentMatch.startTime)
+    : null;
+  const playingCourtLabel =
+    player.currentCourt?.courtName ||
+    String(player.currentCourt?.courtNumber || '?');
+  const statusColor = isPlaying
+    ? 'green.600'
+    : isWaiting
+      ? 'blue.600'
+      : isReady
+        ? 'orange.600'
+        : 'gray.600';
+  const footerMessage = isPlaying
+    ? t('footerPlaying')
+    : isWaiting
+      ? t('footerWaiting')
+      : t('footerFinished');
+
+  const formatPlayerBadge = (targetPlayer: Player) =>
+    `#${targetPlayer.playerNumber} ${
+      targetPlayer.name?.trim() || `P${targetPlayer.playerNumber}`
+    }`;
 
   return (
     <Box
@@ -32,10 +65,8 @@ export default function PlayerStatusTab({
       mb={6}
       overflow="hidden"
       boxShadow="md"
-      transition="all 0.2s"
       bg="white"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
     >
       {/* Card Header */}
       <Box
@@ -46,7 +77,7 @@ export default function PlayerStatusTab({
         _dark={{ borderBottomColor: 'gray.700' }}
       >
         <Flex align="center">
-          <Box as={User} boxSize={5} color="green.500" mr={2} />
+          <Box as={User} boxSize={5} color="green.500" mr={2} aria-hidden />
           <Box>
             <Heading size="md">{t('yourStatus')}</Heading>
           </Box>
@@ -69,7 +100,13 @@ export default function PlayerStatusTab({
             alignItems="center"
             justifyContent="center"
           >
-            <Text color="red.500" fontWeight="bold" mb={1}>
+            <Text
+              color={statusColor}
+              fontWeight="bold"
+              mb={1}
+              lineClamp={2}
+              wordBreak="break-word"
+            >
               {t('playerInfo', {
                 number: player.playerNumber,
                 name: player.name || `Player ${player.playerNumber}`,
@@ -84,10 +121,9 @@ export default function PlayerStatusTab({
                   {t('playing.title')}
                 </Text>
                 <Text fontSize="sm" color="gray.600">
-                  {player.currentCourt?.courtName
-                    ? `${player.currentCourt.courtName}`
-                    : `Court ${player.currentCourt?.courtNumber || '?'}`}
-                  {` - Enjoy your match!`}
+                  {t('playing.description', {
+                    courtNumber: playingCourtLabel,
+                  })}
                 </Text>
               </>
             ) : player.status === 'WAITING' ? (
@@ -104,6 +140,9 @@ export default function PlayerStatusTab({
               </>
             ) : player.status === 'READY' ? (
               <>
+                <Box mb={1}>
+                  <Clock size={28} color="#DD6B20" />
+                </Box>
                 <Text fontWeight="bold" fontSize="md" mb={0.5}>
                   {t('ready.title')}
                 </Text>
@@ -137,8 +176,6 @@ export default function PlayerStatusTab({
                 bg="white"
                 _dark={{ bg: 'gray.800' }}
                 boxShadow="sm"
-                transition="all 0.2s"
-                _hover={{ boxShadow: 'md' }}
               >
                 <Flex justify="space-between" align="center" mb={3}>
                   <Heading size="sm" color="green.600">
@@ -146,10 +183,10 @@ export default function PlayerStatusTab({
                       number: currentCourt.courtNumber,
                     })}
                   </Heading>
-                  {currentMatch && (
+                  {matchElapsedTime && (
                     <Text fontSize="sm" color="gray.500">
                       {t('court.elapsed', {
-                        time: formatMatchElapsedTime(currentMatch.startTime),
+                        time: matchElapsedTime,
                       })}
                     </Text>
                   )}
@@ -160,11 +197,7 @@ export default function PlayerStatusTab({
                     isCurrentPlayer: p.id === player.id,
                   }))}
                   isActive={true}
-                  elapsedTime={
-                    currentMatch
-                      ? formatMatchElapsedTime(currentMatch.startTime)
-                      : undefined
-                  }
+                  elapsedTime={matchElapsedTime ?? undefined}
                   courtName={getCourtDisplayName(
                     currentCourt?.courtName,
                     currentCourt?.courtNumber
@@ -176,6 +209,44 @@ export default function PlayerStatusTab({
                 <Text fontSize="xs" color="gray.500" mt={2} textAlign="center">
                   {t('court.playerHighlight')}
                 </Text>
+                <Flex
+                  mt={2}
+                  gap={3}
+                  wrap="wrap"
+                  justify="center"
+                  fontSize="xs"
+                  color="gray.600"
+                >
+                  <Flex align="center" gap={1}>
+                    <Box
+                      boxSize={2.5}
+                      borderRadius="full"
+                      bg="white"
+                      borderWidth="1px"
+                      borderColor="blue.300"
+                      aria-hidden
+                    />
+                    <Text>{t('court.legend.you')}</Text>
+                  </Flex>
+                  <Flex align="center" gap={1}>
+                    <Box
+                      boxSize={2.5}
+                      borderRadius="full"
+                      bg="green.200"
+                      aria-hidden
+                    />
+                    <Text>{t('court.legend.teammate')}</Text>
+                  </Flex>
+                  <Flex align="center" gap={1}>
+                    <Box
+                      boxSize={2.5}
+                      borderRadius="full"
+                      bg="orange.200"
+                      aria-hidden
+                    />
+                    <Text>{t('court.legend.opponent')}</Text>
+                  </Flex>
+                </Flex>
 
                 {/* Show partner information */}
                 {courtPlayers.length > 1 &&
@@ -212,7 +283,10 @@ export default function PlayerStatusTab({
                               _dark={{ color: 'brand.300' }}
                               mb={1}
                             >
-                              🤝 {t('court.partnerWith')}
+                              <Flex align="center" justify="center" gap={1.5}>
+                                <Box as={Handshake} boxSize={4} aria-hidden />
+                                <Text as="span">{t('court.partnerWith')}</Text>
+                              </Flex>
                             </Text>
                             <Flex justify="center" wrap="wrap" gap={2}>
                               {partners.map((p) => (
@@ -229,10 +303,10 @@ export default function PlayerStatusTab({
                                   py={1}
                                   borderRadius="md"
                                   fontWeight="medium"
+                                  lineClamp={1}
+                                  maxW="full"
                                 >
-                                  #{p.playerNumber}{' '}
-                                  {p.name?.split(' ')[0] ||
-                                    `P${p.playerNumber}`}
+                                  {formatPlayerBadge(p)}
                                 </Text>
                               ))}
                             </Flex>
@@ -248,7 +322,10 @@ export default function PlayerStatusTab({
                               _dark={{ color: 'orange.300' }}
                               mb={1}
                             >
-                              ⚔️ {t('court.opponents')}
+                              <Flex align="center" justify="center" gap={1.5}>
+                                <Box as={Swords} boxSize={4} aria-hidden />
+                                <Text as="span">{t('court.opponents')}</Text>
+                              </Flex>
                             </Text>
                             <Flex justify="center" wrap="wrap" gap={2}>
                               {opponents.map((p) => (
@@ -265,10 +342,10 @@ export default function PlayerStatusTab({
                                   py={1}
                                   borderRadius="md"
                                   fontWeight="medium"
+                                  lineClamp={1}
+                                  maxW="full"
                                 >
-                                  #{p.playerNumber}{' '}
-                                  {p.name?.split(' ')[0] ||
-                                    `P${p.playerNumber}`}
+                                  {formatPlayerBadge(p)}
                                 </Text>
                               ))}
                             </Flex>
@@ -287,24 +364,19 @@ export default function PlayerStatusTab({
               borderRadius="md"
               textAlign="center"
               flex={1}
-              transition="all 0.2s"
-              _hover={{
-                borderColor: 'brand.200',
-                bg: 'brand.50',
-                transform: 'translateY(-2px)',
-              }}
-              _dark={{
-                _hover: { bg: 'brand.900', borderColor: 'brand.700' },
-              }}
             >
               <Center mb={1}>
                 <Clock size={16} color="var(--chakra-colors-gray-500)" />
               </Center>
               <Text fontSize="xl" fontWeight="semibold">
-                {player.currentWaitTime} {t('stats.minutes')}
+                {isPlaying && matchElapsedTime
+                  ? matchElapsedTime
+                  : `${player.currentWaitTime} ${t('stats.minutes')}`}
               </Text>
               <Text fontSize="xs" color="gray.500">
-                {t('stats.currentWait')}
+                {isPlaying && matchElapsedTime
+                  ? t('stats.matchElapsed')
+                  : t('stats.currentWait')}
               </Text>
             </Box>
 
@@ -314,24 +386,19 @@ export default function PlayerStatusTab({
               borderRadius="md"
               textAlign="center"
               flex={1}
-              transition="all 0.2s"
-              _hover={{
-                borderColor: 'brand.200',
-                bg: 'brand.50',
-                transform: 'translateY(-2px)',
-              }}
-              _dark={{
-                _hover: { bg: 'brand.900', borderColor: 'brand.700' },
-              }}
             >
               <Center mb={1}>
                 <Users size={16} color="var(--chakra-colors-gray-500)" />
               </Center>
               <Text fontSize="xl" fontWeight="semibold">
-                {player.matchesPlayed}
+                {isWaiting && player.position
+                  ? `#${player.position}`
+                  : player.matchesPlayed}
               </Text>
               <Text fontSize="xs" color="gray.500">
-                {t('stats.matchesPlayed')}
+                {isWaiting && player.position
+                  ? t('queue.position')
+                  : t('stats.matchesPlayed')}
               </Text>
             </Box>
           </Flex>
@@ -341,7 +408,7 @@ export default function PlayerStatusTab({
       {/* Card Footer */}
       <Box p={4} borderTopWidth="1px" textAlign="center">
         <Text fontSize="xs" color="gray.500">
-          {t('footer')}
+          {footerMessage}
         </Text>
       </Box>
     </Box>

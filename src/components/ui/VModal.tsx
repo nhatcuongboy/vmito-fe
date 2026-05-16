@@ -265,6 +265,8 @@ export const VModal: React.FC<VModalProps> = ({
             p={4}
             flex={1}
             overflowY="auto"
+            overflowX="hidden"
+            minH={0}
             maxH={maxBodyHeight}
             css={{
               '&::-webkit-scrollbar': {
@@ -294,6 +296,8 @@ export const VModal: React.FC<VModalProps> = ({
               borderTop={showFooterDivider ? '1px' : 'none'}
               borderColor={{ base: 'border', _dark: 'whiteAlpha.200' }}
               flexShrink={0}
+              bg={{ base: 'white', _dark: 'gray.800' }}
+              zIndex={1}
             >
               {footer !== undefined ? (
                 footer

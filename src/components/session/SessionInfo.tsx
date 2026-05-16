@@ -476,7 +476,7 @@ export default function SessionInfo({
           size="xs"
           variant="ghost"
           colorPalette="green"
-          alignSelf="flex-end"
+          alignSelf="center"
           mt={2}
           px={0}
           minH="auto"

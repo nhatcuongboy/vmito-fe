@@ -386,6 +386,8 @@
       "cannotEditCourtsWithPlayers": "Không thể chỉnh sửa cấu hình sân khi đã có người chơi tham gia",
       "cannotEditTimeWhenActive": "Không thể chỉnh sửa thời gian khi kèo đang diễn ra",
       "levelRequired": "Vui lòng chọn trình độ",
+      "specificDatesRequired": "Vui lòng chọn ít nhất một ngày để clone kèo",
+      "recurringWeekdaysRequired": "Vui lòng chọn ít nhất một thứ trong tuần để tạo kèo lặp lại",
       "endTimeMustBeAfterStartTime": "Thời gian kết thúc phải sau thời gian bắt đầu"
     },
     "generalSettings": {
@@ -707,6 +709,9 @@
       "selectedWeekdays": "Các ngày đã chọn:",
       "enable": "Bật tạo nhiều kèo",
       "disable": "Tắt tạo nhiều kèo",
+      "disabledSummary": "Đang tắt - chỉ tạo 1 kèo",
+      "summaryCount": "Sẽ tạo {count} kèo",
+      "createSessionsWithCount": "Tạo {count} kèo",
       "totalSessions": "Tổng số kèo sẽ tạo:",
       "sessionsPerWeek": "ngày/tuần",
       "totalSessionsCalc": "{perWeek} ngày/tuần × {weeks} tuần = {total} kèo",
@@ -1230,7 +1235,7 @@
       "playerWithNumber": "Người chơi {number}",
       "matchesCount": "{count} trận",
       "addPlayer": "Thêm người",
-      "addAnother": "Thêm nữa",
+      "addAnother": "Thêm người",
       "addFirstPlayer": "Thêm người chơi đầu tiên",
       "saveAll": "Lưu tất cả ({count})",
       "existingPlayers": "Người chơi hiện có ({count})",
@@ -2676,14 +2681,20 @@
         "court": {
           "title": "Sân {number}",
           "elapsed": "Đã chơi {time}",
-          "playerHighlight": "Bạn được tô sáng màu trắng trên sân ở phía trên",
+          "playerHighlight": "Bạn là vòng có viền trắng/phát sáng trên sân",
           "playingWith": "Chơi cùng với:",
           "partnerWith": "Đang chơi cùng cặp với:",
-          "opponents": "Đối thủ:"
+          "opponents": "Đối thủ:",
+          "legend": {
+            "you": "Bạn",
+            "teammate": "Đồng đội",
+            "opponent": "Đối thủ"
+          }
         },
         "stats": {
           "minutes": "phút",
           "currentWait": "Thời gian chờ",
+          "matchElapsed": "Thời gian trận",
           "matchesPlayed": "Trận đã chơi",
           "title": "Thống kê của bạn",
           "wins": "Thắng",
@@ -2694,10 +2705,14 @@
         },
         "queue": {
           "title": "Vị trí trong hàng chờ",
+          "position": "Vị trí chờ",
           "updated": "Cập nhật {time}",
           "autoRefresh": "Tự động làm mới sau {seconds} giây"
         },
         "footer": "Vui lòng giữ trang này mở để duy trì vị trí trong hàng chờ",
+        "footerWaiting": "Vui lòng giữ trang này mở để duy trì vị trí trong hàng chờ",
+        "footerPlaying": "Kết quả sẽ được host cập nhật sau trận",
+        "footerFinished": "Cảm ơn bạn đã tham gia kèo này",
         "leaveSession": "Rời khỏi kèo",
         "errors": {
           "missingPlayerId": "Thiếu ID người chơi",
@@ -2728,7 +2743,7 @@
           "youWereDeselected": "Bạn đã bị loại khỏi {court}"
         },
         "courtCall": {
-          "title": "🏸 Đến lượt bạn!",
+          "title": "Đến lượt bạn!",
           "goToCourt": "Vui lòng di chuyển đến",
           "description": "Trận đấu của bạn sắp bắt đầu. Hãy đến sân ngay nhé.",
           "understood": "Đã hiểu, tôi đang đến!"
@@ -3386,6 +3401,11 @@
     "free": "Miễn phí",
     "enableFee": "Bật tính phí",
     "disableFee": "Tắt tính phí",
+    "disabledSummary": "Đang tắt - không thu phí",
+    "enabledSummary": "Đã bật tính phí",
+    "fixedSummaryBoth": "Nam {male} - Nữ {female} VND",
+    "fixedSummaryMale": "Nam {male} VND",
+    "fixedSummaryFemale": "Nữ {female} VND",
     "feeRange": "{min} - {max}",
     "samePrice": "{price}",
     "validation": {
@@ -3698,6 +3718,8 @@
       "startReminderMessage": "Đã đến giờ cho kèo “{sessionName}”. Bạn đã có mặt tại sân chưa? Nhấn để bắt đầu.",
       "playerStartReminderTitle": "Kèo sắp bắt đầu!",
       "playerStartReminderMessage": "Kèo “{sessionName}” sắp bắt đầu. Hãy di chuyển ra sân!",
+      "yourTurnTitle": "Đến lượt bạn!",
+      "yourTurnMessage": "Vui lòng vào {courtName}. Trận của bạn sắp bắt đầu.",
       "autoStartedTitle": "Kèo đã tự động bắt đầu",
       "autoStartedMessage": "Kèo “{sessionName}” đã được tự động bắt đầu đúng giờ đã lên lịch.",
       "sessionAutoStartedTitle": "Kèo đã bắt đầu!",

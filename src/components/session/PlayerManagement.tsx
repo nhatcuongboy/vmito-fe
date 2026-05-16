@@ -110,9 +110,23 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
     setShowAddPlayerModal(false);
   };
 
+  const handleAddPlayer = () => {
+    const didAddPlayer = handleAddNewPlayer();
+    if (didAddPlayer) {
+      setShowAddPlayerModal(true);
+    }
+  };
+
   // Handle cancel from warning modal - only close warning modal
   const handleCancelWarning = () => {
     cancelAddPlayer();
+  };
+
+  const handleConfirmAddPlayerDespiteWarning = () => {
+    const didAddPlayer = confirmAddPlayerDespiteWarning();
+    if (didAddPlayer) {
+      setShowAddPlayerModal(true);
+    }
   };
 
   // Edit Player Modal handlers
@@ -160,7 +174,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         onUpdatePlayer={updateNewPlayer}
         onRemovePlayer={removeNewPlayerRow}
         onUserSelect={handleUserSelection}
-        onAddPlayer={handleAddNewPlayer}
+        onAddPlayer={handleAddPlayer}
         onSaveAll={handleSaveAndClose}
         onCancelAll={clearAllNewPlayers}
         isUserAlreadyUsed={isUserAlreadyUsed}
@@ -241,7 +255,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         }
         size="md"
         primaryActionText={t('limitWarningModal.addAnyway')}
-        onPrimaryAction={confirmAddPlayerDespiteWarning}
+        onPrimaryAction={handleConfirmAddPlayerDespiteWarning}
         primaryColorScheme="orange"
         secondaryActionText={tCommon('cancel')}
       >

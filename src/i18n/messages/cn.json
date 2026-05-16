@@ -372,6 +372,8 @@
       "cannotEditCourtsWithPlayers": "已有玩家加入，无法编辑场地配置",
       "cannotEditTimeWhenActive": "场次进行中，无法编辑时间",
       "levelRequired": "请选择等级",
+      "specificDatesRequired": "请选择至少一个日期来复制场次",
+      "recurringWeekdaysRequired": "请选择至少一个星期几来创建重复场次",
       "endTimeMustBeAfterStartTime": "结束时间必须晚于开始时间"
     },
     "generalSettings": {
@@ -685,6 +687,9 @@
       "selectedWeekdays": "已选星期：",
       "enable": "开启批量创建",
       "disable": "关闭批量创建",
+      "disabledSummary": "已关闭 - 仅创建 1 场",
+      "summaryCount": "将创建 {count} 场",
+      "createSessionsWithCount": "创建 {count} 场",
       "totalSessions": "将创建的总场数：",
       "sessionsPerWeek": "天/周",
       "totalSessionsCalc": "{perWeek} 天/周 × {weeks} 周 = {total} 场",
@@ -1202,7 +1207,7 @@
       "playerWithNumber": "玩家 {number}",
       "matchesCount": "{count} 场比赛",
       "addPlayer": "添加玩家",
-      "addAnother": "继续添加",
+      "addAnother": "添加玩家",
       "addFirstPlayer": "添加您的第一个玩家",
       "saveAll": "保存所有 ({count})",
       "existingPlayers": "现有玩家 ({count})",
@@ -2623,14 +2628,20 @@
         "court": {
           "title": "场地 {number}",
           "elapsed": "已进行 {time}",
-          "playerHighlight": "您在上方场地中以白色突出显示",
+          "playerHighlight": "您是场地上带白色描边/高亮的标记",
           "playingWith": "正在比赛：",
           "partnerWith": "队友：",
-          "opponents": "对手："
+          "opponents": "对手：",
+          "legend": {
+            "you": "您",
+            "teammate": "队友",
+            "opponent": "对手"
+          }
         },
         "stats": {
           "minutes": "分钟",
           "currentWait": "当前等待",
+          "matchElapsed": "比赛时间",
           "matchesPlayed": "已赛场次",
           "title": "Your Statistics",
           "wins": "Wins",
@@ -2641,10 +2652,14 @@
         },
         "queue": {
           "title": "队列位置",
+          "position": "队列位置",
           "updated": "更新于 {time}",
           "autoRefresh": "{seconds} 秒后自动刷新"
         },
         "footer": "请保持此页面打开以维持您的排队位置",
+        "footerWaiting": "请保持此页面打开以维持您的排队位置",
+        "footerPlaying": "比赛结束后由主办方更新结果",
+        "footerFinished": "感谢您参加本场次",
         "leaveSession": "离开场次",
         "errors": {
           "missingPlayerId": "缺少玩家 ID",
@@ -2675,7 +2690,7 @@
           "youWereDeselected": "您已被移出场地 {court}"
         },
         "courtCall": {
-          "title": "🏸 到你了！",
+          "title": "到你了！",
           "goToCourt": "请前往",
           "description": "您的比赛即将开始。请立即前往场地。",
           "understood": "收到，我马上就去！"
@@ -3326,6 +3341,11 @@
     "free": "免费",
     "enableFee": "启用收费",
     "disableFee": "禁用收费",
+    "disabledSummary": "已关闭 - 不收费",
+    "enabledSummary": "已启用收费",
+    "fixedSummaryBoth": "男 {male} - 女 {female} VND",
+    "fixedSummaryMale": "男 {male} VND",
+    "fixedSummaryFemale": "女 {female} VND",
     "feeRange": "{min} - {max}",
     "samePrice": "{price}",
     "validation": {
@@ -3661,7 +3681,9 @@
       "playerAddedTitle": "您已被添加到场次",
       "playerAddedMessage": "您已被添加到场次“{sessionName}”。",
       "playerRemovedTitle": "您已被从场次移除",
-      "playerRemovedMessage": "您已被从场次“{sessionName}”移除。"
+      "playerRemovedMessage": "您已被从场次“{sessionName}”移除。",
+      "yourTurnTitle": "轮到您了！",
+      "yourTurnMessage": "请前往 {courtName}。您的比赛即将开始。"
     }
   },
   "posts": {

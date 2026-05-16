@@ -18,6 +18,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { vi, enUS, zhCN } from 'date-fns/locale';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
+import { getNotificationDisplayText } from '@/lib/notifications/content';
 
 interface INotificationItemProps {
   notification: INotification;
@@ -25,72 +26,6 @@ interface INotificationItemProps {
   onDelete: (id: string) => void;
   onClick?: (notification: INotification) => void;
 }
-
-const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
-  {
-    // Session actions (use sessionName param)
-    start_reminder: {
-      titleKey: 'messages.startReminderTitle',
-      messageKey: 'messages.startReminderMessage',
-    },
-    player_start_reminder: {
-      titleKey: 'messages.playerStartReminderTitle',
-      messageKey: 'messages.playerStartReminderMessage',
-    },
-    auto_started: {
-      titleKey: 'messages.autoStartedTitle',
-      messageKey: 'messages.autoStartedMessage',
-    },
-    session_auto_started: {
-      titleKey: 'messages.sessionAutoStartedTitle',
-      messageKey: 'messages.sessionAutoStartedMessage',
-    },
-    auto_cancelled: {
-      titleKey: 'messages.autoCancelledTitle',
-      messageKey: 'messages.autoCancelledMessage',
-    },
-    session_cancelled: {
-      titleKey: 'messages.sessionCancelledTitle',
-      messageKey: 'messages.sessionCancelledMessage',
-    },
-    end_warning: {
-      titleKey: 'messages.endWarningTitle',
-      messageKey: 'messages.endWarningMessage',
-    },
-    auto_finalized: {
-      titleKey: 'messages.autoFinalizedTitle',
-      messageKey: 'messages.autoFinalizedMessage',
-    },
-    // Club actions (use clubName param)
-    club_creation_pending: {
-      titleKey: 'messages.clubCreationPendingTitle',
-      messageKey: 'messages.clubCreationPendingMessage',
-    },
-    admin_new_pending_club: {
-      titleKey: 'messages.adminNewPendingClubTitle',
-      messageKey: 'messages.adminNewPendingClubMessage',
-    },
-    club_creation_approved: {
-      titleKey: 'messages.clubCreationApprovedTitle',
-      messageKey: 'messages.clubCreationApprovedMessage',
-    },
-    club_approved: {
-      titleKey: 'messages.clubApprovedTitle',
-      messageKey: 'messages.clubApprovedMessage',
-    },
-    club_rejected: {
-      titleKey: 'messages.clubRejectedTitle',
-      messageKey: 'messages.clubRejectedMessage',
-    },
-    player_added: {
-      titleKey: 'messages.playerAddedTitle',
-      messageKey: 'messages.playerAddedMessage',
-    },
-    player_removed: {
-      titleKey: 'messages.playerRemovedTitle',
-      messageKey: 'messages.playerRemovedMessage',
-    },
-  };
 
 const VIEW_SESSION_ACTIONS = new Set([
   'start_reminder',
@@ -143,33 +78,12 @@ export const NotificationItem = ({
   });
 
   const action = notification.data?.action as string | undefined;
-  const sessionName = notification.data?.sessionName as string | undefined;
-  const clubName = notification.data?.clubName as string | undefined;
-  const rejectionReason = notification.data?.rejectionReason as
-    | string
-    | undefined;
   const sessionId = notification.data?.sessionId as string | undefined;
   const clubSlug = notification.data?.clubSlug as string | undefined;
-  const keys = action ? ACTION_TO_KEYS[action] : undefined;
-
-  // Use whatever resource name is available
-  const resourceName = sessionName ?? clubName;
-
-  const translationParams = {
-    ...(sessionName ? { sessionName } : {}),
-    ...(clubName ? { clubName } : {}),
-    ...(rejectionReason ? { rejectionReason } : {}),
-  };
-
-  const displayTitle =
-    keys && resourceName
-      ? t(keys.titleKey as Parameters<typeof t>[0])
-      : notification.title;
-
-  const displayMessage =
-    keys && resourceName
-      ? t(keys.messageKey as Parameters<typeof t>[0], translationParams)
-      : notification.message;
+  const { displayTitle, displayMessage } = getNotificationDisplayText(
+    notification,
+    (key, values) => t(key as Parameters<typeof t>[0], values)
+  );
 
   const showViewSession =
     action && VIEW_SESSION_ACTIONS.has(action) && !!sessionId;

@@ -204,7 +204,6 @@ export default function SessionPaymentList({
   );
   const [filter, setFilter] = useState<FilterType>('all');
   const [memberFilter, setMemberFilter] = useState<MemberFilterType>('all');
-  const [isBulkApproving, setIsBulkApproving] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     () => new Set()
   );
@@ -281,14 +280,11 @@ export default function SessionPaymentList({
     });
   };
 
-  const handleGroupBulkApprove = async (
-    key: string,
-    group: PaymentRecord[]
-  ) => {
-    if (!onBulkApprove) return;
+  const handleGroupBulkApprove = async (key: string, paymentIds: string[]) => {
+    if (!onBulkApprove || paymentIds.length === 0) return;
     setGroupBulkLoading(key);
     try {
-      await onBulkApprove(group.map((p) => p.id));
+      await onBulkApprove(paymentIds);
     } finally {
       setGroupBulkLoading(null);
     }
@@ -300,22 +296,6 @@ export default function SessionPaymentList({
   const submittedCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.SUBMITTED
   ).length;
-  const submittedPaymentIds = paymentsArray
-    .filter((p) => p.status === PaymentStatus.SUBMITTED)
-    .map((p) => p.id);
-
-  const handleBulkApprove = async () => {
-    if (!onBulkApprove || submittedPaymentIds.length === 0) return;
-
-    setIsBulkApproving(true);
-    try {
-      await onBulkApprove(submittedPaymentIds);
-    } catch (error) {
-      console.error('Bulk approve failed:', error);
-    } finally {
-      setIsBulkApproving(false);
-    }
-  };
 
   const handleApprove = async (
     notes?: string,
@@ -448,20 +428,6 @@ export default function SessionPaymentList({
             </Box>
           )}
         </HStack>
-
-        {onBulkApprove && submittedPaymentIds.length > 0 && (
-          <Button
-            size="sm"
-            colorPalette="green"
-            onClick={handleBulkApprove}
-            loading={isBulkApproving}
-          >
-            <CheckCheck size={16} />
-            <Text ml={1}>
-              {t('approveAll')} ({submittedPaymentIds.length})
-            </Text>
-          </Button>
-        )}
       </Flex>
 
       {/* Payment List */}
@@ -514,6 +480,23 @@ export default function SessionPaymentList({
             const allApproved = group.every(
               (p) => p.status === PaymentStatus.APPROVED
             );
+            const hasSubmitted = group.some(
+              (p) => p.status === PaymentStatus.SUBMITTED
+            );
+            const hasRejected = group.some(
+              (p) => p.status === PaymentStatus.REJECTED
+            );
+            const groupSubmittedPaymentIds = group
+              .filter((p) => p.status === PaymentStatus.SUBMITTED)
+              .map((p) => p.id);
+            const groupStatus = allApproved
+              ? PaymentStatus.APPROVED
+              : hasSubmitted
+                ? PaymentStatus.SUBMITTED
+                : hasRejected
+                  ? PaymentStatus.REJECTED
+                  : PaymentStatus.PENDING;
+            const groupApproveLabel = `${t('approveAll')} (${groupSubmittedPaymentIds.length})`;
 
             if (!isMulti) {
               // Single slot — render individual card
@@ -609,102 +592,120 @@ export default function SessionPaymentList({
                 key={key}
                 border="1px solid"
                 borderColor="green.200"
-                borderRadius="lg"
+                borderRadius="xl"
                 overflow="hidden"
+                bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'green.700' }}
               >
                 {/* Group header */}
-                <Flex
-                  px={3}
-                  py={2.5}
+                <Box
+                  px={3.5}
+                  py={3}
                   bg="green.50"
                   _dark={{ bg: 'green.900/20' }}
-                  align="center"
-                  justify="space-between"
-                  gap={3}
                   cursor="pointer"
                   onClick={() => toggleGroup(key)}
                 >
-                  <HStack gap={3} flex={1} minW={0}>
-                    <Avatar.Root size="sm">
-                      {representative.player?.user?.image ? (
-                        <Avatar.Image src={representative.player.user.image} />
-                      ) : (
-                        <Avatar.Fallback>
-                          <User size={16} />
-                        </Avatar.Fallback>
-                      )}
-                    </Avatar.Root>
-                    <Box flex={1} minW={0}>
-                      <HStack gap={1.5}>
-                        <Text fontWeight="semibold" fontSize="sm" lineClamp={2}>
-                          {representative.player?.name ||
-                            representative.player?.user?.name ||
-                            t('unknownPlayer')}
-                        </Text>
-                        <Badge colorPalette="green" size="xs">
-                          {group.length} slot
-                        </Badge>
+                  <VStack align="stretch" gap={3}>
+                    <Flex align="flex-start" justify="space-between" gap={3}>
+                      <HStack gap={3} flex={1} minW={0} align="flex-start">
+                        <Avatar.Root size="md" flexShrink={0}>
+                          {representative.player?.user?.image ? (
+                            <Avatar.Image
+                              src={representative.player.user.image}
+                            />
+                          ) : (
+                            <Avatar.Fallback>
+                              <User size={18} />
+                            </Avatar.Fallback>
+                          )}
+                        </Avatar.Root>
+                        <Box flex={1} minW={0}>
+                          <HStack gap={2} wrap="wrap" mb={1}>
+                            <Badge colorPalette="green" size="sm">
+                              {group.length} slot
+                            </Badge>
+                            <PaymentStatusBadge
+                              status={groupStatus}
+                              size="sm"
+                            />
+                          </HStack>
+                          <Text
+                            fontWeight="semibold"
+                            fontSize="md"
+                            lineClamp={2}
+                          >
+                            {representative.player?.name ||
+                              representative.player?.user?.name ||
+                              t('unknownPlayer')}
+                          </Text>
+                          <Text fontSize="sm" color="gray.600">
+                            {[
+                              males > 0 && `${males} ${tCommon('male')}`,
+                              females > 0 && `${females} ${tCommon('female')}`,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
+                          </Text>
+                        </Box>
                       </HStack>
-                      <Text fontSize="xs" color="gray.500">
-                        {[
-                          males > 0 && `${males} ${tCommon('male')}`,
-                          females > 0 && `${females} ${tCommon('female')}`,
-                        ]
-                          .filter(Boolean)
-                          .join(', ')}
-                      </Text>
-                    </Box>
-                  </HStack>
-                  <HStack gap={2} flexShrink={0}>
-                    <VStack gap={1} align="flex-end">
-                      <Text
-                        fontWeight="semibold"
-                        color="green.600"
-                        fontSize="sm"
-                      >
-                        {FeeService.formatFeeExact(totalGroupAmount)}
-                      </Text>
-                      <PaymentStatusBadge
-                        status={
-                          allApproved
-                            ? PaymentStatus.APPROVED
-                            : PaymentStatus.PENDING
-                        }
-                        size="sm"
-                      />
-                    </VStack>
-                    {!allApproved && onBulkApprove && (
-                      <Button
-                        size="xs"
-                        colorPalette="green"
-                        loading={groupBulkLoading === key}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGroupBulkApprove(key, group);
-                        }}
-                      >
-                        <CheckCheck size={12} />
-                        <Text ml={1}>{t('approveAll')}</Text>
-                      </Button>
-                    )}
-                    <Box color="gray.500">
-                      {isExpanded ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
+                      <Box color="gray.500" pt={1} flexShrink={0}>
+                        {isExpanded ? (
+                          <ChevronUp size={18} />
+                        ) : (
+                          <ChevronDown size={18} />
+                        )}
+                      </Box>
+                    </Flex>
+
+                    <Flex
+                      align={{ base: 'stretch', sm: 'center' }}
+                      justify="space-between"
+                      gap={2.5}
+                      direction={{ base: 'column', sm: 'row' }}
+                    >
+                      <Box>
+                        <Text fontSize="xs" color="gray.500">
+                          {t('totalFee')}
+                        </Text>
+                        <Text
+                          fontWeight="semibold"
+                          color="green.600"
+                          fontSize="lg"
+                        >
+                          {FeeService.formatFeeExact(totalGroupAmount)}
+                        </Text>
+                      </Box>
+                      {onBulkApprove && groupSubmittedPaymentIds.length > 0 && (
+                        <Button
+                          size="sm"
+                          colorPalette="green"
+                          loading={groupBulkLoading === key}
+                          alignSelf={{ base: 'stretch', sm: 'center' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGroupBulkApprove(
+                              key,
+                              groupSubmittedPaymentIds
+                            );
+                          }}
+                        >
+                          <CheckCheck size={14} />
+                          <Text ml={1}>{groupApproveLabel}</Text>
+                        </Button>
                       )}
-                    </Box>
-                  </HStack>
-                </Flex>
+                    </Flex>
+                  </VStack>
+                </Box>
 
                 {/* Individual slot rows */}
                 {isExpanded && (
-                  <VStack gap={0} align="stretch">
+                  <VStack gap={0} align="stretch" bg="white">
                     {group.map((payment, idx) => (
                       <Box
                         key={payment.id}
-                        px={3}
-                        py={2.5}
+                        px={3.5}
+                        py={3}
                         bg="white"
                         _dark={{ bg: 'gray.800' }}
                         borderTop="1px solid"
@@ -714,13 +715,18 @@ export default function SessionPaymentList({
                         transition="background 0.15s"
                         onClick={() => setSelectedPayment(payment)}
                       >
-                        <Flex align="center" justify="space-between" gap={3}>
-                          <HStack gap={2.5} flex={1} minW={0}>
+                        <Flex
+                          align={{ base: 'flex-start', sm: 'center' }}
+                          justify="space-between"
+                          gap={3}
+                        >
+                          <HStack gap={3} flex={1} minW={0} align="flex-start">
                             <Text
                               fontSize="xs"
                               color="gray.400"
                               fontWeight="medium"
-                              minW="20px"
+                              minW="28px"
+                              pt={1}
                             >
                               #{payment.player?.playerNumber}
                             </Text>
@@ -764,7 +770,12 @@ export default function SessionPaymentList({
                               </VStack>
                             </Box>
                           </HStack>
-                          <VStack gap={1.5} align="flex-end" flexShrink={0}>
+                          <VStack
+                            gap={1.5}
+                            align="flex-end"
+                            flexShrink={0}
+                            minW={{ base: '96px', sm: '120px' }}
+                          >
                             {renderFixedMemberAmount(payment)}
                             <PaymentStatusBadge
                               status={payment.status}

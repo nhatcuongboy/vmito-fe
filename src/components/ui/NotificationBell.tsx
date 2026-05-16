@@ -48,6 +48,7 @@ import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
+import { getNotificationDisplayText } from '@/lib/notifications/content';
 
 interface NotificationBellProps {
   color?: string;
@@ -64,70 +65,6 @@ type TUnifiedItem =
     };
 
 const PANEL_CACHE_TTL_MS = 30_000;
-
-const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
-  {
-    start_reminder: {
-      titleKey: 'messages.startReminderTitle',
-      messageKey: 'messages.startReminderMessage',
-    },
-    player_start_reminder: {
-      titleKey: 'messages.playerStartReminderTitle',
-      messageKey: 'messages.playerStartReminderMessage',
-    },
-    auto_started: {
-      titleKey: 'messages.autoStartedTitle',
-      messageKey: 'messages.autoStartedMessage',
-    },
-    session_auto_started: {
-      titleKey: 'messages.sessionAutoStartedTitle',
-      messageKey: 'messages.sessionAutoStartedMessage',
-    },
-    auto_cancelled: {
-      titleKey: 'messages.autoCancelledTitle',
-      messageKey: 'messages.autoCancelledMessage',
-    },
-    session_cancelled: {
-      titleKey: 'messages.sessionCancelledTitle',
-      messageKey: 'messages.sessionCancelledMessage',
-    },
-    end_warning: {
-      titleKey: 'messages.endWarningTitle',
-      messageKey: 'messages.endWarningMessage',
-    },
-    auto_finalized: {
-      titleKey: 'messages.autoFinalizedTitle',
-      messageKey: 'messages.autoFinalizedMessage',
-    },
-    player_added: {
-      titleKey: 'messages.playerAddedTitle',
-      messageKey: 'messages.playerAddedMessage',
-    },
-    player_removed: {
-      titleKey: 'messages.playerRemovedTitle',
-      messageKey: 'messages.playerRemovedMessage',
-    },
-    club_creation_pending: {
-      titleKey: 'messages.clubCreationPendingTitle',
-      messageKey: 'messages.clubCreationPendingMessage',
-    },
-    admin_new_pending_club: {
-      titleKey: 'messages.adminNewPendingClubTitle',
-      messageKey: 'messages.adminNewPendingClubMessage',
-    },
-    club_creation_approved: {
-      titleKey: 'messages.clubCreationApprovedTitle',
-      messageKey: 'messages.clubCreationApprovedMessage',
-    },
-    club_approved: {
-      titleKey: 'messages.clubApprovedTitle',
-      messageKey: 'messages.clubApprovedMessage',
-    },
-    club_rejected: {
-      titleKey: 'messages.clubRejectedTitle',
-      messageKey: 'messages.clubRejectedMessage',
-    },
-  };
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -330,43 +267,9 @@ export default function NotificationBell({
   };
 
   const getNotificationDisplay = (notification: INotification) => {
-    const action = notification.data?.action as string | undefined;
-    const sessionName = notification.data?.sessionName as string | undefined;
-    const clubName = notification.data?.clubName as string | undefined;
-    const rejectionReason = notification.data?.rejectionReason as
-      | string
-      | undefined;
-    const keys = action ? ACTION_TO_KEYS[action] : undefined;
-    const resourceName = sessionName ?? clubName;
-    const translationParams = {
-      ...(sessionName ? { sessionName } : {}),
-      ...(clubName ? { clubName } : {}),
-      ...(rejectionReason ? { rejectionReason } : {}),
-    };
-    const displayTitle =
-      keys && resourceName
-        ? (() => {
-            try {
-              return t(keys.titleKey as Parameters<typeof t>[0]);
-            } catch {
-              return notification.title;
-            }
-          })()
-        : notification.title;
-    const displayMessage =
-      keys && resourceName
-        ? (() => {
-            try {
-              return t(
-                keys.messageKey as Parameters<typeof t>[0],
-                translationParams
-              );
-            } catch {
-              return notification.message;
-            }
-          })()
-        : notification.message;
-    return { displayTitle, displayMessage };
+    return getNotificationDisplayText(notification, (key, values) =>
+      t(key as Parameters<typeof t>[0], values)
+    );
   };
 
   if (!user) return null;

@@ -10,8 +10,10 @@ import {
   VStack,
   Icon,
   Collapsible,
+  Button,
 } from '@chakra-ui/react';
 import { Input } from '@/components/ui/Input';
+import { VSwitch } from '@/components/ui/VSwitch';
 import { useTranslations } from 'next-intl';
 import { FeeType } from '@/lib/api/types';
 import { DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
@@ -50,6 +52,13 @@ export default function SessionFeeConfigForm({
     if (enabled) setIsOpen(true);
   }, [enabled]);
 
+  const handleEnabledChange = (newEnabled: boolean) => {
+    onEnabledChange(newEnabled);
+    if (newEnabled) {
+      setIsOpen(true);
+    }
+  };
+
   const handleFeeChange = (
     value: string,
     setter: (fee: number | undefined) => void
@@ -69,6 +78,20 @@ export default function SessionFeeConfigForm({
     return value.toLocaleString('vi-VN');
   };
 
+  const feeSummary = (() => {
+    if (!enabled) return t('disabledSummary');
+    if (feeType === FeeType.SPLIT_EVENLY) return t('splitEvenly');
+
+    const male = formatFeeValue(maleFee);
+    const female = formatFeeValue(femaleFee);
+    if (male && female) {
+      return t('fixedSummaryBoth', { male, female });
+    }
+    if (male) return t('fixedSummaryMale', { male });
+    if (female) return t('fixedSummaryFemale', { female });
+    return t('enabledSummary');
+  })();
+
   return (
     <Box
       bg={{ base: 'white', _dark: 'gray.800' }}
@@ -79,40 +102,63 @@ export default function SessionFeeConfigForm({
       overflow="hidden"
     >
       <Collapsible.Root
-        open={isOpen}
-        onOpenChange={(e) => {
-          setIsOpen(e.open);
-          if (e.open && !enabled) onEnabledChange(true);
-        }}
+        open={enabled && isOpen}
+        onOpenChange={(e) => setIsOpen(e.open)}
         disabled={disabled}
       >
-        <Collapsible.Trigger asChild>
-          <Box
-            as="button"
-            w="full"
-            p={4}
-            cursor={disabled ? 'not-allowed' : 'pointer'}
-            opacity={disabled ? 0.6 : 1}
-            _hover={{
-              bg: disabled ? undefined : { base: 'gray.50', _dark: 'gray.750' },
-            }}
-            transition="background 0.2s"
-          >
-            <Flex align="center" justify="space-between">
-              <HStack gap={2}>
-                <Icon asChild boxSize={5} color="green.500">
-                  <DollarSign />
+        <Flex
+          align="center"
+          justify="space-between"
+          gap={3}
+          p={4}
+          opacity={disabled ? 0.6 : 1}
+        >
+          <HStack gap={2} minW={0}>
+            <Icon asChild boxSize={5} color="green.500" flexShrink={0}>
+              <DollarSign />
+            </Icon>
+            <Box minW={0}>
+              <Text fontWeight="semibold" fontSize="md">
+                {t('title')}
+              </Text>
+              <Text fontSize="xs" color="fg.muted" truncate>
+                {feeSummary}
+              </Text>
+            </Box>
+          </HStack>
+
+          <HStack gap={3} flexShrink={0}>
+            <VSwitch
+              checked={enabled}
+              onCheckedChange={(details) =>
+                handleEnabledChange(!!details.checked)
+              }
+              disabled={disabled}
+              colorPalette="green"
+              size="sm"
+              aria-label={enabled ? t('disableFee') : t('enableFee')}
+            />
+            <Collapsible.Trigger asChild>
+              <Button
+                type="button"
+                boxSize={9}
+                minW={9}
+                p={0}
+                variant="ghost"
+                borderRadius="md"
+                color="fg.muted"
+                disabled={disabled || !enabled}
+                opacity={enabled ? 1 : 0.45}
+                cursor={disabled || !enabled ? 'not-allowed' : 'pointer'}
+                _hover={!disabled && enabled ? { bg: 'bg.muted' } : undefined}
+              >
+                <Icon asChild boxSize={5}>
+                  {enabled && isOpen ? <ChevronUp /> : <ChevronDown />}
                 </Icon>
-                <Text fontWeight="semibold" fontSize="md">
-                  {t('title')}
-                </Text>
-              </HStack>
-              <Icon asChild boxSize={5} color="fg.muted">
-                {isOpen ? <ChevronUp /> : <ChevronDown />}
-              </Icon>
-            </Flex>
-          </Box>
-        </Collapsible.Trigger>
+              </Button>
+            </Collapsible.Trigger>
+          </HStack>
+        </Flex>
 
         <Collapsible.Content>
           <VStack gap={4} align="stretch" p={6} pt={0}>

@@ -16,6 +16,7 @@ import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useCourtCallStore } from '@/stores/useCourtCallStore';
 import { INotification } from '@/lib/api/types';
 import { sendSystemNotification } from '@/utils/notifications';
+import { getYourTurnNotificationContent } from '@/lib/notifications/content';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -164,6 +165,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, [socket, isConnected, userId]);
 
   const t = useTranslations('session');
+  const tNotification = useTranslations('notification');
 
   // Global event listeners for notifications
   useEffect(() => {
@@ -331,9 +333,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       useCourtCallStore.getState().showCourtCall(courtDisplayName);
 
       // System notification
+      const yourTurnNotification = getYourTurnNotificationContent(
+        (key, values) =>
+          tNotification(key as Parameters<typeof tNotification>[0], values),
+        courtDisplayName
+      );
+
       sendSystemNotification(
-        `🏸 Đến lượt bạn! Vui lòng di chuyển đến ${courtDisplayName}`,
-        `Trận đấu của bạn sắp bắt đầu.`
+        `🏸 ${yourTurnNotification.title}`,
+        yourTurnNotification.message
       );
 
       // TTS announcement — repeat 3 times
@@ -365,7 +373,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleGlobalPlayersSelected
       );
     };
-  }, [socket, userId]);
+  }, [socket, userId, tNotification]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

@@ -532,8 +532,8 @@ const CreateClubPage = () => {
           </Field>
 
           <Flex
-            justify={{ base: 'space-between', md: 'flex-end' }}
-            gap={{ base: 3, md: 4 }}
+            justify={{ base: 'stretch', md: 'flex-end' }}
+            gap={{ base: 0, md: 4 }}
             mt={4}
             position={{ base: 'fixed', md: 'static' }}
             left={{ base: 0, md: 'auto' }}
@@ -551,14 +551,12 @@ const CreateClubPage = () => {
               md: 'none',
             }}
           >
-            <Button variant="ghost" onClick={() => router.back()}>
-              {t('cancel')}
-            </Button>
             <Button
               type="submit"
               colorPalette="green"
               loading={isSubmitting}
-              flex={{ base: '0 0 auto', md: 'initial' }}
+              w={{ base: 'full', md: 'auto' }}
+              flex={{ base: '1 1 auto', md: 'initial' }}
             >
               {t('createClub')}
             </Button>

@@ -3,7 +3,7 @@ import { PlayerService } from '@/lib/api/player.service';
 import { LEVELS } from '@/constants/levels';
 import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { NewPlayer, Player } from './types';
 import { ISession, Gender, PlayerStatus } from '@/lib/api/types';
 import { ClubsService } from '@/lib/api/clubs.service';
@@ -151,13 +151,7 @@ export const usePlayerManagement = (
     if (!userId) {
       // Clear selection
       updateNewPlayer(index, 'userId', '');
-      updateNewPlayer(
-        index,
-        'name',
-        t('playerWithNumber', {
-          number: newPlayers[index].playerNumber,
-        })
-      );
+      updateNewPlayer(index, 'name', '');
       updateNewPlayer(index, 'gender', Gender.MALE);
       updateNewPlayer(index, 'level', getDefaultLevel());
       updateNewPlayer(index, 'levelDescription', '');
@@ -400,15 +394,18 @@ export const usePlayerManagement = (
   const handleAddNewPlayer = () => {
     if (isMaxPlayersReached && !showMaxPlayersWarning) {
       setShowMaxPlayersWarning(true);
+      return false;
     } else {
       setShowMaxPlayersWarning(false);
       addNewPlayerRow();
+      return true;
     }
   };
 
   const confirmAddPlayerDespiteWarning = () => {
     setShowMaxPlayersWarning(false);
     addNewPlayerRow();
+    return true;
   };
 
   const cancelAddPlayer = () => {
@@ -428,26 +425,6 @@ export const usePlayerManagement = (
       session.players?.some((p: Player) => p.userId === userId) || false;
     return inNewPlayers || inExistingPlayers;
   };
-
-  // Track the last player count to know when a new player is added to auto-name
-  const lastPlayerCount = useRef(newPlayers.length);
-  useEffect(() => {
-    if (newPlayers.length > lastPlayerCount.current) {
-      const newPlayerIndex = newPlayers.length - 1;
-      const newPlayer = newPlayers[newPlayerIndex];
-      if (newPlayer && (!newPlayer.name || newPlayer.name.trim() === '')) {
-        setTimeout(() => {
-          updateNewPlayer(
-            newPlayerIndex,
-            'name',
-            t('playerWithNumber', { number: newPlayer.playerNumber })
-          );
-        }, 10);
-      }
-    }
-    lastPlayerCount.current = newPlayers.length;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newPlayers.length]);
 
   return {
     // State
