@@ -35,6 +35,8 @@ const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'slots_desc', labelKey: 'sort.slotsAvailable' },
 ];
 
+type SessionStatusTab = 'active' | 'ended' | 'all';
+
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
   const tSession = useTranslations('session');
@@ -50,8 +52,14 @@ function PlayerSessionsContent() {
   const PAGE_SIZE = 12;
 
   // Initialize sessionStatusTab from URL param, default to 'active'
-  const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
-    (searchParams.get('tab') as 'active' | 'ended') || 'active'
+  const [sessionStatusTab, setSessionStatusTab] = useState<SessionStatusTab>(
+    (() => {
+      const tabParam = searchParams.get('tab');
+      if (tabParam === 'active' || tabParam === 'ended' || tabParam === 'all') {
+        return tabParam;
+      }
+      return 'active';
+    })()
   );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -155,12 +163,14 @@ function PlayerSessionsContent() {
     // Exclude FINISHED sessions from active tab - they are shown in the Ended Joined Sessions tab
     if (sessionStatusTab === 'active') {
       result = result.filter(
-        (session) => session.status !== SessionStatus.FINISHED
+        (session) =>
+          session.status !== SessionStatus.FINISHED &&
+          session.status !== SessionStatus.CANCELLED
       );
     }
 
     // Status filter
-    if (filters.status && sessionStatusTab === 'active') {
+    if (filters.status && sessionStatusTab !== 'ended') {
       result = result.filter((session) => session.status === filters.status);
     }
 
@@ -198,7 +208,7 @@ function PlayerSessionsContent() {
   };
 
   const handleTabChange = (
-    newTab: 'active' | 'ended' | 'pending' | 'expired'
+    newTab: 'active' | 'ended' | 'all' | 'pending' | 'expired'
   ) => {
     if (newTab === 'pending' || newTab === 'expired') return; // Should not happen with showPending={false}
     setSessionStatusTab(newTab);
@@ -207,6 +217,8 @@ function PlayerSessionsContent() {
     params.set('tab', newTab);
     router.push(`?${params.toString()}`);
   };
+
+  const displayCount = filters.date ? filteredSessions.length : totalCount;
 
   return (
     <PageLayout
@@ -234,7 +246,9 @@ function PlayerSessionsContent() {
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={sessionStatusTab === 'active'}
+            showStatusFilter={
+              sessionStatusTab === 'active' || sessionStatusTab === 'all'
+            }
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
@@ -242,6 +256,7 @@ function PlayerSessionsContent() {
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
+                showAll={true}
                 showPending={false}
                 showExpired={false}
               />
@@ -249,7 +264,7 @@ function PlayerSessionsContent() {
           />
 
           <ResultsHeader
-            count={totalCount}
+            count={displayCount}
             sortOptions={PLAYER_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
@@ -266,6 +281,18 @@ function PlayerSessionsContent() {
             viewMode={viewMode}
             forceViewSessionButton={true}
             showDownloadShareButtons={true}
+            emptyStateTitle={
+              sessionStatusTab === 'active'
+                ? tSession('noActiveSessions')
+                : sessionStatusTab === 'ended'
+                  ? tSession('noSessionsFound')
+                  : tSession('noSessionsFound')
+            }
+            emptyStateDescription={
+              sessionStatusTab === 'active'
+                ? tSession('noSessionsDescription')
+                : undefined
+            }
           />
 
           {/* Infinite Scroll Trigger */}

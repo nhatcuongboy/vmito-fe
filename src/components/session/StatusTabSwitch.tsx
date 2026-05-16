@@ -7,12 +7,16 @@ import { useTranslations } from 'next-intl';
 import { Button } from '../ui/chakra-compat';
 import { UnderlineTabs } from '../ui/UnderlineTabs';
 
+export type StatusTabId = 'active' | 'ended' | 'all' | 'pending' | 'expired';
+
 export interface StatusTabSwitchProps {
-  activeTab: 'active' | 'ended' | 'pending' | 'expired';
-  onChange: (tab: 'active' | 'ended' | 'pending' | 'expired') => void;
+  activeTab: StatusTabId;
+  onChange: (tab: StatusTabId) => void;
   activeLabel?: string;
   endedLabel?: string;
+  allLabel?: string;
   pendingLabel?: string;
+  showAll?: boolean;
   showPending?: boolean;
   showExpired?: boolean;
   isFixed?: boolean;
@@ -24,7 +28,9 @@ export function StatusTabSwitch({
   onChange,
   activeLabel,
   endedLabel,
+  allLabel,
   pendingLabel,
+  showAll = false,
   showPending = true,
   showExpired = true,
   isFixed: _isFixed = false,
@@ -56,12 +62,14 @@ export function StatusTabSwitch({
 
   const defaultActiveLabel = tSession('activeSessions');
   const defaultEndedLabel = tNav('endedSessions');
+  const defaultAllLabel = tSession('status.all');
   const defaultPendingLabel = tNav('pendingJoinRequests');
   const defaultExpiredLabel = tSession('expiredSessions');
 
   const tabs = [
     { id: 'active', label: activeLabel || defaultActiveLabel },
     { id: 'ended', label: endedLabel || defaultEndedLabel },
+    ...(showAll ? [{ id: 'all', label: allLabel || defaultAllLabel }] : []),
     ...(showExpired ? [{ id: 'expired', label: defaultExpiredLabel }] : []),
     ...(showPending
       ? [

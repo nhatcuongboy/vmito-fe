@@ -2,7 +2,7 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { ISession } from '@/lib/api/types';
-import { Box, Grid, Heading, Text } from '@chakra-ui/react';
+import { Box, Grid, Icon, Text } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';
@@ -13,6 +13,8 @@ import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
 import { useViewMode } from '@/hooks/useViewMode';
+import AppEmptyState from '@/components/ui/AppEmptyState';
+import { Search } from 'lucide-react';
 
 interface SessionsListProps {
   status?: string;
@@ -31,6 +33,10 @@ interface SessionsListProps {
   showDownloadShareButtons?: boolean;
   /** Force showing View Session button instead of Manage */
   forceViewSessionButton?: boolean;
+  /** Custom empty state title - if not provided, will use default translation */
+  emptyStateTitle?: string;
+  /** Custom empty state description - if not provided, will use default translation */
+  emptyStateDescription?: string;
 }
 
 export default function SessionsList({
@@ -43,6 +49,8 @@ export default function SessionsList({
   viewMode: externalViewMode,
   showDownloadShareButtons = false,
   forceViewSessionButton = false,
+  emptyStateTitle,
+  emptyStateDescription,
 }: SessionsListProps) {
   const [internalViewMode] = useViewMode('sessions');
   const viewMode = externalViewMode ?? internalViewMode;
@@ -166,20 +174,12 @@ export default function SessionsList({
 
   if (!loading && !loadingMore && filteredSessions.length === 0) {
     return (
-      <Box
-        textAlign="center"
-        py={10}
-        px={6}
-        borderWidth="1px"
-        borderRadius="lg"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-      >
-        <Heading size="md" mb={2}>
-          {t('noActiveSessions')}
-        </Heading>
-        <Text color="gray.500">{t('noActiveSessionsDescription')}</Text>
-      </Box>
+      <AppEmptyState
+        minH={{ base: '280px', md: '320px' }}
+        icon={<Icon as={Search} boxSize={10} color="gray.400" />}
+        title={emptyStateTitle || t('noActiveSessions')}
+        description={emptyStateDescription || t('noActiveSessionsDescription')}
+      />
     );
   }
 

@@ -61,9 +61,9 @@ function HostSessionsContent() {
 
   // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<
-    'active' | 'ended' | 'pending' | 'expired'
+    'active' | 'ended' | 'pending' | 'all'
   >(
-    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'expired') ||
+    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'all') ||
       'active'
   );
   const loadingMoreRef = useRef(false);
@@ -113,7 +113,7 @@ function HostSessionsContent() {
             ? SessionStatus.FINISHED
             : sessionStatusTab === 'active' && filters.status
               ? filters.status
-              : sessionStatusTab === 'expired'
+              : sessionStatusTab === 'all'
                 ? undefined
                 : filters.status,
         endTimeBefore: undefined,
@@ -277,14 +277,18 @@ function HostSessionsContent() {
   };
 
   const handleTabChange = (
-    newTab: 'active' | 'ended' | 'pending' | 'expired'
+    newTab: 'active' | 'ended' | 'all' | 'pending' | 'expired'
   ) => {
     if (newTab === 'pending') {
       router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
       return;
     }
+    if (newTab === 'expired') {
+      // Redirect expired to all tab
+      newTab = 'all';
+    }
     setFilters({});
-    setSessionStatusTab(newTab);
+    setSessionStatusTab(newTab as 'active' | 'ended' | 'all');
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
     params.set('tab', newTab);
@@ -326,13 +330,13 @@ function HostSessionsContent() {
             key={sessionStatusTab}
             onFilterChange={handleFilterChange}
             showStatusFilter={
-              sessionStatusTab === 'active' || sessionStatusTab === 'expired'
+              sessionStatusTab === 'active' || sessionStatusTab === 'all'
             }
             showDateFilter={true}
             showSearchFilter={true}
-            showLevelFilter={sessionStatusTab === 'expired'}
-            showTimeFilter={sessionStatusTab === 'expired'}
-            showFeeFilter={sessionStatusTab === 'expired'}
+            showLevelFilter={sessionStatusTab === 'all'}
+            showTimeFilter={sessionStatusTab === 'all'}
+            showFeeFilter={sessionStatusTab === 'all'}
             resultCount={totalCount}
             onCreateClick={() => {
               if (useAiForCreation) {
@@ -346,6 +350,8 @@ function HostSessionsContent() {
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
+                showAll={true}
+                showExpired={false}
               />
             }
           />
@@ -369,6 +375,24 @@ function HostSessionsContent() {
             expiredCount={expiredCount ?? undefined}
             viewMode={viewMode}
             showDownloadShareButtons={true}
+            emptyStateTitle={
+              sessionStatusTab === 'active'
+                ? tSession('noActiveSessions')
+                : sessionStatusTab === 'ended'
+                  ? tSession('noSessionsFound')
+                  : sessionStatusTab === 'all'
+                    ? tSession('noSessionsFound')
+                    : tSession('noSessionsFound')
+            }
+            emptyStateDescription={
+              sessionStatusTab === 'active'
+                ? tSession('noActiveSessionsDescription')
+                : sessionStatusTab === 'ended'
+                  ? undefined
+                  : sessionStatusTab === 'all'
+                    ? undefined
+                    : undefined
+            }
           />
 
           {/* Infinite Scroll Trigger */}
