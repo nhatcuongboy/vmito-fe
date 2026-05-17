@@ -587,13 +587,37 @@ export const SessionService = {
     radius?: number;
     page?: number;
     limit?: number;
+    favoriteHostOnly?: boolean;
   }): Promise<{
     data: (ISession & {
       score: number;
+      scoreComponents?: {
+        level: number;
+        distance: number;
+        schedule: number;
+        venue: number;
+        host: number;
+        slots: number;
+      };
+      availableSlots?: number;
+      maxPlayers?: number;
+      hostAffinity?: number;
+      isFavoriteHost?: boolean;
       distance: number | null;
       matchReasons: string[];
     })[];
-    pagination: { page: number; limit: number; total: number };
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages?: number;
+    };
+    meta?: {
+      isPersonalized: boolean;
+      favoriteHostOnly: boolean;
+      favoriteHostIds: string[];
+      reason?: string;
+    };
   }> => {
     const params = new URLSearchParams();
     if (filters?.lat !== undefined)
@@ -606,6 +630,8 @@ export const SessionService = {
       params.append('page', filters.page.toString());
     if (filters?.limit !== undefined)
       params.append('limit', filters.limit.toString());
+    if (filters?.favoriteHostOnly === true)
+      params.append('favoriteHostOnly', 'true');
 
     const url = params.toString()
       ? `/sessions/suggestions?${params.toString()}`
@@ -614,10 +640,33 @@ export const SessionService = {
       ApiResponse<{
         data: (ISession & {
           score: number;
+          scoreComponents?: {
+            level: number;
+            distance: number;
+            schedule: number;
+            venue: number;
+            host: number;
+            slots: number;
+          };
+          availableSlots?: number;
+          maxPlayers?: number;
+          hostAffinity?: number;
+          isFavoriteHost?: boolean;
           distance: number | null;
           matchReasons: string[];
         })[];
-        pagination: { page: number; limit: number; total: number };
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages?: number;
+        };
+        meta?: {
+          isPersonalized: boolean;
+          favoriteHostOnly: boolean;
+          favoriteHostIds: string[];
+          reason?: string;
+        };
       }>
     >(url);
     return response.data.data!;

@@ -2,6 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { PlayerService } from '@/lib/api/player.service';
+import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
@@ -36,6 +37,28 @@ const PLAYER_SORT_OPTIONS: SortOption[] = [
 ];
 
 type SessionStatusTab = 'active' | 'ended' | 'all';
+
+const enrichSessionsWithVenue = async (
+  sessions: ISession[]
+): Promise<ISession[]> => {
+  return Promise.all(
+    sessions.map(async (session) => {
+      if (session.venue?.name) return session;
+
+      try {
+        const sessionDetail = await SessionService.getSession(session.id);
+        return {
+          ...session,
+          venue: sessionDetail.venue || session.venue,
+          location: sessionDetail.location || session.location,
+        };
+      } catch (error) {
+        console.error('Error fetching session venue details:', error);
+        return session;
+      }
+    })
+  );
+};
 
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
@@ -108,21 +131,25 @@ function PlayerSessionsContent() {
         ...apiSortParams,
       });
 
+      const sessionsWithVenue = await enrichSessionsWithVenue(response.data);
+
       if (isLoadMore) {
         setSessions((prev) => {
           const existingIds = new Set(prev.map((s) => s.id));
-          const newSessions = response.data.filter(
+          const newSessions = sessionsWithVenue.filter(
             (s) => !existingIds.has(s.id)
           );
           return [...prev, ...newSessions];
         });
         setPage(currentPage);
       } else {
-        setSessions(response.data);
+        setSessions(sessionsWithVenue);
         setTotalCount(response.total);
       }
 
-      setHasMore(currentPage < response.totalPages && response.data.length > 0);
+      setHasMore(
+        currentPage < response.totalPages && sessionsWithVenue.length > 0
+      );
     } catch (err) {
       console.error('Error fetching player sessions:', err);
     } finally {

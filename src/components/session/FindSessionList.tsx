@@ -94,13 +94,13 @@ export type SessionUrlFilters = ReturnType<
 
 interface FindSessionListProps {
   initialSessions?: ISession[];
-  mode?: 'browse' | 'auto';
-  onModeChange?: (mode: 'browse' | 'auto') => void;
+  mode: 'browse' | 'auto';
+  onModeChange: (mode: 'browse' | 'auto') => void;
 }
 
 export default function FindSessionList({
   initialSessions = [],
-  mode = 'browse',
+  mode,
   onModeChange,
 }: FindSessionListProps) {
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
@@ -606,7 +606,7 @@ export default function FindSessionList({
       <ResultsHeader
         count={totalCount}
         mode={mode}
-        onModeChange={(newMode) => onModeChange?.(newMode)}
+        onModeChange={onModeChange}
         isLoading={loading}
         sortBy={sortBy}
         onSortChange={(value) => setUrlFilters({ sort: value })}

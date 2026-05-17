@@ -369,12 +369,15 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       onUpdatePlayer(index, 'levelDescription', e.target.value)
                     }
-                    rows={2}
+                    rows={1}
+                    minH="52px"
+                    h="52px"
+                    py={2}
                   />
                 </Box>
 
                 {/* Club membership */}
-                <Box>
+                <Box mt={-1}>
                   <Flex
                     align={{ base: 'stretch', sm: 'center' }}
                     direction={{ base: 'column', sm: 'row' }}

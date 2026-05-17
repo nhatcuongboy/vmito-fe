@@ -244,7 +244,7 @@ export default function SessionOverviewTab({
             {onToggleSessionStatus &&
               session.status !== 'FINISHED' &&
               session.status !== 'CANCELLED' && (
-                <Flex mt={6} justify="center" gap={3} wrap="wrap">
+                <Flex mt={3} justify="center" gap={3} wrap="wrap">
                   <Button
                     colorPalette={
                       session.status === 'PREPARING'

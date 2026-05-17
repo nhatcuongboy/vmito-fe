@@ -993,10 +993,6 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         p={4}
         _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
-        <Text fontWeight="semibold" mb={3}>
-          {t('income')}
-        </Text>
-
         <SessionPaymentList
           session={session}
           payments={payments}
@@ -1006,6 +1002,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
           totalExpenses={totalExpenses}
           isLoading={isLoadingPayments}
           showSummary={false}
+          headerTitle={t('income')}
         />
       </Box>
 

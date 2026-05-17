@@ -10,6 +10,7 @@ import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
+import { useViewMode } from '@/hooks/useViewMode';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
 import { MapPinOff, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -41,17 +42,29 @@ const PAGE_SIZE = 12;
 
 type SuggestedSession = ISession & {
   score: number;
+  scoreComponents?: {
+    level: number;
+    distance: number;
+    schedule: number;
+    venue: number;
+    host: number;
+    slots: number;
+  };
+  availableSlots?: number;
+  maxPlayers?: number;
+  hostAffinity?: number;
+  isFavoriteHost?: boolean;
   distance: number | null;
   matchReasons: string[];
 };
 
 interface SuggestionsListProps {
-  mode?: 'browse' | 'auto';
-  onModeChange?: (mode: 'browse' | 'auto') => void;
+  mode: 'browse' | 'auto';
+  onModeChange: (mode: 'browse' | 'auto') => void;
 }
 
 export default function SuggestionsList({
-  mode = 'auto',
+  mode,
   onModeChange,
 }: SuggestionsListProps) {
   const [sessions, setSessions] = useState<SuggestedSession[]>([]);
@@ -120,7 +133,9 @@ export default function SuggestionsList({
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
   const { useAiForCreation } = usePreferenceStore();
-  const { viewMode, setViewMode } = useSessionFilterStore();
+
+  // Use URL-synced view mode
+  const [viewMode, setViewMode] = useViewMode('sessions');
 
   const loadingMoreRef = useRef(false);
 
@@ -395,7 +410,7 @@ export default function SuggestionsList({
       <ResultsHeader
         count={total}
         mode={mode}
-        onModeChange={(newMode) => onModeChange?.(newMode)}
+        onModeChange={onModeChange}
         isLoading={loading}
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -501,6 +516,9 @@ export default function SuggestionsList({
       ) : (
         <RatingStatsProvider userIds={hostIds}>
           <Grid
+            w="100%"
+            maxW="100%"
+            minW={0}
             templateColumns={
               viewMode === 'list'
                 ? {
@@ -520,6 +538,9 @@ export default function SuggestionsList({
             {filteredSessions.map((session) => (
               <Box
                 key={session.id}
+                w="100%"
+                maxW="100%"
+                minW={0}
                 css={{
                   contentVisibility: 'auto',
                   containIntrinsicSize: 'auto 400px',

@@ -74,7 +74,7 @@ export default function TransactionSummaryList({
               {t('total')}
             </Text>
             <Text fontSize="lg" fontWeight="bold">
-              {FeeService.formatFee(totalAmount)}
+              {FeeService.formatPaymentAmount(totalAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="100px">
@@ -82,7 +82,7 @@ export default function TransactionSummaryList({
               {t('paid')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="green.600">
-              {FeeService.formatFee(paidAmount)}
+              {FeeService.formatPaymentAmount(paidAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="100px">
@@ -90,7 +90,7 @@ export default function TransactionSummaryList({
               {t('pending')}
             </Text>
             <Text fontSize="lg" fontWeight="bold" color="yellow.600">
-              {FeeService.formatFee(pendingAmount)}
+              {FeeService.formatPaymentAmount(pendingAmount)}
             </Text>
           </Box>
         </Flex>
@@ -159,12 +159,12 @@ export default function TransactionSummaryList({
                 <HStack gap={3}>
                   <VStack gap={0} align="flex-end">
                     <Text fontSize="sm" fontWeight="bold">
-                      {FeeService.formatFee(summary.totalAmount)}
+                      {FeeService.formatPaymentAmount(summary.totalAmount)}
                     </Text>
                     {summary.pendingAmount > 0 ? (
                       <Badge colorPalette="yellow" fontSize="xs">
                         {t('pending')}:{' '}
-                        {FeeService.formatFee(summary.pendingAmount)}
+                        {FeeService.formatPaymentAmount(summary.pendingAmount)}
                       </Badge>
                     ) : (
                       <Badge colorPalette="green" fontSize="xs">

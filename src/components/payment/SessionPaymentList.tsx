@@ -13,7 +13,7 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
 import { VSelect } from '@/components/ui/VSelect';
 import {
@@ -31,6 +31,8 @@ import {
   UserCheck,
   ChevronDown,
   ChevronUp,
+  Check,
+  X,
 } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import PaymentApprovalModal from './PaymentApprovalModal';
@@ -50,10 +52,261 @@ interface SessionPaymentListProps {
   totalExpenses?: number;
   isLoading?: boolean;
   showSummary?: boolean;
+  headerTitle?: string;
 }
 
 type FilterType = 'all' | PaymentStatus;
 type MemberFilterType = 'all' | 'fixed' | 'regular' | string;
+
+interface PaymentStatusFilterProps {
+  value: FilterType;
+  onChange: (value: FilterType) => void;
+  counts: Record<FilterType, number>;
+}
+
+function PaymentStatusFilter({
+  value,
+  onChange,
+  counts,
+}: PaymentStatusFilterProps) {
+  const t = useTranslations('payment');
+  const tPlayers = useTranslations('SessionDetail.playersTab');
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isAllSelected = value === 'all';
+
+  const options: { value: FilterType; label: string; colorPalette: string }[] =
+    [
+      { value: 'all', label: t('all'), colorPalette: 'green' },
+      {
+        value: PaymentStatus.PENDING,
+        label: t('status.pending'),
+        colorPalette: 'yellow',
+      },
+      {
+        value: PaymentStatus.SUBMITTED,
+        label: t('status.submitted'),
+        colorPalette: 'blue',
+      },
+      {
+        value: PaymentStatus.APPROVED,
+        label: t('status.approved'),
+        colorPalette: 'green',
+      },
+    ];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const CheckIndicator = ({
+    checked,
+    colorPalette,
+  }: {
+    checked: boolean;
+    colorPalette: string;
+  }) => (
+    <Box
+      w="18px"
+      h="18px"
+      border="1px solid"
+      borderColor={
+        checked
+          ? `${colorPalette}.500`
+          : { base: 'gray.300', _dark: 'whiteAlpha.300' }
+      }
+      bg={checked ? `${colorPalette}.500` : 'transparent'}
+      borderRadius="sm"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      transition="all 0.2s"
+      flexShrink={0}
+    >
+      {checked && <Check size={12} color="white" strokeWidth={3} />}
+    </Box>
+  );
+
+  const CountBadge = ({
+    count,
+    colorPalette = 'gray',
+  }: {
+    count: number;
+    colorPalette?: string;
+  }) => (
+    <Badge
+      variant="subtle"
+      colorPalette={colorPalette}
+      minW="30px"
+      h="24px"
+      px={2}
+      borderRadius="md"
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      fontSize="xs"
+      fontWeight="semibold"
+      fontVariantNumeric="tabular-nums"
+    >
+      {count}
+    </Badge>
+  );
+
+  return (
+    <Box position="relative" ref={containerRef}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setIsOpen(!isOpen)}
+        colorPalette={!isAllSelected ? 'green' : 'gray'}
+        borderWidth="1px"
+        borderRadius="full"
+        h="36px"
+        px={3}
+        bg={!isAllSelected ? { base: 'green.50', _dark: 'green.900/20' } : 'bg'}
+        borderColor={!isAllSelected ? 'green.200' : 'border'}
+        _hover={{
+          bg: !isAllSelected
+            ? { base: 'green.100', _dark: 'green.900/30' }
+            : { base: 'gray.50', _dark: 'whiteAlpha.100' },
+        }}
+      >
+        <HStack gap={1.5}>
+          <Filter size={14} />
+          <Text fontSize="sm" fontWeight="medium">
+            {tPlayers('filter')}
+          </Text>
+          {!isAllSelected && (
+            <Badge
+              colorPalette="green"
+              variant="solid"
+              borderRadius="full"
+              fontSize="2xs"
+              px={1.5}
+              minW="18px"
+              textAlign="center"
+            >
+              1
+            </Badge>
+          )}
+          <Box
+            as={ChevronDown}
+            boxSize={3.5}
+            color="fg.muted"
+            transform={isOpen ? 'rotate(180deg)' : 'none'}
+            transition="transform 0.16s ease"
+          />
+        </HStack>
+      </Button>
+
+      {isOpen && (
+        <Box
+          position="absolute"
+          top="100%"
+          left={0}
+          mt={2}
+          bg={{ base: 'white', _dark: 'gray.800' }}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          boxShadow="lg"
+          borderRadius="lg"
+          border="1px solid"
+          borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+          zIndex={10}
+          width="224px"
+          overflow="hidden"
+          p={1.5}
+        >
+          <VStack align="stretch" gap={1}>
+            {options.map((option) => {
+              const checked = value === option.value;
+              return (
+                <Box
+                  key={option.value}
+                  px={2.5}
+                  py={2}
+                  borderRadius="md"
+                  cursor="pointer"
+                  bg={
+                    checked
+                      ? {
+                          base: `${option.colorPalette}.50`,
+                          _dark: `${option.colorPalette}.900/20`,
+                        }
+                      : undefined
+                  }
+                  _hover={{
+                    bg: checked
+                      ? {
+                          base: `${option.colorPalette}.100`,
+                          _dark: `${option.colorPalette}.900/30`,
+                        }
+                      : { base: 'gray.50', _dark: 'gray.700' },
+                  }}
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  <HStack justify="space-between" width="100%" gap={3}>
+                    <HStack gap={2.5} minW={0}>
+                      <CheckIndicator
+                        checked={checked}
+                        colorPalette={option.colorPalette}
+                      />
+                      <Text
+                        fontSize="sm"
+                        fontWeight={checked ? 'semibold' : 'medium'}
+                        color={checked ? 'fg' : 'fg.muted'}
+                      >
+                        {option.label}
+                      </Text>
+                    </HStack>
+                    <CountBadge
+                      count={counts[option.value]}
+                      colorPalette={option.colorPalette}
+                    />
+                  </HStack>
+                </Box>
+              );
+            })}
+            {!isAllSelected && (
+              <Box pt={1}>
+                <Button
+                  size="xs"
+                  width="full"
+                  variant="ghost"
+                  colorPalette="red"
+                  onClick={() => {
+                    onChange('all');
+                    setIsOpen(false);
+                  }}
+                >
+                  <HStack gap={1} justify="center">
+                    <X size={12} />
+                    <Text>{tPlayers('clearFilter')}</Text>
+                  </HStack>
+                </Button>
+              </Box>
+            )}
+          </VStack>
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 interface SessionPaymentSummaryProps {
   session: ISession;
@@ -194,6 +447,7 @@ export default function SessionPaymentList({
   totalExpenses = 0,
   isLoading = false,
   showSummary = true,
+  headerTitle,
 }: SessionPaymentListProps) {
   const t = useTranslations('payment');
   const tFixed = useTranslations('clubs');
@@ -296,6 +550,16 @@ export default function SessionPaymentList({
   const submittedCount = paymentsArray.filter(
     (p) => p.status === PaymentStatus.SUBMITTED
   ).length;
+  const approvedCount = paymentsArray.filter(
+    (p) => p.status === PaymentStatus.APPROVED
+  ).length;
+  const filterCounts: Record<FilterType, number> = {
+    all: paymentsArray.length,
+    [PaymentStatus.PENDING]: pendingCount,
+    [PaymentStatus.SUBMITTED]: submittedCount,
+    [PaymentStatus.APPROVED]: approvedCount,
+    [PaymentStatus.REJECTED]: 0,
+  };
 
   const handleApprove = async (
     notes?: string,
@@ -379,31 +643,18 @@ export default function SessionPaymentList({
         />
       )}
 
-      {/* Filters & Actions */}
       <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
+        {headerTitle && (
+          <Text fontWeight="semibold" fontSize="lg">
+            {headerTitle}
+          </Text>
+        )}
         <HStack gap={2} wrap="wrap">
-          {/* Status Filter Button */}
-          <VSelect
-            size="sm"
+          <PaymentStatusFilter
             value={filter}
-            onChange={(e) => setFilter(e.target.value as FilterType)}
-            width={{ base: '100%', md: '200px' }}
-            minWidth="200px"
-            leftElement={<Filter size={16} />}
-          >
-            <option value="all">{t('all')}</option>
-            <option value={PaymentStatus.PENDING}>
-              {t('status.pending')}{' '}
-              {pendingCount > 0 ? `(${pendingCount})` : ''}
-            </option>
-            <option value={PaymentStatus.SUBMITTED}>
-              {t('status.submitted')}{' '}
-              {submittedCount > 0 ? `(${submittedCount})` : ''}
-            </option>
-            <option value={PaymentStatus.APPROVED}>
-              {t('status.approved')}
-            </option>
-          </VSelect>
+            onChange={setFilter}
+            counts={filterCounts}
+          />
 
           {/* Fixed Member Filter */}
           {fixedMemberGroups.length > 0 && (
@@ -625,10 +876,6 @@ export default function SessionPaymentList({
                             <Badge colorPalette="green" size="sm">
                               {group.length} slot
                             </Badge>
-                            <PaymentStatusBadge
-                              status={groupStatus}
-                              size="sm"
-                            />
                           </HStack>
                           <Text
                             fontWeight="semibold"
@@ -649,39 +896,35 @@ export default function SessionPaymentList({
                           </Text>
                         </Box>
                       </HStack>
-                      <Box color="gray.500" pt={1} flexShrink={0}>
-                        {isExpanded ? (
-                          <ChevronUp size={18} />
-                        ) : (
-                          <ChevronDown size={18} />
-                        )}
-                      </Box>
+                      <HStack gap={2} align="flex-start" flexShrink={0}>
+                        <VStack gap={1.5} align="flex-end">
+                          <Text
+                            fontWeight="semibold"
+                            color="green.600"
+                            fontSize="lg"
+                            lineHeight="1.15"
+                          >
+                            {FeeService.formatFeeExact(totalGroupAmount)}
+                          </Text>
+                          <PaymentStatusBadge status={groupStatus} size="sm" />
+                        </VStack>
+                        <Box color="gray.500" pt={1}>
+                          {isExpanded ? (
+                            <ChevronUp size={18} />
+                          ) : (
+                            <ChevronDown size={18} />
+                          )}
+                        </Box>
+                      </HStack>
                     </Flex>
 
-                    <Flex
-                      align={{ base: 'stretch', sm: 'center' }}
-                      justify="space-between"
-                      gap={2.5}
-                      direction={{ base: 'column', sm: 'row' }}
-                    >
-                      <Box>
-                        <Text fontSize="xs" color="gray.500">
-                          {t('totalFee')}
-                        </Text>
-                        <Text
-                          fontWeight="semibold"
-                          color="green.600"
-                          fontSize="lg"
-                        >
-                          {FeeService.formatFeeExact(totalGroupAmount)}
-                        </Text>
-                      </Box>
-                      {onBulkApprove && groupSubmittedPaymentIds.length > 0 && (
+                    {onBulkApprove && groupSubmittedPaymentIds.length > 0 && (
+                      <Flex justify="flex-end">
                         <Button
                           size="sm"
                           colorPalette="green"
                           loading={groupBulkLoading === key}
-                          alignSelf={{ base: 'stretch', sm: 'center' }}
+                          alignSelf={{ base: 'stretch', sm: 'flex-end' }}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleGroupBulkApprove(
@@ -693,8 +936,8 @@ export default function SessionPaymentList({
                           <CheckCheck size={14} />
                           <Text ml={1}>{groupApproveLabel}</Text>
                         </Button>
-                      )}
-                    </Flex>
+                      </Flex>
+                    )}
                   </VStack>
                 </Box>
 

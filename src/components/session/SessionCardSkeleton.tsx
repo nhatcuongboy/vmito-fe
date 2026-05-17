@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Flex,
-  Stack,
-  Skeleton,
-  SkeletonCircle,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Flex, Stack, Skeleton, SkeletonCircle } from '@chakra-ui/react';
 import type { ViewMode } from '@/hooks/useViewMode';
 import { Sparkles } from 'lucide-react';
 
@@ -16,6 +9,46 @@ interface SessionCardSkeletonProps {
   variant?: ViewMode;
   isAi?: boolean;
 }
+
+const AiSkeletonAccent = ({ size = 18 }: { size?: number }) => (
+  <Flex
+    position="absolute"
+    top={4}
+    right={4}
+    align="center"
+    justify="center"
+    boxSize="42px"
+    borderRadius="full"
+    bg="linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)"
+    color="purple.600"
+    borderWidth="1px"
+    borderColor="purple.200"
+    boxShadow="0 8px 18px rgba(168, 85, 247, 0.16)"
+    pointerEvents="none"
+    zIndex={1}
+    css={{
+      '@keyframes aiSkeletonFloat': {
+        '0%, 100%': {
+          transform: 'translateY(0) scale(1)',
+          opacity: 0.9,
+          boxShadow: '0 8px 18px rgba(168, 85, 247, 0.16)',
+        },
+        '50%': {
+          transform: 'translateY(-1px) scale(1.02)',
+          opacity: 1,
+          boxShadow: '0 10px 22px rgba(168, 85, 247, 0.24)',
+        },
+      },
+      animation: 'aiSkeletonFloat 2.4s ease-in-out infinite',
+      '@media (prefers-reduced-motion: reduce)': {
+        animation: 'none',
+        transform: 'none',
+      },
+    }}
+  >
+    <Sparkles aria-hidden="true" size={size} strokeWidth={2.4} />
+  </Flex>
+);
 
 export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
   showOnlyOne = false,
@@ -38,28 +71,9 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
         borderColor="border"
         p={3}
         minW="300px"
+        position="relative"
       >
-        {isAi && (
-          <Flex
-            align="center"
-            gap={1}
-            mb={1}
-            pb={1}
-            borderBottom="1px solid"
-            borderColor="purple.200"
-            _dark={{ borderColor: 'purple.700' }}
-          >
-            <Sparkles size={12} color="rgb(168, 85, 247)" />
-            <Text
-              fontSize="xs"
-              fontWeight="semibold"
-              color="purple.600"
-              _dark={{ color: 'purple.300' }}
-            >
-              Gợi ý
-            </Text>
-          </Flex>
-        )}
+        {isAi && <AiSkeletonAccent size={15} />}
         <Flex justify="space-between" align="flex-start">
           <Skeleton height="22px" width="60%" borderRadius="md" />
           <Skeleton height="20px" width="60px" borderRadius="full" />
@@ -102,28 +116,9 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
         maxW="400px"
         minW="300px"
         borderColor={isAi ? 'purple.200' : undefined}
+        position="relative"
       >
-        {isAi && (
-          <Flex
-            align="center"
-            gap={1}
-            mb={3}
-            pb={2}
-            borderBottom="1px solid"
-            borderColor="purple.200"
-            _dark={{ borderColor: 'purple.700' }}
-          >
-            <Sparkles size={14} color="rgb(168, 85, 247)" />
-            <Text
-              fontSize="xs"
-              fontWeight="semibold"
-              color="purple.600"
-              _dark={{ color: 'purple.300' }}
-            >
-              Gợi ý
-            </Text>
-          </Flex>
-        )}
+        {isAi && <AiSkeletonAccent size={16} />}
         <Skeleton height="160px" borderRadius="lg" mb={4} />
         <Skeleton height="24px" width="70%" mb={2} />
         <Skeleton height="16px" width="40%" mb={4} />
@@ -152,27 +147,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
       minW="300px"
       position="relative"
     >
-      {isAi && (
-        <Flex
-          align="center"
-          gap={1}
-          mb={2}
-          pb={2}
-          borderBottom="1px solid"
-          borderColor="purple.200"
-          _dark={{ borderColor: 'purple.700' }}
-        >
-          <Sparkles size={14} color="rgb(168, 85, 247)" />
-          <Text
-            fontSize="xs"
-            fontWeight="semibold"
-            color="purple.600"
-            _dark={{ color: 'purple.300' }}
-          >
-            Gợi ý
-          </Text>
-        </Flex>
-      )}
+      {isAi && <AiSkeletonAccent />}
 
       {/* Header - Title and Status Badge */}
       <Flex justify="space-between" align="flex-start">

@@ -311,9 +311,24 @@ export default function SessionInfo({
       <InfoRow icon={Info} label={t('status')}>
         <Badge
           colorPalette={getStatusColor(session.status)}
-          variant="subtle"
-          px={2}
-          borderRadius="md"
+          variant={session.status === 'IN_PROGRESS' ? 'solid' : 'subtle'}
+          px={3.5}
+          py={1}
+          borderRadius="full"
+          fontSize="sm"
+          fontWeight="semibold"
+          lineHeight="1.2"
+          bg={session.status === 'IN_PROGRESS' ? 'green.100' : undefined}
+          color={session.status === 'IN_PROGRESS' ? 'green.700' : undefined}
+          borderWidth="1px"
+          borderColor={
+            session.status === 'IN_PROGRESS' ? 'green.200' : 'transparent'
+          }
+          boxShadow={
+            session.status === 'IN_PROGRESS'
+              ? '0 2px 8px rgba(22, 163, 74, 0.12)'
+              : undefined
+          }
         >
           {session.status === 'PREPARING'
             ? t('notStarted')
@@ -477,7 +492,7 @@ export default function SessionInfo({
           variant="ghost"
           colorPalette="green"
           alignSelf="center"
-          mt={2}
+          mt={-1}
           px={0}
           minH="auto"
           fontWeight="semibold"

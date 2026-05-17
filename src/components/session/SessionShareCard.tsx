@@ -154,24 +154,7 @@ const formatDate = (dateString: string | Date, locale: string): string => {
   const date = dayjs
     .tz(dateString)
     .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
-  const today = dayjs.tz().startOf('day');
-  const tomorrow = today.add(1, 'day');
-  const dateToCompare = date.startOf('day');
-
-  if (dateToCompare.isSame(today)) {
-    return `${locale === Locale.VI ? 'Hôm nay' : 'Today'}, ${date.format(
-      locale === Locale.VI ? 'DD/MM' : 'MM/DD'
-    )}`;
-  }
-
-  if (dateToCompare.isSame(tomorrow)) {
-    return `${locale === Locale.VI ? 'Ngày mai' : 'Tomorrow'}, ${date.format(
-      locale === Locale.VI ? 'DD/MM' : 'MM/DD'
-    )}`;
-  }
-
-  const dayLabel =
-    locale === Locale.VI ? date.format('dddd') : date.format('ddd');
+  const dayLabel = date.format('dddd');
   return `${dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1)}, ${date.format(
     locale === Locale.VI ? 'DD/MM' : 'MM/DD'
   )}`;
@@ -216,8 +199,8 @@ const getCourtLabel = (session: ISession, courtsLabel: string) => {
 
 const getAddressLabel = (session: ISession) => {
   const venue = session.venue;
-  const address = venue?.newAddress || venue?.address || '';
-  const district = venue?.newDistrict || venue?.district || '';
+  const address = venue?.address || '';
+  const district = venue?.district || '';
 
   if (address && district && !address.includes(district)) {
     return `${address}, ${district}`;
@@ -686,8 +669,6 @@ const LegacyPortraitCard = ({
                         <AppAddressDisplay
                           address={session.venue.address}
                           district={session.venue.district}
-                          newAddress={session.venue.newAddress}
-                          newDistrict={session.venue.newDistrict}
                           color="gray.500"
                         />
                       )}
@@ -861,7 +842,7 @@ const LegacyPortraitCard = ({
                 {session.description}
               </Text>
             )}
-            <Box position="absolute" left={0} right="54px" bottom={3}>
+            <Box position="absolute" left={0} right="54px" bottom={3.5}>
               <Box borderTopWidth="1px" borderColor="gray.200" />
               <Box pt={0.5}>
                 <Text
@@ -972,8 +953,6 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
                     <AppAddressDisplay
                       address={session.venue.address}
                       district={session.venue.district}
-                      newAddress={session.venue.newAddress}
-                      newDistrict={session.venue.newDistrict}
                       fontSize="3xl"
                       color="gray.500"
                     />

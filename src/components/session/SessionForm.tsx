@@ -554,37 +554,11 @@ export default function SessionForm({
     RecurringWeekdaysConfig | undefined
   >(undefined);
 
-  const bulkSessionsToCreate = useMemo(() => {
-    if (!bulkEnabled || bulkMode === 'single') return 1;
-    if (bulkMode === 'specific-dates') {
-      return specificDatesConfig?.dates?.length || 0;
-    }
-    if (bulkMode === 'recurring-weekdays') {
-      return (
-        (recurringWeekdaysConfig?.weekdays?.length || 0) *
-        (recurringWeekdaysConfig?.numberOfWeeks || 0)
-      );
-    }
-    return 1;
-  }, [bulkEnabled, bulkMode, specificDatesConfig, recurringWeekdaysConfig]);
-
   const submitLabel = useMemo(() => {
     if (submitButtonText) return submitButtonText;
     if (isEditMode) return t('saveChanges');
-    if (bulkEnabled && bulkMode !== 'single' && bulkSessionsToCreate > 0) {
-      return t('bulkCreation.createSessionsWithCount', {
-        count: bulkSessionsToCreate,
-      });
-    }
     return t('createSession');
-  }, [
-    bulkEnabled,
-    bulkMode,
-    bulkSessionsToCreate,
-    isEditMode,
-    submitButtonText,
-    t,
-  ]);
+  }, [isEditMode, submitButtonText, t]);
 
   // Advanced section collapse state
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -1662,7 +1636,7 @@ export default function SessionForm({
                       />
                     )}
                     <Box opacity={!canEditCourts ? 0.7 : 1}>
-                      <Flex gap={3} direction="row" align="end">
+                      <Flex gap={3} direction="row" align="flex-start">
                         {/* Court Number */}
                         <Box flex={{ base: '0 0 100px', md: '0 0 140px' }}>
                           <Field.Root
@@ -1719,7 +1693,7 @@ export default function SessionForm({
 
                         {/* Delete Button */}
                         {fields.length > 1 && canEditCourts && (
-                          <Box pb={errors.courts?.[index]?.courtName ? 6 : 0}>
+                          <Box pt={7}>
                             <Button
                               type="button"
                               onClick={() => handleRemoveCourt(index)}

@@ -88,6 +88,12 @@ export const FeeService = {
     return `${amount.toLocaleString('vi-VN')}đ`;
   },
 
+  // Format money in payment summaries where zero means no remaining balance.
+  formatPaymentAmount: (amount: number): string => {
+    if (amount === 0) return '0';
+    return FeeService.formatFee(amount);
+  },
+
   // Get fee display text for session card
   getFeeDisplayText: (
     feeConfig: SessionFeeConfig | null | undefined
