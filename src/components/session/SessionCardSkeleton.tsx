@@ -8,16 +8,17 @@ interface SessionCardSkeletonProps {
   showOnlyOne?: boolean;
   variant?: ViewMode;
   isAi?: boolean;
+  display?: any; // Chakra responsive display prop
 }
 
-const AiSkeletonAccent = ({ size = 18 }: { size?: number }) => (
+const AiSkeletonAccent = ({ size = 16 }: { size?: number }) => (
   <Flex
     position="absolute"
     top={4}
     right={4}
     align="center"
     justify="center"
-    boxSize="42px"
+    boxSize="38px"
     borderRadius="full"
     bg="linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)"
     color="purple.600"
@@ -54,6 +55,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
   showOnlyOne = false,
   variant = 'grid',
   isAi = false,
+  display,
 }) => {
   if (variant === 'list') {
     return (
@@ -72,8 +74,9 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
         p={3}
         minW="300px"
         position="relative"
+        display={display}
       >
-        {isAi && <AiSkeletonAccent size={15} />}
+        {isAi && <AiSkeletonAccent size={13} />}
         <Flex justify="space-between" align="flex-start">
           <Skeleton height="22px" width="60%" borderRadius="md" />
           <Skeleton height="20px" width="60px" borderRadius="full" />
@@ -118,7 +121,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
         borderColor={isAi ? 'purple.200' : undefined}
         position="relative"
       >
-        {isAi && <AiSkeletonAccent size={16} />}
+        {isAi && <AiSkeletonAccent size={14} />}
         <Skeleton height="160px" borderRadius="lg" mb={4} />
         <Skeleton height="24px" width="70%" mb={2} />
         <Skeleton height="16px" width="40%" mb={4} />
@@ -146,6 +149,7 @@ export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
       p={6}
       minW="300px"
       position="relative"
+      display={display}
     >
       {isAi && <AiSkeletonAccent />}
 

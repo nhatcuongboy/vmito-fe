@@ -903,8 +903,23 @@ export default function FindSessionList({
           }
           gap={viewMode === 'list' ? 4 : 6}
         >
-          {Array.from({ length: 6 }).map((_, index) => (
-            <SessionCardSkeleton key={index} variant={viewMode} />
+          {/* Mobile: 2 skeletons, Tablet: 4 skeletons, Desktop: 6 skeletons */}
+          {Array.from({
+            length: viewMode === 'list' ? 4 : 6,
+          }).map((_, index) => (
+            <SessionCardSkeleton
+              key={index}
+              variant={viewMode}
+              display={
+                viewMode === 'list'
+                  ? {
+                      base: index < 2 ? 'flex' : 'none',
+                      sm: index < 4 ? 'flex' : 'none',
+                      md: 'flex',
+                    }
+                  : { base: index < 2 ? 'flex' : 'none', md: 'flex' }
+              }
+            />
           ))}
         </Grid>
       ) : error ? (
@@ -989,8 +1004,25 @@ export default function FindSessionList({
                 }
                 gap={viewMode === 'list' ? 4 : 6}
               >
+                {/* Mobile: 1 skeleton, Tablet: 2 skeletons, Desktop: 3 skeletons */}
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} variant={viewMode} />
+                  <SessionCardSkeleton
+                    key={index}
+                    variant={viewMode}
+                    display={
+                      viewMode === 'list'
+                        ? {
+                            base: index < 1 ? 'flex' : 'none',
+                            sm: index < 2 ? 'flex' : 'none',
+                            md: 'flex',
+                          }
+                        : {
+                            base: index < 1 ? 'flex' : 'none',
+                            md: index < 2 ? 'flex' : 'none',
+                            lg: 'flex',
+                          }
+                    }
+                  />
                 ))}
               </Grid>
               <Flex justify="center" mt={4}>

@@ -291,15 +291,30 @@ export default function NotificationBell({
         <Box position="relative" display="inline-block" cursor="pointer">
           <IconButton
             aria-label="Notifications"
-            variant="ghost"
-            size="md"
+            size={{ base: 'sm', md: 'md' }}
+            minW={{ base: '36px', md: '40px' }}
+            h={{ base: '36px', md: '40px' }}
             borderRadius="full"
-            color={color}
-            _hover={
-              _hover || { bg: 'blackAlpha.50', _dark: { bg: 'whiteAlpha.100' } }
-            }
+            color={isOpen ? 'white' : 'blue.600'}
+            bg={isOpen ? 'blue.600' : 'blue.50'}
+            border="1px solid"
+            borderColor={isOpen ? 'blue.600' : 'blue.100'}
+            boxShadow={isOpen ? '0 4px 12px rgba(59,130,246,0.28)' : 'none'}
+            _dark={{
+              color: isOpen ? 'white' : 'blue.200',
+              bg: isOpen ? 'blue.500' : 'blue.950',
+              borderColor: isOpen ? 'blue.500' : 'blue.800',
+            }}
+            _hover={{
+              bg: isOpen ? 'blue.700' : 'blue.100',
+              borderColor: 'blue.300',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 6px 16px rgba(59,130,246,0.26)',
+            }}
+            _active={{ transform: 'translateY(0) scale(0.96)' }}
+            transition="all 0.2s ease"
           >
-            <LuBell size={22} />
+            <LuBell size={18} />
           </IconButton>
 
           {totalBadgeCount > 0 && (

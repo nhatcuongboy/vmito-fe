@@ -1,42 +1,42 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import BugReportModal from '@/components/feedback/BugReportModal';
+import ContactModal from '@/components/feedback/ContactModal';
+import { VModal } from '@/components/ui/VModal';
+import { ROUTES } from '@/constants/routes';
+import { usePathname, useRouter } from '@/i18n/config';
+import { Locale } from '@/i18n/locales';
+import { UserRole } from '@/lib/api/types';
+import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
+  Avatar,
+  Badge,
   Box,
   Flex,
-  Text,
-  Avatar,
-  Portal,
   IconButton,
-  Badge,
+  Portal,
+  Text,
 } from '@chakra-ui/react';
 import {
-  ChevronDown,
-  User as UserIcon,
-  MessageCircle,
-  Bug,
-  LogOut,
-  ChevronRight,
   ArrowLeft,
-  Check,
-  Languages,
-  Moon,
-  Sun,
-  Monitor,
-  Sparkles,
   BookOpen,
+  Bug,
+  Check,
+  ChevronRight,
+  Languages,
+  LogOut,
+  Menu as MenuIcon,
+  MessageCircle,
+  Monitor,
+  Moon,
+  Sparkles,
+  Sun,
+  User as UserIcon,
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { UserRole } from '@/lib/api/types';
-import { useTranslations, useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/config';
-import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
 import { useColorMode } from './color-mode-provider';
-import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
-import { ROUTES } from '@/constants/routes';
-import ContactModal from '@/components/feedback/ContactModal';
-import BugReportModal from '@/components/feedback/BugReportModal';
-import { VModal } from '@/components/ui/VModal';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -547,27 +547,49 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           position="relative"
           cursor="pointer"
           onClick={handleToggleOpen}
-          _hover={{ opacity: 0.8 }}
-          transition="opacity 0.2s"
+          transition="all 0.2s ease"
+          _hover={{
+            transform: 'translateY(-1px)',
+            '& .avatar-wrapper': {
+              boxShadow: isOpen
+                ? '0 6px 16px rgba(34,197,94,0.26)'
+                : '0 4px 12px rgba(0,0,0,0.12)',
+            },
+          }}
+          _active={{ transform: 'translateY(0) scale(0.96)' }}
         >
-          <Avatar.Root size="sm" bg="brand.500">
-            <Avatar.Fallback name={user.name || user.email}>
-              {(user.name || user.email).charAt(0).toUpperCase()}
-            </Avatar.Fallback>
-            {user.image && <Avatar.Image src={user.image} />}
-          </Avatar.Root>
+          <Box
+            className="avatar-wrapper"
+            borderRadius="full"
+            border="2px solid"
+            borderColor={isOpen ? 'green.500' : 'transparent'}
+            boxShadow={isOpen ? '0 4px 12px rgba(34,197,94,0.28)' : 'none'}
+            transition="all 0.2s ease"
+            _dark={{
+              borderColor: isOpen ? 'green.400' : 'transparent',
+            }}
+          >
+            <Avatar.Root size="sm" bg="brand.500">
+              <Avatar.Fallback name={user.name || user.email}>
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </Avatar.Fallback>
+              {user.image && <Avatar.Image src={user.image} />}
+            </Avatar.Root>
+          </Box>
           {/* Dropdown Icon */}
           <Box
             position="absolute"
-            bottom="-2px"
-            right="-2px"
+            bottom="-4px"
+            right="-4px"
             bg="white"
-            _dark={{ bg: 'gray.800' }}
             borderRadius="full"
-            p="2px"
+            p="3px"
             boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
           >
-            <ChevronDown size={12} />
+            <MenuIcon size={12} strokeWidth={2.5} />
           </Box>
         </Box>
       </Box>
@@ -638,13 +660,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                           </Badge>
                         )}
                       </Flex>
-                      <Text
-                        fontSize="xs"
-                        color="gray.600"
-                        _dark={{ color: 'gray.400' }}
-                      >
-                        {user.email}
-                      </Text>
                     </Box>
                   </Flex>
                 </Box>
