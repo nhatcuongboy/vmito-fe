@@ -94,20 +94,6 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     onSessionUpdate: setSession,
     initialInterval: REFRESH_INTERVALS.HOST,
   });
-  const [showTabSkeleton, setShowTabSkeleton] = useState(false);
-
-  useEffect(() => {
-    if (!isRefreshing) {
-      setShowTabSkeleton(false);
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShowTabSkeleton(true);
-    }, 150);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isRefreshing]);
 
   const {
     isToggleStatusLoading,
@@ -283,7 +269,6 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                   sessionId={session.id}
                   onPlayerUpdate={refreshSessionData}
                   mode="manage"
-                  isLoading={showTabSkeleton}
                 />
               )}
 
@@ -295,7 +280,6 @@ function HostSessionContent({ params }: { params: { id: string } }) {
                   getCourtDisplayName={getCourtDisplayName}
                   onDataRefresh={refreshSessionData}
                   isRefreshing={isRefreshing}
-                  isLoading={showTabSkeleton}
                   formatWaitTime={formatWaitTime}
                   selectedPlayers={selectedPlayers}
                 />
