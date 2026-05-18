@@ -414,8 +414,14 @@ export function SessionPaymentSummary({
           gridColumn={{ base: '1 / -1', md: '2 / 3' }}
           justifySelf="center"
           w={{ base: 'calc(50% - 6px)', md: '100%' }}
+          textAlign="center"
         >
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+          <Text
+            fontSize="sm"
+            fontWeight="semibold"
+            color="gray.700"
+            _dark={{ color: 'gray.300' }}
+          >
             {t('netTotal')}
           </Text>
           <Text
