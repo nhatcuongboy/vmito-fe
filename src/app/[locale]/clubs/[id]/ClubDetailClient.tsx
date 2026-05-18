@@ -42,6 +42,7 @@ import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
+import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -1380,6 +1381,12 @@ export default function ClubDetailClient({
                     {t('clubs.pendingApproval')}
                   </Button>
                 )}
+
+                <DetailViewCountFooter
+                  targetType="CLUB"
+                  targetId={club.id}
+                  initialCount={club.viewCount}
+                />
 
                 {/* Recent Announcements */}
                 {club.announcements && club.announcements.length > 0 && (

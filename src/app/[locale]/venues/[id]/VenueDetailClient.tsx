@@ -55,6 +55,7 @@ import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
+import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(
@@ -1139,22 +1140,28 @@ export default function VenueDetailClient({
                     </VStack>
                   </Box>
                 )}
+
+                <Flex justify="center" w="full" pt={1}>
+                  <Button
+                    variant="outline"
+                    colorPalette="green"
+                    onClick={handleOpenUpdateRequest}
+                    w="full"
+                  >
+                    <PencilLine size={16} />
+                    {t('requestUpdate')}
+                  </Button>
+                </Flex>
+
+                <DetailViewCountFooter
+                  targetType="VENUE"
+                  targetId={venue.id}
+                  initialCount={venue.viewCount}
+                />
               </VStack>
             </Box>
           </Grid>
         </Tabs.Root>
-
-        <Flex justify="center" mt={6} pb={2}>
-          <Button
-            variant="outline"
-            colorPalette="green"
-            onClick={handleOpenUpdateRequest}
-            w={{ base: 'full', sm: 'auto' }}
-          >
-            <PencilLine size={16} />
-            {t('requestUpdate')}
-          </Button>
-        </Flex>
       </Container>
 
       <VenueRequestModal

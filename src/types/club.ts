@@ -142,6 +142,7 @@ export interface IClub {
   defaultVenue?: IClubVenue;
   scheduleVenues?: IClubVenue[];
   requiredLevels?: number[];
+  viewCount?: number;
 }
 
 export interface IClubListItem {

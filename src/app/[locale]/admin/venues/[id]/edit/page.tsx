@@ -22,6 +22,7 @@ import { trimPhone } from '@/utils/phone-utils';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
+import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
 import PageLayout from '@/components/layout/PageLayout';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,6 +60,7 @@ const venueSchema = z.object({
   wifiPassword: z.string().optional(),
   bookingPolicy: z.string().optional(),
   courtLayoutImage: z.string().optional(),
+  courtLayoutImagePublicId: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -113,6 +115,7 @@ export default function EditVenuePage({
       wifiPassword: '',
       bookingPolicy: '',
       courtLayoutImage: '',
+      courtLayoutImagePublicId: '',
     },
   });
 
@@ -151,6 +154,7 @@ export default function EditVenuePage({
           wifiPassword: data.wifiPassword || '',
           bookingPolicy: data.bookingPolicy || '',
           courtLayoutImage: data.courtLayoutImage || '',
+          courtLayoutImagePublicId: data.courtLayoutImagePublicId || '',
         });
 
         // Initialize venueImages from venue data
@@ -739,7 +743,7 @@ export default function EditVenuePage({
                 onImagesChange={setVenueImages}
                 onBannerChange={setVenueBannerIndex}
                 maxImages={10}
-                category={EImageCategory.VENUE_COVER}
+                category={EImageCategory.OTHER}
                 label={null}
               />
             </Field>
@@ -748,38 +752,25 @@ export default function EditVenuePage({
               control={form.control}
               name="courtLayoutImage"
               render={({ field }) => (
-                <Field label="Sơ đồ sân (URL hình ảnh)">
-                  <VStack align="stretch" gap={3} width="full">
-                    <Input
-                      {...field}
-                      placeholder="Nhập URL hình ảnh sơ đồ sân..."
-                    />
-                    {field.value && (
-                      <Box
-                        borderRadius="md"
-                        overflow="hidden"
-                        borderWidth="1px"
-                        borderColor="gray.200"
-                        _dark={{ borderColor: 'gray.700' }}
-                      >
-                        <img // eslint-disable-line @next/next/no-img-element
-                          src={field.value}
-                          alt="Layout preview"
-                          style={{
-                            width: '100%',
-                            maxHeight: '200px',
-                            objectFit: 'contain',
-                            display: 'block',
-                          }}
-                          onError={(e) => {
-                            (
-                              e.target as HTMLImageElement
-                            ).parentElement!.style.display = 'none';
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </VStack>
+                <Field label="Sơ đồ sân">
+                  <AppSingleImageUpload
+                    value={field.value}
+                    publicId={form.watch('courtLayoutImagePublicId')}
+                    onChange={(image) => {
+                      field.onChange(image.url);
+                      form.setValue(
+                        'courtLayoutImagePublicId',
+                        image.publicId || ''
+                      );
+                    }}
+                    onClear={() => {
+                      field.onChange('');
+                      form.setValue('courtLayoutImagePublicId', '');
+                    }}
+                    category={EImageCategory.OTHER}
+                    alt="Sơ đồ sân"
+                    urlPlaceholder="Nhập URL hình ảnh sơ đồ sân..."
+                  />
                 </Field>
               )}
             />

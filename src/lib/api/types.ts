@@ -294,6 +294,7 @@ export interface Venue {
   courtLayoutImagePublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
+  viewCount?: number;
 }
 
 export enum VenueRequestType {
@@ -414,6 +415,7 @@ export interface ISession {
     players: number;
     courts: number;
   };
+  viewCount?: number;
 }
 
 // Player types

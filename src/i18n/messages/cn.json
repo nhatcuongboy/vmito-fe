@@ -76,6 +76,7 @@
     "approve": "批准",
     "reject": "拒绝",
     "pendingRequests": "{count} 个待处理请求",
+    "viewCount": "{count} 次浏览",
     "loading": "加载中...",
     "navigating": "正在导航...",
     "error": "错误",

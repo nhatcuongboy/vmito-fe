@@ -22,6 +22,7 @@ import SessionDetailHero from './SessionDetailHero';
 import SessionDetailBody from './SessionDetailBody';
 import SessionDetailStickyBar from './SessionDetailStickyBar';
 import SessionRecommendations from './SessionRecommendations';
+import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 
 interface PublicSessionDetailContentProps {
   sessionId: string;
@@ -277,6 +278,15 @@ export const PublicSessionDetailContent = ({
                 </NextLinkButton>
               </Flex>
             )}
+
+            <Box mt={4} px={5} display={{ base: 'block', md: 'none' }}>
+              <DetailViewCountFooter
+                targetType="SESSION"
+                targetId={session.id}
+                initialCount={session.viewCount}
+              />
+            </Box>
+
             {/* Mobile-only bottom spacing for sticky bar */}
             <Box
               h="calc(80px + env(safe-area-inset-bottom))"
@@ -311,6 +321,14 @@ export const PublicSessionDetailContent = ({
                   sessionId={session.id}
                   userId={user?.id}
                   variant="desktop"
+                />
+              </Box>
+
+              <Box mt={4}>
+                <DetailViewCountFooter
+                  targetType="SESSION"
+                  targetId={session.id}
+                  initialCount={session.viewCount}
                 />
               </Box>
             </Box>

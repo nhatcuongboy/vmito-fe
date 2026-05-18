@@ -184,7 +184,7 @@ api.interceptors.response.use(
       // Only handle UI interactions on the client side
       if (typeof window !== 'undefined') {
         // For GET requests, show toaster to avoid interrupting user flow
-        if (method === 'GET') {
+        if (method === 'GET' && !error.config?.skipGlobalError) {
           toaster.error({ title: message });
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error

@@ -84,6 +84,7 @@
     "approve": "Duyệt",
     "reject": "Từ chối",
     "pendingRequests": "{count} yêu cầu đang chờ",
+    "viewCount": "{count} lượt xem",
     "loading": "Đang tải...",
     "navigating": "Đang điều hướng...",
     "error": "Lỗi",

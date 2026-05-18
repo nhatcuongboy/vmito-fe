@@ -84,6 +84,7 @@
     "approve": "Approve",
     "reject": "Reject",
     "pendingRequests": "{count} pending request{count, plural, =1 {} other {s}}",
+    "viewCount": "{count} view{count, plural, =1 {} other {s}}",
     "loading": "Loading...",
     "navigating": "Navigating...",
     "error": "Error",
