@@ -1,4 +1,8 @@
 import type { Metadata, Viewport } from 'next';
+import {
+  defaultOpenGraphImage,
+  defaultSeoDescription,
+} from '@/lib/seo/metadata';
 
 const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging';
 
@@ -42,12 +46,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon-96x96.png', type: 'image/png', sizes: '96x96' },
+      { url: '/favicon-48x48.png', type: 'image/png', sizes: '48x48' },
       { url: '/favicon.ico', sizes: 'any' },
       { url: '/icons/app-logo.png', type: 'image/png', sizes: '512x512' },
     ],
     shortcut: ['/favicon.ico'],
     apple: [
-      { url: '/icons/app-logo.png', type: 'image/png', sizes: '180x180' },
+      { url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' },
     ],
   },
   appleWebApp: {
@@ -58,24 +64,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Vmito',
+    url: '/',
     title: 'Vmito — Tìm kèo cầu lông',
-    description:
-      'Tìm kèo cầu lông, giao lưu, quản lý giải đấu chuyên nghiệp tại Việt Nam.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Vmito — Tìm kèo cầu lông',
-      },
-    ],
+    description: defaultSeoDescription,
+    images: [defaultOpenGraphImage],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Vmito — Tìm kèo cầu lông',
-    description:
-      'Tìm kèo cầu lông, giao lưu, quản lý giải đấu chuyên nghiệp tại Việt Nam.',
-    images: ['/og-image.png'],
+    description: defaultSeoDescription,
+    images: [defaultOpenGraphImage.url],
   },
 };
 
