@@ -411,6 +411,9 @@ export function SessionPaymentSummary({
           borderRadius="lg"
           bg={netAmount >= 0 ? 'green.50' : 'red.50'}
           _dark={{ bg: netAmount >= 0 ? 'green.950' : 'red.950' }}
+          gridColumn={{ base: '1 / -1', md: '2 / 3' }}
+          justifySelf="center"
+          w={{ base: 'calc(50% - 6px)', md: '100%' }}
         >
           <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
             {t('netTotal')}
@@ -421,16 +424,6 @@ export function SessionPaymentSummary({
             color={netAmount >= 0 ? 'green.600' : 'red.500'}
           >
             {FeeService.formatFeeExact(netAmount)}
-          </Text>
-        </Box>
-        <Box p={3} borderRadius="lg" bg="green.50" _dark={{ bg: 'green.950' }}>
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-            {t('remainingAmount')}
-          </Text>
-          <Text fontSize="md" fontWeight="bold" color="green.600">
-            {pendingAmount === 0
-              ? '0'
-              : FeeService.formatFeeExact(pendingAmount)}
           </Text>
         </Box>
       </SimpleGrid>
