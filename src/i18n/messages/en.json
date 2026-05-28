@@ -48,6 +48,7 @@
     "createTournament": "Create Tournament",
     "generalSettings": "General Settings",
     "levelDescriptions": "Level Descriptions",
+    "feedback": "Feedback",
     "newsfeed": "Newsfeed"
   },
   "search": {
@@ -4205,6 +4206,34 @@
       "BUG_REPORT": "Bug Report"
     },
     "uploadImage": "Upload Image",
-    "removeImage": "Remove Image"
+    "removeImage": "Remove Image",
+    "admin": {
+      "pageTitle": "Feedback Management",
+      "subtitle": "Review user contact messages and bug reports, then update their handling status.",
+      "searchPlaceholder": "Search by title, description, name, or email...",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "typeFilter": "Type",
+      "statusFilter": "Status",
+      "feedbackColumn": "Feedback",
+      "userColumn": "Sender",
+      "typeColumn": "Type",
+      "statusColumn": "Status",
+      "createdColumn": "Created",
+      "actionsColumn": "Actions",
+      "viewDetails": "View details",
+      "detailsTitle": "Feedback details",
+      "sender": "Sender",
+      "createdAt": "Created",
+      "screenshot": "Screenshot",
+      "adminNote": "Admin note",
+      "adminNotePlaceholder": "Add a handling note for the user...",
+      "update": "Update",
+      "updateSuccess": "Feedback updated",
+      "updateError": "Could not update feedback",
+      "loadError": "Could not load feedback",
+      "noFeedback": "No feedback found",
+      "accessDenied": "You do not have permission to access this page"
+    }
   }
 }

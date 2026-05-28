@@ -40,17 +40,21 @@ export default function NewsfeedContent() {
 
       try {
         const response = await postsService.getPosts(pageNum, POSTS_PER_PAGE);
+        const responsePosts = Array.isArray(response.posts)
+          ? response.posts
+          : [];
+
         setPosts((currentPosts) => {
-          if (!append) return response.posts;
+          if (!append) return responsePosts;
 
           const existingIds = new Set(currentPosts.map((post) => post.id));
-          const nextPosts = response.posts.filter(
+          const nextPosts = responsePosts.filter(
             (post) => !existingIds.has(post.id)
           );
           return [...currentPosts, ...nextPosts];
         });
-        setPage(response.page);
-        setHasMore(response.hasMore);
+        setPage(response.page ?? pageNum);
+        setHasMore(Boolean(response.hasMore));
       } catch {
         setHasError(true);
         toaster.create({

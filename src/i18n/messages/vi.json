@@ -49,6 +49,7 @@
     "createTournament": "Tạo giải",
     "generalSettings": "Cài đặt chung",
     "levelDescriptions": "Mô tả trình độ",
+    "feedback": "Liên hệ & Báo lỗi",
     "newsfeed": "Bảng tin"
   },
   "search": {
@@ -4222,6 +4223,34 @@
       "BUG_REPORT": "Báo cáo lỗi"
     },
     "uploadImage": "Tải ảnh lên",
-    "removeImage": "Xóa ảnh"
+    "removeImage": "Xóa ảnh",
+    "admin": {
+      "pageTitle": "Quản lý liên hệ & báo lỗi",
+      "subtitle": "Xem phản hồi người dùng gửi và cập nhật trạng thái xử lý.",
+      "searchPlaceholder": "Tìm theo tiêu đề, mô tả, tên hoặc email...",
+      "allTypes": "Tất cả loại",
+      "allStatuses": "Tất cả trạng thái",
+      "typeFilter": "Loại",
+      "statusFilter": "Trạng thái",
+      "feedbackColumn": "Nội dung",
+      "userColumn": "Người gửi",
+      "typeColumn": "Loại",
+      "statusColumn": "Trạng thái",
+      "createdColumn": "Ngày gửi",
+      "actionsColumn": "Thao tác",
+      "viewDetails": "Xem chi tiết",
+      "detailsTitle": "Chi tiết phản hồi",
+      "sender": "Người gửi",
+      "createdAt": "Ngày gửi",
+      "screenshot": "Ảnh chụp màn hình",
+      "adminNote": "Ghi chú admin",
+      "adminNotePlaceholder": "Nhập ghi chú xử lý cho người dùng...",
+      "update": "Cập nhật",
+      "updateSuccess": "Đã cập nhật phản hồi",
+      "updateError": "Không thể cập nhật phản hồi",
+      "loadError": "Không thể tải phản hồi",
+      "noFeedback": "Không tìm thấy phản hồi nào",
+      "accessDenied": "Bạn không có quyền truy cập trang này"
+    }
   }
 }

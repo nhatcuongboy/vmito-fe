@@ -31,26 +31,36 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [localPost, setLocalPost] = useState(post);
   const isOwner = currentUserId === localPost.authorId;
+  const postImages = localPost.images ?? [];
+  const postCounts = localPost._count ?? { likes: 0, comments: 0, shares: 0 };
 
   useEffect(() => {
     setLocalPost(post);
   }, [post]);
 
   const handleCommentCountChange = useCallback((nextCount: number) => {
-    setLocalPost((prev) => ({
-      ...prev,
-      _count: { ...prev._count, comments: nextCount },
-    }));
+    setLocalPost((prev) => {
+      const prevCounts = prev._count ?? { likes: 0, comments: 0, shares: 0 };
+
+      return {
+        ...prev,
+        _count: { ...prevCounts, comments: nextCount },
+      };
+    });
   }, []);
 
   const handleLike = async () => {
     try {
       const result = await postsService.toggleLike(localPost.id);
-      setLocalPost((prev) => ({
-        ...prev,
-        isLiked: result.liked,
-        _count: { ...prev._count, likes: result.likeCount },
-      }));
+      setLocalPost((prev) => {
+        const prevCounts = prev._count ?? { likes: 0, comments: 0, shares: 0 };
+
+        return {
+          ...prev,
+          isLiked: result.liked,
+          _count: { ...prevCounts, likes: result.likeCount },
+        };
+      });
     } catch {
       toaster.create({
         title: t('error'),
@@ -176,11 +186,11 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
       </div>
 
       {/* Images */}
-      {localPost.images.length > 0 && (
+      {postImages.length > 0 && (
         <div
-          className={`grid gap-2 mb-3 ${localPost.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}
+          className={`grid gap-2 mb-3 ${postImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}
         >
-          {localPost.images.map((img, index) => (
+          {postImages.map((img, index) => (
             <img // eslint-disable-line @next/next/no-img-element
               key={img.id}
               src={img.url}
@@ -229,7 +239,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           }`}
         >
           <Heart size={20} fill={localPost.isLiked ? 'currentColor' : 'none'} />
-          <span>{localPost._count.likes}</span>
+          <span>{postCounts.likes}</span>
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
@@ -237,7 +247,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           <MessageCircle size={20} />
-          <span>{localPost._count.comments}</span>
+          <span>{postCounts.comments}</span>
         </button>
         <button
           onClick={handleShare}
@@ -245,7 +255,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           <Share2 size={20} />
-          <span>{localPost._count.shares}</span>
+          <span>{postCounts.shares}</span>
         </button>
       </div>
 
@@ -254,7 +264,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         <CommentSection
           postId={localPost.id}
           currentUserId={currentUserId}
-          initialCommentCount={localPost._count.comments}
+          initialCommentCount={postCounts.comments}
           onCommentCountChange={handleCommentCountChange}
         />
       )}

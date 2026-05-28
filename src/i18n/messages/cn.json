@@ -40,6 +40,7 @@
     "createTournament": "创建锦标赛",
     "generalSettings": "常规设置",
     "levelDescriptions": "等级描述",
+    "feedback": "反馈",
     "newsfeed": "动态"
   },
   "search": {
@@ -4156,6 +4157,34 @@
       "BUG_REPORT": "错误报告"
     },
     "uploadImage": "上传图片",
-    "removeImage": "删除图片"
+    "removeImage": "删除图片",
+    "admin": {
+      "pageTitle": "反馈管理",
+      "subtitle": "查看用户提交的联系内容和错误报告，并更新处理状态。",
+      "searchPlaceholder": "按标题、描述、姓名或邮箱搜索...",
+      "allTypes": "所有类型",
+      "allStatuses": "所有状态",
+      "typeFilter": "类型",
+      "statusFilter": "状态",
+      "feedbackColumn": "反馈",
+      "userColumn": "提交者",
+      "typeColumn": "类型",
+      "statusColumn": "状态",
+      "createdColumn": "提交时间",
+      "actionsColumn": "操作",
+      "viewDetails": "查看详情",
+      "detailsTitle": "反馈详情",
+      "sender": "提交者",
+      "createdAt": "提交时间",
+      "screenshot": "截图",
+      "adminNote": "管理员备注",
+      "adminNotePlaceholder": "为用户添加处理备注...",
+      "update": "更新",
+      "updateSuccess": "反馈已更新",
+      "updateError": "无法更新反馈",
+      "loadError": "无法加载反馈",
+      "noFeedback": "未找到反馈",
+      "accessDenied": "您没有权限访问此页面"
+    }
   }
 }

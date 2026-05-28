@@ -37,16 +37,21 @@ export function CommentSection({
       setIsLoading(true);
       try {
         const response = await postsService.getComments(postId, pageNum);
+        const responseComments = Array.isArray(response.comments)
+          ? response.comments
+          : [];
+        const nextTotal = response.total ?? responseComments.length;
+
         if (pageNum === 1) {
-          setComments(response.comments);
+          setComments(responseComments);
         } else {
-          setComments((prev) => [...prev, ...response.comments]);
+          setComments((prev) => [...prev, ...responseComments]);
         }
-        setHasMore(response.hasMore);
+        setHasMore(Boolean(response.hasMore));
         setPage(pageNum);
         if (pageNum === 1) {
-          setCommentCount(response.total);
-          onCommentCountChange?.(response.total);
+          setCommentCount(nextTotal);
+          onCommentCountChange?.(nextTotal);
         }
       } catch {
         toaster.create({
