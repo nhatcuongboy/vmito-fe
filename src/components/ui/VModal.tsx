@@ -198,6 +198,9 @@ export const VModal: React.FC<VModalProps> = ({
         }}
       >
         <Box
+          role="dialog"
+          aria-modal="true"
+          aria-label={typeof title === 'string' ? title : undefined}
           bg={{ base: 'white', _dark: 'gray.800' }}
           borderRadius="lg"
           boxShadow="xl"

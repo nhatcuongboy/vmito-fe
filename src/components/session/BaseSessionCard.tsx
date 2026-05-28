@@ -63,7 +63,7 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
-import { useRouter } from '@/i18n/config';
+import { Link } from '@/i18n/config';
 import SessionShareImageModal from './SessionShareImageModal';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
@@ -189,7 +189,6 @@ const BaseSessionCard = ({
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
-  const router = useRouter();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
@@ -567,15 +566,23 @@ const BaseSessionCard = ({
 
   const cardHref = `/sessions/${session.slug || session.id}`;
 
-  const handleCardClick = () => {
-    if (!disableCardLink) {
-      setIsLoading(true);
-      router.push(cardHref);
-      // Reset loading after a delay just in case navigation fails or user comes back
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 5000);
+  const handleCardLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
     }
+
+    setIsLoading(true);
+    // Reset loading after a delay just in case navigation fails or user comes back
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
   };
 
   const cardContent = (
@@ -587,7 +594,6 @@ const BaseSessionCard = ({
         display: 'flex',
         flexDirection: 'column',
       }}
-      onClick={handleCardClick}
     >
       <Box
         position="relative"
@@ -617,6 +623,21 @@ const BaseSessionCard = ({
         height="100%"
         cursor={disableCardLink ? 'default' : 'pointer'}
       >
+        {!disableCardLink && (
+          <Link
+            href={cardHref}
+            aria-label={convertedSession.title}
+            prefetch={false}
+            onClick={handleCardLinkClick}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'block',
+              zIndex: 1,
+            }}
+          />
+        )}
+
         {/* Level Color Strip */}
         <Flex
           position="absolute"
@@ -627,6 +648,7 @@ const BaseSessionCard = ({
           direction="column"
           zIndex={2}
           opacity={0.9}
+          pointerEvents="none"
         >
           {levelSegments.map((color, index) => (
             <Box key={index} flex={1} bg={color} />
@@ -749,6 +771,8 @@ const BaseSessionCard = ({
             {isCompact ? null : (
               <Flex align="center" gap={3}>
                 <Box
+                  position="relative"
+                  zIndex={3}
                   cursor={onHostClick ? 'pointer' : 'default'}
                   onClick={(e) => {
                     if (onHostClick) {
@@ -769,6 +793,8 @@ const BaseSessionCard = ({
                   </Avatar.Root>
                 </Box>
                 <Text
+                  position="relative"
+                  zIndex={3}
                   fontSize="sm"
                   fontWeight="medium"
                   cursor={onHostClick ? 'pointer' : 'default'}
@@ -941,6 +967,8 @@ const BaseSessionCard = ({
                 )}
               </Wrap>
               <IconButton
+                position="relative"
+                zIndex={3}
                 aria-label={tLevelDescriptions('open')}
                 type="button"
                 size="xs"
@@ -1033,6 +1061,8 @@ const BaseSessionCard = ({
 
                   {/* Action Buttons in Compact Mode */}
                   <Flex
+                    position="relative"
+                    zIndex={3}
                     gap={2}
                     align="center"
                     onMouseEnter={() => setIsMouseOverActionButton(true)}
@@ -1090,6 +1120,8 @@ const BaseSessionCard = ({
                     {/* Top Action Buttons (Manage/Register) */}
                     {!isCompact && (topActionsRendered || oldTopActions) && (
                       <Box
+                        position="relative"
+                        zIndex={3}
                         flex="1"
                         textAlign="right"
                         onMouseEnter={() => setIsMouseOverActionButton(true)}
@@ -1105,6 +1137,8 @@ const BaseSessionCard = ({
                   {/* Row 2: Bottom Action Buttons */}
                   {(actions ? renderBottomActions() : bottomActionButtons) && (
                     <Box
+                      position="relative"
+                      zIndex={3}
                       onMouseEnter={() => setIsMouseOverActionButton(true)}
                       onMouseLeave={() => setIsMouseOverActionButton(false)}
                     >
@@ -1121,6 +1155,8 @@ const BaseSessionCard = ({
                   {/* Row 3: Icon Buttons (Download, Share) */}
                   {renderIconButtons() && (
                     <Flex
+                      position="relative"
+                      zIndex={3}
                       justify="flex-end"
                       gap={2}
                       onMouseEnter={() => setIsMouseOverActionButton(true)}
