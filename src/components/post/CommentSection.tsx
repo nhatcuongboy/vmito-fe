@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { Send, Trash2 } from 'lucide-react';
@@ -9,6 +8,7 @@ import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import type { PostComment } from '@/types/post';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { PostAvatar } from './PostAvatar';
 
 interface CommentSectionProps {
   postId: string;
@@ -124,24 +124,24 @@ export function CommentSection({
   };
 
   return (
-    <div className="border-t pt-4 mt-4">
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+    <div className="mt-4 border-t border-gray-100 pt-4 dark:border-white/5">
+      <form onSubmit={handleSubmit} className="mb-4 flex items-center gap-2">
         <input
           type="text"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder={t('writeComment')}
           aria-label={t('writeComment')}
-          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 dark:bg-gray-800 dark:border-white/10"
+          className="h-10 flex-1 rounded-full bg-gray-100 px-4 text-sm text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-gray-100"
           disabled={isSubmitting}
         />
         <button
           type="submit"
           disabled={isSubmitting || !newComment.trim()}
           aria-label={t('sendComment')}
-          className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-600 text-white transition hover:bg-green-700 active:scale-[0.95] disabled:opacity-50"
         >
-          <Send size={20} />
+          <Send size={18} />
         </button>
       </form>
 
@@ -154,22 +154,22 @@ export function CommentSection({
       ) : (
         <div className="space-y-3">
           {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3">
-              <Image
-                src={comment.user.image || '/default-avatar.png'}
-                alt={comment.user.name}
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full"
+            <div key={comment.id} className="flex gap-2.5">
+              <PostAvatar
+                name={comment.user.name}
+                image={comment.user.image}
+                size={32}
               />
               <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-                  <div className="font-semibold text-sm">
+                <div className="inline-block rounded-2xl bg-gray-100 px-3.5 py-2 dark:bg-gray-700">
+                  <div className="text-[13px] font-semibold text-gray-900 dark:text-gray-50">
                     {comment.user.name}
                   </div>
-                  <div className="text-sm">{comment.content}</div>
+                  <div className="text-sm text-gray-800 dark:text-gray-100">
+                    {comment.content}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                <div className="mt-1 flex items-center gap-3 pl-2 text-xs text-gray-500">
                   <span>
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
@@ -179,7 +179,7 @@ export function CommentSection({
                     <button
                       onClick={() => handleDelete(comment.id)}
                       aria-label={t('deleteComment')}
-                      className="text-red-500 hover:text-red-700 flex items-center gap-1"
+                      className="flex items-center gap-1 text-red-500 transition hover:text-red-700"
                     >
                       <Trash2 size={12} />
                       {t('delete')}

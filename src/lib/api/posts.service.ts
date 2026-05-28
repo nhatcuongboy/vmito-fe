@@ -7,30 +7,42 @@ import type {
   CommentsResponse,
 } from '@/types/post';
 
+const unwrapData = <T>(responseData: T | { data?: T }): T => {
+  if (
+    responseData &&
+    typeof responseData === 'object' &&
+    'data' in responseData
+  ) {
+    return (responseData as { data?: T }).data ?? (responseData as T);
+  }
+
+  return responseData as T;
+};
+
 export const postsService = {
   async createPost(data: CreatePostData): Promise<Post> {
     const response = await api.post('/posts', data);
-    return response.data;
+    return unwrapData<Post>(response.data);
   },
 
   async getPosts(page = 1, limit = 10): Promise<PostsResponse> {
     const response = await api.get('/posts/feed', { params: { page, limit } });
-    return response.data;
+    return unwrapData<PostsResponse>(response.data);
   },
 
   async getPost(id: string): Promise<Post> {
     const response = await api.get(`/posts/${id}`);
-    return response.data;
+    return unwrapData<Post>(response.data);
   },
 
   async updatePost(id: string, data: Partial<CreatePostData>): Promise<Post> {
     const response = await api.patch(`/posts/${id}`, data);
-    return response.data;
+    return unwrapData<Post>(response.data);
   },
 
   async deletePost(id: string): Promise<{ message: string }> {
     const response = await api.delete(`/posts/${id}`);
-    return response.data;
+    return unwrapData<{ message: string }>(response.data);
   },
 
   async uploadImages(
@@ -46,19 +58,21 @@ export const postsService = {
     const response = await api.post(`/posts/${postId}/images`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return response.data;
+    return unwrapData<{
+      images: Array<{ url: string; publicId: string; order: number }>;
+    }>(response.data);
   },
 
   async toggleLike(
     postId: string
   ): Promise<{ liked: boolean; likeCount: number }> {
     const response = await api.post(`/posts/${postId}/like`);
-    return response.data;
+    return unwrapData<{ liked: boolean; likeCount: number }>(response.data);
   },
 
   async createComment(postId: string, content: string): Promise<PostComment> {
     const response = await api.post(`/posts/${postId}/comments`, { content });
-    return response.data;
+    return unwrapData<PostComment>(response.data);
   },
 
   async getComments(
@@ -69,16 +83,16 @@ export const postsService = {
     const response = await api.get(`/posts/${postId}/comments`, {
       params: { page, limit },
     });
-    return response.data;
+    return unwrapData<CommentsResponse>(response.data);
   },
 
   async deleteComment(commentId: string): Promise<{ message: string }> {
     const response = await api.delete(`/posts/comments/${commentId}`);
-    return response.data;
+    return unwrapData<{ message: string }>(response.data);
   },
 
   async sharePost(postId: string): Promise<Post> {
     const response = await api.post(`/posts/${postId}/share`);
-    return response.data;
+    return unwrapData<Post>(response.data);
   },
 };

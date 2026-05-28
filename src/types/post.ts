@@ -57,6 +57,11 @@ export interface CreatePostData {
     lng: number;
     address?: string;
   };
+  images?: Array<{
+    url: string;
+    publicId: string;
+    order?: number;
+  }>;
 }
 
 export interface PostsResponse {

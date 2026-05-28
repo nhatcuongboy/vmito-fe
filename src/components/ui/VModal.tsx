@@ -14,6 +14,10 @@ export interface VModalProps {
   onClose: () => void;
   /** Modal title */
   title?: React.ReactNode;
+  /** Modal title alignment */
+  titleAlign?: 'left' | 'center';
+  /** Modal title size */
+  titleSize?: 'sm' | 'md' | 'lg';
   /** Modal body content */
   children: React.ReactNode;
   /** Modal size */
@@ -48,6 +52,8 @@ export interface VModalProps {
   description?: string;
   /** Accessible label for the close button */
   closeButtonAriaLabel?: string;
+  /** Close button visual style */
+  closeButtonVariant?: 'default' | 'circle';
   /** Custom z-index */
   zIndex?: number;
   /** Custom max height for modal body (supports responsive object e.g. { base: '60vh', md: '75vh' }) */
@@ -110,6 +116,8 @@ export const VModal: React.FC<VModalProps> = ({
   isOpen,
   onClose,
   title,
+  titleAlign = 'left',
+  titleSize = 'md',
   children,
   size = 'md',
   showCloseButton = true,
@@ -127,6 +135,7 @@ export const VModal: React.FC<VModalProps> = ({
   headerRightContent,
   description,
   closeButtonAriaLabel = 'Close modal',
+  closeButtonVariant = 'default',
   zIndex = 1400,
   maxBodyHeight = '60vh',
   showHeaderDivider = true,
@@ -171,6 +180,7 @@ export const VModal: React.FC<VModalProps> = ({
   const hasFooterActions = primaryActionText || !hideSecondaryAction;
   const showFooter = footer !== undefined || hasFooterActions;
   const hasTitle = title !== undefined;
+  const isCenteredTitle = titleAlign === 'center';
 
   return (
     <Portal>
@@ -223,16 +233,22 @@ export const VModal: React.FC<VModalProps> = ({
           {/* Header */}
           {(hasTitle || showCloseButton || headerRightContent) && (
             <Flex
-              justify="space-between"
+              justify={isCenteredTitle ? 'center' : 'space-between'}
               align="center"
               p={4}
               borderBottom={showHeaderDivider ? '1px' : 'none'}
               borderColor="border"
               flexShrink={0}
+              position="relative"
             >
-              <Box flex={1}>
+              <Box
+                flex={isCenteredTitle ? undefined : 1}
+                w={isCenteredTitle ? 'full' : undefined}
+                px={isCenteredTitle ? 12 : 0}
+                textAlign={titleAlign}
+              >
                 {title && (
-                  <Heading size="md" color="fg">
+                  <Heading size={titleSize} color="fg">
                     {title}
                   </Heading>
                 )}
@@ -242,21 +258,49 @@ export const VModal: React.FC<VModalProps> = ({
                   </Text>
                 )}
               </Box>
-              <Flex align="center" gap={2}>
+              <Flex
+                align="center"
+                gap={2}
+                position={isCenteredTitle ? 'absolute' : undefined}
+                right={isCenteredTitle ? 4 : undefined}
+                top={isCenteredTitle ? '50%' : undefined}
+                transform={isCenteredTitle ? 'translateY(-50%)' : undefined}
+              >
                 {headerRightContent}
                 {showCloseButton && (
                   <Box
                     as="button"
                     {...({ type: 'button' } as Record<string, unknown>)}
                     onClick={onClose}
-                    p={1}
-                    borderRadius="md"
+                    p={closeButtonVariant === 'circle' ? 0 : 1}
+                    w={closeButtonVariant === 'circle' ? 10 : undefined}
+                    h={closeButtonVariant === 'circle' ? 10 : undefined}
+                    display="inline-flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius={
+                      closeButtonVariant === 'circle' ? 'full' : 'md'
+                    }
+                    bg={
+                      closeButtonVariant === 'circle'
+                        ? { base: 'gray.100', _dark: 'gray.700' }
+                        : undefined
+                    }
                     color="fg.muted"
-                    _hover={{ bg: 'bg.muted', color: 'fg' }}
+                    _hover={{
+                      bg:
+                        closeButtonVariant === 'circle'
+                          ? { base: 'gray.200', _dark: 'gray.600' }
+                          : 'bg.muted',
+                      color: 'fg',
+                    }}
                     transition="all 0.2s"
                     aria-label={closeButtonAriaLabel}
                   >
-                    <Box as={X} boxSize={5} />
+                    <Box
+                      as={X}
+                      boxSize={closeButtonVariant === 'circle' ? 6 : 5}
+                    />
                   </Box>
                 )}
               </Flex>

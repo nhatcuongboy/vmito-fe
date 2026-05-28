@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/chakra-compat';
 import { CreatePostModal } from '@/components/post/CreatePostModal';
 import { PostCard } from '@/components/post/PostCard';
+import { PostAvatar } from '@/components/post/PostAvatar';
 import { postsService } from '@/lib/api/posts.service';
 import type { Post } from '@/types/post';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -20,7 +21,8 @@ const POSTS_PER_PAGE = 10;
 export default function NewsfeedContent() {
   const t = useTranslations('posts');
   const navigationT = useTranslations('navigation');
-  const currentUserId = useAuthStore((state) => state.user?.id);
+  const currentUser = useAuthStore((state) => state.user);
+  const currentUserId = currentUser?.id;
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -28,6 +30,8 @@ export default function NewsfeedContent() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const authorName = currentUser?.name || currentUser?.email || 'User';
+  const firstName = authorName.split(' ')[0] || authorName;
 
   const loadPosts = useCallback(
     async (pageNum = 1, append = false) => {
@@ -79,39 +83,34 @@ export default function NewsfeedContent() {
   }, [loadPosts]);
 
   return (
-    <PageLayout
-      title={navigationT('newsfeed')}
-      maxW="container.md"
-      rightContent={
-        <Button
-          size="sm"
-          onClick={() => setIsCreateOpen(true)}
-          leftIcon={<Plus size={16} />}
-        >
-          {t('createPost')}
-        </Button>
-      }
-    >
+    <PageLayout title={navigationT('newsfeed')} maxW="container.md">
       <Box maxW="720px" mx="auto" w="full">
         <Box
           bg={{ base: 'white', _dark: 'gray.800' }}
           borderWidth="1px"
           borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
-          borderRadius="lg"
+          borderRadius="2xl"
           p={{ base: 3, md: 4 }}
           mb={4}
           boxShadow="sm"
         >
-          <Button
-            variant="outline"
-            colorPalette="gray"
-            w="full"
-            justifyContent="flex-start"
-            onClick={() => setIsCreateOpen(true)}
-            leftIcon={<Plus size={18} />}
-          >
-            {t('composerPlaceholder')}
-          </Button>
+          <div className="flex items-center gap-3">
+            <PostAvatar
+              name={authorName}
+              image={currentUser?.image}
+              size={44}
+            />
+            <button
+              type="button"
+              onClick={() => setIsCreateOpen(true)}
+              className="group flex h-11 min-w-0 flex-1 items-center rounded-full bg-gray-100 pl-6 pr-4 text-left transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-gray-700 dark:hover:bg-gray-600"
+              aria-label={t('createPost')}
+            >
+              <span className="min-w-0 truncate text-base text-gray-500 transition group-hover:text-gray-600 dark:text-gray-300 dark:group-hover:text-white">
+                {t('composerPlaceholderWithName', { name: firstName })}
+              </span>
+            </button>
+          </div>
         </Box>
 
         {isLoading ? (
@@ -155,8 +154,9 @@ export default function NewsfeedContent() {
 
             {hasMore && (
               <Button
-                variant="outline"
-                colorPalette="gray"
+                variant="ghost"
+                colorPalette="green"
+                borderRadius="full"
                 onClick={() => loadPosts(page + 1, true)}
                 loading={isLoadingMore}
                 disabled={isLoadingMore}

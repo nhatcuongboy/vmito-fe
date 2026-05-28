@@ -83,6 +83,7 @@ function AdminUsersContent() {
   const { user: currentUser, isAuthenticated, isHydrated } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
 
   // URL-synced filters
@@ -135,19 +136,23 @@ function AdminUsersContent() {
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await AdminService.getUsers({
+      const result = await AdminService.getUsersPaginated({
         search: filters.q || undefined,
         role: filters.role || undefined,
+        page,
+        limit: PAGE_SIZE,
       });
-      setUsers(data);
-      setPage(1);
+      setUsers(result.data);
+      setTotalCount(result.pagination.total);
     } catch (error) {
       console.error('Failed to fetch users:', error);
       toaster.error({ title: 'Failed to load users' });
+      setUsers([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
-  }, [filters.q, filters.role]);
+  }, [filters.q, filters.role, page]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -168,6 +173,7 @@ function AdminUsersContent() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setFilters({ q: keyword });
+      setPage(1);
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,6 +184,7 @@ function AdminUsersContent() {
 
   const handleSubmitFilters = () => {
     setFilters({ role: pendingRole });
+    setPage(1);
     toggleFilters();
   };
 
@@ -253,8 +260,7 @@ function AdminUsersContent() {
     setIsDeleteOpen(true);
   };
 
-  const totalPages = Math.ceil(users.length / PAGE_SIZE);
-  const paginatedUsers = users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <MainLayout title="Admin - Users">
@@ -362,7 +368,7 @@ function AdminUsersContent() {
                 </Tr>
               </Thead>
               <Tbody>
-                {paginatedUsers.map((user) => (
+                {users.map((user) => (
                   <Tr key={user.id}>
                     <Td w="180px" fontWeight="medium">
                       {user.name}
@@ -412,7 +418,7 @@ function AdminUsersContent() {
           <VTablePagination
             page={page}
             totalPages={totalPages}
-            totalCount={users.length}
+            totalCount={totalCount}
             pageSize={PAGE_SIZE}
             isLoading={loading}
             onPageChange={setPage}

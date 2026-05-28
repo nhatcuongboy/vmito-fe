@@ -24,12 +24,16 @@ interface LocationAutocompleteProps {
   }) => void;
   defaultValue?: string;
   placeholder?: string;
+  suggestionsPlacement?: 'absolute' | 'inline';
+  suggestionsMaxH?: string;
 }
 
 const LocationAutocompleteInner = ({
   onSelect,
   defaultValue = '',
   placeholder = 'Search for a badminton court...',
+  suggestionsPlacement = 'absolute',
+  suggestionsMaxH = '200px',
 }: LocationAutocompleteProps) => {
   const {
     ready,
@@ -96,6 +100,7 @@ const LocationAutocompleteInner = ({
   const handleInputCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
+  const isInlineSuggestions = suggestionsPlacement === 'inline';
 
   // Click outside to close info
   useEffect(() => {
@@ -126,17 +131,17 @@ const LocationAutocompleteInner = ({
       {status === 'OK' && (
         <Box
           ref={listRef}
-          position="absolute"
+          position={isInlineSuggestions ? 'static' : 'absolute'}
           zIndex={1000}
-          top="100%"
-          left={0}
-          right={0}
+          top={isInlineSuggestions ? undefined : '100%'}
+          left={isInlineSuggestions ? undefined : 0}
+          right={isInlineSuggestions ? undefined : 0}
           bg="white"
           _dark={{ bg: 'gray.800' }}
           boxShadow="lg"
           borderRadius="md"
           mt={1}
-          maxH="200px"
+          maxH={suggestionsMaxH}
           overflowY="auto"
           borderWidth="1px"
           display="flex"
