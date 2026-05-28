@@ -1,51 +1,28 @@
 'use client';
 
 import MainLayout from '@/components/layout/MainLayout';
-import { Input } from '@/components/ui/Input';
 import { VSwitch } from '@/components/ui/VSwitch';
 import { toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/chakra-compat';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import { NotificationService } from '@/lib/api/notification.service';
 import { UserRole } from '@/lib/api/types';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
 import {
   Box,
   Card,
   Container,
-  Field,
   Heading,
   HStack,
   Separator,
   Spinner,
   Text,
-  Textarea,
   VStack,
 } from '@chakra-ui/react';
-import { LuBell, LuSend, LuUsers } from 'react-icons/lu';
 import { SlidersHorizontal, MapPin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-// ── Broadcast form ──────────────────────────────────────────────────────────
-
-const broadcastSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(200, 'Title must be less than 200 characters'),
-  message: z
-    .string()
-    .min(1, 'Message is required')
-    .max(1000, 'Message must be less than 1000 characters'),
-});
-
-type TBroadcastFormData = z.infer<typeof broadcastSchema>;
 
 // ── Migrate result ──────────────────────────────────────────────────────────
 
@@ -62,7 +39,6 @@ interface IMigrateResult {
 export default function AdminGeneralPage() {
   const t = useTranslations('admin');
   const tc = useTranslations('common');
-  const tn = useTranslations('notification');
   const router = useRouter();
   const { isAuthenticated, isHydrated, user: currentUser } = useAuthStore();
   const { showNewAddress, setShowNewAddress } = useAppSettings();
@@ -72,9 +48,6 @@ export default function AdminGeneralPage() {
   const [migrateResult, setMigrateResult] = useState<IMigrateResult | null>(
     null
   );
-
-  // Broadcast state
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auth guard
   useEffect(() => {
@@ -90,21 +63,6 @@ export default function AdminGeneralPage() {
     }
   }, [isHydrated, isAuthenticated, currentUser, router, t]);
 
-  // Broadcast form
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<TBroadcastFormData>({
-    resolver: zodResolver(broadcastSchema),
-    defaultValues: { title: '', message: '' },
-  });
-
-  const watchedTitle = watch('title');
-  const watchedMessage = watch('message');
-
   const handleMigrate = async () => {
     try {
       setIsMigrating(true);
@@ -117,23 +75,6 @@ export default function AdminGeneralPage() {
       toaster.error({ title: tc('error'), description: 'Migration failed' });
     } finally {
       setIsMigrating(false);
-    }
-  };
-
-  const onBroadcastSubmit = async (data: TBroadcastFormData) => {
-    try {
-      setIsSubmitting(true);
-      const result = await NotificationService.broadcastNotification(data);
-      toaster.success({
-        title: tn('broadcastSuccess'),
-        description: `${result.count} ${tn('usersNotified')}`,
-      });
-      reset();
-    } catch (error) {
-      console.error('Failed to broadcast notification:', error);
-      toaster.error({ title: tc('error'), description: tn('broadcastError') });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -191,7 +132,7 @@ export default function AdminGeneralPage() {
             <Card.Body>
               <VStack gap={4} align="stretch">
                 <Button
-                  colorPalette="blue"
+                  colorPalette="green"
                   onClick={handleMigrate}
                   disabled={isMigrating}
                   alignSelf="flex-start"
@@ -273,112 +214,6 @@ export default function AdminGeneralPage() {
                     : 'Đang ẩn địa chỉ mới'}
                 </Text>
               </HStack>
-            </Card.Body>
-          </Card.Root>
-
-          {/* Section 3: Broadcast notification */}
-          <Card.Root>
-            <Card.Header>
-              <HStack gap={3}>
-                <Box
-                  p={2}
-                  borderRadius="md"
-                  bg="purple.100"
-                  _dark={{ bg: 'purple.900/30' }}
-                  color="purple.600"
-                >
-                  <LuBell size={18} />
-                </Box>
-                <Box>
-                  <Heading size="md">{tn('broadcastNotifications')}</Heading>
-                  <Text fontSize="sm" color="gray.500">
-                    {tn('broadcastDescription')}
-                  </Text>
-                </Box>
-              </HStack>
-            </Card.Header>
-            <Card.Body>
-              <form onSubmit={handleSubmit(onBroadcastSubmit)}>
-                <VStack gap={4} align="stretch">
-                  <Field.Root invalid={!!errors.title}>
-                    <Field.Label>{tn('notificationTitle')} *</Field.Label>
-                    <Input
-                      {...register('title')}
-                      placeholder={tn('titlePlaceholder')}
-                      maxLength={200}
-                    />
-                    {errors.title && (
-                      <Field.ErrorText>{errors.title.message}</Field.ErrorText>
-                    )}
-                    <Field.HelperText>
-                      {watchedTitle.length}/200
-                    </Field.HelperText>
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.message}>
-                    <Field.Label>{tn('notificationMessage')} *</Field.Label>
-                    <Textarea
-                      {...register('message')}
-                      placeholder={tn('messagePlaceholder')}
-                      rows={4}
-                      maxLength={1000}
-                    />
-                    {errors.message && (
-                      <Field.ErrorText>
-                        {errors.message.message}
-                      </Field.ErrorText>
-                    )}
-                    <Field.HelperText>
-                      {watchedMessage.length}/1000
-                    </Field.HelperText>
-                  </Field.Root>
-
-                  {/* Preview */}
-                  {(watchedTitle || watchedMessage) && (
-                    <Box
-                      p={4}
-                      borderRadius="md"
-                      bg="gray.50"
-                      _dark={{ bg: 'gray.800' }}
-                      borderWidth="1px"
-                    >
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.500"
-                        mb={2}
-                      >
-                        {tn('preview')}
-                      </Text>
-                      <VStack align="start" gap={1}>
-                        <Text fontWeight="semibold">
-                          {watchedTitle || tn('notificationTitle')}
-                        </Text>
-                        <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-                          {watchedMessage || tn('notificationMessage')}
-                        </Text>
-                      </VStack>
-                    </Box>
-                  )}
-
-                  <Button
-                    type="submit"
-                    colorPalette="purple"
-                    size="lg"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Spinner size="sm" />
-                    ) : (
-                      <>
-                        <LuSend size={18} />
-                        <LuUsers size={18} />
-                        {tn('sendToAllUsers')}
-                      </>
-                    )}
-                  </Button>
-                </VStack>
-              </form>
             </Card.Body>
           </Card.Root>
         </VStack>

@@ -2,8 +2,8 @@ import { Input } from '@/components/ui/Input';
 import { VModal } from '@/components/ui/VModal';
 import { CourtDirection } from '@/lib/api/types';
 import { Match } from '@/types/session';
-import { Box, HStack, Text, Textarea, VStack } from '@chakra-ui/react';
-import { Trophy, User, Users } from 'lucide-react';
+import { Box, HStack, Text, Textarea, VStack, Icon } from '@chakra-ui/react';
+import { Trophy, User, Users, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
@@ -15,6 +15,7 @@ interface MatchResultModalProps {
     winnerIds?: string[];
     isDraw?: boolean;
     notes?: string;
+    shuttlecockCount?: number;
   }) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -39,6 +40,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   );
   const [isDraw, setIsDraw] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
+  const [shuttlecockCount, setShuttlecockCount] = useState<string>('');
 
   // Reset form when modal opens
   React.useEffect(() => {
@@ -48,6 +50,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       setSelectedWinnerPair(null);
       setIsDraw(false);
       setNotes('');
+      setShuttlecockCount('');
     }
   }, [isOpen]);
 
@@ -136,6 +139,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       winnerIds?: string[];
       isDraw?: boolean;
       notes?: string;
+      shuttlecockCount?: number;
     } = {};
 
     // Add scores if provided
@@ -178,6 +182,14 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       result.notes = notes.trim();
     }
 
+    // Add shuttlecock count if provided
+    if (shuttlecockCount.trim()) {
+      const count = parseFloat(shuttlecockCount);
+      if (!isNaN(count) && count >= 0) {
+        result.shuttlecockCount = count;
+      }
+    }
+
     onConfirm(result);
   };
 
@@ -196,215 +208,238 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
       isPrimaryDisabled={!canSubmit}
       secondaryActionText={t('matchResult.cancel')}
     >
-      <VStack gap={6} align="stretch" py={2}>
-        {/* Players Display */}
-        <VStack gap={4} w="full">
-          {/* Score Input Row */}
-          <VStack gap={3} w="full">
-            <Text fontSize="sm" fontWeight="medium">
-              {t('matchResult.score')}
-            </Text>
-            <HStack gap={6} justify="center" w="full">
-              {/* Pair 1 Score */}
-              <VStack gap={2} align="center">
-                <Text fontSize="sm" color="green.600" fontWeight="semibold">
-                  {side1Label}
-                </Text>
+      <VStack gap={5} align="stretch" py={2}>
+        {/* Score Input Row */}
+        <VStack gap={3} w="full">
+          <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+            {t('matchResult.score')}
+          </Text>
+          <HStack gap={4} justify="center" w="full">
+            {/* Pair 1 Score */}
+            <VStack gap={2} align="center" flex="1">
+              <Text fontSize="xs" color="green.600" fontWeight="bold">
+                {side1Label}
+              </Text>
+              <Box position="relative" w="full" maxW="100px">
                 <Input
                   type="number"
                   placeholder="0"
                   value={pair1Score}
                   onChange={(e) => setPair1Score(e.target.value)}
-                  size="sm"
+                  onFocus={(e) => e.target.select()}
+                  size="md"
                   textAlign="center"
-                  w="80px"
+                  w="full"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  pr={pair1Score !== '' ? '8' : undefined}
                 />
-              </VStack>
+                {pair1Score !== '' && (
+                  <Box
+                    position="absolute"
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    cursor="pointer"
+                    color="gray.400"
+                    _hover={{ color: 'gray.600' }}
+                    onClick={() => setPair1Score('')}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <Icon as={X} boxSize={3.5} />
+                  </Box>
+                )}
+              </Box>
+            </VStack>
 
-              {/* VS */}
-              <Text fontSize="lg" fontWeight="bold" color="gray.500" mt={6}>
-                VS
+            {/* VS */}
+            <Text fontSize="xl" fontWeight="bold" color="gray.400" mt={6}>
+              VS
+            </Text>
+
+            {/* Pair 2 Score */}
+            <VStack gap={2} align="center" flex="1">
+              <Text fontSize="xs" color="red.600" fontWeight="bold">
+                {side2Label}
               </Text>
-
-              {/* Pair 2 Score */}
-              <VStack gap={2} align="center">
-                <Text fontSize="sm" color="red.600" fontWeight="semibold">
-                  {side2Label}
-                </Text>
+              <Box position="relative" w="full" maxW="100px">
                 <Input
                   type="number"
                   placeholder="0"
                   value={pair2Score}
                   onChange={(e) => setPair2Score(e.target.value)}
-                  size="sm"
+                  onFocus={(e) => e.target.select()}
+                  size="md"
                   textAlign="center"
-                  w="80px"
+                  w="full"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  pr={pair2Score !== '' ? '8' : undefined}
                 />
-              </VStack>
-            </HStack>
-          </VStack>
-
-          {/* Team Display - Shows winner based on scores */}
-          <VStack gap={3} w="full">
-            <Text fontSize="sm" color="gray.600" textAlign="center">
-              {t('matchResult.teams')}
-            </Text>
-
-            <HStack gap={4} w="full">
-              {/* Pair 1 */}
-              <Box
-                flex={1}
-                p={3}
-                borderWidth={selectedWinnerPair === 1 ? '2px' : '1px'}
-                borderStyle="solid"
-                borderColor={
-                  selectedWinnerPair === 1
-                    ? 'green.500'
-                    : selectedWinnerPair === 2
-                      ? 'red.200'
-                      : 'gray.200'
-                }
-                borderRadius="lg"
-                bg={
-                  selectedWinnerPair === 1
-                    ? 'green.50'
-                    : selectedWinnerPair === 2
-                      ? 'red.50'
-                      : 'gray.50'
-                }
-                position="relative"
-                boxShadow={selectedWinnerPair === 1 ? 'md' : 'sm'}
-                transform={selectedWinnerPair === 1 ? 'scale(1.02)' : 'none'}
-                transition="all 0.2s"
-              >
-                {selectedWinnerPair === 1 && (
+                {pair2Score !== '' && (
                   <Box
                     position="absolute"
-                    top={2}
-                    right={2}
-                    as={Trophy}
-                    boxSize={4}
-                    color="green.600"
-                  />
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    cursor="pointer"
+                    color="gray.400"
+                    _hover={{ color: 'gray.600' }}
+                    onClick={() => setPair2Score('')}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <Icon as={X} boxSize={3.5} />
+                  </Box>
                 )}
-                <VStack gap={2}>
-                  <HStack gap={1} justify="center">
-                    <Box
-                      as={SideIcon}
-                      boxSize={3}
-                      color={
-                        selectedWinnerPair === 1 ? 'green.600' : 'gray.500'
-                      }
-                    />
-                    <Text
-                      fontSize="sm"
-                      fontWeight="bold"
-                      color={
-                        selectedWinnerPair === 1 ? 'green.700' : 'gray.600'
-                      }
-                    >
-                      {side1Label}
-                    </Text>
-                  </HStack>
-                  <VStack gap={1}>
-                    {pair1.map((player) => (
-                      <VStack key={player.id} gap={0}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight={
-                            selectedWinnerPair === 1 ? 'bold' : 'medium'
-                          }
-                          color={selectedWinnerPair === 1 ? 'green.800' : 'fg'}
-                          textAlign="center"
-                        >
-                          #{player.player.playerNumber} -{' '}
-                          {player.player.name ||
-                            `Player ${player.player.playerNumber}`}
-                        </Text>
-                      </VStack>
-                    ))}
-                  </VStack>
-                </VStack>
               </Box>
-
-              {/* Pair 2 */}
-              <Box
-                flex={1}
-                p={3}
-                borderWidth={selectedWinnerPair === 2 ? '2px' : '1px'}
-                borderStyle="solid"
-                borderColor={
-                  selectedWinnerPair === 2
-                    ? 'green.500'
-                    : selectedWinnerPair === 1
-                      ? 'red.200'
-                      : 'gray.200'
-                }
-                borderRadius="lg"
-                bg={
-                  selectedWinnerPair === 2
-                    ? 'green.50'
-                    : selectedWinnerPair === 1
-                      ? 'red.50'
-                      : 'gray.50'
-                }
-                position="relative"
-                boxShadow={selectedWinnerPair === 2 ? 'md' : 'sm'}
-                transform={selectedWinnerPair === 2 ? 'scale(1.02)' : 'none'}
-                transition="all 0.2s"
-              >
-                {selectedWinnerPair === 2 && (
-                  <Box
-                    position="absolute"
-                    top={2}
-                    right={2}
-                    as={Trophy}
-                    boxSize={4}
-                    color="green.600"
-                  />
-                )}
-                <VStack gap={2}>
-                  <HStack gap={1} justify="center">
-                    <Box
-                      as={SideIcon}
-                      boxSize={3}
-                      color={
-                        selectedWinnerPair === 2 ? 'green.600' : 'gray.500'
-                      }
-                    />
-                    <Text
-                      fontSize="sm"
-                      fontWeight="bold"
-                      color={
-                        selectedWinnerPair === 2 ? 'green.700' : 'gray.600'
-                      }
-                    >
-                      {side2Label}
-                    </Text>
-                  </HStack>
-                  <VStack gap={1}>
-                    {pair2.map((player) => (
-                      <VStack key={player.id} gap={0}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight={
-                            selectedWinnerPair === 2 ? 'bold' : 'medium'
-                          }
-                          color={selectedWinnerPair === 2 ? 'green.800' : 'fg'}
-                          textAlign="center"
-                        >
-                          #{player.player.playerNumber} -{' '}
-                          {player.player.name ||
-                            `Player ${player.player.playerNumber}`}
-                        </Text>
-                      </VStack>
-                    ))}
-                  </VStack>
-                </VStack>
-              </Box>
-            </HStack>
-          </VStack>
+            </VStack>
+          </HStack>
         </VStack>
+
+        {/* Team Display - Shows winner based on scores */}
+        <HStack gap={3} w="full">
+          {/* Pair 1 */}
+          <Box
+            flex={1}
+            p={3}
+            borderWidth="1px"
+            borderStyle="solid"
+            borderColor={
+              selectedWinnerPair === 1
+                ? 'green.400'
+                : selectedWinnerPair === 2
+                  ? 'gray.200'
+                  : 'gray.200'
+            }
+            borderRadius="md"
+            bg={
+              selectedWinnerPair === 1
+                ? 'green.50'
+                : selectedWinnerPair === 2
+                  ? 'gray.50'
+                  : 'white'
+            }
+            position="relative"
+            transition="all 0.2s"
+          >
+            {selectedWinnerPair === 1 && (
+              <Box
+                position="absolute"
+                top={2}
+                right={2}
+                as={Trophy}
+                boxSize={4}
+                color="green.600"
+              />
+            )}
+            <VStack gap={1.5}>
+              <HStack gap={1} justify="center">
+                <Box
+                  as={SideIcon}
+                  boxSize={3}
+                  color={selectedWinnerPair === 1 ? 'green.600' : 'gray.500'}
+                />
+                <Text
+                  fontSize="xs"
+                  fontWeight="bold"
+                  color={selectedWinnerPair === 1 ? 'green.700' : 'gray.600'}
+                >
+                  {side1Label}
+                </Text>
+              </HStack>
+              <VStack gap={0.5}>
+                {pair1.map((player) => (
+                  <Text
+                    key={player.id}
+                    fontSize="sm"
+                    fontWeight={
+                      selectedWinnerPair === 1 ? 'semibold' : 'medium'
+                    }
+                    color={selectedWinnerPair === 1 ? 'green.800' : 'fg'}
+                    textAlign="center"
+                    lineClamp={1}
+                  >
+                    #{player.player.playerNumber} -{' '}
+                    {player.player.name ||
+                      `Player ${player.player.playerNumber}`}
+                  </Text>
+                ))}
+              </VStack>
+            </VStack>
+          </Box>
+
+          {/* Pair 2 */}
+          <Box
+            flex={1}
+            p={3}
+            borderWidth="1px"
+            borderStyle="solid"
+            borderColor={
+              selectedWinnerPair === 2
+                ? 'green.400'
+                : selectedWinnerPair === 1
+                  ? 'gray.200'
+                  : 'gray.200'
+            }
+            borderRadius="md"
+            bg={
+              selectedWinnerPair === 2
+                ? 'green.50'
+                : selectedWinnerPair === 1
+                  ? 'gray.50'
+                  : 'white'
+            }
+            position="relative"
+            transition="all 0.2s"
+          >
+            {selectedWinnerPair === 2 && (
+              <Box
+                position="absolute"
+                top={2}
+                right={2}
+                as={Trophy}
+                boxSize={4}
+                color="green.600"
+              />
+            )}
+            <VStack gap={1.5}>
+              <HStack gap={1} justify="center">
+                <Box
+                  as={SideIcon}
+                  boxSize={3}
+                  color={selectedWinnerPair === 2 ? 'green.600' : 'gray.500'}
+                />
+                <Text
+                  fontSize="xs"
+                  fontWeight="bold"
+                  color={selectedWinnerPair === 2 ? 'green.700' : 'gray.600'}
+                >
+                  {side2Label}
+                </Text>
+              </HStack>
+              <VStack gap={0.5}>
+                {pair2.map((player) => (
+                  <Text
+                    key={player.id}
+                    fontSize="sm"
+                    fontWeight={
+                      selectedWinnerPair === 2 ? 'semibold' : 'medium'
+                    }
+                    color={selectedWinnerPair === 2 ? 'green.800' : 'fg'}
+                    textAlign="center"
+                    lineClamp={1}
+                  >
+                    #{player.player.playerNumber} -{' '}
+                    {player.player.name ||
+                      `Player ${player.player.playerNumber}`}
+                  </Text>
+                ))}
+              </VStack>
+            </VStack>
+          </Box>
+        </HStack>
 
         {/* Draw Checkbox */}
         <Box w="full">
@@ -423,17 +458,34 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
           </HStack>
         </Box>
 
+        {/* Shuttlecock Count */}
+        <Box w="full">
+          <Text fontSize="xs" mb={1.5} fontWeight="medium" color="gray.600">
+            {t('matchResult.shuttlecockCount')}
+          </Text>
+          <Input
+            type="number"
+            step="any"
+            min="0"
+            placeholder={t('matchResult.shuttlecockCountPlaceholder')}
+            value={shuttlecockCount}
+            onChange={(e) => setShuttlecockCount(e.target.value)}
+            size="sm"
+          />
+        </Box>
+
         {/* Notes */}
         <Box w="full">
-          <Text fontSize="sm" mb={2} fontWeight="medium" color="gray.600">
+          <Text fontSize="xs" mb={1.5} fontWeight="medium" color="gray.600">
             {t('matchResult.notes')}
           </Text>
           <Textarea
             placeholder={t('matchResult.notesPlaceholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            rows={3}
+            rows={2}
             resize="vertical"
+            size="sm"
           />
         </Box>
       </VStack>

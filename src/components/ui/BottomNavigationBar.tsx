@@ -39,6 +39,7 @@ export default function BottomNavigationBar({
   centerAction,
 }: BottomNavigationBarProps) {
   const { isCollapsed } = useSidebar();
+  const shouldClusterCenterTabs = centerAction && tabs.length === 2;
 
   const leftTabs = centerAction
     ? tabs.slice(0, Math.floor(tabs.length / 2))
@@ -52,6 +53,17 @@ export default function BottomNavigationBar({
 
     return (
       <Box key={tab.id} position="relative" flex={1} minW={0}>
+        {isActive && (
+          <Box
+            position="absolute"
+            top="-2px"
+            left="8px"
+            right="8px"
+            h="3px"
+            borderRadius="full"
+            bg="brand.500"
+          />
+        )}
         <Button
           onClick={() => !isLoading && onTabChange(tab.id)}
           variant="ghost"
@@ -61,14 +73,14 @@ export default function BottomNavigationBar({
           px={1}
           flexDirection="column"
           gap={0.5}
-          color={isActive ? 'green.500' : 'fg.muted'}
+          color={isActive ? 'brand.500' : 'fg.muted'}
           bg="transparent"
           _active={{
             bg: 'transparent',
           }}
           _hover={{
             bg: { base: 'gray.50', _dark: 'gray.800' },
-            color: { base: 'green.600', _dark: 'green.400' },
+            color: { base: 'brand.600', _dark: 'brand.400' },
           }}
           display="flex"
           alignItems="center"
@@ -76,13 +88,13 @@ export default function BottomNavigationBar({
           opacity={isLoading ? 0.7 : 1}
         >
           {isLoading ? (
-            <Spinner size="sm" color="green.500" mb={{ base: 0.5, md: 1 }} />
+            <Spinner size="sm" color="brand.500" mb={{ base: 0.5, md: 1 }} />
           ) : (
             <Icon
               size={20}
               style={{
                 color: isActive
-                  ? 'var(--chakra-colors-green-500)'
+                  ? 'var(--chakra-colors-brand-500)'
                   : 'currentColor',
               }}
             />
@@ -97,7 +109,6 @@ export default function BottomNavigationBar({
             {tab.label}
           </Text>
         </Button>
-        {/* Active indicator bar */}
       </Box>
     );
   };
@@ -119,75 +130,85 @@ export default function BottomNavigationBar({
       borderTopColor="border"
       boxShadow="sm"
       display={alwaysVisible ? 'flex' : { base: 'flex', md: 'none' }}
-      justifyContent="space-around"
+      justifyContent="center"
       alignItems="center"
-      height="calc(64px + env(safe-area-inset-bottom))"
-      paddingBottom="env(safe-area-inset-bottom)"
+      height="calc(64px + var(--bottom-nav-safe-area, env(safe-area-inset-bottom)))"
+      paddingBottom="var(--bottom-nav-safe-area, env(safe-area-inset-bottom))"
       transition="left 0.3s ease"
       overflow="visible"
     >
-      {leftTabs.map(renderTab)}
+      <Box
+        display="flex"
+        justifyContent="space-around"
+        alignItems="center"
+        w="100%"
+        maxW={shouldClusterCenterTabs ? '320px' : 'none'}
+        h="100%"
+        overflow="visible"
+      >
+        {leftTabs.map(renderTab)}
 
-      {centerAction && (
-        <Box
-          flex={1}
-          minW={0}
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="flex-end"
-          pb="6px"
-          position="relative"
-        >
+        {centerAction && (
           <Box
-            as="button"
+            flex={1}
+            minW={0}
             display="flex"
             flexDirection="column"
             alignItems="center"
-            gap="2px"
-            cursor={centerAction.loading ? 'not-allowed' : 'pointer'}
-            transform="translateY(-16px)"
-            _hover={{
-              transform: centerAction.loading
-                ? 'translateY(-16px)'
-                : 'translateY(-18px)',
-            }}
-            _active={{ transform: 'translateY(-14px) scale(0.95)' }}
-            transition="transform 0.15s ease"
-            onClick={!centerAction.loading ? centerAction.onClick : undefined}
-            aria-label={centerAction.label}
-            opacity={centerAction.loading ? 0.7 : 1}
+            justifyContent="flex-end"
+            pb="6px"
+            position="relative"
           >
             <Box
+              as="button"
               display="flex"
+              flexDirection="column"
               alignItems="center"
-              justifyContent="center"
-              boxSize="52px"
-              borderRadius="full"
-              bg="green.500"
-              color="white"
-              boxShadow="0 -2px 8px rgba(23, 154, 59, 0.4), 0 4px 14px rgba(23, 154, 59, 0.35)"
+              gap="2px"
+              cursor={centerAction.loading ? 'not-allowed' : 'pointer'}
+              transform="translateY(-16px)"
+              _hover={{
+                transform: centerAction.loading
+                  ? 'translateY(-16px)'
+                  : 'translateY(-18px)',
+              }}
+              _active={{ transform: 'translateY(-14px) scale(0.95)' }}
+              transition="transform 0.15s ease"
+              onClick={!centerAction.loading ? centerAction.onClick : undefined}
+              aria-label={centerAction.label}
+              opacity={centerAction.loading ? 0.7 : 1}
             >
-              {centerAction.loading ? (
-                <Spinner size="sm" color="white" />
-              ) : (
-                <Plus size={24} />
-              )}
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                boxSize="52px"
+                borderRadius="full"
+                bg="green.500"
+                color="white"
+                boxShadow="0 -2px 8px rgba(23, 154, 59, 0.4), 0 4px 14px rgba(23, 154, 59, 0.35)"
+              >
+                {centerAction.loading ? (
+                  <Spinner size="sm" color="white" />
+                ) : (
+                  <Plus size={24} />
+                )}
+              </Box>
+              <Text
+                fontSize="2xs"
+                fontWeight="bold"
+                color="green.600"
+                _dark={{ color: 'green.400' }}
+                textAlign="center"
+              >
+                {centerAction.label}
+              </Text>
             </Box>
-            <Text
-              fontSize="2xs"
-              fontWeight="bold"
-              color="green.600"
-              _dark={{ color: 'green.400' }}
-              textAlign="center"
-            >
-              {centerAction.label}
-            </Text>
           </Box>
-        </Box>
-      )}
+        )}
 
-      {rightTabs.map(renderTab)}
+        {rightTabs.map(renderTab)}
+      </Box>
     </Box>
   );
 }

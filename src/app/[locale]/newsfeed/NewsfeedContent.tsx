@@ -1,113 +1,183 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
-import { PostCard } from '@/components/post/PostCard';
-import { CreatePostModal } from '@/components/post/CreatePostModal';
-import { postsService } from '@/lib/api/posts.service';
-import { useAuthStore } from '@/stores/useAuthStore';
-import type { Post } from '@/types/post';
+import { useCallback, useEffect, useState } from 'react';
+import { Plus, RefreshCcw } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/chakra-compat';
-import { HStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
+import { Box, VStack, Text } from '@chakra-ui/react';
+import AppEmptyState from '@/components/ui/AppEmptyState';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+import { Button } from '@/components/ui/chakra-compat';
+import { CreatePostModal } from '@/components/post/CreatePostModal';
+import { PostCard } from '@/components/post/PostCard';
+import { postsService } from '@/lib/api/posts.service';
+import type { Post } from '@/types/post';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { toaster } from '@/components/ui/toaster';
+
+const POSTS_PER_PAGE = 10;
 
 export default function NewsfeedContent() {
-  const t = useTranslations();
-  const { user } = useAuthStore();
+  const t = useTranslations('posts');
+  const navigationT = useTranslations('navigation');
+  const currentUserId = useAuthStore((state) => state.user?.id);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-  const loadPosts = async (pageNum = 1, append = false) => {
-    setIsLoading(true);
-    try {
-      const response = await postsService.getPosts(pageNum);
+  const loadPosts = useCallback(
+    async (pageNum = 1, append = false) => {
       if (append) {
-        setPosts((prev) => [...prev, ...response.posts]);
+        setIsLoadingMore(true);
       } else {
-        setPosts(response.posts);
+        setIsLoading(true);
       }
-      setHasMore(response.hasMore);
-      setPage(pageNum);
-    } catch (error) {
-      console.error('Failed to load posts:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      setHasError(false);
+
+      try {
+        const response = await postsService.getPosts(pageNum, POSTS_PER_PAGE);
+        const responsePosts = Array.isArray(response.posts)
+          ? response.posts
+          : [];
+
+        setPosts((currentPosts) => {
+          if (!append) return responsePosts;
+
+          const existingIds = new Set(currentPosts.map((post) => post.id));
+          const nextPosts = responsePosts.filter(
+            (post) => !existingIds.has(post.id)
+          );
+          return [...currentPosts, ...nextPosts];
+        });
+        setPage(response.page ?? pageNum);
+        setHasMore(Boolean(response.hasMore));
+      } catch {
+        setHasError(true);
+        toaster.create({
+          title: t('error'),
+          description: t('loadPostsError'),
+          type: 'error',
+        });
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [t]
+  );
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [loadPosts]);
 
-  const handleLoadMore = () => {
-    if (!isLoading && hasMore) {
-      loadPosts(page + 1, true);
-    }
-  };
-
-  const handlePostCreated = () => {
-    loadPosts(1, false);
-  };
-
-  const handlePostUpdate = () => {
-    loadPosts(1, false);
-  };
+  const refreshPosts = useCallback(() => {
+    loadPosts(1);
+  }, [loadPosts]);
 
   return (
-    <PageLayout title={t('navigation.newsfeed')}>
-      <HStack justify="flex-end" mb={6}>
+    <PageLayout
+      title={navigationT('newsfeed')}
+      maxW="container.md"
+      rightContent={
         <Button
           size="sm"
-          colorPalette="green"
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => setIsCreateOpen(true)}
+          leftIcon={<Plus size={16} />}
         >
-          <Plus size={16} />
-          {t('posts.createPost')}
+          {t('createPost')}
         </Button>
-      </HStack>
-
-      {(!posts || posts.length === 0) && !isLoading && (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg mb-2">{t('posts.noPosts')}</p>
-          <p className="text-sm">{t('posts.beFirstToShare')}</p>
-        </div>
-      )}
-
-      <div>
-        {posts?.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            currentUserId={user?.id}
-            onPostUpdate={handlePostUpdate}
-          />
-        ))}
-      </div>
-
-      {hasMore && (
-        <button
-          onClick={handleLoadMore}
-          disabled={isLoading}
-          className="w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium disabled:opacity-50"
+      }
+    >
+      <Box maxW="720px" mx="auto" w="full">
+        <Box
+          bg={{ base: 'white', _dark: 'gray.800' }}
+          borderWidth="1px"
+          borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
+          borderRadius="lg"
+          p={{ base: 3, md: 4 }}
+          mb={4}
+          boxShadow="sm"
         >
-          {isLoading ? t('common.loading') : t('common.loadMore')}
-        </button>
-      )}
+          <Button
+            variant="outline"
+            colorPalette="gray"
+            w="full"
+            justifyContent="flex-start"
+            onClick={() => setIsCreateOpen(true)}
+            leftIcon={<Plus size={18} />}
+          >
+            {t('composerPlaceholder')}
+          </Button>
+        </Box>
 
-      {isLoading && (!posts || posts.length === 0) && (
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-        </div>
-      )}
+        {isLoading ? (
+          <LoadingSpinner minH="40vh" />
+        ) : hasError && posts.length === 0 ? (
+          <AppEmptyState
+            title={t('loadPostsError')}
+            description={t('retryDescription')}
+            actions={
+              <Button
+                onClick={refreshPosts}
+                leftIcon={<RefreshCcw size={16} />}
+              >
+                {t('retry')}
+              </Button>
+            }
+          />
+        ) : posts.length === 0 ? (
+          <AppEmptyState
+            title={t('noPosts')}
+            description={t('beFirstToShare')}
+            actions={
+              <Button
+                onClick={() => setIsCreateOpen(true)}
+                leftIcon={<Plus size={16} />}
+              >
+                {t('createPost')}
+              </Button>
+            }
+          />
+        ) : (
+          <VStack gap={4} align="stretch">
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUserId={currentUserId}
+                onPostUpdate={refreshPosts}
+              />
+            ))}
+
+            {hasMore && (
+              <Button
+                variant="outline"
+                colorPalette="gray"
+                onClick={() => loadPosts(page + 1, true)}
+                loading={isLoadingMore}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore ? t('loading') : t('loadMore')}
+              </Button>
+            )}
+          </VStack>
+        )}
+
+        {!isLoading && hasError && posts.length > 0 && (
+          <Text textAlign="center" mt={4} color="red.500" fontSize="sm">
+            {t('loadMoreError')}
+          </Text>
+        )}
+      </Box>
 
       <CreatePostModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onPostCreated={handlePostCreated}
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onPostCreated={refreshPosts}
       />
     </PageLayout>
   );

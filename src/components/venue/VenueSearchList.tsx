@@ -2,6 +2,7 @@
 
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
+import AppEmptyState from '@/components/ui/AppEmptyState';
 import { toaster } from '@/components/ui/toaster';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import {
@@ -10,7 +11,7 @@ import {
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { VenueService } from '@/lib/api/venue.service';
-import { Venue } from '@/lib/api/types';
+import { Venue, VenueRequestType } from '@/lib/api/types';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import {
   Badge,
@@ -30,6 +31,7 @@ import {
   Filter,
   Grid2X2,
   MapPin,
+  Plus,
   TrendingUp,
   X,
   Star,
@@ -37,6 +39,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
 import VenueMap from './VenueMap';
@@ -49,6 +53,16 @@ import {
   booleanField,
 } from '@/hooks/useUrlFilters';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import VenueRequestModal from './VenueRequestModal';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { usePathname, useRouter } from '@/i18n/config';
+
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
+
+const OPEN_VENUE_CREATE_REQUEST_ACTION = 'openVenueCreateRequest';
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
@@ -129,6 +143,10 @@ const VENUE_FILTERS_SCHEMA = {
 
 export default function VenueSearchList() {
   const t = useTranslations();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuthStore();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -176,6 +194,16 @@ export default function VenueSearchList() {
   } | null>(null);
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
+  const {
+    isOpen: isCreateRequestOpen,
+    onOpen: openCreateRequest,
+    onClose: closeCreateRequest,
+  } = useDisclosure(false);
+  const {
+    isOpen: isLoginModalOpen,
+    onOpen: openLoginModal,
+    onClose: closeLoginModal,
+  } = useDisclosure(false);
 
   const loadingMoreRef = useRef(false);
 
@@ -461,6 +489,7 @@ export default function VenueSearchList() {
 
   const activeFilterCount =
     filters.city.length + filters.district.length + (filters.near ? 1 : 0);
+  const hasVenueSearch = filters.q.trim().length > 0;
 
   // Sort dropdown state
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -472,6 +501,39 @@ export default function VenueSearchList() {
   // When "near me" is active, distance sort overrides; show MapPin label
   const sortButtonLabel = filters.near ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = filters.near ? MapPin : activeSortOption.icon;
+
+  useEffect(() => {
+    if (
+      !isAuthenticated ||
+      searchParams.get('action') !== OPEN_VENUE_CREATE_REQUEST_ACTION
+    ) {
+      return;
+    }
+
+    openCreateRequest();
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('action');
+    const nextUrl = nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+    router.replace(nextUrl);
+  }, [isAuthenticated, openCreateRequest, pathname, router, searchParams]);
+
+  const getCreateRequestReturnUrl = () => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('action', OPEN_VENUE_CREATE_REQUEST_ACTION);
+    return nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+  };
+
+  const handleOpenCreateRequest = () => {
+    if (!isAuthenticated) {
+      openLoginModal();
+      return;
+    }
+    openCreateRequest();
+  };
 
   // On mobile, always show icon-only in the sort button (no label text)
 
@@ -1052,33 +1114,30 @@ export default function VenueSearchList() {
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
-      ) : venues.length === 0 ? (
-        <Box
-          textAlign="center"
-          py={10}
-          px={6}
-          borderWidth="1px"
-          borderRadius="lg"
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-        >
-          <Heading size="md" mb={2}>
-            Không tìm thấy sân nào
-          </Heading>
-          <Text color="gray.500">
-            Thử thay đổi từ khóa hoặc bộ lọc để tìm sân phù hợp.
-          </Text>
-          {activeFilterCount > 0 && (
-            <Button
-              mt={4}
-              onClick={clearAllFilters}
-              variant="outline"
-              size="sm"
-            >
-              Xóa bộ lọc
-            </Button>
-          )}
-        </Box>
+      ) : venues.length === 0 && viewMode !== 'map' ? (
+        <AppEmptyState
+          minH={{ base: '300px', md: '340px' }}
+          icon={<MapPin size={40} color="var(--chakra-colors-gray-400)" />}
+          title="Không tìm thấy sân nào"
+          actions={
+            <VStack gap={3} width="100%" align="center">
+              {hasVenueSearch && (
+                <Button
+                  colorPalette="green"
+                  onClick={handleOpenCreateRequest}
+                  leftIcon={<Plus size={16} />}
+                >
+                  {t('venue.requestUpdate')}
+                </Button>
+              )}
+              {activeFilterCount > 0 && (
+                <Button onClick={clearAllFilters} variant="outline" size="sm">
+                  Xóa bộ lọc
+                </Button>
+              )}
+            </VStack>
+          }
+        />
       ) : viewMode === 'map' ? (
         <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
           <VenueMap venues={venues} userLocation={userLocation} />
@@ -1125,6 +1184,20 @@ export default function VenueSearchList() {
             </Box>
           )}
         </>
+      )}
+      <VenueRequestModal
+        isOpen={isCreateRequestOpen}
+        onClose={closeCreateRequest}
+        type={VenueRequestType.CREATE}
+        defaultKeyword={filters.q}
+      />
+      {isLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isLoginModalOpen}
+          onClose={closeLoginModal}
+          featureName={t('venue.requestUpdate')}
+          returnUrl={getCreateRequestReturnUrl()}
+        />
       )}
     </Box>
   );

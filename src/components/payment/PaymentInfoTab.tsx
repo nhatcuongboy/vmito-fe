@@ -163,7 +163,7 @@ export default function PaymentInfoTab({
                 {t('totalFee')}
               </Text>
               <Text fontWeight="bold" fontSize="lg">
-                {FeeService.formatFee(totalAmount)}
+                {FeeService.formatPaymentAmount(totalAmount)}
               </Text>
             </HStack>
             <HStack justify="space-between">
@@ -171,7 +171,7 @@ export default function PaymentInfoTab({
                 {t('paidAmount')}
               </Text>
               <Text fontWeight="bold" color="green.600" fontSize="lg">
-                {paidAmount === 0 ? '0' : FeeService.formatFee(paidAmount)}
+                {FeeService.formatPaymentAmount(paidAmount)}
               </Text>
             </HStack>
             <HStack justify="space-between">
@@ -179,7 +179,7 @@ export default function PaymentInfoTab({
                 {t('pendingAmount')}
               </Text>
               <Text fontWeight="bold" color="yellow.600" fontSize="lg">
-                {FeeService.formatFee(pendingAmount)}
+                {FeeService.formatPaymentAmount(pendingAmount)}
               </Text>
             </HStack>
           </VStack>
@@ -196,14 +196,14 @@ export default function PaymentInfoTab({
           >
             <HStack mb={3} justify="space-between">
               <HStack>
-                <CreditCard size={18} color="#3182ce" />
+                <CreditCard size={18} color="#179a3b" />
                 <Text fontWeight="semibold">{t('hostPaymentInfo')}</Text>
               </HStack>
               {hostPaymentSettings.bankName &&
                 hostPaymentSettings.bankAccountNumber && (
                   <Button
                     size="sm"
-                    colorPalette="blue"
+                    colorPalette="green"
                     onClick={() => setIsFastTransferOpen(true)}
                   >
                     {t('transfer')}
@@ -320,7 +320,7 @@ export default function PaymentInfoTab({
 
               <HStack justify="space-between" align="center">
                 <Text fontSize="lg" fontWeight="bold" color="green.600">
-                  {FeeService.formatFee(payment.amount)}
+                  {FeeService.formatPaymentAmount(payment.amount)}
                 </Text>
 
                 {canSubmit(payment) && (

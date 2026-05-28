@@ -1,4 +1,8 @@
 import { Metadata } from 'next';
+import {
+  defaultOpenGraphImage,
+  defaultSeoDescription,
+} from '@/lib/seo/metadata';
 import HomePageContent from './HomePageContent';
 
 interface PageProps {
@@ -23,7 +27,10 @@ export async function generateMetadata({
   const { locale } = await params;
 
   const title = localeTitles[locale] ?? localeTitles.vi;
-  const description = localeDescriptions[locale] ?? localeDescriptions.vi;
+  const description =
+    localeDescriptions[locale] ??
+    localeDescriptions.vi ??
+    defaultSeoDescription;
 
   return {
     title,
@@ -37,12 +44,18 @@ export async function generateMetadata({
       },
     },
     openGraph: {
+      type: 'website',
+      siteName: 'Vmito',
+      url: `/${locale}`,
       title,
       description,
+      images: [defaultOpenGraphImage],
     },
     twitter: {
+      card: 'summary_large_image',
       title,
       description,
+      images: [defaultOpenGraphImage.url],
     },
   };
 }

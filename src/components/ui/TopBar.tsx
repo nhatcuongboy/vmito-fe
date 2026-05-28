@@ -25,6 +25,8 @@ import NotificationBell from './NotificationBell';
 import SlideOutMenu from './SlideOutMenu';
 import UserMenu from './UserMenu';
 import SubNavigation, { NavItem } from './SubNavigation';
+import AiAssistantTopBarButton from './AiAssistantTopBarButton';
+import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -59,6 +61,7 @@ export default function TopBar({
   const router = useRouter();
   const pathname = usePathname();
   const { toggleCollapse } = useSidebar();
+  const showAiAssistant = useAiAssistantVisibility();
 
   const normalizedPath =
     pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
@@ -67,6 +70,7 @@ export default function TopBar({
     /^\/(player\/|host\/)?(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
       normalizedPath
     );
+  const isCenteredTitle = !isLeftAlignedTitle;
 
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -97,7 +101,7 @@ export default function TopBar({
           hideBottomBorder ? { base: 'none', md: '1px solid' } : '1px solid'
         }
         // borderBottom="1px solid"
-        borderColor={{ base: '#d4d4d8', md: 'border' }}
+        borderColor={{ base: 'gray.200', md: 'border', _dark: 'gray.700' }}
         height={
           navItems
             ? {
@@ -216,10 +220,14 @@ export default function TopBar({
                       color="fg"
                       _hover={{ bg: 'bg.muted' }}
                       borderRadius="full"
-                      size="md"
                       onClick={onBack}
+                      css={{
+                        width: '48px !important',
+                        height: '48px !important',
+                        minWidth: '48px !important',
+                      }}
                     >
-                      <ChevronLeft size={24} strokeWidth={2.5} />
+                      <ChevronLeft size={28} strokeWidth={2.5} />
                     </IconButton>
                   ) : (
                     <Link href={backHref}>
@@ -229,55 +237,67 @@ export default function TopBar({
                         color="fg"
                         _hover={{ bg: 'bg.muted' }}
                         borderRadius="full"
-                        size="md"
+                        css={{
+                          width: '48px !important',
+                          height: '48px !important',
+                          minWidth: '48px !important',
+                        }}
                       >
-                        <ChevronLeft size={24} strokeWidth={2.5} />
+                        <ChevronLeft size={28} strokeWidth={2.5} />
                       </IconButton>
                     </Link>
                   )}
                 </Box>
               )}
 
-              {/* App title */}
-              {title && (
+              {/* App title - left aligned detail pages on mobile */}
+              {title && isLeftAlignedTitle && (
                 <Heading
                   size={{ base: 'md', md: 'lg' }}
                   color="fg"
                   fontWeight="bold"
-                  maxWidth={
-                    isLeftAlignedTitle
-                      ? { base: 'calc(100vw - 120px)', md: '600px' }
-                      : { base: '50vw', md: '500px' }
-                  }
+                  maxWidth={{ base: 'calc(100vw - 168px)', md: '600px' }}
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"
                   height="100%"
                   display="flex"
                   alignItems="center"
-                  position={{
-                    base: isLeftAlignedTitle ? 'static' : 'absolute',
-                    md: 'absolute',
-                  }}
-                  left={{
-                    base: isLeftAlignedTitle ? 'auto' : '50%',
-                    md: '50%',
-                  }}
-                  transform={{
-                    base: isLeftAlignedTitle ? 'none' : 'translateX(-50%)',
-                    md: 'translateX(-50%)',
-                  }}
-                  textAlign={{
-                    base: isLeftAlignedTitle ? 'left' : 'center',
-                    md: 'center',
-                  }}
-                  px={isLeftAlignedTitle ? 1 : 0}
-                  pointerEvents={isLeftAlignedTitle ? 'auto' : 'none'}
+                  position={{ base: 'static', md: 'absolute' }}
+                  left={{ md: '50%' }}
+                  transform={{ md: 'translateX(-50%)' }}
+                  textAlign={{ base: 'left', md: 'center' }}
+                  px={1}
+                  pointerEvents="auto"
                 >
                   {title}
                 </Heading>
               )}
             </Flex>
+
+            {/* App title - centered independently from left/right actions */}
+            {title && isCenteredTitle && (
+              <Heading
+                size={{ base: 'md', md: 'lg' }}
+                color="fg"
+                fontWeight="bold"
+                maxWidth={{ base: '50vw', md: '500px' }}
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                height="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                position="absolute"
+                left="50%"
+                transform="translateX(-50%)"
+                textAlign="center"
+                pointerEvents="none"
+              >
+                {title}
+              </Heading>
+            )}
 
             {/* Right side - Actions */}
             <Box
@@ -293,6 +313,7 @@ export default function TopBar({
               {!isHydrated || isLoading ? null : isAuthenticated ? (
                 <>
                   <Box display="flex" alignItems="center" gap={2}>
+                    {showAiAssistant && <AiAssistantTopBarButton />}
                     <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
                     <UserMenu onLogout={handleLogout} />
                   </Box>
@@ -302,16 +323,37 @@ export default function TopBar({
                 <Button
                   onClick={() => router.push('/auth/signin')}
                   colorPalette="green"
-                  size="sm"
-                  fontWeight="600"
-                  boxShadow="0 2px 8px rgba(23, 154, 59, 0.25)"
+                  variant="outline"
+                  size="xs"
+                  h={{ base: '36px', md: '38px' }}
+                  minW="auto"
+                  px={{ base: 3, md: 4 }}
+                  gap={1.5}
+                  fontSize={{ base: 'sm', md: 'sm' }}
+                  fontWeight="700"
+                  borderRadius="md"
+                  bg={{ base: 'white', _dark: 'gray.900' }}
+                  borderColor="green.500"
+                  color="green.700"
+                  boxShadow="0 1px 4px rgba(23, 154, 59, 0.12)"
                   _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(23, 154, 59, 0.35)',
+                    bg: 'green.50',
+                    borderColor: 'green.600',
+                    color: 'green.800',
+                    boxShadow: '0 2px 8px rgba(23, 154, 59, 0.18)',
+                    _dark: {
+                      bg: 'green.950',
+                      color: 'green.200',
+                    },
                   }}
-                  transition="all 0.2s"
+                  _dark={{
+                    bg: 'gray.900',
+                    borderColor: 'green.400',
+                    color: 'green.200',
+                  }}
+                  transition="background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s"
                 >
-                  <LogIn size={16} />
+                  <LogIn size={15} />
                   {common('login')}
                 </Button>
               ) : null}

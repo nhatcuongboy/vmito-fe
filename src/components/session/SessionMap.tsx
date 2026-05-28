@@ -33,6 +33,7 @@ import { useRouter } from 'next/navigation';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
 import { format } from 'date-fns';
 import { toaster } from '@/components/ui/toaster';
+import { useTranslations } from 'next-intl';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   CONTENT_PT_OFFSET,
@@ -63,6 +64,7 @@ export default function SessionMap({
   sessions,
   userLocation: initialUserLocation,
 }: SessionMapProps) {
+  const t = useTranslations('session');
   const router = useRouter();
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
   const [hoveredVenueId, setHoveredVenueId] = useState<string | null>(null);
@@ -247,20 +249,19 @@ export default function SessionMap({
           mapInstance.setZoom(15);
           setIsLocating(false);
           toaster.create({
-            title: 'Đã tìm thấy vị trí của bạn',
+            title: t('locationFound'),
             type: 'success',
             duration: 2000,
           });
         },
         (error) => {
           setIsLocating(false);
-          let errorMessage = 'Không thể lấy vị trí của bạn';
+          let errorMessage = t('locationError');
           if (error.code === error.PERMISSION_DENIED) {
-            errorMessage =
-              'Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt';
+            errorMessage = t('locationPermissionDenied');
           }
           toaster.create({
-            title: 'Lỗi',
+            title: t('error'),
             description: errorMessage,
             type: 'error',
             duration: 3000,
@@ -270,8 +271,8 @@ export default function SessionMap({
     } else {
       setIsLocating(false);
       toaster.create({
-        title: 'Lỗi',
-        description: 'Trình duyệt không hỗ trợ định vị',
+        title: t('error'),
+        description: t('browserNotSupportLocation'),
         type: 'error',
         duration: 3000,
       });
@@ -283,10 +284,8 @@ export default function SessionMap({
       <Center p={10} bg="red.50" borderRadius="xl" color="red.500">
         <VStack>
           <Info size={40} />
-          <Text fontWeight="bold">Lỗi tải bản đồ</Text>
-          <Text fontSize="sm">
-            Vui lòng kiểm tra kết nối mạng hoặc API Key.
-          </Text>
+          <Text fontWeight="bold">{t('mapLoadError')}</Text>
+          <Text fontSize="sm">{t('mapLoadErrorDescription')}</Text>
         </VStack>
       </Center>
     );
@@ -320,7 +319,7 @@ export default function SessionMap({
 
       {/* Location Button - positioned above zoom controls on the right */}
       <IconButton
-        aria-label="Vị trí của bạn"
+        aria-label={t('yourLocation')}
         position="absolute"
         bottom={48}
         right={3}
@@ -366,7 +365,7 @@ export default function SessionMap({
               strokeWeight: 2,
               strokeColor: 'white',
             }}
-            title="Vị trí của bạn"
+            title={t('yourLocation')}
           />
         )}
 
@@ -450,7 +449,9 @@ export default function SessionMap({
                             colorPalette={isFull ? 'red' : 'green'}
                             size="sm"
                           >
-                            {isFull ? 'Hết chỗ' : `Còn ${availableSlots} chỗ`}
+                            {isFull
+                              ? t('slotsFull')
+                              : t('slotsAvailable', { count: availableSlots })}
                           </Badge>
                         </HStack>
 
@@ -473,7 +474,11 @@ export default function SessionMap({
                           </HStack>
                           <HStack gap={1}>
                             <Users size={12} />
-                            <Text>{session._count?.players || 0} người</Text>
+                            <Text>
+                              {t('playersCount', {
+                                count: session._count?.players || 0,
+                              })}
+                            </Text>
                           </HStack>
                         </HStack>
                       </Box>
@@ -494,7 +499,7 @@ export default function SessionMap({
                   }}
                 >
                   <Navigation size={12} />
-                  Chỉ đường đến sân
+                  {t('getDirections')}
                 </Button>
               </VStack>
             </Box>

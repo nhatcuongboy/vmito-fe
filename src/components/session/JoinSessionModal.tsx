@@ -44,7 +44,7 @@ export default function JoinSessionModal({
       isOpen={isOpen}
       onClose={onClose}
       title={`${t('joinSession')}: ${session.name}`}
-      primaryActionText={t('submitRegistration')}
+      primaryActionText={`${t('submitRegistration')} (${players.length})`}
       onPrimaryAction={handleSubmit}
       isPrimaryLoading={loading}
       secondaryActionText={tCommon('cancel')}

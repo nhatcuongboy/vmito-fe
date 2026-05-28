@@ -2,6 +2,7 @@
 
 import { Box, Text } from '@chakra-ui/react';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
+import { useTranslations } from 'next-intl';
 
 export interface IAppAddressDisplayProps {
   address?: string;
@@ -21,11 +22,12 @@ export const AppAddressDisplay = ({
   newAddress,
   fontSize = 'xs',
   newAddressFontSize,
-  color = 'gray.500',
+  color = 'fg.subtle',
   newAddressColor = 'blue.500',
   lineClamp,
 }: IAppAddressDisplayProps) => {
   const { showNewAddress } = useAppSettings();
+  const t = useTranslations('admin');
 
   const fullAddress = [address, district].filter(Boolean).join(', ');
   const fullNewAddress = newAddress || '';
@@ -54,7 +56,7 @@ export const AppAddressDisplay = ({
             fontWeight="semibold"
             fontStyle="normal"
           >
-            (New)
+            ({t('newAddressBadge')})
           </Text>
         </Text>
       )}

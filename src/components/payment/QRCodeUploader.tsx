@@ -119,8 +119,8 @@ export default function QRCodeUploader({
           opacity={disabled ? 0.6 : 1}
           transition="all 0.2s"
           _hover={{
-            borderColor: disabled ? undefined : 'blue.400',
-            bg: disabled ? undefined : 'blue.50',
+            borderColor: disabled ? undefined : 'green.400',
+            bg: disabled ? undefined : 'green.50',
           }}
           onClick={handleClick}
         >
@@ -130,7 +130,7 @@ export default function QRCodeUploader({
                 w={8}
                 h={8}
                 border="3px solid"
-                borderColor="blue.500"
+                borderColor="green.500"
                 borderTopColor="transparent"
                 borderRadius="full"
                 animation="spin 1s linear infinite"

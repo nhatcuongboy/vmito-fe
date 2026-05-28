@@ -138,7 +138,7 @@ function PaymentSettingsContent() {
     <VStack gap={6} align="stretch">
       <HStack justify="space-between">
         <HStack>
-          <CreditCard size={24} color="#3182ce" />
+          <CreditCard size={24} color="#179a3b" />
           <Heading size="lg">{t('settings')}</Heading>
         </HStack>
         {!isCreating && settings.length > 0 && (

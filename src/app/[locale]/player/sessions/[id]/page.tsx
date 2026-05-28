@@ -11,6 +11,7 @@ import { useTabNavigation } from '@/hooks/useTabNavigation';
 import { useSessionRefresh } from '@/hooks/useSessionRefresh';
 import { useSessionManagement } from '@/hooks/useSessionManagement';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
 // Components
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -33,6 +34,7 @@ import PlayerSessionView from '@/components/session/PlayerSessionView';
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
 import { REFRESH_INTERVALS } from '@/lib/constants';
+import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import { getCourtDisplayName } from '@/utils/session-helpers';
 import {
@@ -70,6 +72,12 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
+  const isGlobalBottomNavVisible = useBottomNavVisibility();
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
 
   const { refreshSessionData, isRefreshing } = useSessionRefresh({
     sessionId: session?.id || sessionId,
@@ -107,6 +115,23 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
   const getCurrentMatch = (courtId: string) =>
     session ? getCurrentMatchForCourt(session.courts, courtId) : null;
   const formatWaitTime = (minutes: number) => formatWaitTimeUtil(minutes, t);
+
+  const handleSaveNotes = async (notes: string) => {
+    if (!session) return;
+
+    const updatedSession = await SessionService.updateSession(session.id, {
+      notes,
+    });
+
+    setSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            notes: updatedSession.notes ?? notes,
+          }
+        : prev
+    );
+  };
 
   // Loading state
   if (loading) {
@@ -172,8 +197,13 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
     );
   }
 
-  // Check ownership: if not owner, render view mode
-  if (session.hostId !== user?.id) {
+  const isCurrentUserPlayer = session.players?.some(
+    (player) => player.userId === user?.id
+  );
+
+  // Player route should stay in player view whenever the current user has a
+  // player record, even if they also host this session.
+  if (isCurrentUserPlayer || session.hostId !== user?.id) {
     return (
       <ProtectedRouteGuard
         requiredRole={[UserRole.PLAYER, UserRole.HOST, UserRole.ADMIN]}
@@ -206,6 +236,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         isToggleStatusLoading={isToggleStatusLoading}
         onToggleSessionStatus={toggleSessionStatus}
         onRefreshData={refreshSessionData}
+        onSaveNotes={handleSaveNotes}
         showBackButton={true}
         backHref="/host/sessions/joined"
       />
@@ -218,7 +249,7 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
         px={{ base: 4, md: 8 }}
       >
         {/* Tab Content Area */}
-        <Box minH="60vh" pb="80px" w="full" maxW="7xl">
+        <Box minH="60vh" pb="160px" w="full" maxW="7xl">
           {activeTab === 0 && (
             <SessionOverviewTab
               session={session}
@@ -275,6 +306,15 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
           tabs={navigationTabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          alwaysVisible
+          bottomOffset={
+            isGlobalBottomNavVisible
+              ? {
+                  base: 'calc(64px + env(safe-area-inset-bottom))',
+                  md: '0',
+                }
+              : undefined
+          }
         />
       </Flex>
 

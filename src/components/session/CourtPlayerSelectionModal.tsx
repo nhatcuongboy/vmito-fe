@@ -5,11 +5,18 @@ import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
-import { Badge, Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
+import { Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
 import { Search, Sparkles, User, UserPlus, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Locale } from '@/i18n/locales';
+import MatchCourtPreview, { MatchPairStats } from './MatchCourtPreview';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
 
 type SelectionMode = 'auto' | 'manual';
@@ -86,14 +93,31 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   const t = useTranslations('SessionDetail');
   const locale = useLocale() as Locale;
 
-  // Tab / mode state
-  const [mode, setMode] = useState<SelectionMode>('manual');
+  // Keep tab/matching options separate for singles and doubles.
+  const [modeByMatchType, setModeByMatchType] = useState<
+    Record<TMatchType, SelectionMode>
+  >({
+    singles: 'manual',
+    doubles: 'manual',
+  });
+  const [useAiByMatchType, setUseAiByMatchType] = useState<
+    Record<TMatchType, boolean>
+  >({
+    singles: false,
+    doubles: false,
+  });
+  const [topCountByMatchType, setTopCountByMatchType] = useState<
+    Partial<Record<TMatchType, number>>
+  >({});
 
   // Auto-assign internal state
-  const [suggestedPlayers, setSuggestedPlayers] =
-    useState<SuggestedPlayersResponse | null>(null);
+  const [suggestedPlayersByMatchType, setSuggestedPlayersByMatchType] =
+    useState<Partial<Record<TMatchType, SuggestedPlayersResponse>>>({});
   const [isLoadingSuggestion, setIsLoadingSuggestion] = useState(false);
-  const [useAi, setUseAi] = useState(false);
+  const initializedCourtIdRef = useRef<string | null>(null);
+  const latestSuggestionRequestRef = useRef(0);
+  const activeSuggestionRequestKeyRef = useRef<string | null>(null);
+  const suggestedPlayers = suggestedPlayersByMatchType[matchType] ?? null;
 
   // Calculate default topCount
   const playersPerCourt = matchType === 'singles' ? 2 : 4;
@@ -105,14 +129,36 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     return Math.min(calculatedDefault, waitingPlayersCount);
   }, [numberOfCourts, waitingPlayersCount, playersPerCourt]);
 
-  const [topCount, setTopCount] = useState(defaultTopCount);
+  const mode = modeByMatchType[matchType];
+  const useAi = useAiByMatchType[matchType];
+  const topCount = topCountByMatchType[matchType] ?? defaultTopCount;
 
   // Fetch suggested players
   const fetchSuggestedPlayers = useCallback(
-    async (courtId: string, count: number, enableAi: boolean = false) => {
+    async (
+      courtId: string,
+      count: number,
+      enableAi: boolean = false,
+      suggestionMatchType: TMatchType
+    ) => {
+      const requestKey = [
+        courtId,
+        count,
+        enableAi ? 'ai' : 'standard',
+        locale,
+        suggestionMatchType,
+      ].join(':');
+
+      if (activeSuggestionRequestKeyRef.current === requestKey) return;
+
+      const requestId = latestSuggestionRequestRef.current + 1;
+      latestSuggestionRequestRef.current = requestId;
+      activeSuggestionRequestKeyRef.current = requestKey;
+
       try {
         setIsLoadingSuggestion(true);
-        const apiMatchType = matchType === 'singles' ? 'SINGLES' : 'DOUBLES';
+        const apiMatchType =
+          suggestionMatchType === 'singles' ? 'SINGLES' : 'DOUBLES';
         const response = await CourtService.getSuggestedPlayersForCourt(
           courtId,
           count,
@@ -120,14 +166,25 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           locale,
           apiMatchType
         );
-        setSuggestedPlayers(response);
+
+        if (latestSuggestionRequestRef.current !== requestId) return;
+
+        setSuggestedPlayersByMatchType((prev) => ({
+          ...prev,
+          [suggestionMatchType]: response,
+        }));
       } catch (error) {
-        console.error('Error getting suggested players:', error);
+        if (latestSuggestionRequestRef.current === requestId) {
+          console.error('Error getting suggested players:', error);
+        }
       } finally {
-        setIsLoadingSuggestion(false);
+        if (latestSuggestionRequestRef.current === requestId) {
+          activeSuggestionRequestKeyRef.current = null;
+          setIsLoadingSuggestion(false);
+        }
       }
     },
-    [locale, matchType]
+    [locale]
   );
 
   // Combine players from both pairs for court visualization
@@ -156,36 +213,81 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
   // Fetch when modal opens
   useEffect(() => {
-    if (isOpen && court?.id) {
-      setTopCount(defaultTopCount);
-      setMode('manual');
-      fetchSuggestedPlayers(court.id, defaultTopCount, false);
-    } else if (!isOpen) {
+    if (!isOpen) {
       // Reset state when modal closes
-      setSuggestedPlayers(null);
+      initializedCourtIdRef.current = null;
+      latestSuggestionRequestRef.current += 1;
+      activeSuggestionRequestKeyRef.current = null;
+      setSuggestedPlayersByMatchType({});
       setIsLoadingSuggestion(false);
-      setUseAi(false);
+      setModeByMatchType({ singles: 'manual', doubles: 'manual' });
+      setUseAiByMatchType({ singles: false, doubles: false });
+      setTopCountByMatchType({});
+      return;
     }
-  }, [isOpen, court?.id, defaultTopCount, fetchSuggestedPlayers]);
+
+    if (!court?.id || initializedCourtIdRef.current === court.id) return;
+
+    initializedCourtIdRef.current = court.id;
+    setModeByMatchType({ singles: 'manual', doubles: 'manual' });
+    setUseAiByMatchType({ singles: false, doubles: false });
+    setTopCountByMatchType({});
+    setSuggestedPlayersByMatchType({});
+    fetchSuggestedPlayers(court.id, defaultTopCount, false, matchType);
+  }, [court?.id, defaultTopCount, fetchSuggestedPlayers, isOpen, matchType]);
+
+  // Fetch each match type with its own AI/top-count options.
+  useEffect(() => {
+    if (!isOpen || !court?.id) return;
+
+    const cachedSuggestion = suggestedPlayersByMatchType[matchType];
+    if (cachedSuggestion && (!useAi || cachedSuggestion.usedAi)) return;
+
+    fetchSuggestedPlayers(court.id, topCount, useAi, matchType);
+  }, [
+    court?.id,
+    fetchSuggestedPlayers,
+    isOpen,
+    matchType,
+    suggestedPlayersByMatchType,
+    topCount,
+    useAi,
+  ]);
 
   // Handle topCount change
   const handleTopCountChange = (newTopCount: number) => {
     if (!court?.id) return;
-    setTopCount(newTopCount);
-    fetchSuggestedPlayers(court.id, newTopCount, useAi);
+    setTopCountByMatchType((prev) => ({
+      ...prev,
+      [matchType]: newTopCount,
+    }));
+    setSuggestedPlayersByMatchType((prev) => {
+      const next = { ...prev };
+      delete next[matchType];
+      return next;
+    });
+    fetchSuggestedPlayers(court.id, newTopCount, useAi, matchType);
   };
 
   // Handle AI toggle
   const handleAiToggle = () => {
     if (!court?.id) return;
     const newUseAi = !useAi;
-    setUseAi(newUseAi);
-    fetchSuggestedPlayers(court.id, topCount, newUseAi);
+    setUseAiByMatchType((prev) => ({
+      ...prev,
+      [matchType]: newUseAi,
+    }));
+    const cachedSuggestion = suggestedPlayersByMatchType[matchType];
+    if (newUseAi && cachedSuggestion?.usedAi) return;
+    fetchSuggestedPlayers(court.id, topCount, newUseAi, matchType);
   };
 
-  // Handle tab change — tabs are independent, no state sync
+  // Handle tab change for the current singles/doubles context.
   const handleModeChange = (details: { value: string }) => {
-    setMode(details.value as SelectionMode);
+    setModeByMatchType((prev) => ({
+      ...prev,
+      [matchType]: details.value as SelectionMode,
+    }));
   };
 
   // Handle auto confirm
@@ -249,7 +351,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
       size="xl"
       showCloseButton={true}
       footer={
-        <Flex justify="flex-end" gap={2} width="full">
+        <Flex gap={2} justify="flex-end" width="full">
           <CompatButton
             variant="outline"
             onClick={onCancel}
@@ -278,7 +380,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
             borderWidth="1px"
             borderColor="gray.200"
             _dark={{
-              bg: 'whiteAlpha.100',
+              bg: 'blackAlpha.200',
               borderColor: 'whiteAlpha.200',
             }}
           >
@@ -292,10 +394,14 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               bg={matchType === 'doubles' ? 'white' : 'transparent'}
               color={matchType === 'doubles' ? 'blue.600' : 'gray.500'}
               _dark={{
-                bg: matchType === 'doubles' ? 'whiteAlpha.200' : 'transparent',
-                color: matchType === 'doubles' ? 'blue.300' : 'gray.400',
+                bg: matchType === 'doubles' ? 'blue.900/50' : 'transparent',
+                color: matchType === 'doubles' ? 'blue.200' : 'gray.300',
               }}
-              boxShadow={matchType === 'doubles' ? 'sm' : 'none'}
+              boxShadow={
+                matchType === 'doubles'
+                  ? { base: 'sm', _dark: '0 8px 18px rgba(0, 0, 0, 0.35)' }
+                  : 'none'
+              }
               onClick={() => onMatchTypeChange('doubles')}
             >
               <Box as={Users} boxSize={3} mr={1.5} />
@@ -316,10 +422,14 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               bg={matchType === 'singles' ? 'white' : 'transparent'}
               color={matchType === 'singles' ? 'blue.600' : 'gray.500'}
               _dark={{
-                bg: matchType === 'singles' ? 'whiteAlpha.200' : 'transparent',
-                color: matchType === 'singles' ? 'blue.300' : 'gray.400',
+                bg: matchType === 'singles' ? 'blue.900/50' : 'transparent',
+                color: matchType === 'singles' ? 'blue.200' : 'gray.300',
               }}
-              boxShadow={matchType === 'singles' ? 'sm' : 'none'}
+              boxShadow={
+                matchType === 'singles'
+                  ? { base: 'sm', _dark: '0 8px 18px rgba(0, 0, 0, 0.35)' }
+                  : 'none'
+              }
               onClick={() => onMatchTypeChange('singles')}
             >
               <Box as={User} boxSize={3} mr={1.5} />
@@ -340,14 +450,31 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
           variant="line"
           size="sm"
         >
-          <Tabs.List mb={0}>
-            <Tabs.Trigger value="manual">
+          <Tabs.List
+            mb={0}
+            borderColor={{ base: 'border', _dark: 'whiteAlpha.300' }}
+          >
+            <Tabs.Trigger
+              value="manual"
+              color={{ base: 'fg.muted', _dark: 'gray.300' }}
+              _selected={{
+                color: { base: 'fg', _dark: 'white' },
+                borderColor: { base: 'green.500', _dark: 'green.300' },
+              }}
+            >
               <HStack gap={1.5}>
                 <Box as={UserPlus} boxSize={3.5} />
                 <Text fontSize="sm">{t('courtsTab.manualSelection')}</Text>
               </HStack>
             </Tabs.Trigger>
-            <Tabs.Trigger value="auto">
+            <Tabs.Trigger
+              value="auto"
+              color={{ base: 'fg.muted', _dark: 'gray.300' }}
+              _selected={{
+                color: { base: 'fg', _dark: 'white' },
+                borderColor: { base: 'green.500', _dark: 'green.300' },
+              }}
+            >
               <HStack gap={1.5}>
                 <Box as={Sparkles} boxSize={3.5} color="purple.500" />
                 <Text fontSize="sm">{t('courtsTab.autoAssignMatch')}</Text>
@@ -399,6 +526,22 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
 // ─── Auto-Assign Sub-Component ───────────────────────────────────────────────
 
+const LEVEL_SHORT_LABELS: Record<number, string> = {
+  1: 'Yếu',
+  2: 'TBY',
+  3: 'TB-',
+  4: 'TB',
+  5: 'TB+',
+  6: 'Khá',
+  7: 'BC',
+  8: 'CN',
+};
+
+const normalizeAiReasonLevels = (reason: string) =>
+  reason.replace(/\b(?:Level|Cấp|等级)\s*([1-8])\b/gi, (_, level: string) => {
+    return LEVEL_SHORT_LABELS[Number(level)] ?? _;
+  });
+
 interface IAutoAssignContentProps {
   court: Court;
   waitingPlayersCount: number;
@@ -421,13 +564,13 @@ interface IAutoAssignContentProps {
 
 const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
   court,
-  waitingPlayersCount,
-  topCount,
+  waitingPlayersCount: _waitingPlayersCount,
+  topCount: _topCount,
   useAi,
   isLoading,
   suggestedPlayers,
   autoAssignPlayers,
-  onTopCountChange,
+  onTopCountChange: _onTopCountChange,
   onAiToggle,
   getCourtDisplayName,
   courtColor,
@@ -442,50 +585,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
 
   return (
     <Box>
-      {/* TopCount Selection */}
-      {waitingPlayersCount > 0 && (
-        <Box bg="gray.50" py={1} px={2} borderRadius="md" mb={2}>
-          <HStack gap={2} align="center">
-            <Text fontSize="xs" fontWeight="medium" color="gray.700">
-              {t('courtsTab.playersToConsider')}:
-            </Text>
-            <Box flex="1" maxW="110px">
-              <select
-                style={{
-                  fontSize: '13px',
-                  backgroundColor: 'white',
-                  borderColor: '#d1d5db',
-                  borderWidth: '1px',
-                  borderRadius: '4px',
-                  padding: '4px 6px',
-                  width: '100%',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.6 : 1,
-                }}
-                value={topCount}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  onTopCountChange(parseInt(e.target.value))
-                }
-                disabled={isLoading}
-              >
-                {Array.from(
-                  { length: Math.max(0, waitingPlayersCount - 3) },
-                  (_, i) => i + 4
-                ).map((count) => (
-                  <option key={count} value={count}>
-                    {count} {t('courtsTab.players')}
-                  </option>
-                ))}
-              </select>
-            </Box>
-            <Box fontSize="xs" color="gray.500">
-              {t('courtsTab.longestWait')}
-            </Box>
-          </HStack>
-        </Box>
-      )}
-
-      {/* AI Toggle — Premium Card */}
+      {/* AI Toggle */}
       <Box
         position="relative"
         overflow="hidden"
@@ -494,14 +594,14 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
         cursor={isLoading ? 'not-allowed' : 'pointer'}
         onClick={!isLoading ? onAiToggle : undefined}
         style={{
-          background: useAi
-            ? 'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)'
-            : 'linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%)',
-          border: useAi ? '1.5px solid #7c3aed' : '1.5px solid #d8b4fe',
-          transition: 'all 0.3s ease',
+          background:
+            'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)',
+          border: '1.5px solid #7c3aed',
+          transition:
+            'background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
           boxShadow: useAi
             ? '0 4px 20px rgba(124, 58, 237, 0.4)'
-            : '0 1px 4px rgba(124,58,237,0.1)',
+            : '0 2px 12px rgba(124, 58, 237, 0.28)',
         }}
       >
         {/* Shimmer overlay when active */}
@@ -547,7 +647,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
               <Box
                 as={Sparkles}
                 boxSize={4}
-                color={useAi ? 'yellow.300' : 'purple.500'}
+                color="yellow.300"
                 style={{ transition: 'color 0.3s' }}
               />
             </Box>
@@ -555,20 +655,20 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
               <Text
                 fontSize="sm"
                 fontWeight="bold"
-                color={useAi ? 'white' : 'purple.700'}
+                color="white"
                 style={{ transition: 'color 0.3s', lineHeight: 1.2 }}
               >
                 {aiPoweredMatchingLabel}
               </Text>
               <Text
                 fontSize="xs"
-                color={useAi ? 'purple.200' : 'purple.400'}
+                color="purple.200"
                 style={{ transition: 'color 0.3s' }}
               >
                 {useAi
                   ? isLoading
                     ? 'Đang phân tích trình độ...'
-                    : 'Hoàn tất phân tích'
+                    : ''
                   : 'Ghép cặp tự động theo trình độ'}
               </Text>
             </Box>
@@ -582,12 +682,15 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
             borderRadius="full"
             flexShrink={0}
             style={{
-              background: useAi ? '#fbbf24' : 'rgba(139, 92, 246, 0.25)',
+              background: useAi ? '#fbbf24' : 'rgba(255, 255, 255, 0.28)',
               border: useAi
                 ? '1.5px solid #f59e0b'
-                : '1.5px solid rgba(139,92,246,0.4)',
-              transition: 'all 0.3s ease',
-              boxShadow: useAi ? '0 0 10px rgba(251,191,36,0.6)' : 'none',
+                : '1.5px solid rgba(255, 255, 255, 0.45)',
+              transition:
+                'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+              boxShadow: useAi
+                ? '0 0 10px rgba(251,191,36,0.6)'
+                : 'inset 0 0 0 1px rgba(124, 58, 237, 0.18)',
             }}
           >
             <Box
@@ -606,192 +709,42 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
           </Box>
         </HStack>
 
-        {suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
+        {useAi && suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
           <Box
-            mx={2.5}
-            mb={2.5}
-            p={2}
-            bg="rgba(255,255,255,0.15)"
-            borderRadius="md"
+            px={2.5}
+            py={2}
             fontSize="xs"
             color="purple.100"
-            borderWidth="1px"
-            borderColor="rgba(255,255,255,0.2)"
+            borderTopWidth="1px"
+            borderTopColor="rgba(255,255,255,0.2)"
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))',
+            }}
           >
-            <HStack gap={1} mb={0.5}>
-              <Box as={Sparkles} boxSize={3} color="yellow.300" />
-              <Text fontWeight="semibold" color="white">
-                {t('courtsTab.aiReasoning')}:
-              </Text>
-            </HStack>
-            <Text>{suggestedPlayers.aiReason}</Text>
+            <Text fontWeight="semibold" color="white" mb={1}>
+              {t('courtsTab.aiReasoning')}:
+            </Text>
+            <Text>{normalizeAiReasonLevels(suggestedPlayers.aiReason)}</Text>
           </Box>
         )}
       </Box>
 
-      {/* Court Visualization */}
-      <Box maxW="400px" mx="auto" position="relative">
-        <BadmintonCourt
-          players={autoAssignPlayers}
-          isActive={true}
-          courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
-          width="100%"
-          isLoading={isLoading && !useAi}
-          direction={court?.direction || CourtDirection.HORIZONTAL}
-          courtColor={courtColor}
-        />
+      <MatchCourtPreview
+        players={autoAssignPlayers}
+        courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
+        isLoading={isLoading && !useAi}
+        direction={court?.direction || CourtDirection.HORIZONTAL}
+        courtColor={courtColor}
+        showAiLoadingOverlay={useAi && isLoading}
+        aiLoadingLabel={aiAnalyzingLabel}
+        pair1Players={!isLoading ? suggestedPlayers?.pair1.players : undefined}
+        pair2Players={!isLoading ? suggestedPlayers?.pair2.players : undefined}
+        scoreDifference={suggestedPlayers?.scoreDifference}
+      />
 
-        {/* AI Loading Overlay inside the court */}
-        {useAi && isLoading && (
-          <Flex
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            align="center"
-            justify="center"
-            bg="blackAlpha.600"
-            zIndex={5}
-            borderRadius="md"
-            direction="column"
-            gap={2}
-          >
-            <Box
-              width="60%"
-              height="4px"
-              bg="whiteAlpha.300"
-              borderRadius="full"
-              overflow="hidden"
-            >
-              <Box
-                height="100%"
-                width="40%"
-                bg="purple.400"
-                borderRadius="full"
-                animation="aiSlide 1.5s ease-in-out infinite"
-                css={{
-                  '@keyframes aiSlide': {
-                    '0%': { transform: 'translateX(-100%)' },
-                    '50%': { transform: 'translateX(200%)' },
-                    '100%': { transform: 'translateX(-100%)' },
-                  },
-                }}
-              />
-            </Box>
-            <HStack gap={1.5}>
-              <Box
-                as={Sparkles}
-                boxSize={3.5}
-                color="purple.300"
-                animation="pulse 1.5s ease-in-out infinite"
-                css={{
-                  '@keyframes pulse': {
-                    '0%, 100%': { opacity: 0.6 },
-                    '50%': { opacity: 1 },
-                  },
-                }}
-              />
-              <Text fontSize="xs" color="white" fontWeight="medium">
-                {aiAnalyzingLabel}
-              </Text>
-            </HStack>
-          </Flex>
-        )}
-
-        {/* Inline Pair Stats */}
-        {!isLoading && suggestedPlayers && (
-          <PairStatsBar
-            pair1Score={suggestedPlayers.pair1.totalLevelScore}
-            pair2Score={suggestedPlayers.pair2.totalLevelScore}
-            scoreDifference={suggestedPlayers.scoreDifference}
-            pair1Players={suggestedPlayers.pair1.players}
-            pair2Players={suggestedPlayers.pair2.players}
-            t={t}
-          />
-        )}
-      </Box>
+      {/* TopCount Selection — temporarily hidden */}
     </Box>
-  );
-};
-
-// ─── Pair Stats Bar Sub-Component ────────────────────────────────────────────
-
-interface IPairStatsBarProps {
-  pair1Score: number;
-  pair2Score: number;
-  scoreDifference: number;
-  pair1Players?: Player[];
-  pair2Players?: Player[];
-  t: ReturnType<typeof useTranslations<'SessionDetail'>>;
-}
-
-const PairStatsBar: React.FC<IPairStatsBarProps> = ({
-  scoreDifference,
-  pair1Players,
-  pair2Players,
-  t,
-}) => {
-  return (
-    <HStack
-      justify="space-between"
-      align="flex-start"
-      mt={2}
-      px={2}
-      py={1.5}
-      bg="gray.50"
-      borderRadius="md"
-      fontSize="xs"
-    >
-      {/* Pair 1 */}
-      <Box textAlign="center" flex="1">
-        <HStack gap={1} justify="center" mb={0.5}>
-          <Badge colorPalette="blue" variant="solid" size="sm">
-            {t('courtsTab.pair1')}
-          </Badge>
-          {/* <Text fontWeight="bold" color="blue.700">
-            ({pair1Score}
-            <Text as="span" fontSize="2xs" color="blue.400" fontWeight="normal"> {t('courtsTab.levelUnit')}</Text>)
-          </Text> */}
-        </HStack>
-        {pair1Players?.map((p) => (
-          <Text key={p.id} color="gray.600" lineClamp={1} fontSize="xs">
-            {p.name || `#${p.playerNumber}`}
-          </Text>
-        ))}
-      </Box>
-
-      {/* Gap */}
-      <Box textAlign="center" pt={0.5}>
-        <Text color="gray.400" fontSize="2xs">
-          {t('courtsTab.gapLabel')}
-        </Text>
-        <Badge colorPalette="yellow" variant="solid" size="sm">
-          {scoreDifference}{' '}
-          <Text as="span" fontSize="2xs" fontWeight="normal">
-            {t('courtsTab.levelUnit')}
-          </Text>
-        </Badge>
-      </Box>
-
-      {/* Pair 2 */}
-      <Box textAlign="center" flex="1">
-        <HStack gap={1} justify="center" mb={0.5}>
-          <Badge colorPalette="orange" variant="solid" size="sm">
-            {t('courtsTab.pair2')}
-          </Badge>
-          {/* <Text fontWeight="bold" color="orange.700">
-            ({pair2Score}
-            <Text as="span" fontSize="2xs" color="orange.400" fontWeight="normal"> {t('courtsTab.levelUnit')}</Text>)
-          </Text> */}
-        </HStack>
-        {pair2Players?.map((p) => (
-          <Text key={p.id} color="gray.600" lineClamp={1} fontSize="xs">
-            {p.name || `#${p.playerNumber}`}
-          </Text>
-        ))}
-      </Box>
-    </HStack>
   );
 };
 
@@ -821,7 +774,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   waitingPlayers,
   selectedPlayers,
   selectedPositions,
-  selectedCount,
+  selectedCount: _selectedCount,
   currentPosition,
   matchType,
   onPlayerToggle,
@@ -890,13 +843,11 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
     <Box>
       {/* Court Preview */}
       <Box pb={2} mb={1}>
-        <Text fontSize="sm" fontWeight="medium" mb={2}>
-          {t('courtsTab.selectedPlayersCount', {
-            count: selectedCount,
-            total: matchType === 'singles' ? 2 : 4,
-          })}
-        </Text>
-        <Box maxW="400px" mx="auto">
+        <Box
+          maxW={{ base: '100%', md: '360px' }}
+          mx="auto"
+          _dark={{ filter: 'saturate(0.85) brightness(0.92)' }}
+        >
           <BadmintonCourt
             players={[]}
             isActive={false}
@@ -913,13 +864,10 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
 
           {/* Inline Pair Stats for manual selection */}
           {manualPairStats && (
-            <PairStatsBar
-              pair1Score={manualPairStats.pair1Score}
-              pair2Score={manualPairStats.pair2Score}
+            <MatchPairStats
               scoreDifference={manualPairStats.scoreDifference}
               pair1Players={manualPairStats.pair1Players}
               pair2Players={manualPairStats.pair2Players}
-              t={t}
             />
           )}
         </Box>
@@ -934,42 +882,54 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
           <Flex
             align="center"
             borderWidth="1px"
-            borderColor="gray.200"
+            borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.300' }}
             borderRadius="md"
             px={2}
-            py={1}
-            bg="white"
+            py={0.5}
+            bg={{ base: 'white', _dark: 'gray.900' }}
+            color={{ base: 'gray.900', _dark: 'gray.100' }}
             gap={1.5}
             flex="1"
             maxW="180px"
             _focusWithin={{
-              borderColor: 'blue.400',
-              boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
+              borderColor: { base: 'blue.400', _dark: 'green.300' },
+              boxShadow: '0 0 0 1px var(--chakra-colors-green-300)',
             }}
           >
-            <Box as={Search} boxSize={3.5} color="gray.400" flexShrink={0} />
+            <Box
+              as={Search}
+              boxSize={3.5}
+              color={{ base: 'gray.400', _dark: 'gray.500' }}
+              flexShrink={0}
+            />
             <Input
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Tìm người chơi..."
+              placeholder="Tìm người chơi…"
+              aria-label="Tìm người chơi"
               size="xs"
               border="none"
               outline="none"
               p={0}
               fontSize="sm"
+              color={{ base: 'gray.900', _dark: 'gray.100' }}
+              bg="transparent"
+              _placeholder={{ color: { base: 'gray.400', _dark: 'gray.500' } }}
               _focus={{ boxShadow: 'none' }}
             />
           </Flex>
         </Flex>
         <Box
           overflowY="auto"
-          maxH="calc(75vh - 430px)"
-          minH="150px"
+          maxH={{ base: '35vh', md: '30vh' }}
+          minH="120px"
+          px={1}
+          py={1}
           css={{
             '&::-webkit-scrollbar': { width: '4px' },
             '&::-webkit-scrollbar-track': { background: 'transparent' },
             '&::-webkit-scrollbar-thumb': {
-              background: 'var(--chakra-colors-gray-300)',
+              background: 'var(--chakra-colors-gray-500)',
               borderRadius: '2px',
             },
           }}
@@ -992,6 +952,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
               )}
               onPlayerToggle={onPlayerToggle}
               selectionMode={true}
+              columns={{ base: 2, md: 3, lg: 4 }}
             />
           )}
         </Box>

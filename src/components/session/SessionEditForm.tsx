@@ -9,11 +9,15 @@ import { Box, Spinner, Text } from '@chakra-ui/react';
 interface SessionEditFormProps {
   sessionId: string;
   onSuccess?: (session: ISession) => void;
+  useDrawerMobileFooter?: boolean;
+  mobileFooterWidth?: string;
 }
 
 export default function SessionEditForm({
   sessionId,
   onSuccess,
+  useDrawerMobileFooter = false,
+  mobileFooterWidth,
 }: SessionEditFormProps) {
   const [session, setSession] = useState<ISession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,6 +70,8 @@ export default function SessionEditForm({
         onSuccess?.(updatedSession);
       }}
       showTopBar={false}
+      useDrawerMobileFooter={useDrawerMobileFooter}
+      mobileFooterWidth={mobileFooterWidth}
     />
   );
 }

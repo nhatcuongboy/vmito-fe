@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Box,
   Flex,
@@ -8,9 +8,10 @@ import {
   Image as ChakraImage,
   Badge,
   IconButton,
+  Spinner,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Plus, X, Star, GripVertical, Image as ImageIcon } from 'lucide-react';
+import { ImagePlus, Plus, X, Star, GripVertical, Upload } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   DndContext,
@@ -30,6 +31,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import { EImageCategory } from '@/lib/api/types';
+import { UserImageService } from '@/lib/api/user-image.service';
+import { compressImage } from '@/lib/utils/image';
+import { toaster } from '@/components/ui/toaster';
 
 // Workaround for @dnd-kit type incompatibility with React 19
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -181,7 +185,14 @@ const AppMultiImageUpload = ({
   label,
 }: IAppMultiImageUploadProps) => {
   const t = useTranslations('session');
+  const tc = useTranslations('common');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [isDirectUploading, setIsDirectUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isBusy = disabled || isUploading || isDirectUploading;
+  const hasImages = images.length > 0;
+  const canAddImages = !disabled && images.length < maxImages;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -249,10 +260,97 @@ const AppMultiImageUpload = ({
     }
   };
 
+  const handleOpenGallery = () => {
+    setIsGalleryOpen(true);
+  };
+
+  const handleCloseGallery = () => {
+    setIsGalleryOpen(false);
+  };
+
+  const handleUploadFiles = async (incomingFiles: File[]) => {
+    if (isBusy || incomingFiles.length === 0) return;
+
+    const imageFiles = incomingFiles.filter((file) =>
+      file.type.startsWith('image/')
+    );
+
+    if (imageFiles.length === 0) {
+      toaster.error({ title: tc('pleaseSelectImageFile') });
+      return;
+    }
+
+    const availableSlots = Math.max(0, maxImages - images.length);
+    if (availableSlots === 0) {
+      toaster.error({ title: tc('tooManyFiles', { max: maxImages }) });
+      return;
+    }
+
+    const filesToUpload = imageFiles.slice(0, availableSlots);
+    if (filesToUpload.length < imageFiles.length) {
+      toaster.error({ title: tc('tooManyFiles', { max: maxImages }) });
+    }
+
+    setIsDirectUploading(true);
+    try {
+      const uploadedImages = await Promise.all(
+        filesToUpload.map(async (file) => {
+          const compressedFile = await compressImage(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+          });
+
+          return await UserImageService.uploadImage(compressedFile, category);
+        })
+      );
+
+      onImagesChange([
+        ...images,
+        ...uploadedImages.map((img) => ({
+          url: img.url,
+          publicId: img.publicId,
+        })),
+      ]);
+    } catch {
+      toaster.error({ title: tc('imageProcessingFailed') });
+    } finally {
+      setIsDirectUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFileInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files ?? []);
+    await handleUploadFiles(files);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    if (isBusy) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    if (isBusy) return;
+    event.preventDefault();
+    setIsDragActive(false);
+    const droppedFiles = Array.from(event.dataTransfer.files ?? []);
+    await handleUploadFiles(droppedFiles);
+  };
+
   return (
-    <Box>
+    <Box w="full" maxW="full" minW={0} overflowX="clip">
       {label !== null && (
-        <Flex justify="space-between" align="center" mb={2}>
+        <Flex justify="space-between" align="center" mb={2} w="full">
           <Text fontSize="sm" fontWeight="medium">
             {label || t('sessionImages')}
           </Text>
@@ -262,76 +360,209 @@ const AppMultiImageUpload = ({
         </Flex>
       )}
 
-      {images.length > 0 ? (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={images.map((img) => img.publicId)}
-            strategy={rectSortingStrategy}
+      <Box w="full">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileInputChange}
+          style={{ display: 'none' }}
+          disabled={isBusy}
+        />
+
+        {hasImages ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <Flex wrap="wrap" gap={3} mb={3}>
-              {images.map((image, index) => (
-                <SortableImageItem
-                  key={image.publicId}
-                  image={image}
-                  index={index}
-                  isBanner={index === bannerIndex}
-                  onRemove={handleRemoveImage}
-                  onSetBanner={handleSetBanner}
-                  disabled={disabled}
-                  t={t}
-                />
-              ))}
+            <SortableContext
+              items={images.map((img) => img.publicId)}
+              strategy={rectSortingStrategy}
+            >
+              <Flex wrap="wrap" gap={3} mb={3} align="stretch">
+                {images.map((image, index) => (
+                  <SortableImageItem
+                    key={image.publicId}
+                    image={image}
+                    index={index}
+                    isBanner={index === bannerIndex}
+                    onRemove={handleRemoveImage}
+                    onSetBanner={handleSetBanner}
+                    disabled={disabled}
+                    t={t}
+                  />
+                ))}
+
+                {canAddImages && (
+                  <Flex
+                    as="button"
+                    {...({ type: 'button', disabled: isBusy } as object)}
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    gap={2}
+                    w={{ base: 'calc(50% - 6px)', sm: '120px' }}
+                    h="126px"
+                    flexShrink={0}
+                    borderWidth={1}
+                    borderStyle="dashed"
+                    borderColor="green.300"
+                    borderRadius="lg"
+                    bg="green.50"
+                    color="green.700"
+                    cursor={isBusy ? 'not-allowed' : 'pointer'}
+                    opacity={isBusy ? 0.6 : 1}
+                    transition="all 0.2s"
+                    _hover={
+                      isBusy
+                        ? undefined
+                        : { bg: 'green.100', borderColor: 'green.500' }
+                    }
+                    _dark={{
+                      bg: 'green.950',
+                      color: 'green.200',
+                      borderColor: 'green.700',
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    aria-label={t('addImages')}
+                  >
+                    {isDirectUploading ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <ImagePlus size={24} />
+                    )}
+                    <Text fontSize="xs" fontWeight="semibold">
+                      {isDirectUploading ? tc('uploading') : t('uploadNew')}
+                    </Text>
+                  </Flex>
+                )}
+              </Flex>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            w="full"
+            maxW="full"
+            minW={0}
+            boxSizing="border-box"
+            minH={{ base: '150px', md: '180px' }}
+            borderWidth={2}
+            borderStyle="dashed"
+            borderColor={isDragActive ? 'green.400' : 'gray.300'}
+            borderRadius="xl"
+            bg={isDragActive ? 'green.50' : 'gray.50'}
+            _dark={{
+              bg: isDragActive ? 'green.950' : 'gray.800',
+              borderColor: isDragActive ? 'green.500' : 'gray.600',
+            }}
+            mb={3}
+            px={4}
+            py={6}
+            textAlign="center"
+            transition="all 0.2s"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <Flex
+              w={12}
+              h={12}
+              align="center"
+              justify="center"
+              borderRadius="full"
+              bg={{ base: 'green.100', _dark: 'green.900' }}
+              color={{ base: 'green.700', _dark: 'green.200' }}
+              mb={3}
+            >
+              <ImagePlus size={24} />
             </Flex>
-          </SortableContext>
-        </DndContext>
-      ) : (
+            <Text color="gray.700" fontSize="sm" fontWeight="semibold">
+              {t('noImagesYet')}
+            </Text>
+            <Text mt={1} color="gray.500" fontSize="sm">
+              {t('orDropItHere')}
+            </Text>
+            <Flex
+              direction={{ base: 'column', sm: 'row' }}
+              gap={2}
+              mt={4}
+              w="full"
+              maxW="360px"
+              justify="center"
+            >
+              <Button
+                type="button"
+                size="sm"
+                colorPalette="green"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isBusy}
+                w={{ base: 'fit-content', sm: 'auto' }}
+                alignSelf="center"
+                leftIcon={
+                  isDirectUploading ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <Upload size={16} />
+                  )
+                }
+              >
+                {isDirectUploading ? tc('uploading') : t('uploadNew')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                onClick={handleOpenGallery}
+                disabled={isBusy}
+                w={{ base: 'fit-content', sm: 'auto' }}
+                alignSelf="center"
+              >
+                {t('selectFromGallery')}
+              </Button>
+            </Flex>
+          </Flex>
+        )}
+
         <Flex
-          direction="column"
+          justify="space-between"
           align="center"
-          justify="center"
-          height="150px"
-          borderWidth={2}
-          borderStyle="dashed"
-          borderColor="gray.300"
-          borderRadius="lg"
-          bg="gray.50"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
-          mb={3}
+          gap={3}
+          flexWrap="wrap"
+          w="full"
         >
-          <ImageIcon size={40} color="gray" />
-          <Text mt={2} color="gray.500" fontSize="sm">
-            {t('noImagesYet')}
-          </Text>
+          {images.length > 1 && !disabled ? (
+            <Text fontSize="xs" color="gray.400">
+              {t('dragToReorder')}
+            </Text>
+          ) : (
+            <Box />
+          )}
+
+          {hasImages && canAddImages && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              colorPalette="green"
+              onClick={handleOpenGallery}
+              disabled={isBusy}
+              leftIcon={<Plus size={16} />}
+            >
+              {t('selectFromGallery')}
+            </Button>
+          )}
         </Flex>
-      )}
-
-      {images.length > 1 && !disabled && (
-        <Text fontSize="xs" color="gray.400" mb={2}>
-          {t('dragToReorder')}
-        </Text>
-      )}
-
-      {!disabled && images.length < maxImages && (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          colorPalette="green"
-          onClick={() => setIsGalleryOpen(true)}
-          disabled={isUploading}
-          leftIcon={<Plus size={16} />}
-        >
-          {t('addImages')}
-        </Button>
-      )}
+      </Box>
 
       <AppImageGalleryPicker
         isOpen={isGalleryOpen}
-        onClose={() => setIsGalleryOpen(false)}
+        onClose={handleCloseGallery}
         onSelect={handleGallerySelect}
         selectedImages={images}
         maxSelect={maxImages}

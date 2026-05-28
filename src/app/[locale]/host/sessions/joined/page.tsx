@@ -2,6 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { PlayerService } from '@/lib/api/player.service';
+import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
@@ -17,7 +18,6 @@ import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
-import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
@@ -36,6 +36,30 @@ const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'slots_desc', labelKey: 'sort.slotsAvailable' },
 ];
 
+type SessionStatusTab = 'active' | 'ended' | 'all';
+
+const enrichSessionsWithVenue = async (
+  sessions: ISession[]
+): Promise<ISession[]> => {
+  return Promise.all(
+    sessions.map(async (session) => {
+      if (session.venue?.name) return session;
+
+      try {
+        const sessionDetail = await SessionService.getSession(session.id);
+        return {
+          ...session,
+          venue: sessionDetail.venue || session.venue,
+          location: sessionDetail.location || session.location,
+        };
+      } catch (error) {
+        console.error('Error fetching session venue details:', error);
+        return session;
+      }
+    })
+  );
+};
+
 function PlayerSessionsContent() {
   const t = useTranslations('navigation');
   const tSession = useTranslations('session');
@@ -51,8 +75,14 @@ function PlayerSessionsContent() {
   const PAGE_SIZE = 12;
 
   // Initialize sessionStatusTab from URL param, default to 'active'
-  const [sessionStatusTab, setSessionStatusTab] = useState<'active' | 'ended'>(
-    (searchParams.get('tab') as 'active' | 'ended') || 'active'
+  const [sessionStatusTab, setSessionStatusTab] = useState<SessionStatusTab>(
+    (() => {
+      const tabParam = searchParams.get('tab');
+      if (tabParam === 'active' || tabParam === 'ended' || tabParam === 'all') {
+        return tabParam;
+      }
+      return 'active';
+    })()
   );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
@@ -63,9 +93,6 @@ function PlayerSessionsContent() {
     threshold: 0.1,
     rootMargin: '100px',
   });
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const [viewMode, setViewMode] = useViewMode('host-sessions-joined');
 
@@ -92,7 +119,7 @@ function PlayerSessionsContent() {
       const response = await PlayerService.getMySessions({
         page: currentPage,
         limit: PAGE_SIZE,
-        searchQuery: debouncedSearchQuery,
+        searchQuery: filters.searchQuery,
         excludeStatuses:
           sessionStatusTab === 'active' && !filters.status
             ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
@@ -104,21 +131,25 @@ function PlayerSessionsContent() {
         ...apiSortParams,
       });
 
+      const sessionsWithVenue = await enrichSessionsWithVenue(response.data);
+
       if (isLoadMore) {
         setSessions((prev) => {
           const existingIds = new Set(prev.map((s) => s.id));
-          const newSessions = response.data.filter(
+          const newSessions = sessionsWithVenue.filter(
             (s) => !existingIds.has(s.id)
           );
           return [...prev, ...newSessions];
         });
         setPage(currentPage);
       } else {
-        setSessions(response.data);
+        setSessions(sessionsWithVenue);
         setTotalCount(response.total);
       }
 
-      setHasMore(currentPage < response.totalPages && response.data.length > 0);
+      setHasMore(
+        currentPage < response.totalPages && sessionsWithVenue.length > 0
+      );
     } catch (err) {
       console.error('Error fetching player sessions:', err);
     } finally {
@@ -136,13 +167,7 @@ function PlayerSessionsContent() {
       fetchPlayerSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.id,
-    debouncedSearchQuery,
-    sortBy,
-    filters.status,
-    sessionStatusTab,
-  ]);
+  }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
 
   // Trigger load more when in view
   useEffect(() => {
@@ -165,12 +190,14 @@ function PlayerSessionsContent() {
     // Exclude FINISHED sessions from active tab - they are shown in the Ended Joined Sessions tab
     if (sessionStatusTab === 'active') {
       result = result.filter(
-        (session) => session.status !== SessionStatus.FINISHED
+        (session) =>
+          session.status !== SessionStatus.FINISHED &&
+          session.status !== SessionStatus.CANCELLED
       );
     }
 
     // Status filter
-    if (filters.status && sessionStatusTab === 'active') {
+    if (filters.status && sessionStatusTab !== 'ended') {
       result = result.filter((session) => session.status === filters.status);
     }
 
@@ -188,11 +215,6 @@ function PlayerSessionsContent() {
       });
     }
 
-    // Search filter is handled by API now
-    if (filters.searchQuery !== searchQuery) {
-      setSearchQuery(filters.searchQuery || '');
-    }
-
     // Client-side sort only for slots (not supported by API)
     if (sortBy === 'slots_desc') {
       result.sort((a, b) => {
@@ -206,14 +228,14 @@ function PlayerSessionsContent() {
     // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery, sortBy, sessionStatusTab]);
+  }, [filters, sessions, sortBy, sessionStatusTab]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
   };
 
   const handleTabChange = (
-    newTab: 'active' | 'ended' | 'pending' | 'expired'
+    newTab: 'active' | 'ended' | 'all' | 'pending' | 'expired'
   ) => {
     if (newTab === 'pending' || newTab === 'expired') return; // Should not happen with showPending={false}
     setSessionStatusTab(newTab);
@@ -222,6 +244,8 @@ function PlayerSessionsContent() {
     params.set('tab', newTab);
     router.push(`?${params.toString()}`);
   };
+
+  const displayCount = filters.date ? filteredSessions.length : totalCount;
 
   return (
     <PageLayout
@@ -249,7 +273,9 @@ function PlayerSessionsContent() {
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={sessionStatusTab === 'active'}
+            showStatusFilter={
+              sessionStatusTab === 'active' || sessionStatusTab === 'all'
+            }
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
@@ -257,6 +283,7 @@ function PlayerSessionsContent() {
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
+                showAll={true}
                 showPending={false}
                 showExpired={false}
               />
@@ -264,7 +291,7 @@ function PlayerSessionsContent() {
           />
 
           <ResultsHeader
-            count={totalCount}
+            count={displayCount}
             sortOptions={PLAYER_SORT_OPTIONS}
             sortBy={sortBy}
             onSortChange={setSortBy}
@@ -281,6 +308,18 @@ function PlayerSessionsContent() {
             viewMode={viewMode}
             forceViewSessionButton={true}
             showDownloadShareButtons={true}
+            emptyStateTitle={
+              sessionStatusTab === 'active'
+                ? tSession('noActiveSessions')
+                : sessionStatusTab === 'ended'
+                  ? tSession('noSessionsFound')
+                  : tSession('noSessionsFound')
+            }
+            emptyStateDescription={
+              sessionStatusTab === 'active'
+                ? tSession('noSessionsDescription')
+                : undefined
+            }
           />
 
           {/* Infinite Scroll Trigger */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession, UserRole } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
 import { Box, Flex, Grid, Icon, Portal, Spinner } from '@chakra-ui/react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -17,12 +17,12 @@ import AppHostDetail from '@/components/session/AppHostDetail';
 import JoinSessionModal from '@/components/session/JoinSessionModal';
 import MyRegistrationModal from '@/components/session/MyRegistrationModal';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import SessionShareCard from '@/components/session/SessionShareCard';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import SessionDetailHero from './SessionDetailHero';
 import SessionDetailBody from './SessionDetailBody';
 import SessionDetailStickyBar from './SessionDetailStickyBar';
 import SessionRecommendations from './SessionRecommendations';
+import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 
 interface PublicSessionDetailContentProps {
   sessionId: string;
@@ -165,8 +165,6 @@ export const PublicSessionDetailContent = ({
   }, [fetchRegistrationStatus]);
 
   const isOwner = session?.hostId === user?.id;
-  const isAdmin = user?.role === UserRole.ADMIN;
-  const canManage = isOwner || isAdmin;
   const maxPlayers = session?.numberOfCourts
     ? session.numberOfCourts * (session?.maxPlayersPerCourt || 4)
     : 0;
@@ -272,14 +270,23 @@ export const PublicSessionDetailContent = ({
                     borderColor: 'green.500',
                     color: 'green.700',
                   }}
-                  transition="all 0.2s"
+                  transition="background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease"
                   gap={1.5}
                 >
-                  {t('viewMoreSessions') || 'Xem thêm kèo'}
+                  {t('findMoreSessions')}
                   <Icon as={ArrowRight} boxSize={3.5} />
                 </NextLinkButton>
               </Flex>
             )}
+
+            <Box mt={4} px={5} display={{ base: 'block', md: 'none' }}>
+              <DetailViewCountFooter
+                targetType="SESSION"
+                targetId={session.id}
+                initialCount={session.viewCount}
+              />
+            </Box>
+
             {/* Mobile-only bottom spacing for sticky bar */}
             <Box
               h="calc(80px + env(safe-area-inset-bottom))"
@@ -314,6 +321,14 @@ export const PublicSessionDetailContent = ({
                   sessionId={session.id}
                   userId={user?.id}
                   variant="desktop"
+                />
+              </Box>
+
+              <Box mt={4}>
+                <DetailViewCountFooter
+                  targetType="SESSION"
+                  targetId={session.id}
+                  initialCount={session.viewCount}
                 />
               </Box>
             </Box>
@@ -374,28 +389,10 @@ export const PublicSessionDetailContent = ({
             phone={session.hostPhone}
             email={session.host?.email}
             hideHeader={true}
+            allowZaloContact={session.allowZaloContact}
           />
         </Box>
       </VModal>
-
-      {canManage && (
-        <Portal>
-          <Box
-            position="absolute"
-            left="-9999px"
-            top="-9999px"
-            zIndex={-1}
-            pointerEvents="none"
-          >
-            <Box>
-              <SessionShareCard session={session} mode="portrait" />
-            </Box>
-            <Box mt={4}>
-              <SessionShareCard session={session} mode="social" />
-            </Box>
-          </Box>
-        </Portal>
-      )}
     </RatingStatsProvider>
   );
 };

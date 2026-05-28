@@ -10,6 +10,7 @@ import { ISession } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
+import { useViewMode } from '@/hooks/useViewMode';
 import { Box, Flex, Grid, Heading, Icon, Text } from '@chakra-ui/react';
 import { MapPinOff, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -41,17 +42,29 @@ const PAGE_SIZE = 12;
 
 type SuggestedSession = ISession & {
   score: number;
+  scoreComponents?: {
+    level: number;
+    distance: number;
+    schedule: number;
+    venue: number;
+    host: number;
+    slots: number;
+  };
+  availableSlots?: number;
+  maxPlayers?: number;
+  hostAffinity?: number;
+  isFavoriteHost?: boolean;
   distance: number | null;
   matchReasons: string[];
 };
 
 interface SuggestionsListProps {
-  mode?: 'browse' | 'auto';
-  onModeChange?: (mode: 'browse' | 'auto') => void;
+  mode: 'browse' | 'auto';
+  onModeChange: (mode: 'browse' | 'auto') => void;
 }
 
 export default function SuggestionsList({
-  mode = 'auto',
+  mode,
   onModeChange,
 }: SuggestionsListProps) {
   const [sessions, setSessions] = useState<SuggestedSession[]>([]);
@@ -120,7 +133,9 @@ export default function SuggestionsList({
   const tSession = useTranslations('session');
   const { user } = useAuthStore();
   const { useAiForCreation } = usePreferenceStore();
-  const { viewMode } = useSessionFilterStore();
+
+  // Use URL-synced view mode
+  const [viewMode, setViewMode] = useViewMode('sessions');
 
   const loadingMoreRef = useRef(false);
 
@@ -395,8 +410,11 @@ export default function SuggestionsList({
       <ResultsHeader
         count={total}
         mode={mode}
-        onModeChange={(newMode) => onModeChange?.(newMode)}
+        onModeChange={onModeChange}
         isLoading={loading}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        showViewModeMap={false}
       />
 
       {/* Location denied info */}
@@ -437,11 +455,23 @@ export default function SuggestionsList({
           }
           gap={viewMode === 'list' ? 4 : 6}
         >
-          {Array.from({ length: 6 }).map((_, index) => (
+          {/* Mobile: 2 skeletons, Tablet: 4 skeletons, Desktop: 6 skeletons */}
+          {Array.from({
+            length: viewMode === 'list' ? 4 : 6,
+          }).map((_, index) => (
             <SessionCardSkeleton
               key={index}
               variant={viewMode}
               isAi={mode === 'auto'}
+              display={
+                viewMode === 'list'
+                  ? {
+                      base: index < 2 ? 'flex' : 'none',
+                      sm: index < 4 ? 'flex' : 'none',
+                      md: 'flex',
+                    }
+                  : { base: index < 2 ? 'flex' : 'none', md: 'flex' }
+              }
             />
           ))}
         </Grid>
@@ -498,6 +528,9 @@ export default function SuggestionsList({
       ) : (
         <RatingStatsProvider userIds={hostIds}>
           <Grid
+            w="100%"
+            maxW="100%"
+            minW={0}
             templateColumns={
               viewMode === 'list'
                 ? {
@@ -517,6 +550,9 @@ export default function SuggestionsList({
             {filteredSessions.map((session) => (
               <Box
                 key={session.id}
+                w="100%"
+                maxW="100%"
+                minW={0}
                 css={{
                   contentVisibility: 'auto',
                   containIntrinsicSize: 'auto 400px',
@@ -557,11 +593,25 @@ export default function SuggestionsList({
                 }
                 gap={viewMode === 'list' ? 4 : 6}
               >
+                {/* Mobile: 1 skeleton, Tablet: 2 skeletons, Desktop: 3 skeletons */}
                 {Array.from({ length: 3 }).map((_, index) => (
                   <SessionCardSkeleton
                     key={index}
                     variant={viewMode}
                     isAi={mode === 'auto'}
+                    display={
+                      viewMode === 'list'
+                        ? {
+                            base: index < 1 ? 'flex' : 'none',
+                            sm: index < 2 ? 'flex' : 'none',
+                            md: 'flex',
+                          }
+                        : {
+                            base: index < 1 ? 'flex' : 'none',
+                            md: index < 2 ? 'flex' : 'none',
+                            lg: 'flex',
+                          }
+                    }
                   />
                 ))}
               </Grid>
@@ -616,6 +666,7 @@ export default function SuggestionsList({
             phone={selectedSessionForDetail.hostPhone}
             email={selectedSessionForDetail.host?.email}
             hideHeader={true}
+            allowZaloContact={selectedSessionForDetail.allowZaloContact}
             onClose={onCloseDetailModal}
           />
         )}

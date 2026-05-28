@@ -40,22 +40,16 @@ export const NotificationPanel = () => {
     deleteNotification,
   } = useNotificationStore();
 
-  // Fetch notifications and unread count on mount
   useEffect(() => {
-    console.log('[NotificationPanel] User state:', user);
     if (user) {
-      console.log('[NotificationPanel] Fetching notifications...');
-      // Call store methods directly without depending on them
-      useNotificationStore.getState().fetchNotifications(true);
+      fetchNotifications(true);
       useNotificationStore.getState().fetchUnreadCount();
     }
-  }, [user]);
+  }, [fetchNotifications, user]);
 
-  // Also fetch when popover opens
   const handleOpenChange = (open: boolean) => {
     if (open && user) {
-      console.log('[NotificationPanel] Popover opened, fetching...');
-      useNotificationStore.getState().fetchNotifications(true);
+      fetchNotifications(true);
       useNotificationStore.getState().fetchUnreadCount();
     }
   };
@@ -195,7 +189,13 @@ export const NotificationPanel = () => {
             overflowY="auto"
             onScroll={handleScroll}
           >
-            {notifications.length === 0 && !isLoading ? (
+            {isLoading && notifications.length === 0 ? (
+              <VStack gap={0} align="stretch">
+                {[...Array(5)].map((_, i) => (
+                  <NotificationSkeleton key={i} />
+                ))}
+              </VStack>
+            ) : notifications.length === 0 ? (
               <VStack py={8} gap={2} color="gray.500">
                 <LuInbox size={32} />
                 <Text fontSize="sm">{t('noNotifications')}</Text>
@@ -220,15 +220,6 @@ export const NotificationPanel = () => {
                     <NotificationSkeleton />
                   </>
                 )}
-              </VStack>
-            )}
-
-            {/* Initial loading state when no notifications are present */}
-            {isLoading && notifications.length === 0 && (
-              <VStack gap={0} align="stretch">
-                {[...Array(5)].map((_, i) => (
-                  <NotificationSkeleton key={i} />
-                ))}
               </VStack>
             )}
           </Box>

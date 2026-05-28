@@ -46,6 +46,8 @@ export interface VModalProps {
   headerRightContent?: React.ReactNode;
   /** Description text below title */
   description?: string;
+  /** Accessible label for the close button */
+  closeButtonAriaLabel?: string;
   /** Custom z-index */
   zIndex?: number;
   /** Custom max height for modal body (supports responsive object e.g. { base: '60vh', md: '75vh' }) */
@@ -124,6 +126,7 @@ export const VModal: React.FC<VModalProps> = ({
   hideSecondaryAction = false,
   headerRightContent,
   description,
+  closeButtonAriaLabel = 'Close modal',
   zIndex = 1400,
   maxBodyHeight = '60vh',
   showHeaderDivider = true,
@@ -195,6 +198,9 @@ export const VModal: React.FC<VModalProps> = ({
         }}
       >
         <Box
+          role="dialog"
+          aria-modal="true"
+          aria-label={typeof title === 'string' ? title : undefined}
           bg={{ base: 'white', _dark: 'gray.800' }}
           borderRadius="lg"
           boxShadow="xl"
@@ -203,6 +209,7 @@ export const VModal: React.FC<VModalProps> = ({
           maxH="90vh"
           display="flex"
           flexDirection="column"
+          overflow="hidden"
           onClick={(e) => e.stopPropagation()}
           // Animation
           animation="slideIn 0.15s ease-out"
@@ -247,7 +254,7 @@ export const VModal: React.FC<VModalProps> = ({
                     color="fg.muted"
                     _hover={{ bg: 'bg.muted', color: 'fg' }}
                     transition="all 0.2s"
-                    aria-label="Close modal"
+                    aria-label={closeButtonAriaLabel}
                   >
                     <Box as={X} boxSize={5} />
                   </Box>
@@ -261,6 +268,8 @@ export const VModal: React.FC<VModalProps> = ({
             p={4}
             flex={1}
             overflowY="auto"
+            overflowX="hidden"
+            minH={0}
             maxH={maxBodyHeight}
             css={{
               '&::-webkit-scrollbar': {
@@ -288,8 +297,10 @@ export const VModal: React.FC<VModalProps> = ({
               gap={3}
               p={4}
               borderTop={showFooterDivider ? '1px' : 'none'}
-              borderColor="border"
+              borderColor={{ base: 'border', _dark: 'whiteAlpha.200' }}
               flexShrink={0}
+              bg={{ base: 'white', _dark: 'gray.800' }}
+              zIndex={1}
             >
               {footer !== undefined ? (
                 footer
@@ -299,6 +310,7 @@ export const VModal: React.FC<VModalProps> = ({
                     <Button
                       type="button"
                       variant="outline"
+                      colorPalette="gray"
                       onClick={handleSecondaryClick}
                       disabled={isSecondaryDisabled || isPrimaryLoading}
                     >

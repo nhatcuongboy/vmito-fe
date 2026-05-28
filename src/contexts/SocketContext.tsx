@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslations } from 'next-intl';
 import { io, Socket } from 'socket.io-client';
 
@@ -10,6 +16,7 @@ import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useCourtCallStore } from '@/stores/useCourtCallStore';
 import { INotification } from '@/lib/api/types';
 import { sendSystemNotification } from '@/utils/notifications';
+import { getYourTurnNotificationContent } from '@/lib/notifications/content';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -53,6 +60,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<Error | null>(null);
   const { user } = useAuthStore();
+  const userId = user?.id ?? null;
+  const previousUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (previousUserIdRef.current === userId) return;
+
+    useNotificationStore.getState().reset();
+    previousUserIdRef.current = userId;
+  }, [userId]);
 
   useEffect(() => {
     // Initialize socket connection
@@ -106,55 +122,72 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // Recreate socket when the user's identity changes (login / logout).
     // Using user?.id (not accessToken) prevents unnecessary reconnects on token refresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [userId]);
 
   // Join user room when user is authenticated.
-  // The server now derives the userId from the JWT – no body is needed.
+  // The server verifies the JWT and uses that userId as the real room target.
   // BE returns an acknowledgement { error?: string } – log and surface any error.
   useEffect(() => {
-    if (socket && isConnected && user?.id) {
+    if (socket && isConnected && userId) {
       const { accessToken } = useAuthStore.getState();
 
       // Only attempt to join if we have a valid token
       if (!accessToken) {
         console.warn(
-          `[Socket] Skipping join_user_room: no access token for user-${user.id}`
+          `[Socket] Skipping join_user_room: no access token for user-${userId}`
         );
         return;
       }
 
-      socket.emit('join_user_room', (ack: { error?: string } | undefined) => {
-        if (ack?.error) {
-          console.error(
-            `[Socket] join_user_room failed for user-${user.id}:`,
-            ack.error,
-            {
-              hasToken: !!accessToken,
+      socket.emit(
+        'join_user_room',
+        { userId },
+        (ack: { error?: string } | undefined) => {
+          if (ack?.error) {
+            console.error(
+              `[Socket] join_user_room failed for user-${userId}:`,
+              ack.error,
+              {
+                hasToken: !!accessToken,
+                socketId: socket.id,
+                timestamp: new Date().toISOString(),
+              }
+            );
+          } else {
+            console.log(`[Socket] Joined user room: user-${userId}`, {
               socketId: socket.id,
               timestamp: new Date().toISOString(),
-            }
-          );
-        } else {
-          console.log(`[Socket] Joined user room: user-${user.id}`, {
-            socketId: socket.id,
-            timestamp: new Date().toISOString(),
-          });
+            });
+          }
         }
-      });
+      );
     }
-  }, [socket, isConnected, user?.id]);
+  }, [socket, isConnected, userId]);
 
   const t = useTranslations('session');
+  const tNotification = useTranslations('notification');
 
   // Global event listeners for notifications
   useEffect(() => {
     if (!socket) return;
 
+    const isPayloadForCurrentUser = (data: { userId?: unknown }) =>
+      Boolean(userId && data.userId && String(data.userId) === String(userId));
+
     // Listener for Registration Requests (Host)
     const handleRegistrationRequest = (data: {
+      userId?: string;
       playerName: string;
       sessionName: string;
     }) => {
+      if (!isPayloadForCurrentUser(data)) {
+        console.warn('[Socket] Ignored registration request for another user', {
+          targetUserId: data.userId,
+          currentUserId: userId,
+        });
+        return;
+      }
+
       toaster.success({
         title: t('newRegistrationRequest'),
         description: t('requestedToJoin', {
@@ -167,9 +200,18 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Listener for Registration Status Updates (User)
     const handleStatusUpdate = (data: {
+      userId?: string;
       status: string;
       sessionName: string;
     }) => {
+      if (!isPayloadForCurrentUser(data)) {
+        console.warn('[Socket] Ignored registration status for another user', {
+          targetUserId: data.userId,
+          currentUserId: userId,
+        });
+        return;
+      }
+
       const isApproved = data.status === 'APPROVED';
       toaster.create({
         title: isApproved ? t('requestApproved') : t('requestRejected'),
@@ -189,15 +231,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('[Socket] Notification received:', {
         notificationId: data.id,
         userId: data.userId,
-        currentUserId: user?.id,
+        currentUserId: userId,
         type: data.type,
         title: data.title,
       });
 
       // Security check: only process if it's for the current user
-      if (data.userId !== user?.id) {
+      if (!isPayloadForCurrentUser(data)) {
         console.warn(
-          `[Socket] Received notification meant for user ${data.userId}, but current user is ${user?.id}`
+          `[Socket] Received notification meant for user ${data.userId}, but current user is ${userId}`
         );
         return;
       }
@@ -219,6 +261,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Show toast notification
       const action = (data.data as Record<string, unknown> | null)?.action;
+      if (action === 'club_creation_approved') {
+        return;
+      }
+
       if (action === 'player_added') {
         toaster.success({
           title: data.title,
@@ -261,20 +307,29 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleNotificationReceived
       );
     };
-  }, [socket, t, user]);
+  }, [socket, t, userId]);
 
   // Global listener for court-call (players_selected) via user room.
   // This fires even when the player is NOT on the session detail page.
   useEffect(() => {
-    if (!socket || !user?.id) return;
+    if (!socket || !userId) return;
 
     const handleGlobalPlayersSelected = (data: {
+      userId?: string;
       sessionId: string;
       courtId: string;
       courtName?: string;
       courtNumber?: number;
       playerIds?: string[];
     }) => {
+      if (!data.userId || String(data.userId) !== String(userId)) {
+        console.warn('[Socket] Ignored court call for another user', {
+          targetUserId: data.userId,
+          currentUserId: userId,
+        });
+        return;
+      }
+
       const courtDisplayName =
         data.courtName || `Sân ${data.courtNumber ?? ''}`;
 
@@ -282,9 +337,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       useCourtCallStore.getState().showCourtCall(courtDisplayName);
 
       // System notification
+      const yourTurnNotification = getYourTurnNotificationContent(
+        (key, values) =>
+          tNotification(key as Parameters<typeof tNotification>[0], values),
+        courtDisplayName
+      );
+
       sendSystemNotification(
-        `🏸 Đến lượt bạn! Vui lòng di chuyển đến ${courtDisplayName}`,
-        `Trận đấu của bạn sắp bắt đầu.`
+        `🏸 ${yourTurnNotification.title}`,
+        yourTurnNotification.message
       );
 
       // TTS announcement — repeat 3 times
@@ -316,7 +377,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleGlobalPlayersSelected
       );
     };
-  }, [socket, user?.id]);
+  }, [socket, userId, tNotification]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

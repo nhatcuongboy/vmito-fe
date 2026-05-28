@@ -15,7 +15,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
-import { Portal } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(
@@ -25,10 +24,6 @@ const LoginPromptModal = dynamic(
 const MyRegistrationModal = dynamic(() => import('./MyRegistrationModal'), {
   ssr: false,
 });
-const SessionShareCard = dynamic(() => import('./SessionShareCard'), {
-  ssr: false,
-});
-
 interface FindSessionCardProps {
   session: ISession;
   variant?: ViewMode;
@@ -246,40 +241,33 @@ const FindSessionCard = ({
   };
 
   // Action configuration for find session card
+  // Logic: Show only ONE button
+  // - If user is host/admin: show "Host" (manage) button only
+  // - If user is not host: show ONE button based on registration status
+  //   - APPROVED: show "Vào sân" (view session)
+  //   - PENDING/REJECTED: show "Xem đăng ký" (view registration)
+  //   - No registration: show "Đăng ký" (register)
   const actions: SessionActionConfig = {
-    // Hide More menu (3 dots) on Find Sessions page
+    // Hide all extra buttons
     showMoreButton: false,
-
-    // Top actions - not shown on Find Sessions page
     showCallButton: false,
     showDownloadButton: false,
     showShareButton: false,
+    showDeleteButton: false,
 
-    // Bottom actions - delete
-    showDeleteButton: canManage,
-    onDelete: onOpenDeleteModal,
-
-    // Bottom actions - right side
-    // For owner or ADMIN: show manage button
+    // For owner or ADMIN: show ONLY manage button
     showManageButton: canManage,
-    // manageButtonHref:
-    //   user?.role === UserRole.PLAYER
-    //     ? `/player/sessions/${session.slug || session.id}`
-    //     : `/host/sessions/${session.slug || session.id}`,
     manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
-    // For players with registration: show view registration modal
+    // For non-owners: show ONE button based on status
+    // Priority: APPROVED > PENDING/REJECTED > No registration
+    showViewSessionButton: !canManage && userRegistrationStatus === 'APPROVED',
     showViewRegistrationButton:
-      !isOwner &&
+      !canManage &&
       !!userRegistrationStatus &&
       userRegistrationStatus !== 'APPROVED',
     onViewRegistration: onOpenViewRegistrationModal,
-
-    // For approved players: show view session button
-    showViewSessionButton: userRegistrationStatus === 'APPROVED',
-
-    // For non-registered users: show register button (hidden for owners)
-    showRegisterButton: !userRegistrationStatus && !isJoined && !isOwner,
+    showRegisterButton: !canManage && !userRegistrationStatus && !isJoined,
     onRegister: handleRegister,
     registerButtonDisabled: isFull,
   };
@@ -327,26 +315,6 @@ const FindSessionCard = ({
       >
         <Text>{t('deleteConfirmation')}</Text>
       </VModal>
-
-      {/* Hidden SessionShareCards for image generation */}
-      {canManage && (
-        <Portal>
-          <Box
-            position="absolute"
-            left="-9999px"
-            top="-9999px"
-            zIndex={-1}
-            pointerEvents="none"
-          >
-            <Box>
-              <SessionShareCard session={session} mode="portrait" />
-            </Box>
-            <Box mt={4}>
-              <SessionShareCard session={session} mode="social" />
-            </Box>
-          </Box>
-        </Portal>
-      )}
     </>
   );
 };

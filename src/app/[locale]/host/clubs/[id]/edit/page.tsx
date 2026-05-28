@@ -436,8 +436,11 @@ const EditClubPage = () => {
       const imagePublicId =
         clubImages[validBannerIndex >= 0 ? validBannerIndex : 0]?.publicId;
 
-      await ClubsService.updateClub(groupId, {
-        ...data,
+      const restData = { ...data };
+      delete restData.allLevelsSelected;
+
+      const updatedClub = await ClubsService.updateClub(groupId, {
+        ...restData,
         image,
         imagePublicId,
         images,
@@ -447,7 +450,7 @@ const EditClubPage = () => {
         requiredLevels: data.requiredLevels,
       });
       toaster.success({ title: t('clubUpdatedSuccess') });
-      router.push(ROUTES.CLUBS.BROWSE);
+      router.push(ROUTES.CLUBS.DETAIL(updatedClub.slug || updatedClub.id));
     } catch (error) {
       console.error('Failed to update club:', error);
       toaster.error({ title: t('failedToUpdateClub') });
@@ -473,6 +476,7 @@ const EditClubPage = () => {
         onSubmit={handleSubmit(onSubmit)}
         bg={{ base: 'white', _dark: 'gray.900' }}
         p={{ base: 4, md: 6 }}
+        pb={{ base: 28, md: 6 }}
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
@@ -542,6 +546,7 @@ const EditClubPage = () => {
               value={watch('description')}
               onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
+              minHeight="120px"
             />
           </Field>
 
@@ -560,16 +565,16 @@ const EditClubPage = () => {
 
           {/* Multi-Venue + Schedule */}
           <Field label="Sân hoạt động">
-            <VStack spacing={4} align="stretch">
+            <VStack spacing={3} align="stretch">
               {venueGroups.map((group, groupIdx) => (
                 <Box
                   key={groupIdx}
                   borderWidth="1px"
                   borderRadius="md"
                   borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-                  p={4}
+                  p={3}
                 >
-                  <Flex gap={2} align="center" mb={3}>
+                  <Flex gap={2} align="center" mb={2}>
                     <Box flex="1" minW={0} overflow="hidden">
                       <SearchableSelect
                         options={venueOptions}
@@ -593,10 +598,10 @@ const EditClubPage = () => {
                     </IconButton>
                   </Flex>
 
-                  <VStack spacing={2} align="stretch">
+                  <VStack spacing={1.5} align="stretch">
                     {group.schedules.map((sched, schedIdx) => (
                       <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '100px', md: '120px' }}>
+                        <Box flex="1" minW={{ base: '90px', md: '110px' }}>
                           <LegacySelect
                             size="sm"
                             value={String(sched.dayOfWeek)}
@@ -630,7 +635,7 @@ const EditClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                         />
                         <Text fontSize="xs" color="gray.500">
@@ -648,7 +653,7 @@ const EditClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                         />
                         <IconButton
@@ -663,7 +668,7 @@ const EditClubPage = () => {
                       </Flex>
                     ))}
                     <Button
-                      size="sm"
+                      size="xs"
                       variant="ghost"
                       onClick={() => addSchedule(groupIdx)}
                       w="fit-content"
@@ -686,11 +691,35 @@ const EditClubPage = () => {
             </VStack>
           </Field>
 
-          <Flex justify="flex-end" gap={4} mt={4}>
+          <Flex
+            justify={{ base: 'space-between', md: 'flex-end' }}
+            gap={{ base: 3, md: 4 }}
+            mt={4}
+            position={{ base: 'fixed', md: 'static' }}
+            left={{ base: 0, md: 'auto' }}
+            right={{ base: 0, md: 'auto' }}
+            bottom={{ base: 0, md: 'auto' }}
+            zIndex={{ base: 20, md: 'auto' }}
+            bg={{ base: 'white', _dark: 'gray.900' }}
+            borderTopWidth={{ base: '1px', md: 0 }}
+            borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+            px={{ base: 4, md: 0 }}
+            pt={{ base: 3, md: 0 }}
+            pb={{ base: 'calc(12px + env(safe-area-inset-bottom))', md: 0 }}
+            boxShadow={{
+              base: '0 -8px 20px rgba(15, 23, 42, 0.08)',
+              md: 'none',
+            }}
+          >
             <Button variant="ghost" onClick={() => router.back()}>
               {t('cancel')}
             </Button>
-            <Button type="submit" colorPalette="green" loading={isSubmitting}>
+            <Button
+              type="submit"
+              colorPalette="green"
+              loading={isSubmitting}
+              flex={{ base: '0 0 auto', md: 'initial' }}
+            >
               {t('saveChanges')}
             </Button>
           </Flex>

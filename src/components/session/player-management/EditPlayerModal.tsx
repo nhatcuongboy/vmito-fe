@@ -244,7 +244,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 style={{
                   width: '16px',
                   height: '16px',
-                  accentColor: '#3182ce',
+                  accentColor: '#179a3b',
                 }}
               />
               <label
@@ -303,7 +303,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 style={{
                   width: '16px',
                   height: '16px',
-                  accentColor: '#3182ce',
+                  accentColor: '#179a3b',
                 }}
               />
               <label

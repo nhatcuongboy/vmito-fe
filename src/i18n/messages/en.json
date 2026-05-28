@@ -18,7 +18,7 @@
     "statistics": "Statistics",
     "users": "Users",
     "mySessions": "My Sessions",
-    "joined": "Joined",
+    "joined": "Registered",
     "transactions": "Transactions",
     "paymentSettings": "Payment Settings",
     "myHostedSessions": "Manage Sessions",
@@ -34,6 +34,7 @@
     "createClub": "Create Group",
     "pendingJoinRequests": "Join Requests",
     "endedSessions": "Ended",
+    "allSessions": "All",
     "endedJoinedSessions": "Ended Joined Sessions",
     "suggestions": "For You",
     "createSession": "Create",
@@ -46,6 +47,8 @@
     "findTournaments": "Find Tournaments",
     "createTournament": "Create Tournament",
     "generalSettings": "General Settings",
+    "levelDescriptions": "Level Descriptions",
+    "feedback": "Feedback",
     "newsfeed": "Newsfeed"
   },
   "search": {
@@ -82,7 +85,10 @@
     "approve": "Approve",
     "reject": "Reject",
     "pendingRequests": "{count} pending request{count, plural, =1 {} other {s}}",
+    "viewCount": "{count} view{count, plural, =1 {} other {s}}",
     "loading": "Loading...",
+    "loadMore": "Load more",
+    "navigating": "Navigating...",
     "error": "Error",
     "success": "Success",
     "notAvailable": "N/A",
@@ -117,8 +123,12 @@
     "systemMode": "System",
     "settings": "Settings",
     "about": "About",
+    "guide": "Guide",
+    "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
     "logout": "Logout",
+    "logoutConfirmTitle": "Logout",
+    "logoutConfirmMessage": "Are you sure you want to log out?",
     "login": "Login",
     "register": "Register",
     "userInfo": "User Information",
@@ -128,7 +138,8 @@
     "name": "Name",
     "phone": "Phone",
     "aiAssistant": "AI Assistant",
-    "giveFeedback": "Give Feedback",
+    "contact": "Contact Us",
+    "bugReport": "Bug Report",
     "levels": {
       "1": "Weak",
       "2": "Advanced Beginner",
@@ -158,6 +169,20 @@
     "level": "Level",
     "allLevels": "All Levels",
     "selectLevel": "Select Level",
+    "levelDescriptions": {
+      "title": "Level Descriptions",
+      "description": "View detailed explanations for each player level.",
+      "adminDescription": "Manage the descriptions shown to players when they review level requirements.",
+      "adminHint": "Enter descriptions for every existing level. Empty descriptions will simply hide tooltips.",
+      "open": "View level descriptions",
+      "save": "Save descriptions",
+      "saveSuccess": "Level descriptions saved",
+      "saveFailed": "Could not save level descriptions",
+      "loadFailed": "Could not load level descriptions",
+      "loading": "Loading descriptions...",
+      "empty": "No description yet",
+      "placeholder": "Enter a description for this level"
+    },
     "matchesPlayed": "Matches Played",
     "pair": "Pair",
     "waitTime": "Wait Time",
@@ -225,6 +250,8 @@
     "hostPhone": "Host Phone",
     "viewDetails": "View Details",
     "hostPhonePlaceholder": "Enter phone number",
+    "allowZaloContact": "Zalo Contact",
+    "allowZaloContactDesc": "Show Zalo button so players can contact the host via phone number",
     "time": "Time",
     "start": "Start Time",
     "end": "End Time",
@@ -341,6 +368,8 @@
       "sessionCodeMinLength": "Session code must be at least 4 characters",
       "maxPlayersMin": "Must be at least 2 players per court",
       "maxPlayersMax": "Cannot exceed 6 players per court",
+      "maxPlayersPerCourtMin": "Must be at least {min} players per court",
+      "maxPlayersPerCourtMax": "Cannot exceed {max} players per court",
       "courtNumberRequired": "Court number is required",
       "courtNumberMin": "Court number must be at least 1",
       "courtNumberUnique": "Court numbers must be unique",
@@ -360,6 +389,8 @@
       "cannotEditCourtsWithPlayers": "Cannot edit courts configuration when players have joined",
       "cannotEditTimeWhenActive": "Cannot edit session time when session is in progress",
       "levelRequired": "Please select a level",
+      "specificDatesRequired": "Please select at least one date to clone the session",
+      "recurringWeekdaysRequired": "Please select at least one weekday for recurring sessions",
       "endTimeMustBeAfterStartTime": "End time must be after start time"
     },
     "generalSettings": {
@@ -381,6 +412,8 @@
       "allowGuestJoinDesc": "Allow guests to join without registration",
       "allowNewPlayers": "Allow New Players",
       "allowNewPlayersDesc": "Allow new players to join during session",
+      "allowZaloContact": "Zalo Contact",
+      "allowZaloContactDesc": "Show Zalo button so players can contact the host via phone number",
       "requiredPlayerLevels": "Level Requirements",
       "selectRequiredLevels": "Select required levels for this session. Leave empty to allow all levels.",
       "levelsSelected": "✓ {count} level(s) selected",
@@ -520,6 +553,9 @@
     "sessionFull": "Session Full",
     "slotsAvailable": "{count} slots left",
     "slotsFull": "Full",
+    "registrationClosed": "Registration closed",
+    "sessionEnded": "Session ended",
+    "viewEndedSession": "View ended session",
     "withdrawConfirmation": "Are you sure you want to withdraw your registration request?",
     "requestWithdrawn": "Request withdrawn successfully",
     "noPendingRequest": "No pending request found",
@@ -552,6 +588,7 @@
     "maxImages": "Maximum {max} images",
     "selectFromGallery": "Select from Gallery",
     "addImages": "Add Images",
+    "orDropItHere": "or drop it here",
     "removeImage": "Remove Image",
     "deleteImageConfirm": "Are you sure you want to delete this image from your gallery?",
     "imageDeleted": "Image deleted successfully",
@@ -564,19 +601,22 @@
     "dragToReorder": "Drag to reorder",
     "imageOf": "{current}/{total}",
     "aiModal": {
-      "title": "Quick create session by AI",
+      "title": "Create session from a post",
       "or": "or",
-      "description": "Paste the recruitment post content, AI will automatically fill in session information for you.",
-      "placeholder": "Paste article content here...\n\nExample:\nLooking for 2 players for badminton at ABC Court, District 1, HCM. Time: 6pm-8pm on Jan 27, 2026. Contact: Minh 0912345678. Level: Intermediate-Advanced.",
-      "generate": "Create Session",
-      "generating": "Processing...",
+      "description": "Paste a player recruitment post and AI will prefill a draft for you to review before posting.",
+      "inputLabel": "Post content",
+      "placeholder": "Example:\nLooking for 2 badminton players tonight at ABC Court, District 1, HCM.\nTime: 18:00-20:00, {date}.\nFee: 80,000 VND/person.\nLevel: intermediate-advanced.\nContact Minh: 0912345678.",
+      "generate": "Create by AI",
+      "generating": "Analyzing...",
       "cancel": "Cancel",
+      "close": "Close",
       "success": "Session information extracted successfully!",
       "error": "Failed to analyze article content",
       "emptyContent": "Please enter article content",
-      "hint": "AI will extract: session name, location, time, levels, host info...",
+      "hint": "AI can detect location, time, level and contact details...",
       "venueMatched": "Venue matched: {venueName}",
       "manualLink": "Or create manually here",
+      "manualPrompt": "or",
       "alwaysManual": "Create manually",
       "switchToAi": "Use AI for quick creation"
     },
@@ -588,15 +628,55 @@
     "imageDownloadSuccess": "Image downloaded successfully",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
+    "shareImageModal": {
+      "title": "Preview & download session image",
+      "description": "Choose a social-ready image template before downloading.",
+      "templatesLabel": "Templates",
+      "preview": "Preview",
+      "download": "Download image",
+      "open": "Download",
+      "templates": {
+        "legacy-portrait": {
+          "name": "Original 2:3",
+          "description": "The original portrait design familiar to hosts."
+        },
+        "legacy-social": {
+          "name": "Original 4:5",
+          "description": "The original social poster design."
+        },
+        "classic-clean": {
+          "name": "Clean",
+          "description": "Readable, complete, ideal for group posts."
+        },
+        "social-poster": {
+          "name": "Bold poster",
+          "description": "Highlights session name, time, and fee."
+        },
+        "story-vertical": {
+          "name": "Story",
+          "description": "Optimized for Facebook, Instagram, and Zalo stories."
+        },
+        "square-feed": {
+          "name": "Square feed",
+          "description": "Compact for feeds and thumbnails."
+        },
+        "event-pass": {
+          "name": "Event pass",
+          "description": "Premium invite-style session pass."
+        }
+      }
+    },
     "hostedBy": "Hosted by",
     "dateNotSet": "Date not set",
     "timeNotSet": "Time not set",
     "courts": "courts",
     "viewMoreSessions": "View more sessions",
+    "findMoreSessions": "Find more sessions",
     "whoWillPlay": "Who will play with you?",
     "aiAnalyzeChip": "Analyze session",
     "aiAnalyzeTitle": "Session Level Analysis",
     "aiAnalyzing": "AI is analyzing...",
+    "emptySlot": "Open slot",
     "registerNow": "Register now",
     "showLess": "Show less",
     "viewAll": "View all",
@@ -632,6 +712,9 @@
       "selectedWeekdays": "Selected weekdays:",
       "enable": "Enable bulk creation",
       "disable": "Disable bulk creation",
+      "disabledSummary": "Off - creates 1 session",
+      "summaryCount": "Will create {count} sessions",
+      "createSessionsWithCount": "Create {count} sessions",
       "totalSessions": "Total sessions to be created:",
       "sessionsPerWeek": "days/week",
       "totalSessionsCalc": "{perWeek} days/week × {weeks} weeks = {total} sessions",
@@ -669,7 +752,18 @@
     "sessionEnded": "Session ended",
     "errorUpdatingSessionStatus": "Error updating session status",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "getDirections": "Get directions",
+    "yourLocation": "Your location",
+    "locationFound": "Location found",
+    "locationError": "Unable to get your location",
+    "locationPermissionDenied": "Please allow location access in browser settings",
+    "browserNotSupportLocation": "Browser does not support geolocation",
+    "mapLoadError": "Map loading error",
+    "mapLoadErrorDescription": "Please check your network connection or API Key.",
+    "playersCount": "{count} player{count, plural, =1 {} other {s}}",
+    "requiredLevels": "Required Levels",
+    "error": "Error"
   },
   "court": {
     "title": "Court",
@@ -817,6 +911,234 @@
         }
       }
     },
+    "guide": {
+      "hero": {
+        "title": "User Guide",
+        "subtitle": "Explore all Vmito features — from finding sessions and joining games to organizing badminton tournaments."
+      },
+      "toc": {
+        "title": "Table of Contents",
+        "gettingStarted": "Getting Started",
+        "sessions": "Sessions",
+        "tournaments": "Tournaments",
+        "payments": "Payments",
+        "clubs": "Clubs",
+        "ratings": "Ratings",
+        "tips": "Tips & Tricks"
+      },
+      "gettingStarted": {
+        "title": "Getting Started",
+        "subtitle": "Just 3 simple steps to start using Vmito.",
+        "register": {
+          "title": "Create an account",
+          "description": "Sign up with email or quickly log in via Google. It only takes a few seconds."
+        },
+        "login": {
+          "title": "Log in",
+          "description": "Log in with email/password or your Google account to access all features."
+        },
+        "profile": {
+          "title": "Update your profile",
+          "description": "Set your name, avatar, and badminton skill level (Y-, Y, Y+, TBY, TB-, TB, TB+, K) so hosts and other players know about you."
+        }
+      },
+      "sessions": {
+        "title": "Sessions",
+        "subtitle": "Find, join, or host badminton sessions with ease.",
+        "player": {
+          "badge": "Player",
+          "search": {
+            "title": "Search for sessions",
+            "description": "Browse the list of open sessions. Search by area, time, and number of players."
+          },
+          "filter": {
+            "title": "Advanced filters",
+            "description": "Filter by skill level, fee type (fixed/split), price range, and time of day. Filters are saved automatically."
+          },
+          "join": {
+            "title": "Join a session",
+            "description": "Send a join request → Wait for host approval → Confirm → Track status. You can also join by code."
+          },
+          "cancel": {
+            "title": "Cancel participation",
+            "description": "Easily cancel your participation if your schedule changes. The host will be notified."
+          }
+        },
+        "host": {
+          "badge": "Host",
+          "create": {
+            "title": "Create a new session",
+            "description": "Set up name, description, time, location (with GPS), cover photo, match type, and fees."
+          },
+          "managePlayers": {
+            "title": "Manage players",
+            "description": "Approve join requests, add/remove players, view the list and status of each player."
+          },
+          "courts": {
+            "title": "Court configuration",
+            "description": "Set the number of courts (1-10), name each court, choose colors and directions."
+          },
+          "autoAssign": {
+            "title": "Auto-assign courts",
+            "description": "The system automatically assigns players to courts based on skill level and preferences."
+          },
+          "finish": {
+            "title": "End the session",
+            "description": "Mark the session as complete. View ended session history and statistics."
+          }
+        }
+      },
+      "tournaments": {
+        "title": "Tournaments",
+        "subtitle": "Join or organize professional badminton tournaments.",
+        "player": {
+          "badge": "Athlete",
+          "browse": {
+            "title": "Browse tournaments",
+            "description": "View the list of ongoing and upcoming tournaments. Find events matching your skill level."
+          },
+          "register": {
+            "title": "Register to compete",
+            "description": "Register by category (Men's Singles, Women's Singles, Men's Doubles, Women's Doubles, Mixed Doubles). Track your registration status."
+          },
+          "schedule": {
+            "title": "View match schedule",
+            "description": "Follow the match schedule, group stages, and knockouts in real time."
+          },
+          "standings": {
+            "title": "Standings",
+            "description": "View results, standings, and winners for each category."
+          }
+        },
+        "host": {
+          "badge": "Organizer",
+          "create": {
+            "title": "Create a tournament",
+            "description": "Set up name, dates, description, categories (MS, WS, MD, WD, XD), and match formats."
+          },
+          "managePlayers": {
+            "title": "Manage athletes & pairs",
+            "description": "Add/remove athletes. Pair players for doubles categories. Manage participant lists."
+          },
+          "schedule": {
+            "title": "Create match schedule",
+            "description": "Automatically or manually arrange match schedules for each category."
+          },
+          "updateResults": {
+            "title": "Update results",
+            "description": "Enter match scores in real time. The system automatically updates standings and next rounds."
+          }
+        }
+      },
+      "payments": {
+        "title": "Payments",
+        "subtitle": "Manage session fees transparently and easily.",
+        "models": {
+          "fixed": {
+            "title": "Fixed price",
+            "description": "Host sets a fixed price per player. Can be different for male/female players."
+          },
+          "split": {
+            "title": "Split evenly",
+            "description": "Total court cost is split evenly among all participants."
+          }
+        },
+        "player": {
+          "badge": "Player",
+          "viewQR": {
+            "title": "View payment QR code",
+            "description": "Scan the QR code or view the host's bank account details to make a transfer."
+          },
+          "submitProof": {
+            "title": "Submit payment proof",
+            "description": "Take a photo of your transfer receipt and upload it. The host will confirm your payment."
+          },
+          "history": {
+            "title": "Transaction history",
+            "description": "Track all your payments: pending, submitted, approved, or rejected."
+          }
+        },
+        "host": {
+          "badge": "Host",
+          "setup": {
+            "title": "Payment settings",
+            "description": "Add bank name, account number, account holder name, and QR code for players to pay."
+          },
+          "approve": {
+            "title": "Approve payments",
+            "description": "View payment proof images from players. Approve or reject each payment."
+          },
+          "transactions": {
+            "title": "Transaction history",
+            "description": "View an overview of all transactions. Filter by status and time."
+          }
+        }
+      },
+      "clubs": {
+        "title": "Clubs",
+        "subtitle": "Create or join your badminton community.",
+        "create": {
+          "title": "Create a club",
+          "description": "Create a club with a name, description, and avatar. Clubs need admin approval before going public."
+        },
+        "join": {
+          "title": "Join a club",
+          "description": "Browse the club list and send a join request. View club schedules and members."
+        },
+        "members": {
+          "title": "Manage members",
+          "description": "View the member list, approve join requests, and manage roles within the club."
+        },
+        "fees": {
+          "title": "Club fees",
+          "description": "Set up and manage membership fees and session fees specific to the club."
+        }
+      },
+      "ratings": {
+        "title": "Ratings",
+        "subtitle": "Build a quality community through the rating system.",
+        "rate": {
+          "title": "Rate after sessions",
+          "description": "Rate the host from 1-5 stars after each session. Add comments to share your experience."
+        },
+        "review": {
+          "title": "Reviews & comments",
+          "description": "Leave detailed reviews about sessions. Read other players' reviews before joining."
+        },
+        "stats": {
+          "title": "Rating statistics",
+          "description": "View average rating score, total number of ratings, and trends on your profile."
+        }
+      },
+      "tips": {
+        "title": "Tips & Tricks",
+        "subtitle": "Tips to help you make the most of Vmito.",
+        "notifications": {
+          "title": "Enable notifications",
+          "description": "Turn on push notifications so you never miss invitations, session updates, and tournament results."
+        },
+        "pwa": {
+          "title": "Install the app",
+          "description": "Add Vmito to your home screen for a native app experience — no app store download needed."
+        },
+        "filters": {
+          "title": "Save your filters",
+          "description": "Search filters are saved automatically. Open the app and instantly see sessions that match your preferences."
+        },
+        "share": {
+          "title": "Share sessions",
+          "description": "Share session links or join codes with friends to invite them to play."
+        },
+        "language": {
+          "title": "Multi-language",
+          "description": "Vmito supports Vietnamese, English, and Chinese. Switch languages in settings."
+        },
+        "realtime": {
+          "title": "Real-time updates",
+          "description": "All changes to courts, players, and results are updated instantly via WebSocket technology."
+        }
+      }
+    },
     "home": {
       "title": "Badminton Session Manager",
       "description": "Manage your badminton sessions, track player rotation, and optimize court usage",
@@ -912,7 +1234,7 @@
       "playerWithNumber": "Player {number}",
       "matchesCount": "{count} matches",
       "addPlayer": "Add Player",
-      "addAnother": "Add Another",
+      "addAnother": "Add Player",
       "addFirstPlayer": "Add Your First Player",
       "saveAll": "Save All ({count})",
       "existingPlayers": "Existing Players ({count})",
@@ -2349,7 +2671,7 @@
         },
         "playing": {
           "title": "Currently Playing",
-          "description": "Court {courtNumber} - Enjoy your match!"
+          "description": "Enjoy your match!"
         },
         "finished": {
           "title": "Session Finished",
@@ -2358,14 +2680,20 @@
         "court": {
           "title": "Court {number}",
           "elapsed": "{time} elapsed",
-          "playerHighlight": "You are highlighted in white on the court above",
+          "playerHighlight": "You are the glowing white-outlined marker on the court",
           "playingWith": "Playing with:",
           "partnerWith": "Playing with teammate:",
-          "opponents": "Opponents:"
+          "opponents": "Opponents:",
+          "legend": {
+            "you": "You",
+            "teammate": "Teammate",
+            "opponent": "Opponent"
+          }
         },
         "stats": {
           "minutes": "min",
           "currentWait": "Current Wait",
+          "matchElapsed": "Match Time",
           "matchesPlayed": "Matches Played",
           "title": "Your Statistics",
           "wins": "Wins",
@@ -2376,10 +2704,14 @@
         },
         "queue": {
           "title": "Queue Position",
+          "position": "Queue Position",
           "updated": "Updated {time}",
           "autoRefresh": "Auto-refreshes in {seconds} seconds"
         },
         "footer": "Please keep this page open to maintain your place in the queue",
+        "footerWaiting": "Please keep this page open to maintain your place in the queue",
+        "footerPlaying": "The host will update the result after the match",
+        "footerFinished": "Thank you for joining this session",
         "leaveSession": "Leave Session",
         "errors": {
           "missingPlayerId": "Player ID is missing",
@@ -2410,7 +2742,7 @@
           "youWereDeselected": "You have been removed from {court}"
         },
         "courtCall": {
-          "title": "🏸 You're Up!",
+          "title": "You're Up!",
           "goToCourt": "Please go to",
           "description": "Your match is about to start. Please proceed to the court now.",
           "understood": "Got it, I'm on my way!"
@@ -2442,6 +2774,11 @@
       "losses": "Losses",
       "winRate": "Win Rate",
       "totalMatches": "Total Matches",
+      "totalShuttlecocks": "Shuttlecocks",
+      "downloadAchievement": "Download achievement image",
+      "achievementImageTitle": "Personal Achievement",
+      "appTagline": "Badminton session management platform",
+      "unnamed": "Unnamed",
       "noData": "No data available"
     },
     "overview": "Overview",
@@ -2494,6 +2831,13 @@
     "manage": "Manage",
     "payment": "Payment",
     "settings": "Settings",
+    "shareSessionSection": "Share Session",
+    "shareSection": "Share",
+    "shareImage": "Share Image",
+    "qrViewSessionDetail": "QR view session detail",
+    "shareTipView": "Players can scan the QR code to view session details and register to join.",
+    "shareImageTipsTitle": "💡 Share Image Tips",
+    "shareImageTipsDescription": "Download beautiful session images to share on social media and attract more players to join!",
     "share": "Share Images",
     "downloadSocial": "4:5",
     "downloadPortrait": "2:3",
@@ -2503,6 +2847,8 @@
     "unknownStatus": "Unknown Status",
     "hoursMinutes": "{hours}h {minutes}m",
     "minutesShort": "{minutes} min",
+    "waitTimeBadgeHoursMinutes": "{hours}h{minutes}m",
+    "waitTimeBadgeMinutes": "{minutes}m",
     "lessThanMinute": "< 1 minute",
     "oneMinute": "1 minute",
     "minutes": "{minutes} minutes",
@@ -2525,6 +2871,19 @@
     "confirmEndSessionMessage": "Are you sure you want to end this session? This action cannot be undone and will finish all active matches.",
     "qrScanToView": "View",
     "qrScanToJoin": "Join",
+    "shareQuickCode": "Quick Join Code",
+    "shareQuickCodeHint": "Send this code when players want to enter it manually instead of scanning a QR.",
+    "copyJoinCode": "Copy code",
+    "copyJoinCodeFailed": "Failed to copy join code",
+    "shareTipsTitle": "Sharing tips",
+    "shareTipView": "Use this when you want players to preview the session details first.",
+    "shareTipJoin": "Use this when you want players to join the session right away on mobile.",
+    "headerActions": "Actions",
+    "openSessionNotes": "Open session notes",
+    "sessionNotesTitle": "Session notes",
+    "sessionNotesPlaceholder": "Add internal notes for this session...",
+    "sessionNotesSaved": "Session notes saved",
+    "sessionNotesSaveFailed": "Failed to save session notes",
     "cancel": "Cancel",
     "endSession": "End Session",
     "startSession": "Start Session",
@@ -2570,6 +2929,7 @@
       "cancel": "Cancel",
       "confirmAndStartMatch": "Confirm & Start Match",
       "confirmMatch": "Confirm",
+      "selectRequiredPlayers": "Select {total} players to confirm",
       "manualPlayerSelectionTitle": "Manual Player Selection - Court {courtNumber}",
       "selectedPlayersCount": "Selected Players ({count}/{total}):",
       "pairNumber": "Pair {number}",
@@ -2598,8 +2958,15 @@
       "matchEndedSuccessfully": "Match ended successfully",
       "preSelectNext": "Pre-select Next",
       "cancelPreSelect": "Cancel Pre-select",
+      "confirmCancelPreSelectTitle": "Confirm Cancel Pre-select",
+      "confirmCancelPreSelectMessage": "Are you sure you want to cancel pre-selecting players for the next match?",
       "preSelectTitle": "Pre-select Next Match - Court {courtNumber}",
       "nextSelected": "Next Selected",
+      "viewNextMatch": "View Next Match",
+      "nextMatchPreviewTitle": "Next Match Preview - Court {courtNumber}",
+      "nextMatchPreviewDescription": "Review the players pre-selected for the next match.",
+      "loadingPreSelectedPlayers": "Loading pre-selected players...",
+      "noPreSelectedPlayers": "No pre-selected players yet.",
       "preSelectSuccess": "Pre-select successful",
       "nextMatchPlayersSelected": "Next match players selected",
       "errorPreSelecting": "Error pre-selecting",
@@ -2620,6 +2987,8 @@
       "isDraw": "This match is a draw",
       "notes": "Notes (Optional)",
       "notesPlaceholder": "Add any additional notes about the match...",
+      "shuttlecockCount": "Shuttlecocks Used",
+      "shuttlecockCountPlaceholder": "e.g. 3, 2.5, 1.25...",
       "submitResult": "Submit",
       "cancel": "Cancel",
       "selectWinnerInstruction": "Click on a team to select the winner (optional if draw)",
@@ -2669,6 +3038,8 @@
       "main": "Main",
       "confirmDeleteMatch": "Are you sure you want to delete this match?",
       "delete": "Delete",
+      "deleteConfirm": "Confirm delete",
+      "cancel": "Cancel",
       "deleteMatchSuccess": "Match deleted successfully",
       "deleteMatchError": "Failed to delete match",
       "updateMatchSuccess": "Match updated successfully",
@@ -2687,6 +3058,8 @@
       "extraMatch": "Extra Match",
       "notes": "Notes",
       "notesPlaceholder": "Enter notes for this match...",
+      "shuttlecockCount": "Shuttlecocks Used",
+      "shuttlecockCountPlaceholder": "e.g. 3, 2.5, 1.25...",
       "saveChanges": "Save Changes",
       "player": "Player",
       "allPlayers": "All players",
@@ -2697,6 +3070,8 @@
       "courtNumberWithName": "Court {number} ({name})",
       "courtUnknown": "Court ?",
       "allResults": "All",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
       "withResults": "With results",
       "withoutResults": "Without results",
       "noCompletedMatches": "No Completed Matches",
@@ -2765,6 +3140,7 @@
     "columnAvgScore": "Avg Score",
     "columnTotalPlayTime": "Total Play Time",
     "columnTotalWaitTime": "Total Wait Time",
+    "columnShuttlecock": "Shuttlecocks",
     "regularMatchesTooltip": "Regular matches (within session time)",
     "extraMatchesTooltip": "Extra matches (overtime)",
     "unnamed": "Unnamed",
@@ -2807,6 +3183,7 @@
       "signInButton": "Sign In",
       "continueWithGoogle": "Sign in with Google",
       "continueWithZalo": "Sign in with Zalo",
+      "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
       "signUp": "Sign up",
       "or": "Or",
@@ -2854,6 +3231,37 @@
       "userAlreadyExists": "User already exists",
       "tooManyRequests": "Too many requests. Please try again later."
     },
+    "forgotPassword": {
+      "heading": "Forgot Password",
+      "description": "Enter your account email to receive password reset instructions.",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "submitButton": "Send instructions",
+      "successMessage": "If this email is valid, password reset instructions will arrive in a few minutes.",
+      "backToSignIn": "Back to sign in",
+      "invalidEmail": "Invalid email address",
+      "emailRequired": "Please enter your email",
+      "requestFailed": "Could not send the password reset request. Please try again.",
+      "tooManyRequests": "Too many requests. Please try again later."
+    },
+    "resetPassword": {
+      "heading": "Reset Password",
+      "description": "Create a new password for your account.",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "submitButton": "Reset password",
+      "successMessage": "Your password has been reset successfully. You can sign in with your new password.",
+      "missingToken": "This password reset link is invalid or missing a verification token.",
+      "invalidOrExpiredToken": "This password reset link is invalid or has expired.",
+      "resetFailed": "Could not reset your password. Please try again.",
+      "backToSignIn": "Back to sign in",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "tooManyRequests": "Too many requests. Please try again later."
+    },
     "guard": {
       "authenticating": "Authenticating...",
       "redirectingToSignIn": "Redirecting to sign in...",
@@ -2870,6 +3278,7 @@
     "title": "Admin",
     "userManagement": "User Management",
     "users": "Users",
+    "levelDescriptions": "Level Descriptions",
     "addUser": "Add User",
     "editUser": "Edit User",
     "deleteUser": "Delete User",
@@ -2932,8 +3341,10 @@
     "locatedWithin": "Located Within",
     "newAddressSection": "New Admin Address (NQ60)",
     "newAddress": "New Address",
+    "newAddressBadge": "New",
     "newDistrict": "New Ward/District",
-    "newCity": "New City"
+    "newCity": "New City",
+    "venueRequests": "Venue Requests"
   },
   "PlayerDetailModal": {
     "status": "Status",
@@ -2983,6 +3394,11 @@
     "free": "Free",
     "enableFee": "Enable Fee",
     "disableFee": "Disable Fee",
+    "disabledSummary": "Off - no fee",
+    "enabledSummary": "Fee enabled",
+    "fixedSummaryBoth": "Male {male} - Female {female} VND",
+    "fixedSummaryMale": "Male {male} VND",
+    "fixedSummaryFemale": "Female {female} VND",
     "feeRange": "{min} - {max}",
     "samePrice": "{price}",
     "validation": {
@@ -3135,7 +3551,7 @@
     "fixed": "Guest Fee",
     "noPaymentSettings": "No Payment Settings Configured",
     "noPaymentSettingsDescription": "Please add your bank information and QR code so players can pay you",
-    "currentSettings": "Current Payment Settings",
+    "currentSettings": "Payment Settings",
     "paymentTabTip": "Configure your payment information here. Players will see this when they need to pay for the session.",
     "paymentManagement": "Payment Management",
     "paymentStatistics": "Payment Statistics",
@@ -3161,6 +3577,8 @@
     "expenseNamePlaceholder": "E.g.: Court fee, Shuttlecock...",
     "editExpense": "Edit",
     "deleteExpense": "Delete expense",
+    "deleteExpenseConfirmTitle": "Confirm Delete Expense",
+    "deleteExpenseConfirmMessage": "Are you sure you want to delete this expense? This action cannot be undone.",
     "noExpenses": "No expenses yet",
     "totalExpenses": "Expenses",
     "income": "Income",
@@ -3290,6 +3708,8 @@
       "startReminderMessage": "It’s time for “{sessionName}”. Are you at the court? Tap to start the session.",
       "playerStartReminderTitle": "Your session is starting!",
       "playerStartReminderMessage": "“{sessionName}” is about to start. Head to the court!",
+      "yourTurnTitle": "You're up!",
+      "yourTurnMessage": "Please head to {courtName}. Your match is about to start.",
       "autoCancelledTitle": "Session auto-cancelled",
       "autoCancelledMessage": "“{sessionName}” was automatically cancelled because it was not started within 30 minutes.",
       "sessionCancelledTitle": "Session cancelled",
@@ -3321,8 +3741,62 @@
   },
   "posts": {
     "createPost": "Create Post",
+    "post": "Post",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "success": "Success",
+    "error": "Error",
     "noPosts": "No posts yet",
-    "beFirstToShare": "Be the first to share something!"
+    "beFirstToShare": "Be the first to share something!",
+    "composerPlaceholder": "Share something with the badminton community...",
+    "contentLabel": "Post content",
+    "contentRequired": "Please enter some content",
+    "createSuccess": "Post created successfully",
+    "createError": "Failed to create post",
+    "loadPostsError": "Failed to load posts",
+    "loadMoreError": "Could not load more posts. Please try again.",
+    "retry": "Retry",
+    "retryDescription": "Please try again in a moment.",
+    "loading": "Loading...",
+    "loadMore": "Load more posts",
+    "location": "Location",
+    "locationPlaceholder": "Search for a location...",
+    "removeLocation": "Remove",
+    "imagesMax": "Images (max 10)",
+    "addImages": "Add images",
+    "imagePreview": "Image preview {index}",
+    "removeImage": "Remove image {index}",
+    "closeModal": "Close modal",
+    "sharedFrom": "Shared from {name}",
+    "postMenu": "Post menu",
+    "postImage": "Post image {index}",
+    "likePost": "Like post",
+    "unlikePost": "Unlike post",
+    "likeError": "Failed to like post",
+    "toggleComments": "Show or hide comments",
+    "sharePost": "Share post",
+    "shareSuccess": "Post shared successfully",
+    "shareError": "Failed to share post",
+    "deleteSuccess": "Post deleted successfully",
+    "deleteError": "Failed to delete post",
+    "deleteConfirmTitle": "Delete post?",
+    "deleteConfirmDescription": "This post will be removed from the newsfeed.",
+    "writeComment": "Write a comment...",
+    "sendComment": "Send comment",
+    "deleteComment": "Delete comment",
+    "noComments": "No comments yet",
+    "loadCommentsError": "Failed to load comments",
+    "commentAdded": "Comment added",
+    "commentAddError": "Failed to add comment",
+    "commentDeleted": "Comment deleted",
+    "commentDeleteError": "Failed to delete comment",
+    "loadMoreComments": "Load more comments",
+    "comingSoon": {
+      "title": "Newsfeed",
+      "subtitle": "Feature Under Development",
+      "description": "We're building a space for you to share and connect with the badminton community. Stay tuned! 🏸",
+      "badge": "COMING SOON"
+    }
   },
   "clubs": {
     "notification": {
@@ -3508,19 +3982,110 @@
     "announcementsTab": "Announcements",
     "noImages": "No images"
   },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "open": "Open AI Assistant",
+    "provider": "Powered by Gemini",
+    "welcomeTitle": "Hello!",
+    "welcomeDescription": "I am Vmito's AI assistant. I can help you use the app more easily.",
+    "suggestedQuestions": "Suggested questions",
+    "placeholder": "Ask something about Vmito...",
+    "clearHistory": "Clear history",
+    "close": "Close",
+    "send": "Send",
+    "sendShortcut": "Send (Enter)",
+    "stop": "Stop",
+    "inputHint": "Enter to send · Shift+Enter for a new line",
+    "errorMessage": "Sorry, something went wrong. Please try again later.",
+    "pageContexts": {
+      "createSession": "Create session page",
+      "hostSessions": "Session management page",
+      "session": "Session page",
+      "clubs": "Groups and clubs page",
+      "tournaments": "Tournament page",
+      "venues": "Venue page",
+      "profile": "User profile page",
+      "home": "Vmito home page",
+      "sessionDetail": "Session detail page: {name}",
+      "matchAnalysis": "Match analysis - Court {court}"
+    },
+    "suggestions": {
+      "createSession": [
+        "Can AI help me create a session from a post?",
+        "How should I set the required skill level?",
+        "How do I set participation fees for a session?",
+        "How do I choose a suitable venue and time?",
+        "How do I create multiple dates or recurring sessions?"
+      ],
+      "hostSessions": [
+        "How do I approve players who request to join?",
+        "How do I assign players to courts?",
+        "How do I call matches and update results?",
+        "Can AI automatically balance pairs for me?",
+        "How do I share a session with others?"
+      ],
+      "payments": [
+        "How do I configure my receiving account?",
+        "How do I track which players have paid?",
+        "How do I approve or reject a transaction?",
+        "What is the difference between split fees and fixed fees?",
+        "How should I handle players who have not paid?"
+      ],
+      "clubs": [
+        "How do I create a group or club?",
+        "How do I approve members joining a group?",
+        "Can I create a play schedule for a group?",
+        "How do I manage group members?",
+        "How is a group different from a session?"
+      ],
+      "tournaments": [
+        "How do I create a new tournament?",
+        "How do I add players or pairs?",
+        "How do I generate the match schedule?",
+        "Which tournament format should I choose?",
+        "How do I view standings and results?"
+      ],
+      "venues": [
+        "How do I find a suitable venue near me?",
+        "How do I view venue details and address?",
+        "Can I suggest adding a new venue?",
+        "What should I consider when choosing a venue?",
+        "How do I open directions to a venue?"
+      ],
+      "profile": [
+        "How do I update my profile?",
+        "How do I view sessions I have joined?",
+        "How do I view player or host ratings?",
+        "Where can I change the app language?",
+        "How do I manage my contact information?"
+      ],
+      "general": [
+        "What is Vmito used for?",
+        "How do I find a suitable session?",
+        "Where should I start if I want to create a session?",
+        "What is the difference between Host and Player?",
+        "How do I report a bug or send feedback to Vmito?"
+      ]
+    }
+  },
   "suggestions": {
     "title": "Suggested Sessions",
     "noSuggestions": "No suggestions available",
     "noSuggestionsDesc": "Join more sessions so we can better understand your preferences",
+    "noFavoriteHostSuggestionsDesc": "No new sessions from your favorite hosts yet.",
     "browseAll": "Browse Sessions",
     "locationDenied": "Location access not granted. Suggestions are based on your play history.",
     "loadingError": "Failed to load suggestions. Please try again.",
     "totalResults": "{count} sessions for you",
+    "filterSuggested": "Suggested",
+    "filterFavoriteHost": "Favorite hosts",
     "reasonLevelMatch": "Level match",
     "reasonNearby": "Nearby",
     "reasonFamiliarVenue": "Familiar venue",
+    "reasonFavoriteHost": "Favorite host",
     "reasonPreferredTime": "Preferred time",
     "reasonAvailableSlots": "Slots available",
+    "suggestionBadge": "Suggested",
     "modeBrowse": "All",
     "modeAuto": "Suggest"
   },
@@ -3537,8 +4102,138 @@
     "share": "Share",
     "view": "View",
     "viewDetails": "View Details",
+    "requestUpdate": "Suggest an edit",
+    "findSessions": "Find Sessions",
     "findSessionsAtVenue": "Find Sessions",
     "nameFormat": "Badminton Court {name}",
     "searchPlaceholder": "Search by venue name, address..."
+  },
+  "venueRequests": {
+    "suggestNewVenue": "Suggest new venue",
+    "createTitle": "Suggest a new venue",
+    "createDescription": "Send the core details so an admin can verify and add this venue.",
+    "updateTitle": "Suggest venue edits",
+    "updateDescription": "Update the fields that need correction. An admin will review before applying.",
+    "submitCreate": "Submit suggestion",
+    "submitUpdate": "Submit edit request",
+    "submitAnyway": "Submit anyway",
+    "cancel": "Cancel",
+    "submitSuccess": "Request submitted",
+    "submitError": "Could not submit request",
+    "similarVenuesTitle": "This venue may already exist",
+    "similarVenuesHint": "If none of these matches, submit again to continue suggesting a new venue.",
+    "viewVenue": "View venue",
+    "adminTitle": "Venue Requests",
+    "loadError": "Failed to load venue requests",
+    "approveSuccess": "Request approved",
+    "approveError": "Failed to approve request",
+    "rejectSuccess": "Request rejected",
+    "rejectError": "Failed to reject request",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject request",
+    "rejectReason": "Rejection reason",
+    "refresh": "Refresh",
+    "allStatuses": "All statuses",
+    "allTypes": "All types",
+    "empty": "No requests found",
+    "untitled": "Untitled venue",
+    "submittedBy": "Submitted by {name} on {date}",
+    "currentValue": "Current",
+    "requestedValue": "Requested",
+    "adminNote": "Admin note",
+    "types": {
+      "CREATE": "New venue",
+      "UPDATE": "Venue update"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "fields": {
+      "name": "Venue name",
+      "address": "Address",
+      "city": "City",
+      "district": "District",
+      "numberOfCourts": "Number of courts",
+      "openingHours": "Opening hours",
+      "hourlyRateFixed": "Fixed rate",
+      "hourlyRateWalkIn": "Walk-in rate",
+      "phone": "Phone",
+      "website": "Website",
+      "locatedWithin": "Located within",
+      "bookingPolicy": "Booking policy",
+      "note": "Note"
+    },
+    "placeholders": {
+      "city": "Select city",
+      "district": "Select district",
+      "openingHours": "Example: 6:00 - 22:00",
+      "createNote": "Add details that help admins verify the venue...",
+      "updateNote": "Describe the source or reason for the update..."
+    },
+    "validation": {
+      "required": "Please enter the required information"
+    }
+  },
+  "feedback": {
+    "pageTitle": "Contact & Bug Report",
+    "contactTab": "Contact",
+    "bugReportTab": "Bug Report",
+    "title": "Title",
+    "titlePlaceholder": "Enter title",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the issue in detail...",
+    "contactDescPlaceholder": "What would you like to contact us about...",
+    "screenshot": "Screenshot (optional)",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "successTitle": "Submitted successfully",
+    "successMessage": "Thank you! We will respond as soon as possible.",
+    "errorTitle": "An error occurred",
+    "errorMessage": "Could not submit. Please try again later.",
+    "myFeedback": "My Feedback",
+    "noFeedback": "No feedback yet",
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    },
+    "type": {
+      "CONTACT": "Contact",
+      "BUG_REPORT": "Bug Report"
+    },
+    "uploadImage": "Upload Image",
+    "removeImage": "Remove Image",
+    "admin": {
+      "pageTitle": "Feedback Management",
+      "subtitle": "Review user contact messages and bug reports, then update their handling status.",
+      "searchPlaceholder": "Search by title, description, name, or email...",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "typeFilter": "Type",
+      "statusFilter": "Status",
+      "feedbackColumn": "Feedback",
+      "userColumn": "Sender",
+      "typeColumn": "Type",
+      "statusColumn": "Status",
+      "createdColumn": "Created",
+      "actionsColumn": "Actions",
+      "viewDetails": "View details",
+      "detailsTitle": "Feedback details",
+      "sender": "Sender",
+      "createdAt": "Created",
+      "screenshot": "Screenshot",
+      "adminNote": "Admin note",
+      "adminNotePlaceholder": "Add a handling note for the user...",
+      "update": "Update",
+      "updateSuccess": "Feedback updated",
+      "updateError": "Could not update feedback",
+      "loadError": "Could not load feedback",
+      "noFeedback": "No feedback found",
+      "accessDenied": "You do not have permission to access this page"
+    }
   }
 }

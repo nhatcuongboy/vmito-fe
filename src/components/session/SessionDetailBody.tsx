@@ -17,11 +17,13 @@ import {
   LayoutGrid,
   Users,
   Shield,
+  Info,
   Phone,
   Navigation,
   UserCheck,
   Feather,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -32,6 +34,8 @@ import dayjs from '@/lib/dayjs';
 import SessionParticipantList from './SessionParticipantList';
 import { normalizePhoneForZalo } from '@/utils/phone-utils';
 import Image from 'next/image';
+import LevelBadgeWithDescription from './LevelBadgeWithDescription';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
 
 interface ISessionDetailBodyProps {
   session: ISession;
@@ -47,9 +51,11 @@ const SessionDetailBody = ({
   onHostClick,
 }: ISessionDetailBodyProps) => {
   const t = useTranslations('session');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const tVenue = useTranslations('venue');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
+  const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
 
   const displayHostName = session.hostName || session.host?.name || '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
@@ -108,6 +114,7 @@ const SessionDetailBody = ({
       bg="white"
       _dark={{ bg: 'gray.800' }}
       borderTopRadius="2xl"
+      borderBottomRadius="2xl"
       mt="-16px"
       position="relative"
       zIndex={1}
@@ -214,16 +221,16 @@ const SessionDetailBody = ({
           </Text>
         </Box>
         <Flex gap={2}>
-          {session.hostPhone && (
+          {session.hostPhone && session.allowZaloContact && (
             <IconButton
               aria-label="Zalo host"
               size="sm"
-              colorPalette="blue"
+              colorPalette="green"
               variant="subtle"
               borderRadius="full"
               borderWidth="1px"
-              borderColor="blue.200"
-              _dark={{ borderColor: 'blue.800' }}
+              borderColor="green.200"
+              _dark={{ borderColor: 'green.800' }}
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(
@@ -263,11 +270,16 @@ const SessionDetailBody = ({
 
       {/* Description / Note */}
       {session.description && (
-        <>
+        <Box>
           <Separator my={4} />
-          <Box bg="gray.50" _dark={{ bg: 'gray.700' }} borderRadius="lg" p={4}>
+          <Box
+            bg="gray.50"
+            _dark={{ bg: 'gray.700' }}
+            borderRadius="xl"
+            p={{ base: 4, md: 5 }}
+          >
             <Text
-              fontSize="sm"
+              fontSize={{ base: 'sm', md: 'md' }}
               color="gray.700"
               _dark={{ color: 'gray.300' }}
               whiteSpace="pre-wrap"
@@ -275,7 +287,7 @@ const SessionDetailBody = ({
               {session.description}
             </Text>
           </Box>
-        </>
+        </Box>
       )}
 
       {/* Participants Section */}
@@ -346,8 +358,9 @@ const SessionDetailBody = ({
                 .map((level) => {
                   const levelColor = getSkillLevelColor([level]);
                   return (
-                    <Badge
+                    <LevelBadgeWithDescription
                       key={level}
+                      level={level}
                       colorPalette={levelColor.colorPalette}
                       variant="solid"
                       size="md"
@@ -360,7 +373,7 @@ const SessionDetailBody = ({
                       borderColor={levelColor.borderColor}
                     >
                       {getLevelShortLabel(level)}
-                    </Badge>
+                    </LevelBadgeWithDescription>
                   );
                 })
             ) : (
@@ -380,8 +393,39 @@ const SessionDetailBody = ({
               </Badge>
             )}
           </Wrap>
+          <IconButton
+            aria-label={tLevelDescriptions('open')}
+            type="button"
+            size="xs"
+            variant="ghost"
+            colorPalette="green"
+            color="green.500"
+            bg="green.50"
+            _hover={{
+              color: 'green.600',
+              bg: 'green.100',
+              transform: 'scale(1.1)',
+            }}
+            _active={{ transform: 'scale(0.95)' }}
+            flexShrink={0}
+            minW="20px"
+            h="20px"
+            borderRadius="full"
+            transition="all 0.2s"
+            icon={<Info size={12} />}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setIsLevelDescriptionsOpen(true);
+            }}
+          />
         </Flex>
       </Box>
+
+      <LevelDescriptionsModal
+        isOpen={isLevelDescriptionsOpen}
+        onClose={() => setIsLevelDescriptionsOpen(false)}
+      />
     </Box>
   );
 };

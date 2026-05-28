@@ -15,6 +15,7 @@ interface ISessionAiAnalysisChipProps {
 
 const buildAnalysisPrompt = (session: ISession, locale: string): string => {
   const isVi = locale === Locale.VI;
+  const isCn = locale === Locale.CN;
 
   const approvedPlayers: Player[] =
     session.players?.filter((p) => p.registrationStatus === 'APPROVED') ?? [];
@@ -28,7 +29,11 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
 
   const levelSummary = Object.entries(levelCounts)
     .sort(([a], [b]) => Number(a) - Number(b))
-    .map(([lvl, cnt]) => `  - Level ${lvl}: ${cnt} player(s)`)
+    .map(([lvl, cnt]) => {
+      if (isVi) return `  - Trình độ ${lvl}: ${cnt} người chơi`;
+      if (isCn) return `  - 等级 ${lvl}: ${cnt} 名球员`;
+      return `  - Level ${lvl}: ${cnt} player(s)`;
+    })
     .join('\n');
 
   const requiredLevels =
@@ -36,7 +41,9 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
       ? session.requiredLevels.join(', ')
       : isVi
         ? 'Tất cả trình độ'
-        : 'All levels';
+        : isCn
+          ? '所有水平'
+          : 'All levels';
 
   if (isVi) {
     return (
@@ -49,6 +56,17 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
         ? `**Phân bố trình độ người chơi:**\n${levelSummary}\n`
         : '') +
       `\nChỉ trả lời ngắn gọn (3–5 dòng), bằng tiếng Việt.`
+    );
+  }
+
+  if (isCn) {
+    return (
+      `请快速分析下面的羽毛球场次，并告诉我常见水平、竞争强度，以及给想参加球员的建议：\n\n` +
+      `**场次名称：** ${session.name}\n` +
+      `**要求水平：** ${requiredLevels}\n` +
+      `**已报名人数：** ${approvedPlayers.length}/${session.numberOfCourts * (session.maxPlayersPerCourt ?? 4)}\n` +
+      (levelSummary ? `**球员水平分布：**\n${levelSummary}\n` : '') +
+      `\n请用中文简短回答（3-5 行）。`
     );
   }
 
@@ -65,6 +83,7 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
 
 const SessionAiAnalysisChip = ({ session }: ISessionAiAnalysisChipProps) => {
   const t = useTranslations('session');
+  const tAi = useTranslations('aiAssistant');
   const locale = useLocale();
   const { isAuthenticated, user } = useAuthStore();
   const { openWithMessage } = useAiAssistantStore();
@@ -75,7 +94,10 @@ const SessionAiAnalysisChip = ({ session }: ISessionAiAnalysisChipProps) => {
 
   const handleClick = () => {
     const prompt = buildAnalysisPrompt(session, locale);
-    openWithMessage(prompt, `Trang chi tiết kèo: ${session.name}`);
+    openWithMessage(
+      prompt,
+      tAi('pageContexts.sessionDetail', { name: session.name })
+    );
   };
 
   return (

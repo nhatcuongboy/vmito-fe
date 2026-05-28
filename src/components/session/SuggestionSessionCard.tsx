@@ -8,6 +8,15 @@ import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import FindSessionCard from './FindSessionCard';
 
+const MAX_VISIBLE_REASONS = 3;
+const REASON_PRIORITY = [
+  'level_match',
+  'nearby',
+  'favorite_host',
+  'familiar_venue',
+  'preferred_time',
+];
+
 interface SuggestionSessionCardProps {
   session: ISession & {
     score: number;
@@ -22,22 +31,19 @@ interface SuggestionSessionCardProps {
   onHostClick?: (session: ISession) => void;
 }
 
-const REASON_CONFIG: Record<
-  string,
-  { colorPalette: string; translationKey: string }
-> = {
-  level_match: { colorPalette: 'green', translationKey: 'reasonLevelMatch' },
-  nearby: { colorPalette: 'blue', translationKey: 'reasonNearby' },
+const REASON_CONFIG: Record<string, { translationKey: string }> = {
+  level_match: { translationKey: 'reasonLevelMatch' },
+  nearby: { translationKey: 'reasonNearby' },
   familiar_venue: {
-    colorPalette: 'purple',
     translationKey: 'reasonFamiliarVenue',
   },
+  favorite_host: {
+    translationKey: 'reasonFavoriteHost',
+  },
   preferred_time: {
-    colorPalette: 'orange',
     translationKey: 'reasonPreferredTime',
   },
   available_slots: {
-    colorPalette: 'teal',
     translationKey: 'reasonAvailableSlots',
   },
 };
@@ -54,35 +60,67 @@ const SuggestionSessionCard = ({
   const t = useTranslations('suggestions');
   const isCompact = variant === 'list';
 
-  const reasons = session.matchReasons.filter((r) => REASON_CONFIG[r]);
+  const reasons = REASON_PRIORITY.filter((reason) =>
+    session.matchReasons.includes(reason)
+  ).slice(0, MAX_VISIBLE_REASONS);
 
-  // Match reason badges - overlay on cover photo in full mode, inline in compact mode
-  const matchReasonBadges = !isCompact && reasons.length > 0 && (
-    <Box position="absolute" bottom={3} left={3} zIndex={2}>
-      <Flex gap={1.5} flexWrap="wrap">
-        {reasons.map((reason) => {
-          const config = REASON_CONFIG[reason];
-          return (
-            <Badge
-              key={reason}
-              colorPalette={config.colorPalette}
-              variant="solid"
-              size="sm"
-              fontSize="xs"
-              borderRadius="full"
-              px={2}
-              py={0.5}
-              boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
-              backdropFilter="blur(8px)"
-              borderWidth="1px"
-              borderColor="whiteAlpha.400"
-            >
-              {t(config.translationKey)}
-            </Badge>
-          );
-        })}
-      </Flex>
-    </Box>
+  // Full mode overlays: AI badge + match reason badges
+  const fullModeOverlay = !isCompact && (
+    <>
+      {/* AI Suggestion Badge */}
+      <Badge
+        position="absolute"
+        top={3}
+        left={3}
+        zIndex={3}
+        colorPalette="yellow"
+        variant="solid"
+        fontSize="xs"
+        fontWeight="bold"
+        px={2.5}
+        py={1}
+        borderRadius="full"
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
+        display="flex"
+        alignItems="center"
+        gap={1}
+        borderWidth="1px"
+        borderColor="whiteAlpha.400"
+      >
+        <Icon as={Sparkles} boxSize={3} />
+        {t('suggestionBadge')}
+      </Badge>
+
+      {/* Match Reason Badges */}
+      {reasons.length > 0 && (
+        <Box position="absolute" bottom={3} left={3} right={3} zIndex={2}>
+          <Flex gap={1.5} flexWrap="wrap">
+            {reasons.map((reason) => {
+              const config = REASON_CONFIG[reason];
+              return (
+                <Badge
+                  key={reason}
+                  bg="blackAlpha.700"
+                  color="white"
+                  size="sm"
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  borderRadius="full"
+                  px={2}
+                  py={0.5}
+                  boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
+                  backdropFilter="blur(8px)"
+                  borderWidth="1px"
+                  borderColor="whiteAlpha.500"
+                >
+                  {t(config.translationKey)}
+                </Badge>
+              );
+            })}
+          </Flex>
+        </Box>
+      )}
+    </>
   );
 
   // Compact-mode badges rendered inside the card via compactTopContent
@@ -103,22 +141,23 @@ const SuggestionSessionCard = ({
         borderColor="yellow.500"
       >
         <Icon as={Sparkles} boxSize={3} />
-        Auto
+        {t('suggestionBadge')}
       </Badge>
       {reasons.map((reason) => {
         const config = REASON_CONFIG[reason];
         return (
           <Badge
             key={reason}
-            colorPalette={config.colorPalette}
-            variant="solid"
+            bg="blackAlpha.700"
+            color="white"
             size="sm"
             fontSize="xs"
+            fontWeight="semibold"
             borderRadius="full"
             px={2}
             py={0.5}
             borderWidth="1px"
-            borderColor={`${config.colorPalette}.400`}
+            borderColor="whiteAlpha.500"
           >
             {t(config.translationKey)}
           </Badge>
@@ -128,47 +167,19 @@ const SuggestionSessionCard = ({
   );
 
   return (
-    <Box position="relative">
-      {/* Auto badge - overlay in full mode only */}
-      {!isCompact && (
-        <Badge
-          position="absolute"
-          top={3}
-          left={3}
-          zIndex={3}
-          colorPalette="yellow"
-          variant="solid"
-          fontSize="xs"
-          fontWeight="bold"
-          px={2.5}
-          py={1}
-          borderRadius="full"
-          boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
-          display="flex"
-          alignItems="center"
-          gap={1}
-          borderWidth="1px"
-          borderColor="whiteAlpha.400"
-        >
-          <Icon as={Sparkles} boxSize={3} />
-          Auto
-        </Badge>
-      )}
-
-      <FindSessionCard
-        session={session}
-        variant={variant}
-        onJoin={onJoin}
-        isJoined={isJoined}
-        userRegistrationStatus={userRegistrationStatus}
-        onRegistrationUpdate={onRegistrationUpdate}
-        onHostClick={onHostClick}
-        distance={session.distance ?? undefined}
-        coverPhotoOverlay={matchReasonBadges}
-        compactTopContent={compactBadges}
-        showSlotBadge={false}
-      />
-    </Box>
+    <FindSessionCard
+      session={session}
+      variant={variant}
+      onJoin={onJoin}
+      isJoined={isJoined}
+      userRegistrationStatus={userRegistrationStatus}
+      onRegistrationUpdate={onRegistrationUpdate}
+      onHostClick={onHostClick}
+      distance={session.distance ?? undefined}
+      coverPhotoOverlay={fullModeOverlay}
+      compactTopContent={compactBadges}
+      showSlotBadge={false}
+    />
   );
 };
 

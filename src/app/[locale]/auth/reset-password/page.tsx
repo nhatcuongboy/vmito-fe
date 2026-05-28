@@ -1,0 +1,10 @@
+import ResetPasswordClient from './ResetPasswordClient';
+import { SUPPORTED_LOCALES } from '@/i18n/locales';
+
+export async function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
+
+export default async function ResetPasswordPage() {
+  return <ResetPasswordClient />;
+}

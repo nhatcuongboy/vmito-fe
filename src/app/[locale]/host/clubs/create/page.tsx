@@ -78,6 +78,7 @@ const CreateClubPage = () => {
   );
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
   const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
+  const [venueGroupError, setVenueGroupError] = useState<string | null>(null);
 
   const [clubImages, setClubImages] = useState<ISessionImage[]>([]);
   const [bannerIndex, setBannerIndex] = useState(0);
@@ -180,7 +181,8 @@ const CreateClubPage = () => {
     [hostUsers]
   );
 
-  const addVenueGroup = () =>
+  const addVenueGroup = () => {
+    setVenueGroupError(null);
     setVenueGroups((prev) => [
       ...prev,
       {
@@ -188,11 +190,15 @@ const CreateClubPage = () => {
         schedules: [{ dayOfWeek: 1, startTime: '19:00', endTime: '21:00' }],
       },
     ]);
+  };
 
-  const removeVenueGroup = (idx: number) =>
+  const removeVenueGroup = (idx: number) => {
+    setVenueGroupError(null);
     setVenueGroups((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const updateVenueId = (idx: number, venueId: string) => {
+    setVenueGroupError(null);
     setVenueGroups((prev) =>
       prev.map((g, i) => (i === idx ? { ...g, venueId } : g))
     );
@@ -258,8 +264,22 @@ const CreateClubPage = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
+      const hasEmptyVenueGroup = venueGroups.some((g) => !g.venueId);
+
+      if (hasEmptyVenueGroup) {
+        const message =
+          'Vui lòng chọn sân hoặc xóa sân trống trước khi tạo nhóm';
+        setVenueGroupError(message);
+        toaster.error({ title: message });
+        return;
+      }
+
+      setVenueGroupError(null);
+      const selectedVenues = new Map(
+        [...venues, ...Array.from(pinnedVenues.values())].map((v) => [v.id, v])
+      );
       const schedules = venueGroups.flatMap((g) => {
-        const venue = venues.find((v) => v.id === g.venueId);
+        const venue = selectedVenues.get(g.venueId);
         const venueInfo = venue ? `${venue.name} | ${venue.address}` : '';
         return g.schedules.map((s) => ({ ...s, notes: venueInfo }));
       });
@@ -278,7 +298,7 @@ const CreateClubPage = () => {
       const restData = { ...data };
       delete restData.allLevelsSelected;
 
-      await ClubsService.createClub({
+      const createdClub = await ClubsService.createClub({
         ...restData,
         image,
         imagePublicId,
@@ -292,7 +312,7 @@ const CreateClubPage = () => {
 
       toaster.success({ title: t('notification.club.creationSuccess') });
 
-      router.push(ROUTES.CLUBS.MY_CLUBS);
+      router.push(ROUTES.CLUBS.DETAIL(createdClub.slug || createdClub.id));
     } catch (error) {
       console.error('Failed to create club:', error);
       toaster.error({ title: t('failedToCreateClub') });
@@ -310,6 +330,7 @@ const CreateClubPage = () => {
         onSubmit={handleSubmit(onSubmit)}
         bg={{ base: 'white', _dark: 'gray.900' }}
         p={{ base: 4, md: 6 }}
+        pb={{ base: 28, md: 6 }}
         borderRadius="lg"
         shadow="sm"
         borderWidth="1px"
@@ -384,6 +405,7 @@ const CreateClubPage = () => {
               value={watch('description')}
               onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
+              minHeight="120px"
             />
           </Field>
 
@@ -401,17 +423,25 @@ const CreateClubPage = () => {
           </Field>
 
           {/* Multi-Venue + Schedule */}
-          <Field label="Sân hoạt động">
-            <VStack spacing={4} align="stretch">
+          <Field
+            label="Sân hoạt động"
+            invalid={!!venueGroupError}
+            errorText={venueGroupError ?? undefined}
+          >
+            <VStack spacing={3} align="stretch">
               {venueGroups.map((group, groupIdx) => (
                 <Box
                   key={groupIdx}
                   borderWidth="1px"
                   borderRadius="md"
-                  borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-                  p={4}
+                  borderColor={
+                    venueGroupError && !group.venueId
+                      ? { base: 'red.300', _dark: 'red.500' }
+                      : { base: 'gray.200', _dark: 'gray.600' }
+                  }
+                  p={3}
                 >
-                  <Flex gap={2} align="center" mb={3}>
+                  <Flex gap={2} align="center" mb={2}>
                     <Box flex="1" minW={0} overflow="hidden">
                       <SearchableSelect
                         options={venueOptions}
@@ -435,10 +465,10 @@ const CreateClubPage = () => {
                     </IconButton>
                   </Flex>
 
-                  <VStack spacing={2} align="stretch">
+                  <VStack spacing={1.5} align="stretch">
                     {group.schedules.map((sched, schedIdx) => (
                       <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '100px', md: '120px' }}>
+                        <Box flex="1" minW={{ base: '90px', md: '110px' }}>
                           <LegacySelect
                             size="sm"
                             value={String(sched.dayOfWeek)}
@@ -472,7 +502,7 @@ const CreateClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                           placeholder="--:--"
                         />
@@ -491,7 +521,7 @@ const CreateClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                           placeholder="--:--"
                         />
@@ -507,7 +537,7 @@ const CreateClubPage = () => {
                       </Flex>
                     ))}
                     <Button
-                      size="sm"
+                      size="xs"
                       variant="ghost"
                       onClick={() => addSchedule(groupIdx)}
                       w="fit-content"
@@ -530,11 +560,33 @@ const CreateClubPage = () => {
             </VStack>
           </Field>
 
-          <Flex justify="flex-end" gap={4} mt={4}>
-            <Button variant="ghost" onClick={() => router.back()}>
-              {t('cancel')}
-            </Button>
-            <Button type="submit" colorPalette="green" loading={isSubmitting}>
+          <Flex
+            justify={{ base: 'stretch', md: 'flex-end' }}
+            gap={{ base: 0, md: 4 }}
+            mt={4}
+            position={{ base: 'fixed', md: 'static' }}
+            left={{ base: 0, md: 'auto' }}
+            right={{ base: 0, md: 'auto' }}
+            bottom={{ base: 0, md: 'auto' }}
+            zIndex={{ base: 20, md: 'auto' }}
+            bg={{ base: 'white', _dark: 'gray.900' }}
+            borderTopWidth={{ base: '1px', md: 0 }}
+            borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+            px={{ base: 4, md: 0 }}
+            pt={{ base: 3, md: 0 }}
+            pb={{ base: 'calc(12px + env(safe-area-inset-bottom))', md: 0 }}
+            boxShadow={{
+              base: '0 -8px 20px rgba(15, 23, 42, 0.08)',
+              md: 'none',
+            }}
+          >
+            <Button
+              type="submit"
+              colorPalette="green"
+              loading={isSubmitting}
+              w={{ base: 'full', md: 'auto' }}
+              flex={{ base: '1 1 auto', md: 'initial' }}
+            >
               {t('createClub')}
             </Button>
           </Flex>

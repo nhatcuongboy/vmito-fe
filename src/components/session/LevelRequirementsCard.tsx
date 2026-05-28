@@ -5,59 +5,45 @@ import {
   useController,
   useWatch,
   UseFormSetValue,
+  FieldValues,
+  Path,
 } from 'react-hook-form';
 import { VALID_LEVELS } from '@/constants/levels';
-import { CourtDirection } from '@/lib/api/types';
 import { Box, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
-import { Check } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Check, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { useState } from 'react';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
 
-interface ILevelRequirementsFormValues {
-  allLevelsSelected: boolean;
-  requiredLevels?: number[];
-  name: string;
-  selectedVenueId: string;
-  hostName: string;
-  hostPhone?: string;
-  startTime: string;
-  endTime: string;
-  courts: {
-    direction: CourtDirection;
-    courtNumber: number;
-    courtName?: string;
-  }[];
-  courtColor: string;
-  maxPlayersPerCourt: number;
-  description?: string;
-  requirePlayerInfo: boolean;
-  allowGuestJoin: boolean;
-  allowNewPlayers: boolean;
-  shuttlecock?: string;
-  defaultMatchType: 'SINGLES' | 'DOUBLES';
+interface LevelRequirementsCardProps<T extends FieldValues> {
+  control: Control<T>;
+  setValue: UseFormSetValue<T>;
 }
 
-interface LevelRequirementsCardProps {
-  control: Control<ILevelRequirementsFormValues>;
-  setValue: UseFormSetValue<ILevelRequirementsFormValues>;
-}
-
-export default function LevelRequirementsCard({
+export default function LevelRequirementsCard<T extends FieldValues>({
   control,
   setValue,
-}: LevelRequirementsCardProps) {
+}: LevelRequirementsCardProps<T>) {
   const t = useTranslations('session');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const { getLevelShortLabel } = useLevelLabel();
+  const [isDescriptionsOpen, setIsDescriptionsOpen] = useState(false);
   // Watch the current values
-  const allLevelsSelected = useWatch({ control, name: 'allLevelsSelected' });
-  const requiredLevels = useWatch({ control, name: 'requiredLevels' }) || [];
+  const allLevelsSelected = useWatch({
+    control,
+    name: 'allLevelsSelected' as Path<T>,
+  });
+  const requiredLevels =
+    (useWatch({ control, name: 'requiredLevels' as Path<T> }) as number[]) ||
+    [];
 
   // Controller for the checkbox
   useController({
     control,
-    name: 'allLevelsSelected',
+    name: 'allLevelsSelected' as Path<T>,
   });
 
   const handleLevelToggle = (level: number) => {
@@ -67,7 +53,8 @@ export default function LevelRequirementsCard({
     if (allLevelsSelected) {
       // If switching from "All levels" to specific selection, start with just this level
       newLevels = [level];
-      setValue('allLevelsSelected', false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue('allLevelsSelected' as Path<T>, false as any);
     } else {
       // Toggle logic
       newLevels = currentLevels.includes(level)
@@ -75,17 +62,21 @@ export default function LevelRequirementsCard({
         : [...currentLevels, level];
     }
 
-    setValue('requiredLevels', newLevels);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue('requiredLevels' as Path<T>, newLevels as any);
 
     // If no levels are selected, revert to "All levels"
     if (newLevels.length === 0) {
-      setValue('allLevelsSelected', true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue('allLevelsSelected' as Path<T>, true as any);
     }
   };
 
   const handleSelectAllLevels = () => {
-    setValue('allLevelsSelected', true);
-    setValue('requiredLevels', []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue('allLevelsSelected' as Path<T>, true as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue('requiredLevels' as Path<T>, [] as any);
   };
 
   return (
@@ -97,9 +88,21 @@ export default function LevelRequirementsCard({
       border="1px solid"
       borderColor="border"
     >
-      <Heading size="md" mb={4}>
-        {t('generalSettings.requiredPlayerLevels')}
-      </Heading>
+      <HStack justify="space-between" align="center" mb={4}>
+        <Heading size="md">{t('generalSettings.requiredPlayerLevels')}</Heading>
+        <IconButton
+          aria-label={tLevelDescriptions('open')}
+          type="button"
+          size="xs"
+          variant="ghost"
+          colorPalette="gray"
+          icon={<Info size={13} />}
+          onClick={(event) => {
+            event.stopPropagation();
+            setIsDescriptionsOpen(true);
+          }}
+        />
+      </HStack>
 
       {/* <Text fontSize="sm" color="fg.muted" mb={4}>
         {t('generalSettings.selectRequiredLevels')}
@@ -169,6 +172,11 @@ export default function LevelRequirementsCard({
           })}
         </Grid>
       </Stack>
+
+      <LevelDescriptionsModal
+        isOpen={isDescriptionsOpen}
+        onClose={() => setIsDescriptionsOpen(false)}
+      />
     </Box>
   );
 }

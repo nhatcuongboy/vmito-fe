@@ -72,7 +72,7 @@ export function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50 md:left-auto md:right-4 md:max-w-sm">
+    <div className="fixed bottom-4 left-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 md:left-auto md:right-4 md:max-w-sm">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-semibold">Install Badminton App</h3>
@@ -89,7 +89,7 @@ export function PWAInstallPrompt() {
           </button>
           <button
             onClick={handleInstallClick}
-            className="px-3 py-1 text-sm bg-white text-blue-600 rounded hover:bg-gray-100"
+            className="px-3 py-1 text-sm bg-white text-green-700 rounded hover:bg-gray-100"
           >
             Install
           </button>
@@ -105,6 +105,28 @@ export function PWAStatus() {
   const [isOnline, setIsOnline] = useState(true);
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const { colorMode } = useColorMode();
+
+  useEffect(() => {
+    const updateDisplayMode = () => {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as { standalone?: boolean }).standalone === true;
+
+      document.documentElement.dataset.pwaDisplayMode = isStandalone
+        ? 'standalone'
+        : 'browser';
+    };
+
+    const standaloneQuery = window.matchMedia('(display-mode: standalone)');
+
+    updateDisplayMode();
+    standaloneQuery.addEventListener('change', updateDisplayMode);
+
+    return () => {
+      standaloneQuery.removeEventListener('change', updateDisplayMode);
+      delete document.documentElement.dataset.pwaDisplayMode;
+    };
+  }, []);
 
   useEffect(() => {
     // Update theme-color meta tag based on color mode

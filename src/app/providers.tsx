@@ -80,11 +80,17 @@ const system = createSystem(defaultConfig, {
         'bg.muted': {
           value: { _light: '#edf2f7', _dark: '#4a5568' },
         },
+        'bg.panel': {
+          value: { _light: '#ffffff', _dark: '#171923' },
+        },
         fg: {
           value: { _light: '#1a202c', _dark: '#f7fafc' },
         },
         'fg.muted': {
           value: { _light: '#718096', _dark: '#a0aec0' },
+        },
+        'fg.subtle': {
+          value: { _light: '#4a5568', _dark: '#cbd5e0' },
         },
         border: {
           value: { _light: '#d4d4d8', _dark: '#4a5568' },

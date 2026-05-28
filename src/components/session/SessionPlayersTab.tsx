@@ -17,6 +17,7 @@ import PlayerStatusFilter from './PlayerStatusFilter';
 import PlayerEmptyState from './player-management/PlayerEmptyState';
 import EditPlayerModal from './player-management/EditPlayerModal';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
+import { SessionPlayersTabSkeleton } from './SessionTabSkeletons';
 
 // Updated PlayerFilter type to be an array of statuses
 export type PlayerFilter = PlayerStatus[];
@@ -35,6 +36,7 @@ interface SessionPlayersTabProps {
   session?: ISession; // Add session prop
   subTab?: PlayersSubTab; // Sub-tab state from parent
   onSubTabChange?: (subTab: PlayersSubTab) => void; // Callback to change sub-tab
+  isLoading?: boolean;
 }
 
 const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
@@ -48,6 +50,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   session,
   subTab: externalSubTab,
   onSubTabChange,
+  isLoading = false,
 }) => {
   const t = useTranslations('SessionDetail');
   const tPlayer = useTranslations('pages.playerManagement');
@@ -99,8 +102,10 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   } = usePlayerManagement(safeSession, onPlayerUpdate, mode);
 
   const openAddPlayerModal = () => {
-    handleAddNewPlayer();
-    setShowAddPlayerModal(true);
+    const didAddPlayer = handleAddNewPlayer();
+    if (didAddPlayer) {
+      setShowAddPlayerModal(true);
+    }
   };
 
   const closeAddPlayerModal = () => {
@@ -115,6 +120,17 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
 
   const handleCancelWarning = () => {
     cancelAddPlayer();
+  };
+
+  const handleConfirmAddPlayerDespiteWarning = () => {
+    const didAddPlayer = confirmAddPlayerDespiteWarning();
+    if (didAddPlayer) {
+      setShowAddPlayerModal(true);
+    }
+  };
+
+  const handleAddPlayerFromModal = () => {
+    handleAddNewPlayer();
   };
 
   // State for modals in Grid view
@@ -167,6 +183,10 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   const subTab = externalSubTab ?? internalSubTab;
   const setSubTab = onSubTabChange ?? setInternalSubTab;
 
+  if (isLoading) {
+    return <SessionPlayersTabSkeleton />;
+  }
+
   // Separate pending players from approved players
   const pendingPlayers =
     session?.pendingPlayers ||
@@ -196,6 +216,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         {mode === 'manage' && (
           <Button
             size="sm"
+            variant="solid"
             colorPalette="green"
             onClick={openAddPlayerModal}
             leftIcon={<Box as={Plus} boxSize={4} />}
@@ -348,7 +369,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         onUpdatePlayer={updateNewPlayer}
         onRemovePlayer={removeNewPlayerRow}
         onUserSelect={handleUserSelection}
-        onAddPlayer={handleAddNewPlayer}
+        onAddPlayer={handleAddPlayerFromModal}
         onSaveAll={handleSaveAndClose}
         onCancelAll={clearAllNewPlayers}
         isUserAlreadyUsed={isUserAlreadyUsed}
@@ -367,7 +388,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         }
         size="md"
         primaryActionText={tPlayer('limitWarningModal.addAnyway')}
-        onPrimaryAction={confirmAddPlayerDespiteWarning}
+        onPrimaryAction={handleConfirmAddPlayerDespiteWarning}
         primaryColorScheme="orange"
         secondaryActionText={tCommon('cancel')}
       >

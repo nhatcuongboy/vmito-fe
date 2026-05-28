@@ -12,6 +12,7 @@ import {
   requestNotificationPermission,
 } from '@/utils/notifications';
 import { toaster } from '@/components/ui/toaster';
+import { getYourTurnNotificationContent } from '@/lib/notifications/content';
 import {
   type Court,
   type Player,
@@ -35,6 +36,7 @@ export function usePlayerSession({
   userId,
 }: UsePlayerSessionProps) {
   const t = useTranslations('pages.join.status');
+  const tNotification = useTranslations('notification');
   const router = useRouter();
   const { socket, joinSession, leaveSession } = useSocket();
 
@@ -255,9 +257,15 @@ export function usePlayerSession({
         if (mode === 'guest') {
           showCourtCall(courtDisplayName);
 
+          const yourTurnNotification = getYourTurnNotificationContent(
+            (key, values) =>
+              tNotification(key as Parameters<typeof tNotification>[0], values),
+            courtDisplayName
+          );
+
           sendSystemNotification(
-            t('events.youWereSelected', { court: courtDisplayName }),
-            t('courtCall.goToCourt') + ' ' + courtDisplayName
+            `🏸 ${yourTurnNotification.title}`,
+            yourTurnNotification.message
           );
 
           // TTS announcement in Vietnamese — repeat 3 times with a short pause
@@ -338,6 +346,7 @@ export function usePlayerSession({
     session?.courts,
     player?.id,
     t,
+    tNotification,
     fetchPlayerData,
     mode,
     showCourtCall,

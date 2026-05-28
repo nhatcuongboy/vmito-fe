@@ -63,6 +63,12 @@ export enum PlayerLevel {
   PRO = 8,
 }
 
+export interface LevelDescription {
+  level: number;
+  description: string;
+  updatedAt?: string;
+}
+
 // ============================================
 // Fee and Payment Management Types
 // ============================================
@@ -252,7 +258,7 @@ export enum ClosureStatus {
 export interface Venue {
   id: string;
   slug?: string;
-  placeId: string;
+  placeId?: string;
   name: string;
   acronym?: string;
   description?: string;
@@ -288,6 +294,63 @@ export interface Venue {
   courtLayoutImagePublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
+  viewCount?: number;
+}
+
+export enum VenueRequestType {
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+}
+
+export enum VenueRequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export interface VenueRequestPayload {
+  name?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  numberOfCourts?: number;
+  openingHours?: string;
+  hourlyRateFixed?: number;
+  hourlyRateWalkIn?: number;
+  phone?: string;
+  website?: string;
+  locatedWithin?: string;
+  bookingPolicy?: string;
+  note?: string;
+}
+
+export interface VenueRequest {
+  id: string;
+  type: VenueRequestType;
+  status: VenueRequestStatus;
+  submittedByUserId: string;
+  venueId?: string | null;
+  appliedVenueId?: string | null;
+  payload: VenueRequestPayload;
+  adminNote?: string | null;
+  reviewedByUserId?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  submittedBy?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+  };
+  reviewedBy?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+  } | null;
+  venue?: Venue | null;
+  appliedVenue?: Venue | null;
 }
 
 export interface SearchVenueResponse {
@@ -305,6 +368,7 @@ export interface ISession {
   id: string;
   slug?: string;
   name: string;
+  notes?: string;
   hostId: string;
   host: {
     id: string;
@@ -321,6 +385,7 @@ export interface ISession {
   requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
+  allowZaloContact?: boolean;
   courtColor?: string;
   defaultMatchType?: 'SINGLES' | 'DOUBLES';
   coverPhoto?: string;
@@ -350,6 +415,7 @@ export interface ISession {
     players: number;
     courts: number;
   };
+  viewCount?: number;
 }
 
 // Player types
@@ -441,6 +507,7 @@ export interface Match {
     score: number;
   }[];
   winnerIds: string[];
+  shuttlecockCount?: number;
 }
 
 export interface MatchPlayer {
@@ -468,6 +535,7 @@ export interface PlayerStatistics {
   averageScore: number;
   totalPlayTime: number;
   totalWaitTime: number;
+  totalShuttlecocks?: number | null;
   status: PlayerStatus;
 }
 
@@ -509,6 +577,7 @@ export interface CourtConfig {
 // Session creation interface
 export interface CreateSessionRequest {
   name: string;
+  notes?: string;
   description?: string;
   hostName?: string;
   hostPhone?: string;
@@ -519,6 +588,7 @@ export interface CreateSessionRequest {
   requiredLevels?: number[]; // Optional: empty array or undefined = all levels allowed
   allowGuestJoin?: boolean;
   allowNewPlayers?: boolean;
+  allowZaloContact?: boolean;
   startTime?: Date;
   endTime?: Date;
   courtColor?: string;
@@ -1022,6 +1092,17 @@ export interface INotification {
   createdAt: string;
 }
 
+export interface IAdminNotificationUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface IAdminNotification extends INotification {
+  user: IAdminNotificationUser;
+}
+
 export interface IPaginatedNotifications {
   data: INotification[];
   pagination: {
@@ -1030,6 +1111,11 @@ export interface IPaginatedNotifications {
     total: number;
     totalPages: number;
   };
+}
+
+export interface IPaginatedAdminNotifications {
+  data: IAdminNotification[];
+  pagination: IPaginatedNotifications['pagination'];
 }
 
 export interface IBroadcastNotificationRequest {

@@ -19,7 +19,7 @@ function AboutContent() {
   const t = useTranslations('pages.home');
   return (
     <PageWrapper>
-      <TopBar showBackButton={false} />
+      <TopBar showBackButton={false} title={common('about')} />
       <Box
         pt={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,

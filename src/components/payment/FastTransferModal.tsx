@@ -204,7 +204,7 @@ export default function FastTransferModal({
               <Text fontSize="sm" color="gray.500" mb={2}>
                 Số tiền
               </Text>
-              <HStack borderBottom="1px solid" borderColor="blue.400" pb={1}>
+              <HStack borderBottom="1px solid" borderColor="green.400" pb={1}>
                 <Input
                   variant="flushed"
                   fontSize="3xl"
@@ -283,7 +283,7 @@ export default function FastTransferModal({
                   </HStack>
                 </VStack>
                 <Button
-                  colorPalette="blue"
+                  colorPalette="green"
                   size="lg"
                   px={8}
                   borderRadius="full"
@@ -322,9 +322,11 @@ export default function FastTransferModal({
                   key={bank.id}
                   border="1px solid"
                   borderColor={
-                    selectedBankListCode === bank.code ? 'blue.500' : 'gray.200'
+                    selectedBankListCode === bank.code
+                      ? 'green.500'
+                      : 'gray.200'
                   }
-                  bg={selectedBankListCode === bank.code ? 'blue.50' : 'white'}
+                  bg={selectedBankListCode === bank.code ? 'green.50' : 'white'}
                   borderRadius="lg"
                   p={3}
                   cursor="pointer"
@@ -357,9 +359,11 @@ export default function FastTransferModal({
                   key={bank.id}
                   border="1px solid"
                   borderColor={
-                    selectedBankListCode === bank.code ? 'blue.500' : 'gray.200'
+                    selectedBankListCode === bank.code
+                      ? 'green.500'
+                      : 'gray.200'
                   }
-                  bg={selectedBankListCode === bank.code ? 'blue.50' : 'white'}
+                  bg={selectedBankListCode === bank.code ? 'green.50' : 'white'}
                   borderRadius="lg"
                   p={3}
                   cursor="pointer"

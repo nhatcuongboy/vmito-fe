@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import type { Locale } from '@/i18n/locales';
 
 export interface ChatMessage {
   id: string;
@@ -12,9 +13,15 @@ export interface ChatMessage {
 
 interface UseAiChatOptions {
   pageContext?: string;
+  language?: Locale;
+  errorMessage?: string;
 }
 
-export function useAiChat({ pageContext }: UseAiChatOptions = {}) {
+export function useAiChat({
+  pageContext,
+  language,
+  errorMessage = 'Sorry, something went wrong. Please try again later.',
+}: UseAiChatOptions = {}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -62,7 +69,11 @@ export function useAiChat({ pageContext }: UseAiChatOptions = {}) {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-          body: JSON.stringify({ messages: allMessages, pageContext }),
+          body: JSON.stringify({
+            messages: allMessages,
+            pageContext,
+            language,
+          }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -95,8 +106,7 @@ export function useAiChat({ pageContext }: UseAiChatOptions = {}) {
             msg.id === assistantId
               ? {
                   ...msg,
-                  content:
-                    '❌ Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
+                  content: errorMessage,
                 }
               : msg
           )
@@ -106,7 +116,7 @@ export function useAiChat({ pageContext }: UseAiChatOptions = {}) {
         abortControllerRef.current = null;
       }
     },
-    [messages, isStreaming, pageContext]
+    [messages, isStreaming, pageContext, language, errorMessage]
   );
 
   const clearMessages = useCallback(() => {

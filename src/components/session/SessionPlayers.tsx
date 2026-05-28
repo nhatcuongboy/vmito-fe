@@ -97,6 +97,32 @@ const StatsTable = ({
     return rates.length > 0 ? Math.max(...rates) : 0;
   }, [displayedData]);
 
+  // Find MVP: player with highest win rate, with tiebreakers
+  const mvpPlayerId = useMemo(() => {
+    const playersWithMatches = displayedData.filter(
+      (p) => p.totalMatches > 0 && p.winRate > 0
+    );
+    if (playersWithMatches.length === 0) return null;
+
+    // Sort by: 1) winRate desc, 2) wins desc, 3) totalMatches desc, 4) name asc
+    const sorted = [...playersWithMatches].sort((a, b) => {
+      // 1. Compare win rate
+      if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+
+      // 2. If same win rate, compare number of wins
+      if (b.wins !== a.wins) return b.wins - a.wins;
+
+      // 3. If same wins, compare total matches (more matches = more consistent)
+      if (b.totalMatches !== a.totalMatches)
+        return b.totalMatches - a.totalMatches;
+
+      // 4. If still tied, sort by name alphabetically
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    return sorted[0]?.playerId || null;
+  }, [displayedData]);
+
   const sortedData = useMemo(() => {
     if (!sortConfig) return displayedData;
 
@@ -169,7 +195,7 @@ const StatsTable = ({
               sortKey={exportMode ? undefined : 'name'}
               sortConfig={exportMode ? undefined : sortConfig}
               onSort={exportMode ? undefined : sortHandler}
-              minW="120px"
+              minW={exportMode ? '120px' : { base: '144px', md: '120px' }}
               {...thProps}
             >
               {t('columnName')}
@@ -222,6 +248,17 @@ const StatsTable = ({
                 <Text as="span">{t('columnWinRate')}</Text>
               </HStack>
             </Th>
+            {!exportMode && (
+              <Th
+                sortKey="totalShuttlecocks"
+                sortConfig={sortConfig}
+                onSort={sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnShuttlecock')}
+              </Th>
+            )}
           </Tr>
         </Thead>
         <Tbody>
@@ -250,21 +287,19 @@ const StatsTable = ({
                     <Text fontWeight="semibold" fontSize="sm" color="fg">
                       {p.name || t('unnamed')}
                     </Text>
-                    {p.totalMatches > 0 &&
-                      p.winRate > 0 &&
-                      p.winRate === maxWinRate && (
-                        <Badge
-                          colorPalette="yellow"
-                          variant="solid"
-                          size="xs"
-                          fontSize="9px"
-                          px={1}
-                          borderRadius="sm"
-                          whiteSpace="nowrap"
-                        >
-                          MVP
-                        </Badge>
-                      )}
+                    {p.playerId === mvpPlayerId && (
+                      <Badge
+                        colorPalette="yellow"
+                        variant="solid"
+                        size="xs"
+                        fontSize="9px"
+                        px={1}
+                        borderRadius="sm"
+                        whiteSpace="nowrap"
+                      >
+                        MVP
+                      </Badge>
+                    )}
                   </HStack>
                 </Td>
                 <Td textAlign="center" {...tdProps}>
@@ -323,6 +358,13 @@ const StatsTable = ({
                     {isNA ? '—' : `${p.winRate}%`}
                   </Badge>
                 </Td>
+                {!exportMode && (
+                  <Td textAlign="center" {...tdProps}>
+                    <Text fontSize="sm" fontWeight="semibold">
+                      {p.totalShuttlecocks != null ? p.totalShuttlecocks : '—'}
+                    </Text>
+                  </Td>
+                )}
               </Tr>
             );
           })}
@@ -337,10 +379,10 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
   session,
 }) => {
   const t = useTranslations('SessionPlayers');
+  const sessionDetailT = useTranslations('SessionDetail');
   const [stats, setStats] = useState<PlayerStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
@@ -366,7 +408,6 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     try {
       const result = await SessionService.getPlayerStatistics(sessionId, {});
       setStats(result.playerStats);
-      setLastUpdated(result.lastUpdated);
     } catch {
       setError(t('errorLoadingStats'));
     } finally {
@@ -419,9 +460,12 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     const hours = Math.floor(waitTimeInMinutes / 60);
     const minutes = waitTimeInMinutes % 60;
     if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+      return sessionDetailT('waitTimeBadgeHoursMinutes', {
+        hours,
+        minutes,
+      });
     }
-    return `${minutes}m`;
+    return sessionDetailT('waitTimeBadgeMinutes', { minutes });
   };
 
   const handleExport = (e: React.MouseEvent) => {
@@ -604,7 +648,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
           </>
         )}
 
-        {/* Footer with count + last updated */}
+        {/* Footer with count + export action */}
         {!loading && !error && stats.length > 0 && (
           <Flex
             px={4}
@@ -624,16 +668,6 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 {stats.length === 1
                   ? t('playerCountSingular', { count: stats.length })
                   : t('playerCount', { count: stats.length })}
-              </Text>
-              <Text
-                fontSize="xs"
-                color="fg.muted"
-                display={{ base: 'none', md: 'block' }}
-              >
-                &bull;
-              </Text>
-              <Text fontSize="xs" color="fg.muted">
-                {t('lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
               </Text>
             </Flex>
             <VButton

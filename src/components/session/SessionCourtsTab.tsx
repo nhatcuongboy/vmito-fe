@@ -13,9 +13,11 @@ import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
 import CourtPlayerSelectionModal from './CourtPlayerSelectionModal';
 import MatchResultModal from './MatchResultModal';
 import CourtCard from './CourtCard';
+import PreSelectPreviewModal from './PreSelectPreviewModal';
 import WaitingPlayers from './WaitingPlayers';
 import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
+import { SessionCourtsTabSkeleton } from './SessionTabSkeletons';
 
 interface SessionCourtsTabProps {
   session: ISession;
@@ -28,6 +30,7 @@ interface SessionCourtsTabProps {
   mode?: 'manage' | 'view';
   onDataRefresh?: () => void;
   isRefreshing?: boolean;
+  isLoading?: boolean;
   formatWaitTime: (waitTimeInMinutes: number) => string;
   selectedPlayers: string[];
 }
@@ -41,6 +44,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
   mode = 'manage',
   onDataRefresh,
   isRefreshing = false,
+  isLoading = false,
   formatWaitTime,
 }) => {
   const t = useTranslations('SessionDetail');
@@ -163,10 +167,14 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
-      return `${hours}h${mins}m`;
+      return t('waitTimeBadgeHoursMinutes', { hours, minutes: mins });
     }
-    return `${mins}m`;
+    return t('waitTimeBadgeMinutes', { minutes: mins });
   };
+
+  if (isLoading) {
+    return <SessionCourtsTabSkeleton />;
+  }
 
   return (
     <>
@@ -194,16 +202,15 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
                   waitingPlayers={waitingPlayers}
                   onAssignPlayersClick={modals.openPlayerSelectionModal}
                   onPreSelectClick={modals.openPreSelectModal}
+                  onViewPreSelect={modals.openPreSelectPreviewModal}
                   onStartMatch={handleStartMatch}
                   onDeselectPlayers={handleDeselectPlayers}
-                  onCancelPreSelect={handleCancelCourtPreSelect}
                   onEndMatch={modals.openMatchResultModal}
                   elapsedTimeFormatter={elapsedTimeFormatter}
                   getCourtDisplayName={getCourtDisplayName}
                   hasPreSelectedPlayers={hasPreSelectedPlayers}
                   loadingStartMatchCourtId={modals.loadingStartMatchCourtId}
                   loadingCancelCourtId={modals.loadingCancelCourtId}
-                  loadingCancelPreSelect={modals.loadingCancelPreSelect}
                   loadingEndMatchId={modals.loadingEndMatchId}
                 />
               );
@@ -265,6 +272,19 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
               })
             : undefined
         }
+      />
+
+      <PreSelectPreviewModal
+        isOpen={modals.preSelectPreviewModalOpen}
+        court={modals.selectedPreSelectPreviewCourt}
+        onClose={modals.closePreSelectPreviewModal}
+        onCancelPreSelect={handleCancelCourtPreSelect}
+        isCancelling={
+          modals.loadingCancelPreSelect ===
+          modals.selectedPreSelectPreviewCourt?.id
+        }
+        courtColor={session.courtColor}
+        getCourtDisplayName={getCourtDisplayName}
       />
 
       {/* Match Result Modal */}

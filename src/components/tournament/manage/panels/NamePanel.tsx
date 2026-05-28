@@ -42,7 +42,7 @@ export default function NamePanel({
       });
       onTournamentUpdate?.(updated);
       toaster.success({ title: t('success') });
-    } catch (error) {
+    } catch {
       toaster.error({ title: t('errors.updateFailed') });
     } finally {
       setIsSubmitting(false);
@@ -81,7 +81,7 @@ export default function NamePanel({
           </Button>
           <Button
             type="submit"
-            colorScheme="blue"
+            colorScheme="green"
             disabled={!hasChanges || isSubmitting}
             loading={isSubmitting}
           >

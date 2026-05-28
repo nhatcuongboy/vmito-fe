@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ISession } from '@/lib/api/types';
+import { ISession, SessionStatus } from '@/lib/api/types';
 import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { ChevronLeft, Share2 } from 'lucide-react';
@@ -83,6 +83,10 @@ const SessionDetailHero = ({
   const isPastEndTime = session.endTime
     ? new Date(session.endTime) < new Date()
     : false;
+  const isClosed =
+    session.status === SessionStatus.FINISHED ||
+    session.status === SessionStatus.CANCELLED ||
+    isPastEndTime;
 
   const statusColorPalette =
     session.status === 'PREPARING' && isPastEndTime
@@ -95,9 +99,10 @@ const SessionDetailHero = ({
       w="full"
       h={{ base: 'clamp(170px, 29vh, 235px)', md: '350px' }}
       overflow="hidden"
+      bg="gray.900"
     >
       {/* Carousel images */}
-      <AnimatePresence custom={direction} initial={false}>
+      <AnimatePresence custom={direction} initial={false} mode="wait">
         <motion.div
           key={currentIndex}
           custom={direction}
@@ -169,7 +174,7 @@ const SessionDetailHero = ({
           backdropFilter="blur(6px)"
           borderRadius="full"
           _hover={{ bg: 'blackAlpha.700' }}
-          zIndex={10}
+          zIndex={100}
           onClick={onBack}
         >
           <ChevronLeft size={24} strokeWidth={2.5} />
@@ -190,7 +195,7 @@ const SessionDetailHero = ({
         borderRadius="full"
         boxShadow="0 2px 8px rgba(0,0,0,0.45)"
         _hover={{ bg: 'blackAlpha.700' }}
-        zIndex={10}
+        zIndex={100}
         onClick={handleShare}
         icon={<Icon as={Share2} boxSize={5} />}
       />
@@ -203,7 +208,7 @@ const SessionDetailHero = ({
           left="50%"
           transform="translateX(-50%)"
           gap={1.5}
-          zIndex={10}
+          zIndex={100}
           align="center"
         >
           {allImages.map((_, i) => (
@@ -214,7 +219,7 @@ const SessionDetailHero = ({
               h="6px"
               borderRadius="full"
               bg={i === currentIndex ? 'white' : 'whiteAlpha.600'}
-              transition="all 0.25s"
+              transition="width 0.25s ease, background-color 0.25s ease"
               onClick={() => {
                 setDirection(i > currentIndex ? 1 : -1);
                 setCurrentIndex(i);
@@ -230,7 +235,7 @@ const SessionDetailHero = ({
         position="absolute"
         bottom={5}
         left={3}
-        colorPalette={isFull ? 'gray' : 'teal'}
+        colorPalette={isClosed || isFull ? 'gray' : 'teal'}
         variant="solid"
         fontSize="sm"
         px={3}
@@ -240,9 +245,11 @@ const SessionDetailHero = ({
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
         backdropFilter="blur(8px)"
       >
-        {isFull
-          ? t('slotsFull')
-          : t('slotsAvailable', { count: availableSlots })}
+        {isClosed
+          ? t('registrationClosed')
+          : isFull
+            ? t('slotsFull')
+            : t('slotsAvailable', { count: availableSlots })}
       </Badge>
 
       {/* Status Badge - bottom right */}

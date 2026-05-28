@@ -34,7 +34,6 @@ import {
   Users,
   Shield,
   Banknote,
-  Phone,
   Share2,
   Download,
   UserCheck,
@@ -48,6 +47,7 @@ import {
   Play,
   Square,
   ChevronRight,
+  Info,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FeeService } from '@/lib/api/fee.service';
@@ -61,10 +61,13 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
-import { useRouter } from '@/i18n/config';
+import { Link } from '@/i18n/config';
+import SessionShareImageModal from './SessionShareImageModal';
+import LevelDescriptionsModal from './LevelDescriptionsModal';
+import LevelBadgeWithDescription from './LevelBadgeWithDescription';
+import { VALID_LEVELS } from '@/constants/levels';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -183,12 +186,14 @@ const BaseSessionCard = ({
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const isCompact = variant === 'list';
   const t = useTranslations('session');
+  const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
-  const router = useRouter();
   const { user } = useAuthStore();
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
   const [isLoading, setIsLoading] = useState(false);
+  const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
+  const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
+  const [isMouseOverActionButton, setIsMouseOverActionButton] = useState(false);
 
   // Compute derived state for action rendering
   const isOwner = user?.id === session.hostId;
@@ -221,22 +226,9 @@ const BaseSessionCard = ({
     }
   };
 
-  // Helper function: Handle call action
-  const handleCall = (e: React.MouseEvent) => {
+  const handleOpenShareImageModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (session.hostPhone) {
-      window.location.href = `tel:${session.hostPhone}`;
-    }
-  };
-
-  // Helper function: Handle download action
-  const handleDownload = (
-    e: React.MouseEvent,
-    mode: 'portrait' | 'social' = 'portrait'
-  ) => {
-    e.stopPropagation();
-    const elementId = `session-share-card-${mode}-${session.id}`;
-    downloadSessionImage(session, elementId, 'TuyenVangLai');
+    setIsShareImageModalOpen(true);
   };
 
   // Render icon buttons (Download, Share, More) - shown in Row 3
@@ -246,61 +238,19 @@ const BaseSessionCard = ({
     const buttons: React.ReactNode[] = [];
     const menuItems: React.ReactNode[] = [];
 
-    // Icon buttons: Download (owner only) - with dropdown menu for portrait/social
+    // Icon buttons: Download (owner only)
     if (actions.showDownloadButton && canManage) {
       buttons.push(
-        <MenuRoot key="download" positioning={{ placement: 'bottom-end' }}>
-          <MenuTrigger asChild>
-            <IconButton
-              size="sm"
-              variant="outline"
-              colorPalette="gray"
-              aria-label="Download"
-              shadow="md"
-              loading={isDownloading}
-              icon={<Icon as={Download} />}
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            />
-          </MenuTrigger>
-          <Portal>
-            <MenuPositioner zIndex={2000}>
-              <MenuContent
-                onClick={(e) => e.stopPropagation()}
-                bg="white"
-                _dark={{ bg: 'gray.800' }}
-                borderRadius="md"
-                shadow="lg"
-                minW="180px"
-                zIndex={2001}
-              >
-                <MenuItem
-                  value="portrait"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'portrait');
-                  }}
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-                >
-                  <Icon as={Download} mr={2} />
-                  Tỷ lệ 2:3
-                </MenuItem>
-                <MenuItem
-                  value="social"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(e, 'social');
-                  }}
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-                >
-                  <Icon as={Download} mr={2} />
-                  Tỷ lệ 4:5
-                </MenuItem>
-              </MenuContent>
-            </MenuPositioner>
-          </Portal>
-        </MenuRoot>
+        <IconButton
+          key="download"
+          size="sm"
+          variant="outline"
+          colorPalette="gray"
+          aria-label={t('downloadImage')}
+          shadow="md"
+          icon={<Icon as={Download} />}
+          onClick={handleOpenShareImageModal}
+        />
       );
     }
 
@@ -598,9 +548,7 @@ const BaseSessionCard = ({
       return ['gray.300']; // Light gray for all levels
     }
 
-    // Check if all levels (1-7) are present
-    const allLevels = [1, 2, 3, 4, 5, 6, 7];
-    const hasAllLevels = allLevels.every((level) =>
+    const hasAllLevels = VALID_LEVELS.every((level) =>
       session.requiredLevels!.includes(level)
     );
 
@@ -618,15 +566,23 @@ const BaseSessionCard = ({
 
   const cardHref = `/sessions/${session.slug || session.id}`;
 
-  const handleCardClick = () => {
-    if (!disableCardLink) {
-      setIsLoading(true);
-      router.push(cardHref);
-      // Reset loading after a delay just in case navigation fails or user comes back
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 5000);
+  const handleCardLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
     }
+
+    setIsLoading(true);
+    // Reset loading after a delay just in case navigation fails or user comes back
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
   };
 
   const cardContent = (
@@ -638,7 +594,6 @@ const BaseSessionCard = ({
         display: 'flex',
         flexDirection: 'column',
       }}
-      onClick={handleCardClick}
     >
       <Box
         position="relative"
@@ -648,9 +603,9 @@ const BaseSessionCard = ({
         bg="white"
         _dark={{ bg: 'gray.800' }}
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
-        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={
-          disableCardLink
+          disableCardLink || isMouseOverActionButton
             ? {}
             : {
                 transform: 'translateY(-6px)',
@@ -668,6 +623,21 @@ const BaseSessionCard = ({
         height="100%"
         cursor={disableCardLink ? 'default' : 'pointer'}
       >
+        {!disableCardLink && (
+          <Link
+            href={cardHref}
+            aria-label={convertedSession.title}
+            prefetch={false}
+            onClick={handleCardLinkClick}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'block',
+              zIndex: 1,
+            }}
+          />
+        )}
+
         {/* Level Color Strip */}
         <Flex
           position="absolute"
@@ -678,6 +648,7 @@ const BaseSessionCard = ({
           direction="column"
           zIndex={2}
           opacity={0.9}
+          pointerEvents="none"
         >
           {levelSegments.map((color, index) => (
             <Box key={index} flex={1} bg={color} />
@@ -800,6 +771,8 @@ const BaseSessionCard = ({
             {isCompact ? null : (
               <Flex align="center" gap={3}>
                 <Box
+                  position="relative"
+                  zIndex={3}
                   cursor={onHostClick ? 'pointer' : 'default'}
                   onClick={(e) => {
                     if (onHostClick) {
@@ -820,6 +793,8 @@ const BaseSessionCard = ({
                   </Avatar.Root>
                 </Box>
                 <Text
+                  position="relative"
+                  zIndex={3}
                   fontSize="sm"
                   fontWeight="medium"
                   cursor={onHostClick ? 'pointer' : 'default'}
@@ -845,7 +820,12 @@ const BaseSessionCard = ({
 
             {/* Date & Time + Courts & Players */}
             {isCompact ? (
-              <Flex wrap="wrap" gap={3} fontSize="xs" color="gray.600">
+              <Flex
+                wrap="wrap"
+                gap={3}
+                fontSize="xs"
+                color={{ base: 'gray.600', _dark: 'fg.subtle' }}
+              >
                 <Flex align="center" gap={1}>
                   <Icon as={Calendar} boxSize={4} color="green.500" />
                   <Text fontSize="xs">{compactDate}</Text>
@@ -951,8 +931,9 @@ const BaseSessionCard = ({
                     .map((level) => {
                       const levelColor = getSkillLevelColor([level]);
                       return (
-                        <Badge
+                        <LevelBadgeWithDescription
                           key={level}
+                          level={level}
                           colorPalette={levelColor.colorPalette}
                           variant="solid"
                           size={isCompact ? 'sm' : 'md'}
@@ -965,7 +946,7 @@ const BaseSessionCard = ({
                           borderColor={levelColor.borderColor}
                         >
                           {getLevelShortLabel(level)}
-                        </Badge>
+                        </LevelBadgeWithDescription>
                       );
                     })
                 ) : (
@@ -985,6 +966,33 @@ const BaseSessionCard = ({
                   </Badge>
                 )}
               </Wrap>
+              <IconButton
+                position="relative"
+                zIndex={3}
+                aria-label={tLevelDescriptions('open')}
+                type="button"
+                size="xs"
+                variant="ghost"
+                colorPalette="green"
+                color="green.500"
+                bg="green.50"
+                _hover={{
+                  color: 'green.600',
+                  bg: 'green.100',
+                  transform: 'scale(1.1)',
+                }}
+                _active={{ transform: 'scale(0.95)' }}
+                flexShrink={0}
+                minW="20px"
+                h="20px"
+                borderRadius="full"
+                transition="all 0.2s"
+                icon={<Icon as={Info} boxSize={3} />}
+                onClick={(event: React.MouseEvent) => {
+                  event.stopPropagation();
+                  setIsLevelDescriptionsOpen(true);
+                }}
+              />
             </Flex>
 
             {/* Description/Notes - hidden in compact mode */}
@@ -992,7 +1000,7 @@ const BaseSessionCard = ({
               <Text
                 fontSize="sm"
                 color="gray.500"
-                _dark={{ color: 'gray.400' }}
+                _dark={{ color: 'fg.subtle' }}
                 overflow="hidden"
                 display="-webkit-box"
                 style={{
@@ -1019,33 +1027,47 @@ const BaseSessionCard = ({
                   <Box flexShrink={0}>
                     {session.feeConfig && (
                       <Flex align="center" gap={1.5}>
-                        <Icon as={Banknote} boxSize={4} color="red.600" />
+                        <Icon
+                          as={Banknote}
+                          boxSize={4}
+                          color={{ base: 'red.600', _dark: 'red.300' }}
+                        />
                         <Flex align="center" gap={1}>
                           <Text
                             fontSize="md"
                             fontWeight="bold"
-                            color="red.600"
+                            color={{ base: 'red.600', _dark: 'red.300' }}
                             whiteSpace="nowrap"
                           >
                             {FeeService.getFeeDisplayText(session.feeConfig)}
                           </Text>
-                          {session.feeConfig.feeType === FeeType.FIXED && (
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              fontWeight="normal"
-                              whiteSpace="nowrap"
-                            >
-                              /slot
-                            </Text>
-                          )}
+                          {session.feeConfig.feeType === FeeType.FIXED &&
+                            ((session.feeConfig.maleFee || 0) > 0 ||
+                              (session.feeConfig.femaleFee || 0) > 0) && (
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                _dark={{ color: 'fg.subtle' }}
+                                fontWeight="normal"
+                                whiteSpace="nowrap"
+                              >
+                                /slot
+                              </Text>
+                            )}
                         </Flex>
                       </Flex>
                     )}
                   </Box>
 
                   {/* Action Buttons in Compact Mode */}
-                  <Flex gap={2} align="center">
+                  <Flex
+                    position="relative"
+                    zIndex={3}
+                    gap={2}
+                    align="center"
+                    onMouseEnter={() => setIsMouseOverActionButton(true)}
+                    onMouseLeave={() => setIsMouseOverActionButton(false)}
+                  >
                     {/* Show top actions (Host/Register buttons) in compact mode */}
                     {topActionsRendered || oldTopActions}
                     {/* Show bottom actions (View Registration button) in compact mode */}
@@ -1063,27 +1085,30 @@ const BaseSessionCard = ({
                           <Icon
                             as={Banknote}
                             boxSize={isCompact ? 4 : 5}
-                            color="red.600"
+                            color={{ base: 'red.600', _dark: 'red.300' }}
                           />
                           <Flex align="center" gap={1.5}>
                             <Text
                               fontSize={isCompact ? 'md' : 'lg'}
                               fontWeight="bold"
-                              color="red.600"
+                              color={{ base: 'red.600', _dark: 'red.300' }}
                               whiteSpace="nowrap"
                             >
                               {FeeService.getFeeDisplayText(session.feeConfig)}
                             </Text>
-                            {session.feeConfig.feeType === FeeType.FIXED && (
-                              <Text
-                                fontSize="sm"
-                                color="gray.500"
-                                fontWeight="normal"
-                                whiteSpace="nowrap"
-                              >
-                                /slot
-                              </Text>
-                            )}
+                            {session.feeConfig.feeType === FeeType.FIXED &&
+                              ((session.feeConfig.maleFee || 0) > 0 ||
+                                (session.feeConfig.femaleFee || 0) > 0) && (
+                                <Text
+                                  fontSize="sm"
+                                  color="gray.500"
+                                  _dark={{ color: 'fg.subtle' }}
+                                  fontWeight="normal"
+                                  whiteSpace="nowrap"
+                                >
+                                  /slot
+                                </Text>
+                              )}
                             {!isCompact && (
                               <FeeDetailPopover feeConfig={session.feeConfig} />
                             )}
@@ -1094,7 +1119,14 @@ const BaseSessionCard = ({
 
                     {/* Top Action Buttons (Manage/Register) */}
                     {!isCompact && (topActionsRendered || oldTopActions) && (
-                      <Box flex="1" textAlign="right">
+                      <Box
+                        position="relative"
+                        zIndex={3}
+                        flex="1"
+                        textAlign="right"
+                        onMouseEnter={() => setIsMouseOverActionButton(true)}
+                        onMouseLeave={() => setIsMouseOverActionButton(false)}
+                      >
                         <Flex justify="flex-end" gap={2}>
                           {topActionsRendered || oldTopActions || actionButtons}
                         </Flex>
@@ -1104,7 +1136,12 @@ const BaseSessionCard = ({
 
                   {/* Row 2: Bottom Action Buttons */}
                   {(actions ? renderBottomActions() : bottomActionButtons) && (
-                    <>
+                    <Box
+                      position="relative"
+                      zIndex={3}
+                      onMouseEnter={() => setIsMouseOverActionButton(true)}
+                      onMouseLeave={() => setIsMouseOverActionButton(false)}
+                    >
                       {actions ? (
                         renderBottomActions()
                       ) : (
@@ -1112,12 +1149,19 @@ const BaseSessionCard = ({
                           {bottomActionButtons}
                         </Flex>
                       )}
-                    </>
+                    </Box>
                   )}
 
                   {/* Row 3: Icon Buttons (Download, Share) */}
                   {renderIconButtons() && (
-                    <Flex justify="flex-end" gap={2}>
+                    <Flex
+                      position="relative"
+                      zIndex={3}
+                      justify="flex-end"
+                      gap={2}
+                      onMouseEnter={() => setIsMouseOverActionButton(true)}
+                      onMouseLeave={() => setIsMouseOverActionButton(false)}
+                    >
                       {renderIconButtons()}
                     </Flex>
                   )}
@@ -1151,6 +1195,15 @@ const BaseSessionCard = ({
   return (
     <>
       {cardContent}
+      <SessionShareImageModal
+        isOpen={isShareImageModalOpen}
+        onClose={() => setIsShareImageModalOpen(false)}
+        session={session}
+      />
+      <LevelDescriptionsModal
+        isOpen={isLevelDescriptionsOpen}
+        onClose={() => setIsLevelDescriptionsOpen(false)}
+      />
       {modalContent}
     </>
   );

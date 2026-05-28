@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Box, Text, Textarea } from '@chakra-ui/react';
+import React, { useEffect, useId, useState } from 'react';
+import { Box, Field, Text, Textarea } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Sparkles, SquarePen } from 'lucide-react';
 import { VModal } from '@/components/ui/VModal';
@@ -27,8 +27,23 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
   const t = useTranslations('session');
   const locale = useLocale() as Locale;
   const router = useRouter();
+  const articleContentId = useId();
   const [articleContent, setArticleContent] = useState('');
+  const [exampleDate, setExampleDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const dateLocale =
+      locale === 'vi' ? 'vi-VN' : locale === 'cn' ? 'zh-CN' : 'en-US';
+
+    setExampleDate(
+      new Intl.DateTimeFormat(dateLocale, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }).format(new Date())
+    );
+  }, [locale]);
 
   const handleGenerate = async () => {
     if (!articleContent.trim()) {
@@ -80,6 +95,7 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
         </Box>
       }
       description={t('aiModal.description')}
+      closeButtonAriaLabel={t('aiModal.close')}
       size="lg"
       closeOnOverlayClick={!isLoading}
       footer={
@@ -101,12 +117,12 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
             w="full"
           >
             <Sparkles size={16} />
-            {t('aiModal.generate')}
+            {isLoading ? t('aiModal.generating') : t('aiModal.generate')}
           </Button>
 
           <Flex direction="column" align="center" gap={1}>
             <Text fontSize="xs" color="gray.500" fontWeight="medium">
-              {t('aiModal.or')}
+              {t('aiModal.manualPrompt')}
             </Text>
             <Button
               variant="ghost"
@@ -125,24 +141,31 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
       }
     >
       <Box>
-        <Textarea
-          value={articleContent}
-          onChange={(e) => setArticleContent(e.target.value)}
-          placeholder={t('aiModal.placeholder')}
-          rows={12}
-          resize="vertical"
-          disabled={isLoading}
-          fontSize="sm"
-          _focus={{
-            borderColor: 'purple.400',
-            boxShadow: '0 0 0 1px var(--chakra-colors-purple-400)',
-          }}
-        />
-        <Box mt={2}>
-          <Text fontSize="xs" color="gray.500">
+        <Field.Root>
+          <Field.Label htmlFor={articleContentId}>
+            {t('aiModal.inputLabel')}
+          </Field.Label>
+          <Textarea
+            id={articleContentId}
+            value={articleContent}
+            onChange={(e) => setArticleContent(e.target.value)}
+            placeholder={t('aiModal.placeholder', { date: exampleDate })}
+            rows={8}
+            minH={{ base: '220px', md: '260px' }}
+            resize="vertical"
+            disabled={isLoading}
+            fontSize="sm"
+            lineHeight="tall"
+            _placeholder={{ color: 'gray.400' }}
+            _focus={{
+              borderColor: 'purple.400',
+              boxShadow: '0 0 0 1px var(--chakra-colors-purple-400)',
+            }}
+          />
+          <Field.HelperText color="gray.500">
             {t('aiModal.hint')}
-          </Text>
-        </Box>
+          </Field.HelperText>
+        </Field.Root>
       </Box>
     </VModal>
   );

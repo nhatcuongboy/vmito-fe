@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import { REFRESH_INTERVALS } from '@/lib/constants';
 import { SessionData } from './useSessionData';
@@ -38,52 +38,81 @@ export function useSessionRefresh({
     useState<number>(initialInterval);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const activeSessionIdRef = useRef(sessionId);
+  const isMountedRef = useRef(true);
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
+
+  useEffect(() => {
+    activeSessionIdRef.current = sessionId;
+  }, [sessionId]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Function to refresh session data
   const refreshSessionData = useCallback(async () => {
-    try {
-      setIsRefreshing(true);
-      const data = await SessionService.getSession(sessionId);
-
-      // Transform API data to SessionData format
-      const formattedSession: SessionData = {
-        ...data,
-        players: (data.players || []).map((p) => ({
-          ...p,
-          name: p.name || '',
-        })),
-        pendingPlayers: data.pendingPlayers || [],
-        courts: (data.courts || []).map((c) => {
-          const court: Court = {
-            ...c,
-            currentPlayers: c.currentPlayers || [],
-            currentMatch: c.currentMatch
-              ? ({
-                  ...c.currentMatch,
-                  startTime: c.currentMatch.startTime
-                    ? new Date(c.currentMatch.startTime)
-                    : new Date(),
-                  endTime: c.currentMatch.endTime
-                    ? new Date(c.currentMatch.endTime)
-                    : undefined,
-                } as Match)
-              : undefined,
-          };
-          return court;
-        }),
-        startTime: data.startTime ? new Date(data.startTime) : undefined,
-        endTime: data.endTime ? new Date(data.endTime) : undefined,
-        createdAt: new Date(data.createdAt),
-        updatedAt: new Date(data.updatedAt),
-      };
-
-      onSessionUpdate(formattedSession);
-      setLastRefreshed(new Date());
-    } catch (error) {
-      console.error('Error refreshing session data:', error);
-    } finally {
-      setIsRefreshing(false);
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
     }
+
+    const refreshPromise = (async () => {
+      try {
+        setIsRefreshing(true);
+        const data = await SessionService.getSession(sessionId);
+
+        if (!isMountedRef.current || activeSessionIdRef.current !== sessionId) {
+          return;
+        }
+
+        // Transform API data to SessionData format
+        const formattedSession: SessionData = {
+          ...data,
+          players: (data.players || []).map((p) => ({
+            ...p,
+            name: p.name || '',
+          })),
+          pendingPlayers: data.pendingPlayers || [],
+          courts: (data.courts || []).map((c) => {
+            const court: Court = {
+              ...c,
+              currentPlayers: c.currentPlayers || [],
+              currentMatch: c.currentMatch
+                ? ({
+                    ...c.currentMatch,
+                    startTime: c.currentMatch.startTime
+                      ? new Date(c.currentMatch.startTime)
+                      : new Date(),
+                    endTime: c.currentMatch.endTime
+                      ? new Date(c.currentMatch.endTime)
+                      : undefined,
+                  } as Match)
+                : undefined,
+            };
+            return court;
+          }),
+          startTime: data.startTime ? new Date(data.startTime) : undefined,
+          endTime: data.endTime ? new Date(data.endTime) : undefined,
+          createdAt: new Date(data.createdAt),
+          updatedAt: new Date(data.updatedAt),
+        };
+
+        onSessionUpdate(formattedSession);
+        setLastRefreshed(new Date());
+      } catch (error) {
+        console.error('Error refreshing session data:', error);
+      } finally {
+        refreshPromiseRef.current = null;
+        if (isMountedRef.current) {
+          setIsRefreshing(false);
+        }
+      }
+    })();
+
+    refreshPromiseRef.current = refreshPromise;
+    return refreshPromise;
   }, [sessionId, onSessionUpdate]);
 
   // Setup auto-refresh when session is in progress

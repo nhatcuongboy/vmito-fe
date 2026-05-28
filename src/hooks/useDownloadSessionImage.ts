@@ -10,7 +10,11 @@ interface UseDownloadSessionImageReturn {
   downloadSessionImage: (
     session: ISession,
     elementId: string,
-    filenamePrefix?: string
+    filenamePrefix?: string,
+    options?: {
+      templateId?: string;
+      ratio?: string;
+    }
   ) => Promise<void>;
   isDownloading: boolean;
 }
@@ -23,7 +27,11 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
     async (
       session: ISession,
       elementId: string,
-      filenamePrefix: string = 'ThongKeTranDau'
+      filenamePrefix: string = 'ThongKeTranDau',
+      options?: {
+        templateId?: string;
+        ratio?: string;
+      }
     ) => {
       const element = document.getElementById(elementId);
       if (!element) return;
@@ -55,7 +63,13 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
 
         const link = document.createElement('a');
         const shortId = session.id.slice(0, 8);
-        link.download = `${filenamePrefix}-${shortId}.png`;
+        const templatePart = options?.templateId
+          ? `-${options.templateId}`
+          : '';
+        const ratioPart = options?.ratio
+          ? `-${options.ratio.replace(':', 'x')}`
+          : '';
+        link.download = `${filenamePrefix}${templatePart}${ratioPart}-${shortId}.png`;
         link.href = dataUrl;
         link.click();
 

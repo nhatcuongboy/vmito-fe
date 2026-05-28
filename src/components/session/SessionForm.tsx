@@ -37,15 +37,23 @@ import { z } from 'zod';
 const CustomCheckbox = ({
   isChecked,
   onChange,
+  size = 'md',
 }: {
   isChecked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  size?: 'sm' | 'md';
 }) => {
-  const boxSize = '24px';
-  const iconSize = 16;
+  const boxSize = size === 'sm' ? '18px' : '24px';
+  const iconSize = size === 'sm' ? 11 : 16;
 
   return (
-    <Box as="label" cursor="pointer" display="inline-flex" alignItems="center">
+    <Box
+      as="label"
+      cursor="pointer"
+      display="inline-flex"
+      alignItems="center"
+      onClick={(e) => e.stopPropagation()}
+    >
       <input
         type="checkbox"
         checked={isChecked}
@@ -91,13 +99,11 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { VSelect } from '@/components/ui/VSelect';
 import { VSwitch } from '@/components/ui/VSwitch';
 import { VModal } from '@/components/ui/VModal';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
 import AISessionModal from '@/components/session/AISessionModal';
-import AiAssistant from '@/components/session/AiAssistant';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import AppMultiImageUpload, {
   ISessionImage,
@@ -133,6 +139,92 @@ function formatTimeOnly(date: Date): string {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
+}
+
+const TIME_INPUT_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const MIDNIGHT_TIME = '00:00';
+
+function addDays(date: Date, days: number): Date {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function buildSingleDayDateTime(date: string, time: string): string {
+  if (!date || !time) return '';
+
+  if (!TIME_INPUT_PATTERN.test(time)) return '';
+
+  return `${date}T${time}`;
+}
+
+function buildSingleDayEndDateTime(date: string, time: string): string {
+  if (!date || !time) return '';
+
+  if (time === MIDNIGHT_TIME) {
+    return `${formatDateOnly(addDays(new Date(`${date}T00:00`), 1))}T00:00`;
+  }
+
+  return buildSingleDayDateTime(date, time);
+}
+
+function isEndOfSelectedDay(startDate: Date, endDate: Date): boolean {
+  if (
+    endDate.getHours() !== 0 ||
+    endDate.getMinutes() !== 0 ||
+    endDate.getSeconds() !== 0 ||
+    endDate.getMilliseconds() !== 0
+  ) {
+    return false;
+  }
+
+  return formatDateOnly(endDate) === formatDateOnly(addDays(startDate, 1));
+}
+
+function extractCourtNumber(courtName?: string): number | null {
+  if (!courtName) return null;
+  const match = courtName.match(/\d+/);
+  if (!match) return null;
+
+  const parsed = Number(match[0]);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function normalizeAiCourtNames(courtNames: string[] = []) {
+  return courtNames.flatMap((courtName) => {
+    const rawCourtName = String(courtName ?? '').trim();
+    if (!rawCourtName) return [];
+
+    const numbers = [...rawCourtName.matchAll(/\d+/g)].map((match) => match[0]);
+
+    return numbers.length > 1 ? numbers : [rawCourtName];
+  });
+}
+
+function buildCourtsFromAiData(
+  numberOfCourts: number,
+  courtNames: string[] = []
+) {
+  const usedCourtNumbers = new Set<number>();
+  const normalizedCourtNames = normalizeAiCourtNames(courtNames);
+
+  return Array.from({ length: numberOfCourts }, (_, i) => {
+    const rawCourtName = String(normalizedCourtNames[i] ?? '').trim();
+    const parsedCourtNumber = extractCourtNumber(rawCourtName);
+    const fallbackCourtNumber = i + 1;
+    const courtNumber =
+      parsedCourtNumber && !usedCourtNumbers.has(parsedCourtNumber)
+        ? parsedCourtNumber
+        : fallbackCourtNumber;
+
+    usedCourtNumbers.add(courtNumber);
+
+    return {
+      courtNumber,
+      courtName: parsedCourtNumber ? '' : rawCourtName,
+      direction: CourtDirection.HORIZONTAL,
+    };
+  });
 }
 
 // Zod schema for court validation
@@ -173,13 +265,24 @@ function createSessionFormSchema(
           { message: t('validation.courtNumberUnique') }
         ),
       courtColor: z.string(),
-      maxPlayersPerCourt: z.number().min(2).max(12),
+      maxPlayersPerCourt: z.preprocess(
+        (val) => {
+          // Convert empty string to undefined for validation
+          if (val === '' || val === null || val === undefined) return undefined;
+          return val;
+        },
+        z
+          .number()
+          .min(2, t('validation.maxPlayersPerCourtMin', { min: 2 }))
+          .max(12, t('validation.maxPlayersPerCourtMax', { max: 12 }))
+      ),
 
       // Optional fields
       description: z.string().optional(),
       requirePlayerInfo: z.boolean(),
       allowGuestJoin: z.boolean(),
       allowNewPlayers: z.boolean(),
+      allowZaloContact: z.boolean(),
       allLevelsSelected: z.boolean(),
       requiredLevels: z.array(z.coerce.number()).optional(),
       shuttlecock: z.string().optional(),
@@ -215,6 +318,8 @@ interface SessionFormProps {
   showTopBar?: boolean;
   title?: string;
   submitButtonText?: string;
+  useDrawerMobileFooter?: boolean;
+  mobileFooterWidth?: string;
 }
 
 export default function SessionForm({
@@ -224,6 +329,8 @@ export default function SessionForm({
   onSuccess,
   onCancel,
   submitButtonText,
+  useDrawerMobileFooter = false,
+  mobileFooterWidth = '100%',
 }: SessionFormProps) {
   const searchParams = useSearchParams();
   const t = useTranslations('session');
@@ -268,6 +375,7 @@ export default function SessionForm({
         requirePlayerInfo: initialData.requirePlayerInfo,
         allowGuestJoin: initialData.allowGuestJoin ?? true,
         allowNewPlayers: initialData.allowNewPlayers ?? true,
+        allowZaloContact: initialData.allowZaloContact ?? false,
         allLevelsSelected:
           !initialData.requiredLevels ||
           initialData.requiredLevels?.length === 0,
@@ -297,6 +405,7 @@ export default function SessionForm({
       requirePlayerInfo: false,
       allowGuestJoin: true,
       allowNewPlayers: true,
+      allowZaloContact: false,
       allLevelsSelected: true,
       requiredLevels: [],
       shuttlecock: '',
@@ -318,7 +427,9 @@ export default function SessionForm({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<SessionFormData>({
-    resolver: zodResolver(sessionFormSchema),
+    resolver: zodResolver(
+      sessionFormSchema
+    ) as unknown as import('react-hook-form').Resolver<SessionFormData>,
     defaultValues,
   });
 
@@ -387,8 +498,12 @@ export default function SessionForm({
   // Single-day time picker state
   const [isMultiDay, setIsMultiDay] = useState(() => {
     if (isEditMode && initialData?.startTime && initialData?.endTime) {
-      const startDay = new Date(initialData.startTime).toDateString();
-      const endDay = new Date(initialData.endTime).toDateString();
+      const startDate = new Date(initialData.startTime);
+      const endDate = new Date(initialData.endTime);
+      if (isEndOfSelectedDay(startDate, endDate)) return false;
+
+      const startDay = startDate.toDateString();
+      const endDay = endDate.toDateString();
       return startDay !== endDay;
     }
     return false;
@@ -404,23 +519,25 @@ export default function SessionForm({
     return '';
   });
   const [endHour, setEndHour] = useState(() => {
-    if (isEditMode && initialData?.endTime)
+    if (isEditMode && initialData?.endTime) {
       return formatTimeOnly(new Date(initialData.endTime));
+    }
     return '';
   });
 
   const handleDateChange = (date: string) => {
     setSessionDate(date);
-    if (startHour) setValue('startTime', `${date}T${startHour}`);
-    if (endHour) setValue('endTime', `${date}T${endHour}`);
+    if (startHour)
+      setValue('startTime', buildSingleDayDateTime(date, startHour));
+    if (endHour) setValue('endTime', buildSingleDayEndDateTime(date, endHour));
   };
   const handleStartHourChange = (time: string) => {
     setStartHour(time);
-    setValue('startTime', time && sessionDate ? `${sessionDate}T${time}` : '');
+    setValue('startTime', buildSingleDayDateTime(sessionDate, time));
   };
   const handleEndHourChange = (time: string) => {
     setEndHour(time);
-    setValue('endTime', time && sessionDate ? `${sessionDate}T${time}` : '');
+    setValue('endTime', buildSingleDayEndDateTime(sessionDate, time));
   };
 
   // Bulk creation state
@@ -436,6 +553,12 @@ export default function SessionForm({
   const [recurringWeekdaysConfig, setRecurringWeekdaysConfig] = useState<
     RecurringWeekdaysConfig | undefined
   >(undefined);
+
+  const submitLabel = useMemo(() => {
+    if (submitButtonText) return submitButtonText;
+    if (isEditMode) return t('saveChanges');
+    return t('createSession');
+  }, [isEditMode, submitButtonText, t]);
 
   // Advanced section collapse state
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -625,15 +748,10 @@ export default function SessionForm({
       }
 
       if (data.numberOfCourts && data.numberOfCourts > 0) {
-        const numCourts = data.numberOfCourts;
-        const courtNames = data.courtNames || [];
-
-        const newCourts = Array.from({ length: numCourts }, (_, i) => ({
-          courtNumber: i + 1,
-          courtName: courtNames[i] || '',
-          direction: CourtDirection.HORIZONTAL,
-        }));
-        setValue('courts', newCourts);
+        setValue(
+          'courts',
+          buildCourtsFromAiData(data.numberOfCourts, data.courtNames)
+        );
       }
 
       if (data.feeConfig) {
@@ -855,6 +973,7 @@ export default function SessionForm({
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
           allowNewPlayers: data.allowNewPlayers,
+          allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
             ? undefined
             : data.requiredLevels && data.requiredLevels.length > 0
@@ -900,6 +1019,7 @@ export default function SessionForm({
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
           allowNewPlayers: data.allowNewPlayers,
+          allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
             ? undefined
             : data.requiredLevels && data.requiredLevels.length > 0
@@ -923,8 +1043,30 @@ export default function SessionForm({
           feeConfig: feeConfigData,
         };
 
+        const shouldCreateBulk = bulkEnabled && bulkMode !== 'single';
+
+        if (
+          shouldCreateBulk &&
+          bulkMode === 'specific-dates' &&
+          (!specificDatesConfig?.dates ||
+            specificDatesConfig.dates.length === 0)
+        ) {
+          toaster.error({ title: t('validation.specificDatesRequired') });
+          return;
+        }
+
+        if (
+          shouldCreateBulk &&
+          bulkMode === 'recurring-weekdays' &&
+          (!recurringWeekdaysConfig?.weekdays ||
+            recurringWeekdaysConfig.weekdays.length === 0)
+        ) {
+          toaster.error({ title: t('validation.recurringWeekdaysRequired') });
+          return;
+        }
+
         // Check if bulk creation is enabled
-        if (bulkMode === 'single') {
+        if (!shouldCreateBulk) {
           // Single session creation
           session = await SessionService.createSession(baseSessionData);
         } else {
@@ -1080,24 +1222,22 @@ export default function SessionForm({
             onClose={() => setIsAIModalOpen(false)}
             onSuccess={handleAISuccess}
           />
-
-          <AiAssistant
-            bottomOffset="calc(env(safe-area-inset-bottom) + 24px)"
-            pageContext={`User is creating a badminton session. Current form errors: ${JSON.stringify(errors)}`}
-          />
         </>
       )}
 
       <Box
         maxW="4xl"
         // pt={showTopBar ? '80px' : '0'}
-        pb={20}
+        pb={useDrawerMobileFooter ? { base: 28, md: 20 } : 20}
         px={0}
         mx="auto"
         w="full"
       >
         <form
-          onSubmit={handleSubmit(onSubmit, scrollToFirstError)}
+          onSubmit={handleSubmit(
+            onSubmit as Parameters<typeof handleSubmit>[0],
+            scrollToFirstError
+          )}
           onKeyDown={handleKeyDown}
         >
           <Stack gap={6}>
@@ -1129,13 +1269,19 @@ export default function SessionForm({
                 {!isEditMode && (
                   <Button
                     size="xs"
-                    colorPalette="purple"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => setIsAIModalOpen(true)}
                     leftIcon={<Sparkles size={14} />}
                     borderRadius="full"
+                    bg={{ base: 'purple.50', _dark: 'purple.950' }}
+                    borderColor={{ base: 'purple.200', _dark: 'purple.700' }}
+                    color={{ base: 'purple.700', _dark: 'purple.200' }}
+                    _hover={{
+                      bg: { base: 'purple.100', _dark: 'purple.900' },
+                      borderColor: { base: 'purple.300', _dark: 'purple.600' },
+                    }}
                   >
-                    {t('aiModal.title')}
+                    {t('createByAI')}
                   </Button>
                 )}
               </Flex>
@@ -1252,6 +1398,39 @@ export default function SessionForm({
                       {errors.hostPhone?.message}
                     </Field.ErrorText>
                   </Field.Root>
+                  {/* Allow Zalo Contact */}
+                  <Controller
+                    control={control}
+                    name="allowZaloContact"
+                    render={({ field }) => (
+                      <Box
+                        mt={2}
+                        cursor="pointer"
+                        onClick={() => field.onChange(!field.value)}
+                        userSelect="none"
+                        position="relative"
+                        zIndex={1}
+                      >
+                        <HStack gap={2}>
+                          <CustomCheckbox
+                            size="sm"
+                            isChecked={field.value}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              field.onChange(e.target.checked);
+                            }}
+                          />
+                          <Text
+                            fontSize="sm"
+                            fontWeight="medium"
+                            userSelect="none"
+                          >
+                            {t('allowZaloContact')}
+                          </Text>
+                        </HStack>
+                      </Box>
+                    )}
+                  />
                 </Box>
               </Flex>
             </Box>
@@ -1457,7 +1636,7 @@ export default function SessionForm({
                       />
                     )}
                     <Box opacity={!canEditCourts ? 0.7 : 1}>
-                      <Flex gap={3} direction="row" align="end">
+                      <Flex gap={3} direction="row" align="flex-start">
                         {/* Court Number */}
                         <Box flex={{ base: '0 0 100px', md: '0 0 140px' }}>
                           <Field.Root
@@ -1514,7 +1693,7 @@ export default function SessionForm({
 
                         {/* Delete Button */}
                         {fields.length > 1 && canEditCourts && (
-                          <Box pb={errors.courts?.[index]?.courtName ? 6 : 0}>
+                          <Box pt={7}>
                             <Button
                               type="button"
                               onClick={() => handleRemoveCourt(index)}
@@ -1907,15 +2086,26 @@ export default function SessionForm({
                             name="maxPlayersPerCourt"
                             render={({ field }) => (
                               <Input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                placeholder="0"
                                 min={2}
                                 max={12}
-                                value={field.value}
+                                value={field.value || ''}
                                 onChange={(
                                   e: React.ChangeEvent<HTMLInputElement>
-                                ) =>
-                                  field.onChange(parseInt(e.target.value) || 8)
-                                }
+                                ) => {
+                                  const value = e.target.value;
+                                  if (value === '') {
+                                    field.onChange('');
+                                  } else {
+                                    const parsed = parseInt(value);
+                                    if (!isNaN(parsed)) {
+                                      field.onChange(parsed);
+                                    }
+                                  }
+                                }}
                                 rightElement={
                                   <Text
                                     fontSize="sm"
@@ -1940,7 +2130,31 @@ export default function SessionForm({
             </Box>
 
             {/* Buttons */}
-            <Flex gap={3} mt={4}>
+            <Flex
+              gap={3}
+              mt={4}
+              {...(useDrawerMobileFooter
+                ? {
+                    position: { base: 'fixed', md: 'static' },
+                    right: { base: 0, md: 'auto' },
+                    bottom: { base: 0, md: 'auto' },
+                    width: { base: mobileFooterWidth, md: 'auto' },
+                    p: { base: 4, md: 0 },
+                    pb: {
+                      base: 'calc(16px + env(safe-area-inset-bottom))',
+                      md: 0,
+                    },
+                    bg: { base: 'white', _dark: 'gray.800' },
+                    borderTop: { base: '1px solid', md: 'none' },
+                    borderColor: { base: 'border', md: 'transparent' },
+                    boxShadow: {
+                      base: '0 -8px 24px rgba(0, 0, 0, 0.18)',
+                      md: 'none',
+                    },
+                    zIndex: 1260,
+                  }
+                : {})}
+            >
               {onCancel && (
                 <Button
                   type="button"
@@ -1967,8 +2181,7 @@ export default function SessionForm({
                 w={onCancel ? undefined : 'full'}
               >
                 <CalendarPlus size={18} style={{ marginRight: '8px' }} />
-                {submitButtonText ||
-                  (isEditMode ? t('saveChanges') : t('createSession'))}
+                {submitLabel}
               </Button>
             </Flex>
           </Stack>

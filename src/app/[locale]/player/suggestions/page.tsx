@@ -10,6 +10,11 @@ import PageLayout from '@/components/layout/PageLayout';
 function SuggestionsContent() {
   const t = useTranslations('suggestions');
 
+  // This page is dedicated to suggestions only, no mode toggle
+  const handleModeChange = () => {
+    // No-op: this page doesn't support mode switching
+  };
+
   return (
     <PageLayout
       title={t('title')}
@@ -17,7 +22,7 @@ function SuggestionsContent() {
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
     >
-      <SuggestionsList />
+      <SuggestionsList mode="auto" onModeChange={handleModeChange} />
     </PageLayout>
   );
 }

@@ -16,7 +16,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Clock, Play, Plus, Shuffle, Square, X } from 'lucide-react';
+import { Clock, Eye, Play, Plus, Shuffle, Square, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import BadmintonCourt from '../court/BadmintonCourt';
 
@@ -31,9 +31,9 @@ interface CourtCardProps {
   // Handlers
   onAssignPlayersClick: (court: Court) => void;
   onPreSelectClick: (court: Court) => void;
+  onViewPreSelect: (court: Court) => void;
   onStartMatch: (courtId: string) => Promise<void>;
   onDeselectPlayers: (courtId: string) => Promise<void>;
-  onCancelPreSelect: (courtId: string) => Promise<void>;
   onEndMatch: (match: Match) => void;
 
   // Formatters and utilities
@@ -47,7 +47,6 @@ interface CourtCardProps {
   // Loading states
   loadingStartMatchCourtId: string | null;
   loadingCancelCourtId: string | null;
-  loadingCancelPreSelect: string | null;
   loadingEndMatchId: string | null;
 }
 
@@ -60,16 +59,15 @@ const CourtCard: React.FC<CourtCardProps> = ({
   waitingPlayers,
   onAssignPlayersClick,
   onPreSelectClick,
+  onViewPreSelect,
   onStartMatch,
   onDeselectPlayers,
-  onCancelPreSelect,
   onEndMatch,
   elapsedTimeFormatter,
   getCourtDisplayName,
   hasPreSelectedPlayers,
   loadingStartMatchCourtId,
   loadingCancelCourtId,
-  loadingCancelPreSelect,
   loadingEndMatchId,
 }) => {
   const t = useTranslations('SessionDetail');
@@ -194,7 +192,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               colorPalette={
                 isCourtReady ? 'yellow' : isActive ? 'green' : 'gray'
               }
-              variant="solid"
+              variant={isActive || isCourtReady ? 'solid' : 'subtle'}
               fontSize="xs"
               px={1.5}
               py={0.5}
@@ -204,6 +202,11 @@ const CourtCard: React.FC<CourtCardProps> = ({
               minHeight="20px"
               lineHeight={1.2}
               style={{ letterSpacing: 0.2 }}
+              borderWidth={isActive || isCourtReady ? '0' : '1px'}
+              borderColor={
+                isActive || isCourtReady ? 'transparent' : 'gray.200'
+              }
+              color={isActive || isCourtReady ? undefined : 'gray.700'}
             >
               {isCourtReady
                 ? t('courtsTab.ready')
@@ -211,7 +214,8 @@ const CourtCard: React.FC<CourtCardProps> = ({
                   ? t('courtsTab.inUse')
                   : t('courtsTab.empty')}
             </Badge>
-            {hasPreSelectedPlayers(court) && (
+            {/* Temporarily hidden: hasPreSelectedPlayers badge */}
+            {false && hasPreSelectedPlayers(court) && (
               <Badge
                 colorPalette="purple"
                 variant="solid"
@@ -321,14 +325,13 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 hasPreSelectedPlayers(court) && (
                   <CompatButton
                     size="sm"
-                    colorPalette="orange"
+                    colorPalette="purple"
                     variant="outline"
-                    loading={loadingCancelPreSelect === court.id}
-                    onClick={() => onCancelPreSelect(court.id)}
+                    onClick={() => onViewPreSelect(court)}
                     disabled={isRefreshing}
                   >
-                    <Box as={X} boxSize={4} mr={1} />
-                    {t('courtsTab.cancelPreSelect')}
+                    <Box as={Eye} boxSize={4} mr={1} />
+                    {t('courtsTab.viewNextMatch')}
                   </CompatButton>
                 )}
 

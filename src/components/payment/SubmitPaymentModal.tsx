@@ -102,16 +102,16 @@ export default function SubmitPaymentModal({
       <VStack gap={4} align="stretch">
         {/* Payment Amount */}
         <Box
-          bg="blue.50"
+          bg="green.50"
           p={4}
           borderRadius="lg"
           border="1px solid"
-          borderColor="blue.200"
+          borderColor="green.200"
         >
           <HStack justify="space-between">
             <Text fontWeight="medium">{t('yourFee')}</Text>
             <Text fontSize="xl" fontWeight="bold" color="green.600">
-              {FeeService.formatFee(paymentRecord.amount)}
+              {FeeService.formatPaymentAmount(paymentRecord.amount)}
             </Text>
           </HStack>
           <HStack justify="space-between" mt={2}>
@@ -201,7 +201,7 @@ export default function SubmitPaymentModal({
                   : 'outline'
               }
               colorPalette={
-                paymentMethod === PaymentMethod.BANK_TRANSFER ? 'blue' : 'gray'
+                paymentMethod === PaymentMethod.BANK_TRANSFER ? 'green' : 'gray'
               }
               onClick={() => setPaymentMethod(PaymentMethod.BANK_TRANSFER)}
             >
@@ -214,7 +214,7 @@ export default function SubmitPaymentModal({
                 paymentMethod === PaymentMethod.CASH ? 'solid' : 'outline'
               }
               colorPalette={
-                paymentMethod === PaymentMethod.CASH ? 'blue' : 'gray'
+                paymentMethod === PaymentMethod.CASH ? 'green' : 'gray'
               }
               onClick={() => setPaymentMethod(PaymentMethod.CASH)}
             >
@@ -261,7 +261,7 @@ export default function SubmitPaymentModal({
                 borderColor="gray.300"
                 borderRadius="lg"
                 cursor="pointer"
-                _hover={{ borderColor: 'blue.400', bg: 'blue.50' }}
+                _hover={{ borderColor: 'green.400', bg: 'green.50' }}
                 transition="all 0.2s"
               >
                 <input

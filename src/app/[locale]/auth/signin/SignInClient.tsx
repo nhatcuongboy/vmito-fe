@@ -241,12 +241,29 @@ function SignInForm() {
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.password}>
-                  <Field.Label>
-                    {t('password')}{' '}
-                    <Box as="span" color="red.500">
-                      *
-                    </Box>
-                  </Field.Label>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    width="full"
+                    gap={3}
+                  >
+                    <Field.Label>
+                      {t('password')}{' '}
+                      <Box as="span" color="red.500">
+                        *
+                      </Box>
+                    </Field.Label>
+                    <Link
+                      href={`/${locale}${ROUTES.AUTH.FORGOT_PASSWORD}`}
+                      color="green.600"
+                      _dark={{ color: 'blue.400' }}
+                      fontSize="sm"
+                      fontWeight="semibold"
+                    >
+                      {t('forgotPassword')}
+                    </Link>
+                  </Box>
                   <PasswordInput
                     {...register('password')}
                     data-testid="password-input"

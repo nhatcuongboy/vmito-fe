@@ -11,6 +11,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import TopBar from '@/components/ui/TopBar';
 import PageWrapper from '@/components/layout/PageWrapper';
 import { usePlayerSession } from '@/hooks/usePlayerSession';
+import { useTabNavigation } from '@/hooks/useTabNavigation';
 import {
   type Match,
   SessionStatus,
@@ -109,7 +110,7 @@ export default function PlayerSessionView({
     userId,
   });
 
-  const [activeTab, setActiveTab] = useState<number>(0); // 0: Overview, 1: Status, 2: Courts, 3: Results, 4: Payment
+  const { activeTab, handleTabChange } = useTabNavigation(); // 0: Overview, 1: Status, 2: Courts, 3: Results, 4: Payment
 
   // Scroll to top when tab changes
   useEffect(() => {
@@ -267,10 +268,10 @@ export default function PlayerSessionView({
     const minutes = waitTimeInMinutes % 60;
 
     if (hours > 0) {
-      return `${hours}h${minutes}m`;
+      return sessionT('waitTimeBadgeHoursMinutes', { hours, minutes });
     }
 
-    return `${minutes} min`;
+    return sessionT('waitTimeBadgeMinutes', { minutes });
   };
 
   // Helper function to get waiting players
@@ -554,6 +555,7 @@ export default function PlayerSessionView({
                   courtPlayers={courtPlayers}
                   formatMatchElapsedTime={formatMatchElapsedTime}
                   sessionId={session.id}
+                  sessionStatus={session.status}
                 />
               )}
 
@@ -580,6 +582,7 @@ export default function PlayerSessionView({
                     courts: session.courts || [],
                   }}
                   defaultPlayerId={player.id}
+                  restrictedPlayerId={player.id}
                   readOnly={true}
                 />
               )}
@@ -661,7 +664,7 @@ export default function PlayerSessionView({
           {/* Bottom Navigation Bar */}
           <PlayerSessionBottomNav
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
           />
         </Container>
       </PageWrapper>

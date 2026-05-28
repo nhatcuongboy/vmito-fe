@@ -120,7 +120,9 @@ api.interceptors.response.use(
     const isAuthRequest =
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register') ||
-      originalRequest.url?.includes('/auth/refresh');
+      originalRequest.url?.includes('/auth/refresh') ||
+      originalRequest.url?.includes('/auth/forgot-password') ||
+      originalRequest.url?.includes('/auth/reset-password');
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (
@@ -182,7 +184,7 @@ api.interceptors.response.use(
       // Only handle UI interactions on the client side
       if (typeof window !== 'undefined') {
         // For GET requests, show toaster to avoid interrupting user flow
-        if (method === 'GET') {
+        if (method === 'GET' && !error.config?.skipGlobalError) {
           toaster.error({ title: message });
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error

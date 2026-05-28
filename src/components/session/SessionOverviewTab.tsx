@@ -2,81 +2,38 @@
 
 import { useState } from 'react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { Button, SimpleGrid, VStack } from '@/components/ui/chakra-compat';
+import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { VDrawer } from '@/components/ui/VDrawer';
 import { VModal } from '@/components/ui/VModal';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
 import AppImageGallery from '@/components/session/AppImageGallery';
 import {
-  Badge,
   Box,
   Flex,
-  FlexProps,
   Grid,
   Heading,
   Text,
   Icon,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import {
   Activity,
   CheckCircle,
   Clock,
-  DoorOpen,
   Pencil,
   Play,
-  Shield,
   Square,
-  UserPlus,
   Users,
   XCircle,
   AlertTriangle,
   Download,
 } from 'lucide-react';
-import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
 import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
-import BaseSessionCard from './BaseSessionCard';
-import SessionShareCard from './SessionShareCard';
+import SessionShareImageModal from './SessionShareImageModal';
 import { RatePlayersSection } from '@/components/rating';
-
-interface InfoRowProps extends FlexProps {
-  icon: React.ElementType;
-  label: string;
-  children: React.ReactNode;
-}
-
-const InfoRow = ({ icon, label, children, ...props }: InfoRowProps) => (
-  <Flex align="start" mb={3} {...props}>
-    <Box
-      as={icon}
-      boxSize={5}
-      mr={3}
-      mt={0.5}
-      color="gray.400"
-      flexShrink={0}
-    />
-    <Text
-      fontSize="md"
-      color="gray.600"
-      _dark={{ color: 'gray.400' }}
-      mr={2}
-      minW="fit-content"
-      fontWeight="normal"
-    >
-      {label}:
-    </Text>
-    <Box
-      flex={1}
-      color="gray.800"
-      _dark={{ color: 'gray.100' }}
-      fontWeight="medium"
-    >
-      {children}
-    </Box>
-  </Flex>
-);
 
 interface SessionOverviewTabProps {
   session: ISession;
@@ -96,14 +53,16 @@ export default function SessionOverviewTab({
   refreshSessionData,
 }: SessionOverviewTabProps) {
   const t = useTranslations('SessionDetail');
+  const tSession = useTranslations('session');
   const locale = useLocale();
+  const shouldUseCompactInfo =
+    useBreakpointValue({ base: true, md: false }, { ssr: false }) ?? true;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
   const [selectedQrLabel, setSelectedQrLabel] = useState('');
-
-  const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
+  const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
 
   const handleQrClick = (url: string, label: string) => {
     setSelectedQrUrl(url);
@@ -277,12 +236,15 @@ export default function SessionOverviewTab({
               );
             })()}
 
-            <SessionInfo session={session} />
+            <SessionInfo
+              session={session}
+              compactUntilMaxPlayers={shouldUseCompactInfo}
+            />
 
             {onToggleSessionStatus &&
               session.status !== 'FINISHED' &&
               session.status !== 'CANCELLED' && (
-                <Flex mt={6} justify="center" gap={3} wrap="wrap">
+                <Flex mt={3} justify="center" gap={3} wrap="wrap">
                   <Button
                     colorPalette={
                       session.status === 'PREPARING'
@@ -358,108 +320,6 @@ export default function SessionOverviewTab({
             alignItems="center"
             h="full"
           >
-            <Box w="full" mb={6}>
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color="gray.500"
-                mb={4}
-                textTransform="uppercase"
-                letterSpacing="wider"
-              >
-                {t('settings')}
-              </Text>
-              <VStack align="start" spacing={3}>
-                <InfoRow icon={Shield} label={t('requirePlayerInfo')}>
-                  <Badge
-                    colorPalette={session.requirePlayerInfo ? 'green' : 'gray'}
-                  >
-                    {session.requirePlayerInfo ? t('yes') : t('no')}
-                  </Badge>
-                </InfoRow>
-
-                <InfoRow icon={UserPlus} label={t('allowGuestJoin')}>
-                  <Badge
-                    colorPalette={session.allowGuestJoin ? 'green' : 'gray'}
-                  >
-                    {session.allowGuestJoin ? t('yes') : t('no')}
-                  </Badge>
-                </InfoRow>
-
-                <InfoRow icon={DoorOpen} label={t('allowNewPlayers')}>
-                  <Badge
-                    colorPalette={session.allowNewPlayers ? 'green' : 'gray'}
-                  >
-                    {session.allowNewPlayers ? t('yes') : t('no')}
-                  </Badge>
-                </InfoRow>
-              </VStack>
-            </Box>
-
-            <Box
-              w="full"
-              h="1px"
-              bg="gray.100"
-              _dark={{ bg: 'gray.700' }}
-              mb={6}
-            />
-
-            <Box
-              flex={1}
-              display="flex"
-              flexDirection="column"
-              justifyContent="center"
-              w="full"
-            >
-              <Grid
-                templateColumns="repeat(2, 1fr)"
-                gap={{ base: 2, md: 6 }}
-                justifyItems="center"
-                alignItems="center"
-              >
-                <Box>
-                  <QRCodeGenerator
-                    joinCode={joinCode}
-                    size={140}
-                    url={`/${locale}/sessions/${session.id}`}
-                    label={t('qrScanToView')}
-                    hideCode
-                    onQrClick={() =>
-                      handleQrClick(
-                        `/${locale}/sessions/${session.id}`,
-                        t('qrScanToView')
-                      )
-                    }
-                  />
-                </Box>
-                <Box>
-                  <QRCodeGenerator
-                    joinCode={joinCode}
-                    size={140}
-                    url={`/${locale}/sessions/${session.id}/join`}
-                    label={t('qrScanToJoin')}
-                    hideCode
-                    onQrClick={() =>
-                      handleQrClick(
-                        `/${locale}/sessions/${session.id}/join`,
-                        t('qrScanToJoin')
-                      )
-                    }
-                  />
-                </Box>
-              </Grid>
-            </Box>
-
-            <Box
-              w="full"
-              h="1px"
-              bg="gray.100"
-              _dark={{ bg: 'gray.700' }}
-              mt={6}
-              mb={6}
-            />
-
-            {/* Share Section */}
             <Box w="full">
               <Text
                 fontSize="sm"
@@ -469,44 +329,153 @@ export default function SessionOverviewTab({
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
-                {t('share')}
+                {t('shareSessionSection')}
               </Text>
-              <Flex gap={3} w="full">
-                <Button
-                  flex={1}
-                  colorPalette="green"
-                  variant="outline"
-                  size="sm"
-                  loading={isDownloading}
-                  onClick={() =>
-                    downloadSessionImage(
-                      session,
-                      `session-share-card-social-${session.id}`,
-                      'TuyenVangLai'
-                    )
-                  }
-                  leftIcon={<Icon as={Download} />}
+
+              <Box
+                flex={1}
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                w="full"
+              >
+                <Flex
+                  justify="center"
+                  gap={{ base: 2, md: 6 }}
+                  alignItems="center"
                 >
-                  Tỷ lệ 4:5
-                </Button>
-                <Button
-                  flex={1}
-                  colorPalette="green"
-                  variant="outline"
-                  size="sm"
-                  loading={isDownloading}
-                  onClick={() =>
-                    downloadSessionImage(
-                      session,
-                      `session-share-card-portrait-${session.id}`,
-                      'TuyenVangLai'
-                    )
-                  }
-                  leftIcon={<Icon as={Download} />}
+                  <Box>
+                    <QRCodeGenerator
+                      joinCode={joinCode}
+                      size={140}
+                      url={`/${locale}/sessions/${session.id}`}
+                      label={t('qrViewSessionDetail')}
+                      hideCode
+                      onQrClick={() =>
+                        handleQrClick(
+                          `/${locale}/sessions/${session.id}`,
+                          t('qrViewSessionDetail')
+                        )
+                      }
+                    />
+                  </Box>
+                  <Box display="none">
+                    <QRCodeGenerator
+                      joinCode={joinCode}
+                      size={140}
+                      url={`/${locale}/sessions/${session.id}/join`}
+                      label={t('qrScanToJoin')}
+                      hideCode
+                      onQrClick={() =>
+                        handleQrClick(
+                          `/${locale}/sessions/${session.id}/join`,
+                          t('qrScanToJoin')
+                        )
+                      }
+                    />
+                  </Box>
+                </Flex>
+
+                <SimpleGrid
+                  columns={1}
+                  spacing={4}
+                  mt={6}
+                  display={{ base: 'none', md: 'grid' }}
                 >
-                  Tỷ lệ 2:3
-                </Button>
-              </Flex>
+                  <Box
+                    p={4}
+                    borderRadius="xl"
+                    border="1px solid"
+                    borderColor="gray.100"
+                    bg={{ base: 'gray.50', _dark: 'gray.700' }}
+                  >
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.500"
+                      textTransform="uppercase"
+                      letterSpacing="wider"
+                      mb={3}
+                    >
+                      {t('shareTipsTitle')}
+                    </Text>
+                    <Flex align="start" gap={3} mb={3}>
+                      <Box
+                        w="8px"
+                        h="8px"
+                        borderRadius="full"
+                        bg="blue.400"
+                        mt="6px"
+                        flexShrink={0}
+                      />
+                      <Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="fg">
+                          {t('qrViewSessionDetail')}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          {t('shareTipView')}
+                        </Text>
+                      </Box>
+                    </Flex>
+                  </Box>
+                </SimpleGrid>
+              </Box>
+
+              {/* Share Image Section */}
+              <Box w="full" mt={6}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  mb={4}
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  {t('shareImage')}
+                </Text>
+                <Flex gap={3} w="full">
+                  <Button
+                    flex={1}
+                    colorPalette="green"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsShareImageModalOpen(true)}
+                    leftIcon={<Icon as={Download} />}
+                  >
+                    {tSession('shareImageModal.open')}
+                  </Button>
+                </Flex>
+              </Box>
+
+              {/* Share Image Tips - Desktop Only */}
+              <Box
+                mt={4}
+                p={4}
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="gray.100"
+                bg={{ base: 'blue.50', _dark: 'blue.900/20' }}
+                display={{ base: 'none', md: 'block' }}
+              >
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="blue.600"
+                  _dark={{ color: 'blue.300' }}
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                  mb={2}
+                >
+                  {t('shareImageTipsTitle')}
+                </Text>
+                <Text
+                  fontSize="sm"
+                  color="blue.700"
+                  _dark={{ color: 'blue.200' }}
+                >
+                  {t('shareImageTipsDescription')}
+                </Text>
+              </Box>
             </Box>
           </Box>
         </Box>
@@ -724,21 +693,11 @@ export default function SessionOverviewTab({
         <SessionPlayers sessionId={session.id} session={session} />
       </Box>
 
-      {/* Hidden containers for session card preview export */}
-      <Box
-        position="absolute"
-        left="-9999px"
-        top="-9999px"
-        zIndex={-1}
-        pointerEvents="none"
-      >
-        <Box id={`session-card-preview-${session.id}-portrait`}>
-          <SessionShareCard session={session} mode="portrait" />
-        </Box>
-        <Box mt={4} id={`session-card-preview-${session.id}-social`}>
-          <SessionShareCard session={session} mode="social" />
-        </Box>
-      </Box>
+      <SessionShareImageModal
+        isOpen={isShareImageModalOpen}
+        onClose={() => setIsShareImageModalOpen(false)}
+        session={session}
+      />
 
       {/* Edit Session Drawer */}
       <VDrawer
@@ -746,6 +705,7 @@ export default function SessionOverviewTab({
         onClose={() => setIsEditModalOpen(false)}
         title={t('editSession')}
         size="lg"
+        mobileWidth="calc(100% - 16px)"
         placement="right"
         hideSecondaryAction
         showCloseButton
@@ -756,6 +716,8 @@ export default function SessionOverviewTab({
             setIsEditModalOpen(false);
             refreshSessionData?.();
           }}
+          useDrawerMobileFooter
+          mobileFooterWidth="calc(100% - 16px)"
         />
       </VDrawer>
 

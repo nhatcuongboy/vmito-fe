@@ -1,37 +1,42 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import BugReportModal from '@/components/feedback/BugReportModal';
+import ContactModal from '@/components/feedback/ContactModal';
+import { VModal } from '@/components/ui/VModal';
+import { ROUTES } from '@/constants/routes';
+import { usePathname, useRouter } from '@/i18n/config';
+import { Locale } from '@/i18n/locales';
+import { UserRole } from '@/lib/api/types';
+import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
+  Avatar,
+  Badge,
   Box,
   Flex,
-  Text,
-  Avatar,
-  Portal,
   IconButton,
-  Badge,
+  Portal,
+  Text,
 } from '@chakra-ui/react';
 import {
-  ChevronDown,
-  User as UserIcon,
-  MessageSquare,
-  LogOut,
-  ChevronRight,
   ArrowLeft,
+  BookOpen,
+  Bug,
   Check,
+  ChevronRight,
   Languages,
-  Moon,
-  Sun,
+  LogOut,
+  Menu as MenuIcon,
+  MessageCircle,
   Monitor,
+  Moon,
   Sparkles,
+  Sun,
+  User as UserIcon,
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { UserRole } from '@/lib/api/types';
-import { useTranslations, useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/config';
-import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
 import { useColorMode } from './color-mode-provider';
-import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
-import { ROUTES } from '@/constants/routes';
 
 interface UserMenuProps {
   onLogout: () => void;
@@ -48,6 +53,9 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState<{
@@ -112,7 +120,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const handleLogoutClick = () => {
     setIsOpen(false);
-    onLogout();
+    setCurrentMenu('MAIN');
+    setIsLogoutConfirmOpen(true);
   };
 
   const handleLanguageChange = (newLocale: string) => {
@@ -134,6 +143,19 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
     }
   };
 
+  const getThemeLabelShort = (theme: 'light' | 'dark' | 'system') => {
+    switch (theme) {
+      case 'dark':
+        return 'Tối';
+      case 'light':
+        return 'Sáng';
+      case 'system':
+        return 'Tự động';
+      default:
+        return 'Tự động';
+    }
+  };
+
   const getLanguageLabel = (l: string) => {
     switch (l) {
       case Locale.VI:
@@ -149,35 +171,41 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const renderMainMenu = () => (
     <Box py={{ base: 1, md: 2 }}>
-      {/* Profile/Settings */}
-      <Flex
-        align="center"
-        gap={{ base: 2, md: 3 }}
-        px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
-        cursor="pointer"
-        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-        onClick={handleProfileClick}
-      >
-        <Box
-          bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
-          p={{ base: 1.5, md: 2 }}
-          borderRadius="full"
+      {/* Profile/Settings - Temporarily Hidden */}
+      <Box display="none">
+        <Flex
+          align="center"
+          gap={{ base: 2, md: 3 }}
+          px={{ base: 3, md: 4 }}
+          py={{ base: 2, md: 2 }}
+          cursor="pointer"
+          _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+          onClick={handleProfileClick}
         >
-          <UserIcon size={16} />
-        </Box>
-        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
-          {common('profile')}
-        </Text>
-      </Flex>
+          <Box
+            bg="gray.100"
+            _dark={{ bg: 'gray.700' }}
+            p={{ base: 1.5, md: 2 }}
+            borderRadius="full"
+          >
+            <UserIcon size={16} />
+          </Box>
+          <Text
+            fontSize={{ base: 'sm', md: 'md' }}
+            fontWeight="medium"
+            flex={1}
+          >
+            {common('profile')}
+          </Text>
+        </Flex>
+      </Box>
 
       {/* Appearance */}
       <Flex
         align="center"
         gap={{ base: 2, md: 3 }}
         px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
+        py={{ base: 2, md: 2 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => setCurrentMenu('APPEARANCE')}
@@ -190,11 +218,17 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         >
           <Moon size={16} />
         </Box>
-        <Box flex={1}>
-          <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
-            {common('appearance')}: {getThemeLabel(currentTheme)}
-          </Text>
-        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('appearance')}
+        </Text>
+        <Text
+          fontSize={{ base: 'sm', md: 'md' }}
+          fontWeight="medium"
+          color="gray.500"
+          mr={1}
+        >
+          {getThemeLabelShort(currentTheme)}
+        </Text>
         <ChevronRight size={16} color="gray" />
       </Flex>
 
@@ -203,7 +237,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         align="center"
         gap={{ base: 2, md: 3 }}
         px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
+        py={{ base: 2, md: 2 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => setCurrentMenu('LANGUAGE')}
@@ -216,11 +250,17 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         >
           <Languages size={16} />
         </Box>
-        <Box flex={1}>
-          <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
-            {common('displayLanguage')}: {getLanguageLabel(locale)}
-          </Text>
-        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('displayLanguage')}
+        </Text>
+        <Text
+          fontSize={{ base: 'sm', md: 'md' }}
+          fontWeight="medium"
+          color="gray.500"
+          mr={1}
+        >
+          {getLanguageLabel(locale)}
+        </Text>
         <ChevronRight size={16} color="gray" />
       </Flex>
 
@@ -229,7 +269,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         align="center"
         gap={{ base: 2, md: 3 }}
         px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
+        py={{ base: 2, md: 2 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => {
@@ -250,14 +290,47 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Text>
       </Flex>
 
-      {/* Give Feedback */}
+      {/* Divider before Guide */}
+      <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} my={2} />
+
+      {/* Guide */}
       <Flex
         align="center"
         gap={{ base: 2, md: 3 }}
         px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
+        py={{ base: 2, md: 2 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          router.push(ROUTES.GUIDE);
+        }}
+      >
+        <Box
+          bg="gray.50"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <BookOpen size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('guide')}
+        </Text>
+      </Flex>
+
+      {/* Give Feedback - Contact */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 2 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          setIsContactModalOpen(true);
+        }}
       >
         <Box
           bg="gray.100"
@@ -265,10 +338,36 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
-          <MessageSquare size={16} />
+          <MessageCircle size={16} />
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
-          {common('giveFeedback')}
+          {common('contact')}
+        </Text>
+      </Flex>
+
+      {/* Bug Report */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 2 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          setIsBugReportModalOpen(true);
+        }}
+      >
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <Bug size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
+          {common('bugReport')}
         </Text>
       </Flex>
 
@@ -285,7 +384,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         align="center"
         gap={{ base: 2, md: 3 }}
         px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 3 }}
+        py={{ base: 2, md: 2 }}
         cursor="pointer"
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={handleLogoutClick}
@@ -345,7 +444,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               key={t.id}
               align="center"
               gap={{ base: 2, md: 3 }}
-              py={{ base: 2, md: 3 }}
+              py={{ base: 2, md: 2 }}
               px={2}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
@@ -353,14 +452,17 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
               borderRadius="md"
             >
               <Box w={{ base: 4, md: 6 }}>
-                {theme === t.id && (
+                {theme === t.id ? (
                   <Check size={16} color="var(--chakra-colors-blue-500)" />
+                ) : (
+                  <t.icon size={16} color="gray" />
                 )}
               </Box>
               <Text
                 flex={1}
                 fontSize={{ base: 'sm', md: 'md' }}
                 fontWeight={theme === t.id ? 'semibold' : 'normal'}
+                color={theme === t.id ? 'blue.500' : undefined}
               >
                 {t.label}
               </Text>
@@ -395,29 +497,40 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       </Flex>
       <Box p={2}>
         <Flex direction="column" gap={1}>
-          {SUPPORTED_LOCALES.map((l) => (
+          {(
+            [
+              { locale: 'vi', flag: '🇻🇳' },
+              { locale: 'en', flag: '🇬🇧' },
+              { locale: 'cn', flag: '🇨🇳' },
+            ] as { locale: string; flag: string }[]
+          ).map((item) => (
             <Flex
-              key={l}
+              key={item.locale}
               align="center"
               gap={{ base: 2, md: 3 }}
-              py={{ base: 2, md: 3 }}
+              py={{ base: 2, md: 2 }}
               px={{ base: 3, md: 4 }}
               cursor="pointer"
               _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-              onClick={() => handleLanguageChange(l)}
+              onClick={() => handleLanguageChange(item.locale)}
               borderRadius="md"
             >
               <Box w={{ base: 4, md: 6 }}>
-                {locale === l && (
+                {locale === item.locale ? (
                   <Check size={16} color="var(--chakra-colors-blue-500)" />
+                ) : (
+                  <Text fontSize="md" lineHeight={1}>
+                    {item.flag}
+                  </Text>
                 )}
               </Box>
               <Text
                 flex={1}
                 fontSize={{ base: 'sm', md: 'md' }}
-                fontWeight={locale === l ? 'semibold' : 'normal'}
+                fontWeight={locale === item.locale ? 'semibold' : 'normal'}
+                color={locale === item.locale ? 'blue.500' : undefined}
               >
-                {getLanguageLabel(l)}
+                {getLanguageLabel(item.locale)}
               </Text>
             </Flex>
           ))}
@@ -434,27 +547,49 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           position="relative"
           cursor="pointer"
           onClick={handleToggleOpen}
-          _hover={{ opacity: 0.8 }}
-          transition="opacity 0.2s"
+          transition="all 0.2s ease"
+          _hover={{
+            transform: 'translateY(-1px)',
+            '& .avatar-wrapper': {
+              boxShadow: isOpen
+                ? '0 6px 16px rgba(34,197,94,0.26)'
+                : '0 4px 12px rgba(0,0,0,0.12)',
+            },
+          }}
+          _active={{ transform: 'translateY(0) scale(0.96)' }}
         >
-          <Avatar.Root size="sm" bg="brand.500">
-            <Avatar.Fallback name={user.name || user.email}>
-              {(user.name || user.email).charAt(0).toUpperCase()}
-            </Avatar.Fallback>
-            {user.image && <Avatar.Image src={user.image} />}
-          </Avatar.Root>
+          <Box
+            className="avatar-wrapper"
+            borderRadius="full"
+            border="2px solid"
+            borderColor={isOpen ? 'green.500' : 'transparent'}
+            boxShadow={isOpen ? '0 4px 12px rgba(34,197,94,0.28)' : 'none'}
+            transition="all 0.2s ease"
+            _dark={{
+              borderColor: isOpen ? 'green.400' : 'transparent',
+            }}
+          >
+            <Avatar.Root size="sm" bg="brand.500">
+              <Avatar.Fallback name={user.name || user.email}>
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </Avatar.Fallback>
+              {user.image && <Avatar.Image src={user.image} />}
+            </Avatar.Root>
+          </Box>
           {/* Dropdown Icon */}
           <Box
             position="absolute"
-            bottom="-2px"
-            right="-2px"
+            bottom="-4px"
+            right="-4px"
             bg="white"
-            _dark={{ bg: 'gray.800' }}
             borderRadius="full"
-            p="2px"
+            p="3px"
             boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
           >
-            <ChevronDown size={12} />
+            <MenuIcon size={12} strokeWidth={2.5} />
           </Box>
         </Box>
       </Box>
@@ -525,13 +660,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                           </Badge>
                         )}
                       </Flex>
-                      <Text
-                        fontSize="xs"
-                        color="gray.600"
-                        _dark={{ color: 'gray.400' }}
-                      >
-                        {user.email}
-                      </Text>
                     </Box>
                   </Flex>
                 </Box>
@@ -543,6 +671,34 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           </Box>
         </Portal>
       )}
+
+      {/* Feedback Modals */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
+      <BugReportModal
+        isOpen={isBugReportModalOpen}
+        onClose={() => setIsBugReportModalOpen(false)}
+      />
+
+      {/* Logout Confirm */}
+      <VModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        title={common('logoutConfirmTitle')}
+        primaryActionText={common('logout')}
+        onPrimaryAction={() => {
+          setIsLogoutConfirmOpen(false);
+          onLogout();
+        }}
+        primaryColorScheme="red"
+        secondaryActionText={common('cancel')}
+        size="sm"
+        isCentered
+      >
+        <Text>{common('logoutConfirmMessage')}</Text>
+      </VModal>
     </>
   );
 }

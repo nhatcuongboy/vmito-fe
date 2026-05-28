@@ -36,7 +36,7 @@ export default function GlobalNotFound() {
             style={{
               display: 'inline-block',
               padding: '12px 24px',
-              backgroundColor: '#3182ce',
+              backgroundColor: '#179a3b',
               color: 'white',
               borderRadius: '6px',
               textDecoration: 'none',

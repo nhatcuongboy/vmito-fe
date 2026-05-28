@@ -19,7 +19,6 @@ import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
-import { useDebounce } from '@/hooks/useDebounce';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
@@ -62,9 +61,9 @@ function HostSessionsContent() {
 
   // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<
-    'active' | 'ended' | 'pending' | 'expired'
+    'active' | 'ended' | 'pending' | 'all'
   >(
-    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'expired') ||
+    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'all') ||
       'active'
   );
   const loadingMoreRef = useRef(false);
@@ -78,9 +77,6 @@ function HostSessionsContent() {
     threshold: 0.1,
     rootMargin: '100px',
   });
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const fetchHostedSessions = async (isLoadMore = false) => {
     try {
@@ -106,7 +102,7 @@ function HostSessionsContent() {
         page: currentPage,
         limit: PAGE_SIZE,
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
-        searchQuery: debouncedSearchQuery,
+        searchQuery: filters.searchQuery,
         excludeStatuses:
           sessionStatusTab === 'active' && !filters.status
             ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
@@ -117,7 +113,7 @@ function HostSessionsContent() {
             ? SessionStatus.FINISHED
             : sessionStatusTab === 'active' && filters.status
               ? filters.status
-              : sessionStatusTab === 'expired'
+              : sessionStatusTab === 'all'
                 ? undefined
                 : filters.status,
         endTimeBefore: undefined,
@@ -158,13 +154,7 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.id,
-    debouncedSearchQuery,
-    sortBy,
-    filters.status,
-    sessionStatusTab,
-  ]);
+  }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
 
   // Fetch expired sessions count once on mount
   useEffect(() => {
@@ -267,11 +257,6 @@ function HostSessionsContent() {
       );
     }
 
-    // Search filter is handled by API now
-    if (filters.searchQuery !== searchQuery) {
-      setSearchQuery(filters.searchQuery || '');
-    }
-
     // Client-side sort only for slots (not supported by API)
     if (sortBy === 'slots_desc') {
       result.sort((a, b) => {
@@ -285,22 +270,25 @@ function HostSessionsContent() {
     // Other sorts are handled by the API
 
     return result;
-  }, [filters, sessions, searchQuery, sortBy]);
+  }, [filters, sessions, sortBy]);
 
   const handleFilterChange = (newFilters: ISessionFilterState) => {
     setFilters(newFilters);
   };
 
   const handleTabChange = (
-    newTab: 'active' | 'ended' | 'pending' | 'expired'
+    newTab: 'active' | 'ended' | 'all' | 'pending' | 'expired'
   ) => {
     if (newTab === 'pending') {
       router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
       return;
     }
+    if (newTab === 'expired') {
+      // Redirect expired to all tab
+      newTab = 'all';
+    }
     setFilters({});
-    setSearchQuery('');
-    setSessionStatusTab(newTab);
+    setSessionStatusTab(newTab as 'active' | 'ended' | 'all');
     // Update URL with new tab param
     const params = new URLSearchParams(searchParams);
     params.set('tab', newTab);
@@ -327,6 +315,7 @@ function HostSessionsContent() {
       maxW="full"
       px={{ base: '24px', md: 0 }}
       hideTopBarBorder={true}
+      centerTitle
     >
       <Flex
         gap={6}
@@ -341,13 +330,13 @@ function HostSessionsContent() {
             key={sessionStatusTab}
             onFilterChange={handleFilterChange}
             showStatusFilter={
-              sessionStatusTab === 'active' || sessionStatusTab === 'expired'
+              sessionStatusTab === 'active' || sessionStatusTab === 'all'
             }
             showDateFilter={true}
             showSearchFilter={true}
-            showLevelFilter={sessionStatusTab === 'expired'}
-            showTimeFilter={sessionStatusTab === 'expired'}
-            showFeeFilter={sessionStatusTab === 'expired'}
+            showLevelFilter={sessionStatusTab === 'all'}
+            showTimeFilter={sessionStatusTab === 'all'}
+            showFeeFilter={sessionStatusTab === 'all'}
             resultCount={totalCount}
             onCreateClick={() => {
               if (useAiForCreation) {
@@ -361,6 +350,8 @@ function HostSessionsContent() {
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
                 onChange={handleTabChange}
+                showAll={true}
+                showExpired={false}
               />
             }
           />
@@ -384,6 +375,24 @@ function HostSessionsContent() {
             expiredCount={expiredCount ?? undefined}
             viewMode={viewMode}
             showDownloadShareButtons={true}
+            emptyStateTitle={
+              sessionStatusTab === 'active'
+                ? tSession('noActiveSessions')
+                : sessionStatusTab === 'ended'
+                  ? tSession('noSessionsFound')
+                  : sessionStatusTab === 'all'
+                    ? tSession('noSessionsFound')
+                    : tSession('noSessionsFound')
+            }
+            emptyStateDescription={
+              sessionStatusTab === 'active'
+                ? tSession('noActiveSessionsDescription')
+                : sessionStatusTab === 'ended'
+                  ? undefined
+                  : sessionStatusTab === 'all'
+                    ? undefined
+                    : undefined
+            }
           />
 
           {/* Infinite Scroll Trigger */}

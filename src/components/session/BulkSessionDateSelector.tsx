@@ -2,7 +2,7 @@
 import { Input } from '@/components/ui/Input';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -12,10 +12,13 @@ import {
   Button,
   Grid,
   Field,
+  Icon,
+  Collapsible,
 } from '@chakra-ui/react';
 import { Radio } from '@/components/ui/radio';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X, Calendar as CalendarIcon, Plus, CalendarRange } from 'lucide-react';
+import { VSwitch } from '@/components/ui/VSwitch';
+import { X, Plus, CalendarRange, ChevronDown, ChevronUp } from 'lucide-react';
 import dayjs from '@/lib/dayjs';
 import { useTranslations } from 'next-intl';
 import {
@@ -23,54 +26,6 @@ import {
   SpecificDatesConfig,
   RecurringWeekdaysConfig,
 } from '@/lib/api/types';
-
-const CustomCheckbox = ({
-  isChecked,
-  onChange,
-}: {
-  isChecked: boolean;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-}) => {
-  const boxSize = '24px';
-  const iconSize = 16;
-
-  return (
-    <Box as="label" cursor="pointer" display="inline-flex" alignItems="center">
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={onChange}
-        style={{ display: 'none' }}
-      />
-      <Box
-        w={boxSize}
-        h={boxSize}
-        border="2px solid"
-        borderColor={isChecked ? 'green.500' : 'border'}
-        bg={isChecked ? 'green.500' : 'transparent'}
-        borderRadius="md"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        transition="all 0.2s"
-        _hover={{ borderColor: 'green.600' }}
-      >
-        {isChecked && (
-          <svg
-            width={iconSize}
-            height={iconSize}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth={3}
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
-      </Box>
-    </Box>
-  );
-};
 
 interface BulkSessionDateSelectorProps {
   enabled: boolean;
@@ -108,20 +63,20 @@ export function BulkSessionDateSelector({
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [numberOfWeeks, setNumberOfWeeks] = useState<number>(4);
   const [tempDate, setTempDate] = useState<string>('');
+  const [isOpen, setIsOpen] = useState(enabled);
 
-  // Reset to single mode when disabled
   useEffect(() => {
-    if (!enabled) {
-      setMode('single');
-      setSelectedDates([]);
-      setSelectedWeekdays([]);
-      setNumberOfWeeks(4);
-      setTempDate('');
-      onModeChange('single');
-      onSpecificDatesChange(undefined);
-      onRecurringWeekdaysChange(undefined);
+    if (enabled) {
+      setIsOpen(true);
     }
-  }, [enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [enabled]);
+
+  const handleEnabledChange = (newEnabled: boolean) => {
+    onEnabledChange(newEnabled);
+    if (newEnabled) {
+      setIsOpen(true);
+    }
+  };
 
   const handleModeChange = (newMode: BulkCreationMode) => {
     setMode(newMode);
@@ -199,253 +154,294 @@ export function BulkSessionDateSelector({
 
   const calculateTotalSessions = () => {
     if (mode === 'specific-dates') {
-      return selectedDates.length + 1;
+      return selectedDates.length;
     }
     if (mode === 'recurring-weekdays') {
-      return selectedWeekdays.length * numberOfWeeks + 1;
+      return selectedWeekdays.length * numberOfWeeks;
     }
     return 1;
   };
 
+  const summaryText = (() => {
+    if (!enabled) return t('disabledSummary');
+    const totalSessions = calculateTotalSessions();
+    if (totalSessions > 0) {
+      return t('summaryCount', { count: totalSessions });
+    }
+    return mode === 'specific-dates'
+      ? t('specificDatesMode')
+      : t('recurringMode');
+  })();
+
   return (
     <Box
-      border="1px solid"
-      borderColor="border"
-      borderRadius="lg"
-      p={4}
       bg={{ base: 'white', _dark: 'gray.800' }}
+      borderRadius="lg"
       boxShadow="sm"
+      border="1px solid"
+      borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
+      overflow="hidden"
     >
-      {/* Header with toggle */}
-      <Flex justify="space-between" align="center" mb={enabled ? 4 : 0}>
-        <HStack gap={2}>
-          <CalendarRange size={20} color="#38a169" />
-          <Text fontWeight="semibold" fontSize="md">
-            {t('title')}
-          </Text>
-        </HStack>
-        <HStack gap={2}>
-          <CustomCheckbox
-            isChecked={enabled}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              onEnabledChange(e.target.checked)
-            }
-          />
-          <Text fontSize="sm" color="fg.muted">
-            {enabled ? t('disable') : t('enable')}
-          </Text>
-        </HStack>
-      </Flex>
+      <Collapsible.Root
+        open={enabled && isOpen}
+        onOpenChange={(e) => setIsOpen(e.open)}
+      >
+        <Flex align="center" justify="space-between" gap={3} p={4}>
+          <HStack gap={2} minW={0}>
+            <Icon asChild boxSize={5} color="green.500" flexShrink={0}>
+              <CalendarRange />
+            </Icon>
+            <Box minW={0}>
+              <Text fontWeight="semibold" fontSize="md">
+                {t('title')}
+              </Text>
+              <Text fontSize="xs" color="fg.muted" truncate>
+                {summaryText}
+              </Text>
+            </Box>
+          </HStack>
 
-      {enabled && (
-        <VStack align="stretch" gap={6}>
-          <Radio.Root
-            value={mode}
-            colorPalette="green"
-            onValueChange={(details: { value: string | null }) => {
-              if (details.value) {
-                handleModeChange(details.value as BulkCreationMode);
+          <HStack gap={3} flexShrink={0}>
+            <VSwitch
+              checked={enabled}
+              onCheckedChange={(details) =>
+                handleEnabledChange(!!details.checked)
               }
-            }}
-          >
-            <VStack align="stretch" gap={4}>
-              {/* Specific dates mode */}
-              <Box>
-                <Radio.Item value="specific-dates" cursor="pointer">
-                  <VStack align="start" gap={1} ml={2}>
-                    <Text fontWeight="medium" fontSize="sm">
-                      {t('specificDatesMode')}
-                    </Text>
-                    <Text fontSize="xs" color="fg.muted">
-                      {t('specificDatesDesc')}
-                    </Text>
-                  </VStack>
-                </Radio.Item>
+              colorPalette="green"
+              size="sm"
+              aria-label={enabled ? t('disable') : t('enable')}
+            />
+            <Collapsible.Trigger asChild>
+              <Button
+                type="button"
+                boxSize={9}
+                minW={9}
+                p={0}
+                variant="ghost"
+                borderRadius="md"
+                color="fg.muted"
+                disabled={!enabled}
+                opacity={enabled ? 1 : 0.45}
+                cursor={enabled ? 'pointer' : 'not-allowed'}
+                _hover={enabled ? { bg: 'bg.muted' } : undefined}
+              >
+                <Icon asChild boxSize={5} color="green.500">
+                  {enabled && isOpen ? <ChevronUp /> : <ChevronDown />}
+                </Icon>
+              </Button>
+            </Collapsible.Trigger>
+          </HStack>
+        </Flex>
 
-                {mode === 'specific-dates' && (
-                  <Box mt={4} ml={8}>
-                    <VStack align="stretch" gap={4}>
-                      <HStack gap={2}>
-                        <VDateTimeInput
-                          type="date"
-                          value={tempDate}
-                          onChange={(e) => setTempDate(e.target.value)}
-                          size="sm"
-                          min={dayjs().format('YYYY-MM-DD')}
-                          leftElement={<CalendarIcon size={16} />}
-                          placeholder={t('addDate') || 'Add date'}
-                        />
-                        <Button
-                          size="sm"
-                          colorPalette="green"
-                          onClick={handleAddDate}
-                          disabled={!tempDate}
-                        >
-                          <Plus size={16} style={{ marginRight: '4px' }} />
-                          {t('addDate') || 'Add'}
-                        </Button>
-                      </HStack>
-
-                      {selectedDates.length > 0 && (
-                        <Box>
-                          <Text
-                            fontSize="xs"
-                            fontWeight="medium"
-                            mb={2}
-                            color="fg.muted"
-                          >
-                            {t('selectedDates', {
-                              count: selectedDates.length,
-                            })}
-                          </Text>
-                          <Flex flexWrap="wrap" gap={2}>
-                            {selectedDates
-                              .sort((a, b) => a.getTime() - b.getTime())
-                              .map((date) => (
-                                <HStack
-                                  key={dayjs(date).format('YYYY-MM-DD')}
-                                  gap={1}
-                                  px={2}
-                                  py={1}
-                                  bg="brand.50"
-                                  _dark={{
-                                    bg: 'brand.900/30',
-                                    color: 'brand.300',
-                                  }}
-                                  color="green.600"
-                                  borderRadius="md"
-                                  fontSize="xs"
-                                >
-                                  <Text>
-                                    {dayjs(date).format('DD/MM/YYYY')}
-                                  </Text>
-                                  <Box
-                                    as="button"
-                                    onClick={() => handleRemoveDate(date)}
-                                    color="green.400"
-                                    _hover={{ color: 'brand.600' }}
-                                  >
-                                    <X size={14} />
-                                  </Box>
-                                </HStack>
-                              ))}
-                          </Flex>
-                        </Box>
-                      )}
+        <Collapsible.Content>
+          <VStack align="stretch" gap={6} p={6} pt={0}>
+            <Radio.Root
+              value={mode}
+              colorPalette="green"
+              onValueChange={(details: { value: string | null }) => {
+                if (details.value) {
+                  handleModeChange(details.value as BulkCreationMode);
+                }
+              }}
+            >
+              <VStack align="stretch" gap={4}>
+                {/* Specific dates mode */}
+                <Box>
+                  <Radio.Item value="specific-dates" cursor="pointer">
+                    <VStack align="start" gap={1} ml={2}>
+                      <Text fontWeight="medium" fontSize="sm">
+                        {t('specificDatesMode')}
+                      </Text>
+                      <Text fontSize="xs" color="fg.muted">
+                        {t('specificDatesDesc')}
+                      </Text>
                     </VStack>
-                  </Box>
-                )}
-              </Box>
+                  </Radio.Item>
 
-              {/* Recurring weekdays mode */}
-              <Box>
-                <Radio.Item value="recurring-weekdays" cursor="pointer">
-                  <VStack align="start" gap={1} ml={2}>
-                    <Text fontWeight="medium" fontSize="sm">
-                      {t('recurringMode')}
-                    </Text>
-                    <Text fontSize="xs" color="fg.muted">
-                      {t('recurringModeDesc')}
-                    </Text>
-                  </VStack>
-                </Radio.Item>
-
-                {mode === 'recurring-weekdays' && (
-                  <Box mt={4} ml={8}>
-                    <VStack align="stretch" gap={4}>
-                      <Box>
-                        <Text fontSize="xs" fontWeight="medium" mb={2}>
-                          {t('selectWeekdays')}
-                        </Text>
-                        <Grid templateColumns="repeat(7, 1fr)" gap={2}>
-                          {WEEKDAYS.map((weekday) => (
-                            <VStack key={weekday.value} gap={1}>
-                              <Checkbox
-                                colorPalette="green"
-                                checked={selectedWeekdays.includes(
-                                  weekday.value
-                                )}
-                                onCheckedChange={() =>
-                                  handleWeekdayToggle(weekday.value)
-                                }
-                              />
-                              <Text fontSize="2xs" color="fg.muted">
-                                {weekday.short}
-                              </Text>
-                            </VStack>
-                          ))}
-                        </Grid>
-                      </Box>
-
-                      <Field.Root>
-                        <Field.Label fontSize="xs">
-                          {t('numberOfWeeks')}
-                        </Field.Label>
-                        <HStack gap={3}>
-                          <Input
-                            type="number"
-                            min={1}
-                            max={52}
-                            value={numberOfWeeks}
-                            onChange={(e) =>
-                              handleWeeksChange(parseInt(e.target.value) || 1)
-                            }
-                            width="80px"
+                  {mode === 'specific-dates' && (
+                    <Box mt={4} ml={8}>
+                      <VStack align="stretch" gap={4}>
+                        <HStack gap={2}>
+                          <VDateTimeInput
+                            type="date"
+                            value={tempDate}
+                            onChange={(e) => setTempDate(e.target.value)}
                             size="sm"
+                            min={dayjs().format('YYYY-MM-DD')}
+                            placeholder={t('addDate') || 'Add date'}
                           />
-                          <Text fontSize="xs" color="fg.muted">
-                            {t('weeksUnit')}
-                          </Text>
+                          <Button
+                            size="sm"
+                            colorPalette="green"
+                            onClick={handleAddDate}
+                            disabled={!tempDate}
+                          >
+                            <Plus size={16} style={{ marginRight: '4px' }} />
+                            {t('addDate') || 'Add'}
+                          </Button>
                         </HStack>
-                      </Field.Root>
 
-                      {selectedWeekdays.length > 0 && (
-                        <Box
-                          p={3}
-                          bg="gray.50"
-                          _dark={{ bg: 'whiteAlpha.50' }}
-                          borderRadius="md"
-                          fontSize="xs"
-                        >
-                          <Text mb={1}>
-                            <strong>{t('selectedWeekdays')}</strong>:{' '}
-                            {selectedWeekdays
-                              .map(
-                                (w) =>
-                                  WEEKDAYS.find((wd) => wd.value === w)?.label
-                              )
-                              .join(', ')}
-                          </Text>
-                          <Text>
-                            <strong>{t('totalSessions')}</strong>:{' '}
-                            {t('totalSessionsCalc', {
-                              perWeek: selectedWeekdays.length,
-                              weeks: numberOfWeeks,
-                              total: selectedWeekdays.length * numberOfWeeks,
-                            })}
-                          </Text>
-                        </Box>
-                      )}
+                        {selectedDates.length > 0 && (
+                          <Box>
+                            <Text
+                              fontSize="xs"
+                              fontWeight="medium"
+                              mb={2}
+                              color="fg.muted"
+                            >
+                              {t('selectedDates', {
+                                count: selectedDates.length,
+                              })}
+                            </Text>
+                            <Flex flexWrap="wrap" gap={2}>
+                              {selectedDates
+                                .sort((a, b) => a.getTime() - b.getTime())
+                                .map((date) => (
+                                  <HStack
+                                    key={dayjs(date).format('YYYY-MM-DD')}
+                                    gap={1}
+                                    px={2}
+                                    py={1}
+                                    bg="brand.50"
+                                    _dark={{
+                                      bg: 'brand.900/30',
+                                      color: 'brand.300',
+                                    }}
+                                    color="green.600"
+                                    borderRadius="md"
+                                    fontSize="xs"
+                                  >
+                                    <Text>
+                                      {dayjs(date).format('DD/MM/YYYY')}
+                                    </Text>
+                                    <Box
+                                      as="button"
+                                      onClick={() => handleRemoveDate(date)}
+                                      color="green.400"
+                                      _hover={{ color: 'brand.600' }}
+                                    >
+                                      <X size={14} />
+                                    </Box>
+                                  </HStack>
+                                ))}
+                            </Flex>
+                          </Box>
+                        )}
+                      </VStack>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Recurring weekdays mode */}
+                <Box>
+                  <Radio.Item value="recurring-weekdays" cursor="pointer">
+                    <VStack align="start" gap={1} ml={2}>
+                      <Text fontWeight="medium" fontSize="sm">
+                        {t('recurringMode')}
+                      </Text>
+                      <Text fontSize="xs" color="fg.muted">
+                        {t('recurringModeDesc')}
+                      </Text>
                     </VStack>
-                  </Box>
-                )}
-              </Box>
-            </VStack>
-          </Radio.Root>
+                  </Radio.Item>
 
-          {/* Summary */}
-          <Box pt={4} borderTopWidth="1px" borderColor="border">
-            <Flex align="center" justify="space-between">
-              <Text fontSize="sm" fontWeight="medium">
-                {t('totalSessions')}
-              </Text>
-              <Text fontSize="lg" fontWeight="bold" color="green.500">
-                {calculateTotalSessions()}
-              </Text>
-            </Flex>
-          </Box>
-        </VStack>
-      )}
+                  {mode === 'recurring-weekdays' && (
+                    <Box mt={4} ml={8}>
+                      <VStack align="stretch" gap={4}>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="medium" mb={2}>
+                            {t('selectWeekdays')}
+                          </Text>
+                          <Grid templateColumns="repeat(7, 1fr)" gap={2}>
+                            {WEEKDAYS.map((weekday) => (
+                              <VStack key={weekday.value} gap={1}>
+                                <Checkbox
+                                  colorPalette="green"
+                                  checked={selectedWeekdays.includes(
+                                    weekday.value
+                                  )}
+                                  onCheckedChange={() =>
+                                    handleWeekdayToggle(weekday.value)
+                                  }
+                                />
+                                <Text fontSize="2xs" color="fg.muted">
+                                  {weekday.short}
+                                </Text>
+                              </VStack>
+                            ))}
+                          </Grid>
+                        </Box>
+
+                        <Field.Root>
+                          <Field.Label fontSize="xs">
+                            {t('numberOfWeeks')}
+                          </Field.Label>
+                          <HStack gap={3}>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={52}
+                              value={numberOfWeeks}
+                              onChange={(e) =>
+                                handleWeeksChange(parseInt(e.target.value) || 1)
+                              }
+                              width="80px"
+                              size="sm"
+                            />
+                            <Text fontSize="xs" color="fg.muted">
+                              {t('weeksUnit')}
+                            </Text>
+                          </HStack>
+                        </Field.Root>
+
+                        {selectedWeekdays.length > 0 && (
+                          <Box
+                            p={3}
+                            bg="gray.50"
+                            _dark={{ bg: 'whiteAlpha.50' }}
+                            borderRadius="md"
+                            fontSize="xs"
+                          >
+                            <Text mb={1}>
+                              <strong>{t('selectedWeekdays')}</strong>:{' '}
+                              {selectedWeekdays
+                                .map(
+                                  (w) =>
+                                    WEEKDAYS.find((wd) => wd.value === w)?.label
+                                )
+                                .join(', ')}
+                            </Text>
+                            <Text>
+                              <strong>{t('totalSessions')}</strong>:{' '}
+                              {t('totalSessionsCalc', {
+                                perWeek: selectedWeekdays.length,
+                                weeks: numberOfWeeks,
+                                total: selectedWeekdays.length * numberOfWeeks,
+                              })}
+                            </Text>
+                          </Box>
+                        )}
+                      </VStack>
+                    </Box>
+                  )}
+                </Box>
+              </VStack>
+            </Radio.Root>
+
+            {/* Summary */}
+            <Box pt={4} borderTopWidth="1px" borderColor="border">
+              <Flex align="center" justify="space-between">
+                <Text fontSize="sm" fontWeight="medium">
+                  {t('totalSessions')}
+                </Text>
+                <Text fontSize="lg" fontWeight="bold" color="green.500">
+                  {calculateTotalSessions()}
+                </Text>
+              </Flex>
+            </Box>
+          </VStack>
+        </Collapsible.Content>
+      </Collapsible.Root>
     </Box>
   );
 }

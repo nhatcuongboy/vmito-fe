@@ -44,6 +44,7 @@ import {
   ListFilter,
   Star,
   ArrowDownAZ,
+  ClipboardList,
 } from 'lucide-react';
 import {
   useUrlFilters,
@@ -345,6 +346,14 @@ function AdminVenuesContent() {
           <Flex justify="space-between" align="center">
             <Heading size="lg">{t('venueManagement')}</Heading>
             <HStack gap={3}>
+              <VButton
+                variant="outline"
+                colorPalette="green"
+                leftIcon={<ClipboardList size={18} />}
+                onClick={() => router.push('/admin/venues/requests')}
+              >
+                {t('venueRequests')}
+              </VButton>
               <VButton
                 variant="outline"
                 colorPalette="green"
@@ -817,7 +826,7 @@ function AdminVenuesContent() {
                           aria-label="View venue"
                           size="sm"
                           variant="ghost"
-                          colorPalette="blue"
+                          colorPalette="green"
                           onClick={() => {
                             window.open(
                               `/san-cau-long/${venue.slug || venue.id}`,

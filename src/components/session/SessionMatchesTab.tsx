@@ -9,14 +9,24 @@ import {
   Flex,
   Grid,
   Heading,
+  Skeleton,
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  ChangeEvent,
+  useMemo,
+} from 'react';
 import { useTranslations } from 'next-intl';
 import { EditMatchModal } from './EditMatchModal';
 import { toaster } from '@/components/ui/toaster';
 import { VModal } from '@/components/ui/VModal';
+import { Button } from '@/components/ui/chakra-compat';
+import { useViewMode } from '@/hooks/useViewMode';
+import ViewModeToggle from './ViewModeToggle';
 import {
   HistoryMatchCard,
   HistoryMatch,
@@ -24,6 +34,150 @@ import {
 
 import VSelect from '@/components/ui/VSelect';
 import VMultiSelect, { VMultiSelectOption } from '@/components/ui/VMultiSelect';
+import {
+  CalendarArrowDown,
+  CalendarArrowUp,
+  Check,
+  ChevronDown,
+} from 'lucide-react';
+
+type MatchSortBy = 'time_desc' | 'time_asc';
+type PlayerSelectOption = VMultiSelectOption & { playerNumber: number };
+
+// Skeleton Loading Component
+function MatchesTabSkeleton({ viewMode }: { viewMode: 'list' | 'grid' }) {
+  return (
+    <Box>
+      {/* Filter Controls Skeleton */}
+      <Flex mb={6} mt={2} direction="column" gap={3}>
+        <Flex
+          gap={2.5}
+          flexWrap="wrap"
+          width="100%"
+          justify={{ base: 'stretch', md: 'flex-end' }}
+        >
+          <Skeleton
+            height="38px"
+            width={{ base: '100%', md: '260px' }}
+            borderRadius="md"
+          />
+          <Skeleton
+            height="38px"
+            width={{ base: 'calc(50% - 5px)', md: '150px' }}
+            borderRadius="md"
+          />
+          <Skeleton
+            height="38px"
+            width={{ base: 'calc(50% - 5px)', md: '150px' }}
+            borderRadius="md"
+          />
+        </Flex>
+
+        <Flex align="center" justify="space-between" gap={3} width="100%">
+          <Skeleton height="32px" width="150px" borderRadius="md" />
+          <Flex align="center" justify="flex-end" gap={2.5} minW={0}>
+            <Skeleton
+              height="38px"
+              width="132px"
+              borderRadius="full"
+              flexShrink={0}
+            />
+            <Skeleton
+              height="38px"
+              width="80px"
+              borderRadius="md"
+              flexShrink={0}
+            />
+          </Flex>
+        </Flex>
+      </Flex>
+
+      {/* Match Cards Skeleton */}
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md:
+            viewMode === 'list'
+              ? 'repeat(auto-fit, minmax(420px, 1fr))'
+              : 'repeat(2, 1fr)',
+          xl:
+            viewMode === 'list'
+              ? 'repeat(auto-fit, minmax(460px, 1fr))'
+              : 'repeat(3, 1fr)',
+        }}
+        gap={viewMode === 'list' ? 3 : 4}
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Box
+            key={index}
+            borderWidth="1px"
+            borderRadius="lg"
+            overflow="hidden"
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            p={4}
+          >
+            {viewMode === 'list' ? (
+              // List view skeleton
+              <Flex direction="column" gap={3}>
+                <Flex justify="space-between" align="start">
+                  <Skeleton height="24px" width="120px" />
+                  <Skeleton height="20px" width="80px" borderRadius="full" />
+                </Flex>
+                <Flex gap={2}>
+                  <Skeleton height="20px" width="60px" />
+                  <Skeleton height="20px" width="100px" />
+                </Flex>
+                <Flex justify="space-between" align="center">
+                  <Skeleton height="32px" width="140px" />
+                  <Skeleton height="32px" width="40px" />
+                  <Skeleton height="32px" width="140px" />
+                </Flex>
+                <Flex gap={2} justify="flex-end">
+                  <Skeleton height="32px" width="80px" borderRadius="md" />
+                  <Skeleton height="32px" width="80px" borderRadius="md" />
+                </Flex>
+              </Flex>
+            ) : (
+              // Grid view skeleton
+              <Flex direction="column" gap={3}>
+                <Skeleton height="20px" width="100px" />
+                <Skeleton height="120px" width="100%" borderRadius="md" />
+                <Flex justify="space-between">
+                  <Skeleton height="24px" width="60px" />
+                  <Skeleton height="24px" width="60px" />
+                </Flex>
+                <Skeleton height="16px" width="80%" />
+              </Flex>
+            )}
+          </Box>
+        ))}
+      </Grid>
+    </Box>
+  );
+}
+
+const FILTER_CONTROL_PROPS = {
+  bg: 'white',
+  _dark: { bg: 'gray.800' },
+  borderRadius: 'md',
+  boxShadow: 'sm',
+  h: '38px',
+  minH: '38px',
+  overflow: 'hidden',
+  css: {
+    '& > div': {
+      height: '100%',
+    },
+    '& [data-scope="select"][data-part="trigger"]': {
+      minHeight: '38px',
+      height: '38px',
+      paddingTop: 0,
+      paddingBottom: 0,
+      alignItems: 'center',
+    },
+  },
+} as const;
 
 interface SessionMatchesTabProps {
   sessionId: string;
@@ -40,6 +194,7 @@ interface SessionMatchesTabProps {
     }>;
   };
   defaultPlayerId?: string;
+  restrictedPlayerId?: string;
   readOnly?: boolean;
 }
 
@@ -47,27 +202,45 @@ export default function SessionMatchesTab({
   sessionId,
   sessionData,
   defaultPlayerId,
+  restrictedPlayerId,
   readOnly,
 }: SessionMatchesTabProps) {
   const t = useTranslations('SessionDetail.matchs');
   const [matches, setMatches] = useState<HistoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(
-    defaultPlayerId ? [defaultPlayerId] : []
+    restrictedPlayerId
+      ? [restrictedPlayerId]
+      : defaultPlayerId
+        ? [defaultPlayerId]
+        : []
   );
   const [selectedCourtId, setSelectedCourtId] = useState<string>('');
   const [resultFilter, setResultFilter] = useState<string>(''); // '' = all, 'with' = có kết quả, 'without' = không có kết quả
+  const [sortBy, setSortBy] = useState<MatchSortBy>('time_desc');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [viewMode, setViewMode] = useViewMode('session-matches');
+  const matchViewMode = viewMode === 'list' ? 'list' : 'grid';
   const [players, setPlayers] = useState<
     (Player | { id: string; playerNumber: number; name?: string })[]
   >(sessionData?.players || []);
 
-  // Sync defaultPlayerId when it changes
+  const effectiveSelectedPlayerIds = useMemo(
+    () => (restrictedPlayerId ? [restrictedPlayerId] : selectedPlayerIds),
+    [restrictedPlayerId, selectedPlayerIds]
+  );
+
+  // Sync incoming player constraints only when they change.
   useEffect(() => {
-    if (defaultPlayerId && !selectedPlayerIds.includes(defaultPlayerId)) {
-      setSelectedPlayerIds([defaultPlayerId]);
-    }
-  }, [defaultPlayerId, selectedPlayerIds]);
+    const incomingPlayerId = restrictedPlayerId ?? defaultPlayerId;
+    if (!incomingPlayerId) return;
+
+    setSelectedPlayerIds((currentIds) =>
+      currentIds.includes(incomingPlayerId) ? currentIds : [incomingPlayerId]
+    );
+  }, [defaultPlayerId, restrictedPlayerId]);
   const [courts, setCourts] = useState<
     (Court | { id: string; courtNumber: number; courtName?: string })[]
   >(sessionData?.courts || []);
@@ -84,8 +257,9 @@ export default function SessionMatchesTab({
   // Use ref to store sessionData to avoid triggering effect on object reference changes
   const sessionDataRef = useRef(sessionData);
   sessionDataRef.current = sessionData;
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
 
-  const loadData = async () => {
+  const loadData = async (isRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -110,8 +284,8 @@ export default function SessionMatchesTab({
       // Step 2: Load matches
       const filters: { playerId?: string; courtId?: string } = {};
       // If multiple players selected, we'll filter client-side
-      if (selectedPlayerIds.length === 1) {
-        filters.playerId = selectedPlayerIds[0];
+      if (effectiveSelectedPlayerIds.length === 1) {
+        filters.playerId = effectiveSelectedPlayerIds[0];
       }
       if (selectedCourtId) filters.courtId = selectedCourtId;
 
@@ -280,19 +454,12 @@ export default function SessionMatchesTab({
         });
       }
 
-      // Sort by startTime descending
-      allMatches.sort((a, b) => {
-        const aDate = a.startTime ? new Date(a.startTime).getTime() : 0;
-        const bDate = b.startTime ? new Date(b.startTime).getTime() : 0;
-        return bDate - aDate;
-      });
-
       // Client-side filtering for multiple players
       let filteredMatches = allMatches;
 
-      if (selectedPlayerIds.length > 1) {
+      if (effectiveSelectedPlayerIds.length > 0) {
         filteredMatches = filteredMatches.filter((match) =>
-          selectedPlayerIds.some((playerId) =>
+          effectiveSelectedPlayerIds.some((playerId) =>
             match.playerIds?.includes(playerId)
           )
         );
@@ -319,13 +486,76 @@ export default function SessionMatchesTab({
       console.error('Error fetching match history:', err);
     } finally {
       setLoading(false);
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
     }
   };
+
+  const sortedMatches = useMemo(() => {
+    return [...matches].sort((a, b) => {
+      const aDate = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const bDate = b.startTime ? new Date(b.startTime).getTime() : 0;
+      return sortBy === 'time_desc' ? bDate - aDate : aDate - bDate;
+    });
+  }, [matches, sortBy]);
+
+  const playerOptions = useMemo<PlayerSelectOption[]>(
+    () =>
+      players.map((player) => ({
+        value: player.id,
+        label: player.name || t('unnamed'),
+        playerNumber: player.playerNumber,
+      })),
+    [players, t]
+  );
+
+  const sortOptions = useMemo(
+    () => [
+      {
+        value: 'time_desc' as const,
+        label: t('sortNewest'),
+        icon: CalendarArrowDown,
+      },
+      {
+        value: 'time_asc' as const,
+        label: t('sortOldest'),
+        icon: CalendarArrowUp,
+      },
+    ],
+    [t]
+  );
+
+  const activeSortOption = sortOptions.find(
+    (option) => option.value === sortBy
+  );
+
+  const handleSortSelect = (value: MatchSortBy) => {
+    setSortBy(value);
+    setIsSortOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsSortOpen(false);
+      }
+    };
+
+    if (isSortOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSortOpen]);
 
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, selectedPlayerIds, selectedCourtId, resultFilter]);
+  }, [sessionId, effectiveSelectedPlayerIds, selectedCourtId, resultFilter]);
 
   const handleEditMatch = (match: HistoryMatch) => {
     setSelectedMatch(match);
@@ -338,7 +568,7 @@ export default function SessionMatchesTab({
   };
 
   const handleMatchUpdate = () => {
-    loadData(); // Refresh data
+    loadData(true); // Refresh data without showing skeleton
   };
 
   const handleDeleteMatch = (match: HistoryMatch) => {
@@ -358,7 +588,7 @@ export default function SessionMatchesTab({
         duration: 3000,
         closable: true,
       });
-      loadData();
+      loadData(true); // Refresh data without showing skeleton
       setIsDeleteModalOpen(false);
       setMatchToDelete(null);
     } catch (err) {
@@ -383,7 +613,7 @@ export default function SessionMatchesTab({
         duration: 3000,
         closable: true,
       });
-      loadData();
+      loadData(true); // Refresh data without showing skeleton
     } catch (err) {
       console.error('Error toggling extra status:', err);
       toaster.create({
@@ -401,67 +631,65 @@ export default function SessionMatchesTab({
         {t('matches')}
       </Text> */}
 
-      <Flex
-        mb={6}
-        mt={2}
-        flexDirection={{ base: 'column', md: 'row' }}
-        align={{ base: 'flex-start', md: 'center' }}
-        justify="space-between"
-        gap={4}
-      >
-        <Heading size="md">
-          {t('matchCount', { count: matches.length })}
-        </Heading>
-
-        <Flex gap={3} flexWrap="wrap" width={{ base: '100%', md: 'auto' }}>
-          {/* Player Filter - Multi Select */}
-          <Box
-            width={{ base: '100%', sm: '220px' }}
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-            borderRadius="md"
-            boxShadow="sm"
-          >
-            <VMultiSelect
-              value={selectedPlayerIds}
-              onChange={setSelectedPlayerIds}
-              options={players.map((player) => ({
-                value: player.id,
-                label: player.name || t('unnamed'),
-                playerNumber: player.playerNumber,
-              }))}
-              placeholder={t('allPlayers')}
-              size="sm"
-              variant="outline"
-              renderItem={(option) => (
-                <Flex align="baseline" gap={1}>
-                  <Text color="gray.500" fontSize="xs" fontWeight="medium">
-                    #{(option as any).playerNumber}
-                  </Text>
-                  <Text fontSize="sm">{option.label}</Text>
-                </Flex>
-              )}
-              renderSelected={(options) => {
-                if (options.length === 0) return '';
-                if (options.length === 1) {
-                  return `#${(options[0] as any).playerNumber} ${options[0].label}`;
-                }
-                if (options.length === 2) {
-                  return `#${(options[0] as any).playerNumber} ${options[0].label}, #${(options[1] as any).playerNumber} ${options[1].label}`;
-                }
-                // Show first player and count for 3+
-                return `#${(options[0] as any).playerNumber} ${options[0].label} +${options.length - 1}`;
+      <Flex mb={6} mt={2} direction="column" gap={3}>
+        <Flex
+          gap={2.5}
+          flexWrap="wrap"
+          width="100%"
+          justify={{ base: 'stretch', md: 'flex-end' }}
+        >
+          {!restrictedPlayerId && (
+            <Box
+              width={{ base: '100%', md: '260px' }}
+              {...FILTER_CONTROL_PROPS}
+              css={{
+                ...FILTER_CONTROL_PROPS.css,
+                '& > div > div:first-of-type': {
+                  height: '38px',
+                  minHeight: '38px',
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                },
               }}
-            />
-          </Box>
+            >
+              <VMultiSelect
+                value={selectedPlayerIds}
+                onChange={setSelectedPlayerIds}
+                options={playerOptions}
+                placeholder={t('allPlayers')}
+                size="sm"
+                variant="outline"
+                renderItem={(option) => {
+                  const playerOption = option as PlayerSelectOption;
+                  return (
+                    <Flex align="baseline" gap={1}>
+                      <Text color="gray.500" fontSize="xs" fontWeight="medium">
+                        #{playerOption.playerNumber}
+                      </Text>
+                      <Text fontSize="sm">{playerOption.label}</Text>
+                    </Flex>
+                  );
+                }}
+                renderSelected={(options) => {
+                  const selectedOptions = options as PlayerSelectOption[];
+                  if (options.length === 0) return '';
+                  if (selectedOptions.length === 1) {
+                    return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label}`;
+                  }
+                  if (selectedOptions.length === 2) {
+                    return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label}, #${selectedOptions[1].playerNumber} ${selectedOptions[1].label}`;
+                  }
+                  // Show first player and count for 3+
+                  return `#${selectedOptions[0].playerNumber} ${selectedOptions[0].label} +${selectedOptions.length - 1}`;
+                }}
+              />
+            </Box>
+          )}
 
           {/* Court Filter */}
           <Box
-            width={{ base: 'calc(50% - 6px)', sm: '160px' }}
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-            borderRadius="md"
-            boxShadow="sm"
+            width={{ base: 'calc(50% - 5px)', md: '150px' }}
+            {...FILTER_CONTROL_PROPS}
           >
             <VSelect
               value={selectedCourtId}
@@ -487,11 +715,8 @@ export default function SessionMatchesTab({
 
           {/* Result Status Filter */}
           <Box
-            width={{ base: 'calc(50% - 6px)', sm: '160px' }}
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-            borderRadius="md"
-            boxShadow="sm"
+            width={{ base: 'calc(50% - 5px)', md: '150px' }}
+            {...FILTER_CONTROL_PROPS}
           >
             <VSelect
               value={resultFilter}
@@ -509,13 +734,136 @@ export default function SessionMatchesTab({
             </VSelect>
           </Box>
         </Flex>
+
+        <Flex align="center" justify="space-between" gap={3} width="100%">
+          <Heading size="md" flexShrink={0}>
+            {t('matchCount', { count: sortedMatches.length })}
+          </Heading>
+
+          <Flex align="center" justify="flex-end" gap={2.5} minW={0}>
+            {/* Sort */}
+            <Box
+              position="relative"
+              ref={sortDropdownRef}
+              width={{ base: '132px', sm: '132px', md: '132px' }}
+              flexShrink={0}
+            >
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsSortOpen((current) => !current)}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                gap={2}
+                h="38px"
+                w="100%"
+                px={3}
+                borderRadius="full"
+                borderColor={
+                  isSortOpen
+                    ? { base: 'green.500', _dark: 'green.400' }
+                    : { base: 'gray.300', _dark: 'gray.600' }
+                }
+                borderWidth={isSortOpen ? '2px' : '1px'}
+                bg={{ base: 'white', _dark: 'gray.800' }}
+                color={{
+                  base: isSortOpen ? 'green.700' : 'gray.700',
+                  _dark: isSortOpen ? 'green.300' : 'gray.200',
+                }}
+                fontWeight="normal"
+                fontSize="sm"
+                shadow={isSortOpen ? '0 0 0 3px rgba(22, 163, 74, 0.16)' : 'xs'}
+                _hover={{
+                  bg: { base: 'gray.50', _dark: 'gray.700' },
+                  borderColor: { base: 'green.500', _dark: 'green.400' },
+                }}
+                _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
+              >
+                {activeSortOption &&
+                  React.createElement(activeSortOption.icon, { size: 16 })}
+                <Text as="span" truncate>
+                  {activeSortOption?.label}
+                </Text>
+                <ChevronDown
+                  size={14}
+                  style={{
+                    transition: 'transform 0.2s',
+                    transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </Button>
+
+              {isSortOpen && (
+                <Box
+                  position="absolute"
+                  top="calc(100% + 6px)"
+                  right={0}
+                  zIndex={200}
+                  bg={{ base: 'white', _dark: 'gray.800' }}
+                  border="1px solid"
+                  borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+                  borderRadius="xl"
+                  boxShadow="lg"
+                  minW="180px"
+                  overflow="hidden"
+                  py={1}
+                >
+                  {sortOptions.map((option) => {
+                    const OptionIcon = option.icon;
+                    const isActive = option.value === sortBy;
+
+                    return (
+                      <Flex
+                        key={option.value}
+                        align="center"
+                        gap={2.5}
+                        px={3}
+                        py={2.5}
+                        cursor="pointer"
+                        bg={
+                          isActive
+                            ? { base: 'green.50', _dark: 'green.900' }
+                            : 'transparent'
+                        }
+                        color={
+                          isActive
+                            ? 'green.600'
+                            : { base: 'gray.700', _dark: 'gray.200' }
+                        }
+                        fontWeight={isActive ? 'semibold' : 'normal'}
+                        fontSize="sm"
+                        _hover={{
+                          bg: isActive
+                            ? { base: 'green.100', _dark: 'green.800' }
+                            : { base: 'gray.50', _dark: 'gray.700' },
+                        }}
+                        onClick={() => handleSortSelect(option.value)}
+                      >
+                        <OptionIcon size={16} />
+                        <Text flex={1}>{option.label}</Text>
+                        {isActive && <Check size={14} />}
+                      </Flex>
+                    );
+                  })}
+                </Box>
+              )}
+            </Box>
+
+            <Box flexShrink={0}>
+              <ViewModeToggle
+                showMap={false}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+              />
+            </Box>
+          </Flex>
+        </Flex>
       </Flex>
 
       {/* Results */}
-      {loading ? (
-        <Center py={10}>
-          <Spinner size="xl" color="green.500" />
-        </Center>
+      {loading && isInitialLoad ? (
+        <MatchesTabSkeleton viewMode={matchViewMode} />
       ) : error ? (
         <Box
           p={4}
@@ -528,7 +876,7 @@ export default function SessionMatchesTab({
         >
           <Text fontWeight="medium">{error}</Text>
         </Box>
-      ) : matches.length === 0 ? (
+      ) : sortedMatches.length === 0 ? (
         <Box
           textAlign="center"
           py={10}
@@ -542,7 +890,9 @@ export default function SessionMatchesTab({
             {t('noCompletedMatches')}
           </Heading>
           <Text color="gray.500">
-            {selectedPlayerIds.length > 0 || selectedCourtId || resultFilter
+            {effectiveSelectedPlayerIds.length > 0 ||
+            selectedCourtId ||
+            resultFilter
               ? t('noMatchesWithFilters')
               : t('noMatchesYet')}
           </Text>
@@ -551,16 +901,23 @@ export default function SessionMatchesTab({
         <Grid
           templateColumns={{
             base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
+            md:
+              matchViewMode === 'list'
+                ? 'repeat(auto-fit, minmax(420px, 1fr))'
+                : 'repeat(2, 1fr)',
+            xl:
+              matchViewMode === 'list'
+                ? 'repeat(auto-fit, minmax(460px, 1fr))'
+                : 'repeat(3, 1fr)',
           }}
-          gap={6}
+          gap={matchViewMode === 'list' ? 3 : 4}
         >
-          {matches.map((match) => (
+          {sortedMatches.map((match) => (
             <HistoryMatchCard
               key={match.id}
               match={match}
               direction={match.direction ?? CourtDirection.HORIZONTAL}
+              variant={matchViewMode}
               onEdit={readOnly ? undefined : handleEditMatch}
               onDelete={readOnly ? undefined : handleDeleteMatch}
               onToggleExtra={readOnly ? undefined : handleToggleExtra}

@@ -14,6 +14,8 @@ export const ROUTES = {
   AUTH: {
     SIGNIN: '/auth/signin',
     SIGNUP: '/auth/signup',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
     CALLBACK: '/auth/callback',
   },
 
@@ -142,7 +144,9 @@ export const ROUTES = {
   ADMIN: {
     USERS: '/admin/users',
     NOTIFICATIONS: '/admin/notifications',
+    FEEDBACK: '/admin/feedback',
     GENERAL: '/admin/general',
+    LEVEL_DESCRIPTIONS: '/admin/level-descriptions',
     VENUES: '/admin/venues',
     CLUBS: '/admin/clubs/pending',
   },
@@ -156,6 +160,8 @@ export const ROUTES = {
   SETTINGS: '/settings',
   PLAYER_STATUS: '/player-status',
   ABOUT: '/about',
+  GUIDE: '/guide',
+  FEEDBACK: '/feedback',
 } as const;
 
 // ==================== ROUTE GROUPS ====================
@@ -174,9 +180,12 @@ export const ROUTE_GROUPS = {
     ROUTES.PLAYER.TRANSACTIONS,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.NOTIFICATIONS,
+    ROUTES.ADMIN.FEEDBACK,
     ROUTES.ADMIN.GENERAL,
+    ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
     ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
+    ROUTES.FEEDBACK,
   ],
 
   // Public routes
@@ -184,12 +193,15 @@ export const ROUTE_GROUPS = {
     ROUTES.HOME,
     ROUTES.AUTH.SIGNIN,
     ROUTES.AUTH.SIGNUP,
+    ROUTES.AUTH.FORGOT_PASSWORD,
+    ROUTES.AUTH.RESET_PASSWORD,
     ROUTES.JOIN.ENTRY,
     ROUTES.JOIN.REGISTER,
     ROUTES.JOIN.BY_CODE,
     ROUTES.BROWSE.TOURNAMENTS.LIST,
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.ABOUT,
+    ROUTES.GUIDE,
   ],
 
   // Host-only routes
@@ -206,6 +218,8 @@ export const ROUTE_GROUPS = {
   ADMIN_ONLY: [
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.NOTIFICATIONS,
+    ROUTES.ADMIN.FEEDBACK,
+    ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
     ROUTES.ADMIN.CLUBS,
   ],
 
@@ -298,6 +312,8 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Home',
   [ROUTES.AUTH.SIGNIN]: 'Sign In',
   [ROUTES.AUTH.SIGNUP]: 'Sign Up',
+  [ROUTES.AUTH.FORGOT_PASSWORD]: 'Forgot Password',
+  [ROUTES.AUTH.RESET_PASSWORD]: 'Reset Password',
   [ROUTES.HOST.SESSIONS.LIST]: 'My Sessions',
   [ROUTES.HOST.TRANSACTIONS]: 'Transactions',
   [ROUTES.HOST.PAYMENT_SETTINGS]: 'Payment Settings',
@@ -308,8 +324,12 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.BROWSE.TOURNAMENTS.LIST]: 'Browse Tournaments',
   [ROUTES.SETTINGS]: 'Settings',
   [ROUTES.ABOUT]: 'About',
+  [ROUTES.GUIDE]: 'User Guide',
+  [ROUTES.FEEDBACK]: 'Contact & Bug Report',
   [ROUTES.ADMIN.USERS]: 'Users',
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',
+  [ROUTES.ADMIN.FEEDBACK]: 'Feedback',
+  [ROUTES.ADMIN.LEVEL_DESCRIPTIONS]: 'Level Descriptions',
   [ROUTES.ADMIN.CLUBS]: 'Club Approval',
 };
 

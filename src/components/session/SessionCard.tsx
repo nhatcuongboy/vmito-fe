@@ -13,8 +13,6 @@ import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { toaster } from '@/components/ui/toaster';
-import SessionShareCard from './SessionShareCard';
-import { Portal } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import MyRegistrationModal from './MyRegistrationModal';
 import type { ViewMode } from '@/hooks/useViewMode';
@@ -370,25 +368,6 @@ const SessionCard = ({
           {deleteModal}
           {viewRegistrationModal}
           {endConfirmModal}
-          {/* Hidden SessionShareCards for image generation */}
-          {canManage && (
-            <Portal>
-              <Box
-                position="absolute"
-                left="-9999px"
-                top="-9999px"
-                zIndex={-1}
-                pointerEvents="none"
-              >
-                <Box>
-                  <SessionShareCard session={session} mode="portrait" />
-                </Box>
-                <Box mt={4}>
-                  <SessionShareCard session={session} mode="social" />
-                </Box>
-              </Box>
-            </Portal>
-          )}
         </>
       }
     />

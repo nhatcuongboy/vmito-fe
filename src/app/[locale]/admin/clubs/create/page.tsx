@@ -346,6 +346,7 @@ const AdminCreateClubPage = () => {
               value={watch('description')}
               onChange={(html) => setValue('description', html)}
               placeholder={t('descriptionPlaceholder')}
+              minHeight="120px"
             />
           </Field>
 
@@ -366,16 +367,16 @@ const AdminCreateClubPage = () => {
 
           {/* Multi-Venue + Schedule */}
           <Field label="Sân hoạt động">
-            <VStack spacing={4} align="stretch">
+            <VStack spacing={3} align="stretch">
               {venueGroups.map((group, groupIdx) => (
                 <Box
                   key={groupIdx}
                   borderWidth="1px"
                   borderRadius="md"
                   borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-                  p={4}
+                  p={3}
                 >
-                  <Flex gap={2} align="center" mb={3}>
+                  <Flex gap={2} align="center" mb={2}>
                     <Box flex="1" minW={0} overflow="hidden">
                       <SearchableSelect
                         options={venueOptions}
@@ -399,10 +400,10 @@ const AdminCreateClubPage = () => {
                     </IconButton>
                   </Flex>
 
-                  <VStack spacing={2} align="stretch">
+                  <VStack spacing={1.5} align="stretch">
                     {group.schedules.map((sched, schedIdx) => (
                       <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '100px', md: '120px' }}>
+                        <Box flex="1" minW={{ base: '90px', md: '110px' }}>
                           <LegacySelect
                             size="sm"
                             value={String(sched.dayOfWeek)}
@@ -436,7 +437,7 @@ const AdminCreateClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                         />
                         <Text fontSize="xs" color="gray.500">
@@ -454,7 +455,7 @@ const AdminCreateClubPage = () => {
                               e.target.value
                             )
                           }
-                          w={{ base: '100px', md: '120px' }}
+                          w={{ base: '90px', md: '110px' }}
                           px={1}
                         />
                         <IconButton
@@ -469,7 +470,7 @@ const AdminCreateClubPage = () => {
                       </Flex>
                     ))}
                     <Button
-                      size="sm"
+                      size="xs"
                       variant="ghost"
                       onClick={() => addSchedule(groupIdx)}
                       w="fit-content"

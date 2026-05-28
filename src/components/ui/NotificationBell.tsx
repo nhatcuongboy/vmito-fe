@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Flex,
@@ -48,6 +48,7 @@ import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
+import { getNotificationDisplayText } from '@/lib/notifications/content';
 
 interface NotificationBellProps {
   color?: string;
@@ -63,69 +64,7 @@ type TUnifiedItem =
       timestamp: number;
     };
 
-const ACTION_TO_KEYS: Record<string, { titleKey: string; messageKey: string }> =
-  {
-    start_reminder: {
-      titleKey: 'messages.startReminderTitle',
-      messageKey: 'messages.startReminderMessage',
-    },
-    player_start_reminder: {
-      titleKey: 'messages.playerStartReminderTitle',
-      messageKey: 'messages.playerStartReminderMessage',
-    },
-    auto_started: {
-      titleKey: 'messages.autoStartedTitle',
-      messageKey: 'messages.autoStartedMessage',
-    },
-    session_auto_started: {
-      titleKey: 'messages.sessionAutoStartedTitle',
-      messageKey: 'messages.sessionAutoStartedMessage',
-    },
-    auto_cancelled: {
-      titleKey: 'messages.autoCancelledTitle',
-      messageKey: 'messages.autoCancelledMessage',
-    },
-    session_cancelled: {
-      titleKey: 'messages.sessionCancelledTitle',
-      messageKey: 'messages.sessionCancelledMessage',
-    },
-    end_warning: {
-      titleKey: 'messages.endWarningTitle',
-      messageKey: 'messages.endWarningMessage',
-    },
-    auto_finalized: {
-      titleKey: 'messages.autoFinalizedTitle',
-      messageKey: 'messages.autoFinalizedMessage',
-    },
-    player_added: {
-      titleKey: 'messages.playerAddedTitle',
-      messageKey: 'messages.playerAddedMessage',
-    },
-    player_removed: {
-      titleKey: 'messages.playerRemovedTitle',
-      messageKey: 'messages.playerRemovedMessage',
-    },
-    club_creation_pending: {
-      titleKey: 'messages.clubCreationPendingTitle',
-      messageKey: 'messages.clubCreationPendingMessage',
-    },
-    admin_new_pending_club: {
-      titleKey: 'messages.adminNewPendingClubTitle',
-      messageKey: 'messages.adminNewPendingClubMessage',
-    },
-    club_creation_approved: {
-      titleKey: 'messages.clubCreationApprovedTitle',
-      messageKey: 'messages.clubCreationApprovedMessage',
-    },
-    club_approved: {
-      titleKey: 'messages.clubApprovedTitle',
-      messageKey: 'messages.clubApprovedMessage',
-    },
-    club_rejected: {
-      titleKey: 'messages.clubRejectedTitle',
-      messageKey: 'messages.clubRejectedMessage',
-    },
-  };
+const PANEL_CACHE_TTL_MS = 30_000;
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -162,6 +101,7 @@ export default function NotificationBell({
   >(null);
   const [pendingCount, setPendingCount] = useState(0);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const pendingRequestsFetchedAtRef = useRef<number | null>(null);
 
   const {
     notifications,
@@ -173,6 +113,33 @@ export default function NotificationBell({
     markAllAsRead,
     deleteNotification,
   } = useNotificationStore();
+
+  const fetchPendingRequests = useCallback(
+    async ({ force = false }: { force?: boolean } = {}) => {
+      const hasCachedPendingRequests = pendingRequests.length > 0;
+      const lastFetchedAt = pendingRequestsFetchedAtRef.current;
+      const isCacheFresh =
+        !!lastFetchedAt && Date.now() - lastFetchedAt < PANEL_CACHE_TTL_MS;
+
+      if (!force && isCacheFresh) {
+        return;
+      }
+
+      setIsPendingLoading(!lastFetchedAt && !hasCachedPendingRequests);
+
+      try {
+        const result = await PlayerService.getPendingRequests({ limit: 20 });
+        setPendingRequests(result.data);
+        setPendingCount(result.data.length);
+        pendingRequestsFetchedAtRef.current = Date.now();
+      } catch (error) {
+        console.error('Failed to fetch pending requests:', error);
+      } finally {
+        setIsPendingLoading(false);
+      }
+    },
+    [pendingRequests.length]
+  );
 
   useEffect(() => {
     if (user) {
@@ -188,14 +155,7 @@ export default function NotificationBell({
     if (open && user) {
       fetchNotifications(true);
       fetchUnreadCount();
-      setIsPendingLoading(true);
-      PlayerService.getPendingRequests({ limit: 20 })
-        .then((result) => {
-          setPendingRequests(result.data);
-          setPendingCount(result.data.length);
-        })
-        .catch(() => {})
-        .finally(() => setIsPendingLoading(false));
+      fetchPendingRequests();
     }
   };
 
@@ -307,43 +267,9 @@ export default function NotificationBell({
   };
 
   const getNotificationDisplay = (notification: INotification) => {
-    const action = notification.data?.action as string | undefined;
-    const sessionName = notification.data?.sessionName as string | undefined;
-    const clubName = notification.data?.clubName as string | undefined;
-    const rejectionReason = notification.data?.rejectionReason as
-      | string
-      | undefined;
-    const keys = action ? ACTION_TO_KEYS[action] : undefined;
-    const resourceName = sessionName ?? clubName;
-    const translationParams = {
-      ...(sessionName ? { sessionName } : {}),
-      ...(clubName ? { clubName } : {}),
-      ...(rejectionReason ? { rejectionReason } : {}),
-    };
-    const displayTitle =
-      keys && resourceName
-        ? (() => {
-            try {
-              return t(keys.titleKey as Parameters<typeof t>[0]);
-            } catch {
-              return notification.title;
-            }
-          })()
-        : notification.title;
-    const displayMessage =
-      keys && resourceName
-        ? (() => {
-            try {
-              return t(
-                keys.messageKey as Parameters<typeof t>[0],
-                translationParams
-              );
-            } catch {
-              return notification.message;
-            }
-          })()
-        : notification.message;
-    return { displayTitle, displayMessage };
+    return getNotificationDisplayText(notification, (key, values) =>
+      t(key as Parameters<typeof t>[0], values)
+    );
   };
 
   if (!user) return null;
@@ -365,15 +291,30 @@ export default function NotificationBell({
         <Box position="relative" display="inline-block" cursor="pointer">
           <IconButton
             aria-label="Notifications"
-            variant="ghost"
-            size="md"
+            size={{ base: 'sm', md: 'md' }}
+            minW={{ base: '36px', md: '40px' }}
+            h={{ base: '36px', md: '40px' }}
             borderRadius="full"
-            color={color}
-            _hover={
-              _hover || { bg: 'blackAlpha.50', _dark: { bg: 'whiteAlpha.100' } }
-            }
+            color={isOpen ? 'white' : 'blue.600'}
+            bg={isOpen ? 'blue.600' : 'blue.50'}
+            border="1px solid"
+            borderColor={isOpen ? 'blue.600' : 'blue.100'}
+            boxShadow={isOpen ? '0 4px 12px rgba(59,130,246,0.28)' : 'none'}
+            _dark={{
+              color: isOpen ? 'white' : 'blue.200',
+              bg: isOpen ? 'blue.500' : 'blue.950',
+              borderColor: isOpen ? 'blue.500' : 'blue.800',
+            }}
+            _hover={{
+              bg: isOpen ? 'blue.700' : 'blue.100',
+              borderColor: 'blue.300',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 6px 16px rgba(59,130,246,0.26)',
+            }}
+            _active={{ transform: 'translateY(0) scale(0.96)' }}
+            transition="all 0.2s ease"
           >
-            <LuBell size={22} />
+            <LuBell size={18} />
           </IconButton>
 
           {totalBadgeCount > 0 && (
@@ -408,7 +349,7 @@ export default function NotificationBell({
         boxShadow="0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)"
         borderRadius="2xl"
         bg="white"
-        _dark={{ bg: 'gray.900', borderColor: 'gray.800' }}
+        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
         p={0}
         overflow="hidden"
       >
@@ -507,7 +448,7 @@ export default function NotificationBell({
                           bg: 'rgba(251,146,60,0.07)',
                           borderColor: 'rgba(251,146,60,0.15)',
                         }}
-                        transition="all 0.15s"
+                        transition="background-color 0.15s ease, border-color 0.15s ease"
                         _hover={{
                           bg: 'orange.50',
                           _dark: { bg: 'rgba(251,146,60,0.12)' },
@@ -578,7 +519,7 @@ export default function NotificationBell({
                             <Text
                               fontSize="xs"
                               color="gray.500"
-                              _dark={{ color: 'gray.400' }}
+                              _dark={{ color: 'fg.subtle' }}
                               lineHeight="normal"
                               truncate
                               w="100%"
@@ -652,7 +593,7 @@ export default function NotificationBell({
                         bg: isUnread ? 'green.900/30' : 'transparent',
                         borderColor: isUnread ? 'green.800/60' : 'gray.800',
                       }}
-                      transition="all 0.15s"
+                      transition="background-color 0.15s ease, border-color 0.15s ease"
                       _hover={{
                         bg: isUnread ? 'green.100' : 'gray.50',
                         _dark: {
@@ -739,7 +680,7 @@ export default function NotificationBell({
                             fontSize="xs"
                             color={isUnread ? 'gray.700' : 'gray.500'}
                             _dark={{
-                              color: isUnread ? 'gray.300' : 'gray.500',
+                              color: isUnread ? 'fg.subtle' : 'gray.400',
                             }}
                             lineHeight="normal"
                             lineClamp={2}
@@ -754,7 +695,7 @@ export default function NotificationBell({
                               fontWeight={isUnread ? 'semibold' : 'medium'}
                               color={isUnread ? 'green.600' : 'gray.500'}
                               _dark={{
-                                color: isUnread ? 'green.400' : 'gray.500',
+                                color: isUnread ? 'green.400' : 'gray.400',
                               }}
                             >
                               {formatTimeAgo(notification.createdAt)}
@@ -767,6 +708,8 @@ export default function NotificationBell({
                               colorPalette="red"
                               opacity={0}
                               _groupHover={{ opacity: 1 }}
+                              _focusVisible={{ opacity: 1 }}
+                              _dark={{ color: 'red.300' }}
                               onClick={(e) =>
                                 handleDeleteNotification(e, notification.id)
                               }

@@ -80,7 +80,7 @@ const ScoreAnnouncerExample = () => {
 
         {/* ---------- Unlock button (required on iOS) ---------- */}
         {!isAudioReady && (
-          <Button colorPalette="blue" size="lg" onClick={handleUnlockAudio}>
+          <Button colorPalette="green" size="lg" onClick={handleUnlockAudio}>
             Tap to Enable Audio
           </Button>
         )}
