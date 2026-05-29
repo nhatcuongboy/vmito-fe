@@ -31,7 +31,7 @@ export const usePlayerManagement = (
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
   const [newPlayerErrors, setNewPlayerErrors] = useState<{
-    [index: number]: string;
+    [key: string]: string;
   }>({});
   const [clubs, setClubs] = useState<IClub[]>([]);
 
@@ -115,10 +115,7 @@ export const usePlayerManagement = (
 
   const removeNewPlayerRow = (index: number) => {
     setNewPlayers(newPlayers.filter((_, i) => i !== index));
-    // Also clear errors for this index if any
-    const newErrors = { ...newPlayerErrors };
-    delete newErrors[index];
-    setNewPlayerErrors(newErrors);
+    setNewPlayerErrors({});
   };
 
   const clearAllNewPlayers = () => {
@@ -136,11 +133,11 @@ export const usePlayerManagement = (
         i === index ? { ...player, [field]: value } : player
       )
     );
-    // Clear error when user starts typing name
-    if (field === 'name' && newPlayerErrors[index]) {
+    const errorKey = `${index}.${field}`;
+    if (newPlayerErrors[errorKey]) {
       setNewPlayerErrors((prev) => {
         const newState = { ...prev };
-        delete newState[index];
+        delete newState[errorKey];
         return newState;
       });
     }
@@ -189,8 +186,13 @@ export const usePlayerManagement = (
     if (selectedUser) {
       updateNewPlayer(index, 'userId', selectedUser.id);
       updateNewPlayer(index, 'name', selectedUser.name);
-      if (selectedUser.gender) {
+      if (
+        selectedUser.gender === Gender.MALE ||
+        selectedUser.gender === Gender.FEMALE
+      ) {
         updateNewPlayer(index, 'gender', selectedUser.gender);
+      } else {
+        updateNewPlayer(index, 'gender', Gender.MALE);
       }
       if (selectedUser.level) {
         updateNewPlayer(index, 'level', selectedUser.level);
@@ -241,10 +243,16 @@ export const usePlayerManagement = (
   };
 
   const validateNewPlayers = () => {
-    const errors: { [index: number]: string } = {};
+    const errors: { [key: string]: string } = {};
     newPlayers.forEach((player: NewPlayer, idx: number) => {
       if (!player.name || player.name.trim() === '') {
-        errors[idx] = t('playerNameRequired');
+        errors[`${idx}.name`] = t('playerNameRequired');
+      }
+      if (player.level === null || player.level === undefined) {
+        errors[`${idx}.level`] = t('levelRequired');
+      }
+      if (player.isClubMember && !player.clubId) {
+        errors[`${idx}.clubId`] = t('clubRequired');
       }
     });
     setNewPlayerErrors(errors);
@@ -253,7 +261,7 @@ export const usePlayerManagement = (
 
   const savePlayerChanges = async () => {
     if (!validateNewPlayers()) {
-      return;
+      return false;
     }
 
     try {
@@ -292,6 +300,7 @@ export const usePlayerManagement = (
         type: 'success',
         duration: 3000,
       });
+      return true;
     } catch (error) {
       console.error('Error saving player changes:', error);
       toaster.create({
@@ -299,6 +308,7 @@ export const usePlayerManagement = (
         type: 'error',
         duration: 3000,
       });
+      return false;
     } finally {
       setIsSaving(false);
     }

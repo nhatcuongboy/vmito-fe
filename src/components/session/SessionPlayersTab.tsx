@@ -114,8 +114,8 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   };
 
   const handleSaveAndClose = async () => {
-    await savePlayerChanges();
-    setShowAddPlayerModal(false);
+    const didSave = await savePlayerChanges();
+    return didSave;
   };
 
   const handleCancelWarning = () => {

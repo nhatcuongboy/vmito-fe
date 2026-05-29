@@ -2,13 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { useTranslations } from 'next-intl';
+import { vi, enUS, zhCN } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
+import { useLocale, useTranslations } from 'next-intl';
 import { Send, Trash2 } from 'lucide-react';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import type { PostComment } from '@/types/post';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { PostAvatar } from './PostAvatar';
+
+const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
 interface CommentSectionProps {
   postId: string;
@@ -24,6 +28,8 @@ export function CommentSection({
   onCommentCountChange,
 }: CommentSectionProps) {
   const t = useTranslations('posts');
+  const locale = useLocale();
+  const dateLocale = localeMap[locale] || enUS;
   const [comments, setComments] = useState<PostComment[]>([]);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
   const [newComment, setNewComment] = useState('');
@@ -124,62 +130,66 @@ export function CommentSection({
   };
 
   return (
-    <div className="mt-4 border-t border-gray-100 pt-4 dark:border-white/5">
-      <form onSubmit={handleSubmit} className="mb-4 flex items-center gap-2">
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder={t('writeComment')}
-          aria-label={t('writeComment')}
-          className="h-10 flex-1 rounded-full bg-gray-100 px-4 text-sm text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-gray-100"
-          disabled={isSubmitting}
-        />
-        <button
-          type="submit"
-          disabled={isSubmitting || !newComment.trim()}
-          aria-label={t('sendComment')}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-600 text-white transition hover:bg-green-700 active:scale-[0.95] disabled:opacity-50"
-        >
-          <Send size={18} />
-        </button>
+    <div className="border-t border-gray-200 px-4 py-3 dark:border-white/10">
+      <form onSubmit={handleSubmit} className="mb-4">
+        <div className="flex items-center gap-2 rounded-full bg-gray-100 pl-4 pr-1.5 transition focus-within:ring-2 focus-within:ring-green-500 dark:bg-gray-700">
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder={t('writeComment')}
+            aria-label={t('writeComment')}
+            className="h-10 min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting || !newComment.trim()}
+            aria-label={t('sendComment')}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-green-600 transition hover:bg-green-100 disabled:text-gray-400 disabled:hover:bg-transparent dark:text-green-400 dark:hover:bg-green-950/40 dark:disabled:text-gray-500"
+          >
+            <Send size={18} />
+          </button>
+        </div>
       </form>
 
       {isLoading && comments.length === 0 ? (
         <LoadingSpinner py={4} spinnerProps={{ size: 'md' }} />
       ) : comments.length === 0 ? (
-        <div className="text-sm text-gray-500 text-center py-3">
+        <div className="py-2 text-center text-[13px] text-gray-500 dark:text-gray-400">
           {t('noComments')}
         </div>
       ) : (
         <div className="space-y-3">
           {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-2.5">
+            <div key={comment.id} className="group flex gap-2.5">
               <PostAvatar
                 name={comment.user.name}
                 image={comment.user.image}
                 size={32}
+                className="ring-2 ring-white dark:ring-gray-800"
               />
-              <div className="flex-1">
-                <div className="inline-block rounded-2xl bg-gray-100 px-3.5 py-2 dark:bg-gray-700">
+              <div className="min-w-0 flex-1">
+                <div className="inline-block max-w-full rounded-2xl bg-gray-100 px-3.5 py-2 dark:bg-gray-700">
                   <div className="text-[13px] font-semibold text-gray-900 dark:text-gray-50">
                     {comment.user.name}
                   </div>
-                  <div className="text-sm text-gray-800 dark:text-gray-100">
+                  <div className="whitespace-pre-wrap break-words text-sm text-gray-800 dark:text-gray-100">
                     {comment.content}
                   </div>
                 </div>
-                <div className="mt-1 flex items-center gap-3 pl-2 text-xs text-gray-500">
+                <div className="mt-1 flex items-center gap-3 pl-2 text-xs text-gray-500 dark:text-gray-400">
                   <span>
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
+                      locale: dateLocale,
                     })}
                   </span>
                   {currentUserId === comment.userId && (
                     <button
                       onClick={() => handleDelete(comment.id)}
                       aria-label={t('deleteComment')}
-                      className="flex items-center gap-1 text-red-500 transition hover:text-red-700"
+                      className="flex items-center gap-1 font-medium text-red-500 transition hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <Trash2 size={12} />
                       {t('delete')}
@@ -196,7 +206,7 @@ export function CommentSection({
         <button
           onClick={() => loadComments(page + 1)}
           disabled={isLoading}
-          className="w-full mt-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded"
+          className="mt-4 w-full rounded-lg py-2 text-sm font-semibold text-green-600 transition hover:bg-green-50 disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-950/30"
         >
           {isLoading ? t('loading') : t('loadMoreComments')}
         </button>

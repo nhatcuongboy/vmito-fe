@@ -89,7 +89,7 @@ export default function NewsfeedContent() {
           bg={{ base: 'white', _dark: 'gray.800' }}
           borderWidth="1px"
           borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
-          borderRadius="2xl"
+          borderRadius="xl"
           p={{ base: 3, md: 4 }}
           mb={4}
           boxShadow="sm"

@@ -1,15 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { useTranslations } from 'next-intl';
+import { format, formatDistanceToNow } from 'date-fns';
+import { vi, enUS, zhCN } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Heart,
   MessageCircle,
   Share2,
   MapPin,
-  MoreVertical,
+  MoreHorizontal,
   Trash2,
+  Globe,
 } from 'lucide-react';
 import type { Post } from '@/types/post';
 import { CommentSection } from './CommentSection';
@@ -17,6 +20,8 @@ import { PostAvatar } from './PostAvatar';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
+
+const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
 interface PostCardProps {
   post: Post;
@@ -26,20 +31,20 @@ interface PostCardProps {
 
 export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
   const t = useTranslations('posts');
+  const locale = useLocale();
+  const dateLocale = localeMap[locale] || enUS;
   const [showMenu, setShowMenu] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [localPost, setLocalPost] = useState(post);
   const menuRef = useRef<HTMLDivElement>(null);
+
   const isOwner = currentUserId === localPost.authorId;
   const postImages = localPost.images ?? [];
   const postCounts = localPost._count ?? { likes: 0, comments: 0, shares: 0 };
   const hasEngagement =
     postCounts.likes > 0 || postCounts.comments > 0 || postCounts.shares > 0;
-  const headerGridClassName = isOwner
-    ? 'grid-cols-[48px_minmax(0,1fr)_36px]'
-    : 'grid-cols-[48px_minmax(0,1fr)]';
 
   useEffect(() => {
     setLocalPost(post);
@@ -158,11 +163,14 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
     return 'aspect-square w-full object-cover';
   };
 
+  const actionButtonBase =
+    'flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-[15px] font-medium transition active:scale-[0.98] hover:bg-gray-100 dark:hover:bg-white/5';
+
   return (
-    <article className="isolate overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-white/10 dark:bg-gray-800">
+    <article className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-gray-800 dark:shadow-none">
       {/* Shared post indicator */}
       {localPost.originalPost && (
-        <div className="mx-4 mt-4 mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-400">
+        <div className="flex items-center gap-1.5 px-4 pt-3 text-[13px] font-medium text-gray-500 dark:text-gray-400">
           <Share2 size={14} className="shrink-0 text-green-600" />
           <span className="truncate">
             {t('sharedFrom', { name: localPost.originalPost.author.name })}
@@ -170,65 +178,81 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         </div>
       )}
 
-      <div className="bg-white px-4 pt-4 pb-3 dark:bg-gray-800">
-        {/* Header */}
-        <div className={`grid ${headerGridClassName} items-start gap-x-3`}>
-          <PostAvatar
-            name={localPost.author.name}
-            image={localPost.author.image}
-            size={48}
-            className="ring-2 ring-white shadow-sm dark:ring-gray-800"
-          />
-          <div className="min-w-0 pt-0.5">
-            <div className="truncate text-[15px] font-semibold leading-5 text-gray-950 dark:text-gray-50">
-              {localPost.author.name}
-            </div>
+      {/* Header */}
+      <header className="flex items-start gap-3 px-4 pt-3">
+        <PostAvatar
+          name={localPost.author.name}
+          image={localPost.author.image}
+          size={40}
+        />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[15px] font-semibold leading-5 text-gray-900 dark:text-gray-50">
+            {localPost.author.name}
+          </div>
+          <div className="mt-0.5 flex items-center gap-1 text-[13px] leading-4 text-gray-500 dark:text-gray-400">
             <time
-              className="mt-1 block text-[13px] leading-4 text-gray-500 dark:text-gray-400"
               dateTime={localPost.createdAt}
+              title={format(new Date(localPost.createdAt), 'PPP', {
+                locale: dateLocale,
+              })}
             >
               {formatDistanceToNow(new Date(localPost.createdAt), {
                 addSuffix: true,
+                locale: dateLocale,
               })}
             </time>
+            <span aria-hidden="true">·</span>
+            <Globe size={12} className="shrink-0" aria-hidden="true" />
           </div>
-          {isOwner && (
-            <div className="relative justify-self-end" ref={menuRef}>
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                aria-label={t('postMenu')}
-              >
-                <MoreVertical size={20} />
-              </button>
-              {showMenu && (
-                <div className="absolute right-0 z-10 mt-2 min-w-[150px] origin-top-right animate-[fadeIn_0.12s_ease-out] overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-gray-800">
-                  <button
-                    onClick={() => {
-                      setShowDeleteConfirm(true);
-                      setShowMenu(false);
-                    }}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/30"
-                  >
-                    <Trash2 size={16} />
-                    {t('delete')}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
+        {isOwner && (
+          <div className="relative -mr-1 shrink-0" ref={menuRef}>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+              aria-label={t('postMenu')}
+            >
+              <MoreHorizontal size={20} />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 z-10 mt-1 min-w-[180px] origin-top-right overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-gray-800">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(true);
+                    setShowMenu(false);
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/30"
+                >
+                  <Trash2 size={16} />
+                  {t('delete')}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </header>
 
-        {/* Content */}
-        <div className="mt-3 whitespace-pre-wrap text-[15px] leading-6 text-gray-800 dark:text-gray-100">
+      {/* Content */}
+      {localPost.content && (
+        <div className="whitespace-pre-wrap px-4 pt-2 text-[15px] leading-6 text-gray-800 dark:text-gray-100">
           {extractHashtags(localPost.content)}
         </div>
-      </div>
+      )}
 
-      {/* Images */}
+      {/* Location */}
+      {localPost.location && (
+        <div className="px-4 pt-2">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-[13px] font-medium text-red-700 dark:bg-red-950/30 dark:text-red-200">
+            <MapPin size={13} className="shrink-0" />
+            <span className="truncate">{localPost.location.name}</span>
+          </span>
+        </div>
+      )}
+
+      {/* Images — full width */}
       {postImages.length > 0 && (
         <div
-          className={`mx-4 mb-4 grid overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-white/10 dark:bg-gray-900 ${
+          className={`mt-3 grid overflow-hidden bg-gray-100 dark:bg-gray-900 ${
             postImages.length === 1
               ? 'grid-cols-1'
               : 'grid-cols-2 gap-0.5 sm:auto-rows-fr'
@@ -240,56 +264,56 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
               src={img.url}
               alt={t('postImage', { index: index + 1 })}
               loading="lazy"
-              className={getImageClassName(index)}
+              className={`${getImageClassName(index)} cursor-pointer transition duration-200 hover:opacity-95`}
             />
           ))}
         </div>
       )}
 
-      {/* Location */}
-      {localPost.location && (
-        <div className="mx-4 mb-4 bg-white dark:bg-gray-800">
-          <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-200">
-            <MapPin size={14} className="shrink-0" />
-            <span className="truncate">{localPost.location.name}</span>
-          </div>
-        </div>
-      )}
-
       {/* Original post (for shares) */}
       {localPost.originalPost && (
-        <div className="mx-4 mb-4 rounded-2xl border border-gray-200 bg-gray-50 p-3.5 dark:border-white/10 dark:bg-gray-700/50">
+        <div className="mx-4 mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-gray-700/50">
           <div className="mb-2 flex items-center gap-2">
             <PostAvatar
               name={localPost.originalPost.author.name}
               image={localPost.originalPost.author.image}
               size={32}
-              className="ring-1 ring-white dark:ring-gray-700"
             />
-            <span className="truncate text-sm font-semibold text-slate-900 dark:text-gray-50">
+            <span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
               {localPost.originalPost.author.name}
             </span>
           </div>
-          <div className="whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-gray-200">
+          <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
             {localPost.originalPost.content}
           </div>
         </div>
       )}
 
+      {/* Engagement counts */}
       {hasEngagement && (
-        <div className="mx-4 flex items-center justify-between border-t border-gray-100 bg-white py-2.5 text-xs font-medium text-gray-500 dark:border-white/5 dark:bg-gray-800 dark:text-gray-400">
-          <div>
+        <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-3 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex min-w-0 items-center gap-1.5">
             {postCounts.likes > 0 && (
-              <span>
-                {postCounts.likes} {t('like')}
-              </span>
+              <>
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-red-500 text-white">
+                  <Heart size={10} fill="currentColor" />
+                </span>
+                <span>{postCounts.likes}</span>
+              </>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1.5">
             {postCounts.comments > 0 && (
-              <span>
+              <button
+                type="button"
+                onClick={() => setShowComments(true)}
+                className="transition hover:underline"
+              >
                 {postCounts.comments} {t('comment')}
-              </span>
+              </button>
+            )}
+            {postCounts.comments > 0 && postCounts.shares > 0 && (
+              <span aria-hidden="true">·</span>
             )}
             {postCounts.shares > 0 && (
               <span>
@@ -300,61 +324,41 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         </div>
       )}
 
-      {/* Actions */}
-      <div className="border-t border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-white/5 dark:bg-white/5">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleLike}
-            aria-label={localPost.isLiked ? t('unlikePost') : t('likePost')}
-            className={`flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-sm font-semibold transition hover:bg-white hover:shadow-sm active:scale-[0.98] dark:hover:bg-gray-700 sm:px-3 ${
-              localPost.isLiked
-                ? 'bg-red-50 text-red-600 ring-1 ring-red-100 dark:bg-red-950/20 dark:ring-red-900/40'
-                : 'text-slate-600 dark:text-gray-300'
-            }`}
-          >
-            <Heart
-              size={19}
-              className="mr-1.5 shrink-0"
-              fill={localPost.isLiked ? 'currentColor' : 'none'}
-            />
-            <span className="truncate">{t('like')}</span>
-            {postCounts.likes > 0 && (
-              <span className="rounded-full bg-white/80 px-1.5 text-[11px] leading-5 text-current ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10">
-                {postCounts.likes}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setShowComments(!showComments)}
-            aria-label={t('toggleComments')}
-            className={`flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-sm font-semibold transition hover:bg-white hover:shadow-sm active:scale-[0.98] dark:hover:bg-gray-700 sm:px-3 ${
-              showComments
-                ? 'bg-green-50 text-green-700 ring-1 ring-green-100 dark:bg-green-950/20 dark:text-green-300 dark:ring-green-900/40'
-                : 'text-slate-600 dark:text-gray-300'
-            }`}
-          >
-            <MessageCircle size={19} className="mr-1.5 shrink-0" />
-            <span className="truncate">{t('comment')}</span>
-            {postCounts.comments > 0 && (
-              <span className="rounded-full bg-white/80 px-1.5 text-[11px] leading-5 text-current ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10">
-                {postCounts.comments}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={handleShare}
-            aria-label={t('sharePost')}
-            className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-sm font-semibold text-gray-600 transition hover:bg-white hover:shadow-sm active:scale-[0.98] dark:text-gray-300 dark:hover:bg-gray-700 sm:px-3"
-          >
-            <Share2 size={19} className="mr-1.5 shrink-0" />
-            <span className="truncate">{t('share')}</span>
-            {postCounts.shares > 0 && (
-              <span className="rounded-full bg-white/80 px-1.5 text-[11px] leading-5 text-current ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10">
-                {postCounts.shares}
-              </span>
-            )}
-          </button>
-        </div>
+      {/* Action bar */}
+      <div className="mx-4 border-t border-gray-200 dark:border-white/10" />
+      <div className="flex items-center gap-1 px-2 py-1">
+        <button
+          onClick={handleLike}
+          aria-label={localPost.isLiked ? t('unlikePost') : t('likePost')}
+          className={`${actionButtonBase} ${
+            localPost.isLiked
+              ? 'text-red-600 dark:text-red-400'
+              : 'text-gray-600 dark:text-gray-300'
+          }`}
+        >
+          <Heart size={18} fill={localPost.isLiked ? 'currentColor' : 'none'} />
+          {t('like')}
+        </button>
+        <button
+          onClick={() => setShowComments(!showComments)}
+          aria-label={t('toggleComments')}
+          className={`${actionButtonBase} ${
+            showComments
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-gray-600 dark:text-gray-300'
+          }`}
+        >
+          <MessageCircle size={18} />
+          {t('comment')}
+        </button>
+        <button
+          onClick={handleShare}
+          aria-label={t('sharePost')}
+          className={`${actionButtonBase} text-gray-600 dark:text-gray-300`}
+        >
+          <Share2 size={18} />
+          {t('share')}
+        </button>
       </div>
 
       {/* Comment Section */}
