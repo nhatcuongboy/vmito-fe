@@ -8,7 +8,9 @@ import {
   FlexProps,
   SimpleGrid,
   Spinner,
+  Image,
 } from '@chakra-ui/react';
+import QRCode from 'qrcode';
 import { Button, IconButton, VStack } from '@/components/ui/chakra-compat';
 import {
   Award,
@@ -138,6 +140,18 @@ const PlayerAchievementExportCard = ({
     : null;
   const venueName = session.venue?.name || session.location;
   const hasResultStats = playerStats.wins + playerStats.losses > 0;
+
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  useEffect(() => {
+    const url = `${window.location.origin}/${locale}/sessions/${session.id}`;
+    QRCode.toDataURL(url, {
+      margin: 0,
+      width: 240,
+      color: { dark: '#0e5c23', light: '#FFFFFF' },
+    })
+      .then(setQrDataUrl)
+      .catch((err) => console.error('Error generating QR code:', err));
+  }, [locale, session.id]);
   const achievementStats = [
     {
       label: t('stats.totalMatches'),
@@ -197,8 +211,8 @@ const PlayerAchievementExportCard = ({
           px={6}
           py={6}
           direction="column"
-          gap={5}
-          minH="220px"
+          gap={4}
+          minH="190px"
           boxShadow="0 18px 36px rgba(21, 128, 61, 0.22)"
         >
           <Box
@@ -251,17 +265,25 @@ const PlayerAchievementExportCard = ({
             </Flex>
           </Flex>
 
-          <Box minW={0} zIndex={1} mt="auto">
+          <Box minW={0} zIndex={1}>
             <Text
-              fontSize="5xl"
+              fontSize={
+                playerName.length > 22
+                  ? '3xl'
+                  : playerName.length > 14
+                    ? '4xl'
+                    : '5xl'
+              }
               fontWeight="black"
-              lineHeight="1.1"
+              lineHeight="1.25"
               lineClamp={2}
+              overflowWrap="break-word"
+              pb={1}
             >
               {playerName}
             </Text>
             <Text
-              mt={2}
+              mt={1}
               fontSize="lg"
               fontWeight="semibold"
               opacity={0.92}
@@ -281,7 +303,7 @@ const PlayerAchievementExportCard = ({
               p={4}
               border="1px solid"
               borderColor={stat.border}
-              minH="116px"
+              minH="104px"
               boxShadow="0 8px 18px rgba(15, 23, 42, 0.05)"
             >
               <Flex align="flex-start" justify="space-between" gap={3} h="full">
@@ -367,7 +389,7 @@ const PlayerAchievementExportCard = ({
           borderColor="gray.200"
           borderRadius="xl"
           px={4}
-          py={4}
+          py={2.5}
         >
           <VStack align="stretch" gap={1.5} flex={1} minW={0}>
             {venueName && (
@@ -388,26 +410,18 @@ const PlayerAchievementExportCard = ({
             )}
           </VStack>
 
-          <VStack align="flex-end" justify="center" gap={1} maxW="210px">
-            <Text
-              fontSize="md"
-              color="green.700"
-              fontWeight="black"
-              lineHeight="1"
-              translate="no"
+          {qrDataUrl && (
+            <Box
+              bg="white"
+              p="4px"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="gray.200"
+              flexShrink={0}
             >
-              Vmito App
-            </Text>
-            <Text
-              fontSize="sm"
-              color="gray.500"
-              fontWeight="bold"
-              lineHeight="1.2"
-              textAlign="right"
-            >
-              {t('stats.appTagline')}
-            </Text>
-          </VStack>
+              <Image src={qrDataUrl} alt="QR" boxSize="56px" />
+            </Box>
+          )}
         </Flex>
       </VStack>
     </Box>
