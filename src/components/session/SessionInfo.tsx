@@ -27,6 +27,10 @@ import {
   FileText,
   DollarSign,
   Download,
+  ListChecks,
+  Percent,
+  Trophy,
+  XCircle,
 } from 'lucide-react';
 import { ISession, Player, PlayerStatistics } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
@@ -113,10 +117,19 @@ const PlayerAchievementExportCard = ({
   const t = useTranslations('SessionDetail');
   const locale = useLocale();
   const playerName = playerStats.name || player.name || t('stats.unnamed');
+  const initials = playerName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(-2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
   const sessionDate = session.startTime
-    ? dayjs(session.startTime)
-        .locale(locale === Locale.VI ? Locale.VI : Locale.EN)
-        .format('DD/MM/YYYY')
+    ? new Intl.DateTimeFormat(locale === Locale.VI ? 'vi-VN' : 'en-US', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }).format(new Date(session.startTime))
     : null;
   const sessionTime = session.startTime
     ? `${formatTime(session.startTime)} - ${
@@ -124,56 +137,184 @@ const PlayerAchievementExportCard = ({
       }`
     : null;
   const venueName = session.venue?.name || session.location;
-  const isNA = playerStats.wins === 0 && playerStats.losses === 0;
+  const hasResultStats = playerStats.wins + playerStats.losses > 0;
+  const achievementStats = [
+    {
+      label: t('stats.totalMatches'),
+      value: playerStats.totalMatches,
+      accent: 'gray.900',
+      bg: 'white',
+      border: 'gray.200',
+      icon: ListChecks,
+      iconBg: 'gray.100',
+    },
+    {
+      label: t('stats.winRate'),
+      value: hasResultStats ? `${playerStats.winRate}%` : '-',
+      accent: hasResultStats ? 'green.700' : 'gray.500',
+      bg: hasResultStats ? 'green.50' : 'white',
+      border: hasResultStats ? 'green.100' : 'gray.200',
+      icon: Percent,
+      iconBg: hasResultStats ? 'green.100' : 'gray.100',
+    },
+    {
+      label: t('stats.wins'),
+      value: hasResultStats ? playerStats.wins : '-',
+      accent: hasResultStats ? 'green.700' : 'gray.500',
+      bg: 'green.50',
+      border: 'green.100',
+      icon: Trophy,
+      iconBg: 'green.100',
+    },
+    {
+      label: t('stats.losses'),
+      value: hasResultStats ? playerStats.losses : '-',
+      accent: hasResultStats ? 'red.600' : 'gray.500',
+      bg: 'red.50',
+      border: 'red.100',
+      icon: XCircle,
+      iconBg: 'red.100',
+    },
+  ];
 
   return (
-    <Box w="520px" bg="white" color="gray.900" p={8}>
-      <VStack align="stretch" gap={5}>
-        <Box borderRadius="2xl" bg="green.600" color="white" px={6} py={5}>
-          <Text fontSize="xs" fontWeight="bold" textTransform="uppercase">
-            {t('stats.achievementImageTitle')}
-          </Text>
-          <Text mt={1} fontSize="3xl" fontWeight="black" lineHeight="1.1">
-            {playerName}
-          </Text>
-          <Text mt={2} fontSize="md" fontWeight="semibold" opacity={0.92}>
-            {session.name}
-          </Text>
-        </Box>
+    <Box
+      w="540px"
+      minH="675px"
+      bg="#f8fafc"
+      color="gray.900"
+      p={5}
+      border="1px solid"
+      borderColor="gray.100"
+    >
+      <VStack align="stretch" gap={4} minH="635px">
+        <Flex
+          position="relative"
+          overflow="hidden"
+          borderRadius="2xl"
+          bg="linear-gradient(135deg, #065f46 0%, #15803d 68%, #f59e0b 128%)"
+          color="white"
+          px={6}
+          py={6}
+          direction="column"
+          gap={5}
+          minH="220px"
+          boxShadow="0 18px 36px rgba(21, 128, 61, 0.22)"
+        >
+          <Box
+            as={Feather}
+            position="absolute"
+            right="-12px"
+            bottom="-20px"
+            boxSize="150px"
+            color="whiteAlpha.200"
+            transform="rotate(-16deg)"
+          />
 
-        <SimpleGrid columns={2} gap={3}>
-          <Box bg="gray.50" borderRadius="xl" p={4} textAlign="center">
-            <Text fontSize="xs" color="gray.500" fontWeight="bold">
-              {t('stats.totalMatches')}
+          <Flex align="center" justify="space-between" gap={3} zIndex={1}>
+            <Flex
+              align="center"
+              gap={2}
+              bg="whiteAlpha.200"
+              border="1px solid"
+              borderColor="whiteAlpha.300"
+              borderRadius="full"
+              px={3}
+              py={1.5}
+            >
+              <Box as={Award} boxSize={3.5} />
+              <Text
+                fontSize="10px"
+                fontWeight="black"
+                textTransform="uppercase"
+              >
+                {t('stats.achievementImageTitle')}
+              </Text>
+            </Flex>
+
+            <Flex
+              w="56px"
+              h="56px"
+              borderRadius="full"
+              bg="white"
+              color="green.700"
+              border="3px solid"
+              borderColor="whiteAlpha.500"
+              align="center"
+              justify="center"
+              flexShrink={0}
+              boxShadow="0 12px 26px rgba(0, 0, 0, 0.16)"
+            >
+              <Text fontSize="lg" fontWeight="black" lineHeight="1">
+                {initials || playerName[0]?.toUpperCase() || 'V'}
+              </Text>
+            </Flex>
+          </Flex>
+
+          <Box minW={0} zIndex={1} mt="auto">
+            <Text
+              fontSize="5xl"
+              fontWeight="black"
+              lineHeight="1.1"
+              lineClamp={2}
+            >
+              {playerName}
             </Text>
-            <Text mt={1} fontSize="3xl" fontWeight="black" color="gray.900">
-              {playerStats.totalMatches}
+            <Text
+              mt={2}
+              fontSize="lg"
+              fontWeight="semibold"
+              opacity={0.92}
+              lineClamp={1}
+            >
+              {session.name}
             </Text>
           </Box>
-          <Box bg="yellow.50" borderRadius="xl" p={4} textAlign="center">
-            <Text fontSize="xs" color="yellow.700" fontWeight="bold">
-              {t('stats.winRate')}
-            </Text>
-            <Text mt={1} fontSize="3xl" fontWeight="black" color="yellow.700">
-              {isNA ? '-' : `${playerStats.winRate}%`}
-            </Text>
-          </Box>
-          <Box bg="green.50" borderRadius="xl" p={4} textAlign="center">
-            <Text fontSize="xs" color="green.700" fontWeight="bold">
-              {t('stats.wins')}
-            </Text>
-            <Text mt={1} fontSize="2xl" fontWeight="black" color="green.700">
-              {isNA ? '-' : playerStats.wins}
-            </Text>
-          </Box>
-          <Box bg="red.50" borderRadius="xl" p={4} textAlign="center">
-            <Text fontSize="xs" color="red.600" fontWeight="bold">
-              {t('stats.losses')}
-            </Text>
-            <Text mt={1} fontSize="2xl" fontWeight="black" color="red.600">
-              {isNA ? '-' : playerStats.losses}
-            </Text>
-          </Box>
+        </Flex>
+
+        <SimpleGrid columns={2} gap={4}>
+          {achievementStats.map((stat) => (
+            <Box
+              key={stat.label}
+              bg={stat.bg}
+              borderRadius="xl"
+              p={4}
+              border="1px solid"
+              borderColor={stat.border}
+              minH="116px"
+              boxShadow="0 8px 18px rgba(15, 23, 42, 0.05)"
+            >
+              <Flex align="flex-start" justify="space-between" gap={3} h="full">
+                <Box minW={0}>
+                  <Text fontSize="sm" color="gray.600" fontWeight="bold">
+                    {stat.label}
+                  </Text>
+                  <Text
+                    mt={2}
+                    fontSize="4xl"
+                    fontWeight="black"
+                    color={stat.accent}
+                    lineHeight="1"
+                    fontVariantNumeric="tabular-nums"
+                  >
+                    {stat.value}
+                  </Text>
+                </Box>
+                <Flex
+                  w="40px"
+                  h="40px"
+                  borderRadius="full"
+                  bg={stat.iconBg}
+                  color={stat.accent}
+                  align="center"
+                  justify="center"
+                  flexShrink={0}
+                >
+                  <Box as={stat.icon} boxSize={5} />
+                </Flex>
+              </Flex>
+            </Box>
+          ))}
         </SimpleGrid>
 
         {playerStats.totalShuttlecocks != null && (
@@ -194,32 +335,79 @@ const PlayerAchievementExportCard = ({
           </Flex>
         )}
 
-        <VStack
-          align="stretch"
-          gap={1.5}
-          borderTopWidth="1px"
-          borderColor="gray.100"
-          pt={4}
-        >
-          {venueName && (
-            <Text fontSize="sm" color="gray.600" fontWeight="medium">
-              {venueName}
+        {!hasResultStats && (
+          <Flex
+            align="center"
+            justify="center"
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="full"
+            px={3}
+            py={3}
+          >
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              fontWeight="bold"
+              textAlign="center"
+            >
+              {t('stats.resultPending')}
             </Text>
-          )}
-          {(sessionDate || sessionTime) && (
-            <Text fontSize="sm" color="gray.600" fontWeight="medium">
-              {[sessionDate, sessionTime].filter(Boolean).join(' - ')}
-            </Text>
-          )}
-        </VStack>
+          </Flex>
+        )}
 
-        <Flex justify="space-between" align="center">
-          <Text fontSize="xs" color="gray.500" fontWeight="bold">
-            Vmito App
-          </Text>
-          <Text fontSize="xs" color="green.700" fontWeight="bold">
-            {t('stats.appTagline')}
-          </Text>
+        <Flex
+          mt="auto"
+          align="center"
+          justify="space-between"
+          gap={4}
+          bg="white"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="xl"
+          px={4}
+          py={4}
+        >
+          <VStack align="stretch" gap={1.5} flex={1} minW={0}>
+            {venueName && (
+              <Flex align="center" gap={2} color="gray.600">
+                <Box as={MapPin} boxSize={4} flexShrink={0} />
+                <Text fontSize="md" fontWeight="semibold" lineClamp={1}>
+                  {venueName}
+                </Text>
+              </Flex>
+            )}
+            {(sessionDate || sessionTime) && (
+              <Flex align="center" gap={2} color="gray.600">
+                <Box as={Calendar} boxSize={4} flexShrink={0} />
+                <Text fontSize="md" fontWeight="medium" lineClamp={1}>
+                  {[sessionDate, sessionTime].filter(Boolean).join(' - ')}
+                </Text>
+              </Flex>
+            )}
+          </VStack>
+
+          <VStack align="flex-end" justify="center" gap={1} maxW="210px">
+            <Text
+              fontSize="md"
+              color="green.700"
+              fontWeight="black"
+              lineHeight="1"
+              translate="no"
+            >
+              Vmito App
+            </Text>
+            <Text
+              fontSize="sm"
+              color="gray.500"
+              fontWeight="bold"
+              lineHeight="1.2"
+              textAlign="right"
+            >
+              {t('stats.appTagline')}
+            </Text>
+          </VStack>
         </Flex>
       </VStack>
     </Box>

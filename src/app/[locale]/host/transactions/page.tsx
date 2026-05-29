@@ -49,6 +49,10 @@ function isBillablePaymentRecord(payment: PaymentRecord) {
   return true;
 }
 
+function canLoadHostTransactionDetails(summary: HostTransactionSummary) {
+  return summary.userId.trim().toLowerCase() !== 'guest';
+}
+
 function summarizeUserPayments(
   baseSummary: HostTransactionSummary,
   payments: PaymentRecord[]
@@ -97,6 +101,10 @@ function HostTransactionsContent() {
       const data = await PaymentService.getHostTransactionSummary();
       const detailEntries = await Promise.all(
         data.map(async (summary) => {
+          if (!canLoadHostTransactionDetails(summary)) {
+            return [summary.userId, null] as const;
+          }
+
           try {
             const payments = (
               await PaymentService.getHostTransactionsWithUser(summary.userId)
@@ -140,6 +148,11 @@ function HostTransactionsContent() {
 
   const refreshSelectedUser = useCallback(
     async (summary: HostTransactionSummary) => {
+      if (!canLoadHostTransactionDetails(summary)) {
+        setSelectedPayments([]);
+        return;
+      }
+
       const payments = (
         await PaymentService.getHostTransactionsWithUser(summary.userId)
       ).filter(isBillablePaymentRecord);
@@ -173,6 +186,11 @@ function HostTransactionsContent() {
     if (!('userId' in summary)) return;
 
     setSelectedSummary(summary);
+    if (!canLoadHostTransactionDetails(summary)) {
+      setSelectedPayments([]);
+      return;
+    }
+
     const cachedPayments = paymentDetailsByUser[summary.userId];
     if (cachedPayments) {
       setSelectedPayments(cachedPayments);
