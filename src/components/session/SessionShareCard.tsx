@@ -1235,15 +1235,12 @@ const SocialPosterCard = ({
             Tuyển vãng lai
           </Text>
         </Box>
-        <Text color="#c78400" fontSize="25px" fontWeight="950">
-          {meta.ratioLabel}
-        </Text>
       </Flex>
       <Heading
         mt={6}
-        fontSize="72px"
+        fontSize="64px"
         fontWeight="950"
-        lineHeight="0.98"
+        lineHeight="1.08"
         color="#17231b"
         textTransform="uppercase"
         lineClamp={2}
@@ -1295,7 +1292,7 @@ const SocialPosterCard = ({
         justify="space-between"
         align="center"
       >
-        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={125} />}
+        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={125} dark />}
         <Text
           fontSize="25px"
           fontWeight="950"
