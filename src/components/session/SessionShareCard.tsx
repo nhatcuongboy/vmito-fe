@@ -1529,7 +1529,6 @@ const EventPassCard = ({
         textTransform="uppercase"
         lineClamp={2}
         overflowWrap="break-word"
-        textWrap="balance"
       >
         {session.name}
       </Heading>
