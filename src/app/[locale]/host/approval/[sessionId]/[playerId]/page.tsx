@@ -93,10 +93,14 @@ const ApprovalDetailContent = () => {
       setActionLoading(status);
       const ids = sameUserPlayerIds.length > 0 ? sameUserPlayerIds : [playerId];
       await PlayerService.batchUpdateStatus(ids, status);
-      setIsActioned(true);
       toaster.success({
         title: status === 'APPROVED' ? t('approveSuccess') : t('rejectSuccess'),
       });
+      if (status === 'APPROVED') {
+        router.replace(ROUTES.HOST.SESSIONS.PLAYERS(sessionId));
+        return;
+      }
+      setIsActioned(true);
     } catch {
       toaster.error({ title: t('approvalActionFailed') });
     } finally {

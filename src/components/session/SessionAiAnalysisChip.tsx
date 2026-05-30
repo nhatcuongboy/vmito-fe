@@ -13,7 +13,11 @@ interface ISessionAiAnalysisChipProps {
   session: ISession;
 }
 
-const buildAnalysisPrompt = (session: ISession, locale: string): string => {
+const buildAnalysisPrompt = (
+  session: ISession,
+  locale: string,
+  getLevelShortLabel: (level: number) => string
+): string => {
   const isVi = locale === Locale.VI;
   const isCn = locale === Locale.CN;
 
@@ -30,15 +34,20 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
   const levelSummary = Object.entries(levelCounts)
     .sort(([a], [b]) => Number(a) - Number(b))
     .map(([lvl, cnt]) => {
-      if (isVi) return `  - Trình độ ${lvl}: ${cnt} người chơi`;
-      if (isCn) return `  - 等级 ${lvl}: ${cnt} 名球员`;
-      return `  - Level ${lvl}: ${cnt} player(s)`;
+      const numericLevel = Number(lvl);
+      const levelLabel = `${getLevelShortLabel(numericLevel)} (${numericLevel})`;
+      if (isVi) return `  - ${levelLabel}: ${cnt} người chơi`;
+      if (isCn) return `  - ${levelLabel}: ${cnt} 名球员`;
+      return `  - ${levelLabel}: ${cnt} player(s)`;
     })
     .join('\n');
 
   const requiredLevels =
     session.requiredLevels && session.requiredLevels.length > 0
-      ? session.requiredLevels.join(', ')
+      ? Array.from(new Set(session.requiredLevels))
+          .sort((a, b) => a - b)
+          .map((level) => `${getLevelShortLabel(level)} (${level})`)
+          .join(', ')
       : isVi
         ? 'Tất cả trình độ'
         : isCn
@@ -55,6 +64,7 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
       (levelSummary
         ? `**Phân bố trình độ người chơi:**\n${levelSummary}\n`
         : '') +
+      `\nLưu ý: dùng đúng nhãn trình độ đã cung cấp, không tự suy diễn tên khác.\n` +
       `\nChỉ trả lời ngắn gọn (3–5 dòng), bằng tiếng Việt.`
     );
   }
@@ -66,6 +76,7 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
       `**要求水平：** ${requiredLevels}\n` +
       `**已报名人数：** ${approvedPlayers.length}/${session.numberOfCourts * (session.maxPlayersPerCourt ?? 4)}\n` +
       (levelSummary ? `**球员水平分布：**\n${levelSummary}\n` : '') +
+      `\n注意：请使用上面提供的水平标签，不要自行推断其他名称。\n` +
       `\n请用中文简短回答（3-5 行）。`
     );
   }
@@ -77,6 +88,7 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
     `**Required levels:** ${requiredLevels}\n` +
     `**Players registered:** ${approvedPlayers.length}/${session.numberOfCourts * (session.maxPlayersPerCourt ?? 4)}\n` +
     (levelSummary ? `**Player level breakdown:**\n${levelSummary}\n` : '') +
+    `\nUse the provided skill labels exactly; do not infer alternate level names.\n` +
     `\nKeep the answer concise (3–5 lines).`
   );
 };
@@ -84,6 +96,7 @@ const buildAnalysisPrompt = (session: ISession, locale: string): string => {
 const SessionAiAnalysisChip = ({ session }: ISessionAiAnalysisChipProps) => {
   const t = useTranslations('session');
   const tAi = useTranslations('aiAssistant');
+  const tLevelShorts = useTranslations('common.levelShorts');
   const locale = useLocale();
   const { isAuthenticated, user } = useAuthStore();
   const { openWithMessage } = useAiAssistantStore();
@@ -93,7 +106,9 @@ const SessionAiAnalysisChip = ({ session }: ISessionAiAnalysisChipProps) => {
   if (!isAuthenticated || isGuest) return null;
 
   const handleClick = () => {
-    const prompt = buildAnalysisPrompt(session, locale);
+    const prompt = buildAnalysisPrompt(session, locale, (level) =>
+      tLevelShorts(`${level}` as Parameters<typeof tLevelShorts>[0])
+    );
     openWithMessage(
       prompt,
       tAi('pageContexts.sessionDetail', { name: session.name })

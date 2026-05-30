@@ -49,6 +49,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
 import { getNotificationDisplayText } from '@/lib/notifications/content';
+import { ROUTES } from '@/constants/routes';
 
 interface NotificationBellProps {
   color?: string;
@@ -248,6 +249,10 @@ export default function NotificationBell({
       toaster.success({
         title: status === 'APPROVED' ? t('approveSuccess') : t('rejectSuccess'),
       });
+      if (status === 'APPROVED') {
+        setIsOpen(false);
+        router.push(ROUTES.HOST.SESSIONS.PLAYERS(representative.sessionId));
+      }
     } catch {
       toaster.error({ title: t('approvalActionFailed') });
     } finally {

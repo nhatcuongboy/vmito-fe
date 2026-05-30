@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -36,6 +37,7 @@ import { normalizePhoneForZalo } from '@/utils/phone-utils';
 import Image from 'next/image';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import { ROUTES } from '@/constants';
 
 interface ISessionDetailBodyProps {
   session: ISession;
@@ -98,6 +100,9 @@ const SessionDetailBody = ({
   const venueDisplayName = session.venue?.name
     ? tVenue('nameFormat', { name: session.venue.name })
     : session.location || '';
+  const venueDetailHref = session.venue?.id
+    ? ROUTES.VENUES.DETAIL(session.venue.id, session.venue.slug)
+    : null;
 
   const handleOpenMap = () => {
     const address = session.venue?.address || venueDisplayName;
@@ -148,22 +153,29 @@ const SessionDetailBody = ({
 
       {/* Location */}
       {venueDisplayName && (
-        <Flex
-          align="center"
-          gap={1}
-          mt={2}
-          cursor="pointer"
-          onClick={handleOpenMap}
-          _hover={{ textDecoration: 'underline' }}
-        >
-          <Text fontSize="sm" fontWeight="medium" color="green.600">
-            {venueDisplayName}
-          </Text>
+        <Flex align="center" gap={1} mt={2}>
+          {venueDetailHref ? (
+            <Link href={venueDetailHref} style={{ textDecoration: 'none' }}>
+              <Text
+                fontSize="sm"
+                fontWeight="medium"
+                color="green.600"
+                _hover={{ textDecoration: 'underline' }}
+              >
+                {venueDisplayName}
+              </Text>
+            </Link>
+          ) : (
+            <Text fontSize="sm" fontWeight="medium" color="green.600">
+              {venueDisplayName}
+            </Text>
+          )}
           <IconButton
             aria-label="Open map"
             variant="ghost"
             size="xs"
             colorPalette="green"
+            onClick={handleOpenMap}
             icon={<Icon as={Navigation} boxSize={3.5} />}
           />
         </Flex>
@@ -309,17 +321,6 @@ const SessionDetailBody = ({
             <Icon as={LayoutGrid} boxSize={5} color="green.500" />
             <Text fontSize="sm">
               {session.numberOfCourts} {t('courtsAvailable')}
-              {session.courts && session.courts.length > 0 && (
-                <Text as="span" ml={1}>
-                  (
-                  {session.courts
-                    .slice()
-                    .sort((a, b) => a.courtNumber - b.courtNumber)
-                    .map((c) => c.courtName || c.courtNumber)
-                    .join(', ')}
-                  )
-                </Text>
-              )}
             </Text>
           </Flex>
 

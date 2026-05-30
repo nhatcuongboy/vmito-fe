@@ -31,6 +31,8 @@ export const ROUTES = {
       LIST: '/host/sessions',
       ENDED: '/host/sessions/ended',
       DETAIL: (id: string, slug?: string) => `/host/sessions/${slug || id}`,
+      PLAYERS: (id: string, slug?: string) =>
+        `/host/sessions/${slug || id}?tab=1`,
     },
     TRANSACTIONS: '/host/transactions',
     PAYMENT_SETTINGS: '/host/payment-settings',
