@@ -370,7 +370,7 @@ const SessionDetailStickyBar = ({
                       {session.courts
                         .slice()
                         .sort((a, b) => a.courtNumber - b.courtNumber)
-                        .map((c) => c.courtName || c.courtNumber)
+                        .map((court) => court.courtNumber)
                         .join(', ')}
                       )
                     </Text>

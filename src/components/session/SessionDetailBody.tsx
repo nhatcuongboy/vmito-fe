@@ -321,6 +321,17 @@ const SessionDetailBody = ({
             <Icon as={LayoutGrid} boxSize={5} color="green.500" />
             <Text fontSize="sm">
               {session.numberOfCourts} {t('courtsAvailable')}
+              {session.courts && session.courts.length > 0 && (
+                <Text as="span" color="gray.500" ml={1}>
+                  (
+                  {session.courts
+                    .slice()
+                    .sort((a, b) => a.courtNumber - b.courtNumber)
+                    .map((court) => court.courtNumber)
+                    .join(', ')}
+                  )
+                </Text>
+              )}
             </Text>
           </Flex>
 
