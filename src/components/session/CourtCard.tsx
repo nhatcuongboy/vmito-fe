@@ -19,6 +19,7 @@ import {
 import { Clock, Eye, Play, Plus, Shuffle, Square, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import BadmintonCourt from '../court/BadmintonCourt';
+import { getMatchRepeatWarning } from '@/utils/match-repeat-warning';
 
 interface CourtCardProps {
   court: Court;
@@ -27,6 +28,7 @@ interface CourtCardProps {
   mode: 'manage' | 'view';
   isRefreshing: boolean;
   waitingPlayers: Player[];
+  matchHistory: Match[];
 
   // Handlers
   onAssignPlayersClick: (court: Court) => void;
@@ -57,6 +59,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
   mode,
   isRefreshing,
   waitingPlayers,
+  matchHistory,
   onAssignPlayersClick,
   onPreSelectClick,
   onViewPreSelect,
@@ -74,6 +77,18 @@ const CourtCard: React.FC<CourtCardProps> = ({
 
   const isActive = court.status === 'IN_USE' || court.status === 'READY';
   const isCourtReady = court.status === 'READY';
+  const matchType =
+    (court.currentPlayers?.length ?? 0) <= 2 ? 'singles' : 'doubles';
+  const matchRepeatWarning = React.useMemo(
+    () =>
+      getMatchRepeatWarning(
+        matchHistory,
+        court.currentPlayers || [],
+        court.direction || CourtDirection.HORIZONTAL,
+        matchType
+      ),
+    [court.currentPlayers, court.direction, matchHistory, matchType]
+  );
 
   const handleEndMatchClick = () => {
     if (currentMatch) {
@@ -260,6 +275,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
               mode={mode}
               courtColor={session.courtColor}
               direction={court.direction || CourtDirection.HORIZONTAL}
+              matchRepeatWarning={matchRepeatWarning}
             />
 
             {/* Action buttons for courts with players */}

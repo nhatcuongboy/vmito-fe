@@ -18,6 +18,7 @@ import WaitingPlayers from './WaitingPlayers';
 import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 import { SessionCourtsTabSkeleton } from './SessionTabSkeletons';
+import { SessionService } from '@/lib/api/session.service';
 
 interface SessionCourtsTabProps {
   session: ISession;
@@ -55,6 +56,39 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     defaultMatchType: session.defaultMatchType,
   });
   const actions = useCourtsTabActions({ onDataRefresh });
+  const [matchHistory, setMatchHistory] = React.useState<Match[]>([]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const loadMatchHistory = async () => {
+      try {
+        const result = await SessionService.getSessionMatchesWithFilters(
+          session.id
+        );
+        if (!isMounted) return;
+
+        setMatchHistory(
+          result.matches.filter(
+            (match) =>
+              match.status === 'FINISHED' ||
+              (match.status as string) === 'COMPLETED'
+          )
+        );
+      } catch (error) {
+        console.error('Error loading match history for warnings:', error);
+        if (isMounted) {
+          setMatchHistory([]);
+        }
+      }
+    };
+
+    loadMatchHistory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session.id, session.updatedAt]);
 
   const hasPreSelectedPlayers = (court: Court): boolean => {
     return !!(
@@ -200,6 +234,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
                   mode={mode}
                   isRefreshing={isRefreshing}
                   waitingPlayers={waitingPlayers}
+                  matchHistory={matchHistory}
                   onAssignPlayersClick={modals.openPlayerSelectionModal}
                   onPreSelectClick={modals.openPreSelectModal}
                   onViewPreSelect={modals.openPreSelectPreviewModal}
@@ -240,6 +275,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         formatWaitTime={waitTimeFormatter}
         isLoadingAutoConfirm={modals.loadingConfirmAutoAssign}
         isLoadingManualConfirm={modals.confirmingManualMatch}
+        matchHistory={matchHistory}
         courtColor={session.courtColor}
       />
 
@@ -264,6 +300,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         formatWaitTime={waitTimeFormatter}
         isLoadingAutoConfirm={modals.confirmingPreSelect}
         isLoadingManualConfirm={modals.confirmingPreSelect}
+        matchHistory={matchHistory}
         courtColor={session.courtColor}
         title={
           modals.selectedPreSelectCourt

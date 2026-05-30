@@ -2996,7 +2996,19 @@
       "preSelectCancelledDesc": "Chọn trước trận tiếp theo đã được hủy",
       "errorCancellingPreSelect": "Lỗi hủy chọn trước",
       "errorAssigningPlayers": "Lỗi phân bổ người chơi",
-      "playersDeselected": "Đã hủy chọn người chơi khỏi sân"
+      "playersDeselected": "Đã hủy chọn người chơi khỏi sân",
+      "matchRepeatWarning": {
+        "openDetails": "Xem cảnh báo trùng cặp đấu",
+        "title": "Cảnh báo cặp đấu",
+        "description": "Một số quan hệ người chơi trong trận này đã lặp lại hơn 1 trận.",
+        "hostNote": "Cảnh báo này chỉ để host cân nhắc chọn lại cặp đấu khác, không chặn xác nhận trận.",
+        "teammatesTitle": "Các cặp đã chung đôi hơn 1 trận",
+        "opponentsTitle": "Các cặp đã đối đầu hơn 1 trận",
+        "noTeammates": "Không có cặp chung đôi bị lặp.",
+        "noOpponents": "Không có cặp đối đầu bị lặp.",
+        "matchCount": "{count} trận",
+        "close": "Đã hiểu"
+      }
     },
     "matchResult": {
       "title": "Kết quả trận đấu",

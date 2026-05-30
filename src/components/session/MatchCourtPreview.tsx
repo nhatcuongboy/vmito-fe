@@ -6,6 +6,7 @@ import { Player } from '@/types/session';
 import { Badge, Box, Flex, HStack, Text } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { MatchRepeatWarningResult } from '@/utils/match-repeat-warning';
 
 type MatchCourtPlayer = Player & {
   pairNumber?: number;
@@ -26,6 +27,7 @@ interface MatchCourtPreviewProps {
   showAiLoadingOverlay?: boolean;
   aiLoadingLabel?: string;
   maxW?: { base: string; md: string } | string;
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
 }
 
 export default function MatchCourtPreview({
@@ -41,6 +43,7 @@ export default function MatchCourtPreview({
   showAiLoadingOverlay = false,
   aiLoadingLabel,
   maxW = { base: '100%', md: '360px' },
+  matchRepeatWarning,
 }: MatchCourtPreviewProps) {
   const t = useTranslations('SessionDetail');
   const hasPairStats =
@@ -64,6 +67,7 @@ export default function MatchCourtPreview({
         isLoading={isLoading}
         direction={direction}
         courtColor={courtColor}
+        matchRepeatWarning={matchRepeatWarning}
       />
 
       {showAiLoadingOverlay && (

@@ -2936,7 +2936,19 @@
       "preSelectCancelledDesc": "下一场比赛的预选已被取消",
       "errorCancellingPreSelect": "取消预选出错",
       "errorAssigningPlayers": "分配玩家出错",
-      "playersDeselected": "场地玩家已撤销"
+      "playersDeselected": "场地玩家已撤销",
+      "matchRepeatWarning": {
+        "openDetails": "查看重复配对警告",
+        "title": "比赛警告",
+        "description": "本场比赛中的部分球员关系已重复超过 1 场。",
+        "hostNote": "此警告仅供 host 考虑是否重新选择对阵，不会阻止确认比赛。",
+        "teammatesTitle": "已搭档超过 1 场的组合",
+        "opponentsTitle": "已对阵超过 1 场的组合",
+        "noTeammates": "没有重复搭档组合。",
+        "noOpponents": "没有重复对阵组合。",
+        "matchCount": "{count} 场",
+        "close": "知道了"
+      }
     },
     "matchResult": {
       "title": "比赛结果",

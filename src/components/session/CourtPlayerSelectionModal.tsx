@@ -2,7 +2,7 @@ import { Button as CompatButton } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
-import { Court, Player } from '@/types/session';
+import { Court, Match, Player } from '@/types/session';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
 import { Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
@@ -18,6 +18,10 @@ import React, {
 import { Locale } from '@/i18n/locales';
 import MatchCourtPreview, { MatchPairStats } from './MatchCourtPreview';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
+import {
+  getMatchRepeatWarning,
+  MatchRepeatWarningResult,
+} from '@/utils/match-repeat-warning';
 
 type SelectionMode = 'auto' | 'manual';
 
@@ -61,6 +65,7 @@ interface ICourtPlayerSelectionModalProps {
   isLoadingManualConfirm?: boolean;
 
   // Optional
+  matchHistory?: Match[];
   courtColor?: string;
   title?: string;
   description?: string;
@@ -86,6 +91,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   formatWaitTime,
   isLoadingAutoConfirm = false,
   isLoadingManualConfirm = false,
+  matchHistory = [],
   courtColor,
   title,
   description,
@@ -328,6 +334,40 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     [selectedPlayers]
   );
 
+  const autoMatchRepeatWarning = useMemo(
+    () =>
+      getMatchRepeatWarning(
+        matchHistory,
+        autoAssignPlayers,
+        CourtDirection.HORIZONTAL,
+        matchType
+      ),
+    [autoAssignPlayers, matchHistory, matchType]
+  );
+
+  const manualMatchRepeatPlayers = useMemo(
+    () =>
+      selectedPositions
+        .map((player, index) =>
+          player ? { ...player, courtPosition: index } : null
+        )
+        .filter((player): player is Player & { courtPosition: number } =>
+          Boolean(player)
+        ),
+    [selectedPositions]
+  );
+
+  const manualMatchRepeatWarning = useMemo(
+    () =>
+      getMatchRepeatWarning(
+        matchHistory,
+        manualMatchRepeatPlayers,
+        court?.direction || CourtDirection.HORIZONTAL,
+        matchType
+      ),
+    [court?.direction, manualMatchRepeatPlayers, matchHistory, matchType]
+  );
+
   if (!isOpen || !court) return null;
 
   const isAutoMode = mode === 'auto';
@@ -496,6 +536,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               onAiToggle={handleAiToggle}
               getCourtDisplayName={getCourtDisplayName}
               courtColor={courtColor}
+              matchRepeatWarning={autoMatchRepeatWarning}
               t={t}
             />
           </Tabs.Content>
@@ -515,6 +556,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               onPlayerRemove={onPlayerRemove}
               getCourtDisplayName={getCourtDisplayName}
               formatWaitTime={formatWaitTime}
+              matchRepeatWarning={manualMatchRepeatWarning}
               t={t}
             />
           </Tabs.Content>
@@ -559,6 +601,7 @@ interface IAutoAssignContentProps {
     courtNumber: number
   ) => string;
   courtColor?: string;
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
   t: ReturnType<typeof useTranslations<'SessionDetail'>>;
 }
 
@@ -574,6 +617,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
   onAiToggle,
   getCourtDisplayName,
   courtColor,
+  matchRepeatWarning,
   t,
 }) => {
   const aiPoweredMatchingLabel = t.has('courtsTab.aiPoweredMatching')
@@ -741,6 +785,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
         pair1Players={!isLoading ? suggestedPlayers?.pair1.players : undefined}
         pair2Players={!isLoading ? suggestedPlayers?.pair2.players : undefined}
         scoreDifference={suggestedPlayers?.scoreDifference}
+        matchRepeatWarning={matchRepeatWarning}
       />
 
       {/* TopCount Selection — temporarily hidden */}
@@ -766,6 +811,7 @@ interface IManualSelectContentProps {
     courtNumber: number
   ) => string;
   formatWaitTime: (waitTimeInMinutes: number) => string;
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
   t: ReturnType<typeof useTranslations<'SessionDetail'>>;
 }
 
@@ -782,6 +828,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   onPlayerRemove,
   getCourtDisplayName,
   formatWaitTime,
+  matchRepeatWarning,
   t,
 }) => {
   const [searchText, setSearchText] = useState('');
@@ -860,6 +907,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
             courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
             width="100%"
             direction={court?.direction || CourtDirection.HORIZONTAL}
+            matchRepeatWarning={matchRepeatWarning}
           />
 
           {/* Inline Pair Stats for manual selection */}
