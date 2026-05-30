@@ -486,53 +486,55 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Flex>
                   </NextLinkButton>
                 </VTooltip>
-                <VTooltip
-                  content={nav('newsfeed')}
-                  positioning={{
-                    placement: 'right',
-                    offset: { mainAxis: 12 },
-                  }}
-                  disabled={!isCollapsed}
-                  showArrow
-                  openDelay={200}
-                >
-                  <NextLinkButton
-                    href={ROUTES.NEWSFEED}
-                    variant="ghost"
-                    justifyContent={{
-                      base: 'flex-start',
-                      md: isCollapsed ? 'center' : 'flex-start',
+                {isAuthenticated && (
+                  <VTooltip
+                    content={nav('newsfeed')}
+                    positioning={{
+                      placement: 'right',
+                      offset: { mainAxis: 12 },
                     }}
-                    onClick={onClose}
-                    w="full"
-                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                    {...getActiveProps(ROUTES.NEWSFEED)}
+                    disabled={!isCollapsed}
+                    showArrow
+                    openDelay={200}
                   >
-                    <Flex
-                      align="center"
-                      gap={3}
-                      w="full"
+                    <NextLinkButton
+                      href={ROUTES.NEWSFEED}
+                      variant="ghost"
                       justifyContent={{
                         base: 'flex-start',
                         md: isCollapsed ? 'center' : 'flex-start',
                       }}
+                      onClick={onClose}
+                      w="full"
+                      px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                      {...getActiveProps(ROUTES.NEWSFEED)}
                     >
-                      <Newspaper
-                        size={18}
-                        color={
-                          pathname.startsWith(ROUTES.NEWSFEED)
-                            ? 'var(--chakra-colors-green-500)'
-                            : 'currentColor'
-                        }
-                      />
-                      {!isCollapsed && (
-                        <Text display={{ base: 'block', md: 'block' }}>
-                          {nav('newsfeed')}
-                        </Text>
-                      )}
-                    </Flex>
-                  </NextLinkButton>
-                </VTooltip>
+                      <Flex
+                        align="center"
+                        gap={3}
+                        w="full"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                      >
+                        <Newspaper
+                          size={18}
+                          color={
+                            pathname.startsWith(ROUTES.NEWSFEED)
+                              ? 'var(--chakra-colors-green-500)'
+                              : 'currentColor'
+                          }
+                        />
+                        {!isCollapsed && (
+                          <Text display={{ base: 'block', md: 'block' }}>
+                            {nav('newsfeed')}
+                          </Text>
+                        )}
+                      </Flex>
+                    </NextLinkButton>
+                  </VTooltip>
+                )}
                 {(user?.role === UserRole.ADMIN ||
                   user?.role === UserRole.HOST) && (
                   <VTooltip
