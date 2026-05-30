@@ -1336,23 +1336,6 @@ export default function SessionForm({
                   </Field.ErrorText>
                 </Field.Root>
 
-                {/* Reference Video */}
-                <Field.Root invalid={!!errors.referenceVideoUrl}>
-                  <Field.Label>{t('referenceVideoUrl')}</Field.Label>
-                  <Input
-                    {...register('referenceVideoUrl')}
-                    placeholder={t('referenceVideoUrlPlaceholder')}
-                    type="url"
-                    inputMode="url"
-                  />
-                  <Text fontSize="xs" color="fg.muted" mt={1}>
-                    {t('referenceVideoUrlHelper')}
-                  </Text>
-                  <Field.ErrorText color="fg.error">
-                    {errors.referenceVideoUrl?.message}
-                  </Field.ErrorText>
-                </Field.Root>
-
                 {/* Location */}
                 <Field.Root
                   id="field-venue"
@@ -1800,7 +1783,23 @@ export default function SessionForm({
             </Box>
 
             {/* Level Requirements Section */}
-            <LevelRequirementsCard control={control} setValue={setValue} />
+            <LevelRequirementsCard control={control} setValue={setValue}>
+              <Field.Root invalid={!!errors.referenceVideoUrl}>
+                <Field.Label>{t('referenceVideoUrl')}</Field.Label>
+                <Input
+                  {...register('referenceVideoUrl')}
+                  placeholder={t('referenceVideoUrlPlaceholder')}
+                  type="url"
+                  inputMode="url"
+                />
+                <Text fontSize="xs" color="fg.muted" mt={1}>
+                  {t('referenceVideoUrlHelper')}
+                </Text>
+                <Field.ErrorText color="fg.error">
+                  {errors.referenceVideoUrl?.message}
+                </Field.ErrorText>
+              </Field.Root>
+            </LevelRequirementsCard>
 
             {/* Session Settings Section - Temporarily hidden */}
             {false && user?.role !== UserRole.PLAYER && (
