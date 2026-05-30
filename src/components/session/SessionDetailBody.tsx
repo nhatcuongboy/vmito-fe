@@ -303,13 +303,6 @@ const SessionDetailBody = ({
         </Box>
       )}
 
-      {session.referenceVideoUrl && (
-        <Box>
-          <Separator my={4} />
-          <SessionReferenceVideo url={session.referenceVideoUrl} />
-        </Box>
-      )}
-
       {/* Participants Section */}
       <Separator my={4} />
       <SessionParticipantList
@@ -441,6 +434,13 @@ const SessionDetailBody = ({
           />
         </Flex>
       </Box>
+
+      {session.referenceVideoUrl && (
+        <Box>
+          <Separator my={4} />
+          <SessionReferenceVideo url={session.referenceVideoUrl} />
+        </Box>
+      )}
 
       <LevelDescriptionsModal
         isOpen={isLevelDescriptionsOpen}
