@@ -49,6 +49,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
 import { getNotificationDisplayText } from '@/lib/notifications/content';
+import { getNotificationTargetRoute } from '@/lib/notifications/routing';
 import { ROUTES } from '@/constants/routes';
 
 interface NotificationBellProps {
@@ -85,7 +86,7 @@ const getNotificationIcon = (type: NotificationType) => {
 };
 
 export default function NotificationBell({
-  color,
+  color: _color,
   _hover,
 }: NotificationBellProps) {
   const { user } = useAuthStore();
@@ -201,6 +202,12 @@ export default function NotificationBell({
   const handleNotificationClick = (notification: INotification) => {
     if (!notification.isRead) {
       markAsRead(notification.id);
+    }
+
+    const targetPath = getNotificationTargetRoute(notification, user?.role);
+    if (targetPath) {
+      setIsOpen(false);
+      router.push(targetPath);
     }
   };
 

@@ -393,6 +393,7 @@ export interface ISession {
   images?: string[];
   imagePublicIds?: string[];
   shuttlecock?: string;
+  referenceVideoUrl?: string | null;
   status: SessionStatus;
   startTime?: Date;
   endTime?: Date;
@@ -601,6 +602,7 @@ export interface CreateSessionRequest {
   coverPhotoPublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
+  referenceVideoUrl?: string | null;
 }
 
 // Bulk session creation types

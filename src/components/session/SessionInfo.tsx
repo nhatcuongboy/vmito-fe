@@ -42,7 +42,7 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -106,6 +106,57 @@ interface SessionInfoProps {
   player?: Player | null;
   compactUntilMaxPlayers?: boolean;
 }
+
+type PlayerDoublesMatchStats = {
+  menDoubles: number;
+  womenDoubles: number;
+  mixedDoubles: number;
+};
+
+const EMPTY_DOUBLES_MATCH_STATS: PlayerDoublesMatchStats = {
+  menDoubles: 0,
+  womenDoubles: 0,
+  mixedDoubles: 0,
+};
+
+const getPlayerDoublesMatchStats = (
+  matches: Awaited<ReturnType<typeof SessionService.getSessionMatches>>
+): PlayerDoublesMatchStats => {
+  return matches.reduce<PlayerDoublesMatchStats>(
+    (totals, match) => {
+      if (
+        match.status !== 'FINISHED' &&
+        (match.status as string) !== 'COMPLETED'
+      ) {
+        return totals;
+      }
+
+      const genders =
+        match.players
+          ?.map((matchPlayer) => matchPlayer.player?.gender)
+          .filter(
+            (gender): gender is 'MALE' | 'FEMALE' =>
+              gender === 'MALE' || gender === 'FEMALE'
+          ) ?? [];
+
+      if (genders.length !== 4) return totals;
+
+      const menCount = genders.filter((gender) => gender === 'MALE').length;
+      const womenCount = genders.filter((gender) => gender === 'FEMALE').length;
+
+      if (menCount === 4) {
+        totals.menDoubles += 1;
+      } else if (womenCount === 4) {
+        totals.womenDoubles += 1;
+      } else if (menCount === 2 && womenCount === 2) {
+        totals.mixedDoubles += 1;
+      }
+
+      return totals;
+    },
+    { ...EMPTY_DOUBLES_MATCH_STATS }
+  );
+};
 
 const PlayerAchievementExportCard = ({
   session,
@@ -439,6 +490,8 @@ export default function SessionInfo({
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
   const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
+  const [playerDoublesStats, setPlayerDoublesStats] =
+    useState<PlayerDoublesMatchStats>(EMPTY_DOUBLES_MATCH_STATS);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!compactUntilMaxPlayers);
@@ -456,15 +509,23 @@ export default function SessionInfo({
       const targetSessionId = session.id;
       if (!targetSessionId || !player?.id) {
         setPlayerStats(null);
+        setPlayerDoublesStats(EMPTY_DOUBLES_MATCH_STATS);
         return;
       }
 
       try {
         setIsLoadingStats(true);
-        const response =
-          await SessionService.getPlayerStatistics(targetSessionId);
+        const [response, matchesResult] = await Promise.all([
+          SessionService.getPlayerStatistics(targetSessionId),
+          SessionService.getSessionMatchesWithFilters(targetSessionId, {
+            playerId: player.id,
+          }),
+        ]);
         const myStats = response.playerStats.find(
           (s) => s.playerId === player.id
+        );
+        setPlayerDoublesStats(
+          getPlayerDoublesMatchStats(matchesResult.matches)
         );
         if (myStats) {
           setPlayerStats(myStats);
@@ -480,6 +541,31 @@ export default function SessionInfo({
 
     fetchStats();
   }, [session.id, player?.id]);
+
+  const visibleDoublesStats = useMemo(
+    () =>
+      [
+        {
+          key: 'menDoubles',
+          label: t('stats.menDoubles'),
+          value: playerDoublesStats.menDoubles,
+          color: 'blue.500',
+        },
+        {
+          key: 'womenDoubles',
+          label: t('stats.womenDoubles'),
+          value: playerDoublesStats.womenDoubles,
+          color: 'pink.500',
+        },
+        {
+          key: 'mixedDoubles',
+          label: t('stats.mixedDoubles'),
+          value: playerDoublesStats.mixedDoubles,
+          color: 'purple.500',
+        },
+      ].filter((stat) => stat.value > 0),
+    [playerDoublesStats, t]
+  );
 
   const handleDownloadAchievement = () => {
     if (!playerStats || !player || !playerAchievementExportId) return;
@@ -753,63 +839,44 @@ export default function SessionInfo({
             </Flex>
           ) : playerStats ? (
             <SimpleGrid columns={2} gap={3}>
-              <Box
-                p={2}
-                bg="gray.50"
-                _dark={{ bg: 'gray.700' }}
-                borderRadius="md"
-                textAlign="center"
-              >
-                <Text fontSize="xs" color="gray.500" mb={1}>
-                  {t('stats.wins')}
-                </Text>
-                <Text fontWeight="bold" color="green.500">
-                  {playerStats.wins}
-                </Text>
-              </Box>
-              <Box
-                p={2}
-                bg="gray.50"
-                _dark={{ bg: 'gray.700' }}
-                borderRadius="md"
-                textAlign="center"
-              >
-                <Text fontSize="xs" color="gray.500" mb={1}>
-                  {t('stats.losses')}
-                </Text>
-                <Text fontWeight="bold" color="red.500">
-                  {playerStats.losses}
-                </Text>
-              </Box>
-              <Box
-                p={2}
-                bg="gray.50"
-                _dark={{ bg: 'gray.700' }}
-                borderRadius="md"
-                textAlign="center"
-              >
-                <Text fontSize="xs" color="gray.500" mb={1}>
-                  {t('stats.winRate')}
-                </Text>
-                <Text
-                  fontWeight="bold"
-                  color={playerStats.winRate >= 50 ? 'green.500' : 'orange.500'}
+              {[
+                {
+                  label: t('stats.wins'),
+                  value: playerStats.wins,
+                  color: 'green.500',
+                },
+                {
+                  label: t('stats.losses'),
+                  value: playerStats.losses,
+                  color: 'red.500',
+                },
+                {
+                  label: t('stats.winRate'),
+                  value: `${playerStats.winRate}%`,
+                  color: playerStats.winRate >= 50 ? 'green.500' : 'orange.500',
+                },
+                {
+                  label: t('stats.totalMatches'),
+                  value: playerStats.totalMatches,
+                },
+                ...visibleDoublesStats,
+              ].map((stat) => (
+                <Box
+                  key={stat.label}
+                  p={2}
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.700' }}
+                  borderRadius="md"
+                  textAlign="center"
                 >
-                  {playerStats.winRate}%
-                </Text>
-              </Box>
-              <Box
-                p={2}
-                bg="gray.50"
-                _dark={{ bg: 'gray.700' }}
-                borderRadius="md"
-                textAlign="center"
-              >
-                <Text fontSize="xs" color="gray.500" mb={1}>
-                  {t('stats.totalMatches')}
-                </Text>
-                <Text fontWeight="bold">{playerStats.totalMatches}</Text>
-              </Box>
+                  <Text fontSize="xs" color="gray.500" mb={1}>
+                    {stat.label}
+                  </Text>
+                  <Text fontWeight="bold" color={stat.color}>
+                    {stat.value}
+                  </Text>
+                </Box>
+              ))}
             </SimpleGrid>
           ) : (
             <Text fontSize="sm" color="gray.500" textAlign="center">

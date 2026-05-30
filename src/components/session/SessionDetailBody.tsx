@@ -37,6 +37,7 @@ import { normalizePhoneForZalo } from '@/utils/phone-utils';
 import Image from 'next/image';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import SessionReferenceVideo from './SessionReferenceVideo';
 import { ROUTES } from '@/constants';
 
 interface ISessionDetailBodyProps {
@@ -299,6 +300,13 @@ const SessionDetailBody = ({
               {session.description}
             </Text>
           </Box>
+        </Box>
+      )}
+
+      {session.referenceVideoUrl && (
+        <Box>
+          <Separator my={4} />
+          <SessionReferenceVideo url={session.referenceVideoUrl} />
         </Box>
       )}
 

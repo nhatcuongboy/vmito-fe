@@ -279,6 +279,22 @@ function createSessionFormSchema(
 
       // Optional fields
       description: z.string().optional(),
+      referenceVideoUrl: z
+        .string()
+        .trim()
+        .refine(
+          (value) => {
+            if (!value) return true;
+            try {
+              const url = new URL(value);
+              return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+              return false;
+            }
+          },
+          { message: t('validation.referenceVideoUrlInvalid') }
+        )
+        .optional(),
       requirePlayerInfo: z.boolean(),
       allowGuestJoin: z.boolean(),
       allowNewPlayers: z.boolean(),
@@ -355,6 +371,7 @@ export default function SessionForm({
       return {
         name: initialData.name,
         description: initialData.description || '',
+        referenceVideoUrl: initialData.referenceVideoUrl || '',
         selectedVenueId: initialData.venue?.id || '',
         hostName: initialData.hostName || initialData.host?.name || '',
         hostPhone: initialData.hostPhone || '',
@@ -388,6 +405,7 @@ export default function SessionForm({
     return {
       name: '',
       description: '',
+      referenceVideoUrl: '',
       selectedVenueId: '',
       hostName: user?.name || '',
       hostPhone: '',
@@ -967,6 +985,7 @@ export default function SessionForm({
         session = await SessionService.updateSession(sessionId, {
           name: data.name,
           description: data.description?.trim() || '',
+          referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
           hostPhone: data.hostPhone?.trim() || '',
           maxPlayersPerCourt: data.maxPlayersPerCourt,
@@ -1011,6 +1030,7 @@ export default function SessionForm({
         const baseSessionData = {
           name: data.name,
           description: data.description?.trim() || '',
+          referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
           hostPhone: data.hostPhone?.trim() || '',
           numberOfCourts: data.courts.length,
@@ -1313,6 +1333,23 @@ export default function SessionForm({
                   />
                   <Field.ErrorText>
                     {errors.description?.message}
+                  </Field.ErrorText>
+                </Field.Root>
+
+                {/* Reference Video */}
+                <Field.Root invalid={!!errors.referenceVideoUrl}>
+                  <Field.Label>{t('referenceVideoUrl')}</Field.Label>
+                  <Input
+                    {...register('referenceVideoUrl')}
+                    placeholder={t('referenceVideoUrlPlaceholder')}
+                    type="url"
+                    inputMode="url"
+                  />
+                  <Text fontSize="xs" color="fg.muted" mt={1}>
+                    {t('referenceVideoUrlHelper')}
+                  </Text>
+                  <Field.ErrorText color="fg.error">
+                    {errors.referenceVideoUrl?.message}
                   </Field.ErrorText>
                 </Field.Root>
 

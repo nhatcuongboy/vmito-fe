@@ -19,7 +19,7 @@ import { NotificationSkeleton } from './NotificationSkeleton';
 import { INotification } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { ROUTES } from '@/constants/routes';
+import { getNotificationTargetRoute } from '@/lib/notifications/routing';
 
 export const NotificationPanel = () => {
   const t = useTranslations('notification');
@@ -66,59 +66,7 @@ export const NotificationPanel = () => {
   };
 
   const handleNotificationClick = (notification: INotification) => {
-    const { type, data } = notification;
-
-    // Helper to determine the target route based on notification type
-    const getTargetRoute = (): string | null => {
-      const typeStr = String(type).toUpperCase();
-      console.log('[NotificationPanel] Clicked notification:', typeStr, data);
-
-      switch (typeStr) {
-        case 'SESSION':
-        case 'REGISTRATION': {
-          if (data?.sessionId) {
-            const sessionId = String(data.sessionId);
-            const slug = data.slug ? String(data.slug) : undefined;
-            return user?.role === 'HOST'
-              ? ROUTES.HOST.SESSIONS.DETAIL(sessionId, slug)
-              : ROUTES.PLAYER.SESSIONS.DETAIL(sessionId, slug);
-          }
-          break;
-        }
-        case 'CLUB': {
-          if (data?.clubId) {
-            const clubId = data.clubSlug
-              ? String(data.clubSlug)
-              : String(data.clubId);
-            return user?.role === 'HOST'
-              ? ROUTES.HOST.CLUBS.EDIT(clubId)
-              : ROUTES.CLUBS.DETAIL(clubId);
-          }
-          break;
-        }
-        // TODO: Add more branches here when extending (PAYMENT, TOURNAMENT, SYSTEM, etc.)
-        default: {
-          // Fallback routing relying on data payload if type isn't fully matched
-          if (data?.sessionId) {
-            const sessionId = String(data.sessionId);
-            const slug = data.slug ? String(data.slug) : undefined;
-            return user?.role === 'HOST'
-              ? ROUTES.HOST.SESSIONS.DETAIL(sessionId, slug)
-              : ROUTES.PLAYER.SESSIONS.DETAIL(sessionId, slug);
-          }
-          if (data?.clubId) {
-            const clubId = data.clubSlug
-              ? String(data.clubSlug)
-              : String(data.clubId);
-            return ROUTES.CLUBS.DETAIL(clubId);
-          }
-          break;
-        }
-      }
-      return null;
-    };
-
-    const targetPath = getTargetRoute();
+    const targetPath = getNotificationTargetRoute(notification, user?.role);
     if (targetPath) {
       closeTriggerRef.current?.click(); // Close popover before navigating
       router.push(targetPath);
