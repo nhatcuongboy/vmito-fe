@@ -59,7 +59,7 @@ const normalizeTransferMessage = (message: string) =>
     .replace(/[^a-zA-Z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 25);
+    .slice(0, 70);
 
 export default function PaymentInfoTab({
   session,
@@ -92,20 +92,20 @@ export default function PaymentInfoTab({
   const canSubmit = (payment: PaymentRecord) =>
     payment.status === PaymentStatus.PENDING;
 
-  // Construct a default message for transfer: "Name - Date - PlayerName"
+  // Construct a default message for transfer: "Name Date PlayerName"
   const defaultMessage = useMemo(() => {
-    // Session name (max 10 chars to avoid overflow in bank apps)
-    const sName = session.name?.substring(0, 15).trim() || '';
+    const sName = session.name?.trim() || '';
 
-    // Short date: DD/MM
+    // Short date: DDMM
     let sDate = '';
     if (session.startTime) {
       const d = new Date(session.startTime);
-      sDate = `${d.getDate()}/${d.getMonth() + 1}`;
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      sDate = `${day}${month}`;
     }
 
-    // Player name (assuming current user is the first record)
-    const pName = paymentRecords[0]?.player?.name?.split(' ').pop() || ''; // Take last name only for brevity
+    const pName = paymentRecords[0]?.player?.name?.trim() || '';
 
     return normalizeTransferMessage(`${sName} ${sDate} ${pName}`);
   }, [session.name, session.startTime, paymentRecords]);

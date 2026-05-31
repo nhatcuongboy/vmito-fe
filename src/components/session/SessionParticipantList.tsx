@@ -39,13 +39,13 @@ const SessionParticipantList = ({
   const visiblePlayers = isExpanded
     ? approvedPlayers
     : approvedPlayers.slice(0, MAX_VISIBLE_AVATARS);
-  const visibleEmptySlots = Math.max(
-    0,
-    Math.min(
-      maxPlayers - approvedPlayersCount,
-      MAX_VISIBLE_AVATARS - visiblePlayers.length
-    )
-  );
+  const availableSlots = Math.max(0, maxPlayers - approvedPlayersCount);
+  const visibleEmptySlots = isExpanded
+    ? availableSlots
+    : Math.min(
+        availableSlots,
+        Math.max(0, MAX_VISIBLE_AVATARS - visiblePlayers.length)
+      );
 
   return (
     <Box>
