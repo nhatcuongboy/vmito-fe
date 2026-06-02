@@ -1478,6 +1478,9 @@
           "noTeams": "No teams registered yet.",
           "unknownTeam": "Unknown"
         },
+        "scheduleTab": {
+          "empty": "No schedule has been published yet."
+        },
         "homeTab": {
           "overview": {
             "title": "Overview",
@@ -1722,7 +1725,11 @@
               "thirdPlaceMatch": "Third place match",
               "yes": "Yes",
               "no": "No",
-              "bracketPreview": "Bracket preview will appear here"
+              "bracketPreview": "Bracket preview will appear here",
+              "bestOf5": "Best of 5",
+              "perRoundTitle": "Per-round format (optional)",
+              "perRoundHint": "Rounds left as default use {format}.",
+              "useDefault": "Default"
             },
             "rrse": {
               "groupStage": "Group Stage",
@@ -1753,6 +1760,13 @@
                 "description": "Provide venues and assign times and courts to your matches."
               }
             }
+          },
+          "rounds": {
+            "final": "Final",
+            "semifinal": "Semifinal",
+            "quarterfinal": "Quarterfinal",
+            "roundOf16": "Round of 16",
+            "thirdPlace": "3rd place"
           }
         },
         "manage": {
@@ -2537,6 +2551,7 @@
         "noMatchesYet": "No matches yet",
         "groupStage": "Group Stage",
         "bestOf3": "Best of 3",
+        "bestOf5": "Best of 5",
         "bestOf1": "Best of 1",
         "groups": "Groups",
         "participants": "Participants",
@@ -2667,6 +2682,7 @@
         "numberOfGames": "Number of Games",
         "bestOf1": "Best of 1",
         "bestOf3": "Best of 3",
+        "bestOf5": "Best of 5",
         "save": "Save",
         "group": "Group",
         "vs": "vs",
@@ -2690,6 +2706,7 @@
         },
         "bestOf1": "Best of 1",
         "bestOf3": "Best of 3",
+        "bestOf5": "Best of 5",
         "setWins": "Sets",
         "currentSet": "Set",
         "addPointFor": "Add a point for {team}",

@@ -1486,6 +1486,9 @@
           "noTeams": "Chưa có đội nào đăng ký.",
           "unknownTeam": "Không xác định"
         },
+        "scheduleTab": {
+          "empty": "Chưa có lịch thi đấu nào được công bố."
+        },
         "homeTab": {
           "overview": {
             "title": "Tổng quan",
@@ -1730,7 +1733,11 @@
               "thirdPlaceMatch": "Trận tranh hạng ba",
               "yes": "Có",
               "no": "Không",
-              "bracketPreview": "Xem trước nhánh đấu sẽ hiển thị ở đây"
+              "bracketPreview": "Xem trước nhánh đấu sẽ hiển thị ở đây",
+              "bestOf5": "Best of 5",
+              "perRoundTitle": "Thể thức theo từng vòng (tùy chọn)",
+              "perRoundHint": "Vòng để mặc định sẽ dùng {format}.",
+              "useDefault": "Mặc định"
             },
             "rrse": {
               "groupStage": "Vòng bảng",
@@ -1761,6 +1768,13 @@
                 "description": "Cung cấp địa điểm và phân bổ thời gian, sân cho các trận."
               }
             }
+          },
+          "rounds": {
+            "final": "Chung kết",
+            "semifinal": "Bán kết",
+            "quarterfinal": "Tứ kết",
+            "roundOf16": "Vòng 1/8",
+            "thirdPlace": "Tranh hạng 3"
           }
         },
         "manage": {
@@ -2545,6 +2559,7 @@
         "noMatchesYet": "Chưa có trận đấu nào",
         "groupStage": "Vòng bảng",
         "bestOf3": "Tối đa 3 set",
+        "bestOf5": "Best of 5",
         "bestOf1": "Tối đa 1 set",
         "groups": "Bảng",
         "participants": "Người tham gia",
@@ -2675,6 +2690,7 @@
         "numberOfGames": "Số ván đấu",
         "bestOf1": "Tối đa 1 ván",
         "bestOf3": "Tối đa 3 ván",
+        "bestOf5": "Best of 5",
         "save": "Lưu",
         "group": "Bảng",
         "vs": "vs",
@@ -2698,6 +2714,7 @@
         },
         "bestOf1": "Đấu 1 set",
         "bestOf3": "Đấu 3 set",
+        "bestOf5": "Best of 5",
         "setWins": "Set thắng",
         "currentSet": "Set",
         "addPointFor": "Cộng điểm cho {team}",

@@ -4,7 +4,12 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { LegacySelect } from '@/components/ui/VSelect';
 import { useTranslations } from 'next-intl';
 import { useFormatWizard } from '../FormatWizardContext';
-import { SingleEliminationConfig as SEConfigType } from '../types';
+import {
+  SingleEliminationConfig as SEConfigType,
+  MatchFormatValue,
+  RoundFormats,
+} from '../types';
+import PerRoundFormatConfig from '../components/PerRoundFormatConfig';
 
 export default function SingleEliminationConfig() {
   const t = useTranslations('pages.tournaments.detail.formatWizard');
@@ -50,14 +55,23 @@ export default function SingleEliminationConfig() {
             value={config.matchFormat}
             onChange={(e) =>
               update({
-                matchFormat: e.target.value as 'BEST_OF_1' | 'BEST_OF_3',
+                matchFormat: e.target.value as MatchFormatValue,
               })
             }
           >
             <option value="BEST_OF_1">{t('config.se.bestOf1')}</option>
             <option value="BEST_OF_3">{t('config.se.bestOf3')}</option>
+            <option value="BEST_OF_5">{t('config.se.bestOf5')}</option>
           </LegacySelect>
         </Box>
+
+        {/* Per-round format overrides */}
+        <PerRoundFormatConfig
+          baseFormat={config.matchFormat}
+          value={config.roundFormats ?? {}}
+          onChange={(roundFormats: RoundFormats) => update({ roundFormats })}
+          includeThirdPlace={config.thirdPlaceMatch}
+        />
 
         {/* Third place match */}
         <Box mb={5}>

@@ -165,7 +165,11 @@ export default function ScoreEntryBoard({
       {/* Header: format + set wins + connection */}
       <Flex align="center" justify="space-between" px={4} py={2} flexShrink={0}>
         <Badge colorPalette="purple">
-          {rules.bestOf === 3 ? t('bestOf3') : t('bestOf1')}
+          {rules.bestOf === 5
+            ? t('bestOf5')
+            : rules.bestOf === 3
+              ? t('bestOf3')
+              : t('bestOf1')}
         </Badge>
         <Text fontWeight="bold" fontSize="sm">
           {t('setWins')}: {wins.side1} – {wins.side2}

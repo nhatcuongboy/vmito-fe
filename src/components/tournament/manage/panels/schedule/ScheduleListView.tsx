@@ -194,13 +194,17 @@ export default function ScheduleListView({
                 >
                   {match.courtId ? getCourtLabel(match.courtId) : t('noCourt')}
                 </Text>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => onEditMatch?.(match.id)}
-                >
-                  <Edit size={14} />
-                </Button>
+                {onEditMatch ? (
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => onEditMatch(match.id)}
+                  >
+                    <Edit size={14} />
+                  </Button>
+                ) : (
+                  <Box />
+                )}
               </Box>
             ))}
           </VStack>

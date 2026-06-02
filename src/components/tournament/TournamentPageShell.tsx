@@ -45,6 +45,7 @@ import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
+import PublicTournamentScheduleTab from '@/components/tournament/PublicTournamentScheduleTab';
 import UserMenu from '@/components/ui/UserMenu';
 import NotificationBell from '@/components/ui/NotificationBell';
 import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
@@ -546,13 +547,8 @@ export default function TournamentPageShell({
           )}
         </VStack>
       )}
-      {activeTab === 2 && (
-        <>
-          <Heading size="md" mb={4}>
-            {t('tabs.schedule')}
-          </Heading>
-          <Text color="fg.muted">{t('comingSoon')}</Text>
-        </>
+      {activeTab === 2 && tournament && (
+        <PublicTournamentScheduleTab tournament={tournament} />
       )}
       {activeTab === 3 && (
         <>

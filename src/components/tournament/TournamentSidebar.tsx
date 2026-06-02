@@ -42,9 +42,15 @@ export default function TournamentSidebar({
     <>
       {/* Tournament banner image */}
       <Box position="relative" bg="gray.100" h="130px">
-        {tournament.venue?.coverPhoto || tournament.venue?.images?.[0] ? (
+        {tournament.coverPhoto ||
+        tournament.venue?.coverPhoto ||
+        tournament.venue?.images?.[0] ? (
           <Image
-            src={tournament.venue.coverPhoto || tournament.venue.images![0]}
+            src={
+              tournament.coverPhoto ||
+              tournament.venue?.coverPhoto ||
+              tournament.venue!.images![0]
+            }
             alt={tournament.name}
             w="100%"
             h="100%"

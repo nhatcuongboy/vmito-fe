@@ -32,6 +32,33 @@ import {
   Trophy,
   UserRound,
 } from 'lucide-react';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { AuthService } from '@/lib/api/auth.service';
+import { ROUTES } from '@/constants';
+import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
+import NotificationBell from '@/components/ui/NotificationBell';
+import UserMenu from '@/components/ui/UserMenu';
+
+function TournamentTopBarMenu() {
+  const router = useRouter();
+  const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
+
+  const handleLogout = () => {
+    AuthService.logout();
+    router.push(ROUTES.HOME);
+  };
+
+  if (!isHydrated || isLoading) return null;
+  if (!isAuthenticated) return null;
+
+  return (
+    <Flex align="center" gap={2}>
+      <AiAssistantTopBarButton />
+      <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
+      <UserMenu onLogout={handleLogout} />
+    </Flex>
+  );
+}
 
 interface PlayerCategorySummary {
   id: string;
@@ -318,7 +345,16 @@ export default function PublicTournamentPlayerPage() {
 
   if (loading) {
     return (
-      <PageLayout title="Thông tin VĐV" showBackButton={false}>
+      <PageLayout
+        title="Thông tin VĐV"
+        showBackButton={false}
+        topBarVariant="main"
+        showTopBarMenuButton={false}
+        showTopBarLogo={false}
+        showTopBarAuthActions={false}
+        disableSidebarOffset
+        rightContent={<TournamentTopBarMenu />}
+      >
         <Flex align="center" justify="center" minH="50vh">
           <Spinner size="xl" />
         </Flex>
@@ -333,7 +369,16 @@ export default function PublicTournamentPlayerPage() {
         : 'Không tìm thấy VĐV trong giải đấu này.';
 
     return (
-      <PageLayout title="Thông tin VĐV" showBackButton={false}>
+      <PageLayout
+        title="Thông tin VĐV"
+        showBackButton={false}
+        topBarVariant="main"
+        showTopBarMenuButton={false}
+        showTopBarLogo={false}
+        showTopBarAuthActions={false}
+        disableSidebarOffset
+        rightContent={<TournamentTopBarMenu />}
+      >
         <VStack align="stretch" gap={4}>
           <Button
             alignSelf="flex-start"
@@ -373,6 +418,12 @@ export default function PublicTournamentPlayerPage() {
     <PageLayout
       title="Thông tin VĐV"
       showBackButton={false}
+      topBarVariant="main"
+      showTopBarMenuButton={false}
+      showTopBarLogo={false}
+      showTopBarAuthActions={false}
+      disableSidebarOffset
+      rightContent={<TournamentTopBarMenu />}
       maxW="container.lg"
       bg="gray.50"
     >

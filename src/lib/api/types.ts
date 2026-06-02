@@ -712,6 +712,7 @@ export enum MatchStatus {
 export enum MatchFormat {
   BEST_OF_1 = 'BEST_OF_1', // 1 set only
   BEST_OF_3 = 'BEST_OF_3', // Best of 3 sets (first to win 2 sets)
+  BEST_OF_5 = 'BEST_OF_5', // Best of 5 sets (first to win 3 sets)
 }
 
 export enum ScheduleType {

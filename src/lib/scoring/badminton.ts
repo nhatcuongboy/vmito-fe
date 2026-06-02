@@ -12,7 +12,7 @@ export interface BadmintonRules {
   pointsToWin: number;
   winBy: number;
   cap: number;
-  bestOf: 1 | 3;
+  bestOf: 1 | 3 | 5;
 }
 
 export function defaultRules(matchFormat?: MatchFormat | null): BadmintonRules {
@@ -20,7 +20,8 @@ export function defaultRules(matchFormat?: MatchFormat | null): BadmintonRules {
     pointsToWin: 21,
     winBy: 2,
     cap: 30,
-    bestOf: matchFormat === 'BEST_OF_3' ? 3 : 1,
+    bestOf:
+      matchFormat === 'BEST_OF_5' ? 5 : matchFormat === 'BEST_OF_3' ? 3 : 1,
   };
 }
 
@@ -53,7 +54,9 @@ export function setWins(
 }
 
 export function setsToWin(rules: BadmintonRules): number {
-  return rules.bestOf === 3 ? 2 : 1;
+  if (rules.bestOf === 5) return 3;
+  if (rules.bestOf === 3) return 2;
+  return 1;
 }
 
 export function isMatchComplete(

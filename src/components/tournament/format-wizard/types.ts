@@ -41,17 +41,29 @@ export interface RoundRobinConfig {
   standingsColumns: StandingsColumn[];
 }
 
+export type MatchFormatValue = 'BEST_OF_1' | 'BEST_OF_3' | 'BEST_OF_5';
+
+/** Knockout round labels used as keys for per-round format overrides. */
+export type KnockoutRound = 'R16' | 'QF' | 'SF' | 'F' | '3RD';
+
+/** Optional per-round match-format overrides (falls back to the base format). */
+export type RoundFormats = Partial<Record<KnockoutRound, MatchFormatValue>>;
+
 export interface SingleEliminationConfig {
   seedingMethod: 'manual' | 'random' | 'ranking';
-  matchFormat: 'BEST_OF_1' | 'BEST_OF_3';
+  matchFormat: MatchFormatValue;
   thirdPlaceMatch: boolean;
+  /** Per-round format overrides; rounds not listed use `matchFormat`. */
+  roundFormats?: RoundFormats;
 }
 
 export interface RoundRobinToSEConfig {
   roundRobin: RoundRobinConfig;
   qualifiersPerGroup: number;
-  eliminationMatchFormat: 'BEST_OF_1' | 'BEST_OF_3';
+  eliminationMatchFormat: MatchFormatValue;
   eliminationSeedingMethod: 'manual' | 'random' | 'ranking';
+  /** Per-round format overrides; rounds not listed use `eliminationMatchFormat`. */
+  roundFormats?: RoundFormats;
 }
 
 export type FormatConfig =

@@ -1456,6 +1456,9 @@
           "noTeams": "尚未有队伍报名。",
           "unknownTeam": "未知"
         },
+        "scheduleTab": {
+          "empty": "尚未发布赛程。"
+        },
         "homeTab": {
           "overview": {
             "title": "概览",
@@ -1700,7 +1703,11 @@
               "thirdPlaceMatch": "季军赛",
               "yes": "是",
               "no": "否",
-              "bracketPreview": "淘汰赛预览将显示在此处"
+              "bracketPreview": "淘汰赛预览将显示在此处",
+              "bestOf5": "五局三胜",
+              "perRoundTitle": "各轮赛制（可选）",
+              "perRoundHint": "未设置的轮次使用 {format}。",
+              "useDefault": "默认"
             },
             "rrse": {
               "groupStage": "小组赛阶段",
@@ -1731,6 +1738,13 @@
                 "description": "提供场地并为比赛分配时间和球场。"
               }
             }
+          },
+          "rounds": {
+            "final": "决赛",
+            "semifinal": "半决赛",
+            "quarterfinal": "四分之一决赛",
+            "roundOf16": "16强",
+            "thirdPlace": "季军赛"
           }
         },
         "manage": {
@@ -2515,6 +2529,7 @@
         "noMatchesYet": "尚未有比赛",
         "groupStage": "小组赛",
         "bestOf3": "三局两胜",
+        "bestOf5": "五局三胜",
         "bestOf1": "一局定胜负",
         "groups": "小组",
         "participants": "参与者",
@@ -2645,6 +2660,7 @@
         "numberOfGames": "局数",
         "bestOf1": "一局定胜负",
         "bestOf3": "三局两胜",
+        "bestOf5": "五局三胜",
         "save": "保存",
         "group": "小组",
         "vs": "对",
@@ -2668,6 +2684,7 @@
         },
         "bestOf1": "一局制",
         "bestOf3": "三局两胜",
+        "bestOf5": "五局三胜",
         "setWins": "局",
         "currentSet": "第",
         "addPointFor": "为 {team} 加一分",
