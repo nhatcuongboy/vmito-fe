@@ -1756,6 +1756,7 @@
           "panelTitles": {
             "publish": "发布锦标赛",
             "teams": "队伍",
+            "players": "选手",
             "categories": "类别",
             "format": "赛制",
             "standings": "排名",
@@ -1766,7 +1767,8 @@
             "sponsors": "赞助商",
             "name": "锦标赛名称",
             "dates": "锦标赛日期",
-            "location": "锦标赛地点"
+            "location": "锦标赛地点",
+            "banner": "锦标赛横幅"
           },
           "organize": {
             "publish": {
@@ -1776,6 +1778,10 @@
             "teams": {
               "title": "队伍",
               "description": "{count} 支队伍已报名"
+            },
+            "players": {
+              "title": "选手",
+              "description": "管理本赛事的选手名单"
             },
             "categories": {
               "title": "类别"
@@ -2076,6 +2082,48 @@
               "quickCreatePlayer": "快速创建新运动员",
               "draftTeamWarning": "该队伍仍为草稿，暂时无法分组或排赛程。"
             },
+            "players": {
+              "title": "选手",
+              "subtitle": "本赛事的所有选手。在此添加的选手可分配到队伍和报名中。",
+              "addPlayer": "添加选手",
+              "searchPlaceholder": "搜索选手...",
+              "noPlayers": "暂无选手",
+              "noResults": "没有匹配的选手",
+              "addPlayerTitle": "添加选手",
+              "editPlayer": "编辑选手",
+              "deletePlayer": "删除选手",
+              "deleteConfirm": "确定要删除这名选手吗？",
+              "deleteWarning": "此操作还将从 {registrations} 个报名和 {teams} 支队伍中移除该选手。",
+              "name": "姓名",
+              "namePlaceholder": "选手姓名",
+              "gender": "性别",
+              "genderPlaceholder": "选择性别",
+              "level": "等级",
+              "levelPlaceholder": "选择等级",
+              "levelDescription": "等级描述",
+              "levelDescriptionPlaceholder": "例如：中级、公开级...",
+              "email": "邮箱",
+              "emailPlaceholder": "name@example.com",
+              "phone": "电话",
+              "phonePlaceholder": "电话号码",
+              "genderMale": "男",
+              "genderFemale": "女",
+              "genderOther": "其他",
+              "genderPreferNotToSay": "不愿透露",
+              "save": "保存",
+              "cancel": "取消",
+              "delete": "删除",
+              "addSuccess": "已添加选手",
+              "updateSuccess": "已更新选手",
+              "deleteSuccess": "已删除选手",
+              "addFailed": "添加选手失败",
+              "updateFailed": "更新选手失败",
+              "deleteFailed": "删除选手失败",
+              "unknownError": "未知错误",
+              "playersCount": "{count} 名选手",
+              "usageBadge": "{count} 个报名",
+              "linkedAccount": "关联账户"
+            },
             "categories": {
               "title": "类别",
               "addCategory": "添加类别",
@@ -2356,6 +2404,19 @@
                 "searchFailed": "搜索场地失败",
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新锦标赛地点失败"
+              }
+            },
+            "banner": {
+              "title": "锦标赛封面图片",
+              "description": "上传锦标赛页面的封面图片。推荐尺寸：1200x400px。",
+              "currentBanner": "当前封面图片",
+              "noBanner": "尚未设置封面图片",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "封面图片更新成功",
+              "errors": {
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新封面图片失败"
               }
             }
           }

@@ -1778,6 +1778,7 @@
           "panelTitles": {
             "publish": "Publish tournament",
             "teams": "Teams",
+            "players": "Players",
             "categories": "Categories",
             "format": "Format",
             "standings": "Standings",
@@ -1788,7 +1789,8 @@
             "sponsors": "Sponsors",
             "name": "Tournament Name",
             "dates": "Tournament Dates",
-            "location": "Tournament Location"
+            "location": "Tournament Location",
+            "banner": "Tournament Banner"
           },
           "organize": {
             "publish": {
@@ -1798,6 +1800,10 @@
             "teams": {
               "title": "Teams",
               "description": "{count} teams registered"
+            },
+            "players": {
+              "title": "Players",
+              "description": "Manage the player pool for this tournament"
             },
             "categories": {
               "title": "Categories"
@@ -2098,6 +2104,48 @@
               "quickCreatePlayer": "Quickly create a new player",
               "draftTeamWarning": "This team is still a draft and cannot be assigned to a pool or scheduled yet."
             },
+            "players": {
+              "title": "Players",
+              "subtitle": "All players in this tournament. Players added here can be assigned to teams and registrations.",
+              "addPlayer": "Add player",
+              "searchPlaceholder": "Search players...",
+              "noPlayers": "No players yet",
+              "noResults": "No players match your search",
+              "addPlayerTitle": "Add player",
+              "editPlayer": "Edit player",
+              "deletePlayer": "Delete player",
+              "deleteConfirm": "Are you sure you want to delete this player?",
+              "deleteWarning": "This will also remove the player from {registrations} registration(s) and {teams} team(s).",
+              "name": "Name",
+              "namePlaceholder": "Player name",
+              "gender": "Gender",
+              "genderPlaceholder": "Select gender",
+              "level": "Level",
+              "levelPlaceholder": "Select level",
+              "levelDescription": "Level description",
+              "levelDescriptionPlaceholder": "e.g. Intermediate, Open...",
+              "email": "Email",
+              "emailPlaceholder": "name@example.com",
+              "phone": "Phone",
+              "phonePlaceholder": "Phone number",
+              "genderMale": "Male",
+              "genderFemale": "Female",
+              "genderOther": "Other",
+              "genderPreferNotToSay": "Prefer not to say",
+              "save": "Save",
+              "cancel": "Cancel",
+              "delete": "Delete",
+              "addSuccess": "Player added",
+              "updateSuccess": "Player updated",
+              "deleteSuccess": "Player deleted",
+              "addFailed": "Failed to add player",
+              "updateFailed": "Failed to update player",
+              "deleteFailed": "Failed to delete player",
+              "unknownError": "Unknown error",
+              "playersCount": "{count} players",
+              "usageBadge": "{count} registrations",
+              "linkedAccount": "Linked account"
+            },
             "categories": {
               "title": "Categories",
               "addCategory": "Add category",
@@ -2378,6 +2426,19 @@
                 "searchFailed": "Failed to search venues",
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update tournament location"
+              }
+            },
+            "banner": {
+              "title": "Tournament Cover Photo",
+              "description": "Upload a cover photo for your tournament page. Recommended size: 1200x400px.",
+              "currentBanner": "Current cover photo",
+              "noBanner": "No cover photo set",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Cover photo updated successfully",
+              "errors": {
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update cover photo"
               }
             }
           }

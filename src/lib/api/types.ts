@@ -730,6 +730,8 @@ export interface Tournament {
   status: TournamentStatus;
   isPublished: boolean;
   scheduleType?: ScheduleType;
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
   createdAt: Date;
   updatedAt: Date;
   host?: {
@@ -926,6 +928,16 @@ export interface TournamentPlayer {
   createdAt: Date;
   updatedAt: Date;
   userId?: string;
+  user?: {
+    id: string;
+    name?: string;
+    image?: string;
+  };
+  /** Usage counts: how many category registrations and pair memberships reference this player */
+  _count?: {
+    registrations: number;
+    pairMembers: number;
+  };
 }
 
 export interface TournamentPair {

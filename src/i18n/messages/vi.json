@@ -1786,6 +1786,7 @@
           "panelTitles": {
             "publish": "Xuất bản giải đấu",
             "teams": "Đội",
+            "players": "Người chơi",
             "categories": "Hạng mục",
             "format": "Thể thức",
             "standings": "Bảng xếp hạng",
@@ -1796,7 +1797,8 @@
             "sponsors": "Nhà tài trợ",
             "name": "Tên giải đấu",
             "dates": "Ngày tổ chức",
-            "location": "Địa điểm"
+            "location": "Địa điểm",
+            "banner": "Ảnh banner"
           },
           "organize": {
             "publish": {
@@ -1806,6 +1808,10 @@
             "teams": {
               "title": "Đội",
               "description": "{count} đội đã đăng ký"
+            },
+            "players": {
+              "title": "Người chơi",
+              "description": "Quản lý danh sách người chơi của giải đấu"
             },
             "categories": {
               "title": "Hạng mục"
@@ -2106,6 +2112,48 @@
               "quickCreatePlayer": "Tạo nhanh VĐV mới",
               "draftTeamWarning": "Đội đang ở trạng thái nháp và chưa thể xếp bảng hoặc tạo lịch."
             },
+            "players": {
+              "title": "Người chơi",
+              "subtitle": "Tất cả người chơi trong giải đấu này. Người chơi thêm ở đây có thể được gán vào đội và đăng ký.",
+              "addPlayer": "Thêm người chơi",
+              "searchPlaceholder": "Tìm người chơi...",
+              "noPlayers": "Chưa có người chơi nào",
+              "noResults": "Không có người chơi nào khớp với tìm kiếm",
+              "addPlayerTitle": "Thêm người chơi",
+              "editPlayer": "Sửa người chơi",
+              "deletePlayer": "Xóa người chơi",
+              "deleteConfirm": "Bạn có chắc chắn muốn xóa người chơi này?",
+              "deleteWarning": "Hành động này cũng sẽ gỡ người chơi khỏi {registrations} đăng ký và {teams} đội.",
+              "name": "Tên",
+              "namePlaceholder": "Tên người chơi",
+              "gender": "Giới tính",
+              "genderPlaceholder": "Chọn giới tính",
+              "level": "Trình độ",
+              "levelPlaceholder": "Chọn trình độ",
+              "levelDescription": "Mô tả trình độ",
+              "levelDescriptionPlaceholder": "VD: Trung cấp, Mở rộng...",
+              "email": "Email",
+              "emailPlaceholder": "ten@vidu.com",
+              "phone": "Số điện thoại",
+              "phonePlaceholder": "Số điện thoại",
+              "genderMale": "Nam",
+              "genderFemale": "Nữ",
+              "genderOther": "Khác",
+              "genderPreferNotToSay": "Không muốn tiết lộ",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "delete": "Xóa",
+              "addSuccess": "Đã thêm người chơi",
+              "updateSuccess": "Đã cập nhật người chơi",
+              "deleteSuccess": "Đã xóa người chơi",
+              "addFailed": "Không thể thêm người chơi",
+              "updateFailed": "Không thể cập nhật người chơi",
+              "deleteFailed": "Không thể xóa người chơi",
+              "unknownError": "Lỗi không xác định",
+              "playersCount": "{count} người chơi",
+              "usageBadge": "{count} đăng ký",
+              "linkedAccount": "Tài khoản liên kết"
+            },
             "categories": {
               "title": "Hạng mục",
               "addCategory": "Thêm hạng mục",
@@ -2386,6 +2434,19 @@
                 "searchFailed": "Tìm kiếm địa điểm thất bại",
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật địa điểm thất bại"
+              }
+            },
+            "banner": {
+              "title": "Ảnh bìa giải đấu",
+              "description": "Tải lên ảnh bìa cho trang giải đấu. Kích thước khuyến nghị: 1200x400px.",
+              "currentBanner": "Ảnh bìa hiện tại",
+              "noBanner": "Chưa có ảnh bìa",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Cập nhật ảnh bìa thành công",
+              "errors": {
+                "noChanges": "Không có thay đổi để lưu",
+                "updateFailed": "Cập nhật ảnh bìa thất bại"
               }
             }
           }

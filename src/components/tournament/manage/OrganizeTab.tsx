@@ -4,6 +4,7 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
 import {
   Users,
+  UserCog,
   Layers,
   ClipboardCheck,
   Workflow,
@@ -92,6 +93,15 @@ export default function OrganizeTab({
         })}
         isActive={selectedItem === 'teams'}
         onClick={() => onItemClick('teams')}
+      />
+
+      {/* Players */}
+      <ManageMenuItem
+        icon={UserCog}
+        title={t('organize.players.title')}
+        description={t('organize.players.description')}
+        isActive={selectedItem === 'players'}
+        onClick={() => onItemClick('players')}
       />
 
       {/* Categories */}

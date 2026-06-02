@@ -31,6 +31,7 @@ import {
 import OrganizeTab from './OrganizeTab';
 import SettingsTab from './SettingsTab';
 import TeamsPanel from './panels/TeamsPanel';
+import PlayersPanel from './panels/PlayersPanel';
 import CategoriesPanel from './panels/CategoriesPanel';
 import FormatPanel from './panels/FormatPanel';
 import StandingsPanel from './panels/StandingsPanel';
@@ -44,6 +45,7 @@ import SponsorsPanel from './panels/SponsorsPanel';
 import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
 import LocationPanel from './panels/LocationPanel';
+import BannerPanel from './panels/BannerPanel';
 
 interface TournamentManageProps {
   tournament: Tournament;
@@ -171,6 +173,8 @@ export default function TournamentManage({
             onSelectCategory={handleSelectCategory}
           />
         );
+      case 'players':
+        return <PlayersPanel tournament={tournament} />;
       case 'categories':
         return (
           <CategoriesPanel
@@ -236,6 +240,13 @@ export default function TournamentManage({
       case 'location':
         return (
           <LocationPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'banner':
+        return (
+          <BannerPanel
             tournament={tournament}
             onTournamentUpdate={onTournamentUpdate}
           />

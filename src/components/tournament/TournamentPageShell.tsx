@@ -39,20 +39,15 @@ import {
   LayoutGrid,
   CircleUserRound,
   SquarePen,
-  Menu,
-  Search,
-  PlusSquare,
-  MessageSquare,
-  LogIn,
-  UserPlus,
-  LogOut,
-  Trophy,
 } from 'lucide-react';
 import { AuthService } from '@/lib/api/auth.service';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
+import UserMenu from '@/components/ui/UserMenu';
+import NotificationBell from '@/components/ui/NotificationBell';
+import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
 import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
@@ -80,334 +75,23 @@ const CATEGORY_BORDER_COLOR: Record<CategoryType, string> = {
 };
 
 function TournamentTopBarMenu() {
-  const common = useTranslations('common');
-  const navigation = useTranslations('navigation');
   const router = useRouter();
-  const { user, isAuthenticated, clearAuth } = useAuthStore();
-  const [isOpen, setIsOpen] = useState(false);
-  const isLoggedIn = isAuthenticated && !!user && user.role !== 'GUEST';
-
-  const navigateTo = useCallback(
-    (href: string) => {
-      setIsOpen(false);
-      router.push(href);
-    },
-    [router]
-  );
-
-  const menuItems = [
-    ...(isLoggedIn
-      ? [
-          {
-            label: navigation('tournaments'),
-            icon: Trophy,
-            href: ROUTES.HOST.TOURNAMENTS.LIST,
-          },
-        ]
-      : [
-          {
-            label: navigation('mainHome'),
-            icon: Home,
-            href: ROUTES.HOME,
-          },
-        ]),
-    {
-      label: navigation('findTournaments'),
-      icon: Search,
-      href: ROUTES.BROWSE.TOURNAMENTS.LIST,
-    },
-    {
-      label: navigation('createTournament'),
-      icon: PlusSquare,
-      href: ROUTES.HOST.TOURNAMENTS.NEW,
-    },
-    {
-      label: common('feedback'),
-      icon: MessageSquare,
-      href: ROUTES.FEEDBACK,
-    },
-  ];
+  const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
 
   const handleLogout = () => {
-    setIsOpen(false);
     AuthService.logout();
-    clearAuth();
     router.push(ROUTES.HOME);
   };
 
+  if (!isHydrated || isLoading) return null;
+  if (!isAuthenticated) return null;
+
   return (
-    <Box position="relative">
-      {isLoggedIn ? (
-        <Box
-          as="button"
-          aria-label={common('navigation')}
-          position="relative"
-          onClick={(event) => {
-            event.stopPropagation();
-            setIsOpen((open) => !open);
-          }}
-        >
-          <Avatar.Root size="lg" bg="gray.200">
-            <Avatar.Fallback name={user.name || user.email || 'User'} />
-            {user.image && <Avatar.Image src={user.image} />}
-          </Avatar.Root>
-          <Flex
-            position="absolute"
-            right="-3px"
-            bottom="-3px"
-            align="center"
-            justify="center"
-            w="27px"
-            h="27px"
-            borderRadius="full"
-            bg="gray.50"
-            borderWidth="1px"
-            borderColor="gray.200"
-            color="gray.950"
-          >
-            <Menu size={18} strokeWidth={2.5} />
-          </Flex>
-        </Box>
-      ) : (
-        <IconButton
-          aria-label={common('navigation')}
-          onClick={(event) => {
-            event.stopPropagation();
-            setIsOpen((open) => !open);
-          }}
-          variant="subtle"
-          colorPalette="gray"
-          borderRadius="full"
-          size="lg"
-          bg="gray.50"
-          color="gray.900"
-          borderWidth="1px"
-          borderColor="gray.200"
-          _hover={{ bg: 'gray.100' }}
-        >
-          <Menu size={24} strokeWidth={2.5} />
-        </IconButton>
-      )}
-
-      {isOpen && (
-        <>
-          <Box
-            position="fixed"
-            inset={0}
-            zIndex={1190}
-            onMouseDown={() => setIsOpen(false)}
-          />
-          <Box
-            position="absolute"
-            top="calc(100% + 8px)"
-            right={0}
-            zIndex={1200}
-            w={{ base: 'min(calc(100vw - 32px), 336px)', md: '340px' }}
-            bg="white"
-            color="gray.900"
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="2xl"
-            boxShadow="0 18px 45px rgba(15, 23, 42, 0.18)"
-            overflow="hidden"
-            _dark={{ bg: 'gray.900', color: 'white', borderColor: 'gray.700' }}
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            {isLoggedIn ? (
-              <Box p={5} borderBottomWidth="1px" borderColor="gray.100">
-                <VStack align="stretch" gap={4}>
-                  <Box>
-                    <Text fontSize="2xl" fontWeight="800" lineHeight="1.2">
-                      {user.name || user.email}
-                    </Text>
-                    {user.email && (
-                      <Text
-                        mt={2}
-                        fontSize="lg"
-                        fontWeight="700"
-                        color="gray.500"
-                        lineHeight="1.2"
-                      >
-                        {user.email}
-                      </Text>
-                    )}
-                  </Box>
-                  <Button
-                    w="full"
-                    h="52px"
-                    borderRadius="full"
-                    bg="gray.950"
-                    color="white"
-                    fontWeight="800"
-                    fontSize="lg"
-                    _hover={{ bg: 'gray.800' }}
-                    onClick={() => navigateTo(ROUTES.HOST.TOURNAMENTS.LIST)}
-                  >
-                    Dashboard
-                  </Button>
-                </VStack>
-              </Box>
-            ) : (
-              <Box p={4} borderBottomWidth="1px" borderColor="gray.100">
-                <Button
-                  w="full"
-                  h="52px"
-                  borderRadius="full"
-                  bg="gray.950"
-                  color="white"
-                  fontWeight="800"
-                  fontSize="lg"
-                  _hover={{ bg: 'gray.800' }}
-                  onClick={() => navigateTo(ROUTES.AUTH.SIGNUP)}
-                >
-                  <UserPlus size={18} />
-                  {common('register')}
-                </Button>
-              </Box>
-            )}
-
-            <VStack align="stretch" gap={0} py={2}>
-              {menuItems.map((item) => (
-                <TournamentTopBarMenuItem
-                  key={item.href}
-                  label={item.label}
-                  icon={item.icon}
-                  onClick={() => navigateTo(item.href)}
-                />
-              ))}
-            </VStack>
-
-            {isLoggedIn ? (
-              <Box borderTopWidth="1px" borderColor="gray.100" py={2}>
-                <Button
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  h="56px"
-                  w="full"
-                  px={5}
-                  borderRadius={0}
-                  fontSize="lg"
-                  fontWeight="700"
-                  color="gray.900"
-                  _hover={{ bg: 'gray.50' }}
-                  _dark={{ color: 'white', _hover: { bg: 'gray.800' } }}
-                  onClick={handleLogout}
-                >
-                  <HStack gap={4}>
-                    <Flex
-                      align="center"
-                      justify="center"
-                      w="36px"
-                      h="36px"
-                      borderRadius="full"
-                      bg="gray.50"
-                      color="gray.900"
-                      borderWidth="1px"
-                      borderColor="gray.100"
-                      _dark={{
-                        bg: 'gray.800',
-                        color: 'white',
-                        borderColor: 'gray.700',
-                      }}
-                    >
-                      <LogOut size={19} strokeWidth={2.3} />
-                    </Flex>
-                    <Text>{common('logout')}</Text>
-                  </HStack>
-                </Button>
-              </Box>
-            ) : (
-              <Box borderTopWidth="1px" borderColor="gray.100" py={2}>
-                <Button
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  h="56px"
-                  w="full"
-                  px={5}
-                  borderRadius={0}
-                  fontSize="lg"
-                  fontWeight="700"
-                  color="gray.900"
-                  _hover={{ bg: 'gray.50' }}
-                  _dark={{ color: 'white', _hover: { bg: 'gray.800' } }}
-                  onClick={() => navigateTo(ROUTES.AUTH.SIGNIN)}
-                >
-                  <HStack gap={4}>
-                    <Flex
-                      align="center"
-                      justify="center"
-                      w="36px"
-                      h="36px"
-                      borderRadius="full"
-                      bg="gray.50"
-                      color="gray.900"
-                      borderWidth="1px"
-                      borderColor="gray.100"
-                      _dark={{
-                        bg: 'gray.800',
-                        color: 'white',
-                        borderColor: 'gray.700',
-                      }}
-                    >
-                      <LogIn size={19} strokeWidth={2.3} />
-                    </Flex>
-                    <Text>{common('login')}</Text>
-                  </HStack>
-                </Button>
-              </Box>
-            )}
-          </Box>
-        </>
-      )}
-    </Box>
-  );
-}
-
-function TournamentTopBarMenuItem({
-  label,
-  icon: Icon,
-  onClick,
-}: {
-  label: string;
-  icon: typeof Home;
-  onClick: () => void;
-}) {
-  return (
-    <Button
-      variant="ghost"
-      justifyContent="flex-start"
-      h="56px"
-      px={5}
-      borderRadius={0}
-      fontSize="lg"
-      fontWeight="700"
-      color="gray.900"
-      _hover={{ bg: 'gray.50' }}
-      _dark={{ color: 'white', _hover: { bg: 'gray.800' } }}
-      onClick={onClick}
-    >
-      <HStack gap={4}>
-        <Flex
-          align="center"
-          justify="center"
-          w="36px"
-          h="36px"
-          borderRadius="full"
-          bg="gray.50"
-          color="gray.900"
-          borderWidth="1px"
-          borderColor="gray.100"
-          _dark={{
-            bg: 'gray.800',
-            color: 'white',
-            borderColor: 'gray.700',
-          }}
-        >
-          <Icon size={19} strokeWidth={2.3} />
-        </Flex>
-        <Text>{label}</Text>
-      </HStack>
-    </Button>
+    <Flex align="center" gap={2}>
+      <AiAssistantTopBarButton />
+      <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
+      <UserMenu onLogout={handleLogout} />
+    </Flex>
   );
 }
 

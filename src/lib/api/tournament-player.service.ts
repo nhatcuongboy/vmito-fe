@@ -54,19 +54,27 @@ export const TournamentPlayerService = {
   // Update player
   updatePlayer: async (
     id: string,
-    data: Partial<TournamentPlayer>
+    data: Partial<TournamentPlayer>,
+    options?: { showToast?: boolean }
   ): Promise<TournamentPlayer> => {
     const response = await api.put<ApiResponse<TournamentPlayer>>(
       `/tournament-players/${id}`,
       data
     );
-    toaster.success({ title: 'Player updated successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Player updated successfully' });
+    }
     return response.data.data!;
   },
 
   // Delete player
-  deletePlayer: async (id: string): Promise<void> => {
+  deletePlayer: async (
+    id: string,
+    options?: { showToast?: boolean }
+  ): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-players/${id}`);
-    toaster.success({ title: 'Player deleted successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Player deleted successfully' });
+    }
   },
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
 import { Badge, Box, Flex, Heading, Spinner, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
@@ -219,12 +219,12 @@ const getMatchOpponentNames = (match: CategoryMatch, playerId: string) => {
 export default function PublicTournamentPlayerPage() {
   const params = useParams();
   const router = useRouter();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const tournamentId = params.tournamentId as string;
   const playerCode = params.playerCode as string;
 
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [playerState, setPlayerState] = useState<ResolvedPlayerState>({
     status: 'missing',
@@ -289,18 +289,20 @@ export default function PublicTournamentPlayerPage() {
   }, [loadPlayerPage]);
 
   useEffect(() => {
-    if (!canvasRef.current || playerState.status !== 'found') return;
+    if (playerState.status !== 'found') return;
 
-    QRCode.toCanvas(canvasRef.current, shareUrl, {
+    QRCode.toDataURL(shareUrl, {
       width: 184,
       margin: 2,
       color: {
         dark: '#111827',
         light: '#FFFFFF',
       },
-    }).catch((error) => {
-      console.error('QR code generation error:', error);
-    });
+    })
+      .then((dataUrl) => setQrDataUrl(dataUrl))
+      .catch((error) => {
+        console.error('QR code generation error:', error);
+      });
   }, [playerState.status, shareUrl]);
 
   const copyLink = async () => {
@@ -560,7 +562,18 @@ export default function PublicTournamentPlayerPage() {
                   <Text fontWeight="semibold">QR trang này</Text>
                 </HStack>
                 <Box bg="white" borderRadius="lg" p={3}>
-                  <canvas ref={canvasRef} />
+                  {qrDataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={qrDataUrl}
+                      alt="QR code"
+                      width={184}
+                      height={184}
+                      style={{ display: 'block' }}
+                    />
+                  ) : (
+                    <Box w="184px" h="184px" />
+                  )}
                 </Box>
                 <Text
                   fontSize="xs"
