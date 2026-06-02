@@ -35,6 +35,8 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   showTopBarMenuButton?: boolean;
   showTopBarLogo?: boolean;
   showTopBarAuthActions?: boolean;
+  /** Disable the left margin offset normally applied for the global sidebar */
+  disableSidebarOffset?: boolean;
 }
 
 export default function PageLayout({
@@ -60,6 +62,7 @@ export default function PageLayout({
   showTopBarMenuButton = true,
   showTopBarLogo = true,
   showTopBarAuthActions = true,
+  disableSidebarOffset = false,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -86,6 +89,7 @@ export default function PageLayout({
       backgroundColor={backgroundColor}
       _dark={_dark}
       minH={minH ?? '100vh'}
+      ml={disableSidebarOffset ? 0 : undefined}
     >
       <TopBar
         title={title}
