@@ -2018,7 +2018,20 @@
             "teams": {
               "title": "队伍",
               "addTeams": "添加队伍",
-              "noTeams": "尚未有队伍报名。"
+              "noTeams": "尚未有队伍报名。",
+              "addTeamsTitle": "添加队伍",
+              "editTeam": "编辑队伍",
+              "deleteTeam": "删除队伍",
+              "deleteConfirm": "确定要删除这支队伍吗？",
+              "single": "单个",
+              "multiple": "批量",
+              "namePlaceholder": "名称",
+              "multiPlaceholder": "粘贴队伍列表，或每行输入一支队伍",
+              "save": "保存",
+              "cancel": "取消",
+              "delete": "删除",
+              "bulkProgress": "正在添加 {current}/{total}: {name}",
+              "teamsCount": "{count} 支队伍"
             },
             "categories": {
               "title": "类别",

@@ -19,10 +19,12 @@ import {
   CategoryRegistration,
   CategoryType,
   Tournament,
+  TournamentPlayer,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
+import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { useParams } from 'next/navigation';
-import { useRouter } from '@/i18n/config';
+import { Link, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -39,12 +41,20 @@ import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
+import {
+  getTournamentPlayerCode,
+  getUniqueTournamentPlayerCode,
+} from '@/components/tournament/player/PublicTournamentPlayerPage';
 
 interface ITeamCategoryBlock {
   id: string;
   title: string;
   type: CategoryType;
-  teams: string[];
+  players: Array<{
+    id: string;
+    name: string;
+    code: string;
+  }>;
 }
 
 const CATEGORY_BORDER_COLOR: Record<CategoryType, string> = {
@@ -156,6 +166,45 @@ export default function TournamentPageShell({
     [t]
   );
 
+  const getRegistrationPlayers = useCallback(
+    (
+      registration: CategoryRegistration,
+      playerCodeById: Map<string, string>
+    ) => {
+      const players: TournamentPlayer[] = [];
+
+      if (registration.player) {
+        players.push(registration.player);
+      }
+
+      registration.pair?.members?.forEach((member) => {
+        if (member.player) {
+          players.push(member.player);
+        }
+      });
+
+      if (players.length > 0) {
+        return players.map((player) => ({
+          id: player.id,
+          name: player.name,
+          code:
+            playerCodeById.get(player.id) ?? getTournamentPlayerCode(player.id),
+        }));
+      }
+
+      return [
+        {
+          id: registration.tournamentPlayerId ?? registration.id,
+          name: getRegistrationTeamName(registration),
+          code: getTournamentPlayerCode(
+            registration.tournamentPlayerId ?? registration.id
+          ),
+        },
+      ];
+    },
+    [getRegistrationTeamName]
+  );
+
   const resolveCategoryTitle = useCallback(
     (category: Category) => {
       if (category.name && category.name.trim().length > 0) {
@@ -176,7 +225,19 @@ export default function TournamentPageShell({
         const data = await TournamentService.getTournament(slug);
         setTournament(data);
 
-        const categories = await CategoryService.getCategories(data.id);
+        const [categories, tournamentPlayers] = await Promise.all([
+          CategoryService.getCategories(data.id),
+          TournamentPlayerService.getPlayers(data.id),
+        ]);
+        const tournamentPlayerIds = tournamentPlayers.map(
+          (player) => player.id
+        );
+        const playerCodeById = new Map(
+          tournamentPlayers.map((player) => [
+            player.id,
+            getUniqueTournamentPlayerCode(player.id, tournamentPlayerIds),
+          ])
+        );
         const categoryBlocks = await Promise.all(
           categories.map(async (category) => {
             const registrations = await CategoryService.getRegistrations(
@@ -187,7 +248,9 @@ export default function TournamentPageShell({
               id: category.id,
               title: resolveCategoryTitle(category),
               type: category.type,
-              teams: registrations.map(getRegistrationTeamName),
+              players: registrations.flatMap((registration) =>
+                getRegistrationPlayers(registration, playerCodeById)
+              ),
             } satisfies ITeamCategoryBlock;
           })
         );
@@ -205,7 +268,7 @@ export default function TournamentPageShell({
     if (slug) {
       loadTournament();
     }
-  }, [getRegistrationTeamName, resolveCategoryTitle, slug]);
+  }, [getRegistrationPlayers, resolveCategoryTitle, slug]);
 
   const sortedTeamCategoryBlocks = useMemo(() => {
     return [...teamCategoryBlocks].sort((firstCategory, secondCategory) =>
@@ -269,7 +332,7 @@ export default function TournamentPageShell({
             type: b.type,
           }))}
           totalTeams={teamCategoryBlocks.reduce(
-            (sum, b) => sum + b.teams.length,
+            (sum, b) => sum + b.players.length,
             0
           )}
           isHost={isHost}
@@ -325,24 +388,36 @@ export default function TournamentPageShell({
                   <VStack align="stretch" gap={3}>
                     <Heading size="md">{categoryBlock.title}</Heading>
 
-                    {categoryBlock.teams.length === 0 ? (
+                    {categoryBlock.players.length === 0 ? (
                       <Text color="fg.muted">{t('teamsTab.noTeams')}</Text>
                     ) : (
                       <VStack align="stretch" gap={2}>
-                        {categoryBlock.teams.map((teamName, index) => (
-                          <Flex
-                            key={`${categoryBlock.id}-${teamName}-${index}`}
-                            align="center"
-                            gap={3}
+                        {categoryBlock.players.map((player) => (
+                          <Link
+                            key={`${categoryBlock.id}-${player.id}`}
+                            href={`/t/${slug}/p/${player.code}`}
+                            style={{ color: 'inherit', textDecoration: 'none' }}
                           >
-                            <CircleUserRound
-                              size={22}
-                              color="var(--chakra-colors-gray-400)"
-                            />
-                            <Text fontSize="lg" fontWeight="medium">
-                              {teamName}
-                            </Text>
-                          </Flex>
+                            <Flex
+                              align="center"
+                              gap={3}
+                              borderRadius="md"
+                              px={2}
+                              py={1.5}
+                              _hover={{ bg: 'gray.50' }}
+                            >
+                              <CircleUserRound
+                                size={22}
+                                color="var(--chakra-colors-gray-400)"
+                              />
+                              <Text flex="1" fontSize="lg" fontWeight="medium">
+                                {player.name}
+                              </Text>
+                              <Text fontSize="xs" color="gray.500">
+                                {player.code}
+                              </Text>
+                            </Flex>
+                          </Link>
                         ))}
                       </VStack>
                     )}

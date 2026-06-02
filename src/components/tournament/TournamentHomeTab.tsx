@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useMemo, useRef, useState } from 'react';
+import QRCode from 'qrcode';
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
@@ -13,11 +15,16 @@ import {
   Trash2,
   MoreHorizontal,
   CheckCircle,
+  QrCode,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, CategoryType } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { getGoogleMapsUrl } from '@/utils';
+import { Button } from '@/components/ui/chakra-compat';
+import { toaster } from '@/components/ui/toaster';
 
 interface ICategoryHomeItem {
   id: string;
@@ -42,6 +49,16 @@ export default function TournamentHomeTab({
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const router = useRouter();
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const sharePath = useMemo(() => `/tournament/${slug}`, [slug]);
+
+  const shareUrl = useMemo(() => {
+    if (typeof window === 'undefined') return sharePath;
+    const locale = window.location.pathname.split('/')[1] || 'vi';
+    return `${window.location.origin}/${locale}${sharePath}`;
+  }, [sharePath]);
 
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
     'en-US',
@@ -55,6 +72,21 @@ export default function TournamentHomeTab({
 
   const venue = tournament.venue;
   const host = tournament.host;
+
+  useEffect(() => {
+    if (!qrCanvasRef.current) return;
+
+    QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
+      width: 164,
+      margin: 2,
+      color: {
+        dark: '#111827',
+        light: '#FFFFFF',
+      },
+    }).catch((error) => {
+      console.error('Tournament QR code generation error:', error);
+    });
+  }, [shareUrl]);
 
   const handleViewSchedule = () => {
     router.push(`/tournament/${slug}/schedule`);
@@ -82,6 +114,17 @@ export default function TournamentHomeTab({
     });
     if (url) {
       window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleCopyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toaster.success({ title: 'Đã sao chép link giải đấu' });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toaster.error({ title: 'Không thể sao chép link giải đấu' });
     }
   };
 
@@ -162,6 +205,50 @@ export default function TournamentHomeTab({
               </Text>
             </Flex>
           </Box>
+        </Flex>
+
+        <Flex
+          mt={4}
+          direction={{ base: 'column', sm: 'row' }}
+          align={{ base: 'stretch', sm: 'center' }}
+          gap={4}
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="lg"
+          p={3}
+          bg="gray.50"
+        >
+          <Box
+            bg="white"
+            borderRadius="md"
+            borderWidth="1px"
+            borderColor="gray.200"
+            p={2}
+            alignSelf={{ base: 'center', sm: 'auto' }}
+            flexShrink={0}
+          >
+            <canvas ref={qrCanvasRef} />
+          </Box>
+
+          <VStack align="stretch" gap={2} flex="1" minW={0}>
+            <HStack gap={2}>
+              <QrCode size={17} color="var(--chakra-colors-gray-700)" />
+              <Text fontWeight="semibold">QR truy cập giải đấu</Text>
+            </HStack>
+            <Text fontSize="sm" color="gray.600" wordBreak="break-all">
+              {shareUrl}
+            </Text>
+            <Button
+              alignSelf={{ base: 'stretch', sm: 'flex-start' }}
+              size="sm"
+              variant="outline"
+              colorPalette={copied ? 'green' : 'gray'}
+              leftIcon={copied ? <Check size={15} /> : <Copy size={15} />}
+              onClick={handleCopyShareLink}
+            >
+              {copied ? 'Đã sao chép' : 'Sao chép link'}
+            </Button>
+          </VStack>
         </Flex>
       </Box>
 

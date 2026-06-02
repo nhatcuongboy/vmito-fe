@@ -26,6 +26,21 @@ interface TeamsPanelProps {
 }
 
 type TAddMode = 'single' | 'multiple';
+type BulkProgress = {
+  current: number;
+  total: number;
+  currentName: string;
+};
+
+type ApiErrorLike = {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string | string[];
+      error?: string;
+    };
+  };
+};
 
 const CATEGORY_COLORS = [
   'yellow.400',
@@ -37,6 +52,35 @@ const CATEGORY_COLORS = [
   'cyan.400',
   'red.400',
 ];
+
+const parseBulkTeamNames = (value: string): string[] =>
+  value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const getErrorMessage = (error: unknown): string => {
+  const apiError = error as ApiErrorLike;
+  const responseMessage = apiError?.response?.data?.message;
+
+  if (Array.isArray(responseMessage)) {
+    return responseMessage.join(', ');
+  }
+
+  if (responseMessage) {
+    return responseMessage;
+  }
+
+  if (apiError?.response?.data?.error) {
+    return apiError.response.data.error;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Unknown error';
+};
 
 export default function TeamsPanel({
   categories,
@@ -58,6 +102,7 @@ export default function TeamsPanel({
   const [addName, setAddName] = useState('');
   const [addMultiText, setAddMultiText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<BulkProgress | null>(null);
 
   // Edit modal
   const editModal = useModal();
@@ -108,6 +153,7 @@ export default function TeamsPanel({
     setAddMode('single');
     setAddName('');
     setAddMultiText('');
+    setBulkProgress(null);
     addModal.onOpen();
   };
 
@@ -116,6 +162,7 @@ export default function TeamsPanel({
     const tournamentId = activeCategory.tournamentId;
     try {
       setIsSubmitting(true);
+      setBulkProgress(null);
       if (addMode === 'single') {
         if (!addName.trim()) return;
         const player = await TournamentPlayerService.createPlayer(
@@ -131,41 +178,53 @@ export default function TeamsPanel({
           title: 'Team added successfully',
         });
       } else {
-        const lines = addMultiText
-          .split('\n')
-          .map((l) => l.trim())
-          .filter(Boolean);
+        const lines = parseBulkTeamNames(addMultiText);
         if (lines.length === 0) {
           toaster.error({
             title: 'Please enter at least one team',
           });
           return;
         }
-        for (const line of lines) {
-          const player = await TournamentPlayerService.createPlayer(
-            tournamentId,
-            { name: line },
-            { showToast: false }
-          );
-          await CategoryService.createRegistration(
-            activeCategory.id,
-            { tournamentPlayerId: player.id },
-            { showToast: false }
-          );
+        for (const [index, line] of lines.entries()) {
+          setBulkProgress({
+            current: index + 1,
+            total: lines.length,
+            currentName: line,
+          });
+
+          try {
+            const player = await TournamentPlayerService.createPlayer(
+              tournamentId,
+              { name: line },
+              { showToast: false }
+            );
+            await CategoryService.createRegistration(
+              activeCategory.id,
+              { tournamentPlayerId: player.id },
+              { showToast: false }
+            );
+          } catch (error) {
+            throw new Error(
+              `Could not add "${line}" (${index + 1}/${lines.length}): ${getErrorMessage(error)}`
+            );
+          }
         }
         toaster.success({
           title: `Added ${lines.length} teams successfully`,
         });
       }
       await loadRegistrations(activeCategory.id);
+      setAddName('');
+      setAddMultiText('');
       addModal.onClose();
     } catch (error) {
       console.error('Error adding team(s):', error);
       toaster.error({
         title: 'Failed to add teams',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: getErrorMessage(error),
       });
     } finally {
+      setBulkProgress(null);
       setIsSubmitting(false);
     }
   };
@@ -439,7 +498,11 @@ export default function TeamsPanel({
                 color={addMode === mode ? 'gray.900' : 'gray.500'}
                 boxShadow={addMode === mode ? 'sm' : 'none'}
                 transition="all 0.2s"
-                onClick={() => setAddMode(mode)}
+                opacity={isSubmitting ? 0.6 : 1}
+                onClick={() => {
+                  if (isSubmitting) return;
+                  setAddMode(mode);
+                }}
               >
                 {mode === 'single'
                   ? t('panels.teams.single')
@@ -453,18 +516,31 @@ export default function TeamsPanel({
               placeholder={t('panels.teams.namePlaceholder')}
               value={addName}
               onChange={(e) => setAddName(e.target.value)}
+              disabled={isSubmitting}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAdd();
               }}
             />
           ) : (
-            <Textarea
-              placeholder={t('panels.teams.multiPlaceholder')}
-              value={addMultiText}
-              onChange={(e) => setAddMultiText(e.target.value)}
-              rows={6}
-              resize="vertical"
-            />
+            <VStack gap={2} align="stretch">
+              <Textarea
+                placeholder={t('panels.teams.multiPlaceholder')}
+                value={addMultiText}
+                onChange={(e) => setAddMultiText(e.target.value)}
+                rows={6}
+                resize="vertical"
+                disabled={isSubmitting}
+              />
+              {bulkProgress && (
+                <Text fontSize="sm" color="gray.500">
+                  {t('panels.teams.bulkProgress', {
+                    current: bulkProgress.current,
+                    total: bulkProgress.total,
+                    name: bulkProgress.currentName,
+                  })}
+                </Text>
+              )}
+            </VStack>
           )}
         </VStack>
       </VModal>

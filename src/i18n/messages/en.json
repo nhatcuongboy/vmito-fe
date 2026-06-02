@@ -2052,6 +2052,7 @@
               "save": "Save",
               "cancel": "Cancel",
               "delete": "Delete",
+              "bulkProgress": "Adding {current}/{total}: {name}",
               "teamsCount": "{count} teams"
             },
             "categories": {
