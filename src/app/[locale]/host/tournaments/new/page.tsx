@@ -45,7 +45,9 @@ export default function NewTournamentPage() {
       let finalVenueId: string | undefined = undefined;
 
       if (location) {
-        const venuePayload: Parameters<typeof VenueService.createVenue>[0] = {
+        const venuePayload: Parameters<
+          typeof VenueService.findOrCreateVenue
+        >[0] = {
           placeId: location.placeId,
           name: location.name,
           address: location.address,
@@ -54,9 +56,8 @@ export default function NewTournamentPage() {
           district: location.district,
           city: location.city,
         };
-        // Create venue first
-        const newVenue = await VenueService.createVenue(venuePayload);
-        finalVenueId = newVenue.id;
+        const venue = await VenueService.findOrCreateVenue(venuePayload);
+        finalVenueId = venue.id;
       }
 
       const tournament = await TournamentService.createTournament({

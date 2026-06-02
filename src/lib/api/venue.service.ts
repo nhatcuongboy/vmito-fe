@@ -54,6 +54,15 @@ export const VenueService = {
     return response.data.data!;
   },
 
+  // Find existing venue by placeId or create it if it does not exist
+  findOrCreateVenue: async (venue: Omit<Venue, 'id'>): Promise<Venue> => {
+    const response = await api.post<ApiResponse<Venue>>(
+      '/venues/find-or-create',
+      venue
+    );
+    return response.data.data!;
+  },
+
   // Create multiple venues
   createBulkVenues: async (
     venues: Omit<Venue, 'id'>[]
