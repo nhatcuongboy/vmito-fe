@@ -267,10 +267,12 @@ export default function TopBar({
               {/* App title - left aligned detail pages on mobile */}
               {title && isLeftAlignedTitle && (
                 <Heading
-                  size={{ base: 'md', md: 'lg' }}
+                  size={{ md: 'lg' }}
+                  fontSize={{ base: '18px', md: undefined }}
                   color="fg"
                   fontWeight="bold"
-                  maxWidth={{ base: 'calc(100vw - 128px)', md: '600px' }}
+                  maxWidth={{ base: '100%', md: '600px' }}
+                  minW={0}
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"

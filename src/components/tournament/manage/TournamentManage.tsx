@@ -38,6 +38,7 @@ import RegistrationPanel from './panels/RegistrationPanel';
 import RoundsPanel from './panels/RoundsPanel';
 import VenuePanel from './panels/VenuePanel';
 import SchedulePanel from './panels/SchedulePanel';
+import UmpiresPanel from './panels/UmpiresPanel';
 import SponsorsPanel from './panels/SponsorsPanel';
 import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
@@ -211,6 +212,8 @@ export default function TournamentManage({
         return (
           <SchedulePanel categories={categories} tournament={tournament} />
         );
+      case 'umpires':
+        return <UmpiresPanel tournament={tournament} />;
       case 'sponsors':
         return <SponsorsPanel />;
       case 'name':

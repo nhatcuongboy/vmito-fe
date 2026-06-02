@@ -47,7 +47,6 @@ import {
   UserPlus,
   LogOut,
   Trophy,
-  CircleHelp,
 } from 'lucide-react';
 import { AuthService } from '@/lib/api/auth.service';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
@@ -66,7 +65,7 @@ interface ITeamCategoryBlock {
   players: Array<{
     id: string;
     name: string;
-    code: string;
+    code?: string;
   }>;
 }
 
@@ -138,68 +137,36 @@ function TournamentTopBarMenu() {
   return (
     <Box position="relative">
       {isLoggedIn ? (
-        <HStack gap={{ base: 3, md: 4 }}>
-          <IconButton
-            aria-label={common('guide')}
-            variant="ghost"
+        <Box
+          as="button"
+          aria-label={common('navigation')}
+          position="relative"
+          onClick={(event) => {
+            event.stopPropagation();
+            setIsOpen((open) => !open);
+          }}
+        >
+          <Avatar.Root size="lg" bg="gray.200">
+            <Avatar.Fallback name={user.name || user.email || 'User'} />
+            {user.image && <Avatar.Image src={user.image} />}
+          </Avatar.Root>
+          <Flex
+            position="absolute"
+            right="-3px"
+            bottom="-3px"
+            align="center"
+            justify="center"
+            w="27px"
+            h="27px"
             borderRadius="full"
+            bg="gray.50"
+            borderWidth="1px"
+            borderColor="gray.200"
             color="gray.950"
-            _hover={{ bg: 'gray.50' }}
-            onClick={() => navigateTo(ROUTES.GUIDE)}
           >
-            <CircleHelp size={27} strokeWidth={2.5} />
-          </IconButton>
-          <IconButton
-            aria-label={navigation('findTournaments')}
-            variant="ghost"
-            borderRadius="full"
-            color="gray.950"
-            _hover={{ bg: 'gray.50' }}
-            onClick={() => navigateTo(ROUTES.BROWSE.TOURNAMENTS.LIST)}
-          >
-            <Search size={31} strokeWidth={2.4} />
-          </IconButton>
-          <IconButton
-            aria-label={navigation('createTournament')}
-            variant="ghost"
-            borderRadius="full"
-            color="gray.950"
-            _hover={{ bg: 'gray.50' }}
-            onClick={() => navigateTo(ROUTES.HOST.TOURNAMENTS.NEW)}
-          >
-            <PlusSquare size={30} strokeWidth={2.3} />
-          </IconButton>
-          <Box
-            as="button"
-            aria-label={common('navigation')}
-            position="relative"
-            onClick={(event) => {
-              event.stopPropagation();
-              setIsOpen((open) => !open);
-            }}
-          >
-            <Avatar.Root size="lg" bg="gray.200">
-              <Avatar.Fallback name={user.name || user.email || 'User'} />
-              {user.image && <Avatar.Image src={user.image} />}
-            </Avatar.Root>
-            <Flex
-              position="absolute"
-              right="-3px"
-              bottom="-3px"
-              align="center"
-              justify="center"
-              w="27px"
-              h="27px"
-              borderRadius="full"
-              bg="gray.50"
-              borderWidth="1px"
-              borderColor="gray.200"
-              color="gray.950"
-            >
-              <Menu size={18} strokeWidth={2.5} />
-            </Flex>
-          </Box>
-        </HStack>
+            <Menu size={18} strokeWidth={2.5} />
+          </Flex>
+        </Box>
       ) : (
         <IconButton
           aria-label={common('navigation')}
@@ -528,40 +495,42 @@ export default function TournamentPageShell({
     [tCategory]
   );
 
-  const getRegistrationTeamName = useCallback(
-    (registration: CategoryRegistration) => {
-      return (
-        registration.player?.name ||
-        registration.pair?.name ||
-        registration.pair?.members
-          ?.map((member) => member.player?.name)
-          .filter(Boolean)
-          .join(' & ') ||
-        t('teamsTab.unknownTeam')
-      );
-    },
-    [t]
-  );
-
   const getRegistrationPlayers = useCallback(
     (
       registration: CategoryRegistration,
+      categoryType: CategoryType,
+      playerById: Map<string, TournamentPlayer>,
       playerCodeById: Map<string, string>
     ) => {
       const players: TournamentPlayer[] = [];
+      const isSinglesCategory =
+        categoryType === CategoryType.MENS_SINGLE ||
+        categoryType === CategoryType.WOMENS_SINGLE;
 
-      if (registration.player) {
-        players.push(registration.player);
+      if (isSinglesCategory) {
+        if (registration.player) {
+          players.push(registration.player);
+        } else if (registration.tournamentPlayerId) {
+          const player = playerById.get(registration.tournamentPlayerId);
+          if (player) {
+            players.push(player);
+          }
+        }
       }
 
       registration.pair?.members?.forEach((member) => {
-        if (member.player) {
-          players.push(member.player);
+        const player = member.player ?? playerById.get(member.playerId);
+        if (player) {
+          players.push(player);
         }
       });
 
-      if (players.length > 0) {
-        return players.map((player) => ({
+      const resolvedPlayers = Array.from(
+        new Map(players.map((player) => [player.id, player])).values()
+      );
+
+      if (resolvedPlayers.length > 0) {
+        return resolvedPlayers.map((player) => ({
           id: player.id,
           name: player.name,
           code:
@@ -571,15 +540,22 @@ export default function TournamentPageShell({
 
       return [
         {
-          id: registration.tournamentPlayerId ?? registration.id,
-          name: getRegistrationTeamName(registration),
-          code: getTournamentPlayerCode(
-            registration.tournamentPlayerId ?? registration.id
-          ),
+          id: registration.id,
+          name:
+            registration.pair?.name ||
+            registration.player?.name ||
+            registration.pair?.members
+              ?.map(
+                (member) =>
+                  member.player?.name || playerById.get(member.playerId)?.name
+              )
+              .filter(Boolean)
+              .join(' & ') ||
+            t('teamsTab.unknownTeam'),
         },
       ];
     },
-    [getRegistrationTeamName]
+    [t]
   );
 
   const resolveCategoryTitle = useCallback(
@@ -609,6 +585,9 @@ export default function TournamentPageShell({
         const tournamentPlayerIds = tournamentPlayers.map(
           (player) => player.id
         );
+        const playerById = new Map(
+          tournamentPlayers.map((player) => [player.id, player])
+        );
         const playerCodeById = new Map(
           tournamentPlayers.map((player) => [
             player.id,
@@ -626,7 +605,12 @@ export default function TournamentPageShell({
               title: resolveCategoryTitle(category),
               type: category.type,
               players: registrations.flatMap((registration) =>
-                getRegistrationPlayers(registration, playerCodeById)
+                getRegistrationPlayers(
+                  registration,
+                  category.type,
+                  playerById,
+                  playerCodeById
+                )
               ),
             } satisfies ITeamCategoryBlock;
           })
@@ -785,19 +769,18 @@ export default function TournamentPageShell({
                       <Text color="fg.muted">{t('teamsTab.noTeams')}</Text>
                     ) : (
                       <VStack align="stretch" gap={2}>
-                        {categoryBlock.players.map((player) => (
-                          <Link
-                            key={`${categoryBlock.id}-${player.id}`}
-                            href={`/t/${slug}/p/${player.code}`}
-                            style={{ color: 'inherit', textDecoration: 'none' }}
-                          >
+                        {categoryBlock.players.map((player) => {
+                          const content = (
                             <Flex
+                              key={`${categoryBlock.id}-${player.id}`}
                               align="center"
                               gap={3}
                               borderRadius="md"
                               px={2}
                               py={1.5}
-                              _hover={{ bg: 'gray.50' }}
+                              _hover={
+                                player.code ? { bg: 'gray.50' } : undefined
+                              }
                             >
                               <CircleUserRound
                                 size={22}
@@ -810,8 +793,23 @@ export default function TournamentPageShell({
                                 {player.code}
                               </Text>
                             </Flex>
-                          </Link>
-                        ))}
+                          );
+
+                          return player.code ? (
+                            <Link
+                              key={`${categoryBlock.id}-${player.id}`}
+                              href={`/t/${slug}/p/${player.code}`}
+                              style={{
+                                color: 'inherit',
+                                textDecoration: 'none',
+                              }}
+                            >
+                              {content}
+                            </Link>
+                          ) : (
+                            content
+                          );
+                        })}
                       </VStack>
                     )}
                   </VStack>

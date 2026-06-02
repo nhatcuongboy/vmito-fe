@@ -9,6 +9,8 @@ import {
   CategoryMatch,
   ScheduleType,
   TournamentVenue,
+  ScoreboardResponse,
+  GetScoreboardParams,
 } from './types';
 
 export const TournamentService = {
@@ -124,6 +126,46 @@ export const TournamentService = {
   deleteUmpire: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-umpires/${id}`);
     toaster.success({ title: 'Umpire deleted successfully' });
+  },
+
+  // Link an umpire to a user account by email (promotes them to a referee).
+  linkUmpireToAccount: async (
+    umpireId: string,
+    email: string
+  ): Promise<TournamentUmpire> => {
+    const response = await api.patch<ApiResponse<TournamentUmpire>>(
+      `/tournament-umpires/${umpireId}/link-account`,
+      { email }
+    );
+    toaster.success({ title: 'Referee account linked' });
+    return response.data.data!;
+  },
+
+  unlinkUmpireAccount: async (umpireId: string): Promise<TournamentUmpire> => {
+    const response = await api.delete<ApiResponse<TournamentUmpire>>(
+      `/tournament-umpires/${umpireId}/link-account`
+    );
+    toaster.success({ title: 'Referee account unlinked' });
+    return response.data.data!;
+  },
+
+  // Public live scoreboard
+  getScoreboard: async (
+    tournamentId: string,
+    params: GetScoreboardParams = {}
+  ): Promise<ScoreboardResponse> => {
+    const search = new URLSearchParams();
+    if (params.status) search.set('status', params.status);
+    if (params.courts && params.courts.length > 0) {
+      search.set('courtIds', params.courts.join(','));
+    }
+    if (params.includeFinished) search.set('includeFinished', 'true');
+    const qs = search.toString();
+    const response = await api.get<ApiResponse<ScoreboardResponse>>(
+      `/tournaments/${tournamentId}/scoreboard${qs ? `?${qs}` : ''}`,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
   },
 
   // Scoring Device management

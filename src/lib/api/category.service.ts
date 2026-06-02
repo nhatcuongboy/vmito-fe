@@ -13,6 +13,7 @@ import {
   CreateCategoryMatchRequest,
   EndCategoryMatchRequest,
   IBulkScheduleItem,
+  LiveScoreUpdateRequest,
 } from './types';
 
 export const CategoryService = {
@@ -161,6 +162,64 @@ export const CategoryService = {
     );
     toaster.success({ title: 'Match ended successfully' });
     return response.data.data!;
+  },
+
+  // Live scoring (host / admin / assigned referee). No toaster — high frequency.
+  liveUpdateScore: async (
+    id: string,
+    data: LiveScoreUpdateRequest
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/score`,
+      data,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  undoLastPoint: async (id: string): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/score/undo`,
+      undefined,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  // Referee assignment (host / admin)
+  assignReferee: async (
+    matchId: string,
+    refereeId: string
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${matchId}/referee`,
+      { refereeId }
+    );
+    toaster.success({ title: 'Referee assigned' });
+    return response.data.data!;
+  },
+
+  unassignReferee: async (matchId: string): Promise<CategoryMatch> => {
+    const response = await api.delete<ApiResponse<CategoryMatch>>(
+      `/category-matches/${matchId}/referee`
+    );
+    toaster.success({ title: 'Referee unassigned' });
+    return response.data.data!;
+  },
+
+  // Matches assigned to the current user (referee)
+  getMyAssignments: async (
+    tournamentId?: string,
+    status?: string
+  ): Promise<CategoryMatch[]> => {
+    const params = new URLSearchParams();
+    if (tournamentId) params.set('tournamentId', tournamentId);
+    if (status) params.set('status', status);
+    const qs = params.toString();
+    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+      `/category-matches/my-assignments${qs ? `?${qs}` : ''}`
+    );
+    return response.data.data || [];
   },
 
   // Standings

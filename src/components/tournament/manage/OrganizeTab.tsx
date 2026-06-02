@@ -12,6 +12,7 @@ import {
   MapPin,
   Calendar,
   Heart,
+  Gavel,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, Category } from '@/lib/api/types';
@@ -67,6 +68,7 @@ export default function OrganizeTab({
   onTournamentUpdate,
 }: OrganizeTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const tu = useTranslations('pages.tournaments.umpires');
 
   const totalRegistrations = categories.reduce(
     (sum, cat) => sum + (cat._count?.registrations || 0),
@@ -155,6 +157,15 @@ export default function OrganizeTab({
         description={t('organize.schedule.description')}
         isActive={selectedItem === 'schedule'}
         onClick={() => onItemClick('schedule')}
+      />
+
+      {/* Referees & Umpires */}
+      <ManageMenuItem
+        icon={Gavel}
+        title={tu('title')}
+        description={tu('description')}
+        isActive={selectedItem === 'umpires'}
+        onClick={() => onItemClick('umpires')}
       />
 
       {/* Sponsors */}

@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { Edit } from 'lucide-react';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
+import { getTeamLabel } from '@/lib/tournament/teamLabel';
 
 const CATEGORY_COLORS = [
   '#ECC94B',
@@ -24,25 +25,6 @@ interface ScheduleListViewProps {
   courts: TournamentCourt[];
   onEditMatch?: (matchId: string) => void;
 }
-
-const getTeamLabel = (match: CategoryMatch, position: number): string => {
-  const participant = match.participants?.find((p) => p.position === position);
-  if (!participant?.categoryRegistration) {
-    // Placeholder for future matches
-    if (match.round === 'SF') return `Winner of ${match.matchNumber}`;
-    if (match.round === 'F') return `Winner of ${match.matchNumber}`;
-    if (match.round === '3RD') return `Loser of ${match.matchNumber}`;
-    return 'TBD';
-  }
-  const reg = participant.categoryRegistration;
-  if (reg.pair?.members) {
-    return (
-      reg.pair.name ||
-      reg.pair.members.map((m) => m.player?.name || '?').join(' / ')
-    );
-  }
-  return reg.player?.name || 'Unknown';
-};
 
 export default function ScheduleListView({
   matches,

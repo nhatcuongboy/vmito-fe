@@ -18,10 +18,13 @@ import {
   QrCode,
   Copy,
   Check,
+  MonitorPlay,
+  Gavel,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Tournament, CategoryType } from '@/lib/api/types';
+import { Tournament, CategoryType, UserRole } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { getGoogleMapsUrl } from '@/utils';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
@@ -48,7 +51,15 @@ export default function TournamentHomeTab({
   slug,
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
+  const tBoard = useTranslations('pages.tournaments.scoreboard');
+  const tRef = useTranslations('pages.tournaments.scoreEntry');
   const router = useRouter();
+  const { user } = useAuthStore();
+  const canReferee =
+    !!user &&
+    [UserRole.REFEREE, UserRole.HOST, UserRole.ADMIN].includes(
+      user.role as UserRole
+    );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -77,7 +88,7 @@ export default function TournamentHomeTab({
     if (!qrCanvasRef.current) return;
 
     QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
-      width: 164,
+      width: 112,
       margin: 2,
       color: {
         dark: '#111827',
@@ -90,6 +101,14 @@ export default function TournamentHomeTab({
 
   const handleViewSchedule = () => {
     router.push(`/tournament/${slug}/schedule`);
+  };
+
+  const handleViewScoreboard = () => {
+    router.push(`/tournament/${slug}/scoreboard`);
+  };
+
+  const handleRefereeArea = () => {
+    router.push(`/tournament/${slug}/referee`);
   };
 
   const handleViewStandings = () => {
@@ -205,50 +224,42 @@ export default function TournamentHomeTab({
               </Text>
             </Flex>
           </Box>
-        </Flex>
-
-        <Flex
-          mt={4}
-          direction={{ base: 'column', sm: 'row' }}
-          align={{ base: 'stretch', sm: 'center' }}
-          gap={4}
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="lg"
-          p={3}
-          bg="gray.50"
-        >
           <Box
-            bg="white"
-            borderRadius="md"
+            flex="1"
             borderWidth="1px"
             borderColor="gray.200"
-            p={2}
-            alignSelf={{ base: 'center', sm: 'auto' }}
-            flexShrink={0}
+            borderRadius="lg"
+            p={3}
+            cursor="pointer"
+            _hover={{ bg: 'gray.50' }}
+            onClick={handleViewScoreboard}
           >
-            <canvas ref={qrCanvasRef} />
+            <Flex align="center" gap={2}>
+              <MonitorPlay size={16} color="var(--chakra-colors-gray-500)" />
+              <Text fontSize="sm" fontWeight="medium">
+                {tBoard('liveScoreboard')}
+              </Text>
+            </Flex>
           </Box>
-
-          <VStack align="stretch" gap={2} flex="1" minW={0}>
-            <HStack gap={2}>
-              <QrCode size={17} color="var(--chakra-colors-gray-700)" />
-              <Text fontWeight="semibold">QR truy cập giải đấu</Text>
-            </HStack>
-            <Text fontSize="sm" color="gray.600" wordBreak="break-all">
-              {shareUrl}
-            </Text>
-            <Button
-              alignSelf={{ base: 'stretch', sm: 'flex-start' }}
-              size="sm"
-              variant="outline"
-              colorPalette={copied ? 'green' : 'gray'}
-              leftIcon={copied ? <Check size={15} /> : <Copy size={15} />}
-              onClick={handleCopyShareLink}
+          {canReferee && (
+            <Box
+              flex="1"
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="lg"
+              p={3}
+              cursor="pointer"
+              _hover={{ bg: 'gray.50' }}
+              onClick={handleRefereeArea}
             >
-              {copied ? 'Đã sao chép' : 'Sao chép link'}
-            </Button>
-          </VStack>
+              <Flex align="center" gap={2}>
+                <Gavel size={16} color="var(--chakra-colors-gray-500)" />
+                <Text fontSize="sm" fontWeight="medium">
+                  {tRef('refereeArea')}
+                </Text>
+              </Flex>
+            </Box>
+          )}
         </Flex>
       </Box>
 
@@ -513,6 +524,47 @@ export default function TournamentHomeTab({
           </VStack>
         </Box>
       )}
+
+      {/* Tournament access QR */}
+      <Flex
+        direction={{ base: 'column', sm: 'row' }}
+        align={{ base: 'stretch', sm: 'center' }}
+        gap={4}
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        p={4}
+        bg="white"
+      >
+        <Box
+          bg="white"
+          borderRadius="md"
+          borderWidth="1px"
+          borderColor="gray.200"
+          p={2}
+          alignSelf={{ base: 'center', sm: 'auto' }}
+          flexShrink={0}
+        >
+          <canvas ref={qrCanvasRef} />
+        </Box>
+
+        <VStack align="stretch" gap={3} flex="1" minW={0}>
+          <HStack gap={2}>
+            <QrCode size={17} color="var(--chakra-colors-gray-700)" />
+            <Text fontWeight="semibold">QR truy cập giải đấu</Text>
+          </HStack>
+          <Button
+            alignSelf={{ base: 'stretch', sm: 'flex-start' }}
+            size="sm"
+            variant="outline"
+            colorPalette={copied ? 'green' : 'gray'}
+            leftIcon={copied ? <Check size={15} /> : <Copy size={15} />}
+            onClick={handleCopyShareLink}
+          >
+            {copied ? 'Đã sao chép' : 'Sao chép link'}
+          </Button>
+        </VStack>
+      </Flex>
     </VStack>
   );
 }

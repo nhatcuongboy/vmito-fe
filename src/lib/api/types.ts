@@ -12,6 +12,7 @@ export enum UserRole {
   GUEST = 'GUEST',
   PLAYER = 'PLAYER',
   ADMIN = 'ADMIN',
+  REFEREE = 'REFEREE',
 }
 
 // Court Direction enum
@@ -840,6 +841,8 @@ export interface CategoryMatch {
   player4Score?: number; // For doubles: sum of all sets
   matchFormat?: MatchFormat; // Match format for this specific match/round
   notes?: string;
+  refereeId?: string; // Assigned referee (TournamentUmpire id)
+  referee?: TournamentUmpire | null;
   createdAt: Date;
   updatedAt: Date;
   participants?: CategoryMatchParticipant[];
@@ -861,6 +864,13 @@ export interface TournamentUmpire {
   email?: string;
   phone?: string;
   notes?: string;
+  userId?: string; // Linked user account (login-able referee)
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+  } | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -982,6 +992,74 @@ export interface EndCategoryMatchRequest {
   player3Score?: number; // For doubles: total points (sum of all sets)
   player4Score?: number; // For doubles: total points (sum of all sets)
   notes?: string;
+}
+
+// ─── Live scoring / scoreboard types ───
+
+export interface LiveScoreUpdateRequest {
+  side: 1 | 2; // 1 = position 1, 2 = position 2
+  delta: 1 | -1; // +1 to add a point, -1 to correct
+  clientId?: string; // origin tag for echo-suppression
+  seq?: number; // monotonic per clientId
+}
+
+export interface AssignRefereeRequest {
+  refereeId: string; // TournamentUmpire id
+}
+
+export interface LinkUmpireAccountRequest {
+  email: string;
+}
+
+export interface GetScoreboardParams {
+  status?: MatchStatus;
+  courts?: string[]; // TournamentCourt ids
+  includeFinished?: boolean;
+}
+
+export interface ScoreboardSide {
+  registrationId: string | null;
+  name: string;
+  players: string[];
+}
+
+// Normalized match payload returned by GET /tournaments/:id/scoreboard and
+// broadcast over the /tournaments socket (the `match` field of each event).
+export interface ScoreboardMatch {
+  matchId: string;
+  tournamentId: string | null;
+  categoryId: string;
+  categoryName: string | null;
+  round: string;
+  matchNumber: number;
+  status: MatchStatus;
+  court: { id: string; courtNumber: number; courtName: string | null } | null;
+  matchFormat: MatchFormat | null;
+  refereeName: string | null;
+  side1: ScoreboardSide;
+  side2: ScoreboardSide;
+  sets: MatchSet[];
+  score: string | null;
+  currentSet: { setNumber: number; side1: number; side2: number } | null;
+  setWins: { side1: number; side2: number };
+  winnerId: string | null;
+  isDraw: boolean;
+  isComplete: boolean; // rules say the match is won (referee must confirm End)
+  pendingWinnerId: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  estimatedEndTime: string | null;
+  updatedAt: string;
+}
+
+export interface ScoreboardResponse {
+  tournament: { id: string; name: string; slug: string };
+  matches: ScoreboardMatch[];
+  courts: Array<{
+    court: { id: string; courtNumber: number; courtName: string | null };
+    matches: ScoreboardMatch[];
+  }>;
+  ungrouped: ScoreboardMatch[];
 }
 
 // Group Standings types
