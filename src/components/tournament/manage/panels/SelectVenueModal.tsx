@@ -41,7 +41,7 @@ export default function SelectVenueModal({
       setVenues(data);
     } catch (error) {
       console.error('Failed to load venues', error);
-      toaster.error({ title: 'Failed to load venues' });
+      toaster.error({ title: t('panels.venues.loadError') });
     } finally {
       setIsLoading(false);
     }

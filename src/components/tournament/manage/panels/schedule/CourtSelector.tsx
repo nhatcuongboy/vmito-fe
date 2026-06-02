@@ -105,7 +105,8 @@ export default function CourtSelector({
                 </Box>
                 <Box>
                   <Text fontWeight="semibold">
-                    {court.courtName || `Court ${court.courtNumber}`}
+                    {court.courtName ||
+                      `${t('courtPrefix')} ${court.courtNumber}`}
                   </Text>
                   {venueName && (
                     <Text fontSize="sm" color="gray.500">

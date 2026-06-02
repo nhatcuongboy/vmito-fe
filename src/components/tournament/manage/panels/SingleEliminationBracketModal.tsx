@@ -176,7 +176,9 @@ export default function SingleEliminationBracketModal({
       onClose();
     } catch (error: unknown) {
       const msg =
-        error instanceof Error ? error.message : 'Failed to save bracket';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.bracketSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);
@@ -273,8 +275,8 @@ export default function SingleEliminationBracketModal({
                               (r) => r.id === match.homeRegistrationId
                             )!
                           )
-                        : 'TBD'
-                      : 'TBD';
+                        : t('panels.rounds.tbd')
+                      : t('panels.rounds.tbd');
                     const awayName = match.awayRegistrationId
                       ? registrations.find(
                           (r) => r.id === match.awayRegistrationId
@@ -284,8 +286,8 @@ export default function SingleEliminationBracketModal({
                               (r) => r.id === match.awayRegistrationId
                             )!
                           )
-                        : 'TBD'
-                      : 'TBD';
+                        : t('panels.rounds.tbd')
+                      : t('panels.rounds.tbd');
 
                     return (
                       <Box
@@ -381,8 +383,8 @@ export default function SingleEliminationBracketModal({
                           (r) => r.id === m.homeRegistrationId
                         )!
                       )
-                    : 'TBD'
-                  : 'TBD';
+                    : t('panels.rounds.tbd')
+                  : t('panels.rounds.tbd');
                 const awayName = m.awayRegistrationId
                   ? registrations.find((r) => r.id === m.awayRegistrationId)
                     ? getRegName(
@@ -390,8 +392,8 @@ export default function SingleEliminationBracketModal({
                           (r) => r.id === m.awayRegistrationId
                         )!
                       )
-                    : 'TBD'
-                  : 'TBD';
+                    : t('panels.rounds.tbd')
+                  : t('panels.rounds.tbd');
                 return {
                   matchNumber: m.afterMatchNumber,
                   participant1Label: homeName,
@@ -563,7 +565,7 @@ function ConsolationMatchDialog({
                   })
                 }
               >
-                <option value="">TBD</option>
+                <option value="">{t('panels.rounds.tbd')}</option>
                 {registrations.map((reg) => (
                   <option key={reg.id} value={reg.id}>
                     {getRegName(reg)}
@@ -588,7 +590,7 @@ function ConsolationMatchDialog({
                   })
                 }
               >
-                <option value="">TBD</option>
+                <option value="">{t('panels.rounds.tbd')}</option>
                 {registrations.map((reg) => (
                   <option key={reg.id} value={reg.id}>
                     {getRegName(reg)}

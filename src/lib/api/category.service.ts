@@ -34,7 +34,13 @@ export const CategoryService = {
   // Create category
   createCategory: async (
     tournamentId: string,
-    data: { name: string; type: string; format?: string }
+    data: {
+      name: string;
+      type: string;
+      format?: string;
+      registrationMode?: string;
+      teamSize?: number;
+    }
   ): Promise<Category> => {
     const response = await api.post<ApiResponse<Category>>(
       `/tournaments/${tournamentId}/categories`,
@@ -76,6 +82,26 @@ export const CategoryService = {
     return response.data.data || [];
   },
 
+  getRegistration: async (
+    categoryId: string,
+    registrationId: string
+  ): Promise<CategoryRegistration> => {
+    const response = await api.get<ApiResponse<CategoryRegistration>>(
+      `/categories/${categoryId}/registrations/${registrationId}`
+    );
+    return response.data.data!;
+  },
+
+  getRegistrationMatches: async (
+    categoryId: string,
+    registrationId: string
+  ): Promise<CategoryMatch[]> => {
+    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+      `/categories/${categoryId}/registrations/${registrationId}/matches`
+    );
+    return response.data.data || [];
+  },
+
   createRegistration: async (
     categoryId: string,
     data: CreateCategoryRegistrationRequest,
@@ -88,6 +114,24 @@ export const CategoryService = {
     if (options?.showToast !== false) {
       toaster.success({ title: 'Registration created successfully' });
     }
+    return response.data.data!;
+  },
+
+  convertLegacyRegistrationToPair: async (
+    categoryId: string,
+    registrationId: string,
+    data: {
+      name?: string;
+      playerIds: string[];
+      type?: string;
+      notes?: string;
+    }
+  ): Promise<CategoryRegistration> => {
+    const response = await api.put<ApiResponse<CategoryRegistration>>(
+      `/categories/${categoryId}/registrations/${registrationId}/convert-to-pair`,
+      data
+    );
+    toaster.success({ title: 'Team roster saved successfully' });
     return response.data.data!;
   },
 

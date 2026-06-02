@@ -697,6 +697,11 @@ export enum CategoryType {
   CUSTOM = 'CUSTOM',
 }
 
+export enum CategoryRegistrationMode {
+  INDIVIDUAL = 'INDIVIDUAL',
+  TEAM = 'TEAM',
+}
+
 export enum MatchStatus {
   SCHEDULED = 'SCHEDULED',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -756,6 +761,8 @@ export interface Category {
   tournamentId: string;
   name: string;
   type: CategoryType;
+  registrationMode: CategoryRegistrationMode;
+  teamSize: number;
   format: CategoryFormat;
   hasGroupStage: boolean;
   averageMatchDuration?: number;
@@ -950,6 +957,9 @@ export interface CreateTournamentRequest {
 
 export interface UpdateCategoryRequest {
   name?: string;
+  type?: CategoryType;
+  registrationMode?: CategoryRegistrationMode;
+  teamSize?: number;
   format?: CategoryFormat;
   hasGroupStage?: boolean;
   averageMatchDuration?: number;

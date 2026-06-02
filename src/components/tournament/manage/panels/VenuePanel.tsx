@@ -39,11 +39,11 @@ export default function VenuePanel({
       const data = await TournamentService.getVenues(tournament.id);
       setVenues(data);
     } catch {
-      toaster.error({ title: 'Failed to load venues' });
+      toaster.error({ title: t('loadError') });
     } finally {
       setIsLoading(false);
     }
-  }, [tournament.id]);
+  }, [t, tournament.id]);
 
   useEffect(() => {
     loadVenues();
@@ -72,7 +72,7 @@ export default function VenuePanel({
       setVenues((prev) => prev.filter((v) => v.id !== confirmRemoveVenue.id));
       onTournamentChanged?.();
     } catch {
-      toaster.error({ title: 'Failed to remove venue' });
+      toaster.error({ title: t('removeError') });
     } finally {
       setRemovingId(null);
       setConfirmRemoveVenue(null);
@@ -233,14 +233,14 @@ export default function VenuePanel({
                       }}
                     >
                       <MapPin size={14} />
-                      Xem trên Google Maps
+                      {t('viewOnGoogleMaps')}
                     </Button>
                   )}
                 </Box>
 
                 <Flex align="center" gap={1}>
                   <IconButton
-                    aria-label="Edit venue"
+                    aria-label={t('editVenue')}
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(tv)}
@@ -248,7 +248,7 @@ export default function VenuePanel({
                     <Edit2 size={16} />
                   </IconButton>
                   <IconButton
-                    aria-label="Remove venue"
+                    aria-label={t('removeVenue')}
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemove(tv)}
@@ -278,21 +278,21 @@ export default function VenuePanel({
       <VModal
         isOpen={!!confirmRemoveVenue}
         onClose={() => setConfirmRemoveVenue(null)}
-        title="Remove venue"
+        title={t('removeVenue')}
         size="sm"
-        primaryActionText="Remove"
+        primaryActionText={t('remove')}
         primaryColorScheme="red"
         onPrimaryAction={handleConfirmRemove}
         isPrimaryLoading={!!removingId}
-        secondaryActionText="Cancel"
+        secondaryActionText={t('cancel')}
         isCentered
       >
         <Text fontSize="sm" color="gray.600">
-          Remove{' '}
+          {t('removeConfirmPrefix')}{' '}
           <Text as="span" fontWeight="semibold" color="gray.800">
             {confirmRemoveVenue?.venue.name}
           </Text>{' '}
-          from this tournament?
+          {t('removeConfirmSuffix')}
         </Text>
       </VModal>
     </Box>

@@ -558,7 +558,9 @@ export default function SetupPoolsModal({
       onClose();
     } catch (error: unknown) {
       const msg =
-        error instanceof Error ? error.message : 'Failed to save matches';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.matchesSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);
@@ -1038,8 +1040,9 @@ export default function SetupPoolsModal({
                         key: match.id,
                         number: idx + 1,
                         poolLabel: match.groupId
-                          ? (groupNameMap[match.groupId] ?? 'Pool')
-                          : 'Pool',
+                          ? (groupNameMap[match.groupId] ??
+                            t('panels.rounds.poolLabel'))
+                          : t('panels.rounds.poolLabel'),
                         name1: getMatchName(match, 1),
                         name2: getMatchName(match, 2),
                       }))

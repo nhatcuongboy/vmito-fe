@@ -156,7 +156,7 @@ export default function AdvancingTeamsModal({
       const msg =
         error instanceof Error
           ? error.message
-          : 'Failed to save advancing teams';
+          : t('panels.rounds.advancingTeamsSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);

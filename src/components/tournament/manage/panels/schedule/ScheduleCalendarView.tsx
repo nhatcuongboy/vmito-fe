@@ -56,13 +56,20 @@ interface ScheduleCalendarViewProps {
   ) => void;
 }
 
-const getTeamLabel = (match: CategoryMatch, position: number): string => {
+const getTeamLabel = (
+  match: CategoryMatch,
+  position: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
   const participant = match.participants?.find((p) => p.position === position);
   if (!participant?.categoryRegistration) {
-    if (match.round === 'SF') return `Winner of ${match.matchNumber}`;
-    if (match.round === 'F') return `Winner of ${match.matchNumber}`;
-    if (match.round === '3RD') return `Loser of ${match.matchNumber}`;
-    return 'TBD';
+    if (match.round === 'SF' || match.round === 'F') {
+      return t('winnerOf', { number: match.matchNumber });
+    }
+    if (match.round === '3RD') {
+      return t('loserOf', { number: match.matchNumber });
+    }
+    return t('tbd');
   }
   const reg = participant.categoryRegistration;
   if (reg.pair?.members) {
@@ -71,7 +78,7 @@ const getTeamLabel = (match: CategoryMatch, position: number): string => {
       reg.pair.members.map((m) => m.player?.name || '?').join(' / ')
     );
   }
-  return reg.player?.name || 'Unknown';
+  return reg.player?.name || t('unknown');
 };
 
 const getMatchCode = (match: CategoryMatch, categories: Category[]): string => {
@@ -80,9 +87,12 @@ const getMatchCode = (match: CategoryMatch, categories: Category[]): string => {
   return `${catAbbrev}${match.matchNumber}`;
 };
 
-const getRoundLabel = (match: CategoryMatch): string => {
+const getRoundLabel = (
+  match: CategoryMatch,
+  t: ReturnType<typeof useTranslations>
+): string => {
   if (match.round === 'GROUP' && match.groupId) {
-    return `Pool ${match.round}`;
+    return t('roundGroup');
   }
   return match.round;
 };
@@ -96,6 +106,9 @@ function DraggableMatch({
   categories: Category[];
   categoryIndex: number;
 }) {
+  const t = useTranslations(
+    'pages.tournaments.detail.manage.organize.schedule.list'
+  );
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: match.id });
 
@@ -128,7 +141,7 @@ function DraggableMatch({
     >
       <Flex justify="space-between" mb={0.5}>
         <Text fontWeight="bold" truncate>
-          {getMatchCode(match, categories)} • {getRoundLabel(match)}
+          {getMatchCode(match, categories)} • {getRoundLabel(match, t)}
         </Text>
         {match.startTime && (
           <Text color="gray.500" flexShrink={0}>
@@ -136,8 +149,8 @@ function DraggableMatch({
           </Text>
         )}
       </Flex>
-      <Text truncate>{getTeamLabel(match, 1)}</Text>
-      <Text truncate>{getTeamLabel(match, 2)}</Text>
+      <Text truncate>{getTeamLabel(match, 1, t)}</Text>
+      <Text truncate>{getTeamLabel(match, 2, t)}</Text>
     </Box>
   );
 }

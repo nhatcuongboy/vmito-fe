@@ -1573,6 +1573,11 @@
           "next": "Tiếp theo",
           "confirm": "Xác nhận",
           "close": "Đóng",
+          "cardLabels": {
+            "poolPlay": "Đấu bảng",
+            "bracket": "Nhánh đấu",
+            "playoffs": "Vòng loại"
+          },
           "step1": {
             "title": "Chọn thể thức",
             "description": "Chọn từ các mẫu có sẵn.",
@@ -1883,7 +1888,11 @@
                 "startTime": "Giờ bắt đầu",
                 "court": "Sân",
                 "courtPrefix": "Sân",
-                "update": "Cập nhật"
+                "update": "Cập nhật",
+                "loadFailed": "Không thể tải dữ liệu lịch thi đấu",
+                "previewLoadFailed": "Không thể tải bản xem trước lịch thi đấu",
+                "saveFailed": "Không thể lưu lịch thi đấu",
+                "saveSuccess": "Đã lưu {count} trận"
               },
               "generate": {
                 "title": "Tạo lịch thi đấu",
@@ -1914,7 +1923,8 @@
                 "noBuffer": "Không nghỉ",
                 "anyMatch": "Mọi trận đấu",
                 "groupsCount": "{count} bảng",
-                "min": "{count} phút"
+                "min": "{count} phút",
+                "courtPrefix": "Sân"
               },
               "constraints": {
                 "title": "Ràng buộc cho {court}",
@@ -1927,6 +1937,21 @@
               },
               "preview": {
                 "title": "Xem trước lịch thi đấu",
+                "generatedSchedule": "Lịch thi đấu đã tạo",
+                "viewSchedule": "Xem lịch thi đấu",
+                "generationComplete": "Đã tạo lịch thành công cho tất cả trận đấu.",
+                "generationIncomplete": "Không thể lên lịch cho {count} trận. Hãy cân nhắc thêm khung giờ.",
+                "schedulingConflicts": "{count} xung đột lịch thi đấu",
+                "moreConflicts": "+{count} xung đột khác",
+                "rounds": {
+                  "poolPlay": "Đấu bảng",
+                  "final": "Chung kết",
+                  "finals": "Chung kết",
+                  "semiFinals": "Bán kết",
+                  "quarterFinals": "Tứ kết",
+                  "thirdPlace": "Hạng 3",
+                  "roundOf16": "Vòng 16 đội"
+                },
                 "failedLoad": "Không thể tải xem trước",
                 "conflictDetected": "Phát hiện xung đột",
                 "unableToUpdate": "Không thể cập nhật",
@@ -1962,7 +1987,8 @@
                 "confirm": "Xác nhận",
                 "close": "Đóng",
                 "selectAll": "Chọn tất cả",
-                "deselectAll": "Bỏ chọn tất cả"
+                "deselectAll": "Bỏ chọn tất cả",
+                "courtPrefix": "Sân"
               },
               "result": {
                 "complete": "Lịch thi đấu hoàn chỉnh",
@@ -1989,7 +2015,11 @@
                 "roundQF": "Tứ kết",
                 "roundSF": "Bán kết",
                 "roundF": "Chung kết",
-                "round3rd": "Hạng 3"
+                "round3rd": "Hạng 3",
+                "winnerOf": "Thắng trận {number}",
+                "loserOf": "Thua trận {number}",
+                "tbd": "Chưa xác định",
+                "unknown": "Không xác định"
               }
             },
             "sponsors": {
@@ -2061,7 +2091,20 @@
               "cancel": "Hủy",
               "delete": "Xóa",
               "bulkProgress": "Đang thêm {current}/{total}: {name}",
-              "teamsCount": "{count} đội"
+              "teamsCount": "{count} đội",
+              "addSuccess": "Đã thêm đội thành công",
+              "enterAtLeastOne": "Vui lòng nhập ít nhất một đội",
+              "bulkAddItemFailed": "Không thể thêm \"{name}\" ({current}/{total}): {error}",
+              "bulkAddSuccess": "Đã thêm thành công {count} đội",
+              "addFailed": "Không thể thêm đội",
+              "updateFailed": "Không thể cập nhật đội",
+              "deleteFailed": "Không thể xóa đội",
+              "unknownError": "Lỗi không xác định",
+              "memberCount": "{current}/{total} VĐV",
+              "teamDetails": "Chi tiết đội",
+              "members": "Thành viên: {current}/{total}",
+              "quickCreatePlayer": "Tạo nhanh VĐV mới",
+              "draftTeamWarning": "Đội đang ở trạng thái nháp và chưa thể xếp bảng hoặc tạo lịch."
             },
             "categories": {
               "title": "Hạng mục",
@@ -2073,11 +2116,47 @@
               "namePlaceholder": "Tên",
               "save": "Lưu",
               "cancel": "Hủy",
-              "delete": "Xóa"
+              "delete": "Xóa",
+              "createFailed": "Không thể tạo hạng mục",
+              "updateFailed": "Không thể cập nhật hạng mục",
+              "deleteFailed": "Không thể xóa hạng mục",
+              "unknownError": "Lỗi không xác định",
+              "teamSizeSummary": "{count} VĐV/đội",
+              "individual": "Cá nhân",
+              "team": "Đội",
+              "teamSizePlaceholder": "Số thành viên mỗi đội",
+              "types": {
+                "mensSingle": "Đơn nam",
+                "womensSingle": "Đơn nữ",
+                "mensDouble": "Đôi nam",
+                "womensDouble": "Đôi nữ",
+                "mixedDouble": "Đôi nam nữ",
+                "custom": "Tùy chỉnh"
+              }
             },
             "format": {
               "title": "Thể thức",
-              "switchFormat": "Đổi thể thức"
+              "switchFormat": "Đổi thể thức",
+              "labels": {
+                "poolPlay": "Đấu bảng",
+                "playoffs": "Vòng loại",
+                "roundRobin": "Vòng tròn",
+                "singleElimination": "Loại trực tiếp"
+              },
+              "formats": {
+                "roundRobin": {
+                  "title": "Vòng tròn",
+                  "description": "Các đội thi đấu trong bảng và được xếp hạng dựa trên thành tích."
+                },
+                "singleElimination": {
+                  "title": "Loại trực tiếp",
+                  "description": "Các đội được xếp vào nhánh đấu dựa trên thứ hạng và bị loại sau khi thua một trận."
+                },
+                "roundRobinToSingleElimination": {
+                  "title": "Vòng tròn sang Loại trực tiếp",
+                  "description": "Các đội thi đấu trong bảng và được xếp hạng dựa trên thành tích. Sau đó, các đội được xếp vào nhánh đấu theo thứ hạng và bị loại sau khi thua một trận."
+                }
+              }
             },
             "standings": {
               "title": "Bảng xếp hạng",
@@ -2206,7 +2285,16 @@
               "addCrossover": "Thêm đấu chéo",
               "crossoverPoolsDescription": "Đấu chéo cho phép các đội thi đấu với đội từ bảng khác thay vì bảng của mình.",
               "editSeeds": "Chỉnh thứ tự hạt giống",
-              "editSeedsButton": "Chỉnh hạt giống"
+              "editSeedsButton": "Chỉnh hạt giống",
+              "createGroupsFailed": "Không thể tạo bảng",
+              "assignTeamsFailed": "Không thể phân đội",
+              "generateMatchesFailed": "Không thể tạo trận đấu",
+              "matchesSaveFailed": "Không thể lưu trận đấu",
+              "bracketSaveFailed": "Không thể lưu nhánh đấu",
+              "advancingTeamsSaveFailed": "Không thể lưu đội thăng hạng",
+              "groupLabel": "Bảng {number}",
+              "poolLabel": "Bảng",
+              "tbd": "Chưa xác định"
             },
             "venues": {
               "title": "Địa điểm thi đấu",
@@ -2236,7 +2324,14 @@
               "confirmRemove": "Xóa địa điểm này khỏi giải đấu?",
               "noLinkedVenues": "Chưa có địa điểm nào được liên kết.",
               "courtsCount": "sân",
-              "addAnotherVenue": "Thêm địa điểm khác"
+              "addAnotherVenue": "Thêm địa điểm khác",
+              "loadError": "Không thể tải địa điểm",
+              "removeError": "Không thể xóa địa điểm",
+              "viewOnGoogleMaps": "Xem trên Google Maps",
+              "remove": "Xóa",
+              "cancel": "Hủy",
+              "removeConfirmPrefix": "Xóa",
+              "removeConfirmSuffix": "khỏi giải đấu này?"
             },
             "schedule": {
               "title": "Lịch thi đấu",
@@ -2602,6 +2697,28 @@
         "selectReferee": "Chọn trọng tài",
         "unassign": "Bỏ phân công",
         "assign": "Phân công"
+      },
+      "manualScore": {
+        "title": "Nhập điểm",
+        "panelTitle": "Kết quả trận đấu",
+        "panelDescription": "Nhập thủ công tỉ số và đội thắng cho các trận đã thi đấu ngoài hệ thống.",
+        "vs": "gặp",
+        "set": "Set",
+        "addSet": "Thêm set",
+        "removeSet": "Xóa set",
+        "winner": "Người thắng",
+        "noWinnerYet": "Nhập điểm đến khi một bên thắng trận.",
+        "cancel": "Hủy",
+        "save": "Lưu kết quả",
+        "noMatches": "Chưa có trận nào để nhập điểm.",
+        "court": "Sân",
+        "enterResult": "Nhập kết quả",
+        "status": {
+          "IN_PROGRESS": "Đang diễn ra",
+          "SCHEDULED": "Đã lên lịch",
+          "FINISHED": "Đã kết thúc",
+          "CANCELLED": "Đã hủy"
+        }
       }
     },
     "join": {

@@ -29,35 +29,28 @@ const FORMAT_INFO: Record<
   string,
   {
     icons: React.ElementType[];
-    labels: string[];
-    subtitles: string[];
-    title: string;
-    description: string;
+    labelKeys: string[];
+    subtitleKeys: string[];
+    formatKey: string;
   }
 > = {
   [CategoryFormat.ROUND_ROBIN]: {
     icons: [RefreshCw],
-    labels: ['Pool Play'],
-    subtitles: ['Round Robin'],
-    title: 'Round Robin',
-    description:
-      'Teams compete in pools and then are given a rank based on their performance.',
+    labelKeys: ['poolPlay'],
+    subtitleKeys: ['roundRobin'],
+    formatKey: 'roundRobin',
   },
   [CategoryFormat.SINGLE_ELIMINATION]: {
     icons: [GitBranch],
-    labels: ['Playoffs'],
-    subtitles: ['Single Elimination'],
-    title: 'Single Elimination',
-    description:
-      'Teams are placed into a bracket based on their rank, where they are eliminated after losing one match.',
+    labelKeys: ['playoffs'],
+    subtitleKeys: ['singleElimination'],
+    formatKey: 'singleElimination',
   },
   [CategoryFormat.ROUND_ROBIN_TO_SE]: {
     icons: [RefreshCw, GitBranch],
-    labels: ['Pool Play', 'Playoffs'],
-    subtitles: ['Round Robin', 'Single Elimination'],
-    title: 'Round Robin to Single Elimination',
-    description:
-      'Teams compete in pools and then are given a rank based on their performance. Teams are then placed into a bracket based on their rank, where they are eliminated after losing one match.',
+    labelKeys: ['poolPlay', 'playoffs'],
+    subtitleKeys: ['roundRobin', 'singleElimination'],
+    formatKey: 'roundRobinToSingleElimination',
   },
 };
 
@@ -211,10 +204,12 @@ export default function FormatPanel({
                     </Flex>
                     <Box>
                       <Text fontSize="sm" fontWeight="semibold">
-                        {formatInfo.labels[idx]}
+                        {t(`panels.format.labels.${formatInfo.labelKeys[idx]}`)}
                       </Text>
                       <Text fontSize="xs" color="gray.500">
-                        {formatInfo.subtitles[idx]}
+                        {t(
+                          `panels.format.labels.${formatInfo.subtitleKeys[idx]}`
+                        )}
                       </Text>
                     </Box>
                   </Flex>
@@ -225,10 +220,10 @@ export default function FormatPanel({
 
           {/* Format description */}
           <Heading size="sm" mb={2}>
-            {formatInfo.title}
+            {t(`panels.format.formats.${formatInfo.formatKey}.title`)}
           </Heading>
           <Text fontSize="sm" color="gray.600" lineHeight="1.6">
-            {formatInfo.description}
+            {t(`panels.format.formats.${formatInfo.formatKey}.description`)}
           </Text>
         </>
       )}

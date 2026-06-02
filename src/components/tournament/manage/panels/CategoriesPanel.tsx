@@ -7,7 +7,11 @@ import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Category } from '@/lib/api/types';
+import {
+  Category,
+  CategoryRegistrationMode,
+  CategoryType,
+} from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { VModal, useModal } from '@/components/ui/VModal';
 
@@ -40,6 +44,10 @@ export default function CategoriesPanel({
   const deleteModal = useModal();
 
   const [name, setName] = useState('');
+  const [type, setType] = useState<CategoryType>(CategoryType.CUSTOM);
+  const [registrationMode, setRegistrationMode] =
+    useState<CategoryRegistrationMode>(CategoryRegistrationMode.TEAM);
+  const [teamSize, setTeamSize] = useState(2);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(
     null
@@ -49,6 +57,9 @@ export default function CategoriesPanel({
   // ── Create ──────────────────────────────────────────────────────────────────
   const handleOpenCreate = () => {
     setName('');
+    setType(CategoryType.CUSTOM);
+    setRegistrationMode(CategoryRegistrationMode.TEAM);
+    setTeamSize(2);
     createModal.onOpen();
   };
 
@@ -58,15 +69,20 @@ export default function CategoriesPanel({
       setIsSubmitting(true);
       await CategoryService.createCategory(tournamentId, {
         name: name.trim(),
-        type: 'CUSTOM',
+        type,
+        registrationMode,
+        teamSize,
       });
       onCategoriesChange();
       createModal.onClose();
     } catch (error) {
       console.error('Error creating category:', error);
       toaster.error({
-        title: 'Failed to create category',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('panels.categories.createFailed'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('panels.categories.unknownError'),
       });
     } finally {
       setIsSubmitting(false);
@@ -77,13 +93,21 @@ export default function CategoriesPanel({
   const handleOpenEdit = (cat: Category) => {
     setEditingCategory(cat);
     setName(cat.name);
+    setType(cat.type);
+    setRegistrationMode(cat.registrationMode);
+    setTeamSize(cat.teamSize);
     editModal.onOpen();
   };
 
   const handleEdit = async () => {
     if (!editingCategory || !name.trim()) return;
     // Skip if no actual change
-    if (editingCategory.name === name.trim()) {
+    if (
+      editingCategory.name === name.trim() &&
+      editingCategory.type === type &&
+      editingCategory.registrationMode === registrationMode &&
+      editingCategory.teamSize === teamSize
+    ) {
       editModal.onClose();
       return;
     }
@@ -91,14 +115,20 @@ export default function CategoriesPanel({
       setIsSubmitting(true);
       await CategoryService.updateCategory(editingCategory.id, {
         name: name.trim(),
+        type,
+        registrationMode,
+        teamSize,
       });
       onCategoriesChange();
       editModal.onClose();
     } catch (error) {
       console.error('Error updating category:', error);
       toaster.error({
-        title: 'Failed to update category',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('panels.categories.updateFailed'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('panels.categories.unknownError'),
       });
     } finally {
       setIsSubmitting(false);
@@ -121,8 +151,11 @@ export default function CategoriesPanel({
     } catch (error) {
       console.error('Error deleting category:', error);
       toaster.error({
-        title: 'Failed to delete category',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('panels.categories.deleteFailed'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('panels.categories.unknownError'),
       });
     } finally {
       setIsSubmitting(false);
@@ -168,6 +201,13 @@ export default function CategoriesPanel({
               <Text flex="1" fontSize="sm" fontWeight="medium">
                 {cat.name}
               </Text>
+              <Text fontSize="xs" color="gray.500">
+                {cat.registrationMode === CategoryRegistrationMode.TEAM
+                  ? t('panels.categories.teamSizeSummary', {
+                      count: cat.teamSize,
+                    })
+                  : t('panels.categories.individual')}
+              </Text>
               <Flex gap={1}>
                 <Box
                   as="button"
@@ -206,13 +246,15 @@ export default function CategoriesPanel({
         isPrimaryDisabled={!name.trim()}
         secondaryActionText={t('panels.categories.cancel')}
       >
-        <Input
-          placeholder={t('panels.categories.namePlaceholder')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleCreate();
-          }}
+        <CategoryFields
+          name={name}
+          type={type}
+          registrationMode={registrationMode}
+          teamSize={teamSize}
+          onNameChange={setName}
+          onTypeChange={setType}
+          onRegistrationModeChange={setRegistrationMode}
+          onTeamSizeChange={setTeamSize}
         />
       </VModal>
 
@@ -224,16 +266,18 @@ export default function CategoriesPanel({
         primaryActionText={t('panels.categories.save')}
         onPrimaryAction={handleEdit}
         isPrimaryLoading={isSubmitting}
-        isPrimaryDisabled={!name.trim() || editingCategory?.name === name}
+        isPrimaryDisabled={!name.trim()}
         secondaryActionText={t('panels.categories.cancel')}
       >
-        <Input
-          placeholder={t('panels.categories.namePlaceholder')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleEdit();
-          }}
+        <CategoryFields
+          name={name}
+          type={type}
+          registrationMode={registrationMode}
+          teamSize={teamSize}
+          onNameChange={setName}
+          onTypeChange={setType}
+          onRegistrationModeChange={setRegistrationMode}
+          onTeamSizeChange={setTeamSize}
         />
       </VModal>
 
@@ -258,5 +302,106 @@ export default function CategoriesPanel({
         )}
       </VModal>
     </>
+  );
+}
+
+function CategoryFields({
+  name,
+  type,
+  registrationMode,
+  teamSize,
+  onNameChange,
+  onTypeChange,
+  onRegistrationModeChange,
+  onTeamSizeChange,
+}: {
+  name: string;
+  type: CategoryType;
+  registrationMode: CategoryRegistrationMode;
+  teamSize: number;
+  onNameChange: (value: string) => void;
+  onTypeChange: (value: CategoryType) => void;
+  onRegistrationModeChange: (value: CategoryRegistrationMode) => void;
+  onTeamSizeChange: (value: number) => void;
+}) {
+  const t = useTranslations(
+    'pages.tournaments.detail.manage.panels.categories'
+  );
+  const isCustom = type === CategoryType.CUSTOM;
+  const handleTypeChange = (nextType: CategoryType) => {
+    onTypeChange(nextType);
+    if (
+      nextType === CategoryType.MENS_SINGLE ||
+      nextType === CategoryType.WOMENS_SINGLE
+    ) {
+      onRegistrationModeChange(CategoryRegistrationMode.INDIVIDUAL);
+      onTeamSizeChange(1);
+    } else if (nextType !== CategoryType.CUSTOM) {
+      onRegistrationModeChange(CategoryRegistrationMode.TEAM);
+      onTeamSizeChange(2);
+    }
+  };
+
+  return (
+    <VStack gap={3} align="stretch">
+      <Input
+        placeholder={t('namePlaceholder')}
+        value={name}
+        onChange={(e) => onNameChange(e.target.value)}
+      />
+      <select
+        value={type}
+        onChange={(event) =>
+          handleTypeChange(event.target.value as CategoryType)
+        }
+        style={{ border: '1px solid #E2E8F0', borderRadius: 6, padding: 8 }}
+      >
+        <option value={CategoryType.MENS_SINGLE}>
+          {t('types.mensSingle')}
+        </option>
+        <option value={CategoryType.WOMENS_SINGLE}>
+          {t('types.womensSingle')}
+        </option>
+        <option value={CategoryType.MENS_DOUBLE}>
+          {t('types.mensDouble')}
+        </option>
+        <option value={CategoryType.WOMENS_DOUBLE}>
+          {t('types.womensDouble')}
+        </option>
+        <option value={CategoryType.MIXED_DOUBLE}>
+          {t('types.mixedDouble')}
+        </option>
+        <option value={CategoryType.CUSTOM}>{t('types.custom')}</option>
+      </select>
+      {isCustom && (
+        <>
+          <select
+            value={registrationMode}
+            onChange={(event) =>
+              onRegistrationModeChange(
+                event.target.value as CategoryRegistrationMode
+              )
+            }
+            style={{ border: '1px solid #E2E8F0', borderRadius: 6, padding: 8 }}
+          >
+            <option value={CategoryRegistrationMode.INDIVIDUAL}>
+              {t('individual')}
+            </option>
+            <option value={CategoryRegistrationMode.TEAM}>{t('team')}</option>
+          </select>
+          {registrationMode === CategoryRegistrationMode.TEAM && (
+            <Input
+              type="number"
+              min={2}
+              value={teamSize}
+              onChange={(event) =>
+                onTeamSizeChange(Math.max(2, Number(event.target.value)))
+              }
+              placeholder={t('teamSizePlaceholder')}
+            />
+          )}
+        </>
+      )}
+    </VStack>
   );
 }

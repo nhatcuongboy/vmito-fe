@@ -235,7 +235,7 @@ export default function VenueConfigModal({
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
+          placeholder={t('name')}
           style={inputStyle}
           _focus={{ borderColor: '#3182ce', boxShadow: '0 0 0 1px #3182ce' }}
         />
@@ -245,7 +245,7 @@ export default function VenueConfigModal({
           <Input
             value={acronym}
             onChange={(e) => setAcronym(e.target.value)}
-            placeholder="Acronym"
+            placeholder={t('acronym')}
             style={{ ...inputStyle, maxWidth: '160px' }}
             _focus={{ borderColor: '#3182ce', boxShadow: '0 0 0 1px #3182ce' }}
           />
@@ -291,7 +291,7 @@ export default function VenueConfigModal({
               key={index}
               value={court.courtName}
               onChange={(e) => handleCourtNameChange(index, e.target.value)}
-              placeholder={`Court ${index + 1}`}
+              placeholder={`${t('court')} ${index + 1}`}
               style={inputStyle}
               _focus={{
                 borderColor: '#3182ce',

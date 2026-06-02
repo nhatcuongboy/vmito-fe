@@ -94,13 +94,13 @@ export default function ManageScheduleModal({
         setCourts(courtsData);
       } catch (error) {
         console.error('Error loading schedule data:', error);
-        toaster.error({ title: 'Failed to load schedule data' });
+        toaster.error({ title: t('loadFailed') });
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [isOpen, tournament.id]);
+  }, [isOpen, t, tournament.id]);
 
   const hasScheduledMatches = allMatches.some((m) => m.startTime && m.courtId);
 
@@ -197,11 +197,11 @@ export default function ManageScheduleModal({
       setViewMode('list');
       previewDrawerModal.onClose();
     } catch {
-      toaster.error({ title: 'Failed to load schedule preview' });
+      toaster.error({ title: t('previewLoadFailed') });
     } finally {
       setIsLoadingPreview(false);
     }
-  }, [backendGenerationResponse, tournament.id, previewDrawerModal]);
+  }, [backendGenerationResponse, t, tournament.id, previewDrawerModal]);
 
   // Save the pending preview schedule to DB
   const handleSavePreview = useCallback(async () => {
@@ -213,18 +213,20 @@ export default function ManageScheduleModal({
         pendingScheduleId
       );
       if (result.success) {
-        toaster.success({ title: `Saved ${result.scheduledCount} match(es)` });
+        toaster.success({
+          title: t('saveSuccess', { count: result.scheduledCount }),
+        });
         setPendingScheduleId(null);
         setBackendGenerationResponse(null);
         onScheduleSaved?.();
         onClose();
       }
     } catch {
-      toaster.error({ title: 'Failed to save schedule' });
+      toaster.error({ title: t('saveFailed') });
     } finally {
       setIsSavingPreview(false);
     }
-  }, [pendingScheduleId, tournament.id, onScheduleSaved]);
+  }, [pendingScheduleId, t, tournament.id, onScheduleSaved]);
 
   const handlePreviewCancel = useCallback(() => {
     setBackendGenerationResponse(null);
@@ -285,7 +287,7 @@ export default function ManageScheduleModal({
       onClose();
     } catch (error) {
       console.error('Error saving schedule:', error);
-      toaster.error({ title: 'Failed to save schedule' });
+      toaster.error({ title: t('saveFailed') });
     } finally {
       setIsSaving(false);
     }

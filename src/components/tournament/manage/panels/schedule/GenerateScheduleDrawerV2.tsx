@@ -316,7 +316,9 @@ export default function GenerateScheduleDrawer({
 
   const getCourtLabel = (courtId: string): string => {
     const court = courts.find((c) => c.id === courtId);
-    return court?.courtName || `Court ${court?.courtNumber || '?'}`;
+    return (
+      court?.courtName || `${t('courtPrefix')} ${court?.courtNumber || '?'}`
+    );
   };
 
   const getConstraintLabel = (constraints?: ICourtConstraint): string => {

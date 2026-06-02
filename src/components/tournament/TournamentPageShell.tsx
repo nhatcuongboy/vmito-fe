@@ -66,6 +66,7 @@ interface ITeamCategoryBlock {
     id: string;
     name: string;
     code?: string;
+    target?: 'player' | 'team';
   }>;
 }
 
@@ -500,12 +501,36 @@ export default function TournamentPageShell({
       registration: CategoryRegistration,
       categoryType: CategoryType,
       playerById: Map<string, TournamentPlayer>,
-      playerCodeById: Map<string, string>
+      playerCodeById: Map<string, string>,
+      registrationCodeById: Map<string, string>
     ) => {
       const players: TournamentPlayer[] = [];
       const isSinglesCategory =
         categoryType === CategoryType.MENS_SINGLE ||
         categoryType === CategoryType.WOMENS_SINGLE;
+
+      if (!isSinglesCategory) {
+        return [
+          {
+            id: registration.id,
+            name:
+              registration.pair?.name ||
+              registration.player?.name ||
+              registration.pair?.members
+                ?.map(
+                  (member) =>
+                    member.player?.name || playerById.get(member.playerId)?.name
+                )
+                .filter(Boolean)
+                .join(' & ') ||
+              t('teamsTab.unknownTeam'),
+            code:
+              registrationCodeById.get(registration.id) ??
+              getTournamentPlayerCode(registration.id),
+            target: 'team' as const,
+          },
+        ];
+      }
 
       if (isSinglesCategory) {
         if (registration.player) {
@@ -535,6 +560,7 @@ export default function TournamentPageShell({
           name: player.name,
           code:
             playerCodeById.get(player.id) ?? getTournamentPlayerCode(player.id),
+          target: 'player' as const,
         }));
       }
 
@@ -594,12 +620,24 @@ export default function TournamentPageShell({
             getUniqueTournamentPlayerCode(player.id, tournamentPlayerIds),
           ])
         );
-        const categoryBlocks = await Promise.all(
-          categories.map(async (category) => {
-            const registrations = await CategoryService.getRegistrations(
-              category.id
-            );
-
+        const registrationsByCategory = await Promise.all(
+          categories.map(async (category) => ({
+            category,
+            registrations: await CategoryService.getRegistrations(category.id),
+          }))
+        );
+        const registrationIds = registrationsByCategory.flatMap(
+          ({ registrations }) =>
+            registrations.map((registration) => registration.id)
+        );
+        const registrationCodeById = new Map(
+          registrationIds.map((id) => [
+            id,
+            getUniqueTournamentPlayerCode(id, registrationIds),
+          ])
+        );
+        const categoryBlocks = registrationsByCategory.map(
+          ({ category, registrations }) => {
             return {
               id: category.id,
               title: resolveCategoryTitle(category),
@@ -609,11 +647,12 @@ export default function TournamentPageShell({
                   registration,
                   category.type,
                   playerById,
-                  playerCodeById
+                  playerCodeById,
+                  registrationCodeById
                 )
               ),
             } satisfies ITeamCategoryBlock;
-          })
+          }
         );
 
         setTeamCategoryBlocks(categoryBlocks);
@@ -798,7 +837,11 @@ export default function TournamentPageShell({
                           return player.code ? (
                             <Link
                               key={`${categoryBlock.id}-${player.id}`}
-                              href={`/t/${slug}/p/${player.code}`}
+                              href={
+                                player.target === 'team'
+                                  ? `/t/${slug}/team/${player.code}`
+                                  : `/t/${slug}/p/${player.code}`
+                              }
                               style={{
                                 color: 'inherit',
                                 textDecoration: 'none',

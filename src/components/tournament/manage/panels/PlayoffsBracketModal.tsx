@@ -136,7 +136,7 @@ export default function PlayoffsBracketModal({
 
   // Team label resolution logic
   const resolveTeamLabel = (registrationId: string): string => {
-    if (!registrationId) return 'TBD';
+    if (!registrationId) return t('panels.rounds.tbd');
 
     // Check if it's a winner reference
     if (registrationId.startsWith('win_')) {
@@ -150,7 +150,7 @@ export default function PlayoffsBracketModal({
       return t('panels.rounds.loserOf', { match: matchNum });
     }
 
-    return 'TBD';
+    return t('panels.rounds.tbd');
   };
 
   // Event handlers for consolation matches
@@ -236,7 +236,9 @@ export default function PlayoffsBracketModal({
       onClose();
     } catch (error: unknown) {
       const msg =
-        error instanceof Error ? error.message : 'Failed to save bracket';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.bracketSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);
@@ -509,7 +511,7 @@ function ConsolationMatchDialog({
   // Generate team options for dropdowns
   const teamOptions = useMemo(() => {
     const opts: { value: string; label: string }[] = [
-      { value: '', label: 'TBD' },
+      { value: '', label: t('panels.rounds.tbd') },
     ];
 
     const GROUP_MATCH_OFFSET = 12;

@@ -208,7 +208,9 @@ export default function RoundsPanel({
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to create groups';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.createGroupsFailed');
       toaster.error({ title: message });
     } finally {
       setIsCreatingGroups(false);
@@ -226,7 +228,9 @@ export default function RoundsPanel({
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to assign teams';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.assignTeamsFailed');
       toaster.error({ title: message });
     } finally {
       setIsAssigning(false);
@@ -241,7 +245,9 @@ export default function RoundsPanel({
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to generate matches';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.generateMatchesFailed');
       toaster.error({ title: message });
     } finally {
       setIsGenerating(false);
@@ -978,7 +984,9 @@ export default function RoundsPanel({
 
           {groups.map((group) => {
             const groupMatches = matchesByGroup[group.id] || [];
-            const groupName = group.name || `Group ${group.groupNumber}`;
+            const groupName =
+              group.name ||
+              t('panels.rounds.groupLabel', { number: group.groupNumber });
             const regCount = group._count?.registrations || 0;
 
             return (
