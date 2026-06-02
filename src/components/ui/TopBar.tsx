@@ -41,6 +41,9 @@ interface TopBarProps {
   hideBottomBorder?: boolean;
   /** Force title to be centered on mobile regardless of path */
   centerTitle?: boolean;
+  showMenuButton?: boolean;
+  showLogo?: boolean;
+  showAuthActions?: boolean;
 }
 
 export default function TopBar({
@@ -54,6 +57,9 @@ export default function TopBar({
   variant = 'main',
   hideBottomBorder = false,
   centerTitle = false,
+  showMenuButton = true,
+  showLogo = true,
+  showAuthActions = true,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -148,60 +154,68 @@ export default function TopBar({
               flex={isLeftAlignedTitle ? 1 : 'none'}
               minW={0}
             >
-              <IconButton
-                aria-label="Open menu"
-                onClick={() => {
-                  const isMobile = window.innerWidth < 768;
-                  if (isMobile) {
-                    onMenuOpen();
-                  } else {
-                    toggleCollapse();
+              {showMenuButton && (
+                <IconButton
+                  aria-label="Open menu"
+                  onClick={() => {
+                    const isMobile = window.innerWidth < 768;
+                    if (isMobile) {
+                      onMenuOpen();
+                    } else {
+                      toggleCollapse();
+                    }
+                  }}
+                  variant="ghost"
+                  color="fg"
+                  _hover={{ bg: 'bg.muted' }}
+                  borderRadius="full"
+                  size="md"
+                  display={
+                    variant === 'secondary'
+                      ? { base: 'none', md: 'flex' }
+                      : 'flex'
                   }
-                }}
-                variant="ghost"
-                color="fg"
-                _hover={{ bg: 'bg.muted' }}
-                borderRadius="full"
-                size="md"
-                display={
-                  variant === 'secondary'
-                    ? { base: 'none', md: 'flex' }
-                    : 'flex'
-                }
-              >
-                <Menu size={20} />
-              </IconButton>
-
-              <Box
-                display={
-                  variant === 'secondary'
-                    ? { base: 'none', md: 'flex' }
-                    : 'flex'
-                }
-                alignItems="center"
-              >
-                <Link
-                  href="/"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  {icon || (
-                    <Image
-                      src="/icons/app-logo.png"
-                      h="32px"
-                      w="auto"
-                      alt={appName}
-                    />
-                  )}
-                  <Text
-                    display={{ base: 'none', md: 'block' }}
-                    fontSize={{ base: 'md', md: 'lg' }}
-                    fontWeight="bold"
-                    color="green.600"
+                  <Menu size={20} />
+                </IconButton>
+              )}
+
+              {showLogo && (
+                <Box
+                  display={
+                    variant === 'secondary'
+                      ? { base: 'none', md: 'flex' }
+                      : 'flex'
+                  }
+                  alignItems="center"
+                >
+                  <Link
+                    href="/"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
                   >
-                    Vmito
-                  </Text>
-                </Link>
-              </Box>
+                    {icon || (
+                      <Image
+                        src="/icons/app-logo.png"
+                        h="32px"
+                        w="auto"
+                        alt={appName}
+                      />
+                    )}
+                    <Text
+                      display={{ base: 'none', md: 'block' }}
+                      fontSize={{ base: 'md', md: 'lg' }}
+                      fontWeight="bold"
+                      color="green.600"
+                    >
+                      Vmito
+                    </Text>
+                  </Link>
+                </Box>
+              )}
 
               {/* Back button logic */}
               {(showBackButton || variant === 'secondary') && (
@@ -256,7 +270,7 @@ export default function TopBar({
                   size={{ base: 'md', md: 'lg' }}
                   color="fg"
                   fontWeight="bold"
-                  maxWidth={{ base: 'calc(100vw - 168px)', md: '600px' }}
+                  maxWidth={{ base: 'calc(100vw - 128px)', md: '600px' }}
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"
@@ -310,7 +324,9 @@ export default function TopBar({
             >
               {rightContent}
 
-              {!isHydrated || isLoading ? null : isAuthenticated ? (
+              {!showAuthActions ||
+              !isHydrated ||
+              isLoading ? null : isAuthenticated ? (
                 <>
                   <Box display="flex" alignItems="center" gap={2}>
                     {showAiAssistant && <AiAssistantTopBarButton />}
@@ -321,14 +337,16 @@ export default function TopBar({
               ) : !pathname.includes('/auth/signin') &&
                 !pathname.includes('/auth/signup') ? (
                 <Button
+                  aria-label={common('login')}
                   onClick={() => router.push('/auth/signin')}
                   colorPalette="green"
                   variant="outline"
                   size="xs"
-                  h={{ base: '36px', md: '38px' }}
-                  minW="auto"
-                  px={{ base: 3, md: 4 }}
-                  gap={1.5}
+                  h={{ base: '40px', md: '38px' }}
+                  w={{ base: '40px', md: 'auto' }}
+                  minW={{ base: '40px', md: 'auto' }}
+                  px={{ base: 0, md: 4 }}
+                  gap={{ base: 0, md: 1.5 }}
                   fontSize={{ base: 'sm', md: 'sm' }}
                   fontWeight="700"
                   borderRadius="md"
@@ -353,8 +371,10 @@ export default function TopBar({
                   }}
                   transition="background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s"
                 >
-                  <LogIn size={15} />
-                  {common('login')}
+                  <LogIn size={17} />
+                  <Box as="span" display={{ base: 'none', md: 'inline' }}>
+                    {common('login')}
+                  </Box>
                 </Button>
               ) : null}
             </Box>
@@ -363,7 +383,9 @@ export default function TopBar({
         </Container>
       </Box>
 
-      <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
+      {showMenuButton && (
+        <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
+      )}
     </>
   );
 }

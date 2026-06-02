@@ -32,6 +32,9 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   hideTopBarBorder?: boolean;
   /** Force title to be centered on mobile regardless of path */
   centerTitle?: boolean;
+  showTopBarMenuButton?: boolean;
+  showTopBarLogo?: boolean;
+  showTopBarAuthActions?: boolean;
 }
 
 export default function PageLayout({
@@ -54,6 +57,9 @@ export default function PageLayout({
   subHeader,
   hideTopBarBorder = false,
   centerTitle = false,
+  showTopBarMenuButton = true,
+  showTopBarLogo = true,
+  showTopBarAuthActions = true,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -90,6 +96,9 @@ export default function PageLayout({
         variant={variant}
         hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
         centerTitle={centerTitle}
+        showMenuButton={showTopBarMenuButton}
+        showLogo={showTopBarLogo}
+        showAuthActions={showTopBarAuthActions}
       />
       {isDiscoveryPage && <DiscoveryTabNav />}
       {!isDiscoveryPage && subHeader && (
