@@ -1451,6 +1451,7 @@
           "manage": "管理",
           "dashboard": "仪表板"
         },
+        "enterScores": "录入比分",
         "teamsTab": {
           "manageTeams": "管理队伍",
           "noCategories": "暂时没有可用类别。",
@@ -2757,7 +2758,9 @@
         "winner": "胜者",
         "cancel": "取消",
         "refereeArea": "裁判区",
-        "enterScores": "录入比分"
+        "enterScores": "录入比分",
+        "rotateLandscape": "横屏显示",
+        "exitLandscape": "退出横屏"
       },
       "scoreboard": {
         "court": "场地",
@@ -2768,6 +2771,7 @@
         "gridSize": "布局",
         "fullscreen": "全屏",
         "exitFullscreen": "退出",
+        "fullNames": "完整姓名",
         "share": "分享",
         "noLiveMatches": "目前没有进行中的比赛",
         "qrTitle": "分享记分牌",

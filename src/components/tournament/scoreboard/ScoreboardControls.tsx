@@ -3,18 +3,20 @@
 import { Flex, Text, Box } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { Maximize, Minimize, Share2, Wifi, WifiOff } from 'lucide-react';
+import { Maximize, Minimize, Share2, Users, Wifi, WifiOff } from 'lucide-react';
 import { TournamentCourt } from '@/lib/api/types';
 
 interface Props {
   courts: TournamentCourt[];
   selectedCourtIds: string[];
   gridSize: 1 | 2 | 4 | 6;
+  showFullNames: boolean;
   isFullscreen: boolean;
   isConnected: boolean;
   onToggleCourt: (id: string) => void;
   onClearCourts: () => void;
   onGridSize: (n: 1 | 2 | 4 | 6) => void;
+  onShowFullNames: (show: boolean) => void;
   onToggleFullscreen: () => void;
   onShare: () => void;
 }
@@ -25,11 +27,13 @@ export default function ScoreboardControls({
   courts,
   selectedCourtIds,
   gridSize,
+  showFullNames,
   isFullscreen,
   isConnected,
   onToggleCourt,
   onClearCourts,
   onGridSize,
+  onShowFullNames,
   onToggleFullscreen,
   onShare,
 }: Props) {
@@ -91,6 +95,14 @@ export default function ScoreboardControls({
       >
         {isConnected ? <Wifi size={16} /> : <WifiOff size={16} />}
       </Flex>
+
+      <Button
+        size="sm"
+        variant={showFullNames ? 'solid' : 'outline'}
+        onClick={() => onShowFullNames(!showFullNames)}
+      >
+        <Users size={16} /> {t('fullNames')}
+      </Button>
 
       <Button size="sm" variant="outline" onClick={onShare}>
         <Share2 size={16} /> {t('share')}

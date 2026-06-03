@@ -1473,6 +1473,7 @@
           "manage": "Manage",
           "dashboard": "Dashboard"
         },
+        "enterScores": "Enter scores",
         "teamsTab": {
           "manageTeams": "Manage teams",
           "noCategories": "No categories available yet.",
@@ -2779,7 +2780,9 @@
         "winner": "Winner",
         "cancel": "Cancel",
         "refereeArea": "Referee area",
-        "enterScores": "Enter scores"
+        "enterScores": "Enter scores",
+        "rotateLandscape": "Rotate landscape",
+        "exitLandscape": "Exit landscape"
       },
       "scoreboard": {
         "court": "Court",
@@ -2790,6 +2793,7 @@
         "gridSize": "Layout",
         "fullscreen": "Fullscreen",
         "exitFullscreen": "Exit",
+        "fullNames": "Full names",
         "share": "Share",
         "noLiveMatches": "No live matches right now",
         "qrTitle": "Share scoreboard",

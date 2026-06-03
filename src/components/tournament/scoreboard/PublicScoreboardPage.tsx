@@ -27,6 +27,10 @@ function parseGrid(value: string | null): GridSize {
   return n === 1 || n === 2 || n === 4 || n === 6 ? n : 4;
 }
 
+function parseShowFullNames(value: string | null): boolean {
+  return value === 'full';
+}
+
 export default function PublicScoreboardPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
@@ -36,6 +40,7 @@ export default function PublicScoreboardPage() {
   const searchParams = useSearchParams();
 
   const gridSize = parseGrid(searchParams.get('grid'));
+  const showFullNames = parseShowFullNames(searchParams.get('names'));
   const selectedCourtIds = useMemo(
     () =>
       (searchParams.get('courts') ?? '')
@@ -171,6 +176,8 @@ export default function PublicScoreboardPage() {
         onToggleCourt={toggleCourt}
         onClearCourts={() => setParam('courts', null)}
         onGridSize={(n) => setParam('grid', String(n))}
+        showFullNames={showFullNames}
+        onShowFullNames={(show) => setParam('names', show ? 'full' : null)}
         onToggleFullscreen={toggleFullscreen}
         onShare={() => setShareOpen(true)}
       />
@@ -190,7 +197,11 @@ export default function PublicScoreboardPage() {
       ) : display.length === 0 ? (
         <ScoreboardEmptyState />
       ) : (
-        <ScoreboardGrid matches={display} gridSize={gridSize} />
+        <ScoreboardGrid
+          matches={display}
+          gridSize={gridSize}
+          showFullNames={showFullNames}
+        />
       )}
 
       <ShareScoreboardModal

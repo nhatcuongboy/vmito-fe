@@ -11,7 +11,6 @@ import {
   Spinner,
   Text,
   VStack,
-  Avatar,
 } from '@chakra-ui/react';
 import PageLayout from '@/components/layout/PageLayout';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
@@ -51,6 +50,7 @@ import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import UserMenu from '@/components/ui/UserMenu';
 import NotificationBell from '@/components/ui/NotificationBell';
 import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
+import SlideOutMenu from '@/components/ui/SlideOutMenu';
 import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
@@ -78,8 +78,10 @@ const CATEGORY_BORDER_COLOR: Record<CategoryType, string> = {
 };
 
 function TournamentTopBarMenu() {
+  const common = useTranslations('common');
   const router = useRouter();
   const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     AuthService.logout();
@@ -87,14 +89,28 @@ function TournamentTopBarMenu() {
   };
 
   if (!isHydrated || isLoading) return null;
-  if (!isAuthenticated) return null;
 
-  return (
+  return isAuthenticated ? (
     <Flex align="center" gap={2}>
       <AiAssistantTopBarButton />
       <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
       <UserMenu onLogout={handleLogout} />
     </Flex>
+  ) : (
+    <>
+      <IconButton
+        aria-label={common('profile')}
+        onClick={() => setIsMenuOpen(true)}
+        variant="ghost"
+        color="fg"
+        _hover={{ bg: 'bg.muted' }}
+        borderRadius="full"
+        size="md"
+      >
+        <CircleUserRound size={22} />
+      </IconButton>
+      <SlideOutMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    </>
   );
 }
 
@@ -170,6 +186,14 @@ export default function TournamentPageShell({
 
     return allTabs;
   }, [isHost, t]);
+
+  // On the mobile bottom bar the host uses the floating "Enter scores" button
+  // instead of a Results tab (avoids crowding 7 tabs), so drop Results (id 6)
+  // there for hosts. Viewers keep it (they have fewer tabs).
+  const bottomNavTabs = useMemo(
+    () => (isHost ? tabs.filter((tab) => tab.id !== 6) : tabs),
+    [tabs, isHost]
+  );
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
 
@@ -628,10 +652,34 @@ export default function TournamentPageShell({
 
       {/* Bottom tabs: mobile only */}
       <BottomNavigationBar
-        tabs={tabs}
+        tabs={bottomNavTabs}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
+
+      {/* Host quick-access: floating "Enter scores" button (mobile only) */}
+      {isHost && activeSegment !== 'results' && (
+        <Box
+          display={{ base: 'block', md: 'none' }}
+          position="fixed"
+          right="16px"
+          bottom="calc(64px + env(safe-area-inset-bottom) + 16px)"
+          zIndex={20}
+        >
+          <Button
+            colorPalette="green"
+            borderRadius="full"
+            boxShadow="lg"
+            size="lg"
+            onClick={() => router.push(`/tournament/${slug}/results`)}
+          >
+            <HStack gap={2}>
+              <SquarePen size={18} />
+              <Text>{t('enterScores')}</Text>
+            </HStack>
+          </Button>
+        </Box>
+      )}
     </>
   );
 }

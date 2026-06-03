@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { Minus, Undo2, Wifi, WifiOff } from 'lucide-react';
+import { Minus, RotateCw, Undo2, Wifi, WifiOff } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import { CategoryMatch, MatchSet } from '@/lib/api/types';
@@ -56,6 +56,7 @@ export default function ScoreEntryBoard({
   const rules = defaultRules(match.matchFormat);
 
   const clientIdRef = useRef<string>(genClientId());
+  const boardRef = useRef<HTMLDivElement>(null);
   const seqRef = useRef(0);
   const queueRef = useRef<{ side: 1 | 2; delta: 1 | -1; seq: number }[]>([]);
   const processingRef = useRef(false);
@@ -65,6 +66,7 @@ export default function ScoreEntryBoard({
   );
   const [busy, setBusy] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
+  const [forceLandscape, setForceLandscape] = useState(false);
 
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
@@ -134,6 +136,34 @@ export default function ScoreEntryBoard({
     }
   }, [match.id, isDoubles, onMatchUpdate, refetch]);
 
+  const toggleLandscape = useCallback(async () => {
+    const next = !forceLandscape;
+    setForceLandscape(next);
+
+    if (typeof document === 'undefined') return;
+
+    const orientation = screen.orientation as ScreenOrientation & {
+      lock?: (orientation: 'landscape') => Promise<void>;
+      unlock?: () => void;
+    };
+
+    try {
+      if (next) {
+        if (!document.fullscreenElement) {
+          await boardRef.current?.requestFullscreen?.();
+        }
+        await orientation.lock?.('landscape');
+      } else {
+        orientation.unlock?.();
+        if (document.fullscreenElement === boardRef.current) {
+          await document.exitFullscreen?.();
+        }
+      }
+    } catch {
+      // Some mobile browsers block orientation lock; the layout toggle still helps.
+    }
+  }, [forceLandscape]);
+
   // External updates (e.g. host correction). Ignore our own broadcast echoes.
   const { isConnected } = useTournamentSocket(tournamentId, {
     onScoreUpdated: (e) => {
@@ -155,8 +185,20 @@ export default function ScoreEntryBoard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match.id]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (document.fullscreenElement !== boardRef.current) {
+        setForceLandscape(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   return (
     <Flex
+      ref={boardRef}
       direction="column"
       minH="100dvh"
       bg="gray.50"
@@ -174,7 +216,7 @@ export default function ScoreEntryBoard({
         <Text fontWeight="bold" fontSize="sm">
           {t('setWins')}: {wins.side1} – {wins.side2}
         </Text>
-        <Flex align="center" gap={1} fontSize="sm" color="gray.500">
+        <Flex align="center" gap={2} fontSize="sm" color="gray.500">
           {isConnected ? (
             <Wifi size={14} color="green" />
           ) : (
@@ -183,11 +225,28 @@ export default function ScoreEntryBoard({
           <Text>
             {t('currentSet')} {current?.setNumber ?? 1}
           </Text>
+          <IconButton
+            aria-label={
+              forceLandscape ? t('exitLandscape') : t('rotateLandscape')
+            }
+            title={forceLandscape ? t('exitLandscape') : t('rotateLandscape')}
+            size="sm"
+            variant={forceLandscape ? 'solid' : 'ghost'}
+            display={{ base: 'inline-flex', md: 'none' }}
+            onClick={() => void toggleLandscape()}
+          >
+            <RotateCw size={16} />
+          </IconButton>
         </Flex>
       </Flex>
 
       {/* Two big tappable score panels */}
-      <Flex flex="1" direction={{ base: 'column', md: 'row' }} gap={2} px={2}>
+      <Flex
+        flex="1"
+        direction={forceLandscape ? 'row' : { base: 'column', md: 'row' }}
+        gap={2}
+        px={2}
+      >
         <TeamScorePanel
           teamName={team1}
           score={current?.player1Score ?? 0}
@@ -198,6 +257,7 @@ export default function ScoreEntryBoard({
           onDecrement={() => handleScore(1, -1)}
           incLabel={t('addPointFor', { team: team1 })}
           decLabel={t('removePointFor', { team: team1 })}
+          compact={forceLandscape}
         />
         <TeamScorePanel
           teamName={team2}
@@ -209,6 +269,7 @@ export default function ScoreEntryBoard({
           onDecrement={() => handleScore(2, -1)}
           incLabel={t('addPointFor', { team: team2 })}
           decLabel={t('removePointFor', { team: team2 })}
+          compact={forceLandscape}
         />
       </Flex>
 
@@ -278,6 +339,7 @@ interface TeamScorePanelProps {
   onDecrement: () => void;
   incLabel: string;
   decLabel: string;
+  compact: boolean;
 }
 
 function TeamScorePanel({
@@ -290,6 +352,7 @@ function TeamScorePanel({
   onDecrement,
   incLabel,
   decLabel,
+  compact,
 }: TeamScorePanelProps) {
   const bg = colorScheme === 'blue' ? 'blue.500' : 'orange.500';
   const bgHover = colorScheme === 'blue' ? 'blue.600' : 'orange.600';
@@ -325,8 +388,12 @@ function TeamScorePanel({
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
-        py={6}
-        minH={{ base: '34dvh', md: '50vh' }}
+        py={compact ? 4 : 6}
+        minH={
+          compact
+            ? { base: '56dvh', md: '50vh' }
+            : { base: '34dvh', md: '50vh' }
+        }
       >
         <Text
           fontSize="md"
@@ -338,7 +405,9 @@ function TeamScorePanel({
           {teamName}
         </Text>
         <Text
-          fontSize={{ base: '7xl', md: '9xl' }}
+          fontSize={
+            compact ? { base: '6xl', md: '9xl' } : { base: '7xl', md: '9xl' }
+          }
           fontWeight="black"
           lineHeight={1}
         >

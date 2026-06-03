@@ -7,6 +7,7 @@ import LiveMatchCard from './LiveMatchCard';
 interface Props {
   matches: ScoreboardMatch[];
   gridSize: 1 | 2 | 4 | 6;
+  showFullNames: boolean;
 }
 
 // Responsive column counts per grid size.
@@ -20,14 +21,23 @@ const COLUMNS: Record<
   6: { base: 1, sm: 2, lg: 3 },
 };
 
-export default function ScoreboardGrid({ matches, gridSize }: Props) {
+export default function ScoreboardGrid({
+  matches,
+  gridSize,
+  showFullNames,
+}: Props) {
   const visible = matches.slice(0, gridSize);
   const density = gridSize <= 2 ? 'comfortable' : 'compact';
 
   return (
     <SimpleGrid columns={COLUMNS[gridSize]} gap={3} p={3}>
       {visible.map((m) => (
-        <LiveMatchCard key={m.matchId} match={m} density={density} />
+        <LiveMatchCard
+          key={m.matchId}
+          match={m}
+          density={density}
+          showFullNames={showFullNames}
+        />
       ))}
     </SimpleGrid>
   );

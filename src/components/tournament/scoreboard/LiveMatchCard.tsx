@@ -8,6 +8,7 @@ interface Props {
   match: ScoreboardMatch;
   /** Larger typography when few matches are shown. */
   density: 'comfortable' | 'compact';
+  showFullNames: boolean;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -17,7 +18,11 @@ const STATUS_COLOR: Record<string, string> = {
   CANCELLED: 'red',
 };
 
-export default function LiveMatchCard({ match, density }: Props) {
+export default function LiveMatchCard({
+  match,
+  density,
+  showFullNames,
+}: Props) {
   const t = useTranslations('pages.tournaments.scoreboard');
 
   const s1 = match.currentSet?.side1 ?? 0;
@@ -34,6 +39,14 @@ export default function LiveMatchCard({ match, density }: Props) {
       ? { base: '5xl', md: '8xl' }
       : { base: '4xl', md: '6xl' };
   const nameFont = density === 'comfortable' ? 'xl' : 'md';
+  const side1Name =
+    showFullNames && match.side1.players.length > 0
+      ? match.side1.players.join(' / ')
+      : match.side1.name;
+  const side2Name =
+    showFullNames && match.side2.players.length > 0
+      ? match.side2.players.join(' / ')
+      : match.side2.name;
 
   return (
     <Flex
@@ -79,21 +92,23 @@ export default function LiveMatchCard({ match, density }: Props) {
       {/* Sides */}
       <Box flex="1">
         <SideRow
-          name={match.side1.name}
+          name={side1Name}
           score={s1}
           setWins={match.setWins.side1}
           highlight={winning1}
           scoreFont={scoreFont}
           nameFont={nameFont}
+          allowWrap={showFullNames}
         />
         <Box h="1px" bg="gray.700" />
         <SideRow
-          name={match.side2.name}
+          name={side2Name}
           score={s2}
           setWins={match.setWins.side2}
           highlight={winning2}
           scoreFont={scoreFont}
           nameFont={nameFont}
+          allowWrap={showFullNames}
         />
       </Box>
 
@@ -131,6 +146,7 @@ interface SideRowProps {
   highlight: boolean;
   scoreFont: { base: string; md: string };
   nameFont: string;
+  allowWrap: boolean;
 }
 
 function SideRow({
@@ -140,6 +156,7 @@ function SideRow({
   highlight,
   scoreFont,
   nameFont,
+  allowWrap,
 }: SideRowProps) {
   return (
     <Flex align="center" justify="space-between" px={5} py={4} h="50%">
@@ -148,7 +165,7 @@ function SideRow({
           fontSize={nameFont}
           fontWeight="bold"
           color={highlight ? 'white' : 'gray.300'}
-          truncate
+          lineClamp={allowWrap ? 2 : 1}
         >
           {name}
         </Text>

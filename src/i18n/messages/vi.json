@@ -1481,6 +1481,7 @@
           "manage": "Quản lý",
           "dashboard": "Tổng quan"
         },
+        "enterScores": "Nhập điểm",
         "teamsTab": {
           "manageTeams": "Quản lý đội",
           "noCategories": "Chưa có hạng mục nào.",
@@ -2787,7 +2788,9 @@
         "winner": "Người thắng",
         "cancel": "Hủy",
         "refereeArea": "Khu vực trọng tài",
-        "enterScores": "Nhập điểm"
+        "enterScores": "Nhập điểm",
+        "rotateLandscape": "Xoay ngang",
+        "exitLandscape": "Thoát xoay ngang"
       },
       "scoreboard": {
         "court": "Sân",
@@ -2798,6 +2801,7 @@
         "gridSize": "Bố cục",
         "fullscreen": "Toàn màn hình",
         "exitFullscreen": "Thoát",
+        "fullNames": "Tên đầy đủ",
         "share": "Chia sẻ",
         "noLiveMatches": "Hiện chưa có trận nào đang diễn ra",
         "qrTitle": "Chia sẻ bảng điểm",
