@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import QRCode from 'qrcode';
-import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, Image, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
@@ -459,17 +459,40 @@ export default function PublicTournamentPlayerPage() {
           <Box bg="green.600" color="white" px={{ base: 5, md: 6 }} py={6}>
             <VStack align="stretch" gap={4}>
               <Flex align="center" gap={3}>
-                <Flex
-                  w="48px"
-                  h="48px"
-                  borderRadius="full"
-                  bg="whiteAlpha.300"
-                  align="center"
-                  justify="center"
-                  flexShrink={0}
-                >
-                  <UserRound size={26} />
-                </Flex>
+                {(() => {
+                  const avatarSrc = player.image || player.user?.image;
+                  return avatarSrc ? (
+                    <Box
+                      w={{ base: '56px', md: '64px' }}
+                      h={{ base: '56px', md: '64px' }}
+                      borderRadius="full"
+                      overflow="hidden"
+                      borderWidth="2px"
+                      borderColor="whiteAlpha.700"
+                      flexShrink={0}
+                    >
+                      <Image
+                        src={avatarSrc}
+                        alt={player.name}
+                        w="full"
+                        h="full"
+                        objectFit="cover"
+                      />
+                    </Box>
+                  ) : (
+                    <Flex
+                      w={{ base: '56px', md: '64px' }}
+                      h={{ base: '56px', md: '64px' }}
+                      borderRadius="full"
+                      bg="whiteAlpha.300"
+                      align="center"
+                      justify="center"
+                      flexShrink={0}
+                    >
+                      <UserRound size={30} />
+                    </Flex>
+                  );
+                })()}
                 <Box minW={0}>
                   <Text fontSize="sm" opacity={0.9}>
                     {t('athleteLabel')}
