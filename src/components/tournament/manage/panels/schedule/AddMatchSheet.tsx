@@ -14,6 +14,7 @@ import {
 import { CategoryService } from '@/lib/api/category.service';
 import { toaster } from '@/components/ui/toaster';
 import { getRegistrationLabel } from '@/lib/tournament/teamLabel';
+import { generateNextMatchCode } from '@/lib/tournament/codes';
 
 const MATCH_LENGTHS = [
   5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 105, 120,
@@ -59,6 +60,7 @@ export default function AddMatchSheet({
 
   const [categoryId, setCategoryId] = useState('');
   const [round, setRound] = useState<string>('GROUP');
+  const [matchCode, setMatchCode] = useState('');
   const [groupId, setGroupId] = useState('');
   const [team1, setTeam1] = useState('');
   const [team2, setTeam2] = useState('');
@@ -79,6 +81,7 @@ export default function AddMatchSheet({
     if (!isOpen) return;
     setCategoryId('');
     setRound('GROUP');
+    setMatchCode(generateNextMatchCode(allMatches));
     setGroupId('');
     setTeam1('');
     setTeam2('');
@@ -88,7 +91,7 @@ export default function AddMatchSheet({
     setCourtId('');
     setRegistrations([]);
     setGroups([]);
-  }, [isOpen]);
+  }, [allMatches, isOpen]);
 
   // Load registrations + groups when the category changes.
   useEffect(() => {
@@ -182,6 +185,7 @@ export default function AddMatchSheet({
       let created = await CategoryService.createMatch(categoryId, {
         round,
         matchNumber,
+        matchCode: matchCode.trim() || generateNextMatchCode(allMatches),
         groupId: showGroupSelect && groupId ? groupId : undefined,
         matchFormat: category?.matchFormat,
         participants,
@@ -269,6 +273,19 @@ export default function AddMatchSheet({
           <Text fontWeight="semibold" fontSize="lg" mb={5}>
             {t('addMatchTitle')}
           </Text>
+
+          {/* Match code */}
+          <Box mb={3}>
+            <Text fontSize="xs" color="gray.500" mb={1}>
+              {t('matchCode')}
+            </Text>
+            <input
+              value={matchCode}
+              onChange={(e) => setMatchCode(e.target.value)}
+              style={selectStyle}
+              placeholder={t('matchCodePlaceholder')}
+            />
+          </Box>
 
           {/* Category */}
           <Box mb={3}>

@@ -31,9 +31,12 @@ export const TournamentPlayerService = {
   createPlayer: async (
     tournamentId: string,
     data: {
+      code?: string;
       name: string;
       email?: string;
       phone?: string;
+      image?: string;
+      imagePublicId?: string;
       gender?: GenderType;
       level?: number;
       levelDescription?: string;

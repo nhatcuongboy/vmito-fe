@@ -173,13 +173,16 @@ export const CategoryService = {
 
   updateMatch: async (
     id: string,
-    data: Partial<CategoryMatch>
+    data: Partial<CategoryMatch>,
+    options?: { showToast?: boolean }
   ): Promise<CategoryMatch> => {
     const response = await api.put<ApiResponse<CategoryMatch>>(
       `/category-matches/${id}`,
       data
     );
-    toaster.success({ title: 'Match updated successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Match updated successfully' });
+    }
     return response.data.data!;
   },
 

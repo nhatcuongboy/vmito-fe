@@ -2,15 +2,22 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { Box, Flex, Heading, Text, Input } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Input, Image } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { VSelect } from '@/components/ui/VSelect';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { Plus, Pencil, Trash2, Users, Search, Link2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Tournament, TournamentPlayer, GenderType } from '@/lib/api/types';
+import {
+  Tournament,
+  TournamentPlayer,
+  GenderType,
+  EImageCategory,
+} from '@/lib/api/types';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
+import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
+import { generateNextTournamentPlayerCode } from '@/lib/tournament/codes';
 
 interface PlayersPanelProps {
   tournament: Tournament;
@@ -39,7 +46,10 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 };
 
 interface PlayerFormState {
+  code: string;
   name: string;
+  image: string;
+  imagePublicId: string;
   gender: string;
   level: string;
   levelDescription: string;
@@ -48,7 +58,10 @@ interface PlayerFormState {
 }
 
 const EMPTY_FORM: PlayerFormState = {
+  code: '',
   name: '',
+  image: '',
+  imagePublicId: '',
   gender: '',
   level: '',
   levelDescription: '',
@@ -57,7 +70,10 @@ const EMPTY_FORM: PlayerFormState = {
 };
 
 const playerToForm = (player: TournamentPlayer): PlayerFormState => ({
+  code: player.code ?? '',
   name: player.name ?? '',
+  image: player.image ?? player.user?.image ?? '',
+  imagePublicId: player.imagePublicId ?? '',
   gender: player.gender ?? '',
   level: player.level != null ? String(player.level) : '',
   levelDescription: player.levelDescription ?? '',
@@ -112,7 +128,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     const query = search.trim().toLowerCase();
     if (!query) return players;
     return players.filter((p) =>
-      [p.name, p.email, p.phone]
+      [p.name, p.code, p.email, p.phone]
         .filter(Boolean)
         .some((field) => field!.toLowerCase().includes(query))
     );
@@ -124,7 +140,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const buildPayload = () => {
     const trimmedLevel = form.level.trim();
     return {
+      code: form.code.trim() || generateNextTournamentPlayerCode(players),
       name: form.name.trim(),
+      image: form.image.trim() || undefined,
+      imagePublicId: form.imagePublicId.trim() || undefined,
       gender: (form.gender || undefined) as GenderType | undefined,
       level: trimmedLevel ? Number(trimmedLevel) : undefined,
       levelDescription: form.levelDescription.trim() || undefined,
@@ -136,7 +155,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   // ── Add / Edit ──────────────────────────────────────────────────────────────
   const handleOpenAdd = () => {
     setEditingPlayer(null);
-    setForm(EMPTY_FORM);
+    setForm({
+      ...EMPTY_FORM,
+      code: generateNextTournamentPlayerCode(players),
+    });
     editModal.onOpen();
   };
 
@@ -279,6 +301,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                 (player._count?.registrations ?? 0) +
                 (player._count?.pairMembers ?? 0);
               const meta = [
+                player.code ? player.code : null,
                 player.gender ? GENDER_LABELS[player.gender] : null,
                 player.level != null ? `${t('level')} ${player.level}` : null,
                 player.levelDescription || null,
@@ -304,8 +327,19 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                     align="center"
                     justify="center"
                     flexShrink={0}
+                    overflow="hidden"
                   >
-                    <Users size={16} color="#A0AEC0" />
+                    {player.image || player.user?.image ? (
+                      <Image
+                        src={player.image || player.user?.image}
+                        alt={player.name}
+                        w="full"
+                        h="full"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <Users size={16} color="#A0AEC0" />
+                    )}
                   </Flex>
                   <Box flex="1" minW={0}>
                     <Flex align="center" gap={1.5}>
@@ -373,6 +407,40 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         secondaryActionText={t('cancel')}
       >
         <VStack gap={4} align="stretch">
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={1}>
+              {t('avatar')}
+            </Text>
+            <AppSingleImageUpload
+              value={form.image}
+              publicId={form.imagePublicId}
+              category={EImageCategory.OTHER}
+              alt={form.name || t('avatar')}
+              emptyTitle={t('avatarEmpty')}
+              uploadText={t('avatarUpload')}
+              galleryText={t('avatarGallery')}
+              onChange={(image) => {
+                updateField('image', image.url);
+                updateField('imagePublicId', image.publicId ?? '');
+              }}
+              onClear={() => {
+                updateField('image', '');
+                updateField('imagePublicId', '');
+              }}
+            />
+          </Box>
+
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={1}>
+              {t('playerCode')}
+            </Text>
+            <Input
+              placeholder={t('playerCodePlaceholder')}
+              value={form.code}
+              onChange={(e) => updateField('code', e.target.value)}
+            />
+          </Box>
+
           <Box>
             <Text fontSize="sm" fontWeight="medium" mb={1}>
               {t('name')}

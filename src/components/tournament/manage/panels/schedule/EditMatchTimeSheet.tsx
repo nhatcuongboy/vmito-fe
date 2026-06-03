@@ -29,8 +29,9 @@ interface EditMatchTimeSheetProps {
     matchId: string,
     courtId: string | null,
     startTime: string | null,
-    endTime: string | null
-  ) => void;
+    endTime: string | null,
+    matchCode: string
+  ) => void | Promise<void>;
 }
 
 export default function EditMatchTimeSheet({
@@ -45,12 +46,15 @@ export default function EditMatchTimeSheet({
   );
 
   const [date, setDate] = useState('');
+  const [matchCode, setMatchCode] = useState('');
   const [startTime, setStartTime] = useState('');
   const [matchLength, setMatchLength] = useState(60);
   const [courtId, setCourtId] = useState('');
 
   useEffect(() => {
     if (!match) return;
+
+    setMatchCode(match.matchCode ?? '');
 
     if (match.startTime) {
       const st = new Date(match.startTime);
@@ -78,8 +82,9 @@ export default function EditMatchTimeSheet({
   if (!isOpen || !match) return null;
 
   const handleUpdate = () => {
+    const nextMatchCode = matchCode.trim();
     if (!date || !startTime) {
-      onUpdate(match.id, courtId || null, null, null);
+      onUpdate(match.id, courtId || null, null, null, nextMatchCode);
     } else {
       const startDt = new Date(`${date}T${startTime}:00`);
       const endDt = new Date(startDt.getTime() + matchLength * 60000);
@@ -87,14 +92,15 @@ export default function EditMatchTimeSheet({
         match.id,
         courtId || null,
         startDt.toISOString(),
-        endDt.toISOString()
+        endDt.toISOString(),
+        nextMatchCode
       );
     }
     onClose();
   };
 
   const handleClearTimes = () => {
-    onUpdate(match.id, null, null, null);
+    onUpdate(match.id, null, null, null, matchCode.trim());
     setDate('');
     setStartTime('');
     setCourtId('');
@@ -162,6 +168,19 @@ export default function EditMatchTimeSheet({
               {t('clearTimes')}
             </Button>
           </Flex>
+
+          {/* Match code */}
+          <Box mb={3}>
+            <Text fontSize="xs" color="gray.500" mb={1}>
+              {t('matchCode')}
+            </Text>
+            <input
+              value={matchCode}
+              onChange={(e) => setMatchCode(e.target.value)}
+              style={selectStyle}
+              placeholder={t('matchCodePlaceholder')}
+            />
+          </Box>
 
           {/* Date */}
           <Box mb={3}>

@@ -55,6 +55,7 @@ import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
+import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import {
   TournamentShellSkeleton,
   TournamentTeamsSkeleton,
@@ -338,7 +339,7 @@ export default function TournamentPageShell({
         const playerCodeById = new Map(
           tournamentPlayers.map((player) => [
             player.id,
-            getUniqueTournamentPlayerCode(player.id, tournamentPlayerIds),
+            getTournamentPlayerDisplayCode(player, tournamentPlayerIds),
           ])
         );
         const registrationsByCategory = await Promise.all(

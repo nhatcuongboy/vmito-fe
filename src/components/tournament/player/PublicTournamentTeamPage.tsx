@@ -32,10 +32,8 @@ import {
   Tournament,
   TournamentPlayer,
 } from '@/lib/api/types';
-import {
-  getTournamentPlayerCode,
-  getUniqueTournamentPlayerCode,
-} from './PublicTournamentPlayerPage';
+import { getTournamentPlayerCode } from './PublicTournamentPlayerPage';
+import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ROUTES } from '@/constants';
 import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
@@ -161,7 +159,7 @@ export default function PublicTournamentTeamPage() {
     return new Map(
       players.map((player) => [
         player.id,
-        getUniqueTournamentPlayerCode(player.id, ids),
+        getTournamentPlayerDisplayCode(player, ids),
       ])
     );
   }, [players]);

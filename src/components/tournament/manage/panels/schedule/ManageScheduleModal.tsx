@@ -593,12 +593,24 @@ export default function ManageScheduleModal({
         onClose={() => setEditingMatch(null)}
         match={allMatches.find((m) => m.id === editingMatch) ?? null}
         courts={courts}
-        onUpdate={async (matchId, courtId, startTime, endTime) => {
+        onUpdate={async (matchId, courtId, startTime, endTime, matchCode) => {
           handleMatchMove(matchId, courtId, startTime, endTime);
+          setAllMatches((prev) =>
+            prev.map((m) => (m.id === matchId ? { ...m, matchCode } : m))
+          );
           setEditingMatch(null);
           try {
-            await CategoryService.bulkUpdateSchedule([
-              { matchId, courtId, startTime, endTime },
+            await Promise.all([
+              CategoryService.updateMatch(
+                matchId,
+                { matchCode },
+                {
+                  showToast: false,
+                }
+              ),
+              CategoryService.bulkUpdateSchedule([
+                { matchId, courtId, startTime, endTime },
+              ]),
             ]);
           } catch {
             toaster.error({ title: t('updateFailed') });

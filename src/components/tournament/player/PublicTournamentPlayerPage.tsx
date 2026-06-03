@@ -39,6 +39,11 @@ import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
 import NotificationBell from '@/components/ui/NotificationBell';
 import UserMenu from '@/components/ui/UserMenu';
 import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
+import {
+  getLegacyTournamentPlayerCode,
+  getUniqueLegacyTournamentPlayerCode,
+  matchesTournamentPlayerCode,
+} from '@/lib/tournament/codes';
 
 function TournamentTopBarMenu() {
   const router = useRouter();
@@ -73,8 +78,6 @@ type ResolvedPlayerState =
   | { status: 'missing' }
   | { status: 'ambiguous' };
 
-const PLAYER_CODE_LENGTH = 8;
-
 const CATEGORY_TYPE_LABELS: Record<CategoryType, string> = {
   [CategoryType.MENS_SINGLE]: 'Đơn nam',
   [CategoryType.WOMENS_SINGLE]: 'Đơn nữ',
@@ -99,28 +102,12 @@ const MATCH_STATUS_COLORS: Record<MatchStatus, string> = {
 };
 
 export const getTournamentPlayerCode = (playerId: string) =>
-  playerId.slice(0, PLAYER_CODE_LENGTH).toLowerCase();
+  getLegacyTournamentPlayerCode(playerId);
 
 export const getUniqueTournamentPlayerCode = (
   playerId: string,
   tournamentPlayerIds: string[]
-) => {
-  const normalizedPlayerIds = tournamentPlayerIds.map((id) => id.toLowerCase());
-  const normalizedPlayerId = playerId.toLowerCase();
-  let codeLength = Math.min(PLAYER_CODE_LENGTH, playerId.length);
-
-  while (codeLength < playerId.length) {
-    const candidate = normalizedPlayerId.slice(0, codeLength);
-    const matches = normalizedPlayerIds.filter((id) =>
-      id.startsWith(candidate)
-    );
-
-    if (matches.length <= 1) return candidate;
-    codeLength += 1;
-  }
-
-  return normalizedPlayerId;
-};
+) => getUniqueLegacyTournamentPlayerCode(playerId, tournamentPlayerIds);
 
 const formatDate = (value?: Date | string) => {
   if (!value) return '';
@@ -180,9 +167,8 @@ const resolvePlayerByCode = (
   players: TournamentPlayer[],
   playerCode: string
 ): ResolvedPlayerState => {
-  const normalizedCode = playerCode.toLowerCase();
   const matches = players.filter((player) =>
-    player.id.toLowerCase().startsWith(normalizedCode)
+    matchesTournamentPlayerCode(player, playerCode)
   );
 
   if (matches.length === 0) return { status: 'missing' };

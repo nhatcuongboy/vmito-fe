@@ -835,6 +835,7 @@ export interface CategoryMatch {
   groupId?: string;
   round: string;
   matchNumber: number;
+  matchCode?: string;
   status: MatchStatus;
   startTime?: Date;
   endTime?: Date; // Actual end time — set when match finishes
@@ -919,9 +920,12 @@ export interface TournamentVenue {
 export interface TournamentPlayer {
   id: string;
   tournamentId: string;
+  code?: string;
   name: string;
   email?: string;
   phone?: string;
+  image?: string;
+  imagePublicId?: string;
   gender?: GenderType;
   level?: number;
   levelDescription?: string;
@@ -994,6 +998,7 @@ export interface CreateCategoryMatchRequest {
   groupId?: string;
   round: string;
   matchNumber: number;
+  matchCode?: string;
   participants: Array<{
     categoryRegistrationId: string;
     position: number;

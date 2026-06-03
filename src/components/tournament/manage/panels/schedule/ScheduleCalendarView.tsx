@@ -15,6 +15,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
+import { getMatchDisplayCode } from '@/lib/tournament/codes';
 
 const CATEGORY_COLORS = [
   '#ECC94B',
@@ -81,12 +82,6 @@ const getTeamLabel = (
   return reg.player?.name || t('unknown');
 };
 
-const getMatchCode = (match: CategoryMatch, categories: Category[]): string => {
-  const cat = categories.find((c) => c.id === match.categoryId);
-  const catAbbrev = cat?.name?.substring(0, 2) || '?';
-  return `${catAbbrev}${match.matchNumber}`;
-};
-
 const getRoundLabel = (
   match: CategoryMatch,
   t: ReturnType<typeof useTranslations>
@@ -99,11 +94,9 @@ const getRoundLabel = (
 
 function DraggableMatch({
   match,
-  categories,
   categoryIndex,
 }: {
   match: CategoryMatch;
-  categories: Category[];
   categoryIndex: number;
 }) {
   const t = useTranslations(
@@ -141,7 +134,7 @@ function DraggableMatch({
     >
       <Flex justify="space-between" mb={0.5}>
         <Text fontWeight="bold" truncate>
-          {getMatchCode(match, categories)} • {getRoundLabel(match, t)}
+          {getMatchDisplayCode(match)} • {getRoundLabel(match, t)}
         </Text>
         {match.startTime && (
           <Text color="gray.500" flexShrink={0}>
@@ -363,7 +356,6 @@ export default function ScheduleCalendarView({
                               <DraggableMatch
                                 key={match.id}
                                 match={match}
-                                categories={categories}
                                 categoryIndex={
                                   categoryIndexMap.get(match.categoryId) || 0
                                 }
@@ -391,7 +383,6 @@ export default function ScheduleCalendarView({
         {/* Unscheduled sidebar */}
         <UnscheduledPanel
           matches={unscheduledMatches}
-          categories={categories}
           categoryIndexMap={categoryIndexMap}
           defaultMatchLength={defaultMatchLength}
         />
@@ -402,12 +393,10 @@ export default function ScheduleCalendarView({
 
 function UnscheduledPanel({
   matches,
-  categories,
   categoryIndexMap,
   defaultMatchLength,
 }: {
   matches: CategoryMatch[];
-  categories: Category[];
   categoryIndexMap: Map<string, number>;
   defaultMatchLength: number;
 }) {
@@ -442,7 +431,6 @@ function UnscheduledPanel({
           <DraggableMatch
             key={match.id}
             match={match}
-            categories={categories}
             categoryIndex={categoryIndexMap.get(match.categoryId) || 0}
           />
         ))}
