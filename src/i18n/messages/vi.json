@@ -1405,6 +1405,42 @@
     },
     "tournaments": {
       "title": "Giải đấu",
+      "hostList": {
+        "pageTitle": "Giải đấu của tôi",
+        "subtitle": "Quản lý giải đấu, hạng mục và lịch thi đấu — tất cả ở một nơi.",
+        "newTournament": "Tạo giải đấu",
+        "createFirst": "Tạo giải đấu đầu tiên",
+        "searchPlaceholder": "Tìm kiếm giải đấu...",
+        "emptyTitle": "Chưa có giải đấu nào",
+        "emptyDesc": "Bắt đầu giải đấu đầu tiên của bạn — tạo hạng mục, mời người chơi và tổ chức thi đấu chuyên nghiệp.",
+        "noResultsTitle": "Không tìm thấy giải đấu phù hợp",
+        "noResultsDesc": "Thử từ khoá khác hoặc xoá bộ lọc đang áp dụng.",
+        "stats": {
+          "total": "Tổng cộng",
+          "draft": "Bản nháp",
+          "inProgress": "Đang diễn ra",
+          "finished": "Đã kết thúc"
+        },
+        "filters": {
+          "all": "Tất cả",
+          "draft": "Bản nháp",
+          "inProgress": "Đang diễn ra",
+          "finished": "Đã kết thúc",
+          "cancelled": "Đã huỷ"
+        },
+        "card": {
+          "manage": "Quản lý",
+          "openPublic": "Mở trang công khai",
+          "delete": "Xoá",
+          "moreActions": "Hành động khác",
+          "categories": "Hạng mục",
+          "draftBadge": "Bản nháp",
+          "publishedBadge": "Đã xuất bản"
+        },
+        "deleteConfirm": "Bạn có chắc chắn muốn xoá giải đấu này? Hành động này không thể hoàn tác.",
+        "deleted": "Đã xoá giải đấu",
+        "deleteFailed": "Xoá giải đấu thất bại"
+      },
       "allTournaments": "Tất cả giải đấu",
       "createTournament": "Tạo giải đấu",
       "createSample": "Tạo mẫu",
@@ -3092,7 +3128,13 @@
         "rotateLandscape": "Xoay ngang",
         "exitLandscape": "Thoát xoay ngang",
         "showPlayerNames": "Hiện tên VĐV",
-        "hidePlayerNames": "Ẩn tên VĐV"
+        "hidePlayerNames": "Ẩn tên VĐV",
+        "forfeit": "Xử thua / bỏ cuộc",
+        "forfeitTitle": "Ghi nhận xử thua / bỏ cuộc",
+        "forfeitSelectWinner": "Chọn bên thắng",
+        "forfeitHint": "Bên được chọn thắng do đối thủ bỏ cuộc; đối thủ bị ghi nhận xử thua.",
+        "walkover": "Xử thua",
+        "forfeitConfirm": "Xác nhận xử thua"
       },
       "scoreboard": {
         "court": "Sân",

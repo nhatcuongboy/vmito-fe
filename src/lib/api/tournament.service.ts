@@ -20,7 +20,9 @@ export const TournamentService = {
   // Get all tournaments (public)
   getAllTournaments: async (): Promise<Tournament[]> => {
     const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
-    return response.data.data || [];
+    return (response.data.data || []).filter(
+      (tournament) => tournament.isPublished
+    );
   },
 
   // Get my tournaments (host only)

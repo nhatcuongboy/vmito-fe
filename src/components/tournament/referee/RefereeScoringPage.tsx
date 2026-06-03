@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   CalendarClock,
   Clock3,
+  Flag,
   Info,
   Mail,
   MapPin,
@@ -48,6 +49,7 @@ import {
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import ScoreEntryBoard from './ScoreEntryBoard';
+import ForfeitMatchModal from './ForfeitMatchModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
@@ -67,6 +69,7 @@ export default function RefereeScoringPage() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [playerInfoOpen, setPlayerInfoOpen] = useState(false);
+  const [forfeitOpen, setForfeitOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -436,16 +439,27 @@ export default function RefereeScoringPage() {
                     <Text fontWeight="semibold">{scheduledTime}</Text>
                   </Box>
 
-                  <Button
-                    colorPalette="green"
-                    size="lg"
-                    onClick={() => void handleStart()}
-                    loading={starting}
-                    borderRadius="xl"
-                    boxShadow="0 10px 24px rgba(22, 163, 74, 0.24)"
-                  >
-                    <Play size={18} /> {t('startMatch')}
-                  </Button>
+                  <HStack gap={2} flexWrap="wrap">
+                    <Button
+                      variant="outline"
+                      colorPalette="red"
+                      size="lg"
+                      onClick={() => setForfeitOpen(true)}
+                      borderRadius="xl"
+                    >
+                      <Flag size={18} /> {t('forfeit')}
+                    </Button>
+                    <Button
+                      colorPalette="green"
+                      size="lg"
+                      onClick={() => void handleStart()}
+                      loading={starting}
+                      borderRadius="xl"
+                      boxShadow="0 10px 24px rgba(22, 163, 74, 0.24)"
+                    >
+                      <Play size={18} /> {t('startMatch')}
+                    </Button>
+                  </HStack>
                 </Flex>
               </VStack>
             )}
@@ -456,6 +470,7 @@ export default function RefereeScoringPage() {
                   match={match}
                   tournamentId={tournament.id}
                   onMatchUpdate={setMatch}
+                  onForfeit={() => setForfeitOpen(true)}
                 />
               </Box>
             )}
@@ -493,6 +508,16 @@ export default function RefereeScoringPage() {
                 </Button>
               </Flex>
             )}
+
+            <ForfeitMatchModal
+              isOpen={forfeitOpen}
+              onClose={() => setForfeitOpen(false)}
+              match={match}
+              onForfeited={(updated) => {
+                setForfeitOpen(false);
+                setMatch(updated);
+              }}
+            />
           </Box>
         </Box>
       </Box>

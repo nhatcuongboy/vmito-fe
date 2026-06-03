@@ -1375,6 +1375,42 @@
     },
     "tournaments": {
       "title": "锦标赛",
+      "hostList": {
+        "pageTitle": "我的锦标赛",
+        "subtitle": "在一个地方管理您的锦标赛、类别和赛程。",
+        "newTournament": "新建锦标赛",
+        "createFirst": "创建您的第一个锦标赛",
+        "searchPlaceholder": "搜索锦标赛...",
+        "emptyTitle": "还没有锦标赛",
+        "emptyDesc": "创建您的第一个锦标赛 — 设置类别、邀请选手并专业地运行赛程。",
+        "noResultsTitle": "未找到匹配的锦标赛",
+        "noResultsDesc": "请尝试其他关键词或清除筛选条件。",
+        "stats": {
+          "total": "总数",
+          "draft": "草稿",
+          "inProgress": "进行中",
+          "finished": "已结束"
+        },
+        "filters": {
+          "all": "全部",
+          "draft": "草稿",
+          "inProgress": "进行中",
+          "finished": "已结束",
+          "cancelled": "已取消"
+        },
+        "card": {
+          "manage": "管理",
+          "openPublic": "打开公开页面",
+          "delete": "删除",
+          "moreActions": "更多操作",
+          "categories": "类别",
+          "draftBadge": "草稿",
+          "publishedBadge": "已发布"
+        },
+        "deleteConfirm": "您确定要删除此锦标赛吗？此操作无法撤销。",
+        "deleted": "锦标赛已删除",
+        "deleteFailed": "删除锦标赛失败"
+      },
       "allTournaments": "所有锦标赛",
       "createTournament": "创建锦标赛",
       "createSample": "创建示例",
@@ -3062,7 +3098,13 @@
         "rotateLandscape": "横屏显示",
         "exitLandscape": "退出横屏",
         "showPlayerNames": "显示球员姓名",
-        "hidePlayerNames": "隐藏球员姓名"
+        "hidePlayerNames": "隐藏球员姓名",
+        "forfeit": "弃权 / 不战而胜",
+        "forfeitTitle": "记录弃权 / 不战而胜",
+        "forfeitSelectWinner": "选择获胜方",
+        "forfeitHint": "所选一方因对手弃权而获胜；对手将被记为弃权。",
+        "walkover": "弃权",
+        "forfeitConfirm": "确认弃权"
       },
       "scoreboard": {
         "court": "场地",

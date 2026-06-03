@@ -95,7 +95,7 @@ export default function PageLayout({
       backgroundColor={backgroundColor}
       _dark={_dark}
       minH={minH ?? '100vh'}
-      ml={disableSidebarOffset ? 0 : undefined}
+      {...(disableSidebarOffset ? { ml: 0 } : {})}
     >
       <TopBar
         title={title}

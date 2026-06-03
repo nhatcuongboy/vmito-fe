@@ -483,14 +483,8 @@ export default function TournamentHomeTab({
           bg="white"
           boxShadow="sm"
         >
-          <Flex
-            justify="space-between"
-            align="center"
-            px={{ base: 4, md: 6 }}
-            pt={{ base: 4, md: 6 }}
-            pb={4}
-          >
-            <Text fontWeight="bold" fontSize={{ base: 'xl', md: '2xl' }}>
+          <Flex justify="space-between" align="center" px={4} pt={4} pb={3}>
+            <Text fontWeight="bold" fontSize={{ base: 'lg', md: 'xl' }}>
               {t('venues.title')}
             </Text>
             <HStack gap={3}>
@@ -499,8 +493,8 @@ export default function TournamentHomeTab({
                   variant="outline"
                   colorPalette="gray"
                   borderRadius="full"
-                  px={{ base: 3, sm: 5 }}
-                  size={{ base: 'sm', md: 'md' }}
+                  px={4}
+                  size="sm"
                   onClick={handleManageVenues}
                 >
                   {t('venues.manage')}
@@ -526,18 +520,18 @@ export default function TournamentHomeTab({
           <VStack align="stretch" gap={0}>
             {displayVenues.map(({ id, venue: currentVenue }, index) => (
               <Box key={id}>
-                {index > 0 && <Box h="1px" bg="gray.100" mx={6} />}
-                <Box px={{ base: 4, md: 6 }}>
+                {index > 0 && <Box h="1px" bg="gray.100" mx={4} />}
+                <Box px={4}>
                   {currentVenue.lat && currentVenue.lng ? (
                     <VenueMapPin
                       lat={currentVenue.lat}
                       lng={currentVenue.lng}
-                      height="220px"
+                      height="160px"
                       zoom={12}
                     />
                   ) : (
                     <Box
-                      h="180px"
+                      h="140px"
                       bg="gray.100"
                       borderRadius="xl"
                       display="flex"
@@ -553,13 +547,13 @@ export default function TournamentHomeTab({
                   align={{ base: 'stretch', sm: 'center' }}
                   justify="space-between"
                   direction={{ base: 'column', sm: 'row' }}
-                  gap={4}
-                  px={{ base: 4, md: 6 }}
-                  py={4}
+                  gap={3}
+                  px={4}
+                  py={3}
                 >
                   <Box flex="1" minW={0}>
                     <Flex align="center" gap={2}>
-                      <Text fontWeight="bold" fontSize="lg" color="gray.900">
+                      <Text fontWeight="bold" fontSize="md" color="gray.900">
                         {currentVenue.name}
                       </Text>
                       {currentVenue.acronym && (
@@ -578,7 +572,7 @@ export default function TournamentHomeTab({
                       district={currentVenue.district}
                       newAddress={currentVenue.newAddress}
                       newDistrict={currentVenue.newDistrict}
-                      fontSize="md"
+                      fontSize="sm"
                       color="gray.600"
                       lineClamp={2}
                     />
@@ -598,12 +592,12 @@ export default function TournamentHomeTab({
                       _hover={{ bg: 'gray.50' }}
                       onClick={() => handleOpenDirections(currentVenue)}
                     >
-                      <Flex align="center" gap={3}>
+                      <Flex align="center" gap={2}>
                         <Navigation
-                          size={20}
+                          size={18}
                           color="var(--chakra-colors-gray-900)"
                         />
-                        <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                        <Text fontSize="md" fontWeight="bold" color="gray.900">
                           {t('venues.directions')}
                         </Text>
                       </Flex>

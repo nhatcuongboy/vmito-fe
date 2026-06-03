@@ -4,7 +4,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { Minus, RotateCw, Undo2, Users, Wifi, WifiOff } from 'lucide-react';
+import {
+  Flag,
+  Minus,
+  RotateCw,
+  Undo2,
+  Users,
+  Wifi,
+  WifiOff,
+} from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import { CategoryMatch, CategoryRegistration, MatchSet } from '@/lib/api/types';
@@ -22,6 +30,8 @@ interface Props {
   match: CategoryMatch;
   tournamentId: string;
   onMatchUpdate: (m: CategoryMatch) => void;
+  // When provided, shows a "Forfeit / walkover" control alongside End Match.
+  onForfeit?: () => void;
 }
 
 function genClientId(): string {
@@ -79,6 +89,7 @@ export default function ScoreEntryBoard({
   match,
   tournamentId,
   onMatchUpdate,
+  onForfeit,
 }: Props) {
   const t = useTranslations('pages.tournaments.scoreEntry');
 
@@ -367,7 +378,7 @@ export default function ScoreEntryBoard({
           </Text>
         )}
 
-        <Flex gap={3} justify="center" align="center">
+        <Flex gap={3} justify="center" align="center" wrap="wrap">
           <Button
             variant="outline"
             onClick={() => void handleUndo()}
@@ -375,6 +386,11 @@ export default function ScoreEntryBoard({
           >
             <Undo2 size={16} /> {t('undo')}
           </Button>
+          {onForfeit && (
+            <Button variant="outline" colorPalette="red" onClick={onForfeit}>
+              <Flag size={16} /> {t('forfeit')}
+            </Button>
+          )}
           <Button colorPalette="green" onClick={() => setEndOpen(true)}>
             {t('endMatch')}
           </Button>
