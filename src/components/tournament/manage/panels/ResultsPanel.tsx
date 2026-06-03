@@ -960,11 +960,18 @@ function StatusBadge({ match }: { match: CategoryMatch }) {
   if (match.isForfeit) {
     return <Badge colorPalette="orange">{t('filters.statusForfeited')}</Badge>;
   }
+  if (match.status === MatchStatus.SCHEDULED && !isMatchScheduled(match)) {
+    return <Badge colorPalette="gray">{t('status.UNSCHEDULED')}</Badge>;
+  }
   return (
     <Badge colorPalette={STATUS_COLOR[match.status] ?? 'gray'}>
       {t(`status.${match.status}`)}
     </Badge>
   );
+}
+
+function isMatchScheduled(match: CategoryMatch) {
+  return Boolean(match.startTime && match.courtId);
 }
 
 function MetaItem({

@@ -2,6 +2,7 @@ import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import {
   Tournament,
+  TournamentStatus,
   CreateTournamentRequest,
   TournamentUmpire,
   TournamentScoringDevice,
@@ -79,6 +80,19 @@ export const TournamentService = {
       { isPublished: false }
     );
     toaster.success({ title: 'Tournament set to draft' });
+    return response.data.data!;
+  },
+
+  // Update tournament lifecycle status (start / finish / cancel / reopen)
+  updateTournamentStatus: async (
+    id: string,
+    status: TournamentStatus
+  ): Promise<Tournament> => {
+    const response = await api.put<ApiResponse<Tournament>>(
+      `/tournaments/${id}`,
+      { status }
+    );
+    toaster.success({ title: 'Tournament status updated' });
     return response.data.data!;
   },
 

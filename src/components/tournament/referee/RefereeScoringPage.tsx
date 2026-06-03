@@ -14,13 +14,15 @@ import {
   VStack,
   Avatar,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { VModal } from '@/components/ui/VModal';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
 import {
   ArrowLeft,
   CalendarClock,
   Clock3,
+  Info,
   Mail,
   MapPin,
   NotebookText,
@@ -44,6 +46,7 @@ import {
   UserRole,
 } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import ScoreEntryBoard from './ScoreEntryBoard';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
@@ -53,6 +56,7 @@ export default function RefereeScoringPage() {
   const tournamentParam = String(params?.id ?? '');
   const matchId = String(params?.matchId ?? '');
   const t = useTranslations('pages.tournaments.scoreEntry');
+  const tRounds = useTranslations('pages.tournaments.scoreEntry.rounds');
   const tGuard = useTranslations('auth.guard');
   const locale = useLocale();
   const router = useRouter();
@@ -62,6 +66,7 @@ export default function RefereeScoringPage() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [playerInfoOpen, setPlayerInfoOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -156,7 +161,7 @@ export default function RefereeScoringPage() {
 
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
-  const roundLabel = t(`rounds.${match.round ?? 'group'}`);
+  const roundLabel = getRoundDisplayLabel(match.round ?? 'group', tRounds);
   const matchTitle = `${team1} ${t('vs')} ${team2}`;
   const courtLabel = match.court
     ? `${t('court')} ${match.court.courtNumber}`
@@ -175,9 +180,9 @@ export default function RefereeScoringPage() {
       <Box
         position="relative"
         overflow="hidden"
-        px={{ base: 3, md: 6 }}
-        pt={{ base: 3, md: 6 }}
-        pb={{ base: 4, md: 6 }}
+        px={{ base: 2, md: 4 }}
+        pt={{ base: 2, md: 4 }}
+        pb={{ base: 2, md: 4 }}
       >
         <Box
           position="absolute"
@@ -263,49 +268,68 @@ export default function RefereeScoringPage() {
           }}
         >
           <Box
-            px={{ base: 4, md: 6 }}
-            py={{ base: 4, md: 5 }}
+            px={{ base: 3, md: 5 }}
+            py={{ base: 3, md: 4 }}
             bg="linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(59, 130, 246, 0.08))"
             borderBottomWidth="1px"
             borderBottomColor="gray.100"
             _dark={{ borderBottomColor: 'whiteAlpha.200' }}
           >
-            <HStack gap={2} flexWrap="wrap" mb={3}>
-              <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
-                {t(`status.${match.status}`)}
-              </Badge>
-              <Badge
-                variant="subtle"
-                colorPalette="gray"
-                borderRadius="full"
-                px={3}
-                py={1}
-              >
-                {roundLabel}
-              </Badge>
-              {!!match.startTime && (
-                <Badge
-                  variant="subtle"
-                  colorPalette="purple"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                >
-                  {formatDateTime(match.startTime)}
-                </Badge>
-              )}
-            </HStack>
+            <Flex
+              gap={3}
+              align={{ base: 'start', md: 'center' }}
+              justify="space-between"
+              direction={{ base: 'column', md: 'row' }}
+            >
+              <Box minW={0}>
+                <HStack gap={2} flexWrap="wrap" mb={2}>
+                  <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
+                    {t(`status.${match.status}`)}
+                  </Badge>
+                  <Badge
+                    variant="subtle"
+                    colorPalette="gray"
+                    borderRadius="full"
+                    px={3}
+                    py={1}
+                  >
+                    {roundLabel}
+                  </Badge>
+                  {!!match.startTime && (
+                    <Badge
+                      variant="subtle"
+                      colorPalette="purple"
+                      borderRadius="full"
+                      px={3}
+                      py={1}
+                    >
+                      {formatDateTime(match.startTime)}
+                    </Badge>
+                  )}
+                </HStack>
 
-            <Heading size="lg" lineHeight={1.15} mb={2}>
-              {matchTitle}
-            </Heading>
-            <Text color="gray.600" _dark={{ color: 'gray.300' }} maxW="56ch">
-              {t('refereeArea')}
-            </Text>
+                <Heading size={{ base: 'md', md: 'lg' }} lineHeight={1.15}>
+                  {matchTitle}
+                </Heading>
+              </Box>
+
+              <IconButton
+                aria-label={t('playerInfo')}
+                title={t('playerInfo')}
+                variant="outline"
+                size="sm"
+                borderRadius="full"
+                colorPalette="gray"
+                onClick={() => setPlayerInfoOpen(true)}
+                flexShrink={0}
+              >
+                <Info size={17} />
+              </IconButton>
+            </Flex>
           </Box>
 
-          <Box px={{ base: 4, md: 6 }} py={{ base: 4, md: 5 }}>
-            <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} mb={5}>
+          <Box px={{ base: 3, md: 5 }} py={{ base: 3, md: 4 }}>
+            <SimpleGrid columns={{ base: 2, md: 4 }} gap={2} mb={3}>
               <InfoCard
                 icon={<MapPin size={16} />}
                 label={t('court')}
@@ -328,9 +352,16 @@ export default function RefereeScoringPage() {
               />
             </SimpleGrid>
 
-            <Box mb={5}>
-              <HStack justify="space-between" align="center" mb={3}>
-                <Text fontWeight="bold">{t('playerInfo')}</Text>
+            <VModal
+              isOpen={playerInfoOpen}
+              onClose={() => setPlayerInfoOpen(false)}
+              title={t('playerInfo')}
+              size="xl"
+              maxBodyHeight={{ base: '72vh', md: '76vh' }}
+              hideSecondaryAction
+              closeButtonAriaLabel={t('cancel')}
+            >
+              <HStack justify="flex-end" mb={3}>
                 <Badge variant="subtle" colorPalette="gray" borderRadius="full">
                   {matchSides.reduce(
                     (total, side) => total + side.players.length,
@@ -358,7 +389,7 @@ export default function RefereeScoringPage() {
                   />
                 ))}
               </SimpleGrid>
-            </Box>
+            </VModal>
 
             {match.status === 'SCHEDULED' && (
               <VStack align="stretch" gap={4} py={{ base: 2, md: 3 }}>

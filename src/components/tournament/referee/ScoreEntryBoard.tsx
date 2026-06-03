@@ -244,7 +244,7 @@ export default function ScoreEntryBoard({
     <Flex
       ref={boardRef}
       direction="column"
-      minH="100dvh"
+      minH={forceLandscape ? '100dvh' : { base: '70dvh', md: '68dvh' }}
       bg="gray.50"
       _dark={{ bg: 'gray.900' }}
     >
@@ -462,7 +462,7 @@ function TeamScorePanel({
         minH={
           compact
             ? { base: '56dvh', md: '50vh' }
-            : { base: '34dvh', md: '50vh' }
+            : { base: '28dvh', md: '42vh' }
         }
       >
         <Text

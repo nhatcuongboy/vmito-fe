@@ -1475,7 +1475,8 @@
           "standings": "Standings",
           "results": "Results",
           "manage": "Manage",
-          "dashboard": "Dashboard"
+          "dashboard": "Dashboard",
+          "winners": "Winners"
         },
         "enterScores": "Enter scores",
         "teamsTab": {
@@ -1527,15 +1528,22 @@
           "columns": {
             "rank": "Rank",
             "team": "Team/Player",
+            "teamShort": "Team",
             "group": "Group",
             "played": "Played",
+            "playedShort": "MP",
             "won": "Won",
+            "wonShort": "W",
             "lost": "Lost",
+            "lostShort": "L",
             "drawn": "Drawn",
+            "drawnShort": "D",
             "points": "Points",
+            "pointsShort": "PTS",
             "pointsFor": "For",
             "pointsAgainst": "Against",
             "difference": "Diff",
+            "differenceShort": "+/-",
             "forfeits": "F",
             "cancelled": "C"
           }
@@ -1561,6 +1569,11 @@
             "title": "Contact",
             "name": "Name",
             "email": "Email"
+          },
+          "champions": {
+            "title": "Champions",
+            "subtitle": "Final results are in.",
+            "viewAll": "View all winners"
           }
         },
         "dashboard": {
@@ -2314,6 +2327,7 @@
               "deleteWarning": "This will also remove the player from {registrations} registration(s) and {teams} team(s).",
               "avatar": "Avatar",
               "avatarEmpty": "No avatar yet",
+              "avatarSelected": "Avatar selected",
               "avatarUpload": "Upload avatar",
               "avatarGallery": "Choose from gallery",
               "playerCode": "Player code",
@@ -2336,6 +2350,7 @@
               "genderPreferNotToSay": "Prefer not to say",
               "save": "Save",
               "cancel": "Cancel",
+              "close": "Close",
               "delete": "Delete",
               "addSuccess": "Player added",
               "updateSuccess": "Player updated",
@@ -2346,6 +2361,9 @@
               "unknownError": "Unknown error",
               "playersCount": "{count} players",
               "usageBadge": "{count} registrations",
+              "playerDetails": "Player details",
+              "usage": "Usage",
+              "usageDetail": "{registrations} registrations · {teams} teams",
               "linkedAccount": "Linked account"
             },
             "categories": {
@@ -2698,7 +2716,72 @@
                 "updateFailed": "Failed to update cover photo"
               }
             }
+          },
+          "statusBanner": {
+            "statusTitle": {
+              "PREPARING": "Tournament not started",
+              "IN_PROGRESS": "Tournament in progress",
+              "FINISHED": "Tournament finished",
+              "CANCELLED": "Tournament cancelled"
+            },
+            "statusSubtitle": {
+              "PREPARING": "Start the tournament once setup is complete.",
+              "IN_PROGRESS": "Matches are underway. Finish once the champions are decided.",
+              "FINISHED": "Results are final. Reopen if you need to make changes.",
+              "CANCELLED": "This tournament was cancelled. Restore it to keep organizing."
+            },
+            "actions": {
+              "start": "Start tournament",
+              "finish": "Finish tournament",
+              "cancel": "Cancel tournament",
+              "reopen": "Reopen tournament",
+              "restore": "Restore tournament"
+            },
+            "confirm": {
+              "start": {
+                "title": "Start tournament?",
+                "description": "This marks the tournament as in progress. Participants will see it as live.",
+                "button": "Yes, start"
+              },
+              "finish": {
+                "title": "Finish tournament?",
+                "description": "This marks the tournament as finished and locks in the final results.",
+                "button": "Yes, finish"
+              },
+              "cancel": {
+                "title": "Cancel tournament?",
+                "description": "This marks the tournament as cancelled. You can restore it later if needed.",
+                "button": "Yes, cancel"
+              },
+              "reopen": {
+                "title": "Reopen tournament?",
+                "description": "This sets the tournament back to in progress so you can edit results.",
+                "button": "Yes, reopen"
+              },
+              "restore": {
+                "title": "Restore tournament?",
+                "description": "This sets the tournament back to preparing so you can keep organizing.",
+                "button": "Yes, restore"
+              }
+            },
+            "cancelButton": "Cancel"
           }
+        },
+        "winnersTab": {
+          "title": "Winners",
+          "description": "Champions and podium finishers for {tournament}.",
+          "categoryFilter": "Filter by category",
+          "allCategories": "All categories",
+          "noCategories": "No categories yet.",
+          "error": "Could not load winners.",
+          "retry": "Retry",
+          "champion": "Champion",
+          "runnerUp": "Runner-up",
+          "thirdPlace": "Third place",
+          "provisional": "Provisional",
+          "final": "Final",
+          "inProgress": "Tournament in progress — the champion has not been decided yet.",
+          "empty": "No results yet."
         }
       },
       "manage": {
@@ -2971,6 +3054,7 @@
         },
         "status": {
           "IN_PROGRESS": "In progress",
+          "UNSCHEDULED": "Unscheduled",
           "SCHEDULED": "Scheduled",
           "FINISHED": "Finished",
           "CANCELLED": "Cancelled"

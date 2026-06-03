@@ -207,7 +207,7 @@ export default function TopBar({
                       {mobileIcon || icon || (
                         <Image
                           src="/icons/app-logo.png"
-                          h={{ base: '40px', md: '40px' }}
+                          h="32px"
                           w="auto"
                           alt={appName}
                         />
@@ -217,7 +217,7 @@ export default function TopBar({
                       {icon || (
                         <Image
                           src="/icons/app-logo.png"
-                          h={{ base: '40px', md: '40px' }}
+                          h="32px"
                           w="auto"
                           alt={appName}
                         />

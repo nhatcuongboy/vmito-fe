@@ -94,7 +94,11 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
 
   const editModal = useModal();
   const deleteModal = useModal();
+  const detailModal = useModal();
   const [editingPlayer, setEditingPlayer] = useState<TournamentPlayer | null>(
+    null
+  );
+  const [detailPlayer, setDetailPlayer] = useState<TournamentPlayer | null>(
     null
   );
   const [form, setForm] = useState<PlayerFormState>(EMPTY_FORM);
@@ -160,6 +164,8 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     const trimmedLevel = form.level.trim();
     return {
       name: form.name.trim(),
+      image: form.image.trim() || undefined,
+      imagePublicId: form.imagePublicId.trim() || undefined,
       gender: (form.gender || undefined) as GenderType | undefined,
       level: trimmedLevel ? Number(trimmedLevel) : undefined,
       levelDescription: form.levelDescription.trim() || undefined,
@@ -182,6 +188,11 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     setEditingPlayer(player);
     setForm(playerToForm(player));
     editModal.onOpen();
+  };
+
+  const handleOpenDetail = (player: TournamentPlayer) => {
+    setDetailPlayer(player);
+    detailModal.onOpen();
   };
 
   const handleSave = async () => {
@@ -340,7 +351,18 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                   gap={3}
                   borderBottomWidth="1px"
                   borderColor="gray.100"
+                  textAlign="left"
+                  cursor="pointer"
+                  role="button"
+                  tabIndex={0}
                   _hover={{ bg: 'gray.50' }}
+                  onClick={() => handleOpenDetail(player)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleOpenDetail(player);
+                    }
+                  }}
                 >
                   <Flex
                     w="32px"
@@ -393,7 +415,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'gray.100', color: 'gray.600' }}
-                      onClick={() => handleOpenEdit(player)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleOpenEdit(player);
+                      }}
                     >
                       <Pencil size={16} />
                     </Box>
@@ -403,7 +428,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'red.50', color: 'red.500' }}
-                      onClick={() => handleOpenDelete(player)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleOpenDelete(player);
+                      }}
                     >
                       <Trash2 size={16} />
                     </Box>
@@ -430,6 +458,39 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         secondaryActionText={t('cancel')}
       >
         <VStack gap={4} align="stretch">
+          <Flex align="center" gap={3}>
+            <Flex
+              w="56px"
+              h="56px"
+              bg="gray.100"
+              borderRadius="full"
+              align="center"
+              justify="center"
+              flexShrink={0}
+              overflow="hidden"
+            >
+              {form.image ? (
+                <Image
+                  src={form.image}
+                  alt={form.name || t('avatar')}
+                  w="full"
+                  h="full"
+                  objectFit="cover"
+                />
+              ) : (
+                <Users size={22} color="#A0AEC0" />
+              )}
+            </Flex>
+            <Box minW={0}>
+              <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
+                {form.name || t('namePlaceholder')}
+              </Text>
+              <Text fontSize="xs" color="gray.500">
+                {form.image ? t('avatarSelected') : t('avatarEmpty')}
+              </Text>
+            </Box>
+          </Flex>
+
           <Box>
             <Text fontSize="sm" fontWeight="medium" mb={1}>
               {t('avatar')}
@@ -549,6 +610,107 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
             />
           </Box>
         </VStack>
+      </VModal>
+
+      {/* Player Detail Modal */}
+      <VModal
+        isOpen={detailModal.isOpen}
+        onClose={detailModal.onClose}
+        title={t('playerDetails')}
+        primaryActionText={t('editPlayer')}
+        onPrimaryAction={() => {
+          if (!detailPlayer) return;
+          detailModal.onClose();
+          handleOpenEdit(detailPlayer);
+        }}
+        primaryColorScheme="green"
+        secondaryActionText={t('close')}
+      >
+        {detailPlayer && (
+          <VStack gap={5} align="stretch">
+            <Flex direction="column" align="center" gap={3}>
+              <Flex
+                w="112px"
+                h="112px"
+                bg="gray.100"
+                borderRadius="full"
+                align="center"
+                justify="center"
+                overflow="hidden"
+              >
+                {detailPlayer.image || detailPlayer.user?.image ? (
+                  <Image
+                    src={detailPlayer.image || detailPlayer.user?.image}
+                    alt={detailPlayer.name}
+                    w="full"
+                    h="full"
+                    objectFit="cover"
+                  />
+                ) : (
+                  <Users size={40} color="#A0AEC0" />
+                )}
+              </Flex>
+              <Box textAlign="center" maxW="full">
+                <Text fontSize="lg" fontWeight="semibold" lineClamp={2}>
+                  {detailPlayer.name}
+                </Text>
+                {detailPlayer.code && (
+                  <Text fontSize="sm" color="gray.500">
+                    {detailPlayer.code}
+                  </Text>
+                )}
+              </Box>
+            </Flex>
+
+            <VStack gap={0} align="stretch" borderTopWidth="1px">
+              {[
+                [
+                  t('gender'),
+                  detailPlayer.gender
+                    ? GENDER_LABELS[detailPlayer.gender]
+                    : '—',
+                ],
+                [
+                  t('level'),
+                  detailPlayer.level != null ? String(detailPlayer.level) : '—',
+                ],
+                [t('levelDescription'), detailPlayer.levelDescription || '—'],
+                [t('email'), detailPlayer.email || '—'],
+                [t('phone'), detailPlayer.phone || '—'],
+                [
+                  t('usage'),
+                  t('usageDetail', {
+                    registrations: detailPlayer._count?.registrations ?? 0,
+                    teams: detailPlayer._count?.pairMembers ?? 0,
+                  }),
+                ],
+              ].map(([label, value]) => (
+                <Flex
+                  key={label}
+                  py={3}
+                  justify="space-between"
+                  gap={4}
+                  borderBottomWidth="1px"
+                  borderColor="gray.100"
+                >
+                  <Text fontSize="sm" color="gray.500" flexShrink={0}>
+                    {label}
+                  </Text>
+                  <Text fontSize="sm" fontWeight="medium" textAlign="right">
+                    {value}
+                  </Text>
+                </Flex>
+              ))}
+            </VStack>
+
+            {detailPlayer.userId && (
+              <Flex align="center" justify="center" gap={2} color="blue.500">
+                <Link2 size={14} />
+                <Text fontSize="sm">{t('linkedAccount')}</Text>
+              </Flex>
+            )}
+          </VStack>
+        )}
       </VModal>
 
       {/* Delete Confirmation Modal */}

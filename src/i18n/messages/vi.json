@@ -1483,7 +1483,8 @@
           "standings": "Bảng xếp hạng",
           "results": "Kết quả",
           "manage": "Quản lý",
-          "dashboard": "Tổng quan"
+          "dashboard": "Tổng quan",
+          "winners": "Nhà vô địch"
         },
         "enterScores": "Nhập điểm",
         "teamsTab": {
@@ -1535,15 +1536,22 @@
           "columns": {
             "rank": "Hạng",
             "team": "Đội/VĐV",
+            "teamShort": "Đội",
             "group": "Bảng",
             "played": "Trận",
+            "playedShort": "Trận",
             "won": "Thắng",
+            "wonShort": "Thắng",
             "lost": "Thua",
+            "lostShort": "Thua",
             "drawn": "Hòa",
+            "drawnShort": "Hòa",
             "points": "Điểm",
+            "pointsShort": "Điểm",
             "pointsFor": "Ghi",
             "pointsAgainst": "Thua điểm",
             "difference": "Hiệu số",
+            "differenceShort": "+/-",
             "forfeits": "BC",
             "cancelled": "H"
           }
@@ -1552,8 +1560,8 @@
           "overview": {
             "title": "Tổng quan",
             "teamsParticipating": "{count} đội tham gia",
-            "viewSchedule": "Xem lịch thi đấu",
-            "viewStandings": "Xem bảng xếp hạng"
+            "viewSchedule": "Lịch đấu",
+            "viewStandings": "Xếp hạng"
           },
           "categories": {
             "title": "Hạng mục",
@@ -1569,6 +1577,11 @@
             "title": "Liên hệ",
             "name": "Tên",
             "email": "Email"
+          },
+          "champions": {
+            "title": "Nhà vô địch",
+            "subtitle": "Kết quả chung cuộc đã có.",
+            "viewAll": "Xem tất cả nhà vô địch"
           }
         },
         "dashboard": {
@@ -2322,6 +2335,7 @@
               "deleteWarning": "Hành động này cũng sẽ gỡ người chơi khỏi {registrations} đăng ký và {teams} đội.",
               "avatar": "Avatar",
               "avatarEmpty": "Chưa có avatar",
+              "avatarSelected": "Đã chọn avatar",
               "avatarUpload": "Tải avatar",
               "avatarGallery": "Chọn từ thư viện",
               "playerCode": "Mã VĐV",
@@ -2344,6 +2358,7 @@
               "genderPreferNotToSay": "Không muốn tiết lộ",
               "save": "Lưu",
               "cancel": "Hủy",
+              "close": "Đóng",
               "delete": "Xóa",
               "addSuccess": "Đã thêm người chơi",
               "updateSuccess": "Đã cập nhật người chơi",
@@ -2354,6 +2369,9 @@
               "unknownError": "Lỗi không xác định",
               "playersCount": "{count} người chơi",
               "usageBadge": "{count} đăng ký",
+              "playerDetails": "Chi tiết người chơi",
+              "usage": "Đã sử dụng",
+              "usageDetail": "{registrations} đăng ký · {teams} đội",
               "linkedAccount": "Tài khoản liên kết"
             },
             "categories": {
@@ -2706,7 +2724,72 @@
                 "updateFailed": "Cập nhật ảnh bìa thất bại"
               }
             }
+          },
+          "statusBanner": {
+            "statusTitle": {
+              "PREPARING": "Giải đấu chưa bắt đầu",
+              "IN_PROGRESS": "Giải đấu đang diễn ra",
+              "FINISHED": "Giải đấu đã kết thúc",
+              "CANCELLED": "Giải đấu đã bị huỷ"
+            },
+            "statusSubtitle": {
+              "PREPARING": "Bắt đầu giải đấu khi đã thiết lập xong.",
+              "IN_PROGRESS": "Các trận đang diễn ra. Kết thúc khi đã xác định nhà vô địch.",
+              "FINISHED": "Kết quả đã chốt. Mở lại nếu cần chỉnh sửa.",
+              "CANCELLED": "Giải đấu đã bị huỷ. Khôi phục để tiếp tục tổ chức."
+            },
+            "actions": {
+              "start": "Bắt đầu giải đấu",
+              "finish": "Kết thúc giải đấu",
+              "cancel": "Huỷ giải đấu",
+              "reopen": "Mở lại giải đấu",
+              "restore": "Khôi phục giải đấu"
+            },
+            "confirm": {
+              "start": {
+                "title": "Bắt đầu giải đấu?",
+                "description": "Giải đấu sẽ được đánh dấu là đang diễn ra. Người tham gia sẽ thấy giải đang chạy.",
+                "button": "Bắt đầu"
+              },
+              "finish": {
+                "title": "Kết thúc giải đấu?",
+                "description": "Giải đấu sẽ được đánh dấu là đã kết thúc và chốt kết quả cuối cùng.",
+                "button": "Kết thúc"
+              },
+              "cancel": {
+                "title": "Huỷ giải đấu?",
+                "description": "Giải đấu sẽ được đánh dấu là đã huỷ. Bạn có thể khôi phục sau nếu cần.",
+                "button": "Huỷ giải"
+              },
+              "reopen": {
+                "title": "Mở lại giải đấu?",
+                "description": "Giải đấu sẽ trở về trạng thái đang diễn ra để bạn chỉnh sửa kết quả.",
+                "button": "Mở lại"
+              },
+              "restore": {
+                "title": "Khôi phục giải đấu?",
+                "description": "Giải đấu sẽ trở về trạng thái chuẩn bị để bạn tiếp tục tổ chức.",
+                "button": "Khôi phục"
+              }
+            },
+            "cancelButton": "Huỷ"
           }
+        },
+        "winnersTab": {
+          "title": "Nhà vô địch",
+          "description": "Nhà vô địch và các vị trí trên bục cho {tournament}.",
+          "categoryFilter": "Lọc theo hạng mục",
+          "allCategories": "Tất cả hạng mục",
+          "noCategories": "Chưa có hạng mục nào.",
+          "error": "Không tải được nhà vô địch.",
+          "retry": "Thử lại",
+          "champion": "Vô địch",
+          "runnerUp": "Á quân",
+          "thirdPlace": "Hạng ba",
+          "provisional": "Tạm thời",
+          "final": "Chung cuộc",
+          "inProgress": "Giải đang diễn ra — chưa xác định nhà vô địch.",
+          "empty": "Chưa có kết quả."
         }
       },
       "manage": {
@@ -2979,6 +3062,7 @@
         },
         "status": {
           "IN_PROGRESS": "Đang diễn ra",
+          "UNSCHEDULED": "Chưa lên lịch",
           "SCHEDULED": "Đã lên lịch",
           "FINISHED": "Đã kết thúc",
           "CANCELLED": "Đã hủy"
@@ -3003,7 +3087,7 @@
         "endMatchIncompleteWarning": "Trận đấu có vẻ chưa kết thúc. Vẫn kết thúc chứ?",
         "winner": "Người thắng",
         "cancel": "Hủy",
-        "refereeArea": "Khu vực trọng tài",
+        "refereeArea": "Trọng tài",
         "enterScores": "Nhập điểm",
         "rotateLandscape": "Xoay ngang",
         "exitLandscape": "Thoát xoay ngang",
@@ -3038,7 +3122,7 @@
         "qrTitle": "Chia sẻ bảng điểm",
         "copyLink": "Sao chép liên kết",
         "linkCopied": "Đã sao chép liên kết",
-        "liveScoreboard": "Bảng điểm trực tiếp"
+        "liveScoreboard": "Bảng điểm"
       },
       "showcase": {
         "showcaseTitle": "Showcase vận động viên",

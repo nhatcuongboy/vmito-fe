@@ -1453,7 +1453,8 @@
           "standings": "排名",
           "results": "成绩",
           "manage": "管理",
-          "dashboard": "仪表板"
+          "dashboard": "仪表板",
+          "winners": "优胜者"
         },
         "enterScores": "录入比分",
         "teamsTab": {
@@ -1505,15 +1506,22 @@
           "columns": {
             "rank": "排名",
             "team": "队伍/选手",
+            "teamShort": "队伍",
             "group": "小组",
             "played": "场次",
+            "playedShort": "场",
             "won": "胜",
+            "wonShort": "胜",
             "lost": "负",
+            "lostShort": "负",
             "drawn": "平",
+            "drawnShort": "平",
             "points": "积分",
+            "pointsShort": "分",
             "pointsFor": "得分",
             "pointsAgainst": "失分",
             "difference": "净胜分",
+            "differenceShort": "+/-",
             "forfeits": "弃",
             "cancelled": "消"
           }
@@ -1539,6 +1547,11 @@
             "title": "联系方式",
             "name": "姓名",
             "email": "邮箱"
+          },
+          "champions": {
+            "title": "冠军",
+            "subtitle": "最终成绩已公布。",
+            "viewAll": "查看全部优胜者"
           }
         },
         "dashboard": {
@@ -2292,6 +2305,7 @@
               "deleteWarning": "此操作还将从 {registrations} 个报名和 {teams} 支队伍中移除该选手。",
               "avatar": "头像",
               "avatarEmpty": "暂无头像",
+              "avatarSelected": "已选择头像",
               "avatarUpload": "上传头像",
               "avatarGallery": "从图库选择",
               "playerCode": "选手编号",
@@ -2314,6 +2328,7 @@
               "genderPreferNotToSay": "不愿透露",
               "save": "保存",
               "cancel": "取消",
+              "close": "关闭",
               "delete": "删除",
               "addSuccess": "已添加选手",
               "updateSuccess": "已更新选手",
@@ -2324,6 +2339,9 @@
               "unknownError": "未知错误",
               "playersCount": "{count} 名选手",
               "usageBadge": "{count} 个报名",
+              "playerDetails": "选手详情",
+              "usage": "使用情况",
+              "usageDetail": "{registrations} 个报名 · {teams} 支队伍",
               "linkedAccount": "关联账户"
             },
             "categories": {
@@ -2676,7 +2694,72 @@
                 "updateFailed": "更新封面图片失败"
               }
             }
+          },
+          "statusBanner": {
+            "statusTitle": {
+              "PREPARING": "锦标赛尚未开始",
+              "IN_PROGRESS": "锦标赛进行中",
+              "FINISHED": "锦标赛已结束",
+              "CANCELLED": "锦标赛已取消"
+            },
+            "statusSubtitle": {
+              "PREPARING": "设置完成后即可开始锦标赛。",
+              "IN_PROGRESS": "比赛正在进行。决出冠军后即可结束。",
+              "FINISHED": "成绩已确定。如需修改可重新开启。",
+              "CANCELLED": "该锦标赛已取消。恢复后可继续组织。"
+            },
+            "actions": {
+              "start": "开始锦标赛",
+              "finish": "结束锦标赛",
+              "cancel": "取消锦标赛",
+              "reopen": "重新开启锦标赛",
+              "restore": "恢复锦标赛"
+            },
+            "confirm": {
+              "start": {
+                "title": "开始锦标赛？",
+                "description": "这会将锦标赛标记为进行中。参赛者将看到比赛已开始。",
+                "button": "确认开始"
+              },
+              "finish": {
+                "title": "结束锦标赛？",
+                "description": "这会将锦标赛标记为已结束并锁定最终成绩。",
+                "button": "确认结束"
+              },
+              "cancel": {
+                "title": "取消锦标赛？",
+                "description": "这会将锦标赛标记为已取消。如有需要可稍后恢复。",
+                "button": "确认取消"
+              },
+              "reopen": {
+                "title": "重新开启锦标赛？",
+                "description": "这会将锦标赛恢复为进行中，以便修改成绩。",
+                "button": "确认开启"
+              },
+              "restore": {
+                "title": "恢复锦标赛？",
+                "description": "这会将锦标赛恢复为准备中，以便继续组织。",
+                "button": "确认恢复"
+              }
+            },
+            "cancelButton": "取消"
           }
+        },
+        "winnersTab": {
+          "title": "优胜者",
+          "description": "{tournament} 的冠军及领奖台名次。",
+          "categoryFilter": "按项目筛选",
+          "allCategories": "全部项目",
+          "noCategories": "暂无项目。",
+          "error": "无法加载优胜者。",
+          "retry": "重试",
+          "champion": "冠军",
+          "runnerUp": "亚军",
+          "thirdPlace": "季军",
+          "provisional": "暂定",
+          "final": "最终",
+          "inProgress": "锦标赛进行中——冠军尚未决出。",
+          "empty": "暂无结果。"
         }
       },
       "manage": {
@@ -2949,6 +3032,7 @@
         },
         "status": {
           "IN_PROGRESS": "进行中",
+          "UNSCHEDULED": "未排期",
           "SCHEDULED": "已排期",
           "FINISHED": "已结束",
           "CANCELLED": "已取消"

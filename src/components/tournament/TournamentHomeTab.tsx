@@ -34,12 +34,14 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Tournament,
+  TournamentStatus,
   CategoryType,
   TournamentVenue,
   UserRole,
   Venue,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
+import TournamentFinishedSummary from '@/components/tournament/TournamentFinishedSummary';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getGoogleMapsUrl } from '@/utils';
@@ -228,13 +230,18 @@ export default function TournamentHomeTab({
 
   return (
     <VStack align="stretch" gap={4}>
+      {/* Champions banner — shown once the tournament is finished */}
+      {tournament.status === TournamentStatus.FINISHED && (
+        <TournamentFinishedSummary tournamentId={tournament.id} slug={slug} />
+      )}
+
       {/* Mobile cover */}
       <Box
         display={{ base: 'block', md: 'none' }}
         borderRadius="xl"
         overflow="hidden"
         bg="gray.100"
-        aspectRatio={16 / 9}
+        aspectRatio={21 / 9}
       >
         {coverImage ? (
           <Image

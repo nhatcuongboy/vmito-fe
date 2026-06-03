@@ -23,8 +23,8 @@ import {
   GroupStanding,
   Tournament,
 } from '@/lib/api/types';
-import { getTeamLabel } from '@/lib/tournament/teamLabel';
-import { useRouter } from '@/i18n/config';
+import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
+import { Link, useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
@@ -117,15 +117,6 @@ function hasStandingResult(standing: GroupStanding) {
     standing.gamesLost !== 0 ||
     standing.gameDifference !== 0
   );
-}
-
-function getRoundLabel(round: string, t: ReturnType<typeof useTranslations>) {
-  const normalizedRound = round.toUpperCase();
-  if (normalizedRound === 'F') return t('playoffsRounds.final');
-  if (normalizedRound === 'SF') return t('playoffsRounds.semiFinals');
-  if (normalizedRound === 'QF') return t('playoffsRounds.quarterFinals');
-  if (normalizedRound === '3RD') return t('playoffsRounds.thirdPlace');
-  return round;
 }
 
 export default function PublicTournamentStandingsTab({
@@ -248,28 +239,21 @@ export default function PublicTournamentStandingsTab({
     });
   }, [t, visibleBlocks]);
 
-  const visiblePlayoffGroups = useMemo(() => {
-    const categoryIds =
+  const visiblePlayoffCategories = useMemo(() => {
+    const visible =
       selectedCategoryId === ALL_CATEGORIES_VALUE
-        ? new Set(categories.map((category) => category.id))
-        : new Set([selectedCategoryId]);
+        ? categories
+        : categories.filter((category) => category.id === selectedCategoryId);
 
-    const playoffMatches = matches
-      .filter((match) => categoryIds.has(match.categoryId) && !match.groupId)
-      .sort((first, second) => first.matchNumber - second.matchNumber);
-
-    const groups = new Map<string, CategoryMatch[]>();
-    for (const match of playoffMatches) {
-      if (!groups.has(match.round)) groups.set(match.round, []);
-      groups.get(match.round)!.push(match);
-    }
-
-    return Array.from(groups.entries()).map(([round, items]) => ({
-      round,
-      label: getRoundLabel(round, t),
-      items,
-    }));
-  }, [categories, matches, selectedCategoryId, t]);
+    return visible
+      .map((category) => ({
+        category,
+        matches: matches
+          .filter((match) => match.categoryId === category.id && !match.groupId)
+          .sort((first, second) => first.matchNumber - second.matchNumber),
+      }))
+      .filter((entry) => entry.matches.length > 0);
+  }, [categories, matches, selectedCategoryId]);
 
   const reloadCategory = useCallback(
     async (category: Category) => {
@@ -449,76 +433,27 @@ export default function PublicTournamentStandingsTab({
           </Button>
         </Flex>
       ) : stageView === 'playoffs' ? (
-        visiblePlayoffGroups.length === 0 ? (
+        visiblePlayoffCategories.length === 0 ? (
           <Text color="gray.500" fontSize="sm">
             {t('emptyPlayoffs')}
           </Text>
         ) : (
-          <VStack align="stretch" gap={4}>
-            {visiblePlayoffGroups.map((group) => (
-              <Box key={group.round}>
-                <Heading
-                  size="sm"
-                  mb={2}
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {group.label}
-                </Heading>
-                <VStack align="stretch" gap={2}>
-                  {group.items.map((match) => (
-                    <Flex
-                      key={match.id}
-                      align={{ base: 'stretch', sm: 'center' }}
-                      justify="space-between"
-                      direction={{ base: 'column', sm: 'row' }}
-                      gap={3}
-                      p={3}
-                      borderWidth="1px"
-                      borderTopWidth="4px"
-                      borderTopColor="yellow.200"
-                      borderColor="gray.100"
-                      borderRadius="lg"
-                      bg="white"
-                      _dark={{
-                        bg: 'gray.800',
-                        borderColor: 'gray.700',
-                        borderTopColor: 'yellow.500',
-                      }}
-                    >
-                      <Box minW={0}>
-                        <HStack gap={2} mb={1}>
-                          <Badge colorPalette="gray">
-                            {t('matchNumber', {
-                              number: match.matchNumber,
-                            })}
-                          </Badge>
-                          <Badge
-                            colorPalette={
-                              match.status === 'FINISHED' ? 'green' : 'blue'
-                            }
-                          >
-                            {t(`matchStatus.${match.status}`)}
-                          </Badge>
-                        </HStack>
-                        <Text fontWeight="semibold">
-                          {getTeamLabel(match, 1)} {t('versus')}{' '}
-                          {getTeamLabel(match, 2)}
-                        </Text>
-                      </Box>
-                      <Text
-                        fontWeight="bold"
-                        fontSize="sm"
-                        whiteSpace="nowrap"
-                        color={match.score ? 'fg' : 'gray.500'}
-                      >
-                        {match.score || t('noScore')}
-                      </Text>
-                    </Flex>
-                  ))}
-                </VStack>
-              </Box>
-            ))}
+          <VStack align="stretch" gap={6}>
+            {visiblePlayoffCategories.map(
+              ({ category, matches: categoryMatches }) => (
+                <Box key={category.id}>
+                  <Heading
+                    size="sm"
+                    mb={3}
+                    color="gray.600"
+                    _dark={{ color: 'gray.300' }}
+                  >
+                    {getCategoryLabel(category)}
+                  </Heading>
+                  <PublicTournamentBracket matches={categoryMatches} t={t} />
+                </Box>
+              )
+            )}
           </VStack>
         )
       ) : categories.length === 0 ? (
@@ -548,6 +483,7 @@ export default function PublicTournamentStandingsTab({
                 </Text>
               ) : (
                 <StandingsTable
+                  tournament={tournament}
                   rows={block.rows}
                   rankKey="overallRank"
                   showGroup
@@ -593,6 +529,7 @@ export default function PublicTournamentStandingsTab({
                           </Text>
                         ) : (
                           <StandingsTable
+                            tournament={tournament}
                             rows={groupBlock.standings}
                             title={groupLabel}
                             teamCountLabel={t('teamsCount', {
@@ -679,6 +616,7 @@ export default function PublicTournamentStandingsTab({
 }
 
 function StandingsTable({
+  tournament,
   rows,
   rankKey = 'rank',
   showGroup = false,
@@ -687,6 +625,7 @@ function StandingsTable({
   action,
   t,
 }: {
+  tournament: Tournament;
   rows: Array<GroupStanding | OverallStandingRow>;
   rankKey?: 'rank' | 'overallRank';
   showGroup?: boolean;
@@ -702,97 +641,116 @@ function StandingsTable({
   const metricColumnCount = 6 + extraColumnsWidth;
   const gridTemplate = showGroup
     ? {
-        base: `42px minmax(120px, 1fr) 82px repeat(${metricColumnCount}, 50px)`,
-        md: `56px minmax(220px, 1fr) 120px repeat(${metricColumnCount}, 80px)`,
+        base: `40px minmax(150px, 1fr) 84px repeat(${metricColumnCount}, 48px)`,
+        md: `44px minmax(220px, 1fr) 112px repeat(${metricColumnCount}, 64px)`,
       }
     : {
-        base: `42px minmax(120px, 1fr) repeat(${metricColumnCount}, 50px)`,
-        md: `56px minmax(220px, 1fr) repeat(${metricColumnCount}, 80px)`,
+        base: `40px minmax(150px, 1fr) repeat(${metricColumnCount}, 48px)`,
+        md: `44px minmax(220px, 1fr) repeat(${metricColumnCount}, 64px)`,
       };
   const minWidth = showGroup
     ? showForfeits || showCancelled
-      ? `${760 + extraColumnsWidth * 72}px`
-      : '700px'
+      ? `${700 + extraColumnsWidth * 56}px`
+      : '680px'
     : showForfeits || showCancelled
-      ? `${640 + extraColumnsWidth * 72}px`
-      : '600px';
+      ? `${600 + extraColumnsWidth * 56}px`
+      : '580px';
 
   return (
     <Box
       overflow="hidden"
       borderWidth="1px"
-      borderTopWidth="6px"
+      borderTopWidth="4px"
       borderColor="gray.100"
-      borderTopColor="yellow.200"
+      borderTopColor="yellow.300"
       borderRadius="lg"
       bg="white"
-      boxShadow="0 12px 30px rgba(15, 23, 42, 0.08)"
+      boxShadow="0 10px 24px rgba(15, 23, 42, 0.06)"
       _dark={{
         bg: 'gray.900',
         borderColor: 'gray.700',
         borderTopColor: 'yellow.400',
-        boxShadow: '0 12px 30px rgba(0, 0, 0, 0.28)',
+        boxShadow: '0 10px 24px rgba(0, 0, 0, 0.22)',
       }}
     >
+      {(title || teamCountLabel || action) && (
+        <Flex
+          align={{ base: 'stretch', sm: 'center' }}
+          justify="space-between"
+          direction={{ base: 'column', sm: 'row' }}
+          gap={3}
+          px={{ base: 4, md: 5 }}
+          py={{ base: 3.5, md: 4 }}
+          borderBottomWidth="1px"
+          borderColor="gray.100"
+          _dark={{ borderColor: 'gray.700' }}
+        >
+          <HStack gap={2} minW={0}>
+            {title && (
+              <Text
+                as="h3"
+                fontSize={{ base: 'lg', md: 'xl' }}
+                fontWeight="800"
+                color="gray.800"
+                lineHeight="1.2"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                _dark={{ color: 'gray.100' }}
+              >
+                {title}
+              </Text>
+            )}
+            {teamCountLabel && (
+              <Badge colorPalette="gray" borderRadius="full" px={2} py={0.5}>
+                {teamCountLabel}
+              </Badge>
+            )}
+          </HStack>
+          {action && <Box flexShrink={0}>{action}</Box>}
+        </Flex>
+      )}
+
       <Box overflowX="auto">
-        <Box minW={minWidth} px={{ base: 5, md: 8 }} py={{ base: 5, md: 7 }}>
+        <Box minW={minWidth}>
           <Box
             display="grid"
             gridTemplateColumns={gridTemplate}
             alignItems="center"
-            columnGap={{ base: 1, md: 2 }}
-            mb={{ base: 4, md: 5 }}
+            columnGap={{ base: 1, md: 1.5 }}
+            px={{ base: 4, md: 5 }}
+            py={2.5}
+            bg="gray.50"
+            borderBottomWidth="1px"
+            borderColor="gray.100"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
-            <Box gridColumn={showGroup ? '1 / 4' : '1 / 3'} minW={0}>
-              <HStack gap={2} minW={0}>
-                {title && (
-                  <Text
-                    as="h3"
-                    fontSize={{ base: 'xl', md: '2xl' }}
-                    fontWeight="800"
-                    color="gray.700"
-                    lineHeight="1.1"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                    whiteSpace="nowrap"
-                    _dark={{ color: 'gray.100' }}
-                  >
-                    {title}
-                  </Text>
-                )}
-                {teamCountLabel && (
-                  <Badge
-                    colorPalette="gray"
-                    borderRadius="full"
-                    px={2.5}
-                    py={1}
-                  >
-                    {teamCountLabel}
-                  </Badge>
-                )}
-              </HStack>
-            </Box>
-
-            <StandingHeaderCell label="PTS" />
-            <StandingHeaderCell label="MP" />
-            <StandingHeaderCell label="W" />
-            <StandingHeaderCell label="T" />
-            <StandingHeaderCell label="L" />
+            <StandingHeaderCell label={t('columns.rank')} align="center" />
+            <StandingHeaderCell label={t('columns.teamShort')} align="start" />
+            {showGroup && (
+              <StandingHeaderCell label={t('columns.group')} align="center" />
+            )}
+            <StandingHeaderCell label={t('columns.pointsShort')} />
+            <StandingHeaderCell label={t('columns.playedShort')} />
+            <StandingHeaderCell label={t('columns.wonShort')} />
+            <StandingHeaderCell label={t('columns.drawnShort')} />
+            <StandingHeaderCell label={t('columns.lostShort')} />
             {showForfeits && (
               <StandingHeaderCell label={t('columns.forfeits')} />
             )}
             {showCancelled && (
               <StandingHeaderCell label={t('columns.cancelled')} />
             )}
-            <StandingHeaderCell label="+ / -" />
+            <StandingHeaderCell label={t('columns.differenceShort')} />
           </Box>
 
-          <VStack align="stretch" gap={{ base: 3.5, md: 4.5 }}>
+          <VStack align="stretch" gap={0}>
             {rows.map((standing) => {
               const rank =
                 rankKey === 'overallRank' && 'overallRank' in standing
                   ? standing.overallRank
                   : standing.rank;
+              const teamHref = getStandingTeamHref(tournament, standing);
 
               return (
                 <Box
@@ -800,41 +758,67 @@ function StandingsTable({
                   display="grid"
                   gridTemplateColumns={gridTemplate}
                   alignItems="center"
-                  columnGap={{ base: 1, md: 2 }}
+                  columnGap={{ base: 1, md: 1.5 }}
+                  minH={{ base: '54px', md: '58px' }}
+                  px={{ base: 4, md: 5 }}
+                  py={2}
+                  borderBottomWidth="1px"
+                  borderColor="gray.50"
+                  _last={{ borderBottomWidth: 0 }}
+                  _hover={{ bg: 'gray.50' }}
+                  _dark={{
+                    borderColor: 'gray.800',
+                    _hover: { bg: 'gray.800' },
+                  }}
                 >
                   <Flex
-                    w={{ base: 9, md: 11 }}
-                    h={{ base: 9, md: 11 }}
+                    w={{ base: 8, md: 8 }}
+                    h={{ base: 8, md: 8 }}
                     align="center"
                     justify="center"
                     borderRadius="full"
                     bg="gray.100"
-                    color="gray.900"
-                    fontSize={{ base: 'md', md: 'xl' }}
-                    fontWeight="800"
+                    color="gray.700"
+                    fontSize="sm"
+                    fontWeight="700"
                     _dark={{ bg: 'gray.800', color: 'gray.50' }}
                   >
                     {hasResults ? rank : '-'}
                   </Flex>
 
                   <Box minW={0}>
-                    <Text
-                      fontSize={{ base: 'md', md: 'xl' }}
-                      fontWeight="800"
-                      color="gray.950"
-                      lineHeight="1.15"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                      whiteSpace="nowrap"
-                      _dark={{ color: 'gray.50' }}
+                    <Link
+                      href={teamHref}
+                      style={{ display: 'block', textDecoration: 'none' }}
                     >
-                      {getStandingTeamLabel(standing)}
-                    </Text>
+                      <Text
+                        as="span"
+                        display="block"
+                        fontSize={{ base: 'sm', md: 'md' }}
+                        fontWeight="700"
+                        color="gray.900"
+                        lineHeight="1.25"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                        _hover={{
+                          color: 'green.700',
+                          textDecoration: 'underline',
+                          textUnderlineOffset: '3px',
+                        }}
+                        _dark={{
+                          color: 'gray.50',
+                          _hover: { color: 'green.300' },
+                        }}
+                      >
+                        {getStandingTeamLabel(standing)}
+                      </Text>
+                    </Link>
                     {showGroup && 'sourceGroupName' in standing && (
                       <Text
-                        mt={1}
+                        display={{ base: 'block', md: 'none' }}
+                        mt={0.5}
                         fontSize="xs"
-                        fontWeight="600"
                         color="gray.500"
                         overflow="hidden"
                         textOverflow="ellipsis"
@@ -848,8 +832,9 @@ function StandingsTable({
 
                   {showGroup && (
                     <Text
-                      fontSize="sm"
-                      fontWeight="700"
+                      display={{ base: 'none', md: 'block' }}
+                      fontSize="xs"
+                      fontWeight="600"
                       color="gray.500"
                       textAlign="center"
                       overflow="hidden"
@@ -892,27 +877,35 @@ function StandingsTable({
               );
             })}
           </VStack>
-
-          {action && (
-            <Flex justify="flex-end" mt={{ base: 5, md: 6 }}>
-              {action}
-            </Flex>
-          )}
         </Box>
       </Box>
     </Box>
   );
 }
 
-function StandingHeaderCell({ label }: { label: string }) {
+function getStandingTeamHref(tournament: Tournament, standing: GroupStanding) {
+  const registrationId =
+    standing.registration?.id || standing.categoryRegistrationId;
+  return `/t/${tournament.id}/team/${registrationId.slice(0, 8).toLowerCase()}`;
+}
+
+function StandingHeaderCell({
+  label,
+  align = 'center',
+}: {
+  label: string;
+  align?: 'start' | 'center';
+}) {
   return (
     <Text
-      textAlign="center"
-      fontSize={{ base: 'sm', md: 'xl' }}
-      fontWeight="800"
-      color="gray.700"
+      textAlign={align}
+      fontSize="xs"
+      fontWeight="700"
+      color="gray.500"
+      letterSpacing="0"
+      textTransform="uppercase"
       whiteSpace="nowrap"
-      _dark={{ color: 'gray.200' }}
+      _dark={{ color: 'gray.400' }}
     >
       {label}
     </Text>
@@ -948,10 +941,10 @@ function StandingMetric({
   return (
     <Text
       textAlign="center"
-      fontSize={{ base: 'md', md: 'xl' }}
-      fontWeight={isStrong ? '900' : '800'}
+      fontSize={{ base: 'sm', md: 'md' }}
+      fontWeight={isStrong ? '800' : '700'}
       color={toneColor}
-      lineHeight="1"
+      lineHeight="1.2"
       _dark={{ color: darkToneColor }}
     >
       {value}
