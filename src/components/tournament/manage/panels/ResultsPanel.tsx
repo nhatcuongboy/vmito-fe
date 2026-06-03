@@ -54,6 +54,22 @@ export default function ResultsPanel({
     return map;
   }, [categories]);
 
+  const categoryById = useMemo(() => {
+    const map = new Map<string, Category>();
+    categories.forEach((c) => map.set(c.id, c));
+    return map;
+  }, [categories]);
+
+  // Points mode of the selected match's category (drives the manual-points tab).
+  const selectedPointsEarning = useMemo(() => {
+    if (!selected) return undefined;
+    const cfg = categoryById.get(selected.categoryId)?.formatConfig as
+      | { pointsEarning?: string; roundRobin?: { pointsEarning?: string } }
+      | undefined;
+    const value = cfg?.roundRobin?.pointsEarning ?? cfg?.pointsEarning;
+    return value as 'match_results' | 'manual' | 'tiebreakers_only' | undefined;
+  }, [selected, categoryById]);
+
   const groups = useMemo(() => {
     const byCat = new Map<string, CategoryMatch[]>();
     for (const m of matches) {
@@ -163,6 +179,7 @@ export default function ResultsPanel({
           isOpen={!!selected}
           onClose={() => setSelected(null)}
           match={selected}
+          pointsEarning={selectedPointsEarning}
           onSaved={() => void load()}
         />
       )}

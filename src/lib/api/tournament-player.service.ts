@@ -2,6 +2,29 @@ import { toaster } from '@/components/ui/toaster';
 import { api, ApiResponse } from './base';
 import { TournamentPlayer, CategoryMatch, GenderType } from './types';
 
+export type CreateTournamentPlayerPayload = {
+  code?: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  image?: string;
+  imagePublicId?: string;
+  gender?: GenderType;
+  level?: number;
+  levelDescription?: string;
+  userId?: string;
+};
+
+export type UpdateTournamentPlayerPayload = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  gender?: GenderType;
+  level?: number;
+  levelDescription?: string;
+  userId?: string;
+};
+
 export const TournamentPlayerService = {
   // Get all players in a tournament
   getPlayers: async (tournamentId: string): Promise<TournamentPlayer[]> => {
@@ -30,18 +53,7 @@ export const TournamentPlayerService = {
   // Create player
   createPlayer: async (
     tournamentId: string,
-    data: {
-      code?: string;
-      name: string;
-      email?: string;
-      phone?: string;
-      image?: string;
-      imagePublicId?: string;
-      gender?: GenderType;
-      level?: number;
-      levelDescription?: string;
-      userId?: string;
-    },
+    data: CreateTournamentPlayerPayload,
     options?: { showToast?: boolean }
   ): Promise<TournamentPlayer> => {
     const response = await api.post<ApiResponse<TournamentPlayer>>(
@@ -57,7 +69,7 @@ export const TournamentPlayerService = {
   // Update player
   updatePlayer: async (
     id: string,
-    data: Partial<TournamentPlayer>,
+    data: UpdateTournamentPlayerPayload,
     options?: { showToast?: boolean }
   ): Promise<TournamentPlayer> => {
     const response = await api.put<ApiResponse<TournamentPlayer>>(

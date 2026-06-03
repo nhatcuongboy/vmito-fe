@@ -11,6 +11,8 @@ import {
   TournamentVenue,
   ScoreboardResponse,
   GetScoreboardParams,
+  DuplicateTournamentRequest,
+  DuplicateTournamentResponse,
 } from './types';
 
 export const TournamentService = {
@@ -84,6 +86,17 @@ export const TournamentService = {
   deleteTournament: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournaments/${id}`);
     toaster.success({ title: 'Tournament deleted successfully' });
+  },
+
+  duplicateTournament: async (
+    id: string,
+    data: DuplicateTournamentRequest
+  ): Promise<DuplicateTournamentResponse> => {
+    const response = await api.post<ApiResponse<DuplicateTournamentResponse>>(
+      `/tournaments/${id}/duplicate`,
+      data
+    );
+    return response.data.data!;
   },
 
   // Umpire management

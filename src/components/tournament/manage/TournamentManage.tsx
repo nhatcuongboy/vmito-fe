@@ -40,6 +40,7 @@ import DatesPanel from './panels/DatesPanel';
 import LocationPanel from './panels/LocationPanel';
 import BannerPanel from './panels/BannerPanel';
 import { TournamentManageSkeleton } from '@/components/tournament/skeletons';
+import DuplicateTournamentModal from './DuplicateTournamentModal';
 
 interface TournamentManageProps {
   tournament: Tournament;
@@ -106,6 +107,7 @@ export default function TournamentManage({
   );
   const drawer = useDrawer();
   const formatModal = useModal();
+  const duplicateModal = useModal();
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -138,6 +140,11 @@ export default function TournamentManage({
 
   const handleItemClick = useCallback(
     (item: string) => {
+      if (item === 'duplicate') {
+        duplicateModal.onOpen();
+        return;
+      }
+
       setSelectedItem(item);
       // Update URL with option param (excludes publish action)
       if (item !== 'publish') {
@@ -150,7 +157,7 @@ export default function TournamentManage({
         drawer.onOpen();
       }
     },
-    [drawer, isMobile, router, searchParams]
+    [drawer, duplicateModal, isMobile, router, searchParams]
   );
 
   const handleClosePanel = useCallback(() => {
@@ -397,6 +404,12 @@ export default function TournamentManage({
             console.error('Error updating category format:', error);
           }
         }}
+      />
+
+      <DuplicateTournamentModal
+        isOpen={duplicateModal.isOpen}
+        onClose={duplicateModal.onClose}
+        tournament={tournament}
       />
     </>
   );

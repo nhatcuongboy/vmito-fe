@@ -25,7 +25,6 @@ import { toaster } from '@/components/ui/toaster';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentService } from '@/lib/api/tournament.service';
-import { AuthService } from '@/lib/api/auth.service';
 import {
   Category,
   CategoryMatch,
@@ -35,34 +34,9 @@ import {
 } from '@/lib/api/types';
 import { getTournamentPlayerCode } from './PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { ROUTES } from '@/constants';
-import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
-import NotificationBell from '@/components/ui/NotificationBell';
-import UserMenu from '@/components/ui/UserMenu';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
 import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
-
-function TournamentTopBarMenu() {
-  const router = useRouter();
-  const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
-
-  const handleLogout = () => {
-    AuthService.logout();
-    router.push(ROUTES.HOME);
-  };
-
-  if (!isHydrated || isLoading) return null;
-  if (!isAuthenticated) return null;
-
-  return (
-    <Flex align="center" gap={2}>
-      <AiAssistantTopBarButton />
-      <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
-      <UserMenu onLogout={handleLogout} />
-    </Flex>
-  );
-}
+import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 
 export default function PublicTournamentTeamPage() {
   const t = useTranslations('pages.tournaments.teamPage');

@@ -845,11 +845,14 @@ export interface CategoryMatch {
   sets?: MatchSet[]; // Structured set scores
   winnerId?: string;
   isDraw: boolean;
+  isForfeit?: boolean; // Decided by forfeit/walkover: winnerId wins, the other forfeited
   // Score breakdown for group stage calculations (total across all sets)
   player1Score?: number; // Sum of all sets
   player2Score?: number; // Sum of all sets
   player3Score?: number; // For doubles: sum of all sets
   player4Score?: number; // For doubles: sum of all sets
+  player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
+  player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
   matchFormat?: MatchFormat; // Match format for this specific match/round
   notes?: string;
   refereeId?: string; // Assigned referee (TournamentUmpire id)
@@ -972,6 +975,23 @@ export interface CreateTournamentRequest {
   venueId?: string;
 }
 
+export interface DuplicateTournamentRequest {
+  name: string;
+  startDate: string;
+  endDate: string;
+  venueId?: string | null;
+  copy: {
+    format: true;
+    schedule: boolean;
+    teams: boolean;
+    venues: boolean;
+    matchResults: boolean;
+    customHomePage: boolean;
+  };
+}
+
+export type DuplicateTournamentResponse = Tournament;
+
 export interface UpdateCategoryRequest {
   name?: string;
   type?: CategoryType;
@@ -1013,12 +1033,15 @@ export interface EndCategoryMatchRequest {
   sets?: MatchSet[]; // Structured set scores
   winnerId?: string;
   isDraw?: boolean;
+  isForfeit?: boolean; // Decided by forfeit/walkover: winnerId wins, the other forfeited
   // Score breakdown for group stage calculations (total across all sets)
   // If sets array is provided, these will be calculated automatically
   player1Score?: number; // Total points (sum of all sets)
   player2Score?: number; // Total points (sum of all sets)
   player3Score?: number; // For doubles: total points (sum of all sets)
   player4Score?: number; // For doubles: total points (sum of all sets)
+  player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
+  player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
   notes?: string;
 }
 
@@ -1101,10 +1124,15 @@ export interface GroupStanding {
   matchesWon: number;
   matchesLost: number;
   matchesDrawn: number;
+  matchesForfeited: number; // Số trận bị xử thua do bỏ cuộc
+  matchesCancelled: number; // Số trận bị huỷ
   points: number; // Win = 2, Draw = 1, Loss = 0 (hoặc custom)
   pointsFor: number; // Tổng điểm ghi được
   pointsAgainst: number; // Tổng điểm bị thua
   pointDifference: number; // pointsFor - pointsAgainst
+  gamesWon: number; // Tổng số set thắng
+  gamesLost: number; // Tổng số set thua
+  gameDifference: number; // gamesWon - gamesLost
   rank: number; // Thứ hạng trong group
 }
 

@@ -1509,7 +1509,9 @@
             "points": "积分",
             "pointsFor": "得分",
             "pointsAgainst": "失分",
-            "difference": "净胜分"
+            "difference": "净胜分",
+            "forfeits": "弃",
+            "cancelled": "消"
           }
         },
         "homeTab": {
@@ -1837,6 +1839,57 @@
             "dates": "锦标赛日期",
             "location": "锦标赛地点",
             "banner": "锦标赛横幅"
+          },
+          "duplicateModal": {
+            "title": "复制锦标赛",
+            "description": "要复制此锦标赛，请选择名称、日期和地点，然后选择复制时要包含的内容。",
+            "copySuffix": "(副本)",
+            "close": "关闭复制锦标赛弹窗",
+            "cancel": "取消",
+            "confirm": "确认",
+            "success": "锦标赛复制成功",
+            "copyHeading": "选择要复制的内容：",
+            "fields": {
+              "name": "名称",
+              "startDate": "开始日期",
+              "endDate": "结束日期",
+              "location": "地点",
+              "locationPlaceholder": "搜索场馆",
+              "noVenues": "未找到场馆"
+            },
+            "options": {
+              "format": {
+                "label": "赛制",
+                "tooltip": "始终复制组别和赛制设置。"
+              },
+              "schedule": {
+                "label": "赛程",
+                "tooltip": "复制比赛赛程、轮次、时间和场地分配。"
+              },
+              "teams": {
+                "label": "队伍",
+                "tooltip": "复制球员、组合和队伍报名。"
+              },
+              "matchResults": {
+                "label": "比赛结果",
+                "tooltip": "复制已提交的比分和胜者。需要同时复制赛程。"
+              },
+              "venues": {
+                "label": "场馆",
+                "tooltip": "复制关联场馆和锦标赛场地设置。"
+              },
+              "customHomePage": {
+                "label": "自定义主页",
+                "tooltip": "复制封面图片和锦标赛主页展示设置。"
+              }
+            },
+            "errors": {
+              "nameRequired": "锦标赛名称为必填项",
+              "datesRequired": "开始日期和结束日期为必填项",
+              "endBeforeStart": "结束日期不能早于开始日期",
+              "loadVenuesFailed": "加载场馆失败",
+              "duplicateFailed": "复制锦标赛失败"
+            }
           },
           "organize": {
             "publish": {
@@ -2975,7 +3028,15 @@
           "SCHEDULED": "已排期",
           "FINISHED": "已结束",
           "CANCELLED": "已取消"
-        }
+        },
+        "modeScore": "比分",
+        "modeForfeit": "弃赛",
+        "modeManual": "手动积分",
+        "selectWinner": "选择获胜方",
+        "forfeitHint": "另一方将被记录为弃赛。",
+        "points": "积分",
+        "walkover": "轮空胜",
+        "draw": "平局"
       },
       "teamPage": {
         "title": "队伍详情",

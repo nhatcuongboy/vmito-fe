@@ -1539,7 +1539,9 @@
             "points": "Điểm",
             "pointsFor": "Ghi",
             "pointsAgainst": "Thua điểm",
-            "difference": "Hiệu số"
+            "difference": "Hiệu số",
+            "forfeits": "BC",
+            "cancelled": "H"
           }
         },
         "homeTab": {
@@ -1867,6 +1869,57 @@
             "dates": "Ngày tổ chức",
             "location": "Địa điểm",
             "banner": "Ảnh banner"
+          },
+          "duplicateModal": {
+            "title": "Nhân đôi giải đấu",
+            "description": "Để nhân đôi giải đấu này, hãy chọn tên, ngày thi đấu và địa điểm, sau đó chọn những dữ liệu bạn muốn sao chép.",
+            "copySuffix": "(Bản sao)",
+            "close": "Đóng modal nhân đôi giải đấu",
+            "cancel": "Hủy",
+            "confirm": "Xác nhận",
+            "success": "Đã nhân đôi giải đấu thành công",
+            "copyHeading": "Chọn dữ liệu bạn muốn sao chép:",
+            "fields": {
+              "name": "Tên",
+              "startDate": "Ngày bắt đầu",
+              "endDate": "Ngày kết thúc",
+              "location": "Địa điểm",
+              "locationPlaceholder": "Tìm địa điểm",
+              "noVenues": "Không tìm thấy địa điểm"
+            },
+            "options": {
+              "format": {
+                "label": "Thể thức",
+                "tooltip": "Luôn sao chép hạng mục và cấu hình thể thức thi đấu."
+              },
+              "schedule": {
+                "label": "Lịch thi đấu",
+                "tooltip": "Sao chép lịch trận, vòng đấu, thời gian và phân sân."
+              },
+              "teams": {
+                "label": "Đội",
+                "tooltip": "Sao chép vận động viên, cặp đấu và đăng ký đội."
+              },
+              "matchResults": {
+                "label": "Kết quả trận",
+                "tooltip": "Sao chép điểm số và đội thắng. Cần sao chép lịch thi đấu."
+              },
+              "venues": {
+                "label": "Sân/địa điểm",
+                "tooltip": "Sao chép địa điểm đã liên kết và cấu hình sân của giải."
+              },
+              "customHomePage": {
+                "label": "Trang chủ tùy chỉnh",
+                "tooltip": "Sao chép ảnh bìa và cấu hình hiển thị trang chủ giải đấu."
+              }
+            },
+            "errors": {
+              "nameRequired": "Tên giải đấu là bắt buộc",
+              "datesRequired": "Ngày bắt đầu và ngày kết thúc là bắt buộc",
+              "endBeforeStart": "Ngày kết thúc không được trước ngày bắt đầu",
+              "loadVenuesFailed": "Không thể tải danh sách địa điểm",
+              "duplicateFailed": "Không thể nhân đôi giải đấu"
+            }
           },
           "organize": {
             "publish": {
@@ -3005,7 +3058,15 @@
           "SCHEDULED": "Đã lên lịch",
           "FINISHED": "Đã kết thúc",
           "CANCELLED": "Đã hủy"
-        }
+        },
+        "modeScore": "Tỉ số",
+        "modeForfeit": "Bỏ cuộc",
+        "modeManual": "Điểm thủ công",
+        "selectWinner": "Chọn đội thắng",
+        "forfeitHint": "Đội còn lại được ghi nhận là bỏ cuộc.",
+        "points": "Điểm",
+        "walkover": "Xử thắng",
+        "draw": "Hòa"
       },
       "teamPage": {
         "title": "Chi tiết đội",

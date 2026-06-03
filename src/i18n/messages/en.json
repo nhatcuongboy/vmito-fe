@@ -1531,7 +1531,9 @@
             "points": "Points",
             "pointsFor": "For",
             "pointsAgainst": "Against",
-            "difference": "Diff"
+            "difference": "Diff",
+            "forfeits": "F",
+            "cancelled": "C"
           }
         },
         "homeTab": {
@@ -1859,6 +1861,57 @@
             "dates": "Tournament Dates",
             "location": "Tournament Location",
             "banner": "Tournament Banner"
+          },
+          "duplicateModal": {
+            "title": "Duplicate tournament",
+            "description": "To duplicate this tournament, choose a name, dates and location then select which properties you would like to copy when duplicating.",
+            "copySuffix": "(Copy)",
+            "close": "Close duplicate tournament modal",
+            "cancel": "Cancel",
+            "confirm": "Confirm",
+            "success": "Tournament duplicated successfully",
+            "copyHeading": "Select what you would like to copy:",
+            "fields": {
+              "name": "Name",
+              "startDate": "Start date",
+              "endDate": "End date",
+              "location": "Location",
+              "locationPlaceholder": "Search for a venue",
+              "noVenues": "No venues found"
+            },
+            "options": {
+              "format": {
+                "label": "Format",
+                "tooltip": "Tournament categories and format settings are always copied."
+              },
+              "schedule": {
+                "label": "Schedule",
+                "tooltip": "Copy match schedule, rounds, times and court assignments."
+              },
+              "teams": {
+                "label": "Teams",
+                "tooltip": "Copy tournament players, pairs and team registrations."
+              },
+              "matchResults": {
+                "label": "Match results",
+                "tooltip": "Copy submitted scores and match winners. Requires schedule to be copied."
+              },
+              "venues": {
+                "label": "Venues",
+                "tooltip": "Copy linked venues and tournament court setup."
+              },
+              "customHomePage": {
+                "label": "Customized home page",
+                "tooltip": "Copy cover image and tournament home page presentation settings."
+              }
+            },
+            "errors": {
+              "nameRequired": "Tournament name is required",
+              "datesRequired": "Start date and end date are required",
+              "endBeforeStart": "End date cannot be before start date",
+              "loadVenuesFailed": "Failed to load venues",
+              "duplicateFailed": "Failed to duplicate tournament"
+            }
           },
           "organize": {
             "publish": {
@@ -2997,7 +3050,15 @@
           "SCHEDULED": "Scheduled",
           "FINISHED": "Finished",
           "CANCELLED": "Cancelled"
-        }
+        },
+        "modeScore": "Score",
+        "modeForfeit": "Forfeit",
+        "modeManual": "Manual points",
+        "selectWinner": "Select the winning side",
+        "forfeitHint": "The other side is recorded as a forfeit.",
+        "points": "Points",
+        "walkover": "W/O",
+        "draw": "Draw"
       },
       "teamPage": {
         "title": "Team details",

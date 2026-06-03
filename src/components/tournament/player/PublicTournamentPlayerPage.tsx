@@ -32,12 +32,7 @@ import {
   Trophy,
   UserRound,
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { AuthService } from '@/lib/api/auth.service';
-import { ROUTES } from '@/constants';
-import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
-import NotificationBell from '@/components/ui/NotificationBell';
-import UserMenu from '@/components/ui/UserMenu';
+import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
 import {
   getLegacyTournamentPlayerCode,
@@ -45,27 +40,6 @@ import {
   matchesTournamentPlayerCode,
 } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
-
-function TournamentTopBarMenu() {
-  const router = useRouter();
-  const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
-
-  const handleLogout = () => {
-    AuthService.logout();
-    router.push(ROUTES.HOME);
-  };
-
-  if (!isHydrated || isLoading) return null;
-  if (!isAuthenticated) return null;
-
-  return (
-    <Flex align="center" gap={2}>
-      <AiAssistantTopBarButton />
-      <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
-      <UserMenu onLogout={handleLogout} />
-    </Flex>
-  );
-}
 
 interface PlayerCategorySummary {
   id: string;

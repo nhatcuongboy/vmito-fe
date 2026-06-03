@@ -14,7 +14,11 @@ import {
   GenderType,
   EImageCategory,
 } from '@/lib/api/types';
-import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
+import {
+  CreateTournamentPlayerPayload,
+  TournamentPlayerService,
+  UpdateTournamentPlayerPayload,
+} from '@/lib/api/tournament-player.service';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
 import { generateNextTournamentPlayerCode } from '@/lib/tournament/codes';
@@ -137,13 +141,25 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const updateField = (key: keyof PlayerFormState, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  const buildPayload = () => {
+  const buildCreatePayload = (): CreateTournamentPlayerPayload => {
     const trimmedLevel = form.level.trim();
     return {
       code: form.code.trim() || generateNextTournamentPlayerCode(players),
       name: form.name.trim(),
       image: form.image.trim() || undefined,
       imagePublicId: form.imagePublicId.trim() || undefined,
+      gender: (form.gender || undefined) as GenderType | undefined,
+      level: trimmedLevel ? Number(trimmedLevel) : undefined,
+      levelDescription: form.levelDescription.trim() || undefined,
+      email: form.email.trim() || undefined,
+      phone: form.phone.trim() || undefined,
+    };
+  };
+
+  const buildUpdatePayload = (): UpdateTournamentPlayerPayload => {
+    const trimmedLevel = form.level.trim();
+    return {
+      name: form.name.trim(),
       gender: (form.gender || undefined) as GenderType | undefined,
       level: trimmedLevel ? Number(trimmedLevel) : undefined,
       levelDescription: form.levelDescription.trim() || undefined,
@@ -172,16 +188,23 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     if (!form.name.trim()) return;
     try {
       setIsSubmitting(true);
-      const payload = buildPayload();
       if (editingPlayer) {
-        await TournamentPlayerService.updatePlayer(editingPlayer.id, payload, {
-          showToast: false,
-        });
+        await TournamentPlayerService.updatePlayer(
+          editingPlayer.id,
+          buildUpdatePayload(),
+          {
+            showToast: false,
+          }
+        );
         toaster.success({ title: t('updateSuccess') });
       } else {
-        await TournamentPlayerService.createPlayer(tournament.id, payload, {
-          showToast: false,
-        });
+        await TournamentPlayerService.createPlayer(
+          tournament.id,
+          buildCreatePayload(),
+          {
+            showToast: false,
+          }
+        );
         toaster.success({ title: t('addSuccess') });
       }
       await loadPlayers();
@@ -407,39 +430,43 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         secondaryActionText={t('cancel')}
       >
         <VStack gap={4} align="stretch">
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>
-              {t('avatar')}
-            </Text>
-            <AppSingleImageUpload
-              value={form.image}
-              publicId={form.imagePublicId}
-              category={EImageCategory.OTHER}
-              alt={form.name || t('avatar')}
-              emptyTitle={t('avatarEmpty')}
-              uploadText={t('avatarUpload')}
-              galleryText={t('avatarGallery')}
-              onChange={(image) => {
-                updateField('image', image.url);
-                updateField('imagePublicId', image.publicId ?? '');
-              }}
-              onClear={() => {
-                updateField('image', '');
-                updateField('imagePublicId', '');
-              }}
-            />
-          </Box>
+          {!editingPlayer && (
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={1}>
+                {t('avatar')}
+              </Text>
+              <AppSingleImageUpload
+                value={form.image}
+                publicId={form.imagePublicId}
+                category={EImageCategory.OTHER}
+                alt={form.name || t('avatar')}
+                emptyTitle={t('avatarEmpty')}
+                uploadText={t('avatarUpload')}
+                galleryText={t('avatarGallery')}
+                onChange={(image) => {
+                  updateField('image', image.url);
+                  updateField('imagePublicId', image.publicId ?? '');
+                }}
+                onClear={() => {
+                  updateField('image', '');
+                  updateField('imagePublicId', '');
+                }}
+              />
+            </Box>
+          )}
 
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>
-              {t('playerCode')}
-            </Text>
-            <Input
-              placeholder={t('playerCodePlaceholder')}
-              value={form.code}
-              onChange={(e) => updateField('code', e.target.value)}
-            />
-          </Box>
+          {!editingPlayer && (
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={1}>
+                {t('playerCode')}
+              </Text>
+              <Input
+                placeholder={t('playerCodePlaceholder')}
+                value={form.code}
+                onChange={(e) => updateField('code', e.target.value)}
+              />
+            </Box>
+          )}
 
           <Box>
             <Text fontSize="sm" fontWeight="medium" mb={1}>

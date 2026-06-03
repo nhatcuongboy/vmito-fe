@@ -7,13 +7,11 @@ import {
   Flex,
   Heading,
   HStack,
-  IconButton,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import PageLayout from '@/components/layout/PageLayout';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
-import { ROUTES } from '@/constants';
 import { TournamentService } from '@/lib/api/tournament.service';
 import {
   Category,
@@ -39,7 +37,6 @@ import {
   SquarePen,
   ClipboardList,
 } from 'lucide-react';
-import { AuthService } from '@/lib/api/auth.service';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
@@ -47,17 +44,16 @@ import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentScheduleTab from '@/components/tournament/PublicTournamentScheduleTab';
 import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
-import UserMenu from '@/components/ui/UserMenu';
-import NotificationBell from '@/components/ui/NotificationBell';
-import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
-import SlideOutMenu from '@/components/ui/SlideOutMenu';
+import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import {
+  TournamentMatchListSkeleton,
   TournamentShellSkeleton,
+  TournamentTableSkeleton,
   TournamentTeamsSkeleton,
 } from '@/components/tournament/skeletons';
 
@@ -81,43 +77,6 @@ const CATEGORY_BORDER_COLOR: Record<CategoryType, string> = {
   [CategoryType.MIXED_DOUBLE]: 'cyan.300',
   [CategoryType.CUSTOM]: 'purple.300',
 };
-
-function TournamentTopBarMenu() {
-  const common = useTranslations('common');
-  const router = useRouter();
-  const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    AuthService.logout();
-    router.push(ROUTES.HOME);
-  };
-
-  if (!isHydrated || isLoading) return null;
-
-  return isAuthenticated ? (
-    <Flex align="center" gap={2}>
-      <AiAssistantTopBarButton />
-      <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
-      <UserMenu onLogout={handleLogout} />
-    </Flex>
-  ) : (
-    <>
-      <IconButton
-        aria-label={common('profile')}
-        onClick={() => setIsMenuOpen(true)}
-        variant="ghost"
-        color="fg"
-        _hover={{ bg: 'bg.muted' }}
-        borderRadius="full"
-        size="md"
-      >
-        <CircleUserRound size={22} />
-      </IconButton>
-      <SlideOutMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-    </>
-  );
-}
 
 export type TournamentSegment =
   | 'home'
@@ -320,16 +279,47 @@ export default function TournamentPageShell({
     const loadTournament = async () => {
       try {
         setLoading(true);
+        setTournament(null);
         setLoadingTeams(true);
+        setAllCategories([]);
+        setTeamCategoryBlocks([]);
 
         const data = await TournamentService.getTournament(slug);
         setTournament(data);
+      } catch (error) {
+        console.error('Error loading tournament:', error);
+        setTournament(null);
+        setAllCategories([]);
+        setTeamCategoryBlocks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (slug) {
+      loadTournament();
+    }
+  }, [slug]);
+
+  useEffect(() => {
+    const tournamentId = tournament?.id;
+
+    if (!tournamentId) {
+      setLoadingTeams(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadTournamentTeams = async () => {
+      try {
+        setLoadingTeams(true);
 
         const [categories, tournamentPlayers] = await Promise.all([
-          CategoryService.getCategories(data.id),
-          TournamentPlayerService.getPlayers(data.id),
+          CategoryService.getCategories(tournamentId),
+          TournamentPlayerService.getPlayers(tournamentId),
         ]);
-        setAllCategories(categories);
+
         const tournamentPlayerIds = tournamentPlayers.map(
           (player) => player.id
         );
@@ -377,20 +367,29 @@ export default function TournamentPageShell({
           }
         );
 
+        if (!isMounted) return;
+
+        setAllCategories(categories);
         setTeamCategoryBlocks(categoryBlocks);
       } catch (error) {
-        console.error('Error loading tournament:', error);
+        console.error('Error loading tournament teams:', error);
+        if (!isMounted) return;
+
+        setAllCategories([]);
         setTeamCategoryBlocks([]);
       } finally {
-        setLoading(false);
-        setLoadingTeams(false);
+        if (isMounted) {
+          setLoadingTeams(false);
+        }
       }
     };
 
-    if (slug) {
-      loadTournament();
-    }
-  }, [getRegistrationPlayers, resolveCategoryTitle, slug]);
+    loadTournamentTeams();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [getRegistrationPlayers, resolveCategoryTitle, tournament?.id]);
 
   const sortedTeamCategoryBlocks = useMemo(() => {
     return [...teamCategoryBlocks].sort((firstCategory, secondCategory) =>
@@ -471,6 +470,7 @@ export default function TournamentPageShell({
             (sum, b) => sum + b.players.length,
             0
           )}
+          isLoadingCategories={loadingTeams}
           isHost={isHost}
           slug={slug}
         />
@@ -583,20 +583,27 @@ export default function TournamentPageShell({
       {activeTab === 2 && tournament && (
         <PublicTournamentScheduleTab tournament={tournament} />
       )}
-      {activeTab === 3 && tournament && (
-        <PublicTournamentStandingsTab
-          tournament={tournament}
-          categories={allCategories}
-          isHost={isHost}
-        />
-      )}
-      {activeTab === 6 && (
-        <ResultsPanel
-          tournament={tournament}
-          categories={allCategories}
-          canEdit={isHost}
-        />
-      )}
+      {activeTab === 3 &&
+        tournament &&
+        (loadingTeams ? (
+          <TournamentTableSkeleton rows={6} columns={7} />
+        ) : (
+          <PublicTournamentStandingsTab
+            tournament={tournament}
+            categories={allCategories}
+            isHost={isHost}
+          />
+        ))}
+      {activeTab === 6 &&
+        (loadingTeams ? (
+          <TournamentMatchListSkeleton count={6} />
+        ) : (
+          <ResultsPanel
+            tournament={tournament}
+            categories={allCategories}
+            canEdit={isHost}
+          />
+        ))}
       {activeTab === 4 && isHost && (
         <TournamentManage
           tournament={tournament}

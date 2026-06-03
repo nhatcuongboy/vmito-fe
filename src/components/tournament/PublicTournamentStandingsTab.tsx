@@ -300,11 +300,11 @@ export default function PublicTournamentStandingsTab({
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        gap={3}
-        mb={5}
+        gap={{ base: 2, md: 3 }}
+        mb={{ base: 3, md: 5 }}
       >
         <Box>
-          <Heading size="md" mb={1}>
+          <Heading size="md" mb={{ base: 0.5, md: 1 }}>
             {t('title')}
           </Heading>
           <Text fontSize="sm" color="gray.500">
@@ -335,12 +335,12 @@ export default function PublicTournamentStandingsTab({
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        gap={3}
-        mb={5}
+        gap={{ base: 2, md: 3 }}
+        mb={{ base: 4, md: 5 }}
       >
         <HStack
-          gap={1}
-          p={1}
+          gap={{ base: 0.5, md: 1 }}
+          p={{ base: 0.5, md: 1 }}
           bg="gray.100"
           _dark={{ bg: 'gray.800' }}
           borderRadius="full"
@@ -352,6 +352,9 @@ export default function PublicTournamentStandingsTab({
             variant={stageView === 'pool' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'pool' ? 'green' : 'gray'}
             borderRadius="full"
+            minH={{ base: 8, md: 9 }}
+            px={{ base: 2, md: 3 }}
+            fontSize={{ base: 'xs', md: 'sm' }}
             onClick={() => setStageView('pool')}
           >
             <ListTree size={15} /> {t('poolPlay')}
@@ -362,6 +365,9 @@ export default function PublicTournamentStandingsTab({
             variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
             borderRadius="full"
+            minH={{ base: 8, md: 9 }}
+            px={{ base: 2, md: 3 }}
+            fontSize={{ base: 'xs', md: 'sm' }}
             onClick={() => setStageView('playoffs')}
           >
             <GitBranch size={15} /> {t('playoffs')}
@@ -370,8 +376,8 @@ export default function PublicTournamentStandingsTab({
 
         {stageView === 'pool' && (
           <HStack
-            gap={1}
-            p={1}
+            gap={{ base: 0.5, md: 1 }}
+            p={{ base: 0.5, md: 1 }}
             bg="gray.100"
             _dark={{ bg: 'gray.800' }}
             borderRadius="full"
@@ -383,6 +389,9 @@ export default function PublicTournamentStandingsTab({
               variant={standingView === 'pools' ? 'solid' : 'ghost'}
               colorPalette={standingView === 'pools' ? 'green' : 'gray'}
               borderRadius="full"
+              minH={{ base: 8, md: 9 }}
+              px={{ base: 2, md: 3 }}
+              fontSize={{ base: 'xs', md: 'sm' }}
               onClick={() => setStandingView('pools')}
             >
               {t('pools')}
@@ -393,6 +402,9 @@ export default function PublicTournamentStandingsTab({
               variant={standingView === 'overall' ? 'solid' : 'ghost'}
               colorPalette={standingView === 'overall' ? 'green' : 'gray'}
               borderRadius="full"
+              minH={{ base: 8, md: 9 }}
+              px={{ base: 2, md: 3 }}
+              fontSize={{ base: 'xs', md: 'sm' }}
               onClick={() => setStandingView('overall')}
             >
               {t('overall')}
@@ -674,24 +686,71 @@ function StandingsTable({
   showGroup?: boolean;
   t: ReturnType<typeof useTranslations>;
 }) {
+  // Only surface the forfeit / cancelled columns when they actually occurred.
+  const showForfeits = rows.some((r) => (r.matchesForfeited ?? 0) > 0);
+  const showCancelled = rows.some((r) => (r.matchesCancelled ?? 0) > 0);
+  const tableMinWidth = showGroup
+    ? showForfeits || showCancelled
+      ? '760px'
+      : '680px'
+    : showForfeits || showCancelled
+      ? '680px'
+      : '580px';
+  const metricColumnWidth = { base: '48px', md: '56px' };
+
   return (
     <TableContainer borderRadius="lg" boxShadow="none">
-      <Table minW={showGroup ? '860px' : '760px'}>
+      <Table minW={tableMinWidth}>
         <Thead>
           <Tr _hover={{}}>
-            <Th textAlign="center" w="72px">
+            <Th textAlign="center" w={{ base: '56px', md: '64px' }}>
               {t('columns.rank')}
             </Th>
-            <Th minW="220px">{t('columns.team')}</Th>
-            {showGroup && <Th minW="120px">{t('columns.group')}</Th>}
-            <Th textAlign="center">{t('columns.played')}</Th>
-            <Th textAlign="center">{t('columns.won')}</Th>
-            <Th textAlign="center">{t('columns.lost')}</Th>
-            <Th textAlign="center">{t('columns.drawn')}</Th>
-            <Th textAlign="center">{t('columns.points')}</Th>
-            <Th textAlign="center">{t('columns.pointsFor')}</Th>
-            <Th textAlign="center">{t('columns.pointsAgainst')}</Th>
-            <Th textAlign="center">{t('columns.difference')}</Th>
+            <Th
+              w="1%"
+              minW={{ base: '88px', md: '112px' }}
+              maxW={{ base: '180px', md: '260px' }}
+              whiteSpace="nowrap"
+            >
+              {t('columns.team')}
+            </Th>
+            {showGroup && (
+              <Th minW={{ base: '96px', md: '112px' }}>{t('columns.group')}</Th>
+            )}
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.played')}
+            </Th>
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.won')}
+            </Th>
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.lost')}
+            </Th>
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.drawn')}
+            </Th>
+            {showForfeits && (
+              <Th textAlign="center" w={metricColumnWidth}>
+                {t('columns.forfeits')}
+              </Th>
+            )}
+            {showCancelled && (
+              <Th textAlign="center" w={metricColumnWidth}>
+                {t('columns.cancelled')}
+              </Th>
+            )}
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.points')}
+            </Th>
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.pointsFor')}
+            </Th>
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.pointsAgainst')}
+            </Th>
+            <Th textAlign="center" w={metricColumnWidth}>
+              {t('columns.difference')}
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -721,7 +780,15 @@ function StandingsTable({
                     <Text fontWeight="bold">{rank}</Text>
                   </HStack>
                 </Td>
-                <Td fontWeight="medium">{getStandingTeamLabel(standing)}</Td>
+                <Td
+                  fontWeight="medium"
+                  maxW={{ base: '180px', md: '260px' }}
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  whiteSpace="nowrap"
+                >
+                  {getStandingTeamLabel(standing)}
+                </Td>
                 {showGroup && (
                   <Td color="gray.500" _dark={{ color: 'gray.400' }}>
                     {'sourceGroupName' in standing
@@ -733,6 +800,12 @@ function StandingsTable({
                 <Td textAlign="center">{standing.matchesWon}</Td>
                 <Td textAlign="center">{standing.matchesLost}</Td>
                 <Td textAlign="center">{standing.matchesDrawn}</Td>
+                {showForfeits && (
+                  <Td textAlign="center">{standing.matchesForfeited ?? 0}</Td>
+                )}
+                {showCancelled && (
+                  <Td textAlign="center">{standing.matchesCancelled ?? 0}</Td>
+                )}
                 <Td textAlign="center" fontWeight="bold">
                   {standing.points}
                 </Td>

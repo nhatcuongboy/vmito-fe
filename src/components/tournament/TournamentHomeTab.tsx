@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, HStack, Skeleton, Text, VStack } from '@chakra-ui/react';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Users,
@@ -53,6 +53,7 @@ interface TournamentHomeTabProps {
   tournament: Tournament;
   categories: ICategoryHomeItem[];
   totalTeams: number;
+  isLoadingCategories?: boolean;
   isHost: boolean;
   slug: string;
 }
@@ -61,6 +62,7 @@ export default function TournamentHomeTab({
   tournament,
   categories,
   totalTeams,
+  isLoadingCategories = false,
   isHost,
   slug,
 }: TournamentHomeTabProps) {
@@ -242,9 +244,13 @@ export default function TournamentHomeTab({
         <HStack gap={5} mb={4}>
           <Flex align="center" gap={2}>
             <Users size={16} color="var(--chakra-colors-gray-500)" />
-            <Text fontSize="sm" color="gray.600">
-              {t('overview.teamsParticipating', { count: totalTeams })}
-            </Text>
+            {isLoadingCategories ? (
+              <Skeleton height="16px" width="132px" borderRadius="md" />
+            ) : (
+              <Text fontSize="sm" color="gray.600">
+                {t('overview.teamsParticipating', { count: totalTeams })}
+              </Text>
+            )}
           </Flex>
           <Flex align="center" gap={2}>
             <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
@@ -367,7 +373,19 @@ export default function TournamentHomeTab({
           </HStack>
         </Flex>
 
-        {categories.length === 0 ? (
+        {isLoadingCategories ? (
+          <VStack align="stretch" gap={0} pb={2}>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Box key={index}>
+                {index > 0 && <Box mx={4} h="1px" bg="gray.100" />}
+                <Flex align="center" justify="space-between" py={3} px={4}>
+                  <Skeleton height="18px" width="44%" borderRadius="md" />
+                  <Skeleton height="18px" width="18px" borderRadius="md" />
+                </Flex>
+              </Box>
+            ))}
+          </VStack>
+        ) : categories.length === 0 ? (
           <Box px={4} pb={4}>
             <Text fontSize="sm" color="gray.500">
               {t('categories.empty')}
