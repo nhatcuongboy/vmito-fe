@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { Minus, RotateCw, Undo2, Wifi, WifiOff } from 'lucide-react';
+import { Minus, RotateCw, Undo2, Users, Wifi, WifiOff } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
-import { CategoryMatch, MatchSet } from '@/lib/api/types';
+import { CategoryMatch, CategoryRegistration, MatchSet } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import {
   applyDelta,
@@ -44,6 +44,37 @@ function setsOf(match: CategoryMatch, isDoubles: boolean): MatchSet[] {
   return sets.map((s) => ({ ...s }));
 }
 
+const PLAYER_NAMES_VISIBILITY_KEY = 'vmito.referee.showPlayerNames';
+
+function getSidePlayerNames(match: CategoryMatch, side: 1 | 2): string {
+  const participant = match.participants?.find((p) => p.position === side);
+  const registration = participant?.categoryRegistration;
+  if (!registration) return '';
+
+  return getRegistrationPlayerNames(registration);
+}
+
+function getRegistrationPlayerNames(
+  registration: CategoryRegistration
+): string {
+  if (registration.player?.name) {
+    return registration.player.name;
+  }
+
+  const memberNames =
+    registration.pair?.members
+      ?.slice()
+      .sort((a, b) => a.position - b.position)
+      .map((member) => member.player?.name)
+      .filter(Boolean) ?? [];
+
+  if (memberNames.length > 0) {
+    return memberNames.join(' / ');
+  }
+
+  return registration.pair?.name ?? '';
+}
+
 export default function ScoreEntryBoard({
   match,
   tournamentId,
@@ -53,7 +84,7 @@ export default function ScoreEntryBoard({
 
   const isDoubles =
     match.participants?.some((p) => p.categoryRegistration?.pair) ?? false;
-  const rules = defaultRules(match.matchFormat);
+  const rules = defaultRules(match);
 
   const clientIdRef = useRef<string>(genClientId());
   const boardRef = useRef<HTMLDivElement>(null);
@@ -67,9 +98,15 @@ export default function ScoreEntryBoard({
   const [busy, setBusy] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [forceLandscape, setForceLandscape] = useState(false);
+  const [showPlayerNames, setShowPlayerNames] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(PLAYER_NAMES_VISIBILITY_KEY) === '1';
+  });
 
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
+  const team1PlayerNames = getSidePlayerNames(match, 1);
+  const team2PlayerNames = getSidePlayerNames(match, 2);
 
   const wins = setWins(displaySets, rules);
   const current = displaySets[displaySets.length - 1];
@@ -196,6 +233,13 @@ export default function ScoreEntryBoard({
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  useEffect(() => {
+    window.localStorage.setItem(
+      PLAYER_NAMES_VISIBILITY_KEY,
+      showPlayerNames ? '1' : '0'
+    );
+  }, [showPlayerNames]);
+
   return (
     <Flex
       ref={boardRef}
@@ -206,13 +250,21 @@ export default function ScoreEntryBoard({
     >
       {/* Header: format + set wins + connection */}
       <Flex align="center" justify="space-between" px={4} py={2} flexShrink={0}>
-        <Badge colorPalette="purple">
-          {rules.bestOf === 5
-            ? t('bestOf5')
-            : rules.bestOf === 3
-              ? t('bestOf3')
-              : t('bestOf1')}
-        </Badge>
+        <Flex align="center" gap={2}>
+          <Badge colorPalette="purple">
+            {rules.bestOf === 5
+              ? t('bestOf5')
+              : rules.bestOf === 3
+                ? t('bestOf3')
+                : t('bestOf1')}
+          </Badge>
+          <Badge colorPalette="blue" variant="subtle">
+            {t('ruleSummary', {
+              points: rules.pointsToWin,
+              cap: rules.cap > rules.pointsToWin ? ` / ${rules.cap}` : '',
+            })}
+          </Badge>
+        </Flex>
         <Text fontWeight="bold" fontSize="sm">
           {t('setWins')}: {wins.side1} – {wins.side2}
         </Text>
@@ -225,6 +277,20 @@ export default function ScoreEntryBoard({
           <Text>
             {t('currentSet')} {current?.setNumber ?? 1}
           </Text>
+          <IconButton
+            aria-label={
+              showPlayerNames ? t('hidePlayerNames') : t('showPlayerNames')
+            }
+            title={
+              showPlayerNames ? t('hidePlayerNames') : t('showPlayerNames')
+            }
+            size="sm"
+            variant={showPlayerNames ? 'solid' : 'ghost'}
+            colorPalette={showPlayerNames ? 'green' : 'gray'}
+            onClick={() => setShowPlayerNames((value) => !value)}
+          >
+            <Users size={16} />
+          </IconButton>
           <IconButton
             aria-label={
               forceLandscape ? t('exitLandscape') : t('rotateLandscape')
@@ -249,6 +315,7 @@ export default function ScoreEntryBoard({
       >
         <TeamScorePanel
           teamName={team1}
+          playerNames={showPlayerNames ? team1PlayerNames : ''}
           score={current?.player1Score ?? 0}
           setWins={wins.side1}
           colorScheme="blue"
@@ -261,6 +328,7 @@ export default function ScoreEntryBoard({
         />
         <TeamScorePanel
           teamName={team2}
+          playerNames={showPlayerNames ? team2PlayerNames : ''}
           score={current?.player2Score ?? 0}
           setWins={wins.side2}
           colorScheme="orange"
@@ -331,6 +399,7 @@ export default function ScoreEntryBoard({
 
 interface TeamScorePanelProps {
   teamName: string;
+  playerNames: string;
   score: number;
   setWins: number;
   colorScheme: 'blue' | 'orange';
@@ -344,6 +413,7 @@ interface TeamScorePanelProps {
 
 function TeamScorePanel({
   teamName,
+  playerNames,
   score,
   setWins,
   colorScheme,
@@ -404,6 +474,26 @@ function TeamScorePanel({
         >
           {teamName}
         </Text>
+        {playerNames && (
+          <Text
+            fontSize={compact ? 'xs' : 'sm'}
+            fontWeight="medium"
+            maxW="86%"
+            textAlign="center"
+            lineHeight={1.25}
+            opacity={0.88}
+            mt={1}
+            whiteSpace="normal"
+            overflow="hidden"
+            css={{
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
+            {playerNames}
+          </Text>
+        )}
         <Text
           fontSize={
             compact ? { base: '6xl', md: '9xl' } : { base: '7xl', md: '9xl' }

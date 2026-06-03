@@ -46,6 +46,7 @@ interface TopBarProps {
   showLogo?: boolean;
   showLogoDesktopOnly?: boolean;
   showAuthActions?: boolean;
+  showAiAssistantButton?: boolean;
 }
 
 export default function TopBar({
@@ -64,6 +65,7 @@ export default function TopBar({
   showLogo = true,
   showLogoDesktopOnly = false,
   showAuthActions = true,
+  showAiAssistantButton = true,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -351,7 +353,9 @@ export default function TopBar({
               isLoading ? null : isAuthenticated ? (
                 <>
                   <Box display="flex" alignItems="center" gap={2}>
-                    {showAiAssistant && <AiAssistantTopBarButton />}
+                    {showAiAssistant && showAiAssistantButton && (
+                      <AiAssistantTopBarButton />
+                    )}
                     <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
                     <UserMenu onLogout={handleLogout} />
                   </Box>

@@ -2398,6 +2398,27 @@
                   "title": "Round Robin to Single Elimination",
                   "description": "Teams compete in pools and then are given a rank based on their performance. Teams are then placed into a bracket based on their rank, where they are eliminated after losing one match."
                 }
+              },
+              "scoringRules": {
+                "title": "Scoring rules",
+                "description": "Pick a BWF/community preset for a quick setup, or fine-tune manually for your tournament.",
+                "presets": {
+                  "BWF_21": "BWF 21",
+                  "CLASSIC_15": "Classic 15",
+                  "RALLY_15": "Rally 15 (cap 21)",
+                  "SHORT_11": "Short 11 (cap 15)",
+                  "CUSTOM": "Custom"
+                },
+                "pointsToWin": "Points to win set",
+                "winByTwo": "Win by 2",
+                "pointCap": "Point cap",
+                "noCap": "No cap",
+                "disableCap": "Remove cap",
+                "yes": "Yes",
+                "no": "No",
+                "save": "Save rules",
+                "saveError": "Could not save the rules. Please try again.",
+                "invalid": "Invalid values — points 1–99 and the cap must be greater than or equal to the points-to-win."
               }
             },
             "standings": {
@@ -2920,6 +2941,21 @@
         "noAssignedMatches": "You have no matches assigned to you yet.",
         "court": "Court",
         "vs": "vs",
+        "statusLabel": "Status",
+        "roundLabel": "Round",
+        "scheduledAt": "Scheduled time",
+        "matchPrepTitle": "Prepare the match",
+        "matchPrepDescription": "Check the court, confirm both teams, and start once everything is ready.",
+        "playerInfo": "Player information",
+        "players": "players",
+        "playerCode": "Code",
+        "email": "Email",
+        "phone": "Phone",
+        "gender": "Gender",
+        "level": "Level",
+        "levelDescription": "Level description",
+        "notes": "Notes",
+        "noPlayerDetails": "No player details available",
         "rounds": {
           "group": "Group stage",
           "qf": "Quarter Finals",
@@ -2942,6 +2978,7 @@
         "bestOf1": "Best of 1",
         "bestOf3": "Best of 3",
         "bestOf5": "Best of 5",
+        "ruleSummary": "To {points}{cap}",
         "setWins": "Sets",
         "currentSet": "Set",
         "addPointFor": "Add a point for {team}",
@@ -2961,7 +2998,9 @@
         "refereeArea": "Referee area",
         "enterScores": "Enter scores",
         "rotateLandscape": "Rotate landscape",
-        "exitLandscape": "Exit landscape"
+        "exitLandscape": "Exit landscape",
+        "showPlayerNames": "Show player names",
+        "hidePlayerNames": "Hide player names"
       },
       "scoreboard": {
         "court": "Court",
@@ -2992,6 +3031,32 @@
         "copyLink": "Copy link",
         "linkCopied": "Link copied",
         "liveScoreboard": "Live scoreboard"
+      },
+      "showcase": {
+        "showcaseTitle": "Athlete showcase",
+        "tournament": "Tournament",
+        "randomPlayers": "Random players",
+        "matches": "Matchups",
+        "randomOrder": "Random",
+        "scheduleOrder": "Schedule",
+        "pause": "Pause",
+        "play": "Play",
+        "share": "Share",
+        "fullscreen": "Fullscreen",
+        "exitFullscreen": "Exit",
+        "hideControls": "Hide controls",
+        "linkCopied": "Link copied",
+        "copyFailed": "Could not copy link",
+        "playerCode": "Code {code}",
+        "athleteSpotlight": "Tournament athlete spotlight",
+        "live": "In progress",
+        "court": "Court {court}",
+        "noPlayers": "No players yet",
+        "addPlayersFirst": "Add players to this tournament to start the slideshow.",
+        "noMatches": "No match schedule yet",
+        "switchToPlayers": "Switch to random players to showcase the current roster.",
+        "loadFailed": "Could not load showcase",
+        "tryAgain": "Please check the connection or reload the page."
       },
       "umpires": {
         "title": "Referees & Umpires",

@@ -2376,6 +2376,27 @@
                   "title": "循环赛转单淘汰赛",
                   "description": "队伍先在小组中比赛，并根据表现进行排名。然后根据排名进入淘汰赛，输掉一场比赛后即被淘汰。"
                 }
+              },
+              "scoringRules": {
+                "title": "计分规则",
+                "description": "选择 BWF/常用预设快速配置，或手动微调以适合您的赛事。",
+                "presets": {
+                  "BWF_21": "BWF 21 分",
+                  "CLASSIC_15": "经典 15 分",
+                  "RALLY_15": "Rally 15（封顶 21）",
+                  "SHORT_11": "短赛 11（封顶 15）",
+                  "CUSTOM": "自定义"
+                },
+                "pointsToWin": "每局得分",
+                "winByTwo": "净胜 2 分",
+                "pointCap": "封顶分",
+                "noCap": "不封顶",
+                "disableCap": "取消封顶",
+                "yes": "是",
+                "no": "否",
+                "save": "保存规则",
+                "saveError": "保存失败，请重试。",
+                "invalid": "数值无效——每局得分 1–99，封顶分必须不小于每局得分。"
               }
             },
             "standings": {
@@ -2898,6 +2919,21 @@
         "noAssignedMatches": "您还没有被分配任何比赛。",
         "court": "场地",
         "vs": "对",
+        "statusLabel": "状态",
+        "roundLabel": "轮次",
+        "scheduledAt": "预计时间",
+        "matchPrepTitle": "准备比赛",
+        "matchPrepDescription": "检查场地，确认双方队伍，一切就绪后开始比赛。",
+        "playerInfo": "球员信息",
+        "players": "名球员",
+        "playerCode": "编号",
+        "email": "邮箱",
+        "phone": "电话",
+        "gender": "性别",
+        "level": "水平",
+        "levelDescription": "水平说明",
+        "notes": "备注",
+        "noPlayerDetails": "暂无球员详情",
         "rounds": {
           "group": "小组赛",
           "qf": "1/4决赛",
@@ -2920,6 +2956,7 @@
         "bestOf1": "一局制",
         "bestOf3": "三局两胜",
         "bestOf5": "五局三胜",
+        "ruleSummary": "{points}分制{cap}",
         "setWins": "局",
         "currentSet": "第",
         "addPointFor": "为 {team} 加一分",
@@ -2939,7 +2976,9 @@
         "refereeArea": "裁判区",
         "enterScores": "录入比分",
         "rotateLandscape": "横屏显示",
-        "exitLandscape": "退出横屏"
+        "exitLandscape": "退出横屏",
+        "showPlayerNames": "显示球员姓名",
+        "hidePlayerNames": "隐藏球员姓名"
       },
       "scoreboard": {
         "court": "场地",
@@ -2970,6 +3009,32 @@
         "copyLink": "复制链接",
         "linkCopied": "已复制链接",
         "liveScoreboard": "实时记分牌"
+      },
+      "showcase": {
+        "showcaseTitle": "运动员展示",
+        "tournament": "赛事",
+        "randomPlayers": "随机运动员",
+        "matches": "对阵",
+        "randomOrder": "随机",
+        "scheduleOrder": "按赛程",
+        "pause": "暂停",
+        "play": "继续",
+        "share": "分享",
+        "fullscreen": "全屏",
+        "exitFullscreen": "退出",
+        "hideControls": "隐藏控制",
+        "linkCopied": "已复制链接",
+        "copyFailed": "无法复制链接",
+        "playerCode": "编号 {code}",
+        "athleteSpotlight": "赛事运动员展示",
+        "live": "进行中",
+        "court": "场地 {court}",
+        "noPlayers": "暂无运动员",
+        "addPlayersFirst": "请先为赛事添加运动员，然后开始播放。",
+        "noMatches": "暂无赛程或对阵",
+        "switchToPlayers": "切换到随机运动员模式，展示当前名单。",
+        "loadFailed": "无法加载展示页",
+        "tryAgain": "请检查连接或重新加载页面。"
       },
       "umpires": {
         "title": "裁判",

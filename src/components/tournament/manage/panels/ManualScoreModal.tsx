@@ -62,8 +62,8 @@ export default function ManualScoreModal({
   const allowManual = pointsEarning === 'manual';
 
   const rules = useMemo(
-    () => defaultRules(match?.matchFormat),
-    [match?.matchFormat]
+    () => (match ? defaultRules(match) : defaultRules()),
+    [match]
   );
   const maxSets = rules.bestOf;
   const minSets = rules.bestOf === 3 ? 2 : 1;

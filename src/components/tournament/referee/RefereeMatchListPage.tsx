@@ -220,6 +220,7 @@ export default function RefereeMatchListPage() {
     <PageLayout
       title={t('title')}
       showTopBarMenuButton={false}
+      showTopBarAiAssistantButton={false}
       disableSidebarOffset
     >
       {loading ? (

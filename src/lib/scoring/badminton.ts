@@ -1,11 +1,12 @@
-import { MatchFormat, MatchSet } from '@/lib/api/types';
+import { CategoryMatch, MatchFormat, MatchSet } from '@/lib/api/types';
 
 /**
  * Front-end mirror of the server-authoritative badminton rules, used only for
  * display correctness and match-point confirmation. The server remains the
  * source of truth for persisted scores.
  *
- * Standard rules: rally to 21, win by 2, hard cap at 30 (30-29 wins).
+ * Default rules: rally to 21, win by 2, hard cap at 30 (30-29 wins). Host can
+ * override per category (or per match) — see `defaultRules`.
  */
 
 export interface BadmintonRules {
@@ -15,13 +16,59 @@ export interface BadmintonRules {
   bestOf: 1 | 3 | 5;
 }
 
-export function defaultRules(matchFormat?: MatchFormat | null): BadmintonRules {
+const DEFAULT_POINTS_TO_WIN = 21;
+const DEFAULT_CAP = 30;
+
+/**
+ * Resolve the active rules for a match. Match-level overrides win, then
+ * category settings, then the BWF defaults.
+ */
+export function defaultRules(
+  matchOrFormat?:
+    | MatchFormat
+    | null
+    | (Pick<
+        CategoryMatch,
+        'matchFormat' | 'pointsToWin' | 'winByTwo' | 'pointCap'
+      > & {
+        category?: {
+          matchFormat?: MatchFormat | null;
+          pointsToWin?: number | null;
+          winByTwo?: boolean | null;
+          pointCap?: number | null;
+        } | null;
+      })
+): BadmintonRules {
+  // Back-compat: legacy callers pass just a MatchFormat string.
+  if (matchOrFormat == null || typeof matchOrFormat === 'string') {
+    const format = (matchOrFormat ?? undefined) as MatchFormat | undefined;
+    return {
+      pointsToWin: DEFAULT_POINTS_TO_WIN,
+      winBy: 2,
+      cap: DEFAULT_CAP,
+      bestOf: format === 'BEST_OF_5' ? 5 : format === 'BEST_OF_3' ? 3 : 1,
+    };
+  }
+
+  const match = matchOrFormat;
+  const cat = match.category ?? null;
+  const format =
+    match.matchFormat ?? cat?.matchFormat ?? ('BEST_OF_1' as MatchFormat);
+  const pointsToWin =
+    match.pointsToWin ?? cat?.pointsToWin ?? DEFAULT_POINTS_TO_WIN;
+  const winBy = (match.winByTwo ?? cat?.winByTwo ?? true) ? 2 : 1;
+  // cap === pointsToWin means "no cap" (winBy still enforced); null treated the same.
+  const capRaw =
+    match.pointCap !== undefined && match.pointCap !== null
+      ? match.pointCap
+      : cat?.pointCap;
+  const cap = capRaw ?? Math.max(pointsToWin, DEFAULT_CAP);
+
   return {
-    pointsToWin: 21,
-    winBy: 2,
-    cap: 30,
-    bestOf:
-      matchFormat === 'BEST_OF_5' ? 5 : matchFormat === 'BEST_OF_3' ? 3 : 1,
+    pointsToWin,
+    winBy,
+    cap,
+    bestOf: format === 'BEST_OF_5' ? 5 : format === 'BEST_OF_3' ? 3 : 1,
   };
 }
 

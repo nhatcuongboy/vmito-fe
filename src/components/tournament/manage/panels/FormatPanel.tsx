@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/chakra-compat';
 import { ChevronDown, RefreshCw, GitBranch } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Category, CategoryFormat } from '@/lib/api/types';
+import ScoringRulesCard from './ScoringRulesCard';
 
 interface FormatPanelProps {
   categories: Category[];
   selectedCategory: Category | null;
   onSelectCategory: (category: Category) => void;
   onSwitchFormat: () => void;
+  onCategoryUpdated?: (category: Category) => void;
 }
 
 const CATEGORY_COLORS = [
@@ -59,6 +61,7 @@ export default function FormatPanel({
   selectedCategory,
   onSelectCategory,
   onSwitchFormat,
+  onCategoryUpdated,
 }: FormatPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -226,6 +229,14 @@ export default function FormatPanel({
             {t(`panels.format.formats.${formatInfo.formatKey}.description`)}
           </Text>
         </>
+      )}
+
+      {activeCategory && (
+        <ScoringRulesCard
+          key={activeCategory.id}
+          category={activeCategory}
+          onCategoryUpdated={onCategoryUpdated}
+        />
       )}
     </Box>
   );

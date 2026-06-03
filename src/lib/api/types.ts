@@ -775,6 +775,11 @@ export interface Category {
   matchFormat: MatchFormat; // BEST_OF_1 or BEST_OF_3
   eliminationMatchFormat?: MatchFormat;
   thirdPlaceMatch?: boolean;
+  // ── Per-set scoring rules (BWF defaults: 21 / win-by-2 / cap 30) ──
+  pointsToWin?: number;
+  winByTwo?: boolean;
+  /** Null/undefined = no hard cap. */
+  pointCap?: number | null;
   formatConfig?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
@@ -854,6 +859,10 @@ export interface CategoryMatch {
   player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
   player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
   matchFormat?: MatchFormat; // Match format for this specific match/round
+  // Per-match scoring-rule overrides. Null = inherit from category.
+  pointsToWin?: number | null;
+  winByTwo?: boolean | null;
+  pointCap?: number | null;
   notes?: string;
   refereeId?: string; // Assigned referee (TournamentUmpire id)
   referee?: TournamentUmpire | null;
@@ -861,6 +870,8 @@ export interface CategoryMatch {
   updatedAt: Date;
   participants?: CategoryMatchParticipant[];
   court?: TournamentCourt;
+  /** Populated by getMatchById — used to resolve inherited scoring rules / format. */
+  category?: Category;
 }
 
 export interface CategoryMatchParticipant {
@@ -1006,6 +1017,10 @@ export interface UpdateCategoryRequest {
   matchFormat?: MatchFormat;
   eliminationMatchFormat?: MatchFormat;
   thirdPlaceMatch?: boolean;
+  // Per-set scoring rules
+  pointsToWin?: number;
+  winByTwo?: boolean;
+  pointCap?: number | null;
   formatConfig?: Record<string, unknown>;
 }
 

@@ -199,6 +199,9 @@ export default function TournamentManage({
             selectedCategory={selectedCategory}
             onSelectCategory={handleSelectCategory}
             onSwitchFormat={formatModal.onOpen}
+            onCategoryUpdated={() => {
+              void loadCategories();
+            }}
           />
         );
       case 'standings':

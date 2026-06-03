@@ -2406,6 +2406,27 @@
                   "title": "Vòng tròn sang Loại trực tiếp",
                   "description": "Các đội thi đấu trong bảng và được xếp hạng dựa trên thành tích. Sau đó, các đội được xếp vào nhánh đấu theo thứ hạng và bị loại sau khi thua một trận."
                 }
+              },
+              "scoringRules": {
+                "title": "Luật chấm điểm",
+                "description": "Chọn nhanh một preset BWF/cộng đồng, hoặc tinh chỉnh thủ công cho phù hợp với giải đấu.",
+                "presets": {
+                  "BWF_21": "BWF 21 điểm",
+                  "CLASSIC_15": "Cổ điển 15",
+                  "RALLY_15": "Rally 15 (trần 21)",
+                  "SHORT_11": "Nhanh 11 (trần 15)",
+                  "CUSTOM": "Tuỳ chỉnh"
+                },
+                "pointsToWin": "Điểm thắng set",
+                "winByTwo": "Cách 2 điểm",
+                "pointCap": "Điểm trần",
+                "noCap": "Không trần",
+                "disableCap": "Bỏ trần",
+                "yes": "Có",
+                "no": "Không",
+                "save": "Lưu luật",
+                "saveError": "Không lưu được luật, vui lòng thử lại.",
+                "invalid": "Giá trị không hợp lệ — điểm thắng từ 1–99 và điểm trần phải lớn hơn hoặc bằng điểm thắng."
               }
             },
             "standings": {
@@ -2928,6 +2949,21 @@
         "noAssignedMatches": "Bạn chưa được phân công trận nào.",
         "court": "Sân",
         "vs": "vs",
+        "statusLabel": "Trạng thái",
+        "roundLabel": "Vòng",
+        "scheduledAt": "Giờ dự kiến",
+        "matchPrepTitle": "Chuẩn bị trận đấu",
+        "matchPrepDescription": "Kiểm tra sân, xác nhận hai đội và bắt đầu khi mọi thứ đã sẵn sàng.",
+        "playerInfo": "Thông tin người chơi",
+        "players": "người chơi",
+        "playerCode": "Mã",
+        "email": "Email",
+        "phone": "SĐT",
+        "gender": "Giới tính",
+        "level": "Level",
+        "levelDescription": "Mô tả level",
+        "notes": "Ghi chú",
+        "noPlayerDetails": "Chưa có thông tin người chơi",
         "rounds": {
           "group": "Vòng bảng",
           "qf": "Tứ kết",
@@ -2950,6 +2986,7 @@
         "bestOf1": "Đấu 1 set",
         "bestOf3": "Đấu 3 set",
         "bestOf5": "Best of 5",
+        "ruleSummary": "Tới {points} điểm{cap}",
         "setWins": "Set thắng",
         "currentSet": "Set",
         "addPointFor": "Cộng điểm cho {team}",
@@ -2969,7 +3006,9 @@
         "refereeArea": "Khu vực trọng tài",
         "enterScores": "Nhập điểm",
         "rotateLandscape": "Xoay ngang",
-        "exitLandscape": "Thoát xoay ngang"
+        "exitLandscape": "Thoát xoay ngang",
+        "showPlayerNames": "Hiện tên VĐV",
+        "hidePlayerNames": "Ẩn tên VĐV"
       },
       "scoreboard": {
         "court": "Sân",
@@ -3000,6 +3039,32 @@
         "copyLink": "Sao chép liên kết",
         "linkCopied": "Đã sao chép liên kết",
         "liveScoreboard": "Bảng điểm trực tiếp"
+      },
+      "showcase": {
+        "showcaseTitle": "Showcase vận động viên",
+        "tournament": "Giải đấu",
+        "randomPlayers": "VĐV ngẫu nhiên",
+        "matches": "Cặp đấu",
+        "randomOrder": "Ngẫu nhiên",
+        "scheduleOrder": "Theo lịch",
+        "pause": "Tạm dừng",
+        "play": "Tiếp tục",
+        "share": "Chia sẻ",
+        "fullscreen": "Toàn màn hình",
+        "exitFullscreen": "Thoát",
+        "hideControls": "Ẩn điều khiển",
+        "linkCopied": "Đã sao chép liên kết",
+        "copyFailed": "Không thể sao chép liên kết",
+        "playerCode": "Mã {code}",
+        "athleteSpotlight": "Vận động viên của giải đấu",
+        "live": "Đang diễn ra",
+        "court": "Sân {court}",
+        "noPlayers": "Chưa có vận động viên",
+        "addPlayersFirst": "Thêm vận động viên vào giải để bắt đầu trình chiếu.",
+        "noMatches": "Chưa có lịch/cặp đấu",
+        "switchToPlayers": "Chuyển sang chế độ VĐV ngẫu nhiên để trình chiếu danh sách hiện có.",
+        "loadFailed": "Không tải được showcase",
+        "tryAgain": "Vui lòng kiểm tra kết nối hoặc thử tải lại trang."
       },
       "umpires": {
         "title": "Trọng tài",

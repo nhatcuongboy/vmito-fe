@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge, Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
 import {
@@ -10,7 +11,6 @@ import {
   ListTree,
   RefreshCw,
   RotateCcw,
-  Trophy,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -26,18 +26,7 @@ import {
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
-import {
-  Button,
-  LegacySelect,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  VStack,
-} from '@/components/ui/chakra-compat';
+import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 
 interface PublicTournamentStandingsTabProps {
@@ -562,6 +551,7 @@ export default function PublicTournamentStandingsTab({
                   rows={block.rows}
                   rankKey="overallRank"
                   showGroup
+                  title={getCategoryLabel(block.category)}
                   t={t}
                 />
               )}
@@ -597,48 +587,39 @@ export default function PublicTournamentStandingsTab({
 
                     return (
                       <Box key={groupBlock.group.id}>
-                        <Flex
-                          align={{ base: 'stretch', sm: 'center' }}
-                          justify="space-between"
-                          direction={{ base: 'column', sm: 'row' }}
-                          gap={2}
-                          mb={2}
-                        >
-                          <HStack gap={2}>
-                            <Text fontWeight="semibold">{groupLabel}</Text>
-                            <Badge colorPalette="gray">
-                              {t('teamsCount', {
-                                count: groupBlock.standings.length,
-                              })}
-                            </Badge>
-                          </HStack>
-
-                          {isHost && (
-                            <Button
-                              size="xs"
-                              variant="outline"
-                              colorPalette="green"
-                              loading={
-                                recalculatingGroupId === groupBlock.group.id
-                              }
-                              onClick={() =>
-                                void handleRecalculate(
-                                  block.category.id,
-                                  groupBlock.group.id
-                                )
-                              }
-                            >
-                              <RefreshCw size={13} /> {t('recalculate')}
-                            </Button>
-                          )}
-                        </Flex>
-
                         {groupBlock.standings.length === 0 ? (
                           <Text color="gray.500" fontSize="sm">
                             {t('emptyGroup')}
                           </Text>
                         ) : (
-                          <StandingsTable rows={groupBlock.standings} t={t} />
+                          <StandingsTable
+                            rows={groupBlock.standings}
+                            title={groupLabel}
+                            teamCountLabel={t('teamsCount', {
+                              count: groupBlock.standings.length,
+                            })}
+                            action={
+                              isHost ? (
+                                <Button
+                                  size="xs"
+                                  variant="outline"
+                                  colorPalette="green"
+                                  loading={
+                                    recalculatingGroupId === groupBlock.group.id
+                                  }
+                                  onClick={() =>
+                                    void handleRecalculate(
+                                      block.category.id,
+                                      groupBlock.group.id
+                                    )
+                                  }
+                                >
+                                  <RefreshCw size={13} /> {t('recalculate')}
+                                </Button>
+                              ) : null
+                            }
+                            t={t}
+                          />
                         )}
                       </Box>
                     );
@@ -701,166 +682,279 @@ function StandingsTable({
   rows,
   rankKey = 'rank',
   showGroup = false,
+  title,
+  teamCountLabel,
+  action,
   t,
 }: {
   rows: Array<GroupStanding | OverallStandingRow>;
   rankKey?: 'rank' | 'overallRank';
   showGroup?: boolean;
+  title?: string;
+  teamCountLabel?: string;
+  action?: ReactNode;
   t: ReturnType<typeof useTranslations>;
 }) {
-  // Only surface the forfeit / cancelled columns when they actually occurred.
   const showForfeits = rows.some((r) => (r.matchesForfeited ?? 0) > 0);
   const showCancelled = rows.some((r) => (r.matchesCancelled ?? 0) > 0);
-  const tableMinWidth = showGroup
-    ? showForfeits || showCancelled
-      ? '760px'
-      : '680px'
-    : showForfeits || showCancelled
-      ? '680px'
-      : '580px';
-  const metricColumnWidth = { base: '48px', md: '56px' };
   const hasResults = rows.some(hasStandingResult);
+  const extraColumnsWidth = (showForfeits ? 1 : 0) + (showCancelled ? 1 : 0);
+  const metricColumnCount = 6 + extraColumnsWidth;
+  const gridTemplate = showGroup
+    ? {
+        base: `42px minmax(120px, 1fr) 82px repeat(${metricColumnCount}, 50px)`,
+        md: `56px minmax(220px, 1fr) 120px repeat(${metricColumnCount}, 80px)`,
+      }
+    : {
+        base: `42px minmax(120px, 1fr) repeat(${metricColumnCount}, 50px)`,
+        md: `56px minmax(220px, 1fr) repeat(${metricColumnCount}, 80px)`,
+      };
+  const minWidth = showGroup
+    ? showForfeits || showCancelled
+      ? `${760 + extraColumnsWidth * 72}px`
+      : '700px'
+    : showForfeits || showCancelled
+      ? `${640 + extraColumnsWidth * 72}px`
+      : '600px';
 
   return (
-    <TableContainer borderRadius="lg" boxShadow="none">
-      <Table minW={tableMinWidth}>
-        <Thead>
-          <Tr _hover={{}}>
-            <Th textAlign="center" w={{ base: '56px', md: '64px' }}>
-              {t('columns.rank')}
-            </Th>
-            <Th
-              w="1%"
-              minW={{ base: '88px', md: '112px' }}
-              maxW={{ base: '180px', md: '260px' }}
-              whiteSpace="nowrap"
-            >
-              {t('columns.team')}
-            </Th>
-            {showGroup && (
-              <Th minW={{ base: '96px', md: '112px' }}>{t('columns.group')}</Th>
-            )}
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.played')}
-            </Th>
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.won')}
-            </Th>
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.lost')}
-            </Th>
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.drawn')}
-            </Th>
+    <Box
+      overflow="hidden"
+      borderWidth="1px"
+      borderTopWidth="6px"
+      borderColor="gray.100"
+      borderTopColor="yellow.200"
+      borderRadius="lg"
+      bg="white"
+      boxShadow="0 12px 30px rgba(15, 23, 42, 0.08)"
+      _dark={{
+        bg: 'gray.900',
+        borderColor: 'gray.700',
+        borderTopColor: 'yellow.400',
+        boxShadow: '0 12px 30px rgba(0, 0, 0, 0.28)',
+      }}
+    >
+      <Box overflowX="auto">
+        <Box minW={minWidth} px={{ base: 5, md: 8 }} py={{ base: 5, md: 7 }}>
+          <Box
+            display="grid"
+            gridTemplateColumns={gridTemplate}
+            alignItems="center"
+            columnGap={{ base: 1, md: 2 }}
+            mb={{ base: 4, md: 5 }}
+          >
+            <Box gridColumn={showGroup ? '1 / 4' : '1 / 3'} minW={0}>
+              <HStack gap={2} minW={0}>
+                {title && (
+                  <Text
+                    as="h3"
+                    fontSize={{ base: 'xl', md: '2xl' }}
+                    fontWeight="800"
+                    color="gray.700"
+                    lineHeight="1.1"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    whiteSpace="nowrap"
+                    _dark={{ color: 'gray.100' }}
+                  >
+                    {title}
+                  </Text>
+                )}
+                {teamCountLabel && (
+                  <Badge
+                    colorPalette="gray"
+                    borderRadius="full"
+                    px={2.5}
+                    py={1}
+                  >
+                    {teamCountLabel}
+                  </Badge>
+                )}
+              </HStack>
+            </Box>
+
+            <StandingHeaderCell label="PTS" />
+            <StandingHeaderCell label="MP" />
+            <StandingHeaderCell label="W" />
+            <StandingHeaderCell label="T" />
+            <StandingHeaderCell label="L" />
             {showForfeits && (
-              <Th textAlign="center" w={metricColumnWidth}>
-                {t('columns.forfeits')}
-              </Th>
+              <StandingHeaderCell label={t('columns.forfeits')} />
             )}
             {showCancelled && (
-              <Th textAlign="center" w={metricColumnWidth}>
-                {t('columns.cancelled')}
-              </Th>
+              <StandingHeaderCell label={t('columns.cancelled')} />
             )}
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.points')}
-            </Th>
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.pointsFor')}
-            </Th>
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.pointsAgainst')}
-            </Th>
-            <Th textAlign="center" w={metricColumnWidth}>
-              {t('columns.difference')}
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {rows.map((standing) => {
-            const rank =
-              rankKey === 'overallRank' && 'overallRank' in standing
-                ? standing.overallRank
-                : standing.rank;
-            const isTopRank = hasResults && rank === 1;
+            <StandingHeaderCell label="+ / -" />
+          </Box>
 
-            return (
-              <Tr
-                key={`${standing.categoryRegistrationId}-${rankKey}`}
-                bg={isTopRank ? 'green.50' : 'transparent'}
-                _dark={{
-                  bg: isTopRank ? 'green.950' : 'transparent',
-                }}
-              >
-                <Td textAlign="center">
-                  <HStack justify="center" gap={1}>
-                    {isTopRank && (
-                      <Trophy
-                        size={14}
-                        color="var(--chakra-colors-green-500)"
-                      />
+          <VStack align="stretch" gap={{ base: 3.5, md: 4.5 }}>
+            {rows.map((standing) => {
+              const rank =
+                rankKey === 'overallRank' && 'overallRank' in standing
+                  ? standing.overallRank
+                  : standing.rank;
+
+              return (
+                <Box
+                  key={`${standing.categoryRegistrationId}-${rankKey}`}
+                  display="grid"
+                  gridTemplateColumns={gridTemplate}
+                  alignItems="center"
+                  columnGap={{ base: 1, md: 2 }}
+                >
+                  <Flex
+                    w={{ base: 9, md: 11 }}
+                    h={{ base: 9, md: 11 }}
+                    align="center"
+                    justify="center"
+                    borderRadius="full"
+                    bg="gray.100"
+                    color="gray.900"
+                    fontSize={{ base: 'md', md: 'xl' }}
+                    fontWeight="800"
+                    _dark={{ bg: 'gray.800', color: 'gray.50' }}
+                  >
+                    {hasResults ? rank : '-'}
+                  </Flex>
+
+                  <Box minW={0}>
+                    <Text
+                      fontSize={{ base: 'md', md: 'xl' }}
+                      fontWeight="800"
+                      color="gray.950"
+                      lineHeight="1.15"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      _dark={{ color: 'gray.50' }}
+                    >
+                      {getStandingTeamLabel(standing)}
+                    </Text>
+                    {showGroup && 'sourceGroupName' in standing && (
+                      <Text
+                        mt={1}
+                        fontSize="xs"
+                        fontWeight="600"
+                        color="gray.500"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                        _dark={{ color: 'gray.400' }}
+                      >
+                        {standing.sourceGroupName}
+                      </Text>
                     )}
-                    <Text fontWeight="bold">{hasResults ? rank : '-'}</Text>
-                  </HStack>
-                </Td>
-                <Td
-                  fontWeight="medium"
-                  maxW={{ base: '180px', md: '260px' }}
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                  whiteSpace="nowrap"
-                >
-                  {getStandingTeamLabel(standing)}
-                </Td>
-                {showGroup && (
-                  <Td color="gray.500" _dark={{ color: 'gray.400' }}>
-                    {'sourceGroupName' in standing
-                      ? standing.sourceGroupName
-                      : ''}
-                  </Td>
-                )}
-                <Td textAlign="center">{standing.matchesPlayed}</Td>
-                <Td textAlign="center">{standing.matchesWon}</Td>
-                <Td textAlign="center">{standing.matchesLost}</Td>
-                <Td textAlign="center">{standing.matchesDrawn}</Td>
-                {showForfeits && (
-                  <Td textAlign="center">{standing.matchesForfeited ?? 0}</Td>
-                )}
-                {showCancelled && (
-                  <Td textAlign="center">{standing.matchesCancelled ?? 0}</Td>
-                )}
-                <Td textAlign="center" fontWeight="bold">
-                  {standing.points}
-                </Td>
-                <Td textAlign="center">{standing.pointsFor}</Td>
-                <Td textAlign="center">{standing.pointsAgainst}</Td>
-                <Td
-                  textAlign="center"
-                  color={
-                    standing.pointDifference > 0
-                      ? 'green.600'
-                      : standing.pointDifference < 0
-                        ? 'red.500'
-                        : 'gray.600'
-                  }
-                  _dark={{
-                    color:
+                  </Box>
+
+                  {showGroup && (
+                    <Text
+                      fontSize="sm"
+                      fontWeight="700"
+                      color="gray.500"
+                      textAlign="center"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      _dark={{ color: 'gray.400' }}
+                    >
+                      {'sourceGroupName' in standing
+                        ? standing.sourceGroupName
+                        : ''}
+                    </Text>
+                  )}
+
+                  <StandingMetric value={standing.points} isStrong />
+                  <StandingMetric value={standing.matchesPlayed} />
+                  <StandingMetric value={standing.matchesWon} />
+                  <StandingMetric value={standing.matchesDrawn} />
+                  <StandingMetric value={standing.matchesLost} />
+                  {showForfeits && (
+                    <StandingMetric value={standing.matchesForfeited ?? 0} />
+                  )}
+                  {showCancelled && (
+                    <StandingMetric value={standing.matchesCancelled ?? 0} />
+                  )}
+                  <StandingMetric
+                    value={
                       standing.pointDifference > 0
-                        ? 'green.300'
+                        ? `+${standing.pointDifference}`
+                        : standing.pointDifference
+                    }
+                    tone={
+                      standing.pointDifference > 0
+                        ? 'positive'
                         : standing.pointDifference < 0
-                          ? 'red.300'
-                          : 'gray.300',
-                  }}
-                >
-                  {standing.pointDifference > 0
-                    ? `+${standing.pointDifference}`
-                    : standing.pointDifference}
-                </Td>
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
-    </TableContainer>
+                          ? 'negative'
+                          : 'neutral'
+                    }
+                  />
+                </Box>
+              );
+            })}
+          </VStack>
+
+          {action && (
+            <Flex justify="flex-end" mt={{ base: 5, md: 6 }}>
+              {action}
+            </Flex>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function StandingHeaderCell({ label }: { label: string }) {
+  return (
+    <Text
+      textAlign="center"
+      fontSize={{ base: 'sm', md: 'xl' }}
+      fontWeight="800"
+      color="gray.700"
+      whiteSpace="nowrap"
+      _dark={{ color: 'gray.200' }}
+    >
+      {label}
+    </Text>
+  );
+}
+
+function StandingMetric({
+  value,
+  isStrong = false,
+  tone = 'default',
+}: {
+  value: number | string;
+  isStrong?: boolean;
+  tone?: 'default' | 'positive' | 'negative' | 'neutral';
+}) {
+  const toneColor =
+    tone === 'positive'
+      ? 'green.600'
+      : tone === 'negative'
+        ? 'red.500'
+        : tone === 'neutral'
+          ? 'gray.600'
+          : 'gray.950';
+  const darkToneColor =
+    tone === 'positive'
+      ? 'green.300'
+      : tone === 'negative'
+        ? 'red.300'
+        : tone === 'neutral'
+          ? 'gray.300'
+          : 'gray.50';
+
+  return (
+    <Text
+      textAlign="center"
+      fontSize={{ base: 'md', md: 'xl' }}
+      fontWeight={isStrong ? '900' : '800'}
+      color={toneColor}
+      lineHeight="1"
+      _dark={{ color: darkToneColor }}
+    >
+      {value}
+    </Text>
   );
 }
