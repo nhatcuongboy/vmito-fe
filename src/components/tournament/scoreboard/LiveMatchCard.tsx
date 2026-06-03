@@ -3,6 +3,7 @@
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { ScoreboardMatch } from '@/lib/api/types';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 
 interface Props {
   match: ScoreboardMatch;
@@ -24,6 +25,7 @@ export default function LiveMatchCard({
   showFullNames,
 }: Props) {
   const t = useTranslations('pages.tournaments.scoreboard');
+  const tRounds = useTranslations('pages.tournaments.scoreboard.rounds');
 
   const s1 = match.currentSet?.side1 ?? 0;
   const s2 = match.currentSet?.side2 ?? 0;
@@ -74,7 +76,7 @@ export default function LiveMatchCard({
             </Badge>
           )}
           <Text fontSize="sm" color="gray.400" truncate>
-            {match.categoryName} · {match.round}
+            {match.categoryName} · {getRoundDisplayLabel(match.round, tRounds)}
           </Text>
         </Flex>
         <Badge

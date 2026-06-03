@@ -54,7 +54,7 @@ function TournamentsContent() {
   const getStatusBadgeLabel = (status: TournamentStatus): string | null => {
     switch (status) {
       case 'PREPARING':
-        return t('registrationOpen');
+        return null;
       case 'IN_PROGRESS':
         return t('status.inProgress');
       case 'CANCELLED':

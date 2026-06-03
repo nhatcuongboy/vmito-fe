@@ -43,6 +43,7 @@ interface TopBarProps {
   centerTitle?: boolean;
   showMenuButton?: boolean;
   showLogo?: boolean;
+  showLogoDesktopOnly?: boolean;
   showAuthActions?: boolean;
 }
 
@@ -59,6 +60,7 @@ export default function TopBar({
   centerTitle = false,
   showMenuButton = true,
   showLogo = true,
+  showLogoDesktopOnly = false,
   showAuthActions = true,
 }: TopBarProps) {
   const common = useTranslations('common');
@@ -183,7 +185,7 @@ export default function TopBar({
               {showLogo && (
                 <Box
                   display={
-                    variant === 'secondary'
+                    variant === 'secondary' || showLogoDesktopOnly
                       ? { base: 'none', md: 'flex' }
                       : 'flex'
                   }
@@ -291,28 +293,32 @@ export default function TopBar({
               )}
             </Flex>
 
-            {/* App title - centered independently from left/right actions */}
+            {/* App title - centered in the space between the side actions.
+                Kept in normal flow (not absolutely positioned) so it can never
+                sit underneath the action buttons, and truncates with a single
+                trailing ellipsis instead of clipping both ends. */}
             {title && isCenteredTitle && (
-              <Heading
-                size={{ base: 'md', md: 'lg' }}
-                color="fg"
-                fontWeight="bold"
-                maxWidth={{ base: '50vw', md: '500px' }}
-                whiteSpace="nowrap"
-                overflow="hidden"
-                textOverflow="ellipsis"
+              <Flex
+                flex={1}
+                minW={0}
+                mx={2}
                 height="100%"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                position="absolute"
-                left="50%"
-                transform="translateX(-50%)"
-                textAlign="center"
-                pointerEvents="none"
+                align="center"
+                justify="center"
               >
-                {title}
-              </Heading>
+                <Heading
+                  size={{ base: 'md', md: 'lg' }}
+                  color="fg"
+                  fontWeight="bold"
+                  minW={0}
+                  maxWidth="100%"
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                >
+                  {title}
+                </Heading>
+              </Flex>
             )}
 
             {/* Right side - Actions */}

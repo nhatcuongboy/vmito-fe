@@ -42,7 +42,6 @@ const BracketEl = SingleEliminationBracket as React.ComponentType<any>;
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
 const GROUP_MATCH_OFFSET = 12;
 const MATCH_W = 200; // match card width passed to the bracket engine
 const MATCH_H = 60; // match card height (2 rows × 30px)
@@ -106,18 +105,31 @@ const getRoundName = (
   if (fromFinal === 0) return t('panels.rounds.finals');
   if (fromFinal === 1) return t('panels.rounds.semiFinals');
   if (fromFinal === 2) return t('panels.rounds.quarterFinals');
-  return `Round ${roundIndex + 1}`;
+  return t('panels.rounds.roundNumber', { number: roundIndex + 1 });
+};
+
+const getOrdinalLabel = (
+  rank: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
+  const oneBased = rank + 1;
+  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
+  return t(`panels.rounds.ordinals.${key}`, { rank: oneBased });
 };
 
 const generateAdvancingSlots = (
   groupCount: number,
-  winnersPerGroup: number
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>
 ): string[] => {
   const slots: string[] = [];
   for (let rank = 0; rank < winnersPerGroup; rank++) {
     for (let g = 0; g < groupCount; g++) {
       slots.push(
-        `${ORDINAL_LABELS[rank] ?? `${rank + 1}th`} Pool ${POOL_LABELS[g] ?? String(g + 1)}`
+        t('panels.rounds.nthPoolLabel', {
+          rank: getOrdinalLabel(rank, t),
+          pool: POOL_LABELS[g] ?? String(g + 1),
+        })
       );
     }
   }
@@ -137,9 +149,10 @@ const generateStandardSeeding = (bracketSize: number): number[] => {
 
 const computeDefaultSlots = (
   groupCount: number,
-  winnersPerGroup: number
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>
 ): string[] => {
-  const advancingSlots = generateAdvancingSlots(groupCount, winnersPerGroup);
+  const advancingSlots = generateAdvancingSlots(groupCount, winnersPerGroup, t);
   const n = advancingSlots.length;
   if (n < 2) return [];
   const bracketSize = nextPowerOf2(n);
@@ -429,7 +442,7 @@ export default function BracketVisualization({
   // ── Slot state ──────────────────────────────────────────────────────────────
   const [slots, setSlots] = useState<string[]>(() => {
     if (externalCustomSlots?.length) return externalCustomSlots;
-    return computeDefaultSlots(groupCount, winnersPerGroup);
+    return computeDefaultSlots(groupCount, winnersPerGroup, t);
   });
 
   useEffect(() => {
@@ -437,13 +450,13 @@ export default function BracketVisualization({
     const next =
       externalCustomSlots.length > 0
         ? externalCustomSlots
-        : computeDefaultSlots(groupCount, winnersPerGroup);
+        : computeDefaultSlots(groupCount, winnersPerGroup, t);
     setSlots((prev) => {
       if (prev.length === next.length && prev.every((s, i) => s === next[i]))
         return prev;
       return next;
     });
-  }, [externalCustomSlots, groupCount, winnersPerGroup]);
+  }, [externalCustomSlots, groupCount, winnersPerGroup, t]);
 
   // ── Build bracket data ───────────────────────────────────────────────────────
   const {
@@ -652,7 +665,7 @@ export default function BracketVisualization({
     return (
       <Flex align="center" justify="center" py={8}>
         <Text fontSize="sm" color="gray.400">
-          Not enough teams for bracket
+          {t('panels.rounds.notEnoughTeams')}
         </Text>
       </Flex>
     );

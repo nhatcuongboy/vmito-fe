@@ -34,6 +34,7 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   centerTitle?: boolean;
   showTopBarMenuButton?: boolean;
   showTopBarLogo?: boolean;
+  showTopBarLogoDesktopOnly?: boolean;
   showTopBarAuthActions?: boolean;
   /** Disable the left margin offset normally applied for the global sidebar */
   disableSidebarOffset?: boolean;
@@ -61,6 +62,7 @@ export default function PageLayout({
   centerTitle = false,
   showTopBarMenuButton = true,
   showTopBarLogo = true,
+  showTopBarLogoDesktopOnly = false,
   showTopBarAuthActions = true,
   disableSidebarOffset = false,
   ...containerProps
@@ -102,6 +104,7 @@ export default function PageLayout({
         centerTitle={centerTitle}
         showMenuButton={showTopBarMenuButton}
         showLogo={showTopBarLogo}
+        showLogoDesktopOnly={showTopBarLogoDesktopOnly}
         showAuthActions={showTopBarAuthActions}
       />
       {isDiscoveryPage && <DiscoveryTabNav />}

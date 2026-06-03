@@ -18,6 +18,7 @@ import {
   QrCode,
   Copy,
   Check,
+  Share2,
   MonitorPlay,
   Gavel,
 } from 'lucide-react';
@@ -191,6 +192,23 @@ export default function TournamentHomeTab({
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toaster.error({ title: 'Không thể sao chép link giải đấu' });
+    }
+  };
+
+  const handleShareLink = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: tournament.name,
+          text: tournament.name,
+          url: shareUrl,
+        });
+        return;
+      }
+
+      await handleCopyShareLink();
+    } catch {
+      toaster.error({ title: 'Không thể chia sẻ giải đấu' });
     }
   };
 
@@ -639,6 +657,16 @@ export default function TournamentHomeTab({
             onClick={handleCopyShareLink}
           >
             {copied ? 'Đã sao chép' : 'Sao chép link'}
+          </Button>
+          <Button
+            alignSelf={{ base: 'stretch', sm: 'flex-start' }}
+            size="sm"
+            variant="outline"
+            colorPalette="blue"
+            leftIcon={<Share2 size={15} />}
+            onClick={handleShareLink}
+          >
+            Chia sẻ
           </Button>
         </VStack>
       </Flex>

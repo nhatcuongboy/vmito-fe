@@ -1,17 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { Link, useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import {
   CalendarDays,
   Check,
   ChevronLeft,
   Copy,
-  ExternalLink,
   QrCode,
   Trophy,
   UserRound,
@@ -64,6 +65,8 @@ function TournamentTopBarMenu() {
 }
 
 export default function PublicTournamentTeamPage() {
+  const t = useTranslations('pages.tournaments.teamPage');
+  const tRounds = useTranslations('pages.tournaments.teamPage.rounds');
   const params = useParams();
   const router = useRouter();
   const tournamentId = params.tournamentId as string;
@@ -147,10 +150,10 @@ export default function PublicTournamentTeamPage() {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toaster.success({ title: 'Đã sao chép link' });
+      toaster.success({ title: t('copySuccess') });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toaster.error({ title: 'Không thể sao chép link' });
+      toaster.error({ title: t('copyError') });
     }
   };
 
@@ -167,7 +170,7 @@ export default function PublicTournamentTeamPage() {
   if (loading) {
     return (
       <PageLayout
-        title="Chi tiết đội"
+        title={t('title')}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
@@ -184,7 +187,7 @@ export default function PublicTournamentTeamPage() {
   if (!tournament || !category || !registration) {
     return (
       <PageLayout
-        title="Chi tiết đội"
+        title={t('title')}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
@@ -193,20 +196,22 @@ export default function PublicTournamentTeamPage() {
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
       >
-        <Text>Không tìm thấy đội trong giải đấu này.</Text>
+        <Text>{t('notFound')}</Text>
       </PageLayout>
     );
   }
 
   const members = registration.pair?.members ?? [];
   const teamName =
-    registration.pair?.name || registration.player?.name || 'Đội chưa có tên';
+    registration.pair?.name ||
+    registration.player?.name ||
+    t('defaultTeamName');
 
   const tabs = [
-    { id: 0, label: 'Tổng quan', icon: Home },
-    { id: 1, label: 'Đội', icon: Users },
-    { id: 2, label: 'Lịch đấu', icon: CalendarDays },
-    { id: 3, label: 'BXH', icon: BarChart3 },
+    { id: 0, label: t('tabs.overview'), icon: Home },
+    { id: 1, label: t('tabs.teams'), icon: Users },
+    { id: 2, label: t('tabs.schedule'), icon: CalendarDays },
+    { id: 3, label: t('tabs.standings'), icon: BarChart3 },
   ];
 
   const handleTabChange = (tabIndex: number) => {
@@ -224,7 +229,7 @@ export default function PublicTournamentTeamPage() {
   return (
     <>
       <PageLayout
-        title="Chi tiết đội"
+        title={t('title')}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
@@ -246,14 +251,14 @@ export default function PublicTournamentTeamPage() {
             leftIcon={<ChevronLeft size={16} />}
             onClick={() => router.push(`/tournament/${tournamentId}/teams`)}
           >
-            Danh sách đội
+            {t('backToList')}
           </Button>
           <Box borderWidth="1px" borderRadius="xl" bg="white" overflow="hidden">
             <Box bg="green.600" color="white" p={6}>
               <HStack gap={3}>
                 <Users size={30} />
                 <Box>
-                  <Text opacity={0.85}>Đội thi đấu</Text>
+                  <Text opacity={0.85}>{t('teamLabel')}</Text>
                   <Heading size="xl">{teamName}</Heading>
                 </Box>
               </HStack>
@@ -271,12 +276,10 @@ export default function PublicTournamentTeamPage() {
               <VStack align="stretch" gap={6} flex={1}>
                 <Box>
                   <Heading size="md" mb={3}>
-                    Thành viên
+                    {t('members')}
                   </Heading>
                   {members.length === 0 ? (
-                    <Text color="orange.600">
-                      Đội chưa cập nhật danh sách VĐV.
-                    </Text>
+                    <Text color="orange.600">{t('noMembers')}</Text>
                   ) : (
                     <VStack align="stretch" gap={2}>
                       {members.map((member) => (
@@ -295,7 +298,9 @@ export default function PublicTournamentTeamPage() {
                             p={3}
                           >
                             <UserRound size={18} />
-                            <Text>{member.player?.name || 'VĐV'}</Text>
+                            <Text>
+                              {member.player?.name || t('defaultPlayerName')}
+                            </Text>
                           </Flex>
                         </Link>
                       ))}
@@ -305,10 +310,10 @@ export default function PublicTournamentTeamPage() {
                 <Box>
                   <HStack gap={2} mb={3}>
                     <CalendarDays size={18} />
-                    <Heading size="md">Lịch và kết quả</Heading>
+                    <Heading size="md">{t('scheduleTitle')}</Heading>
                   </HStack>
                   {matches.length === 0 ? (
-                    <Text color="gray.500">Chưa có trận đấu.</Text>
+                    <Text color="gray.500">{t('noMatches')}</Text>
                   ) : (
                     <VStack align="stretch" gap={2}>
                       {matches.map((match) => (
@@ -319,10 +324,13 @@ export default function PublicTournamentTeamPage() {
                           p={3}
                         >
                           <Text fontWeight="semibold">
-                            {match.round} · Trận {match.matchNumber}
+                            {t('matchInfo', {
+                              round: getRoundDisplayLabel(match.round, tRounds),
+                              number: match.matchNumber,
+                            })}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
-                            {match.score || 'Chưa có kết quả'}
+                            {match.score || t('noResult')}
                           </Text>
                         </Box>
                       ))}
@@ -332,59 +340,44 @@ export default function PublicTournamentTeamPage() {
               </VStack>
 
               <Box
-                w={{ base: 'full', md: '260px' }}
+                w={{ base: 'full', md: '180px' }}
                 borderWidth="1px"
                 borderColor="gray.200"
                 borderRadius="xl"
-                p={4}
+                p={2.5}
                 bg="gray.50"
                 flexShrink={0}
               >
-                <VStack gap={3}>
+                <VStack gap={2} align="stretch">
                   <HStack gap={2}>
-                    <QrCode size={18} />
-                    <Text fontWeight="semibold">QR trang này</Text>
+                    <QrCode size={16} />
+                    <Text fontSize="sm" fontWeight="semibold">
+                      {t('qrTitle')}
+                    </Text>
                   </HStack>
-                  <Box bg="white" borderRadius="lg" p={3}>
+                  <Box bg="white" borderRadius="lg" p={2}>
                     {qrDataUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={qrDataUrl}
                         alt="QR code"
-                        width={184}
-                        height={184}
+                        width={136}
+                        height={136}
                         style={{ display: 'block' }}
                       />
                     ) : (
-                      <Box w="184px" h="184px" />
+                      <Box w="136px" h="136px" />
                     )}
                   </Box>
-                  <Text
-                    fontSize="xs"
-                    color="gray.600"
-                    textAlign="center"
-                    wordBreak="break-all"
-                  >
-                    {shareUrl}
-                  </Text>
                   <Button
                     w="full"
+                    size="sm"
                     variant="outline"
                     colorPalette={copied ? 'green' : 'gray'}
-                    leftIcon={copied ? <Check size={16} /> : <Copy size={16} />}
+                    leftIcon={copied ? <Check size={14} /> : <Copy size={14} />}
                     onClick={copyLink}
                   >
-                    {copied ? 'Đã sao chép' : 'Sao chép link'}
-                  </Button>
-                  <Button
-                    as={Link}
-                    href={sharePath}
-                    w="full"
-                    variant="ghost"
-                    colorPalette="gray"
-                    leftIcon={<ExternalLink size={16} />}
-                  >
-                    Mở link
+                    {copied ? t('copied') : t('copyLink')}
                   </Button>
                 </VStack>
               </Box>

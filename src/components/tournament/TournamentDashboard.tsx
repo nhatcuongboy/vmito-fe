@@ -21,14 +21,7 @@ interface Props {
   tournament: Tournament;
 }
 
-type StepId =
-  | 'format'
-  | 'teams'
-  | 'rounds'
-  | 'venue'
-  | 'schedule'
-  | 'fee'
-  | 'publish';
+type StepId = 'format' | 'teams' | 'rounds' | 'venue' | 'schedule' | 'publish';
 
 const STEP_IDS: StepId[] = [
   'format',
@@ -36,7 +29,6 @@ const STEP_IDS: StepId[] = [
   'rounds',
   'venue',
   'schedule',
-  'fee',
   'publish',
 ];
 
@@ -68,7 +60,6 @@ export default function TournamentDashboard({ tournament }: Props) {
       rounds: false, // cannot determine without fetching matches
       venue: hasVenue,
       schedule: false, // cannot determine without fetching schedule
-      fee: false, // no fee status in Tournament type yet
       publish: tournament.isPublished,
     };
   }, [tournament]);
@@ -96,7 +87,7 @@ export default function TournamentDashboard({ tournament }: Props) {
 
   const handleStepAction = (stepId: StepId) => {
     const option = STEP_MANAGE_OPTION[stepId];
-    if (stepId === 'fee' || stepId === 'publish') {
+    if (stepId === 'publish') {
       router.push(`/tournament/${slug}/manage`);
     } else if (option) {
       router.push(`/tournament/${slug}/manage?option=${option}`);

@@ -29,7 +29,6 @@ import PlayersPanel from './panels/PlayersPanel';
 import CategoriesPanel from './panels/CategoriesPanel';
 import FormatPanel from './panels/FormatPanel';
 import StandingsPanel from './panels/StandingsPanel';
-import RegistrationPanel from './panels/RegistrationPanel';
 import RoundsPanel from './panels/RoundsPanel';
 import VenuePanel from './panels/VenuePanel';
 import SchedulePanel from './panels/SchedulePanel';
@@ -98,7 +97,9 @@ export default function TournamentManage({
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(() =>
-    searchParams.get('option')
+    searchParams.get('option') === 'registration'
+      ? null
+      : searchParams.get('option')
   );
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
@@ -127,7 +128,12 @@ export default function TournamentManage({
 
   // Sync selectedItem when URL option param changes (e.g. back/forward navigation)
   useEffect(() => {
-    setSelectedItem(searchParams.get('option'));
+    const option = searchParams.get('option');
+    if (option === 'registration') {
+      setSelectedItem(null);
+      return;
+    }
+    setSelectedItem(option);
   }, [searchParams]);
 
   const handleItemClick = useCallback(
@@ -196,8 +202,6 @@ export default function TournamentManage({
             onCategoryUpdated={loadCategories}
           />
         );
-      case 'registration':
-        return <RegistrationPanel />;
       case 'rounds':
         return (
           <RoundsPanel

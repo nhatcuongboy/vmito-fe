@@ -616,7 +616,8 @@ export default function TournamentPageShell({
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
-        showTopBarLogo={false}
+        showTopBarLogo
+        showTopBarLogoDesktopOnly
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}

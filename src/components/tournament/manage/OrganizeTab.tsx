@@ -6,7 +6,6 @@ import {
   Users,
   UserCog,
   Layers,
-  ClipboardCheck,
   Workflow,
   BarChart3,
   GitBranch,
@@ -111,16 +110,6 @@ export default function OrganizeTab({
         preview={<CategoryDotsPreview categories={categories} />}
         isActive={selectedItem === 'categories'}
         onClick={() => onItemClick('categories')}
-      />
-
-      {/* Registration */}
-      <ManageMenuItem
-        icon={ClipboardCheck}
-        title={t('organize.registration.title')}
-        description={t('organize.registration.description')}
-        badge={t('organize.registration.badge')}
-        isActive={selectedItem === 'registration'}
-        onClick={() => onItemClick('registration')}
       />
 
       {/* Format */}

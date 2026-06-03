@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import QRCode from 'qrcode';
 import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
-import { Link, useRouter } from '@/i18n/config';
+import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
 import { toaster } from '@/components/ui/toaster';
 import { CategoryService } from '@/lib/api/category.service';
@@ -25,7 +26,6 @@ import {
   Check,
   ChevronLeft,
   Copy,
-  ExternalLink,
   MapPin,
   Medal,
   QrCode,
@@ -44,6 +44,7 @@ import {
   getUniqueLegacyTournamentPlayerCode,
   matchesTournamentPlayerCode,
 } from '@/lib/tournament/codes';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 
 function TournamentTopBarMenu() {
   const router = useRouter();
@@ -78,22 +79,6 @@ type ResolvedPlayerState =
   | { status: 'missing' }
   | { status: 'ambiguous' };
 
-const CATEGORY_TYPE_LABELS: Record<CategoryType, string> = {
-  [CategoryType.MENS_SINGLE]: 'Đơn nam',
-  [CategoryType.WOMENS_SINGLE]: 'Đơn nữ',
-  [CategoryType.MENS_DOUBLE]: 'Đôi nam',
-  [CategoryType.WOMENS_DOUBLE]: 'Đôi nữ',
-  [CategoryType.MIXED_DOUBLE]: 'Đôi nam nữ',
-  [CategoryType.CUSTOM]: 'Nội dung',
-};
-
-const MATCH_STATUS_LABELS: Record<MatchStatus, string> = {
-  [MatchStatus.SCHEDULED]: 'Sắp diễn ra',
-  [MatchStatus.IN_PROGRESS]: 'Đang thi đấu',
-  [MatchStatus.FINISHED]: 'Đã kết thúc',
-  [MatchStatus.CANCELLED]: 'Đã hủy',
-};
-
 const MATCH_STATUS_COLORS: Record<MatchStatus, string> = {
   [MatchStatus.SCHEDULED]: 'blue',
   [MatchStatus.IN_PROGRESS]: 'orange',
@@ -109,26 +94,30 @@ export const getUniqueTournamentPlayerCode = (
   tournamentPlayerIds: string[]
 ) => getUniqueLegacyTournamentPlayerCode(playerId, tournamentPlayerIds);
 
-const formatDate = (value?: Date | string) => {
+const formatDate = (value: Date | string | undefined, locale: string) => {
   if (!value) return '';
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
 
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   }).format(date);
 };
 
-const formatDateTime = (value?: Date | string) => {
-  if (!value) return 'Chưa xếp lịch';
+const formatDateTime = (
+  value: Date | string | undefined,
+  locale: string,
+  fallback: string
+) => {
+  if (!value) return fallback;
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Chưa xếp lịch';
+  if (Number.isNaN(date.getTime())) return fallback;
 
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -137,17 +126,22 @@ const formatDateTime = (value?: Date | string) => {
   }).format(date);
 };
 
-const getCategoryName = (category: Category) =>
-  category.name?.trim() || CATEGORY_TYPE_LABELS[category.type];
+const getCategoryName = (
+  category: Category,
+  categoryTypeLabels: Record<CategoryType, string>
+) => category.name?.trim() || categoryTypeLabels[category.type];
 
-const getRegistrationName = (registration: CategoryRegistration) =>
+const getRegistrationName = (
+  registration: CategoryRegistration,
+  fallback: string
+) =>
   registration.player?.name ||
   registration.pair?.name ||
   registration.pair?.members
     ?.map((member) => member.player?.name)
     .filter(Boolean)
     .join(' & ') ||
-  'Đội chưa có tên';
+  fallback;
 
 const registrationIncludesPlayer = (
   registration: CategoryRegistration,
@@ -179,7 +173,9 @@ const resolvePlayerByCode = (
 
 const buildPlayerCategories = async (
   categories: Category[],
-  playerId: string
+  playerId: string,
+  categoryTypeLabels: Record<CategoryType, string>,
+  defaultTeamName: string
 ) => {
   const categorySummaries = await Promise.all(
     categories.map(async (category) => {
@@ -192,9 +188,9 @@ const buildPlayerCategories = async (
 
       return {
         id: category.id,
-        name: getCategoryName(category),
+        name: getCategoryName(category, categoryTypeLabels),
         type: category.type,
-        teamName: getRegistrationName(playerRegistration),
+        teamName: getRegistrationName(playerRegistration, defaultTeamName),
       } satisfies PlayerCategorySummary;
     })
   );
@@ -204,13 +200,26 @@ const buildPlayerCategories = async (
   );
 };
 
-const getMatchTitle = (match: CategoryMatch, categories: Category[]) => {
+const getMatchTitle = (
+  match: CategoryMatch,
+  categories: Category[],
+  categoryTypeLabels: Record<CategoryType, string>,
+  defaultCategory: string,
+  roundLabel: string
+) => {
   const category = categories.find((item) => item.id === match.categoryId);
-  const categoryName = category ? getCategoryName(category) : 'Nội dung';
-  return `${categoryName} · ${match.round}`;
+  const categoryName = category
+    ? getCategoryName(category, categoryTypeLabels)
+    : defaultCategory;
+  return `${categoryName} · ${roundLabel}`;
 };
 
-const getMatchOpponentNames = (match: CategoryMatch, playerId: string) => {
+const getMatchOpponentNames = (
+  match: CategoryMatch,
+  playerId: string,
+  defaultTeamName: string,
+  noOpponent: string
+) => {
   const opponents =
     match.participants
       ?.filter((participant) => {
@@ -222,15 +231,51 @@ const getMatchOpponentNames = (match: CategoryMatch, playerId: string) => {
       })
       .map((participant) =>
         participant.categoryRegistration
-          ? getRegistrationName(participant.categoryRegistration)
+          ? getRegistrationName(
+              participant.categoryRegistration,
+              defaultTeamName
+            )
           : ''
       )
       .filter(Boolean) ?? [];
 
-  return opponents.length > 0 ? opponents.join(' / ') : 'Chưa có đối thủ';
+  return opponents.length > 0 ? opponents.join(' / ') : noOpponent;
 };
 
 export default function PublicTournamentPlayerPage() {
+  const t = useTranslations('pages.tournaments.playerPage');
+  const tRounds = useTranslations('pages.tournaments.playerPage.rounds');
+  const tCategoryTypes = useTranslations(
+    'pages.tournaments.playerPage.categoryTypes'
+  );
+  const tMatchStatuses = useTranslations(
+    'pages.tournaments.playerPage.matchStatuses'
+  );
+  const locale = useLocale();
+  const dateLocale =
+    locale === 'vi' ? 'vi-VN' : locale === 'cn' ? 'zh-CN' : 'en-US';
+
+  const categoryTypeLabels = useMemo<Record<CategoryType, string>>(
+    () => ({
+      [CategoryType.MENS_SINGLE]: tCategoryTypes('MENS_SINGLE'),
+      [CategoryType.WOMENS_SINGLE]: tCategoryTypes('WOMENS_SINGLE'),
+      [CategoryType.MENS_DOUBLE]: tCategoryTypes('MENS_DOUBLE'),
+      [CategoryType.WOMENS_DOUBLE]: tCategoryTypes('WOMENS_DOUBLE'),
+      [CategoryType.MIXED_DOUBLE]: tCategoryTypes('MIXED_DOUBLE'),
+      [CategoryType.CUSTOM]: tCategoryTypes('CUSTOM'),
+    }),
+    [tCategoryTypes]
+  );
+  const matchStatusLabels = useMemo<Record<MatchStatus, string>>(
+    () => ({
+      [MatchStatus.SCHEDULED]: tMatchStatuses('SCHEDULED'),
+      [MatchStatus.IN_PROGRESS]: tMatchStatuses('IN_PROGRESS'),
+      [MatchStatus.FINISHED]: tMatchStatuses('FINISHED'),
+      [MatchStatus.CANCELLED]: tMatchStatuses('CANCELLED'),
+    }),
+    [tMatchStatuses]
+  );
+
   const params = useParams();
   const router = useRouter();
   const tournamentId = params.tournamentId as string;
@@ -281,7 +326,12 @@ export default function PublicTournamentPlayerPage() {
       }
 
       const [categorySummaries, playerMatches] = await Promise.all([
-        buildPlayerCategories(categoryData, resolvedPlayer.player.id),
+        buildPlayerCategories(
+          categoryData,
+          resolvedPlayer.player.id,
+          categoryTypeLabels,
+          t('defaultTeamName')
+        ),
         TournamentPlayerService.getPlayerMatches(resolvedPlayer.player.id),
       ]);
 
@@ -296,7 +346,7 @@ export default function PublicTournamentPlayerPage() {
     } finally {
       setLoading(false);
     }
-  }, [playerCode, tournamentId]);
+  }, [playerCode, tournamentId, categoryTypeLabels, t]);
 
   useEffect(() => {
     loadPlayerPage();
@@ -323,17 +373,17 @@ export default function PublicTournamentPlayerPage() {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toaster.success({ title: 'Đã sao chép link' });
+      toaster.success({ title: t('copySuccess') });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toaster.error({ title: 'Không thể sao chép link' });
+      toaster.error({ title: t('copyError') });
     }
   };
 
   if (loading) {
     return (
       <PageLayout
-        title="Thông tin VĐV"
+        title={t('title')}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
@@ -350,12 +400,12 @@ export default function PublicTournamentPlayerPage() {
   if (!tournament || playerState.status !== 'found') {
     const message =
       playerState.status === 'ambiguous'
-        ? 'Mã VĐV này đang bị trùng. Vui lòng dùng mã dài hơn hoặc mở lại từ danh sách đội.'
-        : 'Không tìm thấy VĐV trong giải đấu này.';
+        ? t('ambiguousCode')
+        : t('playerNotFound');
 
     return (
       <PageLayout
-        title="Thông tin VĐV"
+        title={t('title')}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
@@ -372,7 +422,7 @@ export default function PublicTournamentPlayerPage() {
             leftIcon={<ChevronLeft size={16} />}
             onClick={() => router.push(`/tournament/${tournamentId}/teams`)}
           >
-            Quay lại danh sách đội
+            {t('backToList')}
           </Button>
           <Box
             borderWidth="1px"
@@ -382,7 +432,7 @@ export default function PublicTournamentPlayerPage() {
             p={6}
           >
             <Heading size="md" mb={2}>
-              Không mở được trang VĐV
+              {t('errorTitle')}
             </Heading>
             <Text color="gray.600">{message}</Text>
           </Box>
@@ -393,15 +443,17 @@ export default function PublicTournamentPlayerPage() {
 
   const { player } = playerState;
   const tournamentDates =
-    formatDate(tournament.startDate) === formatDate(tournament.endDate)
-      ? formatDate(tournament.startDate)
-      : `${formatDate(tournament.startDate)} - ${formatDate(
-          tournament.endDate
+    formatDate(tournament.startDate, dateLocale) ===
+    formatDate(tournament.endDate, dateLocale)
+      ? formatDate(tournament.startDate, dateLocale)
+      : `${formatDate(tournament.startDate, dateLocale)} - ${formatDate(
+          tournament.endDate,
+          dateLocale
         )}`;
 
   return (
     <PageLayout
-      title="Thông tin VĐV"
+      title={t('title')}
       showBackButton={false}
       topBarVariant="main"
       showTopBarMenuButton={false}
@@ -420,7 +472,7 @@ export default function PublicTournamentPlayerPage() {
           leftIcon={<ChevronLeft size={16} />}
           onClick={() => router.push(`/tournament/${tournamentId}/teams`)}
         >
-          Danh sách đội
+          {t('backToListShort')}
         </Button>
 
         <Box
@@ -446,7 +498,7 @@ export default function PublicTournamentPlayerPage() {
                 </Flex>
                 <Box minW={0}>
                   <Text fontSize="sm" opacity={0.9}>
-                    Vận động viên
+                    {t('athleteLabel')}
                   </Text>
                   <Heading size={{ base: 'lg', md: 'xl' }} lineHeight="short">
                     {player.name}
@@ -485,11 +537,11 @@ export default function PublicTournamentPlayerPage() {
               <Box>
                 <HStack gap={2} mb={3}>
                   <Medal size={18} color="var(--chakra-colors-green-600)" />
-                  <Heading size="md">Nội dung tham gia</Heading>
+                  <Heading size="md">{t('categoriesTitle')}</Heading>
                 </HStack>
 
                 {playerCategories.length === 0 ? (
-                  <Text color="gray.500">Chưa có nội dung thi đấu.</Text>
+                  <Text color="gray.500">{t('noCategories')}</Text>
                 ) : (
                   <VStack align="stretch" gap={3}>
                     {playerCategories.map((category) => (
@@ -513,7 +565,7 @@ export default function PublicTournamentPlayerPage() {
                             </Text>
                           </Box>
                           <Badge colorPalette="green">
-                            {CATEGORY_TYPE_LABELS[category.type]}
+                            {categoryTypeLabels[category.type]}
                           </Badge>
                         </Flex>
                       </Box>
@@ -528,11 +580,11 @@ export default function PublicTournamentPlayerPage() {
                     size={18}
                     color="var(--chakra-colors-green-600)"
                   />
-                  <Heading size="md">Lịch và kết quả</Heading>
+                  <Heading size="md">{t('scheduleTitle')}</Heading>
                 </HStack>
 
                 {matches.length === 0 ? (
-                  <Text color="gray.500">Chưa có trận đấu.</Text>
+                  <Text color="gray.500">{t('noMatches')}</Text>
                 ) : (
                   <VStack align="stretch" gap={3}>
                     {matches.map((match) => (
@@ -551,29 +603,45 @@ export default function PublicTournamentPlayerPage() {
                         >
                           <Box minW={0}>
                             <Text fontWeight="semibold">
-                              {getMatchTitle(match, categories)}
+                              {getMatchTitle(
+                                match,
+                                categories,
+                                categoryTypeLabels,
+                                t('defaultCategory'),
+                                getRoundDisplayLabel(match.round, tRounds)
+                              )}
                             </Text>
                             <Text color="gray.600" fontSize="sm" mt={1}>
-                              Đối thủ: {getMatchOpponentNames(match, player.id)}
+                              {t('opponentLabel')}:{' '}
+                              {getMatchOpponentNames(
+                                match,
+                                player.id,
+                                t('defaultTeamName'),
+                                t('noOpponent')
+                              )}
                             </Text>
                             <Text color="gray.600" fontSize="sm" mt={1}>
-                              {formatDateTime(match.startTime)}
+                              {formatDateTime(
+                                match.startTime,
+                                dateLocale,
+                                t('noSchedule')
+                              )}
                               {match.court?.courtName
                                 ? ` · ${match.court.courtName}`
                                 : match.court?.courtNumber
-                                  ? ` · Sân ${match.court.courtNumber}`
+                                  ? ` · ${t('courtPrefix', { number: match.court.courtNumber })}`
                                   : ''}
                             </Text>
                             {match.score && (
                               <Text fontWeight="medium" mt={2}>
-                                Tỉ số: {match.score}
+                                {t('scoreLabel')}: {match.score}
                               </Text>
                             )}
                           </Box>
                           <Badge
                             colorPalette={MATCH_STATUS_COLORS[match.status]}
                           >
-                            {MATCH_STATUS_LABELS[match.status]}
+                            {matchStatusLabels[match.status]}
                           </Badge>
                         </Flex>
                       </Box>
@@ -584,59 +652,44 @@ export default function PublicTournamentPlayerPage() {
             </VStack>
 
             <Box
-              w={{ base: 'full', md: '260px' }}
+              w={{ base: 'full', md: '180px' }}
               borderWidth="1px"
               borderColor="gray.200"
               borderRadius="xl"
-              p={4}
+              p={2.5}
               bg="gray.50"
               flexShrink={0}
             >
-              <VStack gap={3}>
+              <VStack gap={2} align="stretch">
                 <HStack gap={2}>
-                  <QrCode size={18} />
-                  <Text fontWeight="semibold">QR trang này</Text>
+                  <QrCode size={16} />
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {t('qrTitle')}
+                  </Text>
                 </HStack>
-                <Box bg="white" borderRadius="lg" p={3}>
+                <Box bg="white" borderRadius="lg" p={2}>
                   {qrDataUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={qrDataUrl}
                       alt="QR code"
-                      width={184}
-                      height={184}
+                      width={136}
+                      height={136}
                       style={{ display: 'block' }}
                     />
                   ) : (
-                    <Box w="184px" h="184px" />
+                    <Box w="136px" h="136px" />
                   )}
                 </Box>
-                <Text
-                  fontSize="xs"
-                  color="gray.600"
-                  textAlign="center"
-                  wordBreak="break-all"
-                >
-                  {shareUrl}
-                </Text>
                 <Button
                   w="full"
+                  size="sm"
                   variant="outline"
                   colorPalette={copied ? 'green' : 'gray'}
-                  leftIcon={copied ? <Check size={16} /> : <Copy size={16} />}
+                  leftIcon={copied ? <Check size={14} /> : <Copy size={14} />}
                   onClick={copyLink}
                 >
-                  {copied ? 'Đã sao chép' : 'Sao chép link'}
-                </Button>
-                <Button
-                  as={Link}
-                  href={sharePath}
-                  w="full"
-                  variant="ghost"
-                  colorPalette="gray"
-                  leftIcon={<ExternalLink size={16} />}
-                >
-                  Mở link
+                  {copied ? t('copied') : t('copyLink')}
                 </Button>
               </VStack>
             </Box>

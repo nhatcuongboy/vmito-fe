@@ -9,6 +9,7 @@ import { Pencil } from 'lucide-react';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Category, CategoryMatch, Tournament } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import ManualScoreModal from './ManualScoreModal';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
@@ -32,6 +33,7 @@ export default function ResultsPanel({
   canEdit = true,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
+  const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
 
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -122,7 +124,7 @@ export default function ResultsPanel({
                             </Text>
                           )}
                           <Text fontSize="xs" color="gray.500" truncate>
-                            {m.round}
+                            {getRoundDisplayLabel(m.round, tRounds)}
                           </Text>
                         </Flex>
                         <Text fontSize="sm" truncate>

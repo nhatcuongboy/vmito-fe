@@ -18,6 +18,7 @@ import {
   UserRole,
 } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
@@ -40,6 +41,7 @@ export default function RefereeMatchListPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
   const t = useTranslations('pages.tournaments.scoreEntry');
+  const tRounds = useTranslations('pages.tournaments.scoreEntry.rounds');
   const tGuard = useTranslations('auth.guard');
   const { user } = useAuthStore();
 
@@ -142,7 +144,7 @@ export default function RefereeMatchListPage() {
                             </Text>
                           )}
                           <Text fontSize="sm" color="gray.500" truncate>
-                            {match.round}
+                            {getRoundDisplayLabel(match.round, tRounds)}
                           </Text>
                         </Flex>
                         <Text fontWeight="semibold" truncate>

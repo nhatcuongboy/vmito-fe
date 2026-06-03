@@ -17,6 +17,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
 import { CategoryMatch, Tournament, TournamentUmpire } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import LinkUmpireAccountModal from './LinkUmpireAccountModal';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
@@ -26,6 +27,7 @@ interface Props {
 
 export default function UmpiresPanel({ tournament }: Props) {
   const t = useTranslations('pages.tournaments.umpires');
+  const tRounds = useTranslations('pages.tournaments.umpires.rounds');
 
   const [umpires, setUmpires] = useState<TournamentUmpire[]>([]);
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
@@ -124,26 +126,34 @@ export default function UmpiresPanel({ tournament }: Props) {
     );
   };
 
-  const handleBulkAssign = async () => {
-    if (!bulkRefereeId || selectedMatches.length === 0) return;
+  const assignRefereeToMatches = async (matchIds: string[]) => {
+    if (!bulkRefereeId || matchIds.length === 0) return;
 
     setBulkAssigning(true);
     try {
       await Promise.all(
-        selectedMatches.map((match) =>
-          CategoryService.assignReferee(match.id, bulkRefereeId, {
+        matchIds.map((matchId) =>
+          CategoryService.assignReferee(matchId, bulkRefereeId, {
             showToast: false,
           })
         )
       );
       toaster.success({
-        title: t('bulkAssignSuccess', { count: selectedMatches.length }),
+        title: t('bulkAssignSuccess', { count: matchIds.length }),
       });
       setSelectedMatchIds(new Set());
       await loadAll();
     } finally {
       setBulkAssigning(false);
     }
+  };
+
+  const handleBulkAssign = async () => {
+    await assignRefereeToMatches(selectedMatches.map((match) => match.id));
+  };
+
+  const handleAssignAll = async () => {
+    await assignRefereeToMatches(matches.map((match) => match.id));
   };
 
   if (loading) {
@@ -309,6 +319,14 @@ export default function UmpiresPanel({ tournament }: Props) {
         </Button>
         <Button
           variant="outline"
+          onClick={() => void handleAssignAll()}
+          loading={bulkAssigning}
+          disabled={matches.length === 0 || !bulkRefereeId || bulkAssigning}
+        >
+          {t('applyToAll')}
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => setSelectedMatchIds(new Set())}
           disabled={selectedMatchIds.size === 0 || bulkAssigning}
         >
@@ -343,7 +361,7 @@ export default function UmpiresPanel({ tournament }: Props) {
                   </Badge>
                 )}
                 <Text fontSize="xs" color="gray.500">
-                  {m.round}
+                  {getRoundDisplayLabel(m.round, tRounds)}
                 </Text>
               </Flex>
               <Text fontSize="sm" truncate>

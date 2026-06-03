@@ -10,7 +10,6 @@ import {
   Link,
   Image,
   FileText,
-  Receipt,
   Copy,
   Trash2,
 } from 'lucide-react';
@@ -117,15 +116,6 @@ export default function SettingsTab({
         description={t('settings.rosters.description')}
         isActive={selectedItem === 'rosters'}
         onClick={() => onItemClick('rosters')}
-      />
-
-      {/* Publishing Fee */}
-      <ManageMenuItem
-        icon={Receipt}
-        title={t('settings.publishingFee.title')}
-        description={t('settings.publishingFee.description')}
-        isActive={selectedItem === 'publishingFee'}
-        onClick={() => onItemClick('publishingFee')}
       />
 
       {/* Duplicate tournament */}
