@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Box, Flex, Text, Heading, Badge } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { VDrawer } from '@/components/ui/VDrawer';
 import {
   X,
@@ -119,6 +119,7 @@ export default function GenerateScheduleDrawer({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.generate'
   );
+  const locale = useLocale();
   const tc = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.constraints'
   );
@@ -567,7 +568,7 @@ export default function GenerateScheduleDrawer({
                       >
                         <Text fontSize="sm" fontWeight="semibold">
                           {new Date(slot.date + 'T00:00:00').toLocaleDateString(
-                            'en-US',
+                            locale,
                             {
                               month: 'short',
                               day: 'numeric',

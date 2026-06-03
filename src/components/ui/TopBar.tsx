@@ -202,14 +202,14 @@ export default function TopBar({
                     {icon || (
                       <Image
                         src="/icons/app-logo.png"
-                        h="32px"
+                        h={{ base: '40px', md: '40px' }}
                         w="auto"
                         alt={appName}
                       />
                     )}
                     <Text
                       display={{ base: 'none', md: 'block' }}
-                      fontSize={{ base: 'md', md: 'lg' }}
+                      fontSize={{ base: 'xl', md: '2xl' }}
                       fontWeight="bold"
                       color="green.600"
                     >

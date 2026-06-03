@@ -160,6 +160,8 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     const trimmedLevel = form.level.trim();
     return {
       name: form.name.trim(),
+      image: form.image.trim() || undefined,
+      imagePublicId: form.imagePublicId.trim() || undefined,
       gender: (form.gender || undefined) as GenderType | undefined,
       level: trimmedLevel ? Number(trimmedLevel) : undefined,
       levelDescription: form.levelDescription.trim() || undefined,
@@ -430,30 +432,28 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         secondaryActionText={t('cancel')}
       >
         <VStack gap={4} align="stretch">
-          {!editingPlayer && (
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={1}>
-                {t('avatar')}
-              </Text>
-              <AppSingleImageUpload
-                value={form.image}
-                publicId={form.imagePublicId}
-                category={EImageCategory.OTHER}
-                alt={form.name || t('avatar')}
-                emptyTitle={t('avatarEmpty')}
-                uploadText={t('avatarUpload')}
-                galleryText={t('avatarGallery')}
-                onChange={(image) => {
-                  updateField('image', image.url);
-                  updateField('imagePublicId', image.publicId ?? '');
-                }}
-                onClear={() => {
-                  updateField('image', '');
-                  updateField('imagePublicId', '');
-                }}
-              />
-            </Box>
-          )}
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={1}>
+              {t('avatar')}
+            </Text>
+            <AppSingleImageUpload
+              value={form.image}
+              publicId={form.imagePublicId}
+              category={EImageCategory.OTHER}
+              alt={form.name || t('avatar')}
+              emptyTitle={t('avatarEmpty')}
+              uploadText={t('avatarUpload')}
+              galleryText={t('avatarGallery')}
+              onChange={(image) => {
+                updateField('image', image.url);
+                updateField('imagePublicId', image.publicId ?? '');
+              }}
+              onClear={() => {
+                updateField('image', '');
+                updateField('imagePublicId', '');
+              }}
+            />
+          </Box>
 
           {!editingPlayer && (
             <Box>

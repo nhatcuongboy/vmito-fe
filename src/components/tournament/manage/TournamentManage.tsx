@@ -33,6 +33,7 @@ import RoundsPanel from './panels/RoundsPanel';
 import VenuePanel from './panels/VenuePanel';
 import SchedulePanel from './panels/SchedulePanel';
 import UmpiresPanel from './panels/UmpiresPanel';
+import ManagersPanel from './panels/ManagersPanel';
 import ResultsPanel from './panels/ResultsPanel';
 import SponsorsPanel from './panels/SponsorsPanel';
 import NamePanel from './panels/NamePanel';
@@ -225,6 +226,8 @@ export default function TournamentManage({
         );
       case 'umpires':
         return <UmpiresPanel tournament={tournament} />;
+      case 'managers':
+        return <ManagersPanel tournament={tournament} />;
       case 'results':
         return <ResultsPanel tournament={tournament} categories={categories} />;
       case 'sponsors':

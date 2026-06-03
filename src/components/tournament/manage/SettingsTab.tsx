@@ -13,7 +13,7 @@ import {
   Copy,
   Trash2,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import ManageMenuItem from './ManageMenuItem';
 
@@ -29,9 +29,10 @@ export default function SettingsTab({
   onItemClick,
 }: SettingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const locale = useLocale();
 
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
-    'en-US',
+    locale,
     {
       weekday: 'short',
       month: 'short',

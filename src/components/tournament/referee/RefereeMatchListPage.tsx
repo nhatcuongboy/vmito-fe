@@ -89,7 +89,11 @@ export default function RefereeMatchListPage() {
   })).filter((g) => g.items.length > 0);
 
   return (
-    <PageLayout title={t('title')}>
+    <PageLayout
+      title={t('title')}
+      showTopBarMenuButton={false}
+      disableSidebarOffset
+    >
       {loading ? (
         <TournamentMatchListSkeleton count={6} />
       ) : !canAccess ? (

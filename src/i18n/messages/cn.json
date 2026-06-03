@@ -1442,6 +1442,10 @@
         "title": "锦标赛",
         "notFound": "未找到锦标赛",
         "comingSoon": "内容即将推出",
+        "publicationStatus": {
+          "published": "已发布",
+          "draft": "草稿"
+        },
         "tabs": {
           "home": "主页",
           "teams": "队伍",
@@ -1838,7 +1842,8 @@
             "name": "锦标赛名称",
             "dates": "锦标赛日期",
             "location": "锦标赛地点",
-            "banner": "锦标赛横幅"
+            "banner": "锦标赛横幅",
+            "managers": "管理员"
           },
           "duplicateModal": {
             "title": "复制锦标赛",
@@ -2182,6 +2187,10 @@
             "sponsors": {
               "title": "赞助商",
               "description": "为锦标赛添加赞助商。"
+            },
+            "managers": {
+              "title": "管理员",
+              "description": "指派协办者并分配权限"
             }
           },
           "settings": {
@@ -3010,6 +3019,28 @@
         "noMatches": "暂无可录入的比赛。",
         "court": "场地",
         "enterResult": "录入结果",
+        "viewList": "列表",
+        "viewCalendar": "日历",
+        "calendar": {
+          "time": "时间",
+          "empty": "暂无同时设置场地和时间的比赛可在日历中显示。"
+        },
+        "filters": {
+          "title": "筛选",
+          "categories": "项目",
+          "rounds": "轮次",
+          "courts": "场地",
+          "status": "状态",
+          "dates": "日期",
+          "teams": "队伍",
+          "clear": "清除筛选",
+          "apply": "应用",
+          "empty": "没有符合筛选条件的比赛。",
+          "statusUpcoming": "即将/进行中",
+          "statusFinished": "已结束",
+          "statusCancelled": "已取消",
+          "statusForfeited": "弃赛"
+        },
         "rounds": {
           "group": "小组赛",
           "qf": "1/4决赛",
@@ -3126,6 +3157,28 @@
           "r32": "1/16决赛",
           "r64": "1/32决赛",
           "r128": "1/64决赛"
+        }
+      },
+      "managers": {
+        "title": "赛事管理员",
+        "description": "指派其他用户以特定权限共同管理本赛事。",
+        "searchPlaceholder": "按姓名或邮箱搜索用户",
+        "searching": "搜索中…",
+        "noResults": "未找到用户",
+        "permissionsLabel": "权限",
+        "selectAtLeastOne": "请至少选择一项权限",
+        "add": "添加管理员",
+        "noManagers": "尚未指派管理员。",
+        "edit": "编辑",
+        "save": "保存",
+        "cancel": "取消",
+        "remove": "移除",
+        "accessDenied": "只有主办方可以管理此列表。",
+        "permissions": {
+          "RESULTS": "成绩与计分",
+          "SCHEDULE": "赛程、场地与裁判",
+          "PARTICIPANTS": "选手与报名",
+          "STRUCTURE": "项目与赛制"
         }
       }
     },

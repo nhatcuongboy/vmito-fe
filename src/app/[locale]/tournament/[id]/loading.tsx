@@ -7,7 +7,7 @@ export default function Loading() {
       showBackButton={false}
       topBarVariant="main"
       showTopBarMenuButton={false}
-      showTopBarLogo={false}
+      showTopBarLogo
       showTopBarAuthActions={false}
       disableSidebarOffset
       maxW="full"

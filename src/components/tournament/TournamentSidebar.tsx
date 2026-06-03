@@ -1,10 +1,11 @@
 'use client';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Skeleton, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
 import { LucideIcon } from 'lucide-react';
 import { Tournament } from '@/lib/api/types';
 import SidebarNav from '@/components/ui/SidebarNav';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface SidebarTab {
   id: number;
@@ -13,7 +14,7 @@ interface SidebarTab {
 }
 
 interface TournamentSidebarProps {
-  tournament: Tournament;
+  tournament: Tournament | null;
   tabs: SidebarTab[];
   activeTab: number;
   onTabChange: (tabIndex: number) => void;
@@ -25,8 +26,47 @@ export default function TournamentSidebar({
   activeTab,
   onTabChange,
 }: TournamentSidebarProps) {
+  const t = useTranslations('pages.tournaments.detail.publicationStatus');
+  const locale = useLocale();
+
+  const header = tournament ? (
+    <TournamentSidebarHeader
+      tournament={tournament}
+      locale={locale}
+      publishedLabel={t('published')}
+      draftLabel={t('draft')}
+    />
+  ) : (
+    <TournamentSidebarHeaderSkeleton />
+  );
+
+  return (
+    <SidebarNav
+      header={header}
+      items={tabs}
+      activeId={activeTab}
+      onItemClick={(id) => onTabChange(Number(id))}
+      width="250px"
+      topOffset="80px"
+    />
+  );
+}
+
+interface TournamentSidebarHeaderProps {
+  tournament: Tournament;
+  locale: string;
+  publishedLabel: string;
+  draftLabel: string;
+}
+
+function TournamentSidebarHeader({
+  tournament,
+  locale,
+  publishedLabel,
+  draftLabel,
+}: TournamentSidebarHeaderProps) {
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
-    'en-US',
+    locale,
     {
       weekday: 'short',
       month: 'short',
@@ -35,10 +75,10 @@ export default function TournamentSidebar({
     }
   );
 
-  const statusLabel = tournament.isPublished ? 'Published' : 'Draft';
+  const statusLabel = tournament.isPublished ? publishedLabel : draftLabel;
   const statusColor = tournament.isPublished ? 'green' : 'gray';
 
-  const header = (
+  return (
     <>
       {/* Tournament banner image */}
       <Box position="relative" bg="gray.100" h="130px">
@@ -87,15 +127,18 @@ export default function TournamentSidebar({
       </Box>
     </>
   );
+}
 
+function TournamentSidebarHeaderSkeleton() {
   return (
-    <SidebarNav
-      header={header}
-      items={tabs}
-      activeId={activeTab}
-      onItemClick={(id) => onTabChange(Number(id))}
-      width="250px"
-      topOffset="80px"
-    />
+    <>
+      <Box bg="gray.100" h="130px">
+        <Skeleton h="100%" w="100%" />
+      </Box>
+      <Box px={4} pt={4} pb={2}>
+        <Skeleton height="20px" width="80%" mb={2} borderRadius="md" />
+        <Skeleton height="14px" width="55%" borderRadius="md" />
+      </Box>
+    </>
   );
 }

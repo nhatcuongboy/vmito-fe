@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   DndContext,
@@ -188,6 +188,7 @@ export default function ScheduleCalendarView({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.list'
   );
+  const locale = useLocale();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -294,7 +295,7 @@ export default function ScheduleCalendarView({
                 mb={2}
               >
                 <Text fontSize="sm" fontWeight="semibold">
-                  {new Date(day + 'T00:00:00').toLocaleDateString('en-US', {
+                  {new Date(day + 'T00:00:00').toLocaleDateString(locale, {
                     weekday: 'short',
                     month: 'short',
                     day: 'numeric',

@@ -1146,6 +1146,48 @@ export type CategoryStandingsResponse = Array<{
   standings: GroupStanding[];
 }>;
 
+// ─── Tournament managers ───
+export type TournamentPermission =
+  | 'RESULTS'
+  | 'SCHEDULE'
+  | 'PARTICIPANTS'
+  | 'STRUCTURE';
+
+export const TOURNAMENT_PERMISSIONS: TournamentPermission[] = [
+  'RESULTS',
+  'SCHEDULE',
+  'PARTICIPANTS',
+  'STRUCTURE',
+];
+
+export interface TournamentManager {
+  id: string;
+  tournamentId: string;
+  userId: string;
+  permissions: TournamentPermission[];
+  addedById?: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: { id: string; name: string; email: string; image?: string };
+}
+
+// Current user's management access to a tournament (gates the manage UI).
+export interface TournamentMyAccess {
+  tournamentId: string;
+  isHost: boolean;
+  isAdmin: boolean;
+  permissions: TournamentPermission[];
+}
+
+export interface AddTournamentManagerRequest {
+  userId: string;
+  permissions: TournamentPermission[];
+}
+
+export interface UpdateTournamentManagerRequest {
+  permissions: TournamentPermission[];
+}
+
 // ============================================
 // Rating & Review System Types
 // ============================================

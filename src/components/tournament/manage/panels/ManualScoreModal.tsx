@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
+import { Button, Input } from '@/components/ui/chakra-compat';
 import {
   Modal,
   ModalHeader,
@@ -11,7 +11,7 @@ import {
   ModalCloseButton,
 } from '@/components/ui/ChakraModal';
 import { useTranslations } from 'next-intl';
-import { Plus, Trash2 } from 'lucide-react';
+import { Flag, Minus, Plus, Send, Trophy } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import {
@@ -20,6 +20,7 @@ import {
   MatchSet,
 } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import {
   defaultRules,
   isMatchComplete,
@@ -50,6 +51,7 @@ export default function ManualScoreModal({
   pointsEarning,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
+  const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const [sets, setSets] = useState<SetInput[]>([]);
   const [mode, setMode] = useState<ResultMode>('score');
   const [forfeitWinner, setForfeitWinner] = useState<1 | 2 | null>(null);
@@ -119,6 +121,7 @@ export default function ManualScoreModal({
 
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
+  const roundLabel = getRoundDisplayLabel(match.round, tRounds);
 
   const matchSets: MatchSet[] = sets.map((s, i) => ({
     setNumber: i + 1,
@@ -153,8 +156,7 @@ export default function ManualScoreModal({
 
   const addSet = () =>
     setSets((prev) => [...prev, { player1Score: 0, player2Score: 0 }]);
-  const removeSet = (index: number) =>
-    setSets((prev) => prev.filter((_, i) => i !== index));
+  const removeLatestSet = () => setSets((prev) => prev.slice(0, -1));
 
   const buildPayload = (): EndCategoryMatchRequest | null => {
     if (mode === 'forfeit') {
@@ -212,29 +214,58 @@ export default function ManualScoreModal({
     : ['score', 'forfeit'];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <ModalHeader>{t('title')}</ModalHeader>
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <ModalHeader pb={3}>
+        <Text fontSize="2xl" fontWeight="bold" lineHeight="1.2">
+          {t('title')}
+        </Text>
+        <Text mt={2} fontSize="sm" color="gray.500" fontWeight="medium">
+          #{match.matchNumber} · {roundLabel}
+        </Text>
+      </ModalHeader>
       <ModalCloseButton onClose={onClose} />
-      <ModalBody>
-        <Flex justify="space-between" align="center" mb={4} gap={2}>
-          <Text fontWeight="semibold" flex="1" truncate>
-            {team1}
+      <ModalBody p={{ base: 4, md: 5 }}>
+        <Flex justify="space-between" align="flex-start" mb={4} gap={3}>
+          <TeamHeading label={team1} align="left" />
+          <Text
+            color="gray.400"
+            fontSize="lg"
+            lineHeight="1.4"
+            pt={1}
+            flexShrink={0}
+          >
+            {t('vs')}
           </Text>
-          <Text color="gray.400">{t('vs')}</Text>
-          <Text fontWeight="semibold" flex="1" textAlign="right" truncate>
-            {team2}
-          </Text>
+          <TeamHeading label={team2} align="right" />
         </Flex>
 
-        <Flex gap={2} mb={4}>
+        <Flex
+          gap={2}
+          mb={5}
+          p={1}
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="lg"
+          bg="gray.50"
+          _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+        >
           {modes.map((m) => (
             <Button
               key={m}
-              size="sm"
+              size="md"
               flex="1"
               variant={mode === m ? 'solid' : 'outline'}
               colorPalette={mode === m ? 'blue' : 'gray'}
               onClick={() => setMode(m)}
+              leftIcon={
+                m === 'score' ? (
+                  <Send size={16} />
+                ) : m === 'forfeit' ? (
+                  <Flag size={16} />
+                ) : (
+                  <Trophy size={16} />
+                )
+              }
             >
               {t(
                 m === 'score'
@@ -249,60 +280,106 @@ export default function ManualScoreModal({
 
         {mode === 'score' && (
           <>
+            <Flex align="center" gap={2} mb={2}>
+              <Text flex="0 0 72px" fontSize="sm" color="gray.500" />
+              <Text
+                flex="1"
+                textAlign="center"
+                fontSize="sm"
+                color="gray.600"
+                fontWeight="semibold"
+                truncate
+              >
+                {team1}
+              </Text>
+              <Text flex="0 0 18px" />
+              <Text
+                flex="1"
+                textAlign="center"
+                fontSize="sm"
+                color="gray.600"
+                fontWeight="semibold"
+                truncate
+              >
+                {team2}
+              </Text>
+            </Flex>
             {sets.map((s, i) => (
-              <Flex key={i} align="center" gap={2} mb={2}>
-                <Text fontSize="sm" color="gray.500" minW="48px">
+              <Flex key={i} align="center" gap={2} mb={3}>
+                <Text fontSize="sm" color="gray.500" flex="0 0 72px">
                   {t('set')} {i + 1}
                 </Text>
                 <Input
                   type="number"
+                  inputMode="numeric"
                   min={0}
                   value={String(s.player1Score)}
                   onChange={(e) => updateScore(i, 1, e.target.value)}
+                  onFocus={(e) => e.target.select()}
                   textAlign="center"
+                  h="48px"
+                  fontSize="lg"
+                  fontWeight="semibold"
                 />
-                <Text color="gray.400">-</Text>
+                <Text color="gray.400" flex="0 0 18px" textAlign="center">
+                  -
+                </Text>
                 <Input
                   type="number"
+                  inputMode="numeric"
                   min={0}
                   value={String(s.player2Score)}
                   onChange={(e) => updateScore(i, 2, e.target.value)}
+                  onFocus={(e) => e.target.select()}
                   textAlign="center"
+                  h="48px"
+                  fontSize="lg"
+                  fontWeight="semibold"
                 />
-                {sets.length > minSets && (
-                  <IconButton
-                    aria-label={t('removeSet')}
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeSet(i)}
-                  >
-                    <Trash2 size={14} />
-                  </IconButton>
-                )}
               </Flex>
             ))}
 
-            {sets.length < maxSets && (
-              <Button size="sm" variant="ghost" onClick={addSet} mt={1}>
-                <Plus size={14} /> {t('addSet')}
+            <Flex gap={3} mt={2}>
+              <Button
+                flex="1"
+                size="md"
+                variant="outline"
+                colorPalette="green"
+                onClick={addSet}
+                disabled={sets.length >= maxSets}
+                leftIcon={<Plus size={16} />}
+              >
+                {t('addSet')}
               </Button>
-            )}
+              <Button
+                flex="1"
+                size="md"
+                variant="outline"
+                colorPalette="gray"
+                onClick={removeLatestSet}
+                disabled={sets.length <= minSets}
+                leftIcon={<Minus size={16} />}
+              >
+                {t('removeSet')}
+              </Button>
+            </Flex>
 
-            <ResultBox>
+            <ResultBox tone={complete && winnerName ? 'success' : 'warning'}>
               {complete && winnerName ? (
-                <Text>
-                  {t('winner')}:{' '}
-                  <Text as="span" fontWeight="bold" color="green.500">
-                    {winnerName}
-                  </Text>{' '}
-                  <Text as="span" color="gray.500">
-                    ({buildScoreString(matchSets)})
+                <Flex justify="center" align="center" gap={2} wrap="wrap">
+                  <Trophy size={18} />
+                  <Text>
+                    {t('winner')}:{' '}
+                    <Text as="span" fontWeight="bold">
+                      {winnerName}
+                    </Text>{' '}
+                    <Text as="span" color="gray.500">
+                      ({buildScoreString(matchSets)})
+                    </Text>
                   </Text>
-                </Text>
+                </Flex>
               ) : (
-                <Text color="orange.500" fontSize="sm">
-                  {t('noWinnerYet')}
-                </Text>
+                <Text fontSize="sm">{t('noWinnerYet')}</Text>
               )}
             </ResultBox>
           </>
@@ -318,6 +395,7 @@ export default function ManualScoreModal({
                 <Button
                   key={pos}
                   flex="1"
+                  minH="48px"
                   variant={forfeitWinner === pos ? 'solid' : 'outline'}
                   colorPalette={forfeitWinner === pos ? 'green' : 'gray'}
                   onClick={() => setForfeitWinner(pos)}
@@ -342,6 +420,7 @@ export default function ManualScoreModal({
                   </Text>
                   <Input
                     type="number"
+                    inputMode="numeric"
                     min={0}
                     value={String(pos === 1 ? manual1 : manual2)}
                     onChange={(e) => {
@@ -350,11 +429,14 @@ export default function ManualScoreModal({
                       else setManual2(v);
                     }}
                     textAlign="center"
+                    h="48px"
+                    fontSize="lg"
+                    fontWeight="semibold"
                   />
                 </Box>
               ))}
             </Flex>
-            <ResultBox>
+            <ResultBox tone={manualWinner ? 'success' : 'neutral'}>
               <Text>
                 {t('winner')}:{' '}
                 <Text as="span" fontWeight="bold" color="green.500">
@@ -369,7 +451,7 @@ export default function ManualScoreModal({
           </>
         )}
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter p={{ base: 4, md: 5 }}>
         <Button variant="outline" onClick={onClose} disabled={submitting}>
           {t('cancel')}
         </Button>
@@ -386,15 +468,67 @@ export default function ManualScoreModal({
   );
 }
 
-function ResultBox({ children }: { children: React.ReactNode }) {
+function TeamHeading({
+  label,
+  align,
+}: {
+  label: string;
+  align: 'left' | 'right';
+}) {
+  return (
+    <Box flex="1" minW={0}>
+      <Text
+        fontWeight="bold"
+        fontSize={{ base: 'lg', md: 'xl' }}
+        textAlign={align}
+        lineClamp={2}
+      >
+        {label}
+      </Text>
+    </Box>
+  );
+}
+
+function ResultBox({
+  children,
+  tone = 'neutral',
+}: {
+  children: React.ReactNode;
+  tone?: 'success' | 'warning' | 'neutral';
+}) {
+  const toneStyles = {
+    success: {
+      bg: 'green.50',
+      color: 'green.700',
+      borderColor: 'green.100',
+      _dark: { bg: 'green.900', color: 'green.100', borderColor: 'green.700' },
+    },
+    warning: {
+      bg: 'orange.50',
+      color: 'orange.600',
+      borderColor: 'orange.100',
+      _dark: {
+        bg: 'orange.900',
+        color: 'orange.100',
+        borderColor: 'orange.700',
+      },
+    },
+    neutral: {
+      bg: 'gray.50',
+      color: 'gray.700',
+      borderColor: 'gray.100',
+      _dark: { bg: 'gray.700', color: 'gray.100', borderColor: 'gray.600' },
+    },
+  }[tone];
+
   return (
     <Box
       mt={4}
       p={3}
+      borderWidth="1px"
       borderRadius="lg"
-      bg="gray.50"
-      _dark={{ bg: 'gray.700' }}
       textAlign="center"
+      {...toneStyles}
     >
       {children}
     </Box>

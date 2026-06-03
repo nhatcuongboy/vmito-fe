@@ -2,7 +2,7 @@
 
 import { Box, Flex, Heading, Text, Input, Grid } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useState } from 'react';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -20,6 +20,7 @@ export default function DatesPanel({
   onTournamentUpdate,
 }: DatesPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage.panels.dates');
+  const locale = useLocale();
 
   // Format dates for input (YYYY-MM-DD)
   const formatDateForInput = (date: Date | string) => {
@@ -80,7 +81,7 @@ export default function DatesPanel({
 
   const formatDisplayDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(locale, {
       weekday: 'short',
       month: 'short',
       day: 'numeric',

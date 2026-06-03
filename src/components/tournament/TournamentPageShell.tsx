@@ -13,11 +13,13 @@ import {
 import PageLayout from '@/components/layout/PageLayout';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
 import { TournamentService } from '@/lib/api/tournament.service';
+import { TournamentManagerService } from '@/lib/api/tournament-manager.service';
 import {
   Category,
   CategoryRegistration,
   CategoryType,
   Tournament,
+  TournamentMyAccess,
   TournamentPlayer,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
@@ -51,8 +53,8 @@ import {
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import {
+  TournamentContentSkeleton,
   TournamentMatchListSkeleton,
-  TournamentShellSkeleton,
   TournamentTableSkeleton,
   TournamentTeamsSkeleton,
 } from '@/components/tournament/skeletons';
@@ -133,6 +135,33 @@ export default function TournamentPageShell({
     [user, tournament]
   );
 
+  // Management access for the current user: host, system admin, or an assigned
+  // manager with at least one permission scope. Lets managers reach the manage
+  // screen (per-action scopes are still enforced by the backend).
+  const [myAccess, setMyAccess] = useState<TournamentMyAccess | null>(null);
+
+  useEffect(() => {
+    if (!user || !tournament) {
+      setMyAccess(null);
+      return;
+    }
+    let active = true;
+    TournamentManagerService.getMyAccess(tournament.id)
+      .then((access) => {
+        if (active) setMyAccess(access);
+      })
+      .catch(() => {
+        if (active) setMyAccess(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user, tournament]);
+
+  const isAdmin = user?.role === 'ADMIN';
+  const canManage =
+    isHost || isAdmin || (myAccess?.permissions.length ?? 0) > 0;
+
   const tabs = useMemo(() => {
     const allTabs = [
       { id: 0, label: t('tabs.home'), icon: Home },
@@ -144,12 +173,12 @@ export default function TournamentPageShell({
       { id: 5, label: t('tabs.dashboard'), icon: LayoutGrid },
     ];
 
-    if (!isHost) {
-      return allTabs.filter((tab) => tab.id !== 4 && tab.id !== 5);
-    }
-
-    return allTabs;
-  }, [isHost, t]);
+    return allTabs.filter((tab) => {
+      if (tab.id === 4) return canManage; // Manage: host, admin, or manager
+      if (tab.id === 5) return isHost || isAdmin; // Dashboard: host/admin only
+      return true;
+    });
+  }, [canManage, isHost, isAdmin, t]);
 
   // On the mobile bottom bar the host uses the floating "Enter scores" button
   // instead of a Results tab (avoids crowding 7 tabs), so drop Results (id 6)
@@ -410,15 +439,30 @@ export default function TournamentPageShell({
   );
 
   useEffect(() => {
-    if (
-      !loading &&
-      tournament &&
-      !isHost &&
-      (activeSegment === 'manage' || activeSegment === 'dashboard')
-    ) {
+    if (loading || !tournament) return;
+    // For a host/admin or a logged-out user the verdict is immediate; for a
+    // potential manager we must wait until the access check has resolved before
+    // redirecting, otherwise we'd bounce them off /manage prematurely.
+    const accessResolved = isHost || isAdmin || !user || myAccess !== null;
+    const blockedFromManage =
+      activeSegment === 'manage' && accessResolved && !canManage;
+    const blockedFromDashboard =
+      activeSegment === 'dashboard' && !isHost && !isAdmin;
+    if (blockedFromManage || blockedFromDashboard) {
       router.replace(`/tournament/${slug}`);
     }
-  }, [loading, tournament, isHost, activeSegment, router, slug]);
+  }, [
+    loading,
+    tournament,
+    user,
+    isHost,
+    isAdmin,
+    canManage,
+    myAccess,
+    activeSegment,
+    router,
+    slug,
+  ]);
 
   const handleManageTeamsClick = () => {
     router.push(`/tournament/${slug}/manage?option=teams`);
@@ -426,17 +470,55 @@ export default function TournamentPageShell({
 
   if (loading) {
     return (
-      <PageLayout
-        title={t('title')}
-        showBackButton={false}
-        topBarVariant="main"
-        showTopBarMenuButton={false}
-        showTopBarLogo={false}
-        showTopBarAuthActions={false}
-        rightContent={<TournamentTopBarMenu />}
-      >
-        <TournamentShellSkeleton />
-      </PageLayout>
+      <>
+        <PageLayout
+          title={t('title')}
+          showBackButton={false}
+          topBarVariant="main"
+          showTopBarMenuButton={false}
+          showTopBarLogo
+          showTopBarAuthActions={false}
+          disableSidebarOffset
+          rightContent={<TournamentTopBarMenu />}
+          maxW="full"
+          px={{ base: '24px', md: 0 }}
+          pb={{
+            base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
+            md: '24px',
+          }}
+        >
+          {/* Desktop: real sidebar (skeleton header, real tabs) + content skeleton */}
+          <Flex
+            display={{ base: 'none', md: 'flex' }}
+            gap={6}
+            pt={{ md: 6 }}
+            pl={{ md: 4 }}
+            pr={{ md: 6 }}
+          >
+            <TournamentSidebar
+              tournament={null}
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+            />
+            <Box flex="1" minW={0}>
+              <TournamentContentSkeleton />
+            </Box>
+          </Flex>
+
+          {/* Mobile: content skeleton only */}
+          <Box display={{ base: 'block', md: 'none' }}>
+            <TournamentContentSkeleton />
+          </Box>
+        </PageLayout>
+
+        {/* Bottom tabs render normally during loading */}
+        <BottomNavigationBar
+          tabs={bottomNavTabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
+      </>
     );
   }
 
@@ -604,7 +686,7 @@ export default function TournamentPageShell({
             canEdit={isHost}
           />
         ))}
-      {activeTab === 4 && isHost && (
+      {activeTab === 4 && canManage && (
         <TournamentManage
           tournament={tournament}
           onTournamentUpdate={(updated) => setTournament(updated)}
@@ -624,7 +706,6 @@ export default function TournamentPageShell({
         topBarVariant="main"
         showTopBarMenuButton={false}
         showTopBarLogo
-        showTopBarLogoDesktopOnly
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}

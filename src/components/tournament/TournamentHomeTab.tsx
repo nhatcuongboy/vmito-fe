@@ -22,7 +22,7 @@ import {
   MonitorPlay,
   Gavel,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Tournament,
   CategoryType,
@@ -69,6 +69,7 @@ export default function TournamentHomeTab({
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const tBoard = useTranslations('pages.tournaments.scoreboard');
   const tRef = useTranslations('pages.tournaments.scoreEntry');
+  const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
   const isTournamentHost = !!user && user.id === tournament.hostId;
@@ -92,7 +93,7 @@ export default function TournamentHomeTab({
   }, [sharePath]);
 
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
-    'en-US',
+    locale,
     {
       weekday: 'short',
       month: 'short',

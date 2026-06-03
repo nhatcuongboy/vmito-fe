@@ -1464,6 +1464,10 @@
         "title": "Tournament",
         "notFound": "Tournament not found",
         "comingSoon": "Content coming soon",
+        "publicationStatus": {
+          "published": "Published",
+          "draft": "Draft"
+        },
         "tabs": {
           "home": "Home",
           "teams": "Teams",
@@ -1860,7 +1864,8 @@
             "name": "Tournament Name",
             "dates": "Tournament Dates",
             "location": "Tournament Location",
-            "banner": "Tournament Banner"
+            "banner": "Tournament Banner",
+            "managers": "Tournament managers"
           },
           "duplicateModal": {
             "title": "Duplicate tournament",
@@ -2204,6 +2209,10 @@
             "sponsors": {
               "title": "Sponsors",
               "description": "Add sponsors to your tournament."
+            },
+            "managers": {
+              "title": "Tournament managers",
+              "description": "Assign co-organizers and permissions"
             }
           },
           "settings": {
@@ -3032,6 +3041,28 @@
         "noMatches": "No matches to score yet.",
         "court": "Court",
         "enterResult": "Enter result",
+        "viewList": "List",
+        "viewCalendar": "Calendar",
+        "calendar": {
+          "time": "Time",
+          "empty": "No matches have both court and time to show on the calendar yet."
+        },
+        "filters": {
+          "title": "Filters",
+          "categories": "Categories",
+          "rounds": "Rounds",
+          "courts": "Courts",
+          "status": "Status",
+          "dates": "Dates",
+          "teams": "Teams",
+          "clear": "Clear filters",
+          "apply": "Apply",
+          "empty": "No matches match these filters.",
+          "statusUpcoming": "Upcoming / live",
+          "statusFinished": "Finished",
+          "statusCancelled": "Cancelled",
+          "statusForfeited": "Forfeited"
+        },
         "rounds": {
           "group": "Group stage",
           "qf": "Quarter Finals",
@@ -3148,6 +3179,28 @@
           "r32": "Round of 32",
           "r64": "Round of 64",
           "r128": "Round of 128"
+        }
+      },
+      "managers": {
+        "title": "Tournament managers",
+        "description": "Assign other users to help manage this tournament with specific permissions.",
+        "searchPlaceholder": "Search users by name or email",
+        "searching": "Searching…",
+        "noResults": "No users found",
+        "permissionsLabel": "Permissions",
+        "selectAtLeastOne": "Select at least one permission",
+        "add": "Add manager",
+        "noManagers": "No managers assigned yet.",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "remove": "Remove",
+        "accessDenied": "Only the host can manage this list.",
+        "permissions": {
+          "RESULTS": "Results & scoring",
+          "SCHEDULE": "Schedule, courts & referees",
+          "PARTICIPANTS": "Players & registrations",
+          "STRUCTURE": "Categories & format"
         }
       }
     },

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { VModal } from '@/components/ui/VModal';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -38,8 +38,6 @@ const formatTimeDisplay = (time24: string): string => {
   return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
 };
 
-const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
 export default function TimeSlotPicker({
   isOpen,
   onClose,
@@ -52,6 +50,7 @@ export default function TimeSlotPicker({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.generate'
   );
+  const locale = useLocale();
 
   const today = new Date();
   const [viewMonth, setViewMonth] = useState(
@@ -109,10 +108,17 @@ export default function TimeSlotPicker({
     return days;
   }, [viewMonth]);
 
-  const monthLabel = viewMonth.toLocaleString('en-US', {
+  const monthLabel = viewMonth.toLocaleString(locale, {
     month: 'long',
     year: 'numeric',
   });
+  const dayLabels = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    const sunday = new Date(2026, 0, 4);
+    return Array.from({ length: 7 }, (_, index) =>
+      formatter.format(new Date(2026, 0, sunday.getDate() + index))
+    );
+  }, [locale]);
 
   const handlePrevMonth = () => {
     setViewMonth(
@@ -223,7 +229,7 @@ export default function TimeSlotPicker({
             gap={0}
             mb={1}
           >
-            {DAYS.map((d) => (
+            {dayLabels.map((d) => (
               <Flex key={d} justify="center" py={1}>
                 <Text fontSize="xs" color="gray.500" fontWeight="medium">
                   {d}

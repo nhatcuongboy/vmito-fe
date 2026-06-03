@@ -24,6 +24,7 @@ import {
   Bug,
   Check,
   ChevronRight,
+  House,
   Languages,
   LogOut,
   Menu as MenuIcon,
@@ -199,6 +200,32 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           </Text>
         </Flex>
       </Box>
+
+      {/* Home */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 2 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          router.push(ROUTES.HOME);
+        }}
+      >
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <House size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('mainHome')}
+        </Text>
+      </Flex>
 
       {/* Appearance */}
       <Flex

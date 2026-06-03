@@ -13,9 +13,11 @@ import {
   Calendar,
   Heart,
   Gavel,
+  ShieldCheck,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, Category } from '@/lib/api/types';
+import { useAuthStore } from '@/stores/useAuthStore';
 import ManageMenuItem from './ManageMenuItem';
 import PublishStatusBanner from './PublishStatusBanner';
 
@@ -69,6 +71,9 @@ export default function OrganizeTab({
 }: OrganizeTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const tu = useTranslations('pages.tournaments.umpires');
+  const { user } = useAuthStore();
+  const isHostOrAdmin =
+    user?.id === tournament.hostId || user?.role === 'ADMIN';
 
   const totalRegistrations = categories.reduce(
     (sum, cat) => sum + (cat._count?.registrations || 0),
@@ -166,6 +171,17 @@ export default function OrganizeTab({
         isActive={selectedItem === 'umpires'}
         onClick={() => onItemClick('umpires')}
       />
+
+      {/* Tournament managers (host/admin only) */}
+      {isHostOrAdmin && (
+        <ManageMenuItem
+          icon={ShieldCheck}
+          title={t('organize.managers.title')}
+          description={t('organize.managers.description')}
+          isActive={selectedItem === 'managers'}
+          onClick={() => onItemClick('managers')}
+        />
+      )}
 
       {/* Sponsors */}
       <ManageMenuItem

@@ -12,13 +12,12 @@ import {
 } from '@chakra-ui/react';
 import { SimpleGrid, Button } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
 import { Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
 
@@ -26,8 +25,17 @@ const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 
+function isSameCalendarDay(first: Date, second: Date) {
+  return (
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate()
+  );
+}
+
 function TournamentsContent() {
   const t = useTranslations('pages.tournaments');
+  const locale = useLocale();
   const router = useRouter();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,17 +88,31 @@ function TournamentsContent() {
   const formatDateRange = (startDate: Date, endDate: Date) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    if (isSameDay(start, end)) {
-      return format(start, 'EEE, MMM d, yyyy');
+    const sameDayFormatter = new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const shortFormatter = new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    if (isSameCalendarDay(start, end)) {
+      return sameDayFormatter.format(start);
     }
+
     // Same month and year
     if (
       start.getMonth() === end.getMonth() &&
       start.getFullYear() === end.getFullYear()
     ) {
-      return `${format(start, 'EEE, MMM d')} - ${format(end, 'EEE, MMM d, yyyy')}`;
+      return `${shortFormatter.format(start)} - ${sameDayFormatter.format(end)}`;
     }
-    return `${format(start, 'EEE, MMM d, yyyy')} - ${format(end, 'EEE, MMM d, yyyy')}`;
+
+    return `${sameDayFormatter.format(start)} - ${sameDayFormatter.format(end)}`;
   };
 
   const getLocationText = (tournament: Tournament) => {

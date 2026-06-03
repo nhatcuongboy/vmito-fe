@@ -306,6 +306,61 @@ export function TournamentManageSkeleton() {
   );
 }
 
+export function TournamentContentSkeleton() {
+  return (
+    <VStack align="stretch" gap={5}>
+      <Box
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="2xl"
+        bg="white"
+        overflow="hidden"
+      >
+        <Skeleton height={{ base: '150px', md: '180px' }} />
+        <Box p={{ base: 4, md: 5 }}>
+          <Skeleton
+            height={{ base: '26px', md: '30px' }}
+            width={{ base: '72%', md: '45%' }}
+            mb={3}
+            borderRadius="md"
+          />
+          <Skeleton
+            height={{ base: '15px', md: '16px' }}
+            width={{ base: '90%', md: '70%' }}
+            mb={2}
+            borderRadius="md"
+          />
+          <Skeleton
+            height={{ base: '15px', md: '16px' }}
+            width={{ base: '58%', md: '52%' }}
+            borderRadius="md"
+          />
+        </Box>
+      </Box>
+      <SimpleGrid
+        display={{ base: 'none', md: 'grid' }}
+        columns={{ md: 2, xl: 3 }}
+        gap={4}
+      >
+        {repeat(3).map((_, index) => (
+          <Box
+            key={index}
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="xl"
+            bg="white"
+            p={4}
+          >
+            <Skeleton height="18px" width="60%" mb={3} borderRadius="md" />
+            <Skeleton height="40px" width="46%" borderRadius="md" />
+          </Box>
+        ))}
+      </SimpleGrid>
+      <TournamentMatchListSkeleton count={4} />
+    </VStack>
+  );
+}
+
 export function TournamentShellSkeleton() {
   return (
     <>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Box, Flex, Text, Heading } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { VDrawer } from '@/components/ui/VDrawer';
 import { X } from 'lucide-react';
 import { Category, CategoryMatch, TournamentCourt } from '@/lib/api/types';
@@ -85,6 +85,7 @@ export default function GenerateScheduleDrawer({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.generate'
   );
+  const locale = useLocale();
 
   const [orderedCategories] = useState(categories);
   const [matchLength, setMatchLength] = useState(60);
@@ -299,13 +300,15 @@ export default function GenerateScheduleDrawer({
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="semibold">
                         {new Date(slot.date + 'T00:00:00').toLocaleDateString(
-                          'en-US',
+                          locale,
                           { month: 'short', day: 'numeric' }
                         )}{' '}
                         @ {slot.startTime} - {slot.endTime}
                       </Text>
                       <Text fontSize="xs" color="gray.500" mt={1}>
-                        {slot.selectedCourts.length} court(s)
+                        {t('courtsCount', {
+                          count: slot.selectedCourts.length,
+                        })}
                       </Text>
                     </Box>
                     <Flex gap={1}>
@@ -314,7 +317,7 @@ export default function GenerateScheduleDrawer({
                         size="xs"
                         onClick={() => handleEditTimeSlot(slot.id)}
                       >
-                        Edit
+                        {t('edit')}
                       </Button>
                       <Button
                         variant="ghost"

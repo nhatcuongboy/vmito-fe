@@ -1430,7 +1430,7 @@
       "host": "Người tổ chức",
       "categories": "Hạng mục",
       "players": "người chơi",
-      "playersLabel": "Players",
+      "playersLabel": "Người chơi",
       "startDate": "Ngày bắt đầu",
       "endDate": "Ngày kết thúc",
       "categoryTypeLabels": {
@@ -1464,7 +1464,7 @@
         "startDate": "Ngày bắt đầu",
         "endDate": "Ngày kết thúc",
         "venue": "Địa điểm",
-        "locationPlaceholder": "Where will the event take place?",
+        "locationPlaceholder": "Sự kiện sẽ diễn ra ở đâu?",
         "cancel": "Hủy",
         "createTournament": "Tạo giải đấu"
       },
@@ -1472,6 +1472,10 @@
         "title": "Giải đấu",
         "notFound": "Không tìm thấy giải đấu",
         "comingSoon": "Nội dung sẽ được cập nhật sau",
+        "publicationStatus": {
+          "published": "Đã xuất bản",
+          "draft": "Bản nháp"
+        },
         "tabs": {
           "home": "Trang chủ",
           "teams": "Đội",
@@ -1868,7 +1872,8 @@
             "name": "Tên giải đấu",
             "dates": "Ngày tổ chức",
             "location": "Địa điểm",
-            "banner": "Ảnh banner"
+            "banner": "Ảnh banner",
+            "managers": "Quản trị viên"
           },
           "duplicateModal": {
             "title": "Nhân đôi giải đấu",
@@ -2212,6 +2217,10 @@
             "sponsors": {
               "title": "Nhà tài trợ",
               "description": "Thêm nhà tài trợ cho giải đấu."
+            },
+            "managers": {
+              "title": "Quản trị viên",
+              "description": "Gán đồng tổ chức và phân quyền"
             }
           },
           "settings": {
@@ -3040,6 +3049,28 @@
         "noMatches": "Chưa có trận nào để nhập điểm.",
         "court": "Sân",
         "enterResult": "Nhập kết quả",
+        "viewList": "Danh sách",
+        "viewCalendar": "Calendar",
+        "calendar": {
+          "time": "Thời gian",
+          "empty": "Chưa có trận nào có lịch sân và giờ để hiển thị trên calendar."
+        },
+        "filters": {
+          "title": "Bộ lọc",
+          "categories": "Hạng mục",
+          "rounds": "Vòng đấu",
+          "courts": "Sân",
+          "status": "Trạng thái",
+          "dates": "Ngày",
+          "teams": "Đội",
+          "clear": "Xóa lọc",
+          "apply": "Áp dụng",
+          "empty": "Không có trận nào khớp bộ lọc.",
+          "statusUpcoming": "Sắp/đang diễn ra",
+          "statusFinished": "Đã kết thúc",
+          "statusCancelled": "Đã hủy",
+          "statusForfeited": "Bỏ cuộc"
+        },
         "rounds": {
           "group": "Vòng bảng",
           "qf": "Tứ kết",
@@ -3156,6 +3187,28 @@
           "r32": "Vòng 1/16",
           "r64": "Vòng 1/32",
           "r128": "Vòng 1/64"
+        }
+      },
+      "managers": {
+        "title": "Quản trị viên giải đấu",
+        "description": "Gán người dùng khác cùng quản lý giải đấu với các quyền cụ thể.",
+        "searchPlaceholder": "Tìm người dùng theo tên hoặc email",
+        "searching": "Đang tìm…",
+        "noResults": "Không tìm thấy người dùng",
+        "permissionsLabel": "Quyền",
+        "selectAtLeastOne": "Chọn ít nhất một quyền",
+        "add": "Thêm quản trị viên",
+        "noManagers": "Chưa có quản trị viên nào.",
+        "edit": "Sửa",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "remove": "Xóa",
+        "accessDenied": "Chỉ chủ giải mới quản lý được danh sách này.",
+        "permissions": {
+          "RESULTS": "Kết quả & chấm điểm",
+          "SCHEDULE": "Lịch, sân & trọng tài",
+          "PARTICIPANTS": "Người chơi & đăng ký",
+          "STRUCTURE": "Hạng mục & thể thức"
         }
       }
     },
