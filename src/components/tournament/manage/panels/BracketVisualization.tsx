@@ -788,7 +788,7 @@ export default function BracketVisualization({
                     mb={1}
                     fontWeight="medium"
                   >
-                    P5: {t('panels.rounds.semiFinals')}
+                    {t('panels.rounds.p5SemiFinals')}
                   </Text>
                   <ThirdPlaceCard match={fifthSF1} compact={false} title="" />
                   <Box mt={2}>

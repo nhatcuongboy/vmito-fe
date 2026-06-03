@@ -25,6 +25,7 @@ import {
 } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { useRouter } from '@/i18n/config';
+import { useSearchParams } from 'next/navigation';
 import {
   Button,
   LegacySelect,
@@ -111,6 +112,24 @@ function compareStandings(
   );
 }
 
+function hasStandingResult(standing: GroupStanding) {
+  return (
+    standing.matchesPlayed > 0 ||
+    standing.matchesWon > 0 ||
+    standing.matchesLost > 0 ||
+    standing.matchesDrawn > 0 ||
+    (standing.matchesForfeited ?? 0) > 0 ||
+    (standing.matchesCancelled ?? 0) > 0 ||
+    standing.points !== 0 ||
+    standing.pointsFor !== 0 ||
+    standing.pointsAgainst !== 0 ||
+    standing.pointDifference !== 0 ||
+    standing.gamesWon !== 0 ||
+    standing.gamesLost !== 0 ||
+    standing.gameDifference !== 0
+  );
+}
+
 function getRoundLabel(round: string, t: ReturnType<typeof useTranslations>) {
   const normalizedRound = round.toUpperCase();
   if (normalizedRound === 'F') return t('playoffsRounds.final');
@@ -127,12 +146,15 @@ export default function PublicTournamentStandingsTab({
 }: PublicTournamentStandingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.standingsTab');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategoryId =
+    searchParams.get('category') || ALL_CATEGORIES_VALUE;
   const [standingsByCategory, setStandingsByCategory] = useState<
     CategoryStandingsBlock[]
   >([]);
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] =
-    useState(ALL_CATEGORIES_VALUE);
+    useState(initialCategoryId);
   const [stageView, setStageView] = useState<StageView>('pool');
   const [standingView, setStandingView] = useState<StandingView>('pools');
   const [showRankingInfo, setShowRankingInfo] = useState(false);
@@ -697,6 +719,7 @@ function StandingsTable({
       ? '680px'
       : '580px';
   const metricColumnWidth = { base: '48px', md: '56px' };
+  const hasResults = rows.some(hasStandingResult);
 
   return (
     <TableContainer borderRadius="lg" boxShadow="none">
@@ -759,7 +782,7 @@ function StandingsTable({
               rankKey === 'overallRank' && 'overallRank' in standing
                 ? standing.overallRank
                 : standing.rank;
-            const isTopRank = rank === 1;
+            const isTopRank = hasResults && rank === 1;
 
             return (
               <Tr
@@ -777,7 +800,7 @@ function StandingsTable({
                         color="var(--chakra-colors-green-500)"
                       />
                     )}
-                    <Text fontWeight="bold">{rank}</Text>
+                    <Text fontWeight="bold">{hasResults ? rank : '-'}</Text>
                   </HStack>
                 </Td>
                 <Td

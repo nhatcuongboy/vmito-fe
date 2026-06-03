@@ -7,7 +7,6 @@ import {
   ChevronDown,
   Edit,
   GitBranch,
-  GripVertical,
   Layers,
   ListTree,
   RefreshCw,
@@ -54,7 +53,15 @@ const CATEGORY_COLORS = [
 ];
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+
+const getOrdinalLabel = (
+  rank: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
+  const oneBased = rank + 1;
+  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
+  return t(`panels.rounds.ordinals.${key}`, { rank: oneBased });
+};
 
 const getParticipantName = (participant: CategoryMatchParticipant): string => {
   const reg = participant?.categoryRegistration;
@@ -332,13 +339,17 @@ export default function RoundsPanel({
     const slots: string[] = [];
     for (let rank = 0; rank < winnersPerGroup; rank++) {
       for (let g = 0; g < groupCount; g++) {
-        const ordinal = ORDINAL_LABELS[rank] ?? `${rank + 1}th`;
         const poolLabel = POOL_LABELS[g] ?? String(g + 1);
-        slots.push(`${ordinal} Pool ${poolLabel}`);
+        slots.push(
+          t('panels.rounds.nthPoolLabel', {
+            rank: getOrdinalLabel(rank, t),
+            pool: poolLabel,
+          })
+        );
       }
     }
     return slots;
-  }, [isAdvancingConfigured, groupCount, winnersPerGroup]);
+  }, [isAdvancingConfigured, groupCount, winnersPerGroup, t]);
 
   // ─── Category selector (shared) ────────────────────────────────────────────
 
@@ -443,14 +454,12 @@ export default function RoundsPanel({
         {activeCategory && (
           <Badge
             variant="subtle"
-            colorPalette="blue"
+            colorPalette="gray"
             px={3}
             py={1}
             borderRadius="md"
             fontSize="xs"
-            fontWeight="bold"
-            textTransform="uppercase"
-            letterSpacing="wider"
+            fontWeight="medium"
           >
             {formatName}
           </Badge>
@@ -597,9 +606,13 @@ export default function RoundsPanel({
                     <Flex gap={3} flexWrap="wrap">
                       {groups.map((group, idx) => {
                         const groupRegs = group.registrations ?? [];
+                        const groupMatchCount =
+                          matchesByGroup[group.id]?.length ?? 0;
                         const poolLabel =
                           group.name ??
-                          `Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`;
+                          `${t('panels.rounds.poolLabel')} ${
+                            POOL_LABELS[idx] ?? String(idx + 1)
+                          }`;
                         return (
                           <Box
                             key={group.id}
@@ -611,16 +624,30 @@ export default function RoundsPanel({
                             flex="1 1 180px"
                             maxW="280px"
                           >
-                            <Box
+                            <Flex
                               px={3}
                               py={2}
+                              align="center"
+                              justify="space-between"
+                              gap={2}
                               borderBottomWidth="1px"
                               borderColor="gray.100"
                             >
                               <Text fontWeight="semibold" fontSize="sm">
                                 {poolLabel}
                               </Text>
-                            </Box>
+                              {groupMatchCount > 0 && (
+                                <Badge
+                                  colorPalette="green"
+                                  variant="subtle"
+                                  fontSize="2xs"
+                                >
+                                  {t('panels.rounds.matchCount', {
+                                    count: groupMatchCount,
+                                  })}
+                                </Badge>
+                              )}
+                            </Flex>
                             <VStack gap={0} align="stretch">
                               {groupRegs.length > 0
                                 ? groupRegs.map((gr) => {
@@ -640,15 +667,11 @@ export default function RoundsPanel({
                                         px={3}
                                         py={2}
                                         align="center"
-                                        justify="space-between"
                                         borderBottomWidth="1px"
                                         borderColor="gray.50"
                                         _last={{ borderBottomWidth: '0' }}
                                       >
                                         <Text fontSize="xs">{name}</Text>
-                                        <Box color="gray.300">
-                                          <GripVertical size={12} />
-                                        </Box>
                                       </Flex>
                                     );
                                   })
@@ -664,7 +687,7 @@ export default function RoundsPanel({
                                       _last={{ borderBottomWidth: '0' }}
                                     >
                                       <Text fontSize="xs" color="gray.400">
-                                        Team {i + 1}
+                                        {t('panels.rounds.teamLabel')} {i + 1}
                                       </Text>
                                     </Flex>
                                   ))}
@@ -673,6 +696,22 @@ export default function RoundsPanel({
                         );
                       })}
                     </Flex>
+
+                    {/* Group-stage progress */}
+                    {totalGroupMatches > 0 && (
+                      <Text
+                        fontSize="xs"
+                        fontWeight="medium"
+                        color={
+                          allGroupMatchesFinished ? 'green.600' : 'gray.500'
+                        }
+                      >
+                        {t('panels.rounds.groupProgress', {
+                          finished: finishedGroupMatches,
+                          total: totalGroupMatches,
+                        })}
+                      </Text>
+                    )}
 
                     {/* Edit buttons */}
                     <Flex gap={2} flexWrap="wrap">
@@ -686,7 +725,7 @@ export default function RoundsPanel({
                           setIsPoolsModalOpen(true);
                         }}
                       >
-                        {t('panels.rounds.setupPools')}
+                        {t('panels.rounds.editPools')}
                       </Button>
                       <Button
                         size="sm"
@@ -698,7 +737,7 @@ export default function RoundsPanel({
                           setIsPoolsModalOpen(true);
                         }}
                       >
-                        {t('panels.rounds.setupMatches')}
+                        {t('panels.rounds.editMatches')}
                       </Button>
                     </Flex>
                   </VStack>
@@ -1231,34 +1270,33 @@ function StepperSection({
   const iconColor = color === 'green' ? '#38A169' : '#D69E2E';
 
   return (
-    <Box position="relative">
-      {/* Step indicator dot */}
-      <Flex
-        position="absolute"
-        left="-6px"
-        top="4px"
-        w="36px"
-        h="36px"
-        bg={bgColor}
-        borderRadius="lg"
-        align="center"
-        justify="center"
-        zIndex={1}
-        borderWidth="2px"
-        borderColor="white"
-        boxShadow="sm"
-      >
-        <Icon size={18} color={iconColor} />
+    <Box>
+      <Flex align="flex-start" gap={3} mb={3}>
+        <Flex
+          w="40px"
+          h="40px"
+          bg={bgColor}
+          borderRadius="lg"
+          align="center"
+          justify="center"
+          flexShrink={0}
+          borderWidth="1px"
+          borderColor="white"
+          boxShadow="sm"
+        >
+          <Icon size={18} color={iconColor} />
+        </Flex>
+        <Box minW={0} flex={1}>
+          <Text fontWeight="bold" fontSize="md" lineHeight="1.2">
+            {title}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>
+            {subtitle}
+          </Text>
+        </Box>
       </Flex>
 
-      {/* Content */}
-      <Box ml="42px">
-        <Text fontWeight="bold" fontSize="md">
-          {title}
-        </Text>
-        <Text fontSize="sm" color="gray.500" mb={3}>
-          {subtitle}
-        </Text>
+      <Box ml="20px" pl={5} borderLeftWidth="2px" borderColor="gray.200">
         {children}
       </Box>
     </Box>

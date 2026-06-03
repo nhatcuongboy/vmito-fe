@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Box, Flex, Heading, Text, Badge } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { useModal } from '@/components/ui/VModal';
-import { ArrowLeftRight, Settings } from 'lucide-react';
+import { useModal, VModal } from '@/components/ui/VModal';
+import { toaster } from '@/components/ui/toaster';
+import { ArrowLeftRight, Settings, Trash2 } from 'lucide-react';
 import {
   Category,
   Tournament,
@@ -33,6 +34,8 @@ export default function SchedulePanel({
   );
   const typeModal = useModal();
   const manageModal = useModal();
+  const clearModal = useModal();
+  const [isClearing, setIsClearing] = useState(false);
 
   // Fetch matches to get real scheduled count
   useEffect(() => {
@@ -81,6 +84,20 @@ export default function SchedulePanel({
       // ignore
     }
   }, [tournament.id]);
+
+  const handleClearSchedule = useCallback(async () => {
+    setIsClearing(true);
+    try {
+      await TournamentService.clearSchedule(tournament.id);
+      toaster.success({ title: t('organize.schedule.clearAllSuccess') });
+      clearModal.onClose();
+      await handleScheduleSaved();
+    } catch {
+      toaster.error({ title: t('organize.schedule.clearAllError') });
+    } finally {
+      setIsClearing(false);
+    }
+  }, [tournament.id, t, clearModal, handleScheduleSaved]);
 
   const scheduleTypeLabel =
     scheduleType === ScheduleType.ASSIGNED
@@ -177,6 +194,20 @@ export default function SchedulePanel({
         {t('organize.schedule.manageSchedule')}
       </Button>
 
+      {/* Clear all schedule button */}
+      <Button
+        variant="outline"
+        colorScheme="red"
+        color="red.600"
+        borderColor="red.200"
+        w="100%"
+        onClick={clearModal.onOpen}
+        disabled={scheduledMatches === 0}
+      >
+        <Trash2 size={16} />
+        {t('organize.schedule.clearAll')}
+      </Button>
+
       {/* Schedule Type Modal */}
       <ScheduleTypeModal
         isOpen={typeModal.isOpen}
@@ -193,6 +224,23 @@ export default function SchedulePanel({
         categories={categories}
         onScheduleSaved={handleScheduleSaved}
       />
+
+      {/* Clear All Schedule Confirmation Modal */}
+      <VModal
+        isOpen={clearModal.isOpen}
+        onClose={clearModal.onClose}
+        title={t('organize.schedule.clearAllConfirmTitle')}
+        size="sm"
+        primaryActionText={t('organize.schedule.clearAllConfirm')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleClearSchedule}
+        isPrimaryLoading={isClearing}
+        isSecondaryDisabled={isClearing}
+      >
+        <Text fontSize="sm" color="gray.700">
+          {t('organize.schedule.clearAllConfirmDesc')}
+        </Text>
+      </VModal>
     </VStack>
   );
 }

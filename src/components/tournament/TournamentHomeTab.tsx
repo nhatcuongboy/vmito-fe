@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { Box, Flex, HStack, Skeleton, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Image,
+  Skeleton,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Users,
@@ -104,6 +113,8 @@ export default function TournamentHomeTab({
 
   const venue = tournament.venue;
   const host = tournament.host;
+  const coverImage =
+    tournament.coverPhoto || venue?.coverPhoto || venue?.images?.[0] || '';
   const displayVenues = useMemo<IHomeVenueItem[]>(() => {
     if (tournamentVenues.length > 0) return tournamentVenues;
     if (!venue) return [];
@@ -217,16 +228,37 @@ export default function TournamentHomeTab({
 
   return (
     <VStack align="stretch" gap={4}>
+      {/* Mobile cover */}
+      <Box
+        display={{ base: 'block', md: 'none' }}
+        borderRadius="xl"
+        overflow="hidden"
+        bg="gray.100"
+        aspectRatio={16 / 9}
+      >
+        {coverImage ? (
+          <Image
+            src={coverImage}
+            alt={tournament.name}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+        ) : (
+          <Box w="100%" h="100%" bg="gray.200" />
+        )}
+      </Box>
+
       {/* Overview section */}
       <Box
         borderWidth="1px"
         borderColor="gray.200"
         borderRadius="xl"
-        p={4}
+        p={{ base: 4, md: 4 }}
         bg="white"
       >
         <Flex justify="space-between" align="center" mb={3}>
-          <Text fontWeight="semibold" fontSize="lg">
+          <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
             {t('overview.title')}
           </Text>
           <Flex
@@ -242,8 +274,13 @@ export default function TournamentHomeTab({
           </Flex>
         </Flex>
 
-        <HStack gap={5} mb={4}>
-          <Flex align="center" gap={2}>
+        <Flex
+          gap={{ base: 3, md: 5 }}
+          mb={4}
+          direction={{ base: 'column', sm: 'row' }}
+          align={{ base: 'stretch', sm: 'center' }}
+        >
+          <Flex align="center" gap={2} minW={0}>
             <Users size={16} color="var(--chakra-colors-gray-500)" />
             {isLoadingCategories ? (
               <Skeleton height="16px" width="132px" borderRadius="md" />
@@ -253,17 +290,19 @@ export default function TournamentHomeTab({
               </Text>
             )}
           </Flex>
-          <Flex align="center" gap={2}>
+          <Flex align="center" gap={2} minW={0}>
             <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" lineClamp={1}>
               {formattedDate}
             </Text>
           </Flex>
-        </HStack>
+        </Flex>
 
-        <Flex gap={3}>
+        <Grid
+          templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
+          gap={3}
+        >
           <Box
-            flex="1"
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
@@ -272,15 +311,16 @@ export default function TournamentHomeTab({
             _hover={{ bg: 'gray.50' }}
             onClick={handleViewSchedule}
           >
-            <Flex align="center" gap={2}>
-              <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
-              <Text fontSize="sm" fontWeight="medium">
+            <Flex align="center" gap={2} minH="44px">
+              <Box color="gray.500" flexShrink={0}>
+                <CalendarDays size={16} />
+              </Box>
+              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
                 {t('overview.viewSchedule')}
               </Text>
             </Flex>
           </Box>
           <Box
-            flex="1"
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
@@ -289,15 +329,16 @@ export default function TournamentHomeTab({
             _hover={{ bg: 'gray.50' }}
             onClick={handleViewStandings}
           >
-            <Flex align="center" gap={2}>
-              <BarChart3 size={16} color="var(--chakra-colors-gray-500)" />
-              <Text fontSize="sm" fontWeight="medium">
+            <Flex align="center" gap={2} minH="44px">
+              <Box color="gray.500" flexShrink={0}>
+                <BarChart3 size={16} />
+              </Box>
+              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
                 {t('overview.viewStandings')}
               </Text>
             </Flex>
           </Box>
           <Box
-            flex="1"
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
@@ -306,16 +347,17 @@ export default function TournamentHomeTab({
             _hover={{ bg: 'gray.50' }}
             onClick={handleViewScoreboard}
           >
-            <Flex align="center" gap={2}>
-              <MonitorPlay size={16} color="var(--chakra-colors-gray-500)" />
-              <Text fontSize="sm" fontWeight="medium">
+            <Flex align="center" gap={2} minH="44px">
+              <Box color="gray.500" flexShrink={0}>
+                <MonitorPlay size={16} />
+              </Box>
+              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
                 {tBoard('liveScoreboard')}
               </Text>
             </Flex>
           </Box>
           {canReferee && (
             <Box
-              flex="1"
               borderWidth="1px"
               borderColor="gray.200"
               borderRadius="lg"
@@ -324,15 +366,17 @@ export default function TournamentHomeTab({
               _hover={{ bg: 'gray.50' }}
               onClick={handleRefereeArea}
             >
-              <Flex align="center" gap={2}>
-                <Gavel size={16} color="var(--chakra-colors-gray-500)" />
-                <Text fontSize="sm" fontWeight="medium">
+              <Flex align="center" gap={2} minH="44px">
+                <Box color="gray.500" flexShrink={0}>
+                  <Gavel size={16} />
+                </Box>
+                <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
                   {tRef('refereeArea')}
                 </Text>
               </Flex>
             </Box>
           )}
-        </Flex>
+        </Grid>
       </Box>
 
       {/* Categories section */}
@@ -405,7 +449,9 @@ export default function TournamentHomeTab({
                   cursor="pointer"
                   _hover={{ bg: 'gray.50' }}
                   onClick={() =>
-                    router.push(`/tournament/${slug}/manage?option=categories`)
+                    router.push(
+                      `/tournament/${slug}/standings?category=${category.id}`
+                    )
                   }
                 >
                   <Text fontSize="md">{category.name}</Text>

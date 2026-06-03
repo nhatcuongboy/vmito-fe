@@ -34,6 +34,7 @@ interface TopBarProps {
   onBack?: () => void;
   title?: React.ReactNode;
   icon?: React.ReactNode;
+  mobileIcon?: React.ReactNode;
   rightContent?: React.ReactNode;
   navItems?: NavItem[];
   /** 'secondary' hides menu/logo/notification/profile on mobile, shows back button */
@@ -50,6 +51,7 @@ interface TopBarProps {
 export default function TopBar({
   title,
   icon,
+  mobileIcon,
   rightContent,
   showBackButton = false,
   backHref = '/',
@@ -199,17 +201,29 @@ export default function TopBar({
                       gap: '8px',
                     }}
                   >
-                    {icon || (
-                      <Image
-                        src="/icons/app-logo.png"
-                        h={{ base: '40px', md: '40px' }}
-                        w="auto"
-                        alt={appName}
-                      />
-                    )}
+                    <Box display={{ base: 'flex', md: 'none' }}>
+                      {mobileIcon || icon || (
+                        <Image
+                          src="/icons/app-logo.png"
+                          h={{ base: '40px', md: '40px' }}
+                          w="auto"
+                          alt={appName}
+                        />
+                      )}
+                    </Box>
+                    <Box display={{ base: 'none', md: 'flex' }}>
+                      {icon || (
+                        <Image
+                          src="/icons/app-logo.png"
+                          h={{ base: '40px', md: '40px' }}
+                          w="auto"
+                          alt={appName}
+                        />
+                      )}
+                    </Box>
                     <Text
                       display={{ base: 'none', md: 'block' }}
-                      fontSize={{ base: 'xl', md: '2xl' }}
+                      fontSize={{ base: 'md', md: 'lg' }}
                       fontWeight="bold"
                       color="green.600"
                     >

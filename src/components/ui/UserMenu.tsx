@@ -48,6 +48,7 @@ type MenuState = 'MAIN' | 'APPEARANCE' | 'LANGUAGE';
 export default function UserMenu({ onLogout }: UserMenuProps) {
   const { user } = useAuthStore();
   const common = useTranslations('common');
+  const navigation = useTranslations('navigation');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -223,7 +224,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           <House size={16} />
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
-          {common('mainHome')}
+          {navigation('mainHome')}
         </Text>
       </Flex>
 

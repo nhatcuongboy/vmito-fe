@@ -19,6 +19,7 @@ import {
   CategoryGroup,
   CategoryMatch,
   CategoryRegistration,
+  MatchStatus,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { generateRoundRobinMatches } from '@/utils/round-robin';
@@ -114,10 +115,11 @@ const getMatchName = (match: CategoryMatch, position: 1 | 2): string => {
 
 const distributeIntoGroups = (
   teams: IPreviewTeam[],
-  groupCount: number
+  groupCount: number,
+  poolLabelText: string
 ): IPreviewPool[] => {
   const pools: IPreviewPool[] = Array.from({ length: groupCount }, (_, i) => ({
-    name: `Pool ${POOL_LABELS[i] ?? String(i + 1)}`,
+    name: `${poolLabelText} ${POOL_LABELS[i] ?? String(i + 1)}`,
     teams: [],
   }));
   teams.forEach((team, idx) => {
@@ -266,6 +268,8 @@ export default function SetupPoolsModal({
     null
   );
   const [isEditMatchesOpen, setIsEditMatchesOpen] = useState(false);
+  // Confirmation before a save that would wipe existing matches/scores
+  const [isConfirmOverwriteOpen, setIsConfirmOverwriteOpen] = useState(false);
 
   // Reset and load on open
   useEffect(() => {
@@ -282,6 +286,7 @@ export default function SetupPoolsModal({
     setHasChanges(initialStep === 'configure');
     setCustomMatches(null);
     setIsEditMatchesOpen(false);
+    setIsConfirmOverwriteOpen(false);
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, category.id]);
@@ -318,9 +323,11 @@ export default function SetupPoolsModal({
     [registrations, seedOrder]
   );
 
+  const poolLabelText = t('panels.rounds.poolLabel');
+
   const previewPools = useMemo(
-    () => distributeIntoGroups(previewTeams, groupCount),
-    [previewTeams, groupCount]
+    () => distributeIntoGroups(previewTeams, groupCount, poolLabelText),
+    [previewTeams, groupCount, poolLabelText]
   );
 
   // Editable pool state — starts from previewPools, updated by drag-and-drop
@@ -346,15 +353,22 @@ export default function SetupPoolsModal({
   const groupNameMap = useMemo(() => {
     const map: Record<string, string> = {};
     existingGroups.forEach((g, idx) => {
-      map[g.id] = g.name || `Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`;
+      map[g.id] =
+        g.name || `${poolLabelText} ${POOL_LABELS[idx] ?? String(idx + 1)}`;
     });
     return map;
-  }, [existingGroups]);
+  }, [existingGroups, poolLabelText]);
 
   const maxGroupCount = Math.max(1, Math.floor(registrations.length / 2));
 
   // Decide what to show in the matches step
   const showExistingMatches = !hasChanges && existingMatches.length > 0;
+
+  // Saving recreates all groups/matches from scratch (see handleSaveMatches),
+  // which destroys any scores already recorded. Warn before doing that.
+  const hasPlayedMatches = existingMatches.some(
+    (m) => !!m.score || m.status === MatchStatus.FINISHED
+  );
 
   // ─── DnD for pool teams ────────────────────────────────────────────────────
 
@@ -529,7 +543,9 @@ export default function SetupPoolsModal({
         // Save custom-edited matches one by one
         const groupNameToId: Record<string, string> = {};
         newGroups.forEach((g, idx) => {
-          groupNameToId[`Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`] = g.id;
+          groupNameToId[
+            `${poolLabelText} ${POOL_LABELS[idx] ?? String(idx + 1)}`
+          ] = g.id;
         });
         // Fetch registrations to build name→id map
         const regs = await CategoryService.getRegistrations(category.id);
@@ -567,6 +583,15 @@ export default function SetupPoolsModal({
     }
   };
 
+  // Gate the save behind a confirmation when it would discard recorded scores.
+  const handleSavePress = () => {
+    if (hasPlayedMatches) {
+      setIsConfirmOverwriteOpen(true);
+    } else {
+      handleSaveMatches();
+    }
+  };
+
   if (!isOpen) return null;
 
   // ─── Footer ────────────────────────────────────────────────────────────────
@@ -601,7 +626,7 @@ export default function SetupPoolsModal({
           )}
           <Button
             style={{ background: '#1a202c', color: 'white' }}
-            onClick={showExistingMatches ? onClose : handleSaveMatches}
+            onClick={showExistingMatches ? onClose : handleSavePress}
             disabled={isSaving}
           >
             {isSaving
@@ -1122,6 +1147,25 @@ export default function SetupPoolsModal({
         teams={previewTeams}
         onConfirm={handleSeedsConfirm}
       />
+      {/* Overwrite confirmation — only shown when scores would be discarded */}
+      <VModal
+        isOpen={isConfirmOverwriteOpen}
+        onClose={() => setIsConfirmOverwriteOpen(false)}
+        title={t('panels.rounds.confirmOverwriteTitle')}
+        primaryActionText={t('panels.rounds.confirmOverwriteConfirm')}
+        onPrimaryAction={() => {
+          setIsConfirmOverwriteOpen(false);
+          handleSaveMatches();
+        }}
+        isPrimaryLoading={isSaving}
+        primaryColorScheme="red"
+        secondaryActionText={t('panels.rounds.cancel')}
+        zIndex={1500}
+      >
+        <Text fontSize="sm" color="gray.600">
+          {t('panels.rounds.confirmOverwriteMessage')}
+        </Text>
+      </VModal>
     </>
   );
 }

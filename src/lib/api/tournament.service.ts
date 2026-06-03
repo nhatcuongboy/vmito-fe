@@ -274,6 +274,16 @@ export const TournamentService = {
     return response.data.data || [];
   },
 
+  // Clear all schedule assignments (court, startTime, duration) for every match
+  clearSchedule: async (
+    tournamentId: string
+  ): Promise<{ success: boolean; clearedCount: number }> => {
+    const response = await api.delete<
+      ApiResponse<{ success: boolean; clearedCount: number }>
+    >(`/tournaments/${tournamentId}/schedule/clear`);
+    return response.data.data ?? { success: true, clearedCount: 0 };
+  },
+
   // Update schedule type
   updateScheduleType: async (
     tournamentId: string,

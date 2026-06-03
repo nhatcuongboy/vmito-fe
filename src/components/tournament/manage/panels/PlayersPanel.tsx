@@ -160,8 +160,6 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     const trimmedLevel = form.level.trim();
     return {
       name: form.name.trim(),
-      image: form.image.trim() || undefined,
-      imagePublicId: form.imagePublicId.trim() || undefined,
       gender: (form.gender || undefined) as GenderType | undefined,
       level: trimmedLevel ? Number(trimmedLevel) : undefined,
       levelDescription: form.levelDescription.trim() || undefined,

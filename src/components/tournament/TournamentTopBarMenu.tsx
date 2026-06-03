@@ -14,6 +14,7 @@ import UserMenu from '@/components/ui/UserMenu';
 
 export default function TournamentTopBarMenu() {
   const common = useTranslations('common');
+  const navigation = useTranslations('navigation');
   const router = useRouter();
   const { isAuthenticated, isHydrated, isLoading } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -112,7 +113,7 @@ export default function TournamentTopBarMenu() {
             >
               <GuestMenuItem
                 icon={<House size={16} />}
-                label={common('mainHome')}
+                label={navigation('mainHome')}
                 onClick={() => handleNavigate(ROUTES.HOME)}
               />
               <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} my={1} />

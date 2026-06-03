@@ -38,6 +38,7 @@ import {
   CircleUserRound,
   SquarePen,
   ClipboardList,
+  Trophy,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
@@ -189,6 +190,13 @@ export default function TournamentPageShell({
   );
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
+  const topBarIcon = (
+    <Trophy
+      size={36}
+      strokeWidth={2.2}
+      color="var(--chakra-colors-yellow-400)"
+    />
+  );
 
   const getCategoryTypeLabel = useCallback(
     (type: CategoryType) => {
@@ -473,6 +481,7 @@ export default function TournamentPageShell({
       <>
         <PageLayout
           title={t('title')}
+          mobileIcon={topBarIcon}
           showBackButton={false}
           topBarVariant="main"
           showTopBarMenuButton={false}
@@ -526,6 +535,7 @@ export default function TournamentPageShell({
     return (
       <PageLayout
         title={t('title')}
+        mobileIcon={topBarIcon}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}
@@ -702,6 +712,7 @@ export default function TournamentPageShell({
     <>
       <PageLayout
         title={tournament.name}
+        mobileIcon={topBarIcon}
         showBackButton={false}
         topBarVariant="main"
         showTopBarMenuButton={false}

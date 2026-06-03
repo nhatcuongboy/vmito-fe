@@ -18,6 +18,7 @@ import { useIsMainPage } from '@/hooks/useBottomNavVisibility';
 interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   title?: React.ReactNode;
   icon?: ReactNode;
+  mobileIcon?: ReactNode;
   rightContent?: ReactNode;
   showBackButton?: boolean;
   backHref?: string;
@@ -43,6 +44,7 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
 export default function PageLayout({
   title,
   icon,
+  mobileIcon,
   rightContent,
   showBackButton,
   backHref,
@@ -96,6 +98,7 @@ export default function PageLayout({
       <TopBar
         title={title}
         icon={icon}
+        mobileIcon={mobileIcon}
         rightContent={rightContent}
         showBackButton={showBackButton ?? variant === 'secondary'}
         backHref={backHref}

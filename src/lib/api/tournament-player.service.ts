@@ -19,8 +19,6 @@ export type UpdateTournamentPlayerPayload = {
   name?: string;
   email?: string;
   phone?: string;
-  image?: string;
-  imagePublicId?: string;
   gender?: GenderType;
   level?: number;
   levelDescription?: string;

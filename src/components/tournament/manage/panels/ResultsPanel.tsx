@@ -48,9 +48,13 @@ interface Props {
 }
 
 type ViewMode = 'list' | 'calendar';
-type ResultStatusFilter = 'upcoming' | 'finished' | 'cancelled' | 'forfeited';
+export type ResultStatusFilter =
+  | 'upcoming'
+  | 'finished'
+  | 'cancelled'
+  | 'forfeited';
 
-interface ResultFilters {
+export interface ResultFilters {
   categoryIds: string[];
   rounds: string[];
   courtIds: string[];
@@ -60,14 +64,14 @@ interface ResultFilters {
   dateTo: string;
 }
 
-interface ChipOption {
+export interface ChipOption {
   id: string;
   label: string;
   description?: string;
   color?: string;
 }
 
-const EMPTY_FILTERS: ResultFilters = {
+export const EMPTY_FILTERS: ResultFilters = {
   categoryIds: [],
   rounds: [],
   courtIds: [],
@@ -77,7 +81,7 @@ const EMPTY_FILTERS: ResultFilters = {
   dateTo: '',
 };
 
-const CATEGORY_COLORS = [
+export const CATEGORY_COLORS = [
   '#F6D365',
   '#9BDBF5',
   '#8EE3B2',
@@ -392,14 +396,14 @@ export default function ResultsPanel({
   );
 }
 
-type ListFilterKey =
+export type ListFilterKey =
   | 'categoryIds'
   | 'rounds'
   | 'courtIds'
   | 'statuses'
   | 'teamIds';
 
-function ResultMatchCard({
+export function ResultMatchCard({
   match,
   categoryName,
   canEdit,
@@ -420,6 +424,7 @@ function ResultMatchCard({
   const score2 = match.player2Score ?? getLastSetScore(match, 2);
   const winner = getWinnerLabel(match, t('draw'));
   const timeLabel = formatMatchDateTime(match);
+  const accent = getMatchAccent(match);
 
   return (
     <Box
@@ -427,23 +432,22 @@ function ResultMatchCard({
       w="full"
       textAlign="left"
       borderWidth="1px"
-      borderColor="green.100"
-      borderRadius="xl"
+      borderColor={accent.border}
+      borderRadius="2xl"
       bg={{
-        base: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(240,253,244,0.82) 100%)',
-        _dark:
-          'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(6,78,59,0.28) 100%)',
+        base: accent.bg,
+        _dark: accent.darkBg,
       }}
-      boxShadow="0 10px 26px rgba(15, 118, 110, 0.08)"
-      p={{ base: 4, md: compact ? 3 : 4 }}
+      boxShadow={accent.shadow}
+      p={{ base: 4, md: compact ? 3 : 5 }}
       cursor={canEdit ? 'pointer' : 'default'}
       transition="all 0.18s ease"
       _hover={
         canEdit
           ? {
-              borderColor: 'green.300',
-              transform: 'translateY(-1px)',
-              boxShadow: '0 14px 32px rgba(15, 118, 110, 0.14)',
+              borderColor: accent.hoverBorder,
+              transform: 'translateY(-2px)',
+              boxShadow: accent.hoverShadow,
             }
           : undefined
       }
@@ -454,7 +458,7 @@ function ResultMatchCard({
       }}
       onClick={() => onSelect(match)}
     >
-      <Flex justify="space-between" gap={4} align="flex-start">
+      <Flex justify="space-between" gap={{ base: 3, md: 5 }} align="flex-start">
         <Box minW={0} flex="1">
           <Flex gap={2} align="center" wrap="wrap" mb={3}>
             <StatusBadge match={match} />
@@ -466,10 +470,16 @@ function ResultMatchCard({
                 {formatCourtLabel(match.court, t('court'))}
               </MetaItem>
             )}
-            {timeLabel && (
-              <MetaItem icon={<Clock size={13} />}>{timeLabel}</MetaItem>
-            )}
           </Flex>
+
+          {timeLabel && (
+            <Flex align="center" gap={1.5} color="gray.500" mb={3}>
+              <Clock size={15} />
+              <Text fontSize="sm" fontWeight="medium">
+                {timeLabel}
+              </Text>
+            </Flex>
+          )}
 
           <Flex align="center" gap={3}>
             <Box minW={0} flex="1">
@@ -491,9 +501,10 @@ function ResultMatchCard({
           <Box
             textAlign="right"
             flexShrink={0}
-            display={{ base: 'none', md: 'block' }}
+            display={{ base: 'none', sm: 'block' }}
+            minW="72px"
           >
-            <Text fontWeight="bold" fontSize="lg">
+            <Text fontWeight="black" fontSize={{ base: 'xl', md: '2xl' }}>
               {match.score}
             </Text>
             {winner && (
@@ -685,7 +696,7 @@ function ResultsCalendarView({
   );
 }
 
-function FilterDrawer({
+export function FilterDrawer({
   isOpen,
   onClose,
   filters,
@@ -1028,7 +1039,10 @@ function CalendarHeaderCell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function matchMatchesFilters(match: CategoryMatch, filters: ResultFilters) {
+export function matchMatchesFilters(
+  match: CategoryMatch,
+  filters: ResultFilters
+) {
   if (
     filters.categoryIds.length > 0 &&
     !filters.categoryIds.includes(match.categoryId)
@@ -1078,7 +1092,7 @@ function matchesStatusFilter(match: CategoryMatch, filter: ResultStatusFilter) {
   );
 }
 
-function getActiveFilterCount(filters: ResultFilters) {
+export function getActiveFilterCount(filters: ResultFilters) {
   return (
     filters.categoryIds.length +
     filters.rounds.length +
@@ -1090,7 +1104,7 @@ function getActiveFilterCount(filters: ResultFilters) {
   );
 }
 
-function formatCourtLabel(court: TournamentCourt, courtPrefix: string) {
+export function formatCourtLabel(court: TournamentCourt, courtPrefix: string) {
   return court.courtName || `${courtPrefix} ${court.courtNumber}`;
 }
 
@@ -1138,7 +1152,7 @@ function getWinnerLabel(match: CategoryMatch, drawLabel: string) {
   return '';
 }
 
-function getCategoryColor(options: ChipOption[], categoryId: string) {
+export function getCategoryColor(options: ChipOption[], categoryId: string) {
   return options.find((option) => option.id === categoryId)?.color ?? '#8EE3B2';
 }
 
@@ -1147,4 +1161,64 @@ function statusIcon(status: ResultStatusFilter) {
   if (status === 'finished') return <Check size={16} />;
   if (status === 'cancelled') return <CircleSlash size={16} />;
   return <Flag size={16} />;
+}
+
+function getMatchAccent(match: CategoryMatch) {
+  if (match.isForfeit) {
+    return {
+      border: 'orange.200',
+      hoverBorder: 'orange.300',
+      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(255,247,237,0.92) 100%)',
+      darkBg:
+        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(124,45,18,0.26) 100%)',
+      shadow: '0 14px 34px rgba(194, 65, 12, 0.10)',
+      hoverShadow: '0 18px 42px rgba(194, 65, 12, 0.16)',
+    };
+  }
+
+  if (match.status === MatchStatus.IN_PROGRESS) {
+    return {
+      border: 'green.200',
+      hoverBorder: 'green.400',
+      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(236,253,245,0.95) 100%)',
+      darkBg:
+        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(6,95,70,0.30) 100%)',
+      shadow: '0 16px 40px rgba(22, 163, 74, 0.12)',
+      hoverShadow: '0 20px 48px rgba(22, 163, 74, 0.18)',
+    };
+  }
+
+  if (match.status === MatchStatus.FINISHED) {
+    return {
+      border: 'gray.200',
+      hoverBorder: 'gray.300',
+      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(248,250,252,0.96) 100%)',
+      darkBg:
+        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(15,23,42,0.35) 100%)',
+      shadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+      hoverShadow: '0 18px 42px rgba(15, 23, 42, 0.13)',
+    };
+  }
+
+  if (match.status === MatchStatus.CANCELLED) {
+    return {
+      border: 'red.200',
+      hoverBorder: 'red.300',
+      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(254,242,242,0.92) 100%)',
+      darkBg:
+        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(127,29,29,0.24) 100%)',
+      shadow: '0 14px 34px rgba(185, 28, 28, 0.09)',
+      hoverShadow: '0 18px 42px rgba(185, 28, 28, 0.14)',
+    };
+  }
+
+  return {
+    border: 'blue.100',
+    hoverBorder: 'blue.300',
+    bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(239,246,255,0.88) 100%)',
+    darkBg:
+      'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(30,64,175,0.22) 100%)',
+    shadow: '0 14px 34px rgba(37, 99, 235, 0.08)',
+    hoverShadow: '0 18px 42px rgba(37, 99, 235, 0.13)',
+  };
 }

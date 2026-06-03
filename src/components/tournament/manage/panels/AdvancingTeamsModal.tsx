@@ -24,18 +24,31 @@ export interface IAdvancingTeamsModalProps {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+
+const getOrdinalLabel = (
+  rank: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
+  const oneBased = rank + 1;
+  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
+  return t(`panels.rounds.ordinals.${key}`, { rank: oneBased });
+};
 
 const generateAdvancingPreview = (
   groupCount: number,
-  winnersPerGroup: number
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>
 ): string[] => {
   const slots: string[] = [];
   for (let rank = 0; rank < winnersPerGroup; rank++) {
     for (let g = 0; g < groupCount; g++) {
-      const ordinal = ORDINAL_LABELS[rank] ?? `${rank + 1}th`;
       const poolLabel = POOL_LABELS[g] ?? String(g + 1);
-      slots.push(`${ordinal} Pool ${poolLabel}`);
+      slots.push(
+        t('panels.rounds.nthPoolLabel', {
+          rank: getOrdinalLabel(rank, t),
+          pool: poolLabel,
+        })
+      );
     }
   }
   return slots;
@@ -130,8 +143,8 @@ export default function AdvancingTeamsModal({
   const isAllTeamsAdvancing = playoffsTeamCount >= totalRegistrations;
 
   const advancingSlots = useMemo(
-    () => generateAdvancingPreview(groupCount, winnersPerGroup),
-    [groupCount, winnersPerGroup]
+    () => generateAdvancingPreview(groupCount, winnersPerGroup, t),
+    [groupCount, winnersPerGroup, t]
   );
 
   const handleSave = async () => {
