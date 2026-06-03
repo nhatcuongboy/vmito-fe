@@ -48,6 +48,7 @@ import ScoreEntryBoard from './ScoreEntryBoard';
 import ForfeitMatchModal from './ForfeitMatchModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
+import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
 
 export default function RefereeScoringPage() {
   const params = useParams();
@@ -119,9 +120,11 @@ export default function RefereeScoringPage() {
 
   if (loading) {
     return (
-      <Box minH="100dvh" bg="gray.50" p={4} _dark={{ bg: 'gray.900' }}>
-        <TournamentMatchListSkeleton count={4} />
-      </Box>
+      <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+        <Box minH="100dvh" bg="gray.50" p={4} _dark={{ bg: 'gray.900' }}>
+          <TournamentMatchListSkeleton count={4} />
+        </Box>
+      </TournamentRefereeDesktopLayout>
     );
   }
 
@@ -142,19 +145,21 @@ export default function RefereeScoringPage() {
 
   if (!canAccess) {
     return (
-      <Flex
-        direction="column"
-        align="center"
-        justify="center"
-        minH="100dvh"
-        gap={3}
-        px={4}
-        textAlign="center"
-      >
-        <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
-        <Text color="gray.500">{tGuard('permissionDenied')}</Text>
-        <Button onClick={goBack}>{t('back')}</Button>
-      </Flex>
+      <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          minH="100dvh"
+          gap={3}
+          px={4}
+          textAlign="center"
+        >
+          <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
+          <Text color="gray.500">{tGuard('permissionDenied')}</Text>
+          <Button onClick={goBack}>{t('back')}</Button>
+        </Flex>
+      </TournamentRefereeDesktopLayout>
     );
   }
 
@@ -171,329 +176,339 @@ export default function RefereeScoringPage() {
   const matchSides = getMatchSides(match);
 
   return (
-    <Box
-      minH="100dvh"
-      bg="linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)"
-      _dark={{ bg: 'gray.900' }}
-    >
+    <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
       <Box
-        position="relative"
-        overflow="hidden"
-        px={{ base: 2, md: 4 }}
-        pt={{ base: 2, md: 4 }}
-        pb={{ base: 2, md: 4 }}
+        minH="100dvh"
+        bg="linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)"
+        _dark={{ bg: 'gray.900' }}
       >
         <Box
-          position="absolute"
-          inset="auto -40px -70px auto"
-          w="180px"
-          h="180px"
-          borderRadius="full"
-          bg="green.200"
-          opacity={0.22}
-          filter="blur(18px)"
-          pointerEvents="none"
-        />
-        <Box
-          position="absolute"
-          inset="-60px auto auto -40px"
-          w="140px"
-          h="140px"
-          borderRadius="full"
-          bg="blue.200"
-          opacity={0.2}
-          filter="blur(18px)"
-          pointerEvents="none"
-        />
-
-        <Flex
-          align="center"
-          gap={3}
-          px={{ base: 1, md: 0 }}
-          mb={4}
           position="relative"
-          zIndex={1}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={goBack}
-            borderRadius="full"
-            bg="white"
-            boxShadow="sm"
-            _dark={{ bg: 'gray.800' }}
-          >
-            <ArrowLeft size={18} />
-          </Button>
-
-          <Box flex="1" minW={0}>
-            <Text fontSize="sm" color="gray.500" fontWeight="medium">
-              {t('refereeArea')}
-            </Text>
-            <Text
-              fontWeight="bold"
-              fontSize={{ base: 'md', md: 'lg' }}
-              whiteSpace="nowrap"
-              overflow="hidden"
-              textOverflow="ellipsis"
-            >
-              {matchTitle}
-            </Text>
-          </Box>
-
-          <Badge
-            colorPalette="blue"
-            borderRadius="full"
-            px={3}
-            py={1}
-            fontSize="sm"
-          >
-            {courtLabel}
-          </Badge>
-        </Flex>
-
-        <Box
-          position="relative"
-          zIndex={1}
-          borderWidth="1px"
-          borderColor="whiteAlpha.500"
-          borderRadius="3xl"
-          bg="white"
-          boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
           overflow="hidden"
-          _dark={{
-            bg: 'gray.800',
-            borderColor: 'whiteAlpha.200',
-          }}
+          px={{ base: 2, md: 4 }}
+          pt={{ base: 2, md: 4 }}
+          pb={{ base: 2, md: 4 }}
         >
           <Box
-            px={{ base: 3, md: 5 }}
-            py={{ base: 3, md: 4 }}
-            bg="linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(59, 130, 246, 0.08))"
-            borderBottomWidth="1px"
-            borderBottomColor="gray.100"
-            _dark={{ borderBottomColor: 'whiteAlpha.200' }}
+            position="absolute"
+            inset="auto -40px -70px auto"
+            w="180px"
+            h="180px"
+            borderRadius="full"
+            bg="green.200"
+            opacity={0.22}
+            filter="blur(18px)"
+            pointerEvents="none"
+          />
+          <Box
+            position="absolute"
+            inset="-60px auto auto -40px"
+            w="140px"
+            h="140px"
+            borderRadius="full"
+            bg="blue.200"
+            opacity={0.2}
+            filter="blur(18px)"
+            pointerEvents="none"
+          />
+
+          <Flex
+            align="center"
+            gap={3}
+            px={{ base: 1, md: 0 }}
+            mb={4}
+            position="relative"
+            zIndex={1}
           >
-            <VStack align="stretch" gap={2}>
-              <HStack gap={2} flexWrap="wrap">
-                <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
-                  {t(`status.${match.status}`)}
-                </Badge>
-                <Badge
-                  variant="subtle"
-                  colorPalette="gray"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                >
-                  {roundLabel}
-                </Badge>
-                {!!match.startTime && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={goBack}
+              borderRadius="full"
+              bg="white"
+              boxShadow="sm"
+              _dark={{ bg: 'gray.800' }}
+            >
+              <ArrowLeft size={18} />
+            </Button>
+
+            <Box flex="1" minW={0}>
+              <Text fontSize="sm" color="gray.500" fontWeight="medium">
+                {t('refereeArea')}
+              </Text>
+              <Text
+                fontWeight="bold"
+                fontSize={{ base: 'md', md: 'lg' }}
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+              >
+                {matchTitle}
+              </Text>
+            </Box>
+
+            <Badge
+              colorPalette="blue"
+              borderRadius="full"
+              px={3}
+              py={1}
+              fontSize="sm"
+            >
+              {courtLabel}
+            </Badge>
+          </Flex>
+
+          <Box
+            position="relative"
+            zIndex={1}
+            borderWidth="1px"
+            borderColor="whiteAlpha.500"
+            borderRadius="3xl"
+            bg="white"
+            boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
+            overflow="hidden"
+            _dark={{
+              bg: 'gray.800',
+              borderColor: 'whiteAlpha.200',
+            }}
+          >
+            <Box
+              px={{ base: 3, md: 5 }}
+              py={{ base: 3, md: 4 }}
+              bg="linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(59, 130, 246, 0.08))"
+              borderBottomWidth="1px"
+              borderBottomColor="gray.100"
+              _dark={{ borderBottomColor: 'whiteAlpha.200' }}
+            >
+              <VStack align="stretch" gap={2}>
+                <HStack gap={2} flexWrap="wrap">
+                  <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
+                    {t(`status.${match.status}`)}
+                  </Badge>
                   <Badge
                     variant="subtle"
-                    colorPalette="purple"
+                    colorPalette="gray"
                     borderRadius="full"
                     px={3}
                     py={1}
                   >
-                    {formatDateTime(match.startTime)}
+                    {roundLabel}
                   </Badge>
-                )}
-              </HStack>
-
-              <Flex gap={3} align="center" justify="space-between">
-                <Heading
-                  size={{ base: 'md', md: 'lg' }}
-                  lineHeight={1.15}
-                  minW={0}
-                >
-                  {matchTitle}
-                </Heading>
-
-                <IconButton
-                  aria-label={t('playerInfo')}
-                  title={t('playerInfo')}
-                  variant="outline"
-                  size="sm"
-                  borderRadius="full"
-                  colorPalette="gray"
-                  onClick={() => setPlayerInfoOpen(true)}
-                  flexShrink={0}
-                >
-                  <Info size={17} />
-                </IconButton>
-              </Flex>
-            </VStack>
-          </Box>
-
-          <Box px={{ base: 3, md: 5 }} py={{ base: 3, md: 4 }}>
-            <VModal
-              isOpen={playerInfoOpen}
-              onClose={() => setPlayerInfoOpen(false)}
-              title={t('playerInfo')}
-              size="xl"
-              maxBodyHeight={{ base: '72vh', md: '76vh' }}
-              hideSecondaryAction
-              closeButtonAriaLabel={t('cancel')}
-            >
-              <HStack justify="flex-end" mb={3}>
-                <Badge variant="subtle" colorPalette="gray" borderRadius="full">
-                  {matchSides.reduce(
-                    (total, side) => total + side.players.length,
-                    0
-                  )}{' '}
-                  {t('players')}
-                </Badge>
-              </HStack>
-              <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
-                {matchSides.map((side) => (
-                  <MatchSideCard
-                    key={side.position}
-                    teamName={side.teamName}
-                    players={side.players}
-                    labels={{
-                      code: t('playerCode'),
-                      email: t('email'),
-                      phone: t('phone'),
-                      gender: t('gender'),
-                      level: t('level'),
-                      levelDescription: t('levelDescription'),
-                      notes: t('notes'),
-                      noDetails: t('noPlayerDetails'),
-                    }}
-                  />
-                ))}
-              </SimpleGrid>
-            </VModal>
-
-            {match.status === 'SCHEDULED' && (
-              <VStack align="stretch" gap={4} py={{ base: 2, md: 3 }}>
-                <Box
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  borderRadius="2xl"
-                  bg="gray.50"
-                  px={4}
-                  py={4}
-                  _dark={{ bg: 'whiteAlpha.50', borderColor: 'whiteAlpha.200' }}
-                >
-                  <HStack gap={3} align="start">
-                    <Box
-                      bg="red.100"
-                      color="red.700"
+                  {!!match.startTime && (
+                    <Badge
+                      variant="subtle"
+                      colorPalette="purple"
                       borderRadius="full"
-                      p={2}
-                      _dark={{ bg: 'red.900', color: 'red.200' }}
+                      px={3}
+                      py={1}
                     >
-                      <ShieldAlert size={18} />
-                    </Box>
-                    <Box flex="1">
-                      <Text fontWeight="semibold" mb={1}>
-                        {t('matchPrepTitle')}
-                      </Text>
-                      <Text color="gray.600" _dark={{ color: 'gray.300' }}>
-                        {t('matchPrepDescription')}
-                      </Text>
-                    </Box>
-                  </HStack>
-                </Box>
+                      {formatDateTime(match.startTime)}
+                    </Badge>
+                  )}
+                </HStack>
 
-                <Flex
-                  direction={{ base: 'column', sm: 'row' }}
-                  gap={3}
-                  align={{ base: 'stretch', sm: 'center' }}
-                  justify="space-between"
-                >
-                  <Box>
-                    <Text fontSize="sm" color="gray.500" mb={1}>
-                      {t('scheduledAt')}
-                    </Text>
-                    <Text fontWeight="semibold">{scheduledTime}</Text>
-                  </Box>
+                <Flex gap={3} align="center" justify="space-between">
+                  <Heading
+                    size={{ base: 'md', md: 'lg' }}
+                    lineHeight={1.15}
+                    minW={0}
+                  >
+                    {matchTitle}
+                  </Heading>
 
-                  <HStack gap={2} flexWrap="wrap">
-                    <Button
-                      variant="outline"
-                      colorPalette="red"
-                      size="lg"
-                      onClick={() => setForfeitOpen(true)}
-                      borderRadius="xl"
-                    >
-                      <Flag size={18} /> {t('forfeit')}
-                    </Button>
-                    <Button
-                      colorPalette="green"
-                      size="lg"
-                      onClick={() => void handleStart()}
-                      loading={starting}
-                      borderRadius="xl"
-                      boxShadow="0 10px 24px rgba(22, 163, 74, 0.24)"
-                    >
-                      <Play size={18} /> {t('startMatch')}
-                    </Button>
-                  </HStack>
+                  <IconButton
+                    aria-label={t('playerInfo')}
+                    title={t('playerInfo')}
+                    variant="outline"
+                    size="sm"
+                    borderRadius="full"
+                    colorPalette="gray"
+                    onClick={() => setPlayerInfoOpen(true)}
+                    flexShrink={0}
+                  >
+                    <Info size={17} />
+                  </IconButton>
                 </Flex>
               </VStack>
-            )}
+            </Box>
 
-            {match.status === 'IN_PROGRESS' && (
-              <Box borderRadius="2xl" overflow="hidden">
-                <ScoreEntryBoard
-                  match={match}
-                  tournamentId={tournament.id}
-                  onMatchUpdate={setMatch}
-                  onForfeit={() => setForfeitOpen(true)}
-                />
-              </Box>
-            )}
-
-            {(match.status === 'FINISHED' || match.status === 'CANCELLED') && (
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                gap={4}
-                py={10}
+            <Box px={{ base: 3, md: 5 }} py={{ base: 3, md: 4 }}>
+              <VModal
+                isOpen={playerInfoOpen}
+                onClose={() => setPlayerInfoOpen(false)}
+                title={t('playerInfo')}
+                size="xl"
+                maxBodyHeight={{ base: '72vh', md: '76vh' }}
+                hideSecondaryAction
+                closeButtonAriaLabel={t('cancel')}
               >
-                <Box
-                  bg="yellow.100"
-                  color="yellow.700"
-                  borderRadius="full"
-                  p={4}
-                  _dark={{ bg: 'yellow.900', color: 'yellow.200' }}
-                >
-                  <Trophy size={44} />
-                </Box>
-                <Heading size="md">{t('finalResult')}</Heading>
-                <Text fontSize="2xl" fontWeight="bold">
-                  {match.score || '—'}
-                </Text>
-                <Flex gap={2} wrap="wrap" justify="center">
-                  {(match.sets ?? []).map((s, i) => (
-                    <Badge key={i} colorPalette="gray" fontSize="sm">
-                      {s.player1Score}-{s.player2Score}
-                    </Badge>
+                <HStack justify="flex-end" mb={3}>
+                  <Badge
+                    variant="subtle"
+                    colorPalette="gray"
+                    borderRadius="full"
+                  >
+                    {matchSides.reduce(
+                      (total, side) => total + side.players.length,
+                      0
+                    )}{' '}
+                    {t('players')}
+                  </Badge>
+                </HStack>
+                <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
+                  {matchSides.map((side) => (
+                    <MatchSideCard
+                      key={side.position}
+                      teamName={side.teamName}
+                      players={side.players}
+                      labels={{
+                        code: t('playerCode'),
+                        email: t('email'),
+                        phone: t('phone'),
+                        gender: t('gender'),
+                        level: t('level'),
+                        levelDescription: t('levelDescription'),
+                        notes: t('notes'),
+                        noDetails: t('noPlayerDetails'),
+                      }}
+                    />
                   ))}
-                </Flex>
-                <Button variant="outline" onClick={goBack}>
-                  {t('back')}
-                </Button>
-              </Flex>
-            )}
+                </SimpleGrid>
+              </VModal>
 
-            <ForfeitMatchModal
-              isOpen={forfeitOpen}
-              onClose={() => setForfeitOpen(false)}
-              match={match}
-              onForfeited={(updated) => {
-                setForfeitOpen(false);
-                setMatch(updated);
-              }}
-            />
+              {match.status === 'SCHEDULED' && (
+                <VStack align="stretch" gap={4} py={{ base: 2, md: 3 }}>
+                  <Box
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="2xl"
+                    bg="gray.50"
+                    px={4}
+                    py={4}
+                    _dark={{
+                      bg: 'whiteAlpha.50',
+                      borderColor: 'whiteAlpha.200',
+                    }}
+                  >
+                    <HStack gap={3} align="start">
+                      <Box
+                        bg="red.100"
+                        color="red.700"
+                        borderRadius="full"
+                        p={2}
+                        _dark={{ bg: 'red.900', color: 'red.200' }}
+                      >
+                        <ShieldAlert size={18} />
+                      </Box>
+                      <Box flex="1">
+                        <Text fontWeight="semibold" mb={1}>
+                          {t('matchPrepTitle')}
+                        </Text>
+                        <Text color="gray.600" _dark={{ color: 'gray.300' }}>
+                          {t('matchPrepDescription')}
+                        </Text>
+                      </Box>
+                    </HStack>
+                  </Box>
+
+                  <Flex
+                    direction={{ base: 'column', sm: 'row' }}
+                    gap={3}
+                    align={{ base: 'stretch', sm: 'center' }}
+                    justify="space-between"
+                  >
+                    <Box>
+                      <Text fontSize="sm" color="gray.500" mb={1}>
+                        {t('scheduledAt')}
+                      </Text>
+                      <Text fontWeight="semibold">{scheduledTime}</Text>
+                    </Box>
+
+                    <HStack gap={2} flexWrap="wrap">
+                      <Button
+                        variant="outline"
+                        colorPalette="red"
+                        size="lg"
+                        onClick={() => setForfeitOpen(true)}
+                        borderRadius="xl"
+                      >
+                        <Flag size={18} /> {t('forfeit')}
+                      </Button>
+                      <Button
+                        colorPalette="green"
+                        size="lg"
+                        onClick={() => void handleStart()}
+                        loading={starting}
+                        borderRadius="xl"
+                        boxShadow="0 10px 24px rgba(22, 163, 74, 0.24)"
+                      >
+                        <Play size={18} /> {t('startMatch')}
+                      </Button>
+                    </HStack>
+                  </Flex>
+                </VStack>
+              )}
+
+              {match.status === 'IN_PROGRESS' && (
+                <Box borderRadius="2xl" overflow="hidden">
+                  <ScoreEntryBoard
+                    match={match}
+                    tournamentId={tournament.id}
+                    onMatchUpdate={setMatch}
+                    onForfeit={() => setForfeitOpen(true)}
+                  />
+                </Box>
+              )}
+
+              {(match.status === 'FINISHED' ||
+                match.status === 'CANCELLED') && (
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  gap={4}
+                  py={10}
+                >
+                  <Box
+                    bg="yellow.100"
+                    color="yellow.700"
+                    borderRadius="full"
+                    p={4}
+                    _dark={{ bg: 'yellow.900', color: 'yellow.200' }}
+                  >
+                    <Trophy size={44} />
+                  </Box>
+                  <Heading size="md">{t('finalResult')}</Heading>
+                  <Text fontSize="2xl" fontWeight="bold">
+                    {match.score || '—'}
+                  </Text>
+                  <Flex gap={2} wrap="wrap" justify="center">
+                    {(match.sets ?? []).map((s, i) => (
+                      <Badge key={i} colorPalette="gray" fontSize="sm">
+                        {s.player1Score}-{s.player2Score}
+                      </Badge>
+                    ))}
+                  </Flex>
+                  <Button variant="outline" onClick={goBack}>
+                    {t('back')}
+                  </Button>
+                </Flex>
+              )}
+
+              <ForfeitMatchModal
+                isOpen={forfeitOpen}
+                onClose={() => setForfeitOpen(false)}
+                match={match}
+                onForfeited={(updated) => {
+                  setForfeitOpen(false);
+                  setMatch(updated);
+                }}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
-    </Box>
+    </TournamentRefereeDesktopLayout>
   );
 }
 

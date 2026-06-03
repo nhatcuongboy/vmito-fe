@@ -455,6 +455,7 @@ export default function PlayoffsBracketModal({
             fifthPlaceMatch={fifthPlaceMatch}
             seventhPlaceMatch={seventhPlaceMatch}
             customSlots={customSlots.length > 0 ? customSlots : undefined}
+            validateAdvancingSlots
             onSlotsChange={setCustomSlots}
             consolationMatches={consolationMatches.map((m) => ({
               matchNumber: m.afterMatchNumber,

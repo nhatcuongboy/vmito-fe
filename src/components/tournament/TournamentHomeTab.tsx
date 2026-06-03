@@ -25,8 +25,6 @@ import {
   MoreHorizontal,
   CheckCircle,
   QrCode,
-  Copy,
-  Check,
   Share2,
   MonitorPlay,
   Gavel,
@@ -94,7 +92,6 @@ export default function TournamentHomeTab({
       user?.role as UserRole
     );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
-  const [copied, setCopied] = useState(false);
   const [tournamentVenues, setTournamentVenues] = useState<IHomeVenueItem[]>(
     []
   );
@@ -131,8 +128,8 @@ export default function TournamentHomeTab({
     if (!qrCanvasRef.current) return;
 
     QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
-      width: 112,
-      margin: 2,
+      width: 88,
+      margin: 1,
       color: {
         dark: '#111827',
         light: '#FFFFFF',
@@ -204,17 +201,6 @@ export default function TournamentHomeTab({
     }
   };
 
-  const handleCopyShareLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      toaster.success({ title: 'Đã sao chép link giải đấu' });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toaster.error({ title: 'Không thể sao chép link giải đấu' });
-    }
-  };
-
   const handleShareLink = async () => {
     try {
       if (navigator.share) {
@@ -226,7 +212,8 @@ export default function TournamentHomeTab({
         return;
       }
 
-      await handleCopyShareLink();
+      await navigator.clipboard.writeText(shareUrl);
+      toaster.success({ title: 'Đã sao chép link giải đấu' });
     } catch {
       toaster.error({ title: 'Không thể chia sẻ giải đấu' });
     }
@@ -389,16 +376,6 @@ export default function TournamentHomeTab({
         </Grid>
       </Box>
 
-      {/* Champions / podium — moved here from the standalone "Nhà vô địch" tab */}
-      {isLoadingCategories ? (
-        <TournamentTableSkeleton rows={3} columns={3} />
-      ) : (
-        <PublicTournamentWinnersTab
-          tournament={tournament}
-          categories={fullCategories}
-        />
-      )}
-
       {/* Categories section */}
       <Box
         borderWidth="1px"
@@ -485,6 +462,16 @@ export default function TournamentHomeTab({
           </VStack>
         )}
       </Box>
+
+      {/* Champions / podium */}
+      {isLoadingCategories ? (
+        <TournamentTableSkeleton rows={3} columns={3} />
+      ) : (
+        <PublicTournamentWinnersTab
+          tournament={tournament}
+          categories={fullCategories}
+        />
+      )}
 
       {/* Venues section */}
       {displayVenues.length > 0 && (
@@ -703,11 +690,11 @@ export default function TournamentHomeTab({
       <Flex
         direction={{ base: 'column', sm: 'row' }}
         align={{ base: 'stretch', sm: 'center' }}
-        gap={4}
+        gap={3}
         borderWidth="1px"
         borderColor="gray.200"
         borderRadius="xl"
-        p={4}
+        p={3}
         bg="white"
       >
         <Box
@@ -722,21 +709,13 @@ export default function TournamentHomeTab({
           <canvas ref={qrCanvasRef} />
         </Box>
 
-        <VStack align="stretch" gap={3} flex="1" minW={0}>
+        <VStack align="stretch" gap={2} flex="1" minW={0}>
           <HStack gap={2}>
-            <QrCode size={17} color="var(--chakra-colors-gray-700)" />
-            <Text fontWeight="semibold">QR truy cập giải đấu</Text>
+            <QrCode size={15} color="var(--chakra-colors-gray-700)" />
+            <Text fontWeight="semibold" fontSize="sm">
+              QR truy cập giải đấu
+            </Text>
           </HStack>
-          <Button
-            alignSelf={{ base: 'stretch', sm: 'flex-start' }}
-            size="sm"
-            variant="outline"
-            colorPalette={copied ? 'green' : 'gray'}
-            leftIcon={copied ? <Check size={15} /> : <Copy size={15} />}
-            onClick={handleCopyShareLink}
-          >
-            {copied ? 'Đã sao chép' : 'Sao chép link'}
-          </Button>
           <Button
             alignSelf={{ base: 'stretch', sm: 'flex-start' }}
             size="sm"

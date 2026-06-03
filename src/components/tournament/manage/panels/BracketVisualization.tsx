@@ -66,6 +66,8 @@ export interface IBracketVisualizationProps {
   compact?: boolean;
   /** Custom slot order persisted externally (restored from formatConfig) */
   customSlots?: string[];
+  /** Validate custom slots against generated advancing slots (RR -> SE only). */
+  validateAdvancingSlots?: boolean;
   /** Fires when the user reorders first-round seeds via drag-and-drop */
   onSlotsChange?: (slots: string[]) => void;
   /** Optional consolation matches to render below the bracket */
@@ -169,6 +171,34 @@ const computeDefaultSlots = (
   }
   return result;
 };
+
+const resolveSlots = (
+  customSlots: string[] | undefined,
+  groupCount: number,
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>,
+  validateAdvancingSlots: boolean
+): string[] => {
+  const defaultSlots = computeDefaultSlots(groupCount, winnersPerGroup, t);
+  if (!customSlots?.length) return defaultSlots;
+  if (!validateAdvancingSlots) return customSlots;
+
+  const validSlots = new Set(
+    generateAdvancingSlots(groupCount, winnersPerGroup, t)
+  );
+  const hasStaleSlot = customSlots.some(
+    (slot) => slot && !validSlots.has(slot)
+  );
+
+  if (hasStaleSlot || customSlots.length !== defaultSlots.length) {
+    return defaultSlots;
+  }
+
+  return customSlots;
+};
+
+const areSlotsEqual = (a: string[], b: string[]): boolean =>
+  a.length === b.length && a.every((slot, index) => slot === b[index]);
 
 // ─── SortableTeamRow ─────────────────────────────────────────────────────────
 
@@ -440,6 +470,7 @@ export default function BracketVisualization({
   seventhPlaceMatch = false,
   compact = false,
   customSlots: externalCustomSlots,
+  validateAdvancingSlots = false,
   onSlotsChange,
   consolationMatches,
 }: IBracketVisualizationProps) {
@@ -447,22 +478,42 @@ export default function BracketVisualization({
 
   // ── Slot state ──────────────────────────────────────────────────────────────
   const [slots, setSlots] = useState<string[]>(() => {
-    if (externalCustomSlots?.length) return externalCustomSlots;
-    return computeDefaultSlots(groupCount, winnersPerGroup, t);
+    return resolveSlots(
+      externalCustomSlots,
+      groupCount,
+      winnersPerGroup,
+      t,
+      validateAdvancingSlots
+    );
   });
 
   useEffect(() => {
-    if (externalCustomSlots === undefined) return;
-    const next =
-      externalCustomSlots.length > 0
-        ? externalCustomSlots
-        : computeDefaultSlots(groupCount, winnersPerGroup, t);
+    const next = resolveSlots(
+      externalCustomSlots,
+      groupCount,
+      winnersPerGroup,
+      t,
+      validateAdvancingSlots
+    );
     setSlots((prev) => {
-      if (prev.length === next.length && prev.every((s, i) => s === next[i]))
-        return prev;
+      if (areSlotsEqual(prev, next)) return prev;
       return next;
     });
-  }, [externalCustomSlots, groupCount, winnersPerGroup, t]);
+
+    if (
+      externalCustomSlots?.length &&
+      !areSlotsEqual(externalCustomSlots, next)
+    ) {
+      onSlotsChange?.(next);
+    }
+  }, [
+    externalCustomSlots,
+    groupCount,
+    winnersPerGroup,
+    onSlotsChange,
+    t,
+    validateAdvancingSlots,
+  ]);
 
   // ── Build bracket data ───────────────────────────────────────────────────────
   const {

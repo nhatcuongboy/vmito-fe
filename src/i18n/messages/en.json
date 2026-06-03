@@ -1509,7 +1509,6 @@
           "teams": "Teams",
           "schedule": "Schedule",
           "standings": "Standings",
-          "results": "Results",
           "manage": "Manage",
           "dashboard": "Dashboard",
           "winners": "Winners"
@@ -1549,6 +1548,21 @@
           "noScore": "No score yet",
           "groupFallback": "Group {number}",
           "teamsCount": "{count} teams",
+          "winnerOf": "Winner of {match}",
+          "loserOf": "Loser of {match}",
+          "nthPoolLabel": "{rank} Pool {pool}",
+          "bye": "BYE",
+          "ordinals": {
+            "1": "1st",
+            "2": "2nd",
+            "3": "3rd",
+            "4": "4th",
+            "5": "5th",
+            "6": "6th",
+            "7": "7th",
+            "8": "8th",
+            "other": "{rank}th"
+          },
           "playoffsRounds": {
             "quarterFinals": "Quarter Finals",
             "semiFinals": "Semi Finals",
@@ -3241,6 +3255,9 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "edit": "Edit",
+        "linked": "Linked",
+        "court": "Court",
+        "noMatches": "No matches to assign yet.",
         "noReferees": "No referees added yet.",
         "linkAccount": "Link account",
         "unlinkAccount": "Unlink",
@@ -3328,7 +3345,14 @@
         "forfeitHint": "The other side is recorded as a forfeit.",
         "points": "Points",
         "walkover": "W/O",
-        "draw": "Draw"
+        "draw": "Draw",
+        "matchDetail": {
+          "tabDetails": "Details",
+          "tabStats": "Stats",
+          "editResult": "Edit result",
+          "matchOptions": "Match options",
+          "bySet": "By set"
+        }
       },
       "teamPage": {
         "title": "Team details",

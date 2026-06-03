@@ -9,6 +9,7 @@ import { useRouter } from '@/i18n/config';
 import { Filter, Gavel, RotateCcw } from 'lucide-react';
 
 import PageLayout from '@/components/layout/PageLayout';
+import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
 import {
@@ -222,100 +223,104 @@ export default function RefereeMatchListPage() {
       showTopBarMenuButton={false}
       showTopBarAiAssistantButton={false}
       disableSidebarOffset
+      maxW="full"
+      px={{ base: '24px', md: 0 }}
     >
-      {loading ? (
-        <TournamentMatchListSkeleton count={6} />
-      ) : !canAccess ? (
-        <Flex direction="column" align="center" py={16} gap={3}>
-          <Gavel size={40} opacity={0.4} />
-          <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
-          <Text color="gray.500">{tGuard('permissionDenied')}</Text>
-        </Flex>
-      ) : matches.length === 0 ? (
-        <Flex direction="column" align="center" py={16} gap={3}>
-          <Gavel size={40} opacity={0.4} />
-          <Text color="gray.500">{t('noAssignedMatches')}</Text>
-        </Flex>
-      ) : (
-        <VStack align="stretch" gap={6}>
-          <Flex justify="space-between" align="center" gap={3} wrap="wrap">
-            <Box>
-              <Heading size="md" mb={1}>
-                {t('title')}
-              </Heading>
-              <Text color="gray.500" fontSize="sm">
-                {filteredMatches.length}/{matches.length}{' '}
-                {tManual('panelTitle')}
-              </Text>
-            </Box>
-            <Button
-              variant="outline"
-              colorPalette="gray"
-              onClick={() => setIsFilterOpen(true)}
-            >
-              <Filter size={16} /> {tManual('filters.title')}
-              {activeFilterCount > 0 && (
-                <Badge ml={1} colorPalette="green" borderRadius="full">
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </Button>
+      <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+        {loading ? (
+          <TournamentMatchListSkeleton count={6} />
+        ) : !canAccess ? (
+          <Flex direction="column" align="center" py={16} gap={3}>
+            <Gavel size={40} opacity={0.4} />
+            <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
+            <Text color="gray.500">{tGuard('permissionDenied')}</Text>
           </Flex>
-
-          {filteredMatches.length === 0 ? (
-            <EmptyRefereeResults onClear={() => setFilters(EMPTY_FILTERS)} />
-          ) : (
-            groups.map((group) => (
-              <Box key={group.categoryId}>
-                <Flex align="center" gap={2} mb={3}>
-                  <Box
-                    w="10px"
-                    h="10px"
-                    borderRadius="full"
-                    bg={getCategoryColor(categoryOptions, group.categoryId)}
-                  />
-                  <Heading
-                    size="sm"
-                    color="gray.700"
-                    _dark={{ color: 'gray.200' }}
-                  >
-                    {group.name}
-                  </Heading>
-                  <Badge colorPalette="gray">{group.items.length}</Badge>
-                </Flex>
-                <VStack align="stretch" gap={3}>
-                  {group.items.map((match) => (
-                    <ResultMatchCard
-                      key={match.id}
-                      match={match}
-                      categoryName={group.name}
-                      canEdit
-                      onSelect={() =>
-                        router.push(
-                          `/tournament/${tournamentParam}/referee/${match.id}`
-                        )
-                      }
-                    />
-                  ))}
-                </VStack>
+        ) : matches.length === 0 ? (
+          <Flex direction="column" align="center" py={16} gap={3}>
+            <Gavel size={40} opacity={0.4} />
+            <Text color="gray.500">{t('noAssignedMatches')}</Text>
+          </Flex>
+        ) : (
+          <VStack align="stretch" gap={6}>
+            <Flex justify="space-between" align="center" gap={3} wrap="wrap">
+              <Box>
+                <Heading size="md" mb={1}>
+                  {t('title')}
+                </Heading>
+                <Text color="gray.500" fontSize="sm">
+                  {filteredMatches.length}/{matches.length}{' '}
+                  {tManual('panelTitle')}
+                </Text>
               </Box>
-            ))
-          )}
+              <Button
+                variant="outline"
+                colorPalette="gray"
+                onClick={() => setIsFilterOpen(true)}
+              >
+                <Filter size={16} /> {tManual('filters.title')}
+                {activeFilterCount > 0 && (
+                  <Badge ml={1} colorPalette="green" borderRadius="full">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+              </Button>
+            </Flex>
 
-          <FilterDrawer
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
-            filters={filters}
-            setFilters={setFilters}
-            categoryOptions={categoryOptions}
-            roundOptions={roundOptions}
-            courtOptions={courtOptions}
-            statusOptions={statusOptions}
-            teamOptions={teamOptions}
-            onToggle={updateFilterList}
-          />
-        </VStack>
-      )}
+            {filteredMatches.length === 0 ? (
+              <EmptyRefereeResults onClear={() => setFilters(EMPTY_FILTERS)} />
+            ) : (
+              groups.map((group) => (
+                <Box key={group.categoryId}>
+                  <Flex align="center" gap={2} mb={3}>
+                    <Box
+                      w="10px"
+                      h="10px"
+                      borderRadius="full"
+                      bg={getCategoryColor(categoryOptions, group.categoryId)}
+                    />
+                    <Heading
+                      size="sm"
+                      color="gray.700"
+                      _dark={{ color: 'gray.200' }}
+                    >
+                      {group.name}
+                    </Heading>
+                    <Badge colorPalette="gray">{group.items.length}</Badge>
+                  </Flex>
+                  <VStack align="stretch" gap={3}>
+                    {group.items.map((match) => (
+                      <ResultMatchCard
+                        key={match.id}
+                        match={match}
+                        categoryName={group.name}
+                        canEdit
+                        onSelect={() =>
+                          router.push(
+                            `/tournament/${tournamentParam}/referee/${match.id}`
+                          )
+                        }
+                      />
+                    ))}
+                  </VStack>
+                </Box>
+              ))
+            )}
+
+            <FilterDrawer
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+              filters={filters}
+              setFilters={setFilters}
+              categoryOptions={categoryOptions}
+              roundOptions={roundOptions}
+              courtOptions={courtOptions}
+              statusOptions={statusOptions}
+              teamOptions={teamOptions}
+              onToggle={updateFilterList}
+            />
+          </VStack>
+        )}
+      </TournamentRefereeDesktopLayout>
     </PageLayout>
   );
 }

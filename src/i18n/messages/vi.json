@@ -1517,7 +1517,6 @@
           "teams": "Đội",
           "schedule": "Lịch thi đấu",
           "standings": "Bảng xếp hạng",
-          "results": "Kết quả",
           "manage": "Quản lý",
           "dashboard": "Tổng quan",
           "winners": "Nhà vô địch"
@@ -1557,6 +1556,21 @@
           "noScore": "Chưa có điểm",
           "groupFallback": "Bảng {number}",
           "teamsCount": "{count} đội",
+          "winnerOf": "Thắng trận {match}",
+          "loserOf": "Thua trận {match}",
+          "nthPoolLabel": "{rank} Bảng {pool}",
+          "bye": "Miễn đấu",
+          "ordinals": {
+            "1": "Nhất",
+            "2": "Nhì",
+            "3": "Ba",
+            "4": "Tư",
+            "5": "Năm",
+            "6": "Sáu",
+            "7": "Bảy",
+            "8": "Tám",
+            "other": "Hạng {rank}"
+          },
           "playoffsRounds": {
             "quarterFinals": "Tứ kết",
             "semiFinals": "Bán kết",
@@ -3249,6 +3263,9 @@
         "cancel": "Hủy",
         "delete": "Xóa",
         "edit": "Sửa",
+        "linked": "Đã liên kết",
+        "court": "Sân",
+        "noMatches": "Chưa có trận nào để phân công trọng tài.",
         "noReferees": "Chưa có trọng tài nào.",
         "linkAccount": "Liên kết tài khoản",
         "unlinkAccount": "Hủy liên kết",
@@ -3336,7 +3353,14 @@
         "forfeitHint": "Đội còn lại được ghi nhận là bỏ cuộc.",
         "points": "Điểm",
         "walkover": "Xử thắng",
-        "draw": "Hòa"
+        "draw": "Hòa",
+        "matchDetail": {
+          "tabDetails": "Chi tiết",
+          "tabStats": "Thống kê",
+          "editResult": "Sửa kết quả",
+          "matchOptions": "Tùy chọn",
+          "bySet": "Theo set"
+        }
       },
       "teamPage": {
         "title": "Chi tiết đội",

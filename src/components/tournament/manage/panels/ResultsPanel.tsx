@@ -19,10 +19,7 @@ import {
   Filter,
   Flag,
   List,
-  MapPin,
   RotateCcw,
-  Trash2,
-  Trophy,
   X,
 } from 'lucide-react';
 
@@ -41,6 +38,7 @@ import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
+import MatchDetailModal from './MatchDetailModal';
 import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
@@ -49,6 +47,10 @@ interface Props {
   categories: Category[];
   /** When false, results are read-only (no score entry). Defaults to true. */
   canEdit?: boolean;
+  /** Optional heading override (e.g. the "Schedule" tab reuses this panel). */
+  heading?: string;
+  /** Optional sub-heading override. */
+  description?: string;
 }
 
 type ViewMode = 'list' | 'calendar';
@@ -96,13 +98,6 @@ export const CATEGORY_COLORS = [
   '#FCA5A5',
 ];
 
-const STATUS_COLOR: Record<MatchStatus, string> = {
-  [MatchStatus.IN_PROGRESS]: 'green',
-  [MatchStatus.SCHEDULED]: 'blue',
-  [MatchStatus.FINISHED]: 'gray',
-  [MatchStatus.CANCELLED]: 'red',
-};
-
 const CALENDAR_ROW_HEIGHT = 152;
 const CALENDAR_TIME_COL_WIDTH = 78;
 
@@ -110,6 +105,8 @@ export default function ResultsPanel({
   tournament,
   categories,
   canEdit = true,
+  heading,
+  description,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
@@ -119,6 +116,7 @@ export default function ResultsPanel({
   const [courts, setCourts] = useState<TournamentCourt[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<CategoryMatch | null>(null);
+  const [detailMatch, setDetailMatch] = useState<CategoryMatch | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
@@ -126,6 +124,9 @@ export default function ResultsPanel({
     null
   );
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const courtAbbreviation =
+    tournament.venue?.acronym ?? tournament.venue?.name ?? undefined;
 
   const load = useCallback(async () => {
     const [allMatches, allCourts] = await Promise.all([
@@ -143,6 +144,28 @@ export default function ResultsPanel({
   const categoryById = useMemo(() => {
     return new Map(categories.map((category) => [category.id, category]));
   }, [categories]);
+
+  const groupNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((category) => {
+      category.groups?.forEach((group) => {
+        if (group.name) map.set(group.id, group.name);
+      });
+    });
+    return map;
+  }, [categories]);
+
+  // Group name for pool matches (e.g. "Pool A"); round label otherwise.
+  const resolveRoundOrGroupLabel = useCallback(
+    (match: CategoryMatch) => {
+      if (match.groupId) {
+        const name = groupNameById.get(match.groupId);
+        if (name) return name;
+      }
+      return getRoundDisplayLabel(match.round, tRounds);
+    },
+    [groupNameById, tRounds]
+  );
 
   const courtById = useMemo(() => {
     const map = new Map<string, TournamentCourt>();
@@ -251,8 +274,9 @@ export default function ResultsPanel({
     }));
   }, [filteredMatches, categoryById]);
 
+  // Any viewer can open the read-only detail modal; editing is gated inside it.
   const openMatch = (match: CategoryMatch) => {
-    if (canEdit) setSelected(match);
+    setDetailMatch(match);
   };
 
   const handleConfirmDelete = useCallback(async () => {
@@ -263,6 +287,7 @@ export default function ResultsPanel({
       await CategoryService.deleteMatch(matchId);
       setMatches((prev) => prev.filter((match) => match.id !== matchId));
       setSelected((prev) => (prev?.id === matchId ? null : prev));
+      setDetailMatch((prev) => (prev?.id === matchId ? null : prev));
       setDeletingMatch(null);
     } catch (error) {
       console.error('Error deleting match:', error);
@@ -297,10 +322,10 @@ export default function ResultsPanel({
       >
         <Box>
           <Heading size="md" mb={1}>
-            {t('panelTitle')}
+            {heading ?? t('panelTitle')}
           </Heading>
           <Text fontSize="sm" color="gray.500">
-            {t('panelDescription')}
+            {description ?? t('panelDescription')}
           </Text>
         </Box>
 
@@ -356,9 +381,9 @@ export default function ResultsPanel({
           matches={filteredMatches}
           courts={Array.from(courtById.values())}
           categoryById={categoryById}
-          canEdit={canEdit}
           onSelect={openMatch}
-          onDelete={canEdit ? setDeletingMatch : undefined}
+          resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
+          courtAbbreviation={courtAbbreviation}
         />
       ) : (
         <VStack align="stretch" gap={6}>
@@ -388,7 +413,8 @@ export default function ResultsPanel({
                     categoryName={group.name}
                     canEdit={canEdit}
                     onSelect={openMatch}
-                    onDelete={canEdit ? setDeletingMatch : undefined}
+                    roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
+                    courtAbbreviation={courtAbbreviation}
                   />
                 ))}
               </VStack>
@@ -408,6 +434,38 @@ export default function ResultsPanel({
         statusOptions={statusOptions}
         teamOptions={teamOptions}
         onToggle={updateFilterList}
+      />
+
+      <MatchDetailModal
+        isOpen={!!detailMatch}
+        onClose={() => setDetailMatch(null)}
+        match={detailMatch}
+        categoryName={
+          detailMatch
+            ? (categoryById.get(detailMatch.categoryId)?.name ?? '')
+            : ''
+        }
+        roundOrGroupLabel={
+          detailMatch ? resolveRoundOrGroupLabel(detailMatch) : ''
+        }
+        courtLabel={
+          detailMatch?.court
+            ? formatCourtWithVenue(
+                detailMatch.court,
+                t('court'),
+                courtAbbreviation
+              )
+            : undefined
+        }
+        canEdit={canEdit}
+        onEditResult={(m) => {
+          setDetailMatch(null);
+          setSelected(m);
+        }}
+        onDeleteMatch={(m) => {
+          setDetailMatch(null);
+          setDeletingMatch(m);
+        }}
       />
 
       {canEdit && (
@@ -442,164 +500,184 @@ export type ListFilterKey =
 
 export function ResultMatchCard({
   match,
-  categoryName,
-  canEdit,
   onSelect,
-  onDelete,
   compact = false,
+  roundOrGroupLabel,
+  courtAbbreviation,
 }: {
   match: CategoryMatch;
-  categoryName: string;
-  canEdit: boolean;
+  /** Kept for call-site compatibility (e.g. referee list); not rendered. */
+  categoryName?: string;
+  /** Kept for call-site compatibility; clickability is gated on onSelect. */
+  canEdit?: boolean;
   onSelect: (match: CategoryMatch) => void;
-  onDelete?: (match: CategoryMatch) => void;
   compact?: boolean;
+  /** Pre-resolved group name or round label; falls back to the round label. */
+  roundOrGroupLabel?: string;
+  /** Venue acronym prefixed to the court (e.g. "R · Court 1"). */
+  courtAbbreviation?: string;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
-  const showDelete = canEdit && !!onDelete;
+  const accent = getMatchAccent(match);
+
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
+  const win1 = match.winnerId === getRegistrationId(match, 1);
+  const win2 = match.winnerId === getRegistrationId(match, 2);
+  const topLabel =
+    roundOrGroupLabel ?? getRoundDisplayLabel(match.round, tRounds);
+  const timeLabel = match.startTime
+    ? formatTimeByDevicePreference(new Date(match.startTime))
+    : '';
+  const courtLabel = match.court
+    ? formatCourtWithVenue(match.court, t('court'), courtAbbreviation)
+    : '';
+  const sets = match.sets ?? [];
+  const multiSet = sets.length > 1;
   const score1 = match.player1Score ?? getLastSetScore(match, 1);
   const score2 = match.player2Score ?? getLastSetScore(match, 2);
-  const winner = getWinnerLabel(match, t('draw'));
-  const timeLabel = formatMatchDateTime(match);
-  const accent = getMatchAccent(match);
 
   return (
     <Box
-      position="relative"
       w="full"
       textAlign="left"
       borderWidth="1px"
       borderColor={accent.border}
       borderRadius="2xl"
-      bg={{
-        base: accent.bg,
-        _dark: accent.darkBg,
-      }}
+      bg={{ base: accent.bg, _dark: accent.darkBg }}
       boxShadow={accent.shadow}
       p={{ base: 4, md: compact ? 3 : 5 }}
-      cursor={canEdit ? 'pointer' : 'default'}
+      cursor="pointer"
       transition="all 0.18s ease"
-      _hover={
-        canEdit
-          ? {
-              borderColor: accent.hoverBorder,
-              transform: 'translateY(-2px)',
-              boxShadow: accent.hoverShadow,
-            }
-          : undefined
-      }
+      _hover={{
+        borderColor: accent.hoverBorder,
+        transform: 'translateY(-2px)',
+        boxShadow: accent.hoverShadow,
+      }}
       _focusVisible={{
         outline: '2px solid',
         outlineColor: 'green.400',
         outlineOffset: '2px',
       }}
-      role={canEdit ? 'button' : undefined}
-      tabIndex={canEdit ? 0 : undefined}
-      onClick={canEdit ? () => onSelect(match) : undefined}
-      onKeyDown={
-        canEdit
-          ? (event: React.KeyboardEvent) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                onSelect(match);
-              }
-            }
-          : undefined
-      }
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(match)}
+      onKeyDown={(event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect(match);
+        }
+      }}
     >
-      <Flex
-        justify="space-between"
-        gap={{ base: 3, md: 5 }}
-        align="flex-start"
-        pr={showDelete ? { base: 9, md: 10 } : undefined}
-      >
-        <Box minW={0} flex="1">
-          <Flex gap={2} align="center" wrap="wrap" mb={3}>
-            <StatusBadge match={match} />
-            <MetaItem>{getMatchDisplayCode(match)}</MetaItem>
-            <MetaItem>{categoryName}</MetaItem>
-            <MetaItem>{getRoundDisplayLabel(match.round, tRounds)}</MetaItem>
-            {match.court && (
-              <MetaItem icon={<MapPin size={13} />}>
-                {formatCourtLabel(match.court, t('court'))}
-              </MetaItem>
-            )}
-          </Flex>
-
-          {timeLabel && (
-            <Flex align="center" gap={1.5} color="gray.500" mb={3}>
-              <Clock size={15} />
-              <Text fontSize="sm" fontWeight="medium">
-                {timeLabel}
-              </Text>
-            </Flex>
-          )}
-
-          <Flex align="center" gap={3}>
-            <Box minW={0} flex="1">
-              <TeamLine
-                label={team1}
-                score={score1}
-                highlight={match.winnerId === getRegistrationId(match, 1)}
-              />
-              <TeamLine
-                label={team2}
-                score={score2}
-                highlight={match.winnerId === getRegistrationId(match, 2)}
-              />
-            </Box>
-          </Flex>
-        </Box>
-
-        {match.score && (
-          <Box
-            textAlign="right"
+      <Flex justify="space-between" align="center" gap={3} mb={compact ? 2 : 3}>
+        <Text
+          fontSize="sm"
+          color="gray.600"
+          _dark={{ color: 'gray.300' }}
+          lineClamp={1}
+          minW={0}
+        >
+          {getMatchDisplayCode(match)} · {topLabel}
+        </Text>
+        {timeLabel && (
+          <Text
+            fontSize="sm"
+            color="gray.500"
+            whiteSpace="nowrap"
             flexShrink={0}
-            display={{ base: 'none', sm: 'block' }}
-            minW="72px"
           >
-            <Text fontWeight="black" fontSize={{ base: 'xl', md: '2xl' }}>
-              {match.score}
-            </Text>
-            {winner && (
-              <Flex align="center" gap={1} justify="flex-end" color="green.600">
-                <Trophy size={14} />
-                <Text fontSize="xs" fontWeight="semibold" maxW="180px" truncate>
-                  {winner}
-                </Text>
-              </Flex>
-            )}
-          </Box>
+            {timeLabel}
+          </Text>
         )}
       </Flex>
 
-      {showDelete && (
-        <Button
-          position="absolute"
-          top={2}
-          right={2}
-          zIndex={2}
-          variant="ghost"
-          size="xs"
-          color="red.500"
-          bg={{
-            base: 'rgba(255,255,255,0.78)',
-            _dark: 'rgba(31,41,55,0.78)',
-          }}
-          _hover={{ bg: 'red.50', color: 'red.600' }}
-          aria-label={t('deleteMatch')}
-          onClick={(event: React.MouseEvent) => {
-            event.stopPropagation();
-            onDelete?.(match);
-          }}
+      <Box>
+        <CardTeamRow
+          label={team1}
+          highlight={win1}
+          total={score1}
+          setScores={sets.map((s) => s.player1Score)}
+          setWins={sets.map((s) => s.player1Score > s.player2Score)}
+          multiSet={multiSet}
+        />
+        <CardTeamRow
+          label={team2}
+          highlight={win2}
+          total={score2}
+          setScores={sets.map((s) => s.player2Score)}
+          setWins={sets.map((s) => s.player2Score > s.player1Score)}
+          multiSet={multiSet}
+        />
+      </Box>
+
+      {!compact && courtLabel && (
+        <Text
+          fontSize="sm"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+          mt={2}
         >
-          <Trash2 size={14} />
-        </Button>
+          {courtLabel}
+        </Text>
       )}
     </Box>
+  );
+}
+
+function CardTeamRow({
+  label,
+  highlight,
+  total,
+  setScores,
+  setWins,
+  multiSet,
+}: {
+  label: string;
+  highlight: boolean;
+  total?: number;
+  setScores: number[];
+  setWins: boolean[];
+  multiSet: boolean;
+}) {
+  return (
+    <Flex align="center" justify="space-between" gap={3} py={1} minW={0}>
+      <Text
+        fontSize={{ base: 'md', md: 'lg' }}
+        fontWeight={highlight ? 'bold' : 'medium'}
+        lineClamp={1}
+        flex="1"
+        minW={0}
+      >
+        {label}
+      </Text>
+      {multiSet ? (
+        <Flex gap={{ base: 2.5, md: 4 }} flexShrink={0}>
+          {setScores.map((score, index) => (
+            <Text
+              key={index}
+              w={{ base: '18px', md: '22px' }}
+              textAlign="center"
+              fontSize={{ base: 'md', md: 'lg' }}
+              fontWeight={setWins[index] ? 'bold' : 'normal'}
+              color={setWins[index] ? 'fg' : 'gray.400'}
+            >
+              {score}
+            </Text>
+          ))}
+        </Flex>
+      ) : (
+        total !== undefined && (
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight={highlight ? 'bold' : 'medium'}
+            flexShrink={0}
+          >
+            {total}
+          </Text>
+        )
+      )}
+    </Flex>
   );
 }
 
@@ -607,16 +685,16 @@ function ResultsCalendarView({
   matches,
   courts,
   categoryById,
-  canEdit,
   onSelect,
-  onDelete,
+  resolveRoundOrGroupLabel,
+  courtAbbreviation,
 }: {
   matches: CategoryMatch[];
   courts: TournamentCourt[];
   categoryById: Map<string, Category>;
-  canEdit: boolean;
   onSelect: (match: CategoryMatch) => void;
-  onDelete?: (match: CategoryMatch) => void;
+  resolveRoundOrGroupLabel: (match: CategoryMatch) => string;
+  courtAbbreviation?: string;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const locale = useLocale();
@@ -761,9 +839,9 @@ function ResultsCalendarView({
                             categoryName={
                               categoryById.get(match.categoryId)?.name ?? ''
                             }
-                            canEdit={canEdit}
                             onSelect={onSelect}
-                            onDelete={onDelete}
+                            roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
+                            courtAbbreviation={courtAbbreviation}
                             compact
                           />
                         ))}
@@ -1039,82 +1117,6 @@ function EmptyResults({ onClear }: { onClear: () => void }) {
   );
 }
 
-function StatusBadge({ match }: { match: CategoryMatch }) {
-  const t = useTranslations('pages.tournaments.manualScore');
-  if (match.isForfeit) {
-    return <Badge colorPalette="orange">{t('filters.statusForfeited')}</Badge>;
-  }
-  if (match.status === MatchStatus.SCHEDULED && !isMatchScheduled(match)) {
-    return <Badge colorPalette="gray">{t('status.UNSCHEDULED')}</Badge>;
-  }
-  return (
-    <Badge colorPalette={STATUS_COLOR[match.status] ?? 'gray'}>
-      {t(`status.${match.status}`)}
-    </Badge>
-  );
-}
-
-function isMatchScheduled(match: CategoryMatch) {
-  return Boolean(match.startTime && match.courtId);
-}
-
-function MetaItem({
-  children,
-  icon,
-}: {
-  children: React.ReactNode;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <Flex
-      as="span"
-      align="center"
-      gap={1}
-      color="gray.500"
-      fontSize="xs"
-      fontWeight="medium"
-      minW={0}
-    >
-      {icon}
-      <Text as="span" truncate>
-        {children}
-      </Text>
-    </Flex>
-  );
-}
-
-function TeamLine({
-  label,
-  score,
-  highlight,
-}: {
-  label: string;
-  score?: number;
-  highlight: boolean;
-}) {
-  return (
-    <Flex align="center" justify="space-between" gap={3} minW={0}>
-      <Flex align="center" gap={2} minW={0}>
-        {highlight && (
-          <Trophy size={16} color="var(--chakra-colors-green-500)" />
-        )}
-        <Text
-          fontSize={{ base: 'lg', md: 'xl' }}
-          fontWeight={highlight ? 'bold' : 'semibold'}
-          lineClamp={1}
-        >
-          {label}
-        </Text>
-      </Flex>
-      {score !== undefined && (
-        <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold">
-          {score}
-        </Text>
-      )}
-    </Flex>
-  );
-}
-
 function CalendarHeaderCell({ children }: { children: React.ReactNode }) {
   return (
     <Box
@@ -1199,14 +1201,14 @@ export function formatCourtLabel(court: TournamentCourt, courtPrefix: string) {
   return court.courtName || `${courtPrefix} ${court.courtNumber}`;
 }
 
-function formatMatchDateTime(match: CategoryMatch) {
-  if (!match.startTime) return '';
-  const start = new Date(match.startTime);
-  const date = start.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  });
-  return `${date} · ${formatTimeByDevicePreference(start)}`;
+// Court label prefixed with the venue acronym when available (e.g. "R · Court 1").
+function formatCourtWithVenue(
+  court: TournamentCourt,
+  courtPrefix: string,
+  abbreviation?: string
+) {
+  const base = formatCourtLabel(court, courtPrefix);
+  return abbreviation ? `${abbreviation} · ${base}` : base;
 }
 
 function formatHourLabel(hour: number) {
@@ -1232,15 +1234,6 @@ function getLastSetScore(match: CategoryMatch, side: 1 | 2) {
 function getRegistrationId(match: CategoryMatch, position: 1 | 2) {
   return match.participants?.find((item) => item.position === position)
     ?.categoryRegistrationId;
-}
-
-function getWinnerLabel(match: CategoryMatch, drawLabel: string) {
-  if (!match.winnerId) return match.isDraw ? drawLabel : '';
-  if (match.winnerId === getRegistrationId(match, 1))
-    return getTeamLabel(match, 1);
-  if (match.winnerId === getRegistrationId(match, 2))
-    return getTeamLabel(match, 2);
-  return '';
 }
 
 export function getCategoryColor(options: ChipOption[], categoryId: string) {

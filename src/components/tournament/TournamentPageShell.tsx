@@ -37,14 +37,12 @@ import {
   LayoutGrid,
   CircleUserRound,
   SquarePen,
-  ClipboardList,
   Trophy,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
-import PublicTournamentScheduleTab from '@/components/tournament/PublicTournamentScheduleTab';
 import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
@@ -86,7 +84,6 @@ export type TournamentSegment =
   | 'teams'
   | 'schedule'
   | 'standings'
-  | 'results'
   | 'manage'
   | 'dashboard';
 
@@ -97,7 +94,6 @@ const SEGMENT_TO_TAB: Record<TournamentSegment, number> = {
   standings: 3,
   manage: 4,
   dashboard: 5,
-  results: 6,
 };
 
 const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
@@ -107,7 +103,6 @@ const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
   3: 'standings',
   4: 'manage',
   5: 'dashboard',
-  6: 'results',
 };
 
 interface TournamentPageShellProps {
@@ -169,7 +164,6 @@ export default function TournamentPageShell({
       { id: 1, label: t('tabs.teams'), icon: Users },
       { id: 2, label: t('tabs.schedule'), icon: CalendarDays },
       { id: 3, label: t('tabs.standings'), icon: BarChart3 },
-      { id: 6, label: t('tabs.results'), icon: ClipboardList },
       { id: 4, label: t('tabs.manage'), icon: Settings },
       { id: 5, label: t('tabs.dashboard'), icon: LayoutGrid },
     ];
@@ -181,13 +175,7 @@ export default function TournamentPageShell({
     });
   }, [canManage, isHost, isAdmin, t]);
 
-  // On the mobile bottom bar the host uses the floating "Enter scores" button
-  // instead of a Results tab (avoids crowding 7 tabs), so drop Results (id 6)
-  // there for hosts. Viewers keep it (they have fewer tabs).
-  const bottomNavTabs = useMemo(
-    () => (isHost ? tabs.filter((tab) => tab.id !== 6) : tabs),
-    [tabs, isHost]
-  );
+  const bottomNavTabs = tabs;
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
   const topBarIcon = (
@@ -669,9 +657,18 @@ export default function TournamentPageShell({
           )}
         </VStack>
       )}
-      {activeTab === 2 && tournament && (
-        <PublicTournamentScheduleTab tournament={tournament} />
-      )}
+      {activeTab === 2 &&
+        tournament &&
+        (loadingTeams ? (
+          <TournamentMatchListSkeleton count={6} />
+        ) : (
+          <ResultsPanel
+            tournament={tournament}
+            categories={allCategories}
+            canEdit={isHost}
+            heading={t('tabs.schedule')}
+          />
+        ))}
       {activeTab === 3 &&
         tournament &&
         (loadingTeams ? (
@@ -681,16 +678,6 @@ export default function TournamentPageShell({
             tournament={tournament}
             categories={allCategories}
             isHost={isHost}
-          />
-        ))}
-      {activeTab === 6 &&
-        (loadingTeams ? (
-          <TournamentMatchListSkeleton count={6} />
-        ) : (
-          <ResultsPanel
-            tournament={tournament}
-            categories={allCategories}
-            canEdit={isHost}
           />
         ))}
       {activeTab === 4 && canManage && (
@@ -755,7 +742,7 @@ export default function TournamentPageShell({
       />
 
       {/* Host quick-access: floating "Enter scores" button (mobile only) */}
-      {isHost && activeSegment !== 'results' && (
+      {isHost && activeSegment !== 'schedule' && (
         <Box
           display={{ base: 'block', md: 'none' }}
           position="fixed"
@@ -768,7 +755,7 @@ export default function TournamentPageShell({
             borderRadius="full"
             boxShadow="lg"
             size="lg"
-            onClick={() => router.push(`/tournament/${slug}/results`)}
+            onClick={() => router.push(`/tournament/${slug}/schedule`)}
           >
             <HStack gap={2}>
               <SquarePen size={18} />

@@ -110,38 +110,49 @@ export default function PublicTournamentWinnersTab({
     void load();
   }, [load]);
 
-  const visibleCategories = useMemo(() => {
-    if (selectedCategoryId === ALL_CATEGORIES_VALUE) return categories;
-    return categories.filter((category) => category.id === selectedCategoryId);
-  }, [categories, selectedCategoryId]);
-
-  const podiums = useMemo(
+  const allPodiums = useMemo(
     () =>
-      visibleCategories.map((category) =>
+      categories.map((category) =>
         computePodium(
           category,
           matches,
           standingsByCategory.get(category.id) ?? []
         )
       ),
-    [visibleCategories, matches, standingsByCategory]
+    [categories, matches, standingsByCategory]
   );
+  const allCategoriesDecided =
+    allPodiums.length > 0 &&
+    allPodiums.every((podium) => podium.state === 'decided');
+  const podiums = useMemo(() => {
+    if (selectedCategoryId === ALL_CATEGORIES_VALUE) return allPodiums;
+    return allPodiums.filter(
+      (podium) => podium.category.id === selectedCategoryId
+    );
+  }, [allPodiums, selectedCategoryId]);
 
   if (loading) {
     return <TournamentTableSkeleton rows={3} columns={3} />;
   }
 
   return (
-    <Box>
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="xl"
+      bg="white"
+      overflow="hidden"
+    >
       <Flex
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
         gap={{ base: 2, md: 3 }}
-        mb={{ base: 4, md: 5 }}
+        p={4}
+        pb={3}
       >
         <Box>
-          <Heading size="md" mb={{ base: 0.5, md: 1 }}>
+          <Heading size="md" mb={1}>
             {t('title')}
           </Heading>
           <Text fontSize="sm" color="gray.500">
@@ -169,18 +180,7 @@ export default function PublicTournamentWinnersTab({
       </Flex>
 
       {error ? (
-        <Flex
-          direction="column"
-          align="center"
-          gap={3}
-          py={10}
-          px={4}
-          borderWidth="1px"
-          borderRadius="lg"
-          borderColor="gray.100"
-          bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-        >
+        <Flex direction="column" align="center" gap={3} px={4} pt={2} pb={5}>
           <Text color="gray.500" textAlign="center">
             {t('error')}
           </Text>
@@ -189,16 +189,19 @@ export default function PublicTournamentWinnersTab({
           </Button>
         </Flex>
       ) : categories.length === 0 ? (
-        <Text color="gray.500" fontSize="sm">
-          {t('noCategories')}
-        </Text>
+        <Box px={4} pb={4}>
+          <Text color="gray.500" fontSize="sm">
+            {t('noCategories')}
+          </Text>
+        </Box>
       ) : (
-        <VStack align="stretch" gap={5}>
+        <VStack align="stretch" gap={4} px={4} pb={4}>
           {podiums.map((podium) => (
             <CategoryPodiumCard
               key={podium.category.id}
               podium={podium}
               t={t}
+              canShowResults={allCategoriesDecided}
             />
           ))}
         </VStack>
@@ -210,48 +213,42 @@ export default function PublicTournamentWinnersTab({
 function CategoryPodiumCard({
   podium,
   t,
+  canShowResults,
 }: {
   podium: CategoryPodium<Category>;
   t: ReturnType<typeof useTranslations>;
+  canShowResults: boolean;
 }) {
   const { category, state, entries } = podium;
+  const shouldShowResults = canShowResults && entries.length > 0;
 
   return (
     <Box
       borderWidth="1px"
-      borderTopWidth="6px"
       borderColor="gray.100"
-      borderTopColor="yellow.300"
       borderRadius="lg"
       bg="white"
-      boxShadow="0 12px 30px rgba(15, 23, 42, 0.08)"
-      px={{ base: 4, md: 6 }}
-      py={{ base: 4, md: 5 }}
+      px={4}
+      py={4}
       _dark={{
         bg: 'gray.900',
         borderColor: 'gray.700',
-        borderTopColor: 'yellow.400',
       }}
     >
       <Flex align="center" justify="space-between" gap={2} mb={4}>
         <Heading size="md" color="gray.800" _dark={{ color: 'gray.100' }}>
           {getCategoryLabel(category)}
         </Heading>
-        {state === 'provisional' && (
-          <Badge colorPalette="orange" borderRadius="full">
-            {t('provisional')}
-          </Badge>
-        )}
-        {state === 'decided' && (
+        {shouldShowResults && state === 'decided' && (
           <Badge colorPalette="green" borderRadius="full">
             {t('final')}
           </Badge>
         )}
       </Flex>
 
-      {entries.length === 0 ? (
+      {!shouldShowResults ? (
         <Text color="gray.500" fontSize="sm">
-          {state === 'in_progress' ? t('inProgress') : t('empty')}
+          {t('empty')}
         </Text>
       ) : (
         <VStack align="stretch" gap={3}>

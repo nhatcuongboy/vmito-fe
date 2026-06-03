@@ -18,6 +18,7 @@ import { CategoryService } from '@/lib/api/category.service';
 import { TournamentService } from '@/lib/api/tournament.service';
 import {
   Category,
+  CategoryFormat,
   CategoryMatch,
   CategoryStandingsResponse,
   GroupStanding,
@@ -246,13 +247,26 @@ export default function PublicTournamentStandingsTab({
         : categories.filter((category) => category.id === selectedCategoryId);
 
     return visible
-      .map((category) => ({
-        category,
-        matches: matches
-          .filter((match) => match.categoryId === category.id && !match.groupId)
-          .sort((first, second) => first.matchNumber - second.matchNumber),
-      }))
-      .filter((entry) => entry.matches.length > 0);
+      .filter((category) =>
+        [
+          CategoryFormat.ROUND_ROBIN_TO_SE,
+          CategoryFormat.SINGLE_ELIMINATION,
+        ].includes(category.format)
+      )
+      .map((category) => {
+        const categoryMatches = matches.filter(
+          (match) => match.categoryId === category.id
+        );
+        return {
+          category,
+          groupStageMatchCount: categoryMatches.filter(
+            (match) => match.groupId || match.round === 'GROUP'
+          ).length,
+          matches: categoryMatches
+            .filter((match) => !match.groupId && match.round !== 'GROUP')
+            .sort((first, second) => first.matchNumber - second.matchNumber),
+        };
+      });
   }, [categories, matches, selectedCategoryId]);
 
   const reloadCategory = useCallback(
@@ -440,7 +454,11 @@ export default function PublicTournamentStandingsTab({
         ) : (
           <VStack align="stretch" gap={6}>
             {visiblePlayoffCategories.map(
-              ({ category, matches: categoryMatches }) => (
+              ({
+                category,
+                groupStageMatchCount,
+                matches: categoryMatches,
+              }) => (
                 <Box key={category.id}>
                   <Heading
                     size="sm"
@@ -450,7 +468,12 @@ export default function PublicTournamentStandingsTab({
                   >
                     {getCategoryLabel(category)}
                   </Heading>
-                  <PublicTournamentBracket matches={categoryMatches} t={t} />
+                  <PublicTournamentBracket
+                    category={category}
+                    groupStageMatchCount={groupStageMatchCount}
+                    matches={categoryMatches}
+                    t={t}
+                  />
                 </Box>
               )
             )}
