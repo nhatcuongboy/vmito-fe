@@ -11,7 +11,7 @@ import {
   ModalCloseButton,
 } from '@/components/ui/ChakraModal';
 import { useTranslations } from 'next-intl';
-import { Flag, Minus, Plus, Send, Trophy } from 'lucide-react';
+import { ArrowLeft, Flag, Minus, Plus, Send, Trophy } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import {
@@ -36,12 +36,21 @@ interface Props {
   onSaved: (m: CategoryMatch) => void;
   /** Category points mode; enables the manual-points tab when 'manual'. */
   pointsEarning?: 'match_results' | 'manual' | 'tiebreakers_only';
+  /** When provided, renders a Back button that returns to the previous modal. */
+  onBack?: () => void;
 }
 
 interface SetInput {
-  player1Score: number;
-  player2Score: number;
+  player1Score: string;
+  player2Score: string;
 }
+
+const emptySet = (): SetInput => ({ player1Score: '', player2Score: '' });
+
+const toNum = (raw: string): number => {
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
 
 export default function ManualScoreModal({
   isOpen,
@@ -49,14 +58,15 @@ export default function ManualScoreModal({
   match,
   onSaved,
   pointsEarning,
+  onBack,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const [sets, setSets] = useState<SetInput[]>([]);
   const [mode, setMode] = useState<ResultMode>('score');
   const [forfeitWinner, setForfeitWinner] = useState<1 | 2 | null>(null);
-  const [manual1, setManual1] = useState(0);
-  const [manual2, setManual2] = useState(0);
+  const [manual1, setManual1] = useState('');
+  const [manual2, setManual2] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const allowManual = pointsEarning === 'manual';
@@ -66,7 +76,8 @@ export default function ManualScoreModal({
     [match]
   );
   const maxSets = rules.bestOf;
-  const minSets = rules.bestOf === 3 ? 2 : 1;
+  // Always start with a single set; users can add more via the Add Set button.
+  const minSets = 1;
 
   const isDoubles =
     match?.participants?.some((p) => p.categoryRegistration?.pair) ?? false;
@@ -79,17 +90,14 @@ export default function ManualScoreModal({
   useEffect(() => {
     if (!isOpen || !match) return;
 
-    const existing = (match.sets ?? []).map((s) => ({
-      player1Score: s.player1Score,
-      player2Score: s.player2Score,
+    const existing = (match.sets ?? []).map<SetInput>((s) => ({
+      player1Score: String(s.player1Score),
+      player2Score: String(s.player2Score),
     }));
     setSets(
       existing.length >= minSets
         ? existing
-        : Array.from({ length: minSets }, () => ({
-            player1Score: 0,
-            player2Score: 0,
-          }))
+        : Array.from({ length: minSets }, emptySet)
     );
 
     const winnerPos =
@@ -102,8 +110,8 @@ export default function ManualScoreModal({
           ? 2
           : null;
 
-    setManual1(match.player1Points ?? 0);
-    setManual2(match.player2Points ?? 0);
+    setManual1(match.player1Points != null ? String(match.player1Points) : '');
+    setManual2(match.player2Points != null ? String(match.player2Points) : '');
 
     if (match.isForfeit) {
       setMode('forfeit');
@@ -125,13 +133,16 @@ export default function ManualScoreModal({
 
   const matchSets: MatchSet[] = sets.map((s, i) => ({
     setNumber: i + 1,
-    player1Score: s.player1Score,
-    player2Score: s.player2Score,
+    player1Score: toNum(s.player1Score),
+    player2Score: toNum(s.player2Score),
   }));
   const { complete, winnerSide } = isMatchComplete(matchSets, rules);
   const winnerName = winnerSide === 1 ? team1 : winnerSide === 2 ? team2 : null;
 
-  const manualWinner = manual1 > manual2 ? 1 : manual2 > manual1 ? 2 : null;
+  const manual1Num = toNum(manual1);
+  const manual2Num = toNum(manual2);
+  const manualWinner =
+    manual1Num > manual2Num ? 1 : manual2Num > manual1Num ? 2 : null;
 
   const canSave =
     mode === 'score'
@@ -141,21 +152,21 @@ export default function ManualScoreModal({
         : true; // manual: 0-0 is a valid draw
 
   const updateScore = (index: number, side: 1 | 2, raw: string) => {
-    const value = Math.max(0, Number(raw) || 0);
+    // Allow empty string so the input doesn't auto-fill 0.
+    const sanitized = raw.replace(/[^0-9]/g, '');
     setSets((prev) =>
       prev.map((s, i) =>
         i === index
           ? {
               ...s,
-              [side === 1 ? 'player1Score' : 'player2Score']: value,
+              [side === 1 ? 'player1Score' : 'player2Score']: sanitized,
             }
           : s
       )
     );
   };
 
-  const addSet = () =>
-    setSets((prev) => [...prev, { player1Score: 0, player2Score: 0 }]);
+  const addSet = () => setSets((prev) => [...prev, emptySet()]);
   const removeLatestSet = () => setSets((prev) => prev.slice(0, -1));
 
   const buildPayload = (): EndCategoryMatchRequest | null => {
@@ -172,9 +183,9 @@ export default function ManualScoreModal({
     }
     if (mode === 'manual') {
       return {
-        score: `${manual1} - ${manual2}`,
-        player1Points: manual1,
-        player2Points: manual2,
+        score: `${manual1Num} - ${manual2Num}`,
+        player1Points: manual1Num,
+        player2Points: manual2Num,
         winnerId: manualWinner ? regIdOfPosition(manualWinner) : undefined,
         isDraw: manualWinner === null,
       };
@@ -313,7 +324,8 @@ export default function ManualScoreModal({
                   type="number"
                   inputMode="numeric"
                   min={0}
-                  value={String(s.player1Score)}
+                  placeholder="0"
+                  value={s.player1Score}
                   onChange={(e) => updateScore(i, 1, e.target.value)}
                   onFocus={(e) => e.target.select()}
                   textAlign="center"
@@ -328,7 +340,8 @@ export default function ManualScoreModal({
                   type="number"
                   inputMode="numeric"
                   min={0}
-                  value={String(s.player2Score)}
+                  placeholder="0"
+                  value={s.player2Score}
                   onChange={(e) => updateScore(i, 2, e.target.value)}
                   onFocus={(e) => e.target.select()}
                   textAlign="center"
@@ -422,9 +435,10 @@ export default function ManualScoreModal({
                     type="number"
                     inputMode="numeric"
                     min={0}
-                    value={String(pos === 1 ? manual1 : manual2)}
+                    placeholder="0"
+                    value={pos === 1 ? manual1 : manual2}
                     onChange={(e) => {
-                      const v = Math.max(0, Number(e.target.value) || 0);
+                      const v = e.target.value.replace(/[^0-9]/g, '');
                       if (pos === 1) setManual1(v);
                       else setManual2(v);
                     }}
@@ -452,6 +466,16 @@ export default function ManualScoreModal({
         )}
       </ModalBody>
       <ModalFooter p={{ base: 4, md: 5 }}>
+        {onBack && (
+          <Button
+            variant="outline"
+            onClick={onBack}
+            disabled={submitting}
+            leftIcon={<ArrowLeft size={16} />}
+          >
+            {t('back')}
+          </Button>
+        )}
         <Button variant="outline" onClick={onClose} disabled={submitting}>
           {t('cancel')}
         </Button>

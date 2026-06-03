@@ -3291,6 +3291,7 @@
         "removeSet": "Remove set",
         "winner": "Winner",
         "noWinnerYet": "Enter scores until one side wins the match.",
+        "back": "Back",
         "cancel": "Cancel",
         "save": "Save result",
         "noMatches": "No matches to score yet.",

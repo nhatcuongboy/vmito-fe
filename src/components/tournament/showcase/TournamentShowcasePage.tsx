@@ -368,6 +368,11 @@ export default function TournamentShowcasePage() {
   }, [duration, isPaused, slides.length]);
 
   const activeSlide = slides[activeIndex];
+  const playerSlides = useMemo(
+    () =>
+      slides.filter((slide): slide is PlayerSlide => slide.type === 'player'),
+    [slides]
+  );
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   const toggleFullscreen = useCallback(() => {
@@ -526,7 +531,11 @@ export default function TournamentShowcasePage() {
                 transition={{ duration: 0.7, ease: 'easeOut' }}
               >
                 {activeSlide.type === 'player' ? (
-                  <PlayerShowcase slide={activeSlide} />
+                  <PlayerShowcase
+                    slide={activeSlide}
+                    slides={playerSlides}
+                    activeIndex={activeIndex}
+                  />
                 ) : (
                   <MatchShowcase slide={activeSlide} />
                 )}
@@ -715,21 +724,211 @@ function ToolbarChip({
   );
 }
 
-function PlayerShowcase({ slide }: { slide: PlayerSlide }) {
+const PLAYER_CARD_LAYOUTS: Record<
+  number,
+  {
+    x: string;
+    y: string;
+    z: number;
+    rotateY: number;
+    rotateZ: number;
+    scale: number;
+    opacity: number;
+  }
+> = {
+  [-8]: {
+    x: '-42vw',
+    y: '20dvh',
+    z: -230,
+    rotateY: 24,
+    rotateZ: -6,
+    scale: 0.62,
+    opacity: 0.24,
+  },
+  [-7]: {
+    x: '-33vw',
+    y: '-19dvh',
+    z: -200,
+    rotateY: 20,
+    rotateZ: 5,
+    scale: 0.68,
+    opacity: 0.34,
+  },
+  [-6]: {
+    x: '-48vw',
+    y: '-4dvh',
+    z: -180,
+    rotateY: 26,
+    rotateZ: -3,
+    scale: 0.72,
+    opacity: 0.38,
+  },
+  [-5]: {
+    x: '-27vw',
+    y: '24dvh',
+    z: -150,
+    rotateY: 18,
+    rotateZ: 4,
+    scale: 0.78,
+    opacity: 0.48,
+  },
+  [-4]: {
+    x: '-18vw',
+    y: '-27dvh',
+    z: -130,
+    rotateY: 15,
+    rotateZ: -5,
+    scale: 0.8,
+    opacity: 0.52,
+  },
+  [-3]: {
+    x: '-35vw',
+    y: '5dvh',
+    z: -90,
+    rotateY: 13,
+    rotateZ: 3,
+    scale: 0.9,
+    opacity: 0.7,
+  },
+  [-2]: {
+    x: '-19vw',
+    y: '13dvh',
+    z: -42,
+    rotateY: 9,
+    rotateZ: -3,
+    scale: 0.98,
+    opacity: 0.82,
+  },
+  [-1]: {
+    x: '-14vw',
+    y: '-8dvh',
+    z: 54,
+    rotateY: 5,
+    rotateZ: 2,
+    scale: 1.04,
+    opacity: 0.94,
+  },
+  0: {
+    x: '0vw',
+    y: '0dvh',
+    z: 180,
+    rotateY: 0,
+    rotateZ: 0,
+    scale: 1.2,
+    opacity: 1,
+  },
+  1: {
+    x: '14vw',
+    y: '-9dvh',
+    z: 50,
+    rotateY: -5,
+    rotateZ: -2,
+    scale: 1.04,
+    opacity: 0.94,
+  },
+  2: {
+    x: '20vw',
+    y: '14dvh',
+    z: -44,
+    rotateY: -9,
+    rotateZ: 3,
+    scale: 0.98,
+    opacity: 0.82,
+  },
+  3: {
+    x: '35vw',
+    y: '3dvh',
+    z: -90,
+    rotateY: -13,
+    rotateZ: -3,
+    scale: 0.9,
+    opacity: 0.7,
+  },
+  4: {
+    x: '18vw',
+    y: '-27dvh',
+    z: -130,
+    rotateY: -15,
+    rotateZ: 5,
+    scale: 0.8,
+    opacity: 0.52,
+  },
+  5: {
+    x: '27vw',
+    y: '24dvh',
+    z: -150,
+    rotateY: -18,
+    rotateZ: -4,
+    scale: 0.78,
+    opacity: 0.48,
+  },
+  6: {
+    x: '48vw',
+    y: '-4dvh',
+    z: -180,
+    rotateY: -26,
+    rotateZ: 3,
+    scale: 0.72,
+    opacity: 0.38,
+  },
+  7: {
+    x: '33vw',
+    y: '-19dvh',
+    z: -200,
+    rotateY: -20,
+    rotateZ: -5,
+    scale: 0.68,
+    opacity: 0.34,
+  },
+  8: {
+    x: '42vw',
+    y: '20dvh',
+    z: -230,
+    rotateY: -24,
+    rotateZ: 6,
+    scale: 0.62,
+    opacity: 0.24,
+  },
+};
+
+function getCircularOffset(index: number, activeIndex: number, total: number) {
+  const raw = index - activeIndex;
+  const half = total / 2;
+  if (raw > half) return raw - total;
+  if (raw < -half) return raw + total;
+  return raw;
+}
+
+function PlayerShowcase({
+  slide,
+  slides,
+  activeIndex,
+}: {
+  slide: PlayerSlide;
+  slides: PlayerSlide[];
+  activeIndex: number;
+}) {
   const t = useTranslations('pages.tournaments.showcase');
   const player = slide.player;
 
   return (
-    <Grid
+    <Flex
       h="full"
-      alignItems="center"
-      templateColumns={{ base: '1fr', lg: 'minmax(320px, 44%) 1fr' }}
-      gap={{ base: 6, lg: 12 }}
+      minH={{ base: '560px', md: '620px' }}
+      direction="column"
+      align="center"
+      justify="center"
+      gap={{ base: 5, md: 7 }}
     >
-      <Box>
-        <PlayerPortrait player={player} />
-      </Box>
-      <Flex direction="column" gap={{ base: 4, md: 6 }} minW={0}>
+      <PlayerPhotoCarousel slides={slides} activeIndex={activeIndex} />
+
+      <Flex
+        direction="column"
+        align="center"
+        gap={{ base: 3, md: 4 }}
+        minW={0}
+        textAlign="center"
+      >
         <Flex gap={3} wrap="wrap">
           <Badge
             colorPalette="cyan"
@@ -753,15 +952,15 @@ function PlayerShowcase({ slide }: { slide: PlayerSlide }) {
         </Flex>
         <Heading
           as="h2"
-          fontSize={{ base: '4xl', md: '7xl', xl: '8xl' }}
+          fontSize={{ base: '3xl', md: '5xl', xl: '6xl' }}
           lineHeight={1}
           color="white"
-          maxW="12ch"
+          maxW="18ch"
         >
           {player.name}
         </Heading>
         <Text
-          fontSize={{ base: 'lg', md: '2xl' }}
+          fontSize={{ base: 'md', md: 'xl' }}
           color="whiteAlpha.800"
           maxW="46rem"
         >
@@ -770,28 +969,94 @@ function PlayerShowcase({ slide }: { slide: PlayerSlide }) {
             : t('athleteSpotlight')}
         </Text>
       </Flex>
-    </Grid>
+    </Flex>
   );
 }
 
-function PlayerPortrait({ player }: { player: TournamentPlayer }) {
+function PlayerPhotoCarousel({
+  slides,
+  activeIndex,
+}: {
+  slides: PlayerSlide[];
+  activeIndex: number;
+}) {
+  return (
+    <Box
+      position="relative"
+      w="full"
+      flex="1"
+      minH={{ base: '360px', md: '430px', xl: '520px' }}
+      maxH={{ base: '48dvh', md: '58dvh' }}
+      style={{ perspective: '1400px', transformStyle: 'preserve-3d' }}
+    >
+      <Box
+        position="absolute"
+        inset={0}
+        bg="radial-gradient(circle, rgba(255,255,255,0.2), transparent 54%)"
+        filter="blur(24px)"
+        opacity={0.42}
+      />
+      {slides.map((item, index) => {
+        const offset = getCircularOffset(index, activeIndex, slides.length);
+        const layout = PLAYER_CARD_LAYOUTS[offset];
+        if (!layout) return null;
+
+        return (
+          <PlayerCarouselCard
+            key={item.id}
+            slide={item}
+            layout={layout}
+            isActive={offset === 0}
+            zIndex={100 - Math.abs(offset)}
+          />
+        );
+      })}
+    </Box>
+  );
+}
+
+function PlayerCarouselCard({
+  slide,
+  layout,
+  isActive,
+  zIndex,
+}: {
+  slide: PlayerSlide;
+  layout: (typeof PLAYER_CARD_LAYOUTS)[number];
+  isActive: boolean;
+  zIndex: number;
+}) {
+  const player = slide.player;
   const image = player.image || player.user?.image;
   const initials = getPlayerInitials(player.name);
 
   return (
     <Flex
-      aspectRatio={1}
-      w="full"
-      maxW={{ base: '72vw', md: '54vw', lg: '100%' }}
-      mx="auto"
+      position="absolute"
+      left="50%"
+      top="50%"
+      w={{ base: '124px', sm: '148px', md: '178px', lg: '206px', xl: '232px' }}
+      h={{ base: '170px', sm: '202px', md: '244px', lg: '282px', xl: '318px' }}
       align="center"
       justify="center"
-      borderRadius="lg"
+      borderRadius={{ base: '18px', md: '22px' }}
       overflow="hidden"
-      bg="linear-gradient(135deg, rgba(34,211,238,0.88), rgba(245,158,11,0.88))"
+      bg="linear-gradient(135deg, rgba(34,211,238,0.78), rgba(245,158,11,0.78))"
       borderWidth="1px"
       borderColor="whiteAlpha.300"
-      boxShadow="0 30px 90px rgba(0,0,0,0.46)"
+      boxShadow={
+        isActive
+          ? '0 34px 100px rgba(0,0,0,0.58)'
+          : '0 22px 70px rgba(0,0,0,0.42)'
+      }
+      opacity={layout.opacity}
+      zIndex={zIndex}
+      transition="transform 850ms cubic-bezier(0.22, 1, 0.36, 1), opacity 850ms ease, filter 850ms ease"
+      filter={isActive ? 'saturate(1.05)' : 'saturate(0.72) contrast(0.9)'}
+      style={{
+        transform: `translate3d(calc(-50% + ${layout.x}), calc(-50% + ${layout.y}), ${layout.z}px) rotateY(${layout.rotateY}deg) rotateZ(${layout.rotateZ}deg) scale(${layout.scale})`,
+        transformStyle: 'preserve-3d',
+      }}
     >
       {image ? (
         <Image
@@ -803,7 +1068,7 @@ function PlayerPortrait({ player }: { player: TournamentPlayer }) {
         />
       ) : (
         <Text
-          fontSize={{ base: '7xl', md: '9xl' }}
+          fontSize={{ base: '4xl', md: '6xl' }}
           fontWeight="black"
           color="gray.950"
           lineHeight={1}
@@ -811,6 +1076,16 @@ function PlayerPortrait({ player }: { player: TournamentPlayer }) {
           {initials}
         </Text>
       )}
+      <Box
+        position="absolute"
+        inset={0}
+        bg={
+          isActive
+            ? 'linear-gradient(180deg, transparent 48%, rgba(0,0,0,0.32))'
+            : 'rgba(255,255,255,0.16)'
+        }
+        pointerEvents="none"
+      />
     </Flex>
   );
 }

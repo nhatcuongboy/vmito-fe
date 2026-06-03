@@ -117,6 +117,7 @@ export default function ResultsPanel({
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<CategoryMatch | null>(null);
   const [detailMatch, setDetailMatch] = useState<CategoryMatch | null>(null);
+  const [editFromDetail, setEditFromDetail] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
@@ -212,11 +213,19 @@ export default function ResultsPanel({
     return Array.from(courtById.values())
       .filter((court) => usedCourtIds.has(court.id))
       .sort((a, b) => a.courtNumber - b.courtNumber)
-      .map((court) => ({
-        id: court.id,
-        label: formatCourtLabel(court, t('court')),
-        description: court.courtName || undefined,
-      }));
+      .map((court) => {
+        const label = formatCourtLabel(court, t('court'));
+        const description =
+          court.courtName && court.courtName !== label
+            ? court.courtName
+            : undefined;
+
+        return {
+          id: court.id,
+          label,
+          description,
+        };
+      });
   }, [courtById, matches, t]);
 
   const teamOptions = useMemo<ChipOption[]>(() => {
@@ -252,9 +261,16 @@ export default function ResultsPanel({
     return matches
       .filter((match) => matchMatchesFilters(match, filters))
       .sort((a, b) => {
-        const aTime = a.startTime ? new Date(a.startTime).getTime() : 0;
-        const bTime = b.startTime ? new Date(b.startTime).getTime() : 0;
-        if (aTime !== bTime) return aTime - bTime;
+        // Matches with a scheduled time come first, ordered chronologically.
+        // Unscheduled matches go to the bottom, ordered by match number.
+        const aTime = a.startTime ? new Date(a.startTime).getTime() : null;
+        const bTime = b.startTime ? new Date(b.startTime).getTime() : null;
+        if (aTime !== null && bTime !== null) {
+          if (aTime !== bTime) return aTime - bTime;
+          return a.matchNumber - b.matchNumber;
+        }
+        if (aTime !== null) return -1;
+        if (bTime !== null) return 1;
         return a.matchNumber - b.matchNumber;
       });
   }, [matches, filters]);
@@ -460,6 +476,7 @@ export default function ResultsPanel({
         canEdit={canEdit}
         onEditResult={(m) => {
           setDetailMatch(null);
+          setEditFromDetail(true);
           setSelected(m);
         }}
         onDeleteMatch={(m) => {
@@ -471,10 +488,23 @@ export default function ResultsPanel({
       {canEdit && (
         <ManualScoreModal
           isOpen={!!selected}
-          onClose={() => setSelected(null)}
+          onClose={() => {
+            setSelected(null);
+            setEditFromDetail(false);
+          }}
           match={selected}
           pointsEarning={selectedPointsEarning}
           onSaved={() => void load()}
+          onBack={
+            editFromDetail && selected
+              ? () => {
+                  const m = selected;
+                  setSelected(null);
+                  setEditFromDetail(false);
+                  setDetailMatch(m);
+                }
+              : undefined
+          }
         />
       )}
 
@@ -544,8 +574,11 @@ export function ResultMatchCard({
       textAlign="left"
       borderWidth="1px"
       borderColor={accent.border}
-      borderRadius="2xl"
-      bg={{ base: accent.bg, _dark: accent.darkBg }}
+      _dark={{ borderColor: 'gray.700', bg: 'gray.800' }}
+      borderTopWidth="4px"
+      borderTopColor={accent.stripe}
+      borderRadius="xl"
+      bg="white"
       boxShadow={accent.shadow}
       p={{ base: 4, md: compact ? 3 : 5 }}
       cursor="pointer"
@@ -579,6 +612,7 @@ export function ResultMatchCard({
           minW={0}
         >
           {getMatchDisplayCode(match)} · {topLabel}
+          {courtLabel ? ` · ${courtLabel}` : ''}
         </Text>
         {timeLabel && (
           <Text
@@ -610,17 +644,6 @@ export function ResultMatchCard({
           multiSet={multiSet}
         />
       </Box>
-
-      {!compact && courtLabel && (
-        <Text
-          fontSize="sm"
-          color="gray.500"
-          _dark={{ color: 'gray.400' }}
-          mt={2}
-        >
-          {courtLabel}
-        </Text>
-      )}
     </Box>
   );
 }
@@ -887,7 +910,12 @@ export function FilterDrawer({
   const t = useTranslations('pages.tournaments.manualScore');
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose}>
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      width={{ base: 'calc(100vw - 48px)', sm: '420px', md: '500px' }}
+      maxWidth={{ base: '420px', md: '500px' }}
+    >
       <DrawerContent>
         <DrawerHeader>
           <Flex align="center" justify="space-between" gap={3}>
@@ -1248,61 +1276,49 @@ function statusIcon(status: ResultStatusFilter) {
 }
 
 function getMatchAccent(match: CategoryMatch) {
+  // Top-stripe accent — uses the app's primary green by default.
   if (match.isForfeit) {
     return {
-      border: 'orange.200',
+      stripe: 'orange.400',
+      border: 'gray.200',
       hoverBorder: 'orange.300',
-      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(255,247,237,0.92) 100%)',
-      darkBg:
-        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(124,45,18,0.26) 100%)',
-      shadow: '0 14px 34px rgba(194, 65, 12, 0.10)',
-      hoverShadow: '0 18px 42px rgba(194, 65, 12, 0.16)',
+      shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+      hoverShadow: '0 10px 24px rgba(194, 65, 12, 0.14)',
     };
   }
-
   if (match.status === MatchStatus.IN_PROGRESS) {
     return {
-      border: 'green.200',
+      stripe: 'green.500',
+      border: 'gray.200',
       hoverBorder: 'green.400',
-      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(236,253,245,0.95) 100%)',
-      darkBg:
-        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(6,95,70,0.30) 100%)',
-      shadow: '0 16px 40px rgba(22, 163, 74, 0.12)',
-      hoverShadow: '0 20px 48px rgba(22, 163, 74, 0.18)',
+      shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+      hoverShadow: '0 12px 28px rgba(22, 163, 74, 0.18)',
     };
   }
-
   if (match.status === MatchStatus.FINISHED) {
     return {
+      stripe: 'gray.400',
       border: 'gray.200',
       hoverBorder: 'gray.300',
-      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(248,250,252,0.96) 100%)',
-      darkBg:
-        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(15,23,42,0.35) 100%)',
-      shadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
-      hoverShadow: '0 18px 42px rgba(15, 23, 42, 0.13)',
+      shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+      hoverShadow: '0 10px 24px rgba(15, 23, 42, 0.10)',
     };
   }
-
   if (match.status === MatchStatus.CANCELLED) {
     return {
-      border: 'red.200',
+      stripe: 'red.400',
+      border: 'gray.200',
       hoverBorder: 'red.300',
-      bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(254,242,242,0.92) 100%)',
-      darkBg:
-        'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(127,29,29,0.24) 100%)',
-      shadow: '0 14px 34px rgba(185, 28, 28, 0.09)',
-      hoverShadow: '0 18px 42px rgba(185, 28, 28, 0.14)',
+      shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+      hoverShadow: '0 10px 24px rgba(185, 28, 28, 0.12)',
     };
   }
-
+  // Scheduled / default — primary green stripe.
   return {
-    border: 'blue.100',
-    hoverBorder: 'blue.300',
-    bg: 'linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(239,246,255,0.88) 100%)',
-    darkBg:
-      'linear-gradient(180deg, rgba(31,41,55,0.98) 0%, rgba(30,64,175,0.22) 100%)',
-    shadow: '0 14px 34px rgba(37, 99, 235, 0.08)',
-    hoverShadow: '0 18px 42px rgba(37, 99, 235, 0.13)',
+    stripe: 'green.400',
+    border: 'gray.200',
+    hoverBorder: 'green.300',
+    shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+    hoverShadow: '0 12px 28px rgba(22, 163, 74, 0.14)',
   };
 }

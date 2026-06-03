@@ -3269,6 +3269,7 @@
         "removeSet": "删除该局",
         "winner": "胜者",
         "noWinnerYet": "请录入比分，直到一方赢得比赛。",
+        "back": "返回",
         "cancel": "取消",
         "save": "保存结果",
         "noMatches": "暂无可录入的比赛。",

@@ -60,6 +60,30 @@ type Step = 'input' | 'preview';
 const normalize = (s: string | undefined | null): string =>
   (s ?? '').trim().toLowerCase();
 
+const normalizeCode = (s: string | undefined | null): string =>
+  normalize(s).replace(/[^a-z0-9]/g, '');
+
+const REGISTRATION_CODE_LENGTH = 8;
+
+const getUniqueRegistrationCode = (
+  registrationId: string,
+  registrationIds: string[]
+) => {
+  const normalizedIds = registrationIds.map((id) => id.toLowerCase());
+  const normalizedId = registrationId.toLowerCase();
+  let codeLength = Math.min(REGISTRATION_CODE_LENGTH, registrationId.length);
+
+  while (codeLength < registrationId.length) {
+    const candidate = normalizedId.slice(0, codeLength);
+    const matches = normalizedIds.filter((id) => id.startsWith(candidate));
+
+    if (matches.length <= 1) return candidate;
+    codeLength += 1;
+  }
+
+  return normalizedId;
+};
+
 const findCategory = (
   name: string | undefined,
   categories: Category[]
@@ -112,6 +136,108 @@ const buildDateTimeISO = (
 const addMinutesISO = (iso: string, minutes: number): string =>
   new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
 
+const getRawLineParts = (entry: IExtractedScheduleEntry): string[] =>
+  (entry.rawLine ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+const getEntryMatchCode = (
+  entry: IExtractedScheduleEntry
+): string | undefined => {
+  if (entry.matchCode?.trim()) return entry.matchCode.trim();
+
+  const rawMatchCode = getRawLineParts(entry).find((part) =>
+    /[a-z]{1,8}[-_]?[a-z0-9]*\d{1,4}$/i.test(part)
+  );
+  return rawMatchCode;
+};
+
+const getEntryTeamCodes = (entry: IExtractedScheduleEntry): string[] => {
+  const explicitCodes = [
+    entry.team1Code,
+    entry.team2Code,
+    ...(entry.teamCodes ?? []),
+  ].filter((code): code is string => Boolean(code?.trim()));
+
+  const rawTeamCodes =
+    entry.rawLine
+      ?.match(
+        /\b([a-z]{1,8}[-_]?\d{1,4})\b\s*(?:vs|v|versus|đấu|gap|gặp|[-–—])\s*\b([a-z]{1,8}[-_]?\d{1,4})\b/i
+      )
+      ?.slice(1, 3) ?? [];
+
+  return Array.from(
+    new Set([...explicitCodes, ...rawTeamCodes].map(normalizeCode))
+  ).filter(Boolean);
+};
+
+const getMatchParticipantCodes = (
+  match: CategoryMatch,
+  registrationCodeById: Map<string, string>
+): string[] => {
+  const codes: Array<string | undefined> = [];
+
+  for (const participant of match.participants ?? []) {
+    const registration = participant.categoryRegistration;
+    const registrationId = participant.categoryRegistrationId;
+    codes.push(registrationId, registrationCodeById.get(registrationId));
+
+    if (registration) {
+      codes.push(
+        registration.id,
+        registration.pair?.name,
+        registration.player?.code,
+        registration.player?.name,
+        ...(registration.pair?.members ?? []).flatMap((member) => [
+          member.player?.code,
+          member.player?.name,
+        ])
+      );
+    }
+  }
+
+  return Array.from(new Set(codes.map(normalizeCode))).filter(Boolean);
+};
+
+const findMatch = (
+  entry: IExtractedScheduleEntry,
+  category: Category | undefined,
+  matches: CategoryMatch[],
+  matchByCategoryAndNumber: Map<string, CategoryMatch>,
+  registrationCodeById: Map<string, string>
+): CategoryMatch | undefined => {
+  const candidates = category
+    ? matches.filter((match) => match.categoryId === category.id)
+    : matches;
+
+  const entryMatchCode = normalizeCode(getEntryMatchCode(entry));
+  if (entryMatchCode) {
+    const matchByCode = candidates.find(
+      (match) => normalizeCode(match.matchCode) === entryMatchCode
+    );
+    if (matchByCode) return matchByCode;
+  }
+
+  const teamCodes = getEntryTeamCodes(entry);
+  if (teamCodes.length >= 2) {
+    const matchByTeams = candidates.find((match) => {
+      const participantCodes = getMatchParticipantCodes(
+        match,
+        registrationCodeById
+      );
+      return teamCodes.every((code) => participantCodes.includes(code));
+    });
+    if (matchByTeams) return matchByTeams;
+  }
+
+  const matchKey =
+    category && entry.matchNumber
+      ? `${category.id}::${entry.matchNumber}`
+      : undefined;
+  return matchKey ? matchByCategoryAndNumber.get(matchKey) : undefined;
+};
+
 export default function AIImportScheduleDrawer({
   isOpen,
   onClose,
@@ -141,6 +267,26 @@ export default function AIImportScheduleDrawer({
       map.set(`${m.categoryId}::${m.matchNumber}`, m);
     }
     return map;
+  }, [matches]);
+
+  const registrationCodeById = useMemo(() => {
+    const registrationIds = Array.from(
+      new Set(
+        matches.flatMap(
+          (match) =>
+            match.participants?.map(
+              (participant) => participant.categoryRegistrationId
+            ) ?? []
+        )
+      )
+    );
+
+    return new Map(
+      registrationIds.map((id) => [
+        id,
+        getUniqueRegistrationCode(id, registrationIds),
+      ])
+    );
   }, [matches]);
 
   const resetState = useCallback(() => {
@@ -202,13 +348,13 @@ export default function AIImportScheduleDrawer({
 
       return entries.map((entry, idx) => {
         const category = findCategory(entry.categoryName, categories);
-        const matchKey =
-          category && entry.matchNumber
-            ? `${category.id}::${entry.matchNumber}`
-            : undefined;
-        const match = matchKey
-          ? matchByCategoryAndNumber.get(matchKey)
-          : undefined;
+        const match = findMatch(
+          entry,
+          category,
+          matches,
+          matchByCategoryAndNumber,
+          registrationCodeById
+        );
         const court = findCourt(entry.courtName, courts);
         const startTime = buildDateTimeISO(entry.date, entry.startTime);
         const duration = entry.durationMinutes ?? 60;
@@ -244,7 +390,13 @@ export default function AIImportScheduleDrawer({
         };
       });
     },
-    [categories, courts, matches, matchByCategoryAndNumber]
+    [
+      categories,
+      courts,
+      matches,
+      matchByCategoryAndNumber,
+      registrationCodeById,
+    ]
   );
 
   const handleExtract = useCallback(async () => {

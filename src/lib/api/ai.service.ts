@@ -80,6 +80,10 @@ export const AIService = {
 export interface IExtractedScheduleEntry {
   categoryName?: string;
   matchNumber?: number;
+  matchCode?: string;
+  team1Code?: string;
+  team2Code?: string;
+  teamCodes?: string[];
   courtName?: string;
   date?: string;
   startTime?: string;
