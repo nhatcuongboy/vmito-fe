@@ -22,17 +22,30 @@ import {
   Gavel,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Tournament, CategoryType, UserRole } from '@/lib/api/types';
+import {
+  Tournament,
+  CategoryType,
+  TournamentVenue,
+  UserRole,
+  Venue,
+} from '@/lib/api/types';
+import { TournamentService } from '@/lib/api/tournament.service';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getGoogleMapsUrl } from '@/utils';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
+import VenueMapPin from '@/components/venue/VenueMapPin';
 
 interface ICategoryHomeItem {
   id: string;
   name: string;
   type: CategoryType;
+}
+
+interface IHomeVenueItem {
+  id: string;
+  venue: Venue;
 }
 
 interface TournamentHomeTabProps {
@@ -55,13 +68,17 @@ export default function TournamentHomeTab({
   const tRef = useTranslations('pages.tournaments.scoreEntry');
   const router = useRouter();
   const { user } = useAuthStore();
+  const isTournamentHost = !!user && user.id === tournament.hostId;
   const canReferee =
-    !!user &&
+    isTournamentHost ||
     [UserRole.REFEREE, UserRole.HOST, UserRole.ADMIN].includes(
-      user.role as UserRole
+      user?.role as UserRole
     );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
+  const [tournamentVenues, setTournamentVenues] = useState<IHomeVenueItem[]>(
+    []
+  );
 
   const sharePath = useMemo(() => `/tournament/${slug}`, [slug]);
 
@@ -83,6 +100,11 @@ export default function TournamentHomeTab({
 
   const venue = tournament.venue;
   const host = tournament.host;
+  const displayVenues = useMemo<IHomeVenueItem[]>(() => {
+    if (tournamentVenues.length > 0) return tournamentVenues;
+    if (!venue) return [];
+    return [{ id: venue.id, venue }];
+  }, [tournamentVenues, venue]);
 
   useEffect(() => {
     if (!qrCanvasRef.current) return;
@@ -98,6 +120,31 @@ export default function TournamentHomeTab({
       console.error('Tournament QR code generation error:', error);
     });
   }, [shareUrl]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    TournamentService.getVenues(tournament.id)
+      .then((data: TournamentVenue[]) => {
+        if (!isMounted) return;
+
+        setTournamentVenues(
+          data
+            .filter((tournamentVenue) => !!tournamentVenue.venue)
+            .map((tournamentVenue) => ({
+              id: tournamentVenue.id,
+              venue: tournamentVenue.venue,
+            }))
+        );
+      })
+      .catch((error) => {
+        console.error('Error loading tournament venues:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tournament.id]);
 
   const handleViewSchedule = () => {
     router.push(`/tournament/${slug}/schedule`);
@@ -123,13 +170,13 @@ export default function TournamentHomeTab({
     router.push(`/tournament/${slug}/manage?option=venues`);
   };
 
-  const handleOpenDirections = () => {
+  const handleOpenDirections = (selectedVenue: Venue) => {
     const url = getGoogleMapsUrl({
-      address: venue?.address,
-      name: venue?.name,
-      placeId: venue?.placeId,
-      lat: venue?.lat,
-      lng: venue?.lng,
+      address: selectedVenue.address,
+      name: selectedVenue.name,
+      placeId: selectedVenue.placeId,
+      lat: selectedVenue.lat,
+      lng: selectedVenue.lng,
     });
     if (url) {
       window.open(url, '_blank', 'noopener,noreferrer');
@@ -337,30 +384,37 @@ export default function TournamentHomeTab({
       </Box>
 
       {/* Venues section */}
-      {venue && (
+      {displayVenues.length > 0 && (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
-          borderRadius="xl"
+          borderRadius="2xl"
           overflow="hidden"
           bg="white"
+          boxShadow="sm"
         >
-          <Flex justify="space-between" align="center" p={4} pb={3}>
-            <Text fontWeight="semibold" fontSize="lg">
+          <Flex
+            justify="space-between"
+            align="center"
+            px={{ base: 4, md: 6 }}
+            pt={{ base: 4, md: 6 }}
+            pb={4}
+          >
+            <Text fontWeight="bold" fontSize={{ base: 'xl', md: '2xl' }}>
               {t('venues.title')}
             </Text>
-            <HStack gap={1}>
+            <HStack gap={3}>
               {isHost && (
-                <Text
-                  fontSize="sm"
-                  color="blue.500"
-                  cursor="pointer"
-                  fontWeight="medium"
-                  _hover={{ color: 'blue.600' }}
+                <Button
+                  variant="outline"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  px={{ base: 3, sm: 5 }}
+                  size={{ base: 'sm', md: 'md' }}
                   onClick={handleManageVenues}
                 >
                   {t('venues.manage')}
-                </Text>
+                </Button>
               )}
               <Flex
                 w="32px"
@@ -379,73 +433,96 @@ export default function TournamentHomeTab({
             </HStack>
           </Flex>
 
-          {venue.lat && venue.lng ? (
-            <Box h="200px">
-              <iframe
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                src={`https://maps.google.com/maps?q=${venue.lat},${venue.lng}&z=15&ie=UTF8&output=embed`}
-              />
-            </Box>
-          ) : (
-            <Box
-              h="160px"
-              bg="gray.100"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <MapPin size={32} color="var(--chakra-colors-gray-400)" />
-            </Box>
-          )}
+          <VStack align="stretch" gap={0}>
+            {displayVenues.map(({ id, venue: currentVenue }, index) => (
+              <Box key={id}>
+                {index > 0 && <Box h="1px" bg="gray.100" mx={6} />}
+                <Box px={{ base: 4, md: 6 }}>
+                  {currentVenue.lat && currentVenue.lng ? (
+                    <VenueMapPin
+                      lat={currentVenue.lat}
+                      lng={currentVenue.lng}
+                      height="220px"
+                      zoom={12}
+                    />
+                  ) : (
+                    <Box
+                      h="180px"
+                      bg="gray.100"
+                      borderRadius="xl"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <MapPin size={34} color="var(--chakra-colors-gray-400)" />
+                    </Box>
+                  )}
+                </Box>
 
-          <Flex align="center" justify="space-between" p={4}>
-            <Box flex="1" minW={0} mr={3}>
-              <Flex align="center" gap={1.5}>
-                <Text fontWeight="semibold" fontSize="md">
-                  {venue.name}
-                </Text>
-                {venue.isVerified && (
-                  <Box color="blue.500" flexShrink={0}>
-                    <CheckCircle size={14} />
+                <Flex
+                  align={{ base: 'stretch', sm: 'center' }}
+                  justify="space-between"
+                  direction={{ base: 'column', sm: 'row' }}
+                  gap={4}
+                  px={{ base: 4, md: 6 }}
+                  py={4}
+                >
+                  <Box flex="1" minW={0}>
+                    <Flex align="center" gap={2}>
+                      <Text fontWeight="bold" fontSize="lg" color="gray.900">
+                        {currentVenue.name}
+                      </Text>
+                      {currentVenue.acronym && (
+                        <Text fontWeight="bold" fontSize="sm" color="gray.500">
+                          {currentVenue.acronym}
+                        </Text>
+                      )}
+                      {currentVenue.isVerified && (
+                        <Box color="blue.500" flexShrink={0}>
+                          <CheckCircle size={15} />
+                        </Box>
+                      )}
+                    </Flex>
+                    <AppAddressDisplay
+                      address={currentVenue.address}
+                      district={currentVenue.district}
+                      newAddress={currentVenue.newAddress}
+                      newDistrict={currentVenue.newDistrict}
+                      fontSize="md"
+                      color="gray.600"
+                      lineClamp={2}
+                    />
                   </Box>
-                )}
-              </Flex>
-              <AppAddressDisplay
-                address={venue.address}
-                district={venue.district}
-                newAddress={venue.newAddress}
-                newDistrict={venue.newDistrict}
-                fontSize="sm"
-                color="gray.500"
-                lineClamp={2}
-              />
-            </Box>
 
-            {venue.lat && venue.lng && (
-              <Box
-                borderWidth="1px"
-                borderColor="gray.300"
-                borderRadius="lg"
-                px={3}
-                py={2}
-                cursor="pointer"
-                flexShrink={0}
-                _hover={{ bg: 'gray.50' }}
-                onClick={handleOpenDirections}
-              >
-                <Flex align="center" gap={1.5}>
-                  <Navigation size={14} color="var(--chakra-colors-gray-600)" />
-                  <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                    {t('venues.directions')}
-                  </Text>
+                  {(currentVenue.lat ||
+                    currentVenue.lng ||
+                    currentVenue.address) && (
+                    <Box
+                      as="button"
+                      borderRadius="lg"
+                      px={2}
+                      py={2}
+                      cursor="pointer"
+                      flexShrink={0}
+                      alignSelf={{ base: 'flex-start', sm: 'center' }}
+                      _hover={{ bg: 'gray.50' }}
+                      onClick={() => handleOpenDirections(currentVenue)}
+                    >
+                      <Flex align="center" gap={3}>
+                        <Navigation
+                          size={20}
+                          color="var(--chakra-colors-gray-900)"
+                        />
+                        <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                          {t('venues.directions')}
+                        </Text>
+                      </Flex>
+                    </Box>
+                  )}
                 </Flex>
               </Box>
-            )}
-          </Flex>
+            ))}
+          </VStack>
         </Box>
       )}
 

@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Box,
-  Flex,
-  Heading,
-  Spinner,
-  useBreakpointValue,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, useBreakpointValue } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   Tournament,
@@ -46,6 +40,7 @@ import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
 import LocationPanel from './panels/LocationPanel';
 import BannerPanel from './panels/BannerPanel';
+import { TournamentManageSkeleton } from '@/components/tournament/skeletons';
 
 interface TournamentManageProps {
   tournament: Tournament;
@@ -257,11 +252,7 @@ export default function TournamentManage({
   };
 
   if (loadingCategories) {
-    return (
-      <Flex justify="center" align="center" minH="200px">
-        <Spinner />
-      </Flex>
-    );
+    return <TournamentManageSkeleton />;
   }
 
   return (

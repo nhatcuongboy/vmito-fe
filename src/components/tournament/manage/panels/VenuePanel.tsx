@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Heading, Text, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { IconButton, Button, VStack } from '@/components/ui/chakra-compat';
 import { MapPin, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -11,6 +11,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import { VModal } from '@/components/ui/VModal';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface VenuePanelProps {
   tournament: Tournament;
@@ -114,9 +115,7 @@ export default function VenuePanel({
       </Flex>
 
       {isLoading ? (
-        <Flex justify="center" py={10}>
-          <Spinner />
-        </Flex>
+        <TournamentMatchListSkeleton count={3} />
       ) : venues.length === 0 ? (
         <VStack gap={6} align="center" py={10}>
           <Box p={4} bg="red.50" borderRadius="full">

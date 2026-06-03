@@ -1,12 +1,15 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
+import { Link } from '@/i18n/config';
 import { useTranslations, useLocale } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
-import { Edit } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { getMatchDisplayCode } from '@/lib/tournament/codes';
 
 const CATEGORY_COLORS = [
   '#ECC94B',
@@ -24,13 +27,40 @@ interface ScheduleListViewProps {
   categories: Category[];
   courts: TournamentCourt[];
   onEditMatch?: (matchId: string) => void;
+  onDeleteMatch?: (matchId: string) => void;
+  tournamentId?: string;
+  courtAbbreviation?: string;
 }
+
+const REGISTRATION_CODE_LENGTH = 8;
+
+const getUniqueRegistrationCode = (
+  registrationId: string,
+  registrationIds: string[]
+) => {
+  const normalizedIds = registrationIds.map((id) => id.toLowerCase());
+  const normalizedId = registrationId.toLowerCase();
+  let codeLength = Math.min(REGISTRATION_CODE_LENGTH, registrationId.length);
+
+  while (codeLength < registrationId.length) {
+    const candidate = normalizedId.slice(0, codeLength);
+    const matches = normalizedIds.filter((id) => id.startsWith(candidate));
+
+    if (matches.length <= 1) return candidate;
+    codeLength += 1;
+  }
+
+  return normalizedId;
+};
 
 export default function ScheduleListView({
   matches,
   categories,
   courts,
   onEditMatch,
+  onDeleteMatch,
+  tournamentId,
+  courtAbbreviation,
 }: ScheduleListViewProps) {
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.list'
@@ -48,19 +78,55 @@ export default function ScheduleListView({
     }))
     .filter((g) => g.matches.length > 0);
 
+  const registrationCodeById = useMemo(() => {
+    const registrationIds = Array.from(
+      new Set(
+        matches.flatMap(
+          (match) =>
+            match.participants?.map(
+              (participant) => participant.categoryRegistrationId
+            ) ?? []
+        )
+      )
+    );
+
+    return new Map(
+      registrationIds.map((id) => [
+        id,
+        getUniqueRegistrationCode(id, registrationIds),
+      ])
+    );
+  }, [matches]);
+
+  const getAbbreviation = (value?: string): string => {
+    const normalized = value?.trim();
+    if (!normalized) return '';
+
+    const firstToken = normalized.split(/\s+/)[0];
+    if (/^\d+$/.test(normalized)) return '';
+    if (/^[a-z0-9]{2,4}$/i.test(firstToken)) return firstToken.toUpperCase();
+
+    const initials = normalized
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase();
+
+    return initials || '';
+  };
+
   const getCourtLabel = (courtId?: string): string => {
     if (!courtId) return '';
     const court = courts.find((c) => c.id === courtId);
     if (!court) return '';
 
-    // Get first letter of court name or 'R' as default prefix
-    const prefix = court.courtName
-      ? court.courtName.charAt(0).toUpperCase()
-      : 'R';
-    const courtDisplay =
-      court.courtName || `${t('courtPrefix')} ${court.courtNumber}`;
+    const prefix =
+      getAbbreviation(court.courtName) ||
+      getAbbreviation(courtAbbreviation) ||
+      getAbbreviation(t('courtPrefix')) ||
+      'C';
 
-    return `${prefix} · ${courtDisplay}`;
+    return `${prefix} · ${court.courtNumber}`;
   };
 
   const getRoundLabel = (round: string): string => {
@@ -97,36 +163,106 @@ export default function ScheduleListView({
     return `${dateStr} @ ${startStr} - ${endStr}`;
   };
 
+  const renderTeamName = (match: CategoryMatch, position: number) => {
+    const label = getTeamLabel(match, position);
+    const participant = match.participants?.find(
+      (item) => item.position === position
+    );
+    const registrationCode = participant?.categoryRegistrationId
+      ? registrationCodeById.get(participant.categoryRegistrationId)
+      : undefined;
+
+    if (!tournamentId || !registrationCode) {
+      return label;
+    }
+
+    return (
+      <Link
+        href={`/t/${tournamentId}/team/${registrationCode}`}
+        style={{ color: 'inherit', textDecoration: 'none' }}
+      >
+        <Box
+          as="span"
+          color="green.700"
+          fontWeight="700"
+          _dark={{ color: 'green.200' }}
+          _hover={{ textDecoration: 'underline' }}
+        >
+          {label}
+        </Box>
+      </Link>
+    );
+  };
+
+  // Trailing action columns (edit / delete) are only present when their
+  // callbacks are supplied, so the public read-only view keeps a clean layout.
+  const actionColCount = (onEditMatch ? 1 : 0) + (onDeleteMatch ? 1 : 0);
+  const gridTemplateColumns = `56px 80px 1fr 40px 1fr 2fr 1.5fr${' 40px'.repeat(
+    actionColCount
+  )}`;
+
   return (
     <VStack gap={6} align="stretch">
       {matchesByCategory.map(({ category, color, matches: catMatches }) => (
-        <Box key={category.id}>
+        <Box
+          key={category.id}
+          borderWidth="1px"
+          borderColor="green.100"
+          borderRadius="xl"
+          overflow="hidden"
+          bg={{
+            base: 'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(240,253,244,0.82) 100%)',
+            _dark:
+              'linear-gradient(180deg, rgba(31,41,55,0.96) 0%, rgba(6,78,59,0.34) 100%)',
+          }}
+          boxShadow="0 12px 28px rgba(15, 118, 110, 0.08)"
+        >
           {/* Category header */}
-          <Flex align="center" gap={2} mb={3}>
-            <Box w="10px" h="10px" borderRadius="full" bg={color} />
-            <Text fontWeight="semibold">{category.name}</Text>
+          <Flex
+            align="center"
+            gap={2}
+            px={4}
+            py={3}
+            bg={{
+              base: 'rgba(236, 253, 245, 0.72)',
+              _dark: 'rgba(6, 78, 59, 0.32)',
+            }}
+            borderBottomWidth="1px"
+            borderColor="green.100"
+          >
+            <Box
+              w="10px"
+              h="10px"
+              borderRadius="full"
+              bg={color}
+              boxShadow={`0 0 0 4px ${color}22`}
+            />
+            <Text
+              fontWeight="semibold"
+              color="gray.800"
+              _dark={{ color: 'gray.50' }}
+            >
+              {category.name}
+            </Text>
           </Flex>
 
           {/* Horizontally scrollable table on narrow viewports */}
-          <Box
-            overflowX="auto"
-            mx={{ base: -2, md: 0 }}
-            px={{ base: 2, md: 0 }}
-          >
+          <Box overflowX="auto" px={{ base: 3, md: 4 }} py={{ base: 3, md: 4 }}>
             <Box minW={{ base: '720px', md: 'auto' }}>
               {/* Table header */}
               <Box
                 display="grid"
-                gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
+                gridTemplateColumns={gridTemplateColumns}
                 gap={2}
                 px={3}
                 py={2}
-                bg="gray.50"
+                bg={{ base: 'white', _dark: 'gray.800' }}
                 borderRadius="lg"
                 mb={1}
+                boxShadow="0 1px 0 rgba(15, 23, 42, 0.04)"
               >
                 <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-                  #
+                  {t('matchCode')}
                 </Text>
                 <Text fontSize="xs" fontWeight="semibold" color="gray.500">
                   {t('round')}
@@ -154,7 +290,8 @@ export default function ScheduleListView({
                 <Text fontSize="xs" fontWeight="semibold" color="gray.500">
                   {t('court')}
                 </Text>
-                <Box />
+                {onEditMatch && <Box />}
+                {onDeleteMatch && <Box />}
               </Box>
 
               {/* Match rows */}
@@ -163,23 +300,29 @@ export default function ScheduleListView({
                   <Box
                     key={match.id}
                     display="grid"
-                    gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
+                    gridTemplateColumns={gridTemplateColumns}
                     gap={2}
                     px={3}
                     py={3}
                     borderBottomWidth="1px"
-                    borderColor="gray.100"
-                    _hover={{ bg: 'gray.50' }}
+                    borderColor="green.50"
+                    borderRadius="md"
+                    _hover={{
+                      bg: {
+                        base: 'rgba(236, 253, 245, 0.72)',
+                        _dark: 'rgba(6, 78, 59, 0.32)',
+                      },
+                    }}
                     alignItems="center"
                   >
                     <Text fontSize="sm" color="gray.500">
-                      {match.matchNumber}
+                      {getMatchDisplayCode(match)}
                     </Text>
                     <Text fontSize="xs" color="gray.600" fontWeight="medium">
                       {getRoundLabel(match.round)}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" textAlign="right">
-                      {getTeamLabel(match, 1)}
+                      {renderTeamName(match, 1)}
                     </Text>
                     <Flex justify="center" align="center">
                       <Text fontSize="xs" color="gray.400" fontWeight="bold">
@@ -187,7 +330,7 @@ export default function ScheduleListView({
                       </Text>
                     </Flex>
                     <Text fontSize="sm" fontWeight="medium" textAlign="left">
-                      {getTeamLabel(match, 2)}
+                      {renderTeamName(match, 2)}
                     </Text>
                     <Text
                       fontSize="sm"
@@ -205,7 +348,7 @@ export default function ScheduleListView({
                         ? getCourtLabel(match.courtId)
                         : t('noCourt')}
                     </Text>
-                    {onEditMatch ? (
+                    {onEditMatch && (
                       <Button
                         variant="ghost"
                         size="xs"
@@ -213,8 +356,18 @@ export default function ScheduleListView({
                       >
                         <Edit size={14} />
                       </Button>
-                    ) : (
-                      <Box />
+                    )}
+                    {onDeleteMatch && (
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        color="red.500"
+                        _hover={{ bg: 'red.50', color: 'red.600' }}
+                        aria-label={t('delete')}
+                        onClick={() => onDeleteMatch(match.id)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
                     )}
                   </Box>
                 ))}

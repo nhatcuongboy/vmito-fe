@@ -2,15 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Spinner,
-  Input,
-  Textarea,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Input, Textarea } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Plus, Pencil, Trash2, Users, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -23,6 +15,7 @@ import {
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentPairService } from '@/lib/api/tournament-pair.service';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { VModal, useModal } from '@/components/ui/VModal';
 
 interface TeamsPanelProps {
@@ -492,9 +485,7 @@ export default function TeamsPanel({
 
         {/* Registrations list */}
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : registrations.length === 0 ? (
           <Flex
             direction="column"

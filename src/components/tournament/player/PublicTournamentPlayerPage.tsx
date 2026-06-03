@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
-import { Badge, Box, Flex, Heading, Spinner, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { Link, useRouter } from '@/i18n/config';
@@ -38,6 +38,7 @@ import { ROUTES } from '@/constants';
 import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
 import NotificationBell from '@/components/ui/NotificationBell';
 import UserMenu from '@/components/ui/UserMenu';
+import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
 
 function TournamentTopBarMenu() {
   const router = useRouter();
@@ -355,9 +356,7 @@ export default function PublicTournamentPlayerPage() {
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
       >
-        <Flex align="center" justify="center" minH="50vh">
-          <Spinner size="xl" />
-        </Flex>
+        <PublicTournamentProfileSkeleton />
       </PageLayout>
     );
   }

@@ -1,11 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Flex, Text, Spinner } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { List, Calendar as CalendarIcon, Sparkles, Wand2 } from 'lucide-react';
+import {
+  List,
+  Calendar as CalendarIcon,
+  Sparkles,
+  Wand2,
+  Plus,
+} from 'lucide-react';
 import {
   Tournament,
   Category,
@@ -25,7 +31,10 @@ import GenerateScheduleDrawerV2 from './GenerateScheduleDrawerV2';
 import GenerationResultModal from './GenerationResultModal';
 import SchedulePreviewDrawer from './SchedulePreviewDrawer';
 import AIImportScheduleDrawer from './AIImportScheduleDrawer';
+import AddMatchSheet from './AddMatchSheet';
+import DeleteMatchConfirmModal from './DeleteMatchConfirmModal';
 import { IGenerateScheduleResult } from '@/utils/schedule-generator';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 type ViewMode = 'list' | 'calendar';
 
@@ -62,6 +71,11 @@ export default function ManageScheduleModal({
   const generateDrawerModal = useModal();
   const resultModal = useModal();
   const aiImportModal = useModal();
+  const addMatchModal = useModal();
+  const [deletingMatch, setDeletingMatch] = useState<CategoryMatch | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
   const [generationResult, setGenerationResult] =
     useState<IGenerateScheduleResult | null>(null);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
@@ -300,6 +314,41 @@ export default function ManageScheduleModal({
     onClose();
   };
 
+  // A manually-created match is already persisted by AddMatchSheet — just
+  // surface it in the list view.
+  const handleMatchCreated = useCallback(
+    (match: CategoryMatch) => {
+      setAllMatches((prev) => [...prev, match]);
+      setManualEntry(true);
+      setViewMode('list');
+      onScheduleSaved?.();
+    },
+    [onScheduleSaved]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingMatch) return;
+    const matchId = deletingMatch.id;
+    setIsDeleting(true);
+    try {
+      await CategoryService.deleteMatch(matchId);
+      setAllMatches((prev) => prev.filter((m) => m.id !== matchId));
+      setDirtyMatches((prev) => {
+        if (!prev.has(matchId)) return prev;
+        const next = new Map(prev);
+        next.delete(matchId);
+        return next;
+      });
+      setDeletingMatch(null);
+      onScheduleSaved?.();
+    } catch (error) {
+      console.error('Error deleting match:', error);
+      toaster.error({ title: t('deleteFailed') });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingMatch, onScheduleSaved, t]);
+
   return (
     <>
       <VModal
@@ -390,6 +439,15 @@ export default function ManageScheduleModal({
               <Wand2 size={14} />
               {t('aiImport.button')}
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="green"
+              onClick={addMatchModal.onOpen}
+            >
+              <Plus size={14} />
+              {t('addMatch')}
+            </Button>
           </Flex>
           <Button variant="outline" size="sm" onClick={handleCancel}>
             {t('close')}
@@ -398,9 +456,7 @@ export default function ManageScheduleModal({
 
         {/* Content */}
         {isLoading ? (
-          <Flex justify="center" align="center" minH="400px">
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={5} />
         ) : !hasScheduledMatches && dirtyMatches.size === 0 && !manualEntry ? (
           /* Empty state */
           <Flex
@@ -444,6 +500,9 @@ export default function ManageScheduleModal({
               setViewMode('list');
               setEditingMatch(matchId);
             }}
+            onDeleteMatch={(matchId) =>
+              setDeletingMatch(allMatches.find((m) => m.id === matchId) ?? null)
+            }
           />
         ) : (
           <ScheduleCalendarView
@@ -568,6 +627,25 @@ export default function ManageScheduleModal({
             // ignore reload error - toast already shown by drawer
           }
         }}
+      />
+
+      {/* Manual match entry */}
+      <AddMatchSheet
+        isOpen={addMatchModal.isOpen}
+        onClose={addMatchModal.onClose}
+        categories={categories}
+        courts={courts}
+        allMatches={allMatches}
+        onCreated={handleMatchCreated}
+      />
+
+      {/* Delete confirmation */}
+      <DeleteMatchConfirmModal
+        isOpen={deletingMatch !== null}
+        onClose={() => setDeletingMatch(null)}
+        match={deletingMatch}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
       />
     </>
   );

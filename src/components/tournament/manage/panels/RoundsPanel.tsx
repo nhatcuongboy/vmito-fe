@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  Box,
-  Flex,
-  Heading,
-  Input,
-  Text,
-  Spinner,
-  Badge,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Input, Text, Badge } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import {
   ChevronDown,
@@ -34,6 +26,7 @@ import {
   CategoryRegistration,
   MatchStatus,
 } from '@/lib/api/types';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { CategoryService } from '@/lib/api/category.service';
 import { toaster } from '@/components/ui/toaster';
 import { VModal } from '@/components/ui/VModal';
@@ -480,9 +473,7 @@ export default function RoundsPanel({
         <CategorySelector />
 
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : (
           <Box position="relative" pl={6}>
             <VStack gap={8} align="stretch">
@@ -578,9 +569,7 @@ export default function RoundsPanel({
         <CategorySelector />
 
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : (
           <Box position="relative" pl={6}>
             {/* Vertical connector line */}
@@ -909,9 +898,7 @@ export default function RoundsPanel({
       <CategorySelector />
 
       {loading ? (
-        <Flex justify="center" py={8}>
-          <Spinner />
-        </Flex>
+        <TournamentMatchListSkeleton count={4} />
       ) : groups.length === 0 ? (
         <Box
           borderWidth="1px"

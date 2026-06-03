@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Flex, Heading, Spinner, Text } from '@chakra-ui/react';
+import { Box, Heading, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   Category,
@@ -12,6 +12,7 @@ import {
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
 import ScheduleListView from '@/components/tournament/manage/panels/schedule/ScheduleListView';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface PublicTournamentScheduleTabProps {
   tournament: Tournament;
@@ -65,9 +66,7 @@ export default function PublicTournamentScheduleTab({
         {t('tabs.schedule')}
       </Heading>
       {isLoading ? (
-        <Flex justify="center" align="center" py={12}>
-          <Spinner />
-        </Flex>
+        <TournamentMatchListSkeleton count={5} />
       ) : scheduledMatches.length === 0 ? (
         <Text color="fg.muted">{t('scheduleTab.empty')}</Text>
       ) : (
@@ -75,6 +74,10 @@ export default function PublicTournamentScheduleTab({
           matches={scheduledMatches}
           categories={categories}
           courts={courts}
+          tournamentId={tournament.slug ?? tournament.id}
+          courtAbbreviation={
+            tournament.venue?.acronym ?? tournament.venue?.name
+          }
         />
       )}
     </Box>

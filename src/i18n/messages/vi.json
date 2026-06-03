@@ -1491,6 +1491,57 @@
         "scheduleTab": {
           "empty": "Chưa có lịch thi đấu nào được công bố."
         },
+        "standingsTab": {
+          "title": "Bảng xếp hạng",
+          "description": "Thứ hạng các đội trong {tournament} theo từng hạng mục và bảng đấu.",
+          "categoryFilter": "Lọc hạng mục",
+          "allCategories": "Tất cả hạng mục",
+          "noCategories": "Chưa có hạng mục nào để hiển thị bảng xếp hạng.",
+          "empty": "Bảng xếp hạng sẽ được hiển thị sau khi vòng bảng có dữ liệu.",
+          "emptyCategory": "Hạng mục này chưa có bảng xếp hạng.",
+          "emptyGroup": "Bảng này chưa có dữ liệu xếp hạng.",
+          "error": "Không thể tải bảng xếp hạng. Vui lòng thử lại.",
+          "retry": "Thử lại",
+          "recalculate": "Tính lại",
+          "poolPlay": "Vòng bảng",
+          "playoffs": "Playoffs",
+          "pools": "Theo bảng",
+          "overall": "Tổng thể",
+          "rankingsExplained": "Cách tính xếp hạng",
+          "rankingsExplanation": "Bảng xếp hạng được sắp theo điểm, sau đó lần lượt xét hiệu số, điểm ghi được, số trận thắng và số trận đã chơi. Mục Tổng thể gộp các đội trong những bảng đang hiển thị và xếp lại theo cùng thứ tự này.",
+          "viewGames": "Xem trận đấu",
+          "emptyPlayoffs": "Chưa có trận playoffs nào để hiển thị.",
+          "matchNumber": "Trận {number}",
+          "versus": "vs",
+          "noScore": "Chưa có điểm",
+          "groupFallback": "Bảng {number}",
+          "teamsCount": "{count} đội",
+          "playoffsRounds": {
+            "quarterFinals": "Tứ kết",
+            "semiFinals": "Bán kết",
+            "final": "Chung kết",
+            "thirdPlace": "Tranh hạng ba"
+          },
+          "matchStatus": {
+            "SCHEDULED": "Đã lên lịch",
+            "IN_PROGRESS": "Đang diễn ra",
+            "FINISHED": "Đã kết thúc",
+            "CANCELLED": "Đã hủy"
+          },
+          "columns": {
+            "rank": "Hạng",
+            "team": "Đội/VĐV",
+            "group": "Bảng",
+            "played": "Trận",
+            "won": "Thắng",
+            "lost": "Thua",
+            "drawn": "Hòa",
+            "points": "Điểm",
+            "pointsFor": "Ghi",
+            "pointsAgainst": "Thua điểm",
+            "difference": "Hiệu số"
+          }
+        },
         "homeTab": {
           "overview": {
             "title": "Tổng quan",
@@ -1920,6 +1971,23 @@
                 "previewLoadFailed": "Không thể tải bản xem trước lịch thi đấu",
                 "saveFailed": "Không thể lưu lịch thi đấu",
                 "saveSuccess": "Đã lưu {count} trận",
+                "addMatch": "Thêm trận",
+                "addMatchTitle": "Thêm trận đấu",
+                "category": "Hạng mục",
+                "round": "Vòng",
+                "group": "Bảng",
+                "team1": "Đội 1",
+                "team2": "Đội 2",
+                "teamTBD": "Chưa xác định (TBD)",
+                "matchLength": "Thời lượng",
+                "createSuccess": "Đã thêm trận đấu",
+                "createFailed": "Không thể thêm trận đấu",
+                "deleteConfirmTitle": "Xóa trận đấu?",
+                "deleteConfirmText": "Bạn có chắc muốn xóa trận đấu này?",
+                "deleteWarningResult": "Trận đấu này đang diễn ra hoặc đã có kết quả. Xóa sẽ làm mất dữ liệu điểm số và không thể hoàn tác.",
+                "deleteConfirmBtn": "Xóa",
+                "deleteFailed": "Không thể xóa trận đấu",
+                "sameTeamError": "Đội 1 và Đội 2 không được trùng nhau",
                 "aiImport": {
                   "button": "Nhập bằng AI",
                   "drawerTitle": "Nhập lịch thi đấu bằng AI",
@@ -2081,7 +2149,8 @@
                 "winnerOf": "Thắng trận {number}",
                 "loserOf": "Thua trận {number}",
                 "tbd": "Chưa xác định",
-                "unknown": "Không xác định"
+                "unknown": "Không xác định",
+                "delete": "Xóa"
               }
             },
             "sponsors": {
@@ -2832,6 +2901,12 @@
         "currentReferee": "Trọng tài: {name}",
         "noReferee": "Chưa phân công trọng tài",
         "selectReferee": "Chọn trọng tài",
+        "selectAll": "Chọn tất cả trận",
+        "selectMatch": "Chọn trận đấu",
+        "selectedMatches": "Đã chọn {count} trận",
+        "applyToSelected": "Áp dụng cho trận đã chọn",
+        "clearSelection": "Bỏ chọn",
+        "bulkAssignSuccess": "Đã phân công trọng tài cho {count} trận",
         "unassign": "Bỏ phân công",
         "assign": "Phân công"
       },

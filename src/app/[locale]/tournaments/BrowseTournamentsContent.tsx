@@ -8,7 +8,6 @@ import {
   VStack,
   HStack,
   Badge,
-  Spinner,
   Image,
 } from '@chakra-ui/react';
 import { SimpleGrid, Button } from '@/components/ui/chakra-compat';
@@ -21,6 +20,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
 
 const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
@@ -260,9 +260,7 @@ function TournamentsContent() {
 
         {/* Loading State */}
         {loading ? (
-          <Flex justify="center" py={10}>
-            <Spinner size="lg" />
-          </Flex>
+          <TournamentCardsGridSkeleton />
         ) : (
           <>
             {/* Tournament Cards Grid */}
@@ -453,9 +451,9 @@ export default function BrowseTournamentsContent() {
   return (
     <Suspense
       fallback={
-        <Flex justify="center" py={10}>
-          <Spinner size="lg" />
-        </Flex>
+        <Box p={4}>
+          <TournamentCardsGridSkeleton />
+        </Box>
       }
     >
       <TournamentsContent />

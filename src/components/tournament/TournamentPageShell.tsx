@@ -8,7 +8,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -46,6 +45,7 @@ import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentScheduleTab from '@/components/tournament/PublicTournamentScheduleTab';
+import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import UserMenu from '@/components/ui/UserMenu';
 import NotificationBell from '@/components/ui/NotificationBell';
@@ -55,6 +55,10 @@ import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
+import {
+  TournamentShellSkeleton,
+  TournamentTeamsSkeleton,
+} from '@/components/tournament/skeletons';
 
 interface ITeamCategoryBlock {
   id: string;
@@ -431,9 +435,7 @@ export default function TournamentPageShell({
         showTopBarAuthActions={false}
         rightContent={<TournamentTopBarMenu />}
       >
-        <Flex justify="center" align="center" minH="50vh">
-          <Spinner size="xl" />
-        </Flex>
+        <TournamentShellSkeleton />
       </PageLayout>
     );
   }
@@ -491,9 +493,7 @@ export default function TournamentPageShell({
           </Flex>
 
           {loadingTeams ? (
-            <Flex justify="center" py={8}>
-              <Spinner />
-            </Flex>
+            <TournamentTeamsSkeleton />
           ) : sortedTeamCategoryBlocks.length === 0 ? (
             <Box
               borderWidth="1px"
@@ -582,13 +582,12 @@ export default function TournamentPageShell({
       {activeTab === 2 && tournament && (
         <PublicTournamentScheduleTab tournament={tournament} />
       )}
-      {activeTab === 3 && (
-        <>
-          <Heading size="md" mb={4}>
-            {t('tabs.standings')}
-          </Heading>
-          <Text color="fg.muted">{t('comingSoon')}</Text>
-        </>
+      {activeTab === 3 && tournament && (
+        <PublicTournamentStandingsTab
+          tournament={tournament}
+          categories={allCategories}
+          isHost={isHost}
+        />
       )}
       {activeTab === 6 && (
         <ResultsPanel

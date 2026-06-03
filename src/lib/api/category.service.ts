@@ -233,21 +233,29 @@ export const CategoryService = {
   // Referee assignment (host / admin)
   assignReferee: async (
     matchId: string,
-    refereeId: string
+    refereeId: string,
+    options?: { showToast?: boolean }
   ): Promise<CategoryMatch> => {
     const response = await api.patch<ApiResponse<CategoryMatch>>(
       `/category-matches/${matchId}/referee`,
       { refereeId }
     );
-    toaster.success({ title: 'Referee assigned' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Referee assigned' });
+    }
     return response.data.data!;
   },
 
-  unassignReferee: async (matchId: string): Promise<CategoryMatch> => {
+  unassignReferee: async (
+    matchId: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch> => {
     const response = await api.delete<ApiResponse<CategoryMatch>>(
       `/category-matches/${matchId}/referee`
     );
-    toaster.success({ title: 'Referee unassigned' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Referee unassigned' });
+    }
     return response.data.data!;
   },
 

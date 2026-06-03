@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Box, Flex, Text, Badge, Heading, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Text, Badge, Heading } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/config';
@@ -11,9 +11,16 @@ import { Gavel, ChevronRight } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
-import { CategoryMatch, MatchStatus, Tournament } from '@/lib/api/types';
+import {
+  CategoryMatch,
+  MatchStatus,
+  Tournament,
+  UserRole,
+} from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 const STATUS_ORDER: MatchStatus[] = [
   'IN_PROGRESS',
@@ -33,21 +40,35 @@ export default function RefereeMatchListPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
   const t = useTranslations('pages.tournaments.scoreEntry');
+  const tGuard = useTranslations('auth.guard');
+  const { user } = useAuthStore();
 
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canAccess, setCanAccess] = useState(true);
 
   const load = useCallback(async () => {
     try {
       const tour = await TournamentService.getTournament(tournamentParam);
       setTournament(tour);
-      const assigned = await CategoryService.getMyAssignments(tour.id);
-      setMatches(assigned);
+      const canManageTournament =
+        user?.id === tour.hostId || user?.role === UserRole.ADMIN;
+      const canAccessRefereeArea =
+        canManageTournament || user?.role === UserRole.REFEREE;
+      setCanAccess(canAccessRefereeArea);
+      if (!canAccessRefereeArea) {
+        setMatches([]);
+        return;
+      }
+      const refereeMatches = canManageTournament
+        ? await TournamentService.getAllMatches(tour.id)
+        : await CategoryService.getMyAssignments(tour.id);
+      setMatches(refereeMatches);
     } finally {
       setLoading(false);
     }
-  }, [tournamentParam]);
+  }, [tournamentParam, user?.id, user?.role]);
 
   useEffect(() => {
     void load();
@@ -68,8 +89,12 @@ export default function RefereeMatchListPage() {
   return (
     <PageLayout title={t('title')}>
       {loading ? (
-        <Flex justify="center" py={16}>
-          <Spinner />
+        <TournamentMatchListSkeleton count={6} />
+      ) : !canAccess ? (
+        <Flex direction="column" align="center" py={16} gap={3}>
+          <Gavel size={40} opacity={0.4} />
+          <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
+          <Text color="gray.500">{tGuard('permissionDenied')}</Text>
         </Flex>
       ) : matches.length === 0 ? (
         <Flex direction="column" align="center" py={16} gap={3}>

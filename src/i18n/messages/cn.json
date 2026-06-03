@@ -1461,6 +1461,57 @@
         "scheduleTab": {
           "empty": "尚未发布赛程。"
         },
+        "standingsTab": {
+          "title": "排名",
+          "description": "{tournament} 各类别和小组的队伍排名。",
+          "categoryFilter": "筛选类别",
+          "allCategories": "所有类别",
+          "noCategories": "暂无可显示排名的类别。",
+          "empty": "小组赛数据可用后将显示排名。",
+          "emptyCategory": "此类别暂无排名。",
+          "emptyGroup": "此小组暂无排名数据。",
+          "error": "无法加载排名，请重试。",
+          "retry": "重试",
+          "recalculate": "重新计算",
+          "poolPlay": "小组赛",
+          "playoffs": "淘汰赛",
+          "pools": "按小组",
+          "overall": "总排名",
+          "rankingsExplained": "排名说明",
+          "rankingsExplanation": "排名按积分排序，然后依次比较净胜分、得分、胜场和已赛场次。总排名会合并当前显示的小组队伍，并按相同规则重新排序。",
+          "viewGames": "查看比赛",
+          "emptyPlayoffs": "暂无可显示的淘汰赛比赛。",
+          "matchNumber": "比赛 {number}",
+          "versus": "vs",
+          "noScore": "暂无比分",
+          "groupFallback": "小组 {number}",
+          "teamsCount": "{count} 支队伍",
+          "playoffsRounds": {
+            "quarterFinals": "四分之一决赛",
+            "semiFinals": "半决赛",
+            "final": "决赛",
+            "thirdPlace": "季军赛"
+          },
+          "matchStatus": {
+            "SCHEDULED": "已安排",
+            "IN_PROGRESS": "进行中",
+            "FINISHED": "已结束",
+            "CANCELLED": "已取消"
+          },
+          "columns": {
+            "rank": "排名",
+            "team": "队伍/选手",
+            "group": "小组",
+            "played": "场次",
+            "won": "胜",
+            "lost": "负",
+            "drawn": "平",
+            "points": "积分",
+            "pointsFor": "得分",
+            "pointsAgainst": "失分",
+            "difference": "净胜分"
+          }
+        },
         "homeTab": {
           "overview": {
             "title": "概览",
@@ -1890,6 +1941,23 @@
                 "previewLoadFailed": "加载赛程预览失败",
                 "saveFailed": "保存赛程失败",
                 "saveSuccess": "已保存 {count} 场比赛",
+                "addMatch": "添加比赛",
+                "addMatchTitle": "添加一场比赛",
+                "category": "项目",
+                "round": "轮次",
+                "group": "小组",
+                "team1": "队伍 1",
+                "team2": "队伍 2",
+                "teamTBD": "待定 (TBD)",
+                "matchLength": "时长",
+                "createSuccess": "已添加比赛",
+                "createFailed": "添加比赛失败",
+                "deleteConfirmTitle": "删除比赛？",
+                "deleteConfirmText": "确定要删除这场比赛吗？",
+                "deleteWarningResult": "该比赛正在进行或已有成绩。删除将丢失比分数据且无法撤销。",
+                "deleteConfirmBtn": "删除",
+                "deleteFailed": "删除比赛失败",
+                "sameTeamError": "队伍 1 和队伍 2 不能相同",
                 "aiImport": {
                   "button": "使用 AI 导入",
                   "drawerTitle": "使用 AI 导入赛程",
@@ -2051,7 +2119,8 @@
                 "winnerOf": "比赛 {number} 的胜者",
                 "loserOf": "比赛 {number} 的败者",
                 "tbd": "待定",
-                "unknown": "未知"
+                "unknown": "未知",
+                "delete": "删除"
               }
             },
             "sponsors": {
@@ -2802,6 +2871,12 @@
         "currentReferee": "裁判：{name}",
         "noReferee": "未分配裁判",
         "selectReferee": "选择裁判",
+        "selectAll": "选择所有比赛",
+        "selectMatch": "选择比赛",
+        "selectedMatches": "已选择 {count} 场比赛",
+        "applyToSelected": "应用到已选择",
+        "clearSelection": "清除选择",
+        "bulkAssignSuccess": "已为 {count} 场比赛分配裁判",
         "unassign": "移除",
         "assign": "分配"
       },

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Flex, Text, Heading, Badge, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Text, Heading, Badge } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { Pencil } from 'lucide-react';
@@ -10,6 +10,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { Category, CategoryMatch, Tournament } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import ManualScoreModal from './ManualScoreModal';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface Props {
   tournament: Tournament;
@@ -65,11 +66,7 @@ export default function ResultsPanel({
   }, [matches, catName]);
 
   if (loading) {
-    return (
-      <Flex justify="center" py={12}>
-        <Spinner />
-      </Flex>
-    );
+    return <TournamentMatchListSkeleton count={6} />;
   }
 
   return (

@@ -1,4 +1,19 @@
-import { CategoryMatch } from '@/lib/api/types';
+import { CategoryMatch, CategoryRegistration } from '@/lib/api/types';
+
+/**
+ * Resolve the display label for a single registration (a team/pair or an
+ * individual player). Mirrors the resolution used by {@link getTeamLabel} so
+ * dropdowns that pick a registration stay consistent with the match views.
+ */
+export function getRegistrationLabel(reg: CategoryRegistration): string {
+  if (reg.pair?.members) {
+    return (
+      reg.pair.name ||
+      reg.pair.members.map((m) => m.player?.name || '?').join(' / ')
+    );
+  }
+  return reg.player?.name || 'Unknown';
+}
 
 /**
  * Resolve the display label for one side (position 1 or 2) of a match.

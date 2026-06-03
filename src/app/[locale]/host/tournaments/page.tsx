@@ -9,7 +9,6 @@ import {
   HStack,
   VStack,
   Separator,
-  Spinner,
 } from '@chakra-ui/react';
 import {
   MenuRoot,
@@ -28,6 +27,7 @@ import { useRouter } from '@/i18n/config';
 import { format } from 'date-fns';
 import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { HostTournamentListSkeleton } from '@/components/tournament/skeletons';
 import {
   Trophy,
   Plus,
@@ -171,9 +171,7 @@ export default function HostTournamentsPage() {
 
         {/* List */}
         {loading ? (
-          <Flex justify="center" py={16}>
-            <Spinner size="xl" />
-          </Flex>
+          <HostTournamentListSkeleton />
         ) : filtered.length === 0 ? (
           <Flex
             direction="column"

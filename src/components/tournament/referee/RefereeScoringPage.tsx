@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Box, Flex, Text, Heading, Spinner, Badge } from '@chakra-ui/react';
+import { Box, Flex, Text, Heading, Badge } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
@@ -10,19 +10,23 @@ import { ArrowLeft, Play, Trophy } from 'lucide-react';
 
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
-import { CategoryMatch } from '@/lib/api/types';
+import { CategoryMatch, Tournament, UserRole } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import ScoreEntryBoard from './ScoreEntryBoard';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 export default function RefereeScoringPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
   const matchId = String(params?.matchId ?? '');
   const t = useTranslations('pages.tournaments.scoreEntry');
+  const tGuard = useTranslations('auth.guard');
   const router = useRouter();
+  const { user } = useAuthStore();
 
   const [match, setMatch] = useState<CategoryMatch | null>(null);
-  const [tournamentId, setTournamentId] = useState<string | null>(null);
+  const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
 
@@ -36,7 +40,7 @@ export default function RefereeScoringPage() {
         ]);
         if (!active) return;
         setMatch(m);
-        setTournamentId(tour.id);
+        setTournament(tour);
       } finally {
         if (active) setLoading(false);
       }
@@ -45,6 +49,12 @@ export default function RefereeScoringPage() {
       active = false;
     };
   }, [matchId, tournamentParam]);
+
+  const canAccess =
+    !!tournament &&
+    (user?.id === tournament.hostId ||
+      user?.role === UserRole.ADMIN ||
+      user?.role === UserRole.REFEREE);
 
   const handleStart = useCallback(async () => {
     setStarting(true);
@@ -60,13 +70,13 @@ export default function RefereeScoringPage() {
 
   if (loading) {
     return (
-      <Flex justify="center" align="center" minH="100dvh">
-        <Spinner />
-      </Flex>
+      <Box minH="100dvh" bg="gray.50" p={4} _dark={{ bg: 'gray.900' }}>
+        <TournamentMatchListSkeleton count={4} />
+      </Box>
     );
   }
 
-  if (!match || !tournamentId) {
+  if (!match || !tournament) {
     return (
       <Flex
         direction="column"
@@ -76,6 +86,24 @@ export default function RefereeScoringPage() {
         gap={3}
       >
         <Text color="gray.500">{t('matchNotFound')}</Text>
+        <Button onClick={goBack}>{t('back')}</Button>
+      </Flex>
+    );
+  }
+
+  if (!canAccess) {
+    return (
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        minH="100dvh"
+        gap={3}
+        px={4}
+        textAlign="center"
+      >
+        <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
+        <Text color="gray.500">{tGuard('permissionDenied')}</Text>
         <Button onClick={goBack}>{t('back')}</Button>
       </Flex>
     );
@@ -125,7 +153,7 @@ export default function RefereeScoringPage() {
       {match.status === 'IN_PROGRESS' && (
         <ScoreEntryBoard
           match={match}
-          tournamentId={tournamentId}
+          tournamentId={tournament.id}
           onMatchUpdate={setMatch}
         />
       )}

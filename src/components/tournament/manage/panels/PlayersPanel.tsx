@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { Box, Flex, Heading, Text, Spinner, Input } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Input } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { VSelect } from '@/components/ui/VSelect';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -10,6 +10,7 @@ import { Plus, Pencil, Trash2, Users, Search, Link2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, TournamentPlayer, GenderType } from '@/lib/api/types';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface PlayersPanelProps {
   tournament: Tournament;
@@ -248,9 +249,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
 
         {/* List */}
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : players.length === 0 ? (
           <Flex
             direction="column"

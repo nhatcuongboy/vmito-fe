@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Flex, Heading, Spinner, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { Link, useRouter } from '@/i18n/config';
@@ -42,6 +42,7 @@ import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
 import NotificationBell from '@/components/ui/NotificationBell';
 import UserMenu from '@/components/ui/UserMenu';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
+import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
 
 function TournamentTopBarMenu() {
   const router = useRouter();
@@ -177,9 +178,7 @@ export default function PublicTournamentTeamPage() {
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
       >
-        <Flex justify="center" py={12}>
-          <Spinner />
-        </Flex>
+        <PublicTournamentProfileSkeleton />
       </PageLayout>
     );
   }

@@ -7,7 +7,7 @@ import {
   usePathname,
   useSearchParams,
 } from 'next/navigation';
-import { Box, Flex, Spinner, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 
 import { TournamentService } from '@/lib/api/tournament.service';
 import { ScoreboardMatch, Tournament, TournamentCourt } from '@/lib/api/types';
@@ -19,6 +19,7 @@ import ScoreboardControls from './ScoreboardControls';
 import ScoreboardGrid from './ScoreboardGrid';
 import ScoreboardEmptyState from './ScoreboardEmptyState';
 import ShareScoreboardModal from './ShareScoreboardModal';
+import { ScoreboardSkeleton } from '@/components/tournament/skeletons';
 
 type GridSize = 1 | 2 | 4 | 6;
 
@@ -165,6 +166,10 @@ export default function PublicScoreboardPage() {
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
+  if (loading) {
+    return <ScoreboardSkeleton />;
+  }
+
   return (
     <Box ref={containerRef} minH="100dvh" bg="gray.950" color="white">
       <ScoreboardControls
@@ -190,11 +195,7 @@ export default function PublicScoreboardPage() {
         </Flex>
       )}
 
-      {loading ? (
-        <Flex justify="center" align="center" minH="60dvh">
-          <Spinner />
-        </Flex>
-      ) : display.length === 0 ? (
+      {display.length === 0 ? (
         <ScoreboardEmptyState />
       ) : (
         <ScoreboardGrid
