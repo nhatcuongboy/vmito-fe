@@ -3264,6 +3264,8 @@
       },
       "manualScore": {
         "title": "Enter score",
+        "deleteMatch": "Delete match",
+        "deleteFailed": "Failed to delete match",
         "panelTitle": "Match results",
         "panelDescription": "Manually record the score and winner for matches that were played offline.",
         "vs": "vs",

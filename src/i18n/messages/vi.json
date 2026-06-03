@@ -3272,6 +3272,8 @@
       },
       "manualScore": {
         "title": "Nhập điểm",
+        "deleteMatch": "Xóa trận đấu",
+        "deleteFailed": "Không thể xóa trận đấu",
         "panelTitle": "Kết quả trận đấu",
         "panelDescription": "Nhập thủ công tỉ số và đội thắng cho các trận đã thi đấu ngoài hệ thống.",
         "vs": "gặp",

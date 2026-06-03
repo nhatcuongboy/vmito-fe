@@ -21,11 +21,13 @@ import {
   List,
   MapPin,
   RotateCcw,
+  Trash2,
   Trophy,
   X,
 } from 'lucide-react';
 
 import { TournamentService } from '@/lib/api/tournament.service';
+import { CategoryService } from '@/lib/api/category.service';
 import {
   Category,
   CategoryMatch,
@@ -37,7 +39,9 @@ import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
+import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface Props {
@@ -118,6 +122,10 @@ export default function ResultsPanel({
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
+  const [deletingMatch, setDeletingMatch] = useState<CategoryMatch | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const load = useCallback(async () => {
     const [allMatches, allCourts] = await Promise.all([
@@ -247,6 +255,23 @@ export default function ResultsPanel({
     if (canEdit) setSelected(match);
   };
 
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingMatch) return;
+    const matchId = deletingMatch.id;
+    setIsDeleting(true);
+    try {
+      await CategoryService.deleteMatch(matchId);
+      setMatches((prev) => prev.filter((match) => match.id !== matchId));
+      setSelected((prev) => (prev?.id === matchId ? null : prev));
+      setDeletingMatch(null);
+    } catch (error) {
+      console.error('Error deleting match:', error);
+      toaster.error({ title: t('deleteFailed') });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingMatch, t]);
+
   const updateFilterList = (key: ListFilterKey, value: string) => {
     setFilters((prev) => {
       const current = prev[key] as string[];
@@ -333,6 +358,7 @@ export default function ResultsPanel({
           categoryById={categoryById}
           canEdit={canEdit}
           onSelect={openMatch}
+          onDelete={canEdit ? setDeletingMatch : undefined}
         />
       ) : (
         <VStack align="stretch" gap={6}>
@@ -362,6 +388,7 @@ export default function ResultsPanel({
                     categoryName={group.name}
                     canEdit={canEdit}
                     onSelect={openMatch}
+                    onDelete={canEdit ? setDeletingMatch : undefined}
                   />
                 ))}
               </VStack>
@@ -392,6 +419,16 @@ export default function ResultsPanel({
           onSaved={() => void load()}
         />
       )}
+
+      {canEdit && (
+        <DeleteMatchConfirmModal
+          isOpen={!!deletingMatch}
+          onClose={() => setDeletingMatch(null)}
+          match={deletingMatch}
+          onConfirm={handleConfirmDelete}
+          isDeleting={isDeleting}
+        />
+      )}
     </Box>
   );
 }
@@ -408,16 +445,19 @@ export function ResultMatchCard({
   categoryName,
   canEdit,
   onSelect,
+  onDelete,
   compact = false,
 }: {
   match: CategoryMatch;
   categoryName: string;
   canEdit: boolean;
   onSelect: (match: CategoryMatch) => void;
+  onDelete?: (match: CategoryMatch) => void;
   compact?: boolean;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
+  const showDelete = canEdit && !!onDelete;
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
   const score1 = match.player1Score ?? getLastSetScore(match, 1);
@@ -428,7 +468,7 @@ export function ResultMatchCard({
 
   return (
     <Box
-      as={canEdit ? 'button' : 'div'}
+      position="relative"
       w="full"
       textAlign="left"
       borderWidth="1px"
@@ -456,9 +496,26 @@ export function ResultMatchCard({
         outlineColor: 'green.400',
         outlineOffset: '2px',
       }}
-      onClick={() => onSelect(match)}
+      role={canEdit ? 'button' : undefined}
+      tabIndex={canEdit ? 0 : undefined}
+      onClick={canEdit ? () => onSelect(match) : undefined}
+      onKeyDown={
+        canEdit
+          ? (event: React.KeyboardEvent) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onSelect(match);
+              }
+            }
+          : undefined
+      }
     >
-      <Flex justify="space-between" gap={{ base: 3, md: 5 }} align="flex-start">
+      <Flex
+        justify="space-between"
+        gap={{ base: 3, md: 5 }}
+        align="flex-start"
+        pr={showDelete ? { base: 9, md: 10 } : undefined}
+      >
         <Box minW={0} flex="1">
           <Flex gap={2} align="center" wrap="wrap" mb={3}>
             <StatusBadge match={match} />
@@ -518,6 +575,30 @@ export function ResultMatchCard({
           </Box>
         )}
       </Flex>
+
+      {showDelete && (
+        <Button
+          position="absolute"
+          top={2}
+          right={2}
+          zIndex={2}
+          variant="ghost"
+          size="xs"
+          color="red.500"
+          bg={{
+            base: 'rgba(255,255,255,0.78)',
+            _dark: 'rgba(31,41,55,0.78)',
+          }}
+          _hover={{ bg: 'red.50', color: 'red.600' }}
+          aria-label={t('deleteMatch')}
+          onClick={(event: React.MouseEvent) => {
+            event.stopPropagation();
+            onDelete?.(match);
+          }}
+        >
+          <Trash2 size={14} />
+        </Button>
+      )}
     </Box>
   );
 }
@@ -528,12 +609,14 @@ function ResultsCalendarView({
   categoryById,
   canEdit,
   onSelect,
+  onDelete,
 }: {
   matches: CategoryMatch[];
   courts: TournamentCourt[];
   categoryById: Map<string, Category>;
   canEdit: boolean;
   onSelect: (match: CategoryMatch) => void;
+  onDelete?: (match: CategoryMatch) => void;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const locale = useLocale();
@@ -680,6 +763,7 @@ function ResultsCalendarView({
                             }
                             canEdit={canEdit}
                             onSelect={onSelect}
+                            onDelete={onDelete}
                             compact
                           />
                         ))}

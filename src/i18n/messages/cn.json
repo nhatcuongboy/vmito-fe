@@ -3242,6 +3242,8 @@
       },
       "manualScore": {
         "title": "录入比分",
+        "deleteMatch": "删除比赛",
+        "deleteFailed": "删除比赛失败",
         "panelTitle": "比赛结果",
         "panelDescription": "为线下进行的比赛手动录入比分和胜方。",
         "vs": "对",
