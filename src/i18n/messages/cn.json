@@ -2032,6 +2032,13 @@
               "clearAllConfirm": "确认清除",
               "clearAllSuccess": "赛程已清除",
               "clearAllError": "无法清除赛程",
+              "deleteUnscheduled": "删除未排期的比赛",
+              "deleteUnscheduledConfirmTitle": "删除未排期的比赛？",
+              "deleteUnscheduledConfirmDesc": "将永久删除 {count} 场尚未分配场地和时间的比赛。已排期、进行中或已结束的比赛将被保留。此操作无法撤销。",
+              "deleteUnscheduledConfirm": "确认删除",
+              "deleteUnscheduledSuccess": "已删除 {count} 场未排期的比赛",
+              "deleteUnscheduledNone": "没有未排期的比赛可删除",
+              "deleteUnscheduledError": "无法删除未排期的比赛",
               "manager": {
                 "title": "管理赛程",
                 "listView": "列表视图",
@@ -2450,7 +2457,22 @@
                 "no": "否",
                 "save": "保存规则",
                 "saveError": "保存失败，请重试。",
-                "invalid": "数值无效——每局得分 1–99，封顶分必须不小于每局得分。"
+                "invalid": "数值无效——每局得分 1–99，封顶分必须不小于每局得分。",
+                "stages": {
+                  "GROUP": "小组赛",
+                  "KNOCKOUT": "淘汰赛",
+                  "FINAL": "决赛"
+                },
+                "stageHints": {
+                  "GROUP": "此规则适用于小组赛（循环赛）阶段。",
+                  "KNOCKOUT": "适用于淘汰赛轮次（R16/八强/四强/铜牌战）。继承 = 使用小组赛规则。",
+                  "FINAL": "仅适用于决赛。继承 = 使用淘汰赛规则。"
+                },
+                "inheritTitle": "沿用前一阶段的规则",
+                "inheritHintKnockout": "继承自小组赛规则。关闭以为淘汰赛设置独立规则。",
+                "inheritHintFinal": "继承自淘汰赛规则（或小组赛）。关闭以为决赛设置独立规则。",
+                "inheritOn": "继承",
+                "inheritOff": "自定义"
               }
             },
             "standings": {
@@ -3104,7 +3126,17 @@
         "forfeitSelectWinner": "选择获胜方",
         "forfeitHint": "所选一方因对手弃权而获胜；对手将被记为弃权。",
         "walkover": "弃权",
-        "forfeitConfirm": "确认弃权"
+        "forfeitConfirm": "确认弃权",
+        "save": "保存",
+        "editSetTitle": "编辑第 {number} 局比分",
+        "editSetTooltip": "点击编辑第 {number} 局比分",
+        "editSetHintLatest": "输入当前局的新比分。",
+        "editSetHintPast": "该局已结束。保存后后续局将被清除，需重新输入。",
+        "editSetWillResetLater": "保存将清除后续局（需重新输入）。",
+        "editSetErrorInvalid": "比分无效。",
+        "editSetErrorCap": "比分不能超过 {cap}。",
+        "editSetErrorIncomplete": "过往的局必须以有效的胜利比分结束。",
+        "editSetSuccess": "比分已更新"
       },
       "scoreboard": {
         "court": "场地",
@@ -3261,6 +3293,7 @@
         "status": {
           "IN_PROGRESS": "进行中",
           "SCHEDULED": "已排期",
+          "UNSCHEDULED": "未排期",
           "FINISHED": "已结束",
           "CANCELLED": "已取消"
         },

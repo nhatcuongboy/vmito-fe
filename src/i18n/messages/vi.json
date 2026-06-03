@@ -2062,6 +2062,13 @@
               "clearAllConfirm": "Xác nhận xóa",
               "clearAllSuccess": "Đã xóa toàn bộ lịch thi đấu",
               "clearAllError": "Không thể xóa lịch thi đấu",
+              "deleteUnscheduled": "Xóa các trận chưa lên lịch",
+              "deleteUnscheduledConfirmTitle": "Xóa các trận chưa lên lịch?",
+              "deleteUnscheduledConfirmDesc": "Sẽ xóa hẳn {count} trận đấu chưa được gán sân và giờ. Các trận đã lên lịch, đang diễn ra hoặc đã kết thúc sẽ được giữ nguyên. Thao tác này không thể hoàn tác.",
+              "deleteUnscheduledConfirm": "Xác nhận xóa",
+              "deleteUnscheduledSuccess": "Đã xóa {count} trận chưa lên lịch",
+              "deleteUnscheduledNone": "Không có trận nào chưa lên lịch để xóa",
+              "deleteUnscheduledError": "Không thể xóa các trận chưa lên lịch",
               "manager": {
                 "title": "Quản lý lịch thi đấu",
                 "listView": "Xem danh sách",
@@ -2480,7 +2487,22 @@
                 "no": "Không",
                 "save": "Lưu luật",
                 "saveError": "Không lưu được luật, vui lòng thử lại.",
-                "invalid": "Giá trị không hợp lệ — điểm thắng từ 1–99 và điểm trần phải lớn hơn hoặc bằng điểm thắng."
+                "invalid": "Giá trị không hợp lệ — điểm thắng từ 1–99 và điểm trần phải lớn hơn hoặc bằng điểm thắng.",
+                "stages": {
+                  "GROUP": "Vòng bảng",
+                  "KNOCKOUT": "Vòng knockout",
+                  "FINAL": "Chung kết"
+                },
+                "stageHints": {
+                  "GROUP": "Luật này áp dụng cho các trận ở vòng bảng (vòng tròn).",
+                  "KNOCKOUT": "Áp dụng cho các vòng loại trực tiếp (R16/Tứ kết/Bán kết/Tranh hạng 3). Để trống = dùng luật vòng bảng.",
+                  "FINAL": "Chỉ áp dụng cho trận chung kết. Để trống = dùng luật vòng knockout."
+                },
+                "inheritTitle": "Sử dụng luật của vòng trước",
+                "inheritHintKnockout": "Kết thừa luật từ vòng bảng. Tắt để đặt luật riêng cho các vòng knockout.",
+                "inheritHintFinal": "Kết thừa luật từ vòng knockout (hoặc vòng bảng). Tắt để đặt luật riêng cho chung kết.",
+                "inheritOn": "Kết thừa",
+                "inheritOff": "Tùy chỉnh"
               }
             },
             "standings": {
@@ -3134,7 +3156,17 @@
         "forfeitSelectWinner": "Chọn bên thắng",
         "forfeitHint": "Bên được chọn thắng do đối thủ bỏ cuộc; đối thủ bị ghi nhận xử thua.",
         "walkover": "Xử thua",
-        "forfeitConfirm": "Xác nhận xử thua"
+        "forfeitConfirm": "Xác nhận xử thua",
+        "save": "Lưu",
+        "editSetTitle": "Sửa điểm set {number}",
+        "editSetTooltip": "Nhấn để sửa điểm set {number}",
+        "editSetHintLatest": "Nhập tỷ số mới cho set hiện tại.",
+        "editSetHintPast": "Set này đã kết thúc. Mọi set sau sẽ bị xóa và trong tài phải nhập lại.",
+        "editSetWillResetLater": "Lưu sẽ xóa các set sau (phải nhập lại).",
+        "editSetErrorInvalid": "Điểm không hợp lệ.",
+        "editSetErrorCap": "Điểm không được vượt {cap}.",
+        "editSetErrorIncomplete": "Set cũ phải có tỷ số kết thúc hợp lệ.",
+        "editSetSuccess": "Đã cập nhật điểm set"
       },
       "scoreboard": {
         "court": "Sân",
@@ -3291,6 +3323,7 @@
         "status": {
           "IN_PROGRESS": "Đang diễn ra",
           "SCHEDULED": "Đã lên lịch",
+          "UNSCHEDULED": "Chưa lên lịch",
           "FINISHED": "Đã kết thúc",
           "CANCELLED": "Đã hủy"
         },

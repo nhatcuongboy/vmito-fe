@@ -157,9 +157,15 @@ const computeDefaultSlots = (
   if (n < 2) return [];
   const bracketSize = nextPowerOf2(n);
   const seedOrder = generateStandardSeeding(bracketSize);
+  // seedOrder[pos] is the seed (1-based) that belongs at bracket position
+  // `pos`. Placing each seed at its standard position spreads the top seeds
+  // across the bracket — e.g. for 2 pools × 2 advancing this yields the
+  // cross-pool matchups (1st A vs 2nd B) and (1st B vs 2nd A) rather than
+  // pairing 1st and 2nd of the same pool together.
   const result: string[] = new Array(bracketSize).fill('');
-  for (let i = 0; i < n; i++) {
-    result[seedOrder[i] - 1] = advancingSlots[i];
+  for (let pos = 0; pos < bracketSize; pos++) {
+    const seed = seedOrder[pos];
+    result[pos] = seed <= n ? advancingSlots[seed - 1] : '';
   }
   return result;
 };

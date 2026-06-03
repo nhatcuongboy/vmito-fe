@@ -34,14 +34,15 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Tournament,
-  TournamentStatus,
+  Category,
   CategoryType,
   TournamentVenue,
   UserRole,
   Venue,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
-import TournamentFinishedSummary from '@/components/tournament/TournamentFinishedSummary';
+import PublicTournamentWinnersTab from '@/components/tournament/PublicTournamentWinnersTab';
+import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getGoogleMapsUrl } from '@/utils';
@@ -63,6 +64,8 @@ interface IHomeVenueItem {
 interface TournamentHomeTabProps {
   tournament: Tournament;
   categories: ICategoryHomeItem[];
+  /** Full category objects, used by the embedded champions/podium section. */
+  fullCategories: Category[];
   totalTeams: number;
   isLoadingCategories?: boolean;
   isHost: boolean;
@@ -72,6 +75,7 @@ interface TournamentHomeTabProps {
 export default function TournamentHomeTab({
   tournament,
   categories,
+  fullCategories,
   totalTeams,
   isLoadingCategories = false,
   isHost,
@@ -230,11 +234,6 @@ export default function TournamentHomeTab({
 
   return (
     <VStack align="stretch" gap={4}>
-      {/* Champions banner — shown once the tournament is finished */}
-      {tournament.status === TournamentStatus.FINISHED && (
-        <TournamentFinishedSummary tournamentId={tournament.id} slug={slug} />
-      )}
-
       {/* Mobile cover */}
       <Box
         display={{ base: 'block', md: 'none' }}
@@ -317,8 +316,9 @@ export default function TournamentHomeTab({
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             onClick={handleViewSchedule}
+            minH="72px"
           >
-            <Flex align="center" gap={2} minH="44px">
+            <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
                 <CalendarDays size={16} />
               </Box>
@@ -335,8 +335,9 @@ export default function TournamentHomeTab({
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             onClick={handleViewStandings}
+            minH="72px"
           >
-            <Flex align="center" gap={2} minH="44px">
+            <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
                 <BarChart3 size={16} />
               </Box>
@@ -353,8 +354,9 @@ export default function TournamentHomeTab({
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             onClick={handleViewScoreboard}
+            minH="72px"
           >
-            <Flex align="center" gap={2} minH="44px">
+            <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
                 <MonitorPlay size={16} />
               </Box>
@@ -372,8 +374,9 @@ export default function TournamentHomeTab({
               cursor="pointer"
               _hover={{ bg: 'gray.50' }}
               onClick={handleRefereeArea}
+              minH="72px"
             >
-              <Flex align="center" gap={2} minH="44px">
+              <Flex align="center" gap={2} h="full">
                 <Box color="gray.500" flexShrink={0}>
                   <Gavel size={16} />
                 </Box>
@@ -385,6 +388,16 @@ export default function TournamentHomeTab({
           )}
         </Grid>
       </Box>
+
+      {/* Champions / podium — moved here from the standalone "Nhà vô địch" tab */}
+      {isLoadingCategories ? (
+        <TournamentTableSkeleton rows={3} columns={3} />
+      ) : (
+        <PublicTournamentWinnersTab
+          tournament={tournament}
+          categories={fullCategories}
+        />
+      )}
 
       {/* Categories section */}
       <Box

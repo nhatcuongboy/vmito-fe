@@ -780,6 +780,13 @@ export interface Category {
   winByTwo?: boolean;
   /** Null/undefined = no hard cap. */
   pointCap?: number | null;
+  // ── Per-stage scoring overrides (null/undefined = inherit) ──
+  knockoutPointsToWin?: number | null;
+  knockoutWinByTwo?: boolean | null;
+  knockoutPointCap?: number | null;
+  finalPointsToWin?: number | null;
+  finalWinByTwo?: boolean | null;
+  finalPointCap?: number | null;
   formatConfig?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
@@ -1021,6 +1028,13 @@ export interface UpdateCategoryRequest {
   pointsToWin?: number;
   winByTwo?: boolean;
   pointCap?: number | null;
+  // Per-stage scoring overrides (null = inherit)
+  knockoutPointsToWin?: number | null;
+  knockoutWinByTwo?: boolean | null;
+  knockoutPointCap?: number | null;
+  finalPointsToWin?: number | null;
+  finalWinByTwo?: boolean | null;
+  finalPointCap?: number | null;
   formatConfig?: Record<string, unknown>;
 }
 
@@ -1067,6 +1081,13 @@ export interface LiveScoreUpdateRequest {
   delta: 1 | -1; // +1 to add a point, -1 to correct
   clientId?: string; // origin tag for echo-suppression
   seq?: number; // monotonic per clientId
+}
+
+export interface UpdateSetScoreRequest {
+  player1Score: number;
+  player2Score: number;
+  clientId?: string;
+  seq?: number;
 }
 
 export interface AssignRefereeRequest {

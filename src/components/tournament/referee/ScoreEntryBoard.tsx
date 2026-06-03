@@ -4,15 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import {
-  Flag,
-  Minus,
-  RotateCw,
-  Undo2,
-  Users,
-  Wifi,
-  WifiOff,
-} from 'lucide-react';
+import { Flag, Minus, Undo2, Users, Wifi, WifiOff } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import { CategoryMatch, CategoryRegistration, MatchSet } from '@/lib/api/types';
@@ -25,6 +17,7 @@ import {
 } from '@/lib/scoring/badminton';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 import EndMatchConfirmModal from './EndMatchConfirmModal';
+import EditSetScoreModal from './EditSetScoreModal';
 
 interface Props {
   match: CategoryMatch;
@@ -108,7 +101,7 @@ export default function ScoreEntryBoard({
   );
   const [busy, setBusy] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
-  const [forceLandscape, setForceLandscape] = useState(false);
+  const [editingSetIndex, setEditingSetIndex] = useState<number | null>(null);
   const [showPlayerNames, setShowPlayerNames] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(PLAYER_NAMES_VISIBILITY_KEY) === '1';
@@ -184,34 +177,6 @@ export default function ScoreEntryBoard({
     }
   }, [match.id, isDoubles, onMatchUpdate, refetch]);
 
-  const toggleLandscape = useCallback(async () => {
-    const next = !forceLandscape;
-    setForceLandscape(next);
-
-    if (typeof document === 'undefined') return;
-
-    const orientation = screen.orientation as ScreenOrientation & {
-      lock?: (orientation: 'landscape') => Promise<void>;
-      unlock?: () => void;
-    };
-
-    try {
-      if (next) {
-        if (!document.fullscreenElement) {
-          await boardRef.current?.requestFullscreen?.();
-        }
-        await orientation.lock?.('landscape');
-      } else {
-        orientation.unlock?.();
-        if (document.fullscreenElement === boardRef.current) {
-          await document.exitFullscreen?.();
-        }
-      }
-    } catch {
-      // Some mobile browsers block orientation lock; the layout toggle still helps.
-    }
-  }, [forceLandscape]);
-
   // External updates (e.g. host correction). Ignore our own broadcast echoes.
   const { isConnected } = useTournamentSocket(tournamentId, {
     onScoreUpdated: (e) => {
@@ -234,17 +199,6 @@ export default function ScoreEntryBoard({
   }, [match.id]);
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (document.fullscreenElement !== boardRef.current) {
-        setForceLandscape(false);
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () =>
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  useEffect(() => {
     window.localStorage.setItem(
       PLAYER_NAMES_VISIBILITY_KEY,
       showPlayerNames ? '1' : '0'
@@ -255,13 +209,21 @@ export default function ScoreEntryBoard({
     <Flex
       ref={boardRef}
       direction="column"
-      minH={forceLandscape ? '100dvh' : { base: '70dvh', md: '68dvh' }}
+      minH={{ base: '70dvh', md: '68dvh' }}
       bg="gray.50"
       _dark={{ bg: 'gray.900' }}
     >
-      {/* Header: format + set wins + connection */}
-      <Flex align="center" justify="space-between" px={4} py={2} flexShrink={0}>
-        <Flex align="center" gap={2}>
+      {/* Header: format + connection */}
+      <Flex
+        align="center"
+        justify="space-between"
+        gap={2}
+        px={4}
+        py={2}
+        flexShrink={0}
+        flexWrap="wrap"
+      >
+        <Flex align="center" gap={2} flexWrap="wrap">
           <Badge colorPalette="purple">
             {rules.bestOf === 5
               ? t('bestOf5')
@@ -276,9 +238,6 @@ export default function ScoreEntryBoard({
             })}
           </Badge>
         </Flex>
-        <Text fontWeight="bold" fontSize="sm">
-          {t('setWins')}: {wins.side1} – {wins.side2}
-        </Text>
         <Flex align="center" gap={2} fontSize="sm" color="gray.500">
           {isConnected ? (
             <Wifi size={14} color="green" />
@@ -302,28 +261,11 @@ export default function ScoreEntryBoard({
           >
             <Users size={16} />
           </IconButton>
-          <IconButton
-            aria-label={
-              forceLandscape ? t('exitLandscape') : t('rotateLandscape')
-            }
-            title={forceLandscape ? t('exitLandscape') : t('rotateLandscape')}
-            size="sm"
-            variant={forceLandscape ? 'solid' : 'ghost'}
-            display={{ base: 'inline-flex', md: 'none' }}
-            onClick={() => void toggleLandscape()}
-          >
-            <RotateCw size={16} />
-          </IconButton>
         </Flex>
       </Flex>
 
       {/* Two big tappable score panels */}
-      <Flex
-        flex="1"
-        direction={forceLandscape ? 'row' : { base: 'column', md: 'row' }}
-        gap={2}
-        px={2}
-      >
+      <Flex flex="1" direction={{ base: 'column', md: 'row' }} gap={2} px={2}>
         <TeamScorePanel
           teamName={team1}
           playerNames={showPlayerNames ? team1PlayerNames : ''}
@@ -335,7 +277,6 @@ export default function ScoreEntryBoard({
           onDecrement={() => handleScore(1, -1)}
           incLabel={t('addPointFor', { team: team1 })}
           decLabel={t('removePointFor', { team: team1 })}
-          compact={forceLandscape}
         />
         <TeamScorePanel
           teamName={team2}
@@ -348,7 +289,6 @@ export default function ScoreEntryBoard({
           onDecrement={() => handleScore(2, -1)}
           incLabel={t('addPointFor', { team: team2 })}
           decLabel={t('removePointFor', { team: team2 })}
-          compact={forceLandscape}
         />
       </Flex>
 
@@ -361,6 +301,10 @@ export default function ScoreEntryBoard({
               variant={i === displaySets.length - 1 ? 'solid' : 'subtle'}
               colorPalette="gray"
               fontSize="sm"
+              cursor="pointer"
+              _hover={{ opacity: 0.85 }}
+              onClick={() => setEditingSetIndex(i)}
+              title={t('editSetTooltip', { number: s.setNumber })}
             >
               {s.player1Score}-{s.player2Score}
             </Badge>
@@ -409,6 +353,24 @@ export default function ScoreEntryBoard({
           onMatchUpdate(m);
         }}
       />
+
+      <EditSetScoreModal
+        isOpen={editingSetIndex !== null}
+        onClose={() => setEditingSetIndex(null)}
+        match={match}
+        set={
+          editingSetIndex !== null
+            ? (displaySets[editingSetIndex] ?? null)
+            : null
+        }
+        rules={rules}
+        isLatestSet={editingSetIndex === displaySets.length - 1}
+        onUpdated={(m) => {
+          setDisplaySets(setsOf(m, isDoubles));
+          onMatchUpdate(m);
+          setEditingSetIndex(null);
+        }}
+      />
     </Flex>
   );
 }
@@ -424,7 +386,7 @@ interface TeamScorePanelProps {
   onDecrement: () => void;
   incLabel: string;
   decLabel: string;
-  compact: boolean;
+  compact?: boolean;
 }
 
 function TeamScorePanel({
@@ -438,7 +400,7 @@ function TeamScorePanel({
   onDecrement,
   incLabel,
   decLabel,
-  compact,
+  compact = false,
 }: TeamScorePanelProps) {
   const bg = colorScheme === 'blue' ? 'blue.500' : 'orange.500';
   const bgHover = colorScheme === 'blue' ? 'blue.600' : 'orange.600';

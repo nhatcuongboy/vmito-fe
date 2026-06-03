@@ -300,6 +300,18 @@ export const TournamentService = {
     return response.data.data ?? { success: true, clearedCount: 0 };
   },
 
+  // Delete every match that has not been scheduled yet (status SCHEDULED with
+  // no court / startTime). Matches that are IN_PROGRESS, FINISHED, or already
+  // scheduled are preserved.
+  deleteUnscheduledMatches: async (
+    tournamentId: string
+  ): Promise<{ success: boolean; deletedCount: number }> => {
+    const response = await api.delete<
+      ApiResponse<{ success: boolean; deletedCount: number }>
+    >(`/tournaments/${tournamentId}/schedule/matches/unscheduled`);
+    return response.data.data ?? { success: true, deletedCount: 0 };
+  },
+
   // Update schedule type
   updateScheduleType: async (
     tournamentId: string,

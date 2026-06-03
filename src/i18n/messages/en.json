@@ -2054,6 +2054,13 @@
               "clearAllConfirm": "Confirm clear",
               "clearAllSuccess": "Schedule cleared",
               "clearAllError": "Failed to clear schedule",
+              "deleteUnscheduled": "Delete unscheduled matches",
+              "deleteUnscheduledConfirmTitle": "Delete unscheduled matches?",
+              "deleteUnscheduledConfirmDesc": "This will permanently delete {count} match(es) that have no court and time assigned. Matches that are scheduled, in progress, or finished will be kept. This action cannot be undone.",
+              "deleteUnscheduledConfirm": "Confirm delete",
+              "deleteUnscheduledSuccess": "Deleted {count} unscheduled match(es)",
+              "deleteUnscheduledNone": "No unscheduled matches to delete",
+              "deleteUnscheduledError": "Failed to delete unscheduled matches",
               "manager": {
                 "title": "Manage Schedule",
                 "listView": "List view",
@@ -2472,7 +2479,22 @@
                 "no": "No",
                 "save": "Save rules",
                 "saveError": "Could not save the rules. Please try again.",
-                "invalid": "Invalid values — points 1–99 and the cap must be greater than or equal to the points-to-win."
+                "invalid": "Invalid values — points 1–99 and the cap must be greater than or equal to the points-to-win.",
+                "stages": {
+                  "GROUP": "Group stage",
+                  "KNOCKOUT": "Knockout",
+                  "FINAL": "Final"
+                },
+                "stageHints": {
+                  "GROUP": "These rules apply to round-robin group-stage matches.",
+                  "KNOCKOUT": "Applied to elimination rounds (R16/QF/SF/3rd place). Inherit = use group-stage rules.",
+                  "FINAL": "Only applied to the final match. Inherit = use knockout rules."
+                },
+                "inheritTitle": "Use previous stage's rules",
+                "inheritHintKnockout": "Inherit from the group stage. Turn off to set custom rules for knockout rounds.",
+                "inheritHintFinal": "Inherit from the knockout stage (or group stage). Turn off to set custom rules for the final.",
+                "inheritOn": "Inherit",
+                "inheritOff": "Customize"
               }
             },
             "standings": {
@@ -3126,7 +3148,17 @@
         "forfeitSelectWinner": "Select the winning side",
         "forfeitHint": "The selected side wins by walkover; the opponent is recorded as having forfeited.",
         "walkover": "Walkover",
-        "forfeitConfirm": "Confirm forfeit"
+        "forfeitConfirm": "Confirm forfeit",
+        "save": "Save",
+        "editSetTitle": "Edit set {number} score",
+        "editSetTooltip": "Tap to edit set {number} score",
+        "editSetHintLatest": "Enter the new score for the current set.",
+        "editSetHintPast": "This set has ended. Any later sets will be cleared and must be re-entered.",
+        "editSetWillResetLater": "Saving will clear later sets (they must be re-entered).",
+        "editSetErrorInvalid": "Invalid score.",
+        "editSetErrorCap": "Scores cannot exceed {cap}.",
+        "editSetErrorIncomplete": "Past sets must end with a valid winning score.",
+        "editSetSuccess": "Set score updated"
       },
       "scoreboard": {
         "court": "Court",
@@ -3283,6 +3315,7 @@
         "status": {
           "IN_PROGRESS": "In progress",
           "SCHEDULED": "Scheduled",
+          "UNSCHEDULED": "Unscheduled",
           "FINISHED": "Finished",
           "CANCELLED": "Cancelled"
         },

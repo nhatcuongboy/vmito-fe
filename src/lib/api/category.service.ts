@@ -14,6 +14,7 @@ import {
   EndCategoryMatchRequest,
   IBulkScheduleItem,
   LiveScoreUpdateRequest,
+  UpdateSetScoreRequest,
 } from './types';
 
 export const CategoryService = {
@@ -229,6 +230,20 @@ export const CategoryService = {
       `/category-matches/${id}/score/undo`,
       undefined,
       { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  // Overwrite a single set's score (referee correction). High-stakes mutation
+  // — surfaces the global error toaster on failure so the referee notices.
+  updateSetScore: async (
+    id: string,
+    setNumber: number,
+    data: UpdateSetScoreRequest
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/sets/${setNumber}/score`,
+      data
     );
     return response.data.data!;
   },

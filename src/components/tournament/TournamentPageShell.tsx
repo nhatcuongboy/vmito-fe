@@ -39,7 +39,6 @@ import {
   SquarePen,
   ClipboardList,
   Trophy,
-  Award,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
@@ -47,7 +46,6 @@ import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentScheduleTab from '@/components/tournament/PublicTournamentScheduleTab';
 import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
-import PublicTournamentWinnersTab from '@/components/tournament/PublicTournamentWinnersTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import {
@@ -89,7 +87,6 @@ export type TournamentSegment =
   | 'schedule'
   | 'standings'
   | 'results'
-  | 'winners'
   | 'manage'
   | 'dashboard';
 
@@ -101,7 +98,6 @@ const SEGMENT_TO_TAB: Record<TournamentSegment, number> = {
   manage: 4,
   dashboard: 5,
   results: 6,
-  winners: 7,
 };
 
 const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
@@ -112,7 +108,6 @@ const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
   4: 'manage',
   5: 'dashboard',
   6: 'results',
-  7: 'winners',
 };
 
 interface TournamentPageShellProps {
@@ -175,7 +170,6 @@ export default function TournamentPageShell({
       { id: 2, label: t('tabs.schedule'), icon: CalendarDays },
       { id: 3, label: t('tabs.standings'), icon: BarChart3 },
       { id: 6, label: t('tabs.results'), icon: ClipboardList },
-      { id: 7, label: t('tabs.winners'), icon: Award },
       { id: 4, label: t('tabs.manage'), icon: Settings },
       { id: 5, label: t('tabs.dashboard'), icon: LayoutGrid },
     ];
@@ -560,6 +554,7 @@ export default function TournamentPageShell({
             name: b.title,
             type: b.type,
           }))}
+          fullCategories={allCategories}
           totalTeams={teamCategoryBlocks.reduce(
             (sum, b) => sum + b.players.length,
             0
@@ -696,16 +691,6 @@ export default function TournamentPageShell({
             tournament={tournament}
             categories={allCategories}
             canEdit={isHost}
-          />
-        ))}
-      {activeTab === 7 &&
-        tournament &&
-        (loadingTeams ? (
-          <TournamentTableSkeleton rows={3} columns={3} />
-        ) : (
-          <PublicTournamentWinnersTab
-            tournament={tournament}
-            categories={allCategories}
           />
         ))}
       {activeTab === 4 && canManage && (

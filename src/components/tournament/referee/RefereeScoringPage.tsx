@@ -20,17 +20,13 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
 import {
   ArrowLeft,
-  CalendarClock,
-  Clock3,
   Flag,
   Info,
   Mail,
-  MapPin,
   NotebookText,
   Play,
   ShieldAlert,
   Signal,
-  TimerReset,
   Trophy,
   UserRound,
   VenusAndMars,
@@ -278,83 +274,59 @@ export default function RefereeScoringPage() {
             borderBottomColor="gray.100"
             _dark={{ borderBottomColor: 'whiteAlpha.200' }}
           >
-            <Flex
-              gap={3}
-              align={{ base: 'start', md: 'center' }}
-              justify="space-between"
-              direction={{ base: 'column', md: 'row' }}
-            >
-              <Box minW={0}>
-                <HStack gap={2} flexWrap="wrap" mb={2}>
-                  <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
-                    {t(`status.${match.status}`)}
-                  </Badge>
+            <VStack align="stretch" gap={2}>
+              <HStack gap={2} flexWrap="wrap">
+                <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
+                  {t(`status.${match.status}`)}
+                </Badge>
+                <Badge
+                  variant="subtle"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                >
+                  {roundLabel}
+                </Badge>
+                {!!match.startTime && (
                   <Badge
                     variant="subtle"
-                    colorPalette="gray"
+                    colorPalette="purple"
                     borderRadius="full"
                     px={3}
                     py={1}
                   >
-                    {roundLabel}
+                    {formatDateTime(match.startTime)}
                   </Badge>
-                  {!!match.startTime && (
-                    <Badge
-                      variant="subtle"
-                      colorPalette="purple"
-                      borderRadius="full"
-                      px={3}
-                      py={1}
-                    >
-                      {formatDateTime(match.startTime)}
-                    </Badge>
-                  )}
-                </HStack>
+                )}
+              </HStack>
 
-                <Heading size={{ base: 'md', md: 'lg' }} lineHeight={1.15}>
+              <Flex gap={3} align="center" justify="space-between">
+                <Heading
+                  size={{ base: 'md', md: 'lg' }}
+                  lineHeight={1.15}
+                  minW={0}
+                >
                   {matchTitle}
                 </Heading>
-              </Box>
 
-              <IconButton
-                aria-label={t('playerInfo')}
-                title={t('playerInfo')}
-                variant="outline"
-                size="sm"
-                borderRadius="full"
-                colorPalette="gray"
-                onClick={() => setPlayerInfoOpen(true)}
-                flexShrink={0}
-              >
-                <Info size={17} />
-              </IconButton>
-            </Flex>
+                <IconButton
+                  aria-label={t('playerInfo')}
+                  title={t('playerInfo')}
+                  variant="outline"
+                  size="sm"
+                  borderRadius="full"
+                  colorPalette="gray"
+                  onClick={() => setPlayerInfoOpen(true)}
+                  flexShrink={0}
+                >
+                  <Info size={17} />
+                </IconButton>
+              </Flex>
+            </VStack>
           </Box>
 
           <Box px={{ base: 3, md: 5 }} py={{ base: 3, md: 4 }}>
-            <SimpleGrid columns={{ base: 2, md: 4 }} gap={2} mb={3}>
-              <InfoCard
-                icon={<MapPin size={16} />}
-                label={t('court')}
-                value={match.court ? `${match.court.courtNumber}` : '—'}
-              />
-              <InfoCard
-                icon={<Clock3 size={16} />}
-                label={t('statusLabel')}
-                value={t(`status.${match.status}`)}
-              />
-              <InfoCard
-                icon={<CalendarClock size={16} />}
-                label={t('roundLabel')}
-                value={roundLabel}
-              />
-              <InfoCard
-                icon={<TimerReset size={16} />}
-                label={t('scheduledAt')}
-                value={scheduledTime}
-              />
-            </SimpleGrid>
-
             <VModal
               isOpen={playerInfoOpen}
               onClose={() => setPlayerInfoOpen(false)}
@@ -521,43 +493,6 @@ export default function RefereeScoringPage() {
           </Box>
         </Box>
       </Box>
-    </Box>
-  );
-}
-
-function InfoCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <Box
-      borderWidth="1px"
-      borderColor="gray.200"
-      borderRadius="xl"
-      bg="white"
-      px={3}
-      py={3}
-      _dark={{ bg: 'whiteAlpha.50', borderColor: 'whiteAlpha.200' }}
-    >
-      <HStack gap={2} mb={1}>
-        <Box color="gray.500">{icon}</Box>
-        <Text fontSize="xs" color="gray.500" textTransform="uppercase">
-          {label}
-        </Text>
-      </HStack>
-      <Text
-        fontWeight="semibold"
-        whiteSpace="nowrap"
-        overflow="hidden"
-        textOverflow="ellipsis"
-      >
-        {value}
-      </Text>
     </Box>
   );
 }

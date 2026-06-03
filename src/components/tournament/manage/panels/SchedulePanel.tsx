@@ -35,7 +35,9 @@ export default function SchedulePanel({
   const typeModal = useModal();
   const manageModal = useModal();
   const clearModal = useModal();
+  const deleteUnscheduledModal = useModal();
   const [isClearing, setIsClearing] = useState(false);
+  const [isDeletingUnscheduled, setIsDeletingUnscheduled] = useState(false);
 
   // Fetch matches to get real scheduled count
   useEffect(() => {
@@ -98,6 +100,30 @@ export default function SchedulePanel({
       setIsClearing(false);
     }
   }, [tournament.id, t, clearModal, handleScheduleSaved]);
+
+  const handleDeleteUnscheduled = useCallback(async () => {
+    setIsDeletingUnscheduled(true);
+    try {
+      const result = await TournamentService.deleteUnscheduledMatches(
+        tournament.id
+      );
+      if (result.deletedCount > 0) {
+        toaster.success({
+          title: t('organize.schedule.deleteUnscheduledSuccess', {
+            count: result.deletedCount,
+          }),
+        });
+      } else {
+        toaster.info({ title: t('organize.schedule.deleteUnscheduledNone') });
+      }
+      deleteUnscheduledModal.onClose();
+      await handleScheduleSaved();
+    } catch {
+      toaster.error({ title: t('organize.schedule.deleteUnscheduledError') });
+    } finally {
+      setIsDeletingUnscheduled(false);
+    }
+  }, [tournament.id, t, deleteUnscheduledModal, handleScheduleSaved]);
 
   const scheduleTypeLabel =
     scheduleType === ScheduleType.ASSIGNED
@@ -208,6 +234,20 @@ export default function SchedulePanel({
         {t('organize.schedule.clearAll')}
       </Button>
 
+      {/* Delete unscheduled matches button */}
+      <Button
+        variant="outline"
+        colorScheme="red"
+        color="red.600"
+        borderColor="red.200"
+        w="100%"
+        onClick={deleteUnscheduledModal.onOpen}
+        disabled={unscheduledMatches === 0}
+      >
+        <Trash2 size={16} />
+        {t('organize.schedule.deleteUnscheduled')}
+      </Button>
+
       {/* Schedule Type Modal */}
       <ScheduleTypeModal
         isOpen={typeModal.isOpen}
@@ -239,6 +279,25 @@ export default function SchedulePanel({
       >
         <Text fontSize="sm" color="gray.700">
           {t('organize.schedule.clearAllConfirmDesc')}
+        </Text>
+      </VModal>
+
+      {/* Delete Unscheduled Matches Confirmation Modal */}
+      <VModal
+        isOpen={deleteUnscheduledModal.isOpen}
+        onClose={deleteUnscheduledModal.onClose}
+        title={t('organize.schedule.deleteUnscheduledConfirmTitle')}
+        size="sm"
+        primaryActionText={t('organize.schedule.deleteUnscheduledConfirm')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleDeleteUnscheduled}
+        isPrimaryLoading={isDeletingUnscheduled}
+        isSecondaryDisabled={isDeletingUnscheduled}
+      >
+        <Text fontSize="sm" color="gray.700">
+          {t('organize.schedule.deleteUnscheduledConfirmDesc', {
+            count: unscheduledMatches,
+          })}
         </Text>
       </VModal>
     </VStack>
