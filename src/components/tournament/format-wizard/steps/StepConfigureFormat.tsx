@@ -13,10 +13,10 @@ export default function StepConfigureFormat() {
   const { selectedFormat } = state;
 
   return (
-    <Flex h="full" direction={{ base: 'column', md: 'row' }}>
+    <Flex h="full" minH={0} direction={{ base: 'column', md: 'row' }}>
       <FormatSidebar step={2} />
 
-      <Box flex={1} overflow="hidden" h="full" p={6}>
+      <Box flex={1} minH={0} minW={0} h="full" p={6} overflowY="auto">
         {selectedFormat === TournamentFormatType.ROUND_ROBIN && (
           <RoundRobinConfig />
         )}

@@ -22,8 +22,8 @@ export default function SingleEliminationConfig() {
   };
 
   return (
-    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} h="full">
-      <Box flex={1} overflowY="auto" pr={{ lg: 4 }}>
+    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} align="flex-start">
+      <Box flex={1} minW={0} pr={{ lg: 4 }}>
         {/* Seeding method */}
         <Box mb={5}>
           <Text fontSize="xs" color="gray.500" mb={1}>
