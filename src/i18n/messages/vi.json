@@ -1523,9 +1523,13 @@
         },
         "enterScores": "Nhập điểm",
         "teamsTab": {
+          "codeLabel": "Mã",
           "manageTeams": "Quản lý đội",
           "noCategories": "Chưa có hạng mục nào.",
           "noTeams": "Chưa có đội nào đăng ký.",
+          "teamsCount": "{count} đội",
+          "totalCategories": "{count} hạng mục",
+          "totalTeams": "{count} đội đã đăng ký",
           "unknownTeam": "Không xác định"
         },
         "scheduleTab": {
@@ -3299,6 +3303,8 @@
         "removeSet": "Xóa set",
         "winner": "Người thắng",
         "noWinnerYet": "Nhập điểm đến khi một bên thắng trận.",
+        "setsProgress": "Thắng {won}/{need} set (best of {bestOf}).",
+        "setsProgressTied": "{side1} - {side2} set (cần {need} để thắng).",
         "back": "Quay lại",
         "cancel": "Hủy",
         "save": "Lưu kết quả",

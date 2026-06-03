@@ -1493,9 +1493,13 @@
         },
         "enterScores": "录入比分",
         "teamsTab": {
+          "codeLabel": "编号",
           "manageTeams": "管理队伍",
           "noCategories": "暂时没有可用类别。",
           "noTeams": "尚未有队伍报名。",
+          "teamsCount": "{count} 支队伍",
+          "totalCategories": "{count} 个组别",
+          "totalTeams": "{count} 支队伍已报名",
           "unknownTeam": "未知"
         },
         "scheduleTab": {
@@ -3269,6 +3273,8 @@
         "removeSet": "删除该局",
         "winner": "胜者",
         "noWinnerYet": "请录入比分，直到一方赢得比赛。",
+        "setsProgress": "已赢 {won}/{need} 局（{bestOf} 局制）。",
+        "setsProgressTied": "{side1} - {side2} 局（需 {need} 局获胜）。",
         "back": "返回",
         "cancel": "取消",
         "save": "保存结果",

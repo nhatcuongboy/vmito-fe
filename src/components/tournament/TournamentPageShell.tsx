@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
+  Badge,
   Button,
   Flex,
   Heading,
   HStack,
+  SimpleGrid,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -38,6 +40,7 @@ import {
   CircleUserRound,
   SquarePen,
   Trophy,
+  ArrowRight,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
@@ -67,6 +70,7 @@ interface ITeamCategoryBlock {
     name: string;
     code?: string;
     target?: 'player' | 'team';
+    members?: string[];
   }>;
 }
 
@@ -78,6 +82,17 @@ const CATEGORY_BORDER_COLOR: Record<CategoryType, string> = {
   [CategoryType.MIXED_DOUBLE]: 'cyan.300',
   [CategoryType.CUSTOM]: 'purple.300',
 };
+
+const CATEGORY_ACCENT_BG: Record<CategoryType, string> = {
+  [CategoryType.MENS_SINGLE]: 'blue.50',
+  [CategoryType.WOMENS_SINGLE]: 'pink.50',
+  [CategoryType.MENS_DOUBLE]: 'yellow.50',
+  [CategoryType.WOMENS_DOUBLE]: 'orange.50',
+  [CategoryType.MIXED_DOUBLE]: 'cyan.50',
+  [CategoryType.CUSTOM]: 'purple.50',
+};
+
+type TeamListItem = ITeamCategoryBlock['players'][number];
 
 export type TournamentSegment =
   | 'home'
@@ -107,6 +122,171 @@ const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
 
 interface TournamentPageShellProps {
   activeSegment: TournamentSegment;
+}
+
+function TeamCategoryCard({
+  categoryBlock,
+  categoryLabel,
+  slug,
+  emptyText,
+  codeLabel,
+  teamCountLabel,
+}: {
+  categoryBlock: ITeamCategoryBlock;
+  categoryLabel: string;
+  slug: string;
+  emptyText: string;
+  codeLabel: string;
+  teamCountLabel: string;
+}) {
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderTopWidth="4px"
+      borderTopColor={CATEGORY_BORDER_COLOR[categoryBlock.type]}
+      borderRadius="2xl"
+      bg="white"
+      overflow="hidden"
+      boxShadow="0 18px 46px rgba(15, 23, 42, 0.06)"
+    >
+      <Flex
+        align={{ base: 'stretch', sm: 'center' }}
+        justify="space-between"
+        gap={3}
+        direction={{ base: 'column', sm: 'row' }}
+        px={{ base: 4, md: 5 }}
+        py={4}
+        bg={CATEGORY_ACCENT_BG[categoryBlock.type]}
+      >
+        <Box minW={0}>
+          <Heading size="md" lineClamp={1}>
+            {categoryBlock.title}
+          </Heading>
+          <Text mt={1} fontSize="sm" color="gray.600">
+            {categoryLabel}
+          </Text>
+        </Box>
+        <Badge
+          alignSelf={{ base: 'flex-start', sm: 'center' }}
+          colorPalette="gray"
+          variant="solid"
+          borderRadius="full"
+          px={3}
+          py={1}
+        >
+          {teamCountLabel}
+        </Badge>
+      </Flex>
+
+      {categoryBlock.players.length === 0 ? (
+        <Box px={{ base: 4, md: 5 }} py={5}>
+          <Text color="fg.muted">{emptyText}</Text>
+        </Box>
+      ) : (
+        <VStack align="stretch" gap={0} px={{ base: 3, md: 4 }} py={3}>
+          {categoryBlock.players.map((team, index) => (
+            <TeamRow
+              key={`${categoryBlock.id}-${team.id}`}
+              team={team}
+              slug={slug}
+              codeLabel={codeLabel}
+              showDivider={index < categoryBlock.players.length - 1}
+            />
+          ))}
+        </VStack>
+      )}
+    </Box>
+  );
+}
+
+function TeamRow({
+  team,
+  slug,
+  codeLabel,
+  showDivider,
+}: {
+  team: TeamListItem;
+  slug: string;
+  codeLabel: string;
+  showDivider: boolean;
+}) {
+  const content = (
+    <Flex
+      align="center"
+      gap={3}
+      px={{ base: 2, md: 3 }}
+      py={3}
+      borderBottomWidth={showDivider ? '1px' : '0'}
+      borderColor="gray.100"
+      borderRadius="lg"
+      transition="background 160ms ease, transform 160ms ease"
+      _hover={team.code ? { bg: 'gray.50', transform: 'translateX(2px)' } : {}}
+    >
+      <Flex
+        align="center"
+        justify="center"
+        w="44px"
+        h="44px"
+        borderRadius="full"
+        bg="gray.50"
+        borderWidth="1px"
+        borderColor="gray.200"
+        color="gray.500"
+        flexShrink={0}
+      >
+        <CircleUserRound size={23} />
+      </Flex>
+
+      <Box flex="1" minW={0}>
+        <Flex align="center" gap={2} minW={0}>
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="semibold"
+            lineClamp={1}
+          >
+            {team.name}
+          </Text>
+          {team.code && (
+            <Badge
+              colorPalette="gray"
+              variant="subtle"
+              borderRadius="full"
+              flexShrink={0}
+            >
+              {codeLabel} {team.code}
+            </Badge>
+          )}
+        </Flex>
+        {team.members && team.members.length > 0 && (
+          <Text mt={1} fontSize="sm" color="gray.500" lineClamp={1}>
+            {team.members.join(' · ')}
+          </Text>
+        )}
+      </Box>
+
+      {team.code && (
+        <Flex color="gray.400" flexShrink={0}>
+          <ArrowRight size={18} />
+        </Flex>
+      )}
+    </Flex>
+  );
+
+  if (!team.code) return content;
+
+  return (
+    <Link
+      href={
+        team.target === 'team'
+          ? `/t/${slug}/team/${team.code}`
+          : `/t/${slug}/p/${team.code}`
+      }
+      style={{ color: 'inherit', textDecoration: 'none' }}
+    >
+      {content}
+    </Link>
+  );
 }
 
 export default function TournamentPageShell({
@@ -204,7 +384,7 @@ export default function TournamentPageShell({
       playerById: Map<string, TournamentPlayer>,
       playerCodeById: Map<string, string>,
       registrationCodeById: Map<string, string>
-    ) => {
+    ): TeamListItem[] => {
       const players: TournamentPlayer[] = [];
       const isSinglesCategory =
         categoryType === CategoryType.MENS_SINGLE ||
@@ -229,6 +409,13 @@ export default function TournamentPageShell({
               registrationCodeById.get(registration.id) ??
               getTournamentPlayerCode(registration.id),
             target: 'team' as const,
+            members:
+              registration.pair?.members
+                ?.map(
+                  (member) =>
+                    member.player?.name || playerById.get(member.playerId)?.name
+                )
+                .filter((name): name is string => Boolean(name)) ?? [],
           },
         ];
       }
@@ -279,6 +466,13 @@ export default function TournamentPageShell({
               .filter(Boolean)
               .join(' & ') ||
             t('teamsTab.unknownTeam'),
+          members:
+            registration.pair?.members
+              ?.map(
+                (member) =>
+                  member.player?.name || playerById.get(member.playerId)?.name
+              )
+              .filter((name): name is string => Boolean(name)) ?? [],
         },
       ];
     },
@@ -418,6 +612,15 @@ export default function TournamentPageShell({
     );
   }, [teamCategoryBlocks]);
 
+  const totalRegisteredTeams = useMemo(
+    () =>
+      teamCategoryBlocks.reduce(
+        (sum, categoryBlock) => sum + categoryBlock.players.length,
+        0
+      ),
+    [teamCategoryBlocks]
+  );
+
   const handleTabChange = useCallback(
     (tabIndex: number) => {
       const segment = TAB_TO_SEGMENT[tabIndex];
@@ -493,6 +696,7 @@ export default function TournamentPageShell({
               tabs={tabs}
               activeTab={activeTab}
               onTabChange={handleTabChange}
+              showStatusBadge={false}
             />
             <Box flex="1" minW={0}>
               <TournamentContentSkeleton />
@@ -553,18 +757,39 @@ export default function TournamentPageShell({
         />
       )}
       {activeTab === 1 && (
-        <VStack align="stretch" gap={5}>
-          <Flex justify="space-between" align="center" gap={4} wrap="wrap">
-            <Heading size="lg">{t('tabs.teams')}</Heading>
+        <VStack align="stretch" gap={6}>
+          <Flex
+            justify="space-between"
+            align={{ base: 'stretch', md: 'center' }}
+            gap={4}
+            direction={{ base: 'column', md: 'row' }}
+          >
+            <Box minW={0}>
+              <Heading size="lg" mb={2}>
+                {t('tabs.teams')}
+              </Heading>
+              <HStack gap={2} wrap="wrap">
+                <Badge colorPalette="green" variant="subtle" px={3} py={1}>
+                  {t('teamsTab.totalTeams', { count: totalRegisteredTeams })}
+                </Badge>
+                <Badge colorPalette="gray" variant="subtle" px={3} py={1}>
+                  {t('teamsTab.totalCategories', {
+                    count: allCategories.length,
+                  })}
+                </Badge>
+              </HStack>
+            </Box>
             <Button
-              size="sm"
+              alignSelf={{ base: 'stretch', md: 'center' }}
+              size="md"
               variant="subtle"
               colorPalette="gray"
               borderRadius="full"
+              px={5}
               onClick={handleManageTeamsClick}
             >
               <HStack gap={2}>
-                <SquarePen size={14} />
+                <SquarePen size={16} />
                 <Text>{t('teamsTab.manageTeams')}</Text>
               </HStack>
             </Button>
@@ -583,77 +808,21 @@ export default function TournamentPageShell({
               <Text color="fg.muted">{t('teamsTab.noCategories')}</Text>
             </Box>
           ) : (
-            <VStack align="stretch" gap={5}>
+            <SimpleGrid columns={{ base: 1, xl: 2 }} gap={5} alignItems="start">
               {sortedTeamCategoryBlocks.map((categoryBlock) => (
-                <Box
+                <TeamCategoryCard
                   key={categoryBlock.id}
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  borderTopWidth="3px"
-                  borderTopColor={CATEGORY_BORDER_COLOR[categoryBlock.type]}
-                  borderRadius="2xl"
-                  px={4}
-                  py={4}
-                  bg="white"
-                >
-                  <VStack align="stretch" gap={3}>
-                    <Heading size="md">{categoryBlock.title}</Heading>
-
-                    {categoryBlock.players.length === 0 ? (
-                      <Text color="fg.muted">{t('teamsTab.noTeams')}</Text>
-                    ) : (
-                      <VStack align="stretch" gap={2}>
-                        {categoryBlock.players.map((player) => {
-                          const content = (
-                            <Flex
-                              key={`${categoryBlock.id}-${player.id}`}
-                              align="center"
-                              gap={3}
-                              borderRadius="md"
-                              px={2}
-                              py={1.5}
-                              _hover={
-                                player.code ? { bg: 'gray.50' } : undefined
-                              }
-                            >
-                              <CircleUserRound
-                                size={22}
-                                color="var(--chakra-colors-gray-400)"
-                              />
-                              <Text flex="1" fontSize="lg" fontWeight="medium">
-                                {player.name}
-                              </Text>
-                              <Text fontSize="xs" color="gray.500">
-                                {player.code}
-                              </Text>
-                            </Flex>
-                          );
-
-                          return player.code ? (
-                            <Link
-                              key={`${categoryBlock.id}-${player.id}`}
-                              href={
-                                player.target === 'team'
-                                  ? `/t/${slug}/team/${player.code}`
-                                  : `/t/${slug}/p/${player.code}`
-                              }
-                              style={{
-                                color: 'inherit',
-                                textDecoration: 'none',
-                              }}
-                            >
-                              {content}
-                            </Link>
-                          ) : (
-                            content
-                          );
-                        })}
-                      </VStack>
-                    )}
-                  </VStack>
-                </Box>
+                  categoryBlock={categoryBlock}
+                  categoryLabel={getCategoryTypeLabel(categoryBlock.type)}
+                  slug={slug}
+                  emptyText={t('teamsTab.noTeams')}
+                  codeLabel={t('teamsTab.codeLabel')}
+                  teamCountLabel={t('teamsTab.teamsCount', {
+                    count: categoryBlock.players.length,
+                  })}
+                />
               ))}
-            </VStack>
+            </SimpleGrid>
           )}
         </VStack>
       )}
@@ -724,6 +893,7 @@ export default function TournamentPageShell({
             tabs={tabs}
             activeTab={activeTab}
             onTabChange={handleTabChange}
+            showStatusBadge={canManage}
           />
           <Box flex="1" minW={0}>
             {renderContent()}

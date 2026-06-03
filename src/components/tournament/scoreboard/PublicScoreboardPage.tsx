@@ -32,6 +32,13 @@ function parseShowFullNames(value: string | null): boolean {
   return value === 'full';
 }
 
+function getConfiguredCourts(courts: TournamentCourt[]): TournamentCourt[] {
+  const venueCourts = courts.filter((court) => court.tournamentVenueId);
+  return (venueCourts.length > 0 ? venueCourts : courts).sort(
+    (a, b) => a.courtNumber - b.courtNumber
+  );
+}
+
 export default function PublicScoreboardPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
@@ -80,11 +87,13 @@ export default function PublicScoreboardPage() {
     void (async () => {
       try {
         const tour = await TournamentService.getTournament(tournamentParam);
+        const [courtData, matches] = await Promise.all([
+          TournamentService.getCourts(tour.id),
+          loadScoreboard(tour.id),
+        ]);
         if (!active) return;
         setTournament(tour);
-        setCourts(tour.courts ?? []);
-        const matches = await loadScoreboard(tour.id);
-        if (!active) return;
+        setCourts(getConfiguredCourts(courtData));
         seedFromServer(matches);
       } finally {
         if (active) setLoading(false);

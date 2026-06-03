@@ -1515,9 +1515,13 @@
         },
         "enterScores": "Enter scores",
         "teamsTab": {
+          "codeLabel": "Code",
           "manageTeams": "Manage teams",
           "noCategories": "No categories available yet.",
           "noTeams": "No teams registered yet.",
+          "teamsCount": "{count} teams",
+          "totalCategories": "{count} categories",
+          "totalTeams": "{count} teams registered",
           "unknownTeam": "Unknown"
         },
         "scheduleTab": {
@@ -3291,6 +3295,8 @@
         "removeSet": "Remove set",
         "winner": "Winner",
         "noWinnerYet": "Enter scores until one side wins the match.",
+        "setsProgress": "Won {won}/{need} sets (best of {bestOf}).",
+        "setsProgressTied": "{side1} - {side2} sets (need {need} to win).",
         "back": "Back",
         "cancel": "Cancel",
         "save": "Save result",

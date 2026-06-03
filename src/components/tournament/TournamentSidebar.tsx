@@ -18,6 +18,7 @@ interface TournamentSidebarProps {
   tabs: SidebarTab[];
   activeTab: number;
   onTabChange: (tabIndex: number) => void;
+  showStatusBadge?: boolean;
 }
 
 export default function TournamentSidebar({
@@ -25,6 +26,7 @@ export default function TournamentSidebar({
   tabs,
   activeTab,
   onTabChange,
+  showStatusBadge = false,
 }: TournamentSidebarProps) {
   const t = useTranslations('pages.tournaments.detail.publicationStatus');
   const locale = useLocale();
@@ -35,6 +37,7 @@ export default function TournamentSidebar({
       locale={locale}
       publishedLabel={t('published')}
       draftLabel={t('draft')}
+      showStatusBadge={showStatusBadge}
     />
   ) : (
     <TournamentSidebarHeaderSkeleton />
@@ -57,6 +60,7 @@ interface TournamentSidebarHeaderProps {
   locale: string;
   publishedLabel: string;
   draftLabel: string;
+  showStatusBadge: boolean;
 }
 
 function TournamentSidebarHeader({
@@ -64,6 +68,7 @@ function TournamentSidebarHeader({
   locale,
   publishedLabel,
   draftLabel,
+  showStatusBadge,
 }: TournamentSidebarHeaderProps) {
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
     locale,
@@ -99,21 +104,23 @@ function TournamentSidebarHeader({
         ) : (
           <Box w="100%" h="100%" bg="gray.200" />
         )}
-        {/* Status badge */}
-        <Box
-          position="absolute"
-          bottom={2}
-          left={2}
-          bg={`${statusColor}.100`}
-          color={`${statusColor}.700`}
-          px={2}
-          py={0.5}
-          borderRadius="md"
-          fontSize="xs"
-          fontWeight="semibold"
-        >
-          {statusLabel}
-        </Box>
+        {/* Status badge — only visible to the host / managers */}
+        {showStatusBadge && (
+          <Box
+            position="absolute"
+            bottom={2}
+            left={2}
+            bg={`${statusColor}.100`}
+            color={`${statusColor}.700`}
+            px={2}
+            py={0.5}
+            borderRadius="md"
+            fontSize="xs"
+            fontWeight="semibold"
+          >
+            {statusLabel}
+          </Box>
+        )}
       </Box>
 
       {/* Tournament name & date */}

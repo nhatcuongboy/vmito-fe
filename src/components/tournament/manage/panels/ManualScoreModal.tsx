@@ -24,6 +24,9 @@ import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import {
   defaultRules,
   isMatchComplete,
+  isSetComplete,
+  setsToWin,
+  setWins,
   buildScoreString,
 } from '@/lib/scoring/badminton';
 
@@ -154,16 +157,35 @@ export default function ManualScoreModal({
   const updateScore = (index: number, side: 1 | 2, raw: string) => {
     // Allow empty string so the input doesn't auto-fill 0.
     const sanitized = raw.replace(/[^0-9]/g, '');
-    setSets((prev) =>
-      prev.map((s, i) =>
+    setSets((prev) => {
+      const next = prev.map((s, i) =>
         i === index
           ? {
               ...s,
               [side === 1 ? 'player1Score' : 'player2Score']: sanitized,
             }
           : s
-      )
-    );
+      );
+      // Auto-add the next set when the last set is complete but the match
+      // isn't yet decided — saves the user from clicking "Add set".
+      const isLast = index === next.length - 1;
+      if (isLast && next.length < maxSets) {
+        const last = next[next.length - 1];
+        const a = toNum(last.player1Score);
+        const b = toNum(last.player2Score);
+        if (isSetComplete(a, b, rules).complete) {
+          const projected: MatchSet[] = next.map((s, i) => ({
+            setNumber: i + 1,
+            player1Score: toNum(s.player1Score),
+            player2Score: toNum(s.player2Score),
+          }));
+          if (!isMatchComplete(projected, rules).complete) {
+            return [...next, emptySet()];
+          }
+        }
+      }
+      return next;
+    });
   };
 
   const addSet = () => setSets((prev) => [...prev, emptySet()]);
@@ -392,7 +414,30 @@ export default function ManualScoreModal({
                   </Text>
                 </Flex>
               ) : (
-                <Text fontSize="sm">{t('noWinnerYet')}</Text>
+                <Flex direction="column" gap={1} align="center">
+                  <Text fontSize="sm">{t('noWinnerYet')}</Text>
+                  {(() => {
+                    const need = setsToWin(rules);
+                    if (need <= 1) return null;
+                    const { side1, side2 } = setWins(matchSets, rules);
+                    const won = Math.max(side1, side2);
+                    return (
+                      <Text fontSize="xs" color="gray.600">
+                        {side1 === side2
+                          ? t('setsProgressTied', {
+                              side1,
+                              side2,
+                              need,
+                            })
+                          : t('setsProgress', {
+                              won,
+                              need,
+                              bestOf: rules.bestOf,
+                            })}
+                      </Text>
+                    );
+                  })()}
+                </Flex>
               )}
             </ResultBox>
           </>
