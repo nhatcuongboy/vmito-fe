@@ -1477,6 +1477,7 @@
           "teams": "Đội",
           "schedule": "Lịch thi đấu",
           "standings": "Bảng xếp hạng",
+          "results": "Kết quả",
           "manage": "Quản lý",
           "dashboard": "Tổng quan"
         },
@@ -1801,6 +1802,7 @@
             "publish": "Xuất bản giải đấu",
             "teams": "Đội",
             "players": "Người chơi",
+            "results": "Kết quả",
             "categories": "Hạng mục",
             "format": "Thể thức",
             "standings": "Bảng xếp hạng",
@@ -1826,6 +1828,10 @@
             "players": {
               "title": "Người chơi",
               "description": "Quản lý danh sách người chơi của giải đấu"
+            },
+            "results": {
+              "title": "Kết quả & tỉ số",
+              "description": "Nhập và xem tỉ số các trận đấu"
             },
             "categories": {
               "title": "Hạng mục"
@@ -1912,7 +1918,42 @@
                 "loadFailed": "Không thể tải dữ liệu lịch thi đấu",
                 "previewLoadFailed": "Không thể tải bản xem trước lịch thi đấu",
                 "saveFailed": "Không thể lưu lịch thi đấu",
-                "saveSuccess": "Đã lưu {count} trận"
+                "saveSuccess": "Đã lưu {count} trận",
+                "aiImport": {
+                  "button": "Nhập bằng AI",
+                  "drawerTitle": "Nhập lịch thi đấu bằng AI",
+                  "tabText": "Nhập văn bản",
+                  "tabFile": "Tải file CSV/Excel",
+                  "textareaPlaceholder": "Dán lịch thi đấu vào đây (ví dụ: Đôi nam - Trận 1 - Sân 1 - 08:00 25/01/2026 - 60 phút)…",
+                  "dropzoneLabel": "Chọn file .csv, .xlsx hoặc .xls",
+                  "parsedPreview": "Nội dung đã trích xuất (có thể chỉnh sửa trước khi gửi cho AI):",
+                  "fileParsing": "Đang đọc file…",
+                  "unsupportedFile": "Định dạng file không được hỗ trợ. Chỉ chấp nhận .csv, .xlsx, .xls.",
+                  "textRequired": "Vui lòng nhập hoặc tải nội dung lịch thi đấu.",
+                  "aiHint": "AI sẽ tự khớp với hạng mục và số trận hiện có. Bạn có thể xem trước và bỏ chọn các dòng không phù hợp trước khi lưu.",
+                  "extractBtn": "Trích xuất bằng AI",
+                  "extracting": "Đang trích xuất…",
+                  "aiFailed": "AI không trích xuất được lịch thi đấu. Hãy thử lại hoặc chỉnh sửa nội dung đầu vào.",
+                  "backToInput": "Quay lại nhập liệu",
+                  "previewSummary": "Tổng {total} dòng • {included} sẽ lưu • {issues} cần chú ý",
+                  "previewEmpty": "AI không nhận diện được dòng nào.",
+                  "colCategory": "Hạng mục",
+                  "colMatch": "Trận",
+                  "colCourt": "Sân",
+                  "colTime": "Giờ",
+                  "colStatus": "Trạng thái",
+                  "status_ok": "OK",
+                  "status_noMatch": "Không tìm thấy trận",
+                  "status_noCourt": "Không tìm thấy sân",
+                  "status_invalidTime": "Thiếu ngày/giờ",
+                  "status_conflict": "Trùng lịch",
+                  "saveBtn": "Lưu {count} trận",
+                  "saving": "Đang lưu…",
+                  "nothingToSave": "Không có dòng hợp lệ nào để lưu.",
+                  "importSuccess": "Đã nhập {count} trận từ AI",
+                  "importFailed": "Không thể lưu lịch thi đấu",
+                  "cancel": "Hủy"
+                }
               },
               "generate": {
                 "title": "Tạo lịch thi đấu",
@@ -2226,6 +2267,11 @@
               "points": "Điểm",
               "pointsPerWin": "điểm mỗi thắng trận",
               "pointsPerTie": "điểm mỗi hòa trận",
+              "pointsPerLoss": "điểm mỗi thua trận",
+              "pointsPerGameWin": "điểm mỗi thắng game",
+              "pointsPerGameLoss": "điểm mỗi thua game",
+              "pointsPerForfeitWin": "điểm mỗi thắng do bỏ cuộc",
+              "pointsPerForfeitLoss": "điểm mỗi thua do bỏ cuộc",
               "required": "Bắt buộc",
               "save": "Lưu",
               "cancel": "Hủy"
@@ -2356,7 +2402,16 @@
               "advancingTeamsSaveFailed": "Không thể lưu đội thăng hạng",
               "groupLabel": "Bảng {number}",
               "poolLabel": "Bảng",
-              "tbd": "Chưa xác định"
+              "tbd": "Chưa xác định",
+              "generatePlayoffs": "Sinh bracket",
+              "regenerateBracket": "Sinh lại bracket",
+              "groupProgress": "Đã xong {finished}/{total} trận vòng bảng",
+              "generateBracketLocked": "Hoàn tất tất cả trận vòng bảng để sinh bracket",
+              "overwriteWarning": "Sinh lại sẽ ghi đè bracket hiện tại và tỉ số của nó.",
+              "confirmGenerateTitle": "Sinh bracket vòng loại?",
+              "confirmGenerateMessage": "Hành động này chốt các đội đi tiếp theo bảng xếp hạng và tạo các trận vòng loại trực tiếp.",
+              "bracketGenerated": "Đã sinh bracket",
+              "generateBracketFailed": "Không thể sinh bracket"
             },
             "venues": {
               "title": "Địa điểm thi đấu",

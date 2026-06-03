@@ -36,6 +36,7 @@ import {
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { toaster } from '@/components/ui/toaster';
+import { VModal } from '@/components/ui/VModal';
 import SetupPoolsModal, { TSetupStep } from './SetupPoolsModal';
 import AdvancingTeamsModal from './AdvancingTeamsModal';
 import PlayoffsBracketModal from './PlayoffsBracketModal';
@@ -100,6 +101,8 @@ export default function RoundsPanel({
   const [isCreatingGroups, setIsCreatingGroups] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [groupCountInput, setGroupCountInput] = useState<number>(2);
 
@@ -254,6 +257,36 @@ export default function RoundsPanel({
     }
   };
 
+  const handleGenerateBracket = async () => {
+    if (!activeCategory) return;
+    try {
+      setIsCompleting(true);
+      await CategoryService.completeGroupStage(activeCategory.id, {
+        showToast: false,
+      });
+      toaster.success({ title: t('panels.rounds.bracketGenerated') });
+      setIsGenerateConfirmOpen(false);
+      await handleRefreshCategory();
+    } catch (error: unknown) {
+      const apiError = error as {
+        response?: { data?: { message?: string | string[] } };
+      };
+      const raw = apiError?.response?.data?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : raw ||
+          (error instanceof Error
+            ? error.message
+            : t('panels.rounds.generateBracketFailed'));
+      toaster.error({
+        title: t('panels.rounds.generateBracketFailed'),
+        description: message,
+      });
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
   // ─── Derived state ─────────────────────────────────────────────────────────
 
   const totalMatches = Object.values(matchesByGroup).reduce(
@@ -284,6 +317,22 @@ export default function RoundsPanel({
   }, [matchesByGroup]);
   const isPlayoffsConfigured =
     eliminationMatches.length > 0 || activeCategory?.thirdPlaceMatch;
+  const hasEliminationMatches = eliminationMatches.length > 0;
+
+  // Group-stage completion progress (used to gate bracket generation)
+  const groupStageMatches = useMemo(
+    () =>
+      Object.values(matchesByGroup)
+        .flat()
+        .filter((m) => m.round === 'GROUP'),
+    [matchesByGroup]
+  );
+  const finishedGroupMatches = groupStageMatches.filter(
+    (m) => m.status === MatchStatus.FINISHED
+  ).length;
+  const totalGroupMatches = groupStageMatches.length;
+  const allGroupMatchesFinished =
+    totalGroupMatches > 0 && finishedGroupMatches === totalGroupMatches;
 
   const advancingSlots = useMemo(() => {
     if (!isAdvancingConfigured || groupCount <= 0) return [];
@@ -443,8 +492,8 @@ export default function RoundsPanel({
                 subtitle={t('panels.rounds.bracketSubtitle')}
                 color="green"
               >
-                {hasBracketMatches ? (
-                  <VStack gap={3} align="stretch">
+                <VStack gap={3} align="stretch">
+                  {hasBracketMatches && (
                     <Box
                       bg="white"
                       borderRadius="xl"
@@ -463,38 +512,54 @@ export default function RoundsPanel({
                         compact
                       />
                     </Box>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      leftIcon={<Edit size={14} />}
-                      onClick={() => setIsSEBracketModalOpen(true)}
-                    >
-                      {t('panels.rounds.setupBracket')}
-                    </Button>
-                  </VStack>
-                ) : (
+                  )}
                   <Button
                     size="sm"
-                    w="full"
-                    style={{ background: '#1a202c', color: 'white' }}
+                    variant={hasBracketMatches ? 'outline' : 'solid'}
+                    leftIcon={
+                      hasBracketMatches ? <Edit size={14} /> : undefined
+                    }
+                    style={
+                      hasBracketMatches
+                        ? undefined
+                        : { background: '#1a202c', color: 'white' }
+                    }
                     onClick={() => setIsSEBracketModalOpen(true)}
                   >
                     {t('panels.rounds.setupBracket')}
                   </Button>
-                )}
+                  <GenerateBracketSection
+                    hasGroupStage={false}
+                    finishedGroupMatches={0}
+                    totalGroupMatches={0}
+                    hasBracket={hasBracketMatches}
+                    canGenerate={totalRegistrations >= 2}
+                    isLoading={isCompleting}
+                    onClick={() => setIsGenerateConfirmOpen(true)}
+                  />
+                </VStack>
               </StepperSection>
             </VStack>
           </Box>
         )}
 
         {activeCategory && (
-          <SingleEliminationBracketModal
-            isOpen={isSEBracketModalOpen}
-            onClose={() => setIsSEBracketModalOpen(false)}
-            category={activeCategory}
-            registrations={registrations}
-            onSaved={handleRefreshCategory}
-          />
+          <>
+            <SingleEliminationBracketModal
+              isOpen={isSEBracketModalOpen}
+              onClose={() => setIsSEBracketModalOpen(false)}
+              category={activeCategory}
+              registrations={registrations}
+              onSaved={handleRefreshCategory}
+            />
+            <GenerateBracketConfirmModal
+              isOpen={isGenerateConfirmOpen}
+              onClose={() => setIsGenerateConfirmOpen(false)}
+              onConfirm={handleGenerateBracket}
+              isLoading={isCompleting}
+              hasBracket={hasEliminationMatches}
+            />
+          </>
         )}
       </VStack>
     );
@@ -737,46 +802,57 @@ export default function RoundsPanel({
                   title={t('panels.rounds.playoffs')}
                   subtitle={t('panels.rounds.playoffsSubtitle')}
                 >
-                  {isPlayoffsConfigured ? (
-                    <VStack gap={3} align="stretch">
-                      {/* Bracket thumbnail */}
-                      <Box
-                        bg="white"
-                        borderRadius="xl"
-                        borderWidth="1.5px"
-                        borderColor="yellow.200"
-                        overflow="hidden"
-                        p={3}
-                      >
-                        <BracketVisualization
-                          teamCount={winnersPerGroup * groupCount}
-                          groupCount={groupCount}
-                          winnersPerGroup={winnersPerGroup || 2}
-                          thirdPlaceMatch={
-                            activeCategory?.thirdPlaceMatch ?? false
-                          }
-                          compact
-                        />
-                      </Box>
+                  <VStack gap={3} align="stretch">
+                    {isPlayoffsConfigured ? (
+                      <>
+                        {/* Bracket thumbnail */}
+                        <Box
+                          bg="white"
+                          borderRadius="xl"
+                          borderWidth="1.5px"
+                          borderColor="yellow.200"
+                          overflow="hidden"
+                          p={3}
+                        >
+                          <BracketVisualization
+                            teamCount={winnersPerGroup * groupCount}
+                            groupCount={groupCount}
+                            winnersPerGroup={winnersPerGroup || 2}
+                            thirdPlaceMatch={
+                              activeCategory?.thirdPlaceMatch ?? false
+                            }
+                            compact
+                          />
+                        </Box>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          leftIcon={<Edit size={14} />}
+                          onClick={() => setIsPlayoffsModalOpen(true)}
+                        >
+                          {t('panels.rounds.setupBracket')}
+                        </Button>
+                      </>
+                    ) : (
                       <Button
                         size="sm"
                         variant="outline"
-                        leftIcon={<Edit size={14} />}
+                        w="full"
                         onClick={() => setIsPlayoffsModalOpen(true)}
                       >
-                        {t('panels.rounds.setupBracket')}
+                        {t('panels.rounds.addBracket')}
                       </Button>
-                    </VStack>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      w="full"
-                      onClick={() => setIsPlayoffsModalOpen(true)}
-                    >
-                      {t('panels.rounds.addBracket')}
-                    </Button>
-                  )}
+                    )}
+                    <GenerateBracketSection
+                      hasGroupStage
+                      finishedGroupMatches={finishedGroupMatches}
+                      totalGroupMatches={totalGroupMatches}
+                      hasBracket={hasEliminationMatches}
+                      canGenerate={allGroupMatchesFinished}
+                      isLoading={isCompleting}
+                      onClick={() => setIsGenerateConfirmOpen(true)}
+                    />
+                  </VStack>
                 </StepperSection>
               )}
             </VStack>
@@ -807,6 +883,13 @@ export default function RoundsPanel({
               category={activeCategory}
               groupCount={groupCount || 2}
               onSaved={handleRefreshCategory}
+            />
+            <GenerateBracketConfirmModal
+              isOpen={isGenerateConfirmOpen}
+              onClose={() => setIsGenerateConfirmOpen(false)}
+              onConfirm={handleGenerateBracket}
+              isLoading={isCompleting}
+              hasBracket={hasEliminationMatches}
             />
           </>
         )}
@@ -1192,5 +1275,117 @@ function StepperSection({
         {children}
       </Box>
     </Box>
+  );
+}
+
+// ─── GenerateBracketSection ──────────────────────────────────────────────────
+// Triggers the backend completeGroupStage flow which generates the elimination
+// bracket (from group standings for RRSE, or from all registrations for SE).
+
+function GenerateBracketSection({
+  hasGroupStage,
+  finishedGroupMatches,
+  totalGroupMatches,
+  hasBracket,
+  canGenerate,
+  isLoading,
+  onClick,
+}: {
+  hasGroupStage: boolean;
+  finishedGroupMatches: number;
+  totalGroupMatches: number;
+  hasBracket: boolean;
+  canGenerate: boolean;
+  isLoading: boolean;
+  onClick: () => void;
+}) {
+  const t = useTranslations('pages.tournaments.detail.manage');
+
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="lg"
+      p={3}
+      bg="gray.50"
+    >
+      {hasGroupStage && totalGroupMatches > 0 && (
+        <Text
+          fontSize="xs"
+          fontWeight="medium"
+          color={canGenerate ? 'green.600' : 'gray.500'}
+          mb={2}
+        >
+          {t('panels.rounds.groupProgress', {
+            finished: finishedGroupMatches,
+            total: totalGroupMatches,
+          })}
+        </Text>
+      )}
+      {hasBracket && (
+        <Text fontSize="xs" color="orange.600" mb={2}>
+          {t('panels.rounds.overwriteWarning')}
+        </Text>
+      )}
+      <Button
+        size="sm"
+        w="full"
+        colorPalette={hasBracket ? 'orange' : 'green'}
+        variant={hasBracket ? 'outline' : 'solid'}
+        leftIcon={<Trophy size={14} />}
+        disabled={!canGenerate || isLoading}
+        loading={isLoading}
+        onClick={onClick}
+      >
+        {hasBracket
+          ? t('panels.rounds.regenerateBracket')
+          : t('panels.rounds.generatePlayoffs')}
+      </Button>
+      {!canGenerate && !hasBracket && (
+        <Text fontSize="xs" color="gray.400" mt={2} textAlign="center">
+          {t('panels.rounds.generateBracketLocked')}
+        </Text>
+      )}
+    </Box>
+  );
+}
+
+// ─── GenerateBracketConfirmModal ─────────────────────────────────────────────
+
+function GenerateBracketConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading,
+  hasBracket,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoading: boolean;
+  hasBracket: boolean;
+}) {
+  const t = useTranslations('pages.tournaments.detail.manage');
+
+  return (
+    <VModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('panels.rounds.confirmGenerateTitle')}
+      primaryActionText={t('panels.rounds.generatePlayoffs')}
+      onPrimaryAction={onConfirm}
+      isPrimaryLoading={isLoading}
+      primaryColorScheme={hasBracket ? 'orange' : 'green'}
+      secondaryActionText={t('panels.rounds.cancel')}
+    >
+      <Text fontSize="sm" color="gray.600">
+        {t('panels.rounds.confirmGenerateMessage')}
+      </Text>
+      {hasBracket && (
+        <Text fontSize="sm" color="orange.600" mt={2}>
+          {t('panels.rounds.overwriteWarning')}
+        </Text>
+      )}
+    </VModal>
   );
 }

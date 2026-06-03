@@ -39,6 +39,7 @@ import {
   LayoutGrid,
   CircleUserRound,
   SquarePen,
+  ClipboardList,
 } from 'lucide-react';
 import { AuthService } from '@/lib/api/auth.service';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
@@ -46,6 +47,7 @@ import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentScheduleTab from '@/components/tournament/PublicTournamentScheduleTab';
+import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import UserMenu from '@/components/ui/UserMenu';
 import NotificationBell from '@/components/ui/NotificationBell';
 import AiAssistantTopBarButton from '@/components/ui/AiAssistantTopBarButton';
@@ -101,6 +103,7 @@ export type TournamentSegment =
   | 'teams'
   | 'schedule'
   | 'standings'
+  | 'results'
   | 'manage'
   | 'dashboard';
 
@@ -111,6 +114,7 @@ const SEGMENT_TO_TAB: Record<TournamentSegment, number> = {
   standings: 3,
   manage: 4,
   dashboard: 5,
+  results: 6,
 };
 
 const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
@@ -120,6 +124,7 @@ const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
   3: 'standings',
   4: 'manage',
   5: 'dashboard',
+  6: 'results',
 };
 
 interface TournamentPageShellProps {
@@ -141,6 +146,7 @@ export default function TournamentPageShell({
   const [teamCategoryBlocks, setTeamCategoryBlocks] = useState<
     ITeamCategoryBlock[]
   >([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
 
   const isHost = useMemo(
     () => user?.id === tournament?.hostId,
@@ -153,6 +159,7 @@ export default function TournamentPageShell({
       { id: 1, label: t('tabs.teams'), icon: Users },
       { id: 2, label: t('tabs.schedule'), icon: CalendarDays },
       { id: 3, label: t('tabs.standings'), icon: BarChart3 },
+      { id: 6, label: t('tabs.results'), icon: ClipboardList },
       { id: 4, label: t('tabs.manage'), icon: Settings },
       { id: 5, label: t('tabs.dashboard'), icon: LayoutGrid },
     ];
@@ -293,6 +300,7 @@ export default function TournamentPageShell({
           CategoryService.getCategories(data.id),
           TournamentPlayerService.getPlayers(data.id),
         ]);
+        setAllCategories(categories);
         const tournamentPlayerIds = tournamentPlayers.map(
           (player) => player.id
         );
@@ -557,6 +565,13 @@ export default function TournamentPageShell({
           </Heading>
           <Text color="fg.muted">{t('comingSoon')}</Text>
         </>
+      )}
+      {activeTab === 6 && (
+        <ResultsPanel
+          tournament={tournament}
+          categories={allCategories}
+          canEdit={isHost}
+        />
       )}
       {activeTab === 4 && isHost && (
         <TournamentManage

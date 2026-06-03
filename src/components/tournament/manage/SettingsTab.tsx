@@ -10,7 +10,6 @@ import {
   Link,
   Image,
   FileText,
-  ClipboardList,
   Receipt,
   Copy,
   Trash2,
@@ -118,15 +117,6 @@ export default function SettingsTab({
         description={t('settings.rosters.description')}
         isActive={selectedItem === 'rosters'}
         onClick={() => onItemClick('rosters')}
-      />
-
-      {/* Results */}
-      <ManageMenuItem
-        icon={ClipboardList}
-        title={t('settings.results.title')}
-        description={t('settings.results.description')}
-        isActive={selectedItem === 'results'}
-        onClick={() => onItemClick('results')}
       />
 
       {/* Publishing Fee */}

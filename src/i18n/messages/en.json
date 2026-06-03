@@ -1469,6 +1469,7 @@
           "teams": "Teams",
           "schedule": "Schedule",
           "standings": "Standings",
+          "results": "Results",
           "manage": "Manage",
           "dashboard": "Dashboard"
         },
@@ -1793,6 +1794,7 @@
             "publish": "Publish tournament",
             "teams": "Teams",
             "players": "Players",
+            "results": "Results",
             "categories": "Categories",
             "format": "Format",
             "standings": "Standings",
@@ -1818,6 +1820,10 @@
             "players": {
               "title": "Players",
               "description": "Manage the player pool for this tournament"
+            },
+            "results": {
+              "title": "Results & scores",
+              "description": "Enter and review match scores"
             },
             "categories": {
               "title": "Categories"
@@ -1904,7 +1910,42 @@
                 "loadFailed": "Failed to load schedule data",
                 "previewLoadFailed": "Failed to load schedule preview",
                 "saveFailed": "Failed to save schedule",
-                "saveSuccess": "Saved {count} match(es)"
+                "saveSuccess": "Saved {count} match(es)",
+                "aiImport": {
+                  "button": "Import with AI",
+                  "drawerTitle": "Import schedule with AI",
+                  "tabText": "Paste text",
+                  "tabFile": "Upload CSV/Excel",
+                  "textareaPlaceholder": "Paste the schedule here (e.g. Men's Doubles - Match 1 - Court 1 - 08:00 25/01/2026 - 60 minutes)…",
+                  "dropzoneLabel": "Choose a .csv, .xlsx or .xls file",
+                  "parsedPreview": "Parsed content (you can edit before sending to AI):",
+                  "fileParsing": "Reading file…",
+                  "unsupportedFile": "Unsupported file format. Only .csv, .xlsx, .xls are accepted.",
+                  "textRequired": "Please enter or upload schedule content.",
+                  "aiHint": "AI will match against your existing categories and match numbers. You can preview and uncheck any rows before saving.",
+                  "extractBtn": "Extract with AI",
+                  "extracting": "Extracting…",
+                  "aiFailed": "AI could not extract the schedule. Please retry or edit the input.",
+                  "backToInput": "Back to input",
+                  "previewSummary": "{total} rows total • {included} will be saved • {issues} need attention",
+                  "previewEmpty": "AI could not recognize any rows.",
+                  "colCategory": "Category",
+                  "colMatch": "Match",
+                  "colCourt": "Court",
+                  "colTime": "Time",
+                  "colStatus": "Status",
+                  "status_ok": "OK",
+                  "status_noMatch": "Match not found",
+                  "status_noCourt": "Court not found",
+                  "status_invalidTime": "Missing date/time",
+                  "status_conflict": "Time conflict",
+                  "saveBtn": "Save {count} match(es)",
+                  "saving": "Saving…",
+                  "nothingToSave": "No valid rows to save.",
+                  "importSuccess": "Imported {count} match(es) from AI",
+                  "importFailed": "Failed to save schedule",
+                  "cancel": "Cancel"
+                }
               },
               "generate": {
                 "title": "Generate schedule",
@@ -2218,6 +2259,11 @@
               "points": "Points",
               "pointsPerWin": "points per match win",
               "pointsPerTie": "points per match tie",
+              "pointsPerLoss": "points per match loss",
+              "pointsPerGameWin": "points per game win",
+              "pointsPerGameLoss": "points per game loss",
+              "pointsPerForfeitWin": "points per forfeit win",
+              "pointsPerForfeitLoss": "points per forfeit loss",
               "required": "Required",
               "save": "Save",
               "cancel": "Cancel"
@@ -2348,7 +2394,16 @@
               "advancingTeamsSaveFailed": "Failed to save advancing teams",
               "groupLabel": "Group {number}",
               "poolLabel": "Pool",
-              "tbd": "TBD"
+              "tbd": "TBD",
+              "generatePlayoffs": "Generate bracket",
+              "regenerateBracket": "Regenerate bracket",
+              "groupProgress": "{finished}/{total} group matches finished",
+              "generateBracketLocked": "Finish all group matches to generate the bracket",
+              "overwriteWarning": "Regenerating will overwrite the existing bracket and its scores.",
+              "confirmGenerateTitle": "Generate playoff bracket?",
+              "confirmGenerateMessage": "This locks in the advancing teams from the standings and creates the elimination matches.",
+              "bracketGenerated": "Bracket generated",
+              "generateBracketFailed": "Failed to generate bracket"
             },
             "venues": {
               "title": "Venues",

@@ -446,12 +446,17 @@ export const CategoryService = {
     return response.data.data || [];
   },
 
-  // Complete group stage
-  completeGroupStage: async (categoryId: string): Promise<unknown> => {
+  // Complete group stage / generate the elimination bracket
+  completeGroupStage: async (
+    categoryId: string,
+    options?: { showToast?: boolean }
+  ): Promise<unknown> => {
     const response = await api.post<ApiResponse<unknown>>(
       `/categories/${categoryId}/complete-group-stage`
     );
-    toaster.success({ title: 'Group stage completed successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Group stage completed successfully' });
+    }
     return response.data.data!;
   },
 

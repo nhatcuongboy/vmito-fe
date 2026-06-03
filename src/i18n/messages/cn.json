@@ -1447,6 +1447,7 @@
           "teams": "队伍",
           "schedule": "赛程",
           "standings": "排名",
+          "results": "成绩",
           "manage": "管理",
           "dashboard": "仪表板"
         },
@@ -1771,6 +1772,7 @@
             "publish": "发布锦标赛",
             "teams": "队伍",
             "players": "选手",
+            "results": "成绩",
             "categories": "类别",
             "format": "赛制",
             "standings": "排名",
@@ -1796,6 +1798,10 @@
             "players": {
               "title": "选手",
               "description": "管理本赛事的选手名单"
+            },
+            "results": {
+              "title": "成绩与比分",
+              "description": "录入和查看比赛比分"
             },
             "categories": {
               "title": "类别"
@@ -1882,7 +1888,42 @@
                 "loadFailed": "加载赛程数据失败",
                 "previewLoadFailed": "加载赛程预览失败",
                 "saveFailed": "保存赛程失败",
-                "saveSuccess": "已保存 {count} 场比赛"
+                "saveSuccess": "已保存 {count} 场比赛",
+                "aiImport": {
+                  "button": "使用 AI 导入",
+                  "drawerTitle": "使用 AI 导入赛程",
+                  "tabText": "粘贴文本",
+                  "tabFile": "上传 CSV/Excel",
+                  "textareaPlaceholder": "在此粘贴赛程（例如：男双 - 第 1 场 - 1 号场地 - 08:00 25/01/2026 - 60 分钟）…",
+                  "dropzoneLabel": "选择 .csv、.xlsx 或 .xls 文件",
+                  "parsedPreview": "解析后的内容（发送给 AI 之前可编辑）：",
+                  "fileParsing": "正在读取文件…",
+                  "unsupportedFile": "不支持的文件格式。仅接受 .csv、.xlsx、.xls。",
+                  "textRequired": "请输入或上传赛程内容。",
+                  "aiHint": "AI 将与现有类别和场次进行匹配。保存前可预览并取消勾选不需要的行。",
+                  "extractBtn": "使用 AI 提取",
+                  "extracting": "正在提取…",
+                  "aiFailed": "AI 无法提取赛程。请重试或编辑输入内容。",
+                  "backToInput": "返回输入",
+                  "previewSummary": "共 {total} 行 • {included} 将被保存 • {issues} 需要注意",
+                  "previewEmpty": "AI 未能识别任何行。",
+                  "colCategory": "类别",
+                  "colMatch": "场次",
+                  "colCourt": "场地",
+                  "colTime": "时间",
+                  "colStatus": "状态",
+                  "status_ok": "正常",
+                  "status_noMatch": "未找到比赛",
+                  "status_noCourt": "未找到场地",
+                  "status_invalidTime": "缺少日期/时间",
+                  "status_conflict": "时间冲突",
+                  "saveBtn": "保存 {count} 场比赛",
+                  "saving": "正在保存…",
+                  "nothingToSave": "没有可保存的有效行。",
+                  "importSuccess": "已通过 AI 导入 {count} 场比赛",
+                  "importFailed": "保存赛程失败",
+                  "cancel": "取消"
+                }
               },
               "generate": {
                 "title": "生成赛程",
@@ -2196,6 +2237,11 @@
               "points": "积分",
               "pointsPerWin": "分/胜",
               "pointsPerTie": "分/平",
+              "pointsPerLoss": "分/负",
+              "pointsPerGameWin": "分/局胜",
+              "pointsPerGameLoss": "分/局负",
+              "pointsPerForfeitWin": "分/弃赛胜",
+              "pointsPerForfeitLoss": "分/弃赛负",
               "required": "必填",
               "save": "保存",
               "cancel": "取消"
@@ -2326,7 +2372,16 @@
               "advancingTeamsSaveFailed": "保存晋级队伍失败",
               "groupLabel": "小组 {number}",
               "poolLabel": "小组",
-              "tbd": "待定"
+              "tbd": "待定",
+              "generatePlayoffs": "生成对阵表",
+              "regenerateBracket": "重新生成对阵表",
+              "groupProgress": "小组赛已完成 {finished}/{total} 场",
+              "generateBracketLocked": "完成所有小组赛后才能生成对阵表",
+              "overwriteWarning": "重新生成将覆盖现有对阵表及其比分。",
+              "confirmGenerateTitle": "生成淘汰赛对阵表？",
+              "confirmGenerateMessage": "此操作将根据排名锁定晋级队伍并创建淘汰赛对阵。",
+              "bracketGenerated": "对阵表已生成",
+              "generateBracketFailed": "生成对阵表失败"
             },
             "venues": {
               "title": "比赛场馆",

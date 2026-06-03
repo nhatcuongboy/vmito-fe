@@ -5,7 +5,7 @@ import { Flex, Text, Spinner } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { List, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
+import { List, Calendar as CalendarIcon, Sparkles, Wand2 } from 'lucide-react';
 import {
   Tournament,
   Category,
@@ -24,6 +24,7 @@ import EditMatchTimeSheet from './EditMatchTimeSheet';
 import GenerateScheduleDrawerV2 from './GenerateScheduleDrawerV2';
 import GenerationResultModal from './GenerationResultModal';
 import SchedulePreviewDrawer from './SchedulePreviewDrawer';
+import AIImportScheduleDrawer from './AIImportScheduleDrawer';
 import { IGenerateScheduleResult } from '@/utils/schedule-generator';
 
 type ViewMode = 'list' | 'calendar';
@@ -60,6 +61,7 @@ export default function ManageScheduleModal({
 
   const generateDrawerModal = useModal();
   const resultModal = useModal();
+  const aiImportModal = useModal();
   const [generationResult, setGenerationResult] =
     useState<IGenerateScheduleResult | null>(null);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
@@ -379,6 +381,15 @@ export default function ManageScheduleModal({
               <Sparkles size={14} />
               {t('generate')}
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="purple"
+              onClick={aiImportModal.onOpen}
+            >
+              <Wand2 size={14} />
+              {t('aiImport.button')}
+            </Button>
           </Flex>
           <Button variant="outline" size="sm" onClick={handleCancel}>
             {t('close')}
@@ -532,6 +543,29 @@ export default function ManageScheduleModal({
             ]);
           } catch {
             toaster.error({ title: t('updateFailed') });
+          }
+        }}
+      />
+      {/* AI Import Schedule Drawer */}
+      <AIImportScheduleDrawer
+        isOpen={aiImportModal.isOpen}
+        onClose={aiImportModal.onClose}
+        tournamentId={tournament.id}
+        categories={categories}
+        courts={courts}
+        matches={allMatches}
+        onImported={async () => {
+          try {
+            const matchesData = await TournamentService.getAllMatches(
+              tournament.id
+            );
+            setAllMatches(matchesData);
+            setDirtyMatches(new Map());
+            setManualEntry(true);
+            setViewMode('list');
+            onScheduleSaved?.();
+          } catch {
+            // ignore reload error - toast already shown by drawer
           }
         }}
       />

@@ -14,6 +14,8 @@ import ManualScoreModal from './ManualScoreModal';
 interface Props {
   tournament: Tournament;
   categories: Category[];
+  /** When false, results are read-only (no score entry). Defaults to true. */
+  canEdit?: boolean;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -23,7 +25,11 @@ const STATUS_COLOR: Record<string, string> = {
   CANCELLED: 'red',
 };
 
-export default function ResultsPanel({ tournament, categories }: Props) {
+export default function ResultsPanel({
+  tournament,
+  categories,
+  canEdit = true,
+}: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
 
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
@@ -127,7 +133,7 @@ export default function ResultsPanel({ tournament, categories }: Props) {
                         </Text>
                       </Box>
 
-                      {finished ? (
+                      {finished || !canEdit ? (
                         <Text
                           fontWeight="semibold"
                           fontSize="sm"
@@ -153,12 +159,14 @@ export default function ResultsPanel({ tournament, categories }: Props) {
         </VStack>
       )}
 
-      <ManualScoreModal
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        match={selected}
-        onSaved={() => void load()}
-      />
+      {canEdit && (
+        <ManualScoreModal
+          isOpen={!!selected}
+          onClose={() => setSelected(null)}
+          match={selected}
+          onSaved={() => void load()}
+        />
+      )}
     </Box>
   );
 }

@@ -67,6 +67,17 @@ export default function StandingsPanel({
     (rrConfig.winPoints as number) ?? DEFAULT_RR_CONFIG.winPoints;
   const tiePoints =
     (rrConfig.tiePoints as number) ?? DEFAULT_RR_CONFIG.tiePoints;
+  const lossPoints =
+    (rrConfig.lossPoints as number) ?? DEFAULT_RR_CONFIG.lossPoints;
+  const forfeitWinPoints =
+    (rrConfig.forfeitWinPoints as number) ?? DEFAULT_RR_CONFIG.forfeitWinPoints;
+  const forfeitLossPoints =
+    (rrConfig.forfeitLossPoints as number) ??
+    DEFAULT_RR_CONFIG.forfeitLossPoints;
+  const gameWinPoints =
+    (rrConfig.gameWinPoints as number) ?? DEFAULT_RR_CONFIG.gameWinPoints;
+  const gameLossPoints =
+    (rrConfig.gameLossPoints as number) ?? DEFAULT_RR_CONFIG.gameLossPoints;
   const tiebreakers =
     (rrConfig.tiebreakers as TiebreakerItem[]) ?? DEFAULT_TIEBREAKERS;
   const statistics =
@@ -209,6 +220,31 @@ export default function StandingsPanel({
           <Text fontSize="sm" color="gray.600">
             • {tiePoints} {t('panels.standings.pointsPerTie')}
           </Text>
+          {lossPoints > 0 && (
+            <Text fontSize="sm" color="gray.600">
+              • {lossPoints} {t('panels.standings.pointsPerLoss')}
+            </Text>
+          )}
+          {gameWinPoints > 0 && (
+            <Text fontSize="sm" color="gray.600">
+              • {gameWinPoints} {t('panels.standings.pointsPerGameWin')}
+            </Text>
+          )}
+          {gameLossPoints > 0 && (
+            <Text fontSize="sm" color="gray.600">
+              • {gameLossPoints} {t('panels.standings.pointsPerGameLoss')}
+            </Text>
+          )}
+          {forfeitWinPoints > 0 && (
+            <Text fontSize="sm" color="gray.600">
+              • {forfeitWinPoints} {t('panels.standings.pointsPerForfeitWin')}
+            </Text>
+          )}
+          {forfeitLossPoints > 0 && (
+            <Text fontSize="sm" color="gray.600">
+              • {forfeitLossPoints} {t('panels.standings.pointsPerForfeitLoss')}
+            </Text>
+          )}
         </VStack>
       </Box>
 

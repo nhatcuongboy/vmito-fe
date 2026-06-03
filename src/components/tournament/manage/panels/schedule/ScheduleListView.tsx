@@ -107,107 +107,120 @@ export default function ScheduleListView({
             <Text fontWeight="semibold">{category.name}</Text>
           </Flex>
 
-          {/* Table header */}
+          {/* Horizontally scrollable table on narrow viewports */}
           <Box
-            display="grid"
-            gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
-            gap={2}
-            px={3}
-            py={2}
-            bg="gray.50"
-            borderRadius="lg"
-            mb={1}
+            overflowX="auto"
+            mx={{ base: -2, md: 0 }}
+            px={{ base: 2, md: 0 }}
           >
-            <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-              #
-            </Text>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-              {t('round')}
-            </Text>
-            <Text
-              fontSize="xs"
-              fontWeight="semibold"
-              color="gray.500"
-              textAlign="right"
-            >
-              {t('team1')}
-            </Text>
-            <Box /> {/* VS column */}
-            <Text
-              fontSize="xs"
-              fontWeight="semibold"
-              color="gray.500"
-              textAlign="left"
-            >
-              {t('team2')}
-            </Text>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-              {t('time')}
-            </Text>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-              {t('court')}
-            </Text>
-            <Box />
-          </Box>
-
-          {/* Match rows */}
-          <VStack gap={0} align="stretch">
-            {catMatches.map((match) => (
+            <Box minW={{ base: '720px', md: 'auto' }}>
+              {/* Table header */}
               <Box
-                key={match.id}
                 display="grid"
                 gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
                 gap={2}
                 px={3}
-                py={3}
-                borderBottomWidth="1px"
-                borderColor="gray.100"
-                _hover={{ bg: 'gray.50' }}
-                alignItems="center"
+                py={2}
+                bg="gray.50"
+                borderRadius="lg"
+                mb={1}
               >
-                <Text fontSize="sm" color="gray.500">
-                  {match.matchNumber}
+                <Text fontSize="xs" fontWeight="semibold" color="gray.500">
+                  #
                 </Text>
-                <Text fontSize="xs" color="gray.600" fontWeight="medium">
-                  {getRoundLabel(match.round)}
-                </Text>
-                <Text fontSize="sm" fontWeight="medium" textAlign="right">
-                  {getTeamLabel(match, 1)}
-                </Text>
-                <Flex justify="center" align="center">
-                  <Text fontSize="xs" color="gray.400" fontWeight="bold">
-                    VS
-                  </Text>
-                </Flex>
-                <Text fontSize="sm" fontWeight="medium" textAlign="left">
-                  {getTeamLabel(match, 2)}
+                <Text fontSize="xs" fontWeight="semibold" color="gray.500">
+                  {t('round')}
                 </Text>
                 <Text
-                  fontSize="sm"
-                  color={match.startTime ? 'gray.700' : 'gray.400'}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  textAlign="right"
                 >
-                  {match.startTime ? formatMatchTime(match) : t('noTime')}
+                  {t('team1')}
                 </Text>
+                <Box /> {/* VS column */}
                 <Text
-                  fontSize="sm"
-                  color={match.courtId ? 'gray.700' : 'gray.400'}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  textAlign="left"
                 >
-                  {match.courtId ? getCourtLabel(match.courtId) : t('noCourt')}
+                  {t('team2')}
                 </Text>
-                {onEditMatch ? (
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    onClick={() => onEditMatch(match.id)}
-                  >
-                    <Edit size={14} />
-                  </Button>
-                ) : (
-                  <Box />
-                )}
+                <Text fontSize="xs" fontWeight="semibold" color="gray.500">
+                  {t('time')}
+                </Text>
+                <Text fontSize="xs" fontWeight="semibold" color="gray.500">
+                  {t('court')}
+                </Text>
+                <Box />
               </Box>
-            ))}
-          </VStack>
+
+              {/* Match rows */}
+              <VStack gap={0} align="stretch">
+                {catMatches.map((match) => (
+                  <Box
+                    key={match.id}
+                    display="grid"
+                    gridTemplateColumns="40px 80px 1fr 40px 1fr 2fr 1.5fr 40px"
+                    gap={2}
+                    px={3}
+                    py={3}
+                    borderBottomWidth="1px"
+                    borderColor="gray.100"
+                    _hover={{ bg: 'gray.50' }}
+                    alignItems="center"
+                  >
+                    <Text fontSize="sm" color="gray.500">
+                      {match.matchNumber}
+                    </Text>
+                    <Text fontSize="xs" color="gray.600" fontWeight="medium">
+                      {getRoundLabel(match.round)}
+                    </Text>
+                    <Text fontSize="sm" fontWeight="medium" textAlign="right">
+                      {getTeamLabel(match, 1)}
+                    </Text>
+                    <Flex justify="center" align="center">
+                      <Text fontSize="xs" color="gray.400" fontWeight="bold">
+                        VS
+                      </Text>
+                    </Flex>
+                    <Text fontSize="sm" fontWeight="medium" textAlign="left">
+                      {getTeamLabel(match, 2)}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      color={match.startTime ? 'gray.700' : 'gray.400'}
+                      whiteSpace="nowrap"
+                    >
+                      {match.startTime ? formatMatchTime(match) : t('noTime')}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      color={match.courtId ? 'gray.700' : 'gray.400'}
+                      whiteSpace="nowrap"
+                    >
+                      {match.courtId
+                        ? getCourtLabel(match.courtId)
+                        : t('noCourt')}
+                    </Text>
+                    {onEditMatch ? (
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => onEditMatch(match.id)}
+                      >
+                        <Edit size={14} />
+                      </Button>
+                    ) : (
+                      <Box />
+                    )}
+                  </Box>
+                ))}
+              </VStack>
+            </Box>
+          </Box>
         </Box>
       ))}
     </VStack>
