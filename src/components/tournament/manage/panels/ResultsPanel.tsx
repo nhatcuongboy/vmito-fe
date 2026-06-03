@@ -1234,7 +1234,10 @@ export function getActiveFilterCount(filters: ResultFilters) {
   );
 }
 
-export function formatCourtLabel(court: TournamentCourt, courtPrefix: string) {
+export function formatCourtLabel(
+  court: { courtNumber: number; courtName?: string | null },
+  courtPrefix: string
+) {
   return court.courtName || `${courtPrefix} ${court.courtNumber}`;
 }
 

@@ -4,6 +4,7 @@ import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { ScoreboardMatch } from '@/lib/api/types';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
+import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
 
 interface Props {
   match: ScoreboardMatch;
@@ -72,7 +73,7 @@ export default function LiveMatchCard({
         <Flex align="center" gap={2}>
           {match.court && (
             <Badge colorPalette="blue" fontSize="sm">
-              {t('court')} {match.court.courtNumber}
+              {formatCourtLabel(match.court, t('court'))}
             </Badge>
           )}
           <Text fontSize="sm" color="gray.400" truncate>

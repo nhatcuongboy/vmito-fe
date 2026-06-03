@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { Maximize, Minimize, Share2, Users, Wifi, WifiOff } from 'lucide-react';
 import { TournamentCourt } from '@/lib/api/types';
+import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
 
 interface Props {
   courts: TournamentCourt[];
@@ -65,7 +66,7 @@ export default function ScoreboardControls({
             active={selectedCourtIds.includes(court.id)}
             onClick={() => onToggleCourt(court.id)}
           >
-            {t('court')} {court.courtNumber}
+            {formatCourtLabel(court, t('court'))}
           </ChipButton>
         ))}
       </Flex>
