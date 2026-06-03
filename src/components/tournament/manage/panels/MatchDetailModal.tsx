@@ -35,6 +35,8 @@ interface Props {
   roundOrGroupLabel: string;
   /** Pre-formatted court label (e.g. "R · Court 1"). */
   courtLabel?: string;
+  /** All category matches, used to resolve empty elimination slots to feeders. */
+  allMatches?: CategoryMatch[];
   canEdit: boolean;
   onEditResult: (match: CategoryMatch) => void;
   onDeleteMatch: (match: CategoryMatch) => void;
@@ -49,6 +51,7 @@ export default function MatchDetailModal({
   categoryName,
   roundOrGroupLabel,
   courtLabel,
+  allMatches,
   canEdit,
   onEditResult,
   onDeleteMatch,
@@ -69,8 +72,8 @@ export default function MatchDetailModal({
 
   if (!match) return null;
 
-  const team1 = getTeamLabel(match, 1);
-  const team2 = getTeamLabel(match, 2);
+  const team1 = getTeamLabel(match, 1, allMatches);
+  const team2 = getTeamLabel(match, 2, allMatches);
   const score1 = totalScore(match, 1);
   const score2 = totalScore(match, 2);
   const win1 = isWinner(match, 1);

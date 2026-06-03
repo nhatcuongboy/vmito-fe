@@ -400,6 +400,7 @@ export default function ResultsPanel({
           onSelect={openMatch}
           resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
           courtAbbreviation={courtAbbreviation}
+          allMatches={matches}
         />
       ) : (
         <VStack align="stretch" gap={6}>
@@ -431,6 +432,7 @@ export default function ResultsPanel({
                     onSelect={openMatch}
                     roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                     courtAbbreviation={courtAbbreviation}
+                    allMatches={matches}
                   />
                 ))}
               </VStack>
@@ -473,6 +475,7 @@ export default function ResultsPanel({
               )
             : undefined
         }
+        allMatches={matches}
         canEdit={canEdit}
         onEditResult={(m) => {
           setDetailMatch(null);
@@ -534,6 +537,7 @@ export function ResultMatchCard({
   compact = false,
   roundOrGroupLabel,
   courtAbbreviation,
+  allMatches,
 }: {
   match: CategoryMatch;
   /** Kept for call-site compatibility (e.g. referee list); not rendered. */
@@ -546,13 +550,15 @@ export function ResultMatchCard({
   roundOrGroupLabel?: string;
   /** Venue acronym prefixed to the court (e.g. "R · Court 1"). */
   courtAbbreviation?: string;
+  /** All category matches, used to resolve empty elimination slots to feeders. */
+  allMatches?: CategoryMatch[];
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const accent = getMatchAccent(match);
 
-  const team1 = getTeamLabel(match, 1);
-  const team2 = getTeamLabel(match, 2);
+  const team1 = getTeamLabel(match, 1, allMatches);
+  const team2 = getTeamLabel(match, 2, allMatches);
   const win1 = match.winnerId === getRegistrationId(match, 1);
   const win2 = match.winnerId === getRegistrationId(match, 2);
   const topLabel =
@@ -711,6 +717,7 @@ function ResultsCalendarView({
   onSelect,
   resolveRoundOrGroupLabel,
   courtAbbreviation,
+  allMatches,
 }: {
   matches: CategoryMatch[];
   courts: TournamentCourt[];
@@ -718,6 +725,7 @@ function ResultsCalendarView({
   onSelect: (match: CategoryMatch) => void;
   resolveRoundOrGroupLabel: (match: CategoryMatch) => string;
   courtAbbreviation?: string;
+  allMatches: CategoryMatch[];
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const locale = useLocale();
@@ -865,6 +873,7 @@ function ResultsCalendarView({
                             onSelect={onSelect}
                             roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                             courtAbbreviation={courtAbbreviation}
+                            allMatches={allMatches}
                             compact
                           />
                         ))}

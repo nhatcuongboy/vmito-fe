@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import { Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -157,15 +157,18 @@ function getWinnerPosition(match: CategoryMatch): number | undefined {
   )?.position;
 }
 
-function toDisplayMatch(match: CategoryMatch): BracketDisplayMatch {
+function toDisplayMatch(
+  match: CategoryMatch,
+  allMatches: CategoryMatch[]
+): BracketDisplayMatch {
   return {
     id: match.id,
     round: match.round,
     matchNumber: match.matchNumber,
     status: match.status,
     score: match.score,
-    side1Label: getTeamLabel(match, 1),
-    side2Label: getTeamLabel(match, 2),
+    side1Label: getTeamLabel(match, 1, allMatches),
+    side2Label: getTeamLabel(match, 2, allMatches),
     winnerPosition: getWinnerPosition(match),
     isFinished: match.status === MatchStatus.FINISHED,
   };
@@ -261,7 +264,8 @@ export default function PublicTournamentBracket({
   t,
 }: PublicTournamentBracketProps) {
   const displayMatches = useMemo(() => {
-    if (matches.length > 0) return matches.map(toDisplayMatch);
+    if (matches.length > 0)
+      return matches.map((match) => toDisplayMatch(match, matches));
     return buildPreviewMatches({ category, groupStageMatchCount, t });
   }, [category, groupStageMatchCount, matches, t]);
 
@@ -295,6 +299,68 @@ export default function PublicTournamentBracket({
     }));
   }, [displayMatches, t]);
 
+  // Main bracket columns drive the winner-advancement connectors. The 3rd-place
+  // match is a standalone consolation column, so it is excluded from the lines.
+  const mainColumns = useMemo(
+    () => columns.filter((column) => column.round !== THIRD_PLACE_ROUND),
+    [columns]
+  );
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [connectors, setConnectors] = useState<string[]>([]);
+  const [svgSize, setSvgSize] = useState({ width: 0, height: 0 });
+
+  // Draw an elbow from each feeder match's right edge into the centre of the
+  // match it advances to. Positions are measured so the lines stay aligned
+  // regardless of card heights or bracket depth.
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const computeConnectors = () => {
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const measure = (id: string) => {
+        const el = wrapper.querySelector<HTMLElement>(
+          `[data-bracket-match="${id}"]`
+        );
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        return {
+          left: rect.left - wrapperRect.left,
+          right: rect.right - wrapperRect.left,
+          centerY: rect.top - wrapperRect.top + rect.height / 2,
+        };
+      };
+
+      const paths: string[] = [];
+      for (let ci = 1; ci < mainColumns.length; ci++) {
+        const feeders = mainColumns[ci - 1].items;
+        const targets = mainColumns[ci].items;
+        targets.forEach((target, index) => {
+          const targetBox = measure(target.id);
+          if (!targetBox) return;
+          [feeders[index * 2], feeders[index * 2 + 1]].forEach((feeder) => {
+            if (!feeder) return;
+            const feederBox = measure(feeder.id);
+            if (!feederBox) return;
+            const midX = (feederBox.right + targetBox.left) / 2;
+            paths.push(
+              `M ${feederBox.right} ${feederBox.centerY} H ${midX} V ${targetBox.centerY} H ${targetBox.left}`
+            );
+          });
+        });
+      }
+
+      setSvgSize({ width: wrapper.scrollWidth, height: wrapper.scrollHeight });
+      setConnectors(paths);
+    };
+
+    computeConnectors();
+    const observer = new ResizeObserver(computeConnectors);
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, [mainColumns]);
+
   if (columns.length === 0) {
     return (
       <Text color="gray.500" fontSize="sm">
@@ -305,32 +371,61 @@ export default function PublicTournamentBracket({
 
   return (
     <Box overflowX="auto" pb={2}>
-      <Flex gap={{ base: 4, md: 6 }} align="stretch" minW="fit-content">
-        {columns.map((column) => (
-          <Flex
-            key={column.round}
-            direction="column"
-            justify="space-around"
-            gap={3}
-            minW={{ base: '190px', md: '220px' }}
-          >
-            <Text
-              fontSize="xs"
-              fontWeight="700"
-              textTransform="uppercase"
-              letterSpacing="0.04em"
-              color="gray.500"
-              _dark={{ color: 'gray.400' }}
-              mb={1}
+      <Box ref={wrapperRef} position="relative" minW="fit-content">
+        <svg
+          width={svgSize.width}
+          height={svgSize.height}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        >
+          {connectors.map((path, index) => (
+            <path
+              key={index}
+              d={path}
+              fill="none"
+              stroke="#CBD5E0"
+              strokeWidth={2}
+            />
+          ))}
+        </svg>
+        <Flex
+          gap={{ base: 4, md: 6 }}
+          align="stretch"
+          minW="fit-content"
+          position="relative"
+          zIndex={1}
+        >
+          {columns.map((column) => (
+            <Flex
+              key={column.round}
+              direction="column"
+              justify="space-around"
+              gap={3}
+              minW={{ base: '190px', md: '220px' }}
             >
-              {column.label}
-            </Text>
-            {column.items.map((match) => (
-              <BracketMatchCard key={match.id} match={match} t={t} />
-            ))}
-          </Flex>
-        ))}
-      </Flex>
+              <Text
+                fontSize="xs"
+                fontWeight="700"
+                textTransform="uppercase"
+                letterSpacing="0.04em"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                mb={1}
+              >
+                {column.label}
+              </Text>
+              {column.items.map((match) => (
+                <BracketMatchCard key={match.id} match={match} t={t} />
+              ))}
+            </Flex>
+          ))}
+        </Flex>
+      </Box>
     </Box>
   );
 }
@@ -344,6 +439,7 @@ function BracketMatchCard({
 }) {
   return (
     <Box
+      data-bracket-match={match.id}
       borderWidth="1px"
       borderColor="gray.200"
       borderRadius="lg"
