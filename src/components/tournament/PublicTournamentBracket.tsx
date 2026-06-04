@@ -11,7 +11,16 @@ import {
   CategoryMatch,
   MatchStatus,
 } from '@/lib/api/types';
-import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import {
+  ROUND_ORDER,
+  THIRD_PLACE_ROUND,
+  getRoundCode,
+  nextPowerOf2,
+  resolveConfiguredSlots,
+  resolveMatchSideLabel,
+  type SlotLabels,
+} from '@/lib/tournament/bracketSlots';
+import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 
 interface PublicTournamentBracketProps {
   // Playoff (elimination) matches of a single category.
@@ -33,12 +42,6 @@ interface BracketDisplayMatch {
   isFinished: boolean;
 }
 
-// Left-to-right column order of an elimination bracket. The 3rd-place match is
-// rendered as a trailing column (handled separately).
-const ROUND_ORDER = ['R128', 'R64', 'R32', 'R16', 'QF', 'SF', 'F'];
-const THIRD_PLACE_ROUND = '3RD';
-const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-
 function getRoundLabel(round: string, t: ReturnType<typeof useTranslations>) {
   const normalized = round.toUpperCase();
   if (normalized === 'F') return t('playoffsRounds.final');
@@ -46,108 +49,6 @@ function getRoundLabel(round: string, t: ReturnType<typeof useTranslations>) {
   if (normalized === 'QF') return t('playoffsRounds.quarterFinals');
   if (normalized === THIRD_PLACE_ROUND) return t('playoffsRounds.thirdPlace');
   return round;
-}
-
-function nextPowerOf2(n: number): number {
-  let power = 1;
-  while (power < n) power *= 2;
-  return power;
-}
-
-function getRoundCode(roundIndex: number, totalRounds: number): string {
-  const fromFinal = totalRounds - 1 - roundIndex;
-  if (fromFinal === 0) return 'F';
-  if (fromFinal === 1) return 'SF';
-  if (fromFinal === 2) return 'QF';
-  return `R${2 ** (fromFinal + 1)}`;
-}
-
-function getOrdinalLabel(rank: number, t: ReturnType<typeof useTranslations>) {
-  const oneBased = rank + 1;
-  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
-  return t(`ordinals.${key}`, { rank: oneBased });
-}
-
-function generateAdvancingSlots(
-  groupCount: number,
-  winnersPerGroup: number,
-  t: ReturnType<typeof useTranslations>
-): string[] {
-  const slots: string[] = [];
-  for (let rank = 0; rank < winnersPerGroup; rank++) {
-    for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
-      slots.push(
-        t('nthPoolLabel', {
-          rank: getOrdinalLabel(rank, t),
-          pool: POOL_LABELS[groupIndex] ?? String(groupIndex + 1),
-        })
-      );
-    }
-  }
-  return slots;
-}
-
-function generateStandardSeeding(bracketSize: number): number[] {
-  if (bracketSize === 1) return [1];
-  const half = generateStandardSeeding(bracketSize / 2);
-  const result: number[] = [];
-  for (const seed of half) {
-    result.push(seed);
-    result.push(bracketSize + 1 - seed);
-  }
-  return result;
-}
-
-function computeDefaultSlots(
-  groupCount: number,
-  winnersPerGroup: number,
-  t: ReturnType<typeof useTranslations>
-): string[] {
-  const advancingSlots = generateAdvancingSlots(groupCount, winnersPerGroup, t);
-  if (advancingSlots.length < 2) return [];
-
-  const bracketSize = nextPowerOf2(advancingSlots.length);
-  const seedOrder = generateStandardSeeding(bracketSize);
-  const slots = new Array<string>(bracketSize).fill('');
-
-  for (let position = 0; position < bracketSize; position++) {
-    const seed = seedOrder[position];
-    slots[position] =
-      seed <= advancingSlots.length ? advancingSlots[seed - 1] : '';
-  }
-
-  return slots;
-}
-
-function resolveConfiguredSlots(
-  category: Category,
-  groupCount: number,
-  winnersPerGroup: number,
-  t: ReturnType<typeof useTranslations>
-): string[] {
-  const defaultSlots = computeDefaultSlots(groupCount, winnersPerGroup, t);
-  const config = category.formatConfig as Record<string, unknown> | undefined;
-  const playoffs = config?.playoffs as Record<string, unknown> | undefined;
-  const singleElimination = config?.singleElimination as
-    | Record<string, unknown>
-    | undefined;
-  const customSlots =
-    category.format === CategoryFormat.SINGLE_ELIMINATION
-      ? (singleElimination?.seedOrder as string[] | undefined)
-      : (playoffs?.seedOrder as string[] | undefined);
-
-  if (!customSlots?.length) return defaultSlots;
-  if (category.format === CategoryFormat.SINGLE_ELIMINATION) return customSlots;
-
-  const validSlots = new Set(
-    generateAdvancingSlots(groupCount, winnersPerGroup, t)
-  );
-  const hasStaleSlot = customSlots.some(
-    (slot) => slot && !validSlots.has(slot)
-  );
-  return hasStaleSlot || customSlots.length !== defaultSlots.length
-    ? defaultSlots
-    : customSlots;
 }
 
 function getWinnerPosition(match: CategoryMatch): number | undefined {
@@ -159,7 +60,9 @@ function getWinnerPosition(match: CategoryMatch): number | undefined {
 
 function toDisplayMatch(
   match: CategoryMatch,
-  allMatches: CategoryMatch[]
+  allMatches: CategoryMatch[],
+  category: Category,
+  labels: SlotLabels
 ): BracketDisplayMatch {
   return {
     id: match.id,
@@ -167,8 +70,16 @@ function toDisplayMatch(
     matchNumber: match.matchNumber,
     status: match.status,
     score: match.score,
-    side1Label: getTeamLabel(match, 1, allMatches),
-    side2Label: getTeamLabel(match, 2, allMatches),
+    side1Label: resolveMatchSideLabel(match, 1, {
+      allMatches,
+      category,
+      labels,
+    }),
+    side2Label: resolveMatchSideLabel(match, 2, {
+      allMatches,
+      category,
+      labels,
+    }),
     winnerPosition: getWinnerPosition(match),
     isFinished: match.status === MatchStatus.FINISHED,
   };
@@ -177,11 +88,11 @@ function toDisplayMatch(
 function buildPreviewMatches({
   category,
   groupStageMatchCount,
-  t,
+  labels,
 }: {
   category: Category;
   groupStageMatchCount: number;
-  t: ReturnType<typeof useTranslations>;
+  labels: SlotLabels;
 }): BracketDisplayMatch[] {
   const isSingleElimination =
     category.format === CategoryFormat.SINGLE_ELIMINATION;
@@ -211,7 +122,7 @@ function buildPreviewMatches({
     category,
     groupCount,
     winnersPerGroup,
-    t
+    labels
   );
   const previewMatches: BracketDisplayMatch[] = [];
 
@@ -222,12 +133,12 @@ function buildPreviewMatches({
     for (let index = 0; index < currentRound.length; index++) {
       const side1Label =
         roundIndex === 0
-          ? slots[index * 2] || t('bye')
-          : t('winnerOf', { match: previousRound[index * 2] });
+          ? slots[index * 2] || labels.bye()
+          : labels.winnerOf(previousRound[index * 2]);
       const side2Label =
         roundIndex === 0
-          ? slots[index * 2 + 1] || t('bye')
-          : t('winnerOf', { match: previousRound[index * 2 + 1] });
+          ? slots[index * 2 + 1] || labels.bye()
+          : labels.winnerOf(previousRound[index * 2 + 1]);
 
       previewMatches.push({
         id: `preview-${currentRound[index]}`,
@@ -248,8 +159,8 @@ function buildPreviewMatches({
       round: THIRD_PLACE_ROUND,
       matchNumber,
       status: MatchStatus.SCHEDULED,
-      side1Label: t('loserOf', { match: semiFinalNumbers[0] }),
-      side2Label: t('loserOf', { match: semiFinalNumbers[1] }),
+      side1Label: labels.loserOf(semiFinalNumbers[0]),
+      side2Label: labels.loserOf(semiFinalNumbers[1]),
       isFinished: false,
     });
   }
@@ -263,11 +174,14 @@ export default function PublicTournamentBracket({
   groupStageMatchCount = 0,
   t,
 }: PublicTournamentBracketProps) {
+  const labels = usePlayoffSlotLabels();
   const displayMatches = useMemo(() => {
     if (matches.length > 0)
-      return matches.map((match) => toDisplayMatch(match, matches));
-    return buildPreviewMatches({ category, groupStageMatchCount, t });
-  }, [category, groupStageMatchCount, matches, t]);
+      return matches.map((match) =>
+        toDisplayMatch(match, matches, category, labels)
+      );
+    return buildPreviewMatches({ category, groupStageMatchCount, labels });
+  }, [category, groupStageMatchCount, matches, labels]);
 
   const columns = useMemo(() => {
     const byRound = new Map<string, BracketDisplayMatch[]>();

@@ -3283,6 +3283,24 @@
         "unassign": "Remove",
         "assign": "Assign"
       },
+      "playoffSlot": {
+        "winnerOf": "Winner of {match}",
+        "loserOf": "Loser of {match}",
+        "nthPoolLabel": "{rank} Pool {pool}",
+        "bye": "BYE",
+        "tbd": "TBD",
+        "ordinals": {
+          "1": "1st",
+          "2": "2nd",
+          "3": "3rd",
+          "4": "4th",
+          "5": "5th",
+          "6": "6th",
+          "7": "7th",
+          "8": "8th",
+          "other": "{rank}th"
+        }
+      },
       "manualScore": {
         "title": "Enter score",
         "deleteMatch": "Delete match",

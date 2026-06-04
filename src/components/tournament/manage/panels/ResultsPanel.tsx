@@ -35,6 +35,8 @@ import {
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
+import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
@@ -433,6 +435,7 @@ export default function ResultsPanel({
                     roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                     courtAbbreviation={courtAbbreviation}
                     allMatches={matches}
+                    category={categoryById.get(match.categoryId)}
                   />
                 ))}
               </VStack>
@@ -476,6 +479,9 @@ export default function ResultsPanel({
             : undefined
         }
         allMatches={matches}
+        category={
+          detailMatch ? categoryById.get(detailMatch.categoryId) : undefined
+        }
         canEdit={canEdit}
         onEditResult={(m) => {
           setDetailMatch(null);
@@ -538,6 +544,7 @@ export function ResultMatchCard({
   roundOrGroupLabel,
   courtAbbreviation,
   allMatches,
+  category,
 }: {
   match: CategoryMatch;
   /** Kept for call-site compatibility (e.g. referee list); not rendered. */
@@ -552,13 +559,17 @@ export function ResultMatchCard({
   courtAbbreviation?: string;
   /** All category matches, used to resolve empty elimination slots to feeders. */
   allMatches?: CategoryMatch[];
+  /** The match's category, used to resolve first-round seed labels. */
+  category?: Category;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
+  const slotLabels = usePlayoffSlotLabels();
   const accent = getMatchAccent(match);
 
-  const team1 = getTeamLabel(match, 1, allMatches);
-  const team2 = getTeamLabel(match, 2, allMatches);
+  const ctx = { allMatches: allMatches ?? [], category, labels: slotLabels };
+  const team1 = resolveMatchSideLabel(match, 1, ctx);
+  const team2 = resolveMatchSideLabel(match, 2, ctx);
   const win1 = match.winnerId === getRegistrationId(match, 1);
   const win2 = match.winnerId === getRegistrationId(match, 2);
   const topLabel =
@@ -874,6 +885,7 @@ function ResultsCalendarView({
                             roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                             courtAbbreviation={courtAbbreviation}
                             allMatches={allMatches}
+                            category={categoryById.get(match.categoryId)}
                             compact
                           />
                         ))}

@@ -3261,6 +3261,24 @@
         "unassign": "移除",
         "assign": "分配"
       },
+      "playoffSlot": {
+        "winnerOf": "{match} 胜者",
+        "loserOf": "{match} 负者",
+        "nthPoolLabel": "{pool}组第{rank}",
+        "bye": "轮空",
+        "tbd": "待定",
+        "ordinals": {
+          "1": "1",
+          "2": "2",
+          "3": "3",
+          "4": "4",
+          "5": "5",
+          "6": "6",
+          "7": "7",
+          "8": "8",
+          "other": "{rank}"
+        }
+      },
       "manualScore": {
         "title": "录入比分",
         "deleteMatch": "删除比赛",

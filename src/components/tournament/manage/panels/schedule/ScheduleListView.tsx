@@ -8,7 +8,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { Edit, Trash2 } from 'lucide-react';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
-import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
+import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 
 const CATEGORY_COLORS = [
@@ -65,6 +66,7 @@ export default function ScheduleListView({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.list'
   );
+  const slotLabels = usePlayoffSlotLabels();
   const locale = useLocale();
 
   // Group matches by category
@@ -163,8 +165,16 @@ export default function ScheduleListView({
     return `${dateStr} @ ${startStr} - ${endStr}`;
   };
 
-  const renderTeamName = (match: CategoryMatch, position: number) => {
-    const label = getTeamLabel(match, position);
+  const renderTeamName = (
+    match: CategoryMatch,
+    position: number,
+    category?: Category
+  ) => {
+    const label = resolveMatchSideLabel(match, position as 1 | 2, {
+      allMatches: matches,
+      category,
+      labels: slotLabels,
+    });
     const participant = match.participants?.find(
       (item) => item.position === position
     );
@@ -322,7 +332,7 @@ export default function ScheduleListView({
                       {getRoundLabel(match.round)}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" textAlign="right">
-                      {renderTeamName(match, 1)}
+                      {renderTeamName(match, 1, category)}
                     </Text>
                     <Flex justify="center" align="center">
                       <Text fontSize="xs" color="gray.400" fontWeight="bold">
@@ -330,7 +340,7 @@ export default function ScheduleListView({
                       </Text>
                     </Flex>
                     <Text fontSize="sm" fontWeight="medium" textAlign="left">
-                      {renderTeamName(match, 2)}
+                      {renderTeamName(match, 2, category)}
                     </Text>
                     <Text
                       fontSize="sm"

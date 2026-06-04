@@ -3291,6 +3291,24 @@
         "unassign": "Bỏ phân công",
         "assign": "Phân công"
       },
+      "playoffSlot": {
+        "winnerOf": "Thắng trận {match}",
+        "loserOf": "Thua trận {match}",
+        "nthPoolLabel": "{rank} Bảng {pool}",
+        "bye": "Miễn đấu",
+        "tbd": "Chưa xác định",
+        "ordinals": {
+          "1": "Nhất",
+          "2": "Nhì",
+          "3": "Ba",
+          "4": "Tư",
+          "5": "Năm",
+          "6": "Sáu",
+          "7": "Bảy",
+          "8": "Tám",
+          "other": "Hạng {rank}"
+        }
+      },
       "manualScore": {
         "title": "Nhập điểm",
         "deleteMatch": "Xóa trận đấu",

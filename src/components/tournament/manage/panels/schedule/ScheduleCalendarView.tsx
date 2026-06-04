@@ -15,6 +15,8 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
+import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
+import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 
 const CATEGORY_COLORS = [
@@ -57,31 +59,6 @@ interface ScheduleCalendarViewProps {
   ) => void;
 }
 
-const getTeamLabel = (
-  match: CategoryMatch,
-  position: number,
-  t: ReturnType<typeof useTranslations>
-): string => {
-  const participant = match.participants?.find((p) => p.position === position);
-  if (!participant?.categoryRegistration) {
-    if (match.round === 'SF' || match.round === 'F') {
-      return t('winnerOf', { number: match.matchNumber });
-    }
-    if (match.round === '3RD') {
-      return t('loserOf', { number: match.matchNumber });
-    }
-    return t('tbd');
-  }
-  const reg = participant.categoryRegistration;
-  if (reg.pair?.members) {
-    return (
-      reg.pair.name ||
-      reg.pair.members.map((m) => m.player?.name || '?').join(' / ')
-    );
-  }
-  return reg.player?.name || t('unknown');
-};
-
 const getRoundLabel = (
   match: CategoryMatch,
   t: ReturnType<typeof useTranslations>
@@ -95,13 +72,19 @@ const getRoundLabel = (
 function DraggableMatch({
   match,
   categoryIndex,
+  category,
+  allMatches,
 }: {
   match: CategoryMatch;
   categoryIndex: number;
+  category?: Category;
+  allMatches: CategoryMatch[];
 }) {
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.list'
   );
+  const slotLabels = usePlayoffSlotLabels();
+  const labelCtx = { allMatches, category, labels: slotLabels };
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: match.id });
 
@@ -142,8 +125,8 @@ function DraggableMatch({
           </Text>
         )}
       </Flex>
-      <Text truncate>{getTeamLabel(match, 1, t)}</Text>
-      <Text truncate>{getTeamLabel(match, 2, t)}</Text>
+      <Text truncate>{resolveMatchSideLabel(match, 1, labelCtx)}</Text>
+      <Text truncate>{resolveMatchSideLabel(match, 2, labelCtx)}</Text>
     </Box>
   );
 }
@@ -199,6 +182,11 @@ export default function ScheduleCalendarView({
     categories.forEach((c, i) => map.set(c.id, i));
     return map;
   }, [categories]);
+
+  const categoryById = useMemo(
+    () => new Map(categories.map((c) => [c.id, c])),
+    [categories]
+  );
 
   // Split matches into scheduled and unscheduled
   const scheduledMatches = matches.filter((m) => m.startTime && m.courtId);
@@ -360,6 +348,8 @@ export default function ScheduleCalendarView({
                                 categoryIndex={
                                   categoryIndexMap.get(match.categoryId) || 0
                                 }
+                                category={categoryById.get(match.categoryId)}
+                                allMatches={matches}
                               />
                             ))}
                           </VStack>
@@ -385,6 +375,8 @@ export default function ScheduleCalendarView({
         <UnscheduledPanel
           matches={unscheduledMatches}
           categoryIndexMap={categoryIndexMap}
+          categoryById={categoryById}
+          allMatches={matches}
           defaultMatchLength={defaultMatchLength}
         />
       </Flex>
@@ -395,10 +387,14 @@ export default function ScheduleCalendarView({
 function UnscheduledPanel({
   matches,
   categoryIndexMap,
+  categoryById,
+  allMatches,
   defaultMatchLength,
 }: {
   matches: CategoryMatch[];
   categoryIndexMap: Map<string, number>;
+  categoryById: Map<string, Category>;
+  allMatches: CategoryMatch[];
   defaultMatchLength: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: 'unscheduled-panel' });
@@ -433,6 +429,8 @@ function UnscheduledPanel({
             key={match.id}
             match={match}
             categoryIndex={categoryIndexMap.get(match.categoryId) || 0}
+            category={categoryById.get(match.categoryId)}
+            allMatches={allMatches}
           />
         ))}
       </VStack>

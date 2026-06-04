@@ -35,6 +35,7 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   centerTitle?: boolean;
   showTopBarMenuButton?: boolean;
   showTopBarLogo?: boolean;
+  topBarLogoHref?: string;
   showTopBarLogoDesktopOnly?: boolean;
   showTopBarAuthActions?: boolean;
   showTopBarAiAssistantButton?: boolean;
@@ -65,6 +66,7 @@ export default function PageLayout({
   centerTitle = false,
   showTopBarMenuButton = true,
   showTopBarLogo = true,
+  topBarLogoHref = '/',
   showTopBarLogoDesktopOnly = false,
   showTopBarAuthActions = true,
   showTopBarAiAssistantButton = true,
@@ -109,6 +111,7 @@ export default function PageLayout({
         centerTitle={centerTitle}
         showMenuButton={showTopBarMenuButton}
         showLogo={showTopBarLogo}
+        logoHref={topBarLogoHref}
         showLogoDesktopOnly={showTopBarLogoDesktopOnly}
         showAuthActions={showTopBarAuthActions}
         showAiAssistantButton={showTopBarAiAssistantButton}

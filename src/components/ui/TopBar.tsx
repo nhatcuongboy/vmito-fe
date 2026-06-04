@@ -44,6 +44,7 @@ interface TopBarProps {
   centerTitle?: boolean;
   showMenuButton?: boolean;
   showLogo?: boolean;
+  logoHref?: string;
   showLogoDesktopOnly?: boolean;
   showAuthActions?: boolean;
   showAiAssistantButton?: boolean;
@@ -63,6 +64,7 @@ export default function TopBar({
   centerTitle = false,
   showMenuButton = true,
   showLogo = true,
+  logoHref = '/',
   showLogoDesktopOnly = false,
   showAuthActions = true,
   showAiAssistantButton = true,
@@ -196,7 +198,7 @@ export default function TopBar({
                   alignItems="center"
                 >
                   <Link
-                    href="/"
+                    href={logoHref}
                     style={{
                       display: 'flex',
                       alignItems: 'center',

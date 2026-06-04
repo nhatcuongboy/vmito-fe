@@ -358,6 +358,7 @@ export default function TournamentPageShell({
   const bottomNavTabs = tabs;
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
+  const tournamentHomeHref = `/tournament/${slug}`;
   const topBarIcon = (
     <Trophy size={28} strokeWidth={2} color="var(--chakra-colors-yellow-400)" />
   );
@@ -673,6 +674,7 @@ export default function TournamentPageShell({
           topBarVariant="main"
           showTopBarMenuButton={false}
           showTopBarLogo
+          topBarLogoHref={tournamentHomeHref}
           showTopBarAuthActions={false}
           disableSidebarOffset
           rightContent={<TournamentTopBarMenu />}
@@ -728,6 +730,7 @@ export default function TournamentPageShell({
         topBarVariant="main"
         showTopBarMenuButton={false}
         showTopBarLogo={false}
+        topBarLogoHref={tournamentHomeHref}
         showTopBarAuthActions={false}
         rightContent={<TournamentTopBarMenu />}
       >
@@ -870,6 +873,7 @@ export default function TournamentPageShell({
         topBarVariant="main"
         showTopBarMenuButton={false}
         showTopBarLogo
+        topBarLogoHref={tournamentHomeHref}
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}

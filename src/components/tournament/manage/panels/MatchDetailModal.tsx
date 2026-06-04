@@ -21,8 +21,9 @@ import {
   Trophy,
 } from 'lucide-react';
 
-import { CategoryMatch } from '@/lib/api/types';
-import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import { Category, CategoryMatch } from '@/lib/api/types';
+import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
+import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 
@@ -37,6 +38,8 @@ interface Props {
   courtLabel?: string;
   /** All category matches, used to resolve empty elimination slots to feeders. */
   allMatches?: CategoryMatch[];
+  /** The match's category, used to resolve first-round seed labels. */
+  category?: Category;
   canEdit: boolean;
   onEditResult: (match: CategoryMatch) => void;
   onDeleteMatch: (match: CategoryMatch) => void;
@@ -52,11 +55,13 @@ export default function MatchDetailModal({
   roundOrGroupLabel,
   courtLabel,
   allMatches,
+  category,
   canEdit,
   onEditResult,
   onDeleteMatch,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
+  const slotLabels = usePlayoffSlotLabels();
   const [tab, setTab] = useState<DetailTab>('details');
   const [optionsOpen, setOptionsOpen] = useState(false);
 
@@ -72,8 +77,13 @@ export default function MatchDetailModal({
 
   if (!match) return null;
 
-  const team1 = getTeamLabel(match, 1, allMatches);
-  const team2 = getTeamLabel(match, 2, allMatches);
+  const labelCtx = {
+    allMatches: allMatches ?? [],
+    category,
+    labels: slotLabels,
+  };
+  const team1 = resolveMatchSideLabel(match, 1, labelCtx);
+  const team2 = resolveMatchSideLabel(match, 2, labelCtx);
   const score1 = totalScore(match, 1);
   const score2 = totalScore(match, 2);
   const win1 = isWinner(match, 1);

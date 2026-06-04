@@ -73,6 +73,8 @@ const EMPTY_FORM: PlayerFormState = {
   phone: '',
 };
 
+const PANEL_MODAL_Z_INDEX = 1600;
+
 const playerToForm = (player: TournamentPlayer): PlayerFormState => ({
   code: player.code ?? '',
   name: player.name ?? '',
@@ -450,6 +452,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
       <VModal
         isOpen={editModal.isOpen}
         onClose={editModal.onClose}
+        zIndex={PANEL_MODAL_Z_INDEX}
         title={editingPlayer ? t('editPlayer') : t('addPlayerTitle')}
         primaryActionText={t('save')}
         onPrimaryAction={handleSave}
@@ -616,6 +619,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
       <VModal
         isOpen={detailModal.isOpen}
         onClose={detailModal.onClose}
+        zIndex={PANEL_MODAL_Z_INDEX}
         title={t('playerDetails')}
         primaryActionText={t('editPlayer')}
         onPrimaryAction={() => {
@@ -717,6 +721,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
       <VModal
         isOpen={deleteModal.isOpen}
         onClose={deleteModal.onClose}
+        zIndex={PANEL_MODAL_Z_INDEX}
         title={t('deletePlayer')}
         primaryActionText={t('delete')}
         onPrimaryAction={handleDelete}
