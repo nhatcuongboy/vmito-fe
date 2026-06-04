@@ -190,6 +190,9 @@ export default function RefereeScoringPage() {
   const participantsResolved = areMatchParticipantsResolved(match);
   const isTerminalMatch =
     match.status === 'FINISHED' || match.status === 'CANCELLED';
+  // Only the live scoreboard needs the full-height, vertically-centered stage.
+  // SCHEDULED / terminal states are short, so they sit compactly at the top.
+  const isScoringBoard = match.status === 'IN_PROGRESS';
 
   return (
     <TournamentRefereeDesktopLayout
@@ -212,10 +215,10 @@ export default function RefereeScoringPage() {
             base: 'max(0.5rem, env(safe-area-inset-left))',
             md: 'max(1rem, env(safe-area-inset-left))',
           }}
-          py={{ base: 2, md: 3 }}
+          py={{ base: 1.5, md: 2 }}
           paddingTop={{
-            base: 'max(0.5rem, env(safe-area-inset-top))',
-            md: 'max(0.75rem, env(safe-area-inset-top))',
+            base: 'max(0.375rem, env(safe-area-inset-top))',
+            md: 'max(0.5rem, env(safe-area-inset-top))',
           }}
           paddingRight={{
             base: 'max(0.5rem, env(safe-area-inset-right))',
@@ -236,7 +239,7 @@ export default function RefereeScoringPage() {
             gap={{ base: 2, md: 3 }}
             maxW="1800px"
             mx="auto"
-            minH={{ base: '52px', md: '60px' }}
+            minH={{ base: '46px', md: '50px' }}
           >
             <Button
               aria-label={t('back')}
@@ -253,20 +256,20 @@ export default function RefereeScoringPage() {
             </Button>
 
             <Box flex="1" minW={0}>
-              <Flex align="center" gap={2} mb={1} flexWrap="wrap">
+              <Flex align="center" gap={1.5} mb={0.5} flexWrap="wrap">
                 <Text
-                  fontSize={{ base: 'xs', md: 'sm' }}
+                  fontSize="xs"
                   color="gray.500"
                   fontWeight="medium"
                   _dark={{ color: 'gray.400' }}
                 >
                   {t('refereeArea')}
                 </Text>
-                <Badge colorPalette="green" borderRadius="full" px={2.5}>
+                <Badge colorPalette="green" borderRadius="full" px={2}>
                   {t(`status.${match.status}`)}
                 </Badge>
                 {categoryName && (
-                  <Badge colorPalette="purple" borderRadius="full" px={2.5}>
+                  <Badge colorPalette="purple" borderRadius="full" px={2}>
                     {categoryName}
                   </Badge>
                 )}
@@ -274,7 +277,7 @@ export default function RefereeScoringPage() {
                   variant="subtle"
                   colorPalette="gray"
                   borderRadius="full"
-                  px={2.5}
+                  px={2}
                 >
                   {roundLabel}
                 </Badge>
@@ -282,7 +285,7 @@ export default function RefereeScoringPage() {
               <Flex align="center" gap={3} minW={0}>
                 <Text
                   fontWeight="bold"
-                  fontSize={{ base: 'md', md: 'xl' }}
+                  fontSize={{ base: 'md', md: 'lg' }}
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"
@@ -307,8 +310,8 @@ export default function RefereeScoringPage() {
                 colorPalette="blue"
                 borderRadius="full"
                 px={3}
-                py={1}
-                fontSize="sm"
+                py={0.5}
+                fontSize="xs"
               >
                 {courtLabel}
               </Badge>
@@ -329,25 +332,25 @@ export default function RefereeScoringPage() {
 
         <Flex
           flex="1"
-          align={isTerminalMatch ? 'flex-start' : 'center'}
+          align={isScoringBoard ? 'center' : 'flex-start'}
           justify="center"
           px={{ base: 2, md: 3 }}
-          py={isTerminalMatch ? { base: 4, md: 8 } : { base: 2, md: 3 }}
+          py={isScoringBoard ? { base: 2, md: 3 } : { base: 3, md: 5 }}
           minH={
-            isTerminalMatch
-              ? 'auto'
-              : { base: 'calc(100dvh - 70px)', md: 'calc(100dvh - 88px)' }
+            isScoringBoard
+              ? { base: 'calc(100dvh - 62px)', md: 'calc(100dvh - 72px)' }
+              : 'auto'
           }
         >
           <Box
             w="full"
-            maxW={isTerminalMatch ? '760px' : '1840px'}
+            maxW={isScoringBoard ? '1840px' : '760px'}
             mx="auto"
             borderRadius={isTerminalMatch ? 'none' : { base: '2xl', md: '3xl' }}
             bg={
               isTerminalMatch
                 ? 'transparent'
-                : match.status === 'IN_PROGRESS'
+                : isScoringBoard
                   ? 'rgba(255,255,255,0.82)'
                   : 'white'
             }
@@ -361,16 +364,16 @@ export default function RefereeScoringPage() {
               px={
                 isTerminalMatch
                   ? 0
-                  : match.status === 'IN_PROGRESS'
+                  : isScoringBoard
                     ? { base: 1, md: 2 }
-                    : { base: 3, md: 5 }
+                    : { base: 4, md: 5 }
               }
               py={
                 isTerminalMatch
                   ? 0
-                  : match.status === 'IN_PROGRESS'
+                  : isScoringBoard
                     ? { base: 1, md: 2 }
-                    : { base: 3, md: 4 }
+                    : { base: 4, md: 5 }
               }
             >
               <VModal
@@ -409,7 +412,7 @@ export default function RefereeScoringPage() {
               </VModal>
 
               {match.status === 'SCHEDULED' && (
-                <VStack align="stretch" gap={4} py={{ base: 2, md: 3 }}>
+                <VStack align="stretch" gap={{ base: 4, md: 5 }}>
                   <ScheduledMatchupPreview
                     sides={matchSides}
                     vsLabel={t('vs')}
@@ -733,44 +736,36 @@ function ScheduledMatchupPreview({
 
   return (
     <Flex
-      minH={{ base: '38dvh', md: '42dvh' }}
-      align="center"
+      align="stretch"
       justify="center"
-      px={{ base: 1, md: 4 }}
-      py={{ base: 3, md: 6 }}
+      gap={{ base: 2, md: 3 }}
+      w="full"
+      py={{ base: 1, md: 2 }}
     >
-      <Flex
-        align="stretch"
-        justify="center"
-        gap={{ base: 2, md: 4 }}
-        w="full"
-        maxW="1040px"
-      >
-        <ScheduledSideCard side={side1} align="right" />
+      <ScheduledSideCard side={side1} align="right" />
 
-        <Flex align="center" justify="center" flexShrink={0}>
-          <Text
-            as="span"
-            display="inline-flex"
-            alignItems="center"
-            justifyContent="center"
-            minW={{ base: '42px', md: '58px' }}
-            h={{ base: '42px', md: '58px' }}
-            px={2}
-            borderRadius="full"
-            bg="green.600"
-            color="white"
-            fontSize={{ base: 'sm', md: 'lg' }}
-            fontWeight="black"
-            boxShadow="0 14px 30px rgba(22, 163, 74, 0.22)"
-            textTransform="uppercase"
-          >
-            {vsLabel}
-          </Text>
-        </Flex>
-
-        <ScheduledSideCard side={side2} align="left" />
+      <Flex align="center" justify="center" flexShrink={0}>
+        <Text
+          as="span"
+          display="inline-flex"
+          alignItems="center"
+          justifyContent="center"
+          minW={{ base: '36px', md: '44px' }}
+          h={{ base: '36px', md: '44px' }}
+          px={2}
+          borderRadius="full"
+          bg="green.600"
+          color="white"
+          fontSize={{ base: 'xs', md: 'sm' }}
+          fontWeight="black"
+          boxShadow="0 10px 24px rgba(22, 163, 74, 0.22)"
+          textTransform="uppercase"
+        >
+          {vsLabel}
+        </Text>
       </Flex>
+
+      <ScheduledSideCard side={side2} align="left" />
     </Flex>
   );
 }
@@ -791,16 +786,16 @@ function ScheduledSideCard({
       minW={0}
       borderWidth="1px"
       borderColor="green.100"
-      borderRadius={{ base: '2xl', md: '3xl' }}
+      borderRadius={{ base: 'xl', md: '2xl' }}
       bg="whiteAlpha.900"
-      px={{ base: 3, md: 6 }}
-      py={{ base: 4, md: 6 }}
-      boxShadow="0 18px 44px rgba(15, 23, 42, 0.08)"
+      px={{ base: 3, md: 5 }}
+      py={{ base: 3, md: 4 }}
+      boxShadow="0 10px 28px rgba(15, 23, 42, 0.06)"
       _dark={{ bg: 'whiteAlpha.50', borderColor: 'whiteAlpha.200' }}
     >
       <Text
         color="green.700"
-        fontSize={{ base: 'sm', md: 'md' }}
+        fontSize="xs"
         fontWeight="bold"
         textAlign={textAlign}
         whiteSpace="nowrap"
@@ -813,16 +808,16 @@ function ScheduledSideCard({
 
       <VStack
         align={align === 'right' ? 'end' : 'start'}
-        gap={{ base: 1.5, md: 2 }}
-        mt={{ base: 3, md: 4 }}
+        gap={{ base: 0.5, md: 1 }}
+        mt={{ base: 2, md: 2.5 }}
       >
         {players.length > 0 ? (
           players.map((player, index) => (
             <Text
               key={`${player.id}-${index}`}
-              fontSize={{ base: 'xl', md: '3xl' }}
-              lineHeight={1.15}
-              fontWeight="black"
+              fontSize={{ base: 'md', md: 'xl' }}
+              lineHeight={1.2}
+              fontWeight="bold"
               textAlign={textAlign}
               wordBreak="break-word"
             >
@@ -831,9 +826,9 @@ function ScheduledSideCard({
           ))
         ) : (
           <Text
-            fontSize={{ base: 'xl', md: '3xl' }}
-            lineHeight={1.15}
-            fontWeight="black"
+            fontSize={{ base: 'md', md: 'xl' }}
+            lineHeight={1.2}
+            fontWeight="bold"
             color="gray.400"
             textAlign={textAlign}
             _dark={{ color: 'gray.500' }}

@@ -372,6 +372,12 @@ export default function RoundsPanel({
   const isPlayoffsConfigured =
     eliminationMatches.length > 0 || activeCategory?.thirdPlaceMatch;
   const hasEliminationMatches = eliminationMatches.length > 0;
+  const scoredEliminationMatches = eliminationMatches.filter(
+    (match) =>
+      match.status === MatchStatus.FINISHED ||
+      Boolean(match.score) ||
+      (match.sets?.length ?? 0) > 0
+  ).length;
 
   // Group-stage completion progress (used to gate bracket generation)
   const groupStageMatches = useMemo(
@@ -642,7 +648,10 @@ export default function RoundsPanel({
               <BracketReadyBanner
                 finishedGroupMatches={finishedGroupMatches}
                 totalGroupMatches={totalGroupMatches}
+                categoryName={activeCategory.name}
                 hasBracket={hasEliminationMatches}
+                playoffMatchCount={eliminationMatches.length}
+                scoredPlayoffMatchCount={scoredEliminationMatches}
                 isLoading={isCompleting}
                 onClick={() => setIsGenerateConfirmOpen(true)}
               />
@@ -1454,17 +1463,24 @@ function StepperSection({
 function BracketReadyBanner({
   finishedGroupMatches,
   totalGroupMatches,
+  categoryName,
   hasBracket,
+  playoffMatchCount,
+  scoredPlayoffMatchCount,
   isLoading,
   onClick,
 }: {
   finishedGroupMatches: number;
   totalGroupMatches: number;
+  categoryName: string;
   hasBracket: boolean;
+  playoffMatchCount: number;
+  scoredPlayoffMatchCount: number;
   isLoading: boolean;
   onClick: () => void;
 }) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const hasPlayoffScores = scoredPlayoffMatchCount > 0;
 
   return (
     <Box
@@ -1494,13 +1510,16 @@ function BracketReadyBanner({
             color={hasBracket ? 'orange.800' : 'green.800'}
             _dark={{ color: hasBracket ? 'orange.200' : 'green.200' }}
           >
+            {categoryName} ·{' '}
             {t('panels.rounds.groupProgress', {
               finished: finishedGroupMatches,
               total: totalGroupMatches,
             })}
           </Text>
           <Text fontWeight="bold" mt={1}>
-            {t('panels.rounds.bracketReadyTitle')}
+            {hasBracket
+              ? t('panels.rounds.bracketReadyRegenerateTitle')
+              : t('panels.rounds.bracketReadyGenerateTitle')}
           </Text>
           <Text
             fontSize="sm"
@@ -1508,9 +1527,20 @@ function BracketReadyBanner({
             mt={1}
             _dark={{ color: 'gray.200' }}
           >
-            {hasBracket
-              ? t('panels.rounds.bracketReadyRegenerateDescription')
-              : t('panels.rounds.bracketReadyGenerateDescription')}
+            {!hasBracket
+              ? t('panels.rounds.bracketReadyGenerateDescription')
+              : hasPlayoffScores
+                ? t(
+                    'panels.rounds.bracketReadyRegenerateWithScoresDescription',
+                    {
+                      matches: playoffMatchCount,
+                      scored: scoredPlayoffMatchCount,
+                    }
+                  )
+                : t(
+                    'panels.rounds.bracketReadyRegenerateWithoutScoresDescription',
+                    { matches: playoffMatchCount }
+                  )}
           </Text>
         </Box>
 

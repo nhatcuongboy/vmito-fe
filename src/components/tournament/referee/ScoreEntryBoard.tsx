@@ -4,7 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { Check, Flag, Minus, Undo2, Users, Wifi, WifiOff } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  Check,
+  Flag,
+  Minus,
+  Undo2,
+  Users,
+  Wifi,
+  WifiOff,
+} from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import { CategoryMatch, CategoryRegistration, MatchSet } from '@/lib/api/types';
@@ -48,6 +57,11 @@ function setsOf(match: CategoryMatch, isDoubles: boolean): MatchSet[] {
 }
 
 const PLAYER_NAMES_VISIBILITY_KEY = 'vmito.referee.showPlayerNames';
+const SCOREBOARD_SWAP_KEY_PREFIX = 'vmito.referee.scoreboard.swap.';
+
+function getScoreboardSwapKey(matchId: string): string {
+  return `${SCOREBOARD_SWAP_KEY_PREFIX}${matchId}`;
+}
 
 function getSidePlayerNames(match: CategoryMatch, side: 1 | 2): string {
   const participant = match.participants?.find((p) => p.position === side);
@@ -105,6 +119,10 @@ export default function ScoreEntryBoard({
   const [showPlayerNames, setShowPlayerNames] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(PLAYER_NAMES_VISIBILITY_KEY) === '1';
+  });
+  const [isSwapped, setIsSwapped] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(getScoreboardSwapKey(match.id)) === '1';
   });
 
   const team1 = getTeamLabel(match, 1);
@@ -166,6 +184,38 @@ export default function ScoreEntryBoard({
     [rules, isDoubles, processQueue]
   );
 
+  const sidePanels: TeamScorePanelProps[] = [
+    {
+      side: 1,
+      teamName: team1,
+      playerNames: showPlayerNames ? team1PlayerNames : '',
+      score: current?.player1Score ?? 0,
+      setWins: wins.side1,
+      colorScheme: 'blue',
+      disabled: matchState.complete,
+      onIncrement: () => handleScore(1, 1),
+      onDecrement: () => handleScore(1, -1),
+      incLabel: t('addPointFor', { team: team1 }),
+      decLabel: t('removePointFor', { team: team1 }),
+    },
+    {
+      side: 2,
+      teamName: team2,
+      playerNames: showPlayerNames ? team2PlayerNames : '',
+      score: current?.player2Score ?? 0,
+      setWins: wins.side2,
+      colorScheme: 'orange',
+      disabled: matchState.complete,
+      onIncrement: () => handleScore(2, 1),
+      onDecrement: () => handleScore(2, -1),
+      incLabel: t('addPointFor', { team: team2 }),
+      decLabel: t('removePointFor', { team: team2 }),
+    },
+  ];
+  const visibleSidePanels = isSwapped
+    ? sidePanels.slice().reverse()
+    : sidePanels;
+
   const handleUndo = useCallback(async () => {
     if (processingRef.current) return;
     try {
@@ -194,6 +244,9 @@ export default function ScoreEntryBoard({
   // Keep local state in sync if the parent swaps in a different match.
   useEffect(() => {
     setDisplaySets(setsOf(match, isDoubles));
+    setIsSwapped(
+      window.localStorage.getItem(getScoreboardSwapKey(match.id)) === '1'
+    );
     queueRef.current = [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match.id]);
@@ -204,6 +257,18 @@ export default function ScoreEntryBoard({
       showPlayerNames ? '1' : '0'
     );
   }, [showPlayerNames]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      getScoreboardSwapKey(match.id),
+      isSwapped ? '1' : '0'
+    );
+  }, [isSwapped, match.id]);
+
+  const formatSetScore = (set: MatchSet) =>
+    isSwapped
+      ? `${set.player2Score}-${set.player1Score}`
+      : `${set.player1Score}-${set.player2Score}`;
 
   return (
     <Flex
@@ -253,6 +318,16 @@ export default function ScoreEntryBoard({
             {t('currentSet')} {current?.setNumber ?? 1}
           </Text>
           <IconButton
+            aria-label={t('swapScoreboardSides')}
+            title={t('swapScoreboardSides')}
+            size="sm"
+            variant={isSwapped ? 'solid' : 'ghost'}
+            colorPalette={isSwapped ? 'green' : 'gray'}
+            onClick={() => setIsSwapped((value) => !value)}
+          >
+            <ArrowLeftRight size={16} />
+          </IconButton>
+          <IconButton
             aria-label={
               showPlayerNames ? t('hidePlayerNames') : t('showPlayerNames')
             }
@@ -277,30 +352,9 @@ export default function ScoreEntryBoard({
         px={{ base: 1, md: 2 }}
         minH={0}
       >
-        <TeamScorePanel
-          teamName={team1}
-          playerNames={showPlayerNames ? team1PlayerNames : ''}
-          score={current?.player1Score ?? 0}
-          setWins={wins.side1}
-          colorScheme="blue"
-          disabled={matchState.complete}
-          onIncrement={() => handleScore(1, 1)}
-          onDecrement={() => handleScore(1, -1)}
-          incLabel={t('addPointFor', { team: team1 })}
-          decLabel={t('removePointFor', { team: team1 })}
-        />
-        <TeamScorePanel
-          teamName={team2}
-          playerNames={showPlayerNames ? team2PlayerNames : ''}
-          score={current?.player2Score ?? 0}
-          setWins={wins.side2}
-          colorScheme="orange"
-          disabled={matchState.complete}
-          onIncrement={() => handleScore(2, 1)}
-          onDecrement={() => handleScore(2, -1)}
-          incLabel={t('addPointFor', { team: team2 })}
-          decLabel={t('removePointFor', { team: team2 })}
-        />
+        {visibleSidePanels.map((panel) => (
+          <TeamScorePanel key={panel.side} {...panel} />
+        ))}
       </Flex>
 
       {/* Set history + controls */}
@@ -318,7 +372,7 @@ export default function ScoreEntryBoard({
               title={t('editSetTooltip', { number: s.setNumber })}
               aria-label={t('editSetTooltip', { number: s.setNumber })}
             >
-              {s.player1Score}-{s.player2Score}
+              {formatSetScore(s)}
             </Button>
           ))}
         </Flex>
@@ -409,6 +463,7 @@ export default function ScoreEntryBoard({
 }
 
 interface TeamScorePanelProps {
+  side: 1 | 2;
   teamName: string;
   playerNames: string;
   score: number;

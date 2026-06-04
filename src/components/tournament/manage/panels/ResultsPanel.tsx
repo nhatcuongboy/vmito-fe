@@ -315,11 +315,13 @@ export default function ResultsPanel({
   }, [matches, filters]);
 
   const activeFilterCount = getActiveFilterCount(filters);
-  const bracketReadyCategory = useMemo(() => {
-    if (!canEdit || !onOpenRoundsPanel) return null;
+  const bracketReadyCategories = useMemo(() => {
+    if (!canEdit || !onOpenRoundsPanel) return [];
 
-    return categories.find((category) => {
-      if (category.format !== CategoryFormat.ROUND_ROBIN_TO_SE) return false;
+    return categories.filter((category) => {
+      if (category.format !== CategoryFormat.ROUND_ROBIN_TO_SE) {
+        return false;
+      }
 
       const categoryMatches = matches.filter(
         (match) => match.categoryId === category.id
@@ -334,6 +336,8 @@ export default function ResultsPanel({
       );
     });
   }, [canEdit, categories, matches, onOpenRoundsPanel]);
+
+  const primaryBracketReadyCategory = bracketReadyCategories[0];
 
   const groups = useMemo(() => {
     const byCat = new Map<string, CategoryMatch[]>();
@@ -548,7 +552,7 @@ export default function ResultsPanel({
         </Flex>
       </Flex>
 
-      {bracketReadyCategory && (
+      {primaryBracketReadyCategory && (
         <Box
           mb={5}
           borderWidth="1px"
@@ -566,6 +570,20 @@ export default function ResultsPanel({
             direction={{ base: 'column', md: 'row' }}
           >
             <Box minW={0}>
+              <Flex align="center" gap={2} wrap="wrap" mb={2}>
+                {bracketReadyCategories.map((category) => (
+                  <Badge
+                    key={category.id}
+                    colorPalette="green"
+                    variant="subtle"
+                    borderRadius="full"
+                    px={2.5}
+                    py={0.5}
+                  >
+                    {category.name}
+                  </Badge>
+                ))}
+              </Flex>
               <Text
                 fontWeight="bold"
                 color="green.800"
@@ -586,7 +604,9 @@ export default function ResultsPanel({
               size="sm"
               colorPalette="green"
               variant="outline"
-              onClick={() => onOpenRoundsPanel?.(bracketReadyCategory.id)}
+              onClick={() =>
+                onOpenRoundsPanel?.(primaryBracketReadyCategory.id)
+              }
               flexShrink={0}
             >
               <Trophy size={14} />

@@ -424,15 +424,22 @@ export default function AIImportScheduleDrawer({
   }, [text, tournamentId, locale, buildPreviewRows, t]);
 
   const handleSave = useCallback(async () => {
-    const updates: IBulkScheduleItem[] = rows
-      .filter(
-        (r) => r.include && r.matchId && r.courtId && r.startTime && r.endTime
+    const includedRows = rows.filter(
+      (r) => r.include && r.matchId && r.courtId && r.startTime && r.endTime
+    );
+    const updates: IBulkScheduleItem[] = includedRows.map((r) => ({
+      matchId: r.matchId!,
+      courtId: r.courtId!,
+      startTime: r.startTime!,
+      endTime: r.endTime!,
+    }));
+    const matchCodeUpdates = includedRows
+      .filter((r): r is PreviewRow & { matchId: string } =>
+        Boolean(r.entry.matchCode?.trim() && r.matchId)
       )
       .map((r) => ({
-        matchId: r.matchId!,
-        courtId: r.courtId!,
-        startTime: r.startTime!,
-        endTime: r.endTime!,
+        matchId: r.matchId,
+        matchCode: r.entry.matchCode!.trim(),
       }));
 
     if (updates.length === 0) {
@@ -442,7 +449,16 @@ export default function AIImportScheduleDrawer({
 
     setIsSaving(true);
     try {
-      await CategoryService.bulkUpdateSchedule(updates);
+      await Promise.all([
+        CategoryService.bulkUpdateSchedule(updates),
+        ...matchCodeUpdates.map((item) =>
+          CategoryService.updateMatch(
+            item.matchId,
+            { matchCode: item.matchCode },
+            { showToast: false }
+          )
+        ),
+      ]);
       toaster.success({
         title: t('importSuccess', { count: updates.length }),
       });
