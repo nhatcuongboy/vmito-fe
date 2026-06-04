@@ -1616,6 +1616,7 @@
           "overview": {
             "title": "Tổng quan",
             "teamsParticipating": "{count} đội tham gia",
+            "athletesParticipating": "{count} VĐV tham gia",
             "viewSchedule": "Lịch thi đấu",
             "viewStandings": "Bảng xếp hạng",
             "viewShowcase": "Showcase"
@@ -3283,6 +3284,8 @@
         "showcaseTitle": "Showcase vận động viên",
         "tournament": "Giải đấu",
         "randomPlayers": "VĐV ngẫu nhiên",
+        "singlePlayer": "Từng VĐV",
+        "pairs": "Từng cặp",
         "matches": "Cặp đấu",
         "randomOrder": "Ngẫu nhiên",
         "scheduleOrder": "Theo lịch",
@@ -3300,6 +3303,7 @@
         "court": "Sân {court}",
         "noPlayers": "Chưa có vận động viên",
         "addPlayersFirst": "Thêm vận động viên vào giải để bắt đầu trình chiếu.",
+        "noPairs": "Chưa có cặp vận động viên",
         "noMatches": "Chưa có lịch/cặp đấu",
         "switchToPlayers": "Chuyển sang chế độ VĐV ngẫu nhiên để trình chiếu danh sách hiện có.",
         "loadFailed": "Không tải được showcase",

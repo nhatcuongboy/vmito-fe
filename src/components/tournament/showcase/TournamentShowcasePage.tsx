@@ -27,7 +27,9 @@ import {
   Share2,
   Swords,
   Trophy,
+  UserRound,
   Users,
+  UsersRound,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -51,7 +53,7 @@ import {
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 
-type ShowcaseMode = 'random' | 'matches';
+type ShowcaseMode = 'random' | 'single' | 'pairs' | 'matches';
 type ShowcaseOrder = 'random' | 'schedule';
 type SlideDuration = 4 | 6 | 10;
 
@@ -68,6 +70,15 @@ type MatchSide = {
   players: TournamentPlayer[];
 };
 
+type PairSlide = {
+  type: 'pair';
+  id: string;
+  registration: CategoryRegistration;
+  label: string;
+  categoryName: string;
+  players: TournamentPlayer[];
+};
+
 type MatchSlide = {
   type: 'match';
   id: string;
@@ -78,12 +89,14 @@ type MatchSlide = {
   sides: [MatchSide, MatchSide];
 };
 
-type ShowcaseSlide = PlayerSlide | MatchSlide;
+type ShowcaseSlide = PlayerSlide | PairSlide | MatchSlide;
 
 const DURATION_OPTIONS: SlideDuration[] = [4, 6, 10];
 const MotionBox = motion.create(Box);
 
 function parseMode(value: string | null): ShowcaseMode {
+  if (value === 'single') return 'single';
+  if (value === 'pairs') return 'pairs';
   return value === 'matches' ? 'matches' : 'random';
 }
 
@@ -140,6 +153,18 @@ function getRegistrationPlayers(
       .filter((player): player is TournamentPlayer => Boolean(player));
   }
   return registration.player ? [registration.player] : [];
+}
+
+function getRegistrationLabel(registration: CategoryRegistration) {
+  return (
+    registration.player?.name ||
+    registration.pair?.name ||
+    registration.pair?.members
+      ?.map((member) => member.player?.name)
+      .filter(Boolean)
+      .join(' & ') ||
+    registration.id
+  );
 }
 
 function getSide(match: CategoryMatch, position: number): MatchSide {
@@ -325,6 +350,49 @@ export default function TournamentShowcasePage() {
       return ordered.filter((slide): slide is MatchSlide => Boolean(slide));
     }
 
+    if (mode === 'pairs') {
+      const pairByRegistrationId = new Map<string, PairSlide>();
+      const orderedMatches =
+        order === 'schedule'
+          ? sortMatchesBySchedule(
+              matches.filter((match) => match.status !== MatchStatus.CANCELLED)
+            )
+          : matches.filter((match) => match.status !== MatchStatus.CANCELLED);
+
+      for (const match of orderedMatches) {
+        const category = categoryById.get(match.categoryId);
+        const categoryName =
+          category?.name?.trim() || (category ? tCategory(category.type) : '');
+
+        for (const participant of match.participants ?? []) {
+          const registration = participant.categoryRegistration;
+          if (!registration || pairByRegistrationId.has(registration.id)) {
+            continue;
+          }
+
+          const registrationPlayers = getRegistrationPlayers(registration);
+          if (registrationPlayers.length < 2) continue;
+
+          pairByRegistrationId.set(registration.id, {
+            type: 'pair',
+            id: registration.id,
+            registration,
+            label: getRegistrationLabel(registration),
+            categoryName,
+            players: registrationPlayers,
+          });
+        }
+      }
+
+      const pairSlides = Array.from(pairByRegistrationId.values());
+      return order === 'schedule'
+        ? pairSlides
+        : shuffleWithSeed(
+            pairSlides,
+            `${tournament?.id ?? tournamentParam}:pairs`
+          );
+    }
+
     const playerSlides = players.map<PlayerSlide>((player) => ({
       type: 'player',
       id: player.id,
@@ -373,6 +441,14 @@ export default function TournamentShowcasePage() {
       slides.filter((slide): slide is PlayerSlide => slide.type === 'player'),
     [slides]
   );
+  const modeLabel =
+    mode === 'matches'
+      ? t('matches')
+      : mode === 'pairs'
+        ? t('pairs')
+        : mode === 'single'
+          ? t('singlePlayer')
+          : t('randomPlayers');
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   const toggleFullscreen = useCallback(() => {
@@ -511,7 +587,7 @@ export default function TournamentShowcasePage() {
               px={3}
               py={1}
             >
-              {mode === 'matches' ? t('matches') : t('randomPlayers')}
+              {modeLabel}
             </Badge>
             <Badge colorPalette="gray" px={3} py={1}>
               {duration}s
@@ -535,7 +611,10 @@ export default function TournamentShowcasePage() {
                     slide={activeSlide}
                     slides={playerSlides}
                     activeIndex={activeIndex}
+                    variant={mode === 'single' ? 'single' : 'orbit'}
                   />
+                ) : activeSlide.type === 'pair' ? (
+                  <PairShowcase slide={activeSlide} />
                 ) : (
                   <MatchShowcase slide={activeSlide} />
                 )}
@@ -628,6 +707,20 @@ function ShowcaseToolbar({
           icon={<Users size={16} />}
         >
           {t('randomPlayers')}
+        </ToolbarChip>
+        <ToolbarChip
+          active={mode === 'single'}
+          onClick={() => onMode('single')}
+          icon={<UserRound size={16} />}
+        >
+          {t('singlePlayer')}
+        </ToolbarChip>
+        <ToolbarChip
+          active={mode === 'pairs'}
+          onClick={() => onMode('pairs')}
+          icon={<UsersRound size={16} />}
+        >
+          {t('pairs')}
         </ToolbarChip>
         <ToolbarChip
           active={mode === 'matches'}
@@ -724,172 +817,61 @@ function ToolbarChip({
   );
 }
 
-const PLAYER_CARD_LAYOUTS: Record<
-  number,
-  {
-    x: string;
-    y: string;
-    z: number;
-    rotateY: number;
-    rotateZ: number;
-    scale: number;
-    opacity: number;
-  }
-> = {
-  [-8]: {
-    x: '-42vw',
-    y: '20dvh',
-    z: -230,
-    rotateY: 24,
-    rotateZ: -6,
-    scale: 0.62,
-    opacity: 0.24,
-  },
-  [-7]: {
-    x: '-33vw',
-    y: '-19dvh',
-    z: -200,
-    rotateY: 20,
-    rotateZ: 5,
-    scale: 0.68,
-    opacity: 0.34,
-  },
-  [-6]: {
-    x: '-48vw',
-    y: '-4dvh',
-    z: -180,
-    rotateY: 26,
-    rotateZ: -3,
-    scale: 0.72,
-    opacity: 0.38,
-  },
-  [-5]: {
-    x: '-27vw',
-    y: '24dvh',
-    z: -150,
-    rotateY: 18,
-    rotateZ: 4,
-    scale: 0.78,
-    opacity: 0.48,
-  },
-  [-4]: {
-    x: '-18vw',
-    y: '-27dvh',
-    z: -130,
-    rotateY: 15,
-    rotateZ: -5,
-    scale: 0.8,
-    opacity: 0.52,
-  },
-  [-3]: {
-    x: '-35vw',
-    y: '5dvh',
-    z: -90,
-    rotateY: 13,
-    rotateZ: 3,
-    scale: 0.9,
-    opacity: 0.7,
-  },
-  [-2]: {
-    x: '-19vw',
-    y: '13dvh',
-    z: -42,
-    rotateY: 9,
-    rotateZ: -3,
-    scale: 0.98,
-    opacity: 0.82,
-  },
-  [-1]: {
-    x: '-14vw',
-    y: '-8dvh',
-    z: 54,
-    rotateY: 5,
-    rotateZ: 2,
-    scale: 1.04,
-    opacity: 0.94,
-  },
-  0: {
-    x: '0vw',
-    y: '0dvh',
-    z: 180,
-    rotateY: 0,
-    rotateZ: 0,
-    scale: 1.2,
-    opacity: 1,
-  },
-  1: {
-    x: '14vw',
-    y: '-9dvh',
-    z: 50,
-    rotateY: -5,
-    rotateZ: -2,
-    scale: 1.04,
-    opacity: 0.94,
-  },
-  2: {
-    x: '20vw',
-    y: '14dvh',
-    z: -44,
-    rotateY: -9,
-    rotateZ: 3,
-    scale: 0.98,
-    opacity: 0.82,
-  },
-  3: {
-    x: '35vw',
-    y: '3dvh',
-    z: -90,
-    rotateY: -13,
-    rotateZ: -3,
-    scale: 0.9,
-    opacity: 0.7,
-  },
-  4: {
-    x: '18vw',
-    y: '-27dvh',
-    z: -130,
-    rotateY: -15,
-    rotateZ: 5,
-    scale: 0.8,
-    opacity: 0.52,
-  },
-  5: {
-    x: '27vw',
-    y: '24dvh',
-    z: -150,
-    rotateY: -18,
-    rotateZ: -4,
-    scale: 0.78,
-    opacity: 0.48,
-  },
-  6: {
-    x: '48vw',
-    y: '-4dvh',
-    z: -180,
-    rotateY: -26,
-    rotateZ: 3,
-    scale: 0.72,
-    opacity: 0.38,
-  },
-  7: {
-    x: '33vw',
-    y: '-19dvh',
-    z: -200,
-    rotateY: -20,
-    rotateZ: -5,
-    scale: 0.68,
-    opacity: 0.34,
-  },
-  8: {
-    x: '42vw',
-    y: '20dvh',
-    z: -230,
-    rotateY: -24,
-    rotateZ: 6,
-    scale: 0.62,
-    opacity: 0.24,
-  },
+type PlayerCardLayout = {
+  x: string;
+  y: string;
+  z: number;
+  rotateX: number;
+  rotateY: number;
+  rotateZ: number;
+  scale: number;
+  opacity: number;
 };
+
+const SPHERICAL_VISIBLE_CARD_RADIUS = 8;
+
+function getSphericalPlayerCardLayout(offset: number): PlayerCardLayout | null {
+  const distance = Math.abs(offset);
+  if (distance > SPHERICAL_VISIBLE_CARD_RADIUS) return null;
+
+  if (offset === 0) {
+    return {
+      x: '0vw',
+      y: '0dvh',
+      z: 210,
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: 0,
+      scale: 1.22,
+      opacity: 1,
+    };
+  }
+
+  const direction = Math.sign(offset);
+  const progress = distance / SPHERICAL_VISIBLE_CARD_RADIUS;
+  const longitude = direction * progress * Math.PI * 0.86;
+  const latitude =
+    Math.sin((distance * 137.5 * Math.PI) / 180) * Math.PI * 0.18;
+  const xRadius = 48;
+  const yRadius = 30;
+  const zRadius = 380;
+  const x = Math.sin(longitude) * Math.cos(latitude) * xRadius;
+  const y =
+    Math.sin(latitude) * yRadius + Math.sin(longitude * 1.35) * yRadius * 0.24;
+  const z = Math.cos(longitude) * Math.cos(latitude) * zRadius - 300;
+  const depth = Math.max(0, Math.min(1, (z + zRadius) / (zRadius * 2)));
+
+  return {
+    x: `${x.toFixed(2)}vw`,
+    y: `${y.toFixed(2)}dvh`,
+    z: Math.round(z),
+    rotateX: Number((-Math.sin(latitude) * 9).toFixed(2)),
+    rotateY: Number((-Math.sin(longitude) * 30).toFixed(2)),
+    rotateZ: Number((direction * Math.sin(progress * Math.PI) * -7).toFixed(2)),
+    scale: Number((0.58 + depth * 0.52).toFixed(3)),
+    opacity: Number((0.22 + depth * 0.72).toFixed(3)),
+  };
+}
 
 function getCircularOffset(index: number, activeIndex: number, total: number) {
   const raw = index - activeIndex;
@@ -903,10 +885,12 @@ function PlayerShowcase({
   slide,
   slides,
   activeIndex,
+  variant,
 }: {
   slide: PlayerSlide;
   slides: PlayerSlide[];
   activeIndex: number;
+  variant: 'orbit' | 'single';
 }) {
   const t = useTranslations('pages.tournaments.showcase');
   const player = slide.player;
@@ -920,7 +904,11 @@ function PlayerShowcase({
       justify="center"
       gap={{ base: 5, md: 7 }}
     >
-      <PlayerPhotoCarousel slides={slides} activeIndex={activeIndex} />
+      {variant === 'single' ? (
+        <SinglePlayerPortrait slide={slide} />
+      ) : (
+        <PlayerPhotoCarousel slides={slides} activeIndex={activeIndex} />
+      )}
 
       <Flex
         direction="column"
@@ -973,6 +961,70 @@ function PlayerShowcase({
   );
 }
 
+function SinglePlayerPortrait({ slide }: { slide: PlayerSlide }) {
+  const player = slide.player;
+  const image = player.image || player.user?.image;
+  const initials = getPlayerInitials(player.name);
+
+  return (
+    <Flex
+      position="relative"
+      w="full"
+      flex="1"
+      minH={{ base: '360px', md: '430px', xl: '520px' }}
+      maxH={{ base: '48dvh', md: '58dvh' }}
+      align="center"
+      justify="center"
+    >
+      <Box
+        position="absolute"
+        inset="8%"
+        bg="radial-gradient(circle, rgba(34,211,238,0.28), rgba(245,158,11,0.18) 38%, transparent 66%)"
+        filter="blur(30px)"
+        opacity={0.72}
+      />
+      <Flex
+        position="relative"
+        w={{ base: '220px', sm: '260px', md: '330px', xl: '390px' }}
+        h={{ base: '302px', sm: '356px', md: '452px', xl: '534px' }}
+        align="center"
+        justify="center"
+        borderRadius={{ base: '22px', md: '28px' }}
+        overflow="hidden"
+        bg="linear-gradient(135deg, rgba(34,211,238,0.9), rgba(245,158,11,0.86))"
+        borderWidth="1px"
+        borderColor="whiteAlpha.400"
+        boxShadow="0 42px 120px rgba(0,0,0,0.62)"
+      >
+        {image ? (
+          <Image
+            src={image}
+            alt={player.name}
+            w="full"
+            h="full"
+            objectFit="cover"
+          />
+        ) : (
+          <Text
+            fontSize={{ base: '6xl', md: '8xl' }}
+            fontWeight="black"
+            color="gray.950"
+            lineHeight={1}
+          >
+            {initials}
+          </Text>
+        )}
+        <Box
+          position="absolute"
+          inset={0}
+          bg="linear-gradient(180deg, transparent 54%, rgba(0,0,0,0.38))"
+          pointerEvents="none"
+        />
+      </Flex>
+    </Flex>
+  );
+}
+
 function PlayerPhotoCarousel({
   slides,
   activeIndex,
@@ -998,7 +1050,7 @@ function PlayerPhotoCarousel({
       />
       {slides.map((item, index) => {
         const offset = getCircularOffset(index, activeIndex, slides.length);
-        const layout = PLAYER_CARD_LAYOUTS[offset];
+        const layout = getSphericalPlayerCardLayout(offset);
         if (!layout) return null;
 
         return (
@@ -1022,7 +1074,7 @@ function PlayerCarouselCard({
   zIndex,
 }: {
   slide: PlayerSlide;
-  layout: (typeof PLAYER_CARD_LAYOUTS)[number];
+  layout: PlayerCardLayout;
   isActive: boolean;
   zIndex: number;
 }) {
@@ -1054,7 +1106,7 @@ function PlayerCarouselCard({
       transition="transform 850ms cubic-bezier(0.22, 1, 0.36, 1), opacity 850ms ease, filter 850ms ease"
       filter={isActive ? 'saturate(1.05)' : 'saturate(0.72) contrast(0.9)'}
       style={{
-        transform: `translate3d(calc(-50% + ${layout.x}), calc(-50% + ${layout.y}), ${layout.z}px) rotateY(${layout.rotateY}deg) rotateZ(${layout.rotateZ}deg) scale(${layout.scale})`,
+        transform: `translate3d(calc(-50% + ${layout.x}), calc(-50% + ${layout.y}), ${layout.z}px) rotateX(${layout.rotateX}deg) rotateY(${layout.rotateY}deg) rotateZ(${layout.rotateZ}deg) scale(${layout.scale})`,
         transformStyle: 'preserve-3d',
       }}
     >
@@ -1084,6 +1136,158 @@ function PlayerCarouselCard({
             ? 'linear-gradient(180deg, transparent 48%, rgba(0,0,0,0.32))'
             : 'rgba(255,255,255,0.16)'
         }
+        pointerEvents="none"
+      />
+    </Flex>
+  );
+}
+
+function PairShowcase({ slide }: { slide: PairSlide }) {
+  const t = useTranslations('pages.tournaments.showcase');
+  const playerNames = slide.players.map((player) => player.name).join(' / ');
+
+  return (
+    <Flex
+      h="full"
+      minH={{ base: '560px', md: '620px' }}
+      direction="column"
+      align="center"
+      justify="center"
+      gap={{ base: 5, md: 7 }}
+    >
+      <Flex
+        position="relative"
+        w="full"
+        flex="1"
+        minH={{ base: '360px', md: '430px', xl: '520px' }}
+        maxH={{ base: '48dvh', md: '58dvh' }}
+        align="center"
+        justify="center"
+      >
+        <Box
+          position="absolute"
+          inset="8%"
+          bg="radial-gradient(circle, rgba(34,211,238,0.28), rgba(245,158,11,0.2) 42%, transparent 68%)"
+          filter="blur(30px)"
+          opacity={0.76}
+        />
+        <Flex
+          position="relative"
+          align="center"
+          justify="center"
+          gap={{ base: 3, md: 6 }}
+          w="full"
+        >
+          {slide.players.slice(0, 2).map((player, index) => (
+            <PairPortrait
+              key={player.id}
+              player={player}
+              tilt={index === 0 ? -4 : 4}
+              offsetY={index === 0 ? '2dvh' : '-2dvh'}
+            />
+          ))}
+        </Flex>
+      </Flex>
+
+      <Flex
+        direction="column"
+        align="center"
+        gap={{ base: 3, md: 4 }}
+        minW={0}
+        textAlign="center"
+      >
+        <Flex gap={3} wrap="wrap">
+          {slide.categoryName && (
+            <Badge
+              colorPalette="orange"
+              px={4}
+              py={2}
+              fontSize={{ base: 'sm', md: 'md' }}
+            >
+              {slide.categoryName}
+            </Badge>
+          )}
+          <Badge
+            colorPalette="cyan"
+            px={4}
+            py={2}
+            fontSize={{ base: 'sm', md: 'md' }}
+          >
+            {t('pairs')}
+          </Badge>
+        </Flex>
+        <Heading
+          as="h2"
+          fontSize={{ base: '3xl', md: '5xl', xl: '6xl' }}
+          lineHeight={1}
+          color="white"
+          maxW="18ch"
+        >
+          {slide.label}
+        </Heading>
+        <Text
+          fontSize={{ base: 'md', md: 'xl' }}
+          color="whiteAlpha.800"
+          maxW="46rem"
+        >
+          {playerNames}
+        </Text>
+      </Flex>
+    </Flex>
+  );
+}
+
+function PairPortrait({
+  player,
+  tilt,
+  offsetY,
+}: {
+  player: TournamentPlayer;
+  tilt: number;
+  offsetY: string;
+}) {
+  const image = player.image || player.user?.image;
+  const initials = getPlayerInitials(player.name);
+
+  return (
+    <Flex
+      position="relative"
+      w={{ base: '150px', sm: '178px', md: '248px', xl: '304px' }}
+      h={{ base: '206px', sm: '244px', md: '340px', xl: '416px' }}
+      align="center"
+      justify="center"
+      borderRadius={{ base: '20px', md: '26px' }}
+      overflow="hidden"
+      bg="linear-gradient(135deg, rgba(34,211,238,0.9), rgba(245,158,11,0.86))"
+      borderWidth="1px"
+      borderColor="whiteAlpha.400"
+      boxShadow="0 38px 110px rgba(0,0,0,0.58)"
+      style={{
+        transform: `translateY(${offsetY}) rotateZ(${tilt}deg)`,
+      }}
+    >
+      {image ? (
+        <Image
+          src={image}
+          alt={player.name}
+          w="full"
+          h="full"
+          objectFit="cover"
+        />
+      ) : (
+        <Text
+          fontSize={{ base: '5xl', md: '7xl' }}
+          fontWeight="black"
+          color="gray.950"
+          lineHeight={1}
+        >
+          {initials}
+        </Text>
+      )}
+      <Box
+        position="absolute"
+        inset={0}
+        bg="linear-gradient(180deg, transparent 52%, rgba(0,0,0,0.36))"
         pointerEvents="none"
       />
     </Flex>
@@ -1268,10 +1472,16 @@ function EmptyState({ mode }: { mode: ShowcaseMode }) {
       gap={3}
     >
       <Heading as="h2" fontSize={{ base: '2xl', md: '4xl' }}>
-        {mode === 'matches' ? t('noMatches') : t('noPlayers')}
+        {mode === 'matches'
+          ? t('noMatches')
+          : mode === 'pairs'
+            ? t('noPairs')
+            : t('noPlayers')}
       </Heading>
       <Text color="whiteAlpha.700" fontSize={{ base: 'md', md: 'xl' }}>
-        {mode === 'matches' ? t('switchToPlayers') : t('addPlayersFirst')}
+        {mode === 'matches' || mode === 'pairs'
+          ? t('switchToPlayers')
+          : t('addPlayersFirst')}
       </Text>
     </Flex>
   );

@@ -1608,6 +1608,7 @@
           "overview": {
             "title": "Overview",
             "teamsParticipating": "{count} teams participating",
+            "athletesParticipating": "{count} athletes participating",
             "viewSchedule": "View Schedule",
             "viewStandings": "View Standings",
             "viewShowcase": "Showcase"
@@ -3275,6 +3276,8 @@
         "showcaseTitle": "Athlete showcase",
         "tournament": "Tournament",
         "randomPlayers": "Random players",
+        "singlePlayer": "Single player",
+        "pairs": "Pairs",
         "matches": "Matchups",
         "randomOrder": "Random",
         "scheduleOrder": "Schedule",
@@ -3292,6 +3295,7 @@
         "court": "Court {court}",
         "noPlayers": "No players yet",
         "addPlayersFirst": "Add players to this tournament to start the slideshow.",
+        "noPairs": "No pairs yet",
         "noMatches": "No match schedule yet",
         "switchToPlayers": "Switch to random players to showcase the current roster.",
         "loadFailed": "Could not load showcase",

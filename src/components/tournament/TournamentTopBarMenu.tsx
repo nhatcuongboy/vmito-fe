@@ -277,7 +277,6 @@ export default function TournamentTopBarMenu() {
 
   return (
     <Flex align="center" gap={2}>
-      <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
       <UserMenu onLogout={handleLogout} />
     </Flex>
   );

@@ -30,30 +30,21 @@ import { useParams } from 'next/navigation';
 import { Link, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
-import {
-  Home,
-  Users,
-  CalendarDays,
-  BarChart3,
-  Settings,
-  LayoutGrid,
-  CircleUserRound,
-  SquarePen,
-  Trophy,
-  ArrowRight,
-} from 'lucide-react';
+import { CircleUserRound, SquarePen, Trophy, ArrowRight } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
+import { useTournamentBottomNav } from '@/hooks/useTournamentBottomNav';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
+
 import {
   TournamentContentSkeleton,
   TournamentMatchListSkeleton,
@@ -118,15 +109,6 @@ const SEGMENT_TO_TAB: Record<TournamentSegment, number> = {
   standings: 3,
   manage: 4,
   dashboard: 5,
-};
-
-const TAB_TO_SEGMENT: Record<number, TournamentSegment> = {
-  0: 'home',
-  1: 'teams',
-  2: 'schedule',
-  3: 'standings',
-  4: 'manage',
-  5: 'dashboard',
 };
 
 interface TournamentPageShellProps {
@@ -308,6 +290,7 @@ export default function TournamentPageShell({
     ITeamCategoryBlock[]
   >([]);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
+  const [totalAthletes, setTotalAthletes] = useState(0);
 
   const isHost = useMemo(
     () => user?.id === tournament?.hostId,
@@ -341,29 +324,20 @@ export default function TournamentPageShell({
   const canManage =
     isHost || isAdmin || (myAccess?.permissions.length ?? 0) > 0;
 
-  const tabs = useMemo(() => {
-    const allTabs = [
-      { id: 0, label: t('tabs.home'), icon: Home },
-      { id: 1, label: t('tabs.teams'), icon: Users },
-      { id: 2, label: t('tabs.schedule'), icon: CalendarDays },
-      { id: 3, label: t('tabs.standings'), icon: BarChart3 },
-      { id: 4, label: t('tabs.manage'), icon: Settings },
-      { id: 5, label: t('tabs.dashboard'), icon: LayoutGrid },
-    ];
+  const activeTab = SEGMENT_TO_TAB[activeSegment];
 
-    return allTabs.filter((tab) => {
-      if (tab.id === 4) return canManage; // Manage: host, admin, or manager
-      if (tab.id === 5) return isHost || isAdmin; // Dashboard: host/admin only
-      return true;
-    });
-  }, [canManage, isHost, isAdmin, t]);
+  const { tabs, handleTabChange } = useTournamentBottomNav({
+    slug,
+    activeTabId: activeTab,
+    canManage,
+    isHostOrAdmin: isHost || isAdmin,
+  });
 
   const bottomNavTabs = tabs;
 
-  const activeTab = SEGMENT_TO_TAB[activeSegment];
   const tournamentHomeHref = `/tournament/${slug}`;
   const topBarIcon = (
-    <Trophy size={28} strokeWidth={2} color="var(--chakra-colors-yellow-400)" />
+    <Trophy size={22} strokeWidth={2} color="var(--chakra-colors-yellow-400)" />
   );
 
   const getCategoryTypeLabel = useCallback(
@@ -502,6 +476,7 @@ export default function TournamentPageShell({
         setLoadingTeams(true);
         setAllCategories([]);
         setTeamCategoryBlocks([]);
+        setTotalAthletes(0);
 
         const data = await TournamentService.getTournament(slug);
         setTournament(data);
@@ -510,6 +485,7 @@ export default function TournamentPageShell({
         setTournament(null);
         setAllCategories([]);
         setTeamCategoryBlocks([]);
+        setTotalAthletes(0);
       } finally {
         setLoading(false);
       }
@@ -590,12 +566,14 @@ export default function TournamentPageShell({
 
         setAllCategories(categories);
         setTeamCategoryBlocks(categoryBlocks);
+        setTotalAthletes(tournamentPlayers.length);
       } catch (error) {
         console.error('Error loading tournament teams:', error);
         if (!isMounted) return;
 
         setAllCategories([]);
         setTeamCategoryBlocks([]);
+        setTotalAthletes(0);
       } finally {
         if (isMounted) {
           setLoadingTeams(false);
@@ -623,18 +601,6 @@ export default function TournamentPageShell({
         0
       ),
     [teamCategoryBlocks]
-  );
-
-  const handleTabChange = useCallback(
-    (tabIndex: number) => {
-      const segment = TAB_TO_SEGMENT[tabIndex];
-      if (segment === 'home') {
-        router.push(`/tournament/${slug}`);
-      } else {
-        router.push(`/tournament/${slug}/${segment}`);
-      }
-    },
-    [router, slug]
   );
 
   useEffect(() => {
@@ -766,6 +732,7 @@ export default function TournamentPageShell({
             (sum, b) => sum + b.players.length,
             0
           )}
+          totalAthletes={totalAthletes}
           isLoadingCategories={loadingTeams}
           isHost={isHost}
           slug={slug}

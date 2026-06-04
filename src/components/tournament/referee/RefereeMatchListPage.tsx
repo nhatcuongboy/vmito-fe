@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 import PageLayout from '@/components/layout/PageLayout';
+import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
 import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
@@ -29,6 +30,7 @@ import {
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
+import { useTournamentBottomNav } from '@/hooks/useTournamentBottomNav';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import {
@@ -121,6 +123,20 @@ export default function RefereeMatchListPage() {
     onMatchStarted: () => void load(),
     onMatchEnded: () => void load(),
     onReconnect: () => void load(),
+  });
+
+  const isHost = user?.id === tournament?.hostId;
+  const isAdmin = user?.role === UserRole.ADMIN;
+
+  const {
+    tabs: bottomNavTabs,
+    activeTab: bottomNavActiveTab,
+    handleTabChange: handleBottomNavTabChange,
+  } = useTournamentBottomNav({
+    slug: tournamentParam,
+    activeTabId: 2,
+    canManage: isHost || isAdmin,
+    isHostOrAdmin: isHost || isAdmin,
   });
 
   const categoryById = useMemo(() => {
@@ -254,6 +270,7 @@ export default function RefereeMatchListPage() {
   }, [filteredMatches, categoryById]);
 
   const activeFilterCount = getActiveFilterCount(filters);
+  const tournamentHomeHref = `/tournament/${tournamentParam}`;
 
   const updateFilterList = <K extends ListFilterKey>(
     key: K,
@@ -269,179 +286,210 @@ export default function RefereeMatchListPage() {
   };
 
   return (
-    <PageLayout
-      title={t('title')}
-      showTopBarMenuButton={false}
-      showTopBarAiAssistantButton={false}
-      disableSidebarOffset
-      maxW="full"
-      px={{ base: '24px', md: 0 }}
-    >
-      <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
-        {loading ? (
-          <TournamentMatchListSkeleton count={6} />
-        ) : !canAccess ? (
-          <Flex direction="column" align="center" py={16} gap={3}>
-            <Gavel size={40} opacity={0.4} />
-            <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
-            <Text color="gray.500">{tGuard('permissionDenied')}</Text>
-          </Flex>
-        ) : matches.length === 0 ? (
-          <Flex direction="column" align="center" py={16} gap={3}>
-            <Gavel size={40} opacity={0.4} />
-            <Text color="gray.500">{t('noAssignedMatches')}</Text>
-          </Flex>
-        ) : (
-          <VStack align="stretch" gap={6}>
-            <Flex
-              justify="space-between"
-              align={{ base: 'stretch', md: 'center' }}
-              gap={3}
-              direction={{ base: 'column', md: 'row' }}
-            >
-              <Box>
-                <Heading size="md" mb={1}>
-                  {t('title')}
-                </Heading>
-                <Text color="gray.500" fontSize="sm">
-                  {filteredMatches.length}/{matches.length}{' '}
-                  {tManual('panelTitle')}
-                </Text>
-              </Box>
-
+    <>
+      <PageLayout
+        title={t('title')}
+        backHref={tournamentHomeHref}
+        showTopBarMenuButton={false}
+        showTopBarAiAssistantButton={false}
+        disableSidebarOffset
+        maxW="full"
+        px={{ base: '24px', md: 0 }}
+        pb={{
+          base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
+          md: '24px',
+        }}
+      >
+        <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+          {loading ? (
+            <TournamentMatchListSkeleton count={6} />
+          ) : !canAccess ? (
+            <Flex direction="column" align="center" py={16} gap={3}>
+              <Gavel size={40} opacity={0.4} />
+              <Text fontWeight="semibold">{tGuard('accessDenied')}</Text>
+              <Text color="gray.500">{tGuard('permissionDenied')}</Text>
+            </Flex>
+          ) : matches.length === 0 ? (
+            <Flex direction="column" align="center" py={16} gap={3}>
+              <Gavel size={40} opacity={0.4} />
+              <Text color="gray.500">{t('noAssignedMatches')}</Text>
+            </Flex>
+          ) : (
+            <VStack align="stretch" gap={6}>
               <Flex
-                gap={2}
-                wrap="wrap"
-                justify={{ base: 'flex-start', md: 'end' }}
+                justify="space-between"
+                align={{ base: 'stretch', md: 'center' }}
+                gap={3}
+                direction={{ base: 'column', md: 'row' }}
               >
+                <Box>
+                  <Heading size="md" mb={1}>
+                    {t('title')}
+                  </Heading>
+                  <Text color="gray.500" fontSize="sm">
+                    {filteredMatches.length}/{matches.length}{' '}
+                    {tManual('panelTitle')}
+                  </Text>
+                </Box>
+
                 <Flex
-                  p="2px"
-                  gap="2px"
+                  align="center"
+                  gap={2}
+                  wrap="wrap"
+                  justify={{ base: 'stretch', md: 'end' }}
+                  w={{ base: 'full', md: 'auto' }}
+                  p={1}
                   borderWidth="1px"
                   borderColor="gray.200"
-                  borderRadius="md"
-                  bg="gray.50"
-                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                  borderRadius="lg"
+                  bg="white"
+                  boxShadow="sm"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                 >
-                  <ModeButton
-                    active={viewMode === 'list'}
-                    onClick={() => setViewMode('list')}
-                    icon={<List size={14} />}
+                  <Flex
+                    flex={{ base: '1 1 100%', sm: '0 0 auto' }}
+                    p={0.5}
+                    gap={1}
+                    borderRadius="md"
+                    bg="gray.100"
+                    _dark={{ bg: 'gray.800' }}
                   >
-                    {tManual('viewList')}
-                  </ModeButton>
-                  <ModeButton
-                    active={viewMode === 'calendar'}
-                    onClick={() => setViewMode('calendar')}
-                    icon={<CalendarDays size={14} />}
-                  >
-                    {tManual('viewCalendar')}
-                  </ModeButton>
-                </Flex>
-
-                <Button
-                  size="sm"
-                  variant={showPlayerNames ? 'solid' : 'outline'}
-                  colorPalette={showPlayerNames ? 'green' : 'gray'}
-                  onClick={() => setShowPlayerNames((prev) => !prev)}
-                  aria-pressed={showPlayerNames}
-                  title={tManual('showPlayerNames')}
-                >
-                  <Users size={14} /> {tManual('showPlayerNames')}
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  colorPalette="gray"
-                  onClick={() => setIsFilterOpen(true)}
-                >
-                  <Filter size={14} /> {tManual('filters.title')}
-                  {activeFilterCount > 0 && (
-                    <Badge ml={1} colorPalette="green" borderRadius="full">
-                      {activeFilterCount}
-                    </Badge>
-                  )}
-                </Button>
-              </Flex>
-            </Flex>
-
-            {filteredMatches.length === 0 ? (
-              <EmptyRefereeResults onClear={() => setFilters(EMPTY_FILTERS)} />
-            ) : viewMode === 'calendar' ? (
-              <ResultsCalendarView
-                matches={filteredMatches}
-                courts={Array.from(courtById.values())}
-                categoryById={categoryById}
-                onSelect={(match) =>
-                  router.push(
-                    `/tournament/${tournamentParam}/referee/${match.id}`
-                  )
-                }
-                resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
-                courtAbbreviation={courtAbbreviation}
-                allMatches={matches}
-                showPlayerNames={showPlayerNames}
-              />
-            ) : (
-              groups.map((group) => (
-                <Box key={group.categoryId}>
-                  <Flex align="center" gap={2} mb={3}>
-                    <Box
-                      w="10px"
-                      h="10px"
-                      borderRadius="full"
-                      bg={getCategoryColor(categoryOptions, group.categoryId)}
-                    />
-                    <Heading
-                      size="sm"
-                      color="gray.700"
-                      _dark={{ color: 'gray.200' }}
+                    <ModeButton
+                      active={viewMode === 'list'}
+                      onClick={() => setViewMode('list')}
+                      icon={<List size={15} />}
                     >
-                      {group.name}
-                    </Heading>
-                    <Badge colorPalette="gray">{group.items.length}</Badge>
+                      {tManual('viewList')}
+                    </ModeButton>
+                    <ModeButton
+                      active={viewMode === 'calendar'}
+                      onClick={() => setViewMode('calendar')}
+                      icon={<CalendarDays size={15} />}
+                    >
+                      {tManual('viewCalendar')}
+                    </ModeButton>
                   </Flex>
-                  <VStack align="stretch" gap={3}>
-                    {group.items.map((match) => (
-                      <ResultMatchCard
-                        key={match.id}
-                        match={match}
-                        categoryName={group.name}
-                        canEdit
-                        onSelect={() =>
-                          router.push(
-                            `/tournament/${tournamentParam}/referee/${match.id}`
-                          )
-                        }
-                        roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
-                        courtAbbreviation={courtAbbreviation}
-                        allMatches={matches}
-                        category={categoryById.get(match.categoryId)}
-                        showPlayerNames={showPlayerNames}
-                      />
-                    ))}
-                  </VStack>
-                </Box>
-              ))
-            )}
 
-            <FilterDrawer
-              isOpen={isFilterOpen}
-              onClose={() => setIsFilterOpen(false)}
-              filters={filters}
-              setFilters={setFilters}
-              categoryOptions={categoryOptions}
-              roundOptions={roundOptions}
-              courtOptions={courtOptions}
-              statusOptions={statusOptions}
-              teamOptions={teamOptions}
-              onToggle={updateFilterList}
-            />
-          </VStack>
-        )}
-      </TournamentRefereeDesktopLayout>
-    </PageLayout>
+                  <Button
+                    size="sm"
+                    variant={showPlayerNames ? 'solid' : 'outline'}
+                    colorPalette={showPlayerNames ? 'green' : 'gray'}
+                    onClick={() => setShowPlayerNames((prev) => !prev)}
+                    aria-pressed={showPlayerNames}
+                    title={tManual('showPlayerNames')}
+                    flex={{ base: 1, sm: '0 0 auto' }}
+                    minW={{ base: 0, sm: 'auto' }}
+                    h={9}
+                    px={3}
+                  >
+                    <Users size={15} /> {tManual('showPlayerNames')}
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorPalette="gray"
+                    onClick={() => setIsFilterOpen(true)}
+                    flex={{ base: 1, sm: '0 0 auto' }}
+                    minW={{ base: 0, sm: 'auto' }}
+                    h={9}
+                    px={3}
+                  >
+                    <Filter size={15} /> {tManual('filters.title')}
+                    {activeFilterCount > 0 && (
+                      <Badge ml={1} colorPalette="green" borderRadius="full">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </Flex>
+              </Flex>
+
+              {filteredMatches.length === 0 ? (
+                <EmptyRefereeResults
+                  onClear={() => setFilters(EMPTY_FILTERS)}
+                />
+              ) : viewMode === 'calendar' ? (
+                <ResultsCalendarView
+                  matches={filteredMatches}
+                  courts={Array.from(courtById.values())}
+                  categoryById={categoryById}
+                  onSelect={(match) =>
+                    router.push(
+                      `/tournament/${tournamentParam}/referee/${match.id}`
+                    )
+                  }
+                  resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
+                  courtAbbreviation={courtAbbreviation}
+                  allMatches={matches}
+                  showPlayerNames={showPlayerNames}
+                />
+              ) : (
+                groups.map((group) => (
+                  <Box key={group.categoryId}>
+                    <Flex align="center" gap={2} mb={3}>
+                      <Box
+                        w="10px"
+                        h="10px"
+                        borderRadius="full"
+                        bg={getCategoryColor(categoryOptions, group.categoryId)}
+                      />
+                      <Heading
+                        size="sm"
+                        color="gray.700"
+                        _dark={{ color: 'gray.200' }}
+                      >
+                        {group.name}
+                      </Heading>
+                      <Badge colorPalette="gray">{group.items.length}</Badge>
+                    </Flex>
+                    <VStack align="stretch" gap={3}>
+                      {group.items.map((match) => (
+                        <ResultMatchCard
+                          key={match.id}
+                          match={match}
+                          categoryName={group.name}
+                          canEdit
+                          onSelect={() =>
+                            router.push(
+                              `/tournament/${tournamentParam}/referee/${match.id}`
+                            )
+                          }
+                          roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
+                          courtAbbreviation={courtAbbreviation}
+                          allMatches={matches}
+                          category={categoryById.get(match.categoryId)}
+                          showPlayerNames={showPlayerNames}
+                        />
+                      ))}
+                    </VStack>
+                  </Box>
+                ))
+              )}
+
+              <FilterDrawer
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                filters={filters}
+                setFilters={setFilters}
+                categoryOptions={categoryOptions}
+                roundOptions={roundOptions}
+                courtOptions={courtOptions}
+                statusOptions={statusOptions}
+                teamOptions={teamOptions}
+                onToggle={updateFilterList}
+              />
+            </VStack>
+          )}
+        </TournamentRefereeDesktopLayout>
+      </PageLayout>
+
+      <BottomNavigationBar
+        tabs={bottomNavTabs}
+        activeTab={bottomNavActiveTab}
+        onTabChange={handleBottomNavTabChange}
+      />
+    </>
   );
 }
 

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Badge, Box, Flex, Heading, Image, Text } from '@chakra-ui/react';
-import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
+import { HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
@@ -19,14 +19,7 @@ import {
   Tournament,
   TournamentPlayer,
 } from '@/lib/api/types';
-import {
-  CalendarDays,
-  ChevronLeft,
-  MapPin,
-  Medal,
-  Trophy,
-  UserRound,
-} from 'lucide-react';
+import { CalendarDays, MapPin, Medal, Trophy, UserRound } from 'lucide-react';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
 import {
@@ -36,6 +29,10 @@ import {
 } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
+import { useCanGoBack } from '@/hooks/useCanGoBack';
+import TournamentProfileHero, {
+  getTournamentCoverImage,
+} from './TournamentProfileHero';
 
 interface PlayerCategorySummary {
   id: string;
@@ -250,6 +247,10 @@ export default function PublicTournamentPlayerPage() {
   const router = useRouter();
   const tournamentId = params.tournamentId as string;
   const playerCode = params.playerCode as string;
+  const canGoBack = useCanGoBack();
+  const backHref = `/tournament/${tournamentId}/teams`;
+  const handleBack = useCallback(() => router.back(), [router]);
+  const contextualBack = canGoBack ? handleBack : undefined;
 
   const [loading, setLoading] = useState(true);
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -324,7 +325,9 @@ export default function PublicTournamentPlayerPage() {
     return (
       <PageLayout
         title={t('title')}
-        showBackButton={false}
+        showBackButton
+        backHref={backHref}
+        onBack={contextualBack}
         topBarVariant="main"
         showTopBarMenuButton={false}
         showTopBarLogo={false}
@@ -346,7 +349,9 @@ export default function PublicTournamentPlayerPage() {
     return (
       <PageLayout
         title={t('title')}
-        showBackButton={false}
+        showBackButton
+        backHref={backHref}
+        onBack={contextualBack}
         topBarVariant="main"
         showTopBarMenuButton={false}
         showTopBarLogo={false}
@@ -355,15 +360,6 @@ export default function PublicTournamentPlayerPage() {
         rightContent={<TournamentTopBarMenu />}
       >
         <VStack align="stretch" gap={4}>
-          <Button
-            alignSelf="flex-start"
-            variant="ghost"
-            colorPalette="gray"
-            leftIcon={<ChevronLeft size={16} />}
-            onClick={() => router.push(`/tournament/${tournamentId}/teams`)}
-          >
-            {t('backToList')}
-          </Button>
           <Box
             borderWidth="1px"
             borderColor="gray.200"
@@ -393,11 +389,15 @@ export default function PublicTournamentPlayerPage() {
           tournament.endDate,
           dateLocale
         )}`;
+  const coverImage = getTournamentCoverImage(tournament);
+  const avatarSrc = player.image || player.user?.image;
 
   return (
     <PageLayout
       title={t('title')}
-      showBackButton={false}
+      showBackButton
+      backHref={backHref}
+      onBack={contextualBack}
       topBarVariant="main"
       showTopBarMenuButton={false}
       showTopBarLogo={false}
@@ -409,71 +409,61 @@ export default function PublicTournamentPlayerPage() {
       _dark={{ bg: 'gray.900' }}
     >
       <VStack align="stretch" gap={5}>
-        <Button
-          alignSelf="flex-start"
-          variant="ghost"
-          colorPalette="gray"
-          leftIcon={<ChevronLeft size={16} />}
-          onClick={() => router.push(`/tournament/${tournamentId}/teams`)}
-        >
-          {t('backToListShort')}
-        </Button>
-
         <Box
           borderWidth="1px"
           borderColor="gray.200"
-          borderRadius="xl"
+          borderRadius="2xl"
           bg="white"
           overflow="hidden"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          boxShadow="0 20px 60px rgba(15, 23, 42, 0.08)"
+          _dark={{
+            bg: 'gray.800',
+            borderColor: 'gray.700',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.28)',
+          }}
         >
-          <Box bg="green.600" color="white" px={{ base: 5, md: 6 }} py={6}>
-            <VStack align="stretch" gap={4}>
-              <Flex align="center" gap={3}>
-                {(() => {
-                  const avatarSrc = player.image || player.user?.image;
-                  return avatarSrc ? (
-                    <Box
-                      w={{ base: '56px', md: '64px' }}
-                      h={{ base: '56px', md: '64px' }}
-                      borderRadius="full"
-                      overflow="hidden"
-                      borderWidth="2px"
-                      borderColor="whiteAlpha.700"
-                      flexShrink={0}
-                    >
-                      <Image
-                        src={avatarSrc}
-                        alt={player.name}
-                        w="full"
-                        h="full"
-                        objectFit="cover"
-                      />
-                    </Box>
-                  ) : (
-                    <Flex
-                      w={{ base: '56px', md: '64px' }}
-                      h={{ base: '56px', md: '64px' }}
-                      borderRadius="full"
-                      bg="whiteAlpha.300"
-                      align="center"
-                      justify="center"
-                      flexShrink={0}
-                    >
-                      <UserRound size={30} />
-                    </Flex>
-                  );
-                })()}
-                <Box minW={0}>
-                  <Text fontSize="sm" opacity={0.9}>
-                    {t('athleteLabel')}
-                  </Text>
-                  <Heading size={{ base: 'lg', md: 'xl' }} lineHeight="short">
-                    {player.name}
-                  </Heading>
+          <TournamentProfileHero
+            coverImage={coverImage}
+            label={t('athleteLabel')}
+            title={player.name}
+            visual={
+              avatarSrc ? (
+                <Box
+                  w={{ base: '70px', md: '86px' }}
+                  h={{ base: '70px', md: '86px' }}
+                  borderRadius="full"
+                  overflow="hidden"
+                  borderWidth="3px"
+                  borderColor="whiteAlpha.800"
+                  boxShadow="0 16px 36px rgba(0, 0, 0, 0.28)"
+                  flexShrink={0}
+                >
+                  <Image
+                    src={avatarSrc}
+                    alt={player.name}
+                    w="full"
+                    h="full"
+                    objectFit="cover"
+                  />
                 </Box>
-              </Flex>
-
+              ) : (
+                <Flex
+                  w={{ base: '70px', md: '86px' }}
+                  h={{ base: '70px', md: '86px' }}
+                  borderRadius="full"
+                  bg="whiteAlpha.300"
+                  borderWidth="1px"
+                  borderColor="whiteAlpha.500"
+                  align="center"
+                  justify="center"
+                  boxShadow="0 16px 36px rgba(0, 0, 0, 0.24)"
+                  flexShrink={0}
+                >
+                  <UserRound size={36} />
+                </Flex>
+              )
+            }
+            meta={
               <VStack align="stretch" gap={2}>
                 <HStack gap={2}>
                   <Trophy size={16} />
@@ -492,16 +482,16 @@ export default function PublicTournamentPlayerPage() {
                   </HStack>
                 )}
               </VStack>
-            </VStack>
-          </Box>
+            }
+          />
 
           <Flex
             direction={{ base: 'column', md: 'row' }}
             align={{ base: 'stretch', md: 'flex-start' }}
             gap={6}
-            p={{ base: 5, md: 6 }}
+            p={{ base: 5, md: 7 }}
           >
-            <VStack align="stretch" gap={5} flex="1" minW={0}>
+            <VStack align="stretch" gap={7} flex="1" minW={0}>
               <Box>
                 <HStack gap={2} mb={3}>
                   <Medal size={18} color="var(--chakra-colors-green-600)" />
@@ -519,9 +509,21 @@ export default function PublicTournamentPlayerPage() {
                         key={category.id}
                         borderWidth="1px"
                         borderColor="gray.200"
-                        borderRadius="lg"
+                        borderRadius="xl"
                         p={4}
-                        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                        bg="white"
+                        boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
+                        transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
+                        _hover={{
+                          borderColor: 'green.300',
+                          boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+                          transform: 'translateY(-1px)',
+                        }}
+                        _dark={{
+                          bg: 'gray.900',
+                          borderColor: 'gray.700',
+                          _hover: { borderColor: 'green.500' },
+                        }}
                       >
                         <Flex
                           justify="space-between"
@@ -570,9 +572,19 @@ export default function PublicTournamentPlayerPage() {
                         key={match.id}
                         borderWidth="1px"
                         borderColor="gray.200"
-                        borderRadius="lg"
+                        borderRadius="xl"
                         p={4}
-                        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                        bg="white"
+                        transition="border-color 160ms ease, box-shadow 160ms ease"
+                        _hover={{
+                          borderColor: 'green.300',
+                          boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)',
+                        }}
+                        _dark={{
+                          bg: 'gray.900',
+                          borderColor: 'gray.700',
+                          _hover: { borderColor: 'green.500' },
+                        }}
                       >
                         <Flex
                           justify="space-between"
@@ -641,7 +653,9 @@ export default function PublicTournamentPlayerPage() {
             </VStack>
           </Flex>
         </Box>
-        <TournamentQrBar url={shareUrl} />
+        <Box borderRadius="2xl" boxShadow="0 14px 40px rgba(15, 23, 42, 0.05)">
+          <TournamentQrBar url={shareUrl} />
+        </Box>
       </VStack>
     </PageLayout>
   );

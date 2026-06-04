@@ -499,27 +499,39 @@ export default function ResultsPanel({
           )}
         </Box>
 
-        <Flex gap={2} wrap="wrap" justify={{ base: 'flex-start', md: 'end' }}>
+        <Flex
+          align="center"
+          gap={2}
+          wrap="wrap"
+          justify={{ base: 'stretch', md: 'end' }}
+          w={{ base: 'full', md: 'auto' }}
+          p={1}
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="lg"
+          bg="white"
+          boxShadow="sm"
+          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+        >
           <Flex
-            p="2px"
-            gap="2px"
-            borderWidth="1px"
-            borderColor="gray.200"
+            flex={{ base: '1 1 100%', sm: '0 0 auto' }}
+            p={0.5}
+            gap={1}
             borderRadius="md"
-            bg="gray.50"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            bg="gray.100"
+            _dark={{ bg: 'gray.800' }}
           >
             <ModeButton
               active={viewMode === 'list'}
               onClick={() => setViewMode('list')}
-              icon={<List size={14} />}
+              icon={<List size={15} />}
             >
               {t('viewList')}
             </ModeButton>
             <ModeButton
               active={viewMode === 'calendar'}
               onClick={() => setViewMode('calendar')}
-              icon={<CalendarDays size={14} />}
+              icon={<CalendarDays size={15} />}
             >
               {t('viewCalendar')}
             </ModeButton>
@@ -532,8 +544,12 @@ export default function ResultsPanel({
             onClick={() => setShowPlayerNames((prev) => !prev)}
             aria-pressed={showPlayerNames}
             title={t('showPlayerNames')}
+            flex={{ base: 1, sm: '0 0 auto' }}
+            minW={{ base: 0, sm: 'auto' }}
+            h={9}
+            px={3}
           >
-            <Users size={14} /> {t('showPlayerNames')}
+            <Users size={15} /> {t('showPlayerNames')}
           </Button>
 
           <Button
@@ -541,8 +557,12 @@ export default function ResultsPanel({
             variant="outline"
             colorPalette="gray"
             onClick={() => setIsFilterOpen(true)}
+            flex={{ base: 1, sm: '0 0 auto' }}
+            minW={{ base: 0, sm: 'auto' }}
+            h={9}
+            px={3}
           >
-            <Filter size={14} /> {t('filters.title')}
+            <Filter size={15} /> {t('filters.title')}
             {activeFilterCount > 0 && (
               <Badge ml={1} colorPalette="green" borderRadius="full">
                 {activeFilterCount}
@@ -804,6 +824,7 @@ export type ListFilterKey =
 
 export function ResultMatchCard({
   match,
+  categoryName,
   onSelect,
   compact = false,
   roundOrGroupLabel,
@@ -813,7 +834,7 @@ export function ResultMatchCard({
   showPlayerNames = false,
 }: {
   match: CategoryMatch;
-  /** Kept for call-site compatibility (e.g. referee list); not rendered. */
+  /** Category name shown as a badge on the card. */
   categoryName?: string;
   /** Kept for call-site compatibility; clickability is gated on onSelect. */
   canEdit?: boolean;
@@ -896,16 +917,32 @@ export function ResultMatchCard({
       }}
     >
       <Flex justify="space-between" align="start" gap={3} mb={compact ? 2 : 3}>
-        <Text
-          fontSize="sm"
-          color="gray.600"
-          _dark={{ color: 'gray.300' }}
-          lineClamp={1}
-          minW={0}
-        >
-          {getMatchDisplayCode(match)} · {topLabel}
-          {courtLabel ? ` · ${courtLabel}` : ''}
-        </Text>
+        <Flex direction="column" gap={1} minW={0} flex={1}>
+          {categoryName && (
+            <Badge
+              colorPalette="green"
+              variant="subtle"
+              borderRadius="full"
+              px={2}
+              py={0.5}
+              fontSize="xs"
+              fontWeight="semibold"
+              w="fit-content"
+            >
+              {categoryName}
+            </Badge>
+          )}
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            _dark={{ color: 'gray.300' }}
+            lineClamp={1}
+            minW={0}
+          >
+            {getMatchDisplayCode(match)} · {topLabel}
+            {courtLabel ? ` · ${courtLabel}` : ''}
+          </Text>
+        </Flex>
         <Flex align="center" justify="flex-end" gap={2} flexShrink={0}>
           {timeLabel && (
             <Text
@@ -1443,11 +1480,17 @@ export function ModeButton({
 }) {
   return (
     <Button
-      size="xs"
+      size="sm"
       variant={active ? 'solid' : 'ghost'}
       colorPalette={active ? 'green' : 'gray'}
       onClick={onClick}
       leftIcon={icon}
+      flex={1}
+      h={8}
+      minW={{ base: 0, sm: 24 }}
+      px={3}
+      fontSize="sm"
+      fontWeight="semibold"
     >
       {children}
     </Button>
@@ -1560,7 +1603,14 @@ export function formatCourtLabel(
   court: { courtNumber: number; courtName?: string | null },
   courtPrefix: string
 ) {
-  return court.courtName || `${courtPrefix} ${court.courtNumber}`;
+  // If courtName is a pure number string (e.g. "6"), treat it as the court
+  // number and prefix it — so it displays as "Sân 6" instead of a bare "6".
+  const name = court.courtName?.trim();
+  if (!name || /^\d+$/.test(name)) {
+    const num = name ? Number(name) : court.courtNumber;
+    return `${courtPrefix} ${num}`;
+  }
+  return name;
 }
 
 // Court label prefixed with the venue acronym when available (e.g. "R · Court 1").

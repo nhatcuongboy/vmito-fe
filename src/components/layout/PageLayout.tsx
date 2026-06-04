@@ -22,6 +22,7 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   rightContent?: ReactNode;
   showBackButton?: boolean;
   backHref?: string;
+  onBack?: () => void;
   maxW?: string;
   children?: ReactNode;
   isLoading?: boolean;
@@ -50,6 +51,7 @@ export default function PageLayout({
   rightContent,
   showBackButton,
   backHref,
+  onBack,
   maxW = 'container.xl',
   children,
   isLoading = false,
@@ -106,6 +108,7 @@ export default function PageLayout({
         rightContent={rightContent}
         showBackButton={showBackButton ?? variant === 'secondary'}
         backHref={backHref}
+        onBack={onBack}
         variant={variant}
         hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
         centerTitle={centerTitle}

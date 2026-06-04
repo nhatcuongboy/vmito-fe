@@ -525,6 +525,8 @@ export default function RefereeScoringPage() {
                   statusLabel={t(`status.${match.status}`)}
                   status={match.status}
                   title={t('finalResult')}
+                  winnerLabel={t('winner')}
+                  setWinsLabel={t('setWins')}
                   backLabel={t('back')}
                   courtLabel={courtLabel}
                   scheduledTime={scheduledTime}
@@ -556,6 +558,8 @@ function FinalResultSummary({
   statusLabel,
   status,
   title,
+  winnerLabel,
+  setWinsLabel,
   backLabel,
   courtLabel,
   scheduledTime,
@@ -567,6 +571,8 @@ function FinalResultSummary({
   statusLabel: string;
   status: CategoryMatch['status'];
   title: string;
+  winnerLabel: string;
+  setWinsLabel: string;
   backLabel: string;
   courtLabel: string;
   scheduledTime: string;
@@ -574,6 +580,19 @@ function FinalResultSummary({
 }) {
   const [side1, side2] = sides;
   const isCancelled = status === 'CANCELLED';
+  const side1SetWins = sets.filter(
+    (set) => set.player1Score > set.player2Score
+  ).length;
+  const side2SetWins = sets.filter(
+    (set) => set.player2Score > set.player1Score
+  ).length;
+  const hasSetScore = sets.length > 0;
+  const winnerPosition =
+    !isCancelled && hasSetScore && side1SetWins !== side2SetWins
+      ? side1SetWins > side2SetWins
+        ? 1
+        : 2
+      : undefined;
 
   return (
     <Box
@@ -599,17 +618,17 @@ function FinalResultSummary({
         <HStack justify="space-between" gap={3} align="start">
           <HStack gap={3} minW={0}>
             <Box
-              bg={isCancelled ? 'gray.100' : 'yellow.100'}
-              color={isCancelled ? 'gray.700' : 'yellow.700'}
+              bg={isCancelled ? 'gray.100' : 'green.100'}
+              color={isCancelled ? 'gray.700' : 'green.700'}
               borderRadius="full"
               p={{ base: 2.5, md: 3 }}
               flexShrink={0}
               _dark={{
-                bg: isCancelled ? 'whiteAlpha.100' : 'yellow.900',
-                color: isCancelled ? 'gray.200' : 'yellow.200',
+                bg: isCancelled ? 'whiteAlpha.100' : 'green.900',
+                color: isCancelled ? 'gray.200' : 'green.200',
               }}
             >
-              <Trophy size={28} />
+              <Trophy size={24} />
             </Box>
             <Box minW={0}>
               <Heading size={{ base: 'sm', md: 'md' }}>{title}</Heading>
@@ -634,30 +653,61 @@ function FinalResultSummary({
         </HStack>
       </Box>
 
-      <VStack align="stretch" gap={5} px={{ base: 4, md: 6 }} py={6}>
-        <SimpleGrid columns={3} gap={{ base: 2, md: 4 }} alignItems="center">
-          <FinalResultSide side={side1} align="right" />
-
-          <VStack gap={2} minW={0}>
+      <VStack
+        align="stretch"
+        gap={{ base: 4, md: 5 }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 5, md: 6 }}
+      >
+        <Box
+          borderWidth="1px"
+          borderColor={isCancelled ? 'gray.200' : 'green.100'}
+          borderRadius="2xl"
+          bg={isCancelled ? 'gray.50' : 'green.50'}
+          px={{ base: 4, md: 5 }}
+          py={{ base: 4, md: 5 }}
+          textAlign="center"
+          _dark={{
+            bg: isCancelled ? 'whiteAlpha.50' : 'green.950',
+            borderColor: 'whiteAlpha.200',
+          }}
+        >
+          <VStack gap={3}>
             <Text
-              fontSize={{ base: '3xl', md: '5xl' }}
+              fontSize="xs"
+              color="gray.500"
+              fontWeight="bold"
+              textTransform="uppercase"
+              _dark={{ color: 'gray.400' }}
+            >
+              {isCancelled ? statusLabel : title}
+            </Text>
+            <Text
+              fontSize={{ base: '5xl', md: '6xl' }}
               lineHeight={1}
               fontWeight="black"
               textAlign="center"
               wordBreak="break-word"
             >
-              {score || '—'}
+              {hasSetScore ? `${side1SetWins} - ${side2SetWins}` : score || '—'}
             </Text>
             {sets.length > 0 && (
-              <Flex gap={1.5} wrap="wrap" justify="center">
+              <Flex gap={2} wrap="wrap" justify="center">
                 {sets.map((set) => (
                   <Badge
                     key={set.setNumber}
-                    colorPalette="gray"
+                    colorPalette={
+                      set.player1Score === set.player2Score
+                        ? 'gray'
+                        : set.player1Score > set.player2Score
+                          ? 'green'
+                          : 'purple'
+                    }
+                    variant="subtle"
                     fontSize={{ base: 'xs', md: 'sm' }}
-                    borderRadius="md"
-                    px={2}
-                    py={0.5}
+                    borderRadius="full"
+                    px={3}
+                    py={1}
                   >
                     {set.player1Score}-{set.player2Score}
                   </Badge>
@@ -665,17 +715,35 @@ function FinalResultSummary({
               </Flex>
             )}
           </VStack>
+        </Box>
 
-          <FinalResultSide side={side2} align="left" />
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
+          <FinalResultSide
+            side={side1}
+            setWins={side1SetWins}
+            isWinner={winnerPosition === 1}
+            isCancelled={isCancelled}
+            winnerLabel={winnerLabel}
+            setWinsLabel={setWinsLabel}
+          />
+          <FinalResultSide
+            side={side2}
+            setWins={side2SetWins}
+            isWinner={winnerPosition === 2}
+            isCancelled={isCancelled}
+            winnerLabel={winnerLabel}
+            setWinsLabel={setWinsLabel}
+          />
         </SimpleGrid>
 
         <Button
-          alignSelf="center"
+          alignSelf={{ base: 'stretch', sm: 'center' }}
           variant="outline"
           colorPalette="green"
           onClick={onBack}
           borderRadius="lg"
-          minW="128px"
+          minW={{ base: 'auto', sm: '160px' }}
+          h={11}
         >
           {backLabel}
         </Button>
@@ -686,41 +754,104 @@ function FinalResultSummary({
 
 function FinalResultSide({
   side,
-  align,
+  setWins,
+  isWinner,
+  isCancelled,
+  winnerLabel,
+  setWinsLabel,
 }: {
   side?: MatchSideInfo;
-  align: 'left' | 'right';
+  setWins: number;
+  isWinner?: boolean;
+  isCancelled: boolean;
+  winnerLabel: string;
+  setWinsLabel: string;
 }) {
-  const textAlign = align === 'right' ? 'right' : 'left';
+  const players = side?.players ?? [];
   const playerNames =
-    side?.players.length != null && side.players.length > 0
-      ? side.players.map((player) => player.name).join(' / ')
-      : side?.teamName;
+    players.length > 0 ? players.map((player) => player.name) : [];
 
   return (
-    <Box minW={0}>
-      <Text
-        color="gray.500"
-        fontSize={{ base: 'xs', md: 'sm' }}
-        fontWeight="bold"
-        textAlign={textAlign}
-        whiteSpace="nowrap"
-        overflow="hidden"
-        textOverflow="ellipsis"
-        _dark={{ color: 'gray.400' }}
-      >
-        {side?.teamName ?? '—'}
-      </Text>
-      <Text
-        mt={1}
-        fontSize={{ base: 'md', md: 'xl' }}
-        lineHeight={1.2}
-        fontWeight="black"
-        textAlign={textAlign}
-        wordBreak="break-word"
-      >
-        {playerNames ?? '—'}
-      </Text>
+    <Box
+      minW={0}
+      borderWidth="1px"
+      borderColor={isWinner ? 'green.300' : 'gray.200'}
+      borderRadius="2xl"
+      bg={isWinner ? 'green.50' : 'white'}
+      px={{ base: 4, md: 5 }}
+      py={4}
+      boxShadow={isWinner ? '0 14px 30px rgba(22, 163, 74, 0.12)' : 'sm'}
+      _dark={{
+        bg: isWinner ? 'green.950' : 'whiteAlpha.50',
+        borderColor: isWinner ? 'green.700' : 'whiteAlpha.200',
+      }}
+    >
+      <Flex align="start" justify="space-between" gap={3}>
+        <Box minW={0}>
+          <HStack gap={2} mb={2} flexWrap="wrap">
+            <Badge
+              colorPalette={isWinner ? 'green' : 'gray'}
+              variant={isWinner ? 'solid' : 'subtle'}
+              borderRadius="full"
+              px={2.5}
+            >
+              {side?.teamName ?? '—'}
+            </Badge>
+            {isWinner && !isCancelled && (
+              <Badge colorPalette="yellow" borderRadius="full" px={2.5}>
+                <Trophy size={12} /> {winnerLabel}
+              </Badge>
+            )}
+          </HStack>
+
+          <VStack align="stretch" gap={1.5}>
+            {playerNames.length > 0 ? (
+              playerNames.map((name, index) => (
+                <Text
+                  key={`${side?.position ?? 'side'}-${index}-${name}`}
+                  fontSize={{ base: 'lg', md: 'xl' }}
+                  lineHeight={1.2}
+                  fontWeight="black"
+                  wordBreak="break-word"
+                >
+                  {name}
+                </Text>
+              ))
+            ) : (
+              <Text
+                fontSize={{ base: 'lg', md: 'xl' }}
+                lineHeight={1.2}
+                fontWeight="black"
+                color="gray.400"
+                _dark={{ color: 'gray.500' }}
+              >
+                —
+              </Text>
+            )}
+          </VStack>
+        </Box>
+
+        <Box
+          minW="76px"
+          borderRadius="xl"
+          bg={isWinner ? 'green.600' : 'gray.100'}
+          color={isWinner ? 'white' : 'gray.700'}
+          px={3}
+          py={2}
+          textAlign="center"
+          _dark={{
+            bg: isWinner ? 'green.500' : 'whiteAlpha.100',
+            color: isWinner ? 'white' : 'gray.200',
+          }}
+        >
+          <Text fontSize="xs" fontWeight="bold" lineHeight={1.1}>
+            {setWinsLabel}
+          </Text>
+          <Text mt={1} fontSize="2xl" lineHeight={1} fontWeight="black">
+            {setWins}
+          </Text>
+        </Box>
+      </Flex>
     </Box>
   );
 }

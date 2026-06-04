@@ -16,6 +16,7 @@ import {
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
   Users,
+  UserRound,
   CalendarDays,
   BarChart3,
   ChevronRight,
@@ -23,7 +24,6 @@ import {
   Navigation,
   Pencil,
   Trash2,
-  MoreHorizontal,
   CheckCircle,
   MonitorPlay,
   Gavel,
@@ -67,6 +67,7 @@ interface TournamentHomeTabProps {
   /** Full category objects, used by the embedded champions/podium section. */
   fullCategories: Category[];
   totalTeams: number;
+  totalAthletes: number;
   isLoadingCategories?: boolean;
   isHost: boolean;
   slug: string;
@@ -103,6 +104,7 @@ export default function TournamentHomeTab({
   categories,
   fullCategories,
   totalTeams,
+  totalAthletes,
   isLoadingCategories = false,
   isHost,
   slug,
@@ -151,6 +153,10 @@ export default function TournamentHomeTab({
     if (!venue) return [];
     return [{ id: venue.id, venue }];
   }, [tournamentVenues, venue]);
+  const overviewVenueName = displayVenues
+    .map(({ venue: currentVenue }) => currentVenue.name)
+    .filter(Boolean)
+    .join(', ');
 
   useEffect(() => {
     let isMounted = true;
@@ -276,23 +282,13 @@ export default function TournamentHomeTab({
           <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
             {t('overview.title')}
           </Text>
-          <Flex
-            w="32px"
-            h="32px"
-            borderRadius="md"
-            align="center"
-            justify="center"
-            cursor="pointer"
-            _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-          >
-            <MoreHorizontal size={16} color="var(--chakra-colors-gray-500)" />
-          </Flex>
         </Flex>
 
         <Flex
           gap={{ base: 3, md: 5 }}
           mb={4}
           direction={{ base: 'column', sm: 'row' }}
+          wrap={{ base: 'nowrap', sm: 'wrap' }}
           align={{ base: 'stretch', sm: 'center' }}
         >
           <Flex align="center" gap={2} minW={0}>
@@ -310,6 +306,22 @@ export default function TournamentHomeTab({
             )}
           </Flex>
           <Flex align="center" gap={2} minW={0}>
+            <UserRound size={16} color="var(--chakra-colors-gray-500)" />
+            {isLoadingCategories ? (
+              <Skeleton height="16px" width="132px" borderRadius="md" />
+            ) : (
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
+              >
+                {t('overview.athletesParticipating', {
+                  count: totalAthletes,
+                })}
+              </Text>
+            )}
+          </Flex>
+          <Flex align="center" gap={2} minW={0}>
             <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
             <Text
               fontSize="sm"
@@ -320,6 +332,19 @@ export default function TournamentHomeTab({
               {formattedDate}
             </Text>
           </Flex>
+          {overviewVenueName && (
+            <Flex align="center" gap={2} minW={0}>
+              <MapPin size={16} color="var(--chakra-colors-gray-500)" />
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                lineClamp={1}
+                _dark={{ color: 'gray.300' }}
+              >
+                {overviewVenueName}
+              </Text>
+            </Flex>
+          )}
         </Flex>
 
         <Grid
@@ -480,17 +505,6 @@ export default function TournamentHomeTab({
                 {t('categories.manage')}
               </Text>
             )}
-            <Flex
-              w="32px"
-              h="32px"
-              borderRadius="md"
-              align="center"
-              justify="center"
-              cursor="pointer"
-              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-            >
-              <MoreHorizontal size={16} color="var(--chakra-colors-gray-500)" />
-            </Flex>
           </HStack>
         </Flex>
 
@@ -595,20 +609,6 @@ export default function TournamentHomeTab({
                   {t('venues.manage')}
                 </Button>
               )}
-              <Flex
-                w="32px"
-                h="32px"
-                borderRadius="md"
-                align="center"
-                justify="center"
-                cursor="pointer"
-                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-              >
-                <MoreHorizontal
-                  size={16}
-                  color="var(--chakra-colors-gray-500)"
-                />
-              </Flex>
             </HStack>
           </Flex>
 
@@ -833,24 +833,6 @@ export default function TournamentHomeTab({
                     onClick={() => handleManageOption('contact')}
                   >
                     <Pencil size={16} color="var(--chakra-colors-gray-500)" />
-                  </Box>
-                  <Box
-                    as="button"
-                    aria-label="Tùy chọn liên hệ"
-                    w="32px"
-                    h="32px"
-                    display="flex"
-                    borderRadius="md"
-                    alignItems="center"
-                    justifyContent="center"
-                    cursor="pointer"
-                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                    onClick={() => handleManageOption('managers')}
-                  >
-                    <MoreHorizontal
-                      size={16}
-                      color="var(--chakra-colors-gray-500)"
-                    />
                   </Box>
                 </HStack>
               )}

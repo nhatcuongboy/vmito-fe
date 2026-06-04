@@ -1586,6 +1586,7 @@
           "overview": {
             "title": "概览",
             "teamsParticipating": "{count} 支队伍参赛",
+            "athletesParticipating": "{count} 名运动员参赛",
             "viewSchedule": "查看赛程",
             "viewStandings": "查看排名",
             "viewShowcase": "展示"
@@ -3253,6 +3254,8 @@
         "showcaseTitle": "运动员展示",
         "tournament": "赛事",
         "randomPlayers": "随机运动员",
+        "singlePlayer": "单名运动员",
+        "pairs": "单组搭档",
         "matches": "对阵",
         "randomOrder": "随机",
         "scheduleOrder": "按赛程",
@@ -3270,6 +3273,7 @@
         "court": "场地 {court}",
         "noPlayers": "暂无运动员",
         "addPlayersFirst": "请先为赛事添加运动员，然后开始播放。",
+        "noPairs": "暂无搭档组合",
         "noMatches": "暂无赛程或对阵",
         "switchToPlayers": "切换到随机运动员模式，展示当前名单。",
         "loadFailed": "无法加载展示页",

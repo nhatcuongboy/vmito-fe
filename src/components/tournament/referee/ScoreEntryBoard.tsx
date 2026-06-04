@@ -43,6 +43,23 @@ function genClientId(): string {
   return `c_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
+/** True when two set arrays carry the same scores — lets us skip redundant
+ * reconcile re-renders (a new array identity would otherwise re-render the
+ * whole board after every tap, causing a one-frame flicker). */
+function sameSets(a: MatchSet[], b: MatchSet[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (
+      a[i].setNumber !== b[i].setNumber ||
+      a[i].player1Score !== b[i].player1Score ||
+      a[i].player2Score !== b[i].player2Score
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function setsOf(match: CategoryMatch, isDoubles: boolean): MatchSet[] {
   const sets = match.sets ?? [];
   if (sets.length === 0) {
@@ -136,7 +153,8 @@ export default function ScoreEntryBoard({
 
   const refetch = useCallback(async () => {
     const fresh = await CategoryService.getMatch(match.id);
-    setDisplaySets(setsOf(fresh, isDoubles));
+    const next = setsOf(fresh, isDoubles);
+    setDisplaySets((prev) => (sameSets(prev, next) ? prev : next));
     onMatchUpdate(fresh);
   }, [match.id, isDoubles, onMatchUpdate]);
 
@@ -168,8 +186,11 @@ export default function ScoreEntryBoard({
       setBusy(false);
     }
     // Reconcile to authoritative state only once the burst has fully settled.
+    // Skip the state update when the server confirms exactly what we already
+    // show, so an unchanged result doesn't re-render (and flicker) the board.
     if (lastResp && queueRef.current.length === 0) {
-      setDisplaySets(setsOf(lastResp, isDoubles));
+      const next = setsOf(lastResp, isDoubles);
+      setDisplaySets((prev) => (sameSets(prev, next) ? prev : next));
       onMatchUpdate(lastResp);
     }
   }, [match.id, isDoubles, onMatchUpdate, refetch]);
@@ -220,7 +241,8 @@ export default function ScoreEntryBoard({
     if (processingRef.current) return;
     try {
       const resp = await CategoryService.undoLastPoint(match.id);
-      setDisplaySets(setsOf(resp, isDoubles));
+      const next = setsOf(resp, isDoubles);
+      setDisplaySets((prev) => (sameSets(prev, next) ? prev : next));
       onMatchUpdate(resp);
     } catch {
       await refetch();
@@ -233,7 +255,9 @@ export default function ScoreEntryBoard({
       if (e.match.matchId !== match.id) return;
       if (e.clientId === clientIdRef.current) return;
       if (processingRef.current) return; // don't fight an in-flight burst
-      setDisplaySets(e.match.sets.length > 0 ? e.match.sets : displaySets);
+      if (e.match.sets.length === 0) return;
+      const next = e.match.sets;
+      setDisplaySets((prev) => (sameSets(prev, next) ? prev : next));
     },
     onMatchEnded: (e) => {
       if (e.match.matchId === match.id) void refetch();
