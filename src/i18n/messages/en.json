@@ -3365,6 +3365,7 @@
         "enterResult": "Enter result",
         "viewList": "List",
         "viewCalendar": "Calendar",
+        "showPlayerNames": "Player names",
         "calendar": {
           "time": "Time",
           "empty": "No matches have both court and time to show on the calendar yet."

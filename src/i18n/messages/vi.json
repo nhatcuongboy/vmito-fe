@@ -3373,6 +3373,7 @@
         "enterResult": "Nhập kết quả",
         "viewList": "Danh sách",
         "viewCalendar": "Calendar",
+        "showPlayerNames": "Tên VĐV",
         "calendar": {
           "time": "Thời gian",
           "empty": "Chưa có trận nào có lịch sân và giờ để hiển thị trên calendar."

@@ -315,7 +315,12 @@ export default function PublicTournamentStandingsTab({
         <Heading size="md">{t('title')}</Heading>
 
         {categories.length > 1 && (
-          <Box w={{ base: '100%', md: '260px' }}>
+          <Box
+            w={{ base: 'fit-content', md: '260px' }}
+            minW={{ base: '180px', md: '260px' }}
+            maxW={{ base: '100%', md: '260px' }}
+            alignSelf={{ base: 'flex-start', md: 'auto' }}
+          >
             <LegacySelect
               aria-label={t('categoryFilter')}
               value={selectedCategoryId}
@@ -334,11 +339,16 @@ export default function PublicTournamentStandingsTab({
       </Flex>
 
       <Flex
-        align={{ base: 'stretch', md: 'center' }}
-        justify="flex-start"
-        direction={{ base: 'column', md: 'row' }}
-        gap={2}
+        align="center"
+        justify={{ base: 'space-between', md: 'flex-start' }}
+        direction="row"
+        gap={{ base: 3, md: 2 }}
         mb={{ base: 3, md: 4 }}
+        overflowX="auto"
+        css={{
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
       >
         <HStack
           gap="2px"
@@ -346,26 +356,27 @@ export default function PublicTournamentStandingsTab({
           bg="gray.100"
           _dark={{ bg: 'gray.800' }}
           borderRadius="full"
-          w={{ base: '100%', sm: 'fit-content' }}
+          w="fit-content"
+          flexShrink={0}
         >
           <Button
-            flex={{ base: 1, sm: 'unset' }}
+            flex="unset"
             size="xs"
             variant={stageView === 'pool' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'pool' ? 'green' : 'gray'}
             borderRadius="full"
-            px={3}
+            px={{ base: 3, sm: 3.5 }}
             onClick={() => setStageView('pool')}
           >
             <ListTree size={14} /> {t('poolPlay')}
           </Button>
           <Button
-            flex={{ base: 1, sm: 'unset' }}
+            flex="unset"
             size="xs"
             variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
             borderRadius="full"
-            px={3}
+            px={{ base: 3, sm: 3.5 }}
             onClick={() => setStageView('playoffs')}
           >
             <GitBranch size={14} /> {t('playoffs')}
@@ -379,26 +390,27 @@ export default function PublicTournamentStandingsTab({
             bg="gray.100"
             _dark={{ bg: 'gray.800' }}
             borderRadius="full"
-            w={{ base: '100%', sm: 'fit-content' }}
+            w="fit-content"
+            flexShrink={0}
           >
             <Button
-              flex={{ base: 1, sm: 'unset' }}
+              flex="unset"
               size="xs"
               variant={standingView === 'pools' ? 'solid' : 'ghost'}
               colorPalette={standingView === 'pools' ? 'green' : 'gray'}
               borderRadius="full"
-              px={3}
+              px={{ base: 3, sm: 3.5 }}
               onClick={() => setStandingView('pools')}
             >
               {t('pools')}
             </Button>
             <Button
-              flex={{ base: 1, sm: 'unset' }}
+              flex="unset"
               size="xs"
               variant={standingView === 'overall' ? 'solid' : 'ghost'}
               colorPalette={standingView === 'overall' ? 'green' : 'gray'}
               borderRadius="full"
-              px={3}
+              px={{ base: 3, sm: 3.5 }}
               onClick={() => setStandingView('overall')}
             >
               {t('overall')}

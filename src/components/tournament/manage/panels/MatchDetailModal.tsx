@@ -41,6 +41,8 @@ interface Props {
   allMatches?: CategoryMatch[];
   /** The match's category, used to resolve first-round seed labels. */
   category?: Category;
+  /** When true, render joined player full names instead of pair/team name. */
+  showPlayerNames?: boolean;
   canEdit: boolean;
   onEditResult: (match: CategoryMatch) => void;
   onDeleteMatch: (match: CategoryMatch) => void;
@@ -60,6 +62,7 @@ export default function MatchDetailModal({
   courtLabel,
   allMatches,
   category,
+  showPlayerNames,
   canEdit,
   onEditResult,
   onDeleteMatch,
@@ -87,6 +90,7 @@ export default function MatchDetailModal({
     allMatches: allMatches ?? [],
     category,
     labels: slotLabels,
+    showPlayerNames,
   };
   const team1 = resolveMatchSideLabel(match, 1, labelCtx);
   const team2 = resolveMatchSideLabel(match, 2, labelCtx);
@@ -153,9 +157,16 @@ export default function MatchDetailModal({
       </ModalBody>
 
       {canEdit && (
-        <ModalFooter justifyContent="space-between" gap={2}>
+        <ModalFooter
+          justifyContent="space-between"
+          alignItems="stretch"
+          direction={{ base: 'column', sm: 'row' }}
+          gap={2}
+          pt={5}
+        >
           <Button
             flex="1"
+            w={{ base: 'full', sm: 'auto' }}
             variant="outline"
             colorPalette="gray"
             onClick={() => onEditResult(match)}
@@ -166,6 +177,7 @@ export default function MatchDetailModal({
           {onSchedule && (
             <Button
               flex="1"
+              w={{ base: 'full', sm: 'auto' }}
               variant="outline"
               colorPalette="gray"
               onClick={() => onSchedule(match)}
@@ -174,7 +186,7 @@ export default function MatchDetailModal({
             </Button>
           )}
 
-          <Box position="relative" flex="1">
+          <Box position="relative" flex="1" w={{ base: 'full', sm: 'auto' }}>
             <Button
               w="full"
               variant="outline"
@@ -496,38 +508,6 @@ function SetStatsRow({
           </Text>
         ))}
       </Flex>
-    </Flex>
-  );
-}
-
-function ScoreRow({
-  label,
-  score,
-  highlight,
-}: {
-  label: string;
-  score?: number;
-  highlight: boolean;
-}) {
-  return (
-    <Flex align="center" justify="space-between" gap={3} py={1}>
-      <Flex align="center" gap={2} minW={0}>
-        {highlight && (
-          <Trophy size={18} color="var(--chakra-colors-green-500)" />
-        )}
-        <Text
-          fontSize="2xl"
-          fontWeight={highlight ? 'bold' : 'medium'}
-          lineClamp={1}
-        >
-          {label}
-        </Text>
-      </Flex>
-      {score !== undefined && (
-        <Text fontSize="2xl" fontWeight={highlight ? 'bold' : 'medium'}>
-          {score}
-        </Text>
-      )}
     </Flex>
   );
 }

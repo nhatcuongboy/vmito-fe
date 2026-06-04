@@ -7,13 +7,21 @@ const ELIMINATION_ROUND_ORDER = ['R128', 'R64', 'R32', 'R16', 'QF', 'SF', 'F'];
  * Resolve the display label for a single registration (a team/pair or an
  * individual player). Mirrors the resolution used by {@link getTeamLabel} so
  * dropdowns that pick a registration stay consistent with the match views.
+ *
+ * @param options.showPlayerNames When true, always join the pair members' full
+ *   player names (ignoring the configured pair/team name). Useful for
+ *   schedule/scoring screens where viewers want to see VĐV names.
  */
-export function getRegistrationLabel(reg: CategoryRegistration): string {
+export function getRegistrationLabel(
+  reg: CategoryRegistration,
+  options?: { showPlayerNames?: boolean }
+): string {
   if (reg.pair?.members) {
-    return (
-      reg.pair.name ||
-      reg.pair.members.map((m) => m.player?.name || '?').join(' / ')
-    );
+    const memberNames = reg.pair.members
+      .map((m) => m.player?.name || '?')
+      .join(' / ');
+    if (options?.showPlayerNames) return memberNames;
+    return reg.pair.name || memberNames;
   }
   return reg.player?.name || 'Unknown';
 }

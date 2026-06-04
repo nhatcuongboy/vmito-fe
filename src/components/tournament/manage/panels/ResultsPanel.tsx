@@ -21,6 +21,7 @@ import {
   Flag,
   List,
   RotateCcw,
+  Users,
   X,
 } from 'lucide-react';
 
@@ -83,6 +84,8 @@ export interface ChipOption {
   color?: string;
 }
 
+const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.schedule.showPlayerNames';
+
 export const EMPTY_FILTERS: ResultFilters = {
   categoryIds: [],
   rounds: [],
@@ -129,6 +132,10 @@ export default function ResultsPanel({
   );
   const [editFromDetail, setEditFromDetail] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
+  });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
   const [deletingMatch, setDeletingMatch] = useState<CategoryMatch | null>(
@@ -159,6 +166,14 @@ export default function ResultsPanel({
   useEffect(() => {
     void load().finally(() => setLoading(false));
   }, [load]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(
+      SHOW_PLAYER_NAMES_STORAGE_KEY,
+      showPlayerNames ? '1' : '0'
+    );
+  }, [showPlayerNames]);
 
   const categoryById = useMemo(() => {
     return new Map(categories.map((category) => [category.id, category]));
@@ -483,6 +498,17 @@ export default function ResultsPanel({
 
           <Button
             size="sm"
+            variant={showPlayerNames ? 'solid' : 'outline'}
+            colorPalette={showPlayerNames ? 'green' : 'gray'}
+            onClick={() => setShowPlayerNames((prev) => !prev)}
+            aria-pressed={showPlayerNames}
+            title={t('showPlayerNames')}
+          >
+            <Users size={14} /> {t('showPlayerNames')}
+          </Button>
+
+          <Button
+            size="sm"
             variant="outline"
             colorPalette="gray"
             onClick={() => setIsFilterOpen(true)}
@@ -512,6 +538,7 @@ export default function ResultsPanel({
           resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
           courtAbbreviation={courtAbbreviation}
           allMatches={matches}
+          showPlayerNames={showPlayerNames}
         />
       ) : (
         <VStack align="stretch" gap={6}>
@@ -545,6 +572,7 @@ export default function ResultsPanel({
                     courtAbbreviation={courtAbbreviation}
                     allMatches={matches}
                     category={categoryById.get(match.categoryId)}
+                    showPlayerNames={showPlayerNames}
                   />
                 ))}
               </VStack>
@@ -591,6 +619,7 @@ export default function ResultsPanel({
         category={
           detailMatch ? categoryById.get(detailMatch.categoryId) : undefined
         }
+        showPlayerNames={showPlayerNames}
         canEdit={canEdit}
         onEditResult={(m) => {
           setDetailMatch(null);
@@ -687,6 +716,7 @@ export function ResultMatchCard({
   courtAbbreviation,
   allMatches,
   category,
+  showPlayerNames = false,
 }: {
   match: CategoryMatch;
   /** Kept for call-site compatibility (e.g. referee list); not rendered. */
@@ -703,13 +733,20 @@ export function ResultMatchCard({
   allMatches?: CategoryMatch[];
   /** The match's category, used to resolve first-round seed labels. */
   category?: Category;
+  /** When true, render the joined player full names instead of pair/team name. */
+  showPlayerNames?: boolean;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const slotLabels = usePlayoffSlotLabels();
   const accent = getMatchAccent(match);
 
-  const ctx = { allMatches: allMatches ?? [], category, labels: slotLabels };
+  const ctx = {
+    allMatches: allMatches ?? [],
+    category,
+    labels: slotLabels,
+    showPlayerNames,
+  };
   const team1 = resolveMatchSideLabel(match, 1, ctx);
   const team2 = resolveMatchSideLabel(match, 2, ctx);
   const win1 = match.winnerId === getRegistrationId(match, 1);
@@ -892,6 +929,7 @@ function ResultsCalendarView({
   resolveRoundOrGroupLabel,
   courtAbbreviation,
   allMatches,
+  showPlayerNames,
 }: {
   matches: CategoryMatch[];
   courts: TournamentCourt[];
@@ -900,6 +938,7 @@ function ResultsCalendarView({
   resolveRoundOrGroupLabel: (match: CategoryMatch) => string;
   courtAbbreviation?: string;
   allMatches: CategoryMatch[];
+  showPlayerNames?: boolean;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const locale = useLocale();
@@ -1053,6 +1092,7 @@ function ResultsCalendarView({
                             courtAbbreviation={courtAbbreviation}
                             allMatches={allMatches}
                             category={categoryById.get(match.categoryId)}
+                            showPlayerNames={showPlayerNames}
                             compact
                           />
                         ))}

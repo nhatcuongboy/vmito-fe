@@ -3343,6 +3343,7 @@
         "enterResult": "录入结果",
         "viewList": "列表",
         "viewCalendar": "日历",
+        "showPlayerNames": "运动员姓名",
         "calendar": {
           "time": "时间",
           "empty": "暂无同时设置场地和时间的比赛可在日历中显示。"

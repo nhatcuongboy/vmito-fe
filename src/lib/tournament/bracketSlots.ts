@@ -136,17 +136,27 @@ export function resolveConfiguredSlots(
  * placeholders: real team name → seed slot ("Nhất Bảng A") for the first round
  * → "Winner/Loser of {match}" for later rounds. Mirrors the bracket preview so
  * shell matches read identically everywhere they appear.
+ *
+ * @param ctx.showPlayerNames When true, returns the joined player names of a
+ *   pair registration instead of the configured pair/team name.
  */
 export function resolveMatchSideLabel(
   match: CategoryMatch,
   position: 1 | 2,
-  ctx: { allMatches: CategoryMatch[]; category?: Category; labels: SlotLabels }
+  ctx: {
+    allMatches: CategoryMatch[];
+    category?: Category;
+    labels: SlotLabels;
+    showPlayerNames?: boolean;
+  }
 ): string {
-  const { allMatches, category, labels } = ctx;
+  const { allMatches, category, labels, showPlayerNames } = ctx;
 
   const participant = match.participants?.find((p) => p.position === position);
   if (participant?.categoryRegistration) {
-    return getRegistrationLabel(participant.categoryRegistration);
+    return getRegistrationLabel(participant.categoryRegistration, {
+      showPlayerNames,
+    });
   }
 
   const round = match.round.toUpperCase();
