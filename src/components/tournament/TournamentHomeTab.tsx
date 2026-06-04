@@ -193,6 +193,10 @@ export default function TournamentHomeTab({
     router.push(`/tournament/${slug}/manage?option=venues`);
   };
 
+  const handleManageOption = (option: string) => {
+    router.push(`/tournament/${slug}/manage?option=${option}`);
+  };
+
   const handleOpenDirections = (selectedVenue: Venue) => {
     const url = getGoogleMapsUrl({
       address: selectedVenue.address,
@@ -317,7 +321,8 @@ export default function TournamentHomeTab({
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
-            p={3}
+            px={3}
+            py={2}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             _dark={{
@@ -325,7 +330,7 @@ export default function TournamentHomeTab({
               _hover: { bg: 'gray.700' },
             }}
             onClick={handleViewSchedule}
-            minH="72px"
+            minH="56px"
           >
             <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
@@ -340,7 +345,8 @@ export default function TournamentHomeTab({
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
-            p={3}
+            px={3}
+            py={2}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             _dark={{
@@ -348,7 +354,7 @@ export default function TournamentHomeTab({
               _hover: { bg: 'gray.700' },
             }}
             onClick={handleViewStandings}
-            minH="72px"
+            minH="56px"
           >
             <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
@@ -363,7 +369,8 @@ export default function TournamentHomeTab({
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
-            p={3}
+            px={3}
+            py={2}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             _dark={{
@@ -371,7 +378,7 @@ export default function TournamentHomeTab({
               _hover: { bg: 'gray.700' },
             }}
             onClick={handleViewScoreboard}
-            minH="72px"
+            minH="56px"
           >
             <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
@@ -386,7 +393,8 @@ export default function TournamentHomeTab({
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="lg"
-            p={3}
+            px={3}
+            py={2}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
             _dark={{
@@ -394,7 +402,7 @@ export default function TournamentHomeTab({
               _hover: { bg: 'gray.700' },
             }}
             onClick={handleViewShowcase}
-            minH="72px"
+            minH="56px"
           >
             <Flex align="center" gap={2} h="full">
               <Box color="gray.500" flexShrink={0}>
@@ -410,7 +418,8 @@ export default function TournamentHomeTab({
               borderWidth="1px"
               borderColor="gray.200"
               borderRadius="lg"
-              p={3}
+              px={3}
+              py={2}
               cursor="pointer"
               _hover={{ bg: 'gray.50' }}
               _dark={{
@@ -418,7 +427,7 @@ export default function TournamentHomeTab({
                 _hover: { bg: 'gray.700' },
               }}
               onClick={handleRefereeArea}
-              minH="72px"
+              minH="56px"
             >
               <Flex align="center" gap={2} h="full">
                 <Box color="gray.500" flexShrink={0}>
@@ -720,42 +729,54 @@ export default function TournamentHomeTab({
             </Text>
             {isHost && (
               <HStack gap={1}>
-                <Flex
+                <Box
+                  as="button"
+                  aria-label="Xóa giải đấu"
                   w="32px"
                   h="32px"
+                  display="flex"
                   borderRadius="md"
-                  align="center"
-                  justify="center"
+                  alignItems="center"
+                  justifyContent="center"
                   cursor="pointer"
                   _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                  onClick={() => handleManageOption('delete')}
                 >
                   <Trash2 size={16} color="var(--chakra-colors-gray-500)" />
-                </Flex>
-                <Flex
+                </Box>
+                <Box
+                  as="button"
+                  aria-label="Chỉnh sửa thông tin liên hệ"
                   w="32px"
                   h="32px"
+                  display="flex"
                   borderRadius="md"
-                  align="center"
-                  justify="center"
+                  alignItems="center"
+                  justifyContent="center"
                   cursor="pointer"
                   _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                  onClick={() => handleManageOption('name')}
                 >
                   <Pencil size={16} color="var(--chakra-colors-gray-500)" />
-                </Flex>
-                <Flex
+                </Box>
+                <Box
+                  as="button"
+                  aria-label="Tùy chọn liên hệ"
                   w="32px"
                   h="32px"
+                  display="flex"
                   borderRadius="md"
-                  align="center"
-                  justify="center"
+                  alignItems="center"
+                  justifyContent="center"
                   cursor="pointer"
                   _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                  onClick={() => handleManageOption('managers')}
                 >
                   <MoreHorizontal
                     size={16}
                     color="var(--chakra-colors-gray-500)"
                   />
-                </Flex>
+                </Box>
               </HStack>
             )}
           </Flex>

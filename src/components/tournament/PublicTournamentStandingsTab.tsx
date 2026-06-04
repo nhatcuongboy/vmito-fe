@@ -310,16 +310,9 @@ export default function PublicTournamentStandingsTab({
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
         gap={{ base: 2, md: 3 }}
-        mb={{ base: 3, md: 5 }}
+        mb={{ base: 3, md: 4 }}
       >
-        <Box>
-          <Heading size="md" mb={{ base: 0.5, md: 1 }}>
-            {t('title')}
-          </Heading>
-          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-            {t('description', { tournament: tournament.name })}
-          </Text>
-        </Box>
+        <Heading size="md">{t('title')}</Heading>
 
         {categories.length > 1 && (
           <Box w={{ base: '100%', md: '260px' }}>
@@ -342,14 +335,14 @@ export default function PublicTournamentStandingsTab({
 
       <Flex
         align={{ base: 'stretch', md: 'center' }}
-        justify="space-between"
+        justify="flex-start"
         direction={{ base: 'column', md: 'row' }}
-        gap={{ base: 2, md: 3 }}
-        mb={{ base: 4, md: 5 }}
+        gap={2}
+        mb={{ base: 3, md: 4 }}
       >
         <HStack
-          gap={{ base: 0.5, md: 1 }}
-          p={{ base: 0.5, md: 1 }}
+          gap="2px"
+          p="2px"
           bg="gray.100"
           _dark={{ bg: 'gray.800' }}
           borderRadius="full"
@@ -357,36 +350,32 @@ export default function PublicTournamentStandingsTab({
         >
           <Button
             flex={{ base: 1, sm: 'unset' }}
-            size="sm"
+            size="xs"
             variant={stageView === 'pool' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'pool' ? 'green' : 'gray'}
             borderRadius="full"
-            minH={{ base: 8, md: 9 }}
-            px={{ base: 2, md: 3 }}
-            fontSize={{ base: 'xs', md: 'sm' }}
+            px={3}
             onClick={() => setStageView('pool')}
           >
-            <ListTree size={15} /> {t('poolPlay')}
+            <ListTree size={14} /> {t('poolPlay')}
           </Button>
           <Button
             flex={{ base: 1, sm: 'unset' }}
-            size="sm"
+            size="xs"
             variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
             borderRadius="full"
-            minH={{ base: 8, md: 9 }}
-            px={{ base: 2, md: 3 }}
-            fontSize={{ base: 'xs', md: 'sm' }}
+            px={3}
             onClick={() => setStageView('playoffs')}
           >
-            <GitBranch size={15} /> {t('playoffs')}
+            <GitBranch size={14} /> {t('playoffs')}
           </Button>
         </HStack>
 
         {stageView === 'pool' && (
           <HStack
-            gap={{ base: 0.5, md: 1 }}
-            p={{ base: 0.5, md: 1 }}
+            gap="2px"
+            p="2px"
             bg="gray.100"
             _dark={{ bg: 'gray.800' }}
             borderRadius="full"
@@ -394,26 +383,22 @@ export default function PublicTournamentStandingsTab({
           >
             <Button
               flex={{ base: 1, sm: 'unset' }}
-              size="sm"
+              size="xs"
               variant={standingView === 'pools' ? 'solid' : 'ghost'}
               colorPalette={standingView === 'pools' ? 'green' : 'gray'}
               borderRadius="full"
-              minH={{ base: 8, md: 9 }}
-              px={{ base: 2, md: 3 }}
-              fontSize={{ base: 'xs', md: 'sm' }}
+              px={3}
               onClick={() => setStandingView('pools')}
             >
               {t('pools')}
             </Button>
             <Button
               flex={{ base: 1, sm: 'unset' }}
-              size="sm"
+              size="xs"
               variant={standingView === 'overall' ? 'solid' : 'ghost'}
               colorPalette={standingView === 'overall' ? 'green' : 'gray'}
               borderRadius="full"
-              minH={{ base: 8, md: 9 }}
-              px={{ base: 2, md: 3 }}
-              fontSize={{ base: 'xs', md: 'sm' }}
+              px={3}
               onClick={() => setStandingView('overall')}
             >
               {t('overall')}

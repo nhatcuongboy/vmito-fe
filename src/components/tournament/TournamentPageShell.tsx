@@ -126,17 +126,13 @@ interface TournamentPageShellProps {
 
 function TeamCategoryCard({
   categoryBlock,
-  categoryLabel,
   slug,
   emptyText,
-  codeLabel,
   teamCountLabel,
 }: {
   categoryBlock: ITeamCategoryBlock;
-  categoryLabel: string;
   slug: string;
   emptyText: string;
-  codeLabel: string;
   teamCountLabel: string;
 }) {
   return (
@@ -156,34 +152,23 @@ function TeamCategoryCard({
       }}
     >
       <Flex
-        align={{ base: 'stretch', sm: 'center' }}
+        align="center"
         justify="space-between"
         gap={3}
-        direction={{ base: 'column', sm: 'row' }}
         px={{ base: 4, md: 5 }}
         py={4}
         bg={CATEGORY_ACCENT_BG[categoryBlock.type]}
       >
-        <Box minW={0}>
-          <Heading size="md" lineClamp={1}>
-            {categoryBlock.title}
-          </Heading>
-          <Text
-            mt={1}
-            fontSize="sm"
-            color="gray.600"
-            _dark={{ color: 'gray.300' }}
-          >
-            {categoryLabel}
-          </Text>
-        </Box>
+        <Heading size="md" lineClamp={1} minW={0} flex="1">
+          {categoryBlock.title}
+        </Heading>
         <Badge
-          alignSelf={{ base: 'flex-start', sm: 'center' }}
           colorPalette="gray"
           variant="solid"
           borderRadius="full"
           px={3}
           py={1}
+          flexShrink={0}
         >
           {teamCountLabel}
         </Badge>
@@ -200,7 +185,6 @@ function TeamCategoryCard({
               key={`${categoryBlock.id}-${team.id}`}
               team={team}
               slug={slug}
-              codeLabel={codeLabel}
               showDivider={index < categoryBlock.players.length - 1}
             />
           ))}
@@ -213,12 +197,10 @@ function TeamCategoryCard({
 function TeamRow({
   team,
   slug,
-  codeLabel,
   showDivider,
 }: {
   team: TeamListItem;
   slug: string;
-  codeLabel: string;
   showDivider: boolean;
 }) {
   const content = (
@@ -262,16 +244,6 @@ function TeamRow({
           >
             {team.name}
           </Text>
-          {team.code && (
-            <Badge
-              colorPalette="gray"
-              variant="subtle"
-              borderRadius="full"
-              flexShrink={0}
-            >
-              {codeLabel} {team.code}
-            </Badge>
-          )}
         </Flex>
         {team.members && team.members.length > 0 && (
           <Text
@@ -839,10 +811,8 @@ export default function TournamentPageShell({
                 <TeamCategoryCard
                   key={categoryBlock.id}
                   categoryBlock={categoryBlock}
-                  categoryLabel={getCategoryTypeLabel(categoryBlock.type)}
                   slug={slug}
                   emptyText={t('teamsTab.noTeams')}
-                  codeLabel={t('teamsTab.codeLabel')}
                   teamCountLabel={t('teamsTab.teamsCount', {
                     count: categoryBlock.players.length,
                   })}

@@ -332,53 +332,47 @@ export default function ResultsPanel({
   return (
     <Box>
       <Flex
-        align={{ base: 'stretch', md: 'flex-start' }}
+        align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
-        gap={4}
+        gap={3}
         mb={5}
         direction={{ base: 'column', md: 'row' }}
       >
-        <Box>
-          <Heading size="md" mb={1}>
-            {heading ?? t('panelTitle')}
-          </Heading>
-          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-            {description ?? t('panelDescription')}
-          </Text>
-        </Box>
+        <Heading size="md">{heading ?? t('panelTitle')}</Heading>
 
         <Flex gap={2} wrap="wrap" justify={{ base: 'flex-start', md: 'end' }}>
           <Flex
-            p={1}
-            gap={1}
+            p="2px"
+            gap="2px"
             borderWidth="1px"
             borderColor="gray.200"
-            borderRadius="lg"
+            borderRadius="md"
             bg="gray.50"
             _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <ModeButton
               active={viewMode === 'list'}
               onClick={() => setViewMode('list')}
-              icon={<List size={16} />}
+              icon={<List size={14} />}
             >
               {t('viewList')}
             </ModeButton>
             <ModeButton
               active={viewMode === 'calendar'}
               onClick={() => setViewMode('calendar')}
-              icon={<CalendarDays size={16} />}
+              icon={<CalendarDays size={14} />}
             >
               {t('viewCalendar')}
             </ModeButton>
           </Flex>
 
           <Button
+            size="sm"
             variant="outline"
             colorPalette="gray"
             onClick={() => setIsFilterOpen(true)}
           >
-            <Filter size={16} /> {t('filters.title')}
+            <Filter size={14} /> {t('filters.title')}
             {activeFilterCount > 0 && (
               <Badge ml={1} colorPalette="green" borderRadius="full">
                 {activeFilterCount}
@@ -1147,7 +1141,7 @@ function ModeButton({
 }) {
   return (
     <Button
-      size="sm"
+      size="xs"
       variant={active ? 'solid' : 'ghost'}
       colorPalette={active ? 'green' : 'gray'}
       onClick={onClick}
