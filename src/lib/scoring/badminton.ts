@@ -19,9 +19,38 @@ export interface BadmintonRules {
 const DEFAULT_POINTS_TO_WIN = 21;
 const DEFAULT_CAP = 30;
 
+type TScoringStage = 'GROUP' | 'KNOCKOUT' | 'FINAL';
+
 /**
- * Resolve the active rules for a match. Match-level overrides win, then
- * category settings, then the BWF defaults.
+ * Map a match round label to its scoring stage. Mirrors the server-side
+ * `stageOfRound` in `categories.service.ts`:
+ * - 'GROUP' (round-robin pool) → GROUP
+ * - 'F' (final) → FINAL
+ * - everything else (R128/R64/R32/R16/QF/SF/3RD) → KNOCKOUT
+ */
+const stageOfRound = (round?: string | null): TScoringStage => {
+  if (round === 'GROUP') return 'GROUP';
+  if (round === 'F') return 'FINAL';
+  return 'KNOCKOUT';
+};
+
+interface StageScoringCategory {
+  matchFormat?: MatchFormat | null;
+  pointsToWin?: number | null;
+  winByTwo?: boolean | null;
+  pointCap?: number | null;
+  knockoutPointsToWin?: number | null;
+  knockoutWinByTwo?: boolean | null;
+  knockoutPointCap?: number | null;
+  finalPointsToWin?: number | null;
+  finalWinByTwo?: boolean | null;
+  finalPointCap?: number | null;
+}
+
+/**
+ * Resolve the active rules for a match. Match-level overrides win, then the
+ * stage-specific category settings (final → knockout → base), then the BWF
+ * defaults. Mirrors the server's `scoringRulesOf`.
  */
 export function defaultRules(
   matchOrFormat?:
@@ -31,12 +60,8 @@ export function defaultRules(
         CategoryMatch,
         'matchFormat' | 'pointsToWin' | 'winByTwo' | 'pointCap'
       > & {
-        category?: {
-          matchFormat?: MatchFormat | null;
-          pointsToWin?: number | null;
-          winByTwo?: boolean | null;
-          pointCap?: number | null;
-        } | null;
+        round?: string | null;
+        category?: StageScoringCategory | null;
       })
 ): BadmintonRules {
   // Back-compat: legacy callers pass just a MatchFormat string.
@@ -52,16 +77,64 @@ export function defaultRules(
 
   const match = matchOrFormat;
   const cat = match.category ?? null;
+  const stage = stageOfRound(match.round);
+
   const format =
     match.matchFormat ?? cat?.matchFormat ?? ('BEST_OF_1' as MatchFormat);
-  const pointsToWin =
-    match.pointsToWin ?? cat?.pointsToWin ?? DEFAULT_POINTS_TO_WIN;
-  const winBy = (match.winByTwo ?? cat?.winByTwo ?? true) ? 2 : 1;
+
+  // Stage-aware resolution of the category-level scoring rules.
+  const resolveCatPoints = (): number => {
+    if (!cat) return DEFAULT_POINTS_TO_WIN;
+    if (stage === 'FINAL') {
+      return (
+        cat.finalPointsToWin ??
+        cat.knockoutPointsToWin ??
+        cat.pointsToWin ??
+        DEFAULT_POINTS_TO_WIN
+      );
+    }
+    if (stage === 'KNOCKOUT') {
+      return (
+        cat.knockoutPointsToWin ?? cat.pointsToWin ?? DEFAULT_POINTS_TO_WIN
+      );
+    }
+    return cat.pointsToWin ?? DEFAULT_POINTS_TO_WIN;
+  };
+
+  const resolveCatWinByTwo = (): boolean => {
+    if (!cat) return true;
+    if (stage === 'FINAL') {
+      return cat.finalWinByTwo ?? cat.knockoutWinByTwo ?? cat.winByTwo ?? true;
+    }
+    if (stage === 'KNOCKOUT') {
+      return cat.knockoutWinByTwo ?? cat.winByTwo ?? true;
+    }
+    return cat.winByTwo ?? true;
+  };
+
+  // Returns null when the stage resolves to "no cap".
+  const resolveCatCap = (): number | null => {
+    if (!cat) return null;
+    if (stage === 'FINAL') {
+      if (cat.finalPointCap != null) return cat.finalPointCap;
+      if (cat.knockoutPointCap != null) return cat.knockoutPointCap;
+      return cat.pointCap ?? null;
+    }
+    if (stage === 'KNOCKOUT') {
+      return cat.knockoutPointCap != null
+        ? cat.knockoutPointCap
+        : (cat.pointCap ?? null);
+    }
+    return cat.pointCap ?? null;
+  };
+
+  const pointsToWin = match.pointsToWin ?? resolveCatPoints();
+  const winBy = (match.winByTwo ?? resolveCatWinByTwo()) ? 2 : 1;
   // cap === pointsToWin means "no cap" (winBy still enforced); null treated the same.
   const capRaw =
     match.pointCap !== undefined && match.pointCap !== null
       ? match.pointCap
-      : cat?.pointCap;
+      : resolveCatCap();
   const cap = capRaw ?? Math.max(pointsToWin, DEFAULT_CAP);
 
   return {

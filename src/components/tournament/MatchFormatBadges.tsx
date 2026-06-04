@@ -23,6 +23,7 @@ export default function MatchFormatBadges({ match, category, size }: Props) {
   const t = useTranslations('pages.tournaments.scoreEntry');
   const rules = defaultRules({
     matchFormat: match.matchFormat,
+    round: match.round,
     pointsToWin: match.pointsToWin,
     winByTwo: match.winByTwo,
     pointCap: match.pointCap,
