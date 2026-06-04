@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/ChakraDrawer';
 import { useLocale, useTranslations } from 'next-intl';
 import {
+  Activity,
   CalendarDays,
   Check,
   CircleSlash,
@@ -42,6 +43,7 @@ import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
 import MatchDetailModal from './MatchDetailModal';
+import ResetMatchResultConfirmModal from './ResetMatchResultConfirmModal';
 import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
@@ -133,6 +135,10 @@ export default function ResultsPanel({
     null
   );
   const [isDeleting, setIsDeleting] = useState(false);
+  const [resettingMatch, setResettingMatch] = useState<CategoryMatch | null>(
+    null
+  );
+  const [isResetting, setIsResetting] = useState(false);
 
   const courtAbbreviation =
     tournament.venue?.acronym ?? tournament.venue?.name ?? undefined;
@@ -325,6 +331,30 @@ export default function ResultsPanel({
     }
   }, [deletingMatch, t]);
 
+  const handleConfirmResetResult = useCallback(async () => {
+    if (!resettingMatch) return;
+    const matchId = resettingMatch.id;
+    setIsResetting(true);
+    try {
+      const updated = await CategoryService.resetMatchResult(matchId, {
+        showToast: false,
+      });
+      setMatches((prev) =>
+        prev.map((match) => (match.id === matchId ? updated : match))
+      );
+      setSelected((prev) => (prev?.id === matchId ? null : prev));
+      setDetailMatch((prev) => (prev?.id === matchId ? updated : prev));
+      setResettingMatch(null);
+      toaster.success({ title: t('resetResultSuccess') });
+      void load();
+    } catch (error) {
+      console.error('Error resetting match result:', error);
+      toaster.error({ title: t('resetResultFailed') });
+    } finally {
+      setIsResetting(false);
+    }
+  }, [resettingMatch, t, load]);
+
   const handleScheduleUpdate = useCallback(
     async (
       matchId: string,
@@ -416,7 +446,14 @@ export default function ResultsPanel({
         mb={5}
         direction={{ base: 'column', md: 'row' }}
       >
-        <Heading size="md">{heading ?? t('panelTitle')}</Heading>
+        <Box>
+          <Heading size="md">{heading ?? t('panelTitle')}</Heading>
+          {description && (
+            <Text fontSize="sm" color="gray.500" mt={1}>
+              {description}
+            </Text>
+          )}
+        </Box>
 
         <Flex gap={2} wrap="wrap" justify={{ base: 'flex-start', md: 'end' }}>
           <Flex
@@ -564,6 +601,10 @@ export default function ResultsPanel({
           setDetailMatch(null);
           setDeletingMatch(m);
         }}
+        onResetResult={(m) => {
+          setDetailMatch(null);
+          setResettingMatch(m);
+        }}
         onSchedule={
           canEdit
             ? (m) => {
@@ -605,6 +646,16 @@ export default function ResultsPanel({
                 }
               : undefined
           }
+        />
+      )}
+
+      {canEdit && (
+        <ResetMatchResultConfirmModal
+          isOpen={!!resettingMatch}
+          onClose={() => setResettingMatch(null)}
+          match={resettingMatch}
+          onConfirm={handleConfirmResetResult}
+          isResetting={isResetting}
         />
       )}
 
@@ -675,6 +726,8 @@ export function ResultMatchCard({
   const multiSet = sets.length > 1;
   const score1 = match.player1Score ?? getLastSetScore(match, 1);
   const score2 = match.player2Score ?? getLastSetScore(match, 2);
+  const statusTone = getMatchStatusTone(match, t);
+  const StatusIcon = statusTone.icon;
 
   return (
     <Box
@@ -690,7 +743,7 @@ export function ResultMatchCard({
       boxShadow={accent.shadow}
       p={{ base: 4, md: compact ? 3 : 5 }}
       cursor="pointer"
-      transition="all 0.18s ease"
+      transition="border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease"
       _hover={{
         borderColor: accent.hoverBorder,
         transform: 'translateY(-2px)',
@@ -711,7 +764,7 @@ export function ResultMatchCard({
         }
       }}
     >
-      <Flex justify="space-between" align="center" gap={3} mb={compact ? 2 : 3}>
+      <Flex justify="space-between" align="start" gap={3} mb={compact ? 2 : 3}>
         <Text
           fontSize="sm"
           color="gray.600"
@@ -722,17 +775,35 @@ export function ResultMatchCard({
           {getMatchDisplayCode(match)} · {topLabel}
           {courtLabel ? ` · ${courtLabel}` : ''}
         </Text>
-        {timeLabel && (
-          <Text
-            fontSize="sm"
-            color="gray.500"
+        <Flex align="center" justify="flex-end" gap={2} flexShrink={0}>
+          {timeLabel && (
+            <Text
+              display={{ base: 'none', sm: 'block' }}
+              fontSize="sm"
+              color="gray.500"
+              whiteSpace="nowrap"
+              _dark={{ color: 'gray.400' }}
+            >
+              {timeLabel}
+            </Text>
+          )}
+          <Badge
+            colorPalette={statusTone.colorPalette}
+            variant={statusTone.variant}
+            borderRadius="full"
+            px={{ base: 2.5, md: 3 }}
+            py={1}
+            fontSize={{ base: 'xs', md: 'sm' }}
+            fontWeight="semibold"
             whiteSpace="nowrap"
             flexShrink={0}
-            _dark={{ color: 'gray.400' }}
           >
-            {timeLabel}
-          </Text>
-        )}
+            <Flex align="center" gap={1.5}>
+              <StatusIcon size={14} aria-hidden="true" />
+              <Text as="span">{statusTone.label}</Text>
+            </Flex>
+          </Badge>
+        </Flex>
       </Flex>
 
       <Box>
@@ -1409,7 +1480,7 @@ function getMatchAccent(match: CategoryMatch) {
   if (match.isForfeit) {
     return {
       stripe: 'orange.400',
-      border: 'gray.200',
+      border: 'orange.200',
       hoverBorder: 'orange.300',
       shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
       hoverShadow: '0 10px 24px rgba(194, 65, 12, 0.14)',
@@ -1418,9 +1489,10 @@ function getMatchAccent(match: CategoryMatch) {
   if (match.status === MatchStatus.IN_PROGRESS) {
     return {
       stripe: 'green.500',
-      border: 'gray.200',
+      border: 'green.300',
       hoverBorder: 'green.400',
-      shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+      shadow:
+        '0 0 0 1px rgba(34, 197, 94, 0.16), 0 8px 24px rgba(22, 163, 74, 0.12)',
       hoverShadow: '0 12px 28px rgba(22, 163, 74, 0.18)',
     };
   }
@@ -1442,12 +1514,60 @@ function getMatchAccent(match: CategoryMatch) {
       hoverShadow: '0 10px 24px rgba(185, 28, 28, 0.12)',
     };
   }
-  // Scheduled / default — primary green stripe.
+  // Scheduled / default.
   return {
-    stripe: 'green.400',
-    border: 'gray.200',
-    hoverBorder: 'green.300',
+    stripe: 'blue.400',
+    border: 'blue.100',
+    hoverBorder: 'blue.300',
     shadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
-    hoverShadow: '0 12px 28px rgba(22, 163, 74, 0.14)',
+    hoverShadow: '0 12px 28px rgba(37, 99, 235, 0.12)',
   };
+}
+
+function getMatchStatusTone(
+  match: CategoryMatch,
+  t: ReturnType<typeof useTranslations>
+) {
+  if (match.isForfeit) {
+    return {
+      label: t('filters.statusForfeited'),
+      colorPalette: 'orange',
+      variant: 'solid',
+      icon: Flag,
+    } as const;
+  }
+
+  if (match.status === MatchStatus.IN_PROGRESS) {
+    return {
+      label: t('status.IN_PROGRESS'),
+      colorPalette: 'green',
+      variant: 'solid',
+      icon: Activity,
+    } as const;
+  }
+
+  if (match.status === MatchStatus.FINISHED) {
+    return {
+      label: t('status.FINISHED'),
+      colorPalette: 'gray',
+      variant: 'solid',
+      icon: Check,
+    } as const;
+  }
+
+  if (match.status === MatchStatus.CANCELLED) {
+    return {
+      label: t('status.CANCELLED'),
+      colorPalette: 'red',
+      variant: 'solid',
+      icon: CircleSlash,
+    } as const;
+  }
+
+  return {
+    label: t(`matchCardStatus.${match.status}`),
+    colorPalette: 'blue',
+    variant: 'subtle',
+    icon: Clock,
+  } as const;
 }

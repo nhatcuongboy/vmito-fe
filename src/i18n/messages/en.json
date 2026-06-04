@@ -2526,7 +2526,15 @@
                 "inheritHintKnockout": "Inherit from the group stage. Turn off to set custom rules for knockout rounds.",
                 "inheritHintFinal": "Inherit from the knockout stage (or group stage). Turn off to set custom rules for the final.",
                 "inheritOn": "Inherit",
-                "inheritOff": "Customize"
+                "inheritOff": "Customize",
+                "summary": {
+                  "title": "Current rules per stage",
+                  "inherited": "Inherited",
+                  "points": "{points} points",
+                  "winByTwo": "win by 2",
+                  "cap": "cap {cap}",
+                  "noCap": "no cap"
+                }
               }
             },
             "standings": {
@@ -3397,6 +3405,10 @@
           "FINISHED": "Finished",
           "CANCELLED": "Cancelled"
         },
+        "matchCardStatus": {
+          "SCHEDULED": "Not started",
+          "UNSCHEDULED": "Unscheduled"
+        },
         "modeScore": "Score",
         "modeForfeit": "Forfeit",
         "modeManual": "Manual points",
@@ -3411,10 +3423,17 @@
           "editResult": "Edit result",
           "matchOptions": "Match options",
           "bySet": "By set",
-          "schedule": "Schedule"
+          "schedule": "Schedule",
+          "resetResult": "Reset result"
         },
         "scheduleUpdated": "Schedule updated",
-        "scheduleUpdateFailed": "Failed to update schedule"
+        "scheduleUpdateFailed": "Failed to update schedule",
+        "resetResultConfirmTitle": "Reset match result",
+        "resetResultConfirmText": "Are you sure you want to move this match back to not started?",
+        "resetResultConfirmButton": "Reset result",
+        "resetResultWarning": "This will clear the score, sets, winner, standings points, and forfeit state for this match. Court and match time are kept.",
+        "resetResultSuccess": "Match result reset",
+        "resetResultFailed": "Failed to reset match result"
       },
       "teamPage": {
         "title": "Team details",

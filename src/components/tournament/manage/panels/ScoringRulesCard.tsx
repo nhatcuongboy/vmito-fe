@@ -401,6 +401,74 @@ export default function ScoringRulesCard({
         {t('scoringRules.description')}
       </Text>
 
+      {/* Per-stage summary of currently configured rules */}
+      <Box
+        mb={4}
+        p={3}
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="md"
+        bg="gray.50"
+        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+      >
+        <Text
+          fontSize="xs"
+          fontWeight="semibold"
+          textTransform="uppercase"
+          color="gray.500"
+          mb={2}
+          _dark={{ color: 'gray.400' }}
+        >
+          {t('scoringRules.summary.title')}
+        </Text>
+        <Box>
+          {STAGES.map((stage) => {
+            const eff = getEffectiveStageValues(values, stage);
+            const isInherited = stage !== 'GROUP' && values[stage].inherit;
+            const parts: string[] = [
+              t(`scoringRules.matchFormats.${eff.matchFormat}`),
+              t('scoringRules.summary.points', { points: eff.pointsToWin }),
+            ];
+            if (eff.winByTwo) {
+              parts.push(t('scoringRules.summary.winByTwo'));
+            }
+            parts.push(
+              eff.pointCap === null
+                ? t('scoringRules.summary.noCap')
+                : t('scoringRules.summary.cap', { cap: eff.pointCap })
+            );
+
+            return (
+              <Flex
+                key={stage}
+                gap={2}
+                fontSize="sm"
+                py={1}
+                wrap="wrap"
+                align="baseline"
+              >
+                <Text
+                  fontWeight="medium"
+                  color="gray.700"
+                  minW={{ base: 'auto', sm: '110px' }}
+                  _dark={{ color: 'gray.200' }}
+                >
+                  {t(`scoringRules.stages.${stage}`)}:
+                </Text>
+                <Text color="gray.600" _dark={{ color: 'gray.300' }}>
+                  {isInherited && (
+                    <Text as="span" fontStyle="italic" color="gray.500">
+                      {t('scoringRules.summary.inherited')} ·{' '}
+                    </Text>
+                  )}
+                  {parts.join(' · ')}
+                </Text>
+              </Flex>
+            );
+          })}
+        </Box>
+      </Box>
+
       {/* Stage tabs */}
       <Flex gap={2} mb={3} wrap="wrap">
         {STAGES.map((stage) => {

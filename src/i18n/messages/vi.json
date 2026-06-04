@@ -2534,7 +2534,15 @@
                 "inheritHintKnockout": "Kết thừa luật từ vòng bảng. Tắt để đặt luật riêng cho các vòng knockout.",
                 "inheritHintFinal": "Kết thừa luật từ vòng knockout (hoặc vòng bảng). Tắt để đặt luật riêng cho chung kết.",
                 "inheritOn": "Kết thừa",
-                "inheritOff": "Tùy chỉnh"
+                "inheritOff": "Tùy chỉnh",
+                "summary": {
+                  "title": "Cấu hình hiện tại theo vòng",
+                  "inherited": "Kế thừa",
+                  "points": "{points} điểm",
+                  "winByTwo": "cách 2 điểm",
+                  "cap": "trần {cap}",
+                  "noCap": "không trần"
+                }
               }
             },
             "standings": {
@@ -3405,6 +3413,10 @@
           "FINISHED": "Đã kết thúc",
           "CANCELLED": "Đã hủy"
         },
+        "matchCardStatus": {
+          "SCHEDULED": "Chưa diễn ra",
+          "UNSCHEDULED": "Chưa lên lịch"
+        },
         "modeScore": "Tỉ số",
         "modeForfeit": "Bỏ cuộc",
         "modeManual": "Điểm thủ công",
@@ -3419,10 +3431,17 @@
           "editResult": "Sửa kết quả",
           "matchOptions": "Tùy chọn",
           "bySet": "Theo set",
-          "schedule": "Lên lịch"
+          "schedule": "Lên lịch",
+          "resetResult": "Reset kết quả"
         },
         "scheduleUpdated": "Đã cập nhật lịch thi đấu",
-        "scheduleUpdateFailed": "Không thể cập nhật lịch thi đấu"
+        "scheduleUpdateFailed": "Không thể cập nhật lịch thi đấu",
+        "resetResultConfirmTitle": "Reset kết quả trận đấu",
+        "resetResultConfirmText": "Bạn có chắc chắn muốn đưa trận này về trạng thái chưa diễn ra?",
+        "resetResultConfirmButton": "Reset kết quả",
+        "resetResultWarning": "Hành động này sẽ xoá tỉ số, các set, đội thắng, điểm bảng và trạng thái bỏ cuộc của trận. Lịch sân và giờ thi đấu vẫn được giữ.",
+        "resetResultSuccess": "Đã reset kết quả trận đấu",
+        "resetResultFailed": "Không thể reset kết quả trận đấu"
       },
       "teamPage": {
         "title": "Chi tiết đội",

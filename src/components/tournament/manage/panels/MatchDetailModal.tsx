@@ -22,7 +22,7 @@ import {
   Trophy,
 } from 'lucide-react';
 
-import { Category, CategoryMatch } from '@/lib/api/types';
+import { Category, CategoryMatch, MatchStatus } from '@/lib/api/types';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
@@ -44,6 +44,7 @@ interface Props {
   canEdit: boolean;
   onEditResult: (match: CategoryMatch) => void;
   onDeleteMatch: (match: CategoryMatch) => void;
+  onResetResult?: (match: CategoryMatch) => void;
   /** Open the scheduling sheet (time, court, referee) for this match. */
   onSchedule?: (match: CategoryMatch) => void;
 }
@@ -62,6 +63,7 @@ export default function MatchDetailModal({
   canEdit,
   onEditResult,
   onDeleteMatch,
+  onResetResult,
   onSchedule,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
@@ -92,6 +94,7 @@ export default function MatchDetailModal({
   const score2 = totalScore(match, 2);
   const win1 = isWinner(match, 1);
   const win2 = isWinner(match, 2);
+  const canResetResult = onResetResult && hasResettableResult(match);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
@@ -108,11 +111,14 @@ export default function MatchDetailModal({
       </ModalHeader>
 
       <ModalBody>
-        {/* Scoreboard */}
-        <Box mb={5}>
-          <ScoreRow label={team1} score={score1} highlight={win1} />
-          <ScoreRow label={team2} score={score2} highlight={win2} />
-        </Box>
+        <MatchupHeader
+          team1={team1}
+          team2={team2}
+          score1={score1}
+          score2={score2}
+          win1={win1}
+          win2={win2}
+        />
 
         {/* Tab switcher */}
         <Flex
@@ -147,7 +153,7 @@ export default function MatchDetailModal({
       </ModalBody>
 
       {canEdit && (
-        <ModalFooter justifyContent="space-between">
+        <ModalFooter justifyContent="space-between" gap={2}>
           <Button
             flex="1"
             variant="outline"
@@ -156,6 +162,17 @@ export default function MatchDetailModal({
           >
             <SquarePen size={16} /> {t('matchDetail.editResult')}
           </Button>
+
+          {onSchedule && (
+            <Button
+              flex="1"
+              variant="outline"
+              colorPalette="gray"
+              onClick={() => onSchedule(match)}
+            >
+              <CalendarClock size={16} /> {t('matchDetail.schedule')}
+            </Button>
+          )}
 
           <Box position="relative" flex="1">
             <Button
@@ -181,18 +198,19 @@ export default function MatchDetailModal({
                 p={1}
                 zIndex={10}
               >
-                {onSchedule && (
+                {canResetResult && (
                   <Button
                     w="full"
                     variant="ghost"
-                    colorPalette="gray"
+                    colorPalette="red"
+                    color="red.500"
                     justifyContent="flex-start"
                     onClick={() => {
                       setOptionsOpen(false);
-                      onSchedule(match);
+                      onResetResult(match);
                     }}
                   >
-                    <CalendarClock size={14} /> {t('matchDetail.schedule')}
+                    <RotateCcw size={14} /> {t('matchDetail.resetResult')}
                   </Button>
                 )}
                 <Button
@@ -252,6 +270,125 @@ function DetailsTab({
 
       {courtLabel && <InfoRow icon={<MapPin size={18} />} title={courtLabel} />}
     </Box>
+  );
+}
+
+function MatchupHeader({
+  team1,
+  team2,
+  score1,
+  score2,
+  win1,
+  win2,
+}: {
+  team1: string;
+  team2: string;
+  score1?: number;
+  score2?: number;
+  win1: boolean;
+  win2: boolean;
+}) {
+  return (
+    <Flex
+      align="stretch"
+      gap={{ base: 2, sm: 3 }}
+      mb={5}
+      minW={0}
+      overflow="hidden"
+    >
+      <MatchupTeamCard
+        label={team1}
+        score={score1}
+        highlight={win1}
+        align="left"
+      />
+
+      <Flex
+        align="center"
+        justify="center"
+        flexShrink={0}
+        px={{ base: 2, sm: 3 }}
+      >
+        <Text
+          fontSize="xs"
+          fontWeight="black"
+          color="gray.400"
+          letterSpacing="0"
+          _dark={{ color: 'gray.500' }}
+        >
+          VS
+        </Text>
+      </Flex>
+
+      <MatchupTeamCard
+        label={team2}
+        score={score2}
+        highlight={win2}
+        align="right"
+      />
+    </Flex>
+  );
+}
+
+function MatchupTeamCard({
+  label,
+  score,
+  highlight,
+  align,
+}: {
+  label: string;
+  score?: number;
+  highlight: boolean;
+  align: 'left' | 'right';
+}) {
+  return (
+    <Flex
+      flex="1"
+      minW={0}
+      align="center"
+      justify={align === 'right' ? 'flex-end' : 'flex-start'}
+      gap={2}
+      px={{ base: 3, sm: 4 }}
+      py={3}
+      borderWidth="1px"
+      borderColor={highlight ? 'green.300' : 'gray.200'}
+      borderRadius="xl"
+      bg={highlight ? 'green.50' : 'gray.50'}
+      _dark={{
+        borderColor: highlight ? 'green.700' : 'gray.700',
+        bg: highlight ? 'green.900/20' : 'gray.800',
+      }}
+    >
+      {highlight && align === 'left' && (
+        <Trophy size={16} color="var(--chakra-colors-green-500)" />
+      )}
+      <Text
+        fontSize={{ base: 'xl', sm: '2xl' }}
+        fontWeight={highlight ? 'black' : 'bold'}
+        lineHeight={1.15}
+        textAlign={align}
+        minW={0}
+        flex="1"
+        truncate
+      >
+        {label}
+      </Text>
+      {highlight && align === 'right' && (
+        <Trophy size={16} color="var(--chakra-colors-green-500)" />
+      )}
+      {score !== undefined && (
+        <Text
+          minW="28px"
+          textAlign={align === 'right' ? 'right' : 'left'}
+          fontSize="xl"
+          fontWeight={highlight ? 'black' : 'semibold'}
+          color={highlight ? 'green.600' : 'gray.500'}
+          _dark={{ color: highlight ? 'green.300' : 'gray.400' }}
+        >
+          {score}
+        </Text>
+      )}
+    </Flex>
   );
 }
 
@@ -489,4 +626,16 @@ function totalScore(match: CategoryMatch, side: 1 | 2) {
 
 function isWinner(match: CategoryMatch, side: 1 | 2) {
   return !!match.winnerId && match.winnerId === regId(match, side);
+}
+
+function hasResettableResult(match: CategoryMatch) {
+  return (
+    match.status === MatchStatus.IN_PROGRESS ||
+    match.status === MatchStatus.FINISHED ||
+    match.status === MatchStatus.CANCELLED ||
+    !!match.score ||
+    !!match.winnerId ||
+    !!match.isForfeit ||
+    (match.sets?.length ?? 0) > 0
+  );
 }

@@ -2504,7 +2504,15 @@
                 "inheritHintKnockout": "继承自小组赛规则。关闭以为淘汰赛设置独立规则。",
                 "inheritHintFinal": "继承自淘汰赛规则（或小组赛）。关闭以为决赛设置独立规则。",
                 "inheritOn": "继承",
-                "inheritOff": "自定义"
+                "inheritOff": "自定义",
+                "summary": {
+                  "title": "各阶段当前规则",
+                  "inherited": "继承",
+                  "points": "{points} 分",
+                  "winByTwo": "净胜 2 分",
+                  "cap": "封顶 {cap}",
+                  "noCap": "无封顶"
+                }
               }
             },
             "standings": {
@@ -3375,6 +3383,10 @@
           "FINISHED": "已结束",
           "CANCELLED": "已取消"
         },
+        "matchCardStatus": {
+          "SCHEDULED": "未开始",
+          "UNSCHEDULED": "未排期"
+        },
         "modeScore": "比分",
         "modeForfeit": "弃赛",
         "modeManual": "手动积分",
@@ -3389,10 +3401,17 @@
           "editResult": "修改成绩",
           "matchOptions": "比赛选项",
           "bySet": "各局",
-          "schedule": "安排赛程"
+          "schedule": "安排赛程",
+          "resetResult": "重置结果"
         },
         "scheduleUpdated": "赛程已更新",
-        "scheduleUpdateFailed": "更新赛程失败"
+        "scheduleUpdateFailed": "更新赛程失败",
+        "resetResultConfirmTitle": "重置比赛结果",
+        "resetResultConfirmText": "确定要将这场比赛恢复为未开始状态吗？",
+        "resetResultConfirmButton": "重置结果",
+        "resetResultWarning": "此操作会清除比分、局分、获胜方、排名积分和弃赛状态。场地和比赛时间会保留。",
+        "resetResultSuccess": "比赛结果已重置",
+        "resetResultFailed": "无法重置比赛结果"
       },
       "teamPage": {
         "title": "队伍详情",

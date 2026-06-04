@@ -14,6 +14,7 @@ import {
   EndCategoryMatchRequest,
   IBulkScheduleItem,
   LiveScoreUpdateRequest,
+  MatchStatus,
   UpdateSetScoreRequest,
 } from './types';
 
@@ -210,6 +211,54 @@ export const CategoryService = {
     );
     toaster.success({ title: 'Match ended successfully' });
     return response.data.data!;
+  },
+
+  resetMatchResult: async (
+    id: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch> => {
+    const resetPayload = {
+      status: MatchStatus.SCHEDULED,
+      score: null,
+      sets: [],
+      winnerId: null,
+      isDraw: false,
+      isForfeit: false,
+      player1Score: null,
+      player2Score: null,
+      player3Score: null,
+      player4Score: null,
+      player1Points: null,
+      player2Points: null,
+      endTime: null,
+    } as unknown as Partial<CategoryMatch>;
+
+    try {
+      const response = await api.post<ApiResponse<CategoryMatch>>(
+        `/category-matches/${id}/reset-result`,
+        undefined,
+        { skipGlobalError: true }
+      );
+      if (options?.showToast !== false) {
+        toaster.success({ title: 'Match result reset successfully' });
+      }
+      return response.data.data!;
+    } catch (error) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      if (status !== 404 && status !== 405) {
+        throw error;
+      }
+
+      const response = await api.put<ApiResponse<CategoryMatch>>(
+        `/category-matches/${id}`,
+        resetPayload
+      );
+      if (options?.showToast !== false) {
+        toaster.success({ title: 'Match result reset successfully' });
+      }
+      return response.data.data!;
+    }
   },
 
   // Live scoring (host / admin / assigned referee). No toaster — high frequency.

@@ -117,7 +117,6 @@ export default function TournamentManage({
       setLoadingCategories(true);
       const data = await CategoryService.getCategories(tournament.id);
       setCategories(data);
-      setSelectedCategory((previousCategory) => previousCategory ?? data[0]);
     } catch (error) {
       console.error('Error loading categories:', error);
     } finally {
@@ -128,6 +127,26 @@ export default function TournamentManage({
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  // Resolve the selected category from URL or fall back to the first one.
+  // Re-runs when categories load or when the URL categoryId changes
+  // (e.g. browser back/forward navigation).
+  useEffect(() => {
+    if (categories.length === 0) return;
+    const urlCategoryId = searchParams.get('categoryId');
+    setSelectedCategory((previousCategory) => {
+      if (urlCategoryId) {
+        const fromUrl = categories.find((c) => c.id === urlCategoryId);
+        if (fromUrl) return fromUrl;
+      }
+      if (previousCategory) {
+        return (
+          categories.find((c) => c.id === previousCategory.id) ?? categories[0]
+        );
+      }
+      return categories[0];
+    });
+  }, [categories, searchParams]);
 
   // Sync selectedItem when URL option param changes (e.g. back/forward navigation)
   useEffect(() => {
@@ -166,9 +185,15 @@ export default function TournamentManage({
     // Don't clear selectedItem on desktop so panel stays visible
   }, [drawer]);
 
-  const handleSelectCategory = useCallback((category: Category) => {
-    setSelectedCategory(category);
-  }, []);
+  const handleSelectCategory = useCallback(
+    (category: Category) => {
+      setSelectedCategory(category);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('categoryId', category.id);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   const renderPanel = () => {
     if (!selectedItem) return null;
