@@ -16,6 +16,7 @@ export type CreateTournamentPlayerPayload = {
 };
 
 export type UpdateTournamentPlayerPayload = {
+  code?: string;
   name?: string;
   email?: string;
   phone?: string;

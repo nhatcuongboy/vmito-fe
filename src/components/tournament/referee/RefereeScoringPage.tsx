@@ -179,7 +179,7 @@ export default function RefereeScoringPage() {
     ? `${t('court')} ${match.court.courtNumber}`
     : '—';
   const scheduledTime = formatDateTime(
-    match.estimatedEndTime ?? match.startTime
+    match.startTime ?? match.estimatedEndTime
   );
   const matchSides = getMatchSides(match);
 
@@ -191,48 +191,48 @@ export default function RefereeScoringPage() {
     >
       <Box
         minH="100dvh"
-        bg="linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)"
+        display="flex"
+        flexDirection="column"
+        bg="linear-gradient(180deg, #f8fafc 0%, #ecfdf5 100%)"
         _dark={{ bg: 'gray.900' }}
       >
         <Box
-          position="relative"
-          overflow="hidden"
-          px={{ base: 2, md: 4 }}
-          pt={{ base: 2, md: 4 }}
-          pb={{ base: 2, md: 4 }}
+          position="sticky"
+          top={0}
+          zIndex={20}
+          px={{
+            base: 'max(0.5rem, env(safe-area-inset-left))',
+            md: 'max(1rem, env(safe-area-inset-left))',
+          }}
+          py={{ base: 2, md: 3 }}
+          paddingTop={{
+            base: 'max(0.5rem, env(safe-area-inset-top))',
+            md: 'max(0.75rem, env(safe-area-inset-top))',
+          }}
+          paddingRight={{
+            base: 'max(0.5rem, env(safe-area-inset-right))',
+            md: 'max(1rem, env(safe-area-inset-right))',
+          }}
+          bg="rgba(248, 250, 252, 0.92)"
+          borderBottomWidth="1px"
+          borderBottomColor="whiteAlpha.700"
+          boxShadow="0 10px 30px rgba(15, 23, 42, 0.08)"
+          backdropFilter="blur(14px)"
+          _dark={{
+            bg: 'rgba(17, 24, 39, 0.92)',
+            borderBottomColor: 'whiteAlpha.200',
+          }}
         >
-          <Box
-            position="absolute"
-            inset="auto -40px -70px auto"
-            w="180px"
-            h="180px"
-            borderRadius="full"
-            bg="green.200"
-            opacity={0.22}
-            filter="blur(18px)"
-            pointerEvents="none"
-          />
-          <Box
-            position="absolute"
-            inset="-60px auto auto -40px"
-            w="140px"
-            h="140px"
-            borderRadius="full"
-            bg="blue.200"
-            opacity={0.2}
-            filter="blur(18px)"
-            pointerEvents="none"
-          />
-
           <Flex
             align="center"
-            gap={3}
-            px={{ base: 1, md: 0 }}
-            mb={4}
-            position="relative"
-            zIndex={1}
+            gap={{ base: 2, md: 3 }}
+            maxW="1800px"
+            mx="auto"
+            minH={{ base: '52px', md: '60px' }}
           >
             <Button
+              aria-label={t('back')}
+              title={t('back')}
               variant="ghost"
               size="sm"
               onClick={goBack}
@@ -245,111 +245,109 @@ export default function RefereeScoringPage() {
             </Button>
 
             <Box flex="1" minW={0}>
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                fontWeight="medium"
-                _dark={{ color: 'gray.400' }}
-              >
-                {t('refereeArea')}
-              </Text>
-              <Text
-                fontWeight="bold"
-                fontSize={{ base: 'md', md: 'lg' }}
-                whiteSpace="nowrap"
-                overflow="hidden"
-                textOverflow="ellipsis"
-              >
-                {matchTitle}
-              </Text>
+              <Flex align="center" gap={2} mb={1} flexWrap="wrap">
+                <Text
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  color="gray.500"
+                  fontWeight="medium"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {t('refereeArea')}
+                </Text>
+                <Badge colorPalette="green" borderRadius="full" px={2.5}>
+                  {t(`status.${match.status}`)}
+                </Badge>
+                <Badge
+                  variant="subtle"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  px={2.5}
+                >
+                  {roundLabel}
+                </Badge>
+              </Flex>
+              <Flex align="center" gap={3} minW={0}>
+                <Text
+                  fontWeight="bold"
+                  fontSize={{ base: 'md', md: 'xl' }}
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                >
+                  {matchTitle}
+                </Text>
+                <Text
+                  display={{ base: 'none', lg: 'block' }}
+                  color="gray.400"
+                  fontSize="sm"
+                  whiteSpace="nowrap"
+                  _dark={{ color: 'gray.500' }}
+                >
+                  {scheduledTime}
+                </Text>
+              </Flex>
             </Box>
 
-            <Badge
-              colorPalette="blue"
-              borderRadius="full"
-              px={3}
-              py={1}
-              fontSize="sm"
-            >
-              {courtLabel}
-            </Badge>
+            <HStack gap={2} flexShrink={0}>
+              <Badge
+                display={{ base: 'none', sm: 'inline-flex' }}
+                colorPalette="blue"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="sm"
+              >
+                {courtLabel}
+              </Badge>
+              <IconButton
+                aria-label={t('playerInfo')}
+                title={t('playerInfo')}
+                variant="outline"
+                size="sm"
+                borderRadius="full"
+                colorPalette="gray"
+                onClick={() => setPlayerInfoOpen(true)}
+              >
+                <Info size={17} />
+              </IconButton>
+            </HStack>
           </Flex>
+        </Box>
 
+        <Flex
+          flex="1"
+          align="center"
+          justify="center"
+          px={{ base: 1.5, md: 3 }}
+          py={{ base: 2, md: 3 }}
+          minH={{ base: 'calc(100dvh - 70px)', md: 'calc(100dvh - 88px)' }}
+        >
           <Box
-            position="relative"
-            zIndex={1}
-            borderWidth="1px"
-            borderColor="whiteAlpha.500"
-            borderRadius="3xl"
-            bg="white"
-            boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
+            w="full"
+            maxW="1840px"
+            mx="auto"
+            borderRadius={{ base: '2xl', md: '3xl' }}
+            bg={
+              match.status === 'IN_PROGRESS'
+                ? 'rgba(255,255,255,0.82)'
+                : 'white'
+            }
+            boxShadow="0 18px 54px rgba(15, 23, 42, 0.08)"
             overflow="hidden"
-            _dark={{
-              bg: 'gray.800',
-              borderColor: 'whiteAlpha.200',
-            }}
+            _dark={{ bg: 'gray.800' }}
           >
             <Box
-              px={{ base: 3, md: 5 }}
-              py={{ base: 3, md: 4 }}
-              bg="linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(59, 130, 246, 0.08))"
-              borderBottomWidth="1px"
-              borderBottomColor="gray.100"
-              _dark={{ borderBottomColor: 'whiteAlpha.200' }}
+              px={
+                match.status === 'IN_PROGRESS'
+                  ? { base: 1, md: 2 }
+                  : { base: 3, md: 5 }
+              }
+              py={
+                match.status === 'IN_PROGRESS'
+                  ? { base: 1, md: 2 }
+                  : { base: 3, md: 4 }
+              }
             >
-              <VStack align="stretch" gap={2}>
-                <HStack gap={2} flexWrap="wrap">
-                  <Badge colorPalette="green" borderRadius="full" px={3} py={1}>
-                    {t(`status.${match.status}`)}
-                  </Badge>
-                  <Badge
-                    variant="subtle"
-                    colorPalette="gray"
-                    borderRadius="full"
-                    px={3}
-                    py={1}
-                  >
-                    {roundLabel}
-                  </Badge>
-                  {!!match.startTime && (
-                    <Badge
-                      variant="subtle"
-                      colorPalette="purple"
-                      borderRadius="full"
-                      px={3}
-                      py={1}
-                    >
-                      {formatDateTime(match.startTime)}
-                    </Badge>
-                  )}
-                </HStack>
-
-                <Flex gap={3} align="center" justify="space-between">
-                  <Heading
-                    size={{ base: 'md', md: 'lg' }}
-                    lineHeight={1.15}
-                    minW={0}
-                  >
-                    {matchTitle}
-                  </Heading>
-
-                  <IconButton
-                    aria-label={t('playerInfo')}
-                    title={t('playerInfo')}
-                    variant="outline"
-                    size="sm"
-                    borderRadius="full"
-                    colorPalette="gray"
-                    onClick={() => setPlayerInfoOpen(true)}
-                    flexShrink={0}
-                  >
-                    <Info size={17} />
-                  </IconButton>
-                </Flex>
-              </VStack>
-            </Box>
-
-            <Box px={{ base: 3, md: 5 }} py={{ base: 3, md: 4 }}>
               <VModal
                 isOpen={playerInfoOpen}
                 onClose={() => setPlayerInfoOpen(false)}
@@ -472,7 +470,7 @@ export default function RefereeScoringPage() {
               )}
 
               {match.status === 'IN_PROGRESS' && (
-                <Box borderRadius="2xl" overflow="hidden">
+                <Box borderRadius={{ base: 'xl', md: '2xl' }} overflow="hidden">
                   <ScoreEntryBoard
                     match={match}
                     tournamentId={tournament.id}
@@ -528,7 +526,7 @@ export default function RefereeScoringPage() {
               />
             </Box>
           </Box>
-        </Box>
+        </Flex>
       </Box>
     </TournamentRefereeDesktopLayout>
   );

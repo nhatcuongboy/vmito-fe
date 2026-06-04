@@ -165,6 +165,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const buildUpdatePayload = (): UpdateTournamentPlayerPayload => {
     const trimmedLevel = form.level.trim();
     return {
+      code: form.code.trim() || undefined,
       name: form.name.trim(),
       image: form.image.trim() || undefined,
       imagePublicId: form.imagePublicId.trim() || undefined,
@@ -546,18 +547,18 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
             />
           </Box>
 
-          {!editingPlayer && (
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={1}>
-                {t('playerCode')}
-              </Text>
-              <Input
-                placeholder={t('playerCodePlaceholder')}
-                value={form.code}
-                onChange={(e) => updateField('code', e.target.value)}
-              />
-            </Box>
-          )}
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={1}>
+              {t('playerCode')}
+            </Text>
+            <Input
+              name="playerCode"
+              autoComplete="off"
+              placeholder={t('playerCodePlaceholder')}
+              value={form.code}
+              onChange={(e) => updateField('code', e.target.value)}
+            />
+          </Box>
 
           <Box>
             <Text fontSize="sm" fontWeight="medium" mb={1}>

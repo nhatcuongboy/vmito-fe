@@ -664,6 +664,13 @@ export default function AIImportScheduleDrawer({
                           month: '2-digit',
                         })
                       : '—';
+                    const matchLabel = (() => {
+                      if (row.entry.team1Code && row.entry.team2Code)
+                        return `${row.entry.team1Code} vs ${row.entry.team2Code}`;
+                      if (row.entry.matchNumber != null)
+                        return `#${row.entry.matchNumber}`;
+                      return '—';
+                    })();
                     const courtLabel = (() => {
                       if (row.courtId) {
                         const c = courts.find((co) => co.id === row.courtId);
@@ -691,11 +698,7 @@ export default function AIImportScheduleDrawer({
                           />
                         </Table.Cell>
                         <Table.Cell>{row.entry.categoryName ?? '—'}</Table.Cell>
-                        <Table.Cell>
-                          {row.entry.matchNumber != null
-                            ? `#${row.entry.matchNumber}`
-                            : '—'}
-                        </Table.Cell>
+                        <Table.Cell>{matchLabel}</Table.Cell>
                         <Table.Cell>{courtLabel}</Table.Cell>
                         <Table.Cell>{startLabel}</Table.Cell>
                         <Table.Cell>

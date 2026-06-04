@@ -209,17 +209,16 @@ export default function ScoreEntryBoard({
     <Flex
       ref={boardRef}
       direction="column"
-      minH={{ base: '70dvh', md: '68dvh' }}
-      bg="gray.50"
-      _dark={{ bg: 'gray.900' }}
+      minH={{ base: 'calc(100dvh - 96px)', md: 'calc(100dvh - 112px)' }}
+      bg="transparent"
     >
       {/* Header: format + connection */}
       <Flex
         align="center"
         justify="space-between"
         gap={2}
-        px={4}
-        py={2}
+        px={{ base: 2, md: 3 }}
+        py={{ base: 1.5, md: 2 }}
         flexShrink={0}
         flexWrap="wrap"
       >
@@ -246,9 +245,9 @@ export default function ScoreEntryBoard({
           _dark={{ color: 'gray.400' }}
         >
           {isConnected ? (
-            <Wifi size={14} color="green" />
+            <Wifi size={14} color="green" aria-hidden="true" />
           ) : (
-            <WifiOff size={14} color="gray" />
+            <WifiOff size={14} color="gray" aria-hidden="true" />
           )}
           <Text>
             {t('currentSet')} {current?.setNumber ?? 1}
@@ -271,7 +270,13 @@ export default function ScoreEntryBoard({
       </Flex>
 
       {/* Two big tappable score panels */}
-      <Flex flex="1" direction={{ base: 'column', md: 'row' }} gap={2} px={2}>
+      <Flex
+        flex="1"
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 1, md: 2 }}
+        minH={0}
+      >
         <TeamScorePanel
           teamName={team1}
           playerNames={showPlayerNames ? team1PlayerNames : ''}
@@ -299,21 +304,22 @@ export default function ScoreEntryBoard({
       </Flex>
 
       {/* Set history + controls */}
-      <Box px={4} py={3} flexShrink={0}>
-        <Flex gap={2} mb={3} wrap="wrap" justify="center">
+      <Box px={{ base: 2, md: 3 }} py={{ base: 2, md: 2.5 }} flexShrink={0}>
+        <Flex gap={2} mb={2.5} wrap="wrap" justify="center">
           {displaySets.map((s, i) => (
-            <Badge
+            <Button
               key={i}
               variant={i === displaySets.length - 1 ? 'solid' : 'subtle'}
               colorPalette="gray"
-              fontSize="sm"
-              cursor="pointer"
-              _hover={{ opacity: 0.85 }}
+              size="xs"
+              minW="52px"
+              borderRadius="full"
               onClick={() => setEditingSetIndex(i)}
               title={t('editSetTooltip', { number: s.setNumber })}
+              aria-label={t('editSetTooltip', { number: s.setNumber })}
             >
               {s.player1Score}-{s.player2Score}
-            </Badge>
+            </Button>
           ))}
         </Flex>
 
@@ -328,20 +334,35 @@ export default function ScoreEntryBoard({
           </Text>
         )}
 
-        <Flex gap={3} justify="center" align="center" wrap="wrap">
+        <Flex
+          gap={{ base: 2, md: 3 }}
+          justify="center"
+          align="center"
+          wrap="wrap"
+        >
           <Button
             variant="outline"
+            size={{ base: 'sm', md: 'md' }}
             onClick={() => void handleUndo()}
             disabled={busy}
           >
             <Undo2 size={16} /> {t('undo')}
           </Button>
           {onForfeit && (
-            <Button variant="outline" colorPalette="red" onClick={onForfeit}>
+            <Button
+              variant="outline"
+              colorPalette="red"
+              size={{ base: 'sm', md: 'md' }}
+              onClick={onForfeit}
+            >
               <Flag size={16} /> {t('forfeit')}
             </Button>
           )}
-          <Button colorPalette="green" onClick={() => setEndOpen(true)}>
+          <Button
+            colorPalette="green"
+            size={{ base: 'sm', md: 'md' }}
+            onClick={() => setEndOpen(true)}
+          >
             {t('endMatch')}
           </Button>
         </Flex>
@@ -414,9 +435,10 @@ function TeamScorePanel({
     <Flex
       direction="column"
       flex="1"
-      borderRadius="2xl"
+      borderRadius={{ base: 'xl', md: '2xl' }}
       overflow="hidden"
       position="relative"
+      minH={0}
     >
       <Box
         role="button"
@@ -429,6 +451,14 @@ function TeamScorePanel({
         opacity={disabled ? 0.6 : 1}
         _hover={disabled ? undefined : { bg: bgHover }}
         _active={disabled ? undefined : { bg: bgHover }}
+        _focusVisible={{
+          outline: '3px solid',
+          outlineColor: 'whiteAlpha.900',
+          outlineOffset: '-6px',
+          boxShadow: '0 0 0 4px rgba(22, 163, 74, 0.55)',
+        }}
+        touchAction="manipulation"
+        userSelect="none"
         onClick={disabled ? undefined : onIncrement}
         onKeyDown={(e) => {
           if (disabled) return;
@@ -442,11 +472,11 @@ function TeamScorePanel({
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
-        py={compact ? 4 : 6}
+        py={compact ? 4 : { base: 4, md: 5 }}
         minH={
           compact
             ? { base: '56dvh', md: '50vh' }
-            : { base: '28dvh', md: '42vh' }
+            : { base: '30dvh', md: '52dvh' }
         }
       >
         <Text
@@ -500,6 +530,14 @@ function TeamScorePanel({
         bottom={2}
         right={2}
         color="white"
+        minW="44px"
+        minH="44px"
+        touchAction="manipulation"
+        _focusVisible={{
+          outline: '3px solid',
+          outlineColor: 'whiteAlpha.900',
+          outlineOffset: '2px',
+        }}
       >
         <Minus size={18} />
       </IconButton>
