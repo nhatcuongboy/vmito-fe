@@ -3164,7 +3164,7 @@
         "currentSet": "第",
         "addPointFor": "为 {team} 加一分",
         "removePointFor": "为 {team} 减一分",
-        "matchPointReached": "比赛结束 — 请确认完成",
+        "matchPointReached": "已满足结束条件 — 点击\"{action}\"确认",
         "undo": "撤销",
         "endMatch": "结束比赛",
         "startMatch": "开始比赛",

@@ -922,7 +922,7 @@ function CardTeamRow({
   );
 }
 
-function ResultsCalendarView({
+export function ResultsCalendarView({
   matches,
   courts,
   categoryById,
@@ -1337,7 +1337,7 @@ function ChipGroup({
   );
 }
 
-function ModeButton({
+export function ModeButton({
   active,
   onClick,
   icon,

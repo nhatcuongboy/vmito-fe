@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { Flag, Minus, Undo2, Users, Wifi, WifiOff } from 'lucide-react';
+import { Check, Flag, Minus, Undo2, Users, Wifi, WifiOff } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import { CategoryMatch, CategoryRegistration, MatchSet } from '@/lib/api/types';
@@ -330,7 +330,7 @@ export default function ScoreEntryBoard({
             fontWeight="semibold"
             mb={2}
           >
-            {t('matchPointReached')}
+            {t('matchPointReached', { action: t('endMatch') })}
           </Text>
         )}
 
@@ -360,10 +360,16 @@ export default function ScoreEntryBoard({
           )}
           <Button
             colorPalette="green"
+            variant="solid"
             size={{ base: 'sm', md: 'md' }}
             onClick={() => setEndOpen(true)}
+            boxShadow={
+              matchState.complete
+                ? '0 10px 24px rgba(22, 163, 74, 0.35)'
+                : undefined
+            }
           >
-            {t('endMatch')}
+            {matchState.complete && <Check size={16} />} {t('endMatch')}
           </Button>
         </Flex>
       </Box>

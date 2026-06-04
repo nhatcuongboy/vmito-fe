@@ -6,7 +6,14 @@ import { Box, Flex, Text, Badge, Heading } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
-import { Filter, Gavel, RotateCcw } from 'lucide-react';
+import {
+  CalendarDays,
+  Filter,
+  Gavel,
+  List,
+  RotateCcw,
+  Users,
+} from 'lucide-react';
 
 import PageLayout from '@/components/layout/PageLayout';
 import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
@@ -15,7 +22,6 @@ import { CategoryService } from '@/lib/api/category.service';
 import {
   Category,
   CategoryMatch,
-  MatchStatus,
   Tournament,
   TournamentCourt,
   UserRole,
@@ -33,10 +39,14 @@ import {
   getActiveFilterCount,
   getCategoryColor,
   matchMatchesFilters,
+  ModeButton,
   ResultFilters,
   ResultMatchCard,
+  ResultsCalendarView,
   formatCourtLabel,
 } from '@/components/tournament/manage/panels/ResultsPanel';
+
+const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.schedule.showPlayerNames';
 
 export default function RefereeMatchListPage() {
   const params = useParams();
@@ -57,6 +67,19 @@ export default function RefereeMatchListPage() {
   const [canAccess, setCanAccess] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(
+      SHOW_PLAYER_NAMES_STORAGE_KEY,
+      showPlayerNames ? '1' : '0'
+    );
+  }, [showPlayerNames]);
 
   const load = useCallback(async () => {
     try {
@@ -103,6 +126,30 @@ export default function RefereeMatchListPage() {
   const categoryById = useMemo(() => {
     return new Map(categories.map((category) => [category.id, category]));
   }, [categories]);
+
+  const groupNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((category) => {
+      category.groups?.forEach((group) => {
+        if (group.name) map.set(group.id, group.name);
+      });
+    });
+    return map;
+  }, [categories]);
+
+  const resolveRoundOrGroupLabel = useCallback(
+    (match: CategoryMatch) => {
+      if (match.groupId) {
+        const name = groupNameById.get(match.groupId);
+        if (name) return name;
+      }
+      return getRoundDisplayLabel(match.round, tRounds);
+    },
+    [groupNameById, tRounds]
+  );
+
+  const courtAbbreviation =
+    tournament?.venue?.acronym ?? tournament?.venue?.name ?? undefined;
 
   const courtById = useMemo(() => {
     const map = new Map<string, TournamentCourt>();
@@ -179,12 +226,16 @@ export default function RefereeMatchListPage() {
     return matches
       .filter((match) => matchMatchesFilters(match, filters))
       .sort((a, b) => {
-        const statusRank =
-          getRefereeStatusRank(a.status) - getRefereeStatusRank(b.status);
-        if (statusRank !== 0) return statusRank;
-        const aTime = a.startTime ? new Date(a.startTime).getTime() : 0;
-        const bTime = b.startTime ? new Date(b.startTime).getTime() : 0;
-        if (aTime !== bTime) return aTime - bTime;
+        // Match the Schedule page ordering: scheduled matches first in
+        // chronological order, unscheduled matches at the bottom by number.
+        const aTime = a.startTime ? new Date(a.startTime).getTime() : null;
+        const bTime = b.startTime ? new Date(b.startTime).getTime() : null;
+        if (aTime !== null && bTime !== null) {
+          if (aTime !== bTime) return aTime - bTime;
+          return a.matchNumber - b.matchNumber;
+        }
+        if (aTime !== null) return -1;
+        if (bTime !== null) return 1;
         return a.matchNumber - b.matchNumber;
       });
   }, [matches, filters]);
@@ -242,7 +293,12 @@ export default function RefereeMatchListPage() {
           </Flex>
         ) : (
           <VStack align="stretch" gap={6}>
-            <Flex justify="space-between" align="center" gap={3} wrap="wrap">
+            <Flex
+              justify="space-between"
+              align={{ base: 'stretch', md: 'center' }}
+              gap={3}
+              direction={{ base: 'column', md: 'row' }}
+            >
               <Box>
                 <Heading size="md" mb={1}>
                   {t('title')}
@@ -252,22 +308,81 @@ export default function RefereeMatchListPage() {
                   {tManual('panelTitle')}
                 </Text>
               </Box>
-              <Button
-                variant="outline"
-                colorPalette="gray"
-                onClick={() => setIsFilterOpen(true)}
+
+              <Flex
+                gap={2}
+                wrap="wrap"
+                justify={{ base: 'flex-start', md: 'end' }}
               >
-                <Filter size={16} /> {tManual('filters.title')}
-                {activeFilterCount > 0 && (
-                  <Badge ml={1} colorPalette="green" borderRadius="full">
-                    {activeFilterCount}
-                  </Badge>
-                )}
-              </Button>
+                <Flex
+                  p="2px"
+                  gap="2px"
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                >
+                  <ModeButton
+                    active={viewMode === 'list'}
+                    onClick={() => setViewMode('list')}
+                    icon={<List size={14} />}
+                  >
+                    {tManual('viewList')}
+                  </ModeButton>
+                  <ModeButton
+                    active={viewMode === 'calendar'}
+                    onClick={() => setViewMode('calendar')}
+                    icon={<CalendarDays size={14} />}
+                  >
+                    {tManual('viewCalendar')}
+                  </ModeButton>
+                </Flex>
+
+                <Button
+                  size="sm"
+                  variant={showPlayerNames ? 'solid' : 'outline'}
+                  colorPalette={showPlayerNames ? 'green' : 'gray'}
+                  onClick={() => setShowPlayerNames((prev) => !prev)}
+                  aria-pressed={showPlayerNames}
+                  title={tManual('showPlayerNames')}
+                >
+                  <Users size={14} /> {tManual('showPlayerNames')}
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorPalette="gray"
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  <Filter size={14} /> {tManual('filters.title')}
+                  {activeFilterCount > 0 && (
+                    <Badge ml={1} colorPalette="green" borderRadius="full">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </Flex>
             </Flex>
 
             {filteredMatches.length === 0 ? (
               <EmptyRefereeResults onClear={() => setFilters(EMPTY_FILTERS)} />
+            ) : viewMode === 'calendar' ? (
+              <ResultsCalendarView
+                matches={filteredMatches}
+                courts={Array.from(courtById.values())}
+                categoryById={categoryById}
+                onSelect={(match) =>
+                  router.push(
+                    `/tournament/${tournamentParam}/referee/${match.id}`
+                  )
+                }
+                resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
+                courtAbbreviation={courtAbbreviation}
+                allMatches={matches}
+                showPlayerNames={showPlayerNames}
+              />
             ) : (
               groups.map((group) => (
                 <Box key={group.categoryId}>
@@ -299,6 +414,11 @@ export default function RefereeMatchListPage() {
                             `/tournament/${tournamentParam}/referee/${match.id}`
                           )
                         }
+                        roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
+                        courtAbbreviation={courtAbbreviation}
+                        allMatches={matches}
+                        category={categoryById.get(match.categoryId)}
+                        showPlayerNames={showPlayerNames}
                       />
                     ))}
                   </VStack>
@@ -353,11 +473,4 @@ function EmptyRefereeResults({ onClear }: { onClear: () => void }) {
       </Button>
     </Box>
   );
-}
-
-function getRefereeStatusRank(status: MatchStatus) {
-  if (status === MatchStatus.IN_PROGRESS) return 0;
-  if (status === MatchStatus.SCHEDULED) return 1;
-  if (status === MatchStatus.FINISHED) return 2;
-  return 3;
 }

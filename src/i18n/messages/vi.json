@@ -3194,7 +3194,7 @@
         "currentSet": "Set",
         "addPointFor": "Cộng điểm cho {team}",
         "removePointFor": "Trừ điểm cho {team}",
-        "matchPointReached": "Trận đã kết thúc — xác nhận để hoàn tất",
+        "matchPointReached": "Đã đủ điều kiện kết thúc — nhấn \"{action}\" để xác nhận",
         "undo": "Hoàn tác",
         "endMatch": "Kết thúc trận",
         "startMatch": "Bắt đầu trận",

@@ -44,6 +44,7 @@ import {
 } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
+import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
 import ScoreEntryBoard from './ScoreEntryBoard';
 import ForfeitMatchModal from './ForfeitMatchModal';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -173,10 +174,11 @@ export default function RefereeScoringPage() {
 
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
+  const categoryName = match.category?.name;
   const roundLabel = getRoundDisplayLabel(match.round ?? 'group', tRounds);
   const matchTitle = `${team1} ${t('vs')} ${team2}`;
   const courtLabel = match.court
-    ? `${t('court')} ${match.court.courtNumber}`
+    ? formatCourtLabel(match.court, t('court'))
     : '—';
   const scheduledTime = formatDateTime(
     match.startTime ?? match.estimatedEndTime
@@ -257,6 +259,11 @@ export default function RefereeScoringPage() {
                 <Badge colorPalette="green" borderRadius="full" px={2.5}>
                   {t(`status.${match.status}`)}
                 </Badge>
+                {categoryName && (
+                  <Badge colorPalette="purple" borderRadius="full" px={2.5}>
+                    {categoryName}
+                  </Badge>
+                )}
                 <Badge
                   variant="subtle"
                   colorPalette="gray"
@@ -376,16 +383,8 @@ export default function RefereeScoringPage() {
                       key={side.position}
                       teamName={side.teamName}
                       players={side.players}
-                      labels={{
-                        code: t('playerCode'),
-                        email: t('email'),
-                        phone: t('phone'),
-                        gender: t('gender'),
-                        level: t('level'),
-                        levelDescription: t('levelDescription'),
-                        notes: t('notes'),
-                        noDetails: t('noPlayerDetails'),
-                      }}
+                      levelLabel={t('level')}
+                      noDetailsLabel={t('noPlayerDetails')}
                     />
                   ))}
                 </SimpleGrid>
@@ -393,6 +392,11 @@ export default function RefereeScoringPage() {
 
               {match.status === 'SCHEDULED' && (
                 <VStack align="stretch" gap={4} py={{ base: 2, md: 3 }}>
+                  <ScheduledMatchupPreview
+                    sides={matchSides}
+                    vsLabel={t('vs')}
+                  />
+
                   <Box
                     borderWidth="1px"
                     borderColor="gray.200"
@@ -446,8 +450,8 @@ export default function RefereeScoringPage() {
 
                     <HStack gap={2} flexWrap="wrap">
                       <Button
-                        variant="outline"
-                        colorPalette="red"
+                        variant="ghost"
+                        colorPalette="gray"
                         size="lg"
                         onClick={() => setForfeitOpen(true)}
                         borderRadius="xl"
@@ -461,6 +465,7 @@ export default function RefereeScoringPage() {
                         loading={starting}
                         borderRadius="xl"
                         boxShadow="0 10px 24px rgba(22, 163, 74, 0.24)"
+                        flex={{ base: '1', sm: 'unset' }}
                       >
                         <Play size={18} /> {t('startMatch')}
                       </Button>
@@ -529,6 +534,130 @@ export default function RefereeScoringPage() {
         </Flex>
       </Box>
     </TournamentRefereeDesktopLayout>
+  );
+}
+
+function ScheduledMatchupPreview({
+  sides,
+  vsLabel,
+}: {
+  sides: MatchSideInfo[];
+  vsLabel: string;
+}) {
+  const [side1, side2] = sides;
+
+  return (
+    <Flex
+      minH={{ base: '38dvh', md: '42dvh' }}
+      align="center"
+      justify="center"
+      px={{ base: 1, md: 4 }}
+      py={{ base: 3, md: 6 }}
+    >
+      <Flex
+        align="stretch"
+        justify="center"
+        gap={{ base: 2, md: 4 }}
+        w="full"
+        maxW="1040px"
+      >
+        <ScheduledSideCard side={side1} align="right" />
+
+        <Flex align="center" justify="center" flexShrink={0}>
+          <Text
+            as="span"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            minW={{ base: '42px', md: '58px' }}
+            h={{ base: '42px', md: '58px' }}
+            px={2}
+            borderRadius="full"
+            bg="green.600"
+            color="white"
+            fontSize={{ base: 'sm', md: 'lg' }}
+            fontWeight="black"
+            boxShadow="0 14px 30px rgba(22, 163, 74, 0.22)"
+            textTransform="uppercase"
+          >
+            {vsLabel}
+          </Text>
+        </Flex>
+
+        <ScheduledSideCard side={side2} align="left" />
+      </Flex>
+    </Flex>
+  );
+}
+
+function ScheduledSideCard({
+  side,
+  align,
+}: {
+  side?: MatchSideInfo;
+  align: 'left' | 'right';
+}) {
+  const players = side?.players ?? [];
+  const textAlign = align === 'right' ? 'right' : 'left';
+
+  return (
+    <Box
+      flex="1"
+      minW={0}
+      borderWidth="1px"
+      borderColor="green.100"
+      borderRadius={{ base: '2xl', md: '3xl' }}
+      bg="whiteAlpha.900"
+      px={{ base: 3, md: 6 }}
+      py={{ base: 4, md: 6 }}
+      boxShadow="0 18px 44px rgba(15, 23, 42, 0.08)"
+      _dark={{ bg: 'whiteAlpha.50', borderColor: 'whiteAlpha.200' }}
+    >
+      <Text
+        color="green.700"
+        fontSize={{ base: 'sm', md: 'md' }}
+        fontWeight="bold"
+        textAlign={textAlign}
+        whiteSpace="nowrap"
+        overflow="hidden"
+        textOverflow="ellipsis"
+        _dark={{ color: 'green.200' }}
+      >
+        {side?.teamName ?? '—'}
+      </Text>
+
+      <VStack
+        align={align === 'right' ? 'end' : 'start'}
+        gap={{ base: 1.5, md: 2 }}
+        mt={{ base: 3, md: 4 }}
+      >
+        {players.length > 0 ? (
+          players.map((player, index) => (
+            <Text
+              key={`${player.id}-${index}`}
+              fontSize={{ base: 'xl', md: '3xl' }}
+              lineHeight={1.15}
+              fontWeight="black"
+              textAlign={textAlign}
+              wordBreak="break-word"
+            >
+              {player.name}
+            </Text>
+          ))
+        ) : (
+          <Text
+            fontSize={{ base: 'xl', md: '3xl' }}
+            lineHeight={1.15}
+            fontWeight="black"
+            color="gray.400"
+            textAlign={textAlign}
+            _dark={{ color: 'gray.500' }}
+          >
+            —
+          </Text>
+        )}
+      </VStack>
+    </Box>
   );
 }
 
@@ -620,20 +749,13 @@ function toMatchPlayerInfo(player: TournamentPlayer): MatchPlayerInfo {
 function MatchSideCard({
   teamName,
   players,
-  labels,
+  levelLabel,
+  noDetailsLabel,
 }: {
   teamName: string;
   players: MatchPlayerInfo[];
-  labels: {
-    code: string;
-    email: string;
-    phone: string;
-    gender: string;
-    level: string;
-    levelDescription: string;
-    notes: string;
-    noDetails: string;
-  };
+  levelLabel: string;
+  noDetailsLabel: string;
 }) {
   return (
     <Box
@@ -644,12 +766,15 @@ function MatchSideCard({
       overflow="hidden"
       _dark={{ bg: 'whiteAlpha.50', borderColor: 'whiteAlpha.200' }}
     >
-      <Box
+      <HStack
         px={4}
-        py={3}
+        py={2.5}
+        gap={2}
+        justify="space-between"
+        bg="gray.50"
         borderBottomWidth="1px"
         borderBottomColor="gray.100"
-        _dark={{ borderBottomColor: 'whiteAlpha.200' }}
+        _dark={{ bg: 'whiteAlpha.100', borderBottomColor: 'whiteAlpha.200' }}
       >
         <Text
           fontWeight="bold"
@@ -659,7 +784,12 @@ function MatchSideCard({
         >
           {teamName}
         </Text>
-      </Box>
+        {players.length > 0 && (
+          <Badge variant="subtle" colorPalette="gray" borderRadius="full">
+            {players.length}
+          </Badge>
+        )}
+      </HStack>
 
       <VStack align="stretch" gap={0}>
         {players.length > 0 ? (
@@ -667,12 +797,12 @@ function MatchSideCard({
             <PlayerInfoRow
               key={`${player.id}-${index}`}
               player={player}
-              labels={labels}
+              levelLabel={levelLabel}
             />
           ))
         ) : (
           <Text px={4} py={4} color="gray.500" _dark={{ color: 'gray.400' }}>
-            {labels.noDetails}
+            {noDetailsLabel}
           </Text>
         )}
       </VStack>
@@ -682,125 +812,85 @@ function MatchSideCard({
 
 function PlayerInfoRow({
   player,
-  labels,
+  levelLabel,
 }: {
   player: MatchPlayerInfo;
-  labels: {
-    code: string;
-    email: string;
-    phone: string;
-    gender: string;
-    level: string;
-    levelDescription: string;
-    notes: string;
-    noDetails: string;
-  };
+  levelLabel: string;
 }) {
-  return (
-    <Box
-      px={4}
-      py={4}
-      borderBottomWidth="1px"
-      borderBottomColor="gray.100"
-      _dark={{ borderBottomColor: 'whiteAlpha.200' }}
-    >
-      <HStack align="start" gap={3} mb={3}>
-        <Avatar.Root size="sm" borderRadius="full" flexShrink={0}>
-          <Avatar.Fallback name={player.name}>
-            <UserRound size={16} />
-          </Avatar.Fallback>
-          {player.image && <Avatar.Image src={player.image} />}
-        </Avatar.Root>
+  const metas: Array<{ icon: ReactNode; value: string }> = [];
+  if (player.gender)
+    metas.push({ icon: <VenusAndMars size={13} />, value: player.gender });
+  if (player.level != null)
+    metas.push({
+      icon: <Signal size={13} />,
+      value: `${levelLabel} ${player.level}`,
+    });
+  if (player.email)
+    metas.push({ icon: <Mail size={13} />, value: player.email });
+  if (player.phone)
+    metas.push({ icon: <Phone size={13} />, value: player.phone });
+  if (player.notes)
+    metas.push({ icon: <NotebookText size={13} />, value: player.notes });
 
-        <Box minW={0} flex="1">
-          <HStack gap={2} align="center" flexWrap="wrap">
-            <Text fontWeight="bold" lineHeight={1.2}>
-              {player.name}
-            </Text>
-            {player.code && (
-              <Badge colorPalette="green" variant="subtle" borderRadius="full">
-                {player.code}
-              </Badge>
-            )}
-          </HStack>
-          {player.levelDescription && (
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              mt={1}
-              _dark={{ color: 'gray.300' }}
-            >
-              {player.levelDescription}
-            </Text>
-          )}
-        </Box>
-      </HStack>
-
-      <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2}>
-        <PlayerMeta
-          icon={<UserRound size={14} />}
-          label={labels.code}
-          value={player.code}
-        />
-        <PlayerMeta
-          icon={<VenusAndMars size={14} />}
-          label={labels.gender}
-          value={player.gender}
-        />
-        <PlayerMeta
-          icon={<Signal size={14} />}
-          label={labels.level}
-          value={player.level != null ? String(player.level) : undefined}
-        />
-        <PlayerMeta
-          icon={<Mail size={14} />}
-          label={labels.email}
-          value={player.email}
-        />
-        <PlayerMeta
-          icon={<Phone size={14} />}
-          label={labels.phone}
-          value={player.phone}
-        />
-        {player.notes && (
-          <PlayerMeta
-            icon={<NotebookText size={14} />}
-            label={labels.notes}
-            value={player.notes}
-          />
-        )}
-      </SimpleGrid>
-    </Box>
-  );
-}
-
-function PlayerMeta({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value?: string;
-}) {
   return (
     <HStack
-      gap={2}
+      px={4}
+      py={3}
+      gap={3}
       align="start"
-      minW={0}
-      color={value ? 'gray.700' : 'gray.400'}
-      _dark={{ color: value ? 'gray.200' : 'gray.500' }}
+      borderBottomWidth="1px"
+      borderBottomColor="gray.100"
+      _last={{ borderBottomWidth: 0 }}
+      _dark={{ borderBottomColor: 'whiteAlpha.200' }}
     >
-      <Box mt={0.5} flexShrink={0}>
-        {icon}
-      </Box>
-      <Box minW={0}>
-        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
-          {label}
-        </Text>
-        <Text fontSize="sm" fontWeight="medium" wordBreak="break-word">
-          {value || '—'}
-        </Text>
+      <Avatar.Root size="sm" borderRadius="full" flexShrink={0}>
+        <Avatar.Fallback name={player.name}>
+          <UserRound size={16} />
+        </Avatar.Fallback>
+        {player.image && <Avatar.Image src={player.image} />}
+      </Avatar.Root>
+
+      <Box minW={0} flex="1">
+        <HStack gap={2} align="center" flexWrap="wrap">
+          <Text fontWeight="semibold" lineHeight={1.2}>
+            {player.name}
+          </Text>
+          {player.code && (
+            <Badge colorPalette="green" variant="subtle" borderRadius="full">
+              {player.code}
+            </Badge>
+          )}
+        </HStack>
+
+        {player.levelDescription && (
+          <Text
+            fontSize="xs"
+            color="gray.500"
+            mt={0.5}
+            _dark={{ color: 'gray.400' }}
+          >
+            {player.levelDescription}
+          </Text>
+        )}
+
+        {metas.length > 0 && (
+          <Flex gap={3} rowGap={1} mt={1.5} flexWrap="wrap">
+            {metas.map((meta, index) => (
+              <HStack
+                key={index}
+                gap={1}
+                minW={0}
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
+              >
+                <Box flexShrink={0}>{meta.icon}</Box>
+                <Text fontSize="xs" fontWeight="medium" wordBreak="break-word">
+                  {meta.value}
+                </Text>
+              </HStack>
+            ))}
+          </Flex>
+        )}
       </Box>
     </HStack>
   );

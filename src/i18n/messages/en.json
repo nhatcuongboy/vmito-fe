@@ -3186,7 +3186,7 @@
         "currentSet": "Set",
         "addPointFor": "Add a point for {team}",
         "removePointFor": "Remove a point for {team}",
-        "matchPointReached": "Match complete — confirm to finish",
+        "matchPointReached": "Ready to finish — tap \"{action}\" to confirm",
         "undo": "Undo",
         "endMatch": "End match",
         "startMatch": "Start match",
